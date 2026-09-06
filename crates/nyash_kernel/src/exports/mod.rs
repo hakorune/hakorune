@@ -10,6 +10,7 @@ pub(crate) mod cmp;
 pub(crate) mod dynamic_v2_text_scan;
 pub(crate) mod env;
 pub(crate) mod file;
+pub(crate) mod fault;
 pub(crate) mod instance;
 pub(crate) mod mem;
 pub(crate) mod osvm;

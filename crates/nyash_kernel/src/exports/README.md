@@ -1,5 +1,17 @@
 # exports module notes
 
+- `fault.rs` owns the in-progress caller-owned common Fault frame: primary plus
+  eight inline suppressed diagnostics, allocation-free recording, ordered
+  omission and Rust-private byte residence. Diagnostic Drop is the sole payload
+  disposer; a future C destroy entry must delegate to it, never free separately.
+  C init/static-record/disposal entries are in progress, not a production consumer.
+  `include/nyrt_fault_v1.h` specifies layout; reporting borrows through an
+  explicit final-entry sink. `fault_checked_object.rs` connects checked indexed
+  allocation/write/reclaim/plain-i64 Home release to that frame; layout tags are
+  explicit, out-slots change only on Normal, and profile admission shares the
+  existing cache without panicking on an unknown setting. Typed-C production
+  wiring remains required; the published backend execution fence is unchanged.
+
 - `string.rs` contains the C ABI entrypoints and sink glue for string operations.
 - `string_debug.rs` contains opt-in debug logging for string exports.
 - `string_route_policy.rs` contains string export route toggles such as compat slow-path allowance and substring view policy.

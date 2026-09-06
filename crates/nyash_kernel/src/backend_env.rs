@@ -24,3 +24,20 @@ pub(crate) fn panic_unsupported_env_value(
 ) -> ! {
     panic!("[freeze:contract][{context}] unsupported {env_key}={value}");
 }
+
+/// Fallible startup admission sharing the existing cache, not a second profile
+/// owner. Invalid/non-Unicode settings do not initialize it or panic across C.
+pub(crate) fn try_cached_env_choice<T: Copy>(
+    cache: &'static OnceLock<T>, env_key: &'static str,
+    resolve: impl FnOnce(Option<&str>) -> Result<T, ()>,
+) -> Result<T, ()> {
+    if let Some(value) = cache.get() { return Ok(*value); }
+    let value = match std::env::var(env_key) {
+        Ok(value) => Some(value),
+        Err(std::env::VarError::NotPresent) => None,
+        Err(std::env::VarError::NotUnicode(_)) => return Err(()),
+    };
+    let selected = resolve(value.as_deref())?;
+    let _ = cache.set(selected);
+    Ok(*cache.get().expect("successful set or concurrent initializer"))
+}

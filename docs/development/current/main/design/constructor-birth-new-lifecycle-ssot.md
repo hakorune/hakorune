@@ -20,10 +20,10 @@ Decision: accepted.
 - **Current decision:** common Home Flow owns caller obligations; construction
   owns unpublished-object cleanup. Neither substitutes for the other. Primary
   Fault retention is independent of bounded suppressed-diagnostic storage.
-- **Current implementation status:** exact definitions/layouts and construction
-  store Invoke bindings are verified at 915d41a93a; Fault execution is not open.
-- **Next ordered task:** consume retained New/Fault/Home plans into real caller
-  operands, then connect the existing runtime and typed-C tasks below.
+- **Current implementation status:** exact New/Fault and selected scalar-return
+  Home cleanup are connected through 9164286970; Fault execution is not open.
+- **Next ordered task:** connect the existing runtime Fault/release ABI and
+  typed-C consumers below; retain missing Home coverage and fixed EXE30 gates.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -800,15 +800,15 @@ than string/args; missing definition rejects while unsupported definition remain
 distinct. Fresh quick lib build: Invoke 6/6, same-binary package 95/95 and
 instruction 18/18; vm-reference/pointer/M7-S green, no baseline/ignore/test deletion. Initial test import
 failure was corrected before this successful rebuild. Backend stays UnsupportedBeforeObject.
-Next: exact-ID allocation payload, then caller binding above; task 1/runtime remain open until connected execution proof.
+Runtime checkpoint: kernel exports89/1 versus parent9164286970 79/1 with identical Cargo.lock (--locked); both fail only `exports::typed_object_pinned_arena::tests::direct_slot_object_v0_header_and_field_offsets_are_stable` at tests.rs:85 (negative handle assertion). Known parent debt, no baseline/test weakening. Current-source Fault8/8 and indexed storage8/8 pass; SingleThreadExact Fault8/8 and pinned/direct rejection also pass. C/C++ ABI header and pointer/M7-S checks green. Typed-C/EXE30 proof still open.
 
-At tasks 2–3, extend the existing published transport and
-`hako_llvmc_ffi_mir_call_dispatch.inc`, not its legacy method-birth branch.
-`PublishedCallKindV1` currently lacks Birth/control rows and the published view
-rejects Birth. Stable indexed reclaim is checkpointed; HomeRelease, source/CFG
-binding and common Fault transport remain open. Verify connected single release,
-failed allocation and unrelated live handles before activation. Storage capability must
-match the selected runtime profile; retain default-profile acceptance.
+Tasks 2–3 runtime-first Decision: one runtime-owned repr(C) frame, version/presence/length/omitted u32 header, primary plus eight inline suppressed records (reason u32, reserved u32, site u64, two i64 details). C borrows, never copies/mutates records; initialize once on fresh aligned storage, final entry reports then disposes once. Extend existing published transport and `hako_llvmc_ffi_mir_call_dispatch.inc`, never legacy birth dispatch.
+Runtime owner: `typed_object_store_backend` checked indexed insert/store/reclaim and `exports/fault` now have WIP C consumers. Existing published kinds 1–7 lack control/frame/result lanes; MIR JSON rejects lifecycle instructions, C function/Return emission hardcodes i64, and row residual validation currently follows object generation. All must be corrected before activation; retain the Invoke/frame/ReturnFault fence.
+Checked allocation must validate the admitted exact layout and use fallible payload reservation before indexed insertion; do not wrap `nyash_object_new_typed_hi`/`default_layout_fields` (missing/poisoned layout defaults and infallible payload construction). Failure leaves the out-slot unchanged and drops uninstalled payload.
+Exact FieldSet validates expected object identity/type and slot under the same storage owner before mutation. Bind the admitted storage profile across allocation/write/reclaim: default SafeMutex and SingleThreadExact only; pinned/direct mismatch rejects before allocation, never follows cached environment into an unreclaimable profile.
+ReclaimUnpublished and published PlainI64NoHook HomeRelease share only inert detach/drop-outside-lock; runtime must not infer destruction from slot tags, names or absent hooks. Prove duplicate/type rejection, unrelated handle stability and one drop.
+Frame ABI: Normal=0/Fault=1; InvalidContract=2 is physical caller failure, never a third source outcome or ordinary cleanup edge. Validate version/header/null requirements before mutation; arbitrary dangling/misaligned pointers are outside the trusted ABI. Record static reason/site/details first; owned-message handoff stays Rust-private (Box bytes prepared earlier), never accept arbitrary C ptr/len to free. No-message null is absence, never a Rust slice.
+Frame acceptance: first Fault/order/overflow preserved, Normal despite pending primary, propagation records zero, record/overflow allocate zero, invalid header preserves source/out-slot, payload disposal once. Activation blocker: final root completion permits explicit Unavailable but published view loses that disposition. Preserve the existing source/final-owner admission outcome on the exact published function (or reject executable publication), never infer completeness from Invoke/Return CFG. Fixed EXE30/OBJ and remaining Home coverage stay mandatory; future panic messages require exact owned handoff. No new semantic receipt/TextScan lease reuse.
 
 Current natural-source grammar permits one initialized local per declaration.
 Multiple initializer AST carriers are not a new prerequisite; if later
