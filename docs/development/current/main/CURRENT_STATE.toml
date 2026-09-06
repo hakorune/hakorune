@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-D0"
-current_execution_cohort = "constructor_lifecycle_reclaim_origin"
-current_design_stop = "Name the exact ConstructionPlanV1 construction-fault obligation, canonical issuer, selected cleanup consumer and exclusive loss edge before extending Reclaim origin retention."
-current_blocker_token = "Home-origin retention landed. Reclaim is a separate source operation: no new semantic receipt, source-shape widening, fixture, fallback, target ABI, C activation, or production switch before its D0 Decision."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-RETENTION-I0"
+current_execution_cohort = "constructor_lifecycle_reclaim_origin_retention"
+current_design_stop = "none for Reclaim-origin retention; D0 fixes ConstructionPlanV1 plus the co-sealed ordinary-New claim as the sole source authority, NewEmissionProgress as the sole retained-origin owner, and selected Birth-fault cleanup as its only consumer."
+current_blocker_token = "BoxShape row: replace selected Reclaim reconstruction from bare Birth classification with the existing construction-fault origin retained through NewEmissionProgress and final new-emission validation. No new semantic receipt, source-shape widening, fixture, fallback, target ABI, C activation, or production switch."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,17 +32,16 @@ latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
 D2 separates source-owned requirements/origins, existing physical emission
-bindings and backend/runtime target layout. Root Home origin retention landed:
-the existing progress owner carries binding, exact exit, object and value into
-the selected emitter; final validation checks ordered origins and concrete
-release operation. Reclaim and root/Birth representation remain separate
-source obligations. The next row is Reclaim D0 design stop. The field-read
-focused red reproduces at parent (left 1/right 0), so it is known baseline
-debt. Pair EXE30/linked OBJ30 and selected retirement remain required and
-unproven.
+bindings and backend/runtime target layout. Root Home origin retention landed.
+Reclaim D0 closes a second bounded BoxShape row: ConstructionPlanV1's existing
+fault obligation and constructor identity are co-sealed with the exact New
+site, then retained by NewEmissionProgress to selected Birth-fault cleanup.
+Root/Birth representation remains separate. The field-read focused red
+reproduces at parent (left 1/right 0), so it is known baseline debt.
+Pair EXE30/linked OBJ30 and selected retirement remain required and unproven.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-D0"
-next_execution_card = "none (design stop)"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-RETENTION-I0 (accepted D0 Decision)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-RETENTION-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

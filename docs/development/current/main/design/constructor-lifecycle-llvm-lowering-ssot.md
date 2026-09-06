@@ -254,12 +254,54 @@ retained origins and concrete operation drift, alongside the existing
 foreign/missing/duplicate Home, wrong-exit, reordered-row and unavailable
 root-cleanup negatives. It makes no representation or Reclaim claim.
 
-The next row is `CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-D0` in `design_stop`.
-Its census boundary is `ConstructionPlanV1` construction-fault obligation ->
-selected cleanup consumer; it must name the source-issued cutpoint and the
-exclusive information-loss edge. Generated CFG position, final MIR block and
-target/runtime layout are non-authority. No `Verified*`/`Prepared*` receipt,
-fixture, fallback or selected-C work is permitted until that Decision exists.
+## Reclaim origin D0 decision
+
+Decision: retain the existing construction-fault Reclaim origin in
+`NewEmissionProgress`; do not issue another semantic receipt.
+
+Source authority + canonical issuer: `instance_construction::issue_construction_plan`
+issues the outer-storage reclaim obligation and its exact
+`(ConstructorSourceIdV1, FunctionOwnerIdV1)` identity; `ordinary_new_coseal`
+co-seals that plan with the exact `OrdinaryNewAdmissionClaimV1` owned New site.
+
+Non-authority: generated cleanup CFG/block placement, final MIR coordinates,
+`ValueId` layout, target/runtime ABI, C transport and a bare `Birth` branch.
+
+Fail-fast boundary: plan/claim object or constructor-identity mismatch rejects
+before emission; missing, duplicate or drifted concrete Reclaim rejects during
+existing final new-emission validation, before final observation/seal.
+
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-RETENTION-I0`.
+
+Non-claims: NoBirth allocation cleanup, Birth FieldSet cleanup, root Home,
+root/Birth value representation, target ABI, C activation and LLVM execution.
+
+Census boundary: eligible direct-local canonical-Birth `ConstructionPlanV1`
+construction-fault obligation co-sealed into one ordinary-New claim ->
+`NewLocalCommitV1` emission progress -> selected Birth-fault cleanup -> existing
+final new-emission validation; includes only selected direct-local Birth New;
+excludes NoBirth, unavailable/override construction, constructor-body FieldSet
+cleanup, generated CFG position, target/runtime/C.
+
+| Finite source/emission state | Authority and required action | Terminal / fallback |
+| --- | --- | --- |
+| Eligible canonical Birth plan | Existing plan and exact claim site issue/co-seal the reclaim origin; progress retains it once and selected cleanup consumes it once. | Emit exact Reclaim only on the Birth fault suffix; validate origin and operation. |
+| NoBirth | Existing claim has no constructor identity for a constructed object. | No reclaim origin; allocation-fault cleanup only. No fallback classification. |
+| Unavailable or override construction | Existing construction eligibility is unavailable. | Existing pre-artifact rejection; mint no origin. |
+| Missing or drifted plan/object/constructor relation | Existing plan/claim consistency check fails. | Typed pre-emission error; never infer from generated CFG or `Birth` alone. |
+| Missing, duplicate or drifted recorded Reclaim | Existing physical progress/final validation observes a mismatch. | Typed finalization error before observation/seal; no retry. |
+
+The exclusive old loss edge is `NewEmissionProgress::Prepared` and
+`begin_new_emission()`: they currently retain only prior Home operands. The
+selected emitter reconstructs `ReclaimUnpublished { object, value }` from
+`claim.constructor()==Birth`, losing the plan's source constructor identity and
+exact New-site-to-construction-fault relation. I0 replaces that internal bare
+reconstruction with one retained origin under the existing progress owner.
+Its acceptance is a two-Birth ordinary-New positive proving one distinct
+source origin per fault suffix and none on Normal, source negatives for
+NoBirth/unavailable/foreign/missing/duplicate relation, and final-MIR mutation
+negatives for object/value/block removal or duplication. It reuses existing
+construction-take evidence and does not add a fixture, fallback or guard.
 
 The focused field-read command
 `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`
