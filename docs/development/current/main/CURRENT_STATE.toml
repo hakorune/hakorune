@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "none"
+current_design_stop = "V2 physical-program owner for fixed Pair is not yet defined"
 current_blocker_token = "V2 frame/BodySite authority is sufficient for checked NewBox allocation, but no physical-program owner currently carries the fixed Pair's value table, CFG, Birth and return semantics without re-entering generic JSON lowering. A NewBox-only artifact would change behavior. Design the bounded V2 physical-program/value/block owner first; artifact emission remains stopped."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
