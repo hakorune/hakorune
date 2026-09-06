@@ -75,8 +75,8 @@ fn published_consumer_keeps_birth_lifecycle_fenced() {
             published_request(include_str!("../../../apps/typed-object-birth-min/main.hako")),
             |_, _| -> Result<(), String> { panic!("unsupported lifecycle must not reach artifact consumer") },
         );
-        assert!(matches!(result, Err(ref error) if error.contains("UnsupportedBeforeObject")),
-            "Birth must stop at the existing published-view fence");
+        assert!(matches!(result, Err(ref error) if error.contains("artifact-source-unavailable")),
+            "fixed Pair must reject unavailable source coverage before the view: {:?}", result.as_ref().err());
     });
 }
 

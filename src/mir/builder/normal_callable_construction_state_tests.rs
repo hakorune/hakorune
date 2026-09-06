@@ -138,3 +138,20 @@ impl RetainedConstructionValidation {
         }
     }
 }
+
+#[test]
+fn artifact_requires_completed_source_construction() {
+    let function = MirFunction::new(FunctionSignature {
+        name: "empty_construction_validation".into(), params: vec![],
+        return_type: MirType::Void, effects: EffectMask::PURE,
+    }, BasicBlockId::new(0));
+    RetainedConstructionValidation::empty_for_transport_test()
+        .validate_artifact_after_compiler_finishing(&function).unwrap();
+    for state in [ConstructionState::NotConstruction, ConstructionState::Transferred,
+        ConstructionState::RetainedUnavailable(ConstructionUnavailableV1::BodyCoverageUnsupported),
+        ConstructionState::Selected { stores: BTreeMap::new(), frame: None, completed: false }] {
+        let mut retained = RetainedConstructionValidation::empty_for_transport_test();
+        retained.construction = state;
+        assert!(retained.validate_artifact_after_compiler_finishing(&function).is_err());
+    }
+}

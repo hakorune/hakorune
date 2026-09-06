@@ -91,6 +91,11 @@ mutable module can escape to those callers. Callback failure is terminal.
 Only the preselected ExplicitCompatibility branch may return non-admitted MIR;
 this is not a retry. Generic module/clone admission still rejects lifecycle
 instructions, and retained Unavailable state is never executable permission.
+Artifact validation consumes the retained root/Birth products after finishing:
+every lifecycle site must match its exact emitted binding, and every Birth
+definition needs retained eligibility even when empty. Diagnostic compilation
+does not issue that permission. Missing, duplicate, foreign or uncovered
+definitions/sites reject before the strict verifier and artifact callback.
 Retained construction validation rejects extra Invoke/ReturnFault sites and
 Normal-result projections in Unit Birth. Callable frame validation counts all
 definitions, including sibling blocks: an unissued or duplicate frame rejects.

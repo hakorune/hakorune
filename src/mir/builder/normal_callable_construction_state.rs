@@ -40,6 +40,18 @@ pub(in crate::mir::builder) type RetainedConstructionDrafts = Vec<(
 
 impl RetainedConstructionValidation {
 
+    pub(in crate::mir::builder) fn validate_artifact_after_compiler_finishing(
+        self, function: &MirFunction,
+    ) -> Result<(), String> {
+        match &self.construction {
+            ConstructionState::Selected { completed: true, .. } => {}
+            ConstructionState::RetainedUnavailable(reason) => return Err(format!(
+                "{} reason={reason:?}", fault("artifact-source-unavailable"))),
+            _ => return Err(fault("artifact-construction-not-complete")),
+        }
+        self.validate_after_compiler_finishing(function)
+    }
+
     pub(in crate::mir::builder) fn validate_after_compiler_finishing(
         self,
         function: &MirFunction,

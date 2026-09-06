@@ -8,6 +8,7 @@
 use std::{collections::HashMap, time::Instant};
 
 use crate::ast::ASTNode;
+use crate::mir::MirModule;
 use crate::mir::builder::{
     BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1,
     ModuleBuilderInvocationSessionV1, NormalRuntimeInputSnapshotV1,
@@ -458,9 +459,12 @@ impl NormalCompileRequestV1 {
 struct NormalDefaultPublishedPipelineV1;
 
 impl NormalDefaultPublishedPipelineV1 {
-    fn compile<R>(
+    fn compile<R, V: FnOnce(&MirModule) -> Result<(), String>>(
         compiler: &mut MirCompiler,
         request: NormalCompileRequestV1,
+        select_validation: impl FnOnce(
+            crate::mir::builder::CompletedNormalDefaultRootCatalogLifecycleV1,
+        ) -> (ModuleBuilderInvocationSessionV1, MirModule, V),
         consume: impl FnOnce(
             MirCompileResult,
             ModuleBuilderInvocationSessionV1,
@@ -498,7 +502,7 @@ impl NormalDefaultPublishedPipelineV1 {
                 rejected.discard();
                 message
             })?;
-        let (session, module, validate_source_bindings) = completed.into_parts();
+        let (session, module, validate_source_bindings) = select_validation(completed);
         super::super::compile_timing::trace_stage("build_module", stage_start.elapsed());
 
         match result_contract {
@@ -531,7 +535,7 @@ impl MirCompiler {
     ) -> Result<MirCompileResult, String> {
         super::validate_builder_operator_call_ingress_once_v1()
             .map_err(|error| error.to_string())?;
-        NormalDefaultPublishedPipelineV1::compile(self, request, |result, session| {
+        NormalDefaultPublishedPipelineV1::compile(self, request, |completed| completed.into_parts(), |result, session| {
             let prepared = session
                 .prepare_external_commit()
                 .map_err(|error| error.to_string())?;
@@ -553,7 +557,7 @@ impl MirCompiler {
     ) -> Result<NormalPublishedCompileOutcome<R>, String> {
         super::validate_builder_operator_call_ingress_once_v1()
             .map_err(|error| error.to_string())?;
-        NormalDefaultPublishedPipelineV1::compile(self, request, |result, session| {
+        NormalDefaultPublishedPipelineV1::compile(self, request, |completed| completed.into_artifact_parts(), |result, session| {
             let view = published_backend_view::PublishedMirBackendView::try_new(&result.module)
                 .map_err(|error| error.to_string())?;
             use published_backend_view::PublishedStaticMethodRouteV1;

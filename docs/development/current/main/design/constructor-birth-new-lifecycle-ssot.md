@@ -764,7 +764,7 @@ of each cleanup continue to the next required cleanup. Admission stays closed
 until these consumers exist; the control checkpoint alone is not runtime proof.
 
 Task-4 acceptance retains injected allocation failure, cleanup Normal with pending primary, later-Fault ordering, overflow/last cleanup, propagation without rerecording, message lifetime after source-frame release and no leaked omitted payload. ABI unit tests never replace fixed production EXE30/OBJ proof or runtime release/reclaim.
-Source/control checkpoint: exact source arguments lower once, cleanup uses real operands, Invoke results are Normal-only and Unit Birth has no result. Retained validation now counts all Invoke/frame definitions and rejects extra Fault-return/Normal-result/Birth-call sites; construction1/1, frame1/1, package97/97, normal pipeline20/20 and pointer/M7-S pass. Aliases add no Home; rebind/unknown acquisition/entry gaps/Handle arguments/overrides remain unavailable. Artifact-specific eligibility/module-wide coverage and tasks2–4 remain required; no execution-admission claim.
+Source/control checkpoint: exact source arguments lower once, cleanup uses real operands, Invoke results are Normal-only and Unit Birth has no result. Artifact-specific validation now consumes retained eligibility in the existing Completed owner and exhausts root lifecycle sites, sibling functions and empty Birth definitions before callback. Fresh locked quick lib build; package97/97, pipeline20/20, construction2/2, module negative1/1 and pointer/M7-S pass. The added negative initially attempted insertion after a terminator; corrected to a separate block, then rerun green without weakening the assertion. Aliases add no Home; rebind/unknown acquisition/entry gaps/Handle arguments/overrides remain unavailable. Generic lifecycle admission stays fenced; tasks2–4 and fixed EXE30/OBJ remain required, no whole-lib or execution claim.
 
 **Change (tasks 2–3):** replace escaped mutable-MIR artifact emission with one synchronous consumer terminal in `NormalDefaultPublishedPipelineV1`; reuse its build/finish path.
 **Contract:** worker premise review was required because EXE and OBJ have different post-compile owners and Rust privacy must prevent raw-module lifecycle admission. Source authority remains retained root/Birth products, never observation metadata or successful bookkeeping validation.
@@ -815,9 +815,9 @@ Multiple initializer AST carriers are not a new prerequisite; if later
 admitted, protect pending HomeValues before any local installation.
 Normal Completion/E0 remain insufficient; do not reuse TextScan's successorless
 Fault terminal as caller propagation. No input-ABI reconsultation is needed.
-Missing Home field/native products are explicit dependencies, not assumed empty. The
-full Home program and general unsafe raw ownership stay parked; selected
-construction obligations cannot be waived or reduced to a Pair-only success.
+Next Home task: in the existing ordinary_new_coseal source loan, join selected New BindingRefs to exact source-issued object definitions; extend terminal-return classification only for declared nonweak i64 field reads of live Homes/aliases and Integer+Integer Add. Do not broaden shared value_class (constructor arguments/prefix locals), use runtime layout tags, or introduce a receipt.
+Acceptance: unchanged Pair, renamed declarations, aliases and reverse cleanup of two Homes; evaluate field/Add once before release and return saved scalar. Bool Add, unknown/weak/non-i64 fields, calls/index/New, handle return and rebind stay unavailable. Worker traced ReturnValueNotCovered to home_new_prefix, not function-exit classification.
+Full Home/native/unsafe ownership remains separately bounded, never assumed empty; selected construction obligations and fixed Pair EXE30/OBJ cannot be waived or reduced to a substitute proof.
 No new guard/fixture/card is planned. Split source owners before 800 lines;
 do not create a general framework merely to save a few cleanup edges.
 The remapper is now at the 760-line split trigger: before further growth,

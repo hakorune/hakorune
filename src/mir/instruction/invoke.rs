@@ -4,6 +4,17 @@
 use crate::mir::definitions::MirCall;
 use crate::mir::{Effect, EffectMask, ValueId};
 
+impl crate::mir::MirInstruction {
+    /// Identifies physical sites needing retained lifecycle validation.
+    /// Presence is an obligation, never source eligibility or permission.
+    pub(crate) fn requires_lifecycle_validation(&self) -> bool {
+        matches!(self, Self::Invoke { .. } | Self::InvokeNormalResult { .. }
+            | Self::ReturnFault { .. } | Self::FaultFrameEnter { .. })
+            || matches!(self, Self::Call(call)
+                if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }))
+    }
+}
+
 /// Hidden physical entry role, never a source parameter or runtime box type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FaultFrameMode {

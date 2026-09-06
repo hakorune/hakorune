@@ -338,7 +338,7 @@ Fault frame is borrowed by Birth. Birth consumes exact stores before child desce
 emits Unit `Invoke::FieldSet` with explicit receiver/value and Normal/Fault
 edges. Unavailable construction retains its existing publication/backend fence;
 it is not a retry after selected emission. The state validates actual emitted
-bindings/frame role before preparation and after finalization, rejects extra Invoke/frame/Fault-return sites, and forbids Unit construction result carriers. Exact App Main source entry selects RootOwned, not direct-call presence.
+bindings/frame role before preparation and after finalization, rejects extra Invoke/frame/Fault-return sites, and forbids Unit construction result carriers. The existing completed-root owner also owns artifact-only source eligibility and module-wide coverage in `normal_default_root_final_validation.rs`; diagnostic success is not permission. Exact App Main source entry selects RootOwned, not direct-call presence.
 Numeric checks use the existing refresh owner and published field definition,
 not receiver-origin/name recovery. Runtime cleanup and typed-C execution remain
 fenced until the lifecycle card's end-to-end requirements are met.

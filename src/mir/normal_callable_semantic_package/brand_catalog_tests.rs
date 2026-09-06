@@ -233,7 +233,14 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     changed_exit.blocks.remove(&exit_id);
     assert!(ledger.validate_after_compiler_finishing(&changed_exit).unwrap_err()
         .contains("root-exit-binding-drift"));
-    ledger.validate_after_compiler_finishing(&physical).unwrap();
+    let mut extra_lifecycle = physical.clone();
+    let mut extra_block = crate::mir::BasicBlock::new(crate::mir::BasicBlockId::new(99));
+    extra_block.set_terminator(
+        crate::mir::MirInstruction::ReturnFault { fault_frame: ValueId(100) });
+    extra_lifecycle.add_block(extra_block);
+    assert!(ledger.validate_artifact_after_compiler_finishing(&extra_lifecycle).unwrap_err()
+        .contains("artifact-unowned-lifecycle-site"));
+    ledger.validate_artifact_after_compiler_finishing(&physical).unwrap();
     assert!(ledger.validate_after_compiler_finishing(&physical).unwrap_err()
         .contains("duplicate-finishing-validation"));
 }

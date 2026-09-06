@@ -108,30 +108,8 @@ pub(in crate::mir) struct CompletedNormalDefaultRootCatalogLifecycleV1 {
     construction: RetainedConstructionDrafts,
 }
 
-impl CompletedNormalDefaultRootCatalogLifecycleV1 {
-    pub(in crate::mir) fn into_parts(self) -> (
-        ModuleBuilderInvocationSessionV1,
-        MirModule,
-        impl FnOnce(&MirModule) -> Result<(), String>,
-    ) {
-        let validate = move |module: &MirModule| {
-            if let Some((root_key, ledger)) = self.root_new_validation {
-                let root = module.functions.get(&root_key).ok_or_else(|| {
-                    "[freeze:contract][ordinary-new/finished-root-missing]".to_owned()
-                })?;
-                ledger.validate_after_compiler_finishing(root)?;
-            }
-            for (key, validation) in self.construction {
-                let definition = module.canonical_callable_definition_symbol(&key)
-                    .and_then(|symbol| module.functions.get(symbol))
-                    .ok_or_else(|| "[freeze:contract][construction/finished-definition-missing]".to_owned())?;
-                validation.validate_after_compiler_finishing(definition)?;
-            }
-            Ok(())
-        };
-        (self.session, self.module, validate)
-    }
-}
+#[path = "normal_default_root_final_validation.rs"]
+mod final_validation;
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedNormalDefaultRootCatalogLifecycleV1 {
