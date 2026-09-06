@@ -956,7 +956,48 @@ Landed: the scanner issues the exact literal site/value relation, selected physi
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D1`
 
-Design stop: audit the next scalar arm as a separate finite source relation. Do not promote Bool, local, field, typed integer or general Add through the literal I64 consumer. Name its source issuer, selected physical consumer, exclusive raw edge and fail-fast boundary before implementation.
+**Decision (accepted):** select only `return <one initialized i64 field>` of the
+selected New/Home receiver. The same `scan_new_home_flow` pass already asks
+`initialized_integer_field` for the canonical field and stages its exact
+receiver/Home/field relation through `ReturnScalar::IntegerField`; I0 retains
+that existing source product instead of deriving a field from raw AST, a name,
+MIR type, `ValueId`, or C input tag. The scanner is the canonical issuer.
+
+The selected consumer is the ordinary-New ledger's exact field-read emission,
+followed by the existing root-Home cleanup and final root handoff. It emits one
+`ObjectFieldGet` for the issued canonical field and one `Return(Some(value))`.
+The exclusive old edge is the selected `Return(Some(_))` fallback through
+`lower_raw_value_return_after_probe_v1`; I0 removes that descent only while the
+field relation is reserved. Generic/raw field reads keep their existing owner.
+
+Missing or foreign Completion/return/field/receiver/Home sites; a non-i64,
+weak, uninitialized, overridden, duplicate, or ambiguous field; relation
+duplication; missing/duplicate field read; or read/Return/final-handoff drift
+rejects before lifecycle publication. Bool, typed integer, local/alias,
+field-in-Add, recursive/general Add, parameter/capture, object/EXE and process
+status remain non-authority. Bool's current physical JSON representation is
+explicitly unavailable, and typed integers require a separate declared-type
+physical contract; neither may borrow this I64 field relation.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-I64-FIELD-RETURN-I0`
+
+Co-seal `TerminalI64FieldReturnV1 { owner, return_site, value_site, receiver,
+home, field }` into the existing ordinary-New ledger from the already staged
+canonical integer field read. Reserve it in the selected root-return dispatch,
+emit its exact `ObjectFieldGet`, then reuse root-Home cleanup and retain a
+distinct finalized I64-field result through the lifecycle view. Reuse the
+existing `ROOT_I64 / I64` C schema; no C schema or object/EXE activation opens.
+
+Acceptance is a selected Pair-style New with one initialized direct i64 field
+return reaching C `body-consumer-pending`, with one exact relation, one field
+read and one value-bearing Return. Negatives cover field class/initialization,
+receiver/Home/site drift, duplicate/missing relation/read, and final MIR
+read/Return drift. Unit, direct literal and direct I64Add regressions remain on
+their existing paths; Bool, typed integer, local/alias and every Add shape stop
+before effects. Split terminal retention/validation into children as needed:
+`ordinary_new_coseal.rs` and `ordinary_new_local_commit.rs` are near the 760
+line target. This I0 adds no semantic `Verified*`/`Prepared*` receipt, raw AST
+consumer, fallback, C schema revision, object or EXE claim.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
@@ -1044,7 +1085,7 @@ object is created.
 | --- | --- |
 | 1a. Birth object handoff | The bounded I0 above; does not wait for all formal classes. |
 | 1b. Formal declaration/use agreement | `CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-CONTRACT-I0` issues and retains the exact declaration/use relation in the constructor's existing source loan. It never imports another-session catalog. A later physical-binding row, not I0, consumes `DeferredActualBinding` and deletes positional parameter-kind defaults. Acceptance includes typed-unused, untyped-unused, repeated uses and differing actual classes across New sites. |
-| 1c. Root scalar and terminal retention | Extend the existing Home scan's local state to preserve Integer/Bool and exact initializer/binding relations; replace the coarse discarded terminal classification with retained Unit/literal/local/field/Add relations in the existing ledger. The selected terminal consumer emits those relations and removes their raw replay in the same series. Keep logical Facts separate from any Recipe keys. Acceptance covers every listed classifier arm, recursive Add, aliases, uninitialized use, residual reads and finishing drift. Operator/coercion rules must come from reference semantics before this mapping opens. |
+| 1c. Root scalar and terminal retention | Admit one finite source relation at a time from the existing Home scan; each row names its issuer, exact selected consumer, raw edge deletion and fail-fast boundary. Unit, direct literal and direct i64 field are independently selected rows; Bool, typed integer, local/alias and Add stay separate until their source and physical contracts close. Keep logical Facts separate from any Recipe keys. |
 | 2. Complete physical binding | Existing emission/finalization owns source-to-value bindings and named synthetic frame/Copy/PHI/Normal-result rules. Seed formals, verify all definition/use/edge relations, remove lost bare projections, and hand off once. Missing coverage remains an artifact blocker; no type inference from metadata. |
 | 3. Entry/runtime agreement | Use the existing source-result/process policy linked below; implement checked target/frame agreement and exact cleanup/report/dispose behavior. Runtime InvalidContract/report-failure behavior must be named separately before emission. |
 | 4–6. Direct input, execution, retirement | Sentinel contract precedes one complete direct parser input and JSON reparse deletion. Then switch the actual host to the dedicated physical consumer; require unchanged EXE30 and OBJ-linked EXE30 plus Fault/cleanup evidence and delete selected old edges. Parser-only success never closes this gate. |
