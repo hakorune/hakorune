@@ -13,13 +13,14 @@ use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, Mir
 
 #[path = "../../function/published_backend_view_c_transport.rs"]
 mod c_transport;
+mod compiled_entry_contract;
 mod lifecycle;
-#[path = "../../function/published_backend_view_lifecycle_schema.rs"]
-mod lifecycle_schema;
 #[path = "../../function/published_backend_view_lifecycle_c_transport.rs"]
 mod lifecycle_c_transport;
-mod physical_program;
+#[path = "../../function/published_backend_view_lifecycle_schema.rs"]
+mod lifecycle_schema;
 mod physical_abi;
+mod physical_program;
 mod physical_program_json;
 
 use lifecycle::PublishedLifecycleInstructionRef;
@@ -27,10 +28,12 @@ use lifecycle::PublishedLifecycleInstructionRef;
 pub(crate) use c_transport::{
     PublishedCallKindV1, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
 };
+pub(crate) use compiled_entry_contract::CompiledEntryFormalKindV1;
 pub(crate) use lifecycle_c_transport::{
     PublishedLifecycleBodySiteCRowV1, PublishedLifecycleCFrameHeaderV2, PublishedLifecycleCFrameV2,
     PublishedObjectStorageProfileV1,
 };
+pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 
 /// The only route decisions a backend may observe for the selected published
 /// call family (static method, builtin print, or free function).  An instance

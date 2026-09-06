@@ -19,7 +19,8 @@ use super::{
         ABSENT_U32, CONTROL_KIND_RETURN, DEFINITION_ROLE_BIRTH_UNIT, DEFINITION_ROLE_ROOT_I64,
         DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_I64, RESULT_KIND_UNIT,
     },
-    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
+    CompiledEntryFormalKindV1, PublishedLifecyclePhysicalFunctionRoleV1, PublishedMirBackendView,
+    PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
 };
 
 pub(crate) const PUBLISHED_LIFECYCLE_ABI_REVISION_V2: u32 = 2;
@@ -252,11 +253,20 @@ impl PublishedLifecycleCFrameV2 {
     fn populate(&mut self, view: &PublishedMirBackendView<'_>) -> Result<(), String> {
         let module = view.module();
         module.validate_object_definition_membership()?;
-        let birth_abis = view
-            .retained_birth_abi()
-            .ok_or_else(|| fault("birth-abi-handoff-missing"))?;
-        let mut definitions = Vec::with_capacity(birth_abis.len());
-        for (index, birth) in birth_abis.iter().enumerate() {
+        let contract = view.issue_lifecycle_compiled_entry_contract()?;
+        let [root, births @ ..] = contract.program().functions() else {
+            return Err(fault("compiled-entry-root-missing"));
+        };
+        if births.len() != contract.births().len() {
+            return Err(fault("compiled-entry-birth-count"));
+        }
+        let mut definitions = Vec::with_capacity(births.len());
+        for (index, (function, entry_birth)) in births.iter().zip(contract.births()).enumerate() {
+            let PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi: birth } =
+                function.role()
+            else {
+                return Err(fault("compiled-entry-birth-role"));
+            };
             let key = birth.target();
             if key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
                 || birth.result()
@@ -274,9 +284,7 @@ impl PublishedLifecycleCFrameV2 {
             {
                 return Err(fault("birth-abi-relation-invalid"));
             }
-            let symbol = module
-                .canonical_callable_definition_symbol(key)
-                .ok_or_else(|| fault("definition-missing"))?;
+            let symbol = function.name();
             let function = module
                 .functions
                 .get(symbol)
@@ -307,43 +315,42 @@ impl PublishedLifecycleCFrameV2 {
                 frame_mode: definition_frame_mode(function)?,
                 flags: 0,
             });
-            for formal in
-                std::iter::once(birth.receiver()).chain(birth.parameters().iter().copied())
-            {
-                let value = function
-                    .params
-                    .get(formal.physical_lane() as usize)
-                    .ok_or_else(|| fault("birth-physical-lane-missing"))?;
+            for formal in entry_birth.formals().iter().copied() {
+                let input_kind = match formal.kind() {
+                    CompiledEntryFormalKindV1::Receiver => 1,
+                    CompiledEntryFormalKindV1::Parameter => 2,
+                };
+                if formal.kind() == CompiledEntryFormalKindV1::Parameter
+                    && formal.disposition().is_none()
+                {
+                    return Err(fault("compiled-entry-formal-disposition-missing"));
+                }
                 self.formals.push(PublishedLifecycleFormalCRowV2 {
                     definition_index: as_u32(index, "definition-index")?,
-                    source_ordinal: formal.source_ordinal().unwrap_or(u32::MAX),
-                    physical_ordinal: formal.physical_lane(),
-                    value_id: value.0,
+                    source_ordinal: formal.source_ordinal().unwrap_or(ABSENT_U32),
+                    physical_ordinal: formal.physical_ordinal(),
+                    value_id: formal.value().0,
                     wire_revision: 2,
-                    input_kind: if formal.source_ordinal().is_none() {
-                        1
-                    } else {
-                        2
-                    },
+                    input_kind,
                 });
             }
         }
-        let (root_role, root_result_kind) = match view.retained_root_result() {
-            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. }) =>
+        let (root_role, root_result_kind) = match contract.root_result() {
+            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. } =>
                 (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
-            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. }) =>
+            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. } =>
                 (DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_UNIT),
-            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }) =>
+            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. } =>
                 (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
-            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { .. }) =>
+            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { .. } =>
                 (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
-            None => return Err(fault("root-result-handoff-missing")),
         };
-        let root = view
-            .retained_root()
+        let root_function = module
+            .functions
+            .get(root.name())
             .ok_or_else(|| fault("root-result-root-missing"))?;
-        let root_name = self.push_string(&root.signature.name)?;
-        let root_symbol = self.push_string(&root.signature.name)?;
+        let root_name = self.push_string(root.name())?;
+        let root_symbol = self.push_string(root.name())?;
         self.definitions.push(PublishedLifecycleDefinitionCRowV2 {
             function_name: root_name,
             target_symbol: root_symbol,
@@ -352,7 +359,7 @@ impl PublishedLifecycleCFrameV2 {
             receiver_formal: ABSENT_U32,
             object_id: ABSENT_U32,
             result_kind: root_result_kind,
-            frame_mode: definition_frame_mode(root)?,
+            frame_mode: definition_frame_mode(root_function)?,
             flags: 1,
         });
         if self.definitions.is_empty() {

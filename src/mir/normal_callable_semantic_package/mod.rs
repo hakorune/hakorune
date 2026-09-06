@@ -17,6 +17,7 @@ mod instance_constructor_semantic;
 pub(crate) use instance_construction::{
     ConstructionEligibilityV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
 };
+pub(crate) use instance_constructor_semantic::BirthFormalPhysicalDispositionV1;
 mod issuer;
 mod model;
 mod ordinary_new_coseal;

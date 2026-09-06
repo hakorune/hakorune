@@ -344,6 +344,7 @@ mod tests {
                 request(include_str!("../../../../../apps/typed-object-birth-min/main.hako")),
                 |view, _| -> Result<(), String> {
                     let program = view.issue_lifecycle_physical_program()?;
+                    let contract = view.issue_lifecycle_compiled_entry_contract()?;
                     let [root, birth] = program.functions() else {
                         panic!("Pair must retain root and one Birth function");
                     };
@@ -351,6 +352,14 @@ mod tests {
                         root.role(),
                         PublishedLifecyclePhysicalFunctionRoleV1::RootI64 { .. }
                     ));
+                    let [entry_birth] = contract.births() else {
+                        panic!("Pair must retain one compiled Birth contract");
+                    };
+                    assert_eq!(entry_birth.function_index(), 1);
+                    assert_eq!(entry_birth.formals().len(), 3);
+                    assert!(entry_birth.formals()[0].source_ordinal().is_none());
+                    assert_eq!(entry_birth.formals()[1].source_ordinal(), Some(0));
+                    assert!(entry_birth.formals()[1].disposition().is_some());
                     assert!(matches!(
                         birth.role(),
                         PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi }
