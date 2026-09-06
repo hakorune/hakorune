@@ -1,6 +1,7 @@
 use super::*;
 use crate::ast::{LiteralValue, Span};
 use crate::mir::MirPrinter;
+use crate::mir::function::PublishedStaticMethodRouteV1;
 use crate::parser::NyashParser;
 
 fn program() -> ASTNode {
@@ -93,16 +94,31 @@ fn published_consumer_does_not_consume_explicit_compatibility() {
 }
 
 #[test]
-fn published_consumer_keeps_birth_lifecycle_fenced() {
+fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let mut compiler = MirCompiler::with_options(false);
+        let callbacks = std::cell::Cell::new(0);
         let result = compiler.compile_normal_with_published(
             published_request(include_str!("../../../apps/typed-object-birth-min/main.hako")),
-            |_, _| -> Result<(), String> { panic!("unsupported lifecycle must not reach artifact consumer") },
+            |view, _| -> Result<(), String> {
+                callbacks.set(callbacks.get() + 1);
+                assert_eq!(view.route(), PublishedStaticMethodRouteV1::CanonicalTyped);
+                assert!(!view.lifecycle_instructions().is_empty());
+                let frame = published_backend_view::PublishedLifecycleCFrameV2::from_view(view)?;
+                assert!(frame.header().definition_count > 0);
+                assert!(frame.header().operation_count > 0);
+                assert!(frame.header().control_count > 0);
+                assert!(frame.header().layout_count > 0);
+                assert!(frame.header().field_count > 0);
+                let generic = published_backend_view::PublishedMirBackendView::try_new(view.module()).unwrap();
+                assert_eq!(generic.route(), PublishedStaticMethodRouteV1::UnsupportedBeforeObject);
+                Err("[freeze:contract][published-lifecycle/consumer-pending]".into())
+            },
         );
-        assert!(matches!(result, Err(ref error) if error.contains("[published-mir-backend-object] UnsupportedBeforeObject")),
-            "source-complete Pair must still reject before the unimplemented C consumer: {:?}", result.as_ref().err());
+        assert!(matches!(result, Err(ref error) if error.contains("[published-lifecycle/consumer-pending]")),
+            "source-complete Pair must reach only the final artifact consumer: {:?}", result.as_ref().err());
+        assert_eq!(callbacks.get(), 1, "final lifecycle consumer must not retry");
     });
 }
 

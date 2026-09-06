@@ -5,9 +5,18 @@
 //! identity, layout, or lifecycle permission; those remain owned by the final
 //! published view. V1 stays layout-compatible for its existing cohorts.
 
+use std::ffi::CString;
 use std::os::raw::c_char;
 
-use super::{PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1};
+use hakorune_mir_defs::SameModuleCallableNamespaceV1;
+
+use crate::mir::function::{ObjectDestructionDispositionV1, TypedObjectFieldStorage};
+use crate::mir::instruction::{FaultFrameMode, InvokeOperation};
+use crate::mir::{Callee, MirInstruction};
+
+use super::{
+    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
+};
 
 pub(crate) const PUBLISHED_LIFECYCLE_ABI_REVISION_V2: u32 = 2;
 
@@ -142,6 +151,14 @@ pub(crate) struct PublishedLifecycleCFrameHeaderV2 {
 #[derive(Debug)]
 pub(crate) struct PublishedLifecycleCFrameV2 {
     calls: PublishedStaticMethodCFrameV1,
+    strings: Vec<CString>,
+    definitions: Vec<PublishedLifecycleDefinitionCRowV2>,
+    formals: Vec<PublishedLifecycleFormalCRowV2>,
+    operations: Vec<PublishedLifecycleOperationCRowV2>,
+    operands: Vec<PublishedLifecycleOperandCRowV2>,
+    controls: Vec<PublishedLifecycleControlCRowV2>,
+    layouts: Vec<PublishedLifecycleLayoutCRowV2>,
+    fields: Vec<PublishedLifecycleFieldCRowV2>,
     header: PublishedLifecycleCFrameHeaderV2,
 }
 
@@ -172,7 +189,30 @@ impl PublishedLifecycleCFrameV2 {
             fields: std::ptr::null(),
             field_count: 0,
         };
-        Self { calls, header }
+        Self {
+            calls,
+            strings: Vec::new(),
+            definitions: Vec::new(),
+            formals: Vec::new(),
+            operations: Vec::new(),
+            operands: Vec::new(),
+            controls: Vec::new(),
+            layouts: Vec::new(),
+            fields: Vec::new(),
+            header,
+        }
+    }
+
+    /// Projects only the lifecycle coordinates retained by the final view.
+    /// It never rescans the module or derives source identity from names.
+    pub(crate) fn from_view(view: &PublishedMirBackendView<'_>) -> Result<Self, String> {
+        let profile = view.lifecycle_storage_profile()
+            .ok_or_else(|| fault("profile-not-issued"))?;
+        let calls = PublishedStaticMethodCFrameV1::from_view(view)
+            .map_err(|error| error.to_string())?;
+        let mut frame = Self::from_call_frame(profile, calls);
+        frame.populate(view)?;
+        Ok(frame)
     }
 
     pub(crate) const fn header(&self) -> &PublishedLifecycleCFrameHeaderV2 {
@@ -182,7 +222,168 @@ impl PublishedLifecycleCFrameV2 {
     pub(crate) fn call_rows(&self) -> &[PublishedStaticMethodCallCRowV1] {
         self.calls.as_slice()
     }
+
+    fn populate(&mut self, view: &PublishedMirBackendView<'_>) -> Result<(), String> {
+        let module = view.module();
+        module.validate_object_definition_membership()?;
+        let definitions: Vec<_> = module.canonical_callable_definitions.iter()
+            .filter(|(key, _)| key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor)
+            .collect();
+        for (index, (key, symbol)) in definitions.iter().enumerate() {
+            let function = module.functions.get(*symbol).ok_or_else(|| fault("definition-missing"))?;
+            let object_id = module.metadata.canonical_object_membership.as_ref()
+                .and_then(|membership| membership.get(key.owner()))
+                .ok_or_else(|| fault("definition-object-missing"))?;
+            let function_name = self.push_string(symbol)?;
+            let target_symbol = self.push_string(&key.mir_symbol_projection())?;
+            self.definitions.push(PublishedLifecycleDefinitionCRowV2 {
+                function_name, target_symbol, role: 1, source_arity: key.arity(),
+                receiver_formal: 0, object_id: object_id.declaration_index(), result_kind: 0,
+                frame_mode: definition_frame_mode(function)?, flags: 0,
+            });
+            for (physical_ordinal, value) in function.params.iter().enumerate() {
+                self.formals.push(PublishedLifecycleFormalCRowV2 {
+                    definition_index: as_u32(index, "definition-index")?,
+                    source_ordinal: if physical_ordinal == 0 { u32::MAX } else { as_u32(physical_ordinal - 1, "source-ordinal")? },
+                    physical_ordinal: as_u32(physical_ordinal, "physical-ordinal")?,
+                    value_id: value.0, wire_revision: 2,
+                    input_kind: if physical_ordinal == 0 { 1 } else { 2 },
+                });
+            }
+        }
+        if self.definitions.is_empty() { return Err(fault("birth-definition-missing")); }
+
+        let object_definitions = module.canonical_object_definitions()
+            .ok_or_else(|| fault("object-definitions-missing"))?;
+        for (index, definition) in object_definitions.iter().enumerate() {
+            if definition.destruction_disposition() != ObjectDestructionDispositionV1::PlainI64NoHook {
+                return Err(fault("destruction-unavailable"));
+            }
+            let layout = definition.runtime_layout().ok_or_else(|| fault("layout-not-issued"))?
+                .as_ref().map_err(|_| fault("layout-unavailable"))?;
+            let object_id = as_u32(index, "object-index")?;
+            self.layouts.push(PublishedLifecycleLayoutCRowV2 {
+                object_id, runtime_type_id: layout.type_id, field_count: layout.field_count,
+                destruction_kind: 1,
+            });
+            for (ordinal, field) in layout.fields.iter().enumerate() {
+                self.fields.push(PublishedLifecycleFieldCRowV2 {
+                    object_id, declaration_ordinal: as_u32(ordinal, "field-ordinal")?,
+                    runtime_slot: field.slot, storage_kind: storage_kind(field.storage),
+                });
+            }
+        }
+
+        for row in view.lifecycle_instructions() {
+            let name = self.push_string(row.function_name())?;
+            match row.instruction() {
+                MirInstruction::Invoke { operation, fault_frame, normal_landing, fault_landing } => {
+                    let (kind, definition_index, object_id, field_ordinal, base, value, receiver, operands) =
+                        operation_row(operation, &definitions)?;
+                    let operation_index = as_u32(self.operations.len(), "operation-index")?;
+                    self.operations.push(PublishedLifecycleOperationCRowV2 {
+                        function_name: name, block_id: row.block_id(), instruction_index: row.instruction_index(),
+                        kind, definition_index, fault_frame: fault_frame.0,
+                        normal_landing: normal_landing.as_u32(), fault_landing: fault_landing.as_u32(),
+                        object_id, field_ordinal, base, value, receiver,
+                        operand_count: as_u32(operands.len(), "operand-count")?, flags: 0,
+                    });
+                    for (ordinal, value_id) in operands.into_iter().enumerate() {
+                        self.operands.push(PublishedLifecycleOperandCRowV2 {
+                            operation_index, ordinal: as_u32(ordinal, "operand-ordinal")?,
+                            value_id, kind: 1,
+                        });
+                    }
+                }
+                MirInstruction::ObjectFieldGet { dst, base, field } => {
+                    let operation_index = as_u32(self.operations.len(), "operation-index")?;
+                    self.operations.push(PublishedLifecycleOperationCRowV2 {
+                        function_name: name, block_id: row.block_id(), instruction_index: row.instruction_index(),
+                        kind: 6, definition_index: u32::MAX, fault_frame: u32::MAX,
+                        normal_landing: u32::MAX, fault_landing: u32::MAX,
+                        object_id: field.object().declaration_index(), field_ordinal: field.declaration_ordinal(),
+                        base: base.0, value: dst.0, receiver: base.0, operand_count: 1, flags: 0,
+                    });
+                    self.operands.push(PublishedLifecycleOperandCRowV2 { operation_index, ordinal: 0, value_id: base.0, kind: 1 });
+                }
+                MirInstruction::InvokeNormalResult { invoke_block, dst } => self.controls.push(control_row(name, *row, 1, dst.0, invoke_block.as_u32(), 0)),
+                MirInstruction::ReturnFault { fault_frame } => self.controls.push(control_row(name, *row, 2, fault_frame.0, u32::MAX, 0)),
+                MirInstruction::FaultFrameEnter { dst, mode } => self.controls.push(control_row(name, *row, 3, dst.0, u32::MAX, match mode { FaultFrameMode::RootOwned => 1, FaultFrameMode::Borrowed => 2 })),
+                MirInstruction::Return { value } => self.controls.push(control_row(name, *row, 4, value.map_or(u32::MAX, |value| value.0), u32::MAX, u32::from(value.is_some()))),
+                MirInstruction::Call(call) => {
+                    let Callee::BirthConstructor { key, receiver } = &call.callee else { return Err(fault("call-not-birth")); };
+                    let definition_index = definitions.iter().position(|(candidate, _)| **candidate == *key)
+                        .ok_or_else(|| fault("birth-definition-missing"))?;
+                    let operation_index = as_u32(self.operations.len(), "operation-index")?;
+                    self.operations.push(PublishedLifecycleOperationCRowV2 {
+                        function_name: name, block_id: row.block_id(), instruction_index: row.instruction_index(),
+                        kind: 1, definition_index: as_u32(definition_index, "definition-index")?,
+                        fault_frame: u32::MAX, normal_landing: u32::MAX, fault_landing: u32::MAX,
+                        object_id: u32::MAX, field_ordinal: u32::MAX, base: u32::MAX,
+                        value: call.dst.map_or(u32::MAX, |value| value.0), receiver: receiver.0,
+                        operand_count: as_u32(call.args.len() + 1, "operand-count")?, flags: 0,
+                    });
+                    self.operands.push(PublishedLifecycleOperandCRowV2 { operation_index, ordinal: 0, value_id: receiver.0, kind: 2 });
+                    for (ordinal, value) in call.args.iter().enumerate() {
+                        self.operands.push(PublishedLifecycleOperandCRowV2 { operation_index, ordinal: as_u32(ordinal + 1, "operand-ordinal")?, value_id: value.0, kind: 1 });
+                    }
+                }
+                _ => return Err(fault("retained-instruction-drift")),
+            }
+        }
+        if self.operations.is_empty() || self.controls.is_empty() || self.layouts.is_empty() || self.fields.is_empty() {
+            return Err(fault("required-row-family-empty"));
+        }
+        self.header.definitions = self.definitions.as_ptr(); self.header.definition_count = self.definitions.len();
+        self.header.formals = self.formals.as_ptr(); self.header.formal_count = self.formals.len();
+        self.header.operations = self.operations.as_ptr(); self.header.operation_count = self.operations.len();
+        self.header.operands = self.operands.as_ptr(); self.header.operand_count = self.operands.len();
+        self.header.controls = self.controls.as_ptr(); self.header.control_count = self.controls.len();
+        self.header.layouts = self.layouts.as_ptr(); self.header.layout_count = self.layouts.len();
+        self.header.fields = self.fields.as_ptr(); self.header.field_count = self.fields.len();
+        Ok(())
+    }
+
+    fn push_string(&mut self, value: &str) -> Result<*const c_char, String> {
+        let value = CString::new(value).map_err(|_| fault("string-nul"))?;
+        let pointer = value.as_ptr(); self.strings.push(value); Ok(pointer)
+    }
 }
+
+fn operation_row(operation: &InvokeOperation, definitions: &[(&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, &String)])
+    -> Result<(u32, u32, u32, u32, u32, u32, u32, Vec<u32>), String> {
+    let absent = u32::MAX;
+    Ok(match operation {
+        InvokeOperation::Call(call) => {
+            let Callee::BirthConstructor { key, receiver } = &call.callee else { return Err(fault("invoke-call-not-birth")); };
+            let definition_index = definitions.iter().position(|(candidate, _)| **candidate == *key).ok_or_else(|| fault("operation-definition-missing"))?;
+            let mut operands = vec![receiver.0]; operands.extend(call.args.iter().map(|value| value.0));
+            (1, as_u32(definition_index, "definition-index")?, absent, absent, absent, absent, receiver.0, operands)
+        }
+        InvokeOperation::NewBox { object } => (2, absent, object.declaration_index(), absent, absent, absent, absent, Vec::new()),
+        InvokeOperation::FieldSet { field, base, value } => (3, absent, field.object().declaration_index(), field.declaration_ordinal(), base.0, value.0, base.0, vec![base.0, value.0]),
+        InvokeOperation::HomeRelease { object, value } => (4, absent, object.declaration_index(), absent, absent, value.0, absent, vec![value.0]),
+        InvokeOperation::ReclaimUnpublished { object, value } => (5, absent, object.declaration_index(), absent, absent, value.0, absent, vec![value.0]),
+    })
+}
+
+fn control_row(name: *const c_char, row: super::lifecycle::PublishedLifecycleInstructionRef<'_>, kind: u32, operand: u32, origin_block: u32, mode: u32) -> PublishedLifecycleControlCRowV2 {
+    PublishedLifecycleControlCRowV2 { function_name: name, block_id: row.block_id(), instruction_index: row.instruction_index(), kind, operand, origin_block, mode, flags: 0 }
+}
+
+fn definition_frame_mode(function: &crate::mir::MirFunction) -> Result<u32, String> {
+    let modes: Vec<_> = function.blocks.values().flat_map(|block| block.all_instructions()).filter_map(|instruction| {
+        if let MirInstruction::FaultFrameEnter { mode, .. } = instruction { Some(mode) } else { None }
+    }).collect();
+    match modes.as_slice() { [FaultFrameMode::RootOwned] => Ok(1), [FaultFrameMode::Borrowed] => Ok(2), _ => Err(fault("definition-frame-mode")) }
+}
+
+fn storage_kind(storage: TypedObjectFieldStorage) -> u32 {
+    match storage { TypedObjectFieldStorage::I8 => 1, TypedObjectFieldStorage::I16 => 2, TypedObjectFieldStorage::I32 => 3, TypedObjectFieldStorage::I64 => 4, TypedObjectFieldStorage::ISize => 5, TypedObjectFieldStorage::U8 => 6, TypedObjectFieldStorage::U16 => 7, TypedObjectFieldStorage::U32 => 8, TypedObjectFieldStorage::U64 => 9, TypedObjectFieldStorage::USize => 10, TypedObjectFieldStorage::Handle => 11 }
+}
+
+fn as_u32(value: usize, reason: &str) -> Result<u32, String> { u32::try_from(value).map_err(|_| fault(reason)) }
+fn fault(reason: &str) -> String { format!("[freeze:contract][published-lifecycle/{reason}]") }
 
 #[cfg(test)]
 mod tests {

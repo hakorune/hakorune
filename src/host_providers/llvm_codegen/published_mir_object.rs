@@ -7,7 +7,8 @@
 use std::path::{Path, PathBuf};
 
 use crate::mir::function::{
-    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodRouteV1,
+    PublishedLifecycleCFrameV2, PublishedMirBackendView, PublishedStaticMethodCFrameV1,
+    PublishedStaticMethodRouteV1,
 };
 use crate::mir::MirModule;
 
@@ -50,6 +51,13 @@ fn compile_published_view_object(
     view: &PublishedMirBackendView<'_>,
     obj_out: &str,
 ) -> Result<(), String> {
+    if !view.lifecycle_instructions().is_empty() {
+        let frame = PublishedLifecycleCFrameV2::from_view(view)
+            .map_err(|error| format!("published lifecycle C frame rejected: {error}"))?;
+        let output = PathBuf::from(obj_out);
+        transport_io::ensure_backend_output_parent(&output);
+        return capi_transport::compile_published_lifecycle_v2(frame.header(), &output);
+    }
     let frame = PublishedStaticMethodCFrameV1::from_view(view)
         .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
     let mir_json_path = transport_io::prepare_backend_input_json_file(

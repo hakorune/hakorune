@@ -47,8 +47,10 @@ Thin Rust bridge for backend object emission.
   retained contracts without cloning, refreshing or repairing the module.
   Nonleading Phi, missing/stale contracts and mixed legacy/Extern ingress
   reject before C emission; explicit compatibility retains its separate owner.
-  Lifecycle admission remains fenced until its typed control/result consumer
-  lands. Export does not itself authorize Birth execution.
+  Generic lifecycle admission remains fenced. The final normal-pipeline
+  artifact borrow may pass its issued V2 frame to `capi_transport`; the current
+  C terminal validates the frame and stops before an artifact. Export does not
+  itself authorize Birth execution or Pair EXE/OBJ success.
 
 - mainline owner is being cut over shape-by-shape from legacy C `.inc` to `.hako ll emitter`
 - route policy ownership lives in `BackendRecipeBox` and the LLVM boundary-lock SSOT; `llvm_codegen` stays transport-only and must not be read as the daily policy owner

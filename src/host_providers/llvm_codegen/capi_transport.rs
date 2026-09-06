@@ -6,7 +6,9 @@ use super::normalize;
 use super::transport_io;
 use super::transport_paths;
 use super::Opts;
-use crate::mir::function::PublishedStaticMethodCallCRowV1;
+use crate::mir::function::{
+    PublishedLifecycleCFrameHeaderV2, PublishedStaticMethodCallCRowV1,
+};
 
 #[cfg(feature = "plugins")]
 fn resolve_ffi_library_path() -> Result<PathBuf, String> {
@@ -231,6 +233,35 @@ pub(super) fn compile_published_static_method_v1(
     }
 }
 
+#[cfg(feature = "plugins")]
+pub(super) fn compile_published_lifecycle_v2(
+    frame: &PublishedLifecycleCFrameHeaderV2,
+    obj_out: &Path,
+) -> Result<(), String> {
+    use std::os::raw::{c_char, c_int, c_void};
+    extern "C" { fn free(ptr: *mut c_void); }
+    unsafe {
+        let lib = load_ffi_library()?;
+        type CompileFn = unsafe extern "C" fn(
+            *const PublishedLifecycleCFrameHeaderV2, *const c_char, *mut *mut c_char,
+        ) -> c_int;
+        let func: libloading::Symbol<CompileFn> = lib
+            .get(b"hako_llvmc_compile_published_lifecycle_v2\0")
+            .map_err(|error| format!("dlsym failed for published lifecycle V2 ingress: {error}"))?;
+        let output = CString::new(obj_out.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid out path".to_owned())?;
+        let mut err_ptr: *mut c_char = std::ptr::null_mut();
+        let rc = func(frame, output.as_ptr(), &mut err_ptr);
+        if rc != 0 {
+            let message = if err_ptr.is_null() { "published lifecycle V2 compile failed".to_owned() }
+                else { CStr::from_ptr(err_ptr).to_string_lossy().into_owned() };
+            if !err_ptr.is_null() { free(err_ptr as *mut c_void); }
+            return Err(message);
+        }
+        transport_io::ensure_backend_artifact_written(obj_out, "object")
+    }
+}
+
 pub(super) fn compile_via_capi_keep(
     mir_json: &str,
     compile_symbol: &[u8],
@@ -271,6 +302,14 @@ pub(super) fn compile_published_static_method_v1(
     _obj_out: &Path,
     _rows: &[PublishedStaticMethodCallCRowV1],
     _opts: &Opts,
+) -> Result<(), String> {
+    Err("capi not available (plugins feature disabled)".into())
+}
+
+#[cfg(not(feature = "plugins"))]
+pub(super) fn compile_published_lifecycle_v2(
+    _frame: &PublishedLifecycleCFrameHeaderV2,
+    _obj_out: &Path,
 ) -> Result<(), String> {
     Err("capi not available (plugins feature disabled)".into())
 }

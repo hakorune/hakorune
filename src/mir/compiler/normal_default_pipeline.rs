@@ -563,9 +563,16 @@ impl MirCompiler {
                 .map_err(|error| error.to_string())?;
             use published_backend_view::PublishedStaticMethodRouteV1;
             match view.route() {
-                PublishedStaticMethodRouteV1::UnsupportedBeforeObject => return Err(
-                    "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer".to_owned(),
-                ),
+                PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
+                    if view.lifecycle_instructions().is_empty() {
+                        return Err(
+                            "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer".to_owned(),
+                        );
+                    }
+                    super::MirVerifier::new_strict().verify_module(&result.module)
+                        .map_err(|errors| errors.iter().map(ToString::to_string)
+                            .collect::<Vec<_>>().join("; "))?;
+                }
                 PublishedStaticMethodRouteV1::CanonicalTyped => {
                     super::MirVerifier::new_strict().verify_module(&result.module)
                         .map_err(|errors| errors.iter().map(ToString::to_string)
@@ -582,6 +589,15 @@ impl MirCompiler {
                 .map_err(|error| error.to_string())?;
             let view = view.bind_retained_root(retained_root.as_deref())
                 .map_err(|error| error.to_string())?;
+            let view = if view.route() == PublishedStaticMethodRouteV1::UnsupportedBeforeObject {
+                let profile_name = crate::config::env::env_string("HAKO_TYPED_OBJECT_STORE");
+                let profile = published_backend_view::PublishedObjectStorageProfileV1::from_runtime_name(
+                    profile_name.as_deref(),
+                )?;
+                view.activate_lifecycle_for_final_artifact(profile)?
+            } else {
+                view
+            };
             let output = consume(&view, &result.verification_result)?;
             Ok((prepared, NormalPublishedCompileOutcome::Consumed(output)))
         })

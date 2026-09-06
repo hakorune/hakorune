@@ -29,6 +29,7 @@
 
 #include "hako_llvmc_ffi_common.inc"
 #include "published_mir/hako_llvmc_ffi_published_static_method.inc"
+#include "published_mir/hako_llvmc_ffi_published_lifecycle_v2.inc"
 #include "hako_llvmc_ffi_pinned_text_backend_frame.inc"
 #include "hako_llvmc_ffi_pinned_text_residence_carrier.inc"
 #include "hako_llvmc_ffi_pinned_text_target_machine_session.inc"

@@ -13,11 +13,18 @@ use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, Mir
 
 #[path = "../../function/published_backend_view_c_transport.rs"]
 mod c_transport;
+mod lifecycle;
 #[path = "../../function/published_backend_view_lifecycle_c_transport.rs"]
 mod lifecycle_c_transport;
 
+use lifecycle::PublishedLifecycleInstructionRef;
+
 pub(crate) use c_transport::{
     PublishedCallKindV1, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
+};
+pub(crate) use lifecycle_c_transport::{
+    PublishedLifecycleCFrameHeaderV2, PublishedLifecycleCFrameV2,
+    PublishedObjectStorageProfileV1,
 };
 
 /// The only route decisions a backend may observe for the selected published
@@ -288,30 +295,13 @@ pub(crate) struct PublishedMirBackendView<'module> {
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
     builtin_print_calls: Vec<PublishedBuiltinPrintCallRef<'module>>,
     array_element_writes: Vec<PublishedArrayElementWriteRef<'module>>,
+    lifecycle_instructions: Vec<PublishedLifecycleInstructionRef<'module>>,
+    return_instructions: Vec<PublishedLifecycleInstructionRef<'module>>,
+    has_non_lifecycle_unsupported: bool,
+    lifecycle_storage_profile: Option<PublishedObjectStorageProfileV1>,
 }
 
 impl<'module> PublishedMirBackendView<'module> {
-    /// Identity only, not lifecycle admission. Only the parent pipeline binds
-    /// this after final validation, strict verification and commit preparation.
-    pub(super) fn bind_retained_root(
-        mut self,
-        key: Option<&str>,
-    ) -> Result<Self, PublishedMirBackendViewErrorV1> {
-        self.retained_root = key.map(|key| self.module.functions.get(key)
-            .ok_or(PublishedMirBackendViewErrorV1::RetainedRootMissing)).transpose()?;
-        Ok(self)
-    }
-
-    pub(crate) fn retained_root(&self) -> Option<&'module MirFunction> {
-        self.retained_root
-    }
-
-    /// Diagnostic/physical borrow only; cloning this module does not carry
-    /// lifecycle admission through the generic constructor.
-    pub(crate) fn module(&self) -> &'module MirModule {
-        self.module
-    }
-
     pub(crate) fn try_new(
         module: &'module MirModule,
     ) -> Result<Self, PublishedMirBackendViewErrorV1> {
@@ -321,7 +311,9 @@ impl<'module> PublishedMirBackendView<'module> {
         let mut free_function_calls = Vec::new();
         let mut builtin_print_calls = Vec::new();
         let mut array_element_writes = Vec::new();
-        let mut has_unsupported_call = false;
+        let mut lifecycle_instructions = Vec::new();
+        let mut return_instructions = Vec::new();
+        let mut has_non_lifecycle_unsupported = false;
         for (function_name, function) in &module.functions {
             let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
             block_ids.sort();
@@ -331,15 +323,22 @@ impl<'module> PublishedMirBackendView<'module> {
                     .get(&block_id)
                     .expect("sorted MIR block id must remain present");
                 for (instruction_index, instruction) in block.all_instructions().enumerate() {
-                    if matches!(
+                    if let Some(row) = PublishedLifecycleInstructionRef::return_instruction(
+                        function_name,
+                        block_id.as_u32(),
+                        instruction_index as u32,
                         instruction,
-                        MirInstruction::Invoke { .. }
-                            | MirInstruction::InvokeNormalResult { .. }
-                            | MirInstruction::ReturnFault { .. }
-                            | MirInstruction::FaultFrameEnter { .. }
-                            | MirInstruction::ObjectFieldGet { .. }
                     ) {
-                        has_unsupported_call = true;
+                        return_instructions.push(row);
+                        continue;
+                    }
+                    if let Some(row) = PublishedLifecycleInstructionRef::from_instruction(
+                        function_name,
+                        block_id.as_u32(),
+                        instruction_index as u32,
+                        instruction,
+                    ) {
+                        lifecycle_instructions.push(row);
                         continue;
                     }
                     if let MirInstruction::ArrayElementWrite {
@@ -430,10 +429,10 @@ impl<'module> PublishedMirBackendView<'module> {
                         Some(
                             Callee::SameModuleInstance { .. } | Callee::BirthConstructor { .. },
                         ) => {
-                            has_unsupported_call = true;
+                            has_non_lifecycle_unsupported = true;
                         }
                         Some(Callee::Value(_)) if canonical_call => {
-                            has_unsupported_call = true;
+                            has_non_lifecycle_unsupported = true;
                         }
                         Some(_) | None => {}
                     }
@@ -441,7 +440,7 @@ impl<'module> PublishedMirBackendView<'module> {
             }
         }
 
-        if has_unsupported_call {
+        if has_non_lifecycle_unsupported || !lifecycle_instructions.is_empty() {
             return Ok(Self {
                 module,
                 retained_root: None,
@@ -450,6 +449,10 @@ impl<'module> PublishedMirBackendView<'module> {
                 free_function_calls,
                 builtin_print_calls,
                 array_element_writes,
+                lifecycle_instructions,
+                return_instructions,
+                has_non_lifecycle_unsupported,
+                lifecycle_storage_profile: None,
             });
         }
         if static_method_calls.is_empty()
@@ -465,6 +468,10 @@ impl<'module> PublishedMirBackendView<'module> {
                 free_function_calls,
                 builtin_print_calls,
                 array_element_writes,
+                lifecycle_instructions,
+                return_instructions,
+                has_non_lifecycle_unsupported,
+                lifecycle_storage_profile: None,
             });
         }
         Ok(Self {
@@ -475,6 +482,10 @@ impl<'module> PublishedMirBackendView<'module> {
             free_function_calls,
             builtin_print_calls,
             array_element_writes,
+            lifecycle_instructions,
+            return_instructions,
+            has_non_lifecycle_unsupported,
+            lifecycle_storage_profile: None,
         })
     }
 

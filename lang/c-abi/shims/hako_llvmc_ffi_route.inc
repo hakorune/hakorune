@@ -492,6 +492,19 @@ int hako_llvmc_compile_published_static_method_v1(
   return rc;
 }
 
+// This terminal proves the selected V2 ingress without manufacturing an
+// object. The following slice replaces it with typed body emission.
+__attribute__((visibility("default")))
+int hako_llvmc_compile_published_lifecycle_v2(
+    const hako_llvmc_published_lifecycle_frame_v2* frame,
+    const char* obj_out,
+    char** err_out) {
+  if (hako_llvmc_published_lifecycle_v2_validate(frame, obj_out, err_out) != 0)
+    return -1;
+  return set_err_owned(err_out,
+      "[freeze:contract][published-lifecycle/consumer-pending]");
+}
+
 // Explicit compatibility ABI.  It does not read replay environment state;
 // reaching this symbol is itself the named admission.
 __attribute__((visibility("default")))

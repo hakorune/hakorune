@@ -29,6 +29,12 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   borrow must issue and the C consumer must exhaust every row before V2 is
   activated. C-side env selection, pinned/direct profiles, missing rows, and
   V1 retry cannot admit lifecycle execution.
+- The final published-view scan retains selected lifecycle and Return
+  coordinates as synchronous borrows. Generic views remain fenced; only the
+  normal pipeline may activate the final artifact view after strict validation,
+  commit preparation, root binding, and exact Birth-definition checks. The V2
+  ingress currently validates the complete frame and stops before artifact
+  emission; it is not Pair execution evidence.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.

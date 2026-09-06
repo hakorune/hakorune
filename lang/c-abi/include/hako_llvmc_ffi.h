@@ -115,6 +115,11 @@ int hako_llvmc_compile_published_static_method_v1(
     const char* obj_out,
     char** err_out);
 
+int hako_llvmc_compile_published_lifecycle_v2(
+    const hako_llvmc_published_lifecycle_frame_v2* frame,
+    const char* obj_out,
+    char** err_out);
+
 #ifdef __cplusplus
 }
 #endif
