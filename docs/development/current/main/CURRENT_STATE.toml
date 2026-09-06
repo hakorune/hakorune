@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-BOOL-TERMINAL-D0"
-current_execution_cohort = "constructor_lifecycle_root_bool_terminal_d0"
-current_design_stop = "Bool D0 must decide the source-issued root Bool result, final handoff, C-frame admission/rejection, and process-result contract before an I0; local/alias, typed integer, and general Add are separate NoIssuer families."
-current_blocker_token = "D2 found no fast scalar I0: direct Bool lacks a root terminal issuer/result ABI, while local/alias, typed integer, and general Add lack closed source relations. Do not use raw descent, type_ctx, or ROOT_I64 / I64 as authority."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-RESULT-CONTRACT-D0"
+current_execution_cohort = "constructor_lifecycle_final_entry_result_contract_d0"
+current_design_stop = "Final-entry result contract D0 must choose the selected lifecycle owner which adopts the canonical Bool unsupported-process policy and carries a root result to a named process terminal; source Bool I0 remains unavailable until then."
+current_blocker_token = "Bool D0 found an existing semantic-reference Bool->Fault(70) policy but no selected lifecycle C/EXE final-entry consumer. Do not reclassify Bool as i64, infer 0/1, or use raw/VM-only paths as selected lifecycle authority."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,9 +36,9 @@ constructor/Birth final handoff and transport, deleting key-owner object
 derivation while preserving per-New receiver checks. Formal declaration/use D0
 now selects a constructor-issued BirthFormalContractV1: declaration class and
 complete use coverage are retained without actual-value specialization; I0 is
-landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. Root Unit C schema I0 is landed: typed ROOT_UNIT / UNIT rows and Return(None) controls reach C pending while ROOT_I64 / I64 remains stable; no object is emitted. Root scalar direct untyped Integer literal I0 is landed. Scalar I64-field I0 is landed: the existing Home scan issues the direct-field relation, the selected field-read consumer replaces its one raw return-value descent, and the final handoff/C pending frame retain the distinct I64 result. D2 found no fast remaining scalar arm: Bool is the next D0 because its result/process contract is undecided; local/alias, typed integer and general Add are separate NoIssuer families.
+landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. Root Unit C schema I0 is landed: typed ROOT_UNIT / UNIT rows and Return(None) controls reach C pending while ROOT_I64 / I64 remains stable; no object is emitted. Root scalar direct untyped Integer literal I0 is landed. Scalar I64-field I0 is landed: the existing Home scan issues the direct-field relation, the selected field-read consumer replaces its one raw return-value descent, and the final handoff/C pending frame retain the distinct I64 result. Bool D0 found the canonical semantic-reference Fault(70) policy but no selected lifecycle C/EXE final-entry consumer; final-entry result contract D0 is next. Local/alias, typed integer and general Add remain separate NoIssuer families.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-BOOL-TERMINAL-D0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-RESULT-CONTRACT-D0"
 next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

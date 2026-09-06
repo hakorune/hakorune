@@ -1041,6 +1041,34 @@ D0. Missing/foreign source and final relations, duplicate/absent terminal,
 result/process/C-frame drift, and an unselected raw descent must fail before
 effects. No Bool schema, object, or EXE claim opens in D0.
 
+**D0 result:** the only existing canonical process policy maps a Bool source
+result to `UnsupportedProcessResult { Bool }` with reserved Fault status 70.
+It is semantic-reference evidence only: its current consumer is Raw VM
+reference code, not the selected lifecycle C/EXE path. The selected lifecycle
+has neither a Bool final-result arm nor a root-result-to-process terminal;
+its C frame accepts only I64 and Unit. Therefore Bool I0 is unavailable, and
+the raw descent remains until a dedicated Bool relation is issued. In
+particular, no `i64` 0/1 conversion is permitted.
+
+### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-RESULT-CONTRACT-D0`
+
+Decision needed before any remaining scalar I0. Name one selected lifecycle
+final-entry owner which consumes a finalized root result and reaches a named
+process terminal. It must explicitly adopt or reject the existing canonical
+Bool unsupported-process Fault(70) policy, without making the Raw VM consumer
+the selected C authority. The finite boundary is source-issued root result →
+final handoff → C-frame admission or explicit pre-C rejection → linked EXE
+process terminal.
+
+The selected lifecycle presently ends at `body-consumer-pending`, while its
+C frame admits I64 and Unit only; the linked kernel has no root-result process
+projection. This is a NoSafeSlice for Bool implementation, not permission to
+invent a Bool C row or an i64 representation. Missing/foreign final result,
+ambiguous consumer, C-frame/process drift, or raw re-entry must stop before
+artifact effects. The bounded next D0 must either identify an existing owner
+and its exclusive old edge or park Bool explicitly; it opens no source
+relation, C schema, object, or EXE work.
+
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
 **Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
