@@ -22,8 +22,8 @@ Decision: accepted.
   Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** the final-view V2 host route reaches a
   body companion that stops before artifact; checked execution is unproven.
-- **Next ordered task:** retire provisional JSON program validation at that
-  terminal, then close the existing root result/ABI and physical body handoff.
+- **Next ordered task:** complete the current direct physical parser contract,
+  then close lowering ABI, actual C execution and selected retirement below.
 - **Production stop line:** no root ABI, parameter representation, value/CFG or
   cleanup meaning may be inferred by the C consumer; see the Decision below.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -855,210 +855,157 @@ The two read-only audits established the prior gap and the issuer boundary.
 This is behavior-preserving retention of an already accepted Birth source form;
 it does not make the C body consumer executable.
 
-### CONSTRUCTOR-LIFECYCLE-PHYSICAL-PROGRAM-D0 — physical-program authority
+### Accepted physical consumer plan (2026-09-06)
 
-Decision: V2 remains byte-stable at its preartifact terminal; do not overload
-its rows or let JSON supply missing program meaning. The activated final
-`PublishedMirBackendView` is the sole physical-program issuer. It co-borrows
-the source-authorized retained root/Birth handoff for selected membership and
-the final `MirModule` for physical bodies, then issues one complete physical
-program relation. JSON is only that relation's checked physical serialization.
-Source authority + canonical issuer: `FinalizedRootBirthHandoffV1` decides the
-root/Birth set and ABI; final `MirModule` owns instructions and values; only
-the activated final view joins these already-issued products. It orders root,
-then retained Birth relations, blocks by `BasicBlockId`, each instruction in
-stored order, and the terminator. It preserves PHI input/predecessor and CFG
-edges without the generic JSON egress's PHI reordering.
-Non-authority: JSON body text, function names, `MirFunction.signature`, physical
-ordinal, C defaults and Pair fixture values cannot fill missing values, CFG or
-cleanup meaning.
-Fail-fast boundary: absent, foreign, duplicate, residual or unsupported
-function/block/instruction/value/edge relation rejects before C opens an object.
-Landed I0: the final view issues `PublishedLifecyclePhysicalProgramV1`, retaining
-root then Birth function membership, params, sorted blocks, stored instruction
-order, terminators and exact outgoing edges. The selected vocabulary includes
-I64/string/Unit constants, Copy/Add, PHI, control, lifecycle rows and
-Return/Fault terminals. Missing/foreign/duplicate/residual/unsupported rows
-reject before any C entry. Real `typed-object-birth-min` reaches the final
-consumer and proves root/Birth order, N+1 formal count, Add and both field reads.
-This is physical projection, never a semantic receipt.
-Non-claims: C execution, OBJ/EXE, exit 30, generic JSON lowering or legacy
-deletion.
+Decision: finish one selected physical transport and consumer; retire the replaced lifecycle host edge in the same cutover series. Keep compiler C ABI, C LLVM lowering and runtime ABI as separate responsibilities.
+Source authority + canonical issuer: constructor semantic row and finalized root/Birth handoff own membership and lanes; final view projects final MIR and installed canonical object layouts; `include/nyrt_fault_v1.h` owns runtime ABI.
+Non-authority: generic JSON dispatch, function names, V2 partial rows, physical ordinal defaults, fixture values and parser success cannot issue missing source meaning.
+Fail-fast boundary: malformed physical input rejects before LLVM/artifact; missing lowering ABI remains a design stop; canonical admission never retries compatibility.
+Smallest next slice: close the existing `CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-I0` contract as one BoxShape, using actual issued JSON and a finite schema/reference matrix.
+Non-claims: parser completion today, C execution, Pair EXE30/linked OBJ30, production cutover, concurrency safety, Call R7 or whole-MirBuilder completion.
 
-Ordered follow-through: (1) issue this sole physical-program relation and its
-checked JSON serialization; (2) make the existing selected C body entry
-exhaust that relation while retaining V2's preartifact ABI; (3) prove Pair OBJ
-and linked EXE exit 30, then retire only the selected old caller edge. JSON is
-never the consumer's source of target, value, CFG or cleanup meaning. The
-current frame's partial lifecycle rows are dependency evidence, never
-permission to add C opcode cases one by one.
+#### Evidence correction and finite boundary
 
-### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CONSUMER-D0 — C consumer authority
+Static audit base: `79866775f4`; one independent read-only worker audited the
+serializer/parser/test boundary and the primary agent audited host/runtime
+ownership. Findings are integrated here. The pre-existing dirty Rust files are not part
+of this design change. This section supersedes the former physical-program,
+serialization, runtime-ABI and parser D0/I0 progress prose. Git retains those
+intermediate decisions; they are not additional active tasks.
 
-Decision: design-stop. Select one selected-C body consumer and prove that any
-JSON it decodes is exactly the final-view physical program serialization before
-replacing `consumer-pending`.
-Source authority + canonical issuer: the activated final view issues
-`PublishedLifecyclePhysicalProgramV1`; its checked serialization is the only
-transport product a selected C consumer may read.
-Non-authority: V2 rows, JSON names/defaults, C process-global state and generic
-JSON dispatch cannot recover function membership, operands, CFG or cleanup.
-Fail-fast boundary: absent consumer owner, incomplete serialization equality or
-an attempted C-side semantic classification remains `NoSafeSlice`; no object
-opens and no opcode case is added.
-Smallest next slice: read-only owner/caller/serialization audit, followed only
-by one bounded consumer implementation if that audit names its exact owner.
-Non-claims: C execution, Pair OBJ/EXE exit 30, old-edge deletion, runtime hook
-state unification and generic compatibility retirement.
+This inventory covers final-view physical projection -> direct serialization
+-> dedicated C parser, plus the selected lifecycle host -> pending C terminal.
+It includes the input's program/layout/ABI products and their unconsumed host
+handoff. It excludes unrelated call families, VM/WASM, global compile-state
+migration and kernel hook storage. Status is `CutoverBlockerOpen`, not an
+exhausted or complete production census.
 
-Two independent read-only audits close this Decision. The selected host calls
-only `hako_llvmc_compile_published_lifecycle_body_v2`, whose present validator
-reaches `body-consumer-pending`. Its current JSON comes from generic module
-egress: it can include unselected functions and moves PHIs ahead of stored
-instructions. The generic C reader also selects by entry/name/metadata. Neither
-is a serialization of the final-view program, so no C opcode work is permitted.
+| Owner / terminal | Observed evidence | Remaining obligation |
+| --- | --- | --- |
+| `published_backend_view/physical_program.rs` | Projects retained root/Birth set, stored rows, blocks and edges; opcode allowlist | Do not equate projection with full value/CFG verification |
+| `published_backend_view/physical_abi.rs` | Carries referenced installed layouts and Fault ABI version 1 | Storage profile is absent; it does not join or validate V2 control/formal rows despite the former I0 description |
+| `published_backend_view/physical_program_json.rs` | Direct program/layout serialization; source-based Rust tests | Actual serializer output has no production C caller; current string-to-JSON reparse is removable |
+| `hako_llvmc_ffi_published_lifecycle_physical_v1.inc` | Checks envelope, roles, row indexes, opcode names, unsigned edge target and field counts | Operands, identifiers, CFG, nested invokes and layout references remain unchecked |
+| `published_lifecycle_physical_parser_preartifact_test.c` | Calls validation-only export | Its positive omits function name/entry, block id, return value and concrete field layout; success is not contract evidence |
+| `published_mir_object.rs` lifecycle branch -> `compile_published_lifecycle_body_v2` | Production still sends generic lifecycle JSON with V2 frame | Ends at `body-consumer-pending`; replace this exact caller, not a test callback |
 
-### CONSTRUCTOR-LIFECYCLE-PHYSICAL-SERIALIZATION-I1 — issued program transport
+No build/runtime result is added by this static design audit. Earlier green
+parser tests remain evidence only for the checks they actually execute.
 
-Decision: accepted BoxShape. `PublishedLifecyclePhysicalProgramV1` directly
-issues one closed JSON physical transport, with fixed schema tag, issued
-root-then-Birth order, roles, formal lanes, entry, sorted blocks, stored
-instruction and terminator indexes, and exact edges/args.
-Source authority + canonical issuer: only the activated final view's already
-issued physical program is serializer input. The serializer never rescans the
-view or module.
-Non-authority: generic MIR JSON, entry/name/metadata selection, V2 rows, C
-defaults and all generic C readers.
-Fail-fast boundary: unsupported instruction, foreign Birth target, or missing
-function/role/param/block/index/terminator/edge relation rejects before the
-transport is handed to C.
-Smallest next slice: Rust-only direct serializer and focused real Pair evidence.
-It leaves the lifecycle host on the existing pending terminal; the dedicated C
-parser/consumer is I2.
-Non-claims: C parser or object emission, EXE30/OBJ30, V2 ABI changes, generic
-JSON migration and legacy deletion.
+#### Ordered tasks and dependencies
 
-Landed I1: `PublishedLifecyclePhysicalProgramV1` now has a sibling direct
-serializer with fixed `hako.published-lifecycle-physical-program.v1` schema.
-It serializes exactly the issued root/Birth order, roles, params, blocks,
-stored indexes, terminators, edges and closed selected vocabulary. Real Pair
-evidence checks those coordinates, Add and both field reads; nonissued Bool
-constants reject. No host or C consumer changed.
+These are checkpoints in this existing family, not new card/receipt/guard
+families. Only task 1 is the next executable slice. Later tasks open when their
+stated inputs and acceptance are closed; do not implement them by guessing a
+missing ABI. No additional user design consultation is needed for routine
+physical mapping; an absent semantic issuer requires a named design stop.
 
-### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-D0 — dedicated parser owner
+1. **Complete the current wire parser contract — BoxShape.**
+   Owner: the existing direct serializer and dedicated C parser. Caller:
+   `hako_llvmc_validate_published_lifecycle_physical_v1` and its existing test.
+   Terminal: validation success without artifact, or stable contract error.
+   Parse every emitted variant and required field with exact integer/string/
+   null rules; distinguish ordinary rows from terminators. Validate unique
+   function-local block/value IDs, entry membership, Birth target ordinal and
+   receiver/argument count, object/field/layout references, outgoing edges and
+   PHI predecessor/value references. Never recover a missing operand or target
+   by name. Use one call-owned parsed representation; validation must not grow
+   a second semantic program or process-global registry.
+   Acceptance: actual unchanged Pair source -> final view -> direct ABI JSON
+   -> C parser. Mutate that complete input across schema/range, duplicate and
+   missing IDs, operand/target/edge/PHI, invoke/frame and layout categories;
+   all malformed inputs reject without output. Positive hand-written partial
+   JSON is insufficient. Ordinary/terminator opcode swaps and nested invoke
+   kinds belong in that matrix. JSON duplicate keys and embedded-NUL tags cannot
+   bypass exact grammar. Reuse the existing focused test/guard owner.
+   Exclusive replacement set: permissive parser checks and incomplete fixture;
+   no production edge deletion is claimed by this bounded contract task.
+   Preserve current vocabulary; missing physical type information is reported
+   for task 2, never inferred as source semantics to make a test green.
 
-Decision: design-stop. Select the C parser and function-local LLVM lowering
-owner for the issued physical schema before changing the selected pending
-terminal.
-Source authority + canonical issuer: I1 physical JSON is solely a transport of
-the final view's issued program. The parser must consume it by ordinal and
-coordinates, never by name, generic metadata or V2 defaults.
-Non-authority: generic JSON parser/lowerer, function-name lookup, generic
-entry selection, V2 partial lifecycle rows and process-global compile state.
-Fail-fast boundary: any parser path that reclassifies source meaning or lacks
-an exact function-local value/block/edge owner remains `NoSafeSlice`; C emits
-no object.
-Smallest next slice: read-only C owner/caller/reuse audit, then one selected
-schema parser and no broader generic lowering re-entry.
-Non-claims: C object emission, Pair OBJ/EXE exit 30, old-edge deletion, V2 ABI
-revision or compatibility retirement.
+2. **Close the lowering ABI in the existing physical input — BoxShape.**
+   Owner: `physical_abi.rs` / direct serializer and the existing final view;
+   consumer: the same dedicated parser, then task 3 lowerer. Retain the
+   already-selected `lifecycle_storage_profile()` explicitly, exact installed
+   type/slot/storage rows, source-issued root/Birth lanes and runtime revision.
+   Do not create a parallel V2 table to synchronize. Slot projection follows
+   installed layout authority; any cohort restriction must be explicit.
+   Before lowering, record one finite opcode-to-LLVM/runtime mapping including
+   physical value types (including PHI/Unit/string), invoke result availability,
+   hidden borrowed frame argument, root frame allocation/init/report/dispose,
+   Normal/Fault/InvalidContract behavior and diagnostic-site encoding. The
+   diagnostic-site rule and target layout support are still open: name their
+   physical owners and verify existing contracts instead of silently using 0,
+   function names or host-sized storage for a different target.
+   The external input is ABI-bearing JSON only; program-only JSON is an
+   internal serialization component, not a second accepted entry. PHI
+   `type_hint` is currently dropped: prove a sufficient existing physical type
+   contract or retain its authoritative type before opening lowering.
+   Acceptance: serializer/parser agree on every required physical input;
+   profile/ABI/layout/formal/frame mismatch rejects before LLVM. Check selected
+   native target against runtime-owned frame size/alignment. A missing source
+   relation stops this task; adding semantic receipts is outside its scope.
+   Exclusive replacement set: omitted/default physical inputs and the
+   serializer's serialize-then-reparse path; the old V2 host stays pending until
+   task 3. This checkpoint does not claim checked-runtime execution.
 
-Audit result: `NoSafeSlice`. The eventual owner is a new dedicated C physical
-schema parser, called only by the selected lifecycle route and using function
-ordinal plus numeric IDs/coordinates. It cannot reuse generic entry/name/
-metadata readers or same-module lowering. I1 lacks two necessary physical
-inputs: final object runtime type/field-count/slot/storage rows, and the
-runtime-owned FaultFrame placement ABI required by checked lifecycle invokes.
-V2 rows and generic plans cannot fill either gap. No C parser or opcode case
-may be added until those are issued by the final view.
+3. **Connect one complete selected consumer — BoxCount.**
+   Owner: dedicated call-local C LLVM lowering, `published_mir_object.rs` and
+   `capi_transport.rs`. Actual caller: normal-source typed CLI through the
+   shared published host. Terminal: verified object or preartifact rejection.
+   Lower the closed selected vocabulary as one program: formals, constants,
+   Copy/Add/PHI, control edges, exact field operations, Birth and cleanup.
+   Runtime calls use `nyrt_fault_v1.h`: root owns the frame, Birth borrows it,
+   outputs are loaded only on Normal, InvalidContract is not source Fault,
+   and cleanup preserves the primary Fault. Use call-owned options and state
+   for this consumer; broader existing global-state migration remains separate.
+   Validate before artifact creation and remove a partial output on emission
+   failure. No generic reader, same-module name dispatch or fallback re-entry.
+   Acceptance: unchanged Pair source -> EXE exits 30 and source -> OBJ ->
+   linked EXE exits 30, plus selected Fault/cleanup/profile rejection with
+   diagnostic/side-effect order and no partial output. A callback that manually
+   returns pending and direct runtime unit tests are dependency evidence only.
+   Preserve required source hashes and source bodies; do not relax the existing
+   fixed acceptance suite or relabel its incidents as baseline debt. The earlier
+   nested-I64Add classifier concern and 11-case suite retain their source owner
+   until exact current evidence closes them; this static audit does not do so.
+   `typed_object_birth_min_exe.sh` is the named legacy proof caller to replace;
+   its current selfhost-JSON/standalone route cannot certify the typed host.
+   Atomic delete-set: selected lifecycle branch's generic body serialization
+   and pending companion call, and the proof's selected legacy JSON route.
+   Shared generic helpers and external ABI exports require caller evidence
+   before deletion. Acceptance and retirement belong to the same series.
 
-### CONSTRUCTOR-LIFECYCLE-PHYSICAL-RUNTIME-ABI-D0 — direct lowering inputs
+4. **Close the selected retirement inventory — BoxShape/Delete.**
+   Owner: selected transport/C route and proof owners. Inventory direct,
+   manifest, aggregate and directory-discovered callers, including exported C
+   ABI tests, before removing unused V2 Rust wrappers, pending-only helpers and
+   family-private fixtures/docs. Keep shared assets with named live callers;
+   the validation export is not automatically public API to preserve forever.
+   Terminal: no selected old re-entry, and retained required tests call the
+   actual selected consumer. Acceptance records commands, hashes, terminal
+   results and exclusive deletions. Do not claim caller-zero from `rg` alone
+   or preserve a disconnected probe as permanent completion evidence.
 
-Decision: design-stop. Inventory and select a final-view-issued physical object
-layout table and runtime-owned FaultFrame placement ABI for the selected Pair
-program.
-Source authority + canonical issuer: final view co-borrows its selected
-physical program with existing final object layout and runtime ABI products;
-the runtime remains owner of its frame representation.
-Non-authority: field ordinal defaults, generic typed-object plans, V2 partial
-rows, hard-coded FaultFrame size/alignment and legacy allocation/field calls.
-Fail-fast boundary: missing exact layout/slot/storage or frame placement/status
-contract leaves the parser `NoSafeSlice`; C emits no object.
-Smallest next slice: read-only layout/runtime ABI owner and caller inventory;
-then only a bounded final-view physical projection if an existing issuer names
-both products.
-Non-claims: new semantic receipt, parser/lowerer implementation, object
-emission, OBJ/EXE exit 30 or legacy deletion.
+Task 1 replaces the current parser in one bounded change, not successive
+commits for individual fields. Task 3 changes selected execution support and
+must not be presented as behavior-neutral refactoring. Required module README
+and `docs/reference/**` contract updates accompany their implementation slice;
+this planning change does not alter the language or runtime ABI.
 
-Audit result: accepted. `CanonicalObjectDefinitionV1.runtime_layout()` is the
-installed physical layout authority, and the existing final-view V2 frame
-already projects its exact type/field-count/slot/storage rows. Runtime-owned
-`NyrtFaultFrameV1` in `nyrt_fault_v1.h` supplies the complete placement ABI;
-the compiler only carries its version/mode and never its Rust fields. The gap
-is coherence, not missing meaning: program JSON and layout/frame rows are now
-separate final-view projections.
+#### After this family
 
-### CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-PROJECTION-I0 — coherent C input
+Follow the existing [workstream order](../workstreams/mirbuilder-inplace-replacement-current.md#backendruntime-feedback-and-task-order-2026-09-06):
+canonical/explicit-compatibility separation -> compile-owned state/options ->
+single kernel hook storage. Retire each replaced old edge within its own series.
+Runtime/compiler crate separation stays later. A demonstrated blocker on this
+selected path can reopen its dependency; a hypothetical race cannot.
 
-Decision: accepted BoxShape. One final-view physical projector joins the
-already-issued program with existing V2 layout/field/role/formal/control rows,
-and binds operation coordinates by issued function ordinal/block/index.
-Source authority + canonical issuer: final view joins the issued physical
-program, installed canonical object layouts and runtime ABI version/modes only.
-Non-authority: source facts, layout allocation, name lookup, ordinal defaults,
-generic JSON metadata and duplicated Rust FaultFrame fields.
-Fail-fast boundary: absent/unavailable/non-i64 layout, duplicate/missing/residual
-operation coordinate, JSON/frame disagreement or invalid runtime ABI mode
-rejects before C opens an object.
-Smallest next slice: physical input/projector and direct JSON expansion, with
-focused Pair and no-object mismatch evidence. C parsing and lowering remain
-separate tasks.
-Non-claims: a semantic receipt, C lowering/object emission, OBJ/EXE exit 30,
-generic reader reuse or legacy deletion.
-
-Landed I0: final view now issues one ABI input carrying the selected program,
-only canonical layouts referenced by that program, and FaultFrame ABI version 1.
-Direct JSON carries those layout rows without rescanning MIR. Real Pair evidence
-proves its two i64 slots and the runtime ABI revision.
-
-### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-D1 — post-projection C owner
-
-Decision: design-stop. Audit a dedicated parser and function-local lowering
-owner for the coherent physical input; generic C readers remain excluded.
-Source authority + canonical issuer: the I0 input and direct JSON are the only
-C program/layout/frame transport.
-Non-authority: V2 rows as a second authority, generic module JSON, metadata,
-name-based selection and old same-module lowering.
-Fail-fast boundary: absent dedicated parser, coordinate/operand/edge/layout
-residual or C-side semantic recovery stays `NoSafeSlice` before object output.
-Smallest next slice: read-only C owner/reuse audit, then parser validation.
-Non-claims: object emission, Pair OBJ/EXE exit 30 and legacy deletion.
-
-Audit result: accepted parser-only I0. A dedicated call-local yyjson parser
-will validate only the direct I0 schema by function ordinal and numeric
-coordinates, then dispose it and return a named preartifact terminal. It does
-not read V2 rows, generic JSON, names, metadata, plans or LLVM APIs.
-
-### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-I0 — preartifact schema validation
-
-Decision: accepted BoxShape. Add one dedicated C validation endpoint for the
-issued physical schema. Valid input returns success without object output.
-Source authority + canonical issuer: I0 direct JSON is the sole input.
-Non-authority: host path, V2 frame/body sites, generic readers/lowerers,
-function lookup, metadata, process-global state and LLVM APIs.
-Fail-fast boundary: malformed schema, function/block/value/edge/layout/frame
-ABI residual or unsupported opcode rejects before output and before LLVM.
-Smallest next slice: parser include, validation export, preartifact C fixture
-and focused negatives. C lowering is separately taskized afterwards.
-Non-claims: host switch, object emission, Pair OBJ/EXE exit 30 and old-edge
-deletion.
-
-Decision: provisional JSON validators remain retired at the no-artifact terminal. Preserve each already-issued Birth recipe's canonical target when a root New claim becomes a local commit, then co-seal it with root Completion and the canonical construction draft after finalization.
-Source authority + canonical issuer: `OrdinaryNewClaimLedgerV1` owns root Completion and issued Birth recipes; its private finalizer validates one exact retained construction draft and issues the opaque final root/Birth handoff before Atomic Publish.
-Non-authority: root symbol, `FunctionSignature`, `MirParamDecl`, instruction position, JSON, C frame, Pair names, canonical-core role, ObjectFieldGet, metadata and positional/default ABI rules.
-Fail-fast boundary: absent/foreign/duplicate root, recipe, Birth key, construction draft, Completion or local completion rejects before view, C or artifact; NoBirthZero has an explicit zero-Birth terminal.
-Smallest next slice: landed BoxShape—retain the existing Birth target in `NewLocalCommit`, seal the private finalized handoff at artifact validation, and make the final view consume it instead of the production root-name-only bind.
-Non-claims: field admission, C implementation, Pair EXE30/OBJ30, ABI/formal projection, Fault cleanup, retry or broader legacy deletion.
+Pair closure completes this constructor cohort, not the whole MirBuilder.
+The north star still requires Call reader stop/R7, physical thinning, Loop
+handoff closure and the separately defined enforcement, evidence, bootstrap
+and release gates. Unsupported nonselected backends may stop before artifact;
+feature parity is not a prerequisite for retiring their legacy readers.
 
 ### Terminal consumer design (2026-09-06)
 

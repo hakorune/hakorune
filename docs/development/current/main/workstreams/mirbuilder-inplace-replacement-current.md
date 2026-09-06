@@ -538,65 +538,17 @@ existing invalid ABI/profile/site boundaries. No source runtime acceptance is
 claimed. Stop: artifact emission, generic retry, added program prepass or
 unrelated helper deletion leaves this boundary.
 
-**Gated remaining tasks — same constructor cutover, no new D0 cards**
+**Constructor execution order**
 
-2. Handoff D0 landed: one seam retains the root ledger while the port is live.
-   Completion is production-owned but not a handoff API; a taken New lost its
-   issued Birth recipe. No symbolic/MIR reconstruction is permitted.
-3. Handoff BoxShape: retain the issued Birth target in `NewLocalCommit`; after
-   finalization co-seal root Completion, recipe and exactly one construction
-   draft, then replace root-name-only artifact handoff. Reject zero/missing/
-   foreign/duplicate/incomplete cases before view/C; no formals or C changes.
-4. Repair source classifier first: `181d7f8e92` retains the terminal relation
-   but rejects nested I64Add operands previously classified Integer. Preserve
-   recursive scalar coverage separately from direct two-field shape issuance.
-   Compare parent/current focused evidence; do not widen the terminal cohort.
-5. Connected terminal consumer landed: exact FieldRead take/record and binding
-   resolution now emit ordered reads/Add, reuse Home cleanup/Return and validate
-   physical correspondence. The selected raw descent edge rejects re-entry.
-   Expected-but-missing relation rejects; absence is not compatibility
-   permission. Owner, acceptance and deletion scope are fixed in the
-   [terminal design](../design/constructor-birth-new-lifecycle-ssot.md#terminal-consumer-design-2026-09-06).
-6. ABI-handoff BoxShape: constructor semantic row issues exact receiver/parameter
-   lanes; co-seal moves them to local commit/final handoff with root I64 result.
-   Reject drift before C; MIR/JSON/signature/defaults cannot repair it.
-7. Consume one physical program: selected C companion places function-local
-   params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
-   checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
-   Acceptance: Normal-only allocation load, explicit I64 wire mapping, Birth
-   Unit/no out, root-owned vs borrowed Fault frame, InvalidContract distinct from
-   source Fault, primary Fault preserved through cleanup. Missing/duplicate/
-   residual/unsupported rows stop before artifact. Source handoff must close root ABI,
-   diagnostic site rule and every selected block/operand relation first.
-8. Execute and retire: actual normal-source typed CLI -> shared published host
-   -> C -> EXE; same source -> OBJ -> linked executable. Replace the selected
-   proof's legacy JSON caller; identify/delete selected old caller arms in the
-   same cutover series. Acceptance: both executions exit 30; profile and Fault
-   negatives exercise selected terminals, no retry/partial artifact. Preserve
-   source/body/expected value, record commands, source/script hashes and results.
-   No retirement closure without exclusive caller proof and the inventory below.
+The [accepted physical consumer plan](../design/constructor-birth-new-lifecycle-ssot.md#accepted-physical-consumer-plan-2026-09-06)
+owns the current evidence, exact owners/callers, acceptance and exclusive
+retirement sets. Do not recreate its task details here.
 
-Task 3 is a bounded handoff prerequisite, not a new semantic issuer.
-Task 7 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
-branches, lifecycle continuations and return must preserve the issued program.
-Do not discover source-to-Recipe meaning by iteratively adding C opcode cases.
-These gates are one connected series; do not create a docs/test/commit tasklet
-for each opcode. Select BoxShape or BoxCount explicitly for each implementation
-boundary once its mapping is closed; do not mix acceptance expansion with refactor.
-**Finite retirement and evidence inventory**
-
-This inventory covers selected final-view host -> companion and its proof caller;
-includes program validators, typed lifecycle consumer and selected legacy
-re-entry, excludes unrelated generic cohorts. Cutover remains CutoverBlockerOpen.
-
-| Asset | Disposition |
-| --- | --- |
-| Three private companion JSON helpers and calls | Exclusive first Stop/Delete set; preserve ABI/site checks and pending export |
-| Source pipeline callback that manually returns pending | Dependency evidence only; cannot certify egress/host/C; exercise actual consumer in task 2 |
-| Existing `typed_object_birth_min_exe.sh` | Selfhost JSON -> standalone ny-llvmc with legacy metadata assertions; replace selected acceptance caller in task 5, inspect direct/manifest/aggregate/directory discovery before retirement or park |
-| Unused Rust `compile_published_lifecycle_v2` wrappers | Separate caller-zero cleanup candidate; exported C preartifact symbol has a direct test caller and is retained |
-| Shared `same_module_*` / generic NewBox, field and call helpers | Not an exclusive delete-set. Prohibit selected re-entry; remove only arms proven exclusive after typed switch, never the shared files wholesale |
-| Pair source result and root/Birth handoff | Identity handoff landed; scalar coverage repair, terminal consumer and result/formal ABI remain CutoverBlockerOpen |
+Direct parser contract -> lowering ABI completeness -> actual selected C/host
+cutover with Pair/Fault execution -> selected caller-zero retirement.
+The parser is still incomplete; the production host remains at
+`body-consumer-pending`. Retained source/Birth handoff and serialized physical
+rows are dependency evidence. Neither proves EXE30/linked OBJ30.
 
 Initial 11-entry fresh llvm_static acceptance was 1 pass / 10 failures: six
 RootPreservation(CompatibilityLoss), four generated birth/0. Existing records
@@ -618,11 +570,11 @@ backend consumes published relations; runtime hook owner accepts registrations.
 Non-authority: JSON names, C language choice, duplicate registries and local green.
 Fail-fast boundary: missing selected authority stops before effects/artifact;
 no unproved canonical-to-compatibility fallback or concurrency guarantee.
-Smallest next slice: constructor source-profile prerequisite above, after its
-actual consumer and exclusive old-edge replacement are closed; no new receipt now.
+Smallest next slice: existing constructor parser contract; follow its linked
+owner plan through actual consumer execution and exclusive old-edge replacement.
 Non-claims: Pair EXE30/OBJ30, legacy retirement, races or compiler binary size.
 
-Order: constructor tasks 4–7 -> canonical/compatibility selection separation ->
+Order: constructor plan through execution/retirement -> canonical/compatibility separation ->
 compile-call state/options -> kernel hook single storage -> later runtime crate
 dependency reduction. Retire each selected old edge within its own series;
 do not postpone deletion to a final cleanup project. A demonstrated shared-state

@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-I0"
 current_execution_cohort = "constructor_lifecycle_c_physical_parser_boxshape"
 current_design_stop = "none"
-current_blocker_token = "BoxShape: validate only the issued direct physical schema in a call-local C parser; object emission and host wiring remain closed."
+current_blocker_token = "BoxShape: complete the existing physical parser contract with real serialized Pair input and finite negative coverage; lowering ABI, host cutover and EXE30 remain gated."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,21 +31,14 @@ current_execution_design = "docs/development/current/main/design/constructor-bir
 latest_card = "constructor-birth-new-lifecycle-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
 latest_card_summary = """
-Constructor lifecycle V2 reaches a no-artifact body companion; this does not
-prove checked runtime execution. The speculative JSON program validators are
-retired; an unread nonempty body carrier now reaches only body-consumer-pending
-after frame/profile/site validation. Birth ABI handoff is landed: the exact
-constructor semantic row issues receiver/formal lanes and Unit result, local
-commit transfers them once, final sealing retains root I64, and final view/C
-frame project those relations without physical-ordinal reclassification. The
-the final view now issues the complete selected physical program and I1
-serializes only that program. Existing final layout and runtime FaultFrame ABI
-are selected and I0 binds them into one physical input; C parser/lowering ownership remains to be selected.
-Pair result BoxCount landed at 181d7f8e92: source Completion preserves exact
-terminal Return/Add/ordered-read relations. The AST-free terminal consumer now
-uses that relation through exact reads, one ordered Add and the existing cleanup
-Return. EXE30/linked OBJ30 and selected C physical program remain open; no
-source runtime claim is made.
+Design/task order consolidated at the constructor owner. Birth handoff and
+physical program/layout serialization exist, but the dedicated parser checks
+only an envelope and its incomplete positive fixture does not prove the contract.
+Next: complete that parser using actual issued Pair JSON, then close physical
+lowering ABI (including profile, frame/types/site rules), connect the real host
+and C consumer, prove EXE30/linked OBJ30 and retire selected old edges.
+Production still uses generic lifecycle JSON plus V2 and stops at
+body-consumer-pending. No checked-runtime or whole-MirBuilder completion claim.
 """
 next_design_card = "none"
 next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-I0"
