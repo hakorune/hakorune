@@ -81,3 +81,37 @@ fn selected_new_arguments_reach_birth_in_issued_order() {
         );
     });
 }
+
+#[test]
+fn selected_new_rejects_nontrivial_argument_before_raw_descent() {
+    let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            "box Page { birth(value) { } }
+             static box Main { main() {
+                 local page = new Page(1 + 2)
+                 return 0
+             } }",
+            ParserBuildConfig::default(),
+        )
+        .unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+        else {
+            panic!("source authority lost");
+        };
+        let error = crate::mir::MirCompiler::with_options(false)
+            .compile_normal(
+                crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(
+                    source,
+                    None,
+                    Default::default(),
+                ),
+            )
+            .expect_err("nontrivial selected New argument must stop before raw descent");
+        assert!(
+            error.contains("ordinary-new/argument-source-unavailable"),
+            "unexpected error: {error}"
+        );
+    });
+}
