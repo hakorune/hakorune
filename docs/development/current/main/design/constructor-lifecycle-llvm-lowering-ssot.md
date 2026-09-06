@@ -840,21 +840,66 @@ the Birth C path.
 
 ### `CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-DECLARATION-USE-D0`
 
-Decision required: use the exact constructor declaration loan to reconcile
-each formal declaration and all source-use requirements before physical ABI
-admission. The decision must preserve source validity and evaluation for
-typed-unused, untyped-unused, repeated-use and conflicting-use cases. It must
-name the source contract authority, selected body/call consumer, rejected
-physical boundary and the positional wire-kind deletion set. Caller literals,
-MIR types, value IDs and C input tags are non-authority. Do not implement a
-formal adapter or alter C wire rows during this D0.
+**Decision (accepted):** the exact parser Birth declaration, its resolver
+bindings, and the complete selected-body use inventory issue one
+`BirthFormalContractV1` per formal inside
+`issue_instance_constructor_semantic_batch_v1`.  The existing
+`VerifiedInstanceConstructorSemanticRowV1` is the canonical issuer/retainer;
+`BirthAbiHandoffV1` only carries that relation forward.  Do not borrow the
+generic `callable_parameter_contract` catalog: it is issued for a different
+direct-callable batch and resolver session, not constructor Birth.
+
+Each contract retains exact ordinal and binding, declaration class
+(`Unannotated`, `ExactI64`, `ExactText`, or explicit unsupported), and complete
+use coverage (`NoUse`, i64-field stores with exact sites, or general/conflicting
+use).  It also records a physical disposition.  A parameterized Birth is
+`DeferredActualBinding` until a later physical binding proves its actual
+representation; unsupported/tagged-or-checked cases remain explicit physical
+unavailability.  This contract neither makes an unannotated formal `i64` nor
+changes source acceptance.
+
+The selected construction-store consumer and final lifecycle admission consume
+the same relation.  Declaration/binding/ordinal drift rejects at semantic
+issuance.  Opaque, text, unsupported, general/conflicting, and not-yet-bound
+actuals stop at final physical admission, preserving source validity and
+argument evaluation.  Caller literals, MIR types, value IDs and C input tags
+are non-authority.  The future exclusive deletion set is the C transport's
+positional `input_kind` defaults and its anonymous absent-ordinal sentinel;
+I0 below retains the contract only and does not alter those rows or enable C
+execution.
+
+### `CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-CONTRACT-I0`
+
+- **Bounded change:** add the child formal-contract model beneath the existing
+  constructor semantic owner; issue it from exact `param_decls`, resolver
+  bindings and the already selected construction-use inventory, then retain it
+  through `BirthAbiHandoffV1`.
+- **Authority / non-authority:** the constructor declaration loan is sole
+  authority.  Construction plans contribute use requirements but do not declare
+  a formal's class.  Actual New arguments, physical MIR values and C tags are
+  not classifiers.
+- **Consumers and terminal:** selected construction-store lowering consumes
+  exact use sites; final lifecycle admission consumes the disposition and
+  returns its existing explicit physical-unavailable terminal before artifact.
+  No generic callable catalog, raw AST re-entry, C default, fallback, or
+  caller specialization may enter.
+- **Acceptance:** typed-unused, untyped-unused, untyped i64-field store,
+  repeated store, and differing actual values/classes retain source acceptance
+  and the exact relation; uncovered/general/conflicting or unbound physical
+  cases reach explicit unavailable.  Declaration spelling, binding, ordinal,
+  foreign-row and relation-drift mutations reject at issuance.  Focused
+  package/final-handoff positives and negatives plus existing guards pass.
+- **Size / non-claims:** put the model in a child module; keep the parent below
+  760 lines (800 hard stop).  This I0 does not choose a runtime tagged ABI,
+  emit a C formal row, open source-to-EXE/OBJ execution, or delete the
+  positional C defaults.
 
 ### Following tasks and unresolved decisions
 
 | Order within existing Steps 1–4 | Issuer / consumer / deleted loss edge / acceptance |
 | --- | --- |
 | 1a. Birth object handoff | The bounded I0 above; does not wait for all formal classes. |
-| 1b. Formal declaration/use agreement | The constructor's exact declaration loan retains `param_decls`, binding and ordinal in its existing row; construction stores retain separate use requirements. Extend existing parameter-contract policy through this loan, never import a catalog from another session. Selected call/body consumers must reconcile every formal and use before physical admission. Delete positional parameter-kind defaults only when that agreement is consumed. Acceptance includes typed-unused, untyped-unused, repeated uses and differing actual classes across New sites. This is the next design decision after 1a, not implementation-ready yet. |
+| 1b. Formal declaration/use agreement | `CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-CONTRACT-I0` issues and retains the exact declaration/use relation in the constructor's existing source loan. It never imports another-session catalog. A later physical-binding row, not I0, consumes `DeferredActualBinding` and deletes positional parameter-kind defaults. Acceptance includes typed-unused, untyped-unused, repeated uses and differing actual classes across New sites. |
 | 1c. Root scalar and terminal retention | Extend the existing Home scan's local state to preserve Integer/Bool and exact initializer/binding relations; replace the coarse discarded terminal classification with retained Unit/literal/local/field/Add relations in the existing ledger. The selected terminal consumer emits those relations and removes their raw replay in the same series. Keep logical Facts separate from any Recipe keys. Acceptance covers every listed classifier arm, recursive Add, aliases, uninitialized use, residual reads and finishing drift. Operator/coercion rules must come from reference semantics before this mapping opens. |
 | 2. Complete physical binding | Existing emission/finalization owns source-to-value bindings and named synthetic frame/Copy/PHI/Normal-result rules. Seed formals, verify all definition/use/edge relations, remove lost bare projections, and hand off once. Missing coverage remains an artifact blocker; no type inference from metadata. |
 | 3. Entry/runtime agreement | Use the existing source-result/process policy linked below; implement checked target/frame agreement and exact cleanup/report/dispose behavior. Runtime InvalidContract/report-failure behavior must be named separately before emission. |
