@@ -301,18 +301,40 @@ impl ConstructionState {
         let actual_count = function
             .blocks
             .values()
-            .filter(|block| {
+            .flat_map(|block| block.all_instructions())
+            .filter(|instruction| {
                 matches!(
-                    block.terminator,
-                    Some(MirInstruction::Invoke {
-                        operation: InvokeOperation::FieldSet { .. },
-                        ..
-                    })
+                    instruction,
+                    MirInstruction::Invoke { .. }
                 )
             })
             .count();
         if actual_count != stores.len() {
             return Err(fault("emission-count"));
+        }
+        let mut fault_returns = 0;
+        for block in function.blocks.values() {
+            for instruction in block.all_instructions() {
+                match instruction {
+                    MirInstruction::ReturnFault { fault_frame } => {
+                        if *frame != Some((*fault_frame, block.id)) {
+                            return Err(fault("fault-return-drift"));
+                        }
+                        fault_returns += 1;
+                    }
+                    MirInstruction::InvokeNormalResult { .. } => {
+                        return Err(fault("unexpected-normal-result"));
+                    }
+                    MirInstruction::Call(call) if matches!(call.callee,
+                        crate::mir::Callee::BirthConstructor { .. }) => {
+                        return Err(fault("unowned-birth-call"));
+                    }
+                    _ => {}
+                }
+            }
+        }
+        if fault_returns != usize::from(frame.is_some()) {
+            return Err(fault("fault-return-count"));
         }
         for (field, progress) in stores.values() {
             let StoreProgress::Emitted {

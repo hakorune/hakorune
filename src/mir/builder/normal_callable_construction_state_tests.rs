@@ -34,6 +34,9 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         fault_landing: landing,
     });
     function.add_block(block);
+    let mut fault_block = BasicBlock::new(landing);
+    fault_block.set_terminator(MirInstruction::ReturnFault { fault_frame: frame });
+    function.add_block(fault_block);
     let site = SourcePathV1::function_body().node();
     let mut state = ConstructionState::Selected {
         stores: BTreeMap::from([(
@@ -52,6 +55,28 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         completed: true,
     };
     state.validate_bindings(&function).unwrap();
+    let mut extra_invoke = function.clone();
+    let mut block = BasicBlock::new(BasicBlockId::new(8));
+    block.set_terminator(MirInstruction::Invoke {
+        operation: InvokeOperation::ReclaimUnpublished { object: field.object(), value: base },
+        fault_frame: frame,
+        normal_landing: normal,
+        fault_landing: landing,
+    });
+    extra_invoke.add_block(block);
+    assert!(state.validate_bindings(&extra_invoke).unwrap_err().contains("emission-count"));
+    let mut missing_fault = function.clone();
+    missing_fault.blocks.remove(&landing);
+    assert!(state.validate_bindings(&missing_fault).unwrap_err().contains("fault-return-count"));
+    let mut extra_fault = function.clone();
+    let mut block = BasicBlock::new(BasicBlockId::new(9));
+    block.set_terminator(MirInstruction::ReturnFault { fault_frame: frame });
+    extra_fault.add_block(block);
+    assert!(state.validate_bindings(&extra_fault).unwrap_err().contains("fault-return-drift"));
+    let mut extra_result = function.clone();
+    extra_result.blocks.get_mut(&origin).unwrap().add_instruction(
+        MirInstruction::InvokeNormalResult { invoke_block: origin, dst: ValueId::new(99) });
+    assert!(state.validate_bindings(&extra_result).unwrap_err().contains("unexpected-normal-result"));
     for case in 0..7 {
         let mut changed = function.clone();
         let terminator = &mut changed.blocks.get_mut(&origin).unwrap().terminator;

@@ -91,6 +91,9 @@ mutable module can escape to those callers. Callback failure is terminal.
 Only the preselected ExplicitCompatibility branch may return non-admitted MIR;
 this is not a retry. Generic module/clone admission still rejects lifecycle
 instructions, and retained Unavailable state is never executable permission.
+Retained construction validation rejects extra Invoke/ReturnFault sites and
+Normal-result projections in Unit Birth. Callable frame validation counts all
+definitions, including sibling blocks: an unissued or duplicate frame rejects.
 Typed C rows must all be consumed before object emission. They cannot enter
 exact-seed dispatch or retry a failed object emitter; non-contract typed output
 selects opt/llc once, while contract-bound output retains its admitted emitter.

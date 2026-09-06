@@ -82,6 +82,13 @@ impl CallableSemanticLoweringState {
 
 impl CallableFaultFrame {
     pub(super) fn validate(&self, function: &MirFunction) -> Result<(), String> {
+        let definitions = function.blocks.values()
+            .flat_map(|block| block.all_instructions())
+            .filter(|instruction| matches!(instruction, MirInstruction::FaultFrameEnter { .. }))
+            .count();
+        if definitions != usize::from(self.value.is_some()) {
+            return Err(freeze("definition-count-drift"));
+        }
         let Some(expected) = self.value else {
             return Ok(());
         };
@@ -145,6 +152,15 @@ mod tests {
             assert!(matches!(block.instructions[0],
                 MirInstruction::FaultFrameEnter { dst, mode: actual }
                 if dst == value && actual == mode));
+            state.validate(function).unwrap();
+            let mut duplicate = function.clone();
+            let extra = BasicBlockId::new(9);
+            let mut block = BasicBlock::new(extra);
+            block.add_instruction(MirInstruction::FaultFrameEnter { dst: value, mode });
+            duplicate.add_block(block);
+            assert!(state.validate(&duplicate).unwrap_err().contains("definition-count-drift"));
+            assert!(CallableFaultFrame::borrowed().validate(function)
+                .unwrap_err().contains("definition-count-drift"));
         }
     }
 }
