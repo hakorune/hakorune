@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-D4"
-current_execution_cohort = "constructor_lifecycle_root_new_trivial_argument_consumer"
-current_design_stop = "D4: identify the finite source-issued direct-New argument relation and its sole AST-free selected consumer before implementation."
-current_blocker_token = "NoSafeSlice until the root direct-New trivial-argument consumer census names one existing issuer, selected caller, terminal validation and exclusive raw-replay delete-set."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-ISSUER-D5"
+current_execution_cohort = "constructor_lifecycle_root_new_trivial_argument_issuer"
+current_design_stop = "D5: design the affine per-child relation inside the existing ordinary-New claim and name its sole terminal consumer before implementation."
+current_blocker_token = "NoSafeSlice: the selected ordinary-New claim has aggregate arity only; it lacks per-CallArgument identity/class and no AST-free terminal consumer or exclusive raw-replay delete-set is present."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,13 +34,15 @@ latest_card_summary = """
 Birth FieldSet RHS I0 is landed locally: ConstructionPlanV1 co-seals receiver
 and parameter source uses with its literal/parameter RHS descriptor; selected
 construction state consumes those existing sites and emits FieldSet without
-target/RHS AST replay. The next stop audits root direct-New trivial arguments.
+target/RHS AST replay. D4 established that root direct-New claims retain only
+aggregate arity, so their raw argument loop has no AST-free replacement. D5
+designs the existing claim's required affine per-child relation and terminal.
 Root formals/arbitrary values and unused/untyped Birth formals remain NoIssuer.
 The field-read focused red reproduces at parent (left 1/right 0), so it is
 known baseline debt. Pair EXE30/linked OBJ30 and selected retirement remain
 required and unproven.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-D4"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-ISSUER-D5"
 next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

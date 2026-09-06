@@ -433,27 +433,69 @@ reproduces it. It is known baseline debt and does not reopen this BoxShape row.
 
 ## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-D4
 
-Decision: stop at a read-only consumer audit before retaining or lowering root
-direct-`New` arguments.
+Decision: `NoSafeSlice`; do not retain or lower root direct-`New` arguments yet.
 
-Source authority + canonical issuer: the existing exact-child classification
-from `scan_new_home_flow` and its `CallerNewHomePrefixV1` relation are the only
-candidate authority; the audit must establish their actual issuer, retained
-argument relation, and one selected consumer.
+Source authority + canonical issuer: `issue_ordinary_new_claims_v1` is the
+sole issuer of the selected direct-local `OrdinaryNewAdmissionClaimV1` under
+one resolver-batch loan. It retains owner/site, class, aggregate arity,
+destination/declaration, Home-prefix result, construction/object/destruction
+and Birth recipe. `scan_new_home_flow` only checks that each `CallArgument(i)`
+is trivial; `CallerNewHomePrefixV1` retains destination, prior Homes, fault
+continuation and covered statements, then the per-child identity/class is
+discarded.
 
-Non-authority: argument AST after selected claim take, argument names, inferred
-MIR types, `ValueId`, target ABI and C transport.
+Non-authority: argument AST after selected claim take,
+`PreparedRawChildSourceV1`, argument names, raw source context, inferred MIR
+types, `ValueId`, target ABI and C transport.
 
-Fail-fast boundary: without a named AST-free consumer for every accepted
-trivial argument, the row remains `NoSafeSlice`; the selected New emitter must
-not compensate by re-lowering raw arguments.
+Fail-fast boundary: claim take presently checks site/class/aggregate arity and
+the final New terminal validates only lifecycle bindings/root completion. No
+consumer can prove individual argument source-use consumption. The selected
+route takes the claim and then loops over raw `Vec<ASTNode>` arguments through
+`drive_legacy_expression_v1`; deleting that loop would remove the only
+materialization path. `complete_exact_demands_v1` checks a child queue only and
+is not a semantic argument consumer. Therefore no exclusive delete-set exists.
 
-Smallest next slice: census the finite direct-`New` argument relation, its
-selected raw caller and its terminal validation, then record one bounded
-Decision or `NoSafeSlice`.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-ISSUER-D5`.
+Design the finite per-child relation as a co-sealed part of the existing claim,
+then name its sole consuming terminal before implementation.
 
-Non-claims: root formals/arbitrary root SSA, Birth receiver co-seal, source
-form widening, target ABI/C activation, Pair EXE/OBJ30 and production cutover.
+Non-claims: root formals/arbitrary root SSA, handles, nontrivial argument
+shapes, Birth receiver co-seal, target ABI/C activation, Pair EXE/OBJ30 and
+production cutover.
+
+Census boundary: selected App Main direct-local ordinary `New` candidates
+issued by `issue_ordinary_new_claims_v1` -> selected prepared New -> ordinary
+New admission -> raw child descent -> existing final New validation. Includes
+each finite `CallArgument(i)`; excludes field initializers, generic raw
+children, Core13/integer routes, non-App-Main/nonselected callables and
+target/runtime/C.
+
+## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-ISSUER-D5
+
+Decision: design only; extend no code, fixture, fallback or production switch.
+
+Source authority + canonical issuer: the exact resolver-batch loan in
+`issue_ordinary_new_claims_v1` is the named existing issuer. The candidate
+relation is an affine, ordered child row co-sealed inside its existing
+`OrdinaryNewAdmissionClaimV1`, at minimum `(owner, New site, CallArgument
+ordinal, trivial source class/site)`.
+
+Non-authority: `CallerNewHomePrefixV1` as an argument issuer, raw AST/child
+scope, names, `MirType`, `ValueId`, physical ABI/C and a new semantic receipt.
+
+Fail-fast boundary: an absent, duplicate, foreign, ordinal-drifted or
+nontrivial row rejects before child effects. Until a final terminal consumes
+every row exactly once, the selected raw argument loop remains necessary and
+cannot be deleted.
+
+Smallest next slice: audit existing source-site consumption primitives and the
+final New terminal to name one bounded consumer and its same-series exclusive
+raw-replay delete-set, or retain `NoSafeSlice`.
+
+Non-claims: a general root SSA/argument representation, nontrivial arguments,
+Birth receiver co-seal, target ABI/C activation, Pair EXE/OBJ30 and production
+cutover.
 
 Step 1's exact source inventory and step 3's final-entry status connection are
 explicit remaining design obligations. Do not mislabel this roadmap as a
