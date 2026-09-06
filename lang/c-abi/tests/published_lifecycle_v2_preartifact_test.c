@@ -18,8 +18,12 @@ static void rejects_body(
     hako_llvmc_published_lifecycle_body_site_v1* site,
     const char* reason) {
   char* error = NULL;
+  FILE* json = fopen("/tmp/published-lifecycle-body.json", "wb");
+  assert(json);
+  fputs("{\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":7,\"instructions\":[{},{},{},{\"op\":\"published_lifecycle_invoke\",\"kind\":2}]}]}]}", json);
+  fclose(json);
   assert(hako_llvmc_compile_published_lifecycle_body_v2(
-      "published-lifecycle-body.json", frame, site, 1,
+      "/tmp/published-lifecycle-body.json", frame, site, 1,
       "/tmp/hako-v2-body-no-object.o", &error) != 0);
   assert(error && strstr(error, reason));
   assert(fopen("/tmp/hako-v2-body-no-object.o", "rb") == NULL);
