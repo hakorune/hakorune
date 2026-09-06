@@ -10,10 +10,10 @@ mod declared_instance_locator;
 mod direct_call_loan;
 mod dynamic_admission;
 mod install;
+mod instance_construction;
 mod instance_constructor_loan;
 mod instance_constructor_non_escape;
 mod instance_constructor_semantic;
-mod instance_construction;
 pub(crate) use instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 mod issuer;
 mod model;
@@ -80,7 +80,8 @@ pub(in crate::mir) use issuer::{
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
 pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;
 pub(crate) use ordinary_new_coseal::{
-    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
+    FinalizedRootBirthHandoffV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
+    OrdinaryNewConstructorDispositionV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{

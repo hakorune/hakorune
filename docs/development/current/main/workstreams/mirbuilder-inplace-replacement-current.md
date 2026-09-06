@@ -543,7 +543,7 @@ unrelated helper deletion leaves this boundary.
 2. Handoff D0 landed: one seam retains the root ledger while the port is live.
    Completion is production-owned but not a handoff API; a taken New lost its
    issued Birth recipe. No symbolic/MIR reconstruction is permitted.
-3. Handoff BoxShape: retain the issued Birth recipe in `NewLocalCommit`; after
+3. Handoff BoxShape: retain the issued Birth target in `NewLocalCommit`; after
    finalization co-seal root Completion, recipe and exactly one construction
    draft, then replace root-name-only artifact handoff. Reject zero/missing/
    foreign/duplicate/incomplete cases before view/C; no formals or C changes.

@@ -8,12 +8,12 @@
 use std::{collections::HashMap, time::Instant};
 
 use crate::ast::ASTNode;
-use crate::mir::MirModule;
 use crate::mir::builder::{
     BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1,
     ModuleBuilderInvocationSessionV1, NormalRuntimeInputSnapshotV1,
     PreparedNormalDefaultProgramRootV1,
 };
+use crate::mir::MirModule;
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
 use super::{finish_schedule_for_normal_module, MirCompileResult, MirCompiler};
@@ -536,12 +536,17 @@ impl MirCompiler {
     ) -> Result<MirCompileResult, String> {
         super::validate_builder_operator_call_ingress_once_v1()
             .map_err(|error| error.to_string())?;
-        NormalDefaultPublishedPipelineV1::compile(self, request, |completed| completed.into_parts(), |result, session, ()| {
-            let prepared = session
-                .prepare_external_commit()
-                .map_err(|error| error.to_string())?;
-            Ok((prepared, result))
-        })
+        NormalDefaultPublishedPipelineV1::compile(
+            self,
+            request,
+            |completed| completed.into_parts(),
+            |result, session, ()| {
+                let prepared = session
+                    .prepare_external_commit()
+                    .map_err(|error| error.to_string())?;
+                Ok((prepared, result))
+            },
+        )
     }
 
     /// Consume the final module synchronously, without publishing mutable MIR
@@ -558,49 +563,71 @@ impl MirCompiler {
     ) -> Result<NormalPublishedCompileOutcome<R>, String> {
         super::validate_builder_operator_call_ingress_once_v1()
             .map_err(|error| error.to_string())?;
-        NormalDefaultPublishedPipelineV1::compile(self, request, |completed| completed.into_artifact_parts(), |result, session, retained_root| {
-            let view = published_backend_view::PublishedMirBackendView::try_new(&result.module)
-                .map_err(|error| error.to_string())?;
-            use published_backend_view::PublishedStaticMethodRouteV1;
-            match view.route() {
-                PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
-                    if view.lifecycle_instructions().is_empty() {
-                        return Err(
+        NormalDefaultPublishedPipelineV1::compile(
+            self,
+            request,
+            |completed| completed.into_artifact_parts(),
+            |result, session, retained_root| {
+                let view = published_backend_view::PublishedMirBackendView::try_new(&result.module)
+                    .map_err(|error| error.to_string())?;
+                use published_backend_view::PublishedStaticMethodRouteV1;
+                match view.route() {
+                    PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
+                        if view.lifecycle_instructions().is_empty() {
+                            return Err(
                             "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer".to_owned(),
                         );
+                        }
+                        super::MirVerifier::new_strict()
+                            .verify_module(&result.module)
+                            .map_err(|errors| {
+                                errors
+                                    .iter()
+                                    .map(ToString::to_string)
+                                    .collect::<Vec<_>>()
+                                    .join("; ")
+                            })?;
                     }
-                    super::MirVerifier::new_strict().verify_module(&result.module)
-                        .map_err(|errors| errors.iter().map(ToString::to_string)
-                            .collect::<Vec<_>>().join("; "))?;
+                    PublishedStaticMethodRouteV1::CanonicalTyped => {
+                        super::MirVerifier::new_strict()
+                            .verify_module(&result.module)
+                            .map_err(|errors| {
+                                errors
+                                    .iter()
+                                    .map(ToString::to_string)
+                                    .collect::<Vec<_>>()
+                                    .join("; ")
+                            })?;
+                    }
+                    PublishedStaticMethodRouteV1::ExplicitCompatibility => {
+                        let prepared = session
+                            .prepare_external_commit()
+                            .map_err(|error| error.to_string())?;
+                        return Ok((
+                            prepared,
+                            NormalPublishedCompileOutcome::ExplicitCompatibility(result),
+                        ));
+                    }
                 }
-                PublishedStaticMethodRouteV1::CanonicalTyped => {
-                    super::MirVerifier::new_strict().verify_module(&result.module)
-                        .map_err(|errors| errors.iter().map(ToString::to_string)
-                            .collect::<Vec<_>>().join("; "))?;
-                }
-                PublishedStaticMethodRouteV1::ExplicitCompatibility => {
-                    let prepared = session.prepare_external_commit()
-                        .map_err(|error| error.to_string())?;
-                    return Ok((prepared, NormalPublishedCompileOutcome::ExplicitCompatibility(result)));
-                }
-            }
-            let prepared = session
-                .prepare_external_commit()
-                .map_err(|error| error.to_string())?;
-            let view = view.bind_retained_root(retained_root.as_deref())
-                .map_err(|error| error.to_string())?;
-            let view = if view.route() == PublishedStaticMethodRouteV1::UnsupportedBeforeObject {
-                let profile_name = crate::config::env::env_string("HAKO_TYPED_OBJECT_STORE");
-                let profile = published_backend_view::PublishedObjectStorageProfileV1::from_runtime_name(
-                    profile_name.as_deref(),
-                )?;
-                view.activate_lifecycle_for_final_artifact(profile)?
-            } else {
-                view
-            };
-            let output = consume(&view, &result.verification_result)?;
-            Ok((prepared, NormalPublishedCompileOutcome::Consumed(output)))
-        })
+                let prepared = session
+                    .prepare_external_commit()
+                    .map_err(|error| error.to_string())?;
+                let view = view.bind_finalized_root_birth_handoff(retained_root)?;
+                let view = if view.route() == PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+                {
+                    let profile_name = crate::config::env::env_string("HAKO_TYPED_OBJECT_STORE");
+                    let profile =
+                        published_backend_view::PublishedObjectStorageProfileV1::from_runtime_name(
+                            profile_name.as_deref(),
+                        )?;
+                    view.activate_lifecycle_for_final_artifact(profile)?
+                } else {
+                    view
+                };
+                let output = consume(&view, &result.verification_result)?;
+                Ok((prepared, NormalPublishedCompileOutcome::Consumed(output)))
+            },
+        )
     }
 }
 

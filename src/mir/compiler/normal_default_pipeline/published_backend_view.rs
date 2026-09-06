@@ -290,6 +290,7 @@ impl<'module> PublishedArrayElementWriteRef<'module> {
 pub(crate) struct PublishedMirBackendView<'module> {
     module: &'module MirModule,
     retained_root: Option<&'module MirFunction>,
+    retained_birth_keys: Option<Box<[CanonicalSameModuleCallableKeyV1]>>,
     route: PublishedStaticMethodRouteV1,
     static_method_calls: Vec<PublishedStaticMethodCallRef<'module>>,
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
@@ -444,6 +445,7 @@ impl<'module> PublishedMirBackendView<'module> {
             return Ok(Self {
                 module,
                 retained_root: None,
+                retained_birth_keys: None,
                 route: PublishedStaticMethodRouteV1::UnsupportedBeforeObject,
                 static_method_calls,
                 free_function_calls,
@@ -463,6 +465,7 @@ impl<'module> PublishedMirBackendView<'module> {
             return Ok(Self {
                 module,
                 retained_root: None,
+                retained_birth_keys: None,
                 route: PublishedStaticMethodRouteV1::ExplicitCompatibility,
                 static_method_calls,
                 free_function_calls,
@@ -477,6 +480,7 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(Self {
             module,
             retained_root: None,
+            retained_birth_keys: None,
             route: PublishedStaticMethodRouteV1::CanonicalTyped,
             static_method_calls,
             free_function_calls,

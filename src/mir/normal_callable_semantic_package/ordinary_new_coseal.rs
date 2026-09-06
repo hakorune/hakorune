@@ -5,10 +5,10 @@
 //! scans, and post-lowering target inference are deliberately outside this
 //! owner.
 
-use std::{cell::RefCell, collections::BTreeMap};
 use super::instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 use crate::mir::function::ObjectDestructionDispositionV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
+use std::{cell::RefCell, collections::BTreeMap};
 
 use super::instance_constructor_semantic::{
     InstanceConstructorBirthLookupErrorV1, VerifiedInstanceConstructorSemanticBatchV1,
@@ -19,25 +19,27 @@ use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1
 use crate::mir::instance_constructor_abi::{
     InstanceConstructorAbiErrorV1, InstanceConstructorAbiV1,
 };
-use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, OwnedExprSiteV1, SourceBindingSiteV1,
-    SourceExprSiteV1, SourcePathSegmentV1,
-};
-use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
-use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
-use crate::mir::{Effect, EffectMask};
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
 };
+use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
+use crate::mir::resolved_semantics::{
+    BindingKindV1, BindingRefV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourcePathSegmentV1,
+};
+use crate::mir::{Effect, EffectMask};
+use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
+#[path = "ordinary_new_claim_access.rs"]
+mod claim_access;
+#[path = "ordinary_new_field_reads.rs"]
+mod field_reads;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
-#[path = "ordinary_new_field_reads.rs"]
-mod field_reads;
-#[path = "ordinary_new_claim_access.rs"]
-mod claim_access;
+
+pub(crate) use local_commit::FinalizedRootBirthHandoffV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
@@ -56,6 +58,10 @@ impl VerifiedOrdinaryNewBirthRecipeV1 {
         self.target
     }
 
+    pub(crate) fn target_ref(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.target
+    }
+
     pub(crate) const fn abi(&self) -> InstanceConstructorAbiV1 {
         self.abi
     }
@@ -63,10 +69,18 @@ impl VerifiedOrdinaryNewBirthRecipeV1 {
     /// Explicit conservative physical policy, not an effect inferred from MIR
     /// or source event counts. Completion and FieldSet Fault remain separate.
     pub(crate) fn physical_effect_mask(&self) -> EffectMask {
-        EffectMask::MUT.union(EffectMask::IO).union(EffectMask::WRITE)
-            .add(Effect::Control).add(Effect::P2P).add(Effect::FFI)
-            .add(Effect::Panic).add(Effect::Alloc).add(Effect::Global)
-            .add(Effect::Async).add(Effect::Unsafe).add(Effect::Debug)
+        EffectMask::MUT
+            .union(EffectMask::IO)
+            .union(EffectMask::WRITE)
+            .add(Effect::Control)
+            .add(Effect::P2P)
+            .add(Effect::FFI)
+            .add(Effect::Panic)
+            .add(Effect::Alloc)
+            .add(Effect::Global)
+            .add(Effect::Async)
+            .add(Effect::Unsafe)
+            .add(Effect::Debug)
             .add(Effect::Barrier)
     }
 }
@@ -106,17 +120,29 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_validation: RefCell<local_commit::RootNewValidation>,
     root_exit: RefCell<local_commit::RootHomeExitProgress>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
-    root_completion: Option<Result<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
-        crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1>>,
+    root_completion: Option<
+        Result<
+            crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+            crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1,
+        >,
+    >,
 }
 
 impl OrdinaryNewClaimLedgerV1 {
     #[cfg(test)]
-    pub(super) fn root_completion_for_test(&self) -> &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1 {
-        self.root_completion.as_ref().expect("selected root").as_ref().expect("verified completion")
+    pub(super) fn root_completion_for_test(
+        &self,
+    ) -> &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1 {
+        self.root_completion
+            .as_ref()
+            .expect("selected root")
+            .as_ref()
+            .expect("verified completion")
     }
     #[cfg(test)]
-    pub(super) fn pending_claims_for_test(&self) -> std::cell::Ref<'_, BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>> {
+    pub(super) fn pending_claims_for_test(
+        &self,
+    ) -> std::cell::Ref<'_, BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>> {
         self.claims.borrow()
     }
 
@@ -163,18 +189,32 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let mut commits = self.local_commits.borrow_mut();
         if let Ok(prefix) = &claim.home_prefix {
-            if prefix.destination() != claim.destination || prefix.required_unwind() != site
-                || prefix.prior_homes().iter().any(|binding|
-                    !commits.values().any(|row| row.installs(*binding)))
+            if prefix.destination() != claim.destination
+                || prefix.required_unwind() != site
+                || prefix
+                    .prior_homes()
+                    .iter()
+                    .any(|binding| !commits.values().any(|row| row.installs(*binding)))
             {
                 return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
             }
         }
+        let birth_target = match &claim.constructor {
+            OrdinaryNewConstructorDispositionV1::NoBirthZero => None,
+            OrdinaryNewConstructorDispositionV1::Birth(recipe) => Some(recipe.target_ref().clone()),
+        };
         commits.insert(
             site.clone(),
-            local_commit::NewLocalCommitV1::pending(claim.destination, claim.declaration.clone(),
-                claim.home_prefix.clone(), claim.box_source().clone(), claim.construction.clone(),
-                claim.object, claim.destruction),
+            local_commit::NewLocalCommitV1::pending(
+                claim.destination,
+                claim.declaration.clone(),
+                claim.home_prefix.clone(),
+                claim.box_source().clone(),
+                claim.construction.clone(),
+                claim.object,
+                claim.destruction,
+                birth_target,
+            ),
         );
         Ok(Some(
             claims
@@ -185,7 +225,11 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(crate) fn is_empty(&self) -> bool {
         self.claims.borrow().is_empty()
-            && self.local_commits.borrow().values().all(|row| row.is_complete())
+            && self
+                .local_commits
+                .borrow()
+                .values()
+                .all(|row| row.is_complete())
             && self.root_home_exit_is_complete()
             && self.field_reads_complete()
     }
@@ -226,8 +270,14 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         class: Box<str>,
         arity: usize,
     },
-    BirthCompletionNotUnit { site: OwnedExprSiteV1, class: Box<str> },
-    BirthEffectUnsupported { site: OwnedExprSiteV1, class: Box<str> },
+    BirthCompletionNotUnit {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+    },
+    BirthEffectUnsupported {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+    },
     ConstructorRelationMismatch {
         site: OwnedExprSiteV1,
         class: Box<str>,
@@ -349,84 +399,109 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 }
                 return Err(OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing { site, class });
             };
-            let (object, destruction) = instance_constructors.destruction_for(box_source)
-                .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-                    site: site.clone(), class: class.clone(), error,
-                })?;
+            let (object, destruction) =
+                instance_constructors
+                    .destruction_for(box_source)
+                    .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
+                        site: site.clone(),
+                        class: class.clone(),
+                        error,
+                    })?;
             let construction = if has_overrides {
                 Err(ConstructionUnavailableV1::OverrideUnsupported)
             } else {
-                instance_constructors.construction_for(box_source, arity)
+                instance_constructors
+                    .construction_for(box_source, arity)
                     .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-                        site: site.clone(), class: class.clone(), error,
-                    })?.clone()
+                        site: site.clone(),
+                        class: class.clone(),
+                        error,
+                    })?
+                    .clone()
             };
             if matches!(&construction, Ok(plan) if plan.object() != object) {
                 return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
-                    site, class, arity,
+                    site,
+                    class,
+                    arity,
                 });
             }
-            let constructor = match instance_constructors
-                .birth_for(box_source, arity)
-                .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-                    site: site.clone(),
-                    class: class.clone(),
-                    error,
-                })? {
-                Some(row) => {
-                    if row.box_name() != class.as_ref()
-                        || usize::try_from(row.source_arity()).ok() != Some(arity)
-                    {
-                        return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
-                            site,
-                            class,
-                            arity,
-                        });
-                    }
-                    let abi = InstanceConstructorAbiV1::issue(arity).map_err(|error| {
-                        OrdinaryNewCoSealIssueV1::ConstructorAbi {
-                            site: site.clone(),
-                            class: class.clone(),
-                            error,
+            let constructor =
+                match instance_constructors
+                    .birth_for(box_source, arity)
+                    .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
+                        site: site.clone(),
+                        class: class.clone(),
+                        error,
+                    })? {
+                    Some(row) => {
+                        if row.box_name() != class.as_ref()
+                            || usize::try_from(row.source_arity()).ok() != Some(arity)
+                        {
+                            return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
+                                site,
+                                class,
+                                arity,
+                            });
                         }
-                    })?;
-                    let target = row.published_birth_key().filter(|key| {
-                        key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor
-                            && key.owner() == row.box_name()
-                            && key.arity() == row.source_arity()
-                    }).ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthTargetInvalid {
-                            site: site.clone(),
-                            class: class.clone(),
-                            arity,
-                    })?.clone();
-                    row.birth_completion().filter(|completion| {
-                        row.forest().roots() == [completion.owner()]
-                            && !completion.returns_value()
-                    }).ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthCompletionNotUnit {
-                        site: site.clone(), class: class.clone(),
-                    })?;
-                    let effect = row.birth_effect().filter(|effect| {
-                        *effect == DeclaredInstanceCallSemanticEffectV1::OpaqueObservable
-                    }).ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthEffectUnsupported {
-                        site: site.clone(), class: class.clone(),
-                    })?;
-                    OrdinaryNewConstructorDispositionV1::Birth(VerifiedOrdinaryNewBirthRecipeV1 {
-                        source_id: row.source_id().clone(),
-                        target,
-                        effect,
-                        abi,
-                    })
-                }
-                None => no_birth_constructor_disposition(&site, &class, arity)?,
-            };
+                        let abi = InstanceConstructorAbiV1::issue(arity).map_err(|error| {
+                            OrdinaryNewCoSealIssueV1::ConstructorAbi {
+                                site: site.clone(),
+                                class: class.clone(),
+                                error,
+                            }
+                        })?;
+                        let target = row
+                            .published_birth_key()
+                            .filter(|key| {
+                                key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor
+                                    && key.owner() == row.box_name()
+                                    && key.arity() == row.source_arity()
+                            })
+                            .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthTargetInvalid {
+                                site: site.clone(),
+                                class: class.clone(),
+                                arity,
+                            })?
+                            .clone();
+                        row.birth_completion()
+                            .filter(|completion| {
+                                row.forest().roots() == [completion.owner()]
+                                    && !completion.returns_value()
+                            })
+                            .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthCompletionNotUnit {
+                                site: site.clone(),
+                                class: class.clone(),
+                            })?;
+                        let effect = row
+                            .birth_effect()
+                            .filter(|effect| {
+                                *effect == DeclaredInstanceCallSemanticEffectV1::OpaqueObservable
+                            })
+                            .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthEffectUnsupported {
+                                site: site.clone(),
+                                class: class.clone(),
+                            })?;
+                        OrdinaryNewConstructorDispositionV1::Birth(
+                            VerifiedOrdinaryNewBirthRecipeV1 {
+                                source_id: row.source_id().clone(),
+                                target,
+                                effect,
+                                abi,
+                            },
+                        )
+                    }
+                    None => no_birth_constructor_disposition(&site, &class, arity)?,
+                };
             if claims
                 .iter()
                 .any(|claim: &OrdinaryNewAdmissionClaimV1| claim.site == site)
             {
                 return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
             }
-            let home_prefix = home_prefixes.remove(&site).ok_or_else(||
-                OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() })?;
+            let home_prefix = home_prefixes.remove(&site).ok_or_else(|| {
+                OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() }
+            })?;
             claims.push(OrdinaryNewAdmissionClaimV1 {
                 site,
                 box_source: box_source.clone(),
@@ -442,8 +517,12 @@ pub(crate) fn issue_ordinary_new_claims_v1(
             });
         }
     }
-    let names = batch.ordinary_box_coverage().rows().iter()
-        .map(|row| row.name().to_owned().into_boxed_str()).collect();
+    let names = batch
+        .ordinary_box_coverage()
+        .rows()
+        .iter()
+        .map(|row| row.name().to_owned().into_boxed_str())
+        .collect();
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
     ledger.root_completion = root_completion;
     ledger.field_reads = RefCell::new(root_field_reads);
@@ -495,14 +574,31 @@ mod tests {
     }
 
     fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
-        let package = super::super::brand_catalog_tests::issue_with_brand_catalog("box Page {}").unwrap();
-        let box_source = package.batch().ordinary_box_coverage().row_for("Page").unwrap().unwrap().clone();
-        let construction = package.instance_constructors.construction_for(&box_source, 0).unwrap().clone();
-        let (object, destruction) = package.instance_constructors.destruction_for(&box_source).unwrap();
+        let package =
+            super::super::brand_catalog_tests::issue_with_brand_catalog("box Page {}").unwrap();
+        let box_source = package
+            .batch()
+            .ordinary_box_coverage()
+            .row_for("Page")
+            .unwrap()
+            .unwrap()
+            .clone();
+        let construction = package
+            .instance_constructors
+            .construction_for(&box_source, 0)
+            .unwrap()
+            .clone();
+        let (object, destruction) = package
+            .instance_constructors
+            .destruction_for(&box_source)
+            .unwrap();
         let destination = BindingRefV1::new(site.owner(), hakorune_mir_core::BindingId::new(0));
         let declaration = SourceBindingSiteV1::Local {
             statement: crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(
-                crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(vec![SourcePathSegmentV1::Body(0)])),
+                crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(vec![
+                    SourcePathSegmentV1::Body(0),
+                ]),
+            ),
             ordinal: 0,
         };
         OrdinaryNewAdmissionClaimV1 {
@@ -534,38 +630,87 @@ mod tests {
             .expect("ordinary class should return a claim");
         assert_eq!(taken.class(), "Page");
         assert_eq!(taken.arity(), 0);
-        assert_eq!(ledger.local_commits.borrow().get(&site).unwrap().construction(), taken.construction());
-        assert!(taken.construction().as_ref().unwrap().reclaims_unpublished_outer_storage());
+        assert_eq!(
+            ledger
+                .local_commits
+                .borrow()
+                .get(&site)
+                .unwrap()
+                .construction(),
+            taken.construction()
+        );
+        assert!(taken
+            .construction()
+            .as_ref()
+            .unwrap()
+            .reclaims_unpublished_outer_storage());
         assert!(!ledger.is_empty(), "target take is not local completion");
-        assert!(!ledger.prepare_new_emission(&taken).unwrap(), "unavailable prefix stays fenced");
+        assert!(
+            !ledger.prepare_new_emission(&taken).unwrap(),
+            "unavailable prefix stays fenced"
+        );
         let SourceBindingSiteV1::Local { statement, ordinal } = &taken.declaration else {
             panic!("local claim");
         };
-        ledger.complete_new_expression(&site, "Page", crate::mir::ValueId(0)).unwrap();
+        ledger
+            .complete_new_expression(&site, "Page", crate::mir::ValueId(0))
+            .unwrap();
         assert!(!ledger.is_empty(), "whole New is not local installation");
-        ledger.complete_local_installation(site.owner(), statement.node(), &[
-            (taken.destination, *ordinal, crate::mir::ValueId(0), crate::mir::ValueId(1)),
-        ]).unwrap();
-        assert!(ledger.is_empty(), "ValueId zero is a valid completed initializer");
+        ledger
+            .complete_local_installation(
+                site.owner(),
+                statement.node(),
+                &[(
+                    taken.destination,
+                    *ordinal,
+                    crate::mir::ValueId(0),
+                    crate::mir::ValueId(1),
+                )],
+            )
+            .unwrap();
+        assert!(
+            ledger.is_empty(),
+            "ValueId zero is a valid completed initializer"
+        );
         assert_eq!(
             ledger.try_take(&site, "Page", 0),
             Err(OrdinaryNewClaimTakeErrorV1::Unavailable)
         );
-        use crate::mir::function::{RootOrdinaryNewObservation as O, RootOrdinaryNewUnavailable as U};
-        let physical = crate::mir::MirFunction::new(crate::mir::FunctionSignature {
-            name: "observation_only".into(), params: vec![],
-            return_type: crate::mir::MirType::Void, effects: crate::mir::EffectMask::CONTROL,
-        }, crate::mir::BasicBlockId::new(0));
+        use crate::mir::function::{
+            RootOrdinaryNewObservation as O, RootOrdinaryNewUnavailable as U,
+        };
+        let physical = crate::mir::MirFunction::new(
+            crate::mir::FunctionSignature {
+                name: "observation_only".into(),
+                params: vec![],
+                return_type: crate::mir::MirType::Void,
+                effects: crate::mir::EffectMask::CONTROL,
+            },
+            crate::mir::BasicBlockId::new(0),
+        );
         ledger.register_new_root(site.owner()).unwrap();
-        assert_eq!(ledger.validate_finalized_new_root(&physical).unwrap(), O::Unavailable(U::CompletionMissing));
+        assert_eq!(
+            ledger.validate_finalized_new_root(&physical).unwrap(),
+            O::Unavailable(U::CompletionMissing)
+        );
         let mut ledger = ledger;
         ledger.root_completion = Some(Err(crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1::BodyLengthOverflow));
-        *ledger.root_validation.borrow_mut() = local_commit::RootNewValidation::Pending(site.owner());
-        assert_eq!(ledger.validate_finalized_new_root(&physical).unwrap(), O::Unavailable(U::CompletionRejected));
+        *ledger.root_validation.borrow_mut() =
+            local_commit::RootNewValidation::Pending(site.owner());
+        assert_eq!(
+            ledger.validate_finalized_new_root(&physical).unwrap(),
+            O::Unavailable(U::CompletionRejected)
+        );
         let empty = OrdinaryNewClaimLedgerV1::issue(Box::new([]), Box::new([]));
-        assert_eq!(empty.validate_finalized_new_root(&physical).unwrap(), O::NotIssued);
+        assert_eq!(
+            empty.validate_finalized_new_root(&physical).unwrap(),
+            O::NotIssued
+        );
         empty.register_new_root(site.owner()).unwrap();
-        assert_eq!(empty.validate_finalized_new_root(&physical).unwrap(), O::NoSelectedLocalNew);
+        assert_eq!(
+            empty.validate_finalized_new_root(&physical).unwrap(),
+            O::NoSelectedLocalNew
+        );
     }
 
     #[test]
@@ -573,15 +718,28 @@ mod tests {
         let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
             "box Page { value: i64\nbirth(value) { me.value = value } }
              static box Main { main() { local page = new Page(7)\nreturn 0 } }",
-        ).unwrap();
+        )
+        .unwrap();
         let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
         assert_eq!(claims.len(), 1);
         let claim = claims.values().next().unwrap();
         let site = claim.site().clone();
-        let expected = claim.construction().as_ref().unwrap().constructor().unwrap().clone();
+        let expected = claim
+            .construction()
+            .as_ref()
+            .unwrap()
+            .constructor()
+            .unwrap()
+            .clone();
         drop(claims);
         let ledger = package.ordinary_new_claim_ledger;
-        drop(ledger.try_take(&site, "Page", 1).unwrap().unwrap().constructor());
+        drop(
+            ledger
+                .try_take(&site, "Page", 1)
+                .unwrap()
+                .unwrap()
+                .constructor(),
+        );
         let rows = ledger.local_commits.borrow();
         let plan = rows.get(&site).unwrap().construction().as_ref().unwrap();
         assert_eq!(plan.constructor(), Some(&expected));
@@ -637,7 +795,10 @@ mod tests {
         };
         assert!(recipe.source_id().same_as(&source_id));
         assert_eq!(recipe.abi(), abi);
-        assert_eq!(recipe.effect, DeclaredInstanceCallSemanticEffectV1::OpaqueObservable);
+        assert_eq!(
+            recipe.effect,
+            DeclaredInstanceCallSemanticEffectV1::OpaqueObservable
+        );
         assert_eq!(
             recipe.physical_effect_mask(),
             crate::mir::canonical_direct_call::materialize_direct_call_effect_v1(
@@ -700,44 +861,79 @@ mod tests {
             panic!("local claim");
         };
         let ledger = OrdinaryNewClaimLedgerV1::issue(
-            vec![claim].into_boxed_slice(), vec!["Page".into(), "Other".into()].into_boxed_slice());
+            vec![claim].into_boxed_slice(),
+            vec!["Page".into(), "Other".into()].into_boxed_slice(),
+        );
         let good = (destination, ordinal, ValueId(8), ValueId(9));
-        assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good])
-            .unwrap_err().contains("local-before-target-take"));
-        assert!(ledger.complete_new_expression(&site, "Page", ValueId(8))
-            .unwrap_err().contains("expression-without-target-take"));
+        assert!(ledger
+            .complete_local_installation(site.owner(), statement.node(), &[good])
+            .unwrap_err()
+            .contains("local-before-target-take"));
+        assert!(ledger
+            .complete_new_expression(&site, "Page", ValueId(8))
+            .unwrap_err()
+            .contains("expression-without-target-take"));
         let taken = ledger.try_take(&site, "Page", 0).unwrap().unwrap();
-        assert!(ledger.complete_new_expression(&site, "Page", ValueId(8))
-            .unwrap_err().contains("expression-before-emission"));
+        assert!(ledger
+            .complete_new_expression(&site, "Page", ValueId(8))
+            .unwrap_err()
+            .contains("expression-before-emission"));
         assert!(!ledger.prepare_new_emission(&taken).unwrap());
-        assert!(ledger.complete_new_expression(&site, "Other", ValueId(8))
-            .unwrap_err().contains("expression-parent-mismatch"));
-        assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good])
-            .unwrap_err().contains("local-initializer-mismatch"));
-        ledger.complete_new_expression(&site, "Page", ValueId(8)).unwrap();
-        assert!(ledger.complete_new_expression(&site, "Page", ValueId(8))
-            .unwrap_err().contains("duplicate-expression-completion"));
+        assert!(ledger
+            .complete_new_expression(&site, "Other", ValueId(8))
+            .unwrap_err()
+            .contains("expression-parent-mismatch"));
+        assert!(ledger
+            .complete_local_installation(site.owner(), statement.node(), &[good])
+            .unwrap_err()
+            .contains("local-initializer-mismatch"));
+        ledger
+            .complete_new_expression(&site, "Page", ValueId(8))
+            .unwrap();
+        assert!(ledger
+            .complete_new_expression(&site, "Page", ValueId(8))
+            .unwrap_err()
+            .contains("duplicate-expression-completion"));
         for bad in [
             (destination, ordinal + 1, ValueId(8), ValueId(9)),
-            (BindingRefV1::new(site.owner(), hakorune_mir_core::BindingId::new(1)),
-                ordinal, ValueId(8), ValueId(9)),
+            (
+                BindingRefV1::new(site.owner(), hakorune_mir_core::BindingId::new(1)),
+                ordinal,
+                ValueId(8),
+                ValueId(9),
+            ),
             (destination, ordinal, ValueId(7), ValueId(9)),
             (destination, ordinal, ValueId(8), ValueId(8)),
         ] {
-            assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[bad]).is_err());
+            assert!(ledger
+                .complete_local_installation(site.owner(), statement.node(), &[bad])
+                .is_err());
             assert!(!ledger.is_empty());
         }
         let foreign = test_site().owner();
-        assert!(ledger.complete_local_installation(foreign, statement.node(), &[good])
-            .unwrap_err().contains("foreign-or-duplicate-local"));
-        assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good, good])
-            .unwrap_err().contains("foreign-or-duplicate-local"));
+        assert!(ledger
+            .complete_local_installation(foreign, statement.node(), &[good])
+            .unwrap_err()
+            .contains("foreign-or-duplicate-local"));
+        assert!(ledger
+            .complete_local_installation(site.owner(), statement.node(), &[good, good])
+            .unwrap_err()
+            .contains("foreign-or-duplicate-local"));
         let wrong_statement = SourceNodeSiteV1::from_segments(vec![SourcePathSegmentV1::Body(1)]);
-        ledger.complete_local_installation(site.owner(), &wrong_statement, &[good]).unwrap();
-        assert!(!ledger.is_empty(), "unrelated local cannot discharge selected obligation");
-        ledger.complete_local_installation(site.owner(), statement.node(), &[good]).unwrap();
+        ledger
+            .complete_local_installation(site.owner(), &wrong_statement, &[good])
+            .unwrap();
+        assert!(
+            !ledger.is_empty(),
+            "unrelated local cannot discharge selected obligation"
+        );
+        ledger
+            .complete_local_installation(site.owner(), statement.node(), &[good])
+            .unwrap();
         assert!(ledger.is_empty());
-        assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good])
-            .unwrap_err().contains("duplicate-local-installation"));
+        assert!(ledger
+            .complete_local_installation(site.owner(), statement.node(), &[good])
+            .unwrap_err()
+            .contains("duplicate-local-installation"));
     }
 }

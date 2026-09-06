@@ -148,8 +148,10 @@ from Builder headers. The selected Raw adapter consumes a matching
 owner-branded site exactly once before `NewBox` emission, validates the shared
 source-N/physical-N+1 ABI, and emits the already-sealed recipe target. Package
 completion rejects leftover claims and pending local completions. The existing
-claim ledger retains exact destination BindingRef/declaration identity after
-target take. `new_expression` records its result only after overrides; the
+claim ledger retains exact destination BindingRef/declaration identity and the
+issued canonical Birth target after target take. After finalization it checks
+that target against one retained construction draft and returns an opaque
+root/Birth handoff; this never infers a target from MIR or a symbol. `new_expression` records its result only after overrides; the
 callable state's existing completed-local handoff then validates ordinal,
 initializer ValueId and destination before discharging the pending row.
 `resolved_semantics::home_new_prefix` now issues the source prefix relation;

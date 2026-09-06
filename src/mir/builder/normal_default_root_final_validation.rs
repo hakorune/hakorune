@@ -4,7 +4,9 @@ use super::*;
 use std::collections::BTreeSet;
 
 impl CompletedNormalDefaultRootCatalogLifecycleV1 {
-    pub(in crate::mir) fn into_parts(self) -> (
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
         ModuleBuilderInvocationSessionV1,
         MirModule,
         impl FnOnce(&MirModule) -> Result<(), String>,
@@ -17,9 +19,12 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 ledger.validate_after_compiler_finishing(root)?;
             }
             for (key, validation) in self.construction {
-                let definition = module.canonical_callable_definition_symbol(&key)
+                let definition = module
+                    .canonical_callable_definition_symbol(&key)
                     .and_then(|symbol| module.functions.get(symbol))
-                    .ok_or_else(|| "[freeze:contract][construction/finished-definition-missing]".to_owned())?;
+                    .ok_or_else(|| {
+                        "[freeze:contract][construction/finished-definition-missing]".to_owned()
+                    })?;
                 validation.validate_after_compiler_finishing(definition)?;
             }
             Ok(())
@@ -29,31 +34,44 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
 }
 
 impl CompletedNormalDefaultRootCatalogLifecycleV1 {
-    pub(in crate::mir) fn into_artifact_parts(self) -> (
+    pub(in crate::mir) fn into_artifact_parts(
+        self,
+    ) -> (
         ModuleBuilderInvocationSessionV1,
         MirModule,
-        impl FnOnce(&MirModule) -> Result<Option<String>, String>,
+        impl FnOnce(
+            &MirModule,
+        ) -> Result<
+            Option<crate::mir::normal_callable_semantic_package::FinalizedRootBirthHandoffV1>,
+            String,
+        >,
     ) {
         let validate = move |module: &MirModule| {
             let mut covered = BTreeSet::new();
-            let retained_root = self.root_new_validation.as_ref().map(|(key, _)| key.clone());
-            if let Some((root_key, ledger)) = self.root_new_validation {
-                let root = module.functions.get(&root_key)
+            let root_validation = self.root_new_validation;
+            let retained_root = root_validation.as_ref().map(|(key, _)| key.clone());
+            if let Some((root_key, ledger)) = root_validation.as_ref() {
+                let root = module
+                    .functions
+                    .get(root_key.as_str())
                     .ok_or_else(|| fault("root-missing"))?;
                 if has_lifecycle(root) || has_exact_field_read(root) {
                     ledger.validate_artifact_after_compiler_finishing(root)?;
                 } else {
                     ledger.validate_after_compiler_finishing(root)?;
                 }
-                covered.insert(root_key);
+                covered.insert(root_key.clone());
             }
             let mut birth_keys = BTreeSet::new();
             for (key, validation) in self.construction {
-                if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
-                    || !birth_keys.insert(key.clone()) {
+                if key.namespace()
+                    != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
+                    || !birth_keys.insert(key.clone())
+                {
                     return Err(fault("foreign-or-duplicate-birth-key"));
                 }
-                let symbol = module.canonical_callable_definition_symbol(&key)
+                let symbol = module
+                    .canonical_callable_definition_symbol(&key)
                     .ok_or_else(|| fault("birth-definition-missing"))?;
                 if symbol != key.mir_symbol_projection() {
                     return Err(fault("birth-definition-symbol-drift"));
@@ -61,7 +79,9 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 if !covered.insert(symbol.to_owned()) {
                     return Err(fault("duplicate-function-coverage"));
                 }
-                let definition = module.functions.get(symbol)
+                let definition = module
+                    .functions
+                    .get(symbol)
                     .ok_or_else(|| fault("birth-function-missing"))?;
                 if definition.signature.name != symbol {
                     return Err(fault("birth-function-symbol-drift"));
@@ -72,8 +92,10 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 validation.validate_artifact_after_compiler_finishing(definition)?;
             }
             for key in module.canonical_callable_definitions.keys() {
-                if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
-                    && !birth_keys.contains(key) {
+                if key.namespace()
+                    == hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
+                    && !birth_keys.contains(key)
+                {
                     return Err(fault("uncovered-birth-definition"));
                 }
             }
@@ -85,20 +107,35 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                     return Err(fault("uncovered-lifecycle-function"));
                 }
             }
-            Ok(retained_root)
+            root_validation
+                .map(|(root_key, ledger)| {
+                    ledger.seal_finalized_root_birth_handoff(root_key, &birth_keys)
+                })
+                .transpose()
         };
         (self.session, self.module, validate)
     }
 }
 
 fn has_lifecycle(function: &crate::mir::MirFunction) -> bool {
-    function.blocks.values().flat_map(|block| block.all_instructions())
+    function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
         .any(|instruction| instruction.requires_lifecycle_validation())
 }
 
 fn has_exact_field_read(function: &crate::mir::MirFunction) -> bool {
-    function.blocks.values().flat_map(|block| block.all_instructions())
-        .any(|instruction| matches!(instruction, crate::mir::MirInstruction::ObjectFieldGet { .. }))
+    function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .any(|instruction| {
+            matches!(
+                instruction,
+                crate::mir::MirInstruction::ObjectFieldGet { .. }
+            )
+        })
 }
 
 fn fault(reason: &str) -> String {

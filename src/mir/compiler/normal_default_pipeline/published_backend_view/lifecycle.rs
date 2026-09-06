@@ -84,8 +84,40 @@ impl<'module> PublishedMirBackendView<'module> {
         mut self,
         key: Option<&str>,
     ) -> Result<Self, PublishedMirBackendViewErrorV1> {
-        self.retained_root = key.map(|key| self.module.functions.get(key)
-            .ok_or(PublishedMirBackendViewErrorV1::RetainedRootMissing)).transpose()?;
+        self.retained_root = key
+            .map(|key| {
+                self.module
+                    .functions
+                    .get(key)
+                    .ok_or(PublishedMirBackendViewErrorV1::RetainedRootMissing)
+            })
+            .transpose()?;
+        Ok(self)
+    }
+
+    pub(in crate::mir::compiler) fn bind_finalized_root_birth_handoff(
+        mut self,
+        handoff: Option<crate::mir::normal_callable_semantic_package::FinalizedRootBirthHandoffV1>,
+    ) -> Result<Self, String> {
+        let Some(handoff) = handoff else {
+            return self
+                .bind_retained_root(None)
+                .map_err(|error| error.to_string());
+        };
+        let (root_key, birth_keys) = handoff.into_parts();
+        self = self
+            .bind_retained_root(Some(&root_key))
+            .map_err(|error| error.to_string())?;
+        if birth_keys.iter().any(|key| {
+            key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
+                || self
+                    .module
+                    .canonical_callable_definition_symbol(key)
+                    .is_none()
+        }) {
+            return Err(fault("retained-birth-missing"));
+        }
+        self.retained_birth_keys = Some(birth_keys);
         Ok(self)
     }
 
@@ -103,7 +135,9 @@ impl<'module> PublishedMirBackendView<'module> {
         &self.lifecycle_instructions
     }
 
-    pub(crate) fn lifecycle_storage_profile(&self) -> Option<super::PublishedObjectStorageProfileV1> {
+    pub(crate) fn lifecycle_storage_profile(
+        &self,
+    ) -> Option<super::PublishedObjectStorageProfileV1> {
         self.lifecycle_storage_profile
     }
 
@@ -123,12 +157,22 @@ impl<'module> PublishedMirBackendView<'module> {
             .retained_root
             .ok_or_else(|| fault("retained-root-missing"))?;
         let root_name = root.signature.name.as_str();
-        self.lifecycle_instructions.extend(self.return_instructions.iter().copied().filter(|row| {
-            row.function_name == root_name || self.module.canonical_callable_definitions.iter().any(|(key, symbol)| {
-                key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor
-                    && symbol.as_str() == row.function_name
-            })
-        }));
+        let retained_birth_keys = self
+            .retained_birth_keys
+            .as_deref()
+            .ok_or_else(|| fault("retained-birth-handoff-missing"))?;
+        self.lifecycle_instructions
+            .extend(self.return_instructions.iter().copied().filter(|row| {
+                row.function_name == root_name
+                    || self
+                        .module
+                        .canonical_callable_definitions
+                        .iter()
+                        .any(|(key, symbol)| {
+                            retained_birth_keys.contains(key)
+                                && symbol.as_str() == row.function_name
+                        })
+            }));
         for row in &self.lifecycle_instructions {
             if row.function_name == root_name {
                 continue;

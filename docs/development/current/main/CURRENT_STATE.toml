@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "BoxShape: preserve issued Birth recipe in NewLocalCommit, then ledger-finalize root Completion + recipe + one canonical construction draft into the opaque artifact handoff. Replace root-name-only handoff; reject zero/missing/foreign/duplicate/incomplete before view/C. Pair field-read/Add and EXE30/OBJ30 remain open."
+current_blocker_token = "BoxShape landed: NewLocalCommit retains issued Birth target; artifact validation co-seals root Completion + target + canonical construction draft, and final view consumes opaque handoff. Pair field-read/Add and EXE30/OBJ30 remain open; next selected slice is source result BoxCount."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -35,9 +35,9 @@ Constructor lifecycle V2 reaches a no-artifact body companion; this does not
 prove checked runtime execution. The speculative JSON program validators are
 retired; an unread nonempty body carrier now reaches only body-consumer-pending
 after frame/profile/site validation. The normal lifecycle also lacks a
-root/Birth handoff. D0 found a safe BoxShape: retain each issued Birth recipe
-in its local commit, then co-seal it with root Completion and construction draft
-after finalization. Pair field read -> Add -> return, EXE30/linked OBJ30, Fault/cleanup and selected
+root/Birth handoff. BoxShape retains each issued Birth target in local commit,
+then co-seals it with root Completion and construction draft after finalization;
+the final view consumes it. Pair field read -> Add -> return, EXE30/linked OBJ30, Fault/cleanup and selected
 legacy deletion remain open; no source runtime claim is made.
 """
 next_design_card = "none"
