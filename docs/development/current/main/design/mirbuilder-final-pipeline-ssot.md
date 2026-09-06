@@ -390,8 +390,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = design_stop
-implementation permission = false
+status = fast_open
+implementation permission = true
 current cohort = `acceptance_source_reconciliation_i0`
 
 The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)

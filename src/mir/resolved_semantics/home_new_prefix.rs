@@ -168,20 +168,19 @@ fn return_scalar<E>(
                 .then_some(ReturnScalar::IntegerField(field_site)))
         }
         ASTNode::BinaryOp { operator: crate::ast::BinaryOperator::Add, .. } => {
-            let mut field_reads = Vec::new();
-            for role in [ExprChildRoleV1::BinaryLeft, ExprChildRoleV1::BinaryRight] {
-                let Ok(child) = input.source().child_expr_from_expr(&expr, role)
-                    else { return Ok(None); };
-                match return_scalar(input, child.site(), locals, field_is_integer)? {
-                    Some(ReturnScalar::IntegerField(site)) => field_reads.push(site),
-                    Some(ReturnScalar::Integer) => {}
-                    _ => return Ok(None),
-                }
-            }
+            let Ok(left) = input.source().child_expr_from_expr(&expr, ExprChildRoleV1::BinaryLeft)
+                else { return Ok(None); };
+            let Ok(right) = input.source().child_expr_from_expr(&expr, ExprChildRoleV1::BinaryRight)
+                else { return Ok(None); };
+            let left = return_scalar(input, left.site(), locals, field_is_integer)?;
+            let right = return_scalar(input, right.site(), locals, field_is_integer)?;
             let add_site = OwnedExprSiteV1::new(input.owner(), site.clone());
-            match field_reads.try_into() {
-                Ok(field_reads) => Ok(Some(ReturnScalar::I64Add { site: add_site, field_reads })),
-                Err(_) => Ok(Some(ReturnScalar::Integer)),
+            match (left, right) {
+                (Some(ReturnScalar::IntegerField(left)), Some(ReturnScalar::IntegerField(right))) => {
+                    Ok(Some(ReturnScalar::I64Add { site: add_site, field_reads: [left, right] }))
+                }
+                (Some(_), Some(_)) => Ok(Some(ReturnScalar::Integer)),
+                _ => Ok(None),
             }
         }
         _ => Ok(None),

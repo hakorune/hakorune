@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "Terminal consumer design accepted; implementation paused at user-requested planning boundary."
-current_blocker_token = "Next bounded slice: preserve recursive scalar Add coverage independently of exact TerminalI64AddReturn issuance; then connect the existing AST-free FieldRead take/record API to one terminal consumer. See lifecycle terminal consumer design. Pair EXE30/OBJ30 remains open."
+current_design_stop = "none"
+current_blocker_token = "BoxShape: preserve recursive scalar Add coverage while issuing TerminalI64AddReturn only for direct ordered FieldRead pairs. Dedicated AST-free terminal consumer remains next; Pair EXE30/OBJ30 open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -42,8 +42,8 @@ terminal Return/Add/ordered-read relations. The dedicated consumer, EXE30/linked
 OBJ30, Fault/cleanup and selected
 legacy deletion remain open; no source runtime claim is made.
 """
-next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
