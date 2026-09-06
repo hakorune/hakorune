@@ -14,9 +14,9 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-REPRESENTATION-D2`, a
-design-stop census for the remaining root/Birth value representation rows whose
-existing issuer is still partial or absent.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-SOURCE-HANDOFF-I0`; retain
+validated AppMain identity and the existing exact terminal relation through
+the same ordinary-New ledger and final handoff. See the accepted premise reset.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -613,127 +613,123 @@ claim production migration; step 5 must remove the selected old production
 edge. After step 6, follow the existing workstream order for canonical versus
 compatibility dispatch, compile-owned state and single runtime hook storage.
 
-## Post-I0 physical-consumer premise audit (2026-09-07)
+## Root source handoff: accepted premise reset (2026-09-07)
 
-Decision: return to design stop before the selected C consumer. The next
-authority to close is the existing source-issued root result/entry and Birth
-formal relation through the final borrowed view; C may consume that completed
-physical projection, but may not invent it.
+Decision: extend the existing ordinary-New issuer and ledger to retain the
+selected AppMain source obligation through final handoff (BoxShape). This
+supersedes the D0/D1 permanent `NoSafeSlice` conclusion at `27bc10f183`.
+Source authority + canonical issuer: `issue_ordinary_new_claims_v1` co-seals
+the validated AppMain identity with Completion and the existing exact terminal
+relation from one resolved source loan; no new semantic receipt is issued.
+Non-authority: generic main-thunk results from another pipeline, MIR signatures,
+metadata, physical key strings, empty parameter arrays, C defaults and fixtures.
+Fail-fast boundary: identity/site/Completion mismatch or unconsumed/drifted
+selected emission rejects before final handoff; absent coverage stays explicit
+physical-unavailable, independently of accepted source syntax.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-SOURCE-HANDOFF-I0`, below.
+Non-claims: arbitrary root results/formals, complete Birth representation,
+physical entry/status ABI, C execution, Pair EXE/OBJ30 or full cutover.
 
-Source authority + canonical issuer: `VerifiedNormalMainThunkResultV1` and
-its existing main-thunk sealing path issue the root result/entry relation;
-the constructor semantic row issues the Birth source/formal relation. The
-final-view handoff must retain those existing products under exact function
-membership.
+### Why the previous stop was too broad
 
-Non-authority: `MirFunction.signature`, function names, JSON metadata,
-physical ordinals, C defaults, Pair fixture values, generic same-module
-lowering, and a new `Verified*`/`Prepared*` receipt.
+An independent worker read the complete Home/terminal classifier and challenged
+its premise; the primary agent checked physical root creation/finalization.
+The canonical-core main-thunk relation is indeed outside this session. It is
+not a prerequisite for retaining the selected ordinary-New terminal relation.
+`TerminalI64AddReturnV1` already records source owner, Return, Add and two exact
+read sites. Requiring a generic full-result issuer first conflated broader
+coverage with this existing source obligation and contradicted this SSOT's
+source/physical/target split. The prior audit does not justify permanent park.
 
-Fail-fast boundary: an absent, foreign, duplicate, or residual root/Birth ABI
-relation stops before C ingress, LLVM/artifact effects, or compatibility
-selection. A physical parser reports missing wire data; it never repairs it by
-inference.
+Source membership is available before lowering: `issuer.rs` obtains AppMain
+parser identity from the catalog; `app_main_relation.rs` verifies its brand,
+identity, arity, owner and complete forest. The current ordinary-New call reduces
+that identity to a batch slot. Its one `with_lowering_input` loan already issues
+Completion, Home prefixes, terminal and argument observations together.
+Final sealing later reduces the terminal to `I64AddReturn { owner }`.
+These are the two concrete information-loss edges to replace.
 
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-PHYSICAL-CONSUMER-PREMISE-D0` is a
-read-only finite census from final root/Birth sealing through final-view and
-C-frame projection. It must name each issuer, transfer, consumer and exact
-missing relation, reconcile the direct-parser contract with its actual
-serializer/test coverage, then leave one bounded implementation slice or a
-named `NoSafeSlice`.
+Physical root placement remains owned by `module_lifecycle`: it creates the
+root function, lowers into that function, inserts it and passes it to final
+validation. The key captured by `normal_default_root_catalog_post_install`
+is a physical lookup for that exact function, not source result authority.
+Backend entry layout, hidden frame and process-status mapping belong to the
+later physical/target tasks. Source Facts need no physical entry symbol.
+Erasing source bindings at the C wire is allowed after their exact physical
+mapping has been validated; C does not need a second semantic binding registry.
 
-Non-claims: C execution, new ABI semantics, generic backend reuse, Pair
-EXE30/linked OBJ30, compatibility retirement, compile-global state migration,
-kernel hook storage, or runtime-crate separation.
+### Finite source boundary and counterexamples
 
-If D0 closes the existing transfer, implementation proceeds in this order:
+Boundary: validated AppMain membership -> ordinary-New source loan -> existing
+Home/terminal classification -> selected terminal emission -> final handoff.
+Includes identity issue/drop/consume, entry demands, prefix locals/aliases/New,
+all terminal classifier arms, physical binding validation and residual siblings.
+Excludes Birth-body issuance, generic main-thunk flow and target/runtime ABI;
+these exclusions do not certify the surrounding lifecycle cutover as complete.
 
-1. Retain the issued root entry/result and Birth receiver/formal relations in
-   the final view and direct C frame, with exact function membership and no
-   positional defaults.
-2. Connect the already-structured direct parser only after it receives that
-   completed handoff. Its serializer-derived Pair input and finite malformed
-   mutations remain transport evidence; they do not select the production host.
-3. Give one selected C physical owner function-local values, parameters,
-   blocks, PHIs, explicit operations/control and layout/profile relations.
-   It lowers only those supplied relations and rejects unsupported/residual
-   rows before an artifact.
-4. Replace the selected host caller with that consumer and prove the unchanged
-   Pair source through EXE and OBJ-linked execution, both result `30`.
-5. After caller-zero evidence, delete only the replaced selected lifecycle
-   edge and its dedicated tests/docs. Compatibility and shared generic C
-   helpers remain until their own consumer/caller inventory is closed.
+| Existing source arm | Retention/coverage decision |
+| --- | --- |
+| Receiver, parameter or capture entry demand | Preserve `EntryDemandMissing`; empty MIR params cannot establish source eligibility. |
+| Local integer/bool/trivial binding, Home alias, direct New prefix | Preserve existing source observations and exactly-once consumption. |
+| Bare Return; integer/bool/trivial local; single initialized integer field | Preserve source acceptance. No exact two-read terminal product means physical coverage remains unavailable. |
+| Add of two direct initialized integer field reads | Retain the existing exact Return/Add/ordered-read relation; this is the selected I0 result. |
+| Recursive scalar Add | Preserve existing classification, but do not promote its coarse `Integer` arm into a generic result/type issuer. |
+| Unsupported prefix, uninitialized use, overrides, nontrivial argument, uncovered terminal | Preserve the existing unavailable cause; do not synthesize a relation or retry. |
 
-### D0 outcome: root relation is absent from the selected lifecycle flow
+Counterexample: `return (pair.left + pair.right) + 1` may have scalar source
+coverage but does not issue the direct two-read terminal relation. Likewise
+`return true` must never acquire an i64 result merely because it is trivial.
+These are acceptance distinctions to exercise in existing source tests, not
+new implementation fixtures added during this design turn. Other accepted
+root-result arms remain in-boundary `CutoverBlockerOpen` for broader coverage.
 
-Decision: `CONSTRUCTOR-LIFECYCLE-PHYSICAL-CONSUMER-PREMISE-D0` ends in
-`NoSafeSlice` for C/LLVM work. The existing root source relation and the
-selected lifecycle finalization are separate flows; no physical projection may
-join them by name, signature, arity, lane, JSON, or fixture value.
+### CONSTRUCTOR-LIFECYCLE-ROOT-SOURCE-HANDOFF-I0
 
-Source authority + canonical issuer: `VerifiedNormalMainThunkPlanV1` seals
-the root source header, result, and physical entry relation. `BirthAbiHandoffV1`
-seals each Birth owner, receiver and parameter `BindingRefV1` relation. Both
-are existing issuers; D0 found no same-flow transfer of the root relation into
-`FinalizedRootBirthHandoffV1`.
+One responsibility: retain the already-selected root source obligation through
+its existing production consumer and finalization. No classifier change.
 
-Non-authority: `root_key: String`, `MirFunction.signature`, root `params`,
-V2's fixed zero arity, formal `ValueId`/ordinal rows, JSON, direct-parser
-success, Pair constants, and C defaults.
+- Owner/caller: package `issuer.rs` -> `issue_ordinary_new_claims_v1`.
+  Pass the existing `CallableDeclarationIdentityV1` instead of only `Option<u32>`;
+  resolve its exact declaration in the same batch using identity equality and
+  the existing uniqueness/owner checks. Slot remains navigation, not authority.
+- Source storage: extend the existing `OrdinaryNewClaimLedgerV1`; retain root
+  identity with its existing Completion/terminal products from that loan.
+  Do not duplicate the terminal table, issue another semantic `Verified*` or
+  re-run the Home classifier. Catalog identity and source result stay distinct.
+- Consumer/terminal: `main_root::lower_app_main_root_body_v1` validates identity
+  before `register_new_root`/body descent; existing terminal emitter records
+  ordered read/Add/Return bindings. Existing finishing validation checks these
+  against the final root, then `seal_finalized_root_birth_handoff` retains the
+  exact source relation instead of projecting only its owner. The borrowed view
+  receives that relation together with the existing physical root binding.
+- Exclusive replacement set: slot-only AppMain handoff and owner-only terminal
+  projection on this route. Update existing view/V2 readers to project the
+  retained relation without reclassification. No new public endpoint; no C
+  activation. Physical map keys remain lookup fields, never semantic evidence.
+- Acceptance: existing Pair and renamed/alias/multiple-Home source cases reach
+  final handoff with the exact identity/Return/Add/read ordering. Missing,
+  foreign-compilation, foreign-identity, duplicate/residual and finishing
+  operand/site drift reject. Preserve non-Add source acceptance and its existing
+  physical-unavailable terminal; metadata changes cannot create admission.
+- Checks/docs: focused source, terminal/finalization and borrowed-view tests;
+  reused canonical-corridor and pointer guards; update builder/package README
+  and lifecycle reference in the same slice. No new guard family. Touched
+  parents are currently 663/666 lines for co-seal/local-commit: design a child
+  at 760 and stop before 800; never compress code to satisfy the limit.
 
-Fail-fast boundary: missing root entry/result or Birth owner/binding relation
-rejects before final-view/C-frame projection. The direct parser rejects malformed
-physical transport separately; it cannot certify or repair the selected host
-ingress, which still uses the V2 pending companion.
+### Remaining order
 
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1`
-is a read-only authority census. Within the normal-default lifecycle pipeline,
-it must identify one existing same-session producer that carries root owner,
-entry and full source result together with Birth owner/receiver/formal bindings
-to the finalization closure. If none exists, preserve `NoSafeSlice`; do not
-create a receipt or adapter.
+After this I0, resume the existing Ordered tasks in this document. Complete
+remaining source representations/origins (including Birth receiver/formal
+classes and uncovered result arms), then physical binding and final handoff,
+then explicit target/runtime entry and status agreement. Project that complete
+input into the direct parser before implementing the selected LLVM consumer.
+The direct parser is currently a validation-only ingress; the actual host still
+uses generic lifecycle body JSON plus the V2 pending companion. Do not call
+parser success host cutover or complete program proof.
 
-Non-claims: C parser promotion, C/LLVM execution, ABI inference, production
-host switch, Pair EXE30/linked OBJ30, V2 deletion, compatibility retirement,
-compile-state migration, or kernel work.
-
-The direct physical parser itself is not the immediate missing implementation:
-it already decodes a complete call-local input and rejects structural mutation,
-but its issued-Pair C check is ignored and no selected host caller invokes it.
-The live V2 companion instead accepts typed frame/site rows plus a nonempty
-generic JSON carrier to reach `body-consumer-pending`. These are separate
-ingresses, not evidence of a completed root/Birth authority handoff.
-
-### D1 outcome: NoSafeSlice for root entry/full result
-
-Decision: `CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1` is
-`NoSafeSlice__RootEntryAndFullResultNoSameSessionIssuerTransfer`. Do not open
-an I0 for C, final-view retention, parser promotion, or a cross-pipeline
-adapter from this evidence.
-
-Source authority + canonical issuer: the normal-default source package carries
-the exact root owner into its ordinary-New ledger; `BirthAbiHandoffV1` carries
-Birth owner and receiver/parameter `BindingRefV1`s to final sealing. The
-separate canonical-core main-thunk plan owns the only observed root entry/full
-result relation, but it is not produced or consumed by this normal-default
-session.
-
-Non-authority: the post-finalization root function name, `root_key` string,
-terminal i64 Add relation, `MirFunction.signature`/params, same-symbol or
-same-owner matching, physical lanes/ValueIds, JSON, C frame defaults, and
-Pair fixture values.
-
-Fail-fast boundary: before final-view binding, reject the selected physical
-consumer as unavailable when a normal-default root entry/full-result relation
-is absent. No retry through canonical-core, V2, direct JSON, or compatibility
-is permitted.
-
-Smallest next slice: none. A later source-level design must first name a
-normal-default source authority that can issue root owner, exact entry, and
-full result together before root lowering, plus its existing finalization
-consumer. Until then this family is parked as `NoSafeSlice`, not relabeled as
-an unsupported source disposition.
-
-Non-claims: missing Birth-formal issuer, C/LLVM execution, parser promotion,
-ABI layout, Pair EXE30/linked OBJ30, V2 deletion, compatibility retirement,
-or kernel/runtime work.
+The LLVM series switches that actual host edge and removes its selected old
+route, with unchanged Pair EXE30 and OBJ-linked EXE30 plus Fault/frame/cleanup
+acceptance. Caller-zero retirement follows within the same series. Only then
+resume canonical/compatibility separation, compile-call state and runtime-hook
+single storage. No new second MirBuilder or cross-session main-thunk adapter.

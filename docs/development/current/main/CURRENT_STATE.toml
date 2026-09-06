@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1"
-current_execution_cohort = "constructor_lifecycle_root_birth_final_view_relation"
-current_design_stop = "No same-session normal-default issuer/transfer carries root owner, exact entry and full result to lifecycle finalization. Do not bridge from canonical-core, root_key strings, MIR signatures/params, lanes, JSON, Pair values, or C defaults."
-current_blocker_token = "D1 result: NoSafeSlice__RootEntryAndFullResultNoSameSessionIssuerTransfer. This constructor physical-consumer family is parked before final-view/C/LLVM effects until a source-level decision names a normal-default issuer and finalization consumer."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-SOURCE-HANDOFF-I0"
+current_execution_cohort = "constructor_lifecycle_root_source_handoff"
+current_design_stop = ""
+current_blocker_token = "Accepted premise reset: same-loan AppMain identity + Completion + exact terminal already have an issuer. Retain them through the existing ledger/final handoff; replace slot-only and owner-only loss edges. Physical entry/status, broader representations and C execution remain gated."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,19 +31,17 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Root direct-New trivial-argument I0 is landed at 5e7fadb686: existing issued
-integer/bool/trivial-local rows are consumed without selected raw argument
-descent; physical row/ValueId snapshots let the existing finalizer reject
-residual, literal, order and Birth-Call drift. Focused source/consumer/mutation
-tests and the canonical corridor guard pass.
-D0/D1 found no same-session normal-default root entry/full-result issuer or
-transfer to lifecycle finalization. Birth lanes are only a partial handoff and
-the direct parser is isolated from the live host; this family is parked as
-NoSafeSlice before C/LLVM work. Pair EXE30, linked OBJ30 and selected old-edge
-retirement remain required and unproven.
+Root trivial-New argument I0 landed at 5e7fadb686. Independent premise reset
+supersedes the D1 blanket NoSafeSlice: the existing ordinary-New issuer can
+co-seal validated AppMain identity, Completion and exact terminal in one source
+loan. Next I0 retains that obligation through the live ledger/final handoff,
+replacing slot-only identity and owner-only terminal projections. Design only
+is complete; implementation is next. Broader result/formal representations,
+physical entry/status ABI, Pair EXE30/linked OBJ30 and old-edge retirement
+remain open. No generic main-thunk transfer or inferred C ABI is required.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1"
-next_execution_card = "none (D1 NoSafeSlice parked)"
+next_design_card = "none (root source handoff design accepted)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-ROOT-SOURCE-HANDOFF-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
