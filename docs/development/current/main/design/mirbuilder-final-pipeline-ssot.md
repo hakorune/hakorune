@@ -390,15 +390,16 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = design_open
-implementation permission = false
+status = fast_open
+implementation permission = true
 current cohort = `acceptance_source_reconciliation_i0`
 
 The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)
 and [lifecycle Decision](constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
-own the root/Birth handoff BoxShape. Pair result is NoSafeSlice: `return_scalar`
-recognizes it but discards the source relations, and raw field/binary/return has
-no selected replacement. No view/frame/C extension is permitted. Pair
+own the root/Birth handoff BoxShape. Pair result BoxCount retains one exact
+source terminal relation during `return_scalar`/Completion issuance; raw
+field/binary/return remains non-authority until its later consumer. No
+view/frame/C extension is permitted. Pair
 EXE30/linked OBJ30 and selected old-edge retirement remain open.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one

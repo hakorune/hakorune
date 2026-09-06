@@ -547,10 +547,10 @@ unrelated helper deletion leaves this boundary.
    finalization co-seal root Completion, recipe and exactly one construction
    draft, then replace root-name-only artifact handoff. Reject zero/missing/
    foreign/duplicate/incomplete cases before view/C; no formals or C changes.
-4. Source result D0: Pair is recognized by `return_scalar`, but it discards
-   the two field/Add/return relations. Name one ordinary-New package terminal
-   co-seal and dedicated consumer before BoxCount; raw field/binary/return,
-   field progress, MIR/ValueId/type/JSON never become authority. No code now.
+4. Source result BoxCount: `return_scalar`/Completion issuance retains one
+   `TerminalI64AddReturn` relation: owner, explicit Return/Add sites and ordered
+   two existing FieldRead sites. Reject other/duplicate forms; no ValueId, MIR,
+   ABI, JSON or raw route is authority. Its dedicated consumer is next.
 5. Consume one physical program: selected C companion places function-local
    params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
    checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
