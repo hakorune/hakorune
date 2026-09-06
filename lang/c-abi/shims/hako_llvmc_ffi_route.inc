@@ -520,6 +520,21 @@ int hako_llvmc_compile_published_lifecycle_body_v2(
       "[freeze:contract][published-lifecycle/body-consumer-pending]");
 }
 
+__attribute__((visibility("default")))
+int hako_llvmc_validate_published_lifecycle_physical_v1(
+    const char* json_in, char** err_out) {
+  yyjson_doc* doc;
+  int rc;
+  if (!json_in || !json_in[0])
+    return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/input]");
+  doc = yyjson_read_file(json_in, 0, NULL, NULL);
+  if (!doc)
+    return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/json]");
+  rc = hako_llvmc_validate_published_lifecycle_physical_v1_doc(yyjson_doc_get_root(doc), err_out);
+  yyjson_doc_free(doc);
+  return rc;
+}
+
 // Explicit compatibility ABI.  It does not read replay environment state;
 // reaching this symbol is itself the named admission.
 __attribute__((visibility("default")))

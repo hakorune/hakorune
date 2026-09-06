@@ -135,6 +135,10 @@ int hako_llvmc_compile_published_lifecycle_body_v2(
     const char* obj_out,
     char** err_out);
 
+/* Preartifact validation for the final-view-issued physical program only. */
+int hako_llvmc_validate_published_lifecycle_physical_v1(
+    const char* json_in, char** err_out);
+
 #ifdef __cplusplus
 }
 #endif
