@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "SemanticAuthorityMissing__PairFieldReadAddResultProfile"
-current_blocker_token = "Design consultation: Pair Main's exact field reads and Add return have no source-backed result profile. Existing resolved_value_profile rejects property access; ordinary-new field facts do not issue expression/return representation. Define the bounded source-only BoxCount issuer or retain NoSafeSlice. Do not infer from ObjectFieldGet/MIR types; handoff, checked C, Pair EXE/OBJ exit 30 and old-edge retirement remain stopped."
+current_design_stop = "none"
+current_blocker_token = "BoxShape: issue one package-side SelectedSourceBackedAppMain capability after app_main_relation validation and make resolved_value_profile consume it for NormalMain0 policy. It replaces no canonical-core role and changes no admitted expression; Pair field-read/Add remains the next BoxCount. Do not infer from MIR or reuse cross-session canonical roles."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -35,14 +35,14 @@ Constructor lifecycle V2 reaches a no-artifact body companion; this does not
 prove checked runtime execution. The speculative JSON program validators are
 retired; an unread nonempty body carrier now reaches only body-consumer-pending
 after frame/profile/site validation. The normal lifecycle also lacks a
-root/Birth handoff, but Pair first reaches NoSafeSlice earlier: the source
-result profile rejects field access and cannot issue its Integer return.
-The next Decision is a source-only BoxCount for exact field read -> Add ->
-return or an explicit NoSafeSlice. Pair EXE30/linked OBJ30, Fault/cleanup and
-selected legacy deletion remain open; no source runtime claim is made.
+root/Birth handoff. The first executable repair is a package-side App Main
+profile capability: it removes the forbidden canonical-core role dependency
+without admitting Pair field access. The next BoxCount remains exact field
+read -> Add -> return. Pair EXE30/linked OBJ30, Fault/cleanup and selected
+legacy deletion remain open; no source runtime claim is made.
 """
-next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

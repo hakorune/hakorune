@@ -826,12 +826,12 @@ Typed-C prepass checkpoint: existing same-module call prepass peeks at published
 
 ## Typed C program handoff Decision
 
-Decision: the provisional JSON validators are retired at the no-artifact terminal. Pair reaches `SemanticAuthorityMissing__PairFieldReadAddResultProfile` before root/Birth handoff: the current source result profile rejects property access and cannot issue its Integer return.
-Source authority + canonical issuer: `resolved_value_profile::analyze_trivial_canonical_with_mode_v1` owns admitted source result profiles; ordinary-new exact field facts own initialized field identity/type and `ordinary_new_coseal` owns New/Birth membership. A future issuer must co-seal these exact source relations, never MIR.
-Non-authority: Pair names, JSON, `MirFunction.signature`, `MirParamDecl`, ObjectFieldGet, metadata/parameter/return contracts, N+1 ABI shape, parameter position and defaults never issue expression/return representation or ABI.
-Fail-fast boundary: absent/duplicate/foreign local New, field reference, Add operand/result or terminal return, unsupported property shape, and any source/owner mismatch reject before lowering/frame/C/artifact.
-Smallest next slice: BoxCount Decision only—extend the existing source result-profile owner for exact local New -> initialized i64 field read -> Add -> return, or retain `NoSafeSlice`; do not issue a provisional receipt or edit handoff/view/C.
-Non-claims: no checked execution, Pair EXE30/OBJ30, ABI projection, Fault cleanup, generic retry, source expansion beyond this exact expression chain or legacy deletion.
+Decision: the provisional JSON validators are retired at the no-artifact terminal. Before Pair's field-read/Add BoxCount, replace the forbidden canonical-core NormalMain mode role with a package-side source capability selected after `app_main_relation` validation.
+Source authority + canonical issuer: the existing package `app_main_relation` validates exact catalog identity, batch owner/forest/input and source inventory. It issues one non-clone `SelectedSourceBackedAppMain` capability; `resolved_value_profile` is its sole first consumer for NormalMain0 policy.
+Non-authority: canonical-core `VerifiedNormalMainRoleV1`, Pair names, JSON, `MirFunction.signature`, `MirParamDecl`, ObjectFieldGet, metadata/parameter/return contracts, N+1 ABI shape, parameter position and defaults never authorize this selected source session.
+Fail-fast boundary: absent/non-App/foreign/duplicate/mismatched catalog, brand, identity, owner, root, input or forest rejects before profile analysis. The capability changes neither expression vocabulary nor result representation.
+Smallest next slice: BoxShape only—add package-side App Main capability and a profile entry that consumes it; preserve canonical-core modes and existing profile outcomes. The field-read/Add BoxCount remains separate.
+Non-claims: no field access admission, checked execution, Pair EXE30/OBJ30, ABI projection, Fault cleanup, generic retry, source expansion or legacy deletion.
 
 ### Premise audit and authority boundary
 
@@ -853,11 +853,10 @@ The downstream execution cutover is **CutoverBlockerOpen**, not Exhausted.
   app/script and opaque classifier arms are chosen earlier and cannot be
   recovered by root name. Same-source/session handoff is `NoIssuer` until a
   normal-lifecycle source owner is named.
-- `resolved_value_profile` can issue `InlineI64` for its admitted expressions,
-  but its analyzer has no property-access arm. Pair's first field read therefore
-  rejects before Add; initialized-field and ObjectFieldGet facts are not an
-  expression result or terminal-return issuer. This is `NoSafeSlice`, not a
-  request to use a MIR type or canonical-core thunk profile.
+- `resolved_value_profile` can issue `InlineI64` for admitted expressions, but
+  its NormalMain modes currently carry a canonical-core-only role. Pair's field
+  access remains rejected after this BoxShape; initialized-field and ObjectFieldGet
+  facts are not expression/return authority. Do not use a MIR type or thunk profile.
 - Birth definitions in `PublishedStaticMethodCFrameV2::from_view` are cataloged,
   but formal kind/wire tags are positional defaults. They are not evidence of
   source-backed parameter representation. The frame has no explicit root
