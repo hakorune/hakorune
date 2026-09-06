@@ -517,6 +517,16 @@ at their exact instruction/value sites. Birth parameters remain unannotated;
 an integer-width ABI is not permission to elide those checks. The original
 source snapshot and migrated hash belong to the acceptance workstream.
 
+Each Birth formal now has one constructor-issued contract retained with the
+semantic row and Birth ABI handoff. It records the exact declaration spelling,
+resolver binding/ordinal, and selected construction-store uses. An unannotated
+formal written into an `i64` field remains unannotated: the store is a checked
+representation requirement, never a declaration inferred from a caller value.
+When the selected body has no complete construction coverage, the relation
+records that explicitly and remains physical-unavailable. Actual argument
+representation is deferred to the later physical-binding owner; this retention
+does not enable C execution or select an `input_kind` default.
+
 Constructor rows retain the resolver's body-shape products for every function
 owner, including nested functions, and reject missing/foreign/residual products.
 Before a Birth row is issued, `instance_constructor_non_escape` checks every

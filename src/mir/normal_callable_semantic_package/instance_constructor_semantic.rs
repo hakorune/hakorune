@@ -3,7 +3,12 @@
 use crate::mir::function::CanonicalObjectDefinitionV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
 use std::collections::BTreeMap;
+mod formal_contract;
 mod object_definition;
+pub(crate) use formal_contract::{
+    BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalPhysicalDispositionV1,
+    BirthFormalUseCoverageV1,
+};
 use super::instance_construction::{issue_construction_plan, ConstructionEligibilityV1};
 
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
@@ -47,6 +52,9 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
     ReceiverNonEscape {
         _issue: super::instance_constructor_non_escape::BirthReceiverNonEscapeIssueV1,
     },
+    FormalContract {
+        _issue: formal_contract::BirthFormalContractIssueV1,
+    },
 }
 
 #[derive(Debug)]
@@ -66,6 +74,7 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     birth_completion: Option<VerifiedFunctionCompletionV1>,
     birth_effect: Option<DeclaredInstanceCallSemanticEffectV1>,
     construction: ConstructionEligibilityV1,
+    formal_contracts: Box<[BirthFormalContractV1]>,
 }
 
 #[derive(Debug)]
@@ -208,6 +217,10 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
 
     pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
         &self.construction
+    }
+
+    pub(crate) fn formal_contracts(&self) -> &[BirthFormalContractV1] {
+        &self.formal_contracts
     }
 
     pub(crate) fn published_birth_key(
@@ -493,8 +506,9 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 } else {
                     Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
                 };
-                rows.push(VerifiedInstanceConstructorSemanticRowV1 {
+                let mut row = VerifiedInstanceConstructorSemanticRowV1 {
                     construction,
+                    formal_contracts: Box::new([]),
                     // Only the exact unannotated source contract is selected.
                     // Explicit constructor contracts need their own admission;
                     // never turn them into the implicit opaque default.
@@ -525,7 +539,17 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     projection,
                     body_shapes: constructor_shapes,
                     birth_completion,
-                });
+                };
+                row.formal_contracts = if kind == ConstructorSourceKindV1::Birth {
+                    formal_contract::issue_birth_formal_contracts(declaration, &row).map_err(
+                        |issue| InstanceConstructorSemanticBatchIssueV1::FormalContract {
+                            _issue: issue,
+                        },
+                    )?
+                } else {
+                    Box::new([])
+                };
+                rows.push(row);
             }
             if !body_shapes.is_empty() {
                 return Err(InstanceConstructorSemanticBatchIssueV1::BodyShapeResidual);

@@ -146,6 +146,12 @@ For the selected scalar Birth profile, the compiler retains the exact receiver
 and parameter source uses with each accepted store and consumes them before
 emitting the corresponding `FieldSet`; later lowering does not recover those
 uses by re-reading the assignment AST.
+Birth formal declarations are retained separately from those uses. The exact
+constructor declaration issues each formal's spelling, resolver binding and
+ordinal; an unannotated formal remains dynamically declared even if an `i64`
+field store requires a checked representation. Missing selected-body coverage
+or an unavailable representation prevents physical artifact admission without
+turning the source declaration or unused-argument evaluation into an error.
 Other field demands, acquisition/control shapes and explicit overrides remain
 unavailable until their obligations are covered. This source plan does not itself
 enable backend execution or change the failed-construction rules below.

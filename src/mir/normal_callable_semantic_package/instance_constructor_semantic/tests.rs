@@ -1,5 +1,111 @@
 use super::*;
-use crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1;
+use crate::mir::instance_constructor_abi::InstanceConstructorAbiV1;
+use crate::mir::normal_callable_semantic_package::{BirthAbiHandoffV1, ConstructionStoreRhsV1};
+
+#[test]
+fn birth_formal_contracts_keep_declarations_separate_from_i64_store_requirements() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { left: i64\nright: i64\nbirth(left: i64, right) { me.left = left\nme.right = right } }",
+    )
+    .unwrap();
+    let row = package
+        .instance_constructors()
+        .rows()
+        .iter()
+        .find(|row| row.box_name() == "Pair")
+        .unwrap();
+    let [left, right] = row.formal_contracts() else {
+        panic!("two source-issued formal contracts");
+    };
+    assert_eq!(left.ordinal(), 0);
+    assert_eq!(
+        left.declaration(),
+        BirthFormalDeclarationClassV1::ExactI64
+    );
+    assert!(matches!(
+        left.uses(),
+        BirthFormalUseCoverageV1::I64FieldStores { sites } if sites.len() == 1
+    ));
+    assert_eq!(
+        left.disposition(),
+        BirthFormalPhysicalDispositionV1::DeferredActualBinding
+    );
+    assert_eq!(right.ordinal(), 1);
+    assert_eq!(
+        right.declaration(),
+        BirthFormalDeclarationClassV1::Unannotated,
+        "an i64 field store is a use requirement, not a formal declaration"
+    );
+    assert!(matches!(
+        right.uses(),
+        BirthFormalUseCoverageV1::I64FieldStores { sites } if sites.len() == 1
+    ));
+    assert_eq!(
+        right.disposition(),
+        BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation
+    );
+}
+
+#[test]
+fn birth_formal_contracts_preserve_unused_and_uncovered_source_without_specializing_actuals() {
+    let unused = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { birth(left: i64, right) {} }",
+    )
+    .unwrap();
+    let unused = unused.instance_constructors().rows()[0].formal_contracts();
+    assert!(matches!(unused[0].uses(), BirthFormalUseCoverageV1::NoUse));
+    assert!(matches!(unused[1].uses(), BirthFormalUseCoverageV1::NoUse));
+    assert!(unused.iter().all(|contract| {
+        contract.disposition() == BirthFormalPhysicalDispositionV1::DeferredActualBinding
+    }));
+
+    let uncovered = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { value: i64\nbirth(value) { local saved = value } }",
+    )
+    .unwrap();
+    let contract = &uncovered.instance_constructors().rows()[0].formal_contracts()[0];
+    assert_eq!(
+        contract.declaration(),
+        BirthFormalDeclarationClassV1::Unannotated
+    );
+    assert!(matches!(
+        contract.uses(),
+        BirthFormalUseCoverageV1::UncoveredSelectedBody
+    ));
+    assert_eq!(
+        contract.disposition(),
+        BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation
+    );
+
+    let repeated = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Repeat { first: i64\nsecond: i64\nbirth(value) { me.first = value\nme.second = value } }",
+    )
+    .unwrap();
+    let contract = &repeated.instance_constructors().rows()[0].formal_contracts()[0];
+    assert!(matches!(
+        contract.uses(),
+        BirthFormalUseCoverageV1::I64FieldStores { sites } if sites.len() == 2
+    ));
+}
+
+#[test]
+fn birth_handoff_rejects_retained_formal_contract_drift() {
+    let mut package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { birth(left, right) {} }",
+    )
+    .unwrap();
+    let row = &mut package.instance_constructors.rows[0];
+    row.formal_contracts.swap(0, 1);
+    let target = row.published_birth_key().unwrap().clone();
+    assert_eq!(
+        BirthAbiHandoffV1::issue(
+            row,
+            target,
+            InstanceConstructorAbiV1::issue(2).unwrap(),
+        ),
+        Err("formal-contract")
+    );
+}
 
 #[test]
 fn definition_transfer_rejects_foreign_context_and_missing_empty_payload() {

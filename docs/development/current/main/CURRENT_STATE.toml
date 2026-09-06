@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-CONTRACT-I0"
-current_execution_cohort = "constructor_lifecycle_birth_formal_contract"
-current_design_stop = "none (formal declaration/use D0 accepted)"
-current_blocker_token = "Birth formal contract I0 must retain exact declaration class and complete selected use coverage without caller specialization; physical actual binding remains explicitly deferred."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D0"
+current_execution_cohort = "constructor_lifecycle_root_scalar_terminal"
+current_design_stop = "Reconcile each finite selected App Main terminal source arm with one existing issuer, retained relation and final-handoff consumer without inferring an i64 result from MIR or process status."
+current_blocker_token = "Birth formal contract I0 is landed; root scalar/terminal retention requires a finite worker audit before any new issuer, receipt or physical binding."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -35,11 +35,12 @@ Birth declaration-object handoff I0 retains exact source object through the
 constructor/Birth final handoff and transport, deleting key-owner object
 derivation while preserving per-New receiver checks. Formal declaration/use D0
 now selects a constructor-issued BirthFormalContractV1: declaration class and
-complete use coverage are retained without actual-value specialization, while
-physical actual binding remains deferred. I0 is the active bounded slice.
+complete use coverage are retained without actual-value specialization; I0 is
+landed with handoff drift rejection. Root scalar/terminal D0 is now active;
+physical actual binding remains deferred.
 """
-next_design_card = "none (fast bounded implementation selected)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-CONTRACT-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D0"
+next_execution_card = "none (design-stop decision required)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

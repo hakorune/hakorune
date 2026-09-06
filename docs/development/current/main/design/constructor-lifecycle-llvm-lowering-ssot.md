@@ -858,12 +858,14 @@ representation; unsupported/tagged-or-checked cases remain explicit physical
 unavailability.  This contract neither makes an unannotated formal `i64` nor
 changes source acceptance.
 
-The selected construction-store consumer and final lifecycle admission consume
-the same relation.  Declaration/binding/ordinal drift rejects at semantic
-issuance.  Opaque, text, unsupported, general/conflicting, and not-yet-bound
-actuals stop at final physical admission, preserving source validity and
-argument evaluation.  Caller literals, MIR types, value IDs and C input tags
-are non-authority.  The future exclusive deletion set is the C transport's
+The selected construction-store consumer and later final lifecycle admission
+consume the same relation.  This I0's immediate consumer is the Birth ABI
+handoff, which validates and retains it without granting artifact admission.
+Declaration/binding/ordinal drift rejects at semantic issuance.  Opaque, text,
+unsupported, general/conflicting, and not-yet-bound actuals stop at the later
+physical admission boundary, preserving source validity and argument
+evaluation.  Caller literals, MIR types, value IDs and C input tags are
+non-authority.  The future exclusive deletion set is the C transport's
 positional `input_kind` defaults and its anonymous absent-ordinal sentinel;
 I0 below retains the contract only and does not alter those rows or enable C
 execution.
@@ -878,21 +880,41 @@ execution.
   authority.  Construction plans contribute use requirements but do not declare
   a formal's class.  Actual New arguments, physical MIR values and C tags are
   not classifiers.
-- **Consumers and terminal:** selected construction-store lowering consumes
-  exact use sites; final lifecycle admission consumes the disposition and
-  returns its existing explicit physical-unavailable terminal before artifact.
-  No generic callable catalog, raw AST re-entry, C default, fallback, or
-  caller specialization may enter.
+- **Consumers and terminal:** selected construction-store lowering owns exact
+  use sites; `BirthAbiHandoffV1::issue` verifies and retains the same contracts.
+  A later final lifecycle admission consumes the disposition before artifact.
+  No generic callable catalog, raw AST re-entry, C default, fallback, or caller
+  specialization may enter.
 - **Acceptance:** typed-unused, untyped-unused, untyped i64-field store,
   repeated store, and differing actual values/classes retain source acceptance
-  and the exact relation; uncovered/general/conflicting or unbound physical
-  cases reach explicit unavailable.  Declaration spelling, binding, ordinal,
-  foreign-row and relation-drift mutations reject at issuance.  Focused
-  package/final-handoff positives and negatives plus existing guards pass.
+  and the exact relation; uncovered/general/conflicting or unbound cases retain
+  their explicit unavailable disposition for the later admission consumer.
+  Declaration spelling, binding, ordinal, foreign-row and relation-drift
+  mutations reject at issuance. Focused package/final-handoff positives and
+  negatives plus existing guards pass.
 - **Size / non-claims:** put the model in a child module; keep the parent below
   760 lines (800 hard stop).  This I0 does not choose a runtime tagged ABI,
   emit a C formal row, open source-to-EXE/OBJ execution, or delete the
   positional C defaults.
+
+Landed in this implementation row: the child contract owner classifies only exact parser formal
+spelling and selected construction-store use sites. The constructor row and
+Birth handoff retain the same ordered relation; handoff rejects ordinal/binding
+drift. Focused typed, untyped, unused, repeated-store and uncovered-body tests
+pass. The later physical-binding consumer remains the sole owner of actual
+argument representation and admission.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D0`
+
+Decision required before implementation: name the existing source issuer that
+retains each selected App Main terminal result arm (Unit, literal, local,
+initialized field read and recursive Add) together with the exact source sites,
+and name the single final-handoff consumer. `OtherTrivial`, MIR type, value ID,
+function signature and C status conversion are non-authority. Preserve source
+acceptance when the selected artifact profile lacks a physical representation;
+do not infer an i64 result or process exit from a physical consumer. A worker
+must audit finite classifier arms, existing retained relations and their
+counterexamples before a bounded I0 is selected.
 
 ### Following tasks and unresolved decisions
 

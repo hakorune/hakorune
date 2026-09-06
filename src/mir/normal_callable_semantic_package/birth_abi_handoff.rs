@@ -5,6 +5,7 @@
 //! already-published physical layout before a transport projects values.
 
 use super::super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticRowV1;
+use super::super::instance_constructor_semantic::BirthFormalContractV1;
 use crate::mir::instance_constructor_abi::InstanceConstructorAbiV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ReceiverPolicyV1, SemanticOwnerRootProfileV1,
@@ -48,6 +49,7 @@ pub(crate) struct BirthAbiHandoffV1 {
     abi: InstanceConstructorAbiV1,
     receiver: BirthFormalLaneV1,
     parameters: Box<[BirthFormalLaneV1]>,
+    formal_contracts: Box<[BirthFormalContractV1]>,
     result: BirthResultAbiV1,
 }
 
@@ -126,6 +128,18 @@ impl BirthAbiHandoffV1 {
             })
             .collect::<Result<Vec<_>, &str>>()?
             .into_boxed_slice();
+        if row.formal_contracts().len() != parameters.len()
+            || row
+                .formal_contracts()
+                .iter()
+                .zip(parameters.iter())
+                .any(|(contract, lane)| {
+                    lane.source_ordinal() != Some(contract.ordinal())
+                        || contract.binding() != lane.binding()
+                })
+        {
+            return Err("formal-contract");
+        }
         Ok(Self {
             source_id: row.source_id().clone(),
             object: row.object(),
@@ -134,6 +148,7 @@ impl BirthAbiHandoffV1 {
             abi,
             receiver,
             parameters,
+            formal_contracts: row.formal_contracts().to_vec().into_boxed_slice(),
             result: BirthResultAbiV1::Unit,
         })
     }
@@ -164,6 +179,10 @@ impl BirthAbiHandoffV1 {
 
     pub(crate) fn parameters(&self) -> &[BirthFormalLaneV1] {
         &self.parameters
+    }
+
+    pub(crate) fn formal_contracts(&self) -> &[BirthFormalContractV1] {
+        &self.formal_contracts
     }
 
     pub(crate) const fn result(&self) -> BirthResultAbiV1 {
@@ -199,6 +218,7 @@ mod tests {
         .expect("source-issued ABI relation");
         assert_eq!(handoff.target(), &target);
         assert_eq!(handoff.object(), row.object());
+        assert_eq!(handoff.formal_contracts(), row.formal_contracts());
         assert_eq!(handoff.receiver().source_ordinal(), None);
         assert_eq!(handoff.receiver().physical_lane(), 0);
         assert_eq!(
