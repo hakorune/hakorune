@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CONSUMER-D0"
-current_execution_cohort = "constructor_lifecycle_c_physical_consumer_authority"
-current_design_stop = "NoSafeSlice__TypedProgramSerializationEqualityAndCConsumerOwnerMissing"
-current_blocker_token = "Design stop: select the C physical consumer and prove its JSON decode is exactly the final-view physical program, before replacing body-consumer-pending."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-D0"
+current_execution_cohort = "constructor_lifecycle_c_physical_parser_authority"
+current_design_stop = "NoSafeSlice__DedicatedPhysicalSchemaParserAndCFunctionOwnerMissing"
+current_blocker_token = "Design stop: select the dedicated C parser/function-local lowering owner for the issued physical-program schema before replacing body-consumer-pending."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -38,15 +38,16 @@ after frame/profile/site validation. Birth ABI handoff is landed: the exact
 constructor semantic row issues receiver/formal lanes and Unit result, local
 commit transfers them once, final sealing retains root I64, and final view/C
 frame project those relations without physical-ordinal reclassification. The
-the final view now issues the complete selected physical program; C execution
-remains paused until one C consumer proves equality with its JSON transport.
+the final view now issues the complete selected physical program and I1
+serializes only that program. C execution remains paused until its dedicated
+parser consumes that serialization.
 Pair result BoxCount landed at 181d7f8e92: source Completion preserves exact
 terminal Return/Add/ordered-read relations. The AST-free terminal consumer now
 uses that relation through exact reads, one ordered Add and the existing cleanup
 Return. EXE30/linked OBJ30 and selected C physical program remain open; no
 source runtime claim is made.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CONSUMER-D0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-D0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

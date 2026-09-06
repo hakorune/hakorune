@@ -28,6 +28,22 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
     },
 }
 
+impl PublishedLifecyclePhysicalFunctionRoleV1 {
+    pub(crate) const fn wire_name(&self) -> &'static str {
+        match self {
+            Self::RootI64 { .. } => "root_i64",
+            Self::BirthUnit { .. } => "birth_unit",
+        }
+    }
+
+    pub(crate) fn birth_target(&self) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
+        match self {
+            Self::BirthUnit { abi } => Some(abi.target()),
+            Self::RootI64 { .. } => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct PublishedLifecyclePhysicalInstructionRefV1<'module> {
     index: u32,

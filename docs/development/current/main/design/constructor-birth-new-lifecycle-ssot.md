@@ -911,6 +911,58 @@ by one bounded consumer implementation if that audit names its exact owner.
 Non-claims: C execution, Pair OBJ/EXE exit 30, old-edge deletion, runtime hook
 state unification and generic compatibility retirement.
 
+Two independent read-only audits close this Decision. The selected host calls
+only `hako_llvmc_compile_published_lifecycle_body_v2`, whose present validator
+reaches `body-consumer-pending`. Its current JSON comes from generic module
+egress: it can include unselected functions and moves PHIs ahead of stored
+instructions. The generic C reader also selects by entry/name/metadata. Neither
+is a serialization of the final-view program, so no C opcode work is permitted.
+
+### CONSTRUCTOR-LIFECYCLE-PHYSICAL-SERIALIZATION-I1 — issued program transport
+
+Decision: accepted BoxShape. `PublishedLifecyclePhysicalProgramV1` directly
+issues one closed JSON physical transport, with fixed schema tag, issued
+root-then-Birth order, roles, formal lanes, entry, sorted blocks, stored
+instruction and terminator indexes, and exact edges/args.
+Source authority + canonical issuer: only the activated final view's already
+issued physical program is serializer input. The serializer never rescans the
+view or module.
+Non-authority: generic MIR JSON, entry/name/metadata selection, V2 rows, C
+defaults and all generic C readers.
+Fail-fast boundary: unsupported instruction, foreign Birth target, or missing
+function/role/param/block/index/terminator/edge relation rejects before the
+transport is handed to C.
+Smallest next slice: Rust-only direct serializer and focused real Pair evidence.
+It leaves the lifecycle host on the existing pending terminal; the dedicated C
+parser/consumer is I2.
+Non-claims: C parser or object emission, EXE30/OBJ30, V2 ABI changes, generic
+JSON migration and legacy deletion.
+
+Landed I1: `PublishedLifecyclePhysicalProgramV1` now has a sibling direct
+serializer with fixed `hako.published-lifecycle-physical-program.v1` schema.
+It serializes exactly the issued root/Birth order, roles, params, blocks,
+stored indexes, terminators, edges and closed selected vocabulary. Real Pair
+evidence checks those coordinates, Add and both field reads; nonissued Bool
+constants reject. No host or C consumer changed.
+
+### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-D0 — dedicated parser owner
+
+Decision: design-stop. Select the C parser and function-local LLVM lowering
+owner for the issued physical schema before changing the selected pending
+terminal.
+Source authority + canonical issuer: I1 physical JSON is solely a transport of
+the final view's issued program. The parser must consume it by ordinal and
+coordinates, never by name, generic metadata or V2 defaults.
+Non-authority: generic JSON parser/lowerer, function-name lookup, generic
+entry selection, V2 partial lifecycle rows and process-global compile state.
+Fail-fast boundary: any parser path that reclassifies source meaning or lacks
+an exact function-local value/block/edge owner remains `NoSafeSlice`; C emits
+no object.
+Smallest next slice: read-only C owner/caller/reuse audit, then one selected
+schema parser and no broader generic lowering re-entry.
+Non-claims: C object emission, Pair OBJ/EXE exit 30, old-edge deletion, V2 ABI
+revision or compatibility retirement.
+
 Decision: provisional JSON validators remain retired at the no-artifact terminal. Preserve each already-issued Birth recipe's canonical target when a root New claim becomes a local commit, then co-seal it with root Completion and the canonical construction draft after finalization.
 Source authority + canonical issuer: `OrdinaryNewClaimLedgerV1` owns root Completion and issued Birth recipes; its private finalizer validates one exact retained construction draft and issues the opaque final root/Birth handoff before Atomic Publish.
 Non-authority: root symbol, `FunctionSignature`, `MirParamDecl`, instruction position, JSON, C frame, Pair names, canonical-core role, ObjectFieldGet, metadata and positional/default ABI rules.
