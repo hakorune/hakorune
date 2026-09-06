@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1"
-current_execution_cohort = "constructor_lifecycle_physical_abi_boxshape"
-current_design_stop = "NoSafeSlice: direct ABI has no issuer for value types, diagnostic sites or target FaultFrame placement."
-current_blocker_token = "Design stop: name source authorities for physical value types, checked-operation sites and target frame placement, or park selected C lifecycle execution."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D1"
+current_execution_cohort = "constructor_lifecycle_physical_authority_design"
+current_design_stop = "NoSafeSlice: direct ABI lacks issuers for all SSA representations, checked-operation sites and target FaultFrame placement; selected C execution is ParkedSealed."
+current_blocker_token = "Design stop: establish one source-bound value/site issuer and one lifecycle target capability, or retain the C execution park; only the separately closed storage-profile projection may execute first."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,13 +34,16 @@ latest_card_summary = """
 Design/task order consolidated at the constructor owner. Birth handoff and
 physical program/layout serialization exist; direct C parser I0 now validates
 the complete ABI-bearing schema and accepts unchanged issued Pair JSON.
-I1 audit found no issuer for physical value types, checked-operation sites or
-target frame placement, so C lowering remains NoSafeSlice pending authority
-selection or an explicit park; host connection and EXE30/linked OBJ30 are closed.
+I1 closed the finite ABI audit: existing profile/root/Birth/layout/frame-mode
+projections are safe, but all SSA representations, checked-operation sites and
+target frame placement have no issuer. Selected C execution is ParkedSealed;
+the next ordered work is the source/target authority D1, followed only by the
+independent existing-profile projection. Host connection and EXE30/linked OBJ30
+remain closed.
 Production still uses generic lifecycle JSON plus V2 and stops at
 body-consumer-pending. No checked-runtime or whole-MirBuilder completion claim.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D1"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

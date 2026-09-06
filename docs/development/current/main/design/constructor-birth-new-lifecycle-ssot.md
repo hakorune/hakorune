@@ -934,8 +934,8 @@ physical mapping; an absent semantic issuer requires a named design stop.
 
 ### CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1 — lowering ABI completion
 
-Decision: design-stop, `NoSafeSlice` after one independent read-only owner
-audit. C lowering must remain closed.
+Decision: design-stop, `NoSafeSlice` after independent owner audits. Selected
+C lifecycle execution is `ParkedSealed`; C lowering must remain closed.
 Source authority + canonical issuer: the activated final view issues program
 membership, layout references and frame mode; `nyrt_fault_v1.h` owns runtime
 frame representation. There is no canonical issuer for all physical value
@@ -970,6 +970,37 @@ or V2 frame rows into an authority for this path without an explicit source
 selection. The later serialize-then-reparse deletion remains conditional on a
 closed ABI issuer; it is not a safe standalone cleanup while this input is
 incomplete.
+
+The finite reconciliation separates usable projections from missing issuance:
+
+| Product | Existing canonical issuer | D1 disposition |
+| --- | --- | --- |
+| lifecycle storage profile | final lifecycle activation (`lifecycle_storage_profile()`) | safe BoxShape projection; it is currently omitted only by direct ABI input |
+| root result and Birth lanes | `FinalizedRootResultAbiV1::I64AddReturn` and `BirthAbiHandoffV1` | retain their exact result/Unit and receiver/formal order; they do not type every local value |
+| I64 object layout | canonical object definition runtime layout | retain type ID, slot and I64 storage rows; no source/layout reconstruction |
+| frame identity and ownership mode | `CallableFaultFrame` plus invoke verification | retain one entry frame ValueId and RootOwned/Borrowed mode; this is not storage placement |
+| local/formal/PHI physical representations | none; `FunctionMetadata.value_types` is optional derived metadata | `ParkedSealed`; D1 must name a complete source-bound issuer before direct ABI adds types |
+| checked-operation `u64` sites | none; source plan locations are entry-level and Invoke has no site | `ParkedSealed`; D1 must issue exact operation sites, never coordinates/name/hash/zero |
+| target FaultFrame storage | runtime header owns repr only; pinned-Text target capability is another family | `ParkedSealed`; D1 must define a lifecycle-owned target capability and matching runtime-layout contract |
+
+`CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D1` is the next design card.
+
+```text
+Decision: establish, or explicitly decline, one source-bound issuer for complete selected SSA representations and checked-operation sites, plus one lifecycle target capability that co-seals the runtime FaultFrame placement.
+Source authority + canonical issuer: the existing normal-callable semantic issuance/final source validation for source meaning; a new lifecycle-specific compile target capability only if it is issued at compile invocation and co-sealed with the selected runtime ABI. Existing final view projects those products; it does not infer them.
+Non-authority: FunctionMetadata value maps, opcode guesses, coordinate/name/hash/zero sites, V2 rows, generic-C defaults, host sizeof, and pinned-Text target capability.
+Fail-fast boundary: absent/partial source type/site coverage or an unmatched target/runtime layout prevents direct ABI extension and C lowering before host/artifact.
+Smallest next slice: read-only source-to-final-view issuer design with a finite selected Pair inventory; it must distinguish existing issuer projection from a necessary source/target contract and return one bounded implementation row or an explicit permanent park.
+Non-claims: implementation of types/sites/target capability, JSON changes, C lowering, host cutover, Pair EXE/OBJ30 or retirement.
+```
+
+If D1 finds a complete issuer, task order is: (1) project the already-issued
+storage profile alone through direct ABI JSON/parser as `BoxShape`; (2) implement
+the one accepted source/target issuance contract and project it with the profile;
+(3) complete ABI validation; (4) C lowering and host cutover; (5) Pair
+EXE/linked-OBJ exit 30 and atomic legacy retirement. If D1 does not find one,
+the selected C execution remains parked and the lane returns to the next
+inventoried Call cleanup candidate; it must not create a compatibility path.
 
 2. **Close the lowering ABI in the existing physical input — BoxShape.**
    Owner: `physical_abi.rs` / direct serializer and the existing final view;
