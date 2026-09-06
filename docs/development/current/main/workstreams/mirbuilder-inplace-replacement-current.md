@@ -557,9 +557,9 @@ unrelated helper deletion leaves this boundary.
    Expected-but-missing relation rejects; absence is not compatibility
    permission. Owner, acceptance and deletion scope are fixed in the
    [terminal design](../design/constructor-birth-new-lifecycle-ssot.md#terminal-consumer-design-2026-09-06).
-6. Design-stop prerequisite: no retained source-issued root/Birth ABI final-handoff
-   projection exists; fix its issuer and one-way transfer before C. MIR, JSON,
-   function signature and positional defaults cannot repair it.
+6. ABI-handoff BoxShape: constructor semantic row issues exact receiver/parameter
+   lanes; co-seal moves them to local commit/final handoff with root I64 result.
+   Reject drift before C; MIR/JSON/signature/defaults cannot repair it.
 7. Consume one physical program: selected C companion places function-local
    params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
    checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.

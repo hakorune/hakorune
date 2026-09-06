@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-BIRTH-ABI-HANDOFF-D0"
-current_execution_cohort = "constructor_birth_abi_handoff_design"
-current_design_stop = "NoSafeSlice: Birth receiver/formal ABI has no canonical issuer retained through the final handoff; NewLocalCommit retains only target key after recipe consumption."
-current_blocker_token = "Design stop: source-issued root/Birth ABI and one-way recipe/formal transfer must be fixed before the selected C physical program. Pair EXE30/OBJ30 remain open."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-BIRTH-ABI-HANDOFF-I0"
+current_execution_cohort = "constructor_birth_abi_handoff_boxshape"
+current_design_stop = "none"
+current_blocker_token = "BoxShape: retain source-issued Birth receiver/formal lanes and root I64 result through the final handoff; selected C physical program and Pair EXE30/OBJ30 remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -43,8 +43,8 @@ uses that relation through exact reads, one ordered Add and the existing cleanup
 Return. EXE30/linked OBJ30 and selected C physical program remain open; no
 source runtime claim is made.
 """
-next_design_card = "CONSTRUCTOR-BIRTH-ABI-HANDOFF-D0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "CONSTRUCTOR-BIRTH-ABI-HANDOFF-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

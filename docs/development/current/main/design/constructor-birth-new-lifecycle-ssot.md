@@ -826,27 +826,33 @@ Typed-C prepass checkpoint: existing same-module call prepass peeks at published
 
 ## Typed C program handoff Decision
 
-### CONSTRUCTOR-BIRTH-ABI-HANDOFF-D0 — Birth ABI handoff NoSafeSlice (2026-09-06)
+### CONSTRUCTOR-BIRTH-ABI-HANDOFF-I0 — Birth ABI handoff BoxShape (2026-09-06)
 
-Decision: design stop before C program lowering.
-Source authority + canonical issuer: not yet established. The root Completion
-and terminal relation are retained by `OrdinaryNewClaimLedgerV1`; Birth recipe
-authority exists before claim consumption, but `NewLocalCommitV1` retains only
-its canonical target, and no source-issued receiver/formal row exists.
+Decision: retain source-issued ABI lanes before C program lowering.
+Source authority + canonical issuer: `VerifiedInstanceConstructorSemanticRowV1`
+issues one Birth formal relation from its exact DeclaredInstance resolver root:
+source ID/target, receiver `BindingRefV1`, ordered parameter `BindingRefV1`s,
+source arity and the explicit receiver-lane-0 / argument-lane-N+1 mapping.
+`issue_ordinary_new_claims_v1` co-seals that relation with the existing Birth
+recipe; `NewLocalCommitV1` is its sole transfer owner after claim take. The
+root result is projected only by the existing terminal I64 relation at final
+handoff sealing.
 Non-authority: `MirFunction.signature`, physical parameter count, Birth name,
 JSON, C defaults, positional lane rules and the Pair fixture.
 Fail-fast boundary: missing/foreign/duplicate/residual root result, Birth
 source/ABI, receiver/formal or one-way transfer rejects before final-view
 lifecycle activation and before C.
-Smallest next slice: name the existing-or-new canonical Birth receiver/formal
-issuer and its sole one-way transfer to both physical New emission and the
-opaque final handoff, without reconstructing it from MIR or C.
+Smallest next slice: implement this BoxShape in the constructor semantic row,
+ordinary-New local commit/final handoff, final-view binder and lifecycle C-frame
+projection. The frame must copy the issued lanes, never synthesize wire/input
+kind from physical ordinal. Test root I64/Birth Unit, receiver lane, ordered
+arguments and missing/foreign/duplicate/drift rejection before C.
 Non-claims: C opcode lowering, source execution, EXE30/OBJ30, a new semantic
-receipt, generic C migration or legacy deletion.
+source interpretation, generic C migration or legacy deletion.
 
-Both read-only workers agree that no current type holds the root result contract
-and Birth receiver/formal ABI together at final handoff. The next action remains
-design-only until that issuer/transfer is concrete.
+The two read-only audits established the prior gap and the issuer boundary.
+This is behavior-preserving retention of an already accepted Birth source form;
+it does not make the C body consumer executable.
 
 Decision: provisional JSON validators remain retired at the no-artifact terminal. Preserve each already-issued Birth recipe's canonical target when a root New claim becomes a local commit, then co-seal it with root Completion and the canonical construction draft after finalization.
 Source authority + canonical issuer: `OrdinaryNewClaimLedgerV1` owns root Completion and issued Birth recipes; its private finalizer validates one exact retained construction draft and issues the opaque final root/Birth handoff before Atomic Publish.
