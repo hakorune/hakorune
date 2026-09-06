@@ -32,7 +32,7 @@ fn final_handoff_retains_exact_source_for_alias_and_multiple_homes() {
         assert!(matches!(
             handoff.root_result(),
             Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
-                if source.terminal().owner() == owner
+                if source.terminal_i64_add().expect("I64 source relation").owner() == owner
         ));
         assert_eq!(
             handoff.birth_keys(),

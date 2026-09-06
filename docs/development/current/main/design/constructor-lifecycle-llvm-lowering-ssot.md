@@ -963,12 +963,20 @@ through final MIR and the named view terminal; negatives mutate the terminal to
 `Some(void)`, duplicate/remove it, or drift completion/site/owner. No
 fixture, fallback, ABI inference, object, executable or C claim opens.
 
-The following schema slice (`CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-D3`) is
-separate: extend the typed lifecycle role/result schema with explicit
-`root_unit`, make Rust frame and C schema agree, and then reach only the
-existing `body-consumer-pending` terminal. It still claims neither object nor
-EXE. The physical-program `root_i64` role and C body must not silently accept
-Unit before that slice.
+I0 landed in this series: source Unit relation, selected cleanup
+`Return(None)`, final-handoff retention, and the named `unit-c-role-unavailable`
+stop are covered by focused source, final-MIR, terminal-drift, I64 regression,
+and pipeline-negative tests. It makes no C call.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-D3`
+
+Design stop: audit the finite typed lifecycle schema from final borrowed view
+through Rust C frame and the selected C body consumer. Name one `root_unit`
+role/result encoding and prove that C consumes it only as Unit; `Return(Some
+void)`, a missing result row, `root_i64`, JSON opcode names, and process status
+are non-authority. The bounded I0 may reach only `body-consumer-pending` after
+Rust/C role, frame and return-mode agreement all reject mismatch. Object, EXE,
+OBJ-linked EXE and fallback remain out of scope.
 
 
 ### Following tasks and unresolved decisions

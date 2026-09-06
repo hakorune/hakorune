@@ -286,6 +286,25 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
     ledger: &OrdinaryNewClaimLedgerV1,
     value: ValueId,
 ) -> Result<ValueId, String> {
+    emit_root_home_exit_payload(builder, state, ledger, Some(value), value)
+}
+
+pub(in crate::mir::builder) fn emit_root_home_unit_exit(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+) -> Result<ValueId, String> {
+    let statement_result = crate::mir::builder::emission::constant::emit_void(builder)?;
+    emit_root_home_exit_payload(builder, state, ledger, None, statement_result)
+}
+
+fn emit_root_home_exit_payload(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    return_value: Option<ValueId>,
+    statement_result: ValueId,
+) -> Result<ValueId, String> {
     let operations = ledger.begin_root_home_exit()?;
     let frame = state.borrow_fault_frame(builder)?;
     let mut bindings = Vec::new();
@@ -294,7 +313,7 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
     append_block(
         builder,
         clean,
-        MirInstruction::Return { value: Some(value) },
+        MirInstruction::Return { value: return_value },
         &mut bindings,
     )?;
     append_block(
@@ -342,7 +361,7 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
     bindings.push((origin, jump));
     origins.reverse();
     ledger.record_root_home_exit(origins, bindings)?;
-    Ok(value)
+    Ok(statement_result)
 }
 
 pub(in crate::mir::builder) fn emit_terminal_i64_add_return(

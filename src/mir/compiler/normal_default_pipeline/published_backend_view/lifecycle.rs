@@ -126,13 +126,13 @@ impl<'module> PublishedMirBackendView<'module> {
         self.retained_birth_keys =
             Some(births.iter().map(|birth| birth.target().clone()).collect());
         self.retained_birth_abi = Some(births);
-        if root_source.as_ref().is_some_and(|source| !matches!(
-            root_result,
-            Some(
-                crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner }
-            ) if source.terminal().owner() == owner
-        )) {
-            return Err(fault("retained-root-source-result-drift"));
+        if let Some(source) = root_source.as_ref() {
+            let valid = match (source.terminal_i64_add(), source.terminal_unit_return(), root_result) {
+                (Some(terminal), None, Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })) => terminal.owner() == owner,
+                (None, Some(terminal), Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { owner })) => terminal.owner() == owner,
+                _ => false,
+            };
+            if !valid { return Err(fault("retained-root-source-result-drift")); }
         }
         self.retained_root_source = root_source;
         self.retained_root_result = root_result;
@@ -193,6 +193,10 @@ impl<'module> PublishedMirBackendView<'module> {
             .retained_root
             .ok_or_else(|| fault("retained-root-missing"))?;
         let root_name = root.signature.name.as_str();
+        if matches!(self.retained_root_result,
+            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. })) {
+            return Err(fault("unit-c-role-unavailable"));
+        }
         let retained_birth_keys = self
             .retained_birth_keys
             .as_deref()

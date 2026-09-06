@@ -28,6 +28,12 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
     ) -> Result<crate::mir::ValueId, String> {
         Err("[freeze:contract][root-home-exit/no-physical-owner]".into())
     }
+    fn emit_root_home_unit_exit(
+        &mut self,
+        _builder: &mut crate::mir::MirBuilder,
+    ) -> Result<crate::mir::ValueId, String> {
+        Err("[freeze:contract][root-home-unit-exit/no-physical-owner]".into())
+    }
     fn prepare_ordinary_new_emission(
         &mut self,
         _builder: &crate::mir::MirBuilder,
@@ -197,6 +203,21 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             &mut state.borrow_mut(),
             ledger,
             value,
+        )
+    }
+    fn emit_root_home_unit_exit(
+        &mut self,
+        builder: &mut crate::mir::MirBuilder,
+    ) -> Result<crate::mir::ValueId, String> {
+        let owner = self.callable_owner_v1().ok_or("[root-home-unit-exit/owner-missing]")?;
+        let site = self.current_source_site_v1().ok_or("[root-home-unit-exit/site-missing]")?;
+        let state = self.callable_ledger.as_ref().ok_or("[root-home-unit-exit/state-missing]")?;
+        let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or("[root-home-unit-exit/ledger-missing]")?;
+        if !ledger.prepare_terminal_unit_return(owner, &site)? {
+            return Err("[freeze:contract][root-home-unit-exit/source-unavailable]".into());
+        }
+        crate::mir::builder::ordinary_new_admission::selected::emit_root_home_unit_exit(
+            builder, &mut state.borrow_mut(), ledger,
         )
     }
     fn prepare_ordinary_new_emission(

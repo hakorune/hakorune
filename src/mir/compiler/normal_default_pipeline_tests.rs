@@ -165,7 +165,7 @@ fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
                 assert!(matches!(
                     view.retained_root_result(),
                     Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
-                        if root_source.terminal().owner() == owner
+                        if root_source.terminal_i64_add().expect("I64 source relation").owner() == owner
                 ));
                 let _identity = root_source.app_main_identity();
                 let frame = published_backend_view::PublishedLifecycleCFrameV2::from_view(view)?;
@@ -686,4 +686,17 @@ fn vm_keep_post_macro_preserves_named_source_and_exact_imports() {
         admission,
         NormalCompileAdmissionV1::VmKeepPostMacroProgramWithImports
     );
+}
+
+#[test]
+fn explicit_bare_return_stops_before_i64_only_c_lifecycle_role() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let source = "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return } }";
+        let mut compiler = MirCompiler::with_options(false);
+        match compiler.compile_normal_with_published(published_request(source), |_, _| Ok(())) {
+            Err(error) => assert!(error.contains("unit-c-role-unavailable"), "{error}"),
+            Ok(_) => panic!("Unit must not enter the i64-only C role"),
+        }
+    });
 }

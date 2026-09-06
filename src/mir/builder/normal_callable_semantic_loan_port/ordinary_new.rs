@@ -29,6 +29,10 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         self.check_new_ledger_identity()?;
         self.inner.emit_root_home_exit(builder, value)
     }
+    fn emit_root_home_unit_exit(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.emit_root_home_unit_exit(builder)
+    }
     fn prepare_ordinary_new_emission(
         &mut self,
         builder: &MirBuilder,

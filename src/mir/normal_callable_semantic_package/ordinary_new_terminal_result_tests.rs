@@ -61,3 +61,16 @@ fn nested_add_keeps_scalar_completion_without_issuing_direct_pair_relation() {
         .terminal_i64_add_return()
         .is_none());
 }
+
+#[test]
+fn explicit_bare_return_issues_unit_relation_without_i64_specialization() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return } }",
+    ).expect("source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let relation = ledger.terminal_unit_return().expect("explicit bare return relation");
+    let completion = ledger.root_completion_for_test();
+    assert_eq!(relation.owner(), completion.owner());
+    assert_eq!(relation.return_site(), completion.explicit_site().expect("return site"));
+    assert!(ledger.terminal_i64_add_return().is_none());
+}

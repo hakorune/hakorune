@@ -195,7 +195,13 @@ For root cleanup, `RootHomeExitProgress` retains each installed Home binding,
 the completion's exact exit site, object identity, and bound `ValueId` through
 the selected `HomeRelease` emitter. Final validation checks the ordered source
 origins and the actual emitted release operation; block layout does not issue
-or reconstruct a cleanup origin.
+or reconstruct a cleanup origin. A Completion-backed explicit bare return is a
+separate Unit terminal relation. Only the selected root-home emitter may consume
+it; it emits `Return { value: None }` after the same cleanup graph. The void
+constant used as the statement-lowering result is never the return payload.
+Final handoff retains Unit separately from the I64 Add relation. The lifecycle
+view rejects Unit at its named `unit-c-role-unavailable` boundary until a later
+typed `root_unit` C schema exists.
 Terminal field reads join the original Home binding to its selected New and
 same-session object definition through a synchronous borrow. Only successful
 source construction and an exact nonweak i64 field qualify; declaration names

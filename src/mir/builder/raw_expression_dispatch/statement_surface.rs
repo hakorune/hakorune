@@ -639,7 +639,7 @@ where
                 value
             }
             ASTNode::Return { value: None, .. } => {
-                crate::mir::builder::emission::constant::emit_void(builder)?
+                return port.emit_root_home_unit_exit(builder);
             }
             _ => return Err("[freeze:contract][root-home-exit/not-return]".into()),
         };

@@ -160,6 +160,22 @@ impl TerminalI64AddReturnV1 {
     }
 }
 
+/// Exact source relation for a Completion-backed explicit bare return.
+/// This contains no physical value or ABI category.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct TerminalUnitReturnV1 {
+    owner: FunctionOwnerIdV1,
+    return_site: SourceStmtSiteV1,
+}
+
+impl TerminalUnitReturnV1 {
+    fn issue(owner: FunctionOwnerIdV1, return_site: SourceStmtSiteV1) -> Self {
+        Self { owner, return_site }
+    }
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
+    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 { &self.return_site }
+}
+
 #[derive(PartialEq, Eq)]
 enum ReturnScalar {
     Integer,
@@ -229,14 +245,16 @@ pub(crate) fn scan_new_home_flow<E>(
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
     Option<TerminalI64AddReturnV1>,
+    Option<TerminalUnitReturnV1>,
     BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
 ), E> {
     let mut results = BTreeMap::new();
     let mut terminal_homes = Err(HomePrefixUnavailableV1::TerminalNotCovered);
     let mut terminal_result = None;
+    let mut terminal_unit_return = None;
     let mut argument_observations = BTreeMap::new();
     if selected.is_empty() && terminal.is_none() {
-        return Ok((results, terminal_homes, terminal_result, argument_observations));
+        return Ok((results, terminal_homes, terminal_result, terminal_unit_return, argument_observations));
     }
     let function = input.function();
     let mut unavailable = (function.declaration_sites().any(|site| {
@@ -253,7 +271,7 @@ pub(crate) fn scan_new_home_flow<E>(
         return Ok((selected
             .keys()
             .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
-            .collect(), Err(HomePrefixUnavailableV1::SourceMismatch), terminal_result,
+            .collect(), Err(HomePrefixUnavailableV1::SourceMismatch), terminal_result, terminal_unit_return,
             argument_observations));
     };
     let mut locals = BTreeMap::new();
@@ -270,7 +288,11 @@ pub(crate) fn scan_new_home_flow<E>(
         covered_statements.push(statement.site().clone());
         if terminal == Some(statement.site()) {
             let scalar_return = match statement.node() {
-                ASTNode::Return { value: None, .. } => true,
+                ASTNode::Return { value: None, .. } => {
+                    terminal_unit_return = Some(TerminalUnitReturnV1::issue(
+                        input.owner(), statement.site().clone()));
+                    true
+                }
                 ASTNode::Return { value: Some(_), .. } => match input.source()
                     .child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue) {
                     Ok(value) => match return_scalar(input, value.site(), &locals, field_is_integer)? {
@@ -294,6 +316,7 @@ pub(crate) fn scan_new_home_flow<E>(
             };
             if terminal_homes.is_err() {
                 terminal_result = None;
+                terminal_unit_return = None;
             }
             break;
         }
@@ -434,5 +457,5 @@ pub(crate) fn scan_new_home_flow<E>(
                 .unwrap_or(HomePrefixUnavailableV1::SourceMismatch))
         });
     }
-    Ok((results, terminal_homes, terminal_result, argument_observations))
+    Ok((results, terminal_homes, terminal_result, terminal_unit_return, argument_observations))
 }

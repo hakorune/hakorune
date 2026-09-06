@@ -74,7 +74,7 @@ fn artifact_validation_rejects_uncovered_sibling_and_empty_birth() {
             block.instruction_spans.push(Span::unknown());
         }
         block.set_terminator(if empty_birth {
-            MirInstruction::Return { value: None }
+            crate::mir::MirInstruction::Return { value: None }
         } else if exact_read {
             MirInstruction::Return {
                 value: Some(ValueId(1)),
@@ -219,7 +219,7 @@ fn artifact_validation_retains_issued_root_birth_handoff() {
     assert!(matches!(
         handoff.root_result(),
         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
-            if root_source.terminal().owner() == owner
+            if root_source.terminal_i64_add().expect("I64 source relation").owner() == owner
     ));
     let _identity = root_source.app_main_identity();
     assert_eq!(
@@ -755,4 +755,58 @@ fn actual_string_helpers_general_result_row_reaches_its_first_loop_carrier() {
             .iter()
             .any(|(_, function)| function.signature.name == "StringHelpers.int_to_str/1"));
     });
+}
+
+#[test]
+fn selected_bare_return_emits_value_free_root_terminator() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("selected bare return must lower");
+    let (_, module, validate) = completed.into_artifact_parts();
+    let root = module.functions.get("main").expect("root");
+    assert_eq!(root.blocks.values().flat_map(|block| block.all_instructions())
+        .filter(|instruction| matches!(instruction, crate::mir::MirInstruction::Return { value: None })).count(), 1);
+    assert!(!root.blocks.values().flat_map(|block| block.all_instructions())
+        .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Return { value: Some(_) })));
+    let handoff = validate(&module).expect("artifact validation").expect("Pair handoff");
+    let source = handoff.root_source().expect("Unit source relation");
+    assert!(matches!(handoff.root_result(),
+        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { owner })
+            if source.terminal_unit_return().is_some_and(|terminal| terminal.owner() == owner)));
+}
+
+#[test]
+fn selected_bare_return_rejects_value_bearing_terminal_drift() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("selected bare return must lower");
+    let (_, mut module, validate) = completed.into_artifact_parts();
+    let root = module.functions.get_mut("main").expect("root");
+    let terminator = root.blocks.values_mut().find_map(|block| {
+        matches!(block.terminator, Some(crate::mir::MirInstruction::Return { value: None }))
+            .then_some(&mut block.terminator)
+    }).expect("value-free return");
+    *terminator = Some(crate::mir::MirInstruction::Return {
+        value: Some(crate::mir::ValueId::new(0)),
+    });
+    let error = validate(&module).expect_err("value-bearing drift must reject");
+    assert!(error.contains("unit-return-control-drift"), "{error}");
 }

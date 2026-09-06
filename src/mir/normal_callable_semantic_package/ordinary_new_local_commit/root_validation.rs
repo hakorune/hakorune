@@ -19,6 +19,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         };
         self.validate_new_emissions(owner, function)?;
+        self.validate_terminal_unit_return(owner, function)?;
         self.validate_root_home_exit(function)?;
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_i64_add_return(owner, function)?;
@@ -44,6 +45,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         };
         self.validate_new_emissions(owner, function)?;
+        self.validate_terminal_unit_return(owner, function)?;
         self.validate_root_home_exit(function)?;
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_i64_add_return(owner, function)?;
@@ -51,6 +53,18 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("root-observation-drift"));
         }
         *state = RootNewValidation::FinishingChecked;
+        Ok(())
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(super) fn validate_terminal_unit_return(&self, owner: FunctionOwnerIdV1, function: &MirFunction) -> Result<(), String> {
+        let Some(relation) = self.terminal_unit_return.as_ref() else { return Ok(()); };
+        if relation.owner() != owner { return Err(freeze("unit-return-owner-drift")); }
+        let count = function.blocks.values().flat_map(|block| block.all_instructions())
+            .filter(|instruction| matches!(instruction, MirInstruction::Return { value: None }))
+            .count();
+        if count != 1 { return Err(freeze("unit-return-control-drift")); }
         Ok(())
     }
 }
