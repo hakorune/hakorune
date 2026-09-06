@@ -14,9 +14,9 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-D0`, a design-stop
-census that must name the exact existing construction-fault obligation,
-consumer, old loss edge and pre-emission rejection before implementation.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-REPRESENTATION-D2`, a
+design-stop census for the remaining root/Birth value representation rows whose
+existing issuer is still partial or absent.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -219,7 +219,7 @@ backend/runtime layout, other call families and VM/WASM.
 | New allocation | `OrdinaryNewAdmissionClaimV1` retains exact New site, object, destination, Home prefix and construction; the package port takes the same owned site. | **Present.** The allocation identity is source-issued; representation of its result is still missing. |
 | Birth formals and result | `BirthAbiHandoffV1` issues owner, receiver/parameter bindings and physical lane order with Unit result; claim take transfers it to root/Birth handoff. | **Partial / CutoverBlockerOpen.** Lane order and Unit are not semantic representation for receiver or each parameter. |
 | Birth FieldSet | `ConstructionPlanV1` retains each `ResolvedAssignmentSourceV1` with canonical field; selected construction/body lowering consumes it. | **Present source obligation; physical handoff missing.** D1 must not create a duplicate store issuer. |
-| ReclaimUnpublished | `ConstructionPlanV1` retains required outer-storage reclaim and constructor identity; selected construction cleanup emits the operation. | **Partial / CutoverBlockerOpen.** The failed-construction cutpoint has no source-issued operation-origin row. |
+| ReclaimUnpublished | `ConstructionPlanV1` issues required outer-storage reclaim and constructor identity; the exact ordinary-New claim site co-seals it, `NewEmissionProgress` retains it, and selected Birth-fault cleanup records the operation. | **Present through selected finalization.** Final validation rejects source, presence, binding and operation drift; target/runtime lowering remains separate. |
 | Copy, PHI, frame, InvokeNormalResult, branch/edge values | No selected source requirement issuer exists; the builder creates or binds them. | **Missing as source products.** Later physical binding may admit them only through completed input relations or named emitter rules, never metadata inference. |
 
 The finite state vocabulary is `Present | Partial | Missing`. `Present` means
@@ -244,7 +244,7 @@ bounded Home-origin row, but it blocks any claim of complete source retention.
 | Birth receiver | `BirthAbiHandoffV1` owns binding/lane and `ConstructionPlanV1` owns the exact object, but they are not co-sealed after claim take. | **Existing issuers, later co-seal.** D1 does not infer object handle from lane. |
 | Birth parameters | Birth handoff owns bindings/lanes/Unit; constructor stores identify i64 use only for admitted parameter RHS. Unused or untyped formals have only `OpaqueHandle`. | **Partial / NoIssuer.** Add an i64 use requirement only where the existing store proves it; untyped unused formals reject rather than infer i64. |
 | HomeRelease origin | Completion co-issues ordered terminal homes and exact exit; the prefix carries binding plus outward-fault site. `RootHomeExitProgress` retains each binding/exit with its existing object/value through selected emission. | **Landed.** The naked positional handoff is deleted. Final validation rejects origin count/order/exit or concrete `HomeRelease` operation drift. |
-| ReclaimUnpublished cutpoint | `ConstructionPlanV1` retains constructor identity and the construction-fault reclaim obligation, but selected cleanup receives no origin/cutpoint. | **Existing issuer, later extension.** Attach the obligation to exact claim New site plus constructor identity; generated CFG position is not origin. |
+| ReclaimUnpublished cutpoint | `ConstructionPlanV1` retains constructor identity and the construction-fault reclaim obligation; the exact claim site is co-sealed before `NewEmissionProgress` transfers it to selected cleanup. | **Landed.** Final validation rejects missing, duplicate or drifted Reclaim operation/binding; generated CFG position is non-authority. |
 
 `CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-RETENTION-I0` is landed. It has one
 authority (`RootHomeExitProgress`), one consumer (the selected root Home
@@ -302,6 +302,14 @@ source origin per fault suffix and none on Normal, source negatives for
 NoBirth/unavailable/foreign/missing/duplicate relation, and final-MIR mutation
 negatives for object/value/block removal or duplication. It reuses existing
 construction-take evidence and does not add a fixture, fallback or guard.
+
+`CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-RETENTION-I0` is landed. The existing
+progress owner retains the exact New site, constructor source/owner and object;
+selected Birth-fault cleanup records its concrete `ReclaimUnpublished` once.
+The prior bare `claim.constructor()==Birth` reconstruction is deleted. Focused
+evidence covers two distinct Birth claims and a mutated Reclaim value rejected
+as `reclaim-origin-operation-drift`. No target/runtime or C execution claim is
+made.
 
 The focused field-read command
 `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`

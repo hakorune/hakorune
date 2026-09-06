@@ -17,7 +17,7 @@ pub(in crate::mir::builder) fn emit(
     if state.owner() != claim.site().owner() || arguments.len() != claim.arity() {
         return Err(freeze("owner-or-argument-count"));
     }
-    let prior = ledger.begin_new_emission(claim.site())?;
+    let (prior, reclaim_origin) = ledger.begin_new_emission(claim.site())?;
     let site = claim.site().clone();
     let object = claim.object();
     let class = claim.class().to_owned();
@@ -59,18 +59,29 @@ pub(in crate::mir::builder) fn emit(
         .collect::<Vec<_>>();
     let allocation_fault = cleanup_chain(builder, frame, prior_operations, outward, &mut bindings)?;
     let constructor = claim.constructor();
+    let mut reclaim = None;
     let birth_fault = if matches!(constructor, OrdinaryNewConstructorDispositionV1::Birth(_)) {
-        cleanup_chain(
+        let origin = reclaim_origin.ok_or_else(|| freeze("reclaim-origin-missing"))?;
+        let fault = cleanup_chain(
             builder,
             frame,
             vec![InvokeOperation::ReclaimUnpublished {
-                object,
+                object: origin.object(),
                 value: result,
             }],
             allocation_fault,
             &mut bindings,
-        )?
+        )?;
+        let (block, instruction) = bindings
+            .last()
+            .cloned()
+            .ok_or_else(|| freeze("reclaim-origin-binding-missing"))?;
+        reclaim = Some((origin, block, instruction));
+        fault
     } else {
+        if reclaim_origin.is_some() {
+            return Err(freeze("reclaim-origin-unexpected"));
+        }
         allocation_fault
     };
     let origin = builder
@@ -128,7 +139,7 @@ pub(in crate::mir::builder) fn emit(
         bindings.push((normal, birth));
         builder.start_new_block(after_birth)?;
     }
-    ledger.record_new_emission(&site, result, bindings)?;
+    ledger.record_new_emission(&site, result, reclaim, bindings)?;
     Ok(result)
 }
 

@@ -215,7 +215,8 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     for (index, site) in sites.iter().enumerate() {
         let claim = ledger.try_take(site, "Page", 0).unwrap().unwrap();
         assert!(ledger.prepare_new_emission(&claim).unwrap());
-        let prior = ledger.begin_new_emission(site).unwrap();
+        let (prior, reclaim) = ledger.begin_new_emission(site).unwrap();
+        let reclaim = reclaim.expect("Birth construction retains reclaim origin");
         assert_eq!(
             prior.iter().map(|(_, value)| *value).collect::<Vec<_>>(),
             (0..index)
@@ -245,13 +246,28 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             src: initializer,
         });
         physical.add_block(block);
+        let reclaim_block = crate::mir::BasicBlockId::new(100 + index as u32);
+        let reclaim_instruction = crate::mir::MirInstruction::Invoke {
+            operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished {
+                object: reclaim.object(),
+                value: initializer,
+            },
+            fault_frame: ValueId(100),
+            normal_landing: block_id,
+            fault_landing: block_id,
+        };
+        let mut reclaim_physical = crate::mir::BasicBlock::new(reclaim_block);
+        reclaim_physical.add_instruction(reclaim_instruction.clone());
+        physical.add_block(reclaim_physical);
         ledger
             .record_new_emission(
                 site,
                 initializer,
+                Some((reclaim, reclaim_block, reclaim_instruction.clone())),
                 vec![
                     (crate::mir::BasicBlockId::new(0), frame),
                     (block_id, binding),
+                    (reclaim_block, reclaim_instruction),
                 ],
             )
             .unwrap();
@@ -273,6 +289,23 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         !ledger.is_empty(),
         "local installation alone is not physical completion"
     );
+    let mut reclaim_drift = physical.clone();
+    if let Some(crate::mir::MirInstruction::Invoke {
+        operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished { value, .. },
+        ..
+    }) = reclaim_drift
+        .blocks
+        .get_mut(&crate::mir::BasicBlockId::new(100))
+        .unwrap()
+        .terminator
+        .as_mut()
+    {
+        *value = ValueId(999);
+    }
+    assert!(ledger
+        .validate_new_emissions(sites[0].owner(), &reclaim_drift)
+        .unwrap_err()
+        .contains("reclaim-origin-operation-drift"));
     ledger
         .complete_new_emissions(sites[0].owner(), &physical)
         .unwrap();

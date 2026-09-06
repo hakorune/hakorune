@@ -29,10 +29,14 @@ pub(super) enum RootNewValidation {
 enum NewEmissionProgress {
     Unprepared,
     RetainedUnavailable,
-    Prepared(Vec<(CanonicalObjectIdV1, ValueId)>),
+    Prepared {
+        operands: Vec<(CanonicalObjectIdV1, ValueId)>,
+        reclaim: Option<ReclaimUnpublishedOriginV1>,
+    },
     Emitting,
     Emitted {
         result: ValueId,
+        reclaim: Option<ReclaimUnpublishedEmissionV1>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         checked: bool,
     },
@@ -207,11 +211,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .transpose()?;
         let mut keys = BTreeSet::new();
         let mut births = Vec::new();
-        for row in self
+        for (_, row) in self
             .local_commits
             .borrow()
-            .values()
-            .filter(|row| row.binding.owner() == owner)
+            .iter()
+            .filter(|(_, row)| row.binding.owner() == owner)
         {
             if !row.is_complete() {
                 return Err(freeze("artifact-local-commit-incomplete"));
@@ -397,6 +401,27 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("prepare-state-or-source-mismatch"));
         }
+        let reclaim = match (&claim.constructor, claim.construction()) {
+            (super::OrdinaryNewConstructorDispositionV1::NoBirthZero, _) => None,
+            (super::OrdinaryNewConstructorDispositionV1::Birth(_), Err(_)) => None,
+            (super::OrdinaryNewConstructorDispositionV1::Birth(recipe), Ok(plan)) => {
+                let (constructor_source, constructor_owner) = plan
+                    .constructor()
+                    .ok_or_else(|| freeze("reclaim-origin-constructor-missing"))?;
+                if !plan.reclaims_unpublished_outer_storage()
+                    || plan.object() != claim.object()
+                    || !constructor_source.same_as(recipe.source_id())
+                {
+                    return Err(freeze("reclaim-origin-source-drift"));
+                }
+                Some(ReclaimUnpublishedOriginV1 {
+                    site: claim.site().clone(),
+                    constructor_source: constructor_source.clone(),
+                    constructor_owner: *constructor_owner,
+                    object: plan.object(),
+                })
+            }
+        };
         let mut operands = Vec::new();
         let mut available = claim.construction().is_ok();
         match claim.home_prefix() {
@@ -420,7 +445,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         rows.get_mut(claim.site()).expect("checked row").emission = if available {
-            NewEmissionProgress::Prepared(operands)
+            NewEmissionProgress::Prepared { operands, reclaim }
         } else {
             NewEmissionProgress::RetainedUnavailable
         };
@@ -430,20 +455,26 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn begin_new_emission(
         &self,
         site: &OwnedExprSiteV1,
-    ) -> Result<Vec<(CanonicalObjectIdV1, ValueId)>, String> {
+    ) -> Result<
+        (
+            Vec<(CanonicalObjectIdV1, ValueId)>,
+            Option<ReclaimUnpublishedOriginV1>,
+        ),
+        String,
+    > {
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
             .get_mut(site)
             .ok_or_else(|| freeze("emit-without-take"))?;
-        if !matches!(row.emission, NewEmissionProgress::Prepared(_)) {
+        if !matches!(row.emission, NewEmissionProgress::Prepared { .. }) {
             return Err(freeze("emit-without-prepare-or-duplicate"));
         }
-        let NewEmissionProgress::Prepared(operands) =
+        let NewEmissionProgress::Prepared { operands, reclaim } =
             std::mem::replace(&mut row.emission, NewEmissionProgress::Emitting)
         else {
             unreachable!()
         };
-        Ok(operands)
+        Ok((operands, reclaim))
     }
 
     /// These are validation snapshots of actual instructions, not metadata
@@ -452,6 +483,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         site: &OwnedExprSiteV1,
         result: ValueId,
+        reclaim: Option<(ReclaimUnpublishedOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
         let mut rows = self.local_commits.borrow_mut();
@@ -463,6 +495,13 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         row.emission = NewEmissionProgress::Emitted {
             result,
+            reclaim: reclaim.map(
+                |(origin, block, instruction)| ReclaimUnpublishedEmissionV1 {
+                    origin,
+                    block,
+                    instruction,
+                },
+            ),
             bindings,
             checked: false,
         };
@@ -493,16 +532,19 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        for row in self
+        for (site, row) in self
             .local_commits
             .borrow()
-            .values()
-            .filter(|row| row.binding.owner() == owner)
+            .iter()
+            .filter(|(_, row)| row.binding.owner() == owner)
         {
             match &row.emission {
                 NewEmissionProgress::RetainedUnavailable => {}
                 NewEmissionProgress::Emitted {
-                    result, bindings, ..
+                    result,
+                    reclaim,
+                    bindings,
+                    ..
                 } => {
                     if row.initializer != Some(*result) || row.local.is_none() {
                         return Err(freeze("emission-local-result-drift"));
@@ -520,6 +562,78 @@ impl OrdinaryNewClaimLedgerV1 {
                         || copies.next().is_some()
                     {
                         return Err(freeze("emission-local-copy-drift"));
+                    }
+                    let expected_reclaim = match (&row.birth_target, &row.construction) {
+                        (None, Ok(plan)) if plan.constructor().is_none() => None,
+                        (Some(_), Ok(plan)) => {
+                            let (constructor_source, constructor_owner) = plan
+                                .constructor()
+                                .ok_or_else(|| freeze("reclaim-origin-constructor-missing"))?;
+                            if !plan.reclaims_unpublished_outer_storage()
+                                || plan.object() != row.object
+                            {
+                                return Err(freeze("reclaim-origin-source-drift"));
+                            }
+                            Some((constructor_source, constructor_owner))
+                        }
+                        _ => return Err(freeze("reclaim-origin-source-drift")),
+                    };
+                    match (expected_reclaim, reclaim) {
+                        (None, None) => {}
+                        (Some((constructor_source, constructor_owner)), Some(emitted)) => {
+                            if emitted.origin.site != *site
+                                || emitted.origin.object != row.object
+                                || !emitted
+                                    .origin
+                                    .constructor_source
+                                    .same_as(constructor_source)
+                                || emitted.origin.constructor_owner != *constructor_owner
+                            {
+                                return Err(freeze("reclaim-origin-source-drift"));
+                            }
+                            if !matches!(
+                                emitted.instruction,
+                                MirInstruction::Invoke {
+                                    operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished {
+                                        object,
+                                        value,
+                                    },
+                                    ..
+                                } if object == emitted.origin.object && value == *result
+                            ) {
+                                return Err(freeze("reclaim-origin-operation-drift"));
+                            }
+                            let matching = function
+                                .blocks
+                                .values()
+                                .flat_map(|block| block.all_instructions())
+                                .filter(|actual| matches!(
+                                    actual,
+                                    MirInstruction::Invoke {
+                                        operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished {
+                                            object,
+                                            value,
+                                        },
+                                        ..
+                                    } if *object == emitted.origin.object && *value == *result
+                                ))
+                                .count();
+                            if matching != 1 {
+                                return Err(freeze(if matching == 0 {
+                                    "reclaim-origin-operation-drift"
+                                } else {
+                                    "reclaim-origin-duplicate"
+                                }));
+                            }
+                            if !function.blocks.get(&emitted.block).is_some_and(|block| {
+                                block
+                                    .all_instructions()
+                                    .any(|actual| actual == &emitted.instruction)
+                            }) {
+                                return Err(freeze("reclaim-origin-binding-drift"));
+                            }
+                        }
+                        _ => return Err(freeze("reclaim-origin-presence-drift")),
                     }
                     for (block, expected) in bindings {
                         if !function.blocks.get(block).is_some_and(|block| {
@@ -625,9 +739,13 @@ fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/local-commit/{reason}]")
 }
 
+#[path = "ordinary_new_local_commit/reclaim.rs"]
+mod reclaim;
 #[path = "ordinary_new_local_commit/root_home.rs"]
 mod root_home;
 #[path = "ordinary_new_local_commit/root_validation.rs"]
 mod root_validation;
 
+use reclaim::ReclaimUnpublishedEmissionV1;
+pub(crate) use reclaim::ReclaimUnpublishedOriginV1;
 pub(super) use root_home::RootHomeExitProgress;

@@ -218,7 +218,12 @@ The selected read remains exact; artifact eligibility remains unavailable.
 constructor/Box source loan. It joins direct Plain stores and lexical receiver
 relations to declaration-ordered explicit i64 fields. Each source store has a
 Normal commit cutpoint; allocation Normal always creates an unpublished outer
-storage reclaim obligation. Trivial field demand is not an empty cleanup proof.
+storage reclaim obligation. For selected canonical Birth, the existing
+`ConstructionPlanV1` constructor identity and exact owned New site remain in
+`NewEmissionProgress` until the Birth-fault `ReclaimUnpublished` is emitted.
+Final New validation checks that one concrete operation against that origin;
+cleanup block placement cannot reconstruct or replace it. Trivial field demand
+is not an empty cleanup proof.
 Only empty NoBirthZero and exhaustively covered, fully initialized scalar Birth
 bodies are initially eligible. Missing initialization, other field demands,
 acquisition/structured bodies and overrides remain explicit unavailable results,

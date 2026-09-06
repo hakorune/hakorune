@@ -1,5 +1,6 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog;
+use crate::mir::BasicBlock;
 
 #[test]
 fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
@@ -13,7 +14,8 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     let site = ledger.claims.borrow().keys().next().unwrap().clone();
     let claim = ledger.try_take(&site, "Page", 0).unwrap().unwrap();
     assert!(ledger.prepare_new_emission(&claim).unwrap());
-    ledger.begin_new_emission(&site).unwrap();
+    let (_, reclaim) = ledger.begin_new_emission(&site).unwrap();
+    let reclaim = reclaim.expect("Birth construction retains reclaim origin");
     let entry = BasicBlockId(0);
     let initializer = MirInstruction::Const {
         dst: ValueId(1),
@@ -39,8 +41,26 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
         block.instructions.push(instruction);
         block.instruction_spans.push(crate::ast::Span::unknown());
     }
+    let reclaim_block = BasicBlockId(1);
+    let reclaim_instruction = MirInstruction::Invoke {
+        operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished {
+            object: reclaim.object(),
+            value: ValueId(1),
+        },
+        fault_frame: ValueId(100),
+        normal_landing: entry,
+        fault_landing: entry,
+    };
+    let mut reclaim_physical = BasicBlock::new(reclaim_block);
+    reclaim_physical.add_instruction(reclaim_instruction.clone());
+    function.add_block(reclaim_physical);
     ledger
-        .record_new_emission(&site, ValueId(1), vec![(entry, initializer)])
+        .record_new_emission(
+            &site,
+            ValueId(1),
+            Some((reclaim, reclaim_block, reclaim_instruction.clone())),
+            vec![(entry, initializer), (reclaim_block, reclaim_instruction)],
+        )
         .unwrap();
     ledger
         .complete_new_expression(&site, "Page", ValueId(1))
