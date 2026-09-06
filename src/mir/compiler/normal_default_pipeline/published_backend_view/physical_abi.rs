@@ -47,12 +47,14 @@ pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
     program: PublishedLifecyclePhysicalProgramV1<'module>,
     layouts: Box<[PublishedLifecyclePhysicalObjectLayoutV1]>,
     fault_abi_version: u32,
+    storage_profile: u32,
 }
 
 impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
     pub(crate) fn program(&self) -> &PublishedLifecyclePhysicalProgramV1<'module> { &self.program }
     pub(crate) fn layouts(&self) -> &[PublishedLifecyclePhysicalObjectLayoutV1] { &self.layouts }
     pub(crate) const fn fault_abi_version(&self) -> u32 { self.fault_abi_version }
+    pub(crate) const fn storage_profile(&self) -> u32 { self.storage_profile }
 }
 
 impl<'module> PublishedMirBackendView<'module> {
@@ -61,6 +63,8 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Result<PublishedLifecyclePhysicalAbiInputV1<'module>, String> {
         let program = self.issue_lifecycle_physical_program()?;
+        let storage_profile = self.lifecycle_storage_profile()
+            .ok_or_else(|| fault("storage-profile-missing"))? as u32;
         let ids = referenced_objects(&program);
         let definitions = self.module().canonical_object_definitions()
             .ok_or_else(|| fault("object-definitions-missing"))?;
@@ -92,6 +96,7 @@ impl<'module> PublishedMirBackendView<'module> {
         }
         Ok(PublishedLifecyclePhysicalAbiInputV1 {
             program, layouts: layouts.into_boxed_slice(), fault_abi_version: 1,
+            storage_profile,
         })
     }
 }

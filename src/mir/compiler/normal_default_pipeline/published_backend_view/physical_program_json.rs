@@ -72,6 +72,7 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
         .map_err(|error| fault(&format!("program-parse:{error}")))?;
     let object = root.as_object_mut().ok_or_else(|| fault("program-root"))?;
     object.insert("fault_abi_version".into(), json!(input.fault_abi_version()));
+    object.insert("storage_profile".into(), json!(input.storage_profile()));
     object.insert("layouts".into(), Value::Array(input.layouts().iter().map(|layout| json!({
         "object_id": layout.object_id(),
         "runtime_type_id": layout.runtime_type_id(),
@@ -241,6 +242,7 @@ mod tests {
                     assert_eq!(functions[1]["role"], "birth_unit");
                     assert_eq!(functions[1]["params"].as_array().unwrap().len(), 3);
                     assert_eq!(json["fault_abi_version"], 1);
+                    assert_eq!(json["storage_profile"], 1);
                     let layouts = json["layouts"].as_array().expect("layout array");
                     assert_eq!(layouts.len(), 1);
                     assert_eq!(layouts[0]["field_count"], 2);

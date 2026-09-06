@@ -401,6 +401,11 @@ static int hako_physical_validate_layouts(yyjson_val* layouts) {
   return 1;
 }
 
+static int hako_physical_storage_profile(yyjson_val* value) {
+  uint32_t profile;
+  return hako_physical_u32(value, &profile) && (profile == 1u || profile == 2u);
+}
+
 static int hako_physical_validate_function(yyjson_val* function, yyjson_val* functions, yyjson_val* layouts, size_t ordinal) {
   static const char* const keys[] = {"name", "role", "params", "entry", "blocks"};
   yyjson_val* blocks; yyjson_val* params; uint32_t entry; const char* mode; size_t bi, i, j;
@@ -423,12 +428,12 @@ static int hako_physical_validate_function(yyjson_val* function, yyjson_val* fun
 }
 
 static int hako_llvmc_validate_published_lifecycle_physical_v1_doc(yyjson_val* root, char** err_out) {
-  static const char* const root_keys[] = {"schema", "functions", "fault_abi_version", "layouts"};
+  static const char* const root_keys[] = {"schema", "functions", "fault_abi_version", "storage_profile", "layouts"};
   yyjson_val *functions, *layouts; size_t i;
-  if (!hako_physical_exact_keys(root, root_keys, 4) || !hako_physical_string(yyjson_obj_get(root, "schema"), HAKO_PHYSICAL_SCHEMA)) return hako_physical_fail(err_out, "schema");
+  if (!hako_physical_exact_keys(root, root_keys, 5) || !hako_physical_string(yyjson_obj_get(root, "schema"), HAKO_PHYSICAL_SCHEMA)) return hako_physical_fail(err_out, "schema");
   functions = yyjson_obj_get(root, "functions"); layouts = yyjson_obj_get(root, "layouts");
   if (!(functions && yyjson_is_arr(functions) && yyjson_arr_size(functions) >= 2u)) return hako_physical_fail(err_out, "functions");
-  if (!hako_physical_u32(yyjson_obj_get(root, "fault_abi_version"), NULL) || yyjson_get_uint(yyjson_obj_get(root, "fault_abi_version")) != 1u || !hako_physical_validate_layouts(layouts)) return hako_physical_fail(err_out, "abi-layout");
+  if (!hako_physical_u32(yyjson_obj_get(root, "fault_abi_version"), NULL) || yyjson_get_uint(yyjson_obj_get(root, "fault_abi_version")) != 1u || !hako_physical_storage_profile(yyjson_obj_get(root, "storage_profile")) || !hako_physical_validate_layouts(layouts)) return hako_physical_fail(err_out, "abi-layout");
   for (i = 0; i < yyjson_arr_size(functions); i++) if (!hako_physical_validate_function(yyjson_arr_get(functions, i), functions, layouts, i)) return hako_physical_fail(err_out, "function-body");
   return 0;
 }

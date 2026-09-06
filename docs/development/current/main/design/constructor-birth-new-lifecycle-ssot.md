@@ -983,7 +983,11 @@ The finite reconciliation separates usable projections from missing issuance:
 | checked-operation `u64` sites | none; source plan locations are entry-level and Invoke has no site | `ParkedSealed`; D1 must issue exact operation sites, never coordinates/name/hash/zero |
 | target FaultFrame storage | runtime header owns repr only; pinned-Text target capability is another family | `ParkedSealed`; D1 must define a lifecycle-owned target capability and matching runtime-layout contract |
 
-`CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D1` is the next design card.
+`CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D1` is closed. It found no existing
+single issuer for the three parked rows. A later
+`CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D2` must design the required new
+source/target contracts as one finite source-to-final-view mapping. It is not
+an implementation permission for C lowering.
 
 ```text
 Decision: establish, or explicitly decline, one source-bound issuer for complete selected SSA representations and checked-operation sites, plus one lifecycle target capability that co-seals the runtime FaultFrame placement.
@@ -994,13 +998,50 @@ Smallest next slice: read-only source-to-final-view issuer design with a finite 
 Non-claims: implementation of types/sites/target capability, JSON changes, C lowering, host cutover, Pair EXE/OBJ30 or retirement.
 ```
 
-If D1 finds a complete issuer, task order is: (1) project the already-issued
-storage profile alone through direct ABI JSON/parser as `BoxShape`; (2) implement
-the one accepted source/target issuance contract and project it with the profile;
-(3) complete ABI validation; (4) C lowering and host cutover; (5) Pair
-EXE/linked-OBJ exit 30 and atomic legacy retirement. If D1 does not find one,
-the selected C execution remains parked and the lane returns to the next
-inventoried Call cleanup candidate; it must not create a compatibility path.
+Because D1 did not find one, selected C execution remains parked. It does not
+block the independent profile projection below. Task order is: (1) project the
+already-issued storage profile alone through direct ABI JSON/parser as
+`BoxShape`; (2) D2 designs and then implements the one accepted source/target
+issuance contract; (3) complete ABI validation; (4) C lowering and host
+cutover; (5) Pair EXE/linked-OBJ exit 30 and atomic legacy retirement. No step
+may create a compatibility path.
+
+### CONSTRUCTOR-LIFECYCLE-PROFILE-PROJECTION-I0 — direct ABI profile projection
+
+Decision: `BoxShape`; retain one already-issued physical input that the direct
+ABI currently drops.
+Source authority + canonical issuer: final lifecycle activation issues
+`PublishedObjectStorageProfileV1` exactly once through
+`lifecycle_storage_profile()`; `issue_lifecycle_physical_abi_input` projects it
+into the direct ABI input, JSON serializer and dedicated C parser.
+Non-authority: V2 control rows, runtime defaults, environment variables,
+layout tags, function metadata, C inference and a missing profile default.
+Fail-fast boundary: absent or unknown profile rejects when direct input is
+issued or decoded, before any lowerer/artifact; no source Fault is recorded.
+Smallest next slice: add the one profile field to existing physical ABI
+input/JSON/parser and its existing Pair positive plus omitted/unknown-profile
+negative mutations. Preserve the call-local parser representation and direct
+ABI's test-only status.
+Non-claims: all-SSA type issuance, checked-operation sites, target frame
+placement, C lowering, host activation, Pair EXE/OBJ30 or V2 retirement.
+
+Owner: `published_backend_view/physical_abi.rs`, direct serializer and dedicated
+C parser. Consumer/caller: `hako_llvmc_validate_published_lifecycle_physical_v1`
+through the existing focused Pair serializer/parser test. The finite boundary is
+final lifecycle activation -> physical ABI input -> JSON -> C parser; it includes
+profile presence and exact profile vocabulary, and excludes all C execution,
+generic/V2 readers and runtime storage implementation. Acceptance is unchanged
+Pair source to parser with its installed profile, plus missing and unknown
+profile rejection before output. The selected old omission is removed from the
+direct input; it does not claim a production-edge deletion because this ABI has
+no production caller.
+
+Landed I0: the direct input now retains the activated final-view profile as an
+exact numeric ABI field; serializer output carries it and the same call-local C
+parser accepts only `SafeMutex=1` or `SingleThreadExact=2`. Unchanged Pair
+source reaches that parser; missing and unknown-profile mutations reject before
+output. This closes only the prior direct-input omission. It does not make the
+profile a source for any parked type, site or target-layout product.
 
 2. **Close the lowering ABI in the existing physical input — BoxShape.**
    Owner: `physical_abi.rs` / direct serializer and the existing final view;

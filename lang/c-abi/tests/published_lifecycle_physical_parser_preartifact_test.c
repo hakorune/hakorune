@@ -50,7 +50,7 @@ int main(void) {
   /* This is a complete ABI-bearing physical input, deliberately covering
    * function membership, values, CFG, invoke, layouts and both frame modes. */
   const char* valid =
-      "{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"functions\":["
+      "{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"storage_profile\":1,\"functions\":["
       "{\"name\":\"main\",\"role\":\"root_i64\",\"params\":[],\"entry\":0,\"blocks\":["
       "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"const_i64\",\"dst\":1,\"value\":30}},{\"index\":1,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":2,\"mode\":\"root_owned\"}},{\"index\":2,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"new_box\",\"object_id\":7},\"fault_frame\":2,\"normal\":1,\"fault\":2}}],\"terminator\":{\"index\":3,\"instruction\":{\"op\":\"jump\",\"target\":1,\"args\":null}},\"edges\":[{\"target\":1,\"args\":null}]},"
       "{\"id\":1,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":3}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":4,\"value\":10}},{\"index\":2,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"field_set\",\"object_id\":7,\"field_ordinal\":0,\"base\":3,\"value\":4},\"fault_frame\":2,\"normal\":3,\"fault\":2}}],\"terminator\":{\"index\":3,\"instruction\":{\"op\":\"jump\",\"target\":3,\"args\":null}},\"edges\":[{\"target\":3,\"args\":null}]},"
@@ -73,5 +73,7 @@ int main(void) {
   rejects_replace(valid, "\"mode\":\"root_owned\"", "\"mode\":\"borrowed\"", "function-body");
   rejects_replace(valid, "\"op\":\"return\",\"value\":9", "\"op\":\"add\",\"value\":9", "function-body");
   rejects_replace(valid, "\"field_count\":1", "\"field_count\":2", "abi-layout");
+  rejects_replace(valid, "\"storage_profile\":1,", "", "schema");
+  rejects_replace(valid, "\"storage_profile\":1", "\"storage_profile\":99", "abi-layout");
   return 0;
 }
