@@ -86,7 +86,7 @@ pub(crate) enum ResolvedLiteralSourceV1 {
     },
     String,
     Float,
-    Bool,
+    Bool(bool),
     Null,
     Void,
 }
@@ -364,7 +364,7 @@ fn map_literal(value: &LiteralValue) -> ResolvedLiteralSourceV1 {
         },
         LiteralValue::String(_) => ResolvedLiteralSourceV1::String,
         LiteralValue::Float(_) => ResolvedLiteralSourceV1::Float,
-        LiteralValue::Bool(_) => ResolvedLiteralSourceV1::Bool,
+        LiteralValue::Bool(value) => ResolvedLiteralSourceV1::Bool(*value),
         LiteralValue::Null => ResolvedLiteralSourceV1::Null,
         LiteralValue::Void => ResolvedLiteralSourceV1::Void,
     }

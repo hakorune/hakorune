@@ -67,7 +67,7 @@ fn value_class(
 ) -> Option<LocalValue> {
     if matches!(
         input.function().expression_source().literal(site),
-        Some(ResolvedLiteralSourceV1::Integer(_) | ResolvedLiteralSourceV1::Bool)
+        Some(ResolvedLiteralSourceV1::Integer(_) | ResolvedLiteralSourceV1::Bool(_))
     ) {
         return Some(LocalValue::Trivial);
     }

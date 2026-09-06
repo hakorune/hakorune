@@ -136,6 +136,13 @@ fn resolver_co_seals_branded_statement_and_expression_membership() {
     ] {
         assert!(inventory.contains_expression(&site));
     }
+    assert_eq!(
+        product.expression_source().literal(&expr(vec![
+            SourcePathSegmentV1::Body(1),
+            SourcePathSegmentV1::LoopCondition,
+        ])),
+        Some(&super::ResolvedLiteralSourceV1::Bool(true))
+    );
 }
 
 #[test]
