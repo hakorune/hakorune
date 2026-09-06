@@ -505,6 +505,21 @@ int hako_llvmc_compile_published_lifecycle_v2(
       "[freeze:contract][published-lifecycle/consumer-pending]");
 }
 
+__attribute__((visibility("default")))
+int hako_llvmc_compile_published_lifecycle_body_v2(
+    const char* json_in,
+    const hako_llvmc_published_lifecycle_frame_v2* frame,
+    const hako_llvmc_published_lifecycle_body_site_v1* sites,
+    size_t site_count,
+    const char* obj_out,
+    char** err_out) {
+  if (hako_llvmc_published_lifecycle_body_v2_validate(
+          json_in, frame, sites, site_count, obj_out, err_out) != 0)
+    return -1;
+  return set_err_owned(err_out,
+      "[freeze:contract][published-lifecycle/body-consumer-pending]");
+}
+
 // Explicit compatibility ABI.  It does not read replay environment state;
 // reaching this symbol is itself the named admission.
 __attribute__((visibility("default")))

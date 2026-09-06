@@ -23,7 +23,7 @@ pub(crate) use c_transport::{
     PublishedCallKindV1, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
 };
 pub(crate) use lifecycle_c_transport::{
-    PublishedLifecycleCFrameHeaderV2, PublishedLifecycleCFrameV2,
+    PublishedLifecycleBodySiteCRowV1, PublishedLifecycleCFrameHeaderV2, PublishedLifecycleCFrameV2,
     PublishedObjectStorageProfileV1,
 };
 

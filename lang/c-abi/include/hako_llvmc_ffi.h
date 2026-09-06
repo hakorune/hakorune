@@ -85,6 +85,13 @@ typedef struct hako_llvmc_published_lifecycle_field_v2 {
   uint32_t object_id, declaration_ordinal, runtime_slot, storage_kind;
 } hako_llvmc_published_lifecycle_field_v2;
 
+/* V2 companion payload: the exact Normal result of a NewBox Invoke. */
+typedef struct hako_llvmc_published_lifecycle_body_site_v1 {
+  const char* function_name;
+  uint32_t block_id, instruction_index, normal_result, fault_frame;
+  uint32_t normal_landing, fault_landing, object_id;
+} hako_llvmc_published_lifecycle_body_site_v1;
+
 typedef struct hako_llvmc_published_lifecycle_frame_v2 {
   uint32_t abi_revision, storage_profile;
   const hako_llvmc_published_static_method_call_v1* call_rows;
@@ -117,6 +124,14 @@ int hako_llvmc_compile_published_static_method_v1(
 
 int hako_llvmc_compile_published_lifecycle_v2(
     const hako_llvmc_published_lifecycle_frame_v2* frame,
+    const char* obj_out,
+    char** err_out);
+
+int hako_llvmc_compile_published_lifecycle_body_v2(
+    const char* json_in,
+    const hako_llvmc_published_lifecycle_frame_v2* frame,
+    const hako_llvmc_published_lifecycle_body_site_v1* sites,
+    size_t site_count,
     const char* obj_out,
     char** err_out);
 

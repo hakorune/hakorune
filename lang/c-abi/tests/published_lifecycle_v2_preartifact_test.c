@@ -13,6 +13,19 @@ static void rejects(hako_llvmc_published_lifecycle_frame_v2* frame, const char* 
   free(error);
 }
 
+static void rejects_body(
+    hako_llvmc_published_lifecycle_frame_v2* frame,
+    hako_llvmc_published_lifecycle_body_site_v1* site,
+    const char* reason) {
+  char* error = NULL;
+  assert(hako_llvmc_compile_published_lifecycle_body_v2(
+      "published-lifecycle-body.json", frame, site, 1,
+      "/tmp/hako-v2-body-no-object.o", &error) != 0);
+  assert(error && strstr(error, reason));
+  assert(fopen("/tmp/hako-v2-body-no-object.o", "rb") == NULL);
+  free(error);
+}
+
 int main(void) {
   hako_llvmc_published_lifecycle_definition_v2 definition = {0};
   hako_llvmc_published_lifecycle_formal_v2 formal = {0};
@@ -38,6 +51,26 @@ int main(void) {
   frame.storage_profile = HAKO_LLVMC_OBJECT_STORAGE_SINGLE_THREAD_EXACT_V1;
   frame.operations = NULL;
   rejects(&frame, "operation-rows");
+  frame.operations = &operation;
+  operation.function_name = "main";
+  operation.block_id = 7;
+  operation.instruction_index = 3;
+  operation.kind = 2;
+  operation.fault_frame = 4;
+  operation.normal_landing = 8;
+  operation.fault_landing = 9;
+  operation.object_id = 11;
+  hako_llvmc_published_lifecycle_body_site_v1 site = {
+    .function_name = "main", .block_id = 7, .instruction_index = 3,
+    .normal_result = 12, .fault_frame = 4, .normal_landing = 8,
+    .fault_landing = 9, .object_id = 11,
+  };
+  rejects_body(&frame, &site, "body-consumer-pending");
+  site.normal_result = UINT32_MAX;
+  rejects_body(&frame, &site, "body-site-invalid");
+  site.normal_result = 12;
+  site.block_id = 99;
+  rejects_body(&frame, &site, "body-site-mismatch");
   puts("published lifecycle V2 preartifact checks passed");
   return 0;
 }
