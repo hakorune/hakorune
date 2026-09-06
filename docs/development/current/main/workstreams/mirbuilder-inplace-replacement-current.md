@@ -1,6 +1,6 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-09-05
+Date: 2026-09-06
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -501,120 +501,101 @@ is recorded, the next handoff is `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 
 #### Acceptance incident and bounded repair order (2026-09-05)
 
-Initial unchanged suite with fresh `llvm_static`: `11 total / 1 passed / 10 failed`.
-Unsupported probe passed; six stopped at `ExactSourceChanged(RootPreservation(CompatibilityLoss))`,
-four at generated-birth `birth/0`. This is acceptance red, not baseline debt.
-Do not bypass failures by editing programs, adding `#[ignore]`, or widening baseline.
+Current consultation (2026-09-06, worker-audited `bd517a7bd5`):
+`MaterializationRelationMissing`; design/taskization only. The
+[constructor lifecycle Decision](../design/constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
+owns the authority inventory and supersedes the speculative fixed-Pair emitter.
+No implementation permission follows from the worker report or prior local green.
 
-Accepted source-contract migration (2026-09-05, user-requested IntegerBox review):
-use existing `i64`, not IntegerBox-only scalar unboxing. First migrate only the
-two fields in `apps/typed-object-birth-min/main.hako`; values 10/20, body, birth
-parameter annotations and exit 30 stay fixed. Original snapshot: `888c2d513c`,
-SHA-256 `044105bd970885b13883d3daad9a676b6b8cac2f3f9e8a98c2bb57f5cbfff4fb`.
-Migration checkpoint SHA-256: `bbd957398d16ae9e77c1b2bd3c510e8b6ba03c694d97ed14807f8ffe320aa0a4`;
-not an unchanged-source replay. Follow-on candidates are the same two field annotations in
-`typed-object-method-min` and `typed-object-newbox-min`; preserve each old/new
-hash and output. This six-annotation inventory covers the ten suite root files
-only, not imports or the repository. No other fixture/expectation change is selected.
+The acceptance witness is `apps/typed-object-birth-min/main.hako`: two `i64`
+fields, birth parameters/body and values 10/20 unchanged, result 30. `Pair` is
+not a compiler selector; `typed-object-method-min.sum` is outside this slice.
+Accepted annotation migration: original snapshot `888c2d513c`, SHA-256
+`044105bd970885b13883d3daad9a676b6b8cac2f3f9e8a98c2bb57f5cbfff4fb`;
+migrated SHA-256 `bbd957398d16ae9e77c1b2bd3c510e8b6ba03c694d97ed14807f8ffe320aa0a4`.
+This is not an unchanged-source replay. Source-key/Call/layout checkpoints are
+recorded in the lifecycle owner and Git; they do not prove runtime execution.
 
-Original RootPreservation paths: `typed-object-newbox-min`, `typed-object-method-min`,
-`typed-object-untyped-field-min`, `binary-trees`, `json-stream-aggregator`,
-`typed-object-birth-param-min`. Generated-birth paths: `typed-object-birth-min`,
-`boxtorrent-mini`, `mimalloc-lite`, `allocator-stress`. Probe alone passed.
+**Next bounded task — Stop/Delete provisional body validation**
 
-Keep the same `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` owner and execute these
-bounded substeps in order; they are not new D0 cards or new semantic receipts:
+Change: in `published_mir/hako_llvmc_ffi_published_lifecycle_body_v2.inc`,
+remove the three private helpers `json_matches`, `program_allowed`,
+`values_defined` and their calls. This retires the incomplete JSON program
+validation authority at the existing `body-consumer-pending` terminal.
+Contract: the real caller is `hako_llvmc_compile_published_lifecycle_body_v2`
+in `hako_llvmc_ffi_route.inc`, reached by shared typed OBJ/EXE host transport.
+Keep structural ABI/profile/pointer/site validation and the no-artifact stop.
+Changed diagnostic precedence is intentional: this is Stop, not BoxShape.
+Done: existing C preartifact test proves structural positive -> pending/no file,
+invalid ABI/profile/site -> rejection/no file; record a real final-view host
+probe's first terminal separately. Reuse M7-S and pointer guards; update the
+owning C/host README terminal description in the implementation commit.
+No source language contract changes; no new fixture, guard or semantic receipt.
+Stop: any artifact emission, generic retry, added program prepass, or unrelated
+helper deletion leaves this task's boundary. Do not claim downstream acceptance
+if the source probe stops before the selected owner.
 
-1. Constructor initializer-arity and exact function-root checks landed
-   (`dc684be1f1` series). Preserve negatives; no name/MIR/synthetic birth issuer.
-2. App Main ordinary-new co-seal landed at `dc684be1f1`: exact declaration
-   batch slot, no generic Main role or second ledger; derive-off newbox passes.
-3. Builtin ArrayBox separation landed in that follow-up; derive-off untyped-field
-   passes. User-Box missing coverage rejects; same classifier, no whitelist/fallback.
-4. `bad86deaef`: lexical me consumes exact source sites through the existing
-   child port; incomplete-consumption removed without target/receiver repair.
-   `bdb28364c3`: unchanged Pair typed --emit-exe, derive-off/plugins-off,
-   pure-first/compat-none -> exit 1, `StaticCallDefinitionMissing(StaticBoxMethod(Pair,birth,2))`,
-   no artifact; expected 30. Source-key drop and N versus N+1 admission are
-   in-scope CutoverBlockerOpen; no metadata scan or args[0] repair is permitted.
+**Gated remaining tasks — same constructor cutover, no new D0 cards**
 
-   Decision (worker-reviewed): add `BirthConstructor` to the existing callable
-   key namespace and use the existing definition table. The semantic constructor
-   row issues that key once from its exact source identity; recipe/admission
-   carry it through `CatalogedConstructor` collection and Atomic Publish.
-   `Callee::BirthConstructor { key, receiver }` keeps mandatory receiver separate
-   from N source args. The old `Constructor { box_type }` means allocation and
-   is not repurposed. Static N and birth N+1 remain distinct admission kinds.
-   After the landed dispatcher split: preserve key/definition -> replace Global
-   birth writer -> published view/C row -> Pair EXE -> selected old-edge deletion.
-   Kind 8 Birth uses the accepted borrowed wire-array task contract in type-contract-status;
-   receiver is projected once. Equal receiver/argument ValueIds are not duplicates:
-   verify lane structure, never remove or reject args by value equality.
-   Contract: source result/effect/Completion and TypedObject plans remain authority.
-   `dst=None`, omitted return annotation, fixed `EffectMask::IO`, and physical
-   return bits do not prove Unit/Void or success. New's object result is separate.
-   Missing source contracts stop the consumer substep, not the i64 migration.
-   Done: explicitly migrated Pair source exits 30 through typed CLI; missing/foreign/duplicate
-   keys, N/N+1 drift, missing receiver, non-Void result and missing body plan
-   reject before artifact. Delete the selected Global birth writer and source
-   key drop; retire cohort-only old projections only after outside-caller checks.
-   Split `93dde7b882`: body 797->708, include 90; expanded C identical, FFI green.
-   Integer field decision: use existing i64 declaration/read/write contracts;
-   no field-only IntegerBox alias or storage-derived scalar proof. Existing
-   IntegerBox object/runtime identity remains. Required write/backend handoffs:
-   [type contract tasks](type-contract-status.md#integer-field-migration-bounded-handoff).
-   [Birth execution steps](type-contract-status.md#accepted-birth-input-abi-and-remaining-execution-tasks) start with the accepted common-exit/construction cleanup connection; then typed execution/retirement, then the adjacent queue. No full-Home prerequisite or Unknown waiver.
+2. Close source-to-body handoff: existing root source-result publication and
+   constructor formal issuer -> final validation/view -> lifecycle frame/body.
+   Retain/co-seal source/session/function roles and result/parameter
+   representation; preserve instruction coordinates and PHIs. Replace
+   identity-only handoff and positional defaults only with canonical relations.
+   Acceptance: root/Birth positive; foreign/missing/duplicate role, source drift,
+   unsupported parameter/result and nonleading PHI negatives. The real source
+   callback must execute egress/host/C to the no-artifact terminal. If the
+   existing root issuer does not cover this source, name the source-owner gap;
+   no MIR-signature/default inference or new receipt.
+3. Consume one physical program: selected C companion places function-local
+   params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
+   checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
+   Acceptance: Normal-only allocation load, explicit I64 wire mapping, Birth
+   Unit/no out, root-owned vs borrowed Fault frame, InvalidContract distinct from
+   source Fault, primary Fault preserved through cleanup. Missing/duplicate/
+   residual/unsupported rows stop before artifact. Task 2 must close root ABI,
+   diagnostic site rule and every selected block/operand relation first.
+4. Execute and retire: actual normal-source typed CLI -> shared published host
+   -> C -> EXE; same source -> OBJ -> linked executable. Replace the selected
+   proof's legacy JSON caller; identify/delete selected old caller arms in the
+   same cutover series. Acceptance: both executions exit 30; profile and Fault
+   negatives exercise selected terminals, no retry/partial artifact. Preserve
+   source/body/expected value, record commands, source/script hashes and results.
+   No retirement closure without exclusive caller proof and the inventory below.
 
-   Execution checklist (record before further implementation; same owner):
-   - [x] Two-field migration checkpoint: package 73/73, including valid module
-     verification, Integer FieldGet/Add/main result and both exact FieldSet checks.
-     Existing Copy/Unknown/IntegerBox negative gates pass; hashes above. No EXE claim.
-   - [x] Source key -> admission -> collector -> Atomic Publish: WIP `d1fce06be3`
-     plus migrated-source publication test. Previous 72/73 type panic is resolved
-     for this source; admission 3/3, drain 9/9 and vm-reference are prior evidence.
-     Production closeout remains open; no baseline or unchecked-store waiver.
-   - [x] Recipe/Call: mandatory BirthConstructor receiver + N source args,
-     no destination; selected Global reconstruction/manual prefix/fixed IO removed.
-   - [ ] Before backend activation, bind source-issued result/effect/Completion
-     through `ordinary_new_coseal` -> Call/definition -> published view. Normal(Unit)
-     or Return(Unit) gives no value; Return(Value) rejects for this scalar cohort;
-     Fault propagates only with a real consumer, otherwise reject before artifact.
-     Missing/drifted contract rejects before publication; dst=None is not proof.
-     Source Unit/OpaqueObservable and explicit physical barrier policy now reach Call; view rejects Birth. Events are NOT semantic effects; see type-contract-status.
-     Test integer-result leak, unsupported Fault and contract drift. MIR-module
-     Atomic Publish is not runtime object readiness: no failed construction may
-     return a usable object. General Home rollback stays with OWN-HOME-BIRTH-D0.
-   - [ ] Published view/C consumer: real field/parameter checks and lossless
-     operand-kind relation before admission; no default-T_I64/count/symbol proof.
-     EXE/OBJ agrees with consumption; N+1 MIR parameters != expanded ABI lanes; Void preserved.
-   - [ ] Migrated Pair -> typed CLI -> EXE exit 30; prove selected key-drop/old
-     projection deletion and retry zero. A focused definition test is not EXE proof.
-5. Re-run six default-derive cases and existing negatives. Explicitly record
-   derive-off acceptance or a separate generated source-anchor/issuer task;
-   do not weaken source preservation. Derive-off is not full acceptance while
-   remaining owner failures are unresolved.
-6. Keep the three `usize` parameter cases outside this MirBuilder slice until
-   the existing `usize` semantic-foundation owner is satisfied. Do not coerce
-   `usize` to `i64`, opaque, or a compatibility value merely to pass EXE.
-7. Rerun the fixed 11-entry `real-apps-exe-boundary` suite with the same
-   backend/toolchain and record source/script hashes, expected result, and
-   first terminal. Close A only at `11/11` (including the exact unsupported
-   probe), with no new baseline names, no fallback/retry, and no partial
-   artifact publication.
+Task 2 is a bounded handoff prerequisite, not a preapproved new semantic owner.
+Task 3 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
+branches, lifecycle continuations and return must preserve the issued program.
+Do not discover source-to-Recipe meaning by iteratively adding C opcode cases.
+These gates are one connected series; do not create a docs/test/commit tasklet
+for each opcode. Select BoxShape or BoxCount explicitly for each implementation
+boundary once its mapping is closed; do not mix acceptance expansion with refactor.
 
-Only after A closes does the existing handoff continue to Call/R7, then the
-first unfinished Loop prerequisite and its fixed Loop/M8/M9 coverage. The
-unified selfhost order remains: finite MirBuilder/Loop acceptance -> language
-conformance/rejection matrix -> canonical `.hako` mimalloc promotion -> one
-Facts authority selection -> staged authority migration -> non-delegating
-Stage1/Stage2 self-compile proof. Equality-only bootstrap evidence and the
-historical MapStore/classifier queue do not reopen the scheduler.
+**Finite retirement and evidence inventory**
 
-H/I dependencies and exact proof are owned by
-[selfhost resume order](../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order)
-and the existing Stage2+ task pack. WASM Hako codegen, broad performance,
-VM retirement and unselected backend parity remain sibling programs, not
-new completion conditions for A–G.
+This inventory covers selected final-view host -> companion and its proof caller;
+includes program validators, typed lifecycle consumer and selected legacy
+re-entry, excludes unrelated generic cohorts. Cutover remains CutoverBlockerOpen.
+
+| Asset | Disposition |
+| --- | --- |
+| Three private companion JSON helpers and calls | Exclusive first Stop/Delete set; preserve ABI/site checks and pending export |
+| Source pipeline callback that manually returns pending | Dependency evidence only; cannot certify egress/host/C; exercise actual consumer in task 2 |
+| Existing `typed_object_birth_min_exe.sh` | Selfhost JSON -> standalone ny-llvmc with legacy metadata assertions; replace selected acceptance caller in task 4, inspect direct/manifest/aggregate/directory discovery before retirement or park |
+| Unused Rust `compile_published_lifecycle_v2` wrappers | Separate caller-zero cleanup candidate; exported C preartifact symbol has a direct test caller and is retained |
+| Shared `same_module_*` / generic NewBox, field and call helpers | Not an exclusive delete-set. Prohibit selected re-entry; remove only arms proven exclusive after typed switch, never the shared files wholesale |
+| Selected root/Birth result/ABI and body relation | Missing handoff is in-boundary CutoverBlockerOpen; no implied Exhausted or ParkedSealed claim |
+
+Initial 11-entry fresh llvm_static acceptance was 1 pass / 10 failures: six
+RootPreservation(CompatibilityLoss), four generated birth/0. Existing records
+classify these as acceptance incidents, not baseline debt; this docs change
+runs no runtime tests and does not reclassify them as current-change failures.
+Keep the fixed suite owner and its source hashes. Derive-off dependency evidence
+cannot waive default-source acceptance; the three usize cases retain their
+existing semantic owner. Close acceptance A only at the required 11/11 with
+no new baseline names, fallback/retry or partial artifact. Only then continue
+the existing Call/R7 -> Loop -> language/selfhost order. VM/WASM parity and
+unrelated performance remain outside this task.
 
 ### Selection without another design-stop loop
 

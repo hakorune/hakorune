@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "none"
-current_blocker_token = "V2 frame/BodySite authority is sufficient for checked NewBox allocation, but no physical-program owner currently carries the fixed Pair's value table, CFG, Birth and return semantics without re-entering generic JSON lowering. A NewBox-only artifact would change behavior. Design the bounded V2 physical-program/value/block owner first; artifact emission remains stopped."
+current_design_stop = "MaterializationRelationMissing__LifecycleProgramHandoff"
+current_blocker_token = "Design consultation: withdraw JSON-as-program validation authority at body-consumer-pending first. Before checked-C execution, close the existing source root result/ABI handoff and lossless function-local value/CFG projection. Pair typed EXE and linked OBJ exit 30 plus selected old-edge retirement remain open; no further opcode prepass or fixture-specific emitter."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,33 +31,20 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-Canonical Call publication and bounded reader stops are landed; R7 remains
-closed until production legacy writers/reissuers/readers/re-entry/fallback are
-zero. The shared Rust MIR JSON-v0 call ingress Stop landed at 9a40ece824:
-call/mir_call stop before publication, call.rs/catalog.rs deletion, and
-call-only test retirement are verified by 14 focused passing tests; boxcall,
-externcall, NewBox, non-call loaders, and the fixed comparator remain intact.
-Stage1's retired ReturnCall writer and its name/arity repair were removed at
-99b4446cab; its three former runtime smokes never contained the selected defs
-writer and stopped at an earlier static terminal, so they were not acceptance.
-The six invalid probe assets were RetireFromTree'd at f15098cf0b, with stale
-paths and default integration discovery at zero. The semantic cohort remains
-ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The
-fixed runner was stable at 7555/7393/133/29; the 2026-09-05 reconciliation now records 7543/7381/133/29 (19 JSON-v0 tests retired, raw-root assertion corrected, seven focused tests landed; failure names unchanged). ArrayElementWrite selected-C
-cutover landed at 9cb7a6c71a and its shared capability admission repair is now
-landed: the existing canonical owner feeds one PublishedMirBackendView
-physical row family, all four writes are consumed
-without name repair or a result assignment, and the three selected native
-projection callers are gone; the explicit llvmlite compatibility projection is
-the only remaining caller and stays outside this cohort. The focused view
-positive/negative suite is 3/3, the synthetic MIR-to-object/executable proof
-returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The source-site repair retains standalone method-call sites only for callable roots, preserves raw/script unlocated behavior, and the source compiler probe emits all six array-write rows. The JSON-only ny-llvmc probe is outside the typed published caller and is not source acceptance evidence. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its dead_code allowance/import were removed without semantic or guard/receipt/test
-changes. VM `vm_legacy_call_terminal_collapse_i0` landed at a74648f0b3; remaining shared JSON/JoinIR compatibility families are family-local ParkedSealed until an existing owner-specific decision or caller-zero asset appears.
-The fixed acceptance owner was then executed with a fresh llvm_static build on 2026-09-05: 1/11 passed in the default profile and 10/11 stopped before artifact generation; six hit the existing default-callable ExactSourceChanged(RootPreservation(CompatibilityLoss)) terminal and four hit the existing generated-birth birth/0 source contract. These are unclassified acceptance incidents, not baseline debt. Constructor root identity and App Main ordinary-new slot co-seal landed at dc684be1f1; the existing builtin owner now keeps ArrayBox outside source-backed ordinary coverage at the follow-up commit, semantic package tests remain 71/71, and the derive-off probe is now 3/11 with both typed-object-newbox-min and typed-object-untyped-field-min passing.
-The lexical `me` repair landed at bad86deaef (71/71 tests). The bdb28364c3 typed CLI probe proves StaticCallDefinitionMissing for birth and no artifact. C call-dispatch extraction landed at 93dde7b882 (797->708 lines, expanded source identical). Branch-only WIP d1fce06be3 preserves the BirthConstructor definition key; admission 3/3, collector 9/9 and vm-reference check pass. The new fixed Pair publication test fails at the existing IntegerBox field-read/Add type boundary: package 72/73, not merge-ready. User-requested IntegerBox review selects an explicit two-field i64 source-contract migration, not a field-only unbox rule; original evidence is retained. Real field-write/operand-kind consumption and EXE/OBJ admission are still required before birth execution. Call carrier, typed consumer, Pair exit 30 and selected old-edge deletion remain open. This design checkpoint changes no code, fixture, ignore or baseline; main stays at the closed checkpoint.
+Constructor lifecycle V2 reaches a no-artifact body companion; this does not
+prove checked runtime execution. Worker-audited design resets the speculative
+fixed-Pair program owner and module-global JSON value validator. The selected
+next bounded task is Stop/Delete of three private JSON validation helpers at
+the existing body-consumer-pending terminal. Then close root result/ABI and
+lossless physical function/value/CFG handoff before implementing checked C.
+The execution brief and gated queue are in the existing workstream; the
+constructor lifecycle SSOT owns the design. Work stops at the user's design
+consultation boundary. Pair EXE30/linked OBJ30, Fault/cleanup and selected
+legacy deletion remain open. Prior focused/pending tests are dependency
+evidence only; no new runtime, whole-library or acceptance-green claim.
 """
-next_design_card = "none"
-next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -20,12 +20,12 @@ Decision: accepted.
 - **Current decision:** common Home Flow owns caller obligations; construction
   owns unpublished-object cleanup. Neither substitutes for the other. Primary
   Fault retention is independent of bounded suppressed-diagnostic storage.
-- **Current implementation status:** exact New/Fault and selected scalar-return
-  Home cleanup are connected through 9164286970; Fault execution is not open.
-- **Next ordered task:** connect the existing runtime Fault/release ABI and
-  typed-C consumers below; retain missing Home coverage and fixed EXE30 gates.
-- **Production stop line:** unresolved cleanup dependencies keep the published
-  backend rejection; a source plan alone cannot enable Birth execution.
+- **Current implementation status:** the final-view V2 host route reaches a
+  body companion that stops before artifact; checked execution is unproven.
+- **Next ordered task:** retire provisional JSON program validation at that
+  terminal, then close the existing root result/ABI and physical body handoff.
+- **Production stop line:** no root ABI, parameter representation, value/CFG or
+  cleanup meaning may be inferred by the C consumer; see the Decision below.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
   plan, with the selected old projection edges removed and fixed EXE30 proven.
 
@@ -824,33 +824,97 @@ Private root-binding Decision (worker reviewed): `into_artifact_parts` returns i
 Root-binding checkpoint: fresh pipeline21/21, view22/22 including array OBJ/EXE Result0 and artifact negatives2/2 pass. Same final module/key flows through the existing validator/consumer; renamed/missing/absent root and generic root absence are covered without changing admission. Remapper/test physical splits retain test paths. Initial unavailable-cleanup FINI fixture was replaced by real-source-row physical-state evidence, not source/EXE proof.
 Typed-C prepass checkpoint: existing same-module call prepass peeks at published rows before legacy name/plan lookup; emission validates/takes once. Peek leaves residuals, duplicate call/array take is malformed (never absence), and u32 coordinates cannot wrap. Fresh FFI build and existing C test cover repeated peek, residual, malformed shape, duplicate consumption, foreign/overflow coordinate, nested FreeFunction OBJ without legacy call plan, wrong-arity before artifact and real ABI residual/no-object. Existing root test binary re-run view22/22 includes array OBJ/EXE Result0; no fresh Cargo/whole-lib or Birth execution claim. User-requested restart pause; next connected lifecycle consumer and fixed Pair acceptance remain open.
 
-Decision: The final Rust artifact borrow issues one physical `SafeMutex | SingleThreadExact` storage profile and carries it through a new versioned V2 synchronous frame; the C consumer never rereads environment state after admission, V1 stays layout-compatible, and pinned/direct reject before artifact.
-Source authority + canonical issuer: retained root/Birth products and canonical object definitions remain semantic/layout authority; the existing `NormalDefaultPublishedPipelineV1` final artifact borrow is the sole physical profile issuer and `PublishedStaticMethodCFrameV2` is its borrow-only projection.
-Non-authority: `HAKO_TYPED_OBJECT_STORE` inside the C shim, object/type/field names, runtime handle bits, V1 row defaults, successful bookkeeping, and the kernel's current selected backend are not admission or profile authority.
-Fail-fast boundary: absent/unknown/drifted profile, V1/V2 mismatch, pinned/direct selection, uncovered lifecycle site, or operation/profile disagreement rejects before callback, C body emission, runtime effect, or artifact, with no compatibility retry.
-Smallest next slice: add the two-state physical profile descriptor and V2 frame header/negative transport tests, then continue the same 2-5 commit series through lifecycle rows/consumer, fixed Pair EXE30/OBJ30, and selected old-edge deletion.
-Non-claims: no source semantic receipt, generic lifecycle admission, full Home/GC/ownership, VM or other backend parity, V1 mutation, fallback, whole-lib green, or CLI Birth completion before Pair acceptance.
-Lifecycle activation integration (worker reviewed, not implemented): retain lifecycle refs during the one existing view scan but keep generic route Unsupported; independently track other unsupported families. A parent-private candidate classification selects the existing strict-verifier branch only after successful final source validation, preserving ExplicitCompatibility early exit. After strict verification/commit preparation and identity-only root binding, private source-artifact completion admits exact root/Birth roles from collected refs and canonical definition keys without another instruction scan. CFrame::from_view must reject non-CanonicalTyped before exposing pending rows. Generic/cloned view, root-binding alone, mixed unsupported, missing/foreign role and failed validation/prepare cannot activate or call the backend. No new semantic receipt, second view or name-derived role.
+## Typed C program handoff Decision
 
-Lifecycle V2 connected-ingress checkpoint: the single view scan now retains lifecycle and Return coordinates as synchronous borrows while generic `try_new` remains `UnsupportedBeforeObject`. Only `compile_normal_with_published`, after strict verification, external commit preparation and retained-root binding, checks the finite root/Birth catalog relation and issues the two-state profile into that final view. The V2 frame projects those retained coordinates plus canonical definition/layout rows without a second instruction scan; the real OBJ/EXE host owner selects the V2 C ingress. C validates ABI/profile/all row families and terminates `consumer-pending` before JSON/body/runtime/artifact; V1 is not retried. Focused pipeline proof and direct C preartifact checks pass. Fixed Pair EXE30/OBJ30, operation emission, runtime Fault/cleanup and selected old-edge deletion remain open.
+Decision: withdraw the speculative fixed-Pair physical-program owner; first Stop/Delete its JSON validation authority at the existing no-artifact terminal, then complete one source-backed program handoff before checked execution.
+Source authority + canonical issuer: constructor semantic rows and ordinary_new_coseal own construction; root result/entry contracts retain their canonical source issuer and publication transaction; the strict-verified, commit-prepared final PublishedMirBackendView only projects their physical realization.
+Non-authority: Pair names, fixture shape, JSON metadata/opcode whitelists, a module-global seen table, MIR signature/effect defaults, positional parameter tags and pending-test success never issue source semantics or ABI.
+Fail-fast boundary: missing/foreign/duplicate/ambiguous source-to-final-function relation, operand representation, control/result/layout relation or unconsumed row stops before runtime effect/artifact, without generic/V1/compatibility retry.
+Smallest next slice: delete the body companion's three private JSON validation helpers and calls while preserving structural ABI/site checks and body-consumer-pending; this is a Stop with changed diagnostic precedence, not a behavior-preserving BoxShape claim.
+Non-claims: no checked execution, Pair EXE30/OBJ30, Fault cleanup, whole-library green, new semantic receipt, source syntax expansion or legacy backend retirement from this consultation.
 
-Body companion checkpoint: the immutable V2 terminal remains available for its direct preartifact ABI test. The sole final-view OBJ/EXE lifecycle branch now emits a same-borrow `PublishedLifecycleV2` physical body, pairs it with `BodySiteV1` NewBox Normal-result rows, and calls the V2 body companion; generic V1/JSON retry is absent. The companion rejects missing, duplicate, residual, or mismatched NewBox coordinates before artifact. It intentionally stops at `body-consumer-pending`: C has not yet consumed constants/CFG or emitted checked allocation/field/control operations, so Pair EXE30/OBJ30, Fault cleanup, and selected generic-edge deletion remain open.
+### Premise audit and authority boundary
 
-Decision: design stop. V2 rows are sufficient allocation authority but insufficient physical-program authority for an artifact. Do not lower a NewBox-only object or call generic pure/same-module lowering from the companion.
-Source authority + canonical issuer: the final strict-verified, commit-prepared, root-bound view issues V2 operations, layouts, controls and BodySite rows. `nyash.object.checked_new_v1(frame, profile, site, type_id, layout, count, out)` is the runtime allocation consumer; its `site` must be fixed by a named physical rule before execution.
-Non-authority: JSON names/metadata, generic value tables, environment profile, typed plans, old NewBox dispatch, and a successful allocation are not source/program authority.
-Fail-fast boundary: any missing/repeated/mismatched NewBox, layout/field, FaultFrameEnter, Normal result, storage tag, or physical program row rejects before effect/artifact. Runtime storage mapping is explicit `MIR I64=4 -> checked-wire I64=1`; all other field tags reject.
-Smallest next slice: define one bounded V2 physical-program owner for the fixed Pair only: issued value table, blocks/edges, constants/copy/add, Birth/return and their exact lifecycle coordinate relations. It rejects every unlisted JSON operation/edge and then enables checked NewBox emission.
-Non-claims: no Pair artifact, C generic fallback, V3 ABI, old-edge deletion, Home cleanup, or source semantic expansion.
+Worker-reviewed at `bd517a7bd5`. This inventory covers the selected final normal
+artifact borrow -> shared OBJ/EXE host -> lifecycle V2 companion -> no-artifact
+terminal. It includes root/Birth definitions, ordinary physical body, all V2
+operation/control families, layout/profile and matching/residual handling. It
+excludes generic JSON ingress, explicit compatibility, other backend parity,
+and declared-instance `sum()` selection; those are not newly certified parked.
+The downstream execution cutover is **CutoverBlockerOpen**, not Exhausted.
 
-Fixed Pair physical-program Decision: one companion-local owner consumes the existing same-borrow JSON only after the V2 frame/body-site prepass. It accepts exactly one root and its cataloged Birth definition, deterministic block order, leading Phi preservation, integer constants, Copy, Add, V2 lifecycle controls, and Unit Birth/Return relations required by the fixed Pair. The C owner assigns physical LLVM values by issued JSON ValueId and branches only through V2-issued landing coordinates; it neither resolves a callee/type/field by name nor calls a generic/same-module lowerer. Every unlisted instruction, block edge, missing/repeated ValueId, or JSON/frame coordinate disagreement is a no-artifact terminal. This is a bounded physical layout owner, not a second semantic compiler or a new V2 authority.
+- Semantic unit: a published root and its exact cataloged Birth dependencies,
+  with source-authorized result/Completion and parameter representations.
+  `Pair` is the acceptance witness, never a compiler selector.
+- Root authority exists: `main_thunk_plan::seal_relation/seal_result` and
+  `canonical_core_dispatch/publication::project_main_result` project the source
+  result; `PreparedCanonicalSourceEntryPublicationV1::commit` publishes the
+  owner/target/result/membership relation. This does not prove the selected
+  constructor root traverses that transaction. Currently
+  `normal_default_root_final_validation::into_artifact_parts` retains only the root
+  name for the final view's identity bind. Same-source/session handoff is open.
+- Birth definitions in `PublishedStaticMethodCFrameV2::from_view` are cataloged,
+  but formal kind/wire tags are positional defaults. They are not evidence of
+  source-backed parameter representation. The frame has no explicit root
+  result/ABI relation; a hardcoded i64 root or Unit-by-absence is forbidden.
+- The body emitter uses `PublishedLifecycleV2`, but unlike the ordinary
+  published egress it skips leading-PHI/readonly contract validation. Generic
+  root emission moves PHIs. Therefore original instruction coordinates and
+  emitted array positions are not yet proven identical.
+- The C companion's `json_matches`, `program_allowed`, and `values_defined`
+  reparse JSON and confer partial program validity. `seen[1024]` crosses
+  function boundaries, omits parameters and lifecycle/PHI definitions, and
+  treats serialization order as dominance. Counterexample: one function's
+  `const dst=1` can satisfy another function's undefined `ret 1`, while a valid
+  parameter return can reject. An opcode whitelist cannot repair this model.
+- Opaque/transferred content: generic metadata/plans and unsupported operations
+  must not enter a selected body as silent unconsumed siblings. Physical
+  params, literals, Copy/Add, PHI, jump/branch, lifecycle normal/fault blocks
+  and tails require exact final-function membership, not fixture-derived counts.
 
-Decision: retain `hako_llvmc_compile_published_lifecycle_v2(frame, obj_out, err_out)` as the fixed preartifact terminal. Add one V2 companion body ingress with a separate borrowed site table; do not revise the V2 frame, issue V3, or pass JSON to the preartifact symbol.
-Source authority + canonical issuer: the strict-verified, commit-prepared, root-bound final `PublishedMirBackendView` remains the sole source authority. Its V2 frame issues definition/formal/operation/layout/profile rows; a same-borrow lifecycle-body egress issues only body coordinates, result/fault sites, ordinary constants and CFG needed by the physical C consumer.
-Non-authority: body JSON, function/type/field names, JSON metadata, runtime handles, environment, and generic C plans never select Birth, object identity, field slot, storage profile, or return meaning. A function name paired with an already-issued Rust coordinate is only physical matching.
-Fail-fast boundary: missing/malformed/mismatched/duplicate/residual body site, coordinate, operand, control, CFG, profile, or runtime ABI rejects before runtime effect and artifact; no V1, generic, or compatibility retry follows.
-Smallest next slice: define `hako_llvmc_compile_published_lifecycle_body_v2(json_in, frame, sites, site_count, obj_out, err_out)` and its borrowed `BodySiteV1` contract, then switch the shared OBJ/EXE V2 host branch to its direct preartifact validation. The site table supplies the exact normal-result and fault relation that the immutable V2 `NewBox` operation row does not carry.
-Non-claims: this does not emit an object, accept generic lifecycle JSON, change source semantics or V2 layout, prove Fault cleanup, delete old generic lowering, or satisfy Pair EXE30/OBJ30.
+| Family | Required consumer relation / current execution disposition |
+| --- | --- |
+| Root / Birth / other function | Explicit source role, result and parameter ABI; root handoff open, foreign or unsupported role stops |
+| Call / NewBox | Exact target/operands; NewBox checked status and Normal-only result, Birth Unit without out slot; execution stopped |
+| FieldSet / FieldGet | Exact object/layout/ordinal/value representation; no name/type recovery; execution stopped |
+| HomeRelease / Reclaim | Published release vs unpublished cleanup and primary Fault preservation remain distinct; execution stopped |
+| NormalResult / FaultFrameEnter | Unique Invoke-result relation and root-owned vs borrowed frame; execution stopped |
+| Return / ReturnFault | Source result vs Fault completion, no value on Unit/Fault and no inferred root i64; execution stopped |
+| Ordinary physical body | Per-function params/values/blocks, literal/type payload, PHI incoming edges and exact terminators; handoff open |
+| Layout / fields / profile | Canonical layout plus one final-borrow SafeMutex or SingleThreadExact profile; missing/drifted/unsupported stops |
+
+### Accepted handoff constraints and evidence limits
+
+Keep V1 ABI layout unchanged. The synchronous V2 frame and companion site
+array borrow the same final view; no environment reread selects storage in C.
+V2 direct preartifact ingress remains a separate declared ABI. Do not add V3 or
+new semantic receipts to work around a missing source relation. Retire redundant
+BodySite relations only after the existing V2 controls' exact correspondence is
+proved; matching names alone cannot establish it.
+
+The future C owner may place already-issued values/blocks and lower explicit
+operations; it cannot resolve calls/types/fields or infer source exit meaning.
+Parse/project once, scope ValueIds by function, preserve instruction coordinates,
+seed formal values, connect PHIs in two phases and consume each selected row
+exactly once. Any unsupported or residual sibling rejects before publication.
+Reuse inert LLVM construction/artifact utilities only after their dependencies
+are isolated; generic/same-module whole-body lowerers are not valid successors.
+`nyash.object.checked_new_v1` consumes frame/profile/site/type/layout/out;
+`MIR I64=4 -> checked wire I64=1` is explicit. Diagnostic site encoding must
+have one physical issuer before execution; no unexplained constant/default.
+
+Evidence correction: the pipeline test's callback constructs a frame and
+returns `consumer-pending` itself; it does not execute body egress/host/C. The
+C preartifact test uses incomplete synthetic JSON and proves only its exercised
+structural checks and no-artifact stop. Neither proves complete program
+validation, actual source-to-companion acceptance or checked Birth execution.
+The existing `typed_object_birth_min_exe.sh` uses standalone JSON/ny-llvmc and
+legacy route metadata, so its result cannot certify the typed published caller.
+No new runtime tests were run for this read-only audit/documentation change.
+
+The bounded next task, gated sequence, acceptance and exclusive deletion sets
+are owned by the [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05).
+
 ## Reuse is explicit
 
 Object reuse must use ordinary, named lifecycle methods.

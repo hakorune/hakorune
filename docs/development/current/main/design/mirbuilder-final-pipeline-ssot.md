@@ -24,14 +24,11 @@ Related:
 
 - **Current decision:** the final pipeline remains one-way, and canonical MIR
   calls converge on a typed structural target before argument or MIR effects.
-- **Current implementation status:** canonical `Call(MirCall)` is separated
-  from explicit `LegacyCallV0`; the shared Rust MIR JSON-v0 call ingress Stop
-  is landed, and the M7-S owner-local Stop/Delete queue remains active.
-  Stage1 acceptance is parked; its six invalid probe assets are retired
-  (`f15098cf0b`). Current work is the finite source acceptance reconciliation.
-- **Latest bounded work:** branch WIP `d1fce06be3` retains birth definition keys;
-  package 72/73 exposes IntegerBox field/Add mismatch, not EXE completion.
-  Selected repair is explicit i64 field migration, then typed birth cutover.
+- **Current implementation status:** canonical Call and explicit legacy ingress
+  are separated; current work is the finite source acceptance reconciliation.
+- **Latest bounded work:** the lifecycle V2 no-artifact ingress awaits the
+  worker-reviewed Stop/Delete task and source-to-body handoff. Pair EXE30/linked
+  OBJ30 and selected legacy retirement remain open.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -393,14 +390,16 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = design_open
+implementation permission = false
 current cohort = `acceptance_source_reconciliation_i0`
 
-The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
-BirthConstructor key/definition and typed consumer series in the workstream.
-The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Task 1 source construction plan checkpoint: parser 41/41, package 90/90, trigger test 1/1 and vm-reference quick check pass. Task 2's independent indexed-storage primitive now uses stable tombstones with guarded no-hook reclaim: six tests pass per indexed profile and kernel quick check passes; the unchanged DirectSlot header red is parent-reproduced in the constructor lifecycle SSOT. Return to task 1: extract the 787-line field-assignment owner without behavior change, preserve exact assignment/Box-to-published-layout relation and issue prior-Home destruction eligibility through the existing source owner. Then bind real entry/New/exit operands, common Fault/runtime + typed-C and fixed EXE30/OBJ/failure proof plus old-edge deletion. Native/child/override coverage remains required. Backend remains UnsupportedBeforeObject; storage/source checkpoints are not execution completion. No new card/receipt/guard or baseline change.
+The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)
+owns the next Stop/Delete task; the [lifecycle Decision](constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
+owns the missing source-to-final-view program relation. Remove provisional JSON
+validators at `body-consumer-pending` first. Root/Birth result/ABI and exact
+value/CFG handoff gate checked C execution; Pair EXE30/linked OBJ30 and selected
+old-edge retirement remain open. This consultation activates no implementation.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
