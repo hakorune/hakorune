@@ -857,29 +857,39 @@ it does not make the C body consumer executable.
 
 ### CONSTRUCTOR-LIFECYCLE-PHYSICAL-PROGRAM-D0 — physical-program authority
 
-Decision: stop before C opcode implementation. The final view retains the
-Birth ABI and root I64 result, but its V2 frame does not retain all selected
-functions, Const/Copy/Add, PHI inputs, blocks, control edges or terminators.
-Source authority + canonical issuer: unresolved. The D0 must name one final-view
-issuer for a complete, already-decided physical program spanning the selected
-root and cataloged Birth functions.
+Decision: V2 remains byte-stable at its preartifact terminal; do not overload
+its rows or let JSON supply missing program meaning. The activated final
+`PublishedMirBackendView` is the sole physical-program issuer. It co-borrows
+the source-authorized retained root/Birth handoff for selected membership and
+the final `MirModule` for physical bodies, then issues one complete physical
+program relation. JSON is only that relation's checked physical serialization.
+Source authority + canonical issuer: `FinalizedRootBirthHandoffV1` decides the
+root/Birth set and ABI; final `MirModule` owns instructions and values; only
+the activated final view joins these already-issued products. It orders root,
+then retained Birth relations, blocks by `BasicBlockId`, each instruction in
+stored order, and the terminator. It preserves PHI input/predecessor and CFG
+edges without the generic JSON egress's PHI reordering.
 Non-authority: JSON body text, function names, `MirFunction.signature`, physical
 ordinal, C defaults and Pair fixture values cannot fill missing values, CFG or
 cleanup meaning.
 Fail-fast boundary: absent, foreign, duplicate, residual or unsupported
 function/block/instruction/value/edge relation rejects before C opens an object.
-Smallest next slice: finite inventory and Decision of the issuer, consumer,
-exact program relation and exclusive pending-terminal replacement; no code,
-fixture, frame revision or fallback in D0.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-PHYSICAL-PROGRAM-I0` implements
+only that one final-view BoxShape. Its payload must retain complete selected
+function membership, params, blocks, opcode/value rows, signed I64 constants,
+Copy/Add, PHI predecessor/value pairs, control successors, lifecycle rows and
+Return/Fault terminals. Missing/foreign/duplicate/residual/unsupported rows
+reject before any C entry. This is physical projection, never a semantic receipt.
 Non-claims: C execution, OBJ/EXE, exit 30, generic JSON lowering or legacy
 deletion.
 
-Ordered follow-through after an accepted D0: (1) implement the single issued
-physical-program relation as a BoxShape; (2) make the selected C consumer
-exhaust it and replace `body-consumer-pending`; (3) prove Pair OBJ and linked
-EXE exit 30, then retire only the selected old caller edge. The current frame's
-partial lifecycle rows are dependency evidence, never permission to add C
-opcode cases one by one.
+Ordered follow-through: (1) issue this sole physical-program relation and its
+checked JSON serialization; (2) make the existing selected C body entry
+exhaust that relation while retaining V2's preartifact ABI; (3) prove Pair OBJ
+and linked EXE exit 30, then retire only the selected old caller edge. JSON is
+never the consumer's source of target, value, CFG or cleanup meaning. The
+current frame's partial lifecycle rows are dependency evidence, never
+permission to add C opcode cases one by one.
 
 Decision: provisional JSON validators remain retired at the no-artifact terminal. Preserve each already-issued Birth recipe's canonical target when a root New claim becomes a local commit, then co-seal it with root Completion and the canonical construction draft after finalization.
 Source authority + canonical issuer: `OrdinaryNewClaimLedgerV1` owns root Completion and issued Birth recipes; its private finalizer validates one exact retained construction draft and issues the opaque final root/Birth handoff before Atomic Publish.
