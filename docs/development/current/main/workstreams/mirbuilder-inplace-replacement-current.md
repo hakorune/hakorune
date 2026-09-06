@@ -547,10 +547,10 @@ unrelated helper deletion leaves this boundary.
    finalization co-seal root Completion, recipe and exactly one construction
    draft, then replace root-name-only artifact handoff. Reject zero/missing/
    foreign/duplicate/incomplete cases before view/C; no formals or C changes.
-4. Source result BoxCount: only after task 3, define exact local New -> i64
-   field read -> Add -> return source facts for Pair, or retain NoSafeSlice.
-   The existing field facts and profile must co-seal source relations; no
-   physical field-read ledger, ObjectFieldGet or inferred type is authority.
+4. Source result D0: Pair is recognized by `return_scalar`, but it discards
+   the two field/Add/return relations. Name one ordinary-New package terminal
+   co-seal and dedicated consumer before BoxCount; raw field/binary/return,
+   field progress, MIR/ValueId/type/JSON never become authority. No code now.
 5. Consume one physical program: selected C companion places function-local
    params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
    checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
