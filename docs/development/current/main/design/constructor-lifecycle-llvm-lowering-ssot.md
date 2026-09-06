@@ -148,8 +148,10 @@ agreement and executed cutover remain `CutoverBlockerOpen` inside this boundary.
 ## Ordered tasks
 
 These are bounded steps in this existing family, not new receipt/guard lanes.
-Only step 0 is implementation-ready today. Later rows require their concrete
-mapping to be recorded before changing `work_mode` to `fast`.
+Step 0 is landed. Source retention remains fenced until the finite issuer
+inventory below has a canonical issuer for every `Partial` and `Missing` row;
+later rows require their concrete mapping before changing `work_mode` to
+`fast`.
 
 | Order | Owner, caller and terminal | Replacement and acceptance |
 | --- | --- | --- |
@@ -171,6 +173,53 @@ canonical issuer for each retained formal/value requirement and checked
 operation origin before an implementation slice is opened. It cannot use a
 physical value, final-MIR observation, metadata, or C-side default as a source
 substitute.
+
+## D0: source-requirement issuer census
+
+Decision: source retention is `NoSafeSlice` for implementation. Existing
+source plans are the only candidates to extend; a second synchronized source
+table, a new semantic receipt, or an inferred physical type is not allowed.
+Source authority + canonical issuer: `ordinary_new_coseal` issues selected New
+claims, root terminal relations and field-read rows; `instance_construction`
+issues constructor store obligations; `birth_abi_handoff` issues Birth receiver
+and parameter lane relations plus Unit result; root completion issues the Home
+exit obligation.
+Non-authority: `FunctionMetadata.value_types`, builder `type_ctx`, final MIR
+values/blocks/instruction order, spans, Birth lane ordinal alone,
+`Phi.type_hint`, and JSON/C defaults.
+Fail-fast boundary: a source requirement without exactly one row below rejects
+before claim take and physical binding. `None`, unavailable source coverage,
+or a Pair-specific witness cannot fall through to inferred i64 or Unit.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-D1`, which
+names the issuer and selected claim-take consumer for missing source
+representation and per-operation-origin products.
+Non-claims: all-SSA binding, u64 diagnostic encoding, target/frame ABI,
+JSON/C lowering, Pair EXE/OBJ30, or retirement.
+
+Census boundary: selected App Main root plus retained canonical Birth keys ->
+installed semantic package port and claim take; includes selected New,
+FieldSet, HomeRelease, Reclaim, root terminal reads/result and Birth
+formals/result; excludes final-MIR bindings, synthetic compiler values,
+backend/runtime layout, other call families and VM/WASM.
+
+| Product | Existing issuer and exact consumer | State and next rule |
+| --- | --- | --- |
+| Root terminal result and reads | `ordinary_new_coseal` co-seals `TerminalI64AddReturnV1` with two exact field-read sites. The selected terminal emitter reserves, records and completes it. | **Present.** It proves the selected terminal i64 relation only; it does not type every root value. |
+| Root HomeRelease | Root completion retains terminal homes; `prepare_root_home_exit` checks the exact exit before selected emission records it. | **Partial / CutoverBlockerOpen.** Home binding and exit obligation exist, but each emitted release lacks a retained typed origin row. |
+| Root formals and arbitrary root values | Selected root source/completion reaches raw callable lowering and final view. | **Missing / CutoverBlockerOpen.** Pair's zero-formal witness cannot narrow this domain. D1 must name their semantic-class issuer. |
+| New allocation | `OrdinaryNewAdmissionClaimV1` retains exact New site, object, destination, Home prefix and construction; the package port takes the same owned site. | **Present.** The allocation identity is source-issued; representation of its result is still missing. |
+| Birth formals and result | `BirthAbiHandoffV1` issues owner, receiver/parameter bindings and physical lane order with Unit result; claim take transfers it to root/Birth handoff. | **Partial / CutoverBlockerOpen.** Lane order and Unit are not semantic representation for receiver or each parameter. |
+| Birth FieldSet | `ConstructionPlanV1` retains each `ResolvedAssignmentSourceV1` with canonical field; selected construction/body lowering consumes it. | **Present source obligation; physical handoff missing.** D1 must not create a duplicate store issuer. |
+| ReclaimUnpublished | `ConstructionPlanV1` retains required outer-storage reclaim and constructor identity; selected construction cleanup emits the operation. | **Partial / CutoverBlockerOpen.** The failed-construction cutpoint has no source-issued operation-origin row. |
+| Copy, PHI, frame, InvokeNormalResult, branch/edge values | No selected source requirement issuer exists; the builder creates or binds them. | **Missing as source products.** Later physical binding may admit them only through completed input relations or named emitter rules, never metadata inference. |
+
+The finite state vocabulary is `Present | Partial | Missing`. `Present` means
+one existing issuer and named consumer, not backend readiness. `Partial` and
+`Missing` are inside this census boundary and therefore
+`CutoverBlockerOpen`; they cannot be parked or repaired by C. D1 must decide
+one existing issuance owner per missing product, its exact claim-take consumer,
+its exclusive old information-loss edge, and its pre-emission negative. If one
+is absent, D1 remains `NoSafeSlice`.
 
 The focused field-read command
 `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`
