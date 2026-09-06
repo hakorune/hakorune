@@ -396,10 +396,11 @@ current cohort = `acceptance_source_reconciliation_i0`
 
 The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)
 and [lifecycle Decision](constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
-own the root/Birth handoff BoxShape. Pair result BoxCount retains one exact
-source terminal relation during `return_scalar`/Completion issuance; raw
-field/binary/return remains non-authority until its later consumer. No
-view/frame/C extension is permitted. Pair
+own the root/Birth handoff BoxShape. Pair result BoxCount landed at
+`181d7f8e92`: one exact source terminal relation is retained during
+`return_scalar`/Completion issuance. Raw field/binary/return remains
+non-authority until its dedicated consumer. No view/frame/C extension is
+permitted. Pair
 EXE30/linked OBJ30 and selected old-edge retirement remain open.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one

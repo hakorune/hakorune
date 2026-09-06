@@ -547,11 +547,18 @@ unrelated helper deletion leaves this boundary.
    finalization co-seal root Completion, recipe and exactly one construction
    draft, then replace root-name-only artifact handoff. Reject zero/missing/
    foreign/duplicate/incomplete cases before view/C; no formals or C changes.
-4. Source result BoxCount: `return_scalar`/Completion issuance retains one
-   `TerminalI64AddReturn` relation: owner, explicit Return/Add sites and ordered
-   two existing FieldRead sites. Reject other/duplicate forms; no ValueId, MIR,
-   ABI, JSON or raw route is authority. Its dedicated consumer is next.
-5. Consume one physical program: selected C companion places function-local
+4. Source result BoxCount landed at `181d7f8e92`: `return_scalar`/Completion
+   issuance retains one `TerminalI64AddReturn` relation: owner, explicit
+   Return/Add sites and ordered two existing FieldRead sites. Other forms do
+   not issue it; the issuer rejects missing staged reads. It has no ValueId,
+   MIR, ABI, JSON or raw-route authority.
+5. Dedicated terminal consumer BoxShape: consume a present relation once with
+   its two existing FieldRead rows, then validate exact Add/Return
+   physicalization. A present relation may not re-enter raw AST dispatch;
+   missing, duplicate or drifted consumption rejects before artifact. Keep the
+   generic raw route only for an absent relation. This does not extend view,
+   frame or C transport.
+6. Consume one physical program: selected C companion places function-local
    params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
    checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
    Acceptance: Normal-only allocation load, explicit I64 wire mapping, Birth
@@ -559,7 +566,7 @@ unrelated helper deletion leaves this boundary.
    source Fault, primary Fault preserved through cleanup. Missing/duplicate/
    residual/unsupported rows stop before artifact. Source handoff must close root ABI,
    diagnostic site rule and every selected block/operand relation first.
-6. Execute and retire: actual normal-source typed CLI -> shared published host
+7. Execute and retire: actual normal-source typed CLI -> shared published host
    -> C -> EXE; same source -> OBJ -> linked executable. Replace the selected
    proof's legacy JSON caller; identify/delete selected old caller arms in the
    same cutover series. Acceptance: both executions exit 30; profile and Fault
@@ -568,7 +575,7 @@ unrelated helper deletion leaves this boundary.
    No retirement closure without exclusive caller proof and the inventory below.
 
 Task 3 is a bounded handoff prerequisite, not a new semantic issuer.
-Task 5 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
+Task 6 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
 branches, lifecycle continuations and return must preserve the issued program.
 Do not discover source-to-Recipe meaning by iteratively adding C opcode cases.
 These gates are one connected series; do not create a docs/test/commit tasklet
