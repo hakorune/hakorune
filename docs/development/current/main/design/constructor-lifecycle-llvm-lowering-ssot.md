@@ -217,7 +217,7 @@ backend/runtime layout, other call families and VM/WASM.
 | Root HomeRelease | Root completion issues ordered terminal homes and exact exit; `RootHomeExitProgress` retains that binding/exit with object and `ValueId`, and the selected root Home emitter records the exact `HomeRelease`. | **Present.** Final root validation checks ordered origins and the concrete release operation; this does not cover Reclaim or arbitrary root representation. |
 | Root formals and arbitrary root values | Selected root source/completion reaches raw callable lowering and final view. | **Missing / CutoverBlockerOpen.** Pair's zero-formal witness cannot narrow this domain. D1 must name their semantic-class issuer. |
 | New allocation | `OrdinaryNewAdmissionClaimV1` retains exact New site, object, destination, Home prefix and construction; the package port takes the same owned site. | **Present.** The allocation identity is source-issued; representation of its result is still missing. |
-| Birth formals and result | `BirthAbiHandoffV1` issues owner, receiver/parameter bindings and physical lane order with Unit result; claim take transfers it to root/Birth handoff. | **Partial / CutoverBlockerOpen.** Lane order and Unit are not semantic representation for receiver or each parameter. |
+| Birth formals and result | `BirthAbiHandoffV1` issues owner, receiver/parameter bindings and physical lane order with Unit result; claim take transfers it to root/Birth handoff. | **Partial.** Unit result is present through final handoff/C transport; receiver and a parameter's value representation require their own existing source-use relation. |
 | Birth FieldSet | `ConstructionPlanV1` retains each `ResolvedAssignmentSourceV1` with canonical field; selected construction/body lowering consumes it. | **Present source obligation; physical handoff missing.** D1 must not create a duplicate store issuer. |
 | ReclaimUnpublished | `ConstructionPlanV1` issues required outer-storage reclaim and constructor identity; the exact ordinary-New claim site co-seals it, `NewEmissionProgress` retains it, and selected Birth-fault cleanup records the operation. | **Present through selected finalization.** Final validation rejects source, presence, binding and operation drift; target/runtime lowering remains separate. |
 | Copy, PHI, frame, InvokeNormalResult, branch/edge values | No selected source requirement issuer exists; the builder creates or binds them. | **Missing as source products.** Later physical binding may admit them only through completed input relations or named emitter rules, never metadata inference. |
@@ -310,6 +310,65 @@ The prior bare `claim.constructor()==Birth` reconstruction is deleted. Focused
 evidence covers two distinct Birth claims and a mutated Reclaim value rejected
 as `reclaim-origin-operation-drift`. No target/runtime or C execution claim is
 made.
+
+## Root/Birth representation D2 decision
+
+Decision: retain only an already-issued source representation; a physical
+`ValueId`, `MirType`, lane ordinal, metadata or C `input_kind` cannot fill a
+missing source class.
+
+Source authority + canonical issuer: `instance_construction::issue_construction_plan`
+issues the accepted Birth FieldSet RHS relation; `scan_new_home_flow` issues
+root direct-New trivial arguments; `BirthAbiHandoffV1` and
+`ConstructionPlanV1` supply the two existing products for a receiver co-seal.
+
+Non-authority: `type_ctx`, final-MIR values, a Birth lane ordinal alone,
+metadata, generated CFG, target/runtime/C transport and Pair's zero-formal
+witness.
+
+Fail-fast boundary: an accepted source row without exact binding/class rejects
+before claim take; a selected emitter never defaults it to i64 or handle.
+
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-REPRESENTATION-I0`.
+
+Non-claims: root formals/arbitrary root SSA, unused or untyped Birth formals,
+New-result handles, target ABI/C execution, Pair EXE/OBJ30 or complete
+representation coverage.
+
+Census boundary: selected App Main root plus canonical Birth construction
+plans -> exact ordinary-New claim take -> selected construction/New consumers;
+includes root direct-New arguments, Birth receiver/formal/result and accepted
+FieldSet RHS; excludes source-less temporary/PHI/control values, other call
+families, final-MIR layout and target/runtime/C.
+
+| Row | Existing issuer -> consumer | D2 disposition |
+| --- | --- | --- |
+| Root terminal i64 reads/result | `ordinary_new_coseal` terminal relation -> selected terminal emitter | Present / landed; does not classify arbitrary root values. |
+| Root formals and arbitrary root values | root Home walk gives `EntryDemandMissing`; no representation relation | NoIssuer / NoSafeSlice. |
+| Root direct-New trivial arguments | `scan_new_home_flow` exact child classification -> `CallerNewHomePrefixV1` -> selected New emitter | Existing issuer, later bounded retention. |
+| New allocation identity/result | ordinary-New claim site/object/destination -> selected New emitter | Identity present; result handle partial and cannot be inferred from `MirType::Box`. |
+| Birth Unit result | `BirthAbiHandoffV1` Unit completion -> final handoff -> lifecycle transport | Present; no new representation row. |
+| Birth receiver handle | Birth receiver lane plus construction object -> claim take -> selected New emitter | Existing products, later co-seal only. |
+| Birth FieldSet literal/parameter RHS | construction plan exact RHS recognition -> selected construction-store emitter | Ready first slice; current plan loses RHS binding/class after validation. |
+| Birth unused/untyped parameter | lane exists but source class/use relation does not | NoIssuer; never default to i64. |
+| Copy/PHI/frame/normal-result/control values | no source issuer | NoIssuer as source product; later physical owner only. |
+
+The first I0 extends only `ConstructionPlanV1`: retain each already-accepted
+store's exact RHS as `IntegerLiteral` or `Parameter(BindingRefV1)` alongside
+its existing statement site and canonical field. The existing construction
+state takes that same row to selected FieldSet emission, and final validation
+checks receiver, field, RHS binding/class and concrete value once. Its
+exclusive old loss edge is `issue_construction_plan` validating `rhs_supported`
+then storing only `(ResolvedAssignmentSourceV1, CanonicalFieldRefV1)`.
+Acceptance is literal and parameter stores, distinct bindings across Births,
+foreign/missing/duplicate RHS and FieldSet value-drift negatives. No fixture,
+fallback, source widening or new semantic receipt is permitted.
+
+Task order after that I0: retain ordered root trivial New arguments through
+`CallerNewHomePrefixV1`; then co-seal the existing Birth receiver lane/object
+with the exact New site. Those rows remain separate because neither creates a
+source representation for root formals, arbitrary values or unused/untyped
+Birth parameters.
 
 The focused field-read command
 `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`

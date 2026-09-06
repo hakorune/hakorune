@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-REPRESENTATION-D2"
-current_execution_cohort = "constructor_lifecycle_root_birth_representation"
-current_design_stop = "Name the finite root/Birth value-representation rows with an existing source issuer and selected consumer, or preserve NoIssuer before claim take; no Pair witness or MIR metadata may infer the missing domain."
-current_blocker_token = "Home and Reclaim origins landed. Remaining root/Birth representation is a separate authority question: no new semantic receipt, source-shape widening, fixture, fallback, target ABI, C activation, or production switch before D2 Decision."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-REPRESENTATION-I0"
+current_execution_cohort = "constructor_lifecycle_birth_fieldset_rhs_representation"
+current_design_stop = "none for Birth FieldSet RHS retention; D2 fixes ConstructionPlanV1 as the source issuer, the existing construction state as sole transfer owner, and selected FieldSet emission as only consumer."
+current_blocker_token = "BoxShape row: retain only already accepted Birth FieldSet IntegerLiteral or exact Parameter(BindingRefV1) RHS through the existing construction-state take and final FieldSet validation. No new semantic receipt, source-shape widening, fixture, fallback, target ABI, C activation, or production switch."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,15 +33,15 @@ latest_card_path = "docs/development/current/main/design/constructor-lifecycle-l
 latest_card_summary = """
 D2 separates source-owned requirements/origins, existing physical emission
 bindings and backend/runtime target layout. Root Home and Reclaim origin
-retention landed. Reclaim keeps ConstructionPlanV1's fault obligation and
-constructor identity co-sealed with the exact New site through selected
-Birth-fault cleanup; final validation rejects operation drift. Root/Birth
-representation remains a separate D2 design stop. The field-read focused red
-reproduces at parent (left 1/right 0), so it is known baseline debt.
-Pair EXE30/linked OBJ30 and selected retirement remain required and unproven.
+retention landed. D2 confirms Birth Unit is already projected; the next closed
+row retains accepted FieldSet literal/parameter RHS through ConstructionPlanV1
+and selected emission. Root formals/arbitrary values and unused/untyped Birth
+formals remain NoIssuer. The field-read focused red reproduces at parent
+(left 1/right 0), so it is known baseline debt. Pair EXE30/linked OBJ30 and
+selected retirement remain required and unproven.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-REPRESENTATION-D2"
-next_execution_card = "none (design stop)"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-REPRESENTATION-I0 (accepted D2 Decision)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-REPRESENTATION-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
