@@ -545,6 +545,14 @@ recover an argument from AST to close this gap.
    current-state summary.  Pair EXE/OBJ30, typed C ingress, and compatibility
    retirement remain separate rows.
 
+I0 closed at `5e7fadb686`: selected direct-`New` now consumes the issued
+integer/bool/trivial-local rows without raw argument descent; the existing
+ledger retains only the physical row/`ValueId` snapshot and final validation
+rejects residual, literal, order, or Birth-Call drift. The focused source,
+consumer and mutation tests plus the canonical-corridor guard are green. This
+does not open root/Birth ABI handoff, C execution, Pair EXE/OBJ30, or selected
+compatibility retirement.
+
 ## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-BOOL-SOURCE-FACT-D6
 
 Decision: return to design stop. `scan_new_home_flow` observes direct-New
@@ -604,3 +612,54 @@ completed all-SSA issuer. Steps 1–4 close contracts but do not independently
 claim production migration; step 5 must remove the selected old production
 edge. After step 6, follow the existing workstream order for canonical versus
 compatibility dispatch, compile-owned state and single runtime hook storage.
+
+## Post-I0 physical-consumer premise audit (2026-09-07)
+
+Decision: return to design stop before the selected C consumer. The next
+authority to close is the existing source-issued root result/entry and Birth
+formal relation through the final borrowed view; C may consume that completed
+physical projection, but may not invent it.
+
+Source authority + canonical issuer: `VerifiedNormalMainThunkResultV1` and
+its existing main-thunk sealing path issue the root result/entry relation;
+the constructor semantic row issues the Birth source/formal relation. The
+final-view handoff must retain those existing products under exact function
+membership.
+
+Non-authority: `MirFunction.signature`, function names, JSON metadata,
+physical ordinals, C defaults, Pair fixture values, generic same-module
+lowering, and a new `Verified*`/`Prepared*` receipt.
+
+Fail-fast boundary: an absent, foreign, duplicate, or residual root/Birth ABI
+relation stops before C ingress, LLVM/artifact effects, or compatibility
+selection. A physical parser reports missing wire data; it never repairs it by
+inference.
+
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-PHYSICAL-CONSUMER-PREMISE-D0` is a
+read-only finite census from final root/Birth sealing through final-view and
+C-frame projection. It must name each issuer, transfer, consumer and exact
+missing relation, reconcile the direct-parser contract with its actual
+serializer/test coverage, then leave one bounded implementation slice or a
+named `NoSafeSlice`.
+
+Non-claims: C execution, new ABI semantics, generic backend reuse, Pair
+EXE30/linked OBJ30, compatibility retirement, compile-global state migration,
+kernel hook storage, or runtime-crate separation.
+
+If D0 closes the existing transfer, implementation proceeds in this order:
+
+1. Retain the issued root entry/result and Birth receiver/formal relations in
+   the final view and direct C frame, with exact function membership and no
+   positional defaults.
+2. Make the direct parser consume one complete call-local physical input; its
+   complete serializer-derived positive and finite malformed mutations are the
+   acceptance, replacing any permissive or partial-fixture claim.
+3. Give one selected C physical owner function-local values, parameters,
+   blocks, PHIs, explicit operations/control and layout/profile relations.
+   It lowers only those supplied relations and rejects unsupported/residual
+   rows before an artifact.
+4. Replace the selected host caller with that consumer and prove the unchanged
+   Pair source through EXE and OBJ-linked execution, both result `30`.
+5. After caller-zero evidence, delete only the replaced selected lifecycle
+   edge and its dedicated tests/docs. Compatibility and shared generic C
+   helpers remain until their own consumer/caller inventory is closed.

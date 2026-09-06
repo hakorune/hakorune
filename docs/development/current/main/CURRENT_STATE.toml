@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-I0"
-current_execution_cohort = "constructor_lifecycle_root_new_trivial_argument_consumer"
-current_design_stop = ""
-current_blocker_token = "I0 boundary: neutral home_new_prefix observations are the only per-child source facts; co-seal their exact integer/bool/trivial-local rows in the existing claim and delete selected raw argument replay. Do not reclassify AST, add a receipt/fallback, or activate ABI/C work."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-CONSUMER-PREMISE-D0"
+current_execution_cohort = "constructor_lifecycle_physical_consumer_premise"
+current_design_stop = "Root entry/result and Birth receiver/formal source relations are not yet demonstrated through one final-view/C-frame handoff. Do not infer them from MIR signatures, JSON, names, positional lanes, or C defaults."
+current_blocker_token = "D0 boundary: census the existing main-thunk result/entry and constructor-formal issuers through final-view and C-frame consumers; reconcile the direct physical-parser contract with its actual serializer/test coverage. End at one bounded implementation slice or NoSafeSlice, before C/LLVM effects."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,20 +31,18 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Birth FieldSet RHS I0 is landed locally: ConstructionPlanV1 co-seals receiver
-and parameter source uses with its literal/parameter RHS descriptor; selected
-construction state consumes those existing sites and emits FieldSet without
-target/RHS AST replay. D4 established that root direct-New claims retain only
-aggregate arity. D5 names the existing claim issuer, affine per-child relation,
-sole selected consumer and final New terminal; I0 now removes that route's raw
-argument replay.
-Root formals/arbitrary values and unused/untyped Birth formals remain NoIssuer.
-The field-read focused red reproduces at parent (left 1/right 0), so it is
-known baseline debt. Pair EXE30/linked OBJ30 and selected retirement remain
-required and unproven.
+Root direct-New trivial-argument I0 is landed at 5e7fadb686: existing issued
+integer/bool/trivial-local rows are consumed without selected raw argument
+descent; physical row/ValueId snapshots let the existing finalizer reject
+residual, literal, order and Birth-Call drift. Focused source/consumer/mutation
+tests and the canonical corridor guard pass.
+Next is design-stop D0: trace the existing main-thunk root result/entry and
+constructor Birth receiver/formal issuers through final view and C frame; do
+not infer ABI from MIR, JSON, names, positional defaults or C. Pair EXE30,
+linked OBJ30 and selected old-edge retirement remain required and unproven.
 """
-next_design_card = "none (I0 execution selected)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-CONSUMER-PREMISE-D0"
+next_execution_card = "none (D0 design stop selected)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
