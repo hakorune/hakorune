@@ -61,10 +61,11 @@ pub(crate) fn emit_non_phi_instructions(
 pub(crate) fn emit_terminator(
     terminator: &Option<crate::mir::MirInstruction>,
     pinned_text_residence_transport: bool,
+    profile: JsonEgressProfile,
 ) -> Result<Option<serde_json::Value>, String> {
     match terminator.as_ref() {
         Some(term) => {
-            control_flow::emit_terminator(term, pinned_text_residence_transport).map(Some)
+            control_flow::emit_terminator(term, pinned_text_residence_transport, profile).map(Some)
         }
         None => Ok(None),
     }
@@ -93,8 +94,11 @@ fn emit_instruction(
 
     let pinned_text_residence_instruction =
         pinned_text_residence_transport && matches!(inst, I::PinnedTextResidenceFinish { .. });
+    let lifecycle_control = profile.is_published_lifecycle_v2() && matches!(inst,
+        I::InvokeNormalResult { .. } | I::ReturnFault { .. } | I::FaultFrameEnter { .. });
     if !crate::mir::contracts::backend_core_ops::is_supported_mir_json_instruction(inst)
         && !pinned_text_residence_instruction
+        && !lifecycle_control
     {
         return Err(format!(
             "MIR JSON emit contract violation: unsupported instruction {}",
@@ -103,7 +107,22 @@ fn emit_instruction(
     }
 
     match inst {
+        I::ObjectFieldGet { dst, base, field } if profile.is_published_lifecycle_v2() => Ok(serde_json::json!({
+            "op": "published_lifecycle_object_field_get", "dst": dst.as_u32(),
+            "base": base.as_u32(), "object_id": field.object().declaration_index(),
+            "field_ordinal": field.declaration_ordinal(),
+        })),
         I::ObjectFieldGet { .. } => Err("[freeze:contract][mir-json/object-field-get-requires-published-view]".into()),
+        I::InvokeNormalResult { invoke_block, dst } if profile.is_published_lifecycle_v2() => Ok(serde_json::json!({
+            "op": "published_lifecycle_normal_result", "invoke_block": invoke_block.as_u32(), "dst": dst.as_u32(),
+        })),
+        I::ReturnFault { fault_frame } if profile.is_published_lifecycle_v2() => Ok(serde_json::json!({
+            "op": "published_lifecycle_return_fault", "fault_frame": fault_frame.as_u32(),
+        })),
+        I::FaultFrameEnter { dst, mode } if profile.is_published_lifecycle_v2() => Ok(serde_json::json!({
+            "op": "published_lifecycle_fault_frame", "dst": dst.as_u32(),
+            "mode": match mode { crate::mir::instruction::FaultFrameMode::RootOwned => 1, crate::mir::instruction::FaultFrameMode::Borrowed => 2 },
+        })),
         I::ArrayStateContractClaim { contract_id, array } => Ok(serde_json::json!({
             "op": "array_state_contract_claim",
             "contract_id": contract_id,

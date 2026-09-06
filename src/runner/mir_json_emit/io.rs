@@ -30,6 +30,20 @@ pub(crate) fn emit_published_view_body(
     serialize_mir_json_root(&root)
 }
 
+/// Same-borrow physical egress for the V2 lifecycle companion. Typed rows,
+/// not this JSON, remain the authority for lifecycle identity and layout.
+pub(crate) fn emit_published_lifecycle_body(
+    view: &crate::mir::function::PublishedMirBackendView<'_>,
+) -> Result<String, String> {
+    if view.route() != crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped
+        || view.lifecycle_instructions().is_empty()
+    { return Err("[freeze:contract][published-lifecycle-body/not-final-lifecycle-view]".into()); }
+    let root = super::root::build_mir_json_root_with_profile(
+        view.module(), super::root::JsonEgressProfile::PublishedLifecycleV2,
+    )?;
+    serialize_mir_json_root(&root)
+}
+
 pub fn emit_mir_json_for_harness(
     module: &nyash_rust::mir::MirModule,
     path: &std::path::Path,

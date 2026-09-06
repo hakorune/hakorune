@@ -1,6 +1,7 @@
 use serde_json::json;
 
 use crate::mir::{BasicBlockId, EffectMask, MirInstruction, ValueId};
+use super::super::root::JsonEgressProfile;
 
 pub(crate) fn emit_branch(
     condition: &ValueId,
@@ -60,6 +61,7 @@ pub(crate) fn emit_checked_callout_end(
 pub(crate) fn emit_terminator(
     term: &MirInstruction,
     pinned_text_residence_transport: bool,
+    profile: JsonEgressProfile,
 ) -> Result<serde_json::Value, String> {
     let pinned_text_residence_terminator = pinned_text_residence_transport
         && matches!(
@@ -67,8 +69,11 @@ pub(crate) fn emit_terminator(
             MirInstruction::PinnedTextResidenceEnter { .. }
                 | MirInstruction::PinnedTextResidenceTrap { .. }
         );
+    let lifecycle_invoke = profile.is_published_lifecycle_v2() && matches!(term,
+        MirInstruction::Invoke { .. } | MirInstruction::ReturnFault { .. });
     if !crate::mir::contracts::backend_core_ops::is_supported_mir_json_terminator(term)
         && !pinned_text_residence_terminator
+        && !lifecycle_invoke
     {
         return Err(format!(
             "MIR JSON emit contract violation: unsupported terminator {}",
@@ -101,6 +106,19 @@ pub(crate) fn emit_terminator(
             effects,
         )),
         MirInstruction::CheckedCallOutFault { site_id } => Ok(emit_checked_callout_fault(site_id)),
+        MirInstruction::Invoke { operation, fault_frame, normal_landing, fault_landing }
+            if profile.is_published_lifecycle_v2() => Ok(json!({
+                "op": "published_lifecycle_invoke", "kind": match operation {
+                    crate::mir::instruction::InvokeOperation::Call(_) => 1,
+                    crate::mir::instruction::InvokeOperation::NewBox { .. } => 2,
+                    crate::mir::instruction::InvokeOperation::FieldSet { .. } => 3,
+                    crate::mir::instruction::InvokeOperation::HomeRelease { .. } => 4,
+                    crate::mir::instruction::InvokeOperation::ReclaimUnpublished { .. } => 5,
+                }, "fault_frame": fault_frame.as_u32(), "normal": normal_landing.as_u32(), "fault": fault_landing.as_u32(),
+            })),
+        MirInstruction::ReturnFault { fault_frame } if profile.is_published_lifecycle_v2() => Ok(json!({
+            "op": "published_lifecycle_return_fault", "fault_frame": fault_frame.as_u32(),
+        })),
         MirInstruction::PinnedTextResidenceEnter {
             plan,
             normal_landing,
