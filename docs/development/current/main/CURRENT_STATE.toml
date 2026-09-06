@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "Checked exact i64 read runtime checkpoint: existing indexed owner validates profile/type/slot under one guard; Normal writes out, InvalidContract leaves it unchanged, no zero repair or storage retry. Fresh Fault9/9 and indexed storage8/8 pass; SingleThreadExact Fault9/9, pinned/direct rejection and C/C++ header checks pass. Root identity binding336466982d and same-borrow exportcd3810403c are closed. Next: connected typed C definition/prepass/control/frame/result consumer, rebuild runtime artifacts, and source CLI cutover. Generic lifecycle admission remains fenced. Fixed unchanged Pair EXE30/OBJ and selected old-edge deletion remain mandatory; no whole-lib or CLI Birth claim."
+current_blocker_token = "User-requested restart pause at the C prepass checkpoint: selected same-module call prepass peeks at existing typed rows before legacy name/plan lookup; emission takes once, duplicate consumption rejects instead of compatibility re-entry. Fresh FFI build, internal peek/take/coordinate tests, nested typed call OBJ with no legacy call plan, wrong-arity/no-object and real residual/no-object tests pass; existing Rust view binary re-run22/22 including array OBJ/EXE Result0. Runtime getter9a74028a0a, root identity336466982d and same-borrow exportcd3810403c remain closed. Resume only after user direction: set fast and continue connected typed C definition/control/frame/result consumer using the worker-reviewed private admission sequence in the lifecycle SSOT, rebuild runtime artifacts, then unchanged Pair CLI EXE30/OBJ30 and selected old-edge deletion. Generic lifecycle admission stays fenced; no whole-lib or CLI Birth claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

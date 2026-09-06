@@ -181,7 +181,7 @@
           yyjson_val* ins) {
         yyjson_val* cal = NULL;
         yyjson_val* args = NULL;
-        yyjson_val* entry = find_lowering_plan_entry_for_site(bid, ii);
+        yyjson_val* entry = NULL;
         struct LoweringPlanGenericMethodView method_view;
         struct LoweringPlanExternCallView extern_view;
         struct LoweringPlanGlobalCallView global_view;
@@ -197,6 +197,18 @@
         long long dst = read_int(ins, "dst");
         if (!same_module_function_read_call_payload(ins, &cal, &args)) return 0;
         ctype = same_module_function_call_type(op, cal);
+        {
+          const hako_llvmc_published_static_method_call_v1* row = NULL;
+          int status = hako_llvmc_published_static_method_peek_i64_global_row_v1(
+              fn0 ? read_str(fn0, "name") : NULL, bid, ii, ctype, dst, args, &row);
+          if (status < 0) return 0;
+          if (status > 0) {
+            if (row->kind != HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT && dst)
+              set_type(dst, T_I64);
+            return 1;
+          }
+        }
+        entry = find_lowering_plan_entry_for_site(bid, ii);
         mname = same_module_function_call_name(op, cal);
         bname = same_module_function_call_box_name(op, cal);
         has_method_view = read_lowering_plan_generic_method_view(entry, &method_view);

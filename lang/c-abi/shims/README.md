@@ -10,10 +10,18 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   TargetMachine probe and retry. Contract-bound output keeps its own emitter.
 - Regression: after `bash tools/build_hako_llvmc_ffi.sh`, compile
   `lang/c-abi/tests/published_rows_preartifact_test.c` against
-  `target/release/libhako_llvmc_ffi.so` and run with
+  `target/release/libhako_llvmc_ffi.so` and yyjson (include/link the existing
+  `plugins/nyash-json-plugin/c/yyjson` implementation), and run with
   `apps/tests/mir_shape_guard/bool_phi_const_return_min_v1.mir.json` and a fresh
   object path. It must report residual rejection with no object. The nop-based
   VM fixture stops earlier and is not acceptance for this boundary.
+- Selected same-module call prepass peeks at the published row before any
+  legacy name/plan lookup. Emission validates the same shape and takes once;
+  peeking cannot satisfy residual exhaustion, duplicate takes are malformed
+  rather than absent, and out-of-range coordinates cannot wrap to a row.
+  The same C test exercises these contracts and a nested typed call without
+  legacy call metadata, including wrong-arity rejection before object output.
+  This is physical-consumer evidence, not constructor source-to-EXE proof.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.

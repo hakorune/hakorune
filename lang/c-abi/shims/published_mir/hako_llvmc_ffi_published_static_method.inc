@@ -80,23 +80,22 @@ static void hako_llvmc_published_static_method_rows_end(void) {
 }
 
 static const hako_llvmc_published_static_method_call_v1*
-    hako_llvmc_published_static_method_row_for_site(
+    hako_llvmc_published_static_method_peek_row_for_site(
     const char* function_name,
     long long block_id,
     size_t instruction_index) {
-  if (!hako_llvmc_published_static_method_rows || !function_name || block_id < 0) {
+  if (!hako_llvmc_published_static_method_rows || !function_name || block_id < 0 ||
+      (unsigned long long)block_id > UINT32_MAX || instruction_index > UINT32_MAX) {
     return NULL;
   }
   for (size_t i = 0; i < hako_llvmc_published_static_method_row_count; i++) {
     const hako_llvmc_published_static_method_call_v1* row =
         &hako_llvmc_published_static_method_rows[i];
-    if (hako_llvmc_published_static_method_row_used[i]) continue;
     if (row->block_id != (uint32_t)block_id ||
         row->instruction_index != (uint32_t)instruction_index ||
         strcmp(row->function_name, function_name) != 0) {
       continue;
     }
-    hako_llvmc_published_static_method_row_used[i] = 1;
     return row;
   }
   return NULL;
@@ -107,6 +106,18 @@ enum hako_llvmc_published_static_method_shape_status_v1 {
   HAKO_LLVMC_PUBLISHED_ROW_READY = 1,
   HAKO_LLVMC_PUBLISHED_ROW_MALFORMED = -1,
 };
+
+/* Peeking never satisfies the residual check.  Only the physical emitter
+ * takes a validated row, and a second take is malformed rather than absent
+ * (absent would permit a caller to enter generic compatibility handling). */
+static int hako_llvmc_published_static_method_take_row_v1(
+    const hako_llvmc_published_static_method_call_v1* row) {
+  size_t index = (size_t)(row - hako_llvmc_published_static_method_rows);
+  if (hako_llvmc_published_static_method_row_used[index])
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  hako_llvmc_published_static_method_row_used[index] = 1;
+  return HAKO_LLVMC_PUBLISHED_ROW_READY;
+}
 
 /*
  * The two physical consumers share this admission only.  It owns the one
@@ -126,7 +137,7 @@ static int hako_llvmc_published_static_method_read_i64_arg_v1(
   return 1;
 }
 
-static int hako_llvmc_published_static_method_take_i64_global_row_v1(
+static int hako_llvmc_published_static_method_peek_i64_global_row_v1(
     const char* function_name,
     long long block_id,
     size_t instruction_index,
@@ -135,7 +146,7 @@ static int hako_llvmc_published_static_method_take_i64_global_row_v1(
     yyjson_val* args,
     const hako_llvmc_published_static_method_call_v1** out_row) {
   const hako_llvmc_published_static_method_call_v1* row =
-      hako_llvmc_published_static_method_row_for_site(
+      hako_llvmc_published_static_method_peek_row_for_site(
           function_name, block_id, instruction_index);
   if (out_row) *out_row = NULL;
   if (!row) return HAKO_LLVMC_PUBLISHED_ROW_ABSENT;
@@ -168,6 +179,24 @@ static int hako_llvmc_published_static_method_take_i64_global_row_v1(
   }
   if (out_row) *out_row = row;
   return HAKO_LLVMC_PUBLISHED_ROW_READY;
+}
+
+static int hako_llvmc_published_static_method_take_i64_global_row_v1(
+    const char* function_name,
+    long long block_id,
+    size_t instruction_index,
+    const char* call_type,
+    long long dst,
+    yyjson_val* args,
+    const hako_llvmc_published_static_method_call_v1** out_row) {
+  const hako_llvmc_published_static_method_call_v1* row = NULL;
+  int status = hako_llvmc_published_static_method_peek_i64_global_row_v1(
+      function_name, block_id, instruction_index, call_type, dst, args, &row);
+  if (out_row) *out_row = NULL;
+  if (status != HAKO_LLVMC_PUBLISHED_ROW_READY) return status;
+  status = hako_llvmc_published_static_method_take_row_v1(row);
+  if (status == HAKO_LLVMC_PUBLISHED_ROW_READY && out_row) *out_row = row;
+  return status;
 }
 
 static int hako_llvmc_published_mir_read_u32_field_v1(
@@ -216,7 +245,7 @@ static int hako_llvmc_published_static_method_take_array_write_row_v1(
     yyjson_val* instruction,
     const hako_llvmc_published_static_method_call_v1** out_row) {
   const hako_llvmc_published_static_method_call_v1* row =
-      hako_llvmc_published_static_method_row_for_site(
+      hako_llvmc_published_static_method_peek_row_for_site(
           function_name, block_id, instruction_index);
   yyjson_val* op_value = instruction ? yyjson_obj_get(instruction, "op") : NULL;
   yyjson_val* kind_value = instruction ? yyjson_obj_get(instruction, "kind") : NULL;
@@ -254,6 +283,8 @@ static int hako_llvmc_published_static_method_take_array_write_row_v1(
       hako_llvmc_published_array_write_kind_v1(kind) != row->kind) {
     return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
   }
+  if (hako_llvmc_published_static_method_take_row_v1(row) < 0)
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
   if (out_row) *out_row = row;
   return HAKO_LLVMC_PUBLISHED_ROW_READY;
 }

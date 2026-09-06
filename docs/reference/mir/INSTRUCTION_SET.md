@@ -64,6 +64,9 @@ String `FieldGet` is compatibility vocabulary, not an alternate target source.
 Selected published C rows and their CanonicalV1 body projection borrow the same
 final module. Export validates retained contracts without clone/refresh/repair;
 Phi instructions must lead their block so typed site coordinates stay exact.
+Selected same-module C call prepass only peeks at its published row; emission
+takes it exactly once. Peeks leave residual obligations outstanding, and a
+duplicate take rejects rather than returning to compatibility dispatch.
 Selected capability preflight rejects mixed LegacyCallV0, canonical Extern calls
 or residual extern routes before artifact generation; this does not promote
 lifecycle instructions or alter the explicit compatibility profile.
