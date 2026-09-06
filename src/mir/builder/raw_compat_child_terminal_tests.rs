@@ -27,7 +27,7 @@ fn lower_raw_compat(source: &str, policy: CallableMainMaterializationPolicyV1) -
             NormalRuntimeInputSnapshotV1::empty(),
         )
         .expect("raw compatibility terminal");
-    let (_, module) = completed.into_parts();
+    let (_, module, _) = completed.into_parts();
     module
 }
 

@@ -225,6 +225,17 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     assert_eq!(ledger.validate_finalized_new_root(&physical).unwrap(),
         crate::mir::function::RootOrdinaryNewObservation::SourceCompleteAtFinalization);
     assert!(ledger.validate_finalized_new_root(&physical).unwrap_err().contains("duplicate-root-validation"));
+    physical.install_root_ordinary_new_observation(
+        crate::mir::function::RootOrdinaryNewObservation::SourceCompleteAtFinalization).unwrap();
+    assert!(ledger.validate_after_compiler_finishing(&changed_frame).unwrap_err()
+        .contains("emission-binding-drift"));
+    let mut changed_exit = physical.clone();
+    changed_exit.blocks.remove(&exit_id);
+    assert!(ledger.validate_after_compiler_finishing(&changed_exit).unwrap_err()
+        .contains("root-exit-binding-drift"));
+    ledger.validate_after_compiler_finishing(&physical).unwrap();
+    assert!(ledger.validate_after_compiler_finishing(&physical).unwrap_err()
+        .contains("duplicate-finishing-validation"));
 }
 
 #[test]

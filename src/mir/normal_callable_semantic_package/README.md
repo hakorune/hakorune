@@ -18,6 +18,12 @@ Residual/foreign/drifted bindings remain errors. This is not backend admission:
 MirFunction is still mutable, and Birth validation belongs to its own owner.
 Executable lifecycle activation requires freezing the validated module before
 mutable access escapes; a later wrapper or an observation flag is insufficient.
+The normal invocation completion now retains the same root ledger and exact
+physical root key through compiler finishing. It rechecks New/frame/local/exit
+bindings before external commit; changed or missing roots fail without retry.
+This closes the root's early-validation drop, not Birth retention or executable
+admission. Final published consumption must be synchronous inside the final
+validation borrow, with no later mutable pass or admitted module extraction.
 
 ```text
 VerifiedFinalCallableProgramSourceV1

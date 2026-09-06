@@ -18,7 +18,8 @@ use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailabl
 pub(super) enum RootNewValidation {
     Unregistered,
     Pending(FunctionOwnerIdV1),
-    Checked,
+    Checked(FunctionOwnerIdV1),
+    FinishingChecked,
 }
 
 #[derive(Debug)]
@@ -194,13 +195,40 @@ impl OrdinaryNewClaimLedgerV1 {
         let owner = match *state {
             RootNewValidation::Unregistered => return Ok(RootOrdinaryNewObservation::NotIssued),
             RootNewValidation::Pending(owner) => owner,
-            RootNewValidation::Checked => return Err(freeze("duplicate-root-validation")),
+            RootNewValidation::Checked(_) | RootNewValidation::FinishingChecked => {
+                return Err(freeze("duplicate-root-validation"));
+            }
         };
         self.validate_new_emissions(owner, function)?;
         self.validate_root_home_exit(function)?;
         let observation = self.finalized_root_observation(owner);
-        *state = RootNewValidation::Checked;
+        *state = RootNewValidation::Checked(owner);
         Ok(observation)
+    }
+
+    /// Recheck the same retained source obligations after compiler finishing.
+    /// The early observation cannot authorize a modified function. No source
+    /// products are reconstructed from the final CFG or its metadata.
+    pub(crate) fn validate_after_compiler_finishing(
+        &self,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let mut state = self.root_validation.borrow_mut();
+        let owner = match *state {
+            RootNewValidation::Unregistered => return Ok(()),
+            RootNewValidation::Checked(owner) => owner,
+            RootNewValidation::Pending(_) => return Err(freeze("root-before-draft-validation")),
+            RootNewValidation::FinishingChecked => {
+                return Err(freeze("duplicate-finishing-validation"));
+            }
+        };
+        self.validate_new_emissions(owner, function)?;
+        self.validate_root_home_exit(function)?;
+        if self.finalized_root_observation(owner) != function.root_ordinary_new_observation() {
+            return Err(freeze("root-observation-drift"));
+        }
+        *state = RootNewValidation::FinishingChecked;
+        Ok(())
     }
 
     fn finalized_root_observation(&self, owner: FunctionOwnerIdV1) -> RootOrdinaryNewObservation {

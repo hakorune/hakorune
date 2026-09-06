@@ -29,8 +29,11 @@ use super::{
 };
 use super::{BuilderInstallConsumerV1, BuilderPrivateCallableLoweringScopeV1};
 use crate::ast::ASTNode;
-use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_v1;
+use crate::mir::normal_callable_semantic_package::{
+    issue_normal_callable_semantic_package_with_brand_catalog_v1, OrdinaryNewClaimLedgerV1,
+};
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+use std::rc::Rc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleStageV1 {
@@ -100,11 +103,16 @@ impl std::error::Error for NormalDefaultRootCatalogLifecycleErrorV1 {}
 pub(in crate::mir) struct CompletedNormalDefaultRootCatalogLifecycleV1 {
     session: ModuleBuilderInvocationSessionV1,
     module: MirModule,
+    root_new_validation: Option<(String, Rc<OrdinaryNewClaimLedgerV1>)>,
 }
 
 impl CompletedNormalDefaultRootCatalogLifecycleV1 {
-    pub(in crate::mir) fn into_parts(self) -> (ModuleBuilderInvocationSessionV1, MirModule) {
-        (self.session, self.module)
+    pub(in crate::mir) fn into_parts(self) -> (
+        ModuleBuilderInvocationSessionV1,
+        MirModule,
+        Option<(String, Rc<OrdinaryNewClaimLedgerV1>)>,
+    ) {
+        (self.session, self.module, self.root_new_validation)
     }
 }
 
@@ -641,13 +649,14 @@ impl ModuleBuilderInvocationSessionV1 {
         let result = result.and_then(|inner| inner);
 
         match result {
-            Ok(module) => {
+            Ok((module, root_new_validation)) => {
                 if let Some(source) = compatibility_source {
                     source.discard_at_named_lifecycle_terminal();
                 }
                 Ok(CompletedNormalDefaultRootCatalogLifecycleV1 {
                     session: self,
                     module,
+                    root_new_validation,
                 })
             }
             Err(error) => Err(RejectedNormalDefaultRootCatalogLifecycleV1 {

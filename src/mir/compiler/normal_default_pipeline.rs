@@ -482,7 +482,7 @@ impl NormalDefaultPublishedPipelineV1 {
                 rejected.discard();
                 message
             })?;
-        let (session, module) = completed.into_parts();
+        let (session, module, root_new_validation) = completed.into_parts();
         super::super::compile_timing::trace_stage("build_module", stage_start.elapsed());
 
         match result_contract {
@@ -490,6 +490,12 @@ impl NormalDefaultPublishedPipelineV1 {
         }
         let finish_schedule = finish_schedule_for_normal_module(&module)?;
         let result = compiler.finish_built_module(module, finish_schedule)?;
+        if let Some((root_key, ledger)) = root_new_validation {
+            let root = result.module.functions.get(&root_key).ok_or_else(|| {
+                "[freeze:contract][ordinary-new/finished-root-missing]".to_owned()
+            })?;
+            ledger.validate_after_compiler_finishing(root)?;
+        }
         if finish_schedule == super::MirFinishScheduleV1::SelectedDynamic {
             // The selected module must not be published or handed to a
             // backend until the strict post-seal result has been consumed.

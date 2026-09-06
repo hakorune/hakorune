@@ -772,10 +772,7 @@ The same connected series must reach the selected typed-C Birth consumer and
 fixed production proof; ABI-only unit tests do not close it. Runtime release,
 construction reclaim and tasks 2–4 remain required, not silently scoped away.
 
-Source-prefix checkpoint: package 83/83 and control 33/33 covered exact outward
-target, foreign owner, reverse order and prior-install rejection. Plain aliases
-add no Home; rebind/unknown acquisition/entry gaps/Handle arguments/overrides
-remain unavailable, never empty cleanup. No whole-lib or runtime claim.
+Source-prefix checkpoint: package83/83 and control33/33 covered outward target/foreign owner/reverse order/prior install. Aliases add no Home; rebind/unknown acquisition/entry gaps/Handle arguments/overrides remain unavailable, not empty cleanup. No whole-lib/runtime claim.
 
 **Change:** replace the selected New path's physical-control drop with exact
 emission binding through its existing claim port and caller completion boundaries.
@@ -794,12 +791,14 @@ This is the task-1 control checkpoint only; tasks 2–4 remain the series termin
 selected executable admission closed. Fix the same owner; no empty cleanup,
 name/order recovery, detached source proof or wider grammar.
 
-Root observation checkpoint: fresh package97/97, function storage1/1 and Invoke7/7 pass; quick lib/vm-reference checks and pointer/M7-S green. Missing/rejected/no-selected states, exact root complete, fixed Pair unavailable, separate Birth and duplicate/drift rejection are checked. Observation is not execution permission; backend remains UnsupportedBeforeObject. No new test/guard/receipt or baseline change.
-Publication task 2–3: retain root ledger and Birth construction state with their exact draft/session until selected mutable finishing ends.
-Then rerun their binding validators, strict whole-module verification and move
-into read-only ownership in the existing normal publication/result owner.
-No optimizer/RC/canonicalization may run after that final validation; current
-`finish_built_module` runs such passes after root validation and must be reordered.
+Root post-finishing checkpoint: retained ledger/exact root key now revalidate New/frame/local/exit bindings after `finish_built_module`, before external commit; observation remains non-authorizing. Package97/97, raw compatibility2/2 and Invoke7/7 pass. Same locked quick lib `normal_default_root_catalog_lifecycle_tests -- --test-threads=1` at parent ed10ce1ad6 and current gives9/4 with identical failure locations/reasons below: known parent debt, no baseline/test weakening.
+
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::actual_string_helpers_general_result_row_reaches_its_first_loop_carrier`: raw-compat/runtime-box-fate-retired/static.
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::parser_scan_package_passes_callable_source_handoff_without_fallback`: static-result-ingress/no-exact-static-target instead of target-unavailable.
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::source_backed_package_failure_is_terminal_before_builder_effects`: RootExpansion instead of CallableSemanticSeal.
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::source_bound_static_result_owner_reaches_the_raw_terminal`: raw-compat/runtime-box-fate-retired/static.
+Publication task 2–3: retain Birth construction state/frame with exact draft/session through mutable finishing; rerun binding validators and strict whole-module verification. Root checkpoint quick lib/vm-reference and pointer/M7-S checks are green.
+Prepare external commit before synchronous borrowed backend consumption in the existing normal pipeline; no optimizer/RC/canonicalization after final validation.
 Runtime checkpoint: kernel exports89/1 versus parent9164286970 79/1 with identical Cargo.lock (--locked); both fail only `exports::typed_object_pinned_arena::tests::direct_slot_object_v0_header_and_field_offsets_are_stable` at tests.rs:85 (negative handle assertion). Known parent debt, no baseline/test weakening. Current-source Fault8/8 and indexed storage8/8 pass; SingleThreadExact Fault8/8 and pinned/direct rejection also pass. C/C++ ABI header and pointer/M7-S checks green. Typed-C/EXE30 proof still open.
 
 Tasks 2–3 runtime-first Decision: one runtime-owned repr(C) frame, version/presence/length/omitted u32 header, primary plus eight inline suppressed records (reason u32, reserved u32, site u64, two i64 details). C borrows, never copies/mutates records; initialize once on fresh aligned storage, final entry reports then disposes once. Extend existing published transport and `hako_llvmc_ffi_mir_call_dispatch.inc`, never legacy birth dispatch.
@@ -808,7 +807,7 @@ Checked allocation must validate the admitted exact layout and use fallible payl
 Exact FieldSet validates expected object identity/type and slot under the same storage owner before mutation. Bind the admitted storage profile across allocation/write/reclaim: default SafeMutex and SingleThreadExact only; pinned/direct mismatch rejects before allocation, never follows cached environment into an unreclaimable profile.
 ReclaimUnpublished and published PlainI64NoHook HomeRelease share only inert detach/drop-outside-lock; runtime must not infer destruction from slot tags, names or absent hooks. Prove duplicate/type rejection, unrelated handle stability and one drop.
 Frame ABI: Normal=0/Fault=1; InvalidContract=2 is physical caller failure, never a third source outcome or ordinary cleanup edge. Validate version/header/null requirements before mutation; arbitrary dangling/misaligned pointers are outside the trusted ABI. Record static reason/site/details first; owned-message handoff stays Rust-private (Box bytes prepared earlier), never accept arbitrary C ptr/len to free. No-message null is absence, never a Rust slice.
-Frame acceptance: first Fault/order/overflow preserved, Normal despite pending primary, propagation records zero, record/overflow allocate zero, invalid header preserves source/out-slot, payload disposal once. Root publication Decision: existing ledger validation returns NotIssued / NoSelectedLocalNew / Unavailable(reason) / SourceCompleteAtFinalization; exact finalizer installs once after final PHI passes. Missing/Err Completion is unavailable, pending/foreign/drift remains hard error. This is an observation, NOT execution authorization: public mutable MirFunction/Clone can retain stale observations. Before activation move the module into private read-only ownership immediately after final source validation, never wrap it after mutable access escapes; Birth's separate validation must remain bound too. No snapshot, CFG inference or new semantic receipt. Test missing/unavailable/no-New, duplicate/drift, same-shape unissued MIR and stale-observation rejection. Fixed EXE30/OBJ and remaining Home coverage stay mandatory.
+Frame acceptance: primary/order/overflow, Normal with pending Fault, propagation records zero, record/overflow allocate zero, invalid header preserves out-slot, payload disposal once. Root observation remains NotIssued / NoSelectedLocalNew / Unavailable(reason) / SourceCompleteAtFinalization, never execution permission. Selected publication Decision: existing completed invocation retains root ledger and exact key plus Birth owner/ConstructionState/CallableFaultFrame with exact collector draft; run mutable finishing, final binding validators, strict verifier and fallible commit preparation before synchronous borrowed view consumption. Callback returns artifact/diagnostics, not mutable admitted MIR; general try_new(MirModule) keeps lifecycle fenced, including clones. No second pipeline/result copy, snapshot, source metadata or semantic receipt. Birth uses existing payload session; alternative drains reject rather than drop payload. Test post-finishing root cleanup/store/frame drift, missing/unavailable/no-New, duplicate, foreign key, residual and stale-observation rejection. Fixed EXE30/OBJ and remaining Home coverage remain mandatory.
 
 Current natural-source grammar permits one initialized local per declaration.
 Multiple initializer AST carriers are not a new prerequisite; if later

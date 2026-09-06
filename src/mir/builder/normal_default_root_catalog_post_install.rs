@@ -20,6 +20,8 @@ use crate::mir::builder::{
     UnpublishedCallableLoopRootScopeV1,
 };
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
+use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
+use std::rc::Rc;
 
 pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package>(
     builder: &mut MirBuilder,
@@ -38,7 +40,10 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
     _import_rows: &[(String, String)],
     target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
     callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
-) -> Result<MirModule, NormalDefaultRootCatalogLifecycleErrorV1> {
+) -> Result<
+    (MirModule, Option<(String, Rc<OrdinaryNewClaimLedgerV1>)>),
+    NormalDefaultRootCatalogLifecycleErrorV1,
+> {
     let script_source = match script_source {
         Some(bound) => {
             let admission = work.script_root_admission.as_ref().ok_or_else(|| {
@@ -106,12 +111,20 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
             callable_loop_root_scope,
         )
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))?;
-    builder
+    let mut root_key = None;
+    let module = builder
         .finalize_module_with_root_validation(result_value, |function| {
-            match root_new_ledger {
-                Some(ledger) => ledger.validate_finalized_new_root(function),
+            match &root_new_ledger {
+                Some(ledger) => {
+                    let observation = ledger.validate_finalized_new_root(function)?;
+                    // Physical key from this exact finalized function, not
+                    // a source-name lookup or reconstructed target identity.
+                    root_key = Some(function.signature.name.clone());
+                    Ok(observation)
+                }
                 None => Ok(crate::mir::function::RootOrdinaryNewObservation::NotIssued),
             }
         })
-        .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into()))
+        .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into()))?;
+    Ok((module, root_key.zip(root_new_ledger)))
 }

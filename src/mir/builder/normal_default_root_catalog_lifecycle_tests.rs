@@ -43,7 +43,7 @@ fn verified_expansion_disposition_reaches_script_and_app_root_lowering() {
                 NormalRuntimeInputSnapshotV1::empty(),
             )
             .expect("verified route must lower");
-        let (session, _) = completed.into_parts();
+        let (session, _, _) = completed.into_parts();
 
         assert_eq!(session.builder().root_is_app_mode, Some(expected_app_mode));
     }
@@ -60,7 +60,7 @@ fn source_backed_print_producer_publishes_typed_builtin_row() {
             NormalRuntimeInputSnapshotV1::empty(),
         )
         .expect("source-backed Print producer must lower");
-    let (_, module) = completed.into_parts();
+    let (_, module, _) = completed.into_parts();
     let calls = module
         .functions
         .iter()
@@ -141,7 +141,7 @@ fn source_backed_app_main_root_uses_cataloged_scope() {
             NormalRuntimeInputSnapshotV1::empty(),
         )
         .expect("source-backed App Main root must lower through its package scope");
-    let (_, module) = completed.into_parts();
+    let (_, module, _) = completed.into_parts();
     assert!(module
         .functions
         .iter()
@@ -162,7 +162,7 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
             NormalRuntimeInputSnapshotV1::empty(),
         )
         .expect("source-backed App Main direct call must consume its loan");
-    let (_, module) = completed.into_parts();
+    let (_, module, _) = completed.into_parts();
     let main = module
         .functions
         .iter()
@@ -222,7 +222,7 @@ fn source_backed_declared_instance_me_method_emits_mandatory_receiver_call() {
             NormalRuntimeInputSnapshotV1::empty(),
         )
         .expect("source-backed declared instance method must lower");
-    let (_, module) = completed.into_parts();
+    let (_, module, _) = completed.into_parts();
     let run = module
         .functions
         .iter()
@@ -392,7 +392,7 @@ fn source_bound_static_result_owner_reaches_the_raw_terminal() {
                 NormalRuntimeInputSnapshotV1::empty(),
             )
             .expect("source-bound static row must lower");
-        let (_, module) = completed.into_parts();
+        let (_, module, _) = completed.into_parts();
         assert!(module
             .functions
             .iter()
@@ -413,7 +413,7 @@ fn source_backed_selected_callable_uses_the_installed_package_port() {
             NormalRuntimeInputSnapshotV1::empty(),
         )
         .expect("source-backed package must lower");
-    let (_, module) = completed.into_parts();
+    let (_, module, _) = completed.into_parts();
 
     assert!(module
         .functions
@@ -514,7 +514,7 @@ fn actual_string_helpers_general_result_row_reaches_its_first_loop_carrier() {
                 NormalRuntimeInputSnapshotV1::empty(),
             )
             .expect("actual StringHelpers exact result must reach GenericLoop");
-        let (_, module) = completed.into_parts();
+        let (_, module, _) = completed.into_parts();
         assert!(module
             .functions
             .iter()
