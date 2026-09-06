@@ -14,7 +14,9 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-SOURCE-REQUIREMENTS-D0`, an exact source-issuer inventory for the connected retention task below.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-OWNER-SPLIT-I0`, a
+behavior-preserving source-budget split before retaining the existing root
+Home origin through physical emission.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -163,6 +165,16 @@ later rows require their concrete mapping before changing `work_mode` to
 | 5. LLVM + production cutover (BoxCount) | `published_mir_object.rs` lifecycle caller -> dedicated call-local consumer -> object/EXE | Emit the complete selected function/control/runtime ABI; switch the real host caller and delete its generic lifecycle JSON + V2 pending companion edge in the same series. Fixed source EXE30 and OBJ->linked EXE30, Fault ordering/cleanup, Normal-only out loads, frame lifetime and no partial artifact are mandatory. |
 | 6. Caller-zero retirement (Delete) | selected transport/proof owners -> required production acceptance | Audit direct, manifest, aggregate and directory discovery; delete unused V2 wrappers/pending helpers/private probes and the legacy proof route. Retain shared helpers only with named live callers. No selected old retry/re-entry remains. |
 
+The first ready D1 implementation is preceded by
+`CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-OWNER-SPLIT-I0` (BoxShape): move the
+existing root Home progress/validation responsibility from
+`ordinary_new_local_commit.rs` into its child module without changing its API,
+tests, behavior or test paths. The parent is 746 lines, so this is required
+before adding the retained-origin row. The follow-up
+`CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-RETENTION-I0` owns only the existing
+`RootHomeExitProgress` -> selected emitter handoff; it cannot widen source
+acceptance or touch Birth representation/Reclaim.
+
 Step 0 validation uses the existing semantic-package suite, identical test
 discovery before/after, source line counts and pointer guard. No new fixture,
 fallback, source shape or baseline change. If a test fails, classify it using
@@ -220,6 +232,30 @@ one existing issuer and named consumer, not backend readiness. `Partial` and
 one existing issuance owner per missing product, its exact claim-take consumer,
 its exclusive old information-loss edge, and its pre-emission negative. If one
 is absent, D1 remains `NoSafeSlice`.
+
+## D1: representation and cleanup-origin disposition
+
+Decision: retain only products with an existing source issuer. Root/Birth
+representation remains partially `NoIssuer`; it is not a prerequisite for the
+bounded Home-origin row, but it blocks any claim of complete source retention.
+
+| D0 product | Existing owner, consumer and loss edge | D1 disposition |
+| --- | --- | --- |
+| Root i64 terminal reads/result | `scan_new_home_flow` issues the exact literal/field/Add relation; selected terminal emission consumes it. Only this terminal relation crosses the claim. | **Existing issuer, bounded.** It cannot classify arbitrary root values. |
+| Root New arguments | The same walk observes exact New children and only recognizes source trivial literals; `CallerNewHomePrefixV1` drops their sites/classes before selected emission receives bare values. | **Existing issuer, later extension.** Retain site/class in the existing prefix/claim only when an accepted direct consumer is named. |
+| Root formals | The selected root Home walk rejects receiver/parameter declarations as `EntryDemandMissing`; no root formal relation reaches the retained handoff. | **NoIssuer.** Reject this source domain before claim take; zero-formal Pair is not a domain reduction. |
+| Birth receiver | `BirthAbiHandoffV1` owns binding/lane and `ConstructionPlanV1` owns the exact object, but they are not co-sealed after claim take. | **Existing issuers, later co-seal.** D1 does not infer object handle from lane. |
+| Birth parameters | Birth handoff owns bindings/lanes/Unit; constructor stores identify i64 use only for admitted parameter RHS. Unused or untyped formals have only `OpaqueHandle`. | **Partial / NoIssuer.** Add an i64 use requirement only where the existing store proves it; untyped unused formals reject rather than infer i64. |
+| HomeRelease origin | Completion co-issues ordered terminal homes and exact exit; the prefix carries binding plus outward-fault site. `RootHomeExitProgress::Prepared` currently drops that origin into bare operands before the selected emitter. | **Ready after owner split.** Retain binding plus completion exit in the existing progress payload and delete the naked positional handoff. |
+| ReclaimUnpublished cutpoint | `ConstructionPlanV1` retains constructor identity and the construction-fault reclaim obligation, but selected cleanup receives no origin/cutpoint. | **Existing issuer, later extension.** Attach the obligation to exact claim New site plus constructor identity; generated CFG position is not origin. |
+
+`CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-RETENTION-I0` has one authority
+(`RootHomeExitProgress`), one consumer (the selected root Home emitter), one
+old edge to delete (bare `(CanonicalObjectIdV1, ValueId)` positional handoff),
+and one terminal (pre-emission root-exit rejection). Acceptance is unchanged
+Pair ordered HomeRelease emission with distinct retained origins, plus
+foreign/missing/duplicate home, wrong exit, reordered rows and unavailable
+root-cleanup negatives. It makes no representation or Reclaim claim.
 
 The focused field-read command
 `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`
