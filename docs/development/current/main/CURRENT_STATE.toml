@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0"
-current_execution_cohort = "constructor_lifecycle_birth_object_handoff"
-current_design_stop = ""
-current_blocker_token = "Accepted bounded design: retain exact declaration object on the existing constructor row and Birth handoff, validate per-New/full duplicate relations, and remove transport name-index reconstruction. Design-only closeout; select fast before implementing this row. Formal agreement, root result coverage and LLVM cutover remain open."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-DECLARATION-USE-D0"
+current_execution_cohort = "constructor_lifecycle_birth_formal_declaration_use"
+current_design_stop = "Reconcile exact Birth declaration and all source-use requirements into one selected formal contract without inferring i64 from callers, MIR or C wire tags. Name its consumer, physical rejection boundary and positional-default delete-set before implementation."
+current_blocker_token = "Birth declaration-object handoff I0 is landed locally; formal declaration/use agreement is the next design decision. Preserve typed and untyped source validity while making backend availability explicit."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,17 +31,15 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Worker-reviewed issuance design supersedes the blanket NoSafeSlice: source
-already issues the declaration object independently of runtime handle layout.
-Next bounded I0 retains it through the existing constructor/Birth handoff and
-deletes the transport name-index derivation, preserving unavailable source
-profiles and per-New receiver identity. Then design formal declaration/use
-agreement, retain root scalar/results, finish physical binding and target ABI,
-complete direct input, execute Pair EXE30/linked OBJ30 and retire old edges.
-This is design closeout only; no source, tests or C execution changed.
+Birth declaration-object handoff I0 retains exact source object through the
+constructor/Birth final handoff and transport, deleting key-owner object
+derivation while preserving per-New receiver checks. The active D0 reconciles
+formal declaration/use evidence before a physical ABI adapter. Then retain root
+scalar/results, finish physical binding and target ABI, complete direct input,
+execute Pair EXE30/linked OBJ30 and retire old edges.
 """
-next_design_card = "Formal declaration/use agreement after Birth object handoff; see active card task 1b"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-DECLARATION-USE-D0"
+next_execution_card = "none (design-stop decision required)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

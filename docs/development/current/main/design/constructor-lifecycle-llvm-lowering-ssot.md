@@ -831,6 +831,24 @@ one declaration; an unavailable construction body; an unused untyped formal;
   use their existing children for validation additions before 760, hard stop
   at 800. No formal wire-tag change or C executable activation in this slice.
 
+Landed at `5472b0ab09`: the semantic row retains its exact declaration object;
+Birth handoff, final deduplication and C transport carry it. The transport now
+checks object membership against that retained relation instead of deriving its
+object from the Birth key owner. Focused Birth, alias/multiple-New final-handoff
+and C parser tests pass. This does not select a formal representation or execute
+the Birth C path.
+
+### `CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-DECLARATION-USE-D0`
+
+Decision required: use the exact constructor declaration loan to reconcile
+each formal declaration and all source-use requirements before physical ABI
+admission. The decision must preserve source validity and evaluation for
+typed-unused, untyped-unused, repeated-use and conflicting-use cases. It must
+name the source contract authority, selected body/call consumer, rejected
+physical boundary and the positional wire-kind deletion set. Caller literals,
+MIR types, value IDs and C input tags are non-authority. Do not implement a
+formal adapter or alter C wire rows during this D0.
+
 ### Following tasks and unresolved decisions
 
 | Order within existing Steps 1–4 | Issuer / consumer / deleted loss edge / acceptance |
