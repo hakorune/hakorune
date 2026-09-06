@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-RUNTIME-ABI-D0"
-current_execution_cohort = "constructor_lifecycle_physical_runtime_abi_authority"
-current_design_stop = "NoSafeSlice__IssuedLayoutAndFaultFramePlacementAbiMissing"
-current_blocker_token = "Design stop: select final-view-issued object layout and runtime-owned FaultFrame placement ABI before the C physical parser can lower Pair without inference."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-PROJECTION-I0"
+current_execution_cohort = "constructor_lifecycle_physical_abi_projection_boxshape"
+current_design_stop = "none"
+current_blocker_token = "BoxShape: bind the issued physical program to existing final layout rows and runtime FaultFrame ABI modes before C parsing or lowering."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -39,16 +39,16 @@ constructor semantic row issues receiver/formal lanes and Unit result, local
 commit transfers them once, final sealing retains root I64, and final view/C
 frame project those relations without physical-ordinal reclassification. The
 the final view now issues the complete selected physical program and I1
-serializes only that program. C execution remains paused: its parser lacks the
-issued object-layout and FaultFrame placement ABI required for direct lowering.
+serializes only that program. Existing final layout and runtime FaultFrame ABI
+are selected; I0 binds them into one physical input before C parsing/lowering.
 Pair result BoxCount landed at 181d7f8e92: source Completion preserves exact
 terminal Return/Add/ordered-read relations. The AST-free terminal consumer now
 uses that relation through exact reads, one ordered Add and the existing cleanup
 Return. EXE30/linked OBJ30 and selected C physical program remain open; no
 source runtime claim is made.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-RUNTIME-ABI-D0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-PROJECTION-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

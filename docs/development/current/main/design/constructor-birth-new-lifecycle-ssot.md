@@ -990,6 +990,32 @@ both products.
 Non-claims: new semantic receipt, parser/lowerer implementation, object
 emission, OBJ/EXE exit 30 or legacy deletion.
 
+Audit result: accepted. `CanonicalObjectDefinitionV1.runtime_layout()` is the
+installed physical layout authority, and the existing final-view V2 frame
+already projects its exact type/field-count/slot/storage rows. Runtime-owned
+`NyrtFaultFrameV1` in `nyrt_fault_v1.h` supplies the complete placement ABI;
+the compiler only carries its version/mode and never its Rust fields. The gap
+is coherence, not missing meaning: program JSON and layout/frame rows are now
+separate final-view projections.
+
+### CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-PROJECTION-I0 — coherent C input
+
+Decision: accepted BoxShape. One final-view physical projector joins the
+already-issued program with existing V2 layout/field/role/formal/control rows,
+and binds operation coordinates by issued function ordinal/block/index.
+Source authority + canonical issuer: final view joins the issued physical
+program, installed canonical object layouts and runtime ABI version/modes only.
+Non-authority: source facts, layout allocation, name lookup, ordinal defaults,
+generic JSON metadata and duplicated Rust FaultFrame fields.
+Fail-fast boundary: absent/unavailable/non-i64 layout, duplicate/missing/residual
+operation coordinate, JSON/frame disagreement or invalid runtime ABI mode
+rejects before C opens an object.
+Smallest next slice: physical input/projector and direct JSON expansion, with
+focused Pair and no-object mismatch evidence. C parsing and lowering remain
+separate tasks.
+Non-claims: a semantic receipt, C lowering/object emission, OBJ/EXE exit 30,
+generic reader reuse or legacy deletion.
+
 Decision: provisional JSON validators remain retired at the no-artifact terminal. Preserve each already-issued Birth recipe's canonical target when a root New claim becomes a local commit, then co-seal it with root Completion and the canonical construction draft after finalization.
 Source authority + canonical issuer: `OrdinaryNewClaimLedgerV1` owns root Completion and issued Birth recipes; its private finalizer validates one exact retained construction draft and issues the opaque final root/Birth handoff before Atomic Publish.
 Non-authority: root symbol, `FunctionSignature`, `MirParamDecl`, instruction position, JSON, C frame, Pair names, canonical-core role, ObjectFieldGet, metadata and positional/default ABI rules.
