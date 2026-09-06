@@ -50,12 +50,14 @@ impl MirFunction {
 
     /// Historical source result only; this does not authorize current CFG execution.
     pub(crate) fn root_ordinary_new_observation(&self) -> super::RootOrdinaryNewObservation {
-        self.root_ordinary_new_observation.unwrap_or(super::RootOrdinaryNewObservation::NotIssued)
+        self.root_ordinary_new_observation
+            .unwrap_or(super::RootOrdinaryNewObservation::NotIssued)
     }
 
     /// Sole production caller: the exact root's final module validation callback.
     pub(in crate::mir) fn install_root_ordinary_new_observation(
-        &mut self, observation: super::RootOrdinaryNewObservation,
+        &mut self,
+        observation: super::RootOrdinaryNewObservation,
     ) -> Result<(), String> {
         if self.root_ordinary_new_observation.is_some() {
             return Err("[freeze:contract][mir/finalize/duplicate-root-observation]".into());

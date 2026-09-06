@@ -396,7 +396,11 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                 NormalCallableSemanticPackageInstallIssueV1::DeclaredInstanceLocatorNotConsumed,
             );
         }
-        if self.installed.instance_constructors.has_pending_object_definitions() {
+        if self
+            .installed
+            .instance_constructors
+            .has_pending_object_definitions()
+        {
             return Err(NormalCallableSemanticPackageInstallIssueV1::ObjectDefinitionsNotConsumed);
         }
         Ok(())

@@ -459,7 +459,8 @@ fn package_scoped_loan_retains_exact_parameter_contract() {
         );
     })
     .expect("exact contract loan");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected contract consumed");
 }
 
@@ -496,7 +497,8 @@ fn package_scoped_loan_retains_exact_text_parameter_contract() {
         assert_ne!(rows[0].1, rows[1].1);
     })
     .expect("exact text contract loan");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected contract consumed");
 }
 
@@ -712,7 +714,8 @@ fn consuming_install_and_port_enforce_exact_selected_coverage() {
         port.with_selected_lowering_input(&key, |_| ()),
         Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey)
     ));
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("all selected rows consumed once");
 
     let foreign = CompilationContext::new();

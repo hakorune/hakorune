@@ -118,9 +118,7 @@ fn exact_claim_is_consumed_once() {
         ledger.try_take(&site, "Page", 0),
         Err(OrdinaryNewClaimTakeErrorV1::Unavailable)
     );
-    use crate::mir::function::{
-        RootOrdinaryNewObservation as O, RootOrdinaryNewUnavailable as U,
-    };
+    use crate::mir::function::{RootOrdinaryNewObservation as O, RootOrdinaryNewUnavailable as U};
     let physical = crate::mir::MirFunction::new(
         crate::mir::FunctionSignature {
             name: "observation_only".into(),
@@ -137,8 +135,7 @@ fn exact_claim_is_consumed_once() {
     );
     let mut ledger = ledger;
     ledger.root_completion = Some(Err(crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1::BodyLengthOverflow));
-    *ledger.root_validation.borrow_mut() =
-        local_commit::RootNewValidation::Pending(site.owner());
+    *ledger.root_validation.borrow_mut() = local_commit::RootNewValidation::Pending(site.owner());
     assert_eq!(
         ledger.validate_finalized_new_root(&physical).unwrap(),
         O::Unavailable(U::CompletionRejected)

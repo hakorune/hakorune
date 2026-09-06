@@ -89,7 +89,8 @@ fn installed_s6c_common_v2_loan_lends_one_cohort_exactly_once() {
         port.with_s6c_common_v2_pre_session(|_| ()),
         Err(NormalCallableSemanticPackageInstallIssueV1::S6CChildAlreadyConsumed)
     );
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -118,6 +119,7 @@ fn s6c_child_cannot_be_taken_through_generic_key_loan() {
         )
     })
     .expect("typed child loan");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }

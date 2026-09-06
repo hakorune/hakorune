@@ -5,40 +5,79 @@ use super::*;
 pub(super) fn initialized_integer_field(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    candidates: &[(OwnedExprSiteV1, Box<str>, usize, BindingRefV1, SourceBindingSiteV1, bool)],
+    candidates: &[(
+        OwnedExprSiteV1,
+        Box<str>,
+        usize,
+        BindingRefV1,
+        SourceBindingSiteV1,
+        bool,
+    )],
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
     home: BindingRefV1,
     field: &str,
 ) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
-    let mut matching = candidates.iter().filter(|(site, _, _, binding, _, _)|
-        *binding == home && selected.contains_key(site));
-    let Some((site, class, arity, _, _, overrides)) = matching.next()
-        else { return Ok(None); };
+    let mut matching = candidates
+        .iter()
+        .filter(|(site, _, _, binding, _, _)| *binding == home && selected.contains_key(site));
+    let Some((site, class, arity, _, _, overrides)) = matching.next() else {
+        return Ok(None);
+    };
     if matching.next().is_some() {
         return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() });
     }
-    if *overrides { return Ok(None); }
-    let source = batch.ordinary_box_coverage().row_for(class.as_ref())
+    if *overrides {
+        return Ok(None);
+    }
+    let source = batch
+        .ordinary_box_coverage()
+        .row_for(class.as_ref())
         .map_err(|_| OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageDuplicate {
-            site: site.clone(), class: class.clone(),
-        })?.ok_or_else(|| OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing {
-            site: site.clone(), class: class.clone(),
+            site: site.clone(),
+            class: class.clone(),
+        })?
+        .ok_or_else(|| OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing {
+            site: site.clone(),
+            class: class.clone(),
         })?;
     let lookup_error = |error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-        site: site.clone(), class: class.clone(), error,
+        site: site.clone(),
+        class: class.clone(),
+        error,
     };
     // A declared type alone does not prove initialization on New's Normal edge.
-    let Ok(plan) = constructors.construction_for(source, *arity)
-        .map_err(lookup_error)? else { return Ok(None); };
-    constructors.with_source_object_definition(source, |object, definition| {
-        if plan.object() != object {
-            return Err(lookup_error(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch));
-        }
-        let mut fields = definition.fields().iter().enumerate().filter(|(_, row)| row.name == field);
-        let Some((ordinal, declaration)) = fields.next() else { return Ok(None); };
-        if fields.next().is_some() || declaration.is_weak
-            || declaration.declared_type_name.as_deref() != Some("i64") { return Ok(None); }
-        hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)
-            .map(Some).ok_or_else(|| lookup_error(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing))
-    }).map_err(lookup_error)?
+    let Ok(plan) = constructors
+        .construction_for(source, *arity)
+        .map_err(lookup_error)?
+    else {
+        return Ok(None);
+    };
+    constructors
+        .with_source_object_definition(source, |object, definition| {
+            if plan.object() != object {
+                return Err(lookup_error(
+                    InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch,
+                ));
+            }
+            let mut fields = definition
+                .fields()
+                .iter()
+                .enumerate()
+                .filter(|(_, row)| row.name == field);
+            let Some((ordinal, declaration)) = fields.next() else {
+                return Ok(None);
+            };
+            if fields.next().is_some()
+                || declaration.is_weak
+                || declaration.declared_type_name.as_deref() != Some("i64")
+            {
+                return Ok(None);
+            }
+            hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)
+                .map(Some)
+                .ok_or_else(|| {
+                    lookup_error(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing)
+                })
+        })
+        .map_err(lookup_error)?
 }

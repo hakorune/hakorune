@@ -302,7 +302,9 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         if !self.installed.installed_in(context) {
             return Err("[freeze:contract][mir/object-definitions/foreign-package]".into());
         }
-        self.installed.instance_constructors.take_object_definitions()
+        self.installed
+            .instance_constructors
+            .take_object_definitions()
             .ok_or_else(|| "[freeze:contract][mir/object-definitions/already-taken]".into())
     }
 

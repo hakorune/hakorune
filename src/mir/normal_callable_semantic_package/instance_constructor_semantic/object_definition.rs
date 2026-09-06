@@ -2,9 +2,11 @@
 //! No runtime layout, constructor-body analysis or name-based source lookup.
 
 use super::{ASTNode, CanonicalObjectDefinitionV1, InstanceConstructorSemanticBatchIssueV1};
+use crate::mir::function::{
+    ObjectDestructionDispositionV1 as Destruction,
+    ObjectDestructionUnavailableV1 as DestructionUnavailable,
+};
 use crate::mir::function::{ObjectLayoutUnavailableV1 as Unavailable, UserBoxFieldDecl};
-use crate::mir::function::{ObjectDestructionDispositionV1 as Destruction,
-    ObjectDestructionUnavailableV1 as DestructionUnavailable};
 
 pub(super) fn issue(
     declaration: &ASTNode,
@@ -76,15 +78,24 @@ pub(super) fn issue(
         Destruction::Unavailable(DestructionUnavailable::Declaration(reason))
     } else if !weak_fields.is_empty() || field_decls.iter().any(|field| field.is_weak) {
         Destruction::Unavailable(DestructionUnavailable::WeakField)
-    } else if field_decls.iter().any(|field| field.declared_type_name.as_deref() != Some("i64")) {
+    } else if field_decls
+        .iter()
+        .any(|field| field.declared_type_name.as_deref() != Some("i64"))
+    {
         Destruction::Unavailable(DestructionUnavailable::FieldType)
     } else if methods.iter_selected_declaration_order().any(|entry| {
-        use crate::ast::{BoxMethodProvenanceV1 as Provenance,
-            BoxMethodGeneratedProvenanceV1 as Generated};
-        !matches!(entry.provenance(), Provenance::ExplicitSource { .. }
-            | Provenance::Generated(Generated::MacroOrImport { .. }))
-            || !ordinary_member(entry.declaration(), Some(entry.name()))
-    }) || constructors.values().any(|node| !ordinary_member(node, None)) {
+        use crate::ast::{
+            BoxMethodGeneratedProvenanceV1 as Generated, BoxMethodProvenanceV1 as Provenance,
+        };
+        !matches!(
+            entry.provenance(),
+            Provenance::ExplicitSource { .. }
+                | Provenance::Generated(Generated::MacroOrImport { .. })
+        ) || !ordinary_member(entry.declaration(), Some(entry.name()))
+    }) || constructors
+        .values()
+        .any(|node| !ordinary_member(node, None))
+    {
         Destruction::Unavailable(DestructionUnavailable::MemberRole)
     } else {
         Destruction::PlainI64NoHook
@@ -132,20 +143,28 @@ mod tests {
             "box Plain { value: i64\nbirth(x) { me.value = x } }",
             "box Plain { value: i64\nhelper() { return 1 } }",
         ] {
-            assert_eq!(issue(&declaration(text)).unwrap().destruction_disposition(),
-                Destruction::PlainI64NoHook);
+            assert_eq!(
+                issue(&declaration(text)).unwrap().destruction_disposition(),
+                Destruction::PlainI64NoHook
+            );
         }
         for text in ["box Plain { value }", "box Plain { value: StringBox }"] {
             let definition = issue(&declaration(text)).unwrap();
             assert!(definition.local_fields_for_layout().is_ok());
-            assert_eq!(definition.destruction_disposition(),
-                Destruction::Unavailable(DestructionUnavailable::FieldType));
+            assert_eq!(
+                definition.destruction_disposition(),
+                Destruction::Unavailable(DestructionUnavailable::FieldType)
+            );
         }
         let mut node = declaration("box Plain { value: i64 }");
-        let ASTNode::BoxDeclaration { field_decls, .. } = &mut node else { unreachable!() };
+        let ASTNode::BoxDeclaration { field_decls, .. } = &mut node else {
+            unreachable!()
+        };
         field_decls[0].is_weak = true;
-        assert_eq!(issue(&node).unwrap().destruction_disposition(),
-            Destruction::Unavailable(DestructionUnavailable::WeakField));
+        assert_eq!(
+            issue(&node).unwrap().destruction_disposition(),
+            Destruction::Unavailable(DestructionUnavailable::WeakField)
+        );
     }
 
     #[test]
@@ -210,8 +229,10 @@ mod tests {
             }
             let definition = issue(&node).unwrap();
             assert_eq!(definition.local_fields_for_layout(), Err(reason));
-            assert_eq!(definition.destruction_disposition(),
-                Destruction::Unavailable(DestructionUnavailable::Declaration(reason)));
+            assert_eq!(
+                definition.destruction_disposition(),
+                Destruction::Unavailable(DestructionUnavailable::Declaration(reason))
+            );
             assert_eq!(definition.diagnostic_name(), "Plain");
             assert!(definition.fields().is_empty());
         }

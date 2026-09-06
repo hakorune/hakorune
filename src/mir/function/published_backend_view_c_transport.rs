@@ -7,9 +7,7 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
 
-use super::{
-    PublishedMirBackendView, PublishedMirBackendViewErrorV1,
-};
+use super::{PublishedMirBackendView, PublishedMirBackendViewErrorV1};
 use crate::mir::ArrayElementWriteKind;
 
 /// Physical row kinds carried across the typed C frame.

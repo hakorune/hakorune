@@ -105,7 +105,8 @@ fn main_static_child_port_consumes_all_role_rows_once() {
             })
             .expect("typed Main-child Port loan");
         }
-        port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+        port.take_object_definitions(&context)
+            .expect("explicit definition transfer for semantic-only test");
         port.complete()
     })
     .expect("Main expansion");

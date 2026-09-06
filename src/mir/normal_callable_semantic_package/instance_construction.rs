@@ -5,8 +5,8 @@
 //! Fault, even when every field demand is Trivial. A store commits only on its
 //! Normal edge. No MIR type, event absence or non-escape result issues this plan.
 
-use std::collections::BTreeSet;
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
+use std::collections::BTreeSet;
 
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;

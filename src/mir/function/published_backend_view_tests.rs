@@ -571,11 +571,10 @@ fn published_same_module_instance_is_unsupported_before_object() {
     .expect_err("unsupported canonical call must stop before object emission");
     assert!(error.contains("UnsupportedBeforeObject"));
     assert!(!exe_path.exists());
-    assert!(!std::path::PathBuf::from(format!(
-        "{}.published-static-method.o",
-        exe_path.display()
-    ))
-    .exists());
+    assert!(
+        !std::path::PathBuf::from(format!("{}.published-static-method.o", exe_path.display()))
+            .exists()
+    );
     let _ = std::fs::remove_file(exe_path);
 }
 

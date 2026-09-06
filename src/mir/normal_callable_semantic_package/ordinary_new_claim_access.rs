@@ -2,9 +2,13 @@
 use super::*;
 
 impl OrdinaryNewAdmissionClaimV1 {
-    pub(crate) fn object(&self) -> CanonicalObjectIdV1 { self.object }
+    pub(crate) fn object(&self) -> CanonicalObjectIdV1 {
+        self.object
+    }
 
-    pub(crate) fn destruction(&self) -> ObjectDestructionDispositionV1 { self.destruction }
+    pub(crate) fn destruction(&self) -> ObjectDestructionDispositionV1 {
+        self.destruction
+    }
 
     pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
         &self.construction
