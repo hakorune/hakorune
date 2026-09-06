@@ -22,7 +22,7 @@ use crate::mir::instance_constructor_abi::{
 };
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
-    TerminalI64AddReturnV1,
+    SelectedNewArgumentUnavailableV1, TerminalI64AddReturnV1,
 };
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::resolved_semantics::{
@@ -116,6 +116,7 @@ pub(crate) struct OrdinaryNewAdmissionClaimV1 {
     construction: ConstructionEligibilityV1,
     object: CanonicalObjectIdV1,
     destruction: ObjectDestructionDispositionV1,
+    argument_rows: Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -561,7 +562,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() }
             })?;
             claims.push(OrdinaryNewAdmissionClaimV1 {
-                site,
+                site: site.clone(),
                 box_source: box_source.clone(),
                 class,
                 arity,
@@ -572,6 +573,9 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 construction,
                 object,
                 destruction,
+                argument_rows: Err(SelectedNewArgumentUnavailableV1::SourceMismatch {
+                    new_site: site.clone(),
+                }),
             });
         }
     }

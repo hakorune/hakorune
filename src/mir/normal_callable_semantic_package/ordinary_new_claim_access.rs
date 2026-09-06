@@ -37,4 +37,10 @@ impl OrdinaryNewAdmissionClaimV1 {
     pub(crate) fn home_prefix(&self) -> Result<&CallerNewHomePrefixV1, &HomePrefixUnavailableV1> {
         self.home_prefix.as_ref()
     }
+
+    pub(crate) fn argument_rows(
+        &self,
+    ) -> Result<&[super::OrdinaryNewTrivialArgumentV1], &crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1> {
+        self.argument_rows.as_deref()
+    }
 }
