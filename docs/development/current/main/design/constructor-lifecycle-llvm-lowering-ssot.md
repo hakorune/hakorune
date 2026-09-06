@@ -970,13 +970,25 @@ and pipeline-negative tests. It makes no C call.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-D3`
 
-Design stop: audit the finite typed lifecycle schema from final borrowed view
-through Rust C frame and the selected C body consumer. Name one `root_unit`
-role/result encoding and prove that C consumes it only as Unit; `Return(Some
-void)`, a missing result row, `root_i64`, JSON opcode names, and process status
-are non-authority. The bounded I0 may reach only `body-consumer-pending` after
-Rust/C role, frame and return-mode agreement all reject mismatch. Object, EXE,
-OBJ-linked EXE and fallback remain out of scope.
+Decision: retain V2 layout and revision. The sole schema issuer is
+`PublishedLifecycleCFrameV2::populate`, mapping final-view
+`UnitReturn`/`I64AddReturn` once into the finite vocabulary:
+`BIRTH_UNIT=1`, `ROOT_I64=2`, `ROOT_UNIT=3`; `UNIT=0`, `I64=1`.
+`root_unit` is exactly `(ROOT_UNIT, UNIT, arity=0, receiver/object=UINT32_MAX,
+flags=1)` with one same-function `Return(None)` control
+`(kind=4, operand=UINT32_MAX, mode=0)`. Existing I64 stays `(ROOT_I64, I64)`
+and mode 1. C validates this issued row/control relation; it never selects from
+names, JSON spelling, `Return(Some(void))`, missing result rows or status.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-I0`
+
+The I0 deletes the Rust Unit rejection and I64-only root-frame match, adds this
+finite C validator before body-site checks, and reaches only
+`body-consumer-pending`. It leaves physical-program projection, object/EXE,
+ABI revision/layout, codegen, status and compatibility untouched. Positive
+Pair Unit/I64 cases reach pending with no object; role/result, return-mode,
+operand, root-count and body-site mutations reject before pending. Keep the
+745-line transport below its limit by adding a small schema child.
 
 
 ### Following tasks and unresolved decisions

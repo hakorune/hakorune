@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-D3"
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-I0"
 current_execution_cohort = "constructor_lifecycle_root_unit_c_schema"
-current_design_stop = "D3 requires a typed root_unit Rust/C schema decision; I0 stops before C ingress"
-current_blocker_token = "D3 must define the one typed root_unit role/result schema, its C consumer contract, and its pending-terminal acceptance without inferring Unit from Return(Some(void))."
+current_design_stop = "none (D3 typed Rust/C schema decision accepted)"
+current_blocker_token = "I0 must issue and validate exact root_unit rows/Return(None) controls through C pending while preserving root_i64."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -38,8 +38,8 @@ now selects a constructor-issued BirthFormalContractV1: declaration class and
 complete use coverage are retained without actual-value specialization; I0 is
 landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. D3 owns root_unit schema; physical actual binding remains deferred.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-D3"
-next_execution_card = "none (design stop)"
+next_design_card = "none (fast bounded implementation selected)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
