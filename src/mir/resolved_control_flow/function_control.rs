@@ -380,7 +380,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         Ok(completion) => completion,
         Err(error) => return Ok(Err(error)),
     };
-    let (prefixes, homes, terminal_result) = crate::mir::resolved_semantics::home_new_prefix::scan_new_home_flow(
+    let (prefixes, homes, terminal_result, _argument_observations) = crate::mir::resolved_semantics::home_new_prefix::scan_new_home_flow(
         input, selected, completion.explicit_site(), field_is_integer)?;
     let cleanup = ResolvedCleanupObligationsV1::explicit_empty().with_terminal_homes(homes);
     match &mut completion {

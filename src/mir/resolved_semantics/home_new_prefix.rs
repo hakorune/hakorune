@@ -229,12 +229,14 @@ pub(crate) fn scan_new_home_flow<E>(
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
     Option<TerminalI64AddReturnV1>,
+    BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
 ), E> {
     let mut results = BTreeMap::new();
     let mut terminal_homes = Err(HomePrefixUnavailableV1::TerminalNotCovered);
     let mut terminal_result = None;
+    let mut argument_observations = BTreeMap::new();
     if selected.is_empty() && terminal.is_none() {
-        return Ok((results, terminal_homes, terminal_result));
+        return Ok((results, terminal_homes, terminal_result, argument_observations));
     }
     let function = input.function();
     let mut unavailable = (function.declaration_sites().any(|site| {
@@ -251,7 +253,8 @@ pub(crate) fn scan_new_home_flow<E>(
         return Ok((selected
             .keys()
             .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
-            .collect(), Err(HomePrefixUnavailableV1::SourceMismatch), terminal_result));
+            .collect(), Err(HomePrefixUnavailableV1::SourceMismatch), terminal_result,
+            argument_observations));
     };
     let mut locals = BTreeMap::new();
     let mut homes = Vec::new();
@@ -348,6 +351,19 @@ pub(crate) fn scan_new_home_flow<E>(
                             field_initializers,
                             ..
                         } => {
+                            let observed_arguments = arguments.iter().enumerate().map(|(ordinal, _)| {
+                                let ordinal = u32::try_from(ordinal).map_err(|_| {
+                                    SelectedNewArgumentUnavailableV1::ArgumentOrdinalOverflow { new_site: owned.clone() }
+                                })?;
+                                let argument = input.source().child_expr_from_expr(
+                                    &new, ExprChildRoleV1::CallArgument(ordinal),
+                                ).map_err(|_| SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: owned.clone() })?;
+                                let kind = selected_new_argument_kind(input, argument.site(), &locals).ok_or_else(|| {
+                                    SelectedNewArgumentUnavailableV1::ArgumentNotTrivial { new_site: owned.clone(), site: argument.site().clone() }
+                                })?;
+                                Ok(SelectedNewArgumentV1::new(ordinal, argument.site().clone(), kind))
+                            }).collect::<Result<Vec<_>, _>>().map(|rows| rows.into_boxed_slice());
+                            argument_observations.insert(owned.clone(), SelectedNewArgumentObservationV1::new(owned.clone(), observed_arguments));
                             if !field_initializers.is_empty() {
                                 unavailable.get_or_insert_with(|| {
                                     HomePrefixUnavailableV1::OverridesNotCovered(site.clone())
@@ -418,5 +434,5 @@ pub(crate) fn scan_new_home_flow<E>(
                 .unwrap_or(HomePrefixUnavailableV1::SourceMismatch))
         });
     }
-    Ok((results, terminal_homes, terminal_result))
+    Ok((results, terminal_homes, terminal_result, argument_observations))
 }
