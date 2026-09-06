@@ -540,10 +540,10 @@ unrelated helper deletion leaves this boundary.
 
 **Gated remaining tasks — same constructor cutover, no new D0 cards**
 
-2. Handoff D0: name the one package co-seal of existing app-main/root Completion
-   and Birth semantic batch, its final-view consumer and its replaced old edge.
-   Until all exist, retain NoSafeSlice; root name/signature/param position/JSON
-   never fill result or formal relations. No code, fixture, receipt or C frame.
+2. Handoff D0 audited: the sole seam is `finish_normal_default_root_after_pre_effect_bind`,
+   which retains only the root ledger while the install port holds Birth batch.
+   Root Completion is test-only there; no existing co-seal/consumer exists. Name its
+   package issuer and identity-only root-bind replacement, or retain NoSafeSlice.
 3. Handoff BoxShape: only after task 2 closes, lend that existing co-sealed
    root-result/Birth-formal relation through Atomic Publish to the final view.
    Negatives cover each absent/foreign/duplicate relation before C/artifact.

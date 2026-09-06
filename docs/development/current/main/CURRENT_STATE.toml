@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "root/Birth handoff NoSafeSlice audited; co-seal consumer and old edge remain unnamed"
-current_blocker_token = "NoSafeSlice: name one package co-seal of existing root Completion and Birth semantic batch, its final-view consumer and exclusive replaced edge. Root names/signatures/params/JSON/C frame cannot infer result or formals. Pair field-read/Add and EXE30/OBJ30 remain open; see workstream and C ABI README."
+current_design_stop = "handoff D0 found one pre-effect seam but no existing co-seal or final-view consumer"
+current_blocker_token = "NoSafeSlice: finish_normal_default_root_after_pre_effect_bind has root ledger plus install port, but Completion is test-only and no co-seal exists. Name issuer/consumer and identity-bind replacement; names/signatures/params/JSON/C frame cannot infer result or formals. Pair field-read/Add and EXE30/OBJ30 remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
