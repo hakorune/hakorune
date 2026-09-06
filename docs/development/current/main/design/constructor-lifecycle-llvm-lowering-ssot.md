@@ -1179,13 +1179,35 @@ still emits no object or executable.
 
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-D0`
 
-Decision: name the first executable typed lifecycle C-body slice from the
-issued compiled-entry contract through object/link and the selected `ny_main()
--> i64` status-30 Pair evidence. The contract issuer, C body consumer,
-physical-program JSON companion, object/link owner and kernel process terminal
-must each be named. This D0 decides scope and failure boundaries only: it does
-not add source forms, execute C, change the ABI schema, or treat parser pending
-as execution.
+Decision: **NoSafeSlice.** The canonical issuer is final-view admission's
+`CompiledEntryContractV1`; V2 C frame projection consumes it. The current host
+still emits generic lifecycle body JSON and C validates V2 rows/sites before
+returning `body-consumer-pending`. The physical-program JSON schema has no
+lifecycle C `.ll` consumer and cannot be passed to generic JSON lowering.
+
+Source authority + canonical issuer: final-view contract issuance and its
+physical-program companion. Non-authority: generic C JSON lowering, parser
+pending, and the kernel's raw handle-decode/`i32` entry. Fail-fast boundary:
+contract/frame/parser mismatch remains pre-artifact with no generic or
+compatibility retry. Smallest next slice:
+`CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0`. Non-claims: C execution,
+object/EXE30, ABI revision, Bool and additional source forms.
+
+The future delete-set is V2's pending terminal and host generic-body/pending
+companion after a selected C execution path exists; the kernel raw decode/cast
+is retired only after its status consumer is implemented. Pair EXE and linked
+OBJ exit 30 are not current acceptance evidence.
+
+### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0`
+
+Step-3 design stop. Name the sole target/session contract between the selected
+C lifecycle body consumer and the kernel process terminal: concrete typed entry
+signature, C-produced status/fault representation, runtime archive/link owner,
+and the exact once-only cleanup/report/dispose order. Reuse the accepted
+`ny_main() -> i64` status policy without treating the current kernel handle
+reader as its consumer. This D0 must set the bounded direct-physical-input
+precondition and reject missing target/frame/status mappings before artifacts;
+it opens neither C codegen nor a kernel switch.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 

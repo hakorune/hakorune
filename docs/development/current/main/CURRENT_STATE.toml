@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-D0"
-current_execution_cohort = "constructor_lifecycle_c_body_consumer_d0"
-current_design_stop = "C-BODY-CONSUMER-D0 must name the first executable typed lifecycle body slice, its exact physical input owner, C-to-object consumer, and Pair EXE/linked-OBJ status-30 acceptance without widening source representations or reusing the pending parser as execution."
-current_blocker_token = "C-BODY-CONSUMER-D0 must select the first executable C consumer from the issued compiled-entry contract and name its object/EXE30 cutover evidence; parser-pending success is not execution."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0"
+current_execution_cohort = "constructor_lifecycle_final_entry_target_session_d0"
+current_design_stop = "TARGET-SESSION-D0 must name the sole C lifecycle entry/session and kernel status-terminal contract before C object emission or a kernel switch."
+current_blocker_token = "TARGET-SESSION-D0 must fix target/frame/status ownership and cleanup order; current parser pending and kernel raw handle decode are non-authority."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,9 +36,9 @@ constructor/Birth final handoff and transport, deleting key-owner object
 derivation while preserving per-New receiver checks. Formal declaration/use D0
 now selects a constructor-issued BirthFormalContractV1: declaration class and
 complete use coverage are retained without actual-value specialization; I0 is
-landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. Root Unit C schema I0 is landed: typed ROOT_UNIT / UNIT rows and Return(None) controls reach C pending while ROOT_I64 / I64 remains stable; no object is emitted. Root scalar direct untyped Integer literal I0 is landed. Scalar I64-field I0 is landed: the existing Home scan issues the direct-field relation, the selected field-read consumer replaces its one raw return-value descent, and the final handoff/C pending frame retain the distinct I64 result. Runtime agreement selects the lifecycle C body compiler and physical-binding D1 selects final-view co-sealing; I0 now uses one contract before C pending. Next: executable C-body design; local/alias, typed integer and general Add remain NoIssuer.
+landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. Root Unit C schema I0 is landed: typed ROOT_UNIT / UNIT rows and Return(None) controls reach C pending while ROOT_I64 / I64 remains stable; no object is emitted. Root scalar direct untyped Integer literal I0 is landed. Scalar I64-field I0 is landed: the existing Home scan issues the direct-field relation, the selected field-read consumer replaces its one raw return-value descent, and the final handoff/C pending frame retain the distinct I64 result. Runtime agreement selects the lifecycle C body compiler and physical-binding D1 selects final-view co-sealing; I0 now uses one contract before C pending. C-body D0 is NoSafeSlice; next: target/session contract D0. Local/alias, typed integer and general Add remain NoIssuer.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-D0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0"
 next_execution_card = "none (design stop active)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
