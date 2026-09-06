@@ -21,6 +21,13 @@ pub(crate) enum CompiledEntryFormalKindV1 {
     Parameter,
 }
 
+/// Backend-facing result category. Source terminal provenance stops here.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CompiledEntryRootResultV1 {
+    I64,
+    Unit,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct CompiledEntryFormalV1 {
     source_ordinal: Option<u32>,
@@ -66,7 +73,7 @@ impl CompiledEntryBirthV1 {
 #[derive(Debug, Clone)]
 pub(crate) struct CompiledEntryContractV1<'module> {
     program: PublishedLifecyclePhysicalProgramV1<'module>,
-    root_result: FinalizedRootResultAbiV1,
+    root_result: CompiledEntryRootResultV1,
     births: Box<[CompiledEntryBirthV1]>,
 }
 
@@ -74,7 +81,7 @@ impl<'module> CompiledEntryContractV1<'module> {
     pub(crate) fn program(&self) -> &PublishedLifecyclePhysicalProgramV1<'module> {
         &self.program
     }
-    pub(crate) const fn root_result(&self) -> FinalizedRootResultAbiV1 {
+    pub(crate) const fn root_result(&self) -> CompiledEntryRootResultV1 {
         self.root_result
     }
     pub(crate) fn births(&self) -> &[CompiledEntryBirthV1] {
@@ -146,13 +153,22 @@ impl<'module> PublishedMirBackendView<'module> {
                     formals: formals.into_boxed_slice(),
                 });
             }
-            (*result, contract_births)
+            (root_result_category(*result), contract_births)
         };
         Ok(CompiledEntryContractV1 {
             program,
             root_result,
             births: contract_births.into_boxed_slice(),
         })
+    }
+}
+
+fn root_result_category(result: FinalizedRootResultAbiV1) -> CompiledEntryRootResultV1 {
+    match result {
+        FinalizedRootResultAbiV1::I64AddReturn { .. }
+        | FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
+        | FinalizedRootResultAbiV1::I64FieldReturn { .. } => CompiledEntryRootResultV1::I64,
+        FinalizedRootResultAbiV1::UnitReturn { .. } => CompiledEntryRootResultV1::Unit,
     }
 }
 

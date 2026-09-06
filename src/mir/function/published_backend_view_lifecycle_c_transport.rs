@@ -19,8 +19,8 @@ use super::{
         ABSENT_U32, CONTROL_KIND_RETURN, DEFINITION_ROLE_BIRTH_UNIT, DEFINITION_ROLE_ROOT_I64,
         DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_I64, RESULT_KIND_UNIT,
     },
-    CompiledEntryFormalKindV1, PublishedLifecyclePhysicalFunctionRoleV1, PublishedMirBackendView,
-    PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
+    CompiledEntryFormalKindV1, CompiledEntryRootResultV1, PublishedLifecyclePhysicalFunctionRoleV1,
+    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
 };
 
 pub(crate) const PUBLISHED_LIFECYCLE_ABI_REVISION_V2: u32 = 2;
@@ -336,14 +336,8 @@ impl PublishedLifecycleCFrameV2 {
             }
         }
         let (root_role, root_result_kind) = match contract.root_result() {
-            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. } =>
-                (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
-            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. } =>
-                (DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_UNIT),
-            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. } =>
-                (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
-            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { .. } =>
-                (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
+            CompiledEntryRootResultV1::I64 => (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
+            CompiledEntryRootResultV1::Unit => (DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_UNIT),
         };
         let root_function = module
             .functions
