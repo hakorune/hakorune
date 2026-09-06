@@ -14,9 +14,9 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-SOURCE-HANDOFF-I0`; retain
-validated AppMain identity and the existing exact terminal relation through
-the same ordinary-New ledger and final handoff. See the accepted premise reset.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0`; retain
+the existing source declaration object through Birth handoff and remove the
+transport's name-index reconstruction. See the issuance design below.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -110,8 +110,10 @@ The runtime ABI owner defines one versioned layout profile, projected to its
 Rust representation, C header checks and backend layout validation. Avoid
 independent hand-written size tables. The selected compile invocation carries
 that profile and target selection through object emission and runtime-library
-selection. One call-local LLVM TargetMachine/DataLayout verifies frame size,
-alignment and offsets and emits the object. No host `sizeof`, target default,
+selection. The selected target's LLVM layout verifies frame size, alignment
+and offsets before object emission. This requires target evidence, not an
+in-process LLVM API; embedding remains the post-cutover investigation below.
+No host `sizeof`, target default,
 environment mutation or borrowed pinned-Text capability supplies missing data.
 EXE and linked-OBJ acceptance must verify the linked runtime target/revision.
 
@@ -150,10 +152,11 @@ agreement and executed cutover remain `CutoverBlockerOpen` inside this boundary.
 ## Ordered tasks
 
 These are bounded steps in this existing family, not new receipt/guard lanes.
-Step 0 is landed. Source retention remains fenced until the finite issuer
-inventory below has a canonical issuer for every `Partial` and `Missing` row;
-later rows require their concrete mapping before changing `work_mode` to
-`fast`.
+Step 0 is landed. Each source-retention slice requires a named canonical
+issuer/consumer and a closed mapping before `fast`; unrelated missing rows
+remain explicit cutover blockers rather than stopping a closed slice. Follow
+the current issuance design below. Full cutover still requires all in-boundary
+`Partial` and `Missing` rows to be resolved.
 
 | Order | Owner, caller and terminal | Replacement and acceptance |
 | --- | --- | --- |
@@ -215,6 +218,10 @@ substitute.
 
 ## D0: source-requirement issuer census
 
+Historical design progression below records the premises of bounded landed
+slices. The current issuance design near the end supersedes blanket
+NoSafeSlice and source-rejection interpretations; do not rerun these censuses.
+
 Decision: source retention is `NoSafeSlice` for implementation. Existing
 source plans are the only candidates to extend; a second synchronized source
 table, a new semantic receipt, or an inferred physical type is not allowed.
@@ -272,7 +279,7 @@ bounded Home-origin row, but it blocks any claim of complete source retention.
 | Root New arguments | The same walk observes exact New children and only recognizes source trivial literals; `CallerNewHomePrefixV1` drops their sites/classes before selected emission receives bare values. | **Existing issuer, later extension.** Retain site/class in the existing prefix/claim only when an accepted direct consumer is named. |
 | Root formals | The selected root Home walk rejects receiver/parameter declarations as `EntryDemandMissing`; no root formal relation reaches the retained handoff. | **NoIssuer.** Reject this source domain before claim take; zero-formal Pair is not a domain reduction. |
 | Birth receiver | `BirthAbiHandoffV1` owns binding/lane and `ConstructionPlanV1` owns the exact object, but they are not co-sealed after claim take. | **Existing issuers, later co-seal.** D1 does not infer object handle from lane. |
-| Birth parameters | Birth handoff owns bindings/lanes/Unit; constructor stores identify i64 use only for admitted parameter RHS. Unused or untyped formals have only `OpaqueHandle`. | **Partial / NoIssuer.** Add an i64 use requirement only where the existing store proves it; untyped unused formals reject rather than infer i64. |
+| Birth parameters | Birth handoff owns bindings/lanes/Unit; constructor stores identify i64 use only for admitted parameter RHS. Unused or untyped formals have only `OpaqueHandle`. | **Partial.** Retain i64 use requirements separately from declaration contracts; missing execution support is unavailable, not a source rejection. See current task 1b. |
 | HomeRelease origin | Completion co-issues ordered terminal homes and exact exit; the prefix carries binding plus outward-fault site. `RootHomeExitProgress` retains each binding/exit with its existing object/value through selected emission. | **Landed.** The naked positional handoff is deleted. Final validation rejects origin count/order/exit or concrete `HomeRelease` operation drift. |
 | ReclaimUnpublished cutpoint | `ConstructionPlanV1` retains constructor identity and the construction-fault reclaim obligation; the exact claim site is co-sealed before `NewEmissionProgress` transfers it to selected cleanup. | **Landed.** Final validation rejects missing, duplicate or drifted Reclaim operation/binding; generated CFG position is non-authority. |
 
@@ -753,35 +760,108 @@ Pair cases prove exact source retention; several exact New sites retain one
 canonical Birth definition while their local emissions remain independently
 validated. Pair EXE/OBJ30 and C activation remain open.
 
-### `CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-ORIGIN-D0`
+## Issuance design: replace the waiting premise
 
-Decision required before the next implementation row: take the finite remaining
-Step-1 inventory—Birth receiver/formal classes, root terminal arms without the
-direct two-read relation, and cleanup-origin rows—and name the existing source
-issuer, one live consumer, exclusive loss edge, and pre-effect rejection for
-each. The D0 must select one closed BoxShape successor or mark that family
-`NoSafeSlice`; it cannot issue a generic result/formal receipt, infer missing
-types from MIR, add a fixture, or touch the C path.
+Decision: extend existing source owners to retain missing relations; select the
+Birth declaration-object handoff as the next bounded BoxShape. The blanket
+`CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-ORIGIN-NOSAFE` at `5d77803efc`
+is superseded. Missing implementation is a design obligation, not a demand
+that an issuer appear externally before work may resume.
+Source authority + canonical issuer: the constructor semantic batch owns exact
+Box membership/object identity; its Birth row and `BirthAbiHandoffV1::issue`
+retain that relation. Root observations remain owned by the same Home scan.
+Non-authority: object names, MIR types, lane positions, optional metadata,
+caller literals as a declaration ABI, and C wire tags.
+Fail-fast boundary: inconsistent source identities reject before selected
+emission; final binding/membership drift rejects before transport/artifact.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0` below.
+Non-claims: completed formal/root-result coverage, new source restrictions,
+C execution, Pair EXE/OBJ30, or completion of the surrounding cutover inventory.
 
-### `CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-ORIGIN-NOSAFE`
+### Premise audit and finite boundary
 
-**Decision (2026-09-07): `NoSafeSlice`.** The finite inventory is exhausted;
-there is no unimplemented row with an existing source class, selected semantic
-consumer and exclusive loss edge. Do not promote physical lanes, `ValueId`, or
-the C frame's `input_kind` into missing source authority.
+Boundary: exact Box/Birth declaration plus selected AppMain source loan ->
+existing plans/claims -> final source handoff -> its physical projection.
+Includes source issue/drop/consume, repeated definition relations, per-New
+receivers, all current Home/terminal classifier arms and uncovered siblings.
+Excludes runtime allocation identity issuance, other callable families and
+target layout. This inventory identifies tasks; in-boundary blockers remain
+`CutoverBlockerOpen`, so it does not claim cutover closure or Exhausted coverage.
 
-| Finite row | Disposition and reopen condition |
+`CanonicalObjectIdV1` denotes a declaration. An allocation instance is the
+exact New site plus its checked Normal result. Two `new Pair` sites share one
+declaration object, but cannot exchange their receiver values. Requiring a new
+semantic "handle class" before retaining this declaration relation was wrong;
+the backend owns the runtime representation of the source object relation.
+
+The complete current classifier distinguishes Home, Handle, Trivial and
+Uninitialized locals; terminal classification has Integer, OtherTrivial,
+IntegerField and direct two-field I64Add, with a coarse recursive Add arm.
+That coarse arm is not a proof of integer operands. Entry receiver/parameter/
+capture demands and unsupported prefixes remain explicitly unavailable.
+Transferred construction plans and per-New ledgers retain their one-way
+ownership; no cross-pipeline main-thunk product or opaque subtree may fill gaps.
+Counterexamples to preserve in implementation acceptance: two New sites of
+one declaration; an unavailable construction body; an unused untyped formal;
+`return true`; and `return (pair.left + pair.right) + 1`.
+
+### `CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0`
+
+- **Owner and change:** retain the object already selected by exact
+  `box_source.same_source_as` in `instance_constructor_semantic.rs` on its
+  existing semantic row. Move that lookup outside the construction-eligibility
+  branch. `BirthAbiHandoffV1::issue` copies it with source ID, owner, receiver
+  binding and target. This is immutable retention, not a new issuer/table.
+- **Consumer and deletion:** existing ordinary-New co-seal/take passes it to
+  local-commit finalization. Check object and eligible construction source/owner
+  agreement at issuance and finalization. Compare complete Birth relations
+  before deduplicating by key: equal repeats are one definition; unequal
+  repeats reject. The C-frame projection reads the retained object and checks
+  installed membership. Delete its `membership.get(key.owner())` derivation;
+  symbol resolution and independent module membership validation remain.
+- **Acceptance:** Pair, renamed Box, alias and repeated New reach the existing
+  final handoff and C-frame construction; receivers remain independently
+  validated. Foreign object/source/owner/receiver, unequal duplicate relations,
+  receiver swap and final membership drift reject. Unavailable construction
+  retains declaration identity and its existing unavailable behavior: it must
+  not become a new source error or gain artifact admission.
+- **Finish:** focused source/finalizer/view positives and negatives, reused
+  lane/pointer guards, package README and lifecycle reference receipt. No new
+  fixture or guard family. Co-seal/local-commit are 701/715 lines at design;
+  use their existing children for validation additions before 760, hard stop
+  at 800. No formal wire-tag change or C executable activation in this slice.
+
+### Following tasks and unresolved decisions
+
+| Order within existing Steps 1–4 | Issuer / consumer / deleted loss edge / acceptance |
 | --- | --- |
-| FieldSet receiver and parameter RHS; HomeRelease; Reclaim; direct two-read i64 result | Closed/landed. Their selected consumers and prior raw/positional loss edges are already retired. |
-| Birth call-ABI receiver handle | `NoSafeSlice`: current binding/lane and construction object are separate existing products; reopen only with a source-issued handle class, one selected semantic consumer and final validator. |
-| Unused, untyped or non-FieldSet Birth parameter | `NoIssuer`: lane/ordinal is not a value class. Reopen only with an exact source-use relation and consumer. |
-| Root literal, trivial-local, one-field or non-direct-two-read Add result | `NoIssuer` for retained terminal product: the classifier supports completion but issues no selected terminal relation. Reopen only with an existing canonical result issuer and consumer. |
-| Root formals and arbitrary root SSA | `NoIssuer`: `EntryDemandMissing` rejects the domain before claim take. |
+| 1a. Birth object handoff | The bounded I0 above; does not wait for all formal classes. |
+| 1b. Formal declaration/use agreement | The constructor's exact declaration loan retains `param_decls`, binding and ordinal in its existing row; construction stores retain separate use requirements. Extend existing parameter-contract policy through this loan, never import a catalog from another session. Selected call/body consumers must reconcile every formal and use before physical admission. Delete positional parameter-kind defaults only when that agreement is consumed. Acceptance includes typed-unused, untyped-unused, repeated uses and differing actual classes across New sites. This is the next design decision after 1a, not implementation-ready yet. |
+| 1c. Root scalar and terminal retention | Extend the existing Home scan's local state to preserve Integer/Bool and exact initializer/binding relations; replace the coarse discarded terminal classification with retained Unit/literal/local/field/Add relations in the existing ledger. The selected terminal consumer emits those relations and removes their raw replay in the same series. Keep logical Facts separate from any Recipe keys. Acceptance covers every listed classifier arm, recursive Add, aliases, uninitialized use, residual reads and finishing drift. Operator/coercion rules must come from reference semantics before this mapping opens. |
+| 2. Complete physical binding | Existing emission/finalization owns source-to-value bindings and named synthetic frame/Copy/PHI/Normal-result rules. Seed formals, verify all definition/use/edge relations, remove lost bare projections, and hand off once. Missing coverage remains an artifact blocker; no type inference from metadata. |
+| 3. Entry/runtime agreement | Use the existing source-result/process policy linked below; implement checked target/frame agreement and exact cleanup/report/dispose behavior. Runtime InvalidContract/report-failure behavior must be named separately before emission. |
+| 4–6. Direct input, execution, retirement | Sentinel contract precedes one complete direct parser input and JSON reparse deletion. Then switch the actual host to the dedicated physical consumer; require unchanged EXE30 and OBJ-linked EXE30 plus Fault/cleanup evidence and delete selected old edges. Parser-only success never closes this gate. |
 
-This census covers selected AppMain/Birth source issuance through selected
-semantic consumers and final source handoff. It excludes physical binding,
-target/runtime agreement and C transport; those remain their ordered tasks and
-cannot close these semantic gaps.
+Formal declaration and use are different: storing a parameter into an i64 field
+requires an integer check or an existing exact proof; it does not declare the
+parameter i64. Unannotated declarations remain unconstrained at source (the
+general parameter contract currently projects `OpaqueHandle`). No first-caller
+literal specialization or silent i64 default is allowed. Task 1b must choose a
+supported tagged/checked physical boundary or explicit execution-unavailable
+disposition, preserving source validity and evaluation obligations for unused
+arguments. A missing backend capability is never itself a source type error.
+See [types](../../../../reference/language/types.md) and
+[lifecycle](../../../../reference/language/lifecycle.md).
+
+The root exit policy already exists in
+[function exit and entry result](../../../../reference/language/function-exit-and-entry-result.md):
+Unit maps to status 0, Integer 0..255 to its value, out-of-range Integer and
+Bool process results to their specified Fault, final program Fault to status
+70. Source Bool remains Bool; its process-result Fault is not source rejection.
+The physical entry transports the source result and cannot invent conversions.
+HomeRelease/Reclaim and selected store-use retention are already landed; do
+not reopen those closed censuses. Broader result/formal coverage remains an
+explicit obligation and is not discarded to obtain a smaller Pair-only goal.
 
 ### Remaining order
 

@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-ORIGIN-NOSAFE"
-current_execution_cohort = "constructor_lifecycle_source_representation_origin"
-current_design_stop = "D0 inventory is exhausted: remaining Birth ABI receiver/formal and uncovered root-result rows lack an existing source class plus selected semantic consumer. Do not infer them from physical lanes, ValueId, MIR types or C input_kind."
-current_blocker_token = "NoSafeSlice after source-representation/origin D0: cleanup and direct-two-read terminal rows are landed; no closed semantic BoxShape successor exists. Reopen only when a source-issued class and sole selected consumer are both named."
+work_mode = "closeout"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0"
+current_execution_cohort = "constructor_lifecycle_birth_object_handoff"
+current_design_stop = ""
+current_blocker_token = "Accepted bounded design: retain exact declaration object on the existing constructor row and Birth handoff, validate per-New/full duplicate relations, and remove transport name-index reconstruction. Design-only closeout; select fast before implementing this row. Formal agreement, root result coverage and LLVM cutover remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,17 +31,17 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Root source handoff I0 landed at 482666ef07: the existing ordinary-New ledger
-now retains validated AppMain identity and exact terminal through final handoff;
-alias/multiple-Home Pair coverage keeps one canonical Birth definition. The
-completed D0 has no semantic BoxShape successor: remaining receiver/formal and
-root-result rows are NoIssuer/NoSafeSlice. Direct physical input owns JSON reparse deletion; C
-in-process compilation is post-cutover; placement and README cleanup wait for
-caller-zero/stable consumers. Pair EXE30/linked OBJ30 and selected old-edge
-retirement remain open.
+Worker-reviewed issuance design supersedes the blanket NoSafeSlice: source
+already issues the declaration object independently of runtime handle layout.
+Next bounded I0 retains it through the existing constructor/Birth handoff and
+deletes the transport name-index derivation, preserving unavailable source
+profiles and per-New receiver identity. Then design formal declaration/use
+agreement, retain root scalar/results, finish physical binding and target ABI,
+complete direct input, execute Pair EXE30/linked OBJ30 and retire old edges.
+This is design closeout only; no source, tests or C execution changed.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-ORIGIN-NOSAFE"
-next_execution_card = "none (NoSafeSlice; retain ordered physical tasks without semantic inference)"
+next_design_card = "Formal declaration/use agreement after Birth object handoff; see active card task 1b"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
