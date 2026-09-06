@@ -287,8 +287,17 @@ fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
         ("return first", false),
         ("local alias = first return alias", false),
         ("first = second return 0", false),
+        ("return first.left + second.right", true),
+        ("local alias = first return alias.right + 7", true),
+        ("return first.missing", false),
+        ("return first.left + true", false),
+        ("return false + first.left", false),
+        ("return first.left - second.right", false),
+        ("return first.left.right", false),
+        ("local value = first.left return value", false),
     ] {
-        let source = format!("box Page {{ birth() {{}} }} static box Main {{ main() {{
+        let source = format!("box Page {{ left: i64 right: i64
+            birth() {{ me.left = 4 me.right = 9 }} }} static box Main {{ main() {{
             local first = new Page() local second = new Page() {suffix}
         }} }}");
         let package = issue_with_brand_catalog(&source).unwrap();
@@ -308,6 +317,20 @@ fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
                 assert!(homes.is_err(), "unsupported suffix must not become empty cleanup: {suffix}");
             }
         }
+    }
+    for declaration in [
+        "slot: i64 birth() {}",
+        "slot: i64 birth() { me.slot = 1 me.slot = 2 }",
+        "slot: bool birth() { me.slot = true }",
+        "slot: i64",
+    ] {
+        let source = format!("box Page {{ {declaration} }} static box Main {{ main() {{
+            local page = new Page() return page.slot
+        }} }}");
+        let package = issue_with_brand_catalog(&source).unwrap();
+        let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+        assert!(completion.cleanup().terminal_homes().unwrap().is_err(),
+            "field declaration without supported initialization is not a return proof: {declaration}");
     }
 }
 
@@ -657,8 +680,8 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
             .module
             .get_function("main")
             .expect("published Main entry");
-        assert!(matches!(main.root_ordinary_new_observation(),
-            crate::mir::function::RootOrdinaryNewObservation::Unavailable(_)));
+        assert_eq!(main.root_ordinary_new_observation(),
+            crate::mir::function::RootOrdinaryNewObservation::SourceCompleteAtFinalization);
         assert_eq!(main.signature.return_type, crate::mir::MirType::Integer);
         let mut read_count = 0;
         let mut add_count = 0;

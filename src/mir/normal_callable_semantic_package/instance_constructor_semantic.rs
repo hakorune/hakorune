@@ -88,13 +88,22 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
         source: &ParserOrdinaryBoxSourceRowV1,
     ) -> Result<(CanonicalObjectIdV1, crate::mir::function::ObjectDestructionDispositionV1),
         InstanceConstructorBirthLookupErrorV1> {
+        self.with_source_object_definition(source, |object, definition|
+            (object, definition.destruction_disposition()))
+    }
+
+    pub(super) fn with_source_object_definition<R>(
+        &self,
+        source: &ParserOrdinaryBoxSourceRowV1,
+        consume: impl FnOnce(CanonicalObjectIdV1, &CanonicalObjectDefinitionV1) -> R,
+    ) -> Result<R, InstanceConstructorBirthLookupErrorV1> {
         let object = self.object_for(source)?;
         let definitions = self.object_definitions.borrow();
         let definitions = definitions.as_ref().ok_or(
             InstanceConstructorBirthLookupErrorV1::ObjectDefinitionsTransferred)?;
         let definition = definitions.get(object.declaration_index() as usize).ok_or(
             InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing)?;
-        Ok((object, definition.destruction_disposition()))
+        Ok(consume(object, definition))
     }
 
     pub(super) fn has_pending_object_definitions(&self) -> bool {
@@ -551,6 +560,8 @@ mod tests {
                 "the raw number is module-local, not a membership proof");
             assert_eq!(batch.object_for(foreign_source),
                 Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch));
+            assert_eq!(batch.with_source_object_definition(foreign_source, |_, _| ()),
+                Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch));
         }
         assert_eq!(ids.len(), 3);
         let definitions = batch.take_object_definitions().unwrap();
@@ -559,6 +570,9 @@ mod tests {
         assert_eq!(definitions[1].fields()[0].declared_type_name.as_deref(), Some("i64"));
         assert!(definitions[2].fields().is_empty());
         assert!(batch.take_object_definitions().is_none());
+        let source = batch.box_sources.row_for("First").unwrap().unwrap();
+        assert_eq!(batch.with_source_object_definition(source, |_, _| ()),
+            Err(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionsTransferred));
         assert_eq!(batch.object_sources.len(), 3, "taking payload preserves exact claim linkage");
     }
 

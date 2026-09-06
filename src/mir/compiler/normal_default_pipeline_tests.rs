@@ -75,8 +75,8 @@ fn published_consumer_keeps_birth_lifecycle_fenced() {
             published_request(include_str!("../../../apps/typed-object-birth-min/main.hako")),
             |_, _| -> Result<(), String> { panic!("unsupported lifecycle must not reach artifact consumer") },
         );
-        assert!(matches!(result, Err(ref error) if error.contains("artifact-source-unavailable")),
-            "fixed Pair must reject unavailable source coverage before the view: {:?}", result.as_ref().err());
+        assert!(matches!(result, Err(ref error) if error.contains("[published-mir-backend-object] UnsupportedBeforeObject")),
+            "source-complete Pair must still reject before the unimplemented C consumer: {:?}", result.as_ref().err());
     });
 }
 

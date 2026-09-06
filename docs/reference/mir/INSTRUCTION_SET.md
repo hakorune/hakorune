@@ -51,6 +51,10 @@ must admit destruction. ReclaimUnpublished carries the exact object ID and only
 reclaims incomplete outer storage, without parent fini or recursive field release.
 Both cleanup outcomes must continue to the next obligation. These operations
 do not activate a backend consumer; runtime capability remains separately fenced.
+The bounded root Return evaluates declared, initialized i64 field reads and
+integer Add before HomeRelease; the final Return uses the saved scalar operand.
+The same source loan must establish live Home/alias and constructor initialization
+before this projection. A field's physical type alone cannot authorize it.
 FieldSet carries a canonical field reference,
 an explicit base and one value; the published definition must contain that field.
 Normal denotes a committed write; Fault denotes no mutation by that write.

@@ -32,6 +32,8 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
+#[path = "ordinary_new_terminal_home.rs"]
+mod terminal_home;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
@@ -326,7 +328,11 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     matches!(batch.ordinary_box_coverage().row_for(class.as_ref()), Ok(Some(_))))
                     .map(|(site, _, _, binding, _, _)| (site.clone(), *binding)).collect();
                 let home_prefixes = if is_app_main && !selected.is_empty() {
-                    match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_v1(input, &selected) {
+                    let mut field_is_integer = |home, field: &str|
+                        terminal_home::field_is_initialized_integer(
+                            batch, instance_constructors, &candidates, &selected, home, field);
+                    match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_v1(
+                        input, &selected, &mut field_is_integer)? {
                         Ok((completion, prefixes)) => {
                             root_completion = Some(Ok(completion));
                             prefixes

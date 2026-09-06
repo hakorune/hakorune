@@ -172,6 +172,12 @@ fault-pending suffix; later successful releases cannot restore Normal Return.
 Package completion requires selected exit consumption, and final root validation
 checks actual cleanup/terminal instructions. This does not admit runtime Birth,
 returned Homes, arbitrary suffix expressions, or other source completion forms.
+Terminal field reads join the original Home binding to its selected New and
+same-session object definition through a synchronous borrow. Only successful
+source construction and an exact nonweak i64 field qualify; declaration names
+outside that definition, runtime slots and physical types are not authority.
+Integer Add is terminal-only. Missing/foreign source products propagate their
+existing error rather than being relabeled as an unsupported field.
 
 `instance_construction` issues the AST-free construction plan inside the exact
 constructor/Box source loan. It joins direct Plain stores and lexical receiver

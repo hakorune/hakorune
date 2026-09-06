@@ -21,7 +21,7 @@ New unwind site. Missing input demands, unknown prefixes, Handle arguments
 and nonempty overrides yield unavailable facts, never empty cleanup. The
 package claim ledger consumes the facts to check prior local installations;
 outward Fault projection and runtime cleanup are still required before backend
-activation. No MIR type, physical ID or symbol reconstructs these facts.
+activation. Terminal Return additionally borrows the exact selected New's source definition and successful construction plan for nonweak i64 field reads through live Homes/aliases, plus Integer+Integer Add. Declaration type alone is not initialization proof. This terminal-only classifier does not widen arguments or prefix locals; it evaluates before reverse Home release. No MIR type, physical ID or symbol reconstructs these facts.
 
 ## DeclaredInstance source relation (I0)
 
