@@ -906,84 +906,70 @@ argument representation and admission.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D0`
 
-Decision required before implementation: name the existing source issuer that
-retains each selected App Main terminal result arm (Unit, literal, local,
-initialized field read and recursive Add) together with the exact source sites,
-and name the single final-handoff consumer. `OtherTrivial`, MIR type, value ID,
-function signature and C status conversion are non-authority. Preserve source
-acceptance when the selected artifact profile lacks a physical representation;
-do not infer an i64 result or process exit from a physical consumer. A worker
-must audit finite classifier arms, existing retained relations and their
-counterexamples before a bounded I0 is selected.
-
-**Audit result (2026-09-07): no bounded I0 is selected.** The finite boundary
-is `scan_new_home_flow`'s exact App Main source loan through the ordinary-New
-ledger, final handoff, published lifecycle view and selected C transport. It
-includes Unit/bare return, integer literal, local/alias, initialized i64 field
-read and recursive/mixed Add; it excludes Birth formals, MIR type inference and
-process-status conversion.
+Finite audit boundary: selected AppMain source loan -> root-return dispatch ->
+selected root-home exit emitter -> final root handoff -> lifecycle view -> C
+schema ingress. It includes Unit/bare return and the existing direct-I64Add
+relation; it excludes value-bearing Unit/literal/local/field/Add arms, process
+status, artifact creation and executable behavior.
 
 `VerifiedFunctionCompletionV1` already retains the same-session declared result
-contract and exact exit site in the ledger. `TerminalI64AddReturnV1` is the only
-additional terminal relation: it retains a direct Add and two field-read sites,
-and is the sole row accepted by terminal emission, final handoff, view binding
-and C transport. The source walk discards every other requested relation:
+and exact exit site. `TerminalI64AddReturnV1` is the existing source relation
+for the direct two-field Add arm. Other source arms remain accepted but have no
+selected physical consumer and stay unavailable; they must not be reclassified
+from MIR types, `ValueId`, function signatures, C tags, or fixture values.
 
-| Source arm | Existing loss edge |
-| --- | --- |
-| Unit / bare return | scalar completion only; no terminal relation |
-| Integer literal | scalar classifier result is discarded |
-| Local / alias | `OtherTrivial` loses binding, initializer and class |
-| Initialized i64 field read | retained only as an immediate I64Add operand |
-| Recursive or mixed Add | scalar classifier result is discarded unless both direct operands are field reads |
+### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
-Bool literal is outside the Integer arm, Bool local also collapses to
-`OtherTrivial`, and uninitialized locals remain unavailable. No existing final
-consumer accepts these arms, so a retention-only row would duplicate Completion
-and have neither a production edge nor an exclusive delete-set. The named
-blocker is `ROOT-SCALAR-TERMINAL-RELATION-AND-CONSUMER-MISSING`.
+**Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
+scan can co-seal an explicit bare-return site, but the selected root cleanup
+path does not preserve a value-free MIR return. `build_return_with_port_v1`
+selects root-home cleanup, calls `emit_void`, and
+`ordinary_new_admission::selected::emit_root_home_exit` unconditionally emits
+`Return { value: Some(void_value) }`. The published view and C transport
+truthfully project that value-bearing return; they do not erase it. Therefore
+`UnitReturn -> existing C pending` was not an executable I0 contract.
 
-### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-ARM-SELECTION-D1`
+### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-PHYSICAL-D2`
 
-**Decision (accepted): select explicit bare `return` only.** Source authority
-is the same-session `VerifiedFunctionCompletionV1` already retained by the
-ordinary-New ledger, co-sealed with its exact bare-return statement site. It
-does not include implicit fallthrough, `void`/`null`, literal, local, field,
-Add or Bool. A bare return is `Return(Unit)` by language semantics and therefore
-requires no value class, binding, initializer, field, arithmetic, ABI-value or
-process-status inference.
+Decision: explicit bare `return` has one source-bound physical payload choice:
+`Unit`; the existing direct-I64Add relation remains `Value(ValueId)`. The
+canonical physical issuer is the selected root-return dispatch and its
+`emit_root_home_exit` consumer. It receives the already co-sealed Completion
+and exact return site, then emits the cleanup graph terminating in exactly one
+`MirInstruction::Return { value: None }`. This is a physical binding, not a new
+semantic receipt.
 
-The selected consumer chain is final root handoff -> lifecycle view -> existing
-typed C ingress. Its physical terminal remains
-`[published-lifecycle/body-consumer-pending]`: the frame already transports a
-value-free `Return`, while artifact/object admission stays unavailable. The
-exclusive old loss edge is `scan_new_home_flow` accepting bare return as a
-boolean scalar-completion result without issuing a terminal relation, followed
-by the final handoff's I64Add-only result projection.
+Source authority + canonical issuer: the same-session AppMain identity,
+`VerifiedFunctionCompletionV1`, and exact explicit bare-return site; selected
+root-return dispatch converts that source relation once into the root-exit
+payload. Non-authority: `ConstValue::Void`, `ValueId`, MIR type/signature,
+frame/mode tags, C role strings and process status. C cannot infer Unit from a
+value-bearing return.
 
-### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-I0`
+Fail-fast boundary: missing/foreign completion or source site, implicit/value
+return, mixed I64Add/Unit relation, `Some(void)`/missing/duplicate value-free
+root return, or drift after finishing rejects before lifecycle publication.
+The old selected edge to delete is `Return(None) -> emit_void ->
+Return(Some(void))`; generic/nonselected void lowering is outside this delete
+set.
 
-- **Bounded change:** co-seal existing root Completion owner and exact explicit
-  bare-return site in the ordinary-New ledger; retain `UnitReturn { owner }`
-  through final handoff and lifecycle view, replacing the selected bare-return
-  true-without-relation loss edge.
-- **Authority / non-authority:** exact root source and Completion are sole
-  authority. `MirInstruction::Return { value: None }`, frame kind/mode tags,
-  signature, process exit and every `i64` value are validation-only or
-  non-authority.
-- **Consumer / terminal:** root finishing validation and the existing lifecycle
-  frame consume the retained relation; C reaches its existing named pending
-  terminal before artifact creation. No LLVM object, EXE, OBJ-linked EXE, C
-  ABI expansion or status-0 execution claim opens.
-- **Fail-fast / acceptance:** missing/foreign Completion, non-Unit or non-bare
-  exit, source-site/owner drift, duplicate or mixed I64Add relation, finishing
-  drift and return-control disagreement reject. A selected New-prefix source
-  with explicit bare return reaches `UnitReturn` then the pending C terminal.
-  Return-with-value and all unselected terminal arms retain their current
-  unavailable disposition. Reuse focused source/final-view/C ingress tests and
-  existing guards; no fixture, generic result receipt or fallback.
-- **Size:** extend existing children before parents reach 760 lines (800 hard
-  stop). This is one arm only; do not widen it under `Unit`.
+Smallest next slice (`CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-PHYSICAL-I0`):
+make the selected root-exit payload explicit in the existing emitter lifetime,
+emit/validate the exact Unit terminator, retain `UnitReturn { owner }` through
+final handoff, and make the borrowed lifecycle view return its named
+`unit-c-role-unavailable` terminal. It must preserve I64Add byte-for-byte and
+must not call C. Positive evidence is selected New plus explicit bare return
+through final MIR and the named view terminal; negatives mutate the terminal to
+`Some(void)`, duplicate/remove it, or drift completion/site/owner. No
+fixture, fallback, ABI inference, object, executable or C claim opens.
+
+The following schema slice (`CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-D3`) is
+separate: extend the typed lifecycle role/result schema with explicit
+`root_unit`, make Rust frame and C schema agree, and then reach only the
+existing `body-consumer-pending` terminal. It still claims neither object nor
+EXE. The physical-program `root_i64` role and C body must not silently accept
+Unit before that slice.
+
 
 ### Following tasks and unresolved decisions
 
