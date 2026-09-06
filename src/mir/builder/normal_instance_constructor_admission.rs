@@ -5,7 +5,8 @@
 //! may demand the same source row a second time, but that is not a second
 //! source occurrence: each physical demand receives a fresh linear admission.
 
-use super::calls::LegacyFunctionPendingSessionV1;
+use super::calls::LegacyFunctionPayloadPendingSessionV1;
+use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
 use super::module_draft_collector::FunctionDraftKeyV1;
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use super::recursive_child_lowering::RawInvocationChildPortV1;
@@ -435,7 +436,7 @@ impl NormalInstanceConstructorDraftAdmissionV1 {
 impl ModuleLoweringPortV1<'_> {
     pub(in crate::mir::builder) fn commit_normal_instance_constructor_pending(
         &mut self,
-        pending: LegacyFunctionPendingSessionV1<'_>,
+        pending: LegacyFunctionPayloadPendingSessionV1<'_, Option<RetainedConstructionValidation>>,
         admission: NormalInstanceConstructorDraftAdmissionV1,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let (key, symbol, arity) = admission.into_collector_parts();
@@ -445,7 +446,16 @@ impl ModuleLoweringPortV1<'_> {
             }
             _ => super::module_draft_collector::DraftPublicationPolicyV1::LegacyReplaceWholePair,
         };
-        self.commit_pending_with_policy(pending, key, symbol, arity, policy)
+        pending.complete_before_restore(|draft, construction| {
+            self.prepare_draft_admission(key, symbol, arity, policy)
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
+                .seal(draft)
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
+                .retain_construction(construction)
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
+                .collect();
+            Ok(())
+        })
     }
 }
 
@@ -490,7 +500,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                     source_root,
                 ),
                 |port, ()| {
-                    port.capture_normalized_instance_box_method_pending_v1(
+                    port.capture_normalized_constructor_pending_v1(
                         builder,
                         function_name,
                         box_name,

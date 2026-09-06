@@ -8,6 +8,7 @@ use std::collections::BTreeMap;
 
 use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_invocation_owner_chain::InvocationBranded;
+use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
 use crate::mir::{FunctionSignature, MirFunction};
@@ -72,6 +73,7 @@ pub(in crate::mir::builder) enum DraftPublicationPolicyV1 {
 /// Typed preflight failure before a completed draft enters the collector.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum ModuleDraftAdmissionErrorV1 {
+    ConstructionPayloadBoundary,
     DuplicateKey(FunctionDraftKeyV1),
     DuplicateSymbol(String),
     IndexDrift {
@@ -169,6 +171,7 @@ impl<'collector> PreparedFunctionDraftAdmissionV1<'collector> {
             policy: self.policy,
             replacement: self.replacement,
             draft,
+            construction: None,
             _seal: UnpublishedFunctionDraftSealV1,
         })
     }
@@ -188,6 +191,7 @@ impl<'collector> PreparedFunctionDraftAdmissionV1<'collector> {
             policy: self.policy,
             replacement: self.replacement,
             draft,
+            construction: None,
             _seal: UnpublishedFunctionDraftSealV1,
         }
     }
@@ -201,6 +205,7 @@ pub(in crate::mir::builder) struct UnpublishedFunctionDraftV1<'collector> {
     policy: DraftPublicationPolicyV1,
     replacement: PreparedCollectorReplacementV1,
     draft: MirFunction,
+    construction: Option<RetainedConstructionValidation>,
     _seal: UnpublishedFunctionDraftSealV1,
 }
 
@@ -210,6 +215,21 @@ struct UnpublishedFunctionDraftSealV1;
 use final_row::{CollectedDraftFinalAdmissionV1, CollectedFunctionDraftV1};
 
 impl UnpublishedFunctionDraftV1<'_> {
+    pub(in crate::mir::builder) fn retain_construction(
+        mut self,
+        construction: Option<RetainedConstructionValidation>,
+    ) -> Result<Self, ModuleDraftAdmissionErrorV1> {
+        if self.construction.is_some()
+            || (construction.is_some()
+                && (!matches!(self.key, FunctionDraftKeyV1::CatalogedConstructor(_))
+                    || self.policy != DraftPublicationPolicyV1::CanonicalRejectDuplicate))
+        {
+            return Err(ModuleDraftAdmissionErrorV1::ConstructionPayloadBoundary);
+        }
+        self.construction = construction;
+        Ok(self)
+    }
+
     /// Commit cannot fail: its collector was exclusively borrowed when
     /// admission preflight completed, so no collision can have appeared.
     fn collect_inner(self) -> CollectedDraftAdmissionReceiptV1 {
@@ -219,9 +239,10 @@ impl UnpublishedFunctionDraftV1<'_> {
             policy,
             replacement,
             draft,
+            construction,
             _seal: _,
         } = self;
-        collector.collect_sealed(key, policy, replacement, draft)
+        collector.collect_sealed(key, policy, replacement, draft, construction)
     }
 
     pub(in crate::mir::builder) fn collect(self) -> CollectedDraftAdmissionReceiptV1 {
@@ -319,6 +340,7 @@ impl ModuleDraftCollectorV1 {
         policy: DraftPublicationPolicyV1,
         replacement: PreparedCollectorReplacementV1,
         draft: MirFunction,
+        construction: Option<RetainedConstructionValidation>,
     ) -> CollectedDraftAdmissionReceiptV1 {
         let symbol = draft.signature.name.clone();
         let arity = draft.signature.params.len();
@@ -390,6 +412,7 @@ impl ModuleDraftCollectorV1 {
             CollectedFunctionDraftV1 {
                 draft,
                 admission: final_admission,
+                construction,
             },
         );
         receipt
@@ -399,8 +422,15 @@ impl ModuleDraftCollectorV1 {
     ///
     /// No header or identity side table is returned: the physical drafts and
     /// their collector indexes are consumed together by the one drain owner.
-    pub(in crate::mir::builder) fn into_draft_functions(self) -> Vec<MirFunction> {
-        self.drafts.into_values().map(|entry| entry.draft).collect()
+    pub(in crate::mir::builder) fn has_retained_construction(&self) -> bool {
+        self.drafts.values().any(|entry| entry.construction.is_some())
+    }
+
+    pub(in crate::mir::builder) fn into_draft_functions(self) -> Result<Vec<MirFunction>, &'static str> {
+        if self.has_retained_construction() {
+            return Err("[freeze:contract][construction/unsupported-collector-drain]");
+        }
+        Ok(self.drafts.into_values().map(|entry| entry.draft).collect())
     }
 
     /// Test-only affine observation seam for one exact completed draft.
@@ -413,6 +443,9 @@ impl ModuleDraftCollectorV1 {
         mut self,
         expected_symbol: &str,
     ) -> Result<MirFunction, &'static str> {
+        if self.has_retained_construction() {
+            return Err("observation cannot discard retained construction");
+        }
         if self.drafts.len() != 1 || self.key_by_symbol.len() != 1 {
             return Err("observation requires exactly one completed draft");
         }

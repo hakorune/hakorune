@@ -25,6 +25,7 @@ pub(in crate::mir::builder) enum CanonicalCollectorReceiptViewV1<'a> {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum CanonicalCollectorDrainErrorV1 {
+    RetainedConstruction,
     BrandMismatch,
     ReceiptCountMismatch {
         expected: usize,
@@ -112,6 +113,9 @@ impl ModuleDraftCollectorV1 {
         receipt: CanonicalCollectorReceiptViewV1<'_>,
         brand: ModuleInvocationBrandV1,
     ) -> Result<PreparedCanonicalCollectorDrainV1, RejectedCanonicalCollectorDrainV1> {
+        if self.has_retained_construction() {
+            return Err(reject(self, CanonicalCollectorDrainErrorV1::RetainedConstruction));
+        }
         if self.receipt_brand != Some(brand) {
             return Err(reject(self, CanonicalCollectorDrainErrorV1::BrandMismatch));
         }
@@ -339,6 +343,57 @@ mod tests {
             },
             BasicBlockId::new(0),
         )
+    }
+
+    #[test]
+    fn retained_construction_rejects_all_alternative_drain_preflights() {
+        use crate::mir::builder::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
+        use crate::mir::builder::module_invocation_drain::{
+            ConditionFnPolicyV1, InvocationDrainExpectationV1, InvocationDrainPreflightErrorV1,
+            ModuleLoweringInvocationDrainOwnerV1,
+        };
+        use crate::mir::builder::module_lowering_shell::ModuleLoweringShellV1;
+        use crate::mir::raw_physical_drain::{
+            RawPhysicalDrainManifestV1, RawPhysicalDrainRouteV1, RawPhysicalCallableMainDispositionV1,
+        };
+        let brand = ModuleInvocationBrandV1::test_with_ordinal(91);
+        let make = || {
+            let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::birth_constructor("Page", 0);
+            let symbol = key.mir_symbol_projection();
+            let mut function = draft(&symbol);
+            function.signature.params = vec![MirType::Integer];
+            let mut collector = ModuleDraftCollectorV1::with_brand(brand);
+            let receipt = collector.prepare_admission(
+                FunctionDraftKeyV1::CatalogedConstructor(key), symbol, 1,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            ).unwrap().seal(function).unwrap()
+                .retain_construction(Some(RetainedConstructionValidation::empty_for_transport_test()))
+                .unwrap().collect_branded().unwrap();
+            (collector, receipt)
+        };
+        let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let manifest = CanonicalPhysicalDrainManifestV1::single(
+            brand, ModuleInvocationFamilyV1::BindingSsaTrivial,
+            CanonicalPhysicalSingleRowV1::new(owners.issue().unwrap(), "unused".into(), 0,
+                CanonicalInsertedDispositionV1::from_canonical_source()),
+        );
+        let (collector, receipt) = make();
+        let (collector, error) = collector.prepare_canonical_drain(
+            &manifest, CanonicalCollectorReceiptViewV1::Single(&receipt), brand,
+        ).unwrap_err().into_parts();
+        assert_eq!(error, CanonicalCollectorDrainErrorV1::RetainedConstruction);
+        assert!(collector.has_retained_construction());
+        let raw = RawPhysicalDrainManifestV1::new(brand, RawPhysicalDrainRouteV1::Script,
+            Box::new([]), RawPhysicalCallableMainDispositionV1::NotSelected);
+        let (collector, error) = collector.prepare_raw_drain(&raw, brand).unwrap_err().into_parts();
+        assert_eq!(error, super::super::RawCollectorDrainErrorV1::RetainedConstruction);
+        assert!(collector.has_retained_construction());
+        let shell = ModuleLoweringShellV1::from_empty_module(crate::mir::MirModule::new("empty".into())).unwrap();
+        let expectation = InvocationDrainExpectationV1::new(Vec::<String>::new(), false,
+            ConditionFnPolicyV1::Forbidden).unwrap();
+        let error = ModuleLoweringInvocationDrainOwnerV1::new(shell, collector)
+            .prepare(expectation).unwrap_err();
+        assert_eq!(error, InvocationDrainPreflightErrorV1::RetainedConstruction);
     }
 
     #[test]

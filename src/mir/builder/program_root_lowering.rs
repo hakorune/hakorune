@@ -151,7 +151,7 @@ impl MirBuilder {
         static_result_publication_owner: Option<VerifiedStaticCallResultPublicationOwnerV1>,
         target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
-    ) -> Result<ValueId, String> {
+    ) -> Result<(ValueId, super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts), String> {
         self.lower_program_root_after_catalog_install_v1(
             work,
             source_ast,
@@ -182,7 +182,7 @@ impl MirBuilder {
         static_result_publication_owner: Option<VerifiedStaticCallResultPublicationOwnerV1>,
         target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
-    ) -> Result<ValueId, String> {
+    ) -> Result<(ValueId, super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts), String> {
         let mut collector = match &callable_mode {
             NormalCallableSemanticPackageMode::Installed(_) =>
                 ModuleDraftCollectorV1::with_required_object_definitions(brand),
@@ -288,8 +288,8 @@ impl MirBuilder {
                 rejected.discard();
                 format!("[freeze:contract][mir/callable-collector/atomic-commit] {error}")
             })?;
-        prepared.commit();
-        Ok(result)
+        let construction = prepared.commit();
+        Ok((result, construction))
     }
 
     #[allow(clippy::too_many_arguments)]

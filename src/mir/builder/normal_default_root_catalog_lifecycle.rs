@@ -34,6 +34,7 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use std::rc::Rc;
+use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleStageV1 {
@@ -104,15 +105,31 @@ pub(in crate::mir) struct CompletedNormalDefaultRootCatalogLifecycleV1 {
     session: ModuleBuilderInvocationSessionV1,
     module: MirModule,
     root_new_validation: Option<(String, Rc<OrdinaryNewClaimLedgerV1>)>,
+    construction: RetainedConstructionDrafts,
 }
 
 impl CompletedNormalDefaultRootCatalogLifecycleV1 {
     pub(in crate::mir) fn into_parts(self) -> (
         ModuleBuilderInvocationSessionV1,
         MirModule,
-        Option<(String, Rc<OrdinaryNewClaimLedgerV1>)>,
+        impl FnOnce(&MirModule) -> Result<(), String>,
     ) {
-        (self.session, self.module, self.root_new_validation)
+        let validate = move |module: &MirModule| {
+            if let Some((root_key, ledger)) = self.root_new_validation {
+                let root = module.functions.get(&root_key).ok_or_else(|| {
+                    "[freeze:contract][ordinary-new/finished-root-missing]".to_owned()
+                })?;
+                ledger.validate_after_compiler_finishing(root)?;
+            }
+            for (key, validation) in self.construction {
+                let definition = module.canonical_callable_definition_symbol(&key)
+                    .and_then(|symbol| module.functions.get(symbol))
+                    .ok_or_else(|| "[freeze:contract][construction/finished-definition-missing]".to_owned())?;
+                validation.validate_after_compiler_finishing(definition)?;
+            }
+            Ok(())
+        };
+        (self.session, self.module, validate)
     }
 }
 
@@ -649,7 +666,7 @@ impl ModuleBuilderInvocationSessionV1 {
         let result = result.and_then(|inner| inner);
 
         match result {
-            Ok((module, root_new_validation)) => {
+            Ok((module, root_new_validation, construction)) => {
                 if let Some(source) = compatibility_source {
                     source.discard_at_named_lifecycle_terminal();
                 }
@@ -657,6 +674,7 @@ impl ModuleBuilderInvocationSessionV1 {
                     session: self,
                     module,
                     root_new_validation,
+                    construction,
                 })
             }
             Err(error) => Err(RejectedNormalDefaultRootCatalogLifecycleV1 {

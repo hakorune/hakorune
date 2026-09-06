@@ -38,6 +38,8 @@ use crate::parser::CallableMethodSourceObservationV1;
 mod legacy_port;
 #[path = "recursive_child_lowering/pending_helpers.rs"]
 mod pending_helpers;
+#[path = "recursive_child_lowering/instance_capture.rs"]
+mod instance_capture;
 #[path = "raw_ordinary_new_claim.rs"]
 mod raw_ordinary_new_claim;
 #[path = "normal_script_direct_static_claim_transport.rs"]
@@ -599,58 +601,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         )
     }
 
-    /// Instance counterpart of the port-aware capture seam.
-    pub(in crate::mir::builder) fn capture_normalized_instance_box_method_pending_v1<'builder>(
-        &mut self,
-        builder: &'builder mut MirBuilder,
-        function_name: String,
-        box_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-    ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
-        let body_snapshot = body.clone();
-        let session_name = function_name.clone();
-        let pending = {
-            let mut child_port = self.reborrow();
-            builder
-                .capture_legacy_function_pending_session_v1(
-                    &session_name,
-                    body_snapshot,
-                    move |builder| {
-                        let prepared: PortAwarePreparedDraftBodyV1 = builder
-                            .build_instance_method_draft_with_port_v1(
-                                &mut child_port,
-                                function_name,
-                                box_name,
-                                params,
-                                param_decls,
-                                return_type_name,
-                                body,
-                                uses,
-                                attrs,
-                            )?;
-                        let function = child_port.with_headers(|headers| {
-                            builder.finalize_function_draft_with_headers(prepared, headers)
-                        })?;
-                        if let Some(ledger) = &child_port.callable_ledger {
-                            ledger
-                                .borrow()
-                                .validate_finalized_construction_stores(&function)?;
-                            if let Some(news) = &child_port.ordinary_new_claim_ledger {
-                                news.validate_new_emissions(ledger.borrow().owner(), &function)?;
-                            }
-                        }
-                        Ok(function)
-                    },
-                )
-                .map_err(ModuleLoweringPortChildErrorV1::Session)?
-        };
-        Ok(pending)
-    }
 }
 
 impl AppMainDirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {

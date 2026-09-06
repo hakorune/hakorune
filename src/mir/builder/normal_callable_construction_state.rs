@@ -14,12 +14,42 @@ use std::collections::BTreeMap;
 #[derive(Debug)]
 pub(super) enum ConstructionState {
     NotConstruction,
+    /// Owned state moved with the exact draft after draft validation.
+    Transferred,
     RetainedUnavailable(ConstructionUnavailableV1),
     Selected {
         stores: BTreeMap<SourceNodeSiteV1, (CanonicalFieldRefV1, StoreProgress)>,
         frame: Option<(ValueId, BasicBlockId)>,
         completed: bool,
     },
+}
+
+/// The existing request-local state moved with its draft, not a new source
+/// receipt. Only the selected constructor capture can take this payload.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct RetainedConstructionValidation {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    construction: ConstructionState,
+    fault_frame: super::fault::CallableFaultFrame,
+}
+
+pub(in crate::mir::builder) type RetainedConstructionDrafts = Vec<(
+    hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    RetainedConstructionValidation,
+)>;
+
+impl RetainedConstructionValidation {
+
+    pub(in crate::mir::builder) fn validate_after_compiler_finishing(
+        self,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        self.fault_frame.validate(function)?;
+        self.construction.finish()?;
+        self.construction.validate_bindings(function).map_err(|error| {
+            format!("{error} owner={:?}", self.owner)
+        })
+    }
 }
 
 #[derive(Debug)]
@@ -113,6 +143,9 @@ impl CallableSemanticLoweringState {
         &mut self,
         site: &SourceNodeSiteV1,
     ) -> Result<Option<TakenConstructionStore>, String> {
+        if matches!(self.construction, ConstructionState::Transferred) {
+            return Err(fault("state-transferred"));
+        }
         if !matches!(self.construction, ConstructionState::Selected { .. }) {
             return Ok(None);
         }
@@ -235,6 +268,29 @@ impl CallableSemanticLoweringState {
         self.construction.finish()?;
         self.construction.validate_bindings(function)
     }
+
+    pub(in crate::mir::builder) fn take_finalized_construction_validation(
+        &mut self,
+        function: &MirFunction,
+    ) -> Result<Option<RetainedConstructionValidation>, String> {
+        if matches!(self.construction, ConstructionState::Transferred) {
+            return Err(fault("duplicate-state-transfer"));
+        }
+        self.validate_finalized_construction_stores(function)?;
+        if matches!(self.construction, ConstructionState::NotConstruction) {
+            return Ok(None);
+        }
+        let fault_frame = self.fault_frame.take().ok_or_else(|| fault("frame-missing"))?;
+        let construction = std::mem::replace(
+            &mut self.construction,
+            ConstructionState::Transferred,
+        );
+        Ok(Some(RetainedConstructionValidation {
+            owner: self.owner,
+            construction,
+            fault_frame,
+        }))
+    }
 }
 
 impl ConstructionState {
@@ -284,103 +340,5 @@ fn fault(reason: &str) -> String {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mir::resolved_semantics::SourcePathV1;
-    use crate::mir::{EffectMask, FunctionSignature, MirType};
-
-    #[test]
-    fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
-        // Physical validator unit test only. Source issuance is exercised by
-        // the fixed Pair production publication test, not by this local row.
-        let field = CanonicalFieldRefV1::from_declaration_ordinal(
-            hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap(),
-            0,
-        )
-        .unwrap();
-        let origin = BasicBlockId::new(0);
-        let normal = BasicBlockId::new(1);
-        let landing = BasicBlockId::new(2);
-        let base = ValueId::new(0);
-        let value = ValueId::new(1);
-        let frame = ValueId::new(2);
-        let mut function = MirFunction::new(
-            FunctionSignature {
-                name: "physical_store_binding".into(),
-                params: vec![],
-                return_type: MirType::Void,
-                effects: EffectMask::WRITE,
-            },
-            origin,
-        );
-        let mut block = BasicBlock::new(origin);
-        block.set_terminator(MirInstruction::Invoke {
-            operation: InvokeOperation::FieldSet { field, base, value },
-            fault_frame: frame,
-            normal_landing: normal,
-            fault_landing: landing,
-        });
-        function.add_block(block);
-        let site = SourcePathV1::function_body().node();
-        let mut state = ConstructionState::Selected {
-            stores: BTreeMap::from([(
-                site.clone(),
-                (
-                    field,
-                    StoreProgress::Emitted {
-                        block: origin,
-                        normal,
-                        base,
-                        value,
-                    },
-                ),
-            )]),
-            frame: Some((frame, landing)),
-            completed: true,
-        };
-        state.validate_bindings(&function).unwrap();
-        for case in 0..7 {
-            let mut changed = function.clone();
-            let terminator = &mut changed.blocks.get_mut(&origin).unwrap().terminator;
-            if case == 6 {
-                *terminator = Some(MirInstruction::Return { value: None });
-            } else {
-                let Some(MirInstruction::Invoke {
-                    operation: InvokeOperation::FieldSet { field, base, value },
-                    fault_frame,
-                    normal_landing,
-                    fault_landing,
-                }) = terminator
-                else {
-                    unreachable!()
-                };
-                match case {
-                    0 => {
-                        *field = CanonicalFieldRefV1::from_declaration_ordinal(field.object(), 1)
-                            .unwrap()
-                    }
-                    1 => *base = ValueId::new(9),
-                    2 => *value = ValueId::new(9),
-                    3 => *fault_frame = ValueId::new(9),
-                    4 => *normal_landing = BasicBlockId::new(9),
-                    5 => *fault_landing = BasicBlockId::new(9),
-                    _ => unreachable!(),
-                }
-            }
-            assert!(state.validate_bindings(&changed).is_err(), "drift {case}");
-        }
-        let ConstructionState::Selected {
-            stores, completed, ..
-        } = &mut state
-        else {
-            unreachable!()
-        };
-        *completed = false;
-        stores.get_mut(&site).unwrap().1 = StoreProgress::Taken;
-        assert!(state.finish().unwrap_err().contains("completion-missing"));
-        assert!(state
-            .validate_bindings(&function)
-            .unwrap_err()
-            .contains("store-residual"));
-    }
-}
+#[path = "normal_callable_construction_state_tests.rs"]
+mod tests;

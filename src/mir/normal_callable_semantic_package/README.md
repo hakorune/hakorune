@@ -21,9 +21,15 @@ mutable access escapes; a later wrapper or an observation flag is insufficient.
 The normal invocation completion now retains the same root ledger and exact
 physical root key through compiler finishing. It rechecks New/frame/local/exit
 bindings before external commit; changed or missing roots fail without retry.
-This closes the root's early-validation drop, not Birth retention or executable
-admission. Final published consumption must be synchronous inside the final
-validation borrow, with no later mutable pass or admitted module extraction.
+Birth capture similarly moves its existing construction state and Fault frame
+through the payload session and exact collector draft. Source scope marks this
+as Transferred, not absent; a second take or later store/frame use rejects.
+Normal drain moves these states with their exact definition keys into the
+invocation's single-use final validator. Replacement and other drains cannot
+discard retained state. Unavailable construction is still unavailable, not
+execution permission. Final published consumption must be synchronous inside
+the final validation borrow, with no later mutable pass or admitted module
+extraction; that executable admission is not opened by state retention alone.
 
 ```text
 VerifiedFinalCallableProgramSourceV1

@@ -22,6 +22,7 @@ use crate::mir::builder::{
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use std::rc::Rc;
+use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
 
 pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package>(
     builder: &mut MirBuilder,
@@ -41,7 +42,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
     target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
     callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
 ) -> Result<
-    (MirModule, Option<(String, Rc<OrdinaryNewClaimLedgerV1>)>),
+    (MirModule, Option<(String, Rc<OrdinaryNewClaimLedgerV1>)>, RetainedConstructionDrafts),
     NormalDefaultRootCatalogLifecycleErrorV1,
 > {
     let script_source = match script_source {
@@ -92,7 +93,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
         }
     };
 
-    let result_value = builder
+    let (result_value, construction) = builder
         .lower_normal_default_program_root_after_catalog_install_v1(
             work,
             source_ast,
@@ -126,5 +127,5 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
             }
         })
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into()))?;
-    Ok((module, root_key.zip(root_new_ledger)))
+    Ok((module, root_key.zip(root_new_ledger), construction))
 }

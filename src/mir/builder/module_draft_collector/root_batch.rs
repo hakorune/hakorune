@@ -424,6 +424,7 @@ impl PreparedRootCollectorBatchV1 {
                 entry.policy,
                 entry.replacement,
                 entry.draft,
+                None,
             ));
         }
         (
@@ -453,6 +454,7 @@ impl PreparedRootCollectorBatchV1 {
                 entry.policy,
                 entry.replacement,
                 entry.draft,
+                None,
             );
             admissions.push(InvocationBranded::from_source(brand, receipt));
         }
@@ -492,6 +494,9 @@ pub(super) fn plan_admission_v1(
             Ok(PreparedCollectorReplacementV1::Canonical)
         }
         DraftPublicationPolicyV1::LegacyReplaceWholePair => {
+            if collector.drafts.get(key).is_some_and(|entry| entry.construction.is_some()) {
+                return Err(ModuleDraftAdmissionErrorV1::ConstructionPayloadBoundary);
+            }
             let pairing_matches = match (&symbol_key, &key_symbol) {
                 (Some(symbol_key), Some(key_symbol)) => {
                     symbol_key == key && key_symbol == expected_symbol

@@ -1,6 +1,8 @@
 //! Final collector rows retain the admission fact that produced each live draft.
 
 use crate::mir::MirFunction;
+use crate::mir::builder::normal_callable_semantic_lowering_state::construction::
+    RetainedConstructionValidation;
 
 use super::receipt::CollectedDraftReplacementDispositionV1;
 use super::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
@@ -9,6 +11,7 @@ use super::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
 pub(super) struct CollectedFunctionDraftV1 {
     pub(super) draft: MirFunction,
     pub(super) admission: CollectedDraftFinalAdmissionV1,
+    pub(super) construction: Option<RetainedConstructionValidation>,
 }
 
 #[derive(Debug)]

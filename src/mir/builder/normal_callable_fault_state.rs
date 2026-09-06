@@ -53,21 +53,36 @@ impl CallableFaultFrame {
 impl CallableSemanticLoweringState {
     /// Only the source-identity-checked App Main root entry calls this.
     pub(in crate::mir::builder) fn select_root_fault_frame(&mut self) -> Result<(), String> {
-        self.fault_frame.select_root()
+        self.fault_frame
+            .as_mut()
+            .ok_or_else(|| freeze("state-transferred"))?
+            .select_root()
     }
 
     pub(in crate::mir::builder) fn borrow_fault_frame(
         &mut self,
         builder: &mut MirBuilder,
     ) -> Result<ValueId, String> {
-        self.fault_frame.materialize(builder)
+        self.fault_frame
+            .as_mut()
+            .ok_or_else(|| freeze("state-transferred"))?
+            .materialize(builder)
     }
 
     pub(in crate::mir::builder) fn validate_fault_frame(
         &self,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(expected) = self.fault_frame.value else {
+        self.fault_frame
+            .as_ref()
+            .ok_or_else(|| freeze("state-transferred"))?
+            .validate(function)
+    }
+}
+
+impl CallableFaultFrame {
+    pub(super) fn validate(&self, function: &MirFunction) -> Result<(), String> {
+        let Some(expected) = self.value else {
             return Ok(());
         };
         let entry = function
@@ -77,7 +92,7 @@ impl CallableSemanticLoweringState {
         if !entry.instructions.iter().any(|instruction| {
             matches!(instruction,
             MirInstruction::FaultFrameEnter { dst, mode }
-                if *dst == expected && *mode == self.fault_frame.mode)
+                if *dst == expected && *mode == self.mode)
         }) {
             return Err(freeze("definition-or-role-drift"));
         }

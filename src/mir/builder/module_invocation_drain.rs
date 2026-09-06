@@ -25,6 +25,7 @@ pub(in crate::mir::builder) enum ConditionFnPolicyV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum InvocationDrainPreflightErrorV1 {
+    RetainedConstruction,
     ShellAlreadyPublished {
         count: usize,
     },
@@ -118,6 +119,10 @@ impl ModuleLoweringInvocationDrainOwnerV1 {
             });
         }
 
+        if self.state.collector().has_retained_construction() {
+            return Err(InvocationDrainPreflightErrorV1::RetainedConstruction);
+        }
+
         let mut actual = Vec::new();
         self.state
             .collector()
@@ -160,7 +165,7 @@ impl PreparedInvocationDrainV1 {
     /// this consumes both owners and returns the assembled module directly.
     pub(in crate::mir::builder) fn drain(self) -> MirModule {
         let (shell, collector, _root) = self.state.into_parts();
-        let functions = collector.into_draft_functions();
+        let functions = collector.into_draft_functions().expect("preflight excludes retained construction");
         shell
             .prepare_drain(self.expectation.inventory)
             .commit_preflighted(functions)
@@ -175,7 +180,7 @@ impl PreparedInvocationDrainV1 {
     ) -> Result<DrainedModuleCandidateV1, DrainedModuleCandidateErrorV1> {
         let (shell, collector, root) = self.state.into_parts();
         debug_assert_eq!(root, RootCompletionStateV1::Complete);
-        let functions = collector.into_draft_functions();
+        let functions = collector.into_draft_functions().expect("preflight excludes retained construction");
         let module = shell
             .prepare_drain(self.expectation.inventory)
             .commit_preflighted(functions);

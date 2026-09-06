@@ -11,6 +11,7 @@ use super::{FunctionDraftKeyV1, ModuleDraftCollectorV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum RawCollectorDrainErrorV1 {
+    RetainedConstruction,
     BrandMismatch,
     CountMismatch {
         expected: usize,
@@ -83,6 +84,9 @@ impl ModuleDraftCollectorV1 {
         manifest: &RawPhysicalDrainManifestV1,
         brand: ModuleInvocationBrandV1,
     ) -> Result<PreparedRawCollectorDrainV1, RejectedRawCollectorDrainV1> {
+        if self.has_retained_construction() {
+            return Err(reject(self, RawCollectorDrainErrorV1::RetainedConstruction));
+        }
         if self.receipt_brand != Some(brand) {
             return Err(reject(self, RawCollectorDrainErrorV1::BrandMismatch));
         }

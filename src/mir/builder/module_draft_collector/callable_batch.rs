@@ -262,6 +262,7 @@ impl PreparedCallableCollectorBatchV1 {
                 DraftPublicationPolicyV1::CanonicalRejectDuplicate,
                 entry.replacement,
                 entry.draft,
+                None,
             ));
         }
         (
@@ -289,6 +290,7 @@ impl PreparedCallableCollectorBatchV1 {
                 DraftPublicationPolicyV1::CanonicalRejectDuplicate,
                 entry.replacement,
                 entry.draft,
+                None,
             ));
         }
         Ok(CollectedCallableCollectorBatchV1 {
