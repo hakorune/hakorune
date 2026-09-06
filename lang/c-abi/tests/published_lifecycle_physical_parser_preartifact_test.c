@@ -29,17 +29,49 @@ static void rejects(const char* json, const char* reason) {
   free(error);
 }
 
+static void rejects_replace(const char* source, const char* needle,
+    const char* replacement, const char* reason) {
+  const char* at = strstr(source, needle);
+  size_t before, total;
+  char* changed;
+  assert(at);
+  before = (size_t)(at - source);
+  total = before + strlen(replacement) + strlen(at + strlen(needle)) + 1;
+  changed = malloc(total);
+  assert(changed);
+  memcpy(changed, source, before);
+  strcpy(changed + before, replacement);
+  strcat(changed, at + strlen(needle));
+  rejects(changed, reason);
+  free(changed);
+}
+
 int main(void) {
+  /* This is a complete ABI-bearing physical input, deliberately covering
+   * function membership, values, CFG, invoke, layouts and both frame modes. */
   const char* valid =
-      "{\"schema\":\"hako.published-lifecycle-physical-program.v1\","
-      "\"fault_abi_version\":1,\"functions\":["
-      "{\"role\":\"root_i64\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]},"
-      "{\"role\":\"birth_unit\",\"params\":[0],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]}],"
-      "\"layouts\":[{\"field_count\":2,\"fields\":[{},{}]}]}";
+      "{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"functions\":["
+      "{\"name\":\"main\",\"role\":\"root_i64\",\"params\":[],\"entry\":0,\"blocks\":["
+      "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"const_i64\",\"dst\":1,\"value\":30}},{\"index\":1,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":2,\"mode\":\"root_owned\"}},{\"index\":2,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"new_box\",\"object_id\":7},\"fault_frame\":2,\"normal\":1,\"fault\":2}}],\"terminator\":{\"index\":3,\"instruction\":{\"op\":\"jump\",\"target\":1,\"args\":null}},\"edges\":[{\"target\":1,\"args\":null}]},"
+      "{\"id\":1,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":3}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":4,\"value\":10}},{\"index\":2,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"field_set\",\"object_id\":7,\"field_ordinal\":0,\"base\":3,\"value\":4},\"fault_frame\":2,\"normal\":3,\"fault\":2}}],\"terminator\":{\"index\":3,\"instruction\":{\"op\":\"jump\",\"target\":3,\"args\":null}},\"edges\":[{\"target\":3,\"args\":null}]},"
+      "{\"id\":2,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return_fault\",\"fault_frame\":2}},\"edges\":[]},"
+      "{\"id\":3,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"object_field_get\",\"dst\":5,\"base\":3,\"object_id\":7,\"field_ordinal\":0}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":6,\"value\":20}},{\"index\":2,\"instruction\":{\"op\":\"add\",\"dst\":7,\"lhs\":5,\"rhs\":6}},{\"index\":3,\"instruction\":{\"op\":\"copy\",\"dst\":8,\"src\":7}}],\"terminator\":{\"index\":4,\"instruction\":{\"op\":\"branch\",\"condition\":1,\"then\":4,\"else\":5,\"then_args\":null,\"else_args\":null}},\"edges\":[{\"target\":4,\"args\":null},{\"target\":5,\"args\":null}]},"
+      "{\"id\":4,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"phi\",\"dst\":9,\"inputs\":[{\"block\":3,\"value\":8}]}},{\"index\":1,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"birth_call\",\"call\":{\"target\":1,\"receiver\":3,\"args\":[4,6],\"dst\":null}},\"fault_frame\":2,\"normal\":5,\"fault\":2}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"jump\",\"target\":5,\"args\":null}},\"edges\":[{\"target\":5,\"args\":null}]},"
+      "{\"id\":5,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\",\"value\":9}},\"edges\":[]}]},"
+      "{\"name\":\"Pair.birth\",\"role\":\"birth_unit\",\"params\":[0,1,2],\"entry\":0,\"blocks\":[{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":3,\"mode\":\"borrowed\"}},{\"index\":1,\"instruction\":{\"op\":\"const_string\",\"dst\":4,\"value\":\"pair\"}},{\"index\":2,\"instruction\":{\"op\":\"const_unit\",\"dst\":5}},{\"index\":3,\"instruction\":{\"op\":\"birth_call\",\"call\":{\"target\":1,\"receiver\":0,\"args\":[1,2],\"dst\":null}}}],\"terminator\":{\"index\":4,\"instruction\":{\"op\":\"return\",\"value\":null}},\"edges\":[]}] }],"
+      "\"layouts\":[{\"object_id\":7,\"runtime_type_id\":9,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}]}]}";
   accepts(valid);
   rejects("{}", "schema");
-  rejects("{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"functions\":[{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]},{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]}],\"layouts\":[{\"field_count\":0,\"fields\":[]}]}", "function-role");
-  rejects("{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"functions\":[{\"role\":\"root_i64\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]},{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]}],\"layouts\":[{\"field_count\":2,\"fields\":[{}]}]}", "layout");
-  rejects("{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":9,\"functions\":[{\"role\":\"root_i64\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]},{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]}],\"layouts\":[{\"field_count\":0,\"fields\":[]}]}", "abi");
+  rejects_replace(valid, "\"dst\":9", "\"dst\":8", "function-body");
+  rejects_replace(valid, "\"op\":\"const_i64\",\"dst\":1,\"value\":30", "\"op\":\"const_i64\",\"dst\":1,\"dst\":1,\"value\":30", "function-body");
+  rejects_replace(valid, "\"target\":5,\"args\":null}]}", "\"target\":99,\"args\":null}]}", "function-body");
+  rejects_replace(valid, "\"call\":{\"target\":1", "\"call\":{\"target\":0", "function-body");
+  rejects_replace(valid, "\"args\":[4,6]", "\"args\":[4]", "function-body");
+  rejects_replace(valid, "\"block\":3,\"value\":8", "\"block\":99,\"value\":8", "function-body");
+  rejects_replace(valid, "\"src\":7", "\"src\":99", "function-body");
+  rejects_replace(valid, "\"operation\":{\"kind\":\"new_box\",\"object_id\":7}", "\"operation\":{\"kind\":\"new_box\",\"object_id\":99}", "function-body");
+  rejects_replace(valid, "\"mode\":\"root_owned\"", "\"mode\":\"borrowed\"", "function-body");
+  rejects_replace(valid, "\"op\":\"return\",\"value\":9", "\"op\":\"add\",\"value\":9", "function-body");
+  rejects_replace(valid, "\"field_count\":1", "\"field_count\":2", "abi-layout");
   return 0;
 }

@@ -923,6 +923,29 @@ physical mapping; an absent semantic issuer requires a named design stop.
    Preserve current vocabulary; missing physical type information is reported
    for task 2, never inferred as source semantics to make a test green.
 
+   Landed I0: the parser now decodes the ABI-bearing direct schema call-locally
+   and rejects missing/duplicate fields, out-of-range or foreign block/value/
+   layout/Birth references, malformed invokes, frame-mode drift, PHI
+   predecessor drift, and terminal/edge disagreement before artifact output.
+   The focused C fixture is a complete input, and unchanged Pair source now
+   reaches the same exported C parser through final-view serialization. This
+   proves transport validation only; it does not emit an object or execute the
+   runtime.
+
+### CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1 — lowering ABI completion
+
+Decision: design-stop.
+Source authority + canonical issuer: the final view's physical program/layout
+projection and runtime-owned ABI headers.
+Non-authority: C type inference, default diagnostic sites, host layout and V2
+row reconstruction.
+Fail-fast boundary: an unowned physical type, site or target ABI keeps C
+lowering and host cutover closed.
+Smallest next slice: one read-only owner audit of the existing physical types,
+diagnostic-site representation and target FaultFrame placement.
+Non-claims: C opcode lowering, Pair EXE/OBJ 30, compatibility retirement or a
+new semantic receipt.
+
 2. **Close the lowering ABI in the existing physical input — BoxShape.**
    Owner: `physical_abi.rs` / direct serializer and the existing final view;
    consumer: the same dedicated parser, then task 3 lowerer. Retain the

@@ -37,6 +37,10 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   artifact emission. Its nonempty body path is not read as a JSON program until
   the source-backed physical body owner exists; it is not Pair execution
   evidence.
+- The direct lifecycle physical-v1 parser is a call-local preartifact decoder
+  for the final-view ABI-bearing JSON. It checks function/block/value/layout,
+  Birth, PHI, invoke/frame and CFG references without source-name recovery;
+  the focused Pair transport check proves this validation boundary only.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.

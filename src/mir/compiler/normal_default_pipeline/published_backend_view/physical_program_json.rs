@@ -262,7 +262,59 @@ mod tests {
                     Err("[freeze:contract][published-lifecycle/consumer-pending]".into())
                 },
             );
-            assert!(matches!(result, Err(error) if error.contains("consumer-pending")));
+            match result {
+                Err(error) => assert!(error.contains("consumer-pending"), "{error}"),
+                Ok(_) => panic!("C parser test unexpectedly completed the pending consumer"),
+            }
+        });
+    }
+
+    #[cfg(feature = "plugins")]
+    #[test]
+    #[ignore = "requires bash tools/build_hako_llvmc_ffi.sh before this focused transport check"]
+    fn issued_pair_json_is_accepted_by_c_parser() {
+        use std::ffi::{CStr, CString};
+        use std::os::raw::{c_char, c_int, c_void};
+
+        extern "C" { fn free(ptr: *mut c_void); }
+
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            let path = std::env::temp_dir().join(format!(
+                "hako-issued-lifecycle-pair-{}.json", std::process::id(),
+            ));
+            let mut compiler = MirCompiler::with_options(false);
+            let result = compiler.compile_normal_with_published(
+                request(include_str!("../../../../../apps/typed-object-birth-min/main.hako")),
+                |view, _| -> Result<(), String> {
+                    let encoded = emit_lifecycle_physical_abi_json(
+                        &view.issue_lifecycle_physical_abi_input()?,
+                    )?;
+                    std::fs::write(&path, encoded).map_err(|error| error.to_string())?;
+                    unsafe {
+                        type ValidateFn = unsafe extern "C" fn(*const c_char, *mut *mut c_char) -> c_int;
+                        let library = libloading::Library::new("target/release/libhako_llvmc_ffi.so")
+                            .map_err(|error| format!("C parser library unavailable: {error}"))?;
+                        let validate: libloading::Symbol<ValidateFn> = library
+                            .get(b"hako_llvmc_validate_published_lifecycle_physical_v1\0")
+                            .map_err(|error| format!("C parser export unavailable: {error}"))?;
+                        let input = CString::new(path.to_string_lossy().as_bytes())
+                            .map_err(|_| "temporary JSON path contains NUL".to_owned())?;
+                        let mut error: *mut c_char = std::ptr::null_mut();
+                        let rc = validate(input.as_ptr(), &mut error);
+                        let message = if error.is_null() { String::new() }
+                            else { CStr::from_ptr(error).to_string_lossy().into_owned() };
+                        if !error.is_null() { free(error as *mut c_void); }
+                        if rc != 0 { return Err(format!("issued Pair JSON rejected by C parser: {message}")); }
+                    }
+                    Err("[freeze:contract][published-lifecycle/consumer-pending]".into())
+                },
+            );
+            let _ = std::fs::remove_file(&path);
+            match result {
+                Err(error) => assert!(error.contains("consumer-pending"), "{error}"),
+                Ok(_) => panic!("C parser test unexpectedly completed the pending consumer"),
+            }
         });
     }
 

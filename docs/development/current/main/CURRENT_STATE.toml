@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-I0"
-current_execution_cohort = "constructor_lifecycle_c_physical_parser_boxshape"
-current_design_stop = "none"
-current_blocker_token = "BoxShape: complete the existing physical parser contract with real serialized Pair input and finite negative coverage; lowering ABI, host cutover and EXE30 remain gated."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1"
+current_execution_cohort = "constructor_lifecycle_physical_abi_boxshape"
+current_design_stop = "Physical value type, diagnostic-site and target FaultFrame placement owners must be fixed before C lowering."
+current_blocker_token = "Design stop: audit the existing physical type, diagnostic-site and target FaultFrame ABI owners; C lowering, host cutover and EXE30 remain closed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,16 +32,15 @@ latest_card = "constructor-birth-new-lifecycle-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
 latest_card_summary = """
 Design/task order consolidated at the constructor owner. Birth handoff and
-physical program/layout serialization exist, but the dedicated parser checks
-only an envelope and its incomplete positive fixture does not prove the contract.
-Next: complete that parser using actual issued Pair JSON, then close physical
-lowering ABI (including profile, frame/types/site rules), connect the real host
-and C consumer, prove EXE30/linked OBJ30 and retire selected old edges.
+physical program/layout serialization exist; direct C parser I0 now validates
+the complete ABI-bearing schema and accepts unchanged issued Pair JSON.
+Next is a design stop for physical types, diagnostic sites and target frame
+placement, then C lowering/host connection, EXE30/linked OBJ30 and retirement.
 Production still uses generic lifecycle JSON plus V2 and stops at
 body-consumer-pending. No checked-runtime or whole-MirBuilder completion claim.
 """
-next_design_card = "none"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
