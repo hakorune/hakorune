@@ -165,15 +165,12 @@ later rows require their concrete mapping before changing `work_mode` to
 | 5. LLVM + production cutover (BoxCount) | `published_mir_object.rs` lifecycle caller -> dedicated call-local consumer -> object/EXE | Emit the complete selected function/control/runtime ABI; switch the real host caller and delete its generic lifecycle JSON + V2 pending companion edge in the same series. Fixed source EXE30 and OBJ->linked EXE30, Fault ordering/cleanup, Normal-only out loads, frame lifetime and no partial artifact are mandatory. |
 | 6. Caller-zero retirement (Delete) | selected transport/proof owners -> required production acceptance | Audit direct, manifest, aggregate and directory discovery; delete unused V2 wrappers/pending helpers/private probes and the legacy proof route. Retain shared helpers only with named live callers. No selected old retry/re-entry remains. |
 
-The first ready D1 implementation is preceded by
-`CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-OWNER-SPLIT-I0` (BoxShape): move the
-existing root Home progress/validation responsibility from
-`ordinary_new_local_commit.rs` into its child module without changing its API,
-tests, behavior or test paths. The parent is 746 lines, so this is required
-before adding the retained-origin row. The follow-up
-`CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-RETENTION-I0` owns only the existing
-`RootHomeExitProgress` -> selected emitter handoff; it cannot widen source
-acceptance or touch Birth representation/Reclaim.
+`CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-OWNER-SPLIT-I0` is landed (BoxShape): root
+Home progress/validation now lives in `ordinary_new_local_commit/root_home.rs`.
+The parent is 633 lines and the child is 125; public API, tests, behavior and
+test paths are unchanged. `CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-RETENTION-I0`
+now owns only the existing `RootHomeExitProgress` -> selected emitter handoff;
+it cannot widen source acceptance or touch Birth representation/Reclaim.
 
 Step 0 validation uses the existing semantic-package suite, identical test
 discovery before/after, source line counts and pointer guard. No new fixture,

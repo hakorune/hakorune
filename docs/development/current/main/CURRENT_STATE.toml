@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-OWNER-SPLIT-I0"
-current_execution_cohort = "constructor_lifecycle_home_origin_owner_split"
-current_design_stop = "none for owner split; Home-origin retention remains fenced until the existing root-home responsibility is isolated below the source budget."
-current_blocker_token = "BoxShape prerequisite only: split the existing root Home progress/validation responsibility out of ordinary_new_local_commit.rs (746 lines) without changing APIs, test paths or behavior. Do not retain origins, add receipt fields, alter emission, or touch Birth/Reclaim representation in this row."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-RETENTION-I0"
+current_execution_cohort = "constructor_lifecycle_home_origin_retention"
+current_design_stop = "none for Home-origin retention; D1 fixes RootHomeExitProgress as the sole retained-origin owner and the selected root Home emitter as its only consumer."
+current_blocker_token = "BoxShape row: replace the naked `(CanonicalObjectIdV1, ValueId)` root-Home handoff with the existing Home binding plus exact completion exit origin, then bind/validate it in the selected emitter. No new semantic receipt, source-shape widening, Birth/Reclaim work, target ABI, C activation, or production switch."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,14 +34,14 @@ latest_card_summary = """
 D2 separates source-owned requirements/origins, existing physical emission
 bindings and backend/runtime target layout. Owner split I0 landed below 760
 lines. D0/D1 identify existing HomeRelease and Reclaim issuers, while root and
-Birth representation retain explicit NoIssuer cases. The next ready step is a
-behavior-preserving root-Home owner split; retention follows separately. The
-field-read focused red reproduces at parent (left 1/right 0), so it is known
-baseline debt. Pair EXE30/linked OBJ30 and selected retirement remain required
-and unproven.
+Birth representation retain explicit NoIssuer cases. The root-Home owner split
+landed at 633/125 lines; the next ready step retains its existing origin
+through the selected emitter. The field-read focused red reproduces at parent
+(left 1/right 0), so it is known baseline debt. Pair EXE30/linked OBJ30 and
+selected retirement remain required and unproven.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-D1 (accepted; remaining NoIssuer rows stay explicit)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-OWNER-SPLIT-I0"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-RETENTION-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
