@@ -5,8 +5,8 @@
 //! dependency; unknown prefix meaning never becomes an empty Home list.
 
 use super::{
-    BindingRefV1, ExprChildRoleV1, OwnedExprSiteV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+    BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
+    ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -90,8 +90,52 @@ pub(crate) fn issue_new_home_prefixes_v1(
         .unwrap_or_else(|never| match never {}).0
 }
 
+/// Source-only terminal shape for the selected ordinary-`New` root.
+///
+/// This records the decision made by the Completion ownership walk.  It has no
+/// physical value, ABI, recipe, JSON, or backend authority.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct TerminalI64AddReturnV1 {
+    owner: FunctionOwnerIdV1,
+    return_site: SourceStmtSiteV1,
+    add_site: OwnedExprSiteV1,
+    field_reads: [OwnedExprSiteV1; 2],
+}
+
+impl TerminalI64AddReturnV1 {
+    fn issue(
+        owner: FunctionOwnerIdV1,
+        return_site: SourceStmtSiteV1,
+        add_site: OwnedExprSiteV1,
+        field_reads: [OwnedExprSiteV1; 2],
+    ) -> Self {
+        Self { owner, return_site, add_site, field_reads }
+    }
+
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
+        &self.return_site
+    }
+
+    pub(crate) fn add_site(&self) -> &OwnedExprSiteV1 {
+        &self.add_site
+    }
+
+    pub(crate) fn field_reads(&self) -> &[OwnedExprSiteV1; 2] {
+        &self.field_reads
+    }
+}
+
 #[derive(PartialEq, Eq)]
-enum ReturnScalar { Integer, OtherTrivial }
+enum ReturnScalar {
+    Integer,
+    OtherTrivial,
+    IntegerField(OwnedExprSiteV1),
+    I64Add { site: OwnedExprSiteV1, field_reads: [OwnedExprSiteV1; 2] },
+}
 
 // This classifier is terminal-only: argument and prefix-local eligibility
 // still belongs to value_class. Field authority is borrowed from the exact
@@ -119,17 +163,26 @@ fn return_scalar<E>(
                 else { return Ok(None); };
             let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(receiver.site())
                 else { return Ok(None); };
-            Ok(field_is_integer(&OwnedExprSiteV1::new(input.owner(), site.clone()),
-                receiver.site(), binding, home, field)?.then_some(ReturnScalar::Integer))
+            let field_site = OwnedExprSiteV1::new(input.owner(), site.clone());
+            Ok(field_is_integer(&field_site, receiver.site(), binding, home, field)?
+                .then_some(ReturnScalar::IntegerField(field_site)))
         }
         ASTNode::BinaryOp { operator: crate::ast::BinaryOperator::Add, .. } => {
+            let mut field_reads = Vec::new();
             for role in [ExprChildRoleV1::BinaryLeft, ExprChildRoleV1::BinaryRight] {
                 let Ok(child) = input.source().child_expr_from_expr(&expr, role)
                     else { return Ok(None); };
-                if return_scalar(input, child.site(), locals, field_is_integer)?
-                    != Some(ReturnScalar::Integer) { return Ok(None); }
+                match return_scalar(input, child.site(), locals, field_is_integer)? {
+                    Some(ReturnScalar::IntegerField(site)) => field_reads.push(site),
+                    Some(ReturnScalar::Integer) => {}
+                    _ => return Ok(None),
+                }
             }
-            Ok(Some(ReturnScalar::Integer))
+            let add_site = OwnedExprSiteV1::new(input.owner(), site.clone());
+            match field_reads.try_into() {
+                Ok(field_reads) => Ok(Some(ReturnScalar::I64Add { site: add_site, field_reads })),
+                Err(_) => Ok(Some(ReturnScalar::Integer)),
+            }
         }
         _ => Ok(None),
     }
@@ -145,11 +198,13 @@ pub(crate) fn scan_new_home_flow<E>(
 ) -> Result<(
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
+    Option<TerminalI64AddReturnV1>,
 ), E> {
     let mut results = BTreeMap::new();
     let mut terminal_homes = Err(HomePrefixUnavailableV1::TerminalNotCovered);
+    let mut terminal_result = None;
     if selected.is_empty() && terminal.is_none() {
-        return Ok((results, terminal_homes));
+        return Ok((results, terminal_homes, terminal_result));
     }
     let function = input.function();
     let mut unavailable = (function.declaration_sites().any(|site| {
@@ -166,7 +221,7 @@ pub(crate) fn scan_new_home_flow<E>(
         return Ok((selected
             .keys()
             .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
-            .collect(), Err(HomePrefixUnavailableV1::SourceMismatch)));
+            .collect(), Err(HomePrefixUnavailableV1::SourceMismatch), terminal_result));
     };
     let mut locals = BTreeMap::new();
     let mut homes = Vec::new();
@@ -185,7 +240,15 @@ pub(crate) fn scan_new_home_flow<E>(
                 ASTNode::Return { value: None, .. } => true,
                 ASTNode::Return { value: Some(_), .. } => match input.source()
                     .child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue) {
-                    Ok(value) => return_scalar(input, value.site(), &locals, field_is_integer)?.is_some(),
+                    Ok(value) => match return_scalar(input, value.site(), &locals, field_is_integer)? {
+                        Some(ReturnScalar::I64Add { site, field_reads }) => {
+                            terminal_result = Some(TerminalI64AddReturnV1::issue(
+                                input.owner(), statement.site().clone(), site, field_reads));
+                            true
+                        }
+                        Some(_) => true,
+                        None => false,
+                    },
                     Err(_) => false,
                 },
                 _ => false,
@@ -196,6 +259,9 @@ pub(crate) fn scan_new_home_flow<E>(
                 None if results.len() != selected.len() => Err(HomePrefixUnavailableV1::SourceMismatch),
                 None => Ok(homes.iter().rev().copied().collect()),
             };
+            if terminal_homes.is_err() {
+                terminal_result = None;
+            }
             break;
         }
         let ASTNode::Local {
@@ -323,5 +389,5 @@ pub(crate) fn scan_new_home_flow<E>(
                 .unwrap_or(HomePrefixUnavailableV1::SourceMismatch))
         });
     }
-    Ok((results, terminal_homes))
+    Ok((results, terminal_homes, terminal_result))
 }

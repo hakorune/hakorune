@@ -185,6 +185,13 @@ BindingRef, Home BindingRef and canonical field rows until the whole terminal
 succeeds. The existing field port lowers the receiver once and compares its
 ValueId to the retained binding before emitting `ObjectFieldGet`. Final root
 and compiler-finishing validation reject missing, duplicate or drifted reads.
+For the one accepted `Pair` result shape, the same Completion walk additionally
+issues `TerminalI64AddReturnV1`: its owner, explicit Return and Add source sites,
+and the ordered two already-staged FieldRead sites. It is present only when the
+terminal Home result succeeds and both operands are exact qualifying i64 field
+accesses. It carries no ValueId, MIR, ABI, JSON, recipe key, or raw-dispatch
+authority; a later dedicated consumer must use this relation rather than
+reclassifying the return expression.
 This does not activate generic JSON transport or a lifecycle backend consumer.
 Unavailable cleanup is exercised as a private physical-state test on real
 source-issued read rows, not as an accepted `fini` syntax or executable proof.

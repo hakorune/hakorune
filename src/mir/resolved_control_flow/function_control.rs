@@ -375,12 +375,12 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
     crate::mir::resolved_semantics::OwnedExprSiteV1,
     Result<crate::mir::resolved_semantics::home_new_prefix::CallerNewHomePrefixV1,
         crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1>,
->), FunctionCompletionVerificationErrorV1>, E> {
+>, Option<crate::mir::resolved_semantics::home_new_prefix::TerminalI64AddReturnV1>), FunctionCompletionVerificationErrorV1>, E> {
     let mut completion = match verify_function_completion_v1(input) {
         Ok(completion) => completion,
         Err(error) => return Ok(Err(error)),
     };
-    let (prefixes, homes) = crate::mir::resolved_semantics::home_new_prefix::scan_new_home_flow(
+    let (prefixes, homes, terminal_result) = crate::mir::resolved_semantics::home_new_prefix::scan_new_home_flow(
         input, selected, completion.explicit_site(), field_is_integer)?;
     let cleanup = ResolvedCleanupObligationsV1::explicit_empty().with_terminal_homes(homes);
     match &mut completion {
@@ -388,7 +388,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         VerifiedFunctionCompletionV1::ExplicitReturns(row) => row.cleanup = cleanup,
         VerifiedFunctionCompletionV1::ImplicitVoid(row) => row.cleanup = cleanup,
     }
-    Ok(Ok((completion, prefixes)))
+    Ok(Ok((completion, prefixes, terminal_result)))
 }
 
 pub(crate) fn verify_function_completion_v1(

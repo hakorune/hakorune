@@ -21,6 +21,7 @@ use crate::mir::instance_constructor_abi::{
 };
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
+    TerminalI64AddReturnV1,
 };
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::resolved_semantics::{
@@ -120,6 +121,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_validation: RefCell<local_commit::RootNewValidation>,
     root_exit: RefCell<local_commit::RootHomeExitProgress>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
+    terminal_result: Option<TerminalI64AddReturnV1>,
     root_completion: Option<
         Result<
             crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
@@ -163,6 +165,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),
             root_exit: RefCell::new(local_commit::RootHomeExitProgress::Unprepared),
             field_reads: RefCell::new(BTreeMap::new()),
+            terminal_result: None,
             root_completion: None,
         }
     }
@@ -233,6 +236,10 @@ impl OrdinaryNewClaimLedgerV1 {
             && self.root_home_exit_is_complete()
             && self.field_reads_complete()
     }
+
+    pub(crate) fn terminal_i64_add_return(&self) -> Option<&TerminalI64AddReturnV1> {
+        self.terminal_result.as_ref()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -291,6 +298,9 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
     DuplicateSite {
         site: OwnedExprSiteV1,
     },
+    TerminalResultFieldReadMissing {
+        site: OwnedExprSiteV1,
+    },
 }
 
 pub(crate) fn issue_ordinary_new_claims_v1(
@@ -303,6 +313,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     let mut claims = Vec::new();
     let mut root_completion = None;
     let mut root_field_reads = BTreeMap::new();
+    let mut root_terminal_result = None;
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -365,9 +376,22 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_v1(
                         input, &selected, &mut field_is_integer)? {
-                        Ok((completion, prefixes)) => {
+                        Ok((completion, prefixes, terminal_result)) => {
                             if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
+                                if let Some(result) = &terminal_result {
+                                    if result.owner() != input.owner()
+                                        || result.field_reads().iter().any(|site|
+                                            !staged_reads.contains_key(site))
+                                    {
+                                        return Err(
+                                            OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                                                site: result.add_site().clone(),
+                                            },
+                                        );
+                                    }
+                                }
                                 root_field_reads = staged_reads;
+                                root_terminal_result = terminal_result;
                             }
                             root_completion = Some(Ok(completion));
                             prefixes
@@ -526,6 +550,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
     ledger.root_completion = root_completion;
     ledger.field_reads = RefCell::new(root_field_reads);
+    ledger.terminal_result = root_terminal_result;
     Ok(ledger)
 }
 
@@ -557,3 +582,6 @@ fn no_birth_constructor_disposition(
 #[cfg(test)]
 #[path = "ordinary_new_coseal_tests.rs"]
 mod tests;
+#[cfg(test)]
+#[path = "ordinary_new_terminal_result_tests.rs"]
+mod terminal_result_tests;
