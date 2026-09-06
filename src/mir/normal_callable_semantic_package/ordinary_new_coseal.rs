@@ -559,6 +559,21 @@ mod tests {
             ledger.try_take(&site, "Page", 0),
             Err(OrdinaryNewClaimTakeErrorV1::Unavailable)
         );
+        use crate::mir::function::{RootOrdinaryNewObservation as O, RootOrdinaryNewUnavailable as U};
+        let physical = crate::mir::MirFunction::new(crate::mir::FunctionSignature {
+            name: "observation_only".into(), params: vec![],
+            return_type: crate::mir::MirType::Void, effects: crate::mir::EffectMask::CONTROL,
+        }, crate::mir::BasicBlockId::new(0));
+        ledger.register_new_root(site.owner()).unwrap();
+        assert_eq!(ledger.validate_finalized_new_root(&physical).unwrap(), O::Unavailable(U::CompletionMissing));
+        let mut ledger = ledger;
+        ledger.root_completion = Some(Err(crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1::BodyLengthOverflow));
+        *ledger.root_validation.borrow_mut() = local_commit::RootNewValidation::Pending(site.owner());
+        assert_eq!(ledger.validate_finalized_new_root(&physical).unwrap(), O::Unavailable(U::CompletionRejected));
+        let empty = OrdinaryNewClaimLedgerV1::issue(Box::new([]), Box::new([]));
+        assert_eq!(empty.validate_finalized_new_root(&physical).unwrap(), O::NotIssued);
+        empty.register_new_root(site.owner()).unwrap();
+        assert_eq!(empty.validate_finalized_new_root(&physical).unwrap(), O::NoSelectedLocalNew);
     }
 
     #[test]

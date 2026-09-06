@@ -110,7 +110,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
         .finalize_module_with_root_validation(result_value, |function| {
             match root_new_ledger {
                 Some(ledger) => ledger.validate_finalized_new_root(function),
-                None => Ok(()),
+                None => Ok(crate::mir::function::RootOrdinaryNewObservation::NotIssued),
             }
         })
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into()))

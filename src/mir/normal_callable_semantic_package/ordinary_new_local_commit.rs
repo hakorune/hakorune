@@ -12,6 +12,7 @@ use crate::mir::resolved_semantics::{
 use crate::mir::ValueId;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use hakorune_mir_defs::CanonicalObjectIdV1;
+use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
 
 #[derive(Debug)]
 pub(super) enum RootNewValidation {
@@ -188,16 +189,42 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Called on the exact physical root after all module finalization passes.
     /// Script-only packages never register a callable root; an empty New set
     /// does not erase a registered root's validation obligation.
-    pub(crate) fn validate_finalized_new_root(&self, function: &MirFunction) -> Result<(), String> {
+    pub(crate) fn validate_finalized_new_root(&self, function: &MirFunction) -> Result<RootOrdinaryNewObservation, String> {
         let mut state = self.root_validation.borrow_mut();
-        match *state {
-            RootNewValidation::Unregistered => return Ok(()),
-            RootNewValidation::Pending(owner) => self.validate_new_emissions(owner, function)?,
+        let owner = match *state {
+            RootNewValidation::Unregistered => return Ok(RootOrdinaryNewObservation::NotIssued),
+            RootNewValidation::Pending(owner) => owner,
             RootNewValidation::Checked => return Err(freeze("duplicate-root-validation")),
-        }
+        };
+        self.validate_new_emissions(owner, function)?;
         self.validate_root_home_exit(function)?;
+        let observation = self.finalized_root_observation(owner);
         *state = RootNewValidation::Checked;
-        Ok(())
+        Ok(observation)
+    }
+
+    fn finalized_root_observation(&self, owner: FunctionOwnerIdV1) -> RootOrdinaryNewObservation {
+        use RootOrdinaryNewObservation::{NoSelectedLocalNew, SourceCompleteAtFinalization, Unavailable};
+        use RootOrdinaryNewUnavailable::*;
+        let rows = self.local_commits.borrow();
+        let mut selected = rows.values().filter(|row| row.binding.owner() == owner).peekable();
+        if selected.peek().is_none() { return NoSelectedLocalNew; }
+        let completion = match &self.root_completion {
+            None => return Unavailable(CompletionMissing),
+            Some(Err(_)) => return Unavailable(CompletionRejected),
+            Some(Ok(completion)) => completion,
+        };
+        if !matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
+            return Unavailable(TerminalHomesUnavailable);
+        }
+        if selected.any(|row| matches!(row.emission, NewEmissionProgress::RetainedUnavailable)) {
+            return Unavailable(NewEmissionUnavailable);
+        }
+        match &*self.root_exit.borrow() {
+            RootHomeExitProgress::Emitted(_) => SourceCompleteAtFinalization,
+            RootHomeExitProgress::Unavailable => Unavailable(RootExitUnavailable),
+            _ => unreachable!("final root validation rejects unconsumed exit"),
+        }
     }
 
     /// Select from retained source products before argument descent. No new

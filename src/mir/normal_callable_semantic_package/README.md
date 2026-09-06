@@ -10,6 +10,15 @@ to the collector; completed local claims retain that immutable projection.
 Post-transfer lookup cannot reissue it. This transport does not authorize
 Birth execution or prove normal/Fault cleanup has been emitted.
 
+The exact root finalizer preserves the ledger's ordinary-New observation on
+that function after final physical binding validation: NotIssued, no selected
+local New, unavailable (Completion missing/rejected, terminal Homes, New
+emission or root exit unavailable), or source-complete at finalization.
+Residual/foreign/drifted bindings remain errors. This is not backend admission:
+MirFunction is still mutable, and Birth validation belongs to its own owner.
+Executable lifecycle activation requires freezing the validated module before
+mutable access escapes; a later wrapper or an observation flag is insufficient.
+
 ```text
 VerifiedFinalCallableProgramSourceV1
   ├─ source-backed installable callable catalog

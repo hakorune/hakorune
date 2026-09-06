@@ -413,13 +413,16 @@ impl super::MirBuilder {
     /// 3. Return type inference (delegation to return_type_strategy)
     /// 4. Module sealing (metadata, birth verification)
     pub(super) fn finalize_module(&mut self, result_value: ValueId) -> Result<MirModule, String> {
-        self.finalize_module_with_root_validation(result_value, |_| Ok(()))
+        self.finalize_module_with_root_validation(result_value, |_| {
+            Ok(crate::mir::function::RootOrdinaryNewObservation::NotIssued)
+        })
     }
 
     pub(super) fn finalize_module_with_root_validation(
         &mut self,
         result_value: ValueId,
-        validate_root: impl FnOnce(&crate::mir::MirFunction) -> Result<(), String>,
+        validate_root: impl FnOnce(&crate::mir::MirFunction)
+            -> Result<crate::mir::function::RootOrdinaryNewObservation, String>,
     ) -> Result<MirModule, String> {
         // Hint: scope leave at function end (id=0 for main)
         self.hint_scope_leave(0);
@@ -606,10 +609,11 @@ impl super::MirBuilder {
             )?;
         }
 
-        let root = module.functions.get(&root_function_key).ok_or_else(|| {
+        let root = module.functions.get_mut(&root_function_key).ok_or_else(|| {
             "[freeze:contract][mir/finalize/root-definition-missing]".to_owned()
         })?;
-        validate_root(root)?;
+        let observation = validate_root(root)?;
+        root.install_root_ordinary_new_observation(observation)?;
         self.function_state = Default::default();
         Ok(module)
     }

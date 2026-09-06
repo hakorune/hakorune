@@ -37,6 +37,7 @@ impl MirFunction {
         }
 
         Self {
+            root_ordinary_new_observation: None,
             signature,
             blocks,
             entry_block,
@@ -45,6 +46,22 @@ impl MirFunction {
             next_value_id: initial_counter,
             metadata: FunctionMetadata::default(),
         }
+    }
+
+    /// Historical source result only; this does not authorize current CFG execution.
+    pub(crate) fn root_ordinary_new_observation(&self) -> super::RootOrdinaryNewObservation {
+        self.root_ordinary_new_observation.unwrap_or(super::RootOrdinaryNewObservation::NotIssued)
+    }
+
+    /// Sole production caller: the exact root's final module validation callback.
+    pub(in crate::mir) fn install_root_ordinary_new_observation(
+        &mut self, observation: super::RootOrdinaryNewObservation,
+    ) -> Result<(), String> {
+        if self.root_ordinary_new_observation.is_some() {
+            return Err("[freeze:contract][mir/finalize/duplicate-root-observation]".into());
+        }
+        self.root_ordinary_new_observation = Some(observation);
+        Ok(())
     }
 
     /// Get the next available ValueId

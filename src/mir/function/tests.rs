@@ -16,6 +16,12 @@ fn test_function_creation() {
     assert_eq!(function.signature.name, "test_func");
     assert_eq!(function.entry_block, entry_block);
     assert!(function.blocks.contains_key(&entry_block));
+    assert_eq!(function.root_ordinary_new_observation(), RootOrdinaryNewObservation::NotIssued);
+    let mut function = function;
+    function.install_root_ordinary_new_observation(RootOrdinaryNewObservation::NotIssued).unwrap();
+    assert!(function.install_root_ordinary_new_observation(
+        RootOrdinaryNewObservation::SourceCompleteAtFinalization).is_err());
+    assert_eq!(function.root_ordinary_new_observation(), RootOrdinaryNewObservation::NotIssued);
 }
 
 #[test]

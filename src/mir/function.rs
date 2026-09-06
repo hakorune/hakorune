@@ -25,6 +25,7 @@ pub(crate) use object_definition::{
 mod published_backend_view;
 mod typed_array_contract;
 mod types;
+pub(crate) use types::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
 
 #[cfg(test)]
 mod tests;

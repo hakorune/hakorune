@@ -191,9 +191,31 @@ pub struct ArrayElementWriteWitness {
     pub state_term: ArrayStateTermId,
 }
 
+/// Source-owner observation at finalization, NOT executable admission.
+/// Public MIR mutation can invalidate this historical observation. A backend
+/// must not use it as authorization without a validation-to-consumption freeze.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RootOrdinaryNewObservation {
+    NotIssued,
+    NoSelectedLocalNew,
+    Unavailable(RootOrdinaryNewUnavailable),
+    SourceCompleteAtFinalization,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RootOrdinaryNewUnavailable {
+    CompletionMissing,
+    CompletionRejected,
+    TerminalHomesUnavailable,
+    NewEmissionUnavailable,
+    RootExitUnavailable,
+}
+
 /// A MIR function in SSA form
 #[derive(Debug, Clone)]
 pub struct MirFunction {
+    /// Installed once by the exact root finalizer, never by JSON or a backend.
+    pub(super) root_ordinary_new_observation: Option<RootOrdinaryNewObservation>,
     /// Function signature
     pub signature: FunctionSignature,
 

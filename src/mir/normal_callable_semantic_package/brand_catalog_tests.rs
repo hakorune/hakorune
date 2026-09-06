@@ -222,7 +222,8 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     let mut drifted = physical.clone();
     drifted.blocks.clear();
     assert!(ledger.validate_finalized_new_root(&drifted).is_err());
-    ledger.validate_finalized_new_root(&physical).unwrap();
+    assert_eq!(ledger.validate_finalized_new_root(&physical).unwrap(),
+        crate::mir::function::RootOrdinaryNewObservation::SourceCompleteAtFinalization);
     assert!(ledger.validate_finalized_new_root(&physical).unwrap_err().contains("duplicate-root-validation"));
 }
 
@@ -347,6 +348,8 @@ fn ordinary_new_local_completion_reaches_package_finish_for_two_destinations() {
         ).expect("both target takes must complete through their exact locals");
         assert!(result.verification_result.is_ok());
         let main = result.module.get_function("main").unwrap();
+        assert_eq!(main.root_ordinary_new_observation(),
+            crate::mir::function::RootOrdinaryNewObservation::SourceCompleteAtFinalization);
         assert_eq!(main.blocks.values().flat_map(|block| block.all_instructions()).filter(|inst|
             matches!(inst, crate::mir::MirInstruction::Invoke {
                 operation: crate::mir::instruction::InvokeOperation::Call(call), .. }
@@ -586,6 +589,8 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
             Some("Pair.birth/2")
         );
         let function = result.module.get_function("Pair.birth/2").unwrap();
+        assert_eq!(function.root_ordinary_new_observation(),
+            crate::mir::function::RootOrdinaryNewObservation::NotIssued);
         assert_eq!(function.signature.params.len(), 3);
         let contracts = &function.metadata.exact_numeric_runtime_check_contracts;
         assert_eq!(contracts.len(), 2, "unannotated birth values require checks");
@@ -634,6 +639,8 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
             .module
             .get_function("main")
             .expect("published Main entry");
+        assert!(matches!(main.root_ordinary_new_observation(),
+            crate::mir::function::RootOrdinaryNewObservation::Unavailable(_)));
         assert_eq!(main.signature.return_type, crate::mir::MirType::Integer);
         let mut read_count = 0;
         let mut add_count = 0;
