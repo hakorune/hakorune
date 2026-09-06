@@ -14,6 +14,7 @@ use crate::mir::instruction::{FaultFrameMode, InvokeOperation};
 use super::physical_program::{
     PublishedLifecyclePhysicalProgramV1,
 };
+use super::physical_abi::PublishedLifecyclePhysicalAbiInputV1;
 
 const SCHEMA: &str = "hako.published-lifecycle-physical-program.v1";
 
@@ -60,6 +61,28 @@ pub(crate) fn emit_lifecycle_physical_program_json(
         .collect::<Result<Vec<_>, String>>()?;
     serde_json::to_string(&json!({ "schema": SCHEMA, "functions": functions }))
         .map_err(|error| fault(&format!("serialize:{error}")))
+}
+
+/// Extends the issued program transport with layout rows from the same final
+/// view and the runtime-owned FaultFrame ABI revision.  It never reads MIR.
+pub(crate) fn emit_lifecycle_physical_abi_json(
+    input: &PublishedLifecyclePhysicalAbiInputV1<'_>,
+) -> Result<String, String> {
+    let mut root: Value = serde_json::from_str(&emit_lifecycle_physical_program_json(input.program())?)
+        .map_err(|error| fault(&format!("program-parse:{error}")))?;
+    let object = root.as_object_mut().ok_or_else(|| fault("program-root"))?;
+    object.insert("fault_abi_version".into(), json!(input.fault_abi_version()));
+    object.insert("layouts".into(), Value::Array(input.layouts().iter().map(|layout| json!({
+        "object_id": layout.object_id(),
+        "runtime_type_id": layout.runtime_type_id(),
+        "field_count": layout.field_count(),
+        "fields": layout.fields().iter().map(|field| json!({
+            "declaration_ordinal": field.declaration_ordinal(),
+            "runtime_slot": field.runtime_slot(),
+            "storage_kind": field.storage_kind(),
+        })).collect::<Vec<_>>(),
+    })).collect()));
+    serde_json::to_string(&root).map_err(|error| fault(&format!("serialize:{error}")))
 }
 
 fn birth_ordinals(
@@ -207,8 +230,8 @@ mod tests {
             let result = compiler.compile_normal_with_published(
                 request(include_str!("../../../../../apps/typed-object-birth-min/main.hako")),
                 |view, _| -> Result<(), String> {
-                    let program = view.issue_lifecycle_physical_program()?;
-                    let encoded = emit_lifecycle_physical_program_json(&program)?;
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let encoded = emit_lifecycle_physical_abi_json(&input)?;
                     let json: Value = serde_json::from_str(&encoded)
                         .map_err(|error| error.to_string())?;
                     assert_eq!(json["schema"], SCHEMA);
@@ -217,6 +240,12 @@ mod tests {
                     assert_eq!(functions[0]["role"], "root_i64");
                     assert_eq!(functions[1]["role"], "birth_unit");
                     assert_eq!(functions[1]["params"].as_array().unwrap().len(), 3);
+                    assert_eq!(json["fault_abi_version"], 1);
+                    let layouts = json["layouts"].as_array().expect("layout array");
+                    assert_eq!(layouts.len(), 1);
+                    assert_eq!(layouts[0]["field_count"], 2);
+                    assert_eq!(layouts[0]["fields"][0]["runtime_slot"], 0);
+                    assert_eq!(layouts[0]["fields"][1]["runtime_slot"], 1);
                     for function in functions {
                         for block in function["blocks"].as_array().expect("blocks array") {
                             assert_eq!(

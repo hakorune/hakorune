@@ -1016,6 +1016,24 @@ separate tasks.
 Non-claims: a semantic receipt, C lowering/object emission, OBJ/EXE exit 30,
 generic reader reuse or legacy deletion.
 
+Landed I0: final view now issues one ABI input carrying the selected program,
+only canonical layouts referenced by that program, and FaultFrame ABI version 1.
+Direct JSON carries those layout rows without rescanning MIR. Real Pair evidence
+proves its two i64 slots and the runtime ABI revision.
+
+### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-D1 — post-projection C owner
+
+Decision: design-stop. Audit a dedicated parser and function-local lowering
+owner for the coherent physical input; generic C readers remain excluded.
+Source authority + canonical issuer: the I0 input and direct JSON are the only
+C program/layout/frame transport.
+Non-authority: V2 rows as a second authority, generic module JSON, metadata,
+name-based selection and old same-module lowering.
+Fail-fast boundary: absent dedicated parser, coordinate/operand/edge/layout
+residual or C-side semantic recovery stays `NoSafeSlice` before object output.
+Smallest next slice: read-only C owner/reuse audit, then parser validation.
+Non-claims: object emission, Pair OBJ/EXE exit 30 and legacy deletion.
+
 Decision: provisional JSON validators remain retired at the no-artifact terminal. Preserve each already-issued Birth recipe's canonical target when a root New claim becomes a local commit, then co-seal it with root Completion and the canonical construction draft after finalization.
 Source authority + canonical issuer: `OrdinaryNewClaimLedgerV1` owns root Completion and issued Birth recipes; its private finalizer validates one exact retained construction draft and issues the opaque final root/Birth handoff before Atomic Publish.
 Non-authority: root symbol, `FunctionSignature`, `MirParamDecl`, instruction position, JSON, C frame, Pair names, canonical-core role, ObjectFieldGet, metadata and positional/default ABI rules.
