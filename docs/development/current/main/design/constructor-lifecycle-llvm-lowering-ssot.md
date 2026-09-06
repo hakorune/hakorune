@@ -1200,14 +1200,26 @@ OBJ exit 30 are not current acceptance evidence.
 
 ### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0`
 
-Step-3 design stop. Name the sole target/session contract between the selected
-C lifecycle body consumer and the kernel process terminal: concrete typed entry
-signature, C-produced status/fault representation, runtime archive/link owner,
-and the exact once-only cleanup/report/dispose order. Reuse the accepted
-`ny_main() -> i64` status policy without treating the current kernel handle
-reader as its consumer. This D0 must set the bounded direct-physical-input
-precondition and reject missing target/frame/status mappings before artifacts;
-it opens neither C codegen nor a kernel switch.
+**Decision (accepted):** the selected lifecycle C body compiler will solely
+produce normalized `ny_main() -> i64` status after cleanup. Its session binds
+the issued contract/V2 frame, one target triple, and the exact kernel archive.
+The kernel owns startup/flush and checked OS-status adaptation only; its current
+raw handle-decode and `i32` cast are non-authority. Fault is C frame-init →
+record → report-final → dispose → 70; normal Pair reaches HomeRelease → 30.
+
+The archive/link owner is `link_object_capi_v2` / `hako_llvmc_link_obj_v2`.
+Missing target, archive, frame/status map, Fault report/dispose relation or
+layout contract rejects before object creation. Generic lifecycle JSON, its
+pending parser, generic C lowering and Raw VM remain non-authority. Future
+acceptance remains direct Pair EXE30 plus independently kernel-linked OBJ EXE30
+with exactly-once normal/fault cleanup and no artifact on rejection.
+
+**D0 result:** execution I0 remains unavailable because Rust exports accept
+opaque FaultFrame storage without issuing C-visible target size/alignment/offset
+layout. The smallest ordered next slice is the existing
+`CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-D0`; it decides that frame
+layout contract before direct physical input. This D0 opens no C codegen,
+kernel switch, object, EXE or Bool work.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
