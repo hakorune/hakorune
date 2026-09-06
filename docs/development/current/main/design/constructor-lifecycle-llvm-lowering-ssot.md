@@ -1092,6 +1092,30 @@ ambiguous ABI producer, untyped status conversion, or artifact process
 projection inferred from a linker symbol must remain a pre-effect failure.
 This D1 opens no Bool relation, C schema, object, EXE, or kernel-only change.
 
+**D1 result:** no existing candidate is selectable. The C lifecycle ingress is
+the selected reader but ends at `body-consumer-pending`; source-entry
+projection is Raw-VM-only; the normal-main thunk is a different source family;
+and generic linking consumes no typed result. The only actual terminal is
+kernel `ny_main() -> i64` normalization, which handle-decodes and casts to
+`i32`. It is explicitly non-authority. No executable delete-set exists.
+
+### `FINAL-ENTRY-RUNTIME-AGREEMENT-D0`
+
+Decision needed before lifecycle Bool or C execution work. Select either one
+dedicated typed compiled-entry/runtime owner or an explicit pre-artifact
+terminal. The chosen owner must carry the exact finalized root result through
+the selected C body, object/link handoff, and a single process terminal; name
+its result/status/Fault and cleanup/disposal contracts, and the one raw entry
+normalization or competing process edge to retire in the future implementation
+series.
+
+Acceptance for a future I0 is source-issued typed root result → selected C
+body → object/link with an exact entry signature → runtime report/status
+projection and exactly-once disposal → EXE observation. Missing mapping,
+signature drift, ambiguous cleanup, a raw i64/handle/i32 decision, or a
+fallback process consumer rejects before effects. This D0 opens no source
+relation, C schema, object, EXE, or kernel-only modification.
+
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
 **Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
