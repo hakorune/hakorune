@@ -916,6 +916,43 @@ do not infer an i64 result or process exit from a physical consumer. A worker
 must audit finite classifier arms, existing retained relations and their
 counterexamples before a bounded I0 is selected.
 
+**Audit result (2026-09-07): no bounded I0 is selected.** The finite boundary
+is `scan_new_home_flow`'s exact App Main source loan through the ordinary-New
+ledger, final handoff, published lifecycle view and selected C transport. It
+includes Unit/bare return, integer literal, local/alias, initialized i64 field
+read and recursive/mixed Add; it excludes Birth formals, MIR type inference and
+process-status conversion.
+
+`VerifiedFunctionCompletionV1` already retains the same-session declared result
+contract and exact exit site in the ledger. `TerminalI64AddReturnV1` is the only
+additional terminal relation: it retains a direct Add and two field-read sites,
+and is the sole row accepted by terminal emission, final handoff, view binding
+and C transport. The source walk discards every other requested relation:
+
+| Source arm | Existing loss edge |
+| --- | --- |
+| Unit / bare return | scalar completion only; no terminal relation |
+| Integer literal | scalar classifier result is discarded |
+| Local / alias | `OtherTrivial` loses binding, initializer and class |
+| Initialized i64 field read | retained only as an immediate I64Add operand |
+| Recursive or mixed Add | scalar classifier result is discarded unless both direct operands are field reads |
+
+Bool literal is outside the Integer arm, Bool local also collapses to
+`OtherTrivial`, and uninitialized locals remain unavailable. No existing final
+consumer accepts these arms, so a retention-only row would duplicate Completion
+and have neither a production edge nor an exclusive delete-set. The named
+blocker is `ROOT-SCALAR-TERMINAL-RELATION-AND-CONSUMER-MISSING`.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-ARM-SELECTION-D1`
+
+The next D1 must select exactly one non-I64Add source arm and name its physical
+terminal/ABI consumer, or an existing typed physical-unavailable terminal that
+keeps source acceptance. Only then may a bounded I0 co-seal existing Completion
+with its exact return relation, extend that selected consumer, and delete the
+arm's owner-only/I64Add-only projection. It must prove positive source handling
+and missing/foreign/site/owner drift rejection. It cannot classify results from
+MIR values, function signatures, C tags or process status.
+
 ### Following tasks and unresolved decisions
 
 | Order within existing Steps 1–4 | Issuer / consumer / deleted loss edge / acceptance |
