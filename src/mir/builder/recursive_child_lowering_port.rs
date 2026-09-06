@@ -77,9 +77,7 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         &mut self,
         _builder: &mut MirBuilder,
         _store: TakenConstructionStore,
-        _base: ValueId,
-        _value: ValueId,
-    ) -> Result<(), String> {
+    ) -> Result<ValueId, String> {
         Err("[freeze:contract][construction-store/consumer-unavailable]".into())
     }
 

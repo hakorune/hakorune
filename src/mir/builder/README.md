@@ -334,9 +334,12 @@ manifest exhaustion. Compatibility, RawLegacy, bare/unlocated calls, and the
 legacy `is_brand_declared` route remain outside this consumer row.
 
 The same loan carries construction eligibility into callable state, whose shared
-Fault frame is borrowed by Birth. Birth consumes exact stores before child descent and
-emits Unit `Invoke::FieldSet` with explicit receiver/value and Normal/Fault
-edges. Unavailable construction retains its existing publication/backend fence;
+Fault frame is borrowed by Birth. For the selected scalar Birth profile, each
+store also retains exact receiver and parameter source-use relations. The
+construction consumer resolves those retained bindings and consumes their sites
+through the existing callable-state observer before it emits Unit
+`Invoke::FieldSet` with explicit receiver/value and Normal/Fault edges; it does
+not re-lower assignment target or RHS AST. Unavailable construction retains its existing publication/backend fence;
 it is not a retry after selected emission. The state validates actual emitted
 bindings/frame role before preparation and after finalization, rejects extra Invoke/frame/Fault-return sites, and forbids Unit construction result carriers. The existing completed-root owner also owns artifact-only source eligibility and module-wide coverage in `normal_default_root_final_validation.rs`; diagnostic success is not permission. Exact App Main source entry selects RootOwned, not direct-call presence.
 Numeric checks use the existing refresh owner and published field definition,

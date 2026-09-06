@@ -1,6 +1,9 @@
 use super::*;
-use crate::mir::resolved_semantics::SourcePathV1;
-use crate::mir::{EffectMask, FunctionSignature, MirType};
+use crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1;
+use crate::mir::resolved_semantics::{
+    BindingRefV1, FunctionOwnerIssuerV1, SourcePathSegmentV1, SourcePathV1,
+};
+use crate::mir::{ConstValue, EffectMask, FunctionSignature, MirType};
 
 #[test]
 fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
@@ -17,6 +20,13 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
     let base = ValueId::new(0);
     let value = ValueId::new(1);
     let frame = ValueId::new(2);
+    let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+    let owner = owners.issue().unwrap();
+    let receiver_site = SourcePathV1::function_body()
+        .child(SourcePathSegmentV1::Target)
+        .child(SourcePathSegmentV1::Receiver)
+        .expr();
+    let receiver_binding = BindingRefV1::new(owner, crate::mir::BindingId::new(0));
     let mut function = MirFunction::new(
         FunctionSignature {
             name: "physical_store_binding".into(),
@@ -27,6 +37,10 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         origin,
     );
     let mut block = BasicBlock::new(origin);
+    block.add_instruction(MirInstruction::Const {
+        dst: value,
+        value: ConstValue::Integer(7),
+    });
     block.set_terminator(MirInstruction::Invoke {
         operation: InvokeOperation::FieldSet { field, base, value },
         fault_frame: frame,
@@ -41,20 +55,32 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
     let mut state = ConstructionState::Selected {
         stores: BTreeMap::from([(
             site.clone(),
-            (
+            SelectedConstructionStore {
                 field,
-                StoreProgress::Emitted {
+                receiver_site,
+                receiver_binding,
+                rhs: ConstructionStoreRhsV1::LiteralI64(7),
+                progress: StoreProgress::Emitted {
                     block: origin,
                     normal,
                     base,
                     value,
                 },
-            ),
+            },
         )]),
         frame: Some((frame, landing)),
         completed: true,
     };
     state.validate_bindings(&function).unwrap();
+    let mut literal_drift = function.clone();
+    literal_drift.blocks.get_mut(&origin).unwrap().instructions[0] = MirInstruction::Const {
+        dst: value,
+        value: ConstValue::Integer(8),
+    };
+    assert!(state
+        .validate_bindings(&literal_drift)
+        .unwrap_err()
+        .contains("literal-value-drift"));
     let mut extra_invoke = function.clone();
     let mut block = BasicBlock::new(BasicBlockId::new(8));
     block.set_terminator(MirInstruction::Invoke {
@@ -114,7 +140,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         unreachable!()
     };
     *completed = false;
-    stores.get_mut(&site).unwrap().1 = StoreProgress::Taken;
+    stores.get_mut(&site).unwrap().progress = StoreProgress::Taken;
     assert!(state.finish().unwrap_err().contains("completion-missing"));
     assert!(state
         .validate_bindings(&function)

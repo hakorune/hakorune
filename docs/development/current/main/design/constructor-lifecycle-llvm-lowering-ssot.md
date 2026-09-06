@@ -375,7 +375,11 @@ second source table, semantic receipt, child port, target ABI, or C path.
 Source authority + canonical issuer: `instance_construction::issue_construction_plan`
 already owns the parser-declaration loan, the exact resolved assignment/source
 sites, canonical field and accepted RHS relation. Its existing store row issues
-one private RHS descriptor: `LiteralI64(i64)` or `Parameter(BindingRefV1)`.
+one private RHS descriptor: `LiteralI64(i64)` or
+`Parameter { site: SourceExprSiteV1, binding: BindingRefV1 }`. It also retains
+the FieldSet receiver's exact `SourceExprSiteV1` and `BindingRefV1`. These are
+the source-use relations that the selected consumer must consume; they are not
+new semantic products.
 
 Non-authority: assignment/field-access AST after issuance, variable names,
 binding/lane ordinals, `MirType`, emitted `ValueId`, raw child sources,
@@ -383,10 +387,13 @@ metadata, target/runtime/C transport and generic assignment lowering.
 
 Fail-fast boundary: source issuance rejects every RHS other than the exact
 integer literal or a resolved local Birth parameter before plan installation.
-Installation/take rejects duplicate, missing or foreign stores; parameter
-materialization uses `value_for_exact_binding(owner, binding)` and rejects its
-owner/binding/value failures. Emission rejects an unavailable selected state
-before `FieldSet`; it never re-enters raw AST lowering.
+Installation/take rejects duplicate, missing or foreign stores. Take obtains
+the exact receiver value and consumes its retained source site through the
+existing `observe_variable_site`; emission does the same for a parameter RHS
+after `value_for_exact_binding(owner, binding)`. Completion therefore rejects
+an unconsumed, duplicate, foreign, or value-drifted source use before final
+publication. Emission rejects an unavailable selected state before `FieldSet`;
+it never re-enters raw AST lowering.
 
 Smallest next slice: retain that descriptor with the existing store, transfer it
 in `TakenConstructionStore`, and make `emit_construction_store` consume the
@@ -410,7 +417,7 @@ constructor forms, final-view/LLVM/runtime/C and root New arguments.
 
 | Owner/caller/terminal | I0 change and exclusive delete-set | Acceptance |
 | --- | --- | --- |
-| `issue_construction_plan` -> `install_construction` -> `take_construction_store` -> `statement_surface` -> `emit_construction_store` -> `validate_bindings` | Store the exact RHS descriptor beside the existing resolved assignment and canonical field; carry it in `TakenConstructionStore`; emit the RHS and FieldSet from that taken product. Delete the selected branch's raw target/RHS descent only. `RawStructuredChildScopePortV1`, `RawInvocationChildPortV1` and generic helpers retain their other callers. | Ordinary-New Birth positives for literal and parameter stores, including reversed declaration/store order. Source negatives for unsupported RHS and non-parameter/wrong binding; physical negatives for foreign/missing/duplicate stores and unavailable/foreign binding; final-validation mutations for FieldSet base/value/block drift. |
+| `issue_construction_plan` -> `install_construction` -> `take_construction_store` -> `statement_surface` -> `emit_construction_store` -> `validate_bindings` | Store the exact receiver source use and RHS descriptor beside the existing resolved assignment and canonical field; carry the RHS in `TakenConstructionStore`; take consumes the receiver source use and emit consumes a parameter RHS source use. Emit the RHS and FieldSet from that taken product. Delete the selected branch's raw target/RHS descent only. `RawStructuredChildScopePortV1`, `RawInvocationChildPortV1` and generic helpers retain their other callers. | Ordinary-New Birth positives for literal and parameter stores, including reversed declaration/store order and zero unconsumed variable sites at finalization. Source negatives for unsupported RHS and non-parameter/wrong binding; physical negatives for foreign/missing/duplicate stores and unavailable/foreign binding; final-validation mutations for FieldSet base/value/block and literal-value drift. |
 
 `statement_surface` is the only direct `take_construction_store_v1` caller;
 the raw invocation/structured ports only forward it. The terminal already checks
@@ -423,6 +430,30 @@ The focused field-read command
 still fails with `left: 1`, `right: 0` at
 `ordinary_new_field_reads_tests.rs:124`; the identical parent-commit command
 reproduces it. It is known baseline debt and does not reopen this BoxShape row.
+
+## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-D4
+
+Decision: stop at a read-only consumer audit before retaining or lowering root
+direct-`New` arguments.
+
+Source authority + canonical issuer: the existing exact-child classification
+from `scan_new_home_flow` and its `CallerNewHomePrefixV1` relation are the only
+candidate authority; the audit must establish their actual issuer, retained
+argument relation, and one selected consumer.
+
+Non-authority: argument AST after selected claim take, argument names, inferred
+MIR types, `ValueId`, target ABI and C transport.
+
+Fail-fast boundary: without a named AST-free consumer for every accepted
+trivial argument, the row remains `NoSafeSlice`; the selected New emitter must
+not compensate by re-lowering raw arguments.
+
+Smallest next slice: census the finite direct-`New` argument relation, its
+selected raw caller and its terminal validation, then record one bounded
+Decision or `NoSafeSlice`.
+
+Non-claims: root formals/arbitrary root SSA, Birth receiver co-seal, source
+form widening, target ABI/C activation, Pair EXE/OBJ30 and production cutover.
 
 Step 1's exact source inventory and step 3's final-entry status connection are
 explicit remaining design obligations. Do not mislabel this roadmap as a

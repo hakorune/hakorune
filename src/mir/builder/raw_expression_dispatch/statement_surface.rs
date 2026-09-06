@@ -456,25 +456,7 @@ where
         }
         node @ ASTNode::Assignment { .. } => {
             if let Some(store) = port.take_construction_store_v1()? {
-                let ASTNode::Assignment { target, value, .. } = &node else { unreachable!() };
-                let ASTNode::FieldAccess { object, .. } = target.as_ref() else {
-                    return Err("[freeze:contract][construction-store/target-shape]".into());
-                };
-                let (receiver_source, value_source) = prepare_field_write_child_sources_v1(
-                    port, &node, target, ExprChildRoleV1::AssignmentTarget,
-                    ExprChildRoleV1::AssignmentValue,
-                )?;
-                let mut scoped = RawStructuredChildScopePortV1::new(
-                    port, vec![receiver_source, value_source], Vec::new(),
-                );
-                let base = crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1(
-                    builder, &mut scoped, object.as_ref().clone(),
-                )?;
-                let rhs = crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1(
-                    builder, &mut scoped, value.as_ref().clone(),
-                )?;
-                scoped.complete_exact_demands_v1()?;
-                port.emit_construction_store_v1(builder, store, base, rhs)?;
+                let rhs = port.emit_construction_store_v1(builder, store)?;
                 return Ok(StatementSurfaceDispatch::Lowered(rhs));
             }
             let sources = match &node {

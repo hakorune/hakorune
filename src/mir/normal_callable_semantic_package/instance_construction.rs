@@ -11,10 +11,11 @@ use std::collections::BTreeSet;
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1, HomeDemandV1,
-    OwnedExprSiteV1, ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1,
+    BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
+    HomeDemandV1, OwnedExprSiteV1, ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1,
     ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
 };
+use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ConstructionUnavailableV1 {
@@ -25,12 +26,57 @@ pub(crate) enum ConstructionUnavailableV1 {
     OverrideUnsupported,
 }
 
+/// Exact RHS accepted under the constructor declaration loan.
+///
+/// This is carried only by the existing construction-store plan to its
+/// selected physical consumer. It is neither a general expression form nor a
+/// second semantic receipt.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ConstructionStoreRhsV1 {
+    LiteralI64(i64),
+    Parameter {
+        site: SourceExprSiteV1,
+        binding: BindingRefV1,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ConstructionStoreV1 {
+    assignment: ResolvedAssignmentSourceV1,
+    field: CanonicalFieldRefV1,
+    receiver_site: SourceExprSiteV1,
+    receiver_binding: BindingRefV1,
+    rhs: ConstructionStoreRhsV1,
+}
+
+impl ConstructionStoreV1 {
+    pub(crate) const fn assignment(&self) -> &ResolvedAssignmentSourceV1 {
+        &self.assignment
+    }
+
+    pub(crate) const fn field(&self) -> CanonicalFieldRefV1 {
+        self.field
+    }
+
+    pub(crate) const fn receiver_site(&self) -> &SourceExprSiteV1 {
+        &self.receiver_site
+    }
+
+    pub(crate) const fn receiver_binding(&self) -> BindingRefV1 {
+        self.receiver_binding
+    }
+
+    pub(crate) const fn rhs(&self) -> &ConstructionStoreRhsV1 {
+        &self.rhs
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ConstructionPlanV1 {
     // Issued once by the enclosing branded semantic batch, including NoBirth.
     object: CanonicalObjectIdV1,
     field_demands: Box<[HomeDemandV1]>,
-    stores: Box<[(ResolvedAssignmentSourceV1, CanonicalFieldRefV1)]>,
+    stores: Box<[ConstructionStoreV1]>,
     // Store sites are local to this existing constructor owner. Keep it after
     // the affine New target is consumed; Box identity alone cannot qualify them.
     constructor: Option<(crate::parser::ConstructorSourceIdV1, FunctionOwnerIdV1)>,
@@ -53,7 +99,9 @@ impl ConstructionPlanV1 {
         &self.field_demands
     }
 
-    pub(crate) fn stores(&self) -> &[(ResolvedAssignmentSourceV1, CanonicalFieldRefV1)] {
+    pub(crate) fn stores(
+        &self,
+    ) -> &[ConstructionStoreV1] {
         &self.stores
     }
 
@@ -233,22 +281,31 @@ pub(super) fn issue_construction_plan(
                 row.value_site().clone(),
             ))
             .map_err(|_| U::SourceRelationMissing)?;
-        let rhs_supported = match rhs.node() {
+        let rhs = match rhs.node() {
             ASTNode::Literal {
-                value: LiteralValue::Integer(_),
+                value: LiteralValue::Integer(value),
                 ..
-            } => true,
-            ASTNode::Variable { .. } => shape.expressions().iter().any(|expression| {
-                matches!(expression, BodyExpressionShapeV1::Variable {
+            } => ConstructionStoreRhsV1::LiteralI64(*value),
+            ASTNode::Variable { .. } => shape
+                .expressions()
+                .iter()
+                .find_map(|expression| match expression {
+                    BodyExpressionShapeV1::Variable {
                     site, resolved: ResolvedLexicalRefV1::Local(binding),
-                } if site == row.value_site() && matches!(function.binding(*binding)
-                    .map(|record| record.kind()), Some(BindingKindV1::Parameter { .. })))
-            }),
-            _ => false,
+                    } if site == row.value_site()
+                        && matches!(function.binding(*binding).map(|record| record.kind()),
+                            Some(BindingKindV1::Parameter { .. })) =>
+                    {
+                        Some(ConstructionStoreRhsV1::Parameter {
+                            site: row.value_site().clone(),
+                            binding: *binding,
+                        })
+                    }
+                    _ => None,
+                })
+                .ok_or(U::BodyCoverageUnsupported)?,
+            _ => return Err(U::BodyCoverageUnsupported),
         };
-        if !rhs_supported {
-            return Err(U::BodyCoverageUnsupported);
-        }
         expressions.extend([
             row.target_site().clone(),
             object.clone(),
@@ -256,7 +313,13 @@ pub(super) fn issue_construction_plan(
         ]);
         let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
             .ok_or(U::SourceRelationMissing)?;
-        stores.push((row.clone(), field));
+        stores.push(ConstructionStoreV1 {
+            assignment: row.clone(),
+            field,
+            receiver_site: object.clone(),
+            receiver_binding: *receiver,
+            rhs,
+        });
     }
     // Reject residual syntax/child owners; SequenceItem or absent Call events
     // alone do not classify ArrayLiteral, FromCall, Lambda or nested acquisition.

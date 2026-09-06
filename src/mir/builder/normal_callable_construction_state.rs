@@ -4,7 +4,7 @@
 use super::CallableSemanticLoweringState;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
-    ConstructionEligibilityV1, ConstructionUnavailableV1,
+    ConstructionEligibilityV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
 };
 use crate::mir::resolved_semantics::{HomeDemandV1, SourceNodeSiteV1};
 use crate::mir::{BasicBlock, BasicBlockId, MirBuilder, MirFunction, MirInstruction, ValueId};
@@ -18,7 +18,7 @@ pub(super) enum ConstructionState {
     Transferred,
     RetainedUnavailable(ConstructionUnavailableV1),
     Selected {
-        stores: BTreeMap<SourceNodeSiteV1, (CanonicalFieldRefV1, StoreProgress)>,
+        stores: BTreeMap<SourceNodeSiteV1, SelectedConstructionStore>,
         frame: Option<(ValueId, BasicBlockId)>,
         completed: bool,
     },
@@ -76,12 +76,22 @@ pub(super) enum StoreProgress {
     },
 }
 
+#[derive(Debug)]
+pub(super) struct SelectedConstructionStore {
+    field: CanonicalFieldRefV1,
+    receiver_site: crate::mir::resolved_semantics::SourceExprSiteV1,
+    receiver_binding: crate::mir::resolved_semantics::BindingRefV1,
+    rhs: ConstructionStoreRhsV1,
+    progress: StoreProgress,
+}
+
 /// Physical loan result, not a second semantic receipt or reusable plan.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct TakenConstructionStore {
     site: SourceNodeSiteV1,
     field: CanonicalFieldRefV1,
     receiver: ValueId,
+    rhs: ConstructionStoreRhsV1,
 }
 
 impl ConstructionState {
@@ -132,11 +142,17 @@ impl CallableSemanticLoweringState {
             return Err(fault("source-or-cleanup-contract"));
         }
         let mut stores = BTreeMap::new();
-        for (assignment, field) in plan.stores() {
+        for store in plan.stores() {
             if stores
                 .insert(
-                    assignment.statement_site().node().clone(),
-                    (*field, StoreProgress::Pending),
+                    store.assignment().statement_site().node().clone(),
+                    SelectedConstructionStore {
+                        field: store.field(),
+                        receiver_site: store.receiver_site().clone(),
+                        receiver_binding: store.receiver_binding(),
+                        rhs: store.rhs().clone(),
+                        progress: StoreProgress::Pending,
+                    },
                 )
                 .is_some()
             {
@@ -162,29 +178,51 @@ impl CallableSemanticLoweringState {
             return Ok(None);
         }
         let binding = self.receiver.ok_or_else(|| fault("receiver-missing"))?;
+        let (field, receiver_site, receiver_binding, rhs) = match &self.construction {
+            ConstructionState::Selected { stores, completed, .. } => {
+                if *completed {
+                    return Err(fault("take-after-completion"));
+                }
+                let store = stores
+                    .get(site)
+                    .ok_or_else(|| fault("foreign-or-missing-store"))?;
+                if !matches!(store.progress, StoreProgress::Pending) {
+                    return Err(fault("duplicate-store-take"));
+                }
+                if store.receiver_binding != binding {
+                    return Err(fault("receiver-binding-drift"));
+                }
+                (
+                    store.field,
+                    store.receiver_site.clone(),
+                    store.receiver_binding,
+                    store.rhs.clone(),
+                )
+            }
+            _ => unreachable!(),
+        };
         let receiver = self
             .value_for_exact_binding(self.owner, binding)
             .map_err(|error| error.to_string())?;
+        self.observe_variable_site(receiver_site.node(), receiver_binding, receiver)?;
         let ConstructionState::Selected {
             stores, completed, ..
         } = &mut self.construction
         else {
             unreachable!()
         };
-        if *completed {
-            return Err(fault("take-after-completion"));
-        }
-        let (field, progress) = stores
+        let store = stores
             .get_mut(site)
             .ok_or_else(|| fault("foreign-or-missing-store"))?;
-        if !matches!(progress, StoreProgress::Pending) {
+        if *completed || !matches!(store.progress, StoreProgress::Pending) {
             return Err(fault("duplicate-store-take"));
         }
-        *progress = StoreProgress::Taken;
+        store.progress = StoreProgress::Taken;
         Ok(Some(TakenConstructionStore {
             site: site.clone(),
-            field: *field,
+            field,
             receiver,
+            rhs,
         }))
     }
 
@@ -192,12 +230,29 @@ impl CallableSemanticLoweringState {
         &mut self,
         builder: &mut MirBuilder,
         taken: TakenConstructionStore,
-        base: ValueId,
-        value: ValueId,
-    ) -> Result<(), String> {
-        if base != taken.receiver {
-            return Err(fault("receiver-drift"));
+    ) -> Result<ValueId, String> {
+        let source_ready = matches!(
+            &self.construction,
+            ConstructionState::Selected { stores, completed: false, .. }
+                if matches!(stores.get(&taken.site), Some(store)
+                    if store.field == taken.field && matches!(store.progress, StoreProgress::Taken))
+        );
+        if !source_ready {
+            return Err(fault("emission-state"));
         }
+        let value = match taken.rhs {
+            ConstructionStoreRhsV1::LiteralI64(value) => {
+                crate::mir::builder::emission::constant::emit_integer(builder, value)?
+            }
+            ConstructionStoreRhsV1::Parameter { site, binding } => {
+                let value = self
+                    .value_for_exact_binding(self.owner, binding)
+                    .map_err(|error| error.to_string())?;
+                self.observe_variable_site(site.node(), binding, value)?;
+                value
+            }
+        };
+        let base = taken.receiver;
         let shared_frame = self.borrow_fault_frame(builder)?;
         let ConstructionState::Selected {
             stores,
@@ -207,10 +262,10 @@ impl CallableSemanticLoweringState {
         else {
             return Err(fault("emission-unselected"));
         };
-        let (field, progress) = stores
+        let store = stores
             .get_mut(&taken.site)
             .ok_or_else(|| fault("emission-site"))?;
-        if *completed || *field != taken.field || !matches!(progress, StoreProgress::Taken) {
+        if *completed || store.field != taken.field || !matches!(store.progress, StoreProgress::Taken) {
             return Err(fault("emission-state"));
         }
         let (fault_frame, fault_landing) = match *frame {
@@ -239,7 +294,7 @@ impl CallableSemanticLoweringState {
         let normal = builder.next_block_id();
         builder.emit_instruction(MirInstruction::Invoke {
             operation: InvokeOperation::FieldSet {
-                field: *field,
+                field: store.field,
                 base,
                 value,
             },
@@ -248,13 +303,13 @@ impl CallableSemanticLoweringState {
             fault_landing,
         })?;
         builder.start_new_block(normal)?;
-        *progress = StoreProgress::Emitted {
+        store.progress = StoreProgress::Emitted {
             block: origin,
             normal,
             base,
             value,
         };
-        Ok(())
+        Ok(value)
     }
 
     pub(in crate::mir::builder) fn complete_construction_stores(
@@ -348,7 +403,9 @@ impl ConstructionState {
         if fault_returns != usize::from(frame.is_some()) {
             return Err(fault("fault-return-count"));
         }
-        for (field, progress) in stores.values() {
+        for store in stores.values() {
+            let field = store.field;
+            let progress = &store.progress;
             let StoreProgress::Emitted {
                 block,
                 normal,
@@ -360,9 +417,26 @@ impl ConstructionState {
             };
             if !matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
                 Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field: actual, base: b, value: v }, fault_frame, fault_landing, normal_landing })
-                if actual == field && b == base && v == value && normal_landing == normal && Some((*fault_frame, *fault_landing)) == *frame)
+                if actual == &field && b == base && v == value && normal_landing == normal && Some((*fault_frame, *fault_landing)) == *frame)
             {
                 return Err(fault("emission-drift"));
+            }
+            if let ConstructionStoreRhsV1::LiteralI64(expected) = &store.rhs {
+                let literal_matches = function
+                    .blocks
+                    .get(block)
+                    .into_iter()
+                    .flat_map(|block| block.all_instructions())
+                    .any(|instruction| {
+                        matches!(instruction,
+                            MirInstruction::Const {
+                                dst,
+                                value: crate::mir::ConstValue::Integer(actual),
+                            } if *dst == *value && *actual == *expected)
+                    });
+                if !literal_matches {
+                    return Err(fault("literal-value-drift"));
+                }
             }
         }
         Ok(())

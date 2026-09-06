@@ -139,6 +139,10 @@ verified own-field stores. Successful allocation creates an outer-storage reclai
 obligation even when no field owns a Home; only successful stores mark fields
 initialized. Incomplete initialization is an unavailable execution profile, not
 a decision that source fields default to zero or that the program is invalid.
+For the selected scalar Birth profile, the compiler retains the exact receiver
+and parameter source uses with each accepted store and consumes them before
+emitting the corresponding `FieldSet`; later lowering does not recover those
+uses by re-reading the assignment AST.
 Other field demands, acquisition/control shapes and explicit overrides remain
 unavailable until their obligations are covered. This source plan does not itself
 enable backend execution or change the failed-construction rules below.

@@ -22,14 +22,12 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         &mut self,
         builder: &mut MirBuilder,
         store: crate::mir::builder::normal_callable_semantic_lowering_state::construction::TakenConstructionStore,
-        base: ValueId,
-        value: ValueId,
-    ) -> Result<(), String> {
+    ) -> Result<ValueId, String> {
         self.callable_ledger
             .as_ref()
             .ok_or("[freeze:contract][construction-store/no-ledger]")?
             .borrow_mut()
-            .emit_construction_store(builder, store, base, value)
+            .emit_construction_store(builder, store)
     }
 
     fn complete_construction_stores_v1(&mut self, builder: &MirBuilder) -> Result<(), String> {

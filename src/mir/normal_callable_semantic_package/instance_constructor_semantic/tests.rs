@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1;
 
 #[test]
 fn definition_transfer_rejects_foreign_context_and_missing_empty_payload() {
@@ -55,7 +56,10 @@ fn object_identity_covers_distinct_boxes_and_rejects_foreign_same_index() {
             .as_ref()
             .unwrap();
         assert_eq!(plan.object(), id);
-        assert!(plan.stores().iter().all(|(_, field)| field.object() == id));
+        assert!(plan
+            .stores()
+            .iter()
+            .all(|store| store.field().object() == id));
         let foreign_source = foreign
             .instance_constructors
             .box_sources
@@ -127,7 +131,7 @@ fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
         assert_eq!(
             plan.stores()
                 .iter()
-                .map(|(_, field)| field.declaration_ordinal())
+                .map(|store| store.field().declaration_ordinal())
                 .collect::<Vec<_>>(),
             expected
         );
@@ -135,11 +139,35 @@ fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
         assert!(plan
             .stores()
             .iter()
-            .all(|(_, field)| field.object() == plan.object()));
+            .all(|store| store.field().object() == plan.object()));
         assert_ne!(
-            plan.stores()[0].0.statement_site(),
-            plan.stores()[1].0.statement_site()
+            plan.stores()[0].assignment().statement_site(),
+            plan.stores()[1].assignment().statement_site()
         );
+        assert_eq!(
+            plan.stores()
+                .iter()
+                .map(|store| store.rhs().clone())
+                .collect::<Vec<_>>(),
+            match expected.as_slice() {
+                [0, 1] => vec![
+                    plan.stores()[0].rhs().clone(),
+                    ConstructionStoreRhsV1::LiteralI64(2),
+                ],
+                [1, 0] => vec![
+                    ConstructionStoreRhsV1::LiteralI64(2),
+                    plan.stores()[1].rhs().clone(),
+                ],
+                _ => unreachable!(),
+            }
+        );
+        let parameter_index = if expected == [0, 1] { 0 } else { 1 };
+        let parameter = &plan.stores()[parameter_index];
+        let ConstructionStoreRhsV1::Parameter { site, .. } = parameter.rhs() else {
+            panic!("expected parameter RHS at field index {parameter_index}");
+        };
+        assert_eq!(site, parameter.assignment().value_site());
+        assert_ne!(parameter.receiver_site(), site);
         assert!(plan.reclaims_unpublished_outer_storage());
         let row = batch.birth_for(parent, 1).unwrap().unwrap();
         assert_eq!(

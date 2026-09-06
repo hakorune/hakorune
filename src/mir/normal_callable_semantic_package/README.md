@@ -233,6 +233,11 @@ field meaning; pending local completion retains it after target consumption.
 The plan keeps the existing ConstructorSourceId and resolver owner together
 with its owner-local store sites; NoBirth retains explicit absence. A Box alone
 never reconstructs the consumed constructor identity.
+For the selected scalar Birth profile, each store additionally co-seals the
+receiver source site/binding and, when applicable, the parameter RHS source
+site/binding. Callable lowering consumes these existing variable uses through
+the exact binding observer before emitting `FieldSet`; it does not recover them
+from assignment AST after issuance.
 Declared initializer presence comes from the parser's sealed
 `StoredFieldInitializer` trigger, retained in ordinary Box coverage. Parser
 normalization into Birth stores does not turn an excluded default into an

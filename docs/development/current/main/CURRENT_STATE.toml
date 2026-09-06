@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-CONSUMER-I0"
-current_execution_cohort = "constructor_lifecycle_birth_fieldset_rhs_consumer"
-current_design_stop = ""
-current_blocker_token = "I0 boundary: use only the existing ConstructionPlanV1 store issuer and selected construction-state consumer. Retire the selected FieldSet target/RHS raw descent in the same slice; do not widen source forms, add a receipt/fallback, or activate target/C work."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-D4"
+current_execution_cohort = "constructor_lifecycle_root_new_trivial_argument_consumer"
+current_design_stop = "D4: identify the finite source-issued direct-New argument relation and its sole AST-free selected consumer before implementation."
+current_blocker_token = "NoSafeSlice until the root direct-New trivial-argument consumer census names one existing issuer, selected caller, terminal validation and exclusive raw-replay delete-set."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,16 +31,17 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-D3 names the existing construction-state consumer for the issued Birth FieldSet
-RHS relation. I0 retains a literal/parameter descriptor in the existing store,
-emits through the selected construction state and deletes its target/RHS raw
-replay. Root formals/arbitrary values and unused/untyped Birth formals remain
-NoIssuer. The field-read focused red reproduces at parent (left 1/right 0), so
-it is known baseline debt.
-Pair EXE30/linked OBJ30 and selected retirement remain required and unproven.
+Birth FieldSet RHS I0 is landed locally: ConstructionPlanV1 co-seals receiver
+and parameter source uses with its literal/parameter RHS descriptor; selected
+construction state consumes those existing sites and emits FieldSet without
+target/RHS AST replay. The next stop audits root direct-New trivial arguments.
+Root formals/arbitrary values and unused/untyped Birth formals remain NoIssuer.
+The field-read focused red reproduces at parent (left 1/right 0), so it is
+known baseline debt. Pair EXE30/linked OBJ30 and selected retirement remain
+required and unproven.
 """
-next_design_card = "none (I0 execution selected)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-CONSUMER-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-D4"
+next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
