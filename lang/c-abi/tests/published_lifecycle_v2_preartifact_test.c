@@ -20,7 +20,7 @@ static void rejects_body(
   char* error = NULL;
   FILE* json = fopen("/tmp/published-lifecycle-body.json", "wb");
   assert(json);
-  fputs("{\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":7,\"instructions\":[{\"op\":\"const\",\"dst\":1},{\"op\":\"const\",\"dst\":2},{\"op\":\"const\",\"dst\":3},{\"op\":\"published_lifecycle_invoke\",\"kind\":2,\"fault_frame\":4,\"normal\":8,\"fault\":9}]}]}]}", json);
+  fputs("not-yet-consumed-body", json);
   fclose(json);
   assert(hako_llvmc_compile_published_lifecycle_body_v2(
       "/tmp/published-lifecycle-body.json", frame, site, 1,

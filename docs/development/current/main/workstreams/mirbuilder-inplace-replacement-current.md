@@ -516,7 +516,7 @@ migrated SHA-256 `bbd957398d16ae9e77c1b2bd3c510e8b6ba03c694d97ed14807f8ffe320aa0
 This is not an unchanged-source replay. Source-key/Call/layout checkpoints are
 recorded in the lifecycle owner and Git; they do not prove runtime execution.
 
-**Next bounded task — Stop/Delete provisional body validation**
+**Closed bounded task — Stop/Delete provisional body validation**
 
 Change: in `published_mir/hako_llvmc_ffi_published_lifecycle_body_v2.inc`,
 remove the three private helpers `json_matches`, `program_allowed`,
@@ -531,9 +531,12 @@ invalid ABI/profile/site -> rejection/no file; record a real final-view host
 probe's first terminal separately. Reuse M7-S and pointer guards; update the
 owning C/host README terminal description in the implementation commit.
 No source language contract changes; no new fixture, guard or semantic receipt.
-Stop: any artifact emission, generic retry, added program prepass, or unrelated
-helper deletion leaves this task's boundary. Do not claim downstream acceptance
-if the source probe stops before the selected owner.
+Result: the body companion now accepts an unread nonempty body carrier only to
+reach `body-consumer-pending`; it still validates frame/profile/site relations
+and cannot create an object. The focused C test covers this terminal and the
+existing invalid ABI/profile/site boundaries. No source runtime acceptance is
+claimed. Stop: artifact emission, generic retry, added program prepass or
+unrelated helper deletion leaves this boundary.
 
 **Gated remaining tasks — same constructor cutover, no new D0 cards**
 

@@ -1,131 +1,5 @@
-// V2 companion validation. JSON is a physical body carrier only; lifecycle
-// authority is consumed exclusively from Rust-issued frame and site rows.
-static int hako_llvmc_published_lifecycle_body_v2_json_matches(
-    const char* json_in,
-    const hako_llvmc_published_lifecycle_body_site_v1* site) {
-  yyjson_read_err error;
-  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &error);
-  yyjson_val* functions;
-  size_t i;
-  int matched = 0;
-  if (!doc) return 0;
-  functions = yyjson_obj_get(yyjson_doc_get_root(doc), "functions");
-  if (!(functions && yyjson_is_arr(functions))) goto done;
-  for (i = 0; i < yyjson_arr_size(functions); i++) {
-    yyjson_val* function = yyjson_arr_get(functions, i);
-    yyjson_val* name = function ? yyjson_obj_get(function, "name") : NULL;
-    yyjson_val* blocks = function ? yyjson_obj_get(function, "blocks") : NULL;
-    size_t b;
-    if (!(name && yyjson_is_str(name) && strcmp(yyjson_get_str(name), site->function_name) == 0 && blocks && yyjson_is_arr(blocks))) continue;
-    for (b = 0; b < yyjson_arr_size(blocks); b++) {
-      yyjson_val* block = yyjson_arr_get(blocks, b);
-      yyjson_val* id = block ? yyjson_obj_get(block, "id") : NULL;
-      yyjson_val* instructions = block ? yyjson_obj_get(block, "instructions") : NULL;
-      yyjson_val* instruction;
-      yyjson_val* op;
-      yyjson_val* kind;
-      yyjson_val* fault_frame;
-      yyjson_val* normal;
-      yyjson_val* fault;
-      if (!(id && yyjson_is_uint(id) && yyjson_get_uint(id) == site->block_id &&
-            instructions && yyjson_is_arr(instructions) &&
-            site->instruction_index < yyjson_arr_size(instructions))) continue;
-      instruction = yyjson_arr_get(instructions, site->instruction_index);
-      op = instruction ? yyjson_obj_get(instruction, "op") : NULL;
-      kind = instruction ? yyjson_obj_get(instruction, "kind") : NULL;
-      fault_frame = instruction ? yyjson_obj_get(instruction, "fault_frame") : NULL;
-      normal = instruction ? yyjson_obj_get(instruction, "normal") : NULL;
-      fault = instruction ? yyjson_obj_get(instruction, "fault") : NULL;
-      if (op && kind && fault_frame && normal && fault && yyjson_is_str(op) &&
-          yyjson_is_uint(kind) && yyjson_is_uint(fault_frame) && yyjson_is_uint(normal) && yyjson_is_uint(fault) &&
-          strcmp(yyjson_get_str(op), "published_lifecycle_invoke") == 0 &&
-          yyjson_get_uint(kind) == 2u && yyjson_get_uint(fault_frame) == site->fault_frame &&
-          yyjson_get_uint(normal) == site->normal_landing && yyjson_get_uint(fault) == site->fault_landing) matched++;
-    }
-  }
-done:
-  yyjson_doc_free(doc);
-  return matched == 1;
-}
-
-static int hako_llvmc_published_lifecycle_body_v2_program_allowed(const char* json_in) {
-  yyjson_read_err error;
-  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &error);
-  yyjson_val* functions;
-  size_t i, b, n;
-  if (!doc) return 0;
-  functions = yyjson_obj_get(yyjson_doc_get_root(doc), "functions");
-  if (!(functions && yyjson_is_arr(functions))) goto reject;
-  for (i = 0; i < yyjson_arr_size(functions); i++) {
-    yyjson_val* blocks = yyjson_obj_get(yyjson_arr_get(functions, i), "blocks");
-    if (!(blocks && yyjson_is_arr(blocks))) goto reject;
-    for (b = 0; b < yyjson_arr_size(blocks); b++) {
-      yyjson_val* instructions = yyjson_obj_get(yyjson_arr_get(blocks, b), "instructions");
-      if (!(instructions && yyjson_is_arr(instructions))) goto reject;
-      for (n = 0; n < yyjson_arr_size(instructions); n++) {
-        yyjson_val* op = yyjson_obj_get(yyjson_arr_get(instructions, n), "op");
-        const char* name = op && yyjson_is_str(op) ? yyjson_get_str(op) : NULL;
-        if (!name || (strcmp(name, "const") && strcmp(name, "copy") &&
-            strcmp(name, "binop") && strcmp(name, "ret") && strcmp(name, "phi") &&
-            strcmp(name, "mir_call") && strcmp(name, "published_lifecycle_invoke") &&
-            strcmp(name, "published_lifecycle_normal_result") &&
-            strcmp(name, "published_lifecycle_fault_frame") &&
-            strcmp(name, "published_lifecycle_return_fault") &&
-            strcmp(name, "published_lifecycle_object_field_get"))) goto reject;
-      }
-    }
-  }
-  yyjson_doc_free(doc);
-  return 1;
-reject:
-  yyjson_doc_free(doc);
-  return 0;
-}
-
-static int hako_llvmc_published_lifecycle_body_v2_values_defined(const char* json_in) {
-  yyjson_read_err error;
-  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &error);
-  unsigned char seen[1024] = {0};
-  yyjson_val* functions;
-  size_t i, b, n;
-  if (!doc) return 0;
-  functions = yyjson_obj_get(yyjson_doc_get_root(doc), "functions");
-  if (!(functions && yyjson_is_arr(functions))) goto reject;
-  for (i = 0; i < yyjson_arr_size(functions); i++) {
-    yyjson_val* blocks = yyjson_obj_get(yyjson_arr_get(functions, i), "blocks");
-    for (b = 0; blocks && b < yyjson_arr_size(blocks); b++) {
-      yyjson_val* instructions = yyjson_obj_get(yyjson_arr_get(blocks, b), "instructions");
-      for (n = 0; instructions && n < yyjson_arr_size(instructions); n++) {
-        yyjson_val* ins = yyjson_arr_get(instructions, n);
-        yyjson_val* op = yyjson_obj_get(ins, "op");
-        const char* name = op && yyjson_is_str(op) ? yyjson_get_str(op) : NULL;
-        yyjson_val* dst = yyjson_obj_get(ins, "dst");
-        if (!name) goto reject;
-        if (!strcmp(name, "const")) {
-          if (!(dst && yyjson_is_uint(dst) && yyjson_get_uint(dst) < 1024u && !seen[yyjson_get_uint(dst)])) goto reject;
-          seen[yyjson_get_uint(dst)] = 1;
-        } else if (!strcmp(name, "copy")) {
-          yyjson_val* src = yyjson_obj_get(ins, "src");
-          if (!(dst && src && yyjson_is_uint(dst) && yyjson_is_uint(src) && yyjson_get_uint(dst) < 1024u && yyjson_get_uint(src) < 1024u && !seen[yyjson_get_uint(dst)] && seen[yyjson_get_uint(src)])) goto reject;
-          seen[yyjson_get_uint(dst)] = 1;
-        } else if (!strcmp(name, "binop")) {
-          yyjson_val* lhs = yyjson_obj_get(ins, "lhs"), *rhs = yyjson_obj_get(ins, "rhs"), *kind = yyjson_obj_get(ins, "operation");
-          if (!(dst && lhs && rhs && kind && yyjson_is_uint(dst) && yyjson_is_uint(lhs) && yyjson_is_uint(rhs) && yyjson_is_str(kind) && !strcmp(yyjson_get_str(kind), "+") && yyjson_get_uint(dst) < 1024u && yyjson_get_uint(lhs) < 1024u && yyjson_get_uint(rhs) < 1024u && !seen[yyjson_get_uint(dst)] && seen[yyjson_get_uint(lhs)] && seen[yyjson_get_uint(rhs)])) goto reject;
-          seen[yyjson_get_uint(dst)] = 1;
-        } else if (!strcmp(name, "ret")) {
-          yyjson_val* value = yyjson_obj_get(ins, "value");
-          if (value && !yyjson_is_null(value) && !(yyjson_is_uint(value) && yyjson_get_uint(value) < 1024u && seen[yyjson_get_uint(value)])) goto reject;
-        }
-      }
-    }
-  }
-  yyjson_doc_free(doc);
-  return 1;
-reject:
-  yyjson_doc_free(doc);
-  return 0;
-}
-
+// Until the source-backed physical body handoff exists, json_in only proves
+// that the companion was selected. Frame and site rows remain the sole checks.
 static int hako_llvmc_published_lifecycle_body_v2_validate(
     const char* json_in,
     const hako_llvmc_published_lifecycle_frame_v2* frame,
@@ -140,10 +14,6 @@ static int hako_llvmc_published_lifecycle_body_v2_validate(
     return -1;
   if (!sites || site_count == 0u)
     return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-site-rows]");
-  if (!hako_llvmc_published_lifecycle_body_v2_program_allowed(json_in))
-    return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-program-shape]");
-  if (!hako_llvmc_published_lifecycle_body_v2_values_defined(json_in))
-    return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-value-table]");
   for (i = 0; i < site_count; i++) {
     const hako_llvmc_published_lifecycle_body_site_v1* site = &sites[i];
     if (!site->function_name || site->normal_result == UINT32_MAX ||
@@ -161,8 +31,6 @@ static int hako_llvmc_published_lifecycle_body_v2_validate(
     }
     if (matches != 1u)
       return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-site-mismatch]");
-    if (!hako_llvmc_published_lifecycle_body_v2_json_matches(json_in, site))
-      return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-json-coordinate]");
   }
   for (j = 0; j < frame->operation_count; j++) {
     const hako_llvmc_published_lifecycle_operation_v2* op = &frame->operations[j];
