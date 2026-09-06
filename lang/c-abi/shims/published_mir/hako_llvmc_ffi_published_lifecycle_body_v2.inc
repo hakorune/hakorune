@@ -48,6 +48,40 @@ done:
   return matched == 1;
 }
 
+static int hako_llvmc_published_lifecycle_body_v2_program_allowed(const char* json_in) {
+  yyjson_read_err error;
+  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &error);
+  yyjson_val* functions;
+  size_t i, b, n;
+  if (!doc) return 0;
+  functions = yyjson_obj_get(yyjson_doc_get_root(doc), "functions");
+  if (!(functions && yyjson_is_arr(functions))) goto reject;
+  for (i = 0; i < yyjson_arr_size(functions); i++) {
+    yyjson_val* blocks = yyjson_obj_get(yyjson_arr_get(functions, i), "blocks");
+    if (!(blocks && yyjson_is_arr(blocks))) goto reject;
+    for (b = 0; b < yyjson_arr_size(blocks); b++) {
+      yyjson_val* instructions = yyjson_obj_get(yyjson_arr_get(blocks, b), "instructions");
+      if (!(instructions && yyjson_is_arr(instructions))) goto reject;
+      for (n = 0; n < yyjson_arr_size(instructions); n++) {
+        yyjson_val* op = yyjson_obj_get(yyjson_arr_get(instructions, n), "op");
+        const char* name = op && yyjson_is_str(op) ? yyjson_get_str(op) : NULL;
+        if (!name || (strcmp(name, "const") && strcmp(name, "copy") &&
+            strcmp(name, "binop") && strcmp(name, "ret") && strcmp(name, "phi") &&
+            strcmp(name, "mir_call") && strcmp(name, "published_lifecycle_invoke") &&
+            strcmp(name, "published_lifecycle_normal_result") &&
+            strcmp(name, "published_lifecycle_fault_frame") &&
+            strcmp(name, "published_lifecycle_return_fault") &&
+            strcmp(name, "published_lifecycle_object_field_get"))) goto reject;
+      }
+    }
+  }
+  yyjson_doc_free(doc);
+  return 1;
+reject:
+  yyjson_doc_free(doc);
+  return 0;
+}
+
 static int hako_llvmc_published_lifecycle_body_v2_validate(
     const char* json_in,
     const hako_llvmc_published_lifecycle_frame_v2* frame,
@@ -62,6 +96,8 @@ static int hako_llvmc_published_lifecycle_body_v2_validate(
     return -1;
   if (!sites || site_count == 0u)
     return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-site-rows]");
+  if (!hako_llvmc_published_lifecycle_body_v2_program_allowed(json_in))
+    return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-program-shape]");
   for (i = 0; i < site_count; i++) {
     const hako_llvmc_published_lifecycle_body_site_v1* site = &sites[i];
     if (!site->function_name || site->normal_result == UINT32_MAX ||
