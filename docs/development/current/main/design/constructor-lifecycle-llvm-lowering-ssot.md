@@ -918,6 +918,40 @@ for the direct two-field Add arm. Other source arms remain accepted but have no
 selected physical consumer and stay unavailable; they must not be reclassified
 from MIR types, `ValueId`, function signatures, C tags, or fixture values.
 
+Decision: split the finite terminal inventory by source authority. The next
+bounded row admits only `return <direct untyped Integer literal>` following
+selected New/Home cleanup. Its source authority is the same-session AppMain
+identity, Completion's exact explicit return site, and that return child's
+exact `ResolvedLiteralSourceV1::Integer(i64)` site. `scan_new_home_flow` is
+the canonical issuer; it co-seals one literal relation into the existing
+ordinary-New ledger. The selected root-return dispatcher is the physical
+consumer: it emits that issued integer once and then reuses root-home cleanup.
+The final handoff retains a distinct literal result relation and the existing
+V2 transport maps it to the already validated `ROOT_I64 / I64` physical pair.
+
+The exclusive selected old edge is the root `Return(Some(_))` raw value descent
+that follows the unsuccessful direct-Add probe. I0 deletes it only while the
+literal relation is reserved; it leaves generic and nonselected raw lowering
+untouched. `Bool`, local, field, recursive/general Add, typed integer,
+parameters, calls, process status, MIR constants/types/ValueIds and C tags are
+non-authority and remain unavailable in this row. Missing/foreign completion,
+return/value/literal-site drift, mixed terminal relations, or Const/Return
+physical drift reject before lifecycle publication.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-INTEGER-LITERAL-I0`
+
+Issue `TerminalIntegerLiteralReturnV1 { owner, return_site, value_site, value
+}` under the existing scanner/ledger; reserve it in the selected return
+consumer; emit one `Const(Integer(value))` and one cleanup-backed
+`Return(Some(value))`; retain it through final handoff and lifecycle view.
+The existing C schema is reused without revision. Acceptance is selected Pair
+`return 30` through C `body-consumer-pending` with no object, exact relation
+and physical mutation negatives, plus regressions proving Unit and direct
+I64Add stay on their existing paths. Typed integer, Bool, local, field and
+Add counterexamples must stop before effects. Keep the near-limit local-commit
+owner split before adding retention fields; no new semantic receipt, C schema,
+object or EXE claim opens.
+
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
 **Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
