@@ -82,6 +82,50 @@ reject:
   return 0;
 }
 
+static int hako_llvmc_published_lifecycle_body_v2_values_defined(const char* json_in) {
+  yyjson_read_err error;
+  yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &error);
+  unsigned char seen[1024] = {0};
+  yyjson_val* functions;
+  size_t i, b, n;
+  if (!doc) return 0;
+  functions = yyjson_obj_get(yyjson_doc_get_root(doc), "functions");
+  if (!(functions && yyjson_is_arr(functions))) goto reject;
+  for (i = 0; i < yyjson_arr_size(functions); i++) {
+    yyjson_val* blocks = yyjson_obj_get(yyjson_arr_get(functions, i), "blocks");
+    for (b = 0; blocks && b < yyjson_arr_size(blocks); b++) {
+      yyjson_val* instructions = yyjson_obj_get(yyjson_arr_get(blocks, b), "instructions");
+      for (n = 0; instructions && n < yyjson_arr_size(instructions); n++) {
+        yyjson_val* ins = yyjson_arr_get(instructions, n);
+        yyjson_val* op = yyjson_obj_get(ins, "op");
+        const char* name = op && yyjson_is_str(op) ? yyjson_get_str(op) : NULL;
+        yyjson_val* dst = yyjson_obj_get(ins, "dst");
+        if (!name) goto reject;
+        if (!strcmp(name, "const")) {
+          if (!(dst && yyjson_is_uint(dst) && yyjson_get_uint(dst) < 1024u && !seen[yyjson_get_uint(dst)])) goto reject;
+          seen[yyjson_get_uint(dst)] = 1;
+        } else if (!strcmp(name, "copy")) {
+          yyjson_val* src = yyjson_obj_get(ins, "src");
+          if (!(dst && src && yyjson_is_uint(dst) && yyjson_is_uint(src) && yyjson_get_uint(dst) < 1024u && yyjson_get_uint(src) < 1024u && !seen[yyjson_get_uint(dst)] && seen[yyjson_get_uint(src)])) goto reject;
+          seen[yyjson_get_uint(dst)] = 1;
+        } else if (!strcmp(name, "binop")) {
+          yyjson_val* lhs = yyjson_obj_get(ins, "lhs"), *rhs = yyjson_obj_get(ins, "rhs"), *kind = yyjson_obj_get(ins, "operation");
+          if (!(dst && lhs && rhs && kind && yyjson_is_uint(dst) && yyjson_is_uint(lhs) && yyjson_is_uint(rhs) && yyjson_is_str(kind) && !strcmp(yyjson_get_str(kind), "+") && yyjson_get_uint(dst) < 1024u && yyjson_get_uint(lhs) < 1024u && yyjson_get_uint(rhs) < 1024u && !seen[yyjson_get_uint(dst)] && seen[yyjson_get_uint(lhs)] && seen[yyjson_get_uint(rhs)])) goto reject;
+          seen[yyjson_get_uint(dst)] = 1;
+        } else if (!strcmp(name, "ret")) {
+          yyjson_val* value = yyjson_obj_get(ins, "value");
+          if (value && !yyjson_is_null(value) && !(yyjson_is_uint(value) && yyjson_get_uint(value) < 1024u && seen[yyjson_get_uint(value)])) goto reject;
+        }
+      }
+    }
+  }
+  yyjson_doc_free(doc);
+  return 1;
+reject:
+  yyjson_doc_free(doc);
+  return 0;
+}
+
 static int hako_llvmc_published_lifecycle_body_v2_validate(
     const char* json_in,
     const hako_llvmc_published_lifecycle_frame_v2* frame,
@@ -98,6 +142,8 @@ static int hako_llvmc_published_lifecycle_body_v2_validate(
     return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-site-rows]");
   if (!hako_llvmc_published_lifecycle_body_v2_program_allowed(json_in))
     return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-program-shape]");
+  if (!hako_llvmc_published_lifecycle_body_v2_values_defined(json_in))
+    return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-value-table]");
   for (i = 0; i < site_count; i++) {
     const hako_llvmc_published_lifecycle_body_site_v1* site = &sites[i];
     if (!site->function_name || site->normal_result == UINT32_MAX ||
