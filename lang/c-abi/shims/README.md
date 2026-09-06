@@ -22,6 +22,13 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   The same C test exercises these contracts and a nested typed call without
   legacy call metadata, including wrong-arity rejection before object output.
   This is physical-consumer evidence, not constructor source-to-EXE proof.
+- The versioned lifecycle V2 header reserves one synchronous frame for typed
+  definition, formal, operation, operand, control, layout, and field rows plus
+  one admitted `SafeMutex | SingleThreadExact` storage profile. V1 remains
+  byte-compatible. The schema alone is not a callable ingress: the final Rust
+  borrow must issue and the C consumer must exhaust every row before V2 is
+  activated. C-side env selection, pinned/direct profiles, missing rows, and
+  V1 retry cannot admit lifecycle execution.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.

@@ -13,6 +13,8 @@ use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, Mir
 
 #[path = "../../function/published_backend_view_c_transport.rs"]
 mod c_transport;
+#[path = "../../function/published_backend_view_lifecycle_c_transport.rs"]
+mod lifecycle_c_transport;
 
 pub(crate) use c_transport::{
     PublishedCallKindV1, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
