@@ -243,6 +243,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       return -1;
     }
     if (exact_seed_route > 0) {
+      if (hako_llvmc_published_static_method_rows) {
+        return set_err_owned(err_out,
+            "[freeze:contract][published-mir-static-method] exact-seed route forbidden for typed rows");
+      }
       if (ptfb_contract_bound) {
         return set_err_owned(
             err_out,

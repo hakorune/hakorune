@@ -4,6 +4,16 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
 
 ## Responsibility Boundary
 
+- Published typed rows are exhausted before object emission. Exact-seed
+  dispatch is forbidden while these rows are active; non-contract typed
+  output selects the existing opt/llc emitter once, never the optional legacy
+  TargetMachine probe and retry. Contract-bound output keeps its own emitter.
+- Regression: after `bash tools/build_hako_llvmc_ffi.sh`, compile
+  `lang/c-abi/tests/published_rows_preartifact_test.c` against
+  `target/release/libhako_llvmc_ffi.so` and run with
+  `apps/tests/mir_shape_guard/bool_phi_const_return_min_v1.mir.json` and a fresh
+  object path. It must report residual rejection with no object. The nop-based
+  VM fixture stops earlier and is not acceptance for this boundary.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.
