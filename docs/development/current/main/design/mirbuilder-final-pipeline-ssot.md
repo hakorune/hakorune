@@ -390,8 +390,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = design_stop
+implementation permission = false
 current cohort = `acceptance_source_reconciliation_i0`
 
 The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)
@@ -400,7 +400,9 @@ own the root/Birth handoff BoxShape. Pair result BoxCount landed at
 `181d7f8e92`: one exact source terminal relation is retained during
 `return_scalar`/Completion issuance. Raw field/binary/return remains
 non-authority until its dedicated consumer. No view/frame/C extension is
-permitted. Pair
+permitted. The [terminal consumer design](constructor-birth-new-lifecycle-ssot.md#terminal-consumer-design-2026-09-06)
+fixes the task order: scalar coverage repair, connected terminal consumer,
+then ABI/body handoff and C execution. Stop at the requested planning boundary. Pair
 EXE30/linked OBJ30 and selected old-edge retirement remain open.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one

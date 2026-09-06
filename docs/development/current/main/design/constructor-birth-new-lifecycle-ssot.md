@@ -833,6 +833,60 @@ Fail-fast boundary: absent/foreign/duplicate root, recipe, Birth key, constructi
 Smallest next slice: landed BoxShape—retain the existing Birth target in `NewLocalCommit`, seal the private finalized handoff at artifact validation, and make the final view consume it instead of the production root-name-only bind.
 Non-claims: field admission, C implementation, Pair EXE30/OBJ30, ABI/formal projection, Fault cleanup, retry or broader legacy deletion.
 
+### Terminal consumer design (2026-09-06)
+
+Decision: reuse the existing FieldRead ledger and binding resolver in one AST-free terminal consumer; do not create another semantic receipt or registry.
+Source authority + canonical issuer: the Completion ownership walk in `home_new_prefix` issues the terminal relation; package co-seal retains its exact FieldRead rows and canonical fields.
+Non-authority: raw receiver AST, class/field spellings, MIR types, JSON and physical ValueIds cannot select the terminal meaning.
+Fail-fast boundary: foreign/missing/duplicate relation or reads, unresolved binding, uninstalled Home, wrong exit phase, residual consumption or emitted operand/result drift rejects before artifact; selected failure never retries raw lowering.
+Smallest next slice: repair and verify scalar-classification preservation, then implement one connected terminal consumer and remove its selected raw descent edge.
+Non-claims: C execution, root/Birth ABI closure, Pair EXE30/OBJ30, whole raw-dispatch retirement or backend parity.
+
+Worker `fieldread_api_audit` confirmed that `take_terminal_field_read(site,
+resolve_receiver)` already returns exact `(base, canonical field)` and
+`record_terminal_field_read`/`validate_field_reads` enforce consumption and
+emission correspondence. The missing piece is physical wiring: the current
+`PreparedRawFieldReadV1::exact_object` path lowers receiver AST again. No source
+authority is missing for the selected two reads. Earlier worker-unavailable
+claims were unsupported: the worker remained running and returned this audit.
+
+Boundary: selected root terminal relation -> root artifact validation.
+Includes Completion issuer, package ledger, invocation/package/structured ports,
+`build_return_with_port_v1`, exact reads, Add and existing Home exit owner.
+Excludes C transport, external compatibility, other result shapes and backends.
+This is a bounded implementation inventory, not a caller-zero/Exhausted claim.
+
+Before consumer cutover, correct the `181d7f8e92` classifier regression:
+the parent recursively returns Integer for Add, but the new I64Add arm is
+rejected as an operand. Thus `(pair.left + pair.right) + 1` loses prior scalar
+coverage. Also cover literal-only and mixed nested Add without treating them
+as a direct two-field terminal. Keep scalar eligibility and exact direct
+FieldRead-pair shape separate; only two direct field operands issue the relation.
+Verify parent/current behavior with the same focused commands before calling
+this runtime evidence. No new fixture has been added by this design review.
+
+The consumer belongs under `ordinary_new_admission::selected`; enter it from
+the live Return port before raw value descent. Validate relation owner/Return
+site and reserve consumption once, resolve both bindings, then take/emit/record
+the two reads in source order using existing ValueId/block allocation. Emit
+integer Add from the issued relation; reuse the existing Home exit owner for
+cleanup and Return, retaining the exact sum value through Normal cleanup.
+Do not bypass Fault cleanup with a direct Return. Keep physical progress in the
+existing ledger, separate from immutable source relations; artifact validation
+must detect missing/duplicate Add, reversed operands, wrong sum/Return value,
+unconsumed relation and selected raw re-entry. A failed emission poisons this
+compilation; no retry or reuse of half-consumed rows.
+
+Deletion unit: the selected terminal's raw receiver/binary/value-return descent
+edge. Shared raw helpers still have other callers and are not whole-file delete
+assets. Absence alone is not canonical compatibility permission: eligibility
+must be fixed at source issuance, and an expected-but-missing relation rejects.
+Acceptance uses the actual source pipeline plus ledger mutation negatives;
+two earlier relation unit tests are dependency evidence only. Keep changed
+sources below 800 lines (design splitting at 760), update module README and
+the existing lifecycle reference when changing a public contract, and reuse
+the M7-S guard. Do not split this into disconnected API-only tasklets.
+
 ### Premise audit and authority boundary
 
 Worker-reviewed at `bd517a7bd5`. This inventory covers the selected final normal
@@ -846,13 +900,10 @@ The downstream execution cutover is **CutoverBlockerOpen**, not Exhausted.
 - Semantic unit: a published root and its exact cataloged Birth dependencies,
   with source-authorized result/Completion and parameter representations.
   `Pair` is the acceptance witness, never a compiler selector.
-- Root authority is outside the selected lifecycle path:
-  `main_thunk_plan::seal_relation/seal_result` and canonical publication issue
-  owner/target/result/membership, while final validation returns only an
-  `Option<String>` root key to identity bind. The source-backed/compatibility,
-  app/script and opaque classifier arms are chosen earlier and cannot be
-  recovered by root name. The root/Birth same-session handoff is NoSafeSlice
-  until one package co-seal and its final-view consumer are named.
+- Root/Birth identity handoff landed at `9a28db8d2d`; it retains issued Birth
+  targets through final validation and view binding. This does not close the
+  root result/parameter ABI. Source-backed/compatibility and app/script roles
+  remain selected upstream and cannot be recovered by root name.
 - `resolved_value_profile` cannot repair this missing handoff. Initialized-field
   and ObjectFieldGet facts are not root-result or Birth-formal authority.
 - Birth definitions in `PublishedStaticMethodCFrameV2::from_view` are cataloged,

@@ -547,17 +547,16 @@ unrelated helper deletion leaves this boundary.
    finalization co-seal root Completion, recipe and exactly one construction
    draft, then replace root-name-only artifact handoff. Reject zero/missing/
    foreign/duplicate/incomplete cases before view/C; no formals or C changes.
-4. Source result BoxCount landed at `181d7f8e92`: `return_scalar`/Completion
-   issuance retains one `TerminalI64AddReturn` relation: owner, explicit
-   Return/Add sites and ordered two existing FieldRead sites. Other forms do
-   not issue it; the issuer rejects missing staged reads. It has no ValueId,
-   MIR, ABI, JSON or raw-route authority.
-5. Dedicated terminal consumer BoxShape: consume a present relation once with
-   its two existing FieldRead rows, then validate exact Add/Return
-   physicalization. A present relation may not re-enter raw AST dispatch;
-   missing, duplicate or drifted consumption rejects before artifact. Keep the
-   generic raw route only for an absent relation. This does not extend view,
-   frame or C transport.
+4. Repair source classifier first: `181d7f8e92` retains the terminal relation
+   but rejects nested I64Add operands previously classified Integer. Preserve
+   recursive scalar coverage separately from direct two-field shape issuance.
+   Compare parent/current focused evidence; do not widen the terminal cohort.
+5. Connected terminal consumer: reuse exact FieldRead take/record and binding
+   resolution, emit ordered reads/Add, reuse Home cleanup/Return and validate
+   physical correspondence. Remove this selected raw descent edge in the same
+   slice. Expected-but-missing relation rejects; absence is not compatibility
+   permission. Owner, acceptance and deletion scope are fixed in the
+   [terminal design](../design/constructor-birth-new-lifecycle-ssot.md#terminal-consumer-design-2026-09-06).
 6. Consume one physical program: selected C companion places function-local
    params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
    checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
@@ -595,7 +594,7 @@ re-entry, excludes unrelated generic cohorts. Cutover remains CutoverBlockerOpen
 | Existing `typed_object_birth_min_exe.sh` | Selfhost JSON -> standalone ny-llvmc with legacy metadata assertions; replace selected acceptance caller in task 5, inspect direct/manifest/aggregate/directory discovery before retirement or park |
 | Unused Rust `compile_published_lifecycle_v2` wrappers | Separate caller-zero cleanup candidate; exported C preartifact symbol has a direct test caller and is retained |
 | Shared `same_module_*` / generic NewBox, field and call helpers | Not an exclusive delete-set. Prohibit selected re-entry; remove only arms proven exclusive after typed switch, never the shared files wholesale |
-| Pair source result and root/Birth handoff | Handoff D0 is NoSafeSlice; field-read/Add stays later and handoff remains CutoverBlockerOpen |
+| Pair source result and root/Birth handoff | Identity handoff landed; scalar coverage repair, terminal consumer and result/formal ABI remain CutoverBlockerOpen |
 
 Initial 11-entry fresh llvm_static acceptance was 1 pass / 10 failures: six
 RootPreservation(CompatibilityLoss), four generated birth/0. Existing records
@@ -621,7 +620,7 @@ Smallest next slice: constructor source-profile prerequisite above, after its
 actual consumer and exclusive old-edge replacement are closed; no new receipt now.
 Non-claims: Pair EXE30/OBJ30, legacy retirement, races or compiler binary size.
 
-Order: constructor tasks 2–5 -> canonical/compatibility selection separation ->
+Order: constructor tasks 4–7 -> canonical/compatibility selection separation ->
 compile-call state/options -> kernel hook single storage -> later runtime crate
 dependency reduction. Retire each selected old edge within its own series;
 do not postpone deletion to a final cleanup project. A demonstrated shared-state
