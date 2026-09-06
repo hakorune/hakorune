@@ -1016,6 +1016,31 @@ local/alias, typed integer, and recursive/general Add remain separate
 candidates; the I64-field relation and `ROOT_I64 / I64` C row are not an
 authority for any of them.
 
+**D2 census result:** no remaining scalar arm has a closed fast I0. The task
+order is Bool D0, then Bool I0 only if that decision admits it; local/alias
+D0; typed-integer D0; and general-Add D0 after its operand relations exist.
+Each later D0 is independent.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-BOOL-TERMINAL-D0`
+
+Decision needed before implementation. `scan_new_home_flow` currently collapses
+direct Bool and trivial-local returns into `OtherTrivial`, so it issues neither
+an exact Bool terminal relation nor a final root Bool result. The existing C
+frame admits only `ROOT_I64` and `ROOT_UNIT`; source-entry process projection
+currently classifies Bool as unsupported. D0 must choose one coherent contract:
+reject direct Bool before C ingress with a named final result/process outcome,
+or introduce a source-issued Bool terminal and a named final/C-frame/process
+representation. It must name the one canonical issuer and selected consumer,
+then delete only the reserved `Return(Some(_))` raw descent.
+
+Non-authority: `LocalValue::Trivial`, builder `type_ctx`, raw return lowering,
+VM-only result behavior, and the existing I64 C row. Local/alias needs an
+initializer-to-binding-to-return relation; typed integer needs declared-type
+authority; general Add needs exact operand relations. They remain outside Bool
+D0. Missing/foreign source and final relations, duplicate/absent terminal,
+result/process/C-frame drift, and an unselected raw descent must fail before
+effects. No Bool schema, object, or EXE claim opens in D0.
+
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
 **Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
