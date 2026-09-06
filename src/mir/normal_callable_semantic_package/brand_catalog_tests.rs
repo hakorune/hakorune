@@ -263,6 +263,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             .record_new_emission(
                 site,
                 initializer,
+                Vec::new(),
                 Some((reclaim, reclaim_block, reclaim_instruction.clone())),
                 vec![
                     (crate::mir::BasicBlockId::new(0), frame),

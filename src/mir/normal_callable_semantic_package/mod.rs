@@ -82,10 +82,9 @@ pub(in crate::mir) use issuer::{
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
 pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;
 pub(crate) use ordinary_new_coseal::{
-    BirthAbiHandoffV1, BirthResultAbiV1, FinalizedRootBirthHandoffV1,
-    FinalizedRootResultAbiV1,
-    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
-    OrdinaryNewConstructorDispositionV1, PreparedTerminalI64AddReturnV1,
+    BirthAbiHandoffV1, BirthResultAbiV1, FinalizedRootBirthHandoffV1, FinalizedRootResultAbiV1,
+    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
+    OrdinaryNewTrivialArgumentKindV1, PreparedTerminalI64AddReturnV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{

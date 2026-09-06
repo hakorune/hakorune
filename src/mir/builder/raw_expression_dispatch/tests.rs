@@ -219,42 +219,48 @@ fn raw_legacy_explicit_root_compatibility_keeps_existing_order() {
 fn prepared_integer_new_consumes_one_const_route() {
     crate::test_support::with_env_var("NYASH_MIR_CORE13_PURE", "off", || {
         for through_dispatch in [false, true] {
-        let mut builder = MirBuilder::new();
-        builder.enter_function_for_test("prepared_integer_new/0".to_owned());
-        let prepared = PreparedRawNewExpressionV1::prepare(
-            &builder,
-            "IntegerBox".to_owned(),
-            vec![integer(9)],
-            Vec::new(),
-        )
-        .unwrap();
-        let mut port = RawLegacyChildLoweringPortV1;
-        let dst = if through_dispatch {
-            builder.build_expression_impl_with_port_v1(&mut port, ASTNode::New {
-                class: "IntegerBox".into(), arguments: vec![integer(9)],
-                type_arguments: Vec::new(),
-                field_initializers: Vec::new(), span: Span::unknown(),
-            })
-        } else {
-            builder.lower_prepared_raw_new_expression_with_port_v1(&mut port, prepared)
-        }.unwrap();
-        let instructions = instructions(&builder);
-        assert_eq!(
-            instructions
+            let mut builder = MirBuilder::new();
+            builder.enter_function_for_test("prepared_integer_new/0".to_owned());
+            let prepared = PreparedRawNewExpressionV1::prepare(
+                &builder,
+                "IntegerBox".to_owned(),
+                vec![integer(9)],
+                Vec::new(),
+            )
+            .unwrap();
+            let mut port = RawLegacyChildLoweringPortV1;
+            let dst = if through_dispatch {
+                builder.build_expression_impl_with_port_v1(
+                    &mut port,
+                    ASTNode::New {
+                        class: "IntegerBox".into(),
+                        arguments: vec![integer(9)],
+                        type_arguments: Vec::new(),
+                        field_initializers: Vec::new(),
+                        span: Span::unknown(),
+                    },
+                )
+            } else {
+                builder.lower_prepared_raw_new_expression_with_port_v1(&mut port, prepared)
+            }
+            .unwrap();
+            let instructions = instructions(&builder);
+            assert_eq!(
+                instructions
+                    .iter()
+                    .filter(|instruction| matches!(
+                        instruction,
+                        MirInstruction::Const {
+                            dst: actual,
+                            value: crate::mir::ConstValue::Integer(9),
+                        } if *actual == dst
+                    ))
+                    .count(),
+                1
+            );
+            assert!(!instructions
                 .iter()
-                .filter(|instruction| matches!(
-                    instruction,
-                    MirInstruction::Const {
-                        dst: actual,
-                        value: crate::mir::ConstValue::Integer(9),
-                    } if *actual == dst
-                ))
-                .count(),
-            1
-        );
-        assert!(!instructions
-            .iter()
-            .any(|instruction| matches!(instruction, MirInstruction::NewBox { .. })));
+                .any(|instruction| matches!(instruction, MirInstruction::NewBox { .. })));
         }
     });
 }

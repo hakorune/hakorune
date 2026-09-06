@@ -10,10 +10,10 @@ use crate::mir::function::ObjectDestructionDispositionV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
 use std::{cell::RefCell, collections::BTreeMap};
 
+pub(crate) use self::birth_abi_handoff::{BirthAbiHandoffV1, BirthResultAbiV1};
 use super::instance_constructor_semantic::{
     InstanceConstructorBirthLookupErrorV1, VerifiedInstanceConstructorSemanticBatchV1,
 };
-pub(crate) use self::birth_abi_handoff::{BirthAbiHandoffV1, BirthResultAbiV1};
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::ast::ASTNode;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
@@ -44,12 +44,12 @@ mod field_reads;
 #[path = "ordinary_new_terminal_result.rs"]
 mod terminal_result;
 pub(crate) use terminal_result::PreparedTerminalI64AddReturnV1;
+#[path = "birth_abi_handoff.rs"]
+mod birth_abi_handoff;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
-#[path = "birth_abi_handoff.rs"]
-mod birth_abi_handoff;
 
 pub(crate) use local_commit::{FinalizedRootBirthHandoffV1, FinalizedRootResultAbiV1};
 
@@ -238,6 +238,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 claim.destruction,
                 birth_target,
                 birth_abi,
+                claim.argument_rows.clone(),
             ),
         );
         Ok(Some(
@@ -433,9 +434,11 @@ pub(crate) fn issue_ordinary_new_claims_v1(
             let argument_rows = argument_observations
                 .remove(&site)
                 .map(convert_selected_new_arguments)
-                .unwrap_or_else(|| Err(SelectedNewArgumentUnavailableV1::SourceMismatch {
-                    new_site: site.clone(),
-                }));
+                .unwrap_or_else(|| {
+                    Err(SelectedNewArgumentUnavailableV1::SourceMismatch {
+                        new_site: site.clone(),
+                    })
+                });
             let Some(box_source) = batch
                 .ordinary_box_coverage()
                 .row_for(class.as_ref())
@@ -601,14 +604,30 @@ fn convert_selected_new_arguments(
     observation: crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentObservationV1,
 ) -> Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1> {
     use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentKindV1 as Source;
-    observation.arguments().map(|rows| rows.iter().map(|row| {
-        let kind = match row.kind() {
-            Source::Integer(value) => OrdinaryNewTrivialArgumentKindV1::Integer(*value),
-            Source::Bool(value) => OrdinaryNewTrivialArgumentKindV1::Bool(*value),
-            Source::Local { binding } => OrdinaryNewTrivialArgumentKindV1::Local { binding: *binding },
-        };
-        OrdinaryNewTrivialArgumentV1::new(observation.new_site().owner(), observation.new_site().clone(), row.ordinal(), row.site().clone(), kind)
-    }).collect::<Vec<_>>().into_boxed_slice()).map_err(Clone::clone)
+    observation
+        .arguments()
+        .map(|rows| {
+            rows.iter()
+                .map(|row| {
+                    let kind = match row.kind() {
+                        Source::Integer(value) => OrdinaryNewTrivialArgumentKindV1::Integer(*value),
+                        Source::Bool(value) => OrdinaryNewTrivialArgumentKindV1::Bool(*value),
+                        Source::Local { binding } => {
+                            OrdinaryNewTrivialArgumentKindV1::Local { binding: *binding }
+                        }
+                    };
+                    OrdinaryNewTrivialArgumentV1::new(
+                        observation.new_site().owner(),
+                        observation.new_site().clone(),
+                        row.ordinal(),
+                        row.site().clone(),
+                        kind,
+                    )
+                })
+                .collect::<Vec<_>>()
+                .into_boxed_slice()
+        })
+        .map_err(Clone::clone)
 }
 
 fn is_direct_local_initializer(segments: &[SourcePathSegmentV1]) -> bool {
@@ -637,8 +656,8 @@ fn no_birth_constructor_disposition(
 }
 
 #[cfg(test)]
-#[path = "ordinary_new_coseal_tests.rs"]
-mod tests;
-#[cfg(test)]
 #[path = "ordinary_new_terminal_result_tests.rs"]
 mod terminal_result_tests;
+#[cfg(test)]
+#[path = "ordinary_new_coseal_tests.rs"]
+mod tests;

@@ -29,12 +29,28 @@ impl OrdinaryNewTrivialArgumentV1 {
         site: SourceExprSiteV1,
         kind: OrdinaryNewTrivialArgumentKindV1,
     ) -> Self {
-        Self { owner, new_site, ordinal, site, kind }
+        Self {
+            owner,
+            new_site,
+            ordinal,
+            site,
+            kind,
+        }
     }
 
-    pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 { self.owner }
-    pub(crate) fn new_site(&self) -> &OwnedExprSiteV1 { &self.new_site }
-    pub(crate) const fn ordinal(&self) -> u32 { self.ordinal }
-    pub(crate) fn site(&self) -> &SourceExprSiteV1 { &self.site }
-    pub(crate) fn kind(&self) -> &OrdinaryNewTrivialArgumentKindV1 { &self.kind }
+    pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.owner
+    }
+    pub(crate) fn new_site(&self) -> &OwnedExprSiteV1 {
+        &self.new_site
+    }
+    pub(crate) const fn ordinal(&self) -> u32 {
+        self.ordinal
+    }
+    pub(crate) fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+    pub(crate) fn kind(&self) -> &OrdinaryNewTrivialArgumentKindV1 {
+        &self.kind
+    }
 }

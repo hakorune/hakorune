@@ -40,7 +40,10 @@ impl OrdinaryNewAdmissionClaimV1 {
 
     pub(crate) fn argument_rows(
         &self,
-    ) -> Result<&[super::OrdinaryNewTrivialArgumentV1], &crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1> {
+    ) -> Result<
+        &[super::OrdinaryNewTrivialArgumentV1],
+        &crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
+    > {
         self.argument_rows.as_deref()
     }
 }

@@ -10,12 +10,12 @@ use std::collections::BTreeSet;
 
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
     HomeDemandV1, OwnedExprSiteV1, ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1,
     ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
 };
-use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ConstructionUnavailableV1 {
@@ -99,9 +99,7 @@ impl ConstructionPlanV1 {
         &self.field_demands
     }
 
-    pub(crate) fn stores(
-        &self,
-    ) -> &[ConstructionStoreV1] {
+    pub(crate) fn stores(&self) -> &[ConstructionStoreV1] {
         &self.stores
     }
 
@@ -291,10 +289,13 @@ pub(super) fn issue_construction_plan(
                 .iter()
                 .find_map(|expression| match expression {
                     BodyExpressionShapeV1::Variable {
-                    site, resolved: ResolvedLexicalRefV1::Local(binding),
+                        site,
+                        resolved: ResolvedLexicalRefV1::Local(binding),
                     } if site == row.value_site()
-                        && matches!(function.binding(*binding).map(|record| record.kind()),
-                            Some(BindingKindV1::Parameter { .. })) =>
+                        && matches!(
+                            function.binding(*binding).map(|record| record.kind()),
+                            Some(BindingKindV1::Parameter { .. })
+                        ) =>
                     {
                         Some(ConstructionStoreRhsV1::Parameter {
                             site: row.value_site().clone(),

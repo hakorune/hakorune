@@ -619,20 +619,28 @@ where
 {
     if port.prepare_root_home_exit(builder)? {
         crate::mir::builder::control_flow::cleanup::ensure_cleanup_exit_allowed_v1(
-            &builder.function_state, crate::mir::builder::control_flow::cleanup::CleanupExitKindV1::Return)?;
+            &builder.function_state,
+            crate::mir::builder::control_flow::cleanup::CleanupExitKindV1::Return,
+        )?;
         if let Some(value) = port.emit_terminal_i64_add_return(builder)? {
             return port.emit_root_home_exit(builder, value);
         }
         let value = match &statement {
             ASTNode::Return { value: Some(_), .. } => {
-                let source = port.prepare_expression_child_source_v1(&statement, ExprChildRoleV1::ReturnValue)?;
+                let source = port
+                    .prepare_expression_child_source_v1(&statement, ExprChildRoleV1::ReturnValue)?;
                 let mut scoped = RawStructuredChildScopePortV1::new(port, vec![source], Vec::new());
-                let value = lower_raw_value_return_after_probe_v1(builder, &mut scoped,
-                    RawLegacyValueReturnInputV1::new(statement))?;
+                let value = lower_raw_value_return_after_probe_v1(
+                    builder,
+                    &mut scoped,
+                    RawLegacyValueReturnInputV1::new(statement),
+                )?;
                 scoped.complete_exact_demands_v1()?;
                 value
             }
-            ASTNode::Return { value: None, .. } => crate::mir::builder::emission::constant::emit_void(builder)?,
+            ASTNode::Return { value: None, .. } => {
+                crate::mir::builder::emission::constant::emit_void(builder)?
+            }
             _ => return Err("[freeze:contract][root-home-exit/not-return]".into()),
         };
         return port.emit_root_home_exit(builder, value);

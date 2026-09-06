@@ -3,7 +3,7 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemant
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
-    PreparedTerminalI64AddReturnV1,
+    OrdinaryNewTrivialArgumentKindV1, PreparedTerminalI64AddReturnV1,
 };
 use crate::mir::{BasicBlock, BasicBlockId, Callee, MirBuilder, MirInstruction, MirType, ValueId};
 
@@ -12,11 +12,11 @@ pub(in crate::mir::builder) fn emit(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     claim: OrdinaryNewAdmissionClaimV1,
-    arguments: Vec<ValueId>,
 ) -> Result<ValueId, String> {
-    if state.owner() != claim.site().owner() || arguments.len() != claim.arity() {
+    if state.owner() != claim.site().owner() {
         return Err(freeze("owner-or-argument-count"));
     }
+    let arguments = materialize_arguments(builder, state, &claim)?;
     let (prior, reclaim_origin) = ledger.begin_new_emission(claim.site())?;
     let site = claim.site().clone();
     let object = claim.object();
@@ -123,7 +123,7 @@ pub(in crate::mir::builder) fn emit(
                 key: recipe.target(),
                 receiver: result,
             },
-            arguments,
+            arguments.clone(),
             effects,
         ) else {
             unreachable!("canonical Call constructor")
@@ -139,8 +139,52 @@ pub(in crate::mir::builder) fn emit(
         bindings.push((normal, birth));
         builder.start_new_block(after_birth)?;
     }
-    ledger.record_new_emission(&site, result, reclaim, bindings)?;
+    ledger.record_new_emission(&site, result, arguments, reclaim, bindings)?;
     Ok(result)
+}
+
+fn materialize_arguments(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    claim: &OrdinaryNewAdmissionClaimV1,
+) -> Result<Vec<ValueId>, String> {
+    let rows = claim
+        .argument_rows()
+        .map_err(|_| freeze("argument-source-unavailable"))?;
+    if rows.len() != claim.arity() {
+        return Err(freeze("argument-row-count"));
+    }
+    let mut sites = std::collections::BTreeSet::new();
+    rows.iter()
+        .enumerate()
+        .map(|(index, row)| {
+            let ordinal = u32::try_from(index).map_err(|_| freeze("argument-ordinal-overflow"))?;
+            if row.owner() != claim.site().owner()
+                || row.new_site() != claim.site()
+                || row.ordinal() != ordinal
+                || !sites.insert(row.site().clone())
+            {
+                return Err(freeze("argument-row-drift"));
+            }
+            match row.kind() {
+                OrdinaryNewTrivialArgumentKindV1::Integer(value) => {
+                    crate::mir::builder::emission::constant::emit_integer(builder, *value)
+                }
+                OrdinaryNewTrivialArgumentKindV1::Bool(value) => {
+                    crate::mir::builder::emission::constant::emit_bool(builder, *value)
+                }
+                OrdinaryNewTrivialArgumentKindV1::Local { binding } => {
+                    let value = state
+                        .value_for_exact_binding(claim.site().owner(), *binding)
+                        .map_err(|_| freeze("argument-binding-unavailable"))?;
+                    state
+                        .observe_variable_site(row.site().node(), *binding, value)
+                        .map_err(|_| freeze("argument-local-observation"))?;
+                    Ok(value)
+                }
+            }
+        })
+        .collect()
 }
 
 pub(in crate::mir::builder) fn emit_root_home_exit(

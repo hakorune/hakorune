@@ -22,24 +22,11 @@ pub(in crate::mir::builder) fn lower_ordinary_raw_new_with_port_v1<Port>(
     port: &mut Port,
     class: &str,
     arguments: Vec<ASTNode>,
+    claim: Option<crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1>,
 ) -> Result<ValueId, String>
 where
     Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1 + RawOrdinaryNewClaimPortV1,
 {
-    let claim = port.try_take_ordinary_new_claim(class, arguments.len())?;
-    let selected = match &claim {
-        Some(claim) => port.prepare_ordinary_new_emission(builder, claim)?,
-        None => false,
-    };
-    // Preserve the complete claim through argument descent and physical use.
-    if selected {
-        let claim = claim.expect("selected source claim");
-        let mut values = Vec::with_capacity(arguments.len());
-        for argument in arguments {
-            values.push(drive_legacy_expression_v1(builder, port, argument)?);
-        }
-        return port.emit_ordinary_new_claim(builder, claim, values);
-    }
     // Unavailable source profiles retain their existing pre-artifact fence;
     // this is not a retry after selected emission failure.
     let constructor = claim.map(|claim| claim.constructor());
@@ -79,7 +66,10 @@ where
             let effects = recipe.physical_effect_mask();
             builder.emit_instruction(MirInstruction::call(
                 None,
-                Callee::BirthConstructor { key: recipe.target(), receiver: dst },
+                Callee::BirthConstructor {
+                    key: recipe.target(),
+                    receiver: dst,
+                },
                 arg_values,
                 effects,
             ))?;

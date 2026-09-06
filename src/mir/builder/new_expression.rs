@@ -13,6 +13,9 @@ use crate::mir::builder::recursive_child_lowering::{
 pub(in crate::mir::builder) struct PreparedRawNewExpressionV1 {
     class: String,
     route: PreparedRawNewExpressionRouteV1,
+    ordinary_claim:
+        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1>,
+    selected_ordinary_claim: bool,
     field_initializers: Vec<(String, ASTNode)>,
     _seal: PreparedRawNewExpressionSealV1,
 }
@@ -30,7 +33,9 @@ impl PreparedRawNewExpressionV1 {
     pub(in crate::mir::builder) fn evaluated_argument_count(&self) -> usize {
         match &self.route {
             PreparedRawNewExpressionRouteV1::Core13Pure { arguments }
-            | PreparedRawNewExpressionRouteV1::Ordinary { arguments } => arguments.len(),
+            | PreparedRawNewExpressionRouteV1::Ordinary { arguments } => {
+                usize::from(!self.selected_ordinary_claim) * arguments.len()
+            }
             PreparedRawNewExpressionRouteV1::IntegerLiteral { .. } => 0,
         }
     }
@@ -71,9 +76,38 @@ impl PreparedRawNewExpressionV1 {
         Ok(Self {
             class,
             route,
+            ordinary_claim: None,
+            selected_ordinary_claim: false,
             field_initializers,
             _seal: PreparedRawNewExpressionSealV1,
         })
+    }
+
+    pub(in crate::mir::builder) fn prepare_ordinary_claim_v1<Port>(
+        &mut self,
+        builder: &MirBuilder,
+        port: &mut Port,
+    ) -> Result<(), String>
+    where
+        Port: RawOrdinaryNewClaimPortV1,
+    {
+        let PreparedRawNewExpressionRouteV1::Ordinary { arguments } = &self.route else {
+            return Ok(());
+        };
+        let claim = port.try_take_ordinary_new_claim(&self.class, arguments.len())?;
+        if claim
+            .as_ref()
+            .is_some_and(|claim| claim.argument_rows().is_err())
+        {
+            return Err("[freeze:contract][ordinary-new/argument-source-unavailable]".into());
+        }
+        let selected = match &claim {
+            Some(claim) => port.prepare_ordinary_new_emission(builder, claim)?,
+            None => false,
+        };
+        self.ordinary_claim = claim;
+        self.selected_ordinary_claim = selected;
+        Ok(())
     }
 }
 
@@ -90,6 +124,8 @@ impl MirBuilder {
         let PreparedRawNewExpressionV1 {
             class,
             route,
+            ordinary_claim,
+            selected_ordinary_claim,
             field_initializers,
             _seal: _,
         } = prepared;
@@ -140,9 +176,21 @@ impl MirBuilder {
                     .insert(dst, super::MirType::Integer);
                 dst
             }
+            PreparedRawNewExpressionRouteV1::Ordinary { arguments: _ }
+                if selected_ordinary_claim =>
+            {
+                port.emit_ordinary_new_claim(
+                    self,
+                    ordinary_claim.expect("selected ordinary claim"),
+                )?
+            }
             PreparedRawNewExpressionRouteV1::Ordinary { arguments } => {
                 super::ordinary_new_admission::lower_ordinary_raw_new_with_port_v1(
-                    self, port, &class, arguments,
+                    self,
+                    port,
+                    &class,
+                    arguments,
+                    ordinary_claim,
                 )?
             }
         };

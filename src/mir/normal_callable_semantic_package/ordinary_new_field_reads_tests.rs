@@ -58,6 +58,7 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
         .record_new_emission(
             &site,
             ValueId(1),
+            Vec::new(),
             Some((reclaim, reclaim_block, reclaim_instruction.clone())),
             vec![(entry, initializer), (reclaim_block, reclaim_instruction)],
         )

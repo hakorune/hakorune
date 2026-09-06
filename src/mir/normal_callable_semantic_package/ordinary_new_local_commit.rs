@@ -36,6 +36,7 @@ enum NewEmissionProgress {
     Emitting,
     Emitted {
         result: ValueId,
+        arguments: Vec<ValueId>,
         reclaim: Option<ReclaimUnpublishedEmissionV1>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         checked: bool,
@@ -55,6 +56,10 @@ pub(super) struct NewLocalCommitV1 {
     initializer: Option<ValueId>,
     local: Option<ValueId>,
     home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
+    argument_rows: Result<
+        Box<[super::OrdinaryNewTrivialArgumentV1]>,
+        crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
+    >,
     emission: NewEmissionProgress,
 }
 
@@ -144,6 +149,10 @@ impl NewLocalCommitV1 {
         destruction: super::ObjectDestructionDispositionV1,
         birth_target: Option<CanonicalSameModuleCallableKeyV1>,
         birth_abi: Option<BirthAbiHandoffV1>,
+        argument_rows: Result<
+            Box<[super::OrdinaryNewTrivialArgumentV1]>,
+            crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
+        >,
     ) -> Self {
         Self {
             box_source,
@@ -157,6 +166,7 @@ impl NewLocalCommitV1 {
             initializer: None,
             local: None,
             home_prefix,
+            argument_rows,
             emission: NewEmissionProgress::Unprepared,
         }
     }
@@ -483,6 +493,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         site: &OwnedExprSiteV1,
         result: ValueId,
+        arguments: Vec<ValueId>,
         reclaim: Option<(ReclaimUnpublishedOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
@@ -495,6 +506,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         row.emission = NewEmissionProgress::Emitted {
             result,
+            arguments,
             reclaim: reclaim.map(
                 |(origin, block, instruction)| ReclaimUnpublishedEmissionV1 {
                     origin,

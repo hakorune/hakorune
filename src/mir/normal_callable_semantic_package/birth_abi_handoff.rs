@@ -7,8 +7,7 @@
 use super::super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticRowV1;
 use crate::mir::instance_constructor_abi::InstanceConstructorAbiV1;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ReceiverPolicyV1,
-    SemanticOwnerRootProfileV1,
+    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ReceiverPolicyV1, SemanticOwnerRootProfileV1,
 };
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::collections::BTreeMap;
@@ -58,8 +57,11 @@ impl BirthAbiHandoffV1 {
         abi: InstanceConstructorAbiV1,
     ) -> Result<Self, &'static str> {
         let source_arity = usize::try_from(row.source_arity()).map_err(|_| "source-arity")?;
-        abi.validate(source_arity, source_arity.checked_add(1).ok_or("physical-arity")?)
-            .map_err(|_| "abi")?;
+        abi.validate(
+            source_arity,
+            source_arity.checked_add(1).ok_or("physical-arity")?,
+        )
+        .map_err(|_| "abi")?;
         if row.published_birth_key() != Some(&target) {
             return Err("target");
         }
@@ -96,8 +98,7 @@ impl BirthAbiHandoffV1 {
             }
         }
         let receiver = receiver.ok_or("receiver-missing")?;
-        if parameters.len() != source_arity
-            || parameters.keys().copied().ne(0..row.source_arity())
+        if parameters.len() != source_arity || parameters.keys().copied().ne(0..row.source_arity())
         {
             return Err("parameter-ordinal");
         }
@@ -173,7 +174,10 @@ mod tests {
             .iter()
             .find(|row| row.box_name() == "Pair")
             .expect("Pair Birth row");
-        let target = row.published_birth_key().expect("published Birth key").clone();
+        let target = row
+            .published_birth_key()
+            .expect("published Birth key")
+            .clone();
         let handoff = BirthAbiHandoffV1::issue(
             row,
             target.clone(),

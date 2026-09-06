@@ -18,12 +18,30 @@ impl OrdinaryNewClaimLedgerV1 {
                 NewEmissionProgress::RetainedUnavailable => {}
                 NewEmissionProgress::Emitted {
                     result,
+                    arguments,
                     reclaim,
                     bindings,
                     ..
                 } => {
                     if row.initializer != Some(*result) || row.local.is_none() {
                         return Err(freeze("emission-local-result-drift"));
+                    }
+                    let source_arguments = row
+                        .argument_rows
+                        .as_ref()
+                        .map_err(|_| freeze("argument-source-unavailable"))?;
+                    if source_arguments.len() != arguments.len() {
+                        return Err(freeze("argument-count-drift"));
+                    }
+                    for (index, source) in source_arguments.iter().enumerate() {
+                        if source.owner() != owner
+                            || source.new_site() != site
+                            || source.ordinal()
+                                != u32::try_from(index)
+                                    .map_err(|_| freeze("argument-ordinal-overflow"))?
+                        {
+                            return Err(freeze("argument-source-drift"));
+                        }
                     }
                     let local = row.local.expect("checked local installation");
                     let mut copies = function
@@ -109,6 +127,24 @@ impl OrdinaryNewClaimLedgerV1 {
                             }
                         }
                         _ => return Err(freeze("reclaim-origin-presence-drift")),
+                    }
+                    let birth_calls = function
+                        .blocks
+                        .values()
+                        .flat_map(|block| block.all_instructions())
+                        .filter(|instruction| matches!(
+                            instruction,
+                            MirInstruction::Invoke {
+                                operation: crate::mir::instruction::InvokeOperation::Call(call),
+                                ..
+                            } if matches!(&call.callee,
+                                crate::mir::Callee::BirthConstructor { receiver, .. } if receiver == result)
+                                && call.args == *arguments
+                        ))
+                        .count();
+                    let expected_birth_calls = usize::from(row.birth_target.is_some());
+                    if birth_calls != expected_birth_calls {
+                        return Err(freeze("argument-call-drift"));
                     }
                     for (block, expected) in bindings {
                         if !function.blocks.get(block).is_some_and(|block| {

@@ -264,8 +264,7 @@ where
         builder: &mut MirBuilder,
         store: super::normal_callable_semantic_lowering_state::construction::TakenConstructionStore,
     ) -> Result<ValueId, String> {
-        self.child
-            .emit_construction_store_v1(builder, store)
+        self.child.emit_construction_store_v1(builder, store)
     }
 
     fn complete_construction_stores_v1(&mut self, builder: &MirBuilder) -> Result<(), String> {
@@ -332,33 +331,43 @@ impl<Port> RawOrdinaryNewClaimPortV1 for RawStructuredChildScopePortV1<'_, Port>
 where
     Port: RawOrdinaryNewClaimPortV1,
 {
-    fn prepare_terminal_field_read(&mut self, object: ASTNode)
-        -> Result<Option<super::fields::PreparedRawFieldReadV1>, String> {
+    fn prepare_terminal_field_read(
+        &mut self,
+        object: ASTNode,
+    ) -> Result<Option<super::fields::PreparedRawFieldReadV1>, String> {
         self.child.prepare_terminal_field_read(object)
     }
     fn prepare_root_home_exit(&mut self, builder: &MirBuilder) -> Result<bool, String> {
         self.child.prepare_root_home_exit(builder)
     }
-    fn emit_terminal_i64_add_return(&mut self, builder: &mut MirBuilder) -> Result<Option<ValueId>, String> {
+    fn emit_terminal_i64_add_return(
+        &mut self,
+        builder: &mut MirBuilder,
+    ) -> Result<Option<ValueId>, String> {
         self.child.emit_terminal_i64_add_return(builder)
     }
 
-    fn emit_root_home_exit(&mut self, builder: &mut MirBuilder, value: ValueId) -> Result<ValueId, String> {
+    fn emit_root_home_exit(
+        &mut self,
+        builder: &mut MirBuilder,
+        value: ValueId,
+    ) -> Result<ValueId, String> {
         self.child.emit_root_home_exit(builder, value)
     }
     fn prepare_ordinary_new_emission(
-        &mut self, builder: &MirBuilder,
+        &mut self,
+        builder: &MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
     ) -> Result<bool, String> {
         self.child.prepare_ordinary_new_emission(builder, claim)
     }
 
     fn emit_ordinary_new_claim(
-        &mut self, builder: &mut MirBuilder,
+        &mut self,
+        builder: &mut MirBuilder,
         claim: crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
-        arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        self.child.emit_ordinary_new_claim(builder, claim, arguments)
+        self.child.emit_ordinary_new_claim(builder, claim)
     }
 
     fn complete_ordinary_new_expression(
