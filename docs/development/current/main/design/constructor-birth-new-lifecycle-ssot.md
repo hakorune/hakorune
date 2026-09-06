@@ -826,12 +826,12 @@ Typed-C prepass checkpoint: existing same-module call prepass peeks at published
 
 ## Typed C program handoff Decision
 
-Decision: the provisional JSON validators are retired at the no-artifact terminal. The source root result/entry and Birth formal issuers do not yet co-seal into the selected normal final view; keep `MaterializationRelationMissing__SourceResultAndFormalToFinalView`.
-Source authority + canonical issuer: root result/entry is issued by `main_thunk_plan::seal_relation/seal_result` then canonical source-entry publication; Birth target/Unit/construction is issued by `VerifiedInstanceConstructorSemanticRowV1` and `ordinary_new_coseal`. Neither is a selected normal-lifecycle formal-representation issuer today.
-Non-authority: Pair names, JSON, `MirFunction.signature`, `MirParamDecl`, metadata/parameter/return contracts, N+1 ABI shape, parameter position and defaults never issue source semantics or ABI.
-Fail-fast boundary: unless one retained source/session product binds root function, canonical Birth key/function, result representation and every formal value/representation exactly once, reject before frame, egress, C effect or artifact.
-Smallest next slice: source-owner Decision only—name the actual normal-lifecycle result/formal issuer or record `NoIssuer`; do not edit view/frame/C or create a receipt.
-Non-claims: no checked execution, Pair EXE30/OBJ30, ABI projection, Fault cleanup, generic retry, source expansion or legacy deletion.
+Decision: the provisional JSON validators are retired at the no-artifact terminal. Pair reaches `SemanticAuthorityMissing__PairFieldReadAddResultProfile` before root/Birth handoff: the current source result profile rejects property access and cannot issue its Integer return.
+Source authority + canonical issuer: `resolved_value_profile::analyze_trivial_canonical_with_mode_v1` owns admitted source result profiles; ordinary-new exact field facts own initialized field identity/type and `ordinary_new_coseal` owns New/Birth membership. A future issuer must co-seal these exact source relations, never MIR.
+Non-authority: Pair names, JSON, `MirFunction.signature`, `MirParamDecl`, ObjectFieldGet, metadata/parameter/return contracts, N+1 ABI shape, parameter position and defaults never issue expression/return representation or ABI.
+Fail-fast boundary: absent/duplicate/foreign local New, field reference, Add operand/result or terminal return, unsupported property shape, and any source/owner mismatch reject before lowering/frame/C/artifact.
+Smallest next slice: BoxCount Decision only—extend the existing source result-profile owner for exact local New -> initialized i64 field read -> Add -> return, or retain `NoSafeSlice`; do not issue a provisional receipt or edit handoff/view/C.
+Non-claims: no checked execution, Pair EXE30/OBJ30, ABI projection, Fault cleanup, generic retry, source expansion beyond this exact expression chain or legacy deletion.
 
 ### Premise audit and authority boundary
 
@@ -853,6 +853,11 @@ The downstream execution cutover is **CutoverBlockerOpen**, not Exhausted.
   app/script and opaque classifier arms are chosen earlier and cannot be
   recovered by root name. Same-source/session handoff is `NoIssuer` until a
   normal-lifecycle source owner is named.
+- `resolved_value_profile` can issue `InlineI64` for its admitted expressions,
+  but its analyzer has no property-access arm. Pair's first field read therefore
+  rejects before Add; initialized-field and ObjectFieldGet facts are not an
+  expression result or terminal-return issuer. This is `NoSafeSlice`, not a
+  request to use a MIR type or canonical-core thunk profile.
 - Birth definitions in `PublishedStaticMethodCFrameV2::from_view` are cataloged,
   but formal kind/wire tags are positional defaults. They are not evidence of
   source-backed parameter representation. The frame has no explicit root

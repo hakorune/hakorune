@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "MaterializationRelationMissing__SourceResultAndFormalToFinalView"
-current_blocker_token = "Design consultation: the selected normal lifecycle has no named same-source/session root-result and Birth-formal issuer to final view. Audit the actual source-owner path or record NoIssuer; final view identity, MIR signatures, metadata, parameter position and defaults cannot supply ABI. Checked-C execution, Pair EXE/OBJ exit 30 and old-edge retirement remain stopped."
+current_design_stop = "SemanticAuthorityMissing__PairFieldReadAddResultProfile"
+current_blocker_token = "Design consultation: Pair Main's exact field reads and Add return have no source-backed result profile. Existing resolved_value_profile rejects property access; ordinary-new field facts do not issue expression/return representation. Define the bounded source-only BoxCount issuer or retain NoSafeSlice. Do not infer from ObjectFieldGet/MIR types; handoff, checked C, Pair EXE/OBJ exit 30 and old-edge retirement remain stopped."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,12 +34,12 @@ latest_card_summary = """
 Constructor lifecycle V2 reaches a no-artifact body companion; this does not
 prove checked runtime execution. The speculative JSON program validators are
 retired; an unread nonempty body carrier now reaches only body-consumer-pending
-after frame/profile/site validation. Worker audit found no selected
-normal-lifecycle issuer that co-seals root result/entry and Birth formals into
-the final view. The current source-owner Decision must name it or retain
-NoIssuer; no physical handoff/C implementation follows. Pair EXE30/linked
-OBJ30, Fault/cleanup and selected legacy deletion remain open. The focused C
-test is dependency evidence only; no source runtime or acceptance-green claim.
+after frame/profile/site validation. The normal lifecycle also lacks a
+root/Birth handoff, but Pair first reaches NoSafeSlice earlier: the source
+result profile rejects field access and cannot issue its Integer return.
+The next Decision is a source-only BoxCount for exact field read -> Add ->
+return or an explicit NoSafeSlice. Pair EXE30/linked OBJ30, Fault/cleanup and
+selected legacy deletion remain open; no source runtime claim is made.
 """
 next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card = "none"

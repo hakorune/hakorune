@@ -396,11 +396,11 @@ current cohort = `acceptance_source_reconciliation_i0`
 
 The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)
 and [lifecycle Decision](constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
-own the `NoIssuer` audit for normal-lifecycle root/Birth result and formal
-relations. The provisional JSON validators are retired at
-`body-consumer-pending`; no view/frame/C extension is permitted before an
-actual same-source/session issuer exists. Pair EXE30/linked OBJ30 and selected
-old-edge retirement remain open.
+own the source-result BoxCount Decision. The `NoIssuer` handoff audit found an
+earlier Pair NoSafeSlice: `resolved_value_profile` rejects exact field access,
+so it cannot issue the root Integer return. No view/frame/C extension is
+permitted before a source-only field-read/Add/return issuer exists. Pair
+EXE30/linked OBJ30 and selected old-edge retirement remain open.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

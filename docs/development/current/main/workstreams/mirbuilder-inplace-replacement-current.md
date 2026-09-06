@@ -540,13 +540,14 @@ unrelated helper deletion leaves this boundary.
 
 **Gated remaining tasks — same constructor cutover, no new D0 cards**
 
-2. Source-owner Decision: audit the selected normal lifecycle, not the adjacent
-   canonical-core path. The root result/entry issuer and Birth target/Unit issuer
-   do not co-seal into final validation, and no Birth formal-representation
-   issuer exists. Record the actual normal-lifecycle issuer or `NoIssuer`.
-   Acceptance: classifier arms, source/session pairing, root/Birth function
-   membership, result and every formal relation are inventoried. No view/frame/C
-   edit, ABI projection, new receipt or MIR-signature/position/default inference.
+2. Source result BoxCount Decision: Pair reaches NoSafeSlice before the
+   root/Birth handoff. Existing `resolved_value_profile` rejects property access;
+   ordinary-new field facts do not issue `pair.left + pair.right` return
+   representation. Define its exact source-only local New -> i64 field read ->
+   Add -> return issuer or retain NoSafeSlice. Acceptance inventories source
+   classifier arms and missing/foreign/duplicate field, operand and return
+   relations. No view/frame/C edit, ABI projection, new provisional receipt or
+   MIR-signature/position/default inference.
 3. Consume one physical program: selected C companion places function-local
    params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
    checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
@@ -584,7 +585,7 @@ re-entry, excludes unrelated generic cohorts. Cutover remains CutoverBlockerOpen
 | Existing `typed_object_birth_min_exe.sh` | Selfhost JSON -> standalone ny-llvmc with legacy metadata assertions; replace selected acceptance caller in task 4, inspect direct/manifest/aggregate/directory discovery before retirement or park |
 | Unused Rust `compile_published_lifecycle_v2` wrappers | Separate caller-zero cleanup candidate; exported C preartifact symbol has a direct test caller and is retained |
 | Shared `same_module_*` / generic NewBox, field and call helpers | Not an exclusive delete-set. Prohibit selected re-entry; remove only arms proven exclusive after typed switch, never the shared files wholesale |
-| Selected root/Birth result/ABI and body relation | `NoIssuer` for the normal lifecycle is in-boundary CutoverBlockerOpen; no implied Exhausted or ParkedSealed claim |
+| Pair source result and root/Birth handoff | Field-read/Add result is `NoSafeSlice`; later normal-lifecycle handoff remains CutoverBlockerOpen with no implied Exhausted or ParkedSealed claim |
 
 Initial 11-entry fresh llvm_static acceptance was 1 pass / 10 failures: six
 RootPreservation(CompatibilityLoss), four generated birth/0. Existing records
