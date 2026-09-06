@@ -353,7 +353,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
         }
         // One source loan covers both initializer membership and binding
         // validation. Its order is not a Home availability/execution timeline.
-        let (candidates, mut home_prefixes) = batch
+        let (candidates, mut home_prefixes, mut argument_observations) = batch
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
                 let function = input.function();
                 let mut candidates = Vec::new();
@@ -386,7 +386,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 let selected: BTreeMap<_, _> = candidates.iter().filter(|(_, class, _, _, _, _)|
                     matches!(batch.ordinary_box_coverage().row_for(class.as_ref()), Ok(Some(_))))
                     .map(|(site, _, _, binding, _, _)| (site.clone(), *binding)).collect();
-                let home_prefixes = if is_app_main && !selected.is_empty() {
+                let (home_prefixes, argument_observations) = if is_app_main && !selected.is_empty() {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -398,9 +398,9 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                         }).is_some() { return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() }); }
                         Ok(true)
                     };
-                    match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_v1(
+                    match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
                         input, &selected, &mut field_is_integer)? {
-                        Ok((completion, prefixes, terminal_result)) => {
+                        Ok((completion, prefixes, terminal_result, observations)) => {
                             if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
                                 if let Some(result) = &terminal_result {
                                     if result.owner() != input.owner()
@@ -418,18 +418,24 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                                 root_terminal_result = terminal_result;
                             }
                             root_completion = Some(Ok(completion));
-                            prefixes
+                            (prefixes, observations)
                         }
                         Err(error) => {
                             root_completion = Some(Err(error));
-                            issue_new_home_prefixes_v1(input, &selected)
+                            (issue_new_home_prefixes_v1(input, &selected), BTreeMap::new())
                         }
                     }
-                } else { issue_new_home_prefixes_v1(input, &selected) };
-                Ok((candidates, home_prefixes))
+                } else { (issue_new_home_prefixes_v1(input, &selected), BTreeMap::new()) };
+                Ok((candidates, home_prefixes, argument_observations))
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
         for (site, class, arity, destination, declaration, has_overrides) in candidates {
+            let argument_rows = argument_observations
+                .remove(&site)
+                .map(convert_selected_new_arguments)
+                .unwrap_or_else(|| Err(SelectedNewArgumentUnavailableV1::SourceMismatch {
+                    new_site: site.clone(),
+                }));
             let Some(box_source) = batch
                 .ordinary_box_coverage()
                 .row_for(class.as_ref())
@@ -573,9 +579,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 construction,
                 object,
                 destruction,
-                argument_rows: Err(SelectedNewArgumentUnavailableV1::SourceMismatch {
-                    new_site: site.clone(),
-                }),
+                argument_rows,
             });
         }
     }
@@ -591,6 +595,20 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     ledger.birth_abi_handoffs = RefCell::new(birth_abi_handoffs);
     ledger.terminal_result = root_terminal_result;
     Ok(ledger)
+}
+
+fn convert_selected_new_arguments(
+    observation: crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentObservationV1,
+) -> Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1> {
+    use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentKindV1 as Source;
+    observation.arguments().map(|rows| rows.iter().map(|row| {
+        let kind = match row.kind() {
+            Source::Integer(value) => OrdinaryNewTrivialArgumentKindV1::Integer(*value),
+            Source::Bool(value) => OrdinaryNewTrivialArgumentKindV1::Bool(*value),
+            Source::Local { binding } => OrdinaryNewTrivialArgumentKindV1::Local { binding: *binding },
+        };
+        OrdinaryNewTrivialArgumentV1::new(observation.new_site().owner(), observation.new_site().clone(), row.ordinal(), row.site().clone(), kind)
+    }).collect::<Vec<_>>().into_boxed_slice()).map_err(Clone::clone)
 }
 
 fn is_direct_local_initializer(segments: &[SourcePathSegmentV1]) -> bool {
