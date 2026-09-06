@@ -24,6 +24,15 @@ local New, unavailable (Completion missing/rejected, terminal Homes, New
 emission or root exit unavailable), or source-complete at finalization.
 Residual/foreign/drifted bindings remain errors. This is not backend admission:
 MirFunction is still mutable, and Birth validation belongs to its own owner.
+
+For selected direct-`New` scalar arguments, the same ledger co-seals the
+existing ordered source rows. Its selected consumer records only a physical
+snapshot of each consumed row and emitted `ValueId`; the root finalizer checks
+row cardinality/identity, integer or bool literal definitions, and exact Birth
+Call argument order. A trivial local is validated when its exact binding is
+consumed and retains that emitted identity. This snapshot is not a new source
+receipt and cannot recover an argument from AST, infer an ABI, or permit C
+execution.
 Executable lifecycle activation requires freezing the validated module before
 mutable access escapes; a later wrapper or an observation flag is insufficient.
 The normal invocation completion now retains the same root ledger and exact

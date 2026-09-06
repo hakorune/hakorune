@@ -359,6 +359,15 @@ compatibility route, but they cannot consume or manufacture a source claim.
 Package completion rejects any unconsumed ordinary claim, so source-backed
 admission has no retry or post-lowering target inference.
 
+For the selected direct-`New` scalar profile, the already-issued ordered
+integer/bool/trivial-local rows are the only argument authority. The selected
+emitter consumes and materializes those rows without raw argument descent, then
+records the non-semantic `(source row, emitted ValueId)` snapshot in the
+existing claim. The root finalizer checks that snapshot against literal
+definitions and the ordered Birth Call arguments. It rejects residual rows or
+physical value/order/Call drift; it does not reclassify source expressions or
+open ABI/C execution.
+
 ### RawCompatibility child terminal I1 (2026-08-27)
 
 The phase2160 RawCompatibility root work plan now carries an explicit

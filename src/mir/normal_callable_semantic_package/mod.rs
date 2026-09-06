@@ -48,6 +48,8 @@ mod declared_instance_locator_tests;
 #[cfg(test)]
 mod main_static_child_tests;
 #[cfg(test)]
+mod ordinary_new_emission_validation_tests;
+#[cfg(test)]
 mod physical_header_tests;
 #[cfg(test)]
 mod physical_signature_tests;
