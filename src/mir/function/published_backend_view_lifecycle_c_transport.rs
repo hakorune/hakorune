@@ -125,7 +125,16 @@ pub(crate) struct PublishedLifecycleFieldCRowV2 {
 }
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub(crate) struct PublishedLifecycleBodySiteCRowV1 { pub(crate) function_name: *const c_char, pub(crate) block_id: u32, pub(crate) instruction_index: u32, pub(crate) normal_result: u32, pub(crate) fault_frame: u32, pub(crate) normal_landing: u32, pub(crate) fault_landing: u32, pub(crate) object_id: u32 }
+pub(crate) struct PublishedLifecycleBodySiteCRowV1 {
+    pub(crate) function_name: *const c_char,
+    pub(crate) block_id: u32,
+    pub(crate) instruction_index: u32,
+    pub(crate) normal_result: u32,
+    pub(crate) fault_frame: u32,
+    pub(crate) normal_landing: u32,
+    pub(crate) fault_landing: u32,
+    pub(crate) object_id: u32,
+}
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -227,7 +236,9 @@ impl PublishedLifecycleCFrameV2 {
     pub(crate) fn call_rows(&self) -> &[PublishedStaticMethodCallCRowV1] {
         self.calls.as_slice()
     }
-    pub(crate) fn body_sites(&self) -> &[PublishedLifecycleBodySiteCRowV1] { &self.body_sites }
+    pub(crate) fn body_sites(&self) -> &[PublishedLifecycleBodySiteCRowV1] {
+        &self.body_sites
+    }
 
     fn populate(&mut self, view: &PublishedMirBackendView<'_>) -> Result<(), String> {
         let module = view.module();
@@ -339,15 +350,32 @@ impl PublishedLifecycleCFrameV2 {
         }
         for row in view.lifecycle_instructions() {
             let MirInstruction::Invoke { operation: InvokeOperation::NewBox { object }, fault_frame, normal_landing, fault_landing } = row.instruction() else { continue; };
-            let results: Vec<_> = view.lifecycle_instructions().iter().filter_map(|candidate| (candidate.function_name() == row.function_name() && candidate.block_id() == normal_landing.as_u32() && matches!(candidate.instruction(), MirInstruction::InvokeNormalResult { invoke_block, .. } if invoke_block.as_u32() == row.block_id())).then(|| match candidate.instruction() { MirInstruction::InvokeNormalResult { dst, .. } => *dst, _ => unreachable!() })).collect();
-            let [result] = results.as_slice() else { return Err(fault("newbox-normal-result")); };
+            let results: Vec<_> = view.lifecycle_instructions().iter().filter_map(|candidate| {
+                (candidate.function_name() == row.function_name()
+                    && candidate.block_id() == normal_landing.as_u32()
+                    && matches!(candidate.instruction(), MirInstruction::InvokeNormalResult { invoke_block, .. } if invoke_block.as_u32() == row.block_id()))
+                    .then(|| match candidate.instruction() {
+                        MirInstruction::InvokeNormalResult { dst, .. } => *dst,
+                        _ => unreachable!(),
+                    })
+            }).collect();
+            let [result] = results.as_slice() else {
+                return Err(fault("newbox-normal-result"));
+            };
             let function_name = self.push_string(row.function_name())?;
-            self.body_sites.push(PublishedLifecycleBodySiteCRowV1 { function_name, block_id: row.block_id(), instruction_index: row.instruction_index(), normal_result: result.0, fault_frame: fault_frame.0, normal_landing: normal_landing.as_u32(), fault_landing: fault_landing.as_u32(), object_id: object.declaration_index() });
+            self.body_sites.push(PublishedLifecycleBodySiteCRowV1 {
+                function_name, block_id: row.block_id(), instruction_index: row.instruction_index(),
+                normal_result: result.0, fault_frame: fault_frame.0,
+                normal_landing: normal_landing.as_u32(), fault_landing: fault_landing.as_u32(),
+                object_id: object.declaration_index(),
+            });
         }
         if self.operations.is_empty() || self.controls.is_empty() || self.layouts.is_empty() || self.fields.is_empty() {
             return Err(fault("required-row-family-empty"));
         }
-        if self.body_sites.is_empty() { return Err(fault("newbox-body-site-missing")); }
+        if self.body_sites.is_empty() {
+            return Err(fault("newbox-body-site-missing"));
+        }
         self.header.definitions = self.definitions.as_ptr(); self.header.definition_count = self.definitions.len();
         self.header.formals = self.formals.as_ptr(); self.header.formal_count = self.formals.len();
         self.header.operations = self.operations.as_ptr(); self.header.operation_count = self.operations.len();
