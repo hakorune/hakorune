@@ -598,20 +598,13 @@ under their existing dispositions. No blanket Stop, new registry or legacy-plan 
 
 #### MIR-COLLECTION-LITERAL-CONSTRUCTION-D1
 
-Accepted [construction design](../design/collection-literal-construction-ssot.md)
-owns the raw/typed/Loop, Core13, empty selection, reader and C consumer inventory.
-Representation design is closed; source Facts/Recipe and runtime proof are not.
+Accepted [construction design](../design/collection-literal-construction-ssot.md) owns the finite inventory and task order; source Facts/Recipe and runtime proof remain open.
 
 #### MIR-COLLECTION-ALLOCATION-TARGET-NAMED-I0
 
-MIR/Core targets are Named-only; source, old wire and provider behavior remain.
-No intrinsic variant/source, name adapter or birth deletion. Remaps preserve target;
-semantic readers match Named. Origin tests moved to a standard child module with
-unchanged logical paths; owner795->727 and changed source max777.
-Cargo check (plugins, including test targets) and fresh library test build pass;
-60 focused tests cover wire, remap, raw/located, collection/source and view owners.
-Existing Pair/Bool EXE/OBJ/cleanup host1 passes (14.19s), not new literal execution.
-Canonical corridor guard passes. No whole-suite/backend-parity claim.
+Landed at 44c10a5cec: Named-only structural conversion; source/provider behavior
+preserved, no birth deletion. Cargo check/test build, focused60, Pair/Bool host1
+and canonical corridor guard pass; changed source max777. Details live in Git.
 
 #### MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0
 
@@ -623,14 +616,20 @@ Fail-fast boundary: intrinsic shape/required exact row/unsupported consumer befo
 Smallest next slice: intrinsic variant, view selection, frame kind8 and four C prepass/emission consumers; synthetic boundary acceptance only.
 Non-claims: source cutover, birth deletion, Loop/empty source execution, Map/Main, VM/WASM parity or R7 closure.
 
-Use the [construction design](../design/collection-literal-construction-ssot.md)
-for the finite reader inventory and transport contract. Intrinsic args must be
+The construction design owns reader/transport contracts. Intrinsic args must be
 empty; its allocation alone selects the published session. Prepass peeks,
 emission takes once, finish checks residuals. Reject ambiguous body tags/names,
 bad destination/payload, missing/wrong/duplicate rows; preserve Named old wire.
 Core13 must preserve intrinsic target; named-only observers must not reclassify it.
 Keep all actual source producers Named until consumer preparation passes.
-Then raw/typed-local/Core Array cutover retires its birth edges with source OBJ/EXE/failure evidence.
+Next queued slice: raw/typed-local/Core Array cutover together, after consumer
+verification and commit. Delete only collection_literals.rs Array birth caller
+and normalizer/helpers_value/lower.rs Array birth effect; shared helper remains
+for Map/Main. Natural-source OBJ/EXE, Loop write consumption, provider separation
+and failure/order evidence are mandatory. The design's ordered table owns detail.
+Read-only worker audit found no new construction issuer contradiction. Current
+working-tree view35 and old-wire12 pass; this is not consumer closeout or source
+cutover evidence. Keep this row active until its remaining checks/docs/commit.
 
 ## Source and ownership budget
 

@@ -8,7 +8,7 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 ## Current capsule
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
-- Implementation: MIR/Core allocation carries ConstructionTarget::Named(String); no intrinsic variant/source cutover yet.
+- Implementation: committed Named conversion is complete; IntrinsicArray consumer changes are uncommitted and source cutover remains gated.
 - Next: add IntrinsicArray with selected consumer preparation; existing sources stay Named.
 - Production stop: source intrinsic emission waits for consumer and preservation acceptance.
 - Retirement: Array literal birth callers/effects disappear in the cutover series; Map/Main remain.
@@ -42,6 +42,32 @@ observers, but cannot certify builtin provider identity.
 Do not supply a general intrinsic-to-"ArrayBox" name accessor to semantic readers.
 Use explicit target matches: diagnostic display and representation type may show
 Array, while name-resolution consumers can extract only Named.
+
+## Choice and next execution gate
+
+Keep the accepted intrinsic/Named split. Routing literals through Named would
+allow provider lookup to change language-defined literal construction; mapping
+all Named ArrayBox construction to intrinsic would erase explicit provider
+semantics. One target enum preserves both without a second resolver or registry.
+
+The read-only source audit confirms raw and typed-local callers share
+`collection_literals.rs::build_array_literal_with_contract_and_port_v1`;
+`normalizer/helpers_value/lower.rs` has the independent Core ArrayLiteral arm.
+No new issuer decision is required for this construction-only change. This does
+not establish the final AST-free Facts/Recipe pipeline.
+
+| Order | Owner / concrete work | Acceptance and retirement |
+| --- | --- | --- |
+| 1 | Current consumer row: finish pending variant/view/frame/C changes and owner docs; verify and commit before source edits. | Allocation-only and nested physical rows, invalid/missing/duplicate/residual rejection, remap/Core13 and Named wire regressions. Physical evidence only. |
+| 2 | Shared raw/typed helper and Core ArrayLiteral arm switch together. | Delete the helper's Array birth call and Core arm's birth MethodCall. Preserve Map/Main callers of the shared birth helper. |
+| 3 | Same source-cutover slice: exercise natural source through selected C and independently linked OBJ/EXE. | Empty/populated/nested/typed/Loop, named-provider separation, allocation/child failure and evaluation order; no dummy Call to select an empty literal. |
+| 4 | Close the same series: remove only exclusive obsolete branches/tests and synchronize docs. | Real switched callers plus deleted birth edges; then select the next family. No blanket shared-helper deletion. |
+
+For Loop acceptance, observe the existing known-array write branch in
+`effect_emission.rs`; a surviving fallback Method push is a cutover blocker,
+not permission to add a new C name interpretation. If a source witness stops
+at an earlier terminal, record dependency evidence and retain the open acceptance
+item. Do not substitute a synthetic frame test or silently narrow the source set.
 
 ## Bounded inventory and treatment
 
@@ -88,7 +114,7 @@ projection of the issued target, not a second semantic registry. Keep the existi
 row struct layout; Rust/C kind admission changes together and old libraries must
 reject an unknown kind rather than interpret it.
 
-The body writer at runner/mir_json_emit/emitters/calls.rs carries the explicit
+The body writer at runner/mir_json_emit/emitters/mod.rs carries the explicit
 intrinsic target tag. Named bodies retain their old type-string encoding. Reject
 ambiguous target-plus-name input, unknown tags, nonempty constructor args,
 missing/wrong/duplicate rows and residual unconsumed rows before object output.
