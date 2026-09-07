@@ -55,11 +55,10 @@ impl RawInvocationChildPortV1<'_, '_> {
             .expect("selected Script return ledger")
             .clone();
         let recipe = ledger.borrow_mut().take_array_return_recipe(&site)?;
-        let value = lower_raw_expression_with_recursion_guard_v1(builder, self, input)?;
-        ledger
-            .borrow_mut()
-            .record_array_root_return(builder, recipe)?;
-        Ok(value)
+        if let Some(recipe) = recipe {
+            return ledger.borrow_mut().emit_array_root_return(builder, recipe);
+        }
+        lower_raw_expression_with_recursion_guard_v1(builder, self, input)
     }
 
     pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(

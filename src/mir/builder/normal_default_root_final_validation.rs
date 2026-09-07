@@ -105,6 +105,13 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             if let Some(key) = &retained_root {
                 covered.insert(key.clone());
             }
+            // Only the source-selected Script Array whose full control coverage
+            // just passed can own lifecycle sites. Other Script roots stay unowned.
+            if let RootValidation::Script { key, source, .. } = &root_validation {
+                if source.has_array_lifecycle() {
+                    covered.insert(key.clone());
+                }
+            }
             let mut birth_keys = BTreeSet::new();
             for (key, validation) in self.construction {
                 if key.namespace()

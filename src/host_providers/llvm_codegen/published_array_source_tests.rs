@@ -255,40 +255,53 @@ fn numeric_typed_array_materialized_source_keeps_one_claim_and_backend_stop() {
             result.verification_result
         );
         let root = result.module.functions.get("main").unwrap();
-        let instructions: Vec<_> = root.blocks.values().flat_map(|b| &b.instructions).collect();
+        use crate::mir::instruction::InvokeOperation;
+        let instructions: Vec<_> = root
+            .blocks
+            .values()
+            .flat_map(|b| b.all_instructions())
+            .collect();
         let allocations: Vec<_> = instructions
             .iter()
             .filter_map(|i| match i {
-                MirInstruction::NewBox {
-                    dst,
-                    target: ConstructionTarget::IntrinsicArray,
-                    ..
-                } => Some(*dst),
+                MirInstruction::InvokeNormalResult { dst, .. } => Some(*dst),
                 _ => None,
             })
             .collect();
         assert_eq!(allocations.len(), 1);
         let claims: Vec<_> = instructions
             .iter()
-            .enumerate()
-            .filter_map(|(index, i)| match i {
-                MirInstruction::ArrayStateContractClaim { contract_id, array } => {
-                    Some((index, contract_id, *array))
-                }
+            .filter_map(|i| match i {
+                MirInstruction::Invoke {
+                    operation: InvokeOperation::ArrayStateContractClaim { contract_id, array },
+                    ..
+                } => Some((contract_id, *array)),
                 _ => None,
             })
             .collect();
-        let [(claim_index, claim_id, array)] = claims.as_slice() else {
+        let [(claim_id, array)] = claims.as_slice() else {
             panic!("one preclaim")
         };
         assert_eq!(*array, allocations[0]);
-        let writes: Vec<_> = instructions
-            .iter()
-            .enumerate()
-            .filter(|(_, i)| matches!(i, MirInstruction::ArrayElementWrite { .. }))
-            .collect();
-        assert_eq!(writes.len(), 2);
-        assert!(writes.iter().all(|(index, _)| index > claim_index));
+        assert_eq!(
+            instructions
+                .iter()
+                .filter(|i| matches!(
+                    i,
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::ArrayElementWrite { .. },
+                        ..
+                    }
+                ))
+                .count(),
+            2
+        );
+        assert!(!instructions.iter().any(|i| matches!(
+            i,
+            MirInstruction::ArrayElementWrite { .. }
+                | MirInstruction::ArrayStateContractClaim { .. }
+                | MirInstruction::NewBox { .. }
+        )));
         let [source_row] = root.metadata.typed_array_contract_sources.as_slice() else {
             panic!("one source claim")
         };
@@ -426,4 +439,70 @@ fn typed_array_real_source_requires_explicit_root_completion() {
             std::fs::remove_dir(dir).unwrap();
         }
     }
+}
+
+#[test]
+fn selected_typed_array_published_stop_precedes_runtime_session_and_artifacts() {
+    use crate::runner::modes::common_util::normal_callable::{
+        materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
+    };
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var(
+        "HAKO_TYPED_OBJECT_STORE",
+        "not-a-selected-script-profile",
+        || {
+            for optimize in [false, true] {
+                for terminal in ["return 30", "return"] {
+                    let text = format!("local a: Array<i64> = [10, 20]\nlocal alias = a\nlocal b: Array<u8> = []\n{terminal}");
+                    let NormalCallableMaterializationOutcomeV1::SourceBacked(source) =
+                        materialize_normal_callable_program_v1(text, Default::default()).unwrap()
+                    else {
+                        panic!("source-backed")
+                    };
+                    let directory = tempfile::tempdir().unwrap();
+                    let mut calls = 0;
+                    MirCompiler::with_options(optimize)
+                        .compile_normal_with_published(
+                            NormalCompileRequestV1::for_mir_mode_callable_source(
+                                source,
+                                None,
+                                Default::default(),
+                            ),
+                            |view, verification| {
+                                calls += 1;
+                                assert!(verification.is_ok());
+                                assert!(view.retained_script_array().is_some());
+                                assert_eq!(
+                                    view.route(),
+                                    PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+                                );
+                                assert!(view.lifecycle_storage_profile().is_none());
+                                let object_error = try_compile_published_view_object(
+                                    view,
+                                    directory.path().join("source.o").to_str().unwrap(),
+                                )
+                                .unwrap_err();
+                                let exe_error = emit_published_view_exe(
+                                    view,
+                                    directory.path().join("source").to_str().unwrap(),
+                                    None,
+                                    None,
+                                )
+                                .unwrap_err();
+                                for error in [object_error, exe_error] {
+                                    assert!(
+                                        error.contains("typed_array_contract_backend_unsupported"),
+                                        "{error}"
+                                    );
+                                }
+                                assert_eq!(std::fs::read_dir(directory.path()).unwrap().count(), 0);
+                                Ok(())
+                            },
+                        )
+                        .unwrap();
+                    assert_eq!(calls, 1);
+                }
+            }
+        },
+    );
 }

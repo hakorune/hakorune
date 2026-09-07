@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0"
-current_execution_cohort = "mir_script_array_lifecycle_physical_lowering_i0"
-current_design_stop = "none; source Recipe, Array Invoke/result/release vocabulary, identity/refresh/finishing and Script Stop mapping accepted"
-current_blocker_token = "Pre-emission Script Array Recipe is issued from complete source cutpoints and moved through existing Local/Return inputs into retained bindings; Written-only late projection is retired. Continue actual allocation/claim/write Invoke, source-ordered Fault/Return release emission and dedicated Script finishing coverage. Physical emission remains standalone; do not count retained cleanup plans as executed. Preserve typed host Stop and retire the selected old emission/binding/direct Return in this I0. Checked runtime ABI and C execution remain successors."
+work_mode = "design_stop"
+current_execution_row = "MIR-SCRIPT-ARRAY-CHECKED-RUNTIME-ABI-D0"
+current_execution_cohort = "mir_script_array_checked_runtime_abi_d0"
+current_design_stop = "Checked native Array allocation/claim/write failure representation and sole runtime owner require physical premise audit before implementation."
+current_blocker_token = "Script Array source-to-MIR lifecycle cutover is verified: Invoke, source-ordered Fault/Return cleanup, dedicated finishing and pre-artifact typed Stop. Next audit checked native allocation/claim/write ABI, actual callers, first-Fault and atomic state behavior, and exclusive delete-set. No runtime/C execution permission yet."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Array physical vocabulary/readers and pre-emission source Recipe are connected.
-Local/Return consume the issued plans and retain them beside physical bindings;
-Written-only late projection is removed. Actual Invoke/cleanup emission and
-Script finishing cutover remain active. Typed C stays stopped.
+Script Array lifecycle physical cutover is verified; selected standalone
+emission/binding/direct Return are retired. Focused41 plus Array/Pair EXE/OBJ
+pass. Checked runtime ABI premise audit is next; typed C stays stopped.
 """
-next_design_card = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0"
-next_execution_card = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0"
+next_design_card = "MIR-SCRIPT-ARRAY-CHECKED-RUNTIME-ABI-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

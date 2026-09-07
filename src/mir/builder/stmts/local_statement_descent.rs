@@ -36,7 +36,9 @@ enum LocalAnnotationSourceV1 {
     RawCompatibility,
     Script {
         relation: ResolvedInitializerRelationV1,
-        array_recipe: Option<super::super::normal_script_source_continuation::ArrayLocalRecipeV1>,
+        array_recipe: Option<
+            super::super::collection_literals::array_emission::control::ArrayLocalEmissionInput,
+        >,
     },
 }
 
@@ -77,7 +79,9 @@ impl RawLegacyLocalInputV1 {
         relation: ResolvedInitializerRelationV1,
         active_site: &SourceNodeSiteV1,
         initializer_source: Option<&PreparedRawChildSourceV1>,
-        array_recipe: Option<super::super::normal_script_source_continuation::ArrayLocalRecipeV1>,
+        array_recipe: Option<
+            super::super::collection_literals::array_emission::control::ArrayLocalEmissionInput,
+        >,
     ) -> Result<Self, String> {
         let drift = || "[freeze:contract][script-lexical/local-source-drift]".to_owned();
         let SourceBindingSiteV1::Local {
@@ -304,14 +308,29 @@ where
                 let recipe = array_recipe.take().ok_or_else(|| {
                     "[freeze:contract][script-array/selected-recipe-missing]".to_owned()
                 })?;
-                if recipe.relation() != relation {
+                if recipe.recipe.relation() != relation {
                     return Err("[freeze:contract][script-array/selected-recipe-drift]".into());
                 }
                 Some(recipe)
             }
         };
-        let (value, contract, emission) =
-            builder.build_typed_array_literal_with_port_v1(&mut scoped, elements, array_recipe)?;
+        let (value, contract, emission) = match array_recipe {
+            Some(input) => {
+                let (value, contract, emission) =
+                    super::super::collection_literals::array_emission::control::emit_literal(
+                        builder,
+                        &mut scoped,
+                        elements,
+                        input,
+                    )?;
+                (value, contract, Some(emission))
+            }
+            None => {
+                let (value, contract) =
+                    builder.build_typed_array_literal_with_port_v1(&mut scoped, elements)?;
+                (value, contract, None)
+            }
+        };
         scoped.complete_exact_demands_v1()?;
         input.observe_initializer(index, observation_source, value, emission)?;
         Ok((value, contract))

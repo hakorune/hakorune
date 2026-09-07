@@ -23,6 +23,7 @@ pub(super) struct ScriptSemanticLoweringState {
     direct_static_claim_ledger: direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     array_emissions: array_emissions::ArrayEmissionBindings,
+    array_frame: super::function_fault_frame::FunctionFaultFrameV1,
     array_recipe: super::normal_script_source_continuation::ScriptArrayLifecycleRecipeV1,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
@@ -40,6 +41,10 @@ impl ScriptSemanticLoweringState {
     pub(super) fn new(input: VerifiedScriptSemanticLoweringInputV1) -> Result<Self, String> {
         let (projection, continuation, direct_static_claim_input) = input.into_parts();
         let array_recipe = continuation.array_recipe()?;
+        let mut array_frame = super::function_fault_frame::FunctionFaultFrameV1::borrowed();
+        if array_recipe.is_selected() {
+            array_frame.select_root()?;
+        }
         let (direct_static_products, direct_static_claim_ledger) = match direct_static_claim_input {
             ScriptDirectStaticClaimInputV1::CompleteNoDirectStaticClaims(witness) => (
                 ScriptDirectStaticLoweringProductsV1::CompleteNoDirect,
@@ -72,9 +77,14 @@ impl ScriptSemanticLoweringState {
             direct_static_claim_ledger,
             variable_values: BTreeMap::new(),
             array_emissions: Default::default(),
+            array_frame,
             array_recipe,
             materialized_outboxes: BTreeSet::new(),
         })
+    }
+
+    pub(super) fn has_array_lifecycle(&self) -> bool {
+        self.array_recipe.is_selected()
     }
 
     fn projection(&self) -> &VerifiedScriptLoweringProjectionV1 {
@@ -115,12 +125,38 @@ impl ScriptSemanticLoweringState {
         self.projection().local_relation_at(site)
     }
 
-    pub(super) fn take_array_local_recipe(
+    pub(super) fn prepare_array_local_emission(
         &mut self,
+        builder: &mut crate::mir::MirBuilder,
         relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
-    ) -> Result<Option<super::normal_script_source_continuation::ArrayLocalRecipeV1>, String> {
+    ) -> Result<
+        Option<super::collection_literals::array_emission::control::ArrayLocalEmissionInput>,
+        String,
+    > {
+        use super::normal_script_source_continuation::ArrayReleaseRoleV1;
         self.continuation.consume_array_local(relation)?;
-        self.array_recipe.take_local(relation)
+        let Some(recipe) = self.array_recipe.take_local(relation)? else {
+            return Ok(None);
+        };
+        let mut homes = BTreeMap::new();
+        for role in recipe.allocation_fault() {
+            let ArrayReleaseRoleV1::Home(binding) = role else {
+                return Err("[freeze:contract][script-array/allocation-release-role]".into());
+            };
+            homes.insert(
+                *binding,
+                self.value(*binding)
+                    .ok_or_else(|| "[freeze:contract][script-array/prior-home-value]".to_owned())?,
+            );
+        }
+        let frame = self.array_frame.materialize(builder)?;
+        Ok(Some(
+            super::collection_literals::array_emission::control::ArrayLocalEmissionInput {
+                recipe,
+                frame,
+                homes,
+            },
+        ))
     }
 
     pub(super) fn take_array_return_recipe(

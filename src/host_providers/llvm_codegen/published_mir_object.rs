@@ -33,6 +33,12 @@ pub(crate) fn try_compile_published_view_object(
     view: &PublishedMirBackendView<'_>,
     obj_out: &str,
 ) -> Result<bool, String> {
+    if view.has_lifecycle_instructions() {
+        crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
+            view.module(),
+            "ny-llvmc-obj",
+        )?;
+    }
     match view.route() {
         PublishedStaticMethodRouteV1::CanonicalTyped => {
             crate::mir::backend_capability::enforce_published_backend_supported(
@@ -56,6 +62,10 @@ fn compile_published_view_object(
     lifecycle_session: Option<&LifecycleRuntimeSessionV1>,
 ) -> Result<(), String> {
     if view.has_lifecycle_instructions() {
+        crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
+            view.module(),
+            "ny-llvmc-obj",
+        )?;
         if lifecycle_session.is_none() {
             return Err(
                 "published lifecycle object ingress requires an explicit runtime session"
@@ -118,6 +128,12 @@ pub(crate) fn emit_published_view_exe(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<bool, String> {
+    if view.has_lifecycle_instructions() {
+        crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
+            view.module(),
+            "ny-llvmc-exe",
+        )?;
+    }
     match view.route() {
         PublishedStaticMethodRouteV1::CanonicalTyped => {
             crate::mir::backend_capability::enforce_published_backend_supported(

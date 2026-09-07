@@ -30,6 +30,7 @@ pub(crate) struct FinalizedScriptArrayV1 {
     entry: BasicBlockId,
     source: super::super::normal_script_source_continuation::ArraySourceLifecycleRows,
     emissions: ArrayEmissionBindings,
+    frame: super::super::function_fault_frame::FunctionFaultFrameV1,
 }
 
 impl FinalizedScriptArrayV1 {
@@ -42,7 +43,9 @@ impl FinalizedScriptArrayV1 {
         if bindings.is_empty() || bindings.iter().any(|binding| binding.owner() != self.owner) {
             return Err(fault("artifact-source-owner"));
         }
-        self.emissions.check_bindings(&bindings)
+        self.frame.validate(root)?;
+        self.emissions.check_bindings(&bindings)?;
+        self.emissions.validate(root, true, &bindings)
     }
 
     #[cfg(test)]
@@ -65,6 +68,7 @@ struct RootReturnEmission {
     block: BasicBlockId,
     instruction: MirInstruction,
     definition: Option<((BasicBlockId, usize), MirInstruction)>,
+    releases: Vec<ValueId>,
 }
 
 impl ScriptSemanticLoweringState {
@@ -89,6 +93,7 @@ impl ScriptSemanticLoweringState {
             entry,
             source,
             emissions: self.array_emissions,
+            frame: self.array_frame,
         }))
     }
 
@@ -167,64 +172,65 @@ impl ScriptSemanticLoweringState {
         Ok(())
     }
 
-    pub(in crate::mir::builder) fn record_array_root_return(
+    pub(in crate::mir::builder) fn emit_array_root_return(
         &mut self,
-        builder: &MirBuilder,
-        recipe: Option<super::super::normal_script_source_continuation::ArrayReturnRecipeV1>,
-    ) -> Result<(), String> {
-        use super::super::normal_script_source_continuation::RootResult;
-        let Some(recipe) = recipe else { return Ok(()) };
+        builder: &mut MirBuilder,
+        recipe: super::super::normal_script_source_continuation::ArrayReturnRecipeV1,
+    ) -> Result<ValueId, String> {
+        use super::super::normal_script_source_continuation::{ArrayReleaseRoleV1, RootResult};
+        use crate::mir::builder::control_flow::cleanup::{
+            ensure_cleanup_exit_allowed_v1, CleanupExitKindV1,
+        };
         if self.array_emissions.terminal.is_some() {
             return Err(fault("return-source-or-duplicate"));
         }
-        let root = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or_else(|| fault("root-missing"))?;
+        ensure_cleanup_exit_allowed_v1(&builder.function_state, CleanupExitKindV1::Return)?;
+        let releases = recipe
+            .releases()
+            .iter()
+            .map(|role| {
+                let ArrayReleaseRoleV1::Home(binding) = role else {
+                    return Err(fault("return-release-role"));
+                };
+                self.value(*binding)
+                    .ok_or_else(|| fault("return-home-value"))
+            })
+            .collect::<Result<Vec<_>, String>>()?;
+        let value = match recipe.result() {
+            RootResult::Unit => crate::mir::builder::emission::constant::emit_void(builder)?,
+            RootResult::Integer { value, .. } => {
+                crate::mir::builder::emission::constant::emit_integer(builder, *value)?
+            }
+        };
+        let (position, definition) = last_instruction(builder)?;
+        let definition = if matches!(recipe.result(), RootResult::Unit) {
+            None
+        } else {
+            Some((position, definition.clone()))
+        };
+        for value in &releases {
+            builder.emit_instruction(MirInstruction::ArrayResidenceRelease { value: *value })?;
+        }
+        let instruction = MirInstruction::Return {
+            value: if matches!(recipe.result(), RootResult::Unit) {
+                None
+            } else {
+                Some(value)
+            },
+        };
+        builder.emit_instruction(instruction.clone())?;
         let block = builder
             .function_state
             .current_block
             .ok_or_else(|| fault("return-block"))?;
-        let instruction = root
-            .blocks
-            .get(&block)
-            .and_then(|body| body.terminator.as_ref())
-            .ok_or_else(|| fault("return-missing"))?;
-        let definition = match (recipe.result(), instruction) {
-            (RootResult::Unit, MirInstruction::Return { value: None }) => None,
-            (result, MirInstruction::Return { value: Some(value) }) => {
-                let (position, definition) = last_instruction(builder)?;
-                match (result, definition) {
-                    (
-                        RootResult::Unit,
-                        MirInstruction::Const {
-                            dst,
-                            value: ConstValue::Void,
-                        },
-                    ) if dst == value => {}
-                    (
-                        RootResult::Integer {
-                            value: expected, ..
-                        },
-                        MirInstruction::Const {
-                            dst,
-                            value: ConstValue::Integer(actual),
-                        },
-                    ) if dst == value && actual == expected => {}
-                    _ => return Err(fault("return-result-binding")),
-                }
-                Some((position, definition.clone()))
-            }
-            _ => return Err(fault("return-operation")),
-        };
         self.array_emissions.terminal = Some(RootReturnEmission {
             recipe,
             block,
-            instruction: instruction.clone(),
+            instruction,
             definition,
+            releases,
         });
-        Ok(())
+        Ok(value)
     }
 
     pub(in crate::mir::builder) fn bind_array_root(
@@ -237,6 +243,7 @@ impl ScriptSemanticLoweringState {
         if self.array_emissions.root_progress != RootBindingProgress::Unbound {
             return Err(fault("duplicate-root-bind"));
         }
+        self.array_frame.validate(root)?;
         self.array_emissions.validate(root, false, &bindings)?;
         self.array_emissions.root_progress = RootBindingProgress::Bound;
         Ok(())
@@ -252,264 +259,15 @@ impl ScriptSemanticLoweringState {
         if self.array_emissions.root_progress == RootBindingProgress::Unbound {
             return Err(fault("root-unbound"));
         }
+        self.array_frame.validate(root)?;
         self.array_emissions.validate(root, true, &bindings)?;
         self.array_emissions.root_progress = RootBindingProgress::Finished;
         Ok(())
     }
 }
 
-impl ArrayEmissionBindings {
-    fn check_bindings(&self, expected: &[BindingRefV1]) -> Result<(), String> {
-        if self.rows.keys().copied().collect::<BTreeSet<_>>()
-            != expected.iter().copied().collect::<BTreeSet<_>>()
-        {
-            return Err(fault("source-binding-set"));
-        }
-        Ok(())
-    }
-
-    fn validate(
-        &self,
-        root: &MirFunction,
-        finishing: bool,
-        bindings: &[BindingRefV1],
-    ) -> Result<(), String> {
-        if self.rows.is_empty() {
-            return if self.terminal.is_none() {
-                Ok(())
-            } else {
-                Err(fault("unexpected-return-binding"))
-            };
-        }
-        let index = EmissionIndex::build(root)?;
-        let mut prior = None;
-        for binding in bindings {
-            let row = self
-                .rows
-                .get(binding)
-                .ok_or_else(|| fault("source-binding-set"))?;
-            let literal = &row.literal;
-            if root.entry_block != literal.entry
-                || literal.recipe.elements().len() != literal.elements.len()
-                || literal
-                    .recipe
-                    .elements()
-                    .iter()
-                    .any(|site| Some(site) == literal.recipe.relation().initializer_site())
-            {
-                return Err(fault("source-or-root-drift"));
-            }
-            let allocation = index.definition(literal.allocation)?;
-            if !matches!(allocation.1, MirInstruction::NewBox { target: crate::mir::ConstructionTarget::IntrinsicArray, args, .. } if args.is_empty())
-            {
-                return Err(fault("allocation-drift"));
-            }
-            check_position(allocation.0, literal.allocation_site, finishing)?;
-            if let Some(previous) = prior {
-                ordered(previous, allocation.0)?;
-            }
-            let claim = index
-                .claims
-                .get(literal.claim.as_str())
-                .copied()
-                .ok_or_else(|| fault("operation-missing"))?;
-            if !matches!(claim.1, MirInstruction::ArrayStateContractClaim { array, .. } if *array == literal.allocation)
-            {
-                return Err(fault("claim-operand-drift"));
-            }
-            let source = index
-                .carriers
-                .get(literal.claim.as_str())
-                .ok_or_else(|| fault("claim-source-carrier"))?;
-            if source.element_spec != literal.recipe.spec()
-                || source.boundary_value
-                    != crate::mir::function::TypedArrayBoundaryValue::Value(literal.allocation)
-                || source.boundary != crate::mir::function::TypedArrayContractBoundary::LocalInit
-                || source.source_identity
-                    != crate::mir::function::TypedArrayContractSourceIdentity::LocalSlot(
-                        row.local_slot,
-                    )
-            {
-                return Err(fault("claim-source-carrier"));
-            }
-            check_position(claim.0, literal.claim_site, finishing)?;
-            ordered(allocation.0, claim.0)?;
-            let mut previous = claim.0;
-            for element in &literal.elements {
-                let definition = index.definition(element.value)?;
-                check_position(definition.0, element.definition_site, finishing)?;
-                validate_definition(element.value, &element.definition, definition.1)?;
-                let write = index
-                    .writes
-                    .get(&element.write)
-                    .copied()
-                    .ok_or_else(|| fault("operation-missing"))?;
-                if !matches!(write.1, MirInstruction::ArrayElementWrite {
-                    dst: None, kind: crate::mir::ArrayElementWriteKind::LiteralAppend,
-                    producer: crate::mir::ArrayWriteProducerKind::Literal,
-                    receiver, index: None, value, ..
-                } if *receiver == literal.allocation && *value == element.value)
-                {
-                    return Err(fault("write-operand-drift"));
-                }
-                check_position(write.0, element.write_site, finishing)?;
-                ordered(previous, definition.0)?;
-                ordered(definition.0, write.0)?;
-                previous = write.0;
-            }
-            let local = index.definitions.get(&row.local).copied();
-            if let Some((site, instruction)) = local {
-                if !matches!(instruction, MirInstruction::Copy { src, .. } if *src == literal.allocation)
-                {
-                    return Err(fault("local-operand-drift"));
-                }
-                check_position(site, row.local_site, finishing)?;
-                ordered(previous, site)?;
-                previous = site;
-            } else if !finishing || index.used.contains(&row.local) {
-                return Err(fault("local-missing"));
-            }
-            prior = Some(previous);
-        }
-        if !self.rows.is_empty() {
-            let terminal = self
-                .terminal
-                .as_ref()
-                .ok_or_else(|| fault("return-unbound"))?;
-            let body = root
-                .blocks
-                .get(&terminal.block)
-                .ok_or_else(|| fault("return-block"))?;
-            if body.terminator.as_ref() != Some(&terminal.instruction) {
-                return Err(fault("return-operand-drift"));
-            }
-            if root
-                .blocks
-                .values()
-                .filter(|body| matches!(body.terminator, Some(MirInstruction::Return { .. })))
-                .count()
-                != 1
-            {
-                return Err(fault("return-cardinality"));
-            }
-            if let Some((position, definition)) = &terminal.definition {
-                let value = definition
-                    .dst_value()
-                    .ok_or_else(|| fault("return-definition"))?;
-                let current = index.definition(value)?;
-                check_position(current.0, *position, finishing)?;
-                validate_definition(value, definition, current.1)?;
-                if let Some(previous) = prior {
-                    ordered(previous, current.0)?;
-                }
-            } else if let Some(previous) = prior {
-                ordered(previous, (terminal.block, body.instructions.len()))?;
-            }
-        } else if self.terminal.is_some() {
-            return Err(fault("unexpected-return-binding"));
-        }
-        Ok(())
-    }
-}
-
-type Position = (BasicBlockId, usize);
-type Located<'a> = (Position, &'a MirInstruction);
-// Ephemeral physical lookup, built once per validation. It never creates a
-// source correspondence; every requested identity was retained at emission.
-struct EmissionIndex<'a> {
-    definitions: BTreeMap<ValueId, Located<'a>>,
-    claims: BTreeMap<&'a str, Located<'a>>,
-    writes: BTreeMap<crate::mir::ArrayWriteSiteId, Located<'a>>,
-    carriers: BTreeMap<&'a str, &'a crate::mir::function::TypedArrayContractSource>,
-    used: BTreeSet<ValueId>,
-}
-impl<'a> EmissionIndex<'a> {
-    fn build(root: &'a MirFunction) -> Result<Self, String> {
-        let mut index = Self {
-            definitions: BTreeMap::new(),
-            claims: BTreeMap::new(),
-            writes: BTreeMap::new(),
-            carriers: BTreeMap::new(),
-            used: BTreeSet::new(),
-        };
-        for (block, body) in &root.blocks {
-            for (position, instruction) in body.instructions.iter().enumerate() {
-                let location = ((*block, position), instruction);
-                if let Some(dst) = instruction.dst_value() {
-                    if index.definitions.insert(dst, location).is_some() {
-                        return Err(fault("duplicate-operation"));
-                    }
-                }
-                match instruction {
-                    MirInstruction::ArrayStateContractClaim { contract_id, .. } => {
-                        if index.claims.insert(contract_id, location).is_some() {
-                            return Err(fault("duplicate-operation"));
-                        }
-                    }
-                    MirInstruction::ArrayElementWrite { site_id, .. } => {
-                        if index.writes.insert(*site_id, location).is_some() {
-                            return Err(fault("duplicate-operation"));
-                        }
-                    }
-                    _ => {}
-                }
-            }
-            for instruction in body.all_instructions() {
-                index.used.extend(instruction.used_values());
-            }
-        }
-        for source in &root.metadata.typed_array_contract_sources {
-            if index.carriers.insert(&source.contract_id, source).is_some() {
-                return Err(fault("claim-source-carrier"));
-            }
-        }
-        Ok(index)
-    }
-    fn definition(&self, value: ValueId) -> Result<Located<'a>, String> {
-        self.definitions
-            .get(&value)
-            .copied()
-            .ok_or_else(|| fault("operation-missing"))
-    }
-}
-fn ordered(before: Position, after: Position) -> Result<(), String> {
-    if before.0 != after.0 || before.1 >= after.1 {
-        return Err(fault("operation-order"));
-    }
-    Ok(())
-}
-fn check_position(actual: Position, emitted: Position, finishing: bool) -> Result<(), String> {
-    if actual.0 != emitted.0 || (!finishing && actual.1 != emitted.1) {
-        return Err(fault("operation-position"));
-    }
-    Ok(())
-}
-fn validate_definition(
-    value: ValueId,
-    original: &MirInstruction,
-    current: &MirInstruction,
-) -> Result<(), String> {
-    match (original, current) {
-        (
-            MirInstruction::Const {
-                dst,
-                value: constant,
-            },
-            MirInstruction::Const {
-                dst: actual,
-                value: actual_value,
-            },
-        ) if *dst == value && actual == dst && same_constant(actual_value, constant) => Ok(()),
-        _ => Err(fault("primitive-definition-drift")),
-    }
-}
+#[path = "normal_script_array_control_validation.rs"]
+mod validation;
 fn fault(reason: &str) -> String {
     format!("[freeze:contract][script-array/emission/{reason}]")
-}
-
-fn same_constant(left: &ConstValue, right: &ConstValue) -> bool {
-    match (left, right) {
-        (ConstValue::Float(left), ConstValue::Float(right)) => left.to_bits() == right.to_bits(),
-        _ => left == right,
-    }
 }

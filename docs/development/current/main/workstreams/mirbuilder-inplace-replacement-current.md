@@ -40,19 +40,8 @@ disposition are closed in `mirbuilder-final-pipeline-ssot.md`. M3-A is now
 closed at `474e8518b0`: the UnifiedCallEmitter core has zero environment
 reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
-The prior 138-name failure receipt is preserved in Git history. After the
-bounded canonical-call reader repair, the later caller-zero test retirement,
-and the typed proof test addition plus JoinIR bridge retirement, the fixed runner
-was stable at `7555/7393/133/29`. The 2026-09-05 baseline reconciliation now
-records `7543/7381/133/29`: 19 retired JSON-v0 tests, one corrected raw-root
-lineage assertion, and seven landed focused tests account for the exact net
-inventory delta; the 133 failure-name set is unchanged. The earlier
-`7580/7418/133/29` observation is historical and is not the current inventory
-authority. All repaired sites descend from the
-`45c6759962` Call/LegacyCallV0 shape split. This remains verification repair
-evidence, not automatic permission to open BoxShape, performance, or another
-semantic/cleanup family. The JSON-v1 Stop cohort is now landed and its five
-call-like writers are caller-zero.
+Historical Call test inventory and baseline receipts live in Git; the recorded
+133 whole-lib failure set is not a green claim for the current Array row.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
@@ -623,14 +612,25 @@ Non-authority: MIR/source reconstruction, App Main/Birth admission, alias-group 
 Fail-fast boundary: missing source/control/metadata/result/release binding rejects; selected typed C remains pre-artifact Stop.
 Smallest next slice: one selected Script physical emitter plus its existing Local, identity, refresh, finishing and Stop consumers.
 Non-claims: checked allocation/claim/write runtime ABI, C execution, nested/opaque children, implicit completion or Loop.
-Checkpoint: pre-emission Recipe -> Local/Return retention; Written-only projection retired.
-Focused19, peak8.85GiB, Array/Pair EXE/OBJ and guards pass; Invoke/cleanup/finishing still open.
-Same-series delete-set: selected standalone allocation/claim/write and raw direct
-Return, old standalone binding schema, and observer blindness to Invoke sites.
-Gates: seven specs, empty/multiple literals, prior Homes/alias, exact result/frame,
-every Normal/Fault release set/order, metadata continuity, optimizer on/off and
-unchanged typed host Stop; existing Array/Pair execution regressions stay required.
-Terminal/storage cleanup stays in the existing [feedback queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
+Closed: selected Local/Return now emit Invoke, one frame and source-ordered
+Fault/normal cleanup; old standalone binding/emission/direct Return retired.
+Evidence: focused41 (including21 control mutations), Array/Pair EXE/linked OBJ,
+optimizer on/off, seven specs, multiple/empty literals, alias and pre-artifact Stop.
+Current-change failures (constant type fact, diagnostic precedence, Script coverage)
+were repaired and the affected suites rerun green; no baseline waiver.
+Runtime execution is not proved by emitted MIR. Terminal/storage cleanup stays in
+[feedback queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
+
+#### MIR-SCRIPT-ARRAY-CHECKED-RUNTIME-ABI-D0
+
+Decision: audit checked allocation/claim/write against native runtime before selecting implementation.
+Source authority + canonical issuer: existing Script continuation and Array Recipe retain all meaning; runtime ABI owner must be verified.
+Non-authority: legacy zero/sentinel results, object-store cleanup, noop shim or abstract Invoke success.
+Fail-fast boundary: typed OBJ/EXE stays pre-artifact Stop until checked ABI and C consumer are proven.
+Smallest next slice: one read-only worker premise audit of native callers, failure/status representation, atomic claim/write and release; integrate one bounded Decision.
+Non-claims: runtime/C activation, OOM-to-Fault, new source families or performance.
+Audit must name owner, real callers, exclusive old-edge delete-set and acceptance;
+then order checked runtime implementation before selected C execution/OBJ/EXE.
 
 ## Source and ownership budget
 

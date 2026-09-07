@@ -38,7 +38,7 @@ DOC_SYNC_MIR_VOCABULARY_COUNT=73
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
-### Selected Script Array lifecycle (physical vocabulary; source cutover pending)
+### Selected Script Array lifecycle (MIR cutover; runtime execution pending)
 
 The selected Script Array physical cutover adds these operations to existing
 `Invoke`: `IntrinsicArrayNew` (no operands, one Normal-only Array result),
@@ -58,10 +58,11 @@ retirement. This is neither alias-group ReleaseStrong nor ordinary-object
 HomeRelease/ReclaimUnpublished, and it does not activate passive DestroyOwned.
 
 Script lowering now selects one source Recipe before emission; Local/Return
-inputs move its exact plans into retained bindings. Physical emission is still
-standalone: the release plans are not yet executed. Emitted control/cleanup
-correspondence and finished validation are required before lifecycle publication. Allocation failure releases only
-prior Homes; claim/write failure first releases the acquired incomplete Array.
+inputs consume its exact plans to emit Invoke, Normal results and cleanup,
+retaining their physical bindings for both finishing consumers and publication.
+One source-selected RootOwned frame serves the Array chain. Allocation failure
+releases only prior Homes; claim/write failure first releases the acquired
+incomplete Array, then prior Homes. Only Normal allocation defines a result.
 Return releases the exact reverse Home sequence, with no alias double release.
 The physical vocabulary, structural verifier and metadata readers include these
 operations. This does not authorize runtime, JSON/C or unselected backend execution. Implementation order and physical reader

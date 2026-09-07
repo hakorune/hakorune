@@ -61,12 +61,19 @@ pub(in crate::mir::builder) struct ScriptArrayLifecycleRecipeV1 {
     terminal: Option<ArrayReturnRecipeV1>,
 }
 impl ScriptArrayLifecycleRecipeV1 {
+    pub(in crate::mir::builder) fn is_selected(&self) -> bool {
+        !self.locals.is_empty()
+    }
     pub(super) fn issue(source: &ArraySourceLifecycleRows) -> Result<Self, String> {
-        source.require_root()?;
         let mut locals = BTreeMap::new();
         for (site, coverage) in &source.rows {
-            let ArraySourceCoverage::Available(row) = coverage else {
-                return Err(freeze("recipe-unavailable-local"));
+            let row = match coverage {
+                ArraySourceCoverage::Available(row) => row,
+                ArraySourceCoverage::Unavailable(reason) => {
+                    return Err(format!(
+                        "[freeze:contract][script-array/source-lifecycle-unavailable] {reason}"
+                    ))
+                }
             };
             if row.progress != LocalProgress::Pending {
                 return Err(freeze("recipe-after-emission"));
@@ -125,6 +132,7 @@ impl ScriptArrayLifecycleRecipeV1 {
                 }),
             );
         }
+        source.require_root()?;
         let terminal = source.terminal()?.map(|terminal| ArrayReturnRecipeV1 {
             site: terminal.site().clone(),
             result: terminal.result().clone(),

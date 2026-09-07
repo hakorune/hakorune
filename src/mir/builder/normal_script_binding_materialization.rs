@@ -44,7 +44,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let observations = std::rc::Rc::new(std::cell::RefCell::new(Vec::new()));
         let array_recipe = ledger
             .borrow_mut()
-            .take_array_local_recipe(&source_relation)?;
+            .prepare_array_local_emission(builder, &source_relation)?;
         let input = RawLegacyLocalInputV1::from_script_relation(
             input,
             relation,

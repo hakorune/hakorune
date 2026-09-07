@@ -534,7 +534,7 @@ not currently checked errors. Object HomeRelease/ReclaimUnpublished target the
 typed-object store and are not Array cleanup. The same-named noop shim is not
 native execution evidence.
 
-Physical vocabulary implemented; selected source emission/finishing pending:
+Physical vocabulary and selected source emission/finishing implemented:
 
 | Physical operation | Operands | Normal result |
 | --- | --- | --- |
@@ -554,9 +554,12 @@ ReleaseStrong and ordinary-object cleanup retain their existing meanings.
 
 Current connection: the pre-emission Recipe is issued at Script lowering-state
 entry and moved through selected Local/Return inputs into retained bindings.
-The Written-only late projection is retired. Allocation/claim/write and Return
-still use the standalone physical emitter; consuming the selected release plans
-as actual control emission, finishing coverage and host Stop remains this I0.
+The Written-only late projection and selected standalone emission are retired.
+`script_array_control_emission.rs` emits allocation/claim/write Invoke and exact
+Fault cleanup; the Script Return consumer emits reverse Home cleanup. Dedicated
+control validation runs in both finishing consumers and again on the borrowed
+artifact. Only a validated source-selected Array root joins lifecycle coverage.
+The existing typed host Stop runs before runtime session or artifact creation.
 
 Source-to-physical owner chain:
 
@@ -582,9 +585,8 @@ Source-to-physical owner chain:
    for this selected family. Array-unissued Script keeps its separate ingress.
 5. FunctionFaultFrameV1 in builder/function_fault_frame.rs owns the extracted
    physical materialization/validation mechanics. Existing callable lowering
-   and retained construction validation now use that one owner; Script wiring
-   remains part of this I0. Source entry owners retain selection
-   permission. The selected Script recipe selects RootOwned; its first Array
+   and retained Script/construction validation use that one owner. Source entry
+   owners retain selection permission. The selected Script recipe selects RootOwned; its first Array
    consumer materializes once at entry. No standalone frame series or fake
    App Main selection is permitted.
 

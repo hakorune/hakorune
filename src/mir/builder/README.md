@@ -899,18 +899,21 @@ identities; it never reconstructs source correspondence. Final handoff creation
 requires Finished progress; Array-unissued Script remains absent. The pipeline
 owns this moved product and the published view borrows it. Callable Birth/result
 projections are unavailable for Script and constructor admission rejects it.
-Frame/Invoke/cleanup and typed C remain subsequent obligations.
 `function_fault_frame.rs::FunctionFaultFrameV1` owns shared physical frame
-materialization/validation. Callable source entry wrappers keep role selection
-permission and their diagnostic contract. Script frame emission is not yet wired;
-that consumer must land together with Array Normal/Fault/cleanup control.
-The accepted next physical row seals one Array control Recipe from the existing
-continuation before emission. The Script-proven Local input carries its exact
-recipe into the current Local owner; the selected Array/Return consumers replace
-standalone operations with Invoke plus source-ordered native residence release.
-Shared claim/write refresh and site-ID allocation must read the new operations.
-The design is in the collection construction SSOT; no frame-only or typed C
-activation is implied by current artifact retention.
+materialization/validation; source entry wrappers retain role selection.
+Script selects RootOwned from its pre-emission Array Recipe and materializes
+one frame. `script_array_control_emission.rs` replaces selected standalone
+allocation/claim/write with direct Invoke chains and source-ordered Fault cleanup.
+The existing Local owner still commits once; aliases add no Home. The Script
+Return consumer emits exact reverse Home cleanup before the saved result Return.
+`normal_script_array_control_validation.rs` replaces the old standalone schema,
+checking every lifecycle site and terminator against retained source bindings.
+Both finishing consumers accept DCE index shifts without skipping validation;
+Home Copies remain live through cleanup. Artifact coverage includes only the
+source-selected Script root after this dedicated validation succeeds.
+The published view remains UnsupportedBeforeObject and the host typed Array
+Stop precedes object profile/session/artifacts. Checked runtime ABI and C
+execution are separate successors in the collection construction SSOT.
 Transparent, transferred, and diagnostic root entries are explicit boundaries
 and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
 transports this continuation together with the existing lowering projection and

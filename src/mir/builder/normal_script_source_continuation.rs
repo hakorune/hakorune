@@ -9,7 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 #[path = "normal_script_array_source_lifecycle.rs"]
 mod array_lifecycle;
 pub(in crate::mir::builder) use array_lifecycle::recipe::{
-    ArrayLocalRecipeV1, ArrayReturnRecipeV1, ScriptArrayLifecycleRecipeV1,
+    ArrayLocalRecipeV1, ArrayReleaseRoleV1, ArrayReturnRecipeV1, ScriptArrayLifecycleRecipeV1,
 };
 pub(super) use array_lifecycle::root_terminal::RootResult;
 pub(super) use array_lifecycle::ArraySourceLifecycleRows;

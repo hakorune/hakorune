@@ -93,84 +93,237 @@ fn both_finishing_consumers_reject_missing_or_foreign_retained_root() {
 
 #[test]
 fn array_emission_mutations_reject_in_both_finishing_consumers() {
-    use crate::mir::{ConstructionTarget, MirInstruction, ValueId};
+    use crate::mir::instruction::InvokeOperation;
+    use crate::mir::{MirInstruction, ValueId};
     for artifact in [false, true] {
-        for mutation in 0..11 {
-            let completed = completed("local a: Array<i64> = [10, 20]\nlocal alias = a\nreturn 30");
+        for mutation in 0..21 {
+            let completed = completed("local a: Array<i64> = [10, 20]\nlocal alias = a\nlocal b: Array<u8> = []\nreturn 30");
             let key = completed.root_validation.key().unwrap().to_owned();
             let mutate = |module: &mut MirModule| {
                 let root = module.functions.get_mut(&key).unwrap();
-                let block = root.blocks.get_mut(&root.entry_block).unwrap();
-                let writes: Vec<_> = block
-                    .instructions
+                let writes: Vec<_> = root
+                    .blocks
                     .iter()
-                    .enumerate()
-                    .filter_map(|(index, inst)| {
-                        matches!(inst, MirInstruction::ArrayElementWrite { .. }).then_some(index)
+                    .filter_map(|(id, block)| {
+                        matches!(
+                            block.terminator,
+                            Some(MirInstruction::Invoke {
+                                operation: InvokeOperation::ArrayElementWrite { .. },
+                                ..
+                            })
+                        )
+                        .then_some(*id)
                     })
                     .collect();
+                let allocation = root
+                    .blocks
+                    .iter()
+                    .find_map(|(id, block)| {
+                        matches!(
+                            block.terminator,
+                            Some(MirInstruction::Invoke {
+                                operation: InvokeOperation::IntrinsicArrayNew,
+                                ..
+                            })
+                        )
+                        .then_some(*id)
+                    })
+                    .unwrap();
+                let claim = root
+                    .blocks
+                    .iter()
+                    .find_map(|(id, block)| {
+                        matches!(
+                            block.terminator,
+                            Some(MirInstruction::Invoke {
+                                operation: InvokeOperation::ArrayStateContractClaim { .. },
+                                ..
+                            })
+                        )
+                        .then_some(*id)
+                    })
+                    .unwrap();
+                let returned = root
+                    .blocks
+                    .iter()
+                    .find_map(|(id, block)| {
+                        matches!(block.terminator, Some(MirInstruction::Return { .. }))
+                            .then_some(*id)
+                    })
+                    .unwrap();
+                let fault_of = |root: &crate::mir::MirFunction, block| match root.blocks[&block]
+                    .terminator
+                    .as_ref()
+                    .unwrap()
+                {
+                    MirInstruction::Invoke { fault_landing, .. } => *fault_landing,
+                    _ => unreachable!(),
+                };
                 match mutation {
                     0 => {
-                        if let Some(MirInstruction::NewBox { target, .. }) = block
-                            .instructions
-                            .iter_mut()
-                            .find(|inst| matches!(inst, MirInstruction::NewBox { .. }))
+                        if let Some(MirInstruction::Invoke { operation, .. }) =
+                            &mut root.blocks.get_mut(&allocation).unwrap().terminator
                         {
-                            *target = ConstructionTarget::Named("ArrayBox".into());
+                            *operation = InvokeOperation::NewBox {
+                                object:
+                                    hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(
+                                        0,
+                                    )
+                                    .unwrap(),
+                            };
                         }
                     }
                     1 => {
-                        if let Some(MirInstruction::ArrayStateContractClaim {
-                            contract_id, ..
-                        }) = block.instructions.iter_mut().find(|inst| {
-                            matches!(inst, MirInstruction::ArrayStateContractClaim { .. })
-                        }) {
+                        if let Some(MirInstruction::Invoke {
+                            operation: InvokeOperation::ArrayStateContractClaim { contract_id, .. },
+                            ..
+                        }) = &mut root.blocks.get_mut(&claim).unwrap().terminator
+                        {
                             contract_id.push_str(":foreign");
                         }
                     }
                     2 => {
-                        if let MirInstruction::ArrayElementWrite { value, .. } =
-                            &mut block.instructions[writes[0]]
+                        if let Some(MirInstruction::Invoke {
+                            operation: InvokeOperation::ArrayElementWrite { value, .. },
+                            ..
+                        }) = &mut root.blocks.get_mut(&writes[0]).unwrap().terminator
                         {
                             *value = ValueId::new(u32::MAX);
                         }
                     }
-                    3 => {
-                        block.instructions.remove(writes[0]);
-                    }
+                    3 => root.blocks.get_mut(&writes[0]).unwrap().terminator = None,
                     4 => {
-                        block
-                            .instructions
-                            .push(block.instructions[writes[0]].clone());
+                        let body = root.blocks.get_mut(&writes[0]).unwrap();
+                        body.instructions.push(body.terminator.clone().unwrap());
                     }
                     5 => {
-                        block.instructions.swap(writes[0], writes[1]);
+                        let a = root.blocks.get_mut(&writes[0]).unwrap().terminator.take();
+                        let b = root
+                            .blocks
+                            .get_mut(&writes[1])
+                            .unwrap()
+                            .terminator
+                            .replace(a.unwrap());
+                        root.blocks.get_mut(&writes[0]).unwrap().terminator = b;
                     }
                     6 => {
-                        let local = block
+                        let body = root
+                            .blocks
+                            .values_mut()
+                            .find(|body| {
+                                body.instructions
+                                    .iter()
+                                    .any(|inst| matches!(inst, MirInstruction::Copy { .. }))
+                            })
+                            .unwrap();
+                        let pos = body
                             .instructions
                             .iter()
                             .position(|inst| matches!(inst, MirInstruction::Copy { .. }))
                             .unwrap();
-                        block.instructions.remove(local);
+                        body.instructions.remove(pos);
                     }
-                    7 => {
-                        root.metadata.typed_array_contract_sources.clear();
-                    }
-                    8 => {
-                        block.terminator = None;
-                    }
+                    7 => root.metadata.typed_array_contract_sources.clear(),
+                    8 => root.blocks.get_mut(&returned).unwrap().terminator = None,
                     9 => {
-                        block.terminator = Some(MirInstruction::Return {
-                            value: Some(ValueId::new(u32::MAX)),
-                        });
+                        root.blocks.get_mut(&returned).unwrap().terminator =
+                            Some(MirInstruction::Return {
+                                value: Some(ValueId::new(u32::MAX)),
+                            })
                     }
                     10 => {
-                        if let Some(MirInstruction::Const { value, .. }) =
-                            block.instructions.last_mut()
-                        {
-                            *value = crate::mir::ConstValue::Integer(31);
+                        for inst in &mut root.blocks.get_mut(&returned).unwrap().instructions {
+                            if let MirInstruction::Const {
+                                value: crate::mir::ConstValue::Integer(30),
+                                dst,
+                            } = inst
+                            {
+                                *inst = MirInstruction::Const {
+                                    dst: *dst,
+                                    value: crate::mir::ConstValue::Integer(31),
+                                };
+                                break;
+                            }
                         }
+                    }
+                    11 => {
+                        let block = fault_of(root, allocation);
+                        root.blocks.get_mut(&block).unwrap().instructions.push(
+                            MirInstruction::ArrayResidenceRelease {
+                                value: ValueId::new(u32::MAX),
+                            },
+                        );
+                    }
+                    12 => {
+                        let block = fault_of(root, claim);
+                        root.blocks.get_mut(&block).unwrap().instructions.remove(0);
+                    }
+                    13 => {
+                        let body = root.blocks.get_mut(&returned).unwrap();
+                        body.instructions
+                            .push(body.instructions.last().unwrap().clone());
+                    }
+                    14 => {
+                        let block = fault_of(root, claim);
+                        root.blocks.get_mut(&block).unwrap().terminator =
+                            Some(MirInstruction::Return { value: None });
+                    }
+                    15 => {
+                        let mut extra =
+                            crate::mir::BasicBlock::new(crate::mir::BasicBlockId::new(u32::MAX));
+                        extra.set_terminator(MirInstruction::Return { value: None });
+                        root.add_block(extra);
+                    }
+                    16 => {
+                        if let Some(MirInstruction::Invoke {
+                            fault_landing,
+                            normal_landing,
+                            ..
+                        }) = &mut root.blocks.get_mut(&writes[0]).unwrap().terminator
+                        {
+                            *fault_landing = *normal_landing;
+                        }
+                    }
+                    17 => {
+                        let inst = root
+                            .blocks
+                            .get_mut(&returned)
+                            .unwrap()
+                            .instructions
+                            .last_mut()
+                            .unwrap();
+                        *inst = MirInstruction::ArrayResidenceRelease {
+                            value: ValueId::new(u32::MAX),
+                        };
+                    }
+                    18 => {
+                        let body = root
+                            .blocks
+                            .values_mut()
+                            .find(|body| {
+                                matches!(body.terminator, Some(MirInstruction::ReturnFault { .. }))
+                                    && body.instructions.len() == 2
+                            })
+                            .unwrap();
+                        body.instructions.swap(0, 1);
+                    }
+                    19 => {
+                        let body = root.blocks.get_mut(&returned).unwrap();
+                        let n = body.instructions.len();
+                        body.instructions.swap(n - 1, n - 2);
+                    }
+                    20 => {
+                        let normal = match root.blocks[&claim].terminator.as_ref().unwrap() {
+                            MirInstruction::Invoke { normal_landing, .. } => *normal_landing,
+                            _ => unreachable!(),
+                        };
+                        root.blocks.get_mut(&normal).unwrap().instructions.insert(
+                            0,
+                            MirInstruction::InvokeNormalResult {
+                                dst: ValueId::new(u32::MAX),
+                                invoke_block: claim,
+                            },
+                        );
                     }
                     _ => unreachable!(),
                 }
@@ -255,13 +408,19 @@ fn array_source_binding_survives_actual_compiler_finishing_with_optimization() {
                     matches!(instruction, crate::mir::MirInstruction::Copy { .. })
                 })
                 .count();
+            let homes: usize = result
+                .module
+                .functions
+                .values()
+                .map(|root| root.metadata.typed_array_contract_sources.len())
+                .sum();
             if optimize {
-                assert_eq!(copies, 0, "DCE must actually remove dead Local copies");
-            } else {
-                assert!(
-                    copies > 0,
-                    "unoptimized Local copies witness the transformation"
+                assert_eq!(
+                    copies, homes,
+                    "DCE removes dead aliases but keeps every cleanup Home"
                 );
+            } else {
+                assert!(copies >= homes && homes > 0);
             }
         }
     }
@@ -280,4 +439,127 @@ fn script_array_artifact_requires_finishing_and_preserves_unissued_distinction()
         validate(&module).unwrap().is_none(),
         "unissued Array is not an empty Array product"
     );
+}
+
+#[test]
+fn source_array_control_has_exact_fault_sets_and_reverse_terminal_homes() {
+    use crate::mir::instruction::InvokeOperation;
+    use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+    fn releases(root: &MirFunction, block: BasicBlockId) -> Vec<ValueId> {
+        root.blocks[&block]
+            .instructions
+            .iter()
+            .filter_map(|inst| match inst {
+                MirInstruction::ArrayResidenceRelease { value } => Some(*value),
+                _ => None,
+            })
+            .collect()
+    }
+    for spec in ["i8", "i16", "i32", "i64", "u8", "u16", "u32"] {
+        for terminal in ["return 30", "return"] {
+            let source = format!("local a: Array<{spec}> = [10, 20]\nlocal alias = a\nlocal b: Array<{spec}> = []\n{terminal}");
+            let completed = completed(&source);
+            let key = completed.root_validation.key().unwrap().to_owned();
+            let (_, module, validate) = completed.into_artifact_parts();
+            validate(&module).unwrap().unwrap();
+            let root = &module.functions[&key];
+            let mut allocations = root
+                .blocks
+                .iter()
+                .filter_map(|(id, body)| match body.terminator.as_ref() {
+                    Some(MirInstruction::Invoke {
+                        operation: InvokeOperation::IntrinsicArrayNew,
+                        normal_landing,
+                        fault_landing,
+                        fault_frame,
+                    }) => Some((*id, *normal_landing, *fault_landing, *fault_frame)),
+                    _ => None,
+                })
+                .collect::<Vec<_>>();
+            allocations.sort_by_key(|row| row.0);
+            assert_eq!(allocations.len(), 2);
+            let mut homes = Vec::new();
+            for (origin, normal, allocation_fault, frame) in allocations {
+                assert_eq!(
+                    releases(root, allocation_fault),
+                    homes.iter().rev().copied().collect::<Vec<_>>()
+                );
+                assert_eq!(
+                    root.blocks[&allocation_fault].terminator,
+                    Some(MirInstruction::ReturnFault { fault_frame: frame })
+                );
+                let allocation = match root.blocks[&normal].instructions[0] {
+                    MirInstruction::InvokeNormalResult { dst, invoke_block }
+                        if invoke_block == origin =>
+                    {
+                        dst
+                    }
+                    ref unexpected => panic!("normal allocation result: {unexpected:?}"),
+                };
+                let (mut next, acquired_fault) =
+                    match root.blocks[&normal].terminator.as_ref().unwrap() {
+                        MirInstruction::Invoke {
+                            operation: InvokeOperation::ArrayStateContractClaim { array, .. },
+                            normal_landing,
+                            fault_landing,
+                            fault_frame,
+                        } if *array == allocation && *fault_frame == frame => {
+                            (*normal_landing, *fault_landing)
+                        }
+                        unexpected => panic!("claim: {unexpected:?}"),
+                    };
+                let expected_fault: Vec<_> = std::iter::once(allocation)
+                    .chain(homes.iter().rev().copied())
+                    .collect();
+                assert_eq!(releases(root, acquired_fault), expected_fault);
+                assert_eq!(
+                    root.blocks[&acquired_fault].terminator,
+                    Some(MirInstruction::ReturnFault { fault_frame: frame })
+                );
+                while let Some(MirInstruction::Invoke {
+                    operation: InvokeOperation::ArrayElementWrite { receiver, .. },
+                    normal_landing,
+                    fault_landing,
+                    fault_frame,
+                }) = root.blocks[&next].terminator.as_ref()
+                {
+                    assert_eq!(*receiver, allocation);
+                    assert_eq!(*fault_landing, acquired_fault);
+                    assert_eq!(*fault_frame, frame);
+                    next = *normal_landing;
+                }
+                let local = root.blocks[&next]
+                    .instructions
+                    .iter()
+                    .find_map(|inst| match inst {
+                        MirInstruction::Copy { dst, src } if *src == allocation => Some(*dst),
+                        _ => None,
+                    })
+                    .expect("Local commit follows all successful writes");
+                homes.push(local);
+            }
+            let returns = root
+                .blocks
+                .iter()
+                .filter(|(_, body)| matches!(body.terminator, Some(MirInstruction::Return { .. })))
+                .collect::<Vec<_>>();
+            let [(block, body)] = returns.as_slice() else {
+                panic!("one Normal Return")
+            };
+            assert_eq!(
+                releases(root, **block),
+                homes.into_iter().rev().collect::<Vec<_>>()
+            );
+            if terminal == "return" {
+                assert_eq!(
+                    body.terminator,
+                    Some(MirInstruction::Return { value: None })
+                );
+            }
+            assert!(root.blocks.values().all(|body| !matches!(
+                body.terminator,
+                Some(MirInstruction::Jump { .. } | MirInstruction::Branch { .. })
+            )));
+        }
+    }
 }
