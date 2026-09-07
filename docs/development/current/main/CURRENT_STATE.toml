@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-I0"
-current_execution_cohort = "constructor_lifecycle_c_body_invocation_contract_i0"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
+current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
 current_design_stop = "none"
-current_blocker_token = "Finish the compiled-entry-owned direct physical input's call-local target session: preserve and verify the selected triple/data-layout before V4 artifact admission; no generic tool or ambient flags."
+current_blocker_token = "Implement the selected V4 Pair body consumer from the compiled-entry-owned direct physical input: emit and link through its explicit session only, then prove direct EXE and linked OBJ exit 30 before retiring the pending V2/V3 lifecycle edge."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -41,10 +41,10 @@ archive record and the host reader proves actual extraction plus malformed
 rejection. The selected target was already x86_64 GNU/Linux LP64. The host half
 of session I0 retains one explicit archive through lifecycle EXE compilation
 and link; C V3 now validates descriptor/header geometry plus the selected LLVM target-data Diagnostic/Frame layout before pending. Direct physical input I0 owns
-the one-pass final ABI transport and real parser ingress; parser closure I0 is landed at 23824e64f7 with dedicated and source-issued Pair acceptance. C body consumer D0 selected the V4 Pair emitter, but its I0 is blocked before code: the compiled-entry-owned physical input now issues the selected Pair's five checked-runtime diagnostic sites and rejects Unit roots before C; the current text-tool helper still does not apply the selected session triple/layout. D1 names those physical invocation products before reopening I0. Pair EXE30/linked OBJ30 remain unproven.
+the one-pass final ABI transport and real parser ingress; parser closure I0 is landed at 23824e64f7 with dedicated and source-issued Pair acceptance. C body consumer D0 selected the V4 Pair emitter. Its invocation-contract I0 is now closed: the compiled-entry-owned physical input issues the selected Pair's five checked-runtime diagnostic sites, rejects Unit roots before C, and the lifecycle-private LLVM 18 text session writes/verifies the selected triple/data-layout without generic flags or object emission. Pair EXE30/linked OBJ30 remain unproven.
 """
 next_design_card = "none (C body invocation D1 accepted)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-I0"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
