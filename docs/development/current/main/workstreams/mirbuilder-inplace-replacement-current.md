@@ -610,24 +610,24 @@ matching refreshed LocalInit, then the existing OBJ/EXE capability Stop. Relatio
 EXE+OBJ30 pass; library peak8.72GiB and existing guards green. Exact host names5/5
 supersede a discarded zero-match filter. Receipt details live in Git; no whole-suite claim.
 
-#### MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-D0
+#### MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0
 
-Decision: source Array failure/cleanup co-seal precedes checked runtime ABI and C activation.
-Source authority + canonical issuer: exact Script initializer/element sites and existing source-exit/ownership owner; Array-specific issuer is missing.
-Non-authority: VMError, runtime Result, EffectMask, ArrayStateTerm, constructor FaultFrame and emitted MIR.
-Fail-fast boundary: retain typed_array_contract_backend_unsupported before artifacts until source failure/cleanup issuance exists.
-Smallest next slice: close allocation/claim/element evaluation-write/LocalInit commit cutpoints and Script final propagation in one source lifecycle contract.
-Non-claims: checked ABI/transport permission, default empty Home, general typed boundaries, Loop or R7 completion.
+Decision: extend the existing Script continuation owner with numeric Array evaluation/commit/Fault source cutpoints.
+Source authority + canonical issuer: ownership.md intrinsic numeric acquisition law and exact forest/window/initializer/element relations; VerifiedScriptSourceContinuationV1::issue.
+Non-authority: Arc/handles, emitted MIR, empty cleanup defaults, New-specific Home products and fabricated App Main identity.
+Fail-fast boundary: unavailable child/prefix authority stays capability-stopped; missing/foreign/reused selected rows cannot admit lowering.
+Smallest next slice: private source-operation rows co-sealed once, consumed once by the existing typed Local relation entry.
+Non-claims: RootOwned/Invoke/C activation, arbitrary child/alias ownership, Loop or original Array-series closure.
 
-The [state-guard census](../design/collection-literal-construction-ssot.md#selected-c-state-guard-audit-and-prerequisite-order)
-records main plus two disjoint read-only worker audits, which identified
-TypedArraySourceFaultContinuationIssuerMissing, raw failure erasure, alternative
-storage bypass and absent typed C claim consumer. Reuse this inventory; its
-cutover blockers remain open, so this is not an Exhausted/zero-blocker claim.
-Task order: source failure co-seal -> checked runtime profile/status ABI -> exact
-published C consumer -> original EXE/OBJ30 plus cleanup/report/dispose70 and old
-edge retirement. All four are CutoverBlockerOpen, not waived by numeric success.
-Source-backed Loop admission remains separately open for its unchanged witness.
+The [accepted slice](../design/collection-literal-construction-ssot.md#accepted-script-array-source-lifecycle-slice)
+owns cutpoints, source-prefix inventory, explicit unavailable families and the
+real Script A/C -> lowering-state -> typed Local consumer. All seven specs share
+one lifecycle. Empty obligations require source coverage; no passive receipt.
+Acceptance: ordered cutpoints/destination, prior committed Home reverse order,
+source drift/reuse refusal and retained C capability Stop; existing focused
+source/claim/order tests and guards. Source root-frame/physical failure mapping,
+checked runtime ABI and C execution/retirement follow in this series. Loop and
+excluded child/prefix families remain open; do not repeat the runtime census.
 
 ## Source and ownership budget
 

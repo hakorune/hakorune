@@ -154,6 +154,41 @@ Unknown never defaults to Trivial, Unique, or Shared.
 An identity-free record may still carry an owner-bearing Box payload. “All
 records are Trivial” is not a valid rule.
 
+### Intrinsic numeric Array literal acquisition
+
+For the supported primitive numeric `Array<T>` contract, intrinsic literal
+allocation creates a builtin acquisition responsibility. From successful
+allocation until Local initialization commits, its evaluation frame owns the
+incomplete Array residence. Successful Local commit transfers one Home to the
+exact destination; an ordinary alias remains a borrowed handle and adds no Home.
+The incomplete residence responsibility and the committed local Home are distinct,
+even if a backend eventually uses the same native release primitive for both.
+
+A successfully checked numeric element write stores a primitive scalar and
+creates no element Home. This does not classify an arbitrary child expression,
+container, record, string or runtime handle as Trivial. Child evaluation must have
+its own exact source capability and transfer contract; a failed write has not
+transferred its candidate value into an owning Array slot.
+
+The intrinsic numeric Array has an explicit builtin native structural-destruction
+contract: it releases its own native residence and stored scalar representation,
+and invokes no user `birth` or `fini`. This follows intrinsic literal identity and
+the numeric element contract, not absence of methods in a user box or the current
+runtime Arc/handle implementation. It does not decide generic container
+Unique/Shared capability, `share` syntax activation or provider-owned Array policy.
+
+On Fault, discharge the active child evaluation frame, then the incomplete Array
+residence, then the caller's already-established lexical/local obligations under
+`scope-exit-semantics.md`. Preserve prior observable effects and the first Fault;
+do not execute later elements or roll back completed external effects. After
+Local commit, its Home instead belongs to the normal scope-exit release set.
+Failed native wrapping/registration retains acquisition responsibility until
+cleanup; an untracked native release contract cannot be admitted.
+
+This is the source target contract. The compiler's finite source issuance and
+runtime activation are tracked in the
+[construction workstream design](../../development/current/main/design/collection-literal-construction-ssot.md).
+
 ## 3. Accepted HomeV1 syntax target; production 0
 
 The durable semantics and bounded contextual spellings are accepted. They are

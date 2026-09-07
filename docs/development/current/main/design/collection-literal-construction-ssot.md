@@ -9,7 +9,7 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: source failure/cleanup co-seal for Script typed Array literal LocalInit; runtime checked ABI follows it. The initializer relation connection is verified. Loop source admission remains open.
+- Next: implement the accepted source failure/cleanup co-seal in the existing Script continuation owner. Root frame/Invoke and runtime checked ABI follow; Loop source admission remains open.
 - Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
 - Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
@@ -242,6 +242,82 @@ Ordered remaining tasks (not implementation permission):
 The next task is step1. Reuse this runtime/C inventory while the named blockers
 remain open; this is not an Exhausted/zero-blocker cutover claim. No new guard,
 sibling design document or speculative C entry is authorized.
+
+### Accepted Script Array source lifecycle slice
+
+Decision: connect the existing
+[intrinsic numeric acquisition law](../../../../reference/language/ownership.md#intrinsic-numeric-array-literal-acquisition)
+to the current Script source continuation product. This chooses the existing
+Home/acquisition law, not runtime handle ownership as source authority. No generic
+container capability or new source syntax is decided here.
+
+Sole issuance chain: VerifiedScriptSemanticSourceV1::seal_ast_with_forest ->
+VerifiedScriptSourceContinuationV1::issue, while the same forest/window, exact
+ResolvedInitializerRelationV1 and BodyShapeRelationV1 parent/Element ordinals are
+available. Add private source-operation cutpoint rows within that product; do not
+add an ABI sibling receipt, duplicate source resolver or second statement map.
+Normal method-call continuation rows remain unchanged. Existing FunctionExit
+remains the final Value/Unit authority. Direct-New and App Main-only products are
+not borrowed or fabricated for Script.
+
+| Source cutpoint | Responsibility / successor |
+| --- | --- |
+| Before allocation | Existing caller obligations; no nonexistent Array release. |
+| Allocation acquired, before claim | Evaluation frame owns incomplete native Array, including failed wrapping/registration. |
+| Claim succeeds | Same incomplete residence; no extra Home is created. |
+| Child ordinal i evaluating | Incomplete Array plus exact child evaluation obligations; prior effects stay committed. |
+| Child ready, before write | Child capability/transfer remains distinct from Array storage. |
+| Write succeeds | Scalar stored; no element Home; advance once to ordinal i+1. |
+| Claim/child/write Fault | Active child obligations -> incomplete residence -> caller exit; preserve first Fault and omit later elements. |
+| LocalInit commits | Transfer one Home to exact destination and disarm incomplete cleanup. |
+| Later outward exit | Exact committed Array Homes join the existing scope-exit order; aliases never add releases. |
+
+ResolvedCleanupObligationsV1 holds crossed scopes and terminal bindings, not
+in-flight acquisition. CallerNewHomePrefix is New-specific. The private cutpoint
+state must represent this missing evaluation responsibility explicitly; an empty
+list, ArrayStateTerm, EffectMask, handle or successful sample cannot stand for it.
+There are no Recipe keys, ValueIds, blocks or physical runtime pointers here.
+
+First source row covers direct Script typed numeric Array literal LocalInit for
+all seven specs, with source-proven Integer/Bool/Float primitive literal children.
+Float kind proves no owned resource, not a particular value or range. Boolean and
+floating child kinds do not prove numeric contract success. Source prefix
+classification may include exact primitive scalar locals, prior typed Arrays
+committed by this issuer, and ordinary borrowed aliases only when an exact
+variable binding reaches a live committed Array with no intervening reassignment,
+move or escape. It must inspect the source prefix, not assume the selected local
+is the first statement. Reverse-order committed Home obligations come from that
+finite scan; empty sets require positive coverage evidence.
+
+Unclassified prior Home, opaque/effectful child, nested Array, arbitrary call
+result, reassignment, branch/scope-crossing alias, String/Null/Void or unsupported
+statement leaves its source lifecycle authority unavailable. Do not call these
+language-invalid or infer Trivial from literal shape. Keep the original execution
+obligation and explicit capability stop; no silent raw retry or fake cleanup.
+The first row does not close those families, the Loop requirement or typed EXE.
+
+Real handoff/consumer: existing Script A/C into_lowering_input ->
+VerifiedScriptSemanticLoweringInputV1 -> ScriptSemanticLoweringState ->
+normal_script_binding_materialization typed Local entry. Replace retention-only
+`_continuation` use with exact initializer/destination/spec validation and one-shot
+consumption of the selected source-operation row. Missing/foreign/reused rows must
+not admit selected typed lowering. This retires the edge that lowers the selected
+typed Local without checking its source lifecycle. Preserve explicit unavailable
+capability handling for the excluded families; do not turn absence into fallback.
+
+Acceptance: fixed materialized source and all seven specs co-seal the ordered
+cutpoints and exact destination; prior scalar/committed Array/valid alias prefixes
+produce the right reverse Home order; unknown or invalidated prefix/child capability
+never yields an empty proof. Reject site/destination/spec drift and double consume.
+Supported source still emits current verified MIR and reaches the existing typed
+C Stop. Runtime RootOwned frame, Invoke lowering, native disposal and Fault70
+execution are later consumers, not claims of this source-contract row.
+
+After this source row, bind an explicit Script source root-frame/failure contract
+and its physical operations before C activation. The accepted native contract
+must be implemented with the sole ArrayBox state owner, checked status and profile
+rejection described above. Do not accumulate unconsumed source products or open
+another source family before this original series reaches execution/retirement.
 
 Removing post-allocation birth markers preserves failure handling structurally:
 entry `emit_method_birth_mir_call` validates but emits no runtime operation;

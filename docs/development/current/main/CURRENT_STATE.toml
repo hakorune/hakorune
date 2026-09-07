@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-D0"
-current_execution_cohort = "mir_typed_array_source_failure_coseal_d0"
-current_design_stop = "TypedArraySourceFaultContinuationIssuerMissing; runtime/C inventory recorded, source failure/cleanup contract first"
-current_blocker_token = "Close exact Script typed Array literal allocation/claim/element/write/LocalInit commit and final failure cutpoints in existing source-exit/ownership owner. Direct-New Home and App Main RootOwned do not authorize Script Array cleanup. Keep C capability Stop; no checked ABI or empty cleanup receipt yet. Loop remains open."
+work_mode = "fast"
+current_execution_row = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0"
+current_execution_cohort = "mir_typed_array_source_failure_coseal_i0"
+current_design_stop = "none; builtin numeric Array acquisition law and existing Script continuation source slice accepted"
+current_blocker_token = "Implement private Array cutpoint rows in existing ScriptSourceContinuation and one-shot exact typed Local consumption. Prove primitive children and caller prefix obligations from same source; no empty defaults/raw retry for unavailable families. Keep C Stop; Script root-frame/Invoke, checked runtime ABI, Loop and broader children remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Typed state-guard inventory recorded: ArrayBox owns state, but raw ABI erases failures,
-slot alternatives bypass it, and selected C lacks claim consumption. Independent
-source audit finds no Array Fault/cleanup issuer; direct-New/App Main contracts
-cannot substitute. Next is source failure co-seal design, before runtime/C work.
+Source lifecycle Decision accepted after worker design review: incomplete numeric
+Array belongs to evaluation frame; LocalInit transfers one Home, aliases add none.
+Existing Script continuation co-seals private source cutpoints and typed Local
+consumes once. No C activation; unavailable source families remain open.
 """
-next_design_card = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-D0"
-next_execution_card = "none"
+next_design_card = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0"
+next_execution_card = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
