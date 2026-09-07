@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-TYPED-ARRAY-SELECTED-C-STATE-GUARD-D0"
-current_execution_cohort = "mir_typed_array_selected_c_state_guard_d0"
-current_design_stop = "Typed Array selected-C state-guard consumer and runtime failure mapping require an end-to-end owner audit"
-current_blocker_token = "Script numeric Array literal relation connection is verified. Keep typed_array_contract_backend_unsupported until claim/state/alias/write/failure consumer and actual runtime ABI are closed. Worker read-only audit next; Loop source admission remains an independent open cutover obligation."
+current_execution_row = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-D0"
+current_execution_cohort = "mir_typed_array_source_failure_coseal_d0"
+current_design_stop = "TypedArraySourceFaultContinuationIssuerMissing; runtime/C inventory recorded, source failure/cleanup contract first"
+current_blocker_token = "Close exact Script typed Array literal allocation/claim/element/write/LocalInit commit and final failure cutpoints in existing source-exit/ownership owner. Direct-New Home and App Main RootOwned do not authorize Script Array cleanup. Keep C capability Stop; no checked ABI or empty cleanup receipt yet. Loop remains open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Script numeric Array<T> literal locals now retain existing initializer relations,
-one claim and refreshed LocalInit; all seven spellings reach the typed C Stop.
-Source/drift/order regressions and Array/Pair EXE+OBJ30 pass; old selected Script
-AST annotation decision edge retired. Next audits typed selected-C state guard.
+Typed state-guard inventory recorded: ArrayBox owns state, but raw ABI erases failures,
+slot alternatives bypass it, and selected C lacks claim consumption. Independent
+source audit finds no Array Fault/cleanup issuer; direct-New/App Main contracts
+cannot substitute. Next is source failure co-seal design, before runtime/C work.
 """
-next_design_card = "MIR-TYPED-ARRAY-SELECTED-C-STATE-GUARD-D0"
+next_design_card = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-D0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

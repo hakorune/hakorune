@@ -9,7 +9,7 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: typed C state-guard consumer design; Script numeric Array literal relation connection is implemented and verified. Loop source admission remains open.
+- Next: source failure/cleanup co-seal for Script typed Array literal LocalInit; runtime checked ABI follows it. The initializer relation connection is verified. Loop source admission remains open.
 - Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
 - Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
@@ -166,12 +166,82 @@ writes; undefined-name natural source still stops earlier at resolution. Existin
 Script19, pre-effect6, located3, view35 and Array/Pair EXE+OBJ30 regressions pass.
 This is source connection evidence, not typed runtime execution or whole-suite green.
 
-Outstanding task: typed Array selected-C state-guard consumer design, owned by
-`typed_array_backend_capability.rs` and `function/typed_array_contract.rs`, with
-`typed_array_exact_numeric_state_guard_v1` as its required capability. Execution
-is unimplemented; reopen only with an accepted guard/representation/failure
-consumer contract. This construction Decision grants no implementation permission
-and does not claim the original broader execution requirement is complete.
+### Selected-C state-guard audit and prerequisite order
+
+Decision: retain the existing backend capability Stop. Source failure/cleanup
+issuance is a prerequisite to checked runtime ABI and C status lowering; a claim
+export or backend whitelist alone cannot open execution. Existing final Fault
+policy (cleanup, report/dispose, process70) remains owned by
+[function exit and entry result](../../../../reference/language/function-exit-and-entry-result.md#target-process-exit-projection).
+It does not prove that Array cleanup has been issued.
+
+This census covers: materialized Script numeric Array literal LocalInit -> source
+claim/element write -> published ordinary entry/C dispatch -> kernel Array handles
+-> ArrayBox state; plus existing source failure and final-completion owners.
+Includes ordinary/shared aliases, existing kernel integer/boxed/text mutation
+routes and diagnostic alternative slot backends. Excludes general typed
+ParameterEntry/ReturnExit/record boundaries, provider-owned external arrays,
+Dynamic-specific cleanup, other backends and Loop source admission. This finite
+inventory establishes the listed blockers, not full-kernel mutation parity or
+concurrent clone/slice snapshot guarantees.
+
+| Owner / product | Observed boundary and disposition |
+| --- | --- |
+| function/typed_array_contract.rs; type_contracts/typed_array.rs | Source claim/carrier preserves spec/state term and requires runtime checks, forbids proof elision. No failure continuation or Home cutpoint. CutoverBlockerOpen. |
+| collection_literals.rs | Standalone allocation, claim, element evaluation/write. No Array failure co-seal/Invoke path. CutoverBlockerOpen. |
+| resolved_control_flow/function_control.rs; resolved_semantics/home_new_prefix.rs | Existing Fault/Home issuer accepts direct-local New only; ArrayLiteral is source-not-new. It cannot supply Array obligations by default. |
+| normal_callable_fault_state.rs; normal_callable_semantic_loan_port/main_root.rs | RootOwned frame is source-identity-checked App Main, not a general Script root authorization. |
+| instruction/invoke.rs | Operations cover object lifecycle, not Array claim/write. Runtime frame availability does not authorize new semantic operations. |
+| published_backend_view/c_transport.rs; runner/mir_json_emit | Ordinary write rows carry exact site/receiver/index/value. Claim JSON and carrier metadata exist, but no typed claim row or selected-C claim consumer. CutoverBlockerOpen. |
+| published_mir_object.rs; C generic op dispatch | Existing capability rejects before transport. Removing it would expose unknown claim op; ordinary entry has no Array Fault/cleanup contract. |
+| boxes/array/runtime_contract.rs; ArrayStateCell | Sole storage+contract under one RwLock. Claim audits existing elements before installation; identical claim is idempotent, conflicting claim rejects. Preserve this owner. |
+| boxes/array/traits.rs | share_box aliases the same state; clone/slice copy contract into fresh state. No handle-keyed typed registry is needed. |
+| array ops store/capacity/insert | Validation and commit share state lock; raw bool/-1/None results erase reason. Checked result preservation is required before a checked ABI. |
+| array ops text/shared and surface_catalog | Text/mutable bypass rejects claimed state; surface paths retain mismatch diagnostics. Clear/remove/order-only changes preserve contract. |
+| kernel array_runtime_aliases/array_handle_cache | Ordinary aliases reach ArrayBox; integer payload must not use ambiguous handle-or-integer decode. Existing write exports often flatten error to zero. |
+| kernel plugin/array_slot_backend.rs | safe_rwlock uses ArrayBox; single_thread_exact copies handle-keyed Vec, direct_array_i64_exact uses separate storage. Explicit profile rejection or real state participation is required; default-env tests are insufficient. |
+| kernel exports/fault.rs and fault_checked_object.rs | Existing caller-owned frame/status infrastructure is reusable physical input only. Array failure reasons/profile/wire spec and entry integration are undesigned. |
+
+Runtime audit and independent source-failure audit agree on the first blocker:
+`TypedArraySourceFaultContinuationIssuerMissing`. The reference interpreter's
+VMError and final exit70 do not supply a source cleanup continuation. No new
+empty Home/Verified/Prepared receipt may be fabricated from metadata, EffectMask,
+ArrayStateTerm or an emitted instruction sequence.
+
+Ordered remaining tasks (not implementation permission):
+
+1. **Source failure/cleanup co-seal design**, in existing source-exit/ownership and
+   Script semantic source owners. Close allocation and preclaim, claim success,
+   each element evaluation/write, LocalInit commit and final propagation as one
+   finite lifecycle. Name the actual Array issuer, normal result and Fault
+   continuation, uncommitted storage disposition and existing caller obligations.
+   Do not extend direct-New by AST retagging or default empty cleanup.
+2. **Checked runtime result/ABI contract**, after source failure meaning is fixed.
+   Preserve one ArrayStateCell lock for check+mutation; expose existing claim and
+   reason-preserving writes to kernel. Define explicit seven-spec wire mapping
+   (never Rust enum discriminants), unambiguous value lanes, profile checks and
+   Normal/Fault/InvalidContract mapping. Reject unsupported alternative storage
+   before mutation. Existing raw wrappers may retain compatibility sentinels;
+   selected typed consumers may not use those lossful results.
+3. **Published input and selected-C consumer**, after both contracts are closed.
+   Preserve the exact claim/spec/write/failure relation, use the existing runtime
+   descriptor/session and final-entry policy where legitimately admitted, and
+   retire selected typed reliance on metadata/name interpretation and raw-result
+   writes. Keep unsupported entry/boundary families at the capability Stop; no
+   blanket ny-llvmc exemption or claim-only completion.
+4. **Execution and retirement**, same original cutover series: all seven specs,
+   empty/populated and shared-alias writes; successful EXE and independently
+   linked OBJ30. Range/negative-to-unsigned/type/claim-conflict failures must keep
+   failed writes uncommitted, prior effects intact and later elements unexecuted,
+   then perform exactly the issued cleanup -> report -> dispose ->70. Cover failed
+   adoption without contract installation, idempotent claim, invalid handle/spec/
+   output and alternative-profile rejection. Physical checks alone are dependency
+   evidence; original typed execution remains CutoverBlockerOpen until real entry
+   and obsolete selected edges are closed.
+
+The next task is step1. Reuse this runtime/C inventory while the named blockers
+remain open; this is not an Exhausted/zero-blocker cutover claim. No new guard,
+sibling design document or speculative C entry is authorized.
 
 Removing post-allocation birth markers preserves failure handling structurally:
 entry `emit_method_birth_mir_call` validates but emits no runtime operation;

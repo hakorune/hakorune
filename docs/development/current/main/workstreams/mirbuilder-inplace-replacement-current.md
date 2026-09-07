@@ -606,25 +606,28 @@ Implemented the [accepted relation connection](../design/collection-literal-cons
 Script local projection retains the existing resolver relation; selected local
 input consumes its annotation and rejects source drift, with no raw fallback.
 Seven numeric Array<T> literal spellings reach verified MIR, one preclaim and
-matching refreshed LocalInit, then the existing OBJ/EXE capability Stop. Relation
-negative tests and typed child ordering pass; Script19/pre-effect6/located3/view35,
-Array untyped EXE/OBJ30 and Pair EXE/OBJ30 regressions pass. Final library build
-peak8.72GiB; instance-transfer/canonical/pointer guards pass. One zero-match filter was discarded and exact host names rerun5/5.
-Local compile errors were corrected; no current-change red or whole-suite claim.
+matching refreshed LocalInit, then the existing OBJ/EXE capability Stop. Relation negatives/child order, Script19/pre-effect6/located3/view35 and Array/Pair
+EXE+OBJ30 pass; library peak8.72GiB and existing guards green. Exact host names5/5
+supersede a discarded zero-match filter. Receipt details live in Git; no whole-suite claim.
 
-#### MIR-TYPED-ARRAY-SELECTED-C-STATE-GUARD-D0
+#### MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-D0
 
-Decision: audit the existing typed state-guard contract before enabling selected C execution.
-Source authority + canonical issuer: existing typed_array_contract_spec and source claims; refreshed carrier preserves their relation.
-Non-authority: C JSON/name/type guessing, homogeneous literal evidence and deleting the capability Stop alone.
-Fail-fast boundary: retain typed_array_contract_backend_unsupported before artifacts until the complete runtime consumer is named.
-Smallest next slice: worker audit claim -> array state/alias -> write/check -> failure terminal across published/C/runtime owners, then select one closed consumer slice.
-Non-claims: typed EXE acceptance, blanket numeric/tag ABI, Loop admission, new backend parity or R7 closure.
+Decision: source Array failure/cleanup co-seal precedes checked runtime ABI and C activation.
+Source authority + canonical issuer: exact Script initializer/element sites and existing source-exit/ownership owner; Array-specific issuer is missing.
+Non-authority: VMError, runtime Result, EffectMask, ArrayStateTerm, constructor FaultFrame and emitted MIR.
+Fail-fast boundary: retain typed_array_contract_backend_unsupported before artifacts until source failure/cleanup issuance exists.
+Smallest next slice: close allocation/claim/element evaluation-write/LocalInit commit cutpoints and Script final propagation in one source lifecycle contract.
+Non-claims: checked ABI/transport permission, default empty Home, general typed boundaries, Loop or R7 completion.
 
-The construction design owns this outstanding task. Inventory must include actual
-runtime ABI/callers, state mutation, alias identity, failure ownership and the
-exclusive old edge; no new semantic issuer or guard family. Source-backed Loop
-admission remains separately CutoverBlockerOpen for its unchanged EXE witness.
+The [state-guard census](../design/collection-literal-construction-ssot.md#selected-c-state-guard-audit-and-prerequisite-order)
+records main plus two disjoint read-only worker audits, which identified
+TypedArraySourceFaultContinuationIssuerMissing, raw failure erasure, alternative
+storage bypass and absent typed C claim consumer. Reuse this inventory; its
+cutover blockers remain open, so this is not an Exhausted/zero-blocker claim.
+Task order: source failure co-seal -> checked runtime profile/status ABI -> exact
+published C consumer -> original EXE/OBJ30 plus cleanup/report/dispose70 and old
+edge retirement. All four are CutoverBlockerOpen, not waived by numeric success.
+Source-backed Loop admission remains separately open for its unchanged witness.
 
 ## Source and ownership budget
 
