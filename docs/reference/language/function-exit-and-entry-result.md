@@ -499,3 +499,18 @@ Legacy_AnyStatement_is_canonical = 0
 Outcome_redefined_by_this_topic = 0
 process_policy_activated = 0
 ```
+
+## Selected lifecycle V4 execution checkpoint
+
+The bounded Pair C consumer applies the existing I64 entry policy after Home
+cleanup. Out-of-range values record reason 102 at the issued process-result
+site with `{actual_i64, 0}`, then report/dispose and return 70. InvalidContract
+never follows the source Fault/report edge. Birth borrows the root frame;
+failed root initialization does not dispose uninitialized storage. A reporting
+failure still disposes the valid frame.
+
+The physical execution test is
+`lang/c-abi/tests/published_lifecycle_v4_execution_test.py`; it checks the real
+lifecycle archive with linker wrappers. Its range mutations do not admit new
+source families. Rust host cutover and generic policy activation remain separate
+from this C consumer evidence.

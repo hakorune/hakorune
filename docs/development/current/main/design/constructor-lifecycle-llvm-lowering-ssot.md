@@ -1475,23 +1475,16 @@ additional process-result site and actual object/EXE acceptance.
 
 ### Lifecycle transport disposition
 
-Three current carriers have separate temporary roles: the generic lifecycle
-body JSON plus V2 frame/V3 call remains the production pending route; the
-compiled-entry contract is the sole final product for formals, Birth calls,
-cleanup and root result; direct physical ABI JSON is the selected V4 input and
-pre-artifact parser input. The direct input owns the compiled-entry contract,
-so it is not a sibling program issuer. V4 cutover, after both Pair executable
-paths pass, deletes only the lifecycle generic temporary JSON, V3→V2
-delegation, pending terminal and their private probes. V2/V3 exports and
-wrappers retire only after caller-zero evidence. `PublishedMirBackendView`
-remains the final admission owner during this cutover; its physical placement
-may be cleaned up after retirement, but no second view or source authority is
-introduced here.
+The compiled-entry contract is the sole final product; direct physical JSON
+owns it and is V4's only program input. The committed host still uses generic
+JSON/V3 pending; its V4 switch is under verification. Delete generic lifecycle
+JSON, V3→V2 delegation and exclusive pending probes only after both host paths
+pass. Export retirement still requires caller-zero. View placement follows
+retirement; no second source authority is introduced.
 
-**Invocation ownership:** `hako_lts_open/close` now retains the selected LLVM
-machine/data/triple/layout as one call-local owner. V3 consumes it only for
-validation; V4 must keep it through actual module verification and publication.
-The preamble self-test does not prove llc target application.
+V4 retains its call-local LLVM machine/data/triple/layout through explicit
+llc-18 PIC emission and atomic object publication. Its actual `.ll` preamble is
+checked; generic tool flags do not select its target.
 
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1`
 
@@ -1514,11 +1507,20 @@ Missing/colliding projection site, malformed body, session/layout mismatch or
 unsupported cohort reject before artifact. Retire selected V2/V3 pending edges
 after the connected executable paths pass; preserve unrelated legacy users.
 
-Input/session closeout: C build and both physical-parser/session preartifact
-checks pass. `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib --features
-plugins physical_program_json::tests -- --include-ignored` passes 4/4, including
-unchanged Pair source -> issued JSON -> C parser. This proves transport only;
-range-Fault execution and Pair object/EXE remain the active row's next work.
+Verification checkpoint (2026-09-07): existing input/session tests passed 4/4.
+The prebuilt test binary from `2c91ec15d0` reran the unchanged source Pair ->
+C parser test (1/1); strace captured its exact 4284-byte JSON without repair.
+`published_lifecycle_v4_execution_test.py` consumes that JSON, emits x86_64
+object with llc-18 and links the actual lifecycle archive: Pair exits 30.
+Eleven runtime executions cover normal 0/30/255, computed -1/256/400,
+first/second Birth store Fault, report failure, Invalid store and init failure.
+Wrappers prove Home/Reclaim/report/dispose counts, cleanup before range report,
+and exact reason/site/value. Session/site/tool negatives preserve existing
+objects and leave no temporary artifacts. This is C-boundary execution evidence,
+not verification of the changed Rust direct EXE or session-bound OBJ callers.
+Those two host paths remain required. Both attempted Rust quick builds stopped
+at the 8 GiB aggregate limit (resource-stop, not test failure); do not repeat
+unchanged builds. Old selected transport retirement remains gated on host proof.
 
 ### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-D1`
 

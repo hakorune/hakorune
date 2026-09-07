@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
 current_design_stop = "none (kernel artifact boundary verified; V4 Pair consumer selected)"
-current_blocker_token = "Emit the selected V4 Pair body with retained target session and issued process-result diagnostic site (Fault reason 102); prove direct EXE30, independently linked OBJ30 and range/Fault cleanup before retiring pending transport edges."
+current_blocker_token = "V4 C-boundary Pair OBJ/link exit30 and 11 runtime/Fault/range cases pass. Verify changed Rust direct EXE and session-bound OBJ callers within the 8 GiB limit (last lib-test and CLI builds resource-stopped), then retire selected pending transport edges."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,7 +32,7 @@ latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
 Constructor source keys and root/Birth handoff are retained; compiled-entry
-projection and V2 sentinel checks have landed. C execution remains pending.
+projection and V2 sentinel checks have landed. Rust host cutover remains pending.
 Target/session issuer D0 is accepted: runtime target compilation owns ABI
 facts, host lifecycle invocation owns target/archive selection, and the C
 consumer owns a call-local tool session with LLVM layout evidence. The runtime
@@ -41,7 +41,7 @@ archive record and the host reader proves actual extraction plus malformed
 rejection. The selected target was already x86_64 GNU/Linux LP64. The host half
 of session I0 retains one explicit archive through lifecycle EXE compilation
 and link; C V3 now validates descriptor/header geometry plus the selected LLVM target-data Diagnostic/Frame layout before pending. Direct physical input I0 owns
-the one-pass final ABI transport and real parser ingress; parser closure I0 is landed at 23824e64f7 with dedicated and source-issued Pair acceptance. C body consumer D0 selected the V4 Pair emitter. Its invocation-contract I0 is closed: the compiled-entry-owned physical input issues the selected Pair's five checked-runtime diagnostic sites, rejects Unit roots before C, and the lifecycle-private LLVM 18 text session writes/verifies the selected triple/data-layout without generic flags or object emission. The lifecycle kernel artifact boundary is verified: separate release archives each own one main; the normalized launcher passes five status cases, legacy regression passes five, mixed features reject, and the host checks entry ABI plus runtime layout from its retained archive. The active V4 consumer now connects the issued program to LLVM/object execution. Pair EXE30/linked OBJ30 and selected old transport retirement remain unproven.
+the one-pass final ABI transport and real parser ingress; parser closure I0 is landed at 23824e64f7 with dedicated and source-issued Pair acceptance. C body consumer D0 selected the V4 Pair emitter. Its invocation-contract I0 is closed: the compiled-entry-owned physical input issues the selected Pair's five checked-runtime diagnostic sites, rejects Unit roots before C, and the lifecycle-private LLVM 18 text session writes/verifies the selected triple/data-layout without generic flags or object emission. The lifecycle kernel artifact boundary is verified: separate release archives each own one main; the normalized launcher passes five status cases, legacy regression passes five, mixed features reject, and the host checks entry ABI plus runtime layout from its retained archive. V4 C-boundary execution now passes source-issued JSON through llc-18 and the actual lifecycle archive with exit30; 11 runtime executions prove Fault/range cleanup. The changed Rust direct EXE and session-bound OBJ callers remain unverified after resource-stopped builds. Selected old transport retirement remains gated on those host paths.
 """
 next_design_card = "none (V4 Pair consumer D0 accepted)"
 next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"

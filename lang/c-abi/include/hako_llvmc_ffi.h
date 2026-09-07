@@ -164,6 +164,12 @@ int hako_llvmc_compile_published_lifecycle_body_v3(
     char** err_out);
 
 /* Preartifact validation for the final-view-issued physical program only. */
+/* Selected physical Pair consumer. Borrows input/session for one synchronous
+ * invocation; publishes obj_out only after llc succeeds. No compatibility retry. */
+int hako_llvmc_compile_published_lifecycle_physical_v4(
+    const char* json_in, const hako_llvmc_lifecycle_target_session_v1* session,
+    const char* obj_out, char** err_out);
+
 int hako_llvmc_validate_published_lifecycle_physical_v1(
     const char* json_in, char** err_out);
 

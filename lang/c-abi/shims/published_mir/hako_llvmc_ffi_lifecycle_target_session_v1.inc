@@ -199,7 +199,7 @@ static int hako_lts_open(
   init_info(); init_target(); init_mc(); init_printer();
   if (get_target(in->target_triple, &target, &diagnostic) != 0 || !target) goto cleanup;
   if (diagnostic) { dispose_message(diagnostic); diagnostic = NULL; }
-  machine = make_machine(target, in->target_triple, "generic", "", 0, 0, 0);
+  machine = make_machine(target, in->target_triple, "generic", "", 0, 2, 0);
   data = machine ? make_data(machine) : NULL;
   actual_triple = machine ? machine_triple(machine) : NULL;
   data_layout = data ? data_layout_text(data) : NULL;
