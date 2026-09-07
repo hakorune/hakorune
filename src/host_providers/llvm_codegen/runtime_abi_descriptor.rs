@@ -3,7 +3,7 @@
 //! This module owns only extraction and structural validation.  Target/session
 //! equality is deliberately deferred to the lifecycle invocation owner.
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 const MAGIC: &[u8; 8] = b"NYRTABI1";
@@ -27,6 +27,38 @@ pub(crate) struct RuntimeAbiDescriptorV1 {
     pub(crate) frame_align: u32,
     pub(crate) frame_primary_offset: u32,
     pub(crate) frame_suppressed_offset: u32,
+}
+
+/// One selected runtime archive plus its target-compiled ABI facts.  This is
+/// invocation-owned physical input, not a semantic or backend receipt.
+#[derive(Clone, Debug)]
+pub(crate) struct LifecycleRuntimeSessionV1 {
+    runtime_archive: PathBuf,
+    descriptor: RuntimeAbiDescriptorV1,
+}
+
+impl LifecycleRuntimeSessionV1 {
+    pub(crate) fn select(runtime_archive: PathBuf) -> Result<Self, String> {
+        let descriptor = read_runtime_abi_descriptor(&runtime_archive)?;
+        if descriptor.target_triple != "x86_64-unknown-linux-gnu" {
+            return Err(format!(
+                "lifecycle runtime archive {} targets unsupported {}",
+                runtime_archive.display(),
+                descriptor.target_triple
+            ));
+        }
+        Ok(Self {
+            runtime_archive,
+            descriptor,
+        })
+    }
+
+    pub(crate) fn runtime_archive(&self) -> &Path {
+        &self.runtime_archive
+    }
+    pub(crate) fn descriptor(&self) -> &RuntimeAbiDescriptorV1 {
+        &self.descriptor
+    }
 }
 
 /// Read the one retained descriptor from a selected runtime archive.  `ar` is

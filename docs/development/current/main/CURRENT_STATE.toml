@@ -38,8 +38,9 @@ facts, host lifecycle invocation owns target/archive selection, and the C
 consumer owns a call-local tool session with LLVM layout evidence. The runtime
 descriptor I0 is landed: the target-compiled Rust Fault ABI emits one fixed
 archive record and the host reader proves actual extraction plus malformed
-rejection. The selected target was already x86_64 GNU/Linux LP64. Next bind the
-descriptor into one lifecycle invocation/session, then complete direct input,
+rejection. The selected target was already x86_64 GNU/Linux LP64. The host half
+of session I0 retains one explicit archive through lifecycle EXE compilation
+and link; next add neutral C LLVM layout validation to that invocation, then complete direct input,
 C execution/status cutover and caller-zero retirement. Physical representation/CFG coverage and failure
 terminal policies remain cutover blockers; Pair EXE30/linked OBJ30 are unproven.
 """

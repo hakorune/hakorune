@@ -334,6 +334,15 @@ before an artifact; then delete this lifecycle branch's late
 `NYASH_EMIT_EXE_NYRT`/`target/release` re-selection. Do not implement C body
 execution, normalized entry status, process exits, or direct-input widening.
 
+Host binding checkpoint: lifecycle EXE now requires an explicit runtime
+directory, selects `libnyash_kernel.a` before temporary body transport/object
+work, and retains that exact archive path through `link_object_capi_v2`.
+Lifecycle OBJ ingress without an explicit session rejects before body transport.
+This deletes the lifecycle EXE branch's late environment/default archive
+re-selection. The remaining part of this same row is the neutral C LLVM
+resource helper and descriptor-to-target-layout verification; no target
+equality or lifecycle C execution is claimed by this checkpoint.
+
 ### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
 
 This is the concrete Step 4 owner/caller row: final view physical program and
