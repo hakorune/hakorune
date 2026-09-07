@@ -1363,24 +1363,46 @@ still emits no object or executable.
 
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-D0`
 
-Decision: **NoSafeSlice.** The canonical issuer is final-view admission's
-`CompiledEntryContractV1`; V2 C frame projection consumes it. The current host
-still emits generic lifecycle body JSON and C validates V2 rows/sites before
-returning `body-consumer-pending`. The physical-program JSON schema has no
-lifecycle C `.ll` consumer and cannot be passed to generic JSON lowering.
+Decision (accepted): final-view admission's `CompiledEntryContractV1` and its
+physical ABI companion remain the sole issuers. A new lifecycle-only V4 C
+entry receives the existing selected target session and that companion's final
+JSON file. It parses once, invokes the existing physical `_doc` validator on
+that same `yyjson_doc`, and keeps the document only for one call-local Pair
+body emitter. The emitter owns its LLVM/module, temporary text/object and
+target resources; it never resolves source names or falls into generic JSON
+lowering. The current public parser continues to be validation-only and frees
+its document; V4 reuses the validator, never a borrowed parser result.
 
-Source authority + canonical issuer: final-view contract issuance and its
-physical-program companion. Non-authority: generic C JSON lowering, parser
-pending, and the kernel's raw handle-decode/`i32` entry. Fail-fast boundary:
-contract/frame/parser mismatch remains pre-artifact with no generic or
-compatibility retry. Smallest next slice:
-`CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0`. Non-claims: C execution,
-object/EXE30, ABI revision, Bool and additional source forms.
+The bounded cohort is root `root_i64` plus one `birth_unit` Pair body with its
+issued NewBox, Birth, FieldSet/Get, Add, normal/fault edges, HomeRelease and
+ReclaimUnpublished coordinates. Any other physical shape reaches the named
+pre-artifact `unsupported-cohort` terminal. C emits `ny_main() -> i64` only
+after root cleanup: normal Pair returns 30; source Fault reports then disposes
+the initialized root frame and returns 70; InvalidContract is neither a source
+Fault successor nor a report path, and disposes only a frame whose root init
+succeeded before returning 70. A report failure still disposes that valid frame
+and returns 70. Birth borrows the root frame and never initializes, reports or
+disposes it.
 
-The future delete-set is V2's pending terminal and host generic-body/pending
-companion after a selected C execution path exists; the kernel raw decode/cast
-is retired only after its status consumer is implemented. Pair EXE and linked
-OBJ exit 30 are not current acceptance evidence.
+The selected EXE host replaces its generic lifecycle body JSON/V3 call with V4
+in the same successful Pair series. The exclusive delete-set is that generic
+temporary body file, V3→V2 delegation, the lifecycle-only pending terminal and
+their private probes. The selected kernel entry simultaneously deletes raw
+handle decoding and uses only checked adaptation of C's normalized status to
+the OS return. `link_object_capi_v2` and the retained runtime archive remain
+live owners. No generic C body lowering, compatibility retry, ABI revision,
+Bool source result, plain lifecycle OBJ ingress, in-process LLVM change or
+general C backend claim opens.
+
+### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0`
+
+Implement that one selected Pair V4 consumer. Its acceptance is source Pair →
+final issued physical input → V4 object → retained-archive direct EXE exit 30,
+and independently V4 OBJ linked with that same archive → EXE exit 30. Prove
+Birth and HomeRelease execute once on normal completion; inject a runtime Fault
+to prove report/dispose once and exit 70; reject malformed physical JSON,
+session/layout mismatch and unsupported cohort with no artifact. V2/V3 and the
+kernel raw decode edge are deleted only after both executable paths pass.
 
 ### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0`
 
@@ -1398,13 +1420,11 @@ pending parser, generic C lowering and Raw VM remain non-authority. Future
 acceptance remains direct Pair EXE30 plus independently kernel-linked OBJ EXE30
 with exactly-once normal/fault cleanup and no artifact on rejection.
 
-**D0 result:** execution I0 remains unavailable because Rust exports accept
-opaque FaultFrame storage without issuing C-visible target size/alignment/offset
-layout. The smallest ordered next slice is the existing
-`CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-D0`; it names V2 absence-wire
-semantics before direct physical input. Structural FaultFrame ABI vocabulary is
-not target-session layout proof. This D0 opens no C codegen, kernel switch,
-object, EXE or Bool work.
+**D0 follow-through landed:** the target-compiled runtime descriptor and V3
+target-data session now prove the required FaultFrame layout, the V2 sentinel
+contract is named, and direct physical input is parser-validated. The next
+selected row is `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0`; its bounded V4
+consumer is the only permitted C codegen and kernel-entry change.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
