@@ -17,6 +17,18 @@ or source Fault. Supported profiles are SafeMutex and SingleThreadExact.
 The trusted pointer contract is in `include/nyrt_fault_v1.h`; the ABI alone does
 not activate a compiler/backend lifecycle consumer.
 
+### Target-compiled ABI descriptor
+
+`libnyash_kernel.a` retains exactly one `.nyash.runtime_abi.v1` ELF section.
+Its fixed 200-byte little-endian record is emitted while compiling this target,
+not inferred by the host. It records the Cargo target triple, pointer width,
+Fault/status ABI revisions, and the Fault Diagnostic/Frame sizes, alignments,
+and field offsets. A host reader must select this named section from the exact
+archive and reject missing, duplicate, truncated, unsupported, or inconsistent
+records before lifecycle object emission. Archive reading alone does not prove
+that this ABI matches the selected LLVM session; that equality belongs to the
+lifecycle invocation owner.
+
 The Nyash Kernel (`nyash_kernel`) is the minimal native/product runtime core that replaced the legacy NyRT system. This represents a **42% reduction** in runtime complexity by moving from VM-dependent architecture to a unified Plugin-First system.
 
 Scope note:

@@ -6,8 +6,63 @@ use std::ptr;
 #[path = "fault_checked_object.rs"]
 mod checked_object;
 
+mod runtime_abi_target {
+    include!(concat!(env!("OUT_DIR"), "/runtime_abi_target.rs"));
+}
+
 const ABI_VERSION: u32 = 1;
 const SUPPRESSED_CAPACITY: usize = 8;
+const RUNTIME_ABI_DESCRIPTOR_SIZE: usize = 200;
+const RUNTIME_ABI_TARGET_CAPACITY: usize = 128;
+
+const fn put_u32_le(
+    mut bytes: [u8; RUNTIME_ABI_DESCRIPTOR_SIZE], offset: usize, value: u32,
+) -> [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] {
+    let encoded = value.to_le_bytes();
+    bytes[offset] = encoded[0];
+    bytes[offset + 1] = encoded[1];
+    bytes[offset + 2] = encoded[2];
+    bytes[offset + 3] = encoded[3];
+    bytes
+}
+
+const fn runtime_abi_descriptor() -> [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] {
+    let target = runtime_abi_target::TARGET_TRIPLE.as_bytes();
+    assert!(target.len() < RUNTIME_ABI_TARGET_CAPACITY);
+    let mut bytes = [0; RUNTIME_ABI_DESCRIPTOR_SIZE];
+    bytes[0] = b'N'; bytes[1] = b'Y'; bytes[2] = b'R'; bytes[3] = b'T';
+    bytes[4] = b'A'; bytes[5] = b'B'; bytes[6] = b'I'; bytes[7] = b'1';
+    bytes = put_u32_le(bytes, 8, RUNTIME_ABI_DESCRIPTOR_SIZE as u32);
+    bytes = put_u32_le(bytes, 12, 1);
+    bytes = put_u32_le(bytes, 16, target.len() as u32);
+    bytes = put_u32_le(bytes, 20, 1);
+    bytes = put_u32_le(bytes, 24, std::mem::size_of::<*const ()>() as u32);
+    bytes = put_u32_le(bytes, 28, ABI_VERSION);
+    bytes = put_u32_le(bytes, 32, 1);
+    bytes = put_u32_le(bytes, 36, std::mem::size_of::<Diagnostic>() as u32);
+    bytes = put_u32_le(bytes, 40, std::mem::align_of::<Diagnostic>() as u32);
+    bytes = put_u32_le(bytes, 44, std::mem::offset_of!(Diagnostic, site) as u32);
+    bytes = put_u32_le(bytes, 48, std::mem::offset_of!(Diagnostic, details) as u32);
+    bytes = put_u32_le(bytes, 52, std::mem::offset_of!(Diagnostic, message) as u32);
+    bytes = put_u32_le(bytes, 56, std::mem::size_of::<FaultFrame>() as u32);
+    bytes = put_u32_le(bytes, 60, std::mem::align_of::<FaultFrame>() as u32);
+    bytes = put_u32_le(bytes, 64, std::mem::offset_of!(FaultFrame, primary) as u32);
+    bytes = put_u32_le(bytes, 68, std::mem::offset_of!(FaultFrame, suppressed) as u32);
+    let mut index = 0;
+    while index < target.len() {
+        bytes[72 + index] = target[index];
+        index += 1;
+    }
+    bytes
+}
+
+/// Target-compiled fixed-width descriptor retained in the runtime archive.
+/// The host selects this ELF section by name; C headers are only independent
+/// layout checks and never issue a competing descriptor.
+#[used]
+#[link_section = ".nyash.runtime_abi.v1"]
+#[export_name = "nyash_runtime_abi_descriptor_v1"]
+pub static RUNTIME_ABI_DESCRIPTOR_V1: [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] = runtime_abi_descriptor();
 
 #[repr(u32)]
 #[derive(Debug, PartialEq, Eq)]

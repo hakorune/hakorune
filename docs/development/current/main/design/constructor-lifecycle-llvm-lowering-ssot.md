@@ -288,7 +288,7 @@ entry terminal before that terminal is implemented.
 
 | Order | Owner / bounded work | Acceptance and removed edge |
 | --- | --- | --- |
-| 1. Runtime ABI descriptor I0 | Kernel target build plus host archive descriptor reader. Issue and decode one target-derived descriptor; no executable route switch. | Read the actual built archive without running target code. Compare Rust constants and target-compiled C header layout; reject missing/duplicate/malformed/revision/target mismatches. Establish the dependency used by task 2, without claiming standalone codegen. |
+| 1. Runtime ABI descriptor I0 | **Landed.** Kernel target build plus host archive descriptor reader issue and decode one target-derived descriptor; no executable route switch. | The actual built archive is read without running target code. Rust emits the 200-byte descriptor from `Diagnostic`/`FaultFrame`; C header assertions remain independent boundary evidence. Missing/duplicate/malformed/revision/inconsistent layout rejects are covered. This is task 2's dependency, not standalone codegen. |
 | 2. Lifecycle invocation/session I0 | Existing host object/EXE entry, C target options/session, selected link owner. Bind descriptor and target before compilation; preserve OBJ ABI requirements through link. | Source-selected invocation consumes task 1; explicit target/layout/archive mutations reject before user artifacts. Delete late EXE archive re-selection and ambient target selection on this lane. Prove LLVM layout with the same toolchain/target used for emission. |
 | 3. Complete direct input I0 | Existing physical ABI/JSON owner and dedicated parser. Co-seal the compiled-entry contract, layouts and session input; construct final JSON once. | Actual issued Pair input reaches the real C parser. Full opcode/operand/CFG/PHI/formal/cleanup/target mutation coverage; delete serialize/parse/serialize and name-only acceptance. Deferred actual representations and unsupported admitted siblings remain cutover blockers, not implicit i64. |
 | 4. Lifecycle execution and entry cutover | Dedicated C body emitter, host caller and kernel entry selected together. Implement allocation/Birth/field/Add/control and cleanup, plus normalized root status. | Unchanged Pair source exits 30 through direct EXE and independently linked OBJ. Inject normal/fault/report failures, check exactly-once cleanup and no output on compilation rejection. Delete selected pending/generic-body route and selected raw kernel result decoding in the same series. |
@@ -312,6 +312,27 @@ implementation. Test actual archive extraction and malformed/foreign inputs;
 no new guard family or semantic Verified/Prepared product. Task 2 must use this
 reader on the selected production invocation before the series is called a
 production replacement. Task 1 alone claims descriptor evidence only.
+
+Completion evidence: `crates/nyash_kernel/src/exports/fault.rs` retains exactly
+one target-compiled `.nyash.runtime_abi.v1` 200-byte record, while
+`runtime_abi_descriptor.rs` selects that named section from the specified
+archive and decodes its fixed wire layout. The focused reader tests reject
+nonzero target padding and inconsistent layout; the archive-required focused
+test reads `target/release/libnyash_kernel.a`. `readelf` confirms one section
+and `nyash_runtime_abi_descriptor_v1` symbol. This does not bind a descriptor
+to a selected lifecycle invocation, prove LLVM layout equality, or enable C
+lifecycle execution.
+
+### `CONSTRUCTOR-LIFECYCLE-INVOCATION-SESSION-I0`
+
+BoxShape: task 2 only. The existing lifecycle OBJ/EXE host invocation selects
+the target and exact runtime archive once, reads the descriptor before user
+object output, and passes one explicit target/session choice to the C consumer.
+The C consumer verifies that choice against LLVM layout using the same tools it
+will use for emission. Reject archive, descriptor, target, or layout mutations
+before an artifact; then delete this lifecycle branch's late
+`NYASH_EMIT_EXE_NYRT`/`target/release` re-selection. Do not implement C body
+execution, normalized entry status, process exits, or direct-input widening.
 
 ### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
 

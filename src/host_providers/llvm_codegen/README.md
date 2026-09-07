@@ -23,6 +23,11 @@ Thin Rust bridge for backend object emission.
 - `capi_transport.rs`
   - explicit CAPI helper split from the legacy transport helper surface
   - compile/link CAPI helpers only
+- `runtime_abi_descriptor.rs`
+  - reads the target-compiled Fault/status ABI descriptor from the selected
+    `libnyash_kernel.a` ELF member section
+  - validates fixed-width wire structure only; target/session equality remains
+    with the lifecycle invocation owner
 - `transport_paths.rs`
   - temp-path path resolution helpers only
 - `transport_io.rs`

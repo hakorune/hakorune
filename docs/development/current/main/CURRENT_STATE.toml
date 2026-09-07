@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0"
-current_execution_cohort = "constructor_lifecycle_runtime_abi_descriptor_i0"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-INVOCATION-SESSION-I0"
+current_execution_cohort = "constructor_lifecycle_invocation_session_i0"
 current_design_stop = "none"
-current_blocker_token = "Implement the target-compiled runtime ABI descriptor and archive reader; prove actual archive extraction and mismatch rejection. No lifecycle execution or target equality claim until session integration."
+current_blocker_token = "Bind the target-compiled runtime ABI descriptor to one selected lifecycle invocation and LLVM tool session; delete late EXE archive re-selection. No C lifecycle execution or target equality claim until session integration."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -35,15 +35,16 @@ Constructor source keys and root/Birth handoff are retained; compiled-entry
 projection and V2 sentinel checks have landed. C execution remains pending.
 Target/session issuer D0 is accepted: runtime target compilation owns ABI
 facts, host lifecycle invocation owns target/archive selection, and the C
-consumer owns a call-local tool session with LLVM layout evidence.
-The selected target was already x86_64 GNU/Linux LP64. No further absence-only
-issuer census is needed. Next implement runtime descriptor plus archive reader,
-then session integration, complete direct input, C execution/status cutover and
-caller-zero retirement. Physical representation/CFG coverage and failure
+consumer owns a call-local tool session with LLVM layout evidence. The runtime
+descriptor I0 is landed: the target-compiled Rust Fault ABI emits one fixed
+archive record and the host reader proves actual extraction plus malformed
+rejection. The selected target was already x86_64 GNU/Linux LP64. Next bind the
+descriptor into one lifecycle invocation/session, then complete direct input,
+C execution/status cutover and caller-zero retirement. Physical representation/CFG coverage and failure
 terminal policies remain cutover blockers; Pair EXE30/linked OBJ30 are unproven.
 """
 next_design_card = "none (accepted physical issuer design; descriptor I0 ready)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-INVOCATION-SESSION-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

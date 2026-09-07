@@ -66,6 +66,23 @@ generation identity in one host-handle registry write-lock transition before
 the existing lease table admits the token. Token collision/exhaustion rolls
 back only that new identity; it never releases an existing generation.
 
+### Target-compiled Fault ABI descriptor v1
+
+Each selected `libnyash_kernel.a` contains exactly one
+`.nyash.runtime_abi.v1` ELF object section. It is a fixed 200-byte
+little-endian wire record, with magic `NYRTABI1`, record revision and length,
+the Cargo target triple, endian and pointer-width facts, Fault/status ABI
+revisions, and `NyrtFaultDiagnosticV1` / `NyrtFaultFrameV1` size, alignment,
+and field offsets. `crates/nyash_kernel/src/exports/fault.rs` emits it from
+the target-compiled Rust representation; it is not a host `sizeof` receipt.
+
+The lifecycle host reads the descriptor only by this section name from the
+explicit archive path. Missing, duplicate, malformed, unsupported, or
+internally inconsistent records reject before user-object output. Selecting an
+archive and proving equality to the backend target/LLVM layout are separate
+invocation responsibilities; this descriptor does not authorize C lifecycle
+execution or process-exit policy.
+
 ### `include/nyrt_dynamic_call_slot_v2.h` and `include/nyrt_dynamic_text_scan_v1.h`
 
 The selected Boundary AOT CheckedCallOut lane uses the versioned CallSlot
