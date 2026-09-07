@@ -91,20 +91,72 @@ The successful AST-only typed capability test remains dependency evidence.
 Untyped empty/populated/nested/Loop and unchanged same-name Box source must use
 materialized source ingress and actual EXE/independently linked OBJ execution.
 
-The original wider series remains open, in this order:
-1. Script typed-local source relation/admission D0: establish exact local binding,
-   annotation and initializer relation -> complete Script source product ->
-   existing typed-array claim/refresh consumer. Reuse of FullFunction annotation
-   observation is not permission to relax the Script gate. Owner:
-   `normal_script_pre_effect_source_observation.rs` and `shadow/traversal_profile.rs`.
-2. With that source product, reach and preserve the existing typed backend Stop;
-   only the separately accepted state-guard consumer below can open execution.
-3. Script Loop source admission: the unchanged materialized Loop source also
-   reaches Deferred/UnsupportedStatement(Loop) before its Core consumer. Keep the
-   existing Loop EXE requirement open; AST-only Loop success is dependency evidence.
-Neither earlier source Stop nor AST-only success closes the original typed
-source-to-EXE requirement. No fallback, alternate ingress or changed source fixture
-may bridge either missing link. Both are CutoverBlockerOpen within this series.
+The original wider series remains open: the accepted Script typed-local relation
+connection below must reach the existing typed backend Stop; a separately accepted
+state-guard consumer must then open typed execution. Script Loop source admission
+is also CutoverBlockerOpen: its unchanged materialized source reaches
+Deferred/UnsupportedStatement(Loop) before Core. Earlier stops and AST-only
+success do not close either original source-to-EXE requirement. No alternate
+ingress, changed fixture or fallback may bridge the missing links.
+
+### Script typed-local relation connection
+
+Decision: replace Script lowering projection's local site-to-BindingRef payload
+with the existing ResolvedInitializerRelationV1. Do not add a sibling semantic
+receipt or annotation authority. Resolver shadow/stmt.rs observes initializers
+before binding insertion, records declaration/binding/annotation/initializer, and
+resolver canonicalization seals that relation. The existing Script pre-effect
+issuer co-seals the parser invocation, root window, forest and source projection.
+
+Boundary: runner-materialized Script -> ScriptLexicalCore Local -> exact resolver
+relation -> same-source lowering projection -> binding materializer -> existing
+local descent -> intrinsic allocation/claim/writes -> LocalSlot completion and
+refreshed LocalInit row. Includes one binding, one literal initializer and all
+seven supported numeric Array<T> annotations under one existing contract parser.
+Untyped Local keeps its current acceptance, including absent initialization.
+Excludes unrelated annotation admission, nonliteral typed initialization,
+ScriptLambda, BlockExpr-prelude widening and Loop admission.
+
+In traversal_profile.rs, only ScriptLexicalCore may admit this additional Local
+family: one variable/slot, ArrayLiteral initializer and parse_annotation returning
+Some(spec). Invalid/other annotations and missing/nonliteral typed initializers
+retain their current Deferred before child effects. The bool gate does not issue
+new diagnostics or retain a second contract; explicit legacy annotation errors
+remain downstream dependency evidence. ScriptLambda and BlockExpr stay unchanged.
+
+At normal_script_semantic_lowering_projection.rs sealing, require a bijection
+between Local declarations and initializer relations, same owner/binding,
+ordinal0 and exact optional LocalInitializer(0) membership in the same source
+product. Keep annotation and initializer site in that relation, not in parallel
+maps. No relation may be paired later by names or matching owner IDs alone.
+
+normal_script_binding_materialization.rs passes the retained relation into an
+explicit source-backed mode of the existing local input. Its syntax projection
+uses relation-derived annotation; raw/callable compatibility retains its explicit
+raw mode. Missing relation never selects raw mode. AST comparisons may reject
+drift but cannot choose the annotation. Before allocation, compare the active
+declaration and prepared initializer source with the relation coordinates.
+Retire the selected Script RawLegacyLocalInputV1::new(input) decision edge.
+
+Existing collection_literals.rs remains allocation -> one claim -> ordered child
+writes; variable_stmt.rs completion registers that same preclaim ID with LocalSlot,
+then refresh_source_rows preserves its LocalInit source. Do not substitute the
+nonliteral path, which evaluates first and claims later. No new runtime schema,
+source type inference, physical claim issuer or backend capability is authorized.
+
+Acceptance: runner-materialized `local a: Array<i64> = [10, 20]; return 30`
+produces verified intrinsic MIR, one preclaim, matching LocalInit and ordered
+writes; all seven supported spellings share that evidence. Missing/duplicate or
+foreign relation, binding/site drift reject before allocation. Child failure
+retains allocation/claim and only preceding writes. Untyped locals and the
+excluded source stops remain unchanged. OBJ/EXE must reach the existing typed
+backend capability Stop; this does not close typed EXE acceptance.
+
+Implementation order: preserve/co-seal the existing relation and connect the
+selected input mode, then open the finite Script gate in the same slice. Focused
+source/claim/drift tests, existing instance/canonical guards and owner/reference
+updates close this row. Source owners are below760; no new file-count/guard layer
+or additional worker census is required for this closed mapping.
 
 Outstanding task: typed Array selected-C state-guard consumer design, owned by
 `typed_array_backend_capability.rs` and `function/typed_array_contract.rs`, with

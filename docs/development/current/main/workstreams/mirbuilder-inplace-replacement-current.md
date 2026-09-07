@@ -600,27 +600,28 @@ fixtures are deleted. Remaining failures (all `cohort-missing`):
 No source gate was relaxed and no baseline test ignored. The prior current-change
 shadow DuplicateKey and static-negative syntax error are fixed and rerun green.
 
-#### MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-D0
+#### MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0
 
-Decision: connect existing exact Local relation to Script source admission before typed execution.
-Source authority + canonical issuer: resolver Local observation and ResolvedInitializerRelationV1; Script source issuer co-seals its own source product.
-Non-authority: raw AST annotation reread, FullFunction product, MIR inferred types and AST-only acceptance.
-Fail-fast boundary: retain Deferred before initializer until Script binding/annotation/initializer mapping is closed; retain selected-C typed state-guard Stop.
-Smallest next slice: audit existing relation consumption from Script projection through binding materializer to typed claim, then name one bounded implementation.
-Non-claims: typed C execution, Loop admission, ScriptLambda/BlockExpr widening and original Array-series closure.
+Decision: preserve existing initializer relation through Script Local lowering; one numeric Array<T> literal family.
+Source authority + canonical issuer: resolver Local relation, co-sealed by the existing Script pre-effect source issuer.
+Non-authority: AST annotation reread, parallel binding/annotation maps, physical types and FullFunction products.
+Fail-fast boundary: foreign/missing/drifted relation before allocation; excluded annotations/owners remain Deferred; typed C remains unsupported.
+Smallest next slice: replace local projection payload and selected local-input edge, then admit supported Script literal annotations together.
+Non-claims: typed EXE, nonliteral typed initialization, Loop admission, ScriptLambda/BlockExpr widening or Array-series completion.
 
-Worker premise audit: resolver stmt/expression relation already carries the exact
-Local binding, annotation and initializer site. Script projection currently keeps
-only site-to-BindingRef; binding materialization passes RawLegacyLocalInput and
-local descent re-reads annotation. Reuse the relation with existing
-`typed_array_contract_spec::parse_annotation`; do not invent a new receipt or
-simply remove the Script annotation gate. Fixed source remains
-`local a: Array<i64> = [10, 20]; return 30`.
-Ordered open obligations: this source relation -> reach existing typed backend
-Stop -> separately accepted typed state-guard consumer. Script Loop admission is
-also CutoverBlockerOpen for the original unchanged Loop execution witness;
-AST-only Loop success cannot close it. Ownership and finish conditions remain in
-the construction design; no new guard or task-document family.
+The [construction design](../design/collection-literal-construction-ssot.md#script-typed-local-relation-connection)
+owns the accepted main/worker audit and full chain through claim, LocalSlot and
+LocalInit refresh. Real callers are raw_invocation_source_transport child dispatch
+-> normal_script_binding_materialization; delete selected RawLegacyLocalInput::new
+as annotation authority. Reuse the existing relation and typed literal consumer.
+No missing-source fallback and no new semantic receipt. All seven existing numeric
+Array<T> spellings share one slice; no per-spelling card or library rebuild.
+Acceptance: materialized fixed typed source -> verified intrinsic MIR -> one claim
+and matching LocalInit/writes -> existing C capability Stop, plus source drift,
+child-order and excluded-owner negatives. Use existing instance/canonical guards,
+module README and language/ABI references; source budget remains <760.
+Next obligations stay open: typed C state-guard design/execution and source-backed
+Loop admission. Dependency-only stops cannot close their original EXE witnesses.
 
 ## Source and ownership budget
 

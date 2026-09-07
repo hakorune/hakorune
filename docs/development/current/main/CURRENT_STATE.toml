@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-D0"
-current_execution_cohort = "mir_script_typed_local_source_relation_d0"
-current_design_stop = "Script typed Local relation exists but its projection/materialization consumer is not connected"
-current_blocker_token = "Close exact Local binding/annotation/initializer relation -> Script source product -> existing typed claim mapping. Do not relax annotation admission or infer from MIR. Typed C state guard and Script Loop admission remain open; prior instance publication repair verified."
+work_mode = "fast"
+current_execution_row = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0"
+current_execution_cohort = "mir_script_typed_local_source_relation_i0"
+current_design_stop = "none; existing relation co-seal and numeric Array literal consumer mapping accepted"
+current_blocker_token = "Preserve ResolvedInitializerRelation through Script local projection and explicit source-backed local input; retire selected AST annotation decision. Admit only seven supported Array<T> literal annotations; verify same preclaim/LocalInit and existing C Stop. Nonliteral/other annotations/Lambda/BlockExpr remain Deferred; Loop and typed C execution remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,10 +34,11 @@ latest_card_summary = """
 Intrinsic Array source producers and sole immediate Script instance publication
 are verified: materialized untyped/shadow EXE and independent OBJ exit30;
 runtime clone/ticket/role/prefix edges retired. Existing guard and Pair pass.
-Next design is Script typed Local relation consumption; Loop/typed C remain open.
+Main/worker design accepts existing relation consumption for numeric Array literal
+locals. Implement one source connection; Loop/typed C execution remain open.
 """
-next_design_card = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-D0"
-next_execution_card = "none"
+next_design_card = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0"
+next_execution_card = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
