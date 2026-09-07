@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "PUBLISHED-BACKEND-VIEW-PLACEMENT-R0"
-current_execution_cohort = "published_backend_view_placement_r0"
-current_design_stop = "none; task 6a surviving transport placement is a mechanical same-logical-module move"
-current_blocker_token = "Task6a BoxShape: move surviving published_backend_view_c_transport.rs under the actual published-view module and remove its external path mount; update guard filesystem owner paths and compiler README. Preserve logical exports, bytes/lifetimes and selected static/array/lifecycle behavior. V2 transport is already retired; no new wrapper or guard."
+work_mode = "closeout"
+current_execution_row = "NORMAL-CALLABLE-SEMANTIC-README-R0"
+current_execution_cohort = "normal_callable_semantic_readme_r0"
+current_design_stop = "none; task 6b module README condensation is documentation closeout with contract preservation"
+current_blocker_token = "Task6b documentation closeout: condense semantic-package README journal/repetition into current owners, boundaries, supported/unsupported contracts and evidence links. Preserve every live contract; no source/ABI acceptance change or build. Reconcile named uncertainty before rewriting meaning; then select existing canonical/compatibility boundary work."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,15 +31,15 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-View handoff/profile and observation-row cleanup is committed. C dead helper
-hako_physical_values_exist is removed (12 lines); parser and V4 execution gates
-pass, and shims README now describes the actual selected V4 source host.
-Next is the existing placement task: only the static C transport mount survives.
-Move it under the view owner without changing its logical module or public API;
-update actual filesystem guard paths, preserving historical card-token checks.
+The surviving C transport now lives under the published-view module; external
+path mount is removed and actual guard filesystem lookups are synchronized.
+Implementation body is unchanged; public re-exports and frame bytes stay stable.
+Next is module README closeout: condense dated repetition while preserving live
+semantic contracts and source/physical ownership boundaries. No build is needed
+for that prose-only slice; subsequent canonical/compatibility work remains separate.
 """
-next_design_card = "PUBLISHED-BACKEND-VIEW-PLACEMENT-R0"
-next_execution_card = "PUBLISHED-BACKEND-VIEW-PLACEMENT-R0"
+next_design_card = "NORMAL-CALLABLE-SEMANTIC-README-R0"
+next_execution_card = "NORMAL-CALLABLE-SEMANTIC-README-R0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

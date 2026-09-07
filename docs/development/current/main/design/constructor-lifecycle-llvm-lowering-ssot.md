@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: move the remaining mounted C transport file under its existing view owner (task 6a below).
+Smallest next slice: condense the semantic-package owner README without losing live contracts (task 6b below).
 Non-claims: new source acceptance, optimized multiple-Home coverage, complete view thinning, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -2123,28 +2123,55 @@ guard. Physical parser file is616 lines. No whole-suite green claim.
 
 ### PUBLISHED-BACKEND-VIEW-PLACEMENT-R0 (task 6a)
 
-Classification: mechanical BoxShape; the V2 lifecycle transport file was already
-retired at7c8041c075, leaving one physical mount rather than the old planned two.
+Mechanical BoxShape: moved the sole surviving C transport implementation to
+`normal_default_pipeline/published_backend_view/c_transport.rs` and removed its
+external path mount. The lifecycle V2 transport had already been retired at
+7c8041c075. Logical module, `crate::mir::function` re-exports, ABI rows and
+CString/synchronous borrow ownership remain unchanged; implementation text after
+the module header is byte-identical to parent22fa8ce1c7. The header clarifies
+projection rather than source authority, and the compiler README names the one
+physical module tree.
+
+Existing delegated guard filesystem lookups now point to the actual view and
+transport. Historical card-text/allowlist literals remain unchanged: they inspect
+past contracts rather than open source files. Census boundary: live Rust module
+mount -> transport/re-exports -> host, plus src/tools/lang/crates/.github
+filesystem/build/manifest/directory references. Excludes historical docs and
+contract-text assertions, generated binaries and external consumers. Old transport
+filesystem path/mount has no live caller; no new wrapper, test or guard.
+Evidence: fresh published-view32 passes (0.58s; single-job quick/plugins,
+opt0/nonincremental/CGU256, peak8.63 GiB). Normal-source host1 passes direct EXE,
+independent OBJ and Pair/Bool Fault cleanup with the actual archive (15.27s).
+Canonical/pointer guards, Python AST parsing of the edited existing guard, and
+diff check pass. Touched production Rust source max734; the existing Python guard
+has only three path substitutions with no line growth. No new tests/guards,
+semantic or execution change, or whole-suite green claim.
+
+### NORMAL-CALLABLE-SEMANTIC-README-R0 (task 6b)
+
+Classification: documentation closeout of the selected constructor cutover;
+no semantic, source acceptance or production-edge change.
 
 Change:
-  Move `src/mir/function/published_backend_view_c_transport.rs` to
-  `src/mir/compiler/normal_default_pipeline/published_backend_view/c_transport.rs`
-  and delete the remaining external `#[path]` mount. Keep the logical module and
-  public re-exports unchanged. Update the existing delegated guard's filesystem
-  owner paths to the real view and transport files; historical card-text tokens
-  are historical contract observers, not filesystem callers.
+  Condense the existing semantic-package README's639 lines and dated progress
+  sections into current ownership, issue/install/loan/finalization boundaries,
+  family-specific supported/unsupported contracts and concise evidence pointers.
+  Git history owns the journal. Keep this README as the module's one entry.
 Contract:
-  Same code, logical parent, row bytes, CString ownership and synchronous lifetime.
-  No new source/capability/ABI, static/array dispatch change, wrapper or guard.
-  C-frame header documentation describes projection, not a new source authority.
+  Preserve each live rule, owner/reference link and unsupported distinction;
+  remove repeated progress/physical-split narration. Do not turn source retention
+  into C permission or claim all source families execute. Current Pair V4 status
+  comes from this card; source package remains non-authority for physical ABI.
 Done:
-  Old filesystem path/mount has no direct/build/manifest/directory caller;
-  historical docs/card-token checks are excluded explicitly. Existing published
-  view tests and canonical/pointer guards pass. Compiler README records the one
-  module tree. Existing source host gate preserves lifecycle EXE/OBJ/Fault.
+  Compare every old section against retained contract text or its exact existing
+  owner reference. Check all links/anchors; current search found no repository
+  inbound section-anchor links. No Cargo/build/test is needed for prose-only
+  edits. Pointer guard and diff check pass; next pointer selects the existing
+  canonical/compatibility-boundary task with a bounded design audit if required.
 Stop:
-  Any relative include/child path or new owner/ABI requirement makes this more
-  than placement; stop before changing behavior. Dependency: task6-C closeout.
+  If a rule conflicts with current code/SSOT, preserve its uncertainty and resolve
+  the named owner before rewriting the contract. No silent scope widening, new
+  source classifier/receipt, or new archive document. Dependency: placement closeout.
 
 ### Task 3: exact root cleanup contraction
 

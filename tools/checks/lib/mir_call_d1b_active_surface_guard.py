@@ -555,8 +555,8 @@ def check_delegated_published_view_c_transport_boxshape_row(
         if state.get("next_execution_card_path") != str(PERFORMANCE_CARD_REL):
             fail(f"{row} execution card path drifted")
         for rel in (
-            "src/mir/function/published_backend_view.rs",
-            "src/mir/function/published_backend_view_c_transport.rs",
+            "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
+            "src/mir/compiler/normal_default_pipeline/published_backend_view/c_transport.rs",
         ):
             path = root / rel
             if not path.is_file():
@@ -1217,7 +1217,7 @@ def check_selected_c_userbox_compat_quarantine_r0(
     if not changed <= allowed:
         fail(f"selected-C quarantine changed files outside allowlist: {sorted(changed - allowed)}")
     for rel in (
-        "src/mir/function/published_backend_view.rs",
+        "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
         "src/mir/function/published_backend_view_tests.rs",
         "src/host_providers/llvm_codegen/published_mir_object.rs",
     ):

@@ -13,7 +13,6 @@ use hakorune_mir_defs::{
 
 use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, MirModule, ValueId};
 
-#[path = "../../function/published_backend_view_c_transport.rs"]
 mod c_transport;
 mod compiled_entry_contract;
 mod lifecycle;

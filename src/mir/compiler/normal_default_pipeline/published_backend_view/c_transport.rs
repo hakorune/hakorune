@@ -1,7 +1,7 @@
 //! Synchronous C projection of the published MIR backend view.
 //!
 //! These rows own only physical transport.  The parent view remains the sole
-//! source of route and definition meaning, and public re-exports preserve the
+//! projection of published routes and definitions; public re-exports preserve the
 //! historical `crate::mir::function` paths.
 
 use std::ffi::CString;
