@@ -507,36 +507,9 @@ Current consultation (2026-09-06, worker-audited `bd517a7bd5`):
 owns the authority inventory and supersedes the speculative fixed-Pair emitter.
 No implementation permission follows from the worker report or prior local green.
 
-The acceptance witness is `apps/typed-object-birth-min/main.hako`: two `i64`
-fields, birth parameters/body and values 10/20 unchanged, result 30. `Pair` is
-not a compiler selector; `typed-object-method-min.sum` is outside this slice.
-Accepted annotation migration: original snapshot `888c2d513c`, SHA-256
-`044105bd970885b13883d3daad9a676b6b8cac2f3f9e8a98c2bb57f5cbfff4fb`;
-migrated SHA-256 `bbd957398d16ae9e77c1b2bd3c510e8b6ba03c694d97ed14807f8ffe320aa0a4`.
-This is not an unchanged-source replay. Source-key/Call/layout checkpoints are
-recorded in the lifecycle owner and Git; they do not prove runtime execution.
-
-**Closed bounded task — Stop/Delete provisional body validation**
-
-Change: in `published_mir/hako_llvmc_ffi_published_lifecycle_body_v2.inc`,
-remove the three private helpers `json_matches`, `program_allowed`,
-`values_defined` and their calls. This retires the incomplete JSON program
-validation authority at the existing `body-consumer-pending` terminal.
-Contract: the real caller is `hako_llvmc_compile_published_lifecycle_body_v2`
-in `hako_llvmc_ffi_route.inc`, reached by shared typed OBJ/EXE host transport.
-Keep structural ABI/profile/pointer/site validation and the no-artifact stop.
-Changed diagnostic precedence is intentional: this is Stop, not BoxShape.
-Done: existing C preartifact test proves structural positive -> pending/no file,
-invalid ABI/profile/site -> rejection/no file; record a real final-view host
-probe's first terminal separately. Reuse M7-S and pointer guards; update the
-owning C/host README terminal description in the implementation commit.
-No source language contract changes; no new fixture, guard or semantic receipt.
-Result: the body companion now accepts an unread nonempty body carrier only to
-reach `body-consumer-pending`; it still validates frame/profile/site relations
-and cannot create an object. The focused C test covers this terminal and the
-existing invalid ABI/profile/site boundaries. No source runtime acceptance is
-claimed. Stop: artifact emission, generic retry, added program prepass or
-unrelated helper deletion leaves this boundary.
+The constructor owner retains the Pair witness and annotation-migration lineage.
+Historical V2 Stop/Delete validation is superseded by V4; closed implementation
+and test details live in Git, not a second active execution contract here.
 
 **Constructor execution order**
 
@@ -570,31 +543,17 @@ the heading lookup was fixed without changing source/test checks. No whole-suite
 
 #### MIR-CALL-PUBLISHED-EXTERN-STOP-I0
 
-Closed: published Call(Extern) with or without a row now rejects before legacy
-extern-plan/name handling, matching src/mir/backend_capability.rs host admission.
-Shared peek remains the owner; same-module prepass and both emitters consume it.
-Actual ABI testing exposed a fourth edge: the entry generic lowering prescan's
-mir_call/Extern branch validated a legacy plan before shared peek. It now peeks
-before plan lookup; rejection uses published_extern_not_allowed. It does not take
-a row, change generic no-session handling, or touch independent externcall.
-Worker read-only audit confirmed this branch precedes IR output and is the sole
-pure_prepass_validate_extern_call caller; no new authority/ABI/schema/guard.
-
-7891dbf747 owns C build/ABI positive-negative/generic-preservation evidence,
-view32 and Pair/Bool host1 (15.05s), plus source/docs/guard checks. The corrected
-generic-success test assumption was not baseline debt. No whole-suite/R7 claim.
+Landed at 7891dbf747: published Call(Extern) rejects before legacy lookup in
+both prepasses and emitters. C positive/negative/generic-preservation, view32
+and host1 passed. Generic Extern and independent externcall remain unchanged;
+no new authority or whole-R7 claim. Git owns the complete edge/evidence record.
 
 #### MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0
 
-Policy decision: intrinsic literals; named new keeps its provider contract. See the
-[language reference](../../../../reference/language/block-expressions-and-map-literals.md#4-collection-literal-construction-identity).
-Worker audit found named-new override documentation but no literal override promise
-in the bounded language/plugin/reference and factory-test review. This is not a
-repository-wide absence claim. Existing C fixed allocation motivated review; it
-does not issue source meaning or prove common-Builder cutover.
-Call(Method) schema alone remains non-authority. Runtime named helpers keep
-CompatibilityOuterIngress; general Method/Math and Call-carried Constructor remain
-under their existing dispositions. No blanket Stop, new registry or legacy-plan promotion.
+Accepted at 83d7553ceb: intrinsic literals; named new retains provider semantics.
+The [language reference](../../../../reference/language/block-expressions-and-map-literals.md#4-collection-literal-construction-identity)
+owns the Decision. Runtime named helpers remain CompatibilityOuterIngress;
+general Method/Math and Call-carried Constructor keep their existing dispositions.
 
 #### MIR-COLLECTION-LITERAL-CONSTRUCTION-D1
 
@@ -608,29 +567,29 @@ and canonical corridor guard pass; changed source max777. Details live in Git.
 
 #### MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0
 
-Consumer preparation verified: target, allocation-only selection, kind8 and shared
-entry/nested peek/take/rejection. Source remains Named. Owner splits keep touched
-source max754. Fresh quick test build, view35,
-old-wire12, remap/Core/source18 and Pair/Bool host1 (14.48s) pass. C build and
-entry/nested/negative/residual regression pass; canonical corridor guard passes.
-No source cutover, natural Loop/empty execution or whole-suite/R7 claim.
+Landed at 9b5ef392cc: typed intrinsic consumer, allocation-only selection and
+entry/nested rejection. Rust65 + host1, C gates and corridor pass; source max754.
+No source-cutover/R7 claim; full receipt lives in Git.
 
-#### MIR-COLLECTION-ARRAY-SOURCE-CUTOVER-I0
+#### MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0
 
-Status: **selected fast**, step3 of the accepted construction series.
-Decision: switch raw/typed-local/Core ArrayLiteral together and retire Array birth edges.
-Source authority + canonical issuer: exact ArrayLiteral source arms; shared collection helper and Core normalizer preserve that syntax identity.
-Non-authority: body names, type/origin metadata, provider settings and synthetic physical tests.
-Fail-fast boundary: unsupported target or missing exact row before artifact; preserve child failure without name fallback.
-Smallest next slice: switch the two allocation issuers; delete Array helper birth call and Core Array birth MethodCall.
-Non-claims: Map/Main cutover, shared birth-helper deletion, AST-free Facts/Recipe completion, VM/WASM parity or R7 closure.
+Decision: immediate declaration lifecycle is sole publisher; runtime keeps Unit completion.
+Source authority + canonical issuer: parser instance cohort -> existing work-plan; immediate owns canonical publication.
+Non-authority: receipt pack, names, collector-existence checks and runtime declaration replay.
+Fail-fast boundary: preserve duplicate CatalogedConstructor and source/window checks.
+Smallest next slice: delete plain/nonplain runtime batch clones/tickets/roles; emit existing Unit completion only.
+Non-claims: wider Array series, typed source/C execution, unrelated registration thinning or R7 closure.
 
-The [construction design](../design/collection-literal-construction-ssot.md) owns inventory/order. Acceptance requires
-natural empty/populated/nested/typed/Loop source, provider separation, failure/order,
-Core13 preservation and selected EXE/independently linked OBJ. Observe Loop's existing
-known-array write consumer; surviving Method push is a blocker, not C repair scope.
-Keep locators/order; no dummy Call or earlier-terminal substitution. Update owner
-docs and retire exclusive obsolete tests in the same series.
+The [construction design](../design/collection-literal-construction-ssot.md) owns the audit: immediate handles registration/definitions; runtime only void.
+Acceptance: unchanged materialized shadow EXE/OBJ, one definition/demand per source,
+plain/nonplain metadata preservation and declaration-only Unit. Retire caller-zero
+prefix helper, preserve shared lifecycle and manifest checks; no by-name skip.
+Pending Array/birth and missing-boundary-arm edits remain uncommitted. Build7
+passes (peak8.70GiB); static negative syntax corrected but not rerun. Current
+shadow DuplicateKey is the duplicate-demand blocker, not waived baseline debt.
+Source-backed empty/populated/nested execute; typed stops before initializer.
+Next after this repair: Script typed-local relation D0, then typed C state guard;
+the original wider Array series remains open. No OOM/whole-suite claim.
 
 ## Source and ownership budget
 

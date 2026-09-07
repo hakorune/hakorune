@@ -34,22 +34,9 @@ Related:
 
 ## Problem
 
-Small implementation cards were forcing updates to too many human-written
-mirrors:
-
-- `CURRENT_TASK.md`
-- `AGENTS.md`
-- `docs/development/current/main/05-Restart-Quick-Resume.md`
-- `docs/development/current/main/10-Now.md`
-- phase README
-- taskboard / ledger
-- `docs/development/current/main/CURRENT_STATE.toml`
-- the active card
-- `tools/checks/current_state_stale_pointer_patterns.txt` only when stale
-  pointer guard fixtures change
-
-That made card work depend on manual ledger synchronization instead of one
-clear current-state owner.
+Repeated task mirrors and per-constructor cards obscure ownership and consume
+implementation time. Keep current state in one pointer, family decisions in one
+owner, and closed detail in Git.
 
 ## Decision
 
@@ -247,14 +234,29 @@ Rules:
   the inventory is the compact exception to the prose budget, not a reason to
   merge `Absent`/`Unavailable`/`Unresolved`/`NoCandidate` into `None` or a
   compatibility label;
+- for a new cutover/boundary, reconcile Done with the actual production ingress
+  and existing capability terminals before editing. Record code owners in the
+  existing finite inventory; AST compatibility or synthetic test helpers cannot
+  stand in for a source-backed entry;
+- inspect the complete issue/install/consume/re-entry chain of the changed
+  responsibility, including its physical owner. A leaf consumer audit does not
+  establish sole publication. Reuse closed mappings for mechanical changes;
+- batch cases sharing one contract and one library build. Give distinct terminal
+  cases independent test selection so an early failure does not hide later
+  evidence. Rebuild after code changes, but do not rebuild merely to rerun filters;
+- if successive gates expose different missing edges in the same lifecycle,
+  return to its full ownership inventory before the next patch. Fail-fast is
+  useful detection, not evidence that the implementation plan was complete;
 - do not copy full type definitions, fixture bodies, exhaustive rejection
   tables, file-by-file edit plans, guard string assertions, generic gate
   commands, or expected LOC ranges into an execution brief;
 - an S0 with no old authority says `old authority: none` in `Change`; it does
   not need a separate atomic-delete section;
 - ceremony is a routing label, not a requirement to write more prose;
-- active execution detail should normally fit in about 20–40 lines. This is an
-  editorial target, not a guard or implementation permission gate;
+- active execution detail should normally fit in about 20–40 lines. Compact
+  closed receipts in one pass before the rolling card reaches its hard cap; do
+  not spend successive guard runs shaving single lines. This is editorial work,
+  not a new guard or implementation permission gate;
 - T2 gets a separate durable design SSOT only when the decision remains useful
   across rows or workstreams. Otherwise the rolling card holds the compact
   decision directly;

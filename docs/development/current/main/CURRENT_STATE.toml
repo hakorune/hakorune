@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-COLLECTION-ARRAY-SOURCE-CUTOVER-I0"
-current_execution_cohort = "mir_collection_array_source_cutover_i0"
-current_design_stop = "none; intrinsic consumer preparation verified; accepted raw/typed-local/Core Array source cutover is next"
-current_blocker_token = "Array source cutover: switch shared raw/typed-local helper and Core ArrayLiteral together; delete their two Array-only birth edges. Keep Map/Main/shared helper. Require natural empty/typed/nested/Loop, provider separation, failure/order and EXE/linked OBJ evidence; no synthetic or earlier-terminal substitution."
+current_execution_row = "MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0"
+current_execution_cohort = "mir_script_instance_runtime_completion_i0"
+current_design_stop = "none; immediate sole publisher and retained runtime Unit completion design accepted"
+current_blocker_token = "Replace selected Script plain/nonplain instance runtime relowering with Unit completion. Immediate owns fields/metadata/constructors/methods. Delete runtime batch clones/tickets/roles and caller-zero prefix helper; preserve duplicate rejection. Verify unchanged shadow source and one definition/demand per source. Typed Script source and typed C state guard remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Intrinsic consumer preparation passes quick test build, view35, old-wire12,
-remap/Core/source18, Pair/Bool host1 and C entry/nested/rejection/residual tests.
-Source producers remain Named. Next switches raw/typed/Core Array together and
-retires Array-only birth edges with natural-source EXE/OBJ/failure evidence.
+Consumer committed at 9b5ef392cc. Pending Array and boundary edits exposed two
+physical demands for each Script constructor. Worker audit closes ownership:
+immediate publishes all definitions/metadata; runtime keeps only Unit completion.
+Next deletes runtime duplicate transport/roles. Typed source/C work remains open.
 """
-next_design_card = "MIR-COLLECTION-ARRAY-SOURCE-CUTOVER-I0"
-next_execution_card = "MIR-COLLECTION-ARRAY-SOURCE-CUTOVER-I0"
+next_design_card = "MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0"
+next_execution_card = "MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

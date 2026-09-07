@@ -60,7 +60,7 @@ not establish the final AST-free Facts/Recipe pipeline.
 | --- | --- | --- |
 | 1 | Current consumer row: finish pending variant/view/frame/C changes and owner docs; verify and commit before source edits. | Allocation-only and nested physical rows, invalid/missing/duplicate/residual rejection, remap/Core13 and Named wire regressions. Physical evidence only. |
 | 2 | Shared raw/typed helper and Core ArrayLiteral arm switch together. | Delete the helper's Array birth call and Core arm's birth MethodCall. Preserve Map/Main callers of the shared birth helper. |
-| 3 | Same source-cutover slice: exercise natural source through selected C and independently linked OBJ/EXE. | Empty/populated/nested/typed/Loop, named-provider separation, allocation/child failure and evaluation order; no dummy Call to select an empty literal. |
+| 3 | Same source-cutover slice: exercise natural source through selected C and independently linked OBJ/EXE. | Untyped empty/populated/nested/Loop execution, typed capability Stop, named-provider separation and failure/order preservation; no dummy Call to select an empty literal. |
 | 4 | Close the same series: remove only exclusive obsolete branches/tests and synchronize docs. | Real switched callers plus deleted birth edges; then select the next family. No blanket shared-helper deletion. |
 
 For Loop acceptance, observe the existing known-array write branch in
@@ -68,6 +68,95 @@ For Loop acceptance, observe the existing known-array write branch in
 not permission to add a new C name interpretation. If a source witness stops
 at an earlier terminal, record dependency evidence and retain the open acceptance
 item. Do not substitute a synthetic frame test or silently narrow the source set.
+
+## Acceptance correction: typed Array capability
+
+Decision: construction identity cutover preserves the existing typed Array Stop;
+it does not activate a typed selected-C execution consumer. The original task's
+combined typed/untyped EXE matrix conflicted with the existing capability owner.
+`typed_array_backend_capability.rs::enforce_typed_array_backend_supported` admits
+contract-bearing modules only to the reference interpreter. Selected OBJ/EXE
+reject before transport with `typed_array_contract_backend_unsupported` and
+`typed_array_exact_numeric_state_guard_v1`; the existing published array tests
+already require that rejection. This is a task-premise correction, not a new
+runtime acceptance or removal of the typed carrier.
+
+Raw, typed-local and Core allocation implementations switch together. The
+runner's materializer, not a manually chosen AST request, determines the source
+entry. In source-backed Script, typed Local currently stops even earlier:
+`shadow/traversal_profile.rs::ScriptLexicalCoreV1` excludes annotated Local before
+initializer traversal; `NormalScriptPreEffectSourceObservationIssuerV1` produces
+Deferred. No typed initializer/helper/backend acceptance follows from that Stop.
+The successful AST-only typed capability test remains dependency evidence.
+Untyped empty/populated/nested/Loop and unchanged same-name Box source must use
+materialized source ingress and actual EXE/independently linked OBJ execution.
+
+The original wider series remains open, in this order:
+1. Script typed-local source relation/admission D0: establish exact local binding,
+   annotation and initializer relation -> complete Script source product ->
+   existing typed-array claim/refresh consumer. Reuse of FullFunction annotation
+   observation is not permission to relax the Script gate. Owner:
+   `normal_script_pre_effect_source_observation.rs` and `shadow/traversal_profile.rs`.
+2. With that source product, reach and preserve the existing typed backend Stop;
+   only the separately accepted state-guard consumer below can open execution.
+Neither earlier source Stop nor AST-only success closes the original typed
+source-to-EXE requirement. No fallback, alternate ingress or changed source fixture
+may bridge either missing link. Both are CutoverBlockerOpen within this series.
+
+Outstanding task: typed Array selected-C state-guard consumer design, owned by
+`typed_array_backend_capability.rs` and `function/typed_array_contract.rs`, with
+`typed_array_exact_numeric_state_guard_v1` as its required capability. Execution
+is unimplemented; reopen only with an accepted guard/representation/failure
+consumer contract. This construction Decision grants no implementation permission
+and does not claim the original broader execution requirement is complete.
+
+Removing post-allocation birth markers preserves failure handling structurally:
+entry `emit_method_birth_mir_call` validates but emits no runtime operation;
+nested birth is likewise a no-op. The allocation symbol and allocation-before-
+children order stay unchanged. This is code-inspection evidence, not executed
+OOM evidence; child failure/order has its own source tests.
+
+## Instance-prefix boundary repair
+
+Decision: consume the existing `InstanceBoxSemanticOwner` transfer in
+`normal_script_boundary_receipt_pack.rs::seal` using the same nonstatic
+BoxDeclaration guard as the neutral-window and root-admission validators.
+The parser-owned instance transfer cohort already proves invocation, source row,
+methods and constructors; the receipt pack issues no new source meaning.
+Previously this missing arm fell into `window-boundary/source mismatch` before
+Array lowering. Preserve runtime source indices and default mismatch rejection.
+The unchanged shadow source is the end-to-end witness; static/non-Box mismatches
+remain negative cases. No baseline-red claim is made without parent execution.
+
+## Instance declaration publication and completion
+
+Decision: selected Script immediate declaration lifecycle is the sole physical
+definition publisher; retained runtime instance declarations perform only their
+existing Unit completion. Never skip by name or collector contents.
+
+Boundary: selected-normal Script nonstatic Box -> exact transfer/source cohort
+-> work-plan -> immediate publication -> retained runtime statement. Includes
+plain/nonplain runtime arms; excludes raw compatibility, nested Box ingress and
+App runtime-nonexecution. The work-plan currently clones each constructor batch
+and issues ImmediateDeclaration plus ScriptRuntimePrefix/ScriptRuntimeFullLifecycle
+demands. Both reach canonical publication, so DuplicateKey is the correct refusal.
+
+Immediate lowering already owns fields, weak fields, type ID, method slots,
+property getters, metadata constants and constructor/ordinary-method definitions.
+Neither runtime arm owns additional registration work; retain only `emit_void`.
+Do not combine the earlier declaration-facts registration cleanup with this fix.
+
+Ordered implementation: replace both selected runtime arms with declaration Unit
+completion; remove runtime source/constructor batch transport and demand tickets;
+retire the two exclusive runtime roles, manifest expectations and caller-zero
+prefix helper. Preserve immediate/shared lifecycle, duplicate rejection and
+unconsumed-source checks. No new semantic receipt, resolver or registry.
+
+Acceptance: unchanged materialized shadow source through EXE/linked OBJ; plain
+and nonplain source each publishes each constructor/method once and demands each
+constructor once; field/weak/slot/getter metadata survives; declaration-only Script
+retains Unit completion. Keep the typed-local/source and typed-C blockers above
+open. Worker inspection proves ownership mapping, not executable acceptance.
 
 ## Bounded inventory and treatment
 
@@ -145,7 +234,7 @@ selection remains subordinate to its existing contract; it is not source identit
 3. Array source cutover: raw/typed-local/Core Array arms switch together, remove
    Array literal helper birth caller and Core Array birth effect. Retain Map and
    Main helper callers. Existing Core push lowering remains; no new Method
-   interpretation. Verify natural-source empty/populated/nested/typed/Loop arrays,
+   interpretation. Verify natural-source empty/populated/nested/Loop arrays and typed capability Stop,
    same-name user/plugin noninterference, named-new separation, child order/failure,
    Core13 preservation and direct EXE/independently linked OBJ. No dummy Print
    solely to activate empty-array selection; earlier terminals are dependency
