@@ -148,6 +148,13 @@ export NYASH_PLUGIN_OVERRIDE_TYPES="ArrayBox,MapBox,ConsoleBox"
   - 上記により、`new ConsoleBox()` などの生成がプラグイン経路に切替わります。
   - 後方互換のため `[libraries]` にも対象プラグインを登録しておくと、解決の一貫性が高まります。
 
+### Collection literal boundary
+The accepted [literal construction contract](../language/block-expressions-and-map-literals.md#4-collection-literal-construction-identity)
+fixes Array/Map literal semantics independently of named provider overrides.
+Named `new ArrayBox()` / `new MapBox()` retain the existing override contract.
+Literal implementation migration is pending; this is not a claim that all current
+VM/compatibility routes already enforce the distinction.
+
 ## 🔧 For Hakorune Core Developers
 
 ### Implementation Files

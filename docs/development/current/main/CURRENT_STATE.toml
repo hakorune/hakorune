@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0"
-current_execution_cohort = "mir_call_published_method_constructor_disposition_d0"
-current_design_stop = "Pending literal provider contract: builtin-fixed versus existing user/plugin overrides; Call schema does not establish canonical runtime-operation authority"
-current_blocker_token = "Task2 source-provider decision: collection NewBox is builtin-fixed in selected C but common source lowering can reach user/plugin override. Decide literal binding before deleting birth markers or issuing canonical operation/arity. Existing named helper compatibility and Constructor residual dispositions remain; no blanket Stop or new receipt."
+current_execution_row = "MIR-COLLECTION-LITERAL-CONSTRUCTION-D1"
+current_execution_cohort = "mir_collection_literal_construction_d1"
+current_design_stop = "Literal intrinsic identity accepted by delegated design; close Array source-to-construction target/publication/selected consumer mapping before implementation"
+current_blocker_token = "Array literal construction D1: preserve source-selected intrinsic identity in the existing allocation target, distinct from named new/provider override. String-only NewBox loses the distinction. Name issuer, structural consumer mapping, transport and preartifact terminal before Array cutover/birth deletion; Map/Main/Math remain separate."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Read-only source/consumer audit corrected the Call-schema/canonical-authority
-premise. Existing collection/Main/Math products do not issue runtime operation.
-Collection birth deletion has a concrete provider-binding counterexample;
-user decision on literal builtin binding versus overrides is pending.
-Extern Stop remains landed; no implementation or language change in this audit.
+Delegated worker-backed design accepts intrinsic collection literal semantics;
+named new retains its provider contract. Language/plugin references distinguish
+the accepted target from pending implementation. Next D1 fixes Array source/
+construction/publication/consumer mapping without side metadata or name repair.
+Array cutover and birth retirement precede Map; general Call R7 remains open.
 """
-next_design_card = "MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0"
+next_design_card = "MIR-COLLECTION-LITERAL-CONSTRUCTION-D1"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

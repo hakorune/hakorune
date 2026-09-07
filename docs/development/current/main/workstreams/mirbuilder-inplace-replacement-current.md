@@ -580,56 +580,54 @@ a row, change generic no-session handling, or touch independent externcall.
 Worker read-only audit confirmed this branch precedes IR output and is the sole
 pure_prepass_validate_extern_call caller; no new authority/ABI/schema/guard.
 
-C build and existing real ABI suite pass: typed Free/Static/Print, missing Global,
-entry/nested Extern with another valid row, present-invalid Extern, duplicate,
-array and residual rejection without object output. Generic plan-less Extern
-retains extern_call_missing_plan; the initial test's generic-success assumption
-was wrong and corrected, not classified as baseline debt. View32 passes; existing
-Pair/Bool EXE/OBJ/cleanup host1 passes (15.05s). No new source acceptance claim.
-Source stays below 800 lines (prescan742, shared owner357, C test275).
-C README/header/reference updated; no full non-Global or concurrency claim.
+7891dbf747 owns C build/ABI positive-negative/generic-preservation evidence,
+view32 and Pair/Bool host1 (15.05s), plus source/docs/guard checks. The corrected
+generic-success test assumption was not baseline debt. No whole-suite/R7 claim.
 
 #### MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0
 
-Status: **design_stop**; provider semantics needs an explicit decision.
-Decision: preserve existing disposition; Call schema alone is not canonical semantic authority.
-Source authority + canonical issuer: existing source owners; no completed runtime-operation/arity product was found in the bounded paths below.
-Non-authority: MIR tags, C whitelist, JSON names, legacy route plans, destination-only completion and Main input receipts.
-Fail-fast boundary: existing published host/typed peek; no blanket Method/Constructor Stop or helper promotion.
-Smallest next slice: decide literal provider binding (builtin-fixed vs current overrides), then select the existing-owner change and exclusive retirement edge.
-Non-claims: changed language policy, new receipt, accepted implementation, full Method census, R7 closure or backend parity.
+Policy decision: intrinsic literals; named new keeps its provider contract. See the
+[language reference](../../../../reference/language/block-expressions-and-map-literals.md#4-collection-literal-construction-identity).
+Worker audit found named-new override documentation but no literal override promise
+in the bounded language/plugin/reference and factory-test review. This is not a
+repository-wide absence claim. Existing C fixed allocation motivated review; it
+does not issue source meaning or prove common-Builder cutover.
+Call(Method) schema alone remains non-authority. Runtime named helpers keep
+CompatibilityOuterIngress; general Method/Math and Call-carried Constructor remain
+under their existing dispositions. No blanket Stop, new registry or legacy-plan promotion.
 
-Boundary: collection literal/Main argument array/Math preflight -> Builder emission;
-includes their retained source/preflight products; excludes general Method, Invoke,
-V4, independent ExternCall, other source families and generic whole compilation.
-Worker/root audit: Call(Method) schema is not source issuance. The north-star
-already classifies named runtime helpers as CompatibilityOuterIngress and Call-carried
-Constructor residual as ParkedSealed; do not manufacture receipts to reopen them.
+#### MIR-COLLECTION-LITERAL-CONSTRUCTION-D1
 
-| Existing product / owner | Finding and action |
-| --- | --- |
-| raw_expression_dispatch -> collection_literals | Child locators retained; no completed collection-operation product. |
-| VerifiedMainExpansion/materialization/runtime snapshot -> decls | Main target/input authority, not collection birth authority. |
-| Math preflight -> special_method_handlers | Prepared args plus outer String; no operation/arity contract or Math-specific typed Stop. |
-| CompletedUnifiedValueCallEmission | Destination completion only; cannot issue runtime target. |
-| generic_method_route_plan / constructor_call_route_plan | LegacyCallV0-only call classification; host rejects LegacyCallV0. |
+Status: **selected design_stop**. User delegated design; implementation is not authorized yet.
 
-Concrete Delete candidate: collection_literals.rs birth-marker callers at array/map
-construction only; retain Main caller and shared helper. Both follow NewBox before
-children, with no dst/args. C NewBox calls builtin array/map birth_h, which creates
-initialized Rust storage; following Method birth is a no-op. VM builtin Array/Map
-birth is also a no-op. However common NewBox dispatch can select user declarations,
-static singletons or explicit registry overrides (plugin-system README:145-146).
-Thus builtin-only evidence does not authorize common Builder deletion.
-This candidate is blocked by provider-binding semantics; no deletion was performed.
-Reopen only on source-owned builtin binding or proven override birth equivalence; C success is non-authority.
-The unresolved selected-path provider/issuance gap remains CutoverBlockerOpen.
+Decision: preserve intrinsic-vs-named selection in the existing construction product.
+Source authority + canonical issuer: source ArrayLiteral owner selects builtin Array before child descent; D1 must bind that selection through the existing source/product/publication owners.
+Non-authority: NewBox box_type String, C whitelist, provider config, JSON, destination-only completion and Main-input receipts.
+Fail-fast boundary: missing/lost construction identity rejects before artifact; no name repair or fallback.
+Smallest next slice: close Array literal source -> retained construction target -> selected C mapping, including all touched structural consumers, before I0.
+Non-claims: Map cutover, Main argument arrays, named new changes, Math/general Method, whole R7, VM/WASM parity or builtin physical-layout freezing.
 
-Pending user decision: literals bind builtin collections (named new override kept
-separate), or literals preserve current overrides and named helpers remain explicit
-compatibility until isolated. Do not silently choose this language contract.
-Then: source binding -> completed product/publication -> consumer -> selected acceptance -> retirement.
-No code/fixture/guard/build was added by this audit; it does not close Task2.
+Boundary: ArrayLiteral (including existing typed-local entry) -> collection_literals
+-> construction instruction/publication -> body transport -> selected C allocation.
+Includes empty/nonempty arrays, exact child order and existing Array<T> validation;
+excludes named New, Map emission, Main synthesis, Invoke/Birth lifecycle and generic
+provider migration. NewBox currently has only dst/box_type:String/args, so literal
+identity is lost there. D1 chooses explicit targets in that existing representation,
+not a side metadata owner. Name-only compatibility inputs must remain distinguishable.
+This issuance/drop boundary is CutoverBlockerOpen; no census Exhausted claim.
+
+| Order | Owner / bounded work | Retirement and acceptance |
+| --- | --- | --- |
+| 1 D1 | raw_expression_dispatch + collection_literals + instruction owner: fix source/product mapping and finite structural consumer inventory | Name target issuer, transport representation and unsupported terminal; no speculative receipt/code. |
+| 2 Array I0 series | Existing source/publication/transport/selected C owners preserve and consume intrinsic Array target | Remove only Array literal's named birth caller after cutover; test same-named box/plugin noninterference, named-new separation, empty/populated/typed arrays, child order/failure, malformed transport and OBJ/EXE. |
+| 3 Map follow-up | Reuse established construction target for Map source owner and selected consumer | Remove Map literal birth caller; preserve existing key/order/duplicate behavior; no Map method expansion. |
+| 4 Task2 remainder | Resume named Method/Constructor isolation with existing dispositions | Keep Main caller/shared birth helper until their own caller-zero proof; full R7 remains open. |
+
+Classify each touched structural consumer (retain/reject); never reinterpret old named input.
+Reuse focused tests/guard; no new guard family.
+Keep changed source below800; plan any >=760 owner split before modification.
+This turn changes reference/task docs only; no build/runtime acceptance claimed.
+
 ## Source and ownership budget
 
 Do not append semantic code to these owners:

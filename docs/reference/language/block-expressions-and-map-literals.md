@@ -173,3 +173,47 @@ compatibility-expression tag is added to the v0 wire schema.
 The concrete migration schedule is tracked in design SSOT:
 
 - `docs/development/current/main/design/map-literal-eviction-and-blockexpr-roadmap-ssot.md`
+
+## 4. Collection literal construction identity
+
+Decision: accepted target — collection literals have intrinsic collection identity;
+implementation cutover is pending. This decision does not change literal syntax.
+
+Array literals `[...]` and Map literals `%{...}` select the language's builtin
+Array and Map semantics. A same-named user box, static singleton or plugin override
+must not change their construction or introduce an extra user `birth` call.
+This also applies to an accepted legacy surface already classified as MapLiteral;
+it does not extend acceptance of legacy map syntax.
+
+Intrinsic identity does not freeze a Rust class or memory layout. A backend may
+choose an equivalent physical representation under the existing verified
+collection contract. Unannotated arrays remain `AnyDefault`; supported explicit
+`Array<T>` keeps its element contract. Unsupported `PackedArray<T> = []` still
+rejects and never falls back to ordinary Array (see [EBNF](EBNF.md)).
+
+Named construction such as `new ArrayBox()` and `new MapBox()` remains under
+the existing name-resolution/provider contract. Plugin configuration may affect
+that explicit named operation where supported; it cannot redefine literal meaning.
+This is a construction distinction, not a second global runtime registry.
+
+Retain existing evaluation and failure order: allocate before evaluating entries,
+evaluate children exactly once in source order, and perform each existing write
+after its child evaluation. Keep current Map key, duplicate-key and iteration
+semantics; this decision adds no Map feature. Allocation failure and child failure
+are not suppressed by removal of a redundant birth marker.
+
+The source literal owner selects intrinsic identity before child lowering.
+The existing construction product must preserve that selection through publication
+and physical transport. A string-only `NewBox("ArrayBox")` cannot prove whether
+the source was a literal or named construction. Do not infer identity from names,
+allocation origins, JSON, provider settings or a module's unrelated typed call.
+Use an explicit intrinsic-versus-named target in the construction representation;
+do not add a parallel lookup table or optional receipt to repair lost identity.
+
+Migration order: retain source selection -> preserve and verify the construction
+target -> selected consumer cutover -> remove the replaced literal birth edge.
+Array goes first; Map is a separate slice. Existing wire inputs without that
+distinction remain explicitly legacy/named data and cannot claim intrinsic
+authority. Unsupported consumers reject before artifact instead of retrying name
+resolution. Until this cutover is verified, current runtime behavior is not proof
+that every execution path already implements this target contract.
