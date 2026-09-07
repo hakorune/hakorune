@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0"
 current_execution_cohort = "mir_array_fallible_shared_ownership_d0"
-current_design_stop = "Fallible inner/outer shared ownership requires explicit toolchain or substrate policy; existing stable std Arc allocation cannot report failure."
-current_blocker_token = "Primitive Array Result preservation is verified and old bool mutation bodies are retired. Settle fallible shared-ownership policy using the completed runtime/substrate audits before allocation recovery implementation. Preserve one Array state and host registry; no catch_unwind, allocation preflight, guessed Arc layout, toolchain switch or checked C activation by implication. Registry reserve/commit and storage fallibility remain ordered prerequisites."
+current_design_stop = "Awaiting native failure policy A/B: stable with allocator fatal termination separate, or stronger selected Array allocation-failure-to-Fault guarantee."
+current_blocker_token = "Policy/history audit found mandatory fallible Arc taskization stronger than prior source cleanup law. User selection pending: recommend stable native fatal OOM distinct from returned checked Fault; alternative adds selected Array allocator recovery and substrate/toolchain work. No runtime/C/toolchain change until explicit Decision and runtime reference reconciliation. Do not repeat completed allocation census."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,10 +31,10 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Primitive Array writes retain index/storage/contract Results under one lock;
-raw wrappers preserve compatibility. Array51 and hostStop7 pass. Next is the
-fallible shared-ownership/toolchain Decision, followed by registry/storage
-allocation, checked ABI and Script C execution. Typed host Stop remains.
+Primitive Result slice is verified. Shared-ownership D0 premise is corrected:
+returned Fault cleanup does not imply universal allocator-OOM recovery.
+A/B native failure policy is awaiting user selection; stable/fatal separation
+is recommended. Code, toolchain and typed C remain unchanged.
 """
 next_design_card = "MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0"
 next_execution_card = "none"

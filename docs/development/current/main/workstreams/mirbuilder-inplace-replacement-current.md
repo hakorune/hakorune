@@ -620,14 +620,14 @@ Owner README and runtime reference updated; checked ABI/C remains stopped.
 
 #### MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0
 
-Decision: settle fallible shared-ownership policy before implementing Array allocation recovery.
-Source authority + canonical issuer: existing Script Recipe fixes allocation Fault/cleanup; runtime shared-allocation owner remains to be selected.
-Non-authority: catch_unwind, allocator preflight, guessed std Arc layout or a second Array state/registry.
-Fail-fast boundary: no checked runtime/C activation or toolchain mutation before this Decision closes.
-Smallest next slice: review audited inner/outer std Arc constraints and toolchain-versus-substrate options; record one supported ownership contract.
-Non-claims: allocation recovery, registry rollback, storage fallibility, checked ABI or C execution.
-Reuse the two completed premise audits; reopen only named missing evidence.
-Registry reserve/commit, storage, ABI and C follow the existing ordered SSOT.
+Decision: awaiting user selection of native allocation-failure policy; recommend stable with fatal allocator OOM separate from returned Fault.
+Source authority + canonical issuer: existing Script Recipe owns returned-Fault cleanup; it does not issue universal allocator recovery.
+Non-authority: recent mandatory-Arc queue, catch_unwind, allocator preflight, guessed Arc layout or a second state/registry.
+Fail-fast boundary: no runtime/C or toolchain change until the native failure policy is explicit.
+Smallest next slice: accept A/B in the [policy consultation](../design/collection-literal-construction-ssot.md#native-failure-policy-consultation), update runtime reference and reconcile the conditional queue.
+Non-claims: selected Array allocator-OOM recovery, process-wide recovery or C activation.
+The policy/history follow-up corrected an unsupported strengthening in taskization;
+no source guarantee is silently removed. User question pending; do not repeat audits.
 
 ## Source and ownership budget
 

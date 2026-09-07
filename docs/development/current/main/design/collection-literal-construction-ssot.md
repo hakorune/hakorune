@@ -9,7 +9,7 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: decide fallible shared ownership, then close allocation and checked ABI. Primitive write Results are retained. Script handoff/frame/Invoke/cleanup/finishing are implemented; typed C remains stopped.
+- Next: decide native allocation-failure policy before selecting shared-ownership or checked ABI work. Primitive write Results are retained. Script handoff/frame/Invoke/cleanup/finishing are implemented; typed C remains stopped.
 - Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
 - Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
@@ -699,7 +699,8 @@ Evidence: Array owner51 and host source/Stop7 pass, including three new bounded
 Result tests; corridor/pointer guards pass. This slice does not turn allocation
 failures into returned errors. Owner details: `src/boxes/array/README.md`.
 
-Ordered remaining dependencies, all within the open cutover boundary:
+Prior dependency proposal (items2–4 require the failure-policy Decision below;
+not unconditional implementation permission). All remain visible in the cutover inventory:
 
 1. Primitive Result BoxShape above is implemented; live wrappers use the sole body.
 2. Fallible shared-ownership Decision: installed Rust1.89 std Arc::try_new is
@@ -724,10 +725,52 @@ Ordered remaining dependencies, all within the open cutover boundary:
    independently linked OBJ. Retire selected lossy transport/dispatch edges and
    the selected pre-artifact Stop only with complete end-to-end evidence.
 
-No checked ABI implementation is selected while its allocation substrate is
-unclosed. OS kill/overcommit termination is distinct from a returned allocator
+No checked ABI implementation is selected while its allocation-failure policy
+and concrete runtime mapping are unclosed. OS kill/overcommit termination is distinct from a returned allocator
 failure, and neither is evidence that source Fault cleanup ran. Global allocator
 replacement, duplicate Array state and compatibility fallback are not fixes.
+
+### Native failure policy consultation
+
+Status: awaiting user Decision; implementation remains stopped. This is the same
+shared-ownership D0, with its premise corrected before a toolchain change.
+
+The earlier dependency proposal in `2be7e1ede2` made fallible inner/outer Arc and
+all selected storage allocation mandatory without a separately accepted failure
+policy. The language law in `ownership.md#intrinsic-numeric-array-literal-acquisition`
+requires acquired-resource responsibility and cleanup on returned Fault. It does
+not explicitly promise that every allocator failure returns a language Fault.
+`constructor-birth-new-lifecycle-ssot.md` (including its `17b6c73b224` history)
+explicitly excludes host OOM abort/process kill from cleanup-complete Fault
+witnesses. That exclusion does not itself prohibit process-fatal allocation
+failure. The independent policy/history follow-up confirms the distinction;
+neither worker evidence nor this correction selects a new runtime policy.
+
+Current compiler/CI uses stable Rust (`min-gate.yml`, `fast-smoke.yml`,
+`portability-ci.yml`); local rustc is1.89. The current official
+[Arc::try_new documentation](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.try_new)
+still marks it nightly-only `allocator_api`. Rust's
+[allocation-error handler](https://doc.rust-lang.org/std/alloc/fn.handle_alloc_error.html)
+is a diverging process-failure path, not a returned language Fault. Replacing
+std Arc is broader than Array: `SharedNyashBox` and the host registry publicly
+use `Arc<dyn NyashBox>`. No such migration or nightly adoption is authorized.
+
+| Candidate | Guarantee / implementation impact |
+| --- | --- |
+| A — recommended, stable native fatal policy | Returned checked contract/resource failures take the existing Fault/cleanup path. Rust allocator fatal termination and OS kill remain separate process failures with no cleanup guarantee. Preserve one std Arc/Array state/registry; classify each checked operation explicitly and never report abort as successful cleanup. The unconditional fallible-Arc prerequisite is withdrawn only after this Decision is accepted. |
+| B — selected Array allocator failures become Fault | Add that explicit stronger guarantee for selected Array allocation/wrapping/registration/element storage, not the whole process. Requires a deliberate nightly/fallible shared substrate choice, transactional registry/release capacity and fallible element storage before C activation. OS kill remains outside any returned-Fault guarantee. |
+
+Both candidates preserve normal-only outputs, prior-effect ordering, no later
+child after Fault, first-Fault retention, incomplete/committed cleanup and
+pre-artifact rejection of missing compiler contracts. Neither admits legacy
+zero-as-success, suppresses a returned failure, or grants C activation by itself.
+
+User question submitted: retain stable with fatal allocator OOM separate, or
+add selected Array allocator-OOM-to-Fault guarantee. Until answered, do not
+switch toolchain, weaken the task's acceptance, issue checked ABI fixtures or
+begin a parallel shared-ownership implementation. After selection update the
+runtime reference first, reconcile the conditional queue and select one bounded
+runtime mapping task. Reuse existing audits rather than repeat the same census.
 
 ## Instance-prefix boundary repair
 
