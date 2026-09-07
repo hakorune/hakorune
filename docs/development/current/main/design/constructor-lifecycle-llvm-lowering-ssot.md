@@ -1396,13 +1396,110 @@ general C backend claim opens.
 
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0`
 
-Implement that one selected Pair V4 consumer. Its acceptance is source Pair →
-final issued physical input → V4 object → retained-archive direct EXE exit 30,
-and independently V4 OBJ linked with that same archive → EXE exit 30. Prove
-Birth and HomeRelease execute once on normal completion; inject a runtime Fault
-to prove report/dispose once and exit 70; reject malformed physical JSON,
-session/layout mismatch and unsupported cohort with no artifact. V2/V3 and the
-kernel raw decode edge are deleted only after both executable paths pass.
+**Superseded before execution.** The accepted V4 cohort remains valid, but the
+physical input does not carry the `site: u64` required by every checked object
+runtime operation, and the generic text-tool helper does not apply the selected
+session target to its `llc` invocation. Neither gap may be filled by C defaults,
+coordinate packing, an unrelated checked-callout site table, or environment
+flags. Complete `CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-D1` and its
+bounded I0 first; then resume this task under the successor name below.
+
+### `CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-D1`
+
+Decision: the existing `PublishedLifecyclePhysicalAbiInputV1` is the sole
+physical issuer for two invocation products that the selected V4 consumer must
+receive, not infer.
+
+1. It scans the already-issued program in its deterministic function, sorted
+   block and instruction order, and issues one `u64` **runtime diagnostic site
+   ordinal** for each and only each checked operation: NewBox, FieldSet,
+   HomeRelease and ReclaimUnpublished. The ordinal is a physical diagnostic
+   identity, not a source site, `ValueId`, JSON position or checked-callout ID.
+   Its finite map retains operation kind plus exact physical coordinate, rejects
+   overflow, duplicate coordinate, missing required operation site and a site
+   attached to a non-checked operation, then serializes the issued ordinal on
+   the operation row. C consumes that wire value unchanged. This remains a
+   physical ABI projection; it issues no source meaning and creates no semantic
+   `Verified*`/`Prepared*` receipt.
+2. The lifecycle V4 call-local target session owns target observation through
+   artifact publication. It writes its already-validated triple and the data
+   layout observed from that same target machine into the emitted `.ll`, then
+   invokes `llc` with an explicit matching `-mtriple`. The selected V4 route
+   does not call `hako_llvmc_mem2reg_canonicalize_and_llc()` or consume
+   `NYASH_NY_LLVM_LLC_FLAGS`: those are generic ambient-tool policy, not this
+   invocation's authority. Failure to open the session, obtain its layout,
+   write/verify the matching module target, run the explicitly targeted tool,
+   or publish the object rejects before artifact exposure.
+
+Source authority + canonical issuer: final admission still owns source
+meaning; `PublishedLifecyclePhysicalAbiInputV1` alone projects its exact
+physical operations to runtime diagnostic ordinals; the lifecycle C target
+session alone observes and applies the target. Non-authority: C operation
+coordinates, raw `ValueId`, generic V2 rows, checked-callout IDs, source names,
+`NYASH_NY_LLVM_LLC_FLAGS`, default `llc` target and PTFB. Fail-fast boundary:
+any incomplete/ambiguous diagnostic map or session/layout/tool mismatch stops
+before V4 emission and has no V2/generic/compatibility retry.
+
+The finite inventory is Root plus one Birth Pair: NewBox, FieldSet,
+HomeRelease and Reclaim each have exactly one issued diagnostic ordinal;
+Birth call and ObjectFieldGet have none. It includes physical wire issuance and
+selected textual target application. It excludes source-diagnostic semantics,
+generic JSON, Bool, `--emit-obj` lifecycle admission, in-process LLVM and
+runtime hook work.
+
+**Required ordering correction:** the direct physical parser I0 landed a
+one-pass ingress and basic envelope checks, not a complete decoder. Its current
+opcode-name/outer-shape acceptance does not yet establish function membership,
+block/edge targets, value definition/use/type relations, Birth arity/receiver,
+Invoke/control/frame pairing or layout references. That is a
+`CutoverBlockerOpen`; no V4 consumer may treat its current green probe as
+physical-program acceptance. Close the existing parser owner first, without a
+second validation authority.
+
+### `CONSTRUCTOR-LIFECYCLE-PHYSICAL-PARSER-CLOSURE-I0`
+
+The existing lifecycle physical parser becomes the one call-local decoder and
+validator for the final ABI input. It validates the finite Root + one Birth
+inventory: envelope/revision, function role/order/entry/parameters, unique
+blocks and terminator positions, instruction operands and definitions/uses,
+CFG/PHI predecessor relations, Birth target/receiver/arity, Invoke normal/fault
+and frame/result relations, and referenced layout/profile/object/field rows.
+It accepts the actual issued Pair JSON, not a hand-written partial fixture, and
+rejects each missing, duplicate, foreign, range or role/control mutation before
+artifact effects. It does not determine source meaning, add a public endpoint,
+or emit an object. Delete only the existing opcode-name-only checks and their
+partial positive fixture.
+
+### `CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-I0`
+
+After physical-parser closure I0, implement only the D1 products and their
+transport validation. Add the physical operation-to-diagnostic map within the existing ABI-input owner,
+serialize it in the existing direct physical JSON, and make the C physical
+parser reject its finite missing/duplicate/kind/coordinate/range mutations.
+Add a lifecycle-private text-tool/session helper that accepts the selected
+session input explicitly and proves the emitted `.ll` has the same triple and
+observed layout before an explicitly targeted `llc` command is possible. It
+ends at the existing pre-artifact terminal: it emits no Pair object, alters no
+kernel entry, and deletes no V2/V3 path.
+
+Acceptance: issued Pair physical input reaches the same parser with four
+unique checked-operation site ordinals; mutations for missing/duplicate/site on
+Birth/ObjectFieldGet/out-of-range coordinate reject. A target triple/layout
+mismatch and an ambient generic `llc` flag cannot select the lifecycle tool
+route. No object or EXE is created. The exclusive delete-set is only the old site-less operation encoding and the
+V4-ineligible generic target helper from the future V4 call; existing generic
+cohorts retain their helper. This task does not substitute for parser closure.
+
+### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1`
+
+After invocation-contract I0, implement the selected Pair V4 consumer. Its
+acceptance is source Pair → final issued physical input → V4 object →
+retained-archive direct EXE exit 30, and independently V4 OBJ linked with that
+same archive → EXE exit 30. Prove Birth and HomeRelease execute once on normal
+completion; inject a runtime Fault to prove report/dispose once and exit 70;
+reject malformed physical JSON, session/layout mismatch and unsupported cohort
+with no artifact. V2/V3 and the kernel raw decode edge are deleted only after
+both executable paths pass.
 
 ### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0`
 
