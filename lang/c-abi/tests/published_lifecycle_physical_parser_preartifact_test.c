@@ -67,6 +67,7 @@ int main(void) {
   rejects_replace(valid, "\"call\":{\"target\":1", "\"call\":{\"target\":0", "function-body");
   rejects_replace(valid, "\"args\":[4,6]", "\"args\":[4]", "function-body");
   rejects_replace(valid, "\"block\":3,\"value\":8", "\"block\":99,\"value\":8", "function-body");
+  rejects_replace(valid, "\"inputs\":[{\"block\":3,\"value\":8}]", "\"inputs\":[{\"block\":3,\"value\":8},{\"block\":3,\"value\":8}]", "function-body");
   rejects_replace(valid, "\"src\":7", "\"src\":99", "function-body");
   rejects_replace(valid, "\"operation\":{\"kind\":\"new_box\",\"object_id\":7}", "\"operation\":{\"kind\":\"new_box\",\"object_id\":99}", "function-body");
   rejects_replace(valid, "\"mode\":\"root_owned\"", "\"mode\":\"borrowed\"", "function-body");
