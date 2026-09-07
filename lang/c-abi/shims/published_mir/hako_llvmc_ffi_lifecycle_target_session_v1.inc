@@ -5,12 +5,61 @@ typedef void (*hako_lts_init_fn)(void);
 typedef void (*hako_lts_dispose_message_fn)(char*);
 typedef void (*hako_lts_dispose_machine_fn)(void*);
 typedef void (*hako_lts_dispose_data_fn)(void*);
+typedef void (*hako_lts_dispose_context_fn)(void*);
 typedef void (*hako_lts_get_version_fn)(unsigned*, unsigned*, unsigned*);
 typedef int (*hako_lts_get_target_fn)(const char*, void**, char**);
 typedef void* (*hako_lts_make_machine_fn)(void*, const char*, const char*, const char*, int, int, int);
 typedef char* (*hako_lts_machine_triple_fn)(void*);
 typedef void* (*hako_lts_make_data_fn)(void*);
 typedef unsigned (*hako_lts_pointer_size_fn)(void*);
+typedef void* (*hako_lts_make_context_fn)(void);
+typedef void* (*hako_lts_int_type_fn)(void*);
+typedef void* (*hako_lts_pointer_type_fn)(void*, unsigned);
+typedef void* (*hako_lts_array_type_fn)(void*, uint64_t);
+typedef void* (*hako_lts_struct_type_fn)(void*, void**, unsigned, int);
+typedef unsigned long long (*hako_lts_abi_size_fn)(void*, void*);
+typedef unsigned (*hako_lts_abi_align_fn)(void*, void*);
+typedef unsigned long long (*hako_lts_element_offset_fn)(void*, void*, unsigned);
+
+static int hako_lts_fault_layout_matches(
+    void* data, const hako_llvmc_lifecycle_target_session_v1* in,
+    hako_lts_make_context_fn make_context, hako_lts_dispose_context_fn dispose_context,
+    hako_lts_int_type_fn int32_type, hako_lts_int_type_fn int64_type,
+    hako_lts_pointer_type_fn pointer_type, hako_lts_array_type_fn array_type,
+    hako_lts_struct_type_fn struct_type, hako_lts_abi_size_fn abi_size,
+    hako_lts_abi_align_fn abi_align, hako_lts_element_offset_fn element_offset) {
+  void *context = NULL, *i32, *i64, *pointer, *details, *diagnostic, *suppressed, *frame;
+  void* diagnostic_fields[6];
+  void* frame_fields[6];
+  int matched = 0;
+  if (!make_context || !dispose_context || !int32_type || !int64_type || !pointer_type ||
+      !array_type || !struct_type || !abi_size || !abi_align || !element_offset) return 0;
+  context = make_context();
+  if (!context) return 0;
+  i32 = int32_type(context); i64 = int64_type(context); pointer = pointer_type(context, 0);
+  details = i64 ? array_type(i64, 2u) : NULL;
+  if (!i32 || !i64 || !pointer || !details) goto done;
+  diagnostic_fields[0] = i32; diagnostic_fields[1] = i32; diagnostic_fields[2] = i64;
+  diagnostic_fields[3] = details; diagnostic_fields[4] = pointer; diagnostic_fields[5] = pointer;
+  diagnostic = struct_type(context, diagnostic_fields, 6u, 0);
+  suppressed = diagnostic ? array_type(diagnostic, 8u) : NULL;
+  if (!diagnostic || !suppressed) goto done;
+  frame_fields[0] = i32; frame_fields[1] = i32; frame_fields[2] = i32;
+  frame_fields[3] = i32; frame_fields[4] = diagnostic; frame_fields[5] = suppressed;
+  frame = struct_type(context, frame_fields, 6u, 0);
+  if (!frame) goto done;
+  matched = abi_size(data, diagnostic) == in->diagnostic_size &&
+      abi_align(data, diagnostic) == in->diagnostic_align &&
+      element_offset(data, diagnostic, 2u) == in->diagnostic_site_offset &&
+      element_offset(data, diagnostic, 3u) == in->diagnostic_details_offset &&
+      element_offset(data, diagnostic, 4u) == in->diagnostic_message_offset &&
+      abi_size(data, frame) == in->frame_size && abi_align(data, frame) == in->frame_align &&
+      element_offset(data, frame, 4u) == in->frame_primary_offset &&
+      element_offset(data, frame, 5u) == in->frame_suppressed_offset;
+done:
+  dispose_context(context);
+  return matched;
+}
 
 static int hako_llvmc_lifecycle_target_session_v1_validate(
     const hako_llvmc_lifecycle_target_session_v1* in, char** err_out) {
@@ -24,12 +73,21 @@ static int hako_llvmc_lifecycle_target_session_v1_validate(
   hako_lts_dispose_message_fn dispose_message;
   hako_lts_dispose_machine_fn dispose_machine;
   hako_lts_dispose_data_fn dispose_data;
+  hako_lts_dispose_context_fn dispose_context;
   hako_lts_get_version_fn get_version;
   hako_lts_get_target_fn get_target;
   hako_lts_make_machine_fn make_machine;
   hako_lts_machine_triple_fn machine_triple;
   hako_lts_make_data_fn make_data;
   hako_lts_pointer_size_fn pointer_size;
+  hako_lts_make_context_fn make_context;
+  hako_lts_int_type_fn int32_type, int64_type;
+  hako_lts_pointer_type_fn pointer_type;
+  hako_lts_array_type_fn array_type;
+  hako_lts_struct_type_fn struct_type;
+  hako_lts_abi_size_fn abi_size;
+  hako_lts_abi_align_fn abi_align;
+  hako_lts_element_offset_fn element_offset;
   hako_lts_init_fn init_info, init_target, init_mc, init_printer;
   int rc = -1;
   if (!in || in->revision != 1u || !in->target_triple || !in->target_triple[0])
@@ -52,19 +110,31 @@ static int hako_llvmc_lifecycle_target_session_v1_validate(
   dispose_message = HAKO_LTS_SYM("LLVMDisposeMessage", hako_lts_dispose_message_fn);
   dispose_machine = HAKO_LTS_SYM("LLVMDisposeTargetMachine", hako_lts_dispose_machine_fn);
   dispose_data = HAKO_LTS_SYM("LLVMDisposeTargetData", hako_lts_dispose_data_fn);
+  dispose_context = HAKO_LTS_SYM("LLVMContextDispose", hako_lts_dispose_context_fn);
   get_version = HAKO_LTS_SYM("LLVMGetVersion", hako_lts_get_version_fn);
   get_target = HAKO_LTS_SYM("LLVMGetTargetFromTriple", hako_lts_get_target_fn);
   make_machine = HAKO_LTS_SYM("LLVMCreateTargetMachine", hako_lts_make_machine_fn);
   machine_triple = HAKO_LTS_SYM("LLVMGetTargetMachineTriple", hako_lts_machine_triple_fn);
   make_data = HAKO_LTS_SYM("LLVMCreateTargetDataLayout", hako_lts_make_data_fn);
   pointer_size = HAKO_LTS_SYM("LLVMPointerSize", hako_lts_pointer_size_fn);
+  make_context = HAKO_LTS_SYM("LLVMContextCreate", hako_lts_make_context_fn);
+  int32_type = HAKO_LTS_SYM("LLVMInt32TypeInContext", hako_lts_int_type_fn);
+  int64_type = HAKO_LTS_SYM("LLVMInt64TypeInContext", hako_lts_int_type_fn);
+  pointer_type = HAKO_LTS_SYM("LLVMPointerTypeInContext", hako_lts_pointer_type_fn);
+  array_type = HAKO_LTS_SYM("LLVMArrayType2", hako_lts_array_type_fn);
+  struct_type = HAKO_LTS_SYM("LLVMStructTypeInContext", hako_lts_struct_type_fn);
+  abi_size = HAKO_LTS_SYM("LLVMABISizeOfType", hako_lts_abi_size_fn);
+  abi_align = HAKO_LTS_SYM("LLVMABIAlignmentOfType", hako_lts_abi_align_fn);
+  element_offset = HAKO_LTS_SYM("LLVMOffsetOfElement", hako_lts_element_offset_fn);
   init_info = HAKO_LTS_SYM("LLVMInitializeX86TargetInfo", hako_lts_init_fn);
   init_target = HAKO_LTS_SYM("LLVMInitializeX86Target", hako_lts_init_fn);
   init_mc = HAKO_LTS_SYM("LLVMInitializeX86TargetMC", hako_lts_init_fn);
   init_printer = HAKO_LTS_SYM("LLVMInitializeX86AsmPrinter", hako_lts_init_fn);
 #undef HAKO_LTS_SYM
-  if (!dispose_message || !dispose_machine || !dispose_data || !get_version || !get_target ||
-      !make_machine || !machine_triple || !make_data || !pointer_size || !init_info || !init_target || !init_mc || !init_printer)
+  if (!dispose_message || !dispose_machine || !dispose_data || !dispose_context || !get_version ||
+      !get_target || !make_machine || !machine_triple || !make_data || !pointer_size ||
+      !make_context || !int32_type || !int64_type || !pointer_type || !array_type || !struct_type ||
+      !abi_size || !abi_align || !element_offset || !init_info || !init_target || !init_mc || !init_printer)
     goto cleanup;
   get_version(&major, &minor, &patch);
   if (major != 18u) goto cleanup;
@@ -74,7 +144,10 @@ static int hako_llvmc_lifecycle_target_session_v1_validate(
   machine = make_machine(target, in->target_triple, "generic", "", 0, 0, 0);
   data = machine ? make_data(machine) : NULL;
   actual_triple = machine ? machine_triple(machine) : NULL;
-  if (!data || !actual_triple || strcmp(actual_triple, in->target_triple) != 0 || pointer_size(data) != in->pointer_width)
+  if (!data || !actual_triple || strcmp(actual_triple, in->target_triple) != 0 ||
+      pointer_size(data) != in->pointer_width ||
+      !hako_lts_fault_layout_matches(data, in, make_context, dispose_context, int32_type,
+          int64_type, pointer_type, array_type, struct_type, abi_size, abi_align, element_offset))
     goto cleanup;
   rc = 0;
 cleanup:

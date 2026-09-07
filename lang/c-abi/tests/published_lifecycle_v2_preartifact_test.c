@@ -155,6 +155,9 @@ int main(void) {
   session.pointer_width = 4;
   rejects_body_v3(&frame, &site, &session, "lifecycle-session/runtime-abi");
   session.pointer_width = sizeof(void *);
+  session.target_triple = "i386-unknown-linux-gnu";
+  rejects_body_v3(&frame, &site, &session, "lifecycle-session/llvm-layout");
+  session.target_triple = "x86_64-unknown-linux-gnu";
   site.normal_result = HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABSENT_U32_V2;
   rejects_body(&frame, &site, "body-site-invalid");
   site.normal_result = 12;
