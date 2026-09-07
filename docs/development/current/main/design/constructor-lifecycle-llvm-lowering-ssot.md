@@ -1507,6 +1507,14 @@ remains the final admission owner during this cutover; its physical placement
 may be cleaned up after retirement, but no second view or source authority is
 introduced here.
 
+**Remaining invocation-session slice:** a lifecycle-private C text-tool
+session opens exactly one LLVM 18 TargetMachine/TargetData from the already
+selected V3 session row, preserves the proven triple and observed data-layout,
+writes and verifies a temporary module preamble, then disposes every resource
+before the existing pending terminal. It neither reads generic `llc` flags nor
+emits an object. V4 alone may later invoke `llc` with its session's explicit
+`-mtriple`; generic mem2reg/tool helpers and PTFB stay outside this route.
+
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1`
 
 After invocation-contract I0, implement the selected Pair V4 consumer. Its

@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-I0"
 current_execution_cohort = "constructor_lifecycle_c_body_invocation_contract_i0"
 current_design_stop = "none"
-current_blocker_token = "Finish the compiled-entry-owned direct physical input: I64-only root admission, five Pair diagnostic sites, and call-local target session before V4 artifact admission; C must consume them without reissuing source meaning."
+current_blocker_token = "Finish the compiled-entry-owned direct physical input's call-local target session: preserve and verify the selected triple/data-layout before V4 artifact admission; no generic tool or ambient flags."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
