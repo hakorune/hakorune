@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
 current_design_stop = "none; normal-only early default generation API accepted after worker premise review"
-current_blocker_token = "WIP checkpoint: first fix nested environment-lock test and enforce Equals=1/ToString=0 origin arity with negative coverage; rerun focused source acceptance on final tree, update owner README/reference, then default CLI/host cleanup acceptance before V2/V3 retirement."
+current_blocker_token = "Early derive arity and test-lock defects fixed; finish source acceptance (explicit/disabled policy, foreign/body/slot/parameter/row drift and compatibility), then default CLI/host cleanup evidence before V2/V3 retirement."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,15 +31,14 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Early default-derive source transaction is saved as WIP, not accepted closeout.
-One policy now flows through normal parser and transform; generated origin and
-parameter coverage join the initial co-seal. Pair semantic publication passed
-in an intermediate build. The second test deadlocked on nested environment
-locks and was interrupted; the suite did not pass. Later edits are untested.
-Worker found missing kind-specific origin arity validation (Equals1/ToString0).
-Resume these fixes and focused acceptance first, then README/reference sync,
-default CLI and host cleanup evidence. V2/V3 retirement remains open.
-No build/test is left running at checkpoint; mode fast names the resume work.
+Early derive source connection remains under acceptance after WIP fdfb79688f.
+Fixed nested environment-lock test and Equals1/ToString0 origin arity checking.
+Fresh default_derive filter passes4, existing transform7 and derive3 pass
+(one overlapping test); guards pass. Pair semantic publication and same-policy
+parse/transform are verified, not default CLI/host runtime execution.
+Macro/parser owner README and reference now describe the source contract.
+Next complete the recorded source acceptance matrix, then normal CLI/host
+cleanup checks and V2/V3 retirement. No broader constructor completion claim.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"

@@ -1959,30 +1959,28 @@ receipt, raw fallback, source fixture edits or nonselected backend parity.
 The worker API audit names the actual shared materialization caller and confirms
 that pre-seal cohort classification exists; no further inventory is required.
 
-**WIP save point (2026-09-07, user requested commit organization):** early
-source issuance and normal caller wiring are saved for restart, not slice
-acceptance. `cargo check --locked --profile quick --lib --tests --features
-plugins` passed on an intermediate tree. The `default_derive_tests` library
-filter (same profile/features, serial) ran the Pair source/semantic-publication
-test successfully, then hung in
-`early_derive_snapshot_does_not_read_later_settings_or_change_ast_only_parser`:
-its nested scoped environment helpers acquire the same non-reentrant lock.
-The exact test process was interrupted with SIGINT (Cargo exit 101). This is a
-current-change test-harness defect, not baseline debt; the suite is not green.
-Later small edits have not been rebuilt. No Cargo/test process remains running.
+**Restart after WIP fdfb79688f (2026-09-07):** the nested environment-lock
+snapshot test is fixed by ending the first scope before starting the second.
+Generated origin issuance now enforces Equals=1 / ToString=0 parameters; its
+negative test exchanges the two valid parameter lists while preserving matching
+`params`/`param_decls`, proving the kind-specific rejection. The prior SIGINT
+run was a current-change test-harness defect and is superseded for this filter.
 
-Resume in order:
-1. Make the snapshot test return `(parsed, policy)` from its first environment
-   scope and enter the changed-settings scope afterward; never nest the locks.
-2. Enforce Equals=1 and ToString=0 parameters in generated origin issuance and
-   add wrong-arity rejection coverage. The read-only worker found this finite
-   contract gap; correct pure generator output does not prove issuer rejection.
-3. Run the source acceptance above on the final tree, synchronize macro/parser
-   README and owning reference contract, then prove default CLI/host cleanup.
-   These docs and execution checks are still outstanding, not waived by WIP.
-4. Only then retire V2/V3. Parser module is 762 lines; any further growth should
-   move its parsing helper responsibility into existing string_postpass_entry,
-   keeping the 800-line hard boundary. No new family is selected here.
+Fresh validation: `cargo test --locked --profile quick --lib --features plugins
+default_derive -- --test-threads=1` passed 4/4, including Pair source-to-semantic
+publication and snapshot retention. The freshly built library binary then passed
+`normal_callable_transform_tests` 7/7 and `macro_derive` 3/3 serially (one test
+overlaps the first filter). One Cargo job, opt0, nonincremental, CGU256; monitored
+aggregate peak 8.69 GiB. Pointer/canonical corridor guards and diff check passed.
+The macro/parser owner READMEs and reference macro capability decision are synced.
+These focused facts do not close the complete source acceptance matrix above.
+
+Resume with remaining source rejection/policy coverage, then default CLI/host
+cleanup execution, then V2/V3 retirement. Parser module is 762 lines; further
+growth should move its parsing helper responsibility into existing
+string_postpass_entry, keeping the 800-line hard boundary. No new family is
+selected here; no Cargo/test process remains running at this checkpoint.
+
 
 
 ### Task 3: exact root cleanup contraction

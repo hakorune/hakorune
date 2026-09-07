@@ -1,7 +1,7 @@
 use super::*;
 use crate::mir::{MirCompiler, NormalCompileRequestV1};
 
-fn enabled(run: impl FnOnce()) {
+fn enabled<R>(run: impl FnOnce() -> R) -> R {
     crate::test_support::with_env_vars(
         &[
             ("NYASH_MACRO_DISABLE", Some("0")),
@@ -74,7 +74,7 @@ fn default_pair_source_publishes_both_generated_methods_with_parameter_coverage(
 
 #[test]
 fn early_derive_snapshot_does_not_read_later_settings_or_change_ast_only_parser() {
-    enabled(|| {
+    let (parsed, policy) = enabled(|| {
         let syntax = "box Plain {}";
         let raw = NyashParser::parse_from_string(syntax).unwrap();
         let crate::ast::ASTNode::Program { statements, .. } = raw else {
@@ -95,15 +95,16 @@ fn early_derive_snapshot_does_not_read_later_settings_or_change_ast_only_parser(
             .unwrap()
             .into_normal_callable_program()
             .unwrap();
-        crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {
-            let result = transform_normal_callable_program_with_policy_v1(parsed, policy).unwrap();
-            let NormalCallableTransformOutcomeV1::SourceBacked(source) = result else {
-                panic!("source")
-            };
-            source
-                .with_callable_semantic_syntax(|loan| assert_eq!(loan.rows().len(), 2))
-                .unwrap();
-            source.discard_at_named_root_execution_terminal();
-        });
+        (parsed, policy)
+    });
+    crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {
+        let result = transform_normal_callable_program_with_policy_v1(parsed, policy).unwrap();
+        let NormalCallableTransformOutcomeV1::SourceBacked(source) = result else {
+            panic!("source")
+        };
+        source
+            .with_callable_semantic_syntax(|loan| assert_eq!(loan.rows().len(), 2))
+            .unwrap();
+        source.discard_at_named_root_execution_terminal();
     });
 }

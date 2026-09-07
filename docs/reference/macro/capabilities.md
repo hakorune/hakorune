@@ -86,3 +86,24 @@ Phase‑2 PoC maps these to the child process environment/sandbox:
 - Keep macros pure (operate only on AST JSON v0) unless there is a strong case for capabilities.
 - Treat `net=true` as exceptional and subject to policy review, due to determinism concerns.
 - Prefer deterministic inputs (versioned data files) if `io=true` is deemed necessary in future.
+
+## Normal compiler default-derive source contract
+
+Decision: the normal MIR/LLVM source path uses one caller-captured default-derive
+policy through parse and transform. Selected implicit Equals/ToString declarations
+are generated inside the existing parser transaction before initial source co-seal.
+The parser issues the real parent Box, generated placement and parameter origin;
+a generator label or later AST/name lookup is not source authority.
+
+Equals requires exactly one unannotated parameter; ToString requires explicit
+zero-parameter coverage. Existing methods retain precedence and static boxes gain
+no receiver methods. Final source equality covers generated declarations and bodies.
+The source-backed transform does not regenerate them or retry compatibility after
+rejection. AST-only parsing remains separate; compatibility expansion uses the
+captured policy once.
+
+Nonempty selected public-field derives currently reject with
+`parser/default-derive-source` / `dynamic-field-text-contract-missing` before raw
+lowering, pending source-owned dynamic-read/Text-conversion contracts. This bounded
+source connection does not establish default CLI execution or backend cutover;
+those remain acceptance obligations in the active constructor card.

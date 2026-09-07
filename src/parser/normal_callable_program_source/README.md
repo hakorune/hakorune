@@ -115,6 +115,14 @@ compatibility extraction use distinct named issuers. None may reconstruct
 root meaning from names, ordinals, pointers, or a raw-root classifier, and no
 source-backed failure may retry compatibility.
 
+Normal-only default derives are issued before initial co-seal by the existing
+open parser transaction. Their origin retains the actual Box parent, generated
+placement and kind-specific parameter declarations (Equals one, ToString zero).
+Semantic syntax loans consume that origin directly; they do not manufacture an
+as-written method source row. The original inventory is checked before extending
+it, and final exact equality still covers the generated bodies. Missing coverage
+is not empty parameter coverage. See the [reference decision](../../../docs/reference/macro/capabilities.md#normal-compiler-default-derive-source-contract).
+
 The macro/test-harness owner still classifies its own work before exact finish:
 
 ```text

@@ -17,6 +17,12 @@ impl DefaultDeriveKindV1 {
             Self::ToString => "toString",
         }
     }
+    fn parameter_count(self) -> usize {
+        match self {
+            Self::Equals => 1,
+            Self::ToString => 0,
+        }
+    }
     pub(in crate::parser) fn provenance(self) -> BoxMethodGeneratedProvenanceV1 {
         BoxMethodGeneratedProvenanceV1::MacroOrImport {
             generator: match self {
@@ -63,6 +69,7 @@ impl GeneratedDefaultDeriveOriginV1 {
         if name != kind.name()
             || *is_static
             || return_type_name.is_some()
+            || params.len() != kind.parameter_count()
             || params.len() != param_decls.len()
             || params
                 .iter()
@@ -95,10 +102,34 @@ impl GeneratedDefaultDeriveOriginV1 {
         &self.parameters
     }
     pub(in crate::parser) fn validates(&self, syntax: &ASTNode) -> bool {
-        let ASTNode::FunctionDeclaration { name, params, param_decls, is_static, return_type_name, .. } = syntax else { return false };
-        name == self.kind.name() && !is_static && return_type_name.is_none()
-            && params.len() == self.parameters.len() && param_decls.len() == self.parameters.len()
-            && params.iter().zip(param_decls).zip(self.parameters.iter()).all(|((name, decl), source)|
-                name.as_str() == source.as_ref() && decl.name.as_str() == source.as_ref() && decl.declared_type_name.is_none())
+        let ASTNode::FunctionDeclaration {
+            name,
+            params,
+            param_decls,
+            is_static,
+            return_type_name,
+            ..
+        } = syntax
+        else {
+            return false;
+        };
+        name == self.kind.name()
+            && !is_static
+            && return_type_name.is_none()
+            && params.len() == self.parameters.len()
+            && param_decls.len() == self.parameters.len()
+            && params
+                .iter()
+                .zip(param_decls)
+                .zip(self.parameters.iter())
+                .all(|((name, decl), source)| {
+                    name.as_str() == source.as_ref()
+                        && decl.name.as_str() == source.as_ref()
+                        && decl.declared_type_name.is_none()
+                })
     }
 }
+
+#[cfg(test)]
+#[path = "default_derive_source_tests.rs"]
+mod tests;
