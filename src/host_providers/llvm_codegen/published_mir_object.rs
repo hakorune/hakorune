@@ -6,6 +6,7 @@
 
 use std::path::{Path, PathBuf};
 
+use crate::mir::emit_lifecycle_physical_abi_json;
 use crate::mir::function::{
     PublishedLifecycleCFrameV2, PublishedMirBackendView, PublishedStaticMethodCFrameV1,
     PublishedStaticMethodRouteV1,
@@ -64,6 +65,13 @@ fn compile_published_view_object(
         }
         let frame = PublishedLifecycleCFrameV2::from_view(view)
             .map_err(|error| format!("published lifecycle C frame rejected: {error}"))?;
+        let physical_json_path = transport_io::prepare_backend_input_json_file(
+            &emit_lifecycle_physical_abi_json(&view.issue_lifecycle_physical_abi_input()?)?,
+        )?;
+        let physical_result =
+            capi_transport::validate_published_lifecycle_physical_v1(&physical_json_path);
+        transport_io::remove_backend_temp_file(&physical_json_path);
+        physical_result?;
         let mir_json_path = transport_io::prepare_backend_input_json_file(
             &crate::runner::mir_json_emit::emit_published_lifecycle_body(view)?,
         )?;

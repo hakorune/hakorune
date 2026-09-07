@@ -50,6 +50,40 @@ fn load_ffi_library() -> Result<libloading::Library, String> {
     unsafe { libloading::Library::new(lib_path).map_err(|e| format!("dlopen failed: {}", e)) }
 }
 
+/// Validates the one final-view-issued lifecycle physical input before the
+/// selected lifecycle body ingress observes any temporary body transport.
+pub(super) fn validate_published_lifecycle_physical_v1(json_in: &Path) -> Result<(), String> {
+    use std::os::raw::{c_char, c_int, c_void};
+
+    extern "C" {
+        fn free(ptr: *mut c_void);
+    }
+
+    unsafe {
+        let lib = load_ffi_library()?;
+        type ValidateFn = unsafe extern "C" fn(*const c_char, *mut *mut c_char) -> c_int;
+        let validate: libloading::Symbol<ValidateFn> = lib
+            .get(b"hako_llvmc_validate_published_lifecycle_physical_v1\0")
+            .map_err(|error| format!("dlsym failed for lifecycle physical parser: {error}"))?;
+        let input = CString::new(json_in.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid lifecycle physical JSON path".to_owned())?;
+        let mut error: *mut c_char = std::ptr::null_mut();
+        let rc = validate(input.as_ptr(), &mut error);
+        if rc == 0 {
+            return Ok(());
+        }
+        let message = if error.is_null() {
+            "published lifecycle physical parser rejected input".to_owned()
+        } else {
+            CStr::from_ptr(error).to_string_lossy().into_owned()
+        };
+        if !error.is_null() {
+            free(error as *mut c_void);
+        }
+        Err(message)
+    }
+}
+
 #[cfg(feature = "plugins")]
 pub(super) fn compile_via_capi(
     json_in: &Path,

@@ -22,6 +22,13 @@ const SCHEMA: &str = "hako.published-lifecycle-physical-program.v1";
 pub(crate) fn emit_lifecycle_physical_program_json(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
 ) -> Result<String, String> {
+    serde_json::to_string(&emit_lifecycle_physical_program_value(program)?)
+        .map_err(|error| fault(&format!("serialize:{error}")))
+}
+
+fn emit_lifecycle_physical_program_value(
+    program: &PublishedLifecyclePhysicalProgramV1<'_>,
+) -> Result<Value, String> {
     let births = birth_ordinals(program)?;
     let functions = program
         .functions()
@@ -59,8 +66,7 @@ pub(crate) fn emit_lifecycle_physical_program_json(
             }))
         })
         .collect::<Result<Vec<_>, String>>()?;
-    serde_json::to_string(&json!({ "schema": SCHEMA, "functions": functions }))
-        .map_err(|error| fault(&format!("serialize:{error}")))
+    Ok(json!({ "schema": SCHEMA, "functions": functions }))
 }
 
 /// Extends the issued program transport with layout rows from the same final
@@ -68,8 +74,7 @@ pub(crate) fn emit_lifecycle_physical_program_json(
 pub(crate) fn emit_lifecycle_physical_abi_json(
     input: &PublishedLifecyclePhysicalAbiInputV1<'_>,
 ) -> Result<String, String> {
-    let mut root: Value = serde_json::from_str(&emit_lifecycle_physical_program_json(input.program())?)
-        .map_err(|error| fault(&format!("program-parse:{error}")))?;
+    let mut root = emit_lifecycle_physical_program_value(input.program())?;
     let object = root.as_object_mut().ok_or_else(|| fault("program-root"))?;
     object.insert("fault_abi_version".into(), json!(input.fault_abi_version()));
     object.insert("storage_profile".into(), json!(input.storage_profile()));

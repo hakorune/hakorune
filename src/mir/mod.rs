@@ -299,6 +299,7 @@ pub(crate) mod weak_field_backend_capability; // extracted error types // Optimi
 // tools/checks/mir_root_facade_allowlist.txt.
 pub use basic_block::BasicBlock;
 pub use builder::MirBuilder;
+pub(crate) use compiler::emit_lifecycle_physical_abi_json;
 pub(crate) use compiler::selected_dynamic_w6_activation::StaticArtifactReceiptConsumedFenceV1;
 pub(crate) use compiler::NormalPublishedCompileOutcome;
 pub use compiler::{

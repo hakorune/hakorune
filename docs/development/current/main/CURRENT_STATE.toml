@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0"
-current_execution_cohort = "constructor_lifecycle_direct_physical_input_i0"
-current_design_stop = "none"
-current_blocker_token = "Construct one final issued lifecycle physical ABI input and make the selected C parser consume it before opening C body execution; no object, EXE or process-exit claim from parser evidence."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-D0"
+current_execution_cohort = "constructor_lifecycle_c_body_consumer_d0"
+current_design_stop = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-D0"
+current_blocker_token = "Name one bounded selected C physical body consumer, its call-local LLVM/object ownership and final-entry cleanup/status boundary before C execution; parser success must not be promoted to an artifact claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -40,12 +40,12 @@ descriptor I0 is landed: the target-compiled Rust Fault ABI emits one fixed
 archive record and the host reader proves actual extraction plus malformed
 rejection. The selected target was already x86_64 GNU/Linux LP64. The host half
 of session I0 retains one explicit archive through lifecycle EXE compilation
-and link; C V3 now validates descriptor/header geometry plus the selected LLVM target-data Diagnostic/Frame layout before pending. Direct physical input I0 now owns
-the one-pass final ABI transport and real parser ingress, followed by C execution/status cutover and caller-zero retirement. Physical representation/CFG coverage and failure
-terminal policies remain cutover blockers; Pair EXE30/linked OBJ30 are unproven.
+and link; C V3 now validates descriptor/header geometry plus the selected LLVM target-data Diagnostic/Frame layout before pending. Direct physical input I0 owns
+the one-pass final ABI transport and real parser ingress. C body consumer D0 is now the active design stop before execution/status cutover and caller-zero retirement.
+Pair EXE30/linked OBJ30 remain unproven.
 """
-next_design_card = "none (accepted physical issuer design; descriptor I0 ready)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-D0"
+next_execution_card = "none (await accepted C body consumer decision)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

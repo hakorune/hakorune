@@ -120,6 +120,7 @@ pub use lowering_input::{
 };
 use module_session::CanonicalModuleLoweringSessionV1;
 pub(in crate::mir) use normal_default_pipeline::published_backend_view;
+pub(crate) use normal_default_pipeline::emit_lifecycle_physical_abi_json;
 pub use normal_default_pipeline::{
     NormalCompileRequestV1, NormalProgramCompileRequestErrorV1,
     RejectedNormalProgramCompileRequestV1,

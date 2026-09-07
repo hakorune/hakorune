@@ -371,6 +371,17 @@ exact function/order/layout plus malformed, range, coverage and target
 negatives. Parser-only success remains parser-only evidence; it does not claim
 an object, EXE, `llc` behavior or a C execution cutover.
 
+**I0 landed:** `physical_program_json.rs` constructs its program `Value` once,
+adds the issued ABI/layout fields in that same owner, then serializes the final
+input. The `program-parse` re-entry is deleted. The selected lifecycle object
+ingress writes this final input and invokes the exported C physical parser
+before it creates the legacy temporary body transport for the still-pending V3
+consumer. The focused source-issued Pair input reaches that parser; the
+dedicated C parser test rejects malformed definitions, values, CFG/PHI,
+operation, layout and profile rows. This is pre-artifact parser evidence only:
+V3 still returns `body-consumer-pending`, and no object, EXE or process-status
+claim is made.
+
 `CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-OWNER-SPLIT-I0` is landed (BoxShape): root
 Home progress/validation now lives in `ordinary_new_local_commit/root_home.rs`.
 The parent is 633 lines and the child is 125; public API, tests, behavior and

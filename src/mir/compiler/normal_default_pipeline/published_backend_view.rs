@@ -37,6 +37,7 @@ pub(crate) use lifecycle_c_transport::{
     PublishedObjectStorageProfileV1,
 };
 pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
+pub(crate) use physical_program_json::emit_lifecycle_physical_abi_json;
 
 /// The only route decisions a backend may observe for the selected published
 /// call family (static method, builtin print, or free function).  An instance
