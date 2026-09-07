@@ -1447,30 +1447,25 @@ selected textual target application. It excludes source-diagnostic semantics,
 generic JSON, Bool, `--emit-obj` lifecycle admission, in-process LLVM and
 runtime hook work.
 
-**Required ordering correction:** direct physical input I0 already landed a
-one-pass ingress, broad structural decoder and an actual source-issued Pair → C
-acceptance test. It is not an opcode-name-only parser. Its remaining
-`CutoverBlockerOpen` is narrower and concrete: it accepts Invoke as a normal
-instruction; checks definition existence without same-block order or CFG
-dominance; accepts partial/duplicate PHI predecessors; relates
-`InvokeNormalResult` to any Invoke rather than its exact normal landing and
-result kind; permits role-incompatible Return; and does not fully close scalar
-range, exact tag spelling, or layout-slot uniqueness/range. No V4 consumer may
-use its present success as artifact admission until those relations close.
+**Ordering status:** direct physical input I0 owns one-pass ingress and the
+single call-local decoder. `CONSTRUCTOR-LIFECYCLE-PHYSICAL-PARSER-CLOSURE-I0`
+landed at `23824e64f7`: Invoke is terminator-only; every operand, Fault frame
+and edge payload is available at its use; PHI predecessors and edge values are
+exact; InvokeNormalResult is tied to its NewBox normal landing; Root/Birth
+returns, signed i64, exact tags and layout slots are checked. The valid C
+fixture and actual source-issued Pair both reach this same pre-artifact parser.
+It remains validation evidence only: it neither issues diagnostic sites nor
+applies a selected target session, so it cannot admit a V4 artifact.
 
-### `CONSTRUCTOR-LIFECYCLE-PHYSICAL-PARSER-CLOSURE-I0`
+### `CONSTRUCTOR-LIFECYCLE-PHYSICAL-PARSER-CLOSURE-I0` — landed
 
-The existing lifecycle physical parser remains the one call-local decoder and
-validator for the final ABI input. It keeps the landed envelope, function,
-block, edge, Birth, frame and actual Pair checks, and closes only the named
-residual relations: terminator placement, definition-before-use/dominance, exact
-PHI predecessor set and edge availability, exact InvokeNormalResult origin and
-normal landing, Root/Birth return kind, signed-i64/tag/layout-slot integrity.
-The dedicated C positive is corrected to a valid Invoke/CFG/SSA program; the
-actual issued Pair positive remains required. Each named mutation rejects at
-the same pre-artifact boundary. It does not determine source meaning, add a
-public endpoint, infer wire types, or emit an object. The exclusive delete-set
-is the permissive relation checks and invalid C positive only.
+The existing lifecycle physical parser is the one call-local decoder and
+validator for the final ABI input. Its closeout deleted permissive relation
+checks and the invalid C positive while preserving the envelope, function,
+block, edge, Birth and frame contracts. The C build, dedicated positive and
+negative test, and source-issued Pair → C acceptance passed. It does not
+determine source meaning, add a public endpoint, infer wire types, or emit an
+object.
 
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-I0`
 
