@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "none (per-New actual retention and exact call consumption accepted; representation remains unavailable)"
-current_blocker_token = "Per-New actual retention and exact per-call compiled-entry/V2 consumption implemented; test compilation passes 7.12 GiB. Execute compiled_entry_contract::tests (8 GiB resource stop; constructor-series focused 12 GiB allowance requested). Formal physical Stop remains; no V4 execution promotion."
+current_design_stop = "Birth kind/payload wire and field type-mismatch Fault contract; per-New retention verified"
+current_blocker_token = "Per-New actual retention verified: compiled_entry_contract 1/1 and physical_program_json 3/3 pass, peak aggregate 8.54 GiB under the standing 12 GiB ceiling. Next: fix kind/payload wire and runtime field type-mismatch Fault contract before implementation. Formal physical Stop remains; no V4 execution promotion."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -42,14 +42,16 @@ block observations after SimplifyCFG. Existing card orders: stop unresolved
 physical input issuance; design checked/tagged Birth representation; close
 optimizer observer mapping; prove host EXE/OBJ; retire selected V2/V3 edges.
 The physical-input Stop now rejects retained unresolved dispositions before JSON.
-Focused tests pass 3/3 with approved temporary 12 GiB monitoring (peak 8.46 GiB,
-CGU256); normal 8 GiB ceiling remains. The unresolved-input Stop is verified.
+Per-New retention at ffa36b0823 is verified: compiled_entry_contract 1/1 and
+physical_program_json 3/3 pass with CGU256, one job, peak aggregate 8.54 GiB.
+The standing 12 GiB monitored ceiling replaces per-run resource approval.
+Next is the kind/payload wire and field type-mismatch Fault contract design.
 No whitelist bypass, source specialization, Dynamic-V2 metadata reuse, or source
 execution claim is permitted. Rust V4 host edits and the focused test remain
 uncommitted; no positive host EXE/OBJ or representation promotion is claimed.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

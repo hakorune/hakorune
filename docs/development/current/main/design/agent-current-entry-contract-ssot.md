@@ -458,8 +458,11 @@ for deliberate standalone use.  `--release` is reserved for an active card's
 explicit final evidence, not ordinary iteration.  If a required gate itself
 spawns Cargo, it is the sole top-level Cargo owner until it exits.  Stop and
 report resource pressure instead of opening another build when aggregate
-host RSS (the agent plus Cargo/rustc children) approaches 8 GiB, swap grows
-continuously, or the terminal has stopped producing progress.  This is a
+host RSS (the agent plus Cargo/rustc children) approaches 12 GiB, swap grows
+continuously, or the terminal has stopped producing progress. The user
+authorized this 12 GiB ceiling on 2026-09-07; it replaces the
+former 8 GiB limit without requiring per-test approval. Use one Cargo job for
+these large library builds and retain aggregate-RSS monitoring. This is a
 hard safety boundary: the 2026-08-18 incident was confirmed by the kernel as
 `global_oom` killing the Codex process while overlapping Cargo/rustc workers
 were resident, not as a Rust panic.
@@ -750,7 +753,7 @@ Repository-wide census must be resource-bounded. Prefer static search; do not
 reuse benchmark, allocator, or proof harnesses for syntax inventory. External
 process scans default to serial and may use at most two workers. Run one item,
 then a small sample, then print the target count before a full scan. Stop
-immediately if child processes exceed four or aggregate RSS exceeds 8 GiB.
+immediately if child processes exceed four or aggregate RSS exceeds 12 GiB.
 
 ## Ceremony Tier Selection
 

@@ -1514,7 +1514,7 @@ verify cleanup/report/dispose. These are physical-protocol evidence only:
 the JSON drops an unresolved source formal obligation, as the host audit found.
 Low-memory CLI build succeeds at 6.47 GiB with `CARGO_BUILD_JOBS=1
 CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_OPT_LEVEL=0 cargo build --profile quick
---features plugins --bin hakorune`. Full lib-test still resource-stops at 8 GiB;
+--features plugins --bin hakorune`. The former 8 GiB limit stopped full lib-test;
 its new private-module import error was corrected, but execution is unverified.
 
 Decision: accept the bounded unresolved-formal Stop first; no representation promotion, V4 production claim or gate bypass.
@@ -1548,7 +1548,8 @@ Ordered work within this series:
    CARGO_PROFILE_QUICK_OPT_LEVEL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=256 cargo test
    --profile quick --lib --features plugins physical_program_json::tests --
    --include-ignored`. User-approved temporary 12 GiB monitor observed 8.46 GiB;
-   prior CGU1 exceeded 12 GiB and stopped before tests. Normal limit stays 8 GiB.
+   prior CGU1 exceeded 12 GiB and stopped before tests. The user has since
+   approved 12 GiB as the normal monitored ceiling, with one Cargo job.
    This closes the input Stop only; no host execution or formal promotion.
 2. **Retain actual identity, then bind kind/payload representation.**
    Decision: one unspecialized unannotated Birth body receives value kind and
@@ -1585,9 +1586,12 @@ Ordered work within this series:
    Typecheck including tests passes (7.12 GiB); read-only diff audit found no
    identity/reclassification defect. The added test covers two-New retention,
    order independence, duplicate retained row and missing row, not a direct
-   duplicate-Invoke mutation. Focused execution is still unproven after an
-   8 GiB resource stop. A 12 GiB allowance for this series' focused tests has
-   been requested; until answered, normal 8 GiB remains mandatory.
+   duplicate-Invoke mutation. Focused verification of ffa36b0823 now passes:
+   `compiled_entry_contract::tests` 1/1, plus the same binary's
+   `physical_program_json::tests` 3/3. One Cargo job, opt0/nonincremental,
+   CGU256 observed peak aggregate 8.54 GiB under the standing 12 GiB monitor.
+   Individual runs no longer require resource reapproval. Retention is verified;
+   the next boundary is design_stop for the wire/Fault contract below.
    Subsequent ABI task fixes the lifecycle-private kind/payload wire and a named
    field type-mismatch Fault reason/details in the runtime/reference owner.
    Unknown kind or invalid Bool payload is InvalidContract, never source Fault.
