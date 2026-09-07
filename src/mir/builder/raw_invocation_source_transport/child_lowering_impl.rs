@@ -144,6 +144,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                 "[freeze:contract][raw-invocation/missing-expression-source-receipt]".to_owned(),
             );
         }
+        if self.semantic_ledger.is_some() && matches!(input, ASTNode::Return { .. }) {
+            return self.lower_script_return_v1(builder, input);
+        }
         if self.semantic_ledger.is_some() && matches!(input, ASTNode::Local { .. }) {
             return self.lower_script_local_v1(builder, input);
         }

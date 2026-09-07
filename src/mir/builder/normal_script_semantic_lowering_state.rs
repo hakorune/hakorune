@@ -22,6 +22,7 @@ pub(super) struct ScriptSemanticLoweringState {
     _direct_static_products: ScriptDirectStaticLoweringProductsV1,
     direct_static_claim_ledger: direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
+    array_emissions: array_emissions::ArrayEmissionBindings,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
 
@@ -68,6 +69,7 @@ impl ScriptSemanticLoweringState {
             _direct_static_products: direct_static_products,
             direct_static_claim_ledger,
             variable_values: BTreeMap::new(),
+            array_emissions: Default::default(),
             materialized_outboxes: BTreeSet::new(),
         })
     }
@@ -269,3 +271,6 @@ pub(in crate::mir::builder) use direct_static_claim_ledger::{
     ScriptDirectStaticClaimLedgerIssueV1, ScriptDirectStaticClaimTakeV1,
     ScriptDirectStaticClaimedRowV1, ScriptDirectStaticRequiredArgumentProofConsumeIssueV1,
 };
+
+#[path = "normal_script_array_emission_bindings.rs"]
+mod array_emissions;

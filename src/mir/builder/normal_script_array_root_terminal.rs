@@ -9,13 +9,13 @@ use crate::mir::resolved_semantics::{
 };
 
 #[derive(Debug, PartialEq, Eq)]
-enum RootResult {
+pub(in crate::mir::builder) enum RootResult {
     Unit,
     Integer { site: SourceExprSiteV1, value: i64 },
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct RootTerminal {
+pub(in crate::mir::builder) struct RootTerminal {
     owner: FunctionOwnerIdV1,
     scope: ScopeId,
     body_scope: ScopeId,
@@ -26,6 +26,13 @@ pub(super) struct RootTerminal {
     homes: Box<[BindingRefV1]>,
 }
 impl RootTerminal {
+    pub(in crate::mir::builder) fn site(&self) -> &SourceStmtSiteV1 {
+        &self.site
+    }
+    pub(in crate::mir::builder) fn result(&self) -> &RootResult {
+        &self.result
+    }
+
     pub(super) fn homes(&self) -> &[BindingRefV1] {
         &self.homes
     }

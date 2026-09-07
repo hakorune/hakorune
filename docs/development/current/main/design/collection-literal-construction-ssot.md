@@ -428,32 +428,63 @@ Local/Return operands. Existing optimizer owners must update changed physical
 coordinates; unresolved mapping remains a blocker. Keep typed OBJ/EXE capability
 Stop and existing Array/Pair regressions.
 
-Implementation checkpoint: Script scope now moves the completed lowering state
-out after restoring its parent, and rejects retained Rc aliases. The existing
-root slot is Absent/OrdinaryNew/Script, with the exact finalized key/entry and
-source retained through either finishing closure. This removes source payload
-loss, but is not yet emission correspondence or a completed validation row.
+The implementation retains the completed source, emitter-issued allocation dst,
+claim ID, ArrayWriteSiteId, exact primitive definitions, LocalCommit binding/slot
+and Return operand. Typed Local uses its existing initializer observation sink;
+source Element order is the already-sealed continuation's order. Script runtime
+Return arrives through DirectPortAwareExpression, so capture belongs at the raw
+port expression ingress, not an unused statement-only hook. The exact finalizer
+checks the physical root and both finishing closures check the retained bindings.
+An ephemeral index locates only already-issued physical identities; it never
+creates source correspondence. Missing/duplicate/foreign or changed operations,
+carrier/slot drift, reordered operations and changed Return results reject.
 
-Physical-owner follow-up audit: the actual Script finishing schedule is Legacy.
-DCE rebuilds instruction vectors and can remove unused Local Copy; CSE replaces
-Const/BinOp with same-destination Copy; RC insertion shifts instruction indexes.
-There is no existing general remap observer. RootCleanupBoundary::capture/project
-is a bounded before/after validation pattern, not a reusable Array remapper.
-Accepted next implementation uses emitter-issued allocation dst, claim contract
-ID and ArrayWriteSiteId with retained source/operands/order. It locates only
-those retained identities after finishing and rejects missing/duplicate/foreign
-or changed operations. LocalCommit records exact BindingRef-to-acquisition
-correspondence; dead Copy survival is not the commit proof. Retained primitive
-definitions permit only the explicitly checked Const-to-Copy transformation;
-unbounded alias chasing or inferring a new literal proof from MIR is forbidden.
-Test actual optimization on/off, dead Copy removal, repeated-literal CSE and RC
-insertion. Unsupported rename/reorder must reject; do not skip optimization or
-borrow the selected Dynamic schedule to make this Script proof pass.
+Corrected physical-owner audit: default `[cli, plugins]` does not enable
+`rc-insertion-minimal`; Legacy's RC call is a stats-only stub. Current CSE records
+Const keys but has no Const replacement arm. The prior claim of active RC
+insertion and Const-to-Copy rewriting was incorrect. Neither is an acceptance
+requirement or an authorized feature expansion for this row. The draft constant
+snapshot table/Copy acceptance was removed before cutover.
 
-Mandatory next edge: the existing FinalizedRootBirthHandoffV1 itself must become
-root-neutral before Script data can reach artifact execution. The first validation
-row cannot claim that constructor-specific return type already accepts Script.
-Then continue the frame/Invoke/cleanup, checked runtime ABI and C execution series.
+The active optimizer may remove dead Local Copy/unused constants and shift
+instruction indexes. Validate live allocation/claim/write/primitive/Return IDs,
+unchanged blocks and relative order; a missing Local Copy is permitted only when
+its issued destination has no remaining uses. Tests run actual default plugins
+optimization on/off and assert that DCE really removes the dead Local copies.
+No alias chase, literal re-inference, unknown rename/reorder or optimizer skip.
+RootCleanupBoundary remains only a bounded-validation design precedent.
+
+### Root-neutral finalized artifact retention slice
+
+Decision: generalize the existing final root handoff enum and its one borrowed
+view slot; move the validated Script Array source and emission payload into a
+ScriptArray variant. Existing callable NoBirth/Births payloads retain their
+contracts. This does not issue root ABI, storage profile, FaultFrame or Invoke.
+
+Boundary: completed-root artifact finishing -> pipeline retained_root owner ->
+published view callback -> existing typed backend capability Stop. Includes
+selected Script Array and existing callable projections; excludes other Script
+families, implicit completion, frame/Invoke/cleanup and runtime/C execution.
+The current Script branch returning Ok(None) is the exclusive information-loss
+edge to remove. Array-unissued Script remains distinct; it must not become an
+empty completed Array product or a constructor NoBirth variant.
+
+Existing source continuation and actual emitters are the issuers; finishing
+validates their completed products. A consuming accessor moves only their Array
+source/emission payload into the existing handoff's private variant, without
+copying maps or publishing a new semantic Prepared/Verified receipt. The pipeline
+continues to own one final handoff and the view borrows it. Exact key/entry/owner
+agreement is physical binding, not source reconstruction. Constructor-only
+root_source/root_result/Birth ABI projections apply only to callable variants;
+Script must not be admitted by returning an empty Birth list.
+
+Acceptance: real source-backed typed Array remains present in the artifact
+callback/view; foreign/missing/uncompleted bindings reject; constructor admission
+rejects Script; existing Pair handoff and EXE/OBJ30 remain green. Array OBJ/EXE
+still stops before output. Delete the Script-to-None drop, Birth-only artifact
+slot type and universal constructor binding assumption in the same series.
+The next consumers remain Script frame/Invoke/cleanup, checked runtime ABI and
+C execution; retaining an artifact product does not complete them.
 
 Removing post-allocation birth markers preserves failure handling structurally:
 entry `emit_method_birth_mir_call` validates but emits no runtime operation;

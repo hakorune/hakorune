@@ -40,6 +40,24 @@ impl RawInvocationChildPortV1<'_, '_> {
         Ok(value)
     }
 
+    pub(super) fn lower_script_return_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: ASTNode,
+    ) -> Result<ValueId, String> {
+        let site = self
+            .current_source_context_v1()
+            .and_then(|context| context.site().cloned())
+            .ok_or_else(|| "[freeze:contract][script-array/return-source-site]".to_owned())?;
+        let value = lower_raw_expression_with_recursion_guard_v1(builder, self, input)?;
+        self.semantic_ledger
+            .as_ref()
+            .expect("selected Script return ledger")
+            .borrow_mut()
+            .record_array_root_return(builder, &site)?;
+        Ok(value)
+    }
+
     pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(
         &mut self,
         source: CanonicalScriptCPreparedLoweringSourceV1<'_>,

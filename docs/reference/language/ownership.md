@@ -165,7 +165,11 @@ prefix proof cannot substitute for the whole root's normal completion and
 outward transfer; the source body scope and function return target are distinct.
 Completed source obligations must survive lowering-scope teardown and reach
 both diagnostic and artifact finishing. Retaining them does not itself prove
-that optimized physical operations implement those obligations.
+that optimized physical operations implement those obligations. Physical lowering
+must retain the exact allocation, claim, element write, Local commit and Return
+bindings alongside the source obligation. Finishing validates those identities
+and their order after supported optimization; it must not reconstruct missing
+source relations from the resulting instructions.
 
 For the supported primitive numeric `Array<T>` contract, intrinsic literal
 allocation creates a builtin acquisition responsibility. From successful

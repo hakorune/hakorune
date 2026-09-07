@@ -1,3 +1,7 @@
+#[path = "array_literal_emission.rs"]
+pub(super) mod array_emission;
+use array_emission::{last_instruction, ArrayLiteralEmission};
+
 use crate::ast::ASTNode;
 use crate::mir::builder::observe::types as type_trace;
 use crate::mir::builder::recursive_child_lowering::{
@@ -19,8 +23,8 @@ impl super::MirBuilder {
     where
         Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
     {
-        self.build_array_literal_with_contract_and_port_v1(port, elements, None)
-            .map(|(value, _)| value)
+        self.build_array_literal_with_contract_and_port_v1(port, elements, None, false)
+            .map(|(value, _, _)| value)
     }
 
     pub(super) fn build_typed_array_literal(
@@ -28,7 +32,8 @@ impl super::MirBuilder {
         elements: Vec<ASTNode>,
     ) -> Result<(ValueId, String), String> {
         let mut port = RawLegacyChildLoweringPortV1;
-        self.build_typed_array_literal_with_port_v1(&mut port, elements)
+        self.build_typed_array_literal_with_port_v1(&mut port, elements, false)
+            .map(|(value, contract, _)| (value, contract))
     }
 
     /// Lower a typed Local array initializer without replacing the caller's
@@ -37,16 +42,22 @@ impl super::MirBuilder {
         &mut self,
         port: &mut Port,
         elements: Vec<ASTNode>,
-    ) -> Result<(ValueId, String), String>
+        retain_emission: bool,
+    ) -> Result<(ValueId, String, Option<ArrayLiteralEmission>), String>
     where
         Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
     {
-        let (value, contract_id) = self.build_array_literal_with_contract_and_port_v1(
+        let (value, contract_id, emission) = self.build_array_literal_with_contract_and_port_v1(
             port,
             elements,
             Some("local-literal"),
+            retain_emission,
         )?;
-        Ok((value, contract_id.expect("typed literal emits contract ID")))
+        Ok((
+            value,
+            contract_id.expect("typed literal emits contract ID"),
+            emission,
+        ))
     }
 
     fn build_array_literal_with_contract_and_port_v1<Port>(
@@ -54,7 +65,8 @@ impl super::MirBuilder {
         port: &mut Port,
         elements: Vec<ASTNode>,
         contract_prefix: Option<&str>,
-    ) -> Result<(ValueId, Option<String>), String>
+        retain_emission: bool,
+    ) -> Result<(ValueId, Option<String>, Option<ArrayLiteralEmission>), String>
     where
         Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
     {
@@ -64,6 +76,9 @@ impl super::MirBuilder {
             target: crate::mir::ConstructionTarget::IntrinsicArray,
             args: vec![],
         })?;
+        let allocation_site = retain_emission
+            .then(|| last_instruction(self).map(|(site, _)| site))
+            .transpose()?;
         self.function_state
             .type_ctx
             .value_origin_newbox
@@ -93,9 +108,25 @@ impl super::MirBuilder {
             })?;
         }
 
+        let mut emission = match (allocation_site, contract_id.as_ref()) {
+            (Some(site), Some(claim)) => Some(ArrayLiteralEmission::begin(
+                self,
+                arr_id,
+                site,
+                claim.clone(),
+            )?),
+            (None, _) => None,
+            (Some(_), None) => return Err("[freeze:contract][array-emission/claim-missing]".into()),
+        };
         let mut element_types = Vec::new();
         for element in elements {
             let value = drive_legacy_expression_v1(self, port, element)?;
+            let definition = if emission.is_some() {
+                let (site, instruction) = last_instruction(self)?;
+                Some((site, instruction.clone()))
+            } else {
+                None
+            };
             let element_type = self
                 .function_state
                 .type_ctx
@@ -109,7 +140,7 @@ impl super::MirBuilder {
                         .get(&value)
                         .map(|box_name| MirType::Box(box_name.clone()))
                 });
-            self.emit_array_element_write(
+            let write = self.emit_array_element_write(
                 None,
                 ArrayElementWriteKind::LiteralAppend,
                 ArrayWriteProducerKind::Literal,
@@ -117,6 +148,9 @@ impl super::MirBuilder {
                 None,
                 value,
             )?;
+            if let (Some(emission), Some((site, instruction))) = (&mut emission, definition) {
+                emission.record_element(self, value, site, instruction, write)?;
+            }
             element_types.push(element_type);
         }
 
@@ -125,7 +159,7 @@ impl super::MirBuilder {
             arr_id,
             &element_types,
         );
-        Ok((arr_id, contract_id))
+        Ok((arr_id, contract_id, emission))
     }
 
     /// Lower a map literal while retaining the caller's raw child port.

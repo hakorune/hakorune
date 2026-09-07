@@ -140,7 +140,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
                     {
                         return Err("[freeze:contract][script-source/root-owner-drift]".into());
                     }
-                    source.finish_source_claims()?;
+                    source.bind_array_root(function)?;
                     RootValidation::Script {
                         key: function.signature.name.clone(),
                         entry: root_entry,

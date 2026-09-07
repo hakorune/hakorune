@@ -11,7 +11,7 @@ use crate::mir::resolved_semantics::{
 use crate::typed_array_contract_spec::{parse_annotation, ArrayElementContractSpec};
 use std::collections::{BTreeMap, BTreeSet};
 #[path = "normal_script_array_root_terminal.rs"]
-mod root_terminal;
+pub(super) mod root_terminal;
 use root_terminal::RootTerminalCoverage;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -264,6 +264,49 @@ impl ArraySourceLifecycleRows {
         }
         row.progress = LocalProgress::Completed;
         Ok(())
+    }
+
+    pub(super) fn element_sites(
+        &self,
+        relation: &ResolvedInitializerRelationV1,
+    ) -> Result<Option<(ArrayElementContractSpec, Vec<SourceExprSiteV1>)>, String> {
+        let SourceBindingSiteV1::Local { statement, .. } = relation.declaration_site() else {
+            return Err(freeze("local-site"));
+        };
+        match self.rows.get(statement.node()) {
+            None => Ok(None),
+            Some(ArraySourceCoverage::Available(row)) if row.initializer == *relation => {
+                Ok(Some((
+                    row.spec,
+                    row.cutpoints
+                        .iter()
+                        .filter_map(|cut| match cut {
+                            Cutpoint::Written(site) => Some(site.clone()),
+                            _ => None,
+                        })
+                        .collect(),
+                )))
+            }
+            _ => Err(freeze("emission-source-drift")),
+        }
+    }
+
+    pub(super) fn terminal(&self) -> Result<Option<&root_terminal::RootTerminal>, String> {
+        match &self.terminal {
+            RootTerminalCoverage::NotSelected => Ok(None),
+            terminal => terminal.require().map(Some).map_err(freeze),
+        }
+    }
+
+    pub(super) fn bindings(&self) -> Result<Vec<BindingRefV1>, String> {
+        self.finish_root()?;
+        self.rows
+            .values()
+            .map(|row| match row {
+                ArraySourceCoverage::Available(row) => Ok(row.initializer.binding()),
+                _ => Err(freeze("incomplete-local")),
+            })
+            .collect()
     }
 
     pub(super) fn finish_root(&self) -> Result<(), String> {

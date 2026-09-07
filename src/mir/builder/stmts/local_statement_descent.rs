@@ -39,9 +39,11 @@ enum LocalAnnotationSourceV1 {
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LocalInitializerObservationV1 {
-    ordinal: u32,
-    source: PreparedRawChildSourceV1,
-    value: ValueId,
+    pub(in crate::mir::builder) ordinal: u32,
+    pub(in crate::mir::builder) source: PreparedRawChildSourceV1,
+    pub(in crate::mir::builder) value: ValueId,
+    pub(in crate::mir::builder) array:
+        Option<super::super::collection_literals::array_emission::ArrayLiteralEmission>,
 }
 
 pub(in crate::mir::builder) type LocalInitializerObservationSinkV1 =
@@ -117,11 +119,20 @@ impl RawLegacyLocalInputV1 {
         &self.statement
     }
 
+    pub(in crate::mir::builder) fn observe_into(
+        mut self,
+        sink: LocalInitializerObservationSinkV1,
+    ) -> Self {
+        self.initializer_observer = Some(sink);
+        self
+    }
+
     fn observe_initializer(
         &self,
         ordinal: usize,
         source: PreparedRawChildSourceV1,
         value: ValueId,
+        array: Option<super::super::collection_literals::array_emission::ArrayLiteralEmission>,
     ) -> Result<(), String> {
         let Some(observer) = self.initializer_observer.as_ref() else {
             return Ok(());
@@ -133,6 +144,7 @@ impl RawLegacyLocalInputV1 {
             ordinal,
             source,
             value,
+            array,
         });
         Ok(())
     }
@@ -247,7 +259,7 @@ where
         let mut scoped = RawStructuredChildScopePortV1::new(self, vec![source], Vec::new());
         let value = drive_legacy_expression_v1(builder, &mut scoped, initializer)?;
         scoped.complete_exact_demands_v1()?;
-        input.observe_initializer(index as usize, observation_source, value)?;
+        input.observe_initializer(index as usize, observation_source, value, None)?;
         Ok(value)
     }
 
@@ -276,10 +288,15 @@ where
             unreachable!("typed-array shape checked before taking initializer")
         };
         let mut scoped = RawStructuredChildScopePortV1::new(self, sources, Vec::new());
-        let value = builder.build_typed_array_literal_with_port_v1(&mut scoped, elements)?;
+        let retain_emission = matches!(input.annotation_source, LocalAnnotationSourceV1::Script(_));
+        let (value, contract, emission) = builder.build_typed_array_literal_with_port_v1(
+            &mut scoped,
+            elements,
+            retain_emission,
+        )?;
         scoped.complete_exact_demands_v1()?;
-        input.observe_initializer(index, observation_source, value.0)?;
-        Ok(value)
+        input.observe_initializer(index, observation_source, value, emission)?;
+        Ok((value, contract))
     }
 
     fn lower_record_constructor_initializer(
@@ -314,7 +331,7 @@ where
             arguments,
         )?;
         scoped.complete_exact_demands_v1()?;
-        input.observe_initializer(index, observation_source, value)?;
+        input.observe_initializer(index, observation_source, value, None)?;
         Ok(value)
     }
 }

@@ -584,20 +584,12 @@ shadow DuplicateKey and static-negative syntax error are fixed and rerun green.
 
 #### Script typed Array source checkpoints
 
-`MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0` landed at b129f066c0;
-`MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0` landed at efbc22b14b.
-Exact initializer, Array count/Element seal and Local cutpoints replace source
-repair/empty-list inference. Initial populated/nested failures were corrected,
-not waived as baseline. Focused source/host/guard and Array/Pair execution
-receipts live in Git; implicit completion, Loop and typed C remain open.
-
-#### LLVM-LIFECYCLE-V4-PLUGIN-FEATURE-I0
-
-Landed at 27a4e1ed78. Same nonplugins check at efbc22b14b:13 errors before,
-11 after; only V4 loader/libloading errors removed. Remaining exact baseline
-inventory and plugins/Pair/Fault evidence belong to the
-[feature owner](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
-No nonplugins-wide success claim.
+Source relation/failure co-seal landed at b129f066c0/efbc22b14b. Exact
+initializer/Element/Local evidence and corrected failures live in Git.
+V4 plugins repair landed at 27a4e1ed78; nonplugins parent efbc22b14b has
+13 errors versus current 11. Removed only V4 loader/libloading diagnostics;
+[feature owner](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08)
+retains the exact remaining baseline inventory. No whole-build success claim.
 
 #### MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0
 
@@ -609,28 +601,34 @@ corrected draft source-region mismatch (not baseline debt).
 
 #### MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0
 
-Decision: move completed Script source and emitted bindings through the existing root validation slot.
-Source authority + canonical issuer: same Script continuation; current root emission and exact finalization callback bind physical identity only.
-Non-authority: main-name rediscovery, MIR-derived source correspondence or parallel optional receipt.
-Fail-fast boundary: missing/stale/foreign root or operation binding rejects; typed C remains stopped.
-Smallest next slice: existing completed-root finite variant, actual source/emission retention and diagnostic/artifact finishing validation.
-Non-claims: root-neutral artifact handoff already exists, RootOwned/Invoke/C activation, implicit Unit or Loop closure.
-The [accepted validation handoff](../design/collection-literal-construction-ssot.md#completed-root-validation-handoff-slice)
-names real APIs, exact delete-set, mutation gates and mandatory artifact successors.
-Source-retention checkpoint: scope moves state into the root-neutral validation
-slot; both finishing closures check retained source/key/entry. Emission bindings
-are still open, so this row remains active. The physical-owner audit found no
-general optimizer remapper; the same design owner now specifies stable emitted
-identities and bounded transformation validation. No optimizer skip or Script
-artifact ABI is authorized by this checkpoint.
-Checkpoint gates: quick plugins library build (peak8.80GiB), source2+8+19+2,
-host6, retained Pair handoff1, real Array/Pair EXE+OBJ and corridor/pointer pass.
+Closed: completed Script source plus emitted allocation/claim/write/Local/Return
+bindings reach both finishing consumers. Selected emission-result loss and
+source-only finishing checks are removed. Actual optimizer on/off confirms dead
+Local Copy removal; default RC is a stub and CSE does not rewrite Const.
+Acceptance: quick plugins build peak8.79GiB; finishing4 (11 mutations in both
+consumers), source8/19/2, host6, literal4, Local9/7, retained Pair1; real untyped
+Array/Pair EXE+linked OBJ30, corridor/pointer pass. Typed C remains stopped.
+The [validation owner](../design/collection-literal-construction-ssot.md#completed-root-validation-handoff-slice) retains the contract.
 Known baseline debt reproduced at parent87a689b013, identical locked quick build
 and `normal_default_root_catalog_lifecycle_tests::artifact_validation_` filter:
 parent/current2pass2fail. Exact failing tests are
 `artifact_validation_rejects_exact_read_drift_and_birth_reentry` (finished-node)
 and `artifact_validation_rejects_terminal_add_operand_drift` (expected token).
 Their source and assertions are unchanged; no whole-lib green claim.
+
+#### MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0
+
+Decision: generalize the existing final root handoff enum; move validated Script Array payload into it.
+Source authority + canonical issuer: existing Script continuation/emitter products, checked by completed-root finishing.
+Non-authority: constructor NoBirth retagging, empty Array product, view reconstruction or new receipt.
+Fail-fast boundary: missing/foreign/uncompleted binding rejects; Script cannot use callable admission.
+Smallest next slice: pipeline owns the Array payload in its existing handoff; its one view slot borrows it.
+Non-claims: root ABI, RootOwned/frame/Invoke/cleanup, checked runtime ABI or typed C execution.
+The [accepted artifact design](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice) owns callers/boundary/gates.
+Delete Script-to-None loss, Birth-only slot type and universal constructor binding.
+Gates: artifact/view retention, binding rejects, Script constructor rejection,
+Pair handoff/EXE/OBJ30, typed Array pre-output Stop. Terminal/storage cleanup stays
+in the existing [feedback queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08); V4 feature repair is landed.
 
 ## Source and ownership budget
 

@@ -8,6 +8,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[path = "normal_script_array_source_lifecycle.rs"]
 mod array_lifecycle;
+pub(super) use array_lifecycle::root_terminal::{RootResult, RootTerminal};
 
 use crate::mir::resolved_semantics::{
     BodyShapeRelationV1, BodyStatementShapeV1, FunctionOwnerIdV1, ScriptRootResolvedDemandV1,
@@ -144,6 +145,29 @@ impl VerifiedScriptSourceContinuationV1 {
         relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
     ) -> Result<(), String> {
         self.arrays.complete(relation)
+    }
+
+    pub(super) fn array_element_sites(
+        &self,
+        relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+    ) -> Result<
+        Option<(
+            crate::typed_array_contract_spec::ArrayElementContractSpec,
+            Vec<SourceExprSiteV1>,
+        )>,
+        String,
+    > {
+        self.arrays.element_sites(relation)
+    }
+
+    pub(super) fn array_root_terminal(&self) -> Result<Option<&RootTerminal>, String> {
+        self.arrays.terminal()
+    }
+
+    pub(super) fn array_bindings(
+        &self,
+    ) -> Result<Vec<crate::mir::resolved_semantics::BindingRefV1>, String> {
+        self.arrays.bindings()
     }
 
     pub(super) fn finish_array_locals(&self) -> Result<(), String> {

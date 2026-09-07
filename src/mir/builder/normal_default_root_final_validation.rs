@@ -49,9 +49,7 @@ impl RootValidation {
                 if root.entry_block != *entry {
                     return Err(fault("script-root-owner-drift"));
                 }
-                // Source retention check only. Emission correspondence is the
-                // next obligation, and cannot be inferred by scanning this MIR.
-                source.finish_source_claims()
+                source.validate_finished_array_root(root)
             }
         }
     }

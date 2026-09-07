@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0"
-current_execution_cohort = "mir_script_array_root_validation_handoff_i0"
-current_design_stop = "none; exact source scope -> current root emission -> root finalization -> completed-root validation path audited"
-current_blocker_token = "Completed Script source now reaches both root finishing closures. Next retain exact allocation/claim/write/Local/Return emission bindings and validate stable identities through bounded DCE/CSE/RC transformations; no source reconstruction or optimizer skip. Root-neutral finalized artifact product/frame/Invoke/checked ABI/C remain mandatory successors."
+current_execution_row = "MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0"
+current_execution_cohort = "mir_script_array_final_artifact_handoff_i0"
+current_design_stop = "none; completed-root -> existing final handoff -> pipeline owner -> borrowed view path audited"
+current_blocker_token = "Script source/emission finishing validation is closed. Next move validated Array payload through the existing root-neutral final artifact handoff and borrowed view; delete Script-to-None loss without callable retagging or ABI admission. Frame/Invoke/cleanup/checked ABI/C remain mandatory successors."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Completed Script source moves through the root-neutral validation slot and both
-finishing closures. Exact emission binding/optimizer correspondence remains the
-active obligation; this retention checkpoint does not complete the row or typed C.
+Script allocation/claim/write/Local/Return bindings now survive both finishing
+consumers with actual optimizer on/off evidence. Next retain the validated Array
+payload in the existing final artifact handoff; typed C remains stopped.
 """
-next_design_card = "MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0"
-next_execution_card = "MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0"
+next_design_card = "MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0"
+next_execution_card = "MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

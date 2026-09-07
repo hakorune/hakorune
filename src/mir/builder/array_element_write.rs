@@ -12,7 +12,7 @@ impl MirBuilder {
         receiver: ValueId,
         index: Option<ValueId>,
         value: ValueId,
-    ) -> Result<(), String> {
+    ) -> Result<ArrayWriteSiteId, String> {
         let site_id = self.next_array_write_site_id();
         let instruction = crate::mir::array_element_write::instruction(
             site_id, dst, kind, producer, receiver, index, value,
@@ -27,7 +27,7 @@ impl MirBuilder {
                 function.metadata.value_types.insert(dst, MirType::Void);
             }
         }
-        Ok(())
+        Ok(site_id)
     }
 
     pub(super) fn try_emit_known_array_method_write(
