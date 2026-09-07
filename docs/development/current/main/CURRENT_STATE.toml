@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0"
 current_execution_cohort = "mir_call_published_method_constructor_disposition_d0"
-current_design_stop = "Method/Constructor canonical per-site disposition issuer and operand contract remain unresolved; existing legacy plan issuers are not canonical authority"
-current_blocker_token = "Task2 Method/Constructor: name an existing canonical per-site disposition issuer and consuming C boundary before Stop/Promote. LegacyCallV0-only route plans cannot authorize canonical calls; explicit-arg birth markers and receiver-prefixed Method producers both remain live. No blanket absence rejection."
+current_design_stop = "Pending literal provider contract: builtin-fixed versus existing user/plugin overrides; Call schema does not establish canonical runtime-operation authority"
+current_blocker_token = "Task2 source-provider decision: collection NewBox is builtin-fixed in selected C but common source lowering can reach user/plugin override. Decide literal binding before deleting birth markers or issuing canonical operation/arity. Existing named helper compatibility and Constructor residual dispositions remain; no blanket Stop or new receipt."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,10 +31,11 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Published Extern rejects through shared peek, including the discovered entry
-prescan edge before legacy plan lookup. Existing C ABI test, view32 and host1
-pass; generic missing-plan behavior remains. Method/Constructor now requires
-a bounded issuer/operand design; legacy-only plan metadata is not authority.
+Read-only source/consumer audit corrected the Call-schema/canonical-authority
+premise. Existing collection/Main/Math products do not issue runtime operation.
+Collection birth deletion has a concrete provider-binding counterexample;
+user decision on literal builtin binding versus overrides is pending.
+Extern Stop remains landed; no implementation or language change in this audit.
 """
 next_design_card = "MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0"
 next_execution_card = "none"

@@ -540,28 +540,12 @@ unrelated helper deletion leaves this boundary.
 
 **Constructor execution order**
 
-The [accepted physical consumer plan](../design/constructor-birth-new-lifecycle-ssot.md#accepted-physical-consumer-plan-2026-09-06)
-owns the current evidence, exact owners/callers, acceptance and exclusive
-retirement sets. Do not recreate its task details here.
-
-The current [lowering card](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-queue-2026-09-07)
-owns the updated status and ordering: v2 representation/consumer verified ->
-single-Home optimizer mapping verified -> selected numeric capability + actual host EXE/OBJ acceptance -> caller-zero retirement.
-C V4 physical execution exists, but the committed host still has the V3/V2
-pending path; its direct V4 replacement is saved on codex/lifecycle-v4-host-draft (bdc7b0506e). V2 now binds
-Unannotated Integer/Bool actuals; Local and unsupported declarations still stop
-before JSON. Consumer execution does not prove the selected host cutover. View responsibility cleanup follows cutover.
-
-Initial 11-entry fresh llvm_static acceptance was 1 pass / 10 failures: six
-RootPreservation(CompatibilityLoss), four generated birth/0. Existing records
-classify these as acceptance incidents, not baseline debt; this docs change
-runs no runtime tests and does not reclassify them as current-change failures.
-Keep the fixed suite owner and its source hashes. Derive-off dependency evidence
-cannot waive default-source acceptance; the three usize cases retain their
-existing semantic owner. Close acceptance A only at the required 11/11 with
-no new baseline names, fallback/retry or partial artifact. Only then continue
-the existing Call/R7 -> Loop -> language/selfhost order. VM/WASM parity and
-unrelated performance remain outside this task.
+The [constructor plan](../design/constructor-birth-new-lifecycle-ssot.md#accepted-physical-consumer-plan-2026-09-06)
+and [lowering card](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-queue-2026-09-07)
+own execution evidence, acceptance incidents and retirement sets. Pair V4 host
+cutover supersedes the old V3/V2 pending-path snapshot; uncovered acceptance
+remains with that owner. Continue Call/R7 -> Loop -> language/selfhost.
+VM/WASM parity and unrelated performance are outside this task.
 
 ### Backend/runtime feedback and task order (2026-09-06)
 
@@ -578,17 +562,11 @@ retains task2–4 responsibilities and acceptance.
 
 #### MIR-CALL-PUBLISHED-GLOBAL-ROW-REQUIRED-I0
 
-Selected Global missing-input edge is closed at the shared typed peek. Under a
-published session, missing Global returns existing malformed status, never absent;
-prepass and both emitters reject before plan/name dispatch. Generic ingress and
-non-Global absence are unchanged. No ABI/schema/state-owner change or new receipt.
-C build and real ABI test pass: valid FreeFunction/StaticMethod/Print, entry/nested
-missing row with another valid row, malformed/duplicate/array/residual behavior,
-no output on rejection, and the same legacy-readable JSON via generic ingress.
-View32/normal-source host1 pass (EXE/OBJ/Fault15.24s); no new Global source claim.
-C README/header/reference are synced. Parentba62871459 reproduces the stale
-semantic README heading guard failure; its single heading lookup is corrected
-without changing source/test checks. No whole-suite claim.
+Landed at 183aede6e6: required Global rows reject before legacy plan/name dispatch.
+C ABI positives/negatives, generic preservation, view32 and host1 passed.
+The commit owns exact evidence and C README/header/reference updates.
+Parent ba62871459 reproduced the stale semantic README heading guard failure;
+the heading lookup was fixed without changing source/test checks. No whole-suite claim.
 
 #### MIR-CALL-PUBLISHED-EXTERN-STOP-I0
 
@@ -613,25 +591,45 @@ C README/header/reference updated; no full non-Global or concurrency claim.
 
 #### MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0
 
-Status: **design_stop**; resolve the actual per-site issuer before further Stop.
+Status: **design_stop**; provider semantics needs an explicit decision.
+Decision: preserve existing disposition; Call schema alone is not canonical semantic authority.
+Source authority + canonical issuer: existing source owners; no completed runtime-operation/arity product was found in the bounded paths below.
+Non-authority: MIR tags, C whitelist, JSON names, legacy route plans, destination-only completion and Main input receipts.
+Fail-fast boundary: existing published host/typed peek; no blanket Method/Constructor Stop or helper promotion.
+Smallest next slice: decide literal provider binding (builtin-fixed vs current overrides), then select the existing-owner change and exclusive retirement edge.
+Non-claims: changed language policy, new receipt, accepted implementation, full Method census, R7 closure or backend parity.
 
-Decision: retain live Method/Constructor edges until canonical disposition is issued.
-Source authority + canonical issuer: existing selected call owners retain targets/receivers; a canonical per-site backend disposition issuer is not established.
-Non-authority: module row presence, JSON tag/name, and LegacyCallV0-only lowering plans cannot authorize canonical compatibility.
-Fail-fast boundary: existing published host and typed peek terminals remain; no new blanket Method/Constructor rejection.
-Smallest next slice: decide which existing completed product retains source-selected runtime operation, mandatory receiver and explicit arity, then binds them to an exact site at Atomic Publish; name consumer/delete-set before implementation.
-Non-claims: a new receipt, semantic acceptance, all-absent Stop, R7 closure, V4 or generic route removal.
+Boundary: collection literal/Main argument array/Math preflight -> Builder emission;
+includes their retained source/preflight products; excludes general Method, Invoke,
+V4, independent ExternCall, other source families and generic whole compilation.
+Worker/root audit: Call(Method) schema is not source issuance. The north-star
+already classifies named runtime helpers as CompatibilityOuterIngress and Call-carried
+Constructor residual as ParkedSealed; do not manufacture receipts to reopen them.
 
-Worker boundary: canonical Method/Constructor producer -> published host -> C plan consumer.
-Includes unified emitter, collection/declaration birth and MathBox; excludes Invoke, V4, ExternCall and generic ingress.
-generic_method_route_plan and constructor_call_route_plan classify legacy Call
-variants, while the published host rejects LegacyCallV0. These plans cannot be
-promoted into canonical per-site authority merely because their fields fit.
-Collection/declaration birth markers carry explicit args; unified emitter Method
-uses receiver-prefixed args. Preserve these live contracts until issuer/consumer
-mapping is explicit. Acceptance must cover both operand conventions and an
-unchanged valid selected typed call, plus malformed/missing disposition rejection.
-No implementation row is authorized by this read-only finding.
+| Existing product / owner | Finding and action |
+| --- | --- |
+| raw_expression_dispatch -> collection_literals | Child locators retained; no completed collection-operation product. |
+| VerifiedMainExpansion/materialization/runtime snapshot -> decls | Main target/input authority, not collection birth authority. |
+| Math preflight -> special_method_handlers | Prepared args plus outer String; no operation/arity contract or Math-specific typed Stop. |
+| CompletedUnifiedValueCallEmission | Destination completion only; cannot issue runtime target. |
+| generic_method_route_plan / constructor_call_route_plan | LegacyCallV0-only call classification; host rejects LegacyCallV0. |
+
+Concrete Delete candidate: collection_literals.rs birth-marker callers at array/map
+construction only; retain Main caller and shared helper. Both follow NewBox before
+children, with no dst/args. C NewBox calls builtin array/map birth_h, which creates
+initialized Rust storage; following Method birth is a no-op. VM builtin Array/Map
+birth is also a no-op. However common NewBox dispatch can select user declarations,
+static singletons or explicit registry overrides (plugin-system README:145-146).
+Thus builtin-only evidence does not authorize common Builder deletion.
+This candidate is blocked by provider-binding semantics; no deletion was performed.
+Reopen only on source-owned builtin binding or proven override birth equivalence; C success is non-authority.
+The unresolved selected-path provider/issuance gap remains CutoverBlockerOpen.
+
+Pending user decision: literals bind builtin collections (named new override kept
+separate), or literals preserve current overrides and named helpers remain explicit
+compatibility until isolated. Do not silently choose this language contract.
+Then: source binding -> completed product/publication -> consumer -> selected acceptance -> retirement.
+No code/fixture/guard/build was added by this audit; it does not close Task2.
 ## Source and ownership budget
 
 Do not append semantic code to these owners:
