@@ -9,7 +9,7 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: preserve primitive runtime write Results, then close fallible allocation and checked ABI. Script handoff/frame/Invoke/cleanup/finishing are implemented; typed C remains stopped.
+- Next: decide fallible shared ownership, then close allocation and checked ABI. Primitive write Results are retained. Script handoff/frame/Invoke/cleanup/finishing are implemented; typed C remains stopped.
 - Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
 - Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
@@ -680,27 +680,28 @@ This is an open prerequisite inventory, not Exhausted or caller-zero closure.
 | C lifecycle V4 admission/emission | Admits exactly Pair's two functions/two-field layout; no Array operations, Float lanes or Unit root execution. A shared frame descriptor is not Array consumer admission. CutoverBlockerOpen. |
 | runtime descriptor/session | Existing descriptor proves frame/entry layout; it does not prove new checked Array symbols/capability. Require archive agreement for the eventual Array operation ABI before output. |
 
-Immediate slice: `MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0`.
+Implemented: `MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0`.
 Source authority remains existing annotation/spec and source Recipe. Runtime
 state methods validate supplied values against that installed contract; they
-issue no source meaning. Use one owner-local runtime error enum for index,
-unsupported storage and existing element-contract reason. Keep new Result APIs
-crate-visible in this slice; public raw methods delegate `.is_ok()` and preserve
+issue no source meaning. `ArrayPrimitiveWriteError` retains index, unsupported
+storage and existing element-contract reason. Result APIs stay crate-visible;
+public raw methods delegate `.is_ok()` and preserve
 OOB observations, append-at-end, conversion and return values. Claim is reused
-unchanged. Delete the three bool mutation bodies and their internal reason
-loss; do not keep parallel implementations or precheck-then-mutate locks.
+unchanged. The three bool mutation bodies and their internal reason loss are
+replaced by the sole Result implementations, with one check/mutation lock.
 
 Acceptance: all three primitive overwrite/append/conversion paths; all seven
 specs with endpoints/range/signed-to-unsigned failure; Bool/F64 type mismatch;
 negative/beyond-end index and InlineRecord rejection; storage/length unchanged
 on every returned rejection; alias shares the contract; existing raw/claim
 behavior preserved. F64 uncontracted NaN/infinity acceptance stays unchanged.
-Use the existing Array owner tests and corridor guard, plus the typed host Stop
-regression. This slice does not turn allocation failures into returned errors.
+Evidence: Array owner51 and host source/Stop7 pass, including three new bounded
+Result tests; corridor/pointer guards pass. This slice does not turn allocation
+failures into returned errors. Owner details: `src/boxes/array/README.md`.
 
 Ordered remaining dependencies, all within the open cutover boundary:
 
-1. Primitive Result BoxShape above, with live wrappers using the sole body.
+1. Primitive Result BoxShape above is implemented; live wrappers use the sole body.
 2. Fallible shared-ownership Decision: installed Rust1.89 std Arc::try_new is
    gated by allocator_api; no existing fallible Arc owner was found. Choose an
    explicit toolchain policy or a separately designed shared substrate before

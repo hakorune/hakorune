@@ -2,6 +2,15 @@ use super::{ArrayBox, ArrayStorage};
 use crate::runtime::exact_numeric_contract::validate_dynamic_integer;
 use crate::typed_array_contract_spec::ArrayElementContractSpec;
 
+/// Physical primitive-write rejection, retained before compatibility bool projection.
+/// Allocation failure is not represented by the current storage substrate.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ArrayPrimitiveWriteError {
+    InvalidIndex,
+    UnsupportedStorage,
+    ElementContract { reason: &'static str },
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum TypedArrayRuntimeContractError {
     StateConflict,

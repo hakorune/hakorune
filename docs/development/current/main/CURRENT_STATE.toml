@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0"
-current_execution_cohort = "mir_array_primitive_result_preservation_i0"
-current_design_stop = "none; primitive state Result BoxShape accepted after runtime and allocation premise audits; allocation/toolchain remains a separate mandatory design dependency"
-current_blocker_token = "Replace the three primitive Array bool mutation bodies with owner-local Result implementations; existing public raw wrappers delegate and preserve behavior. Keep one state lock, original contract errors, bounds/storage rejection and alias identity. Do not activate checked ABI/C or claim allocation recovery: inner/outer Arc, registry initialization/growth/release capacity and storage allocation remain explicit successors."
+work_mode = "design_stop"
+current_execution_row = "MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0"
+current_execution_cohort = "mir_array_fallible_shared_ownership_d0"
+current_design_stop = "Fallible inner/outer shared ownership requires explicit toolchain or substrate policy; existing stable std Arc allocation cannot report failure."
+current_blocker_token = "Primitive Array Result preservation is verified and old bool mutation bodies are retired. Settle fallible shared-ownership policy using the completed runtime/substrate audits before allocation recovery implementation. Preserve one Array state and host registry; no catch_unwind, allocation preflight, guessed Arc layout, toolchain switch or checked C activation by implication. Registry reserve/commit and storage fallibility remain ordered prerequisites."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Runtime premise audit selects the existing primitive Array state Result
-BoxShape, with raw wrappers preserving behavior. Fallible shared ownership,
-registry/storage allocation, checked ABI and Script C input/execution remain
-explicit cutover dependencies. Typed host Stop stays closed.
+Primitive Array writes retain index/storage/contract Results under one lock;
+raw wrappers preserve compatibility. Array51 and hostStop7 pass. Next is the
+fallible shared-ownership/toolchain Decision, followed by registry/storage
+allocation, checked ABI and Script C execution. Typed host Stop remains.
 """
-next_design_card = "MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0"
-next_execution_card = "MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0"
+next_design_card = "MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

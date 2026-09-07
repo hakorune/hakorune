@@ -593,16 +593,10 @@ Their source and assertions are unchanged; no whole-lib green claim.
 
 #### MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0
 
-Landed at 05945284bb after owner extraction32b03fd707: ScriptArray product moves
-through pipeline/view; selected drop and constructor mixing retired. Focused78,
-Array/Pair EXE+OBJ30 and guards pass. Three tests moved; old812-line file now714.
-Git and the [artifact owner](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice)
-retain full evidence; typed C remains stopped.
-
-#### MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-D0
-
-Accepted [physical mapping](../design/collection-literal-construction-ssot.md#script-array-physical-lifecycle-mapping):
-three Array Invoke operations, nonfallible release, one Recipe and shared frame mechanics.
+Landed at `05945284bb`: ScriptArray product moves through pipeline/view;
+selected drop/constructor mixing retired. Git and the
+[artifact owner](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice)
+retain evidence. The subsequent physical D0 is implemented by the row below.
 
 #### MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0
 
@@ -619,18 +613,21 @@ Existing Fault owner is reusable; checked-runtime/C promotion remains closed.
 
 #### MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0
 
-Decision: BoxShape; preserve primitive write Results in the existing Array state owner.
-Source authority + canonical issuer: source annotation/Recipe unchanged; ArrayStateCell validates the installed runtime contract under one lock.
-Non-authority: bool/sentinel decoding, MIR types, alternate handle-keyed storage or new semantic receipts.
-Fail-fast boundary: returned index/storage/contract failures do not mutate; typed host Stop and allocation blockers remain.
-Smallest next slice: three primitive Result bodies with existing raw bool callers delegating to them; keep new API crate-visible.
-Non-claims: claim API promotion, allocation recovery, checked ABI, C execution or expanded source/backend acceptance.
-Delete-set: old i64/Bool/F64 bool implementation bodies and internal reason loss.
-Acceptance: primitive overwrite/append/conversion, seven specs and bounds/type
-rejection without mutation, alias/claim invariants, raw boolean compatibility;
-existing Array suites, typed host Stop and corridor guard. Update Array owner
-README/reference and commit/push. Then fallible shared-ownership/toolchain D0;
-registry reserve/commit, storage fallibility, ABI and C remain ordered successors.
+Closed: i64/Bool/F64 stores retain Result in one state owner; raw wrappers
+preserve bool behavior. Old bool mutation bodies/internal reason loss retired.
+Array51 + hostStop7, guards and quick build pass (peak8.88GiB); source max334.
+Owner README and runtime reference updated; checked ABI/C remains stopped.
+
+#### MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0
+
+Decision: settle fallible shared-ownership policy before implementing Array allocation recovery.
+Source authority + canonical issuer: existing Script Recipe fixes allocation Fault/cleanup; runtime shared-allocation owner remains to be selected.
+Non-authority: catch_unwind, allocator preflight, guessed std Arc layout or a second Array state/registry.
+Fail-fast boundary: no checked runtime/C activation or toolchain mutation before this Decision closes.
+Smallest next slice: review audited inner/outer std Arc constraints and toolchain-versus-substrate options; record one supported ownership contract.
+Non-claims: allocation recovery, registry rollback, storage fallibility, checked ABI or C execution.
+Reuse the two completed premise audits; reopen only named missing evidence.
+Registry reserve/commit, storage, ABI and C follow the existing ordered SSOT.
 
 ## Source and ownership budget
 

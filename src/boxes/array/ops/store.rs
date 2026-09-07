@@ -1,3 +1,4 @@
+use super::super::super::runtime_contract::ArrayPrimitiveWriteError;
 use super::super::super::{ArrayBox, ArrayStorage, ArrayTextCell};
 use crate::box_trait::{BoolBox, IntegerBox, NyashBox};
 use crate::boxes::FloatBox;
@@ -106,35 +107,45 @@ impl ArrayBox {
     /// Keeps the current append-at-end / rebox policy while visible `set()` stays above this seam.
     #[inline(always)]
     pub fn slot_store_i64_raw(&self, idx: i64, value: i64) -> bool {
+        self.slot_store_i64_result(idx, value).is_ok()
+    }
+
+    /// Check and mutation share one state lock. Only the raw wrapper erases errors.
+    #[inline(always)]
+    pub(crate) fn slot_store_i64_result(
+        &self,
+        idx: i64,
+        value: i64,
+    ) -> Result<(), ArrayPrimitiveWriteError> {
         if idx < 0 {
             if Self::oob_strict_enabled() {
                 crate::runtime::observe::mark_oob();
             }
-            return false;
+            return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }
         let idx = idx as usize;
         let mut state = self.items.state.write();
-        if idx > state.storage.len() || matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
-            return false;
+        if idx > state.storage.len() {
+            return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }
-        if super::super::runtime_contract::validate_i64_element(state.element_contract, value)
-            .is_err()
-        {
-            return false;
+        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
+            return Err(ArrayPrimitiveWriteError::UnsupportedStorage);
         }
+        super::super::runtime_contract::validate_i64_element(state.element_contract, value)
+            .map_err(|reason| ArrayPrimitiveWriteError::ElementContract { reason })?;
         let mut items = &mut state.storage;
         if let Some(values) = Self::ensure_inline_i64(&mut items) {
             if idx < values.len() {
                 values[idx] = value;
-                true
+                Ok(())
             } else if idx == values.len() {
                 values.push(value);
-                true
+                Ok(())
             } else {
                 if Self::oob_strict_enabled() {
                     crate::runtime::observe::mark_oob();
                 }
-                false
+                Err(ArrayPrimitiveWriteError::InvalidIndex)
             }
         } else {
             let boxed = Self::ensure_boxed(&mut items);
@@ -144,15 +155,15 @@ impl ArrayBox {
                 } else {
                     boxed[idx] = Box::new(IntegerBox::new(value));
                 }
-                true
+                Ok(())
             } else if idx == boxed.len() {
                 boxed.push(Box::new(IntegerBox::new(value)));
-                true
+                Ok(())
             } else {
                 if Self::oob_strict_enabled() {
                     crate::runtime::observe::mark_oob();
                 }
-                false
+                Err(ArrayPrimitiveWriteError::InvalidIndex)
             }
         }
     }
@@ -160,47 +171,62 @@ impl ArrayBox {
     /// Raw boolean store helper for substrate/plugin routes.
     #[inline(always)]
     pub fn slot_store_bool_raw(&self, idx: i64, value: bool) -> bool {
+        self.slot_store_bool_result(idx, value).is_ok()
+    }
+
+    /// Check and mutation share one state lock. Only the raw wrapper erases errors.
+    #[inline(always)]
+    pub(crate) fn slot_store_bool_result(
+        &self,
+        idx: i64,
+        value: bool,
+    ) -> Result<(), ArrayPrimitiveWriteError> {
         if idx < 0 {
             if Self::oob_strict_enabled() {
                 crate::runtime::observe::mark_oob();
             }
-            return false;
+            return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }
         let idx = idx as usize;
         let mut state = self.items.state.write();
-        if idx > state.storage.len() || matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
-            return false;
+        if idx > state.storage.len() {
+            return Err(ArrayPrimitiveWriteError::InvalidIndex);
+        }
+        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
+            return Err(ArrayPrimitiveWriteError::UnsupportedStorage);
         }
         if state.element_contract.is_some() {
-            return false;
+            return Err(ArrayPrimitiveWriteError::ElementContract {
+                reason: "runtime-type-mismatch",
+            });
         }
         let mut items = &mut state.storage;
         if let Some(values) = Self::ensure_inline_bool(&mut items) {
             if idx < values.len() {
                 values[idx] = value;
-                true
+                Ok(())
             } else if idx == values.len() {
                 values.push(value);
-                true
+                Ok(())
             } else {
                 if Self::oob_strict_enabled() {
                     crate::runtime::observe::mark_oob();
                 }
-                false
+                Err(ArrayPrimitiveWriteError::InvalidIndex)
             }
         } else {
             let boxed = Self::ensure_boxed(&mut items);
             if idx < boxed.len() {
                 boxed[idx] = Box::new(BoolBox::new(value));
-                true
+                Ok(())
             } else if idx == boxed.len() {
                 boxed.push(Box::new(BoolBox::new(value)));
-                true
+                Ok(())
             } else {
                 if Self::oob_strict_enabled() {
                     crate::runtime::observe::mark_oob();
                 }
-                false
+                Err(ArrayPrimitiveWriteError::InvalidIndex)
             }
         }
     }
@@ -208,47 +234,62 @@ impl ArrayBox {
     /// Raw float store helper for substrate/plugin routes.
     #[inline(always)]
     pub fn slot_store_f64_raw(&self, idx: i64, value: f64) -> bool {
+        self.slot_store_f64_result(idx, value).is_ok()
+    }
+
+    /// Check and mutation share one state lock. Only the raw wrapper erases errors.
+    #[inline(always)]
+    pub(crate) fn slot_store_f64_result(
+        &self,
+        idx: i64,
+        value: f64,
+    ) -> Result<(), ArrayPrimitiveWriteError> {
         if idx < 0 {
             if Self::oob_strict_enabled() {
                 crate::runtime::observe::mark_oob();
             }
-            return false;
+            return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }
         let idx = idx as usize;
         let mut state = self.items.state.write();
-        if idx > state.storage.len() || matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
-            return false;
+        if idx > state.storage.len() {
+            return Err(ArrayPrimitiveWriteError::InvalidIndex);
+        }
+        if matches!(&state.storage, ArrayStorage::InlineRecord(_)) {
+            return Err(ArrayPrimitiveWriteError::UnsupportedStorage);
         }
         if state.element_contract.is_some() {
-            return false;
+            return Err(ArrayPrimitiveWriteError::ElementContract {
+                reason: "runtime-type-mismatch",
+            });
         }
         let mut items = &mut state.storage;
         if let Some(values) = Self::ensure_inline_f64(&mut items) {
             if idx < values.len() {
                 values[idx] = value;
-                true
+                Ok(())
             } else if idx == values.len() {
                 values.push(value);
-                true
+                Ok(())
             } else {
                 if Self::oob_strict_enabled() {
                     crate::runtime::observe::mark_oob();
                 }
-                false
+                Err(ArrayPrimitiveWriteError::InvalidIndex)
             }
         } else {
             let boxed = Self::ensure_boxed(&mut items);
             if idx < boxed.len() {
                 boxed[idx] = Box::new(FloatBox::new(value));
-                true
+                Ok(())
             } else if idx == boxed.len() {
                 boxed.push(Box::new(FloatBox::new(value)));
-                true
+                Ok(())
             } else {
                 if Self::oob_strict_enabled() {
                     crate::runtime::observe::mark_oob();
                 }
-                false
+                Err(ArrayPrimitiveWriteError::InvalidIndex)
             }
         }
     }

@@ -140,3 +140,18 @@ Smoke checks:
   - `get -> nyash.runtime_data.get_hh` または `nyash.array.slot_load_hi`
   - `set -> nyash.runtime_data.set_hhh` または `nyash.array.slot_store_hih/slot_store_hii`
 - compiled executable returns `rc=4`
+
+### Primitive Array state-write outcomes
+
+The native Array state owner retains structured outcomes for i64, Bool and F64
+stores before the existing raw compatibility projection. Invalid index,
+unsupported storage and element-contract rejection are distinct internal errors;
+contract failures retain the existing runtime-type-mismatch,
+negative-to-unsigned or out-of-range reason. Returned validation failures do not
+change storage or length. Validation and mutation use the same Array state lock,
+so shared aliases observe the installed contract.
+
+Existing `slot_store_*_raw` booleans and kernel sentinel results keep their
+compatibility meaning. This internal Result boundary introduces no C ABI or
+source acceptance. It does not promise allocation-failure recovery; typed Script
+C execution remains stopped pending the checked runtime and physical consumer.
