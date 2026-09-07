@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-D1"
-current_execution_cohort = "constructor_lifecycle_c_body_invocation_contract_d1"
-current_design_stop = "CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-D1"
-current_blocker_token = "Name the one physical issuer for checked-runtime diagnostic site ordinals and the one V4 text-tool owner that applies the selected session triple/layout; C must not synthesize either from coordinates or environment."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-PARSER-CLOSURE-I0"
+current_execution_cohort = "constructor_lifecycle_physical_parser_closure_i0"
+current_design_stop = "none"
+current_blocker_token = "Close the existing physical parser’s residual terminator, SSA, PHI, Invoke-result, return-role, scalar-tag and layout-slot relations before V4 artifact admission; no new decoder or semantic authority."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -43,8 +43,8 @@ of session I0 retains one explicit archive through lifecycle EXE compilation
 and link; C V3 now validates descriptor/header geometry plus the selected LLVM target-data Diagnostic/Frame layout before pending. Direct physical input I0 owns
 the one-pass final ABI transport and real parser ingress. C body consumer D0 selected the V4 Pair emitter, but its I0 is blocked before code: the physical input does not yet issue checked-runtime diagnostic sites, and the current text-tool helper does not apply the selected session triple/layout. D1 names those physical invocation products before reopening I0. Pair EXE30/linked OBJ30 remain unproven.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-D1"
-next_execution_card = "none until design stop is promoted; then CONSTRUCTOR-LIFECYCLE-PHYSICAL-PARSER-CLOSURE-I0"
+next_design_card = "none (C body invocation D1 accepted)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-PARSER-CLOSURE-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
