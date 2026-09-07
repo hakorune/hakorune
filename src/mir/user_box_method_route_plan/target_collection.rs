@@ -134,7 +134,10 @@ fn return_value_box_name_inner(
             value: ConstValue::Null | ConstValue::Void,
             ..
         } => Some(None),
-        MirInstruction::NewBox { box_type, .. } => Some(Some(box_type.clone())),
+        MirInstruction::NewBox {
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } => Some(Some(box_type.clone())),
         MirInstruction::Phi {
             inputs, type_hint, ..
         } => {

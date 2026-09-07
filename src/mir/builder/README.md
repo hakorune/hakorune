@@ -24,6 +24,11 @@ Pointers:
 旧 JoinIR merge/remap は `cfg(test)` の reference surface であり、production
 の ValueId lifecycle collection は `mir_value_id_inventory.rs` が所有する。
 
+Construction target migration: MIR and Core allocation now carry
+`ConstructionTarget::Named(String)` explicitly. Existing source/provider behavior
+and name-only JSON remain unchanged. Intrinsic literal targets wait for selected
+consumer preparation; no implicit target-to-provider-name adapter is provided.
+
 ## Active replacement law
 
 This directory remains the one live production MirBuilder. Do not build an

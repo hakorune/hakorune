@@ -376,7 +376,7 @@ mod tests {
         let entry = function.get_block_mut(BasicBlockId::new(0)).unwrap();
         entry.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         });
         entry.add_instruction(MirInstruction::Const {

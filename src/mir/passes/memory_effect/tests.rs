@@ -25,7 +25,7 @@ fn memory_effect_prunes_dead_load_from_private_carrier_root() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -80,7 +80,7 @@ fn memory_effect_prunes_overwritten_store_on_private_carrier_root() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -150,7 +150,7 @@ fn memory_effect_forwards_same_block_store_to_load_from_private_carrier_root() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -217,7 +217,7 @@ fn memory_effect_eliminates_same_block_redundant_load_on_private_carrier_root() 
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -284,7 +284,7 @@ fn memory_effect_keeps_store_when_load_intervenes_on_private_carrier_root() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -367,7 +367,7 @@ fn memory_effect_prunes_private_carrier_store_overwritten_by_successor_store() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());

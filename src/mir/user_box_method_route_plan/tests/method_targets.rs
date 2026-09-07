@@ -350,7 +350,7 @@ fn refresh_module_user_box_method_routes_recovers_route_result_through_nested_ph
     let mut pick_block = BasicBlock::new(BasicBlockId::new(0));
     pick_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Page".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Page".to_string()),
         args: vec![],
     });
     pick_block.set_terminator(MirInstruction::Return {

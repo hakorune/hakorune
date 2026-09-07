@@ -105,7 +105,7 @@ fn build_typed_object_plans_infers_untyped_i64_and_handle_fields() {
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Holder".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Holder".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -120,7 +120,7 @@ fn build_typed_object_plans_infers_untyped_i64_and_handle_fields() {
     });
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(3),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::FieldSet {
@@ -163,7 +163,7 @@ fn build_typed_object_plans_uses_phi_value_type_before_input_walk() {
     let block_id = BasicBlockId::new(0);
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Holder".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Holder".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -217,12 +217,12 @@ fn box_origin_for_value_uses_phi_value_type_before_input_walk() {
     let block_id = BasicBlockId::new(0);
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Cell".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Cell".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "OtherCell".to_string(),
+        target: crate::mir::ConstructionTarget::Named("OtherCell".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Phi {
@@ -336,7 +336,7 @@ fn build_typed_object_plans_infers_birth_param_field_storage_from_newbox_args() 
     });
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(3),
-        box_type: "Page".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Page".to_string()),
         args: vec![ValueId::new(1), ValueId::new(2)],
     });
     main.add_block(main_block);
@@ -403,7 +403,7 @@ fn build_typed_object_plans_infers_birth_param_storage_through_same_module_metho
     let mut make_block = BasicBlock::new(BasicBlockId::new(0));
     make_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "Item".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Item".to_string()),
         args: vec![ValueId::new(1)],
     });
     make.add_block(make_block);
@@ -420,7 +420,7 @@ fn build_typed_object_plans_infers_birth_param_storage_through_same_module_metho
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Factory".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Factory".to_string()),
         args: vec![],
     });
     main_block.add_instruction(MirInstruction::Const {
@@ -593,7 +593,7 @@ fn build_typed_object_plans_accepts_observed_empty_user_box() {
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Worker".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Worker".to_string()),
         args: vec![],
     });
     function.add_block(block);
@@ -629,7 +629,7 @@ fn build_typed_object_plans_rejects_conflicting_untyped_storage() {
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Bad".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Bad".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -644,7 +644,7 @@ fn build_typed_object_plans_rejects_conflicting_untyped_storage() {
     });
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(3),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::FieldSet {

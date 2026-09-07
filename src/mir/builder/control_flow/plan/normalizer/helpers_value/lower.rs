@@ -522,7 +522,7 @@ impl super::super::PlanNormalizer {
                 record_newbox_metadata(builder, result_id, class);
                 effects.push(CoreEffectPlan::NewBox {
                     dst: result_id,
-                    box_type: class.clone(),
+                    target: crate::mir::ConstructionTarget::Named(class.clone()),
                     args: arg_ids,
                 });
                 Ok((result_id, effects))
@@ -537,7 +537,7 @@ impl super::super::PlanNormalizer {
                 record_newbox_metadata(builder, array_id, "ArrayBox");
                 effects.push(CoreEffectPlan::NewBox {
                     dst: array_id,
-                    box_type: "ArrayBox".to_string(),
+                    target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
                     args: vec![],
                 });
                 effects.push(CoreEffectPlan::MethodCall {
@@ -576,7 +576,7 @@ impl super::super::PlanNormalizer {
                 record_newbox_metadata(builder, map_id, "MapBox");
                 effects.push(CoreEffectPlan::NewBox {
                     dst: map_id,
-                    box_type: "MapBox".to_string(),
+                    target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
                     args: vec![],
                 });
                 effects.push(CoreEffectPlan::MethodCall {

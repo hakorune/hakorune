@@ -146,7 +146,7 @@ mod tests {
         let block = function.get_block_mut(function.entry_block).unwrap();
         block.add_instruction(MirInstruction::NewBox {
             dst: array,
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::ArrayStateContractClaim {

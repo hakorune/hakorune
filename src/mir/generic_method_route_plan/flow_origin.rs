@@ -260,7 +260,11 @@ pub(super) fn generic_array_flow_origin_box_name(
             };
             for (instruction_index, inst) in block.instructions.iter().enumerate() {
                 match inst {
-                    MirInstruction::NewBox { dst, box_type, .. } => {
+                    MirInstruction::NewBox {
+                        dst,
+                        target: crate::mir::ConstructionTarget::Named(box_type),
+                        ..
+                    } => {
                         let Some(origin_box) = collection_origin_box_name(box_type) else {
                             continue;
                         };
@@ -542,9 +546,11 @@ fn generic_pure_string_flow_marks_instruction(
             dst,
             value: ConstValue::String(_),
         } => mark(string_values, *dst),
-        MirInstruction::NewBox { dst, box_type, .. } if box_type == "StringBox" => {
-            mark(string_values, *dst)
-        }
+        MirInstruction::NewBox {
+            dst,
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } if box_type == "StringBox" => mark(string_values, *dst),
         MirInstruction::Copy { dst, src } if string_values.contains(src) => {
             mark(string_values, *dst)
         }

@@ -251,7 +251,7 @@ mod tests {
         match effects.first() {
             Some(CoreEffectPlan::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             }) => {
                 assert_eq!(*dst, map_id);

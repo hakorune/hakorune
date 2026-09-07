@@ -134,7 +134,7 @@ mod tests {
         let block = function.get_block_mut(entry).unwrap();
         block.add_instruction(MirInstruction::NewBox {
             dst: object,
-            box_type: "Page".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Page".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::FieldSet {

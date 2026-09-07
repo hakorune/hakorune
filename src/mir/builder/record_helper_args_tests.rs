@@ -306,7 +306,7 @@ fn infer_same_module_helper_receiver_box_name_follows_phi_inputs_without_hint() 
         .expect("entry block");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "FooBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("FooBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {

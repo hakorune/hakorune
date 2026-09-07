@@ -27,7 +27,7 @@ mod tests {
             .unwrap()
             .add_instruction(MirInstruction::NewBox {
                 dst: arr,
-                box_type: "ArrayBox".into(),
+                target: crate::mir::ConstructionTarget::Named("ArrayBox".into()),
                 args: vec![],
             });
         let idx0 = f.next_value_id();
@@ -74,7 +74,7 @@ mod tests {
             .unwrap()
             .add_instruction(MirInstruction::NewBox {
                 dst: m,
-                box_type: "MapBox".into(),
+                target: crate::mir::ConstructionTarget::Named("MapBox".into()),
                 args: vec![],
             });
         let k = f.next_value_id();

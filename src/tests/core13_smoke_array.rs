@@ -21,7 +21,7 @@ fn core13_array_boxcall_push_len_get() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: a,
-            box_type: "ArrayBox".into(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".into()),
             args: vec![],
         });
     // push(7)
@@ -120,7 +120,7 @@ fn core13_array_boxcall_set_get() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: a,
-            box_type: "ArrayBox".into(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".into()),
             args: vec![],
         });
     let zero = f.next_value_id();

@@ -71,7 +71,10 @@ fn same_module_instruction_supported(
                 | ConstValue::Null
         ),
         MirInstruction::Copy { .. } => true,
-        MirInstruction::NewBox { box_type, .. } => {
+        MirInstruction::NewBox {
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } => {
             matches!(box_type.as_str(), "ArrayBox" | "DirectArrayI64" | "MapBox")
                 || typed_plan_type_ids.contains_key(box_type)
         }
@@ -230,7 +233,7 @@ mod tests {
         let mut block = BasicBlock::new(entry);
         block.instructions.push(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         });
         block.instructions.push(MirInstruction::LegacyCallV0 {

@@ -161,7 +161,7 @@ fn parse_v1_accepts_newbox_and_field_get() {
 
     assert!(matches!(
         &bb0.instructions[0],
-        MirInstruction::NewBox { dst, box_type, args }
+        MirInstruction::NewBox { dst, target: crate::mir::ConstructionTarget::Named(box_type), args }
             if *dst == ValueId::new(1) && box_type == "ArrayBox" && args.is_empty()
     ));
     assert!(matches!(
@@ -191,7 +191,7 @@ fn parse_v1_typed_constructor_preserves_valid_newbox_shape() {
         .instructions;
     assert!(matches!(
         &instructions[0],
-        MirInstruction::NewBox { dst, box_type, args }
+        MirInstruction::NewBox { dst, target: crate::mir::ConstructionTarget::Named(box_type), args }
             if *dst == ValueId::new(1) && box_type == "ArrayBox" && args.is_empty()
     ));
 
@@ -278,7 +278,10 @@ fn parse_v1_legacy_call_writers_stop_before_block_mutation() {
             error.contains("[freeze:contract][mir-json-v1/legacy-call-stopped]"),
             "unexpected error for {callee_type}: {error}"
         );
-        assert!(block.instructions.is_empty(), "{callee_type} mutated the block");
+        assert!(
+            block.instructions.is_empty(),
+            "{callee_type} mutated the block"
+        );
         assert_eq!(max_value_id, 0, "{callee_type} changed the value-id cursor");
     }
 }

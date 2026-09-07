@@ -136,9 +136,11 @@ struct BoxTypeInspectorDescribeMarkers {
 impl BoxTypeInspectorDescribeMarkers {
     fn observe(&mut self, instruction: &MirInstruction) {
         match instruction {
-            MirInstruction::NewBox { box_type, args, .. }
-                if args.is_empty() && box_type == "MapBox" =>
-            {
+            MirInstruction::NewBox {
+                target: crate::mir::ConstructionTarget::Named(box_type),
+                args,
+                ..
+            } if args.is_empty() && box_type == "MapBox" => {
                 self.saw_map_birth = true;
             }
             MirInstruction::Const {
@@ -218,7 +220,7 @@ impl BoxTypeInspectorDescribeFacts {
             }
             MirInstruction::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } if args.is_empty() && box_type == "MapBox" => {
                 self.saw_map_birth = true;

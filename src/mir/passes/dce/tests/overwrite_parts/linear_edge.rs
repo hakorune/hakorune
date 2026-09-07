@@ -23,7 +23,7 @@ fn test_dce_prunes_overwritten_local_field_set_across_linear_edge() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -121,7 +121,7 @@ fn test_dce_keeps_cross_block_local_field_set_when_successor_reads_before_overwr
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());

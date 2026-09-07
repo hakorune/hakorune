@@ -71,7 +71,7 @@ fn refresh_module_user_box_method_routes_refines_placeholder_param_for_string_fi
     let mut put_block = BasicBlock::new(BasicBlockId::new(0));
     put_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(12),
-        box_type: "ContentChunk".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ContentChunk".to_string()),
         args: vec![ValueId::new(11)],
     });
     put_block.add_instruction(MirInstruction::Copy {
@@ -155,7 +155,7 @@ fn refresh_module_user_box_method_routes_refines_placeholder_param_for_string_fi
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(40),
-        box_type: "Store".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Store".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(MirInstruction::Const {
@@ -283,7 +283,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_field_origin
     let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
     birth_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Heap".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Heap".to_string()),
         args: Vec::new(),
     });
     birth_block.add_instruction(MirInstruction::FieldSet {
@@ -352,7 +352,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_field_origin
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(10),
-        box_type: "Store".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Store".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(MirInstruction::LegacyCallV0 {

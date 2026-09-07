@@ -74,9 +74,9 @@ pub(crate) fn format_call_target(
             args_str,
             receiver
         ),
-        Some(Callee::BirthConstructor { key, receiver }) => format!(
-            "call_birth {key:?}({args_str}) [recv: {receiver}]"
-        ),
+        Some(Callee::BirthConstructor { key, receiver }) => {
+            format!("call_birth {key:?}({args_str}) [recv: {receiver}]")
+        }
         Some(Callee::Constructor { box_type }) => {
             format!("call_constructor {}({})", box_type, args_str)
         }
@@ -249,8 +249,9 @@ pub fn format_instruction(
             format!("pinned_text.residence.finish {:?}", residence)
         }
 
-        MirInstruction::ObjectFieldGet { dst, base, field } =>
-            format!("{} = object.field.get {} {:?}", dst, base, field),
+        MirInstruction::ObjectFieldGet { dst, base, field } => {
+            format!("{} = object.field.get {} {:?}", dst, base, field)
+        }
         MirInstruction::FieldGet {
             dst,
             base,
@@ -494,7 +495,7 @@ pub fn format_instruction(
 
         MirInstruction::NewBox {
             dst,
-            box_type,
+            target: crate::mir::ConstructionTarget::Named(box_type),
             args,
         } => {
             let args_str = args

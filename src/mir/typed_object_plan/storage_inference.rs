@@ -142,7 +142,11 @@ fn observed_user_newbox_names(module: &MirModule) -> BTreeSet<String> {
     for function in module.functions.values() {
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                if let MirInstruction::NewBox { box_type, .. } = inst {
+                if let MirInstruction::NewBox {
+                    target: crate::mir::ConstructionTarget::Named(box_type),
+                    ..
+                } = inst
+                {
                     if module.metadata.user_box_decls.contains_key(box_type)
                         || module.metadata.user_box_field_decls.contains_key(box_type)
                     {

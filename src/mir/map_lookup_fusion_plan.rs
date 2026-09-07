@@ -419,7 +419,7 @@ mod tests {
             .expect("entry");
         block.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::Const {
@@ -483,7 +483,7 @@ mod tests {
             .expect("entry");
         block.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::Const {

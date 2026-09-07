@@ -12,7 +12,7 @@ fn refresh_function_map_repr_plans_emits_generic_hash_runtime_rows() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -51,7 +51,7 @@ fn refresh_function_map_repr_plans_emits_local_i64_key_map_shadow_rows() {
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {
@@ -161,7 +161,7 @@ fn refresh_function_map_repr_plans_joins_set_receiver_alias_and_later_public_rea
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(3),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {
@@ -222,7 +222,7 @@ fn local_fastpath_fact_aggregator_emits_map_scalar_no_publication_get_fact() {
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {

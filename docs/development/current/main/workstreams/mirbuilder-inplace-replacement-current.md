@@ -598,30 +598,39 @@ under their existing dispositions. No blanket Stop, new registry or legacy-plan 
 
 #### MIR-COLLECTION-LITERAL-CONSTRUCTION-D1
 
-Accepted [construction design](../design/collection-literal-construction-ssot.md).
-Worker/root inventory includes raw/typed-local and Loop Core source, Core13
-name-erasure, semantic re-entry observers, legacy wire and four selected C
-consumers. Empty allocation itself requires published selection: existing frame
-kind8 will carry exact allocation site/dst; no dummy Call activates the route.
-This closes representation design, not collection Facts/Recipe or runtime acceptance.
+Accepted [construction design](../design/collection-literal-construction-ssot.md)
+owns the raw/typed/Loop, Core13, empty selection, reader and C consumer inventory.
+Representation design is closed; source Facts/Recipe and runtime proof are not.
 
 #### MIR-COLLECTION-ALLOCATION-TARGET-NAMED-I0
 
-Status: **selected fast / BoxShape**, first step of the accepted <=4-commit series.
-Decision: replace string-only construction target in existing MIR/Core products.
-Source authority + canonical issuer: unchanged source owners; all existing source production remains Named in this step.
-Non-authority: target display/type observation cannot authorize name resolution for intrinsic targets.
-Fail-fast boundary: explicit target shape/unsupported consumer; never intrinsic-to-name fallback.
-Smallest next slice: Named conversion plus structural/wire preservation; no intrinsic source emission.
-Non-claims: Array/Map source cutover, birth deletion, empty/Loop runtime acceptance or full R7.
+MIR/Core targets are Named-only; source, old wire and provider behavior remain.
+No intrinsic variant/source, name adapter or birth deletion. Remaps preserve target;
+semantic readers match Named. Origin tests moved to a standard child module with
+unchanged logical paths; owner795->727 and changed source max777.
+Cargo check (plugins, including test targets) and fresh library test build pass;
+60 focused tests cover wire, remap, raw/located, collection/source and view owners.
+Existing Pair/Bool EXE/OBJ/cleanup host1 passes (14.19s), not new literal execution.
+Canonical corridor guard passes. No whole-suite/backend-parity claim.
 
-Owner, finite semantic inventory and ordered gates are in the construction design.
-Required: focused named construction, remap, old-wire tests; existing canonical
-corridor/pointer guards; module/reference updates. Preserve old behavior and
-classify failures before closeout. Intrinsic production count remains zero until
-consumer preparation passes. Source changes stay below800; >=760 triggers split
-planning. Next consumer preparation then simultaneous raw/typed-local/Core Array
-cutover retires Array-only birth edges; Map/Main/shared helper remain separate.
+#### MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0
+
+Status: **selected fast**, step2 of the accepted construction series.
+Decision: add IntrinsicArray only with its selected physical consumer and rejection rules.
+Source authority + canonical issuer: accepted literal source owners remain gated; production source continues to issue Named.
+Non-authority: body names, type/origin metadata and unrelated call rows cannot issue intrinsic identity.
+Fail-fast boundary: intrinsic shape/required exact row/unsupported consumer before artifact; no provider-name fallback.
+Smallest next slice: intrinsic variant, view selection, frame kind8 and four C prepass/emission consumers; synthetic boundary acceptance only.
+Non-claims: source cutover, birth deletion, Loop/empty source execution, Map/Main, VM/WASM parity or R7 closure.
+
+Use the [construction design](../design/collection-literal-construction-ssot.md)
+for the finite reader inventory and transport contract. Intrinsic args must be
+empty; its allocation alone selects the published session. Prepass peeks,
+emission takes once, finish checks residuals. Reject ambiguous body tags/names,
+bad destination/payload, missing/wrong/duplicate rows; preserve Named old wire.
+Core13 must preserve intrinsic target; named-only observers must not reclassify it.
+Keep all actual source producers Named until consumer preparation passes.
+Then raw/typed-local/Core Array cutover retires its birth edges with source OBJ/EXE/failure evidence.
 
 ## Source and ownership budget
 

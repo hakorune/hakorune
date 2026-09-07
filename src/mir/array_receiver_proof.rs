@@ -142,7 +142,7 @@ fn value_is_array_box_newbox(
     let Some(inst) = def_instruction(function, def_map, value) else {
         return false;
     };
-    matches!(inst, MirInstruction::NewBox { box_type, .. } if box_type == "ArrayBox")
+    matches!(inst, MirInstruction::NewBox { target: crate::mir::ConstructionTarget::Named(box_type), .. } if box_type == "ArrayBox")
 }
 
 fn def_instruction<'a>(

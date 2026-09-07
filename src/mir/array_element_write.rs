@@ -414,11 +414,13 @@ fn classify_state_term(
     definitions: &BTreeMap<ValueId, &MirInstruction>,
 ) -> ArrayStateTermKind {
     match definitions.get(&value).copied() {
-        Some(MirInstruction::NewBox { dst, box_type, .. }) if box_type == "ArrayBox" => {
-            ArrayStateTermKind::Fresh {
-                allocation_site: *dst,
-            }
-        }
+        Some(MirInstruction::NewBox {
+            dst,
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        }) if box_type == "ArrayBox" => ArrayStateTermKind::Fresh {
+            allocation_site: *dst,
+        },
         Some(MirInstruction::Copy { src, .. })
         | Some(MirInstruction::LocalContractWrite { src, .. }) => {
             ArrayStateTermKind::SameAs { source: *src }

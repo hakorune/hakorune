@@ -62,7 +62,7 @@ pub(super) fn collect_userbox_method_main_facts(
             }
             MirInstruction::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } if box_type == expected_box && args.is_empty() => {
                 newbox_count += 1;

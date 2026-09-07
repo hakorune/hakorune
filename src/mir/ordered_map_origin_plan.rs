@@ -186,7 +186,10 @@ fn value_box_type(
     let (block_id, instruction_index) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
     match block.instructions.get(instruction_index)? {
-        MirInstruction::NewBox { box_type, .. } => Some(MirType::Box(box_type.clone())),
+        MirInstruction::NewBox {
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } => Some(MirType::Box(box_type.clone())),
         _ => None,
     }
 }
@@ -374,7 +377,7 @@ mod tests {
 
         entry.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "OrderedMapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("OrderedMapBox".to_string()),
             args: vec![],
         });
         push_const(entry, 2, ConstValue::String("i".to_string()));
@@ -470,7 +473,7 @@ mod tests {
 
         entry.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "OrderedMapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("OrderedMapBox".to_string()),
             args: vec![],
         });
         push_const(entry, 2, ConstValue::String("i".to_string()));

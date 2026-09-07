@@ -30,7 +30,7 @@ fn records_runtime_data_has_from_typed_object_map_field_origin_with_redundant_re
     let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
     birth_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     birth_block.add_instruction(MirInstruction::FieldSet {
@@ -127,7 +127,7 @@ fn records_runtime_data_get_for_typed_object_mapbox_result_origin() {
     let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
     birth_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     birth_block.add_instruction(MirInstruction::FieldSet {
@@ -161,7 +161,7 @@ fn records_runtime_data_get_for_typed_object_mapbox_result_origin() {
     });
     put_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(3),
-        box_type: "ContentChunk".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ContentChunk".to_string()),
         args: vec![],
     });
     put_block.add_instruction(method_call(Some(4), "MapBox", "set", 2, vec![1, 3]));
@@ -234,7 +234,7 @@ fn records_runtime_data_arraybox_push_as_cold_core_method_route() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -293,7 +293,7 @@ fn records_runtime_data_arraybox_get_as_warm_core_method_route() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -339,7 +339,7 @@ fn records_runtime_data_has_mapbox_receiver_origin_without_promotion() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {
@@ -479,7 +479,7 @@ fn records_runtime_data_arraybox_has_as_arrayhas_core_method_route() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {

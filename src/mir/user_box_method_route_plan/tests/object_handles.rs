@@ -121,7 +121,7 @@ fn refresh_module_user_box_method_routes_accepts_nullable_object_handle_method_t
     let mut handle_block = BasicBlock::new(BasicBlockId::new(1));
     handle_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "Handle".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Handle".to_string()),
         args: Vec::new(),
     });
     handle_block.set_terminator(MirInstruction::Return {
@@ -142,7 +142,7 @@ fn refresh_module_user_box_method_routes_accepts_nullable_object_handle_method_t
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(3),
-        box_type: "Allocator".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Allocator".to_string()),
         args: Vec::new(),
     });
     block.add_instruction(MirInstruction::LegacyCallV0 {
@@ -231,7 +231,7 @@ fn refresh_module_user_box_method_routes_declared_object_return_overrides_void_i
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "Parser".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Parser".to_string()),
         args: Vec::new(),
     });
     block.add_instruction(MirInstruction::LegacyCallV0 {
@@ -335,7 +335,7 @@ fn refresh_module_user_box_method_routes_accepts_loop_carried_nullable_object_re
     let mut body = BasicBlock::new(BasicBlockId::new(2));
     body.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(5),
-        box_type: "Item".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Item".to_string()),
         args: Vec::new(),
     });
     body.add_instruction(MirInstruction::Select {
@@ -382,7 +382,7 @@ fn refresh_module_user_box_method_routes_accepts_loop_carried_nullable_object_re
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(10),
-        box_type: "Queue".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Queue".to_string()),
         args: Vec::new(),
     });
     block.add_instruction(MirInstruction::LegacyCallV0 {
@@ -448,7 +448,7 @@ fn refresh_module_user_box_method_routes_accepts_mixed_runtime_get_return() {
     let mut item_block = BasicBlock::new(BasicBlockId::new(0));
     item_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: Vec::new(),
     });
     item_block.add_instruction(MirInstruction::LegacyCallV0 {
@@ -484,7 +484,7 @@ fn refresh_module_user_box_method_routes_accepts_mixed_runtime_get_return() {
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(10),
-        box_type: "Node".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Node".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(MirInstruction::Const {
@@ -582,7 +582,7 @@ fn refresh_module_user_box_method_routes_refines_void_placeholder_object_route_r
     let mut make_block = BasicBlock::new(BasicBlockId::new(0));
     make_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "Item".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Item".to_string()),
         args: Vec::new(),
     });
     make_block.set_terminator(MirInstruction::Return {
@@ -648,7 +648,7 @@ fn refresh_module_user_box_method_routes_refines_void_placeholder_object_route_r
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(10),
-        box_type: "Factory".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Factory".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(MirInstruction::LegacyCallV0 {

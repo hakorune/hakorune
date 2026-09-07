@@ -206,7 +206,7 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
         }
         CoreEffectPlan::NewBox {
             dst,
-            box_type: _,
+            target: _,
             args,
         } => {
             *dst = remap_value_id(value_map, *dst);

@@ -52,17 +52,17 @@ fn refresh_module_global_call_routes_marks_jsonfrag_instruction_array_normalizer
         },
         MirInstruction::NewBox {
             dst: ValueId::new(4),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         MirInstruction::NewBox {
             dst: ValueId::new(5),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         MirInstruction::NewBox {
             dst: ValueId::new(6),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         method_call(

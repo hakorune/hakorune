@@ -414,7 +414,7 @@ impl MirInterpreter {
                                 for inst in &block.instructions {
                                     if let crate::mir::MirInstruction::NewBox {
                                         dst,
-                                        box_type,
+                                        target: crate::mir::ConstructionTarget::Named(box_type),
                                         ..
                                     } = inst
                                     {

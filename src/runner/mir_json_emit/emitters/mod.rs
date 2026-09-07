@@ -103,7 +103,9 @@ fn emit_instruction(
     }
 
     match inst {
-        I::ObjectFieldGet { .. } => Err("[freeze:contract][mir-json/object-field-get-requires-published-view]".into()),
+        I::ObjectFieldGet { .. } => {
+            Err("[freeze:contract][mir-json/object-field-get-requires-published-view]".into())
+        }
         I::ArrayStateContractClaim { contract_id, array } => Ok(serde_json::json!({
             "op": "array_state_contract_claim",
             "contract_id": contract_id,
@@ -338,7 +340,7 @@ fn emit_instruction(
         } => Ok(control_flow::emit_checked_callout_end(site_id, lease_slot)),
         I::NewBox {
             dst,
-            box_type,
+            target: crate::mir::ConstructionTarget::Named(box_type),
             args,
         } => Ok(calls::emit_new_box(dst, box_type, args)),
         I::NewClosure {

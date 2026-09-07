@@ -92,7 +92,7 @@ pub(super) fn apply_v1_instruction(
             }
             block_ref.add_instruction(MirInstruction::NewBox {
                 dst: ValueId::new(dst),
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             });
             *max_value_id = (*max_value_id).max(dst + 1);

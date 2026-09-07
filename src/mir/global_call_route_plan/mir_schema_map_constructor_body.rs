@@ -149,7 +149,7 @@ impl MirSchemaMapWrapperCandidateFacts {
             }
             MirInstruction::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } if args.is_empty() && box_type == "ArrayBox" => {
                 self.saw_array_birth = true;
@@ -157,7 +157,7 @@ impl MirSchemaMapWrapperCandidateFacts {
             }
             MirInstruction::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } if args.is_empty() && box_type == "MapBox" => {
                 self.saw_map_birth = true;
@@ -345,7 +345,7 @@ impl MirSchemaMapConstructorFacts {
             }
             MirInstruction::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } if args.is_empty() => {
                 let class = match box_type.as_str() {

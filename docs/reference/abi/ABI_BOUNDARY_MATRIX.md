@@ -92,3 +92,9 @@ coverage or concurrent-compile support.
 Published Call(Extern), with or without a row, rejects at that same shared peek
 before extern-plan/name dispatch, matching Rust host admission. This does not
 restrict generic no-session Extern or the independent ExternCall opcode.
+
+Rust MIR/Core construction now uses an explicit `ConstructionTarget::Named(String)`
+target. This representation-preserving stage does not change the existing
+`newbox/type` JSON or runtime ABI. Intrinsic literal selection, its typed frame
+kind and source cutover are still pending under the
+[construction design](../../development/current/main/design/collection-literal-construction-ssot.md).

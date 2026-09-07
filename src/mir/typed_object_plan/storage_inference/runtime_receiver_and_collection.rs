@@ -84,7 +84,7 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
     let mut allocate_block = BasicBlock::new(BasicBlockId::new(0));
     allocate_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "Handle".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Handle".to_string()),
         args: vec![ValueId::new(1)],
     });
     allocate_block.set_terminator(MirInstruction::Return {
@@ -159,7 +159,7 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
     });
     store_put_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(3),
-        box_type: "Allocator".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Allocator".to_string()),
         args: vec![],
     });
     store_put_block.add_instruction(MirInstruction::Const {
@@ -181,7 +181,7 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
     });
     store_put_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(6),
-        box_type: "Chunk".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Chunk".to_string()),
         args: vec![ValueId::new(2), ValueId::new(1), ValueId::new(5)],
     });
     store_put.add_block(store_put_block);
@@ -245,12 +245,12 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Store".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Store".to_string()),
         args: vec![],
     });
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "Chunker".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Chunker".to_string()),
         args: vec![],
     });
     main_block.add_instruction(MirInstruction::Const {
@@ -355,7 +355,7 @@ fn build_typed_object_plans_infers_birth_param_storage_from_collection_get_eleme
     let mut page_birth_block = BasicBlock::new(BasicBlockId::new(0));
     page_birth_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: Vec::new(),
     });
     page_birth_block.add_instruction(MirInstruction::FieldSet {
@@ -438,7 +438,7 @@ fn build_typed_object_plans_infers_birth_param_storage_from_collection_get_eleme
     });
     allocate_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(4),
-        box_type: "Handle".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Handle".to_string()),
         args: vec![ValueId::new(3)],
     });
     allocate.add_block(allocate_block);

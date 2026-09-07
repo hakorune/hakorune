@@ -40,7 +40,7 @@ pub(super) fn newbox_named(
 ) -> Option<ValueId> {
     let MirInstruction::NewBox {
         dst,
-        box_type,
+        target: crate::mir::ConstructionTarget::Named(box_type),
         args,
     } = inst
     else {

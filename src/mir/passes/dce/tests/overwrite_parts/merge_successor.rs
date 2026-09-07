@@ -29,7 +29,7 @@ fn test_dce_prunes_overwritten_local_field_set_into_merge_successor() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -174,7 +174,7 @@ fn test_dce_keeps_merge_predecessor_field_set_when_merge_reads_before_overwrite(
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());

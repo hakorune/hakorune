@@ -38,7 +38,7 @@ fn mir_schema_i_function(name: &str) -> MirFunction {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {

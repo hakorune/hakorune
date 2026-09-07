@@ -22,7 +22,7 @@ fn vtable_map_set_and_strict_unknown() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: mapv,
-            box_type: "MapBox".into(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".into()),
             args: vec![],
         });
     let k = f.next_value_id();
@@ -87,7 +87,7 @@ fn vtable_map_set_and_strict_unknown() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: m2,
-            box_type: "MapBox".into(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".into()),
             args: vec![],
         });
     // Call unknown method

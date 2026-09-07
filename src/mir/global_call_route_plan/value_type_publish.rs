@@ -219,7 +219,10 @@ fn box_name_from_origin_instruction(
             value: ConstValue::String(_),
             ..
         } => Some("StringBox".to_string()),
-        MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+        MirInstruction::NewBox {
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } => Some(box_type.clone()),
         MirInstruction::Phi {
             type_hint: Some(ty),
             ..

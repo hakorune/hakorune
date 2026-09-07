@@ -40,7 +40,7 @@ fn box_type_inspector_describe_function_with_return_type(
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {
@@ -130,7 +130,7 @@ fn arbitrary_map_return_function(name: &str) -> MirFunction {
     let block = function.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     block.instructions.push(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.set_terminator(MirInstruction::Return {
@@ -167,7 +167,7 @@ fn box_type_inspector_describe_typed_phi_function(name: &str) -> MirFunction {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {

@@ -27,7 +27,7 @@ fn refresh_module_global_call_routes_accepts_typed_object_handle_return() {
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     entry.instructions.push(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "TreeNode".to_string(),
+        target: crate::mir::ConstructionTarget::Named("TreeNode".to_string()),
         args: vec![],
     });
     entry.set_terminator(MirInstruction::Return {
@@ -65,7 +65,7 @@ fn refresh_module_global_call_routes_accepts_builtin_map_handle_return() {
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     entry.instructions.push(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.instructions.push(MirInstruction::Copy {
@@ -110,7 +110,7 @@ fn refresh_module_global_call_routes_rejects_legacy_scanner_void_map_return() {
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     entry.instructions.push(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.set_terminator(MirInstruction::Return {
@@ -150,7 +150,7 @@ fn refresh_module_global_call_routes_accepts_unknown_signature_builtin_array_han
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     entry.instructions.push(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     entry.set_terminator(MirInstruction::Return {

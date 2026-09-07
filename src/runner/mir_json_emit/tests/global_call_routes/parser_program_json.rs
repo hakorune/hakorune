@@ -35,7 +35,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(3),
-            box_type: "ParserBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ParserBox".to_string()),
             args: vec![],
         },
         MirInstruction::Copy {

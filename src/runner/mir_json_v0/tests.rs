@@ -86,7 +86,7 @@ fn parse_direct_newbox_remains_positive() {
         .instructions;
     assert!(matches!(
         &instructions[0],
-        MirInstruction::NewBox { dst, box_type, args }
+        MirInstruction::NewBox { dst, target: crate::mir::ConstructionTarget::Named(box_type), args }
             if *dst == ValueId::new(2) && box_type == "MapBox" && args.is_empty()
     ));
 }

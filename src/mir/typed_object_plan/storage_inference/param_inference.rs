@@ -82,7 +82,12 @@ fn infer_birth_param_box_origins(
         };
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::NewBox { box_type, args, .. } = inst else {
+                let MirInstruction::NewBox {
+                    target: crate::mir::ConstructionTarget::Named(box_type),
+                    args,
+                    ..
+                } = inst
+                else {
                     continue;
                 };
                 if !module.metadata.user_box_decls.contains_key(box_type)
@@ -278,7 +283,12 @@ fn infer_birth_param_storages(
         };
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::NewBox { box_type, args, .. } = inst else {
+                let MirInstruction::NewBox {
+                    target: crate::mir::ConstructionTarget::Named(box_type),
+                    args,
+                    ..
+                } = inst
+                else {
                     continue;
                 };
                 if !module.metadata.user_box_decls.contains_key(box_type)

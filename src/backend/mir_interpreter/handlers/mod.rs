@@ -51,7 +51,7 @@ impl MirInterpreter {
             MirInstruction::Const { dst, value } => self.handle_const(*dst, value)?,
             MirInstruction::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } => self.handle_new_box(*dst, box_type, args)?,
             MirInstruction::BinOp { dst, op, lhs, rhs } => {

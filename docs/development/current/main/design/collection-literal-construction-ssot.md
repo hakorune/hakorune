@@ -8,8 +8,8 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 ## Current capsule
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
-- Implementation: string-only NewBox remains; no intrinsic source cutover yet.
-- Next: behavior-preserving Named target conversion, then selected consumer preparation.
+- Implementation: MIR/Core allocation carries ConstructionTarget::Named(String); no intrinsic variant/source cutover yet.
+- Next: add IntrinsicArray with selected consumer preparation; existing sources stay Named.
 - Production stop: source intrinsic emission waits for consumer and preservation acceptance.
 - Retirement: Array literal birth callers/effects disappear in the cutover series; Map/Main remain.
 
@@ -107,9 +107,10 @@ selection remains subordinate to its existing contract; it is not source identit
 
 ## Bounded implementation series
 
-1. Named conversion (BoxShape): replace string target fields and adapt producers,
+1. Named conversion (BoxShape, implemented): replace string target fields and adapt producers,
    structural readers/reissuers and legacy wire handling. Existing source producers
-   emit Named only. Establish explicit intrinsic preservation/rejection rules;
+   emit Named only. The enum has only Named in this step, with no Deref/as_str/From adapter.
+   Intrinsic variant and consumer preservation/rejection are added together in step2;
    no source acceptance change or birth deletion. Focused remap, old-wire and
    named-construction tests plus the existing canonical corridor guard.
 2. Consumer preparation: intrinsic body/frame kind8, view selection, the four C
@@ -132,7 +133,13 @@ coverage are not declared complete. Keep touched source below800; plan a >=760
 owner split before editing. The helpers_value/lower.rs owner is already near that
 threshold and must not grow unchecked.
 
-Read-only root/worker audits support this design. Core push uses the existing
+Read-only root/worker audits support this design. Named conversion now passes
+Cargo check including test targets and a fresh library-test build (peak8.60GiB),
+60 existing focused tests, Pair/Bool host1 (14.19s), and the canonical corridor guard. The 795-line origin
+owner moved its existing tests into its standard child module without changing
+logical test paths; changed source
+max777. No intrinsic target can be produced by this one-variant schema.
+Core push uses the existing
 receiver-is-array-like/known-write branch, while actual Loop, Core13 and empty
-source acceptance remain required implementation evidence. No build or runtime
-test was run for design acceptance.
+source acceptance remain required implementation evidence; the Named regression
+tests do not prove intrinsic consumer or source cutover.

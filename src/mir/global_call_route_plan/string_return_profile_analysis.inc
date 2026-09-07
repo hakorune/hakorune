@@ -91,7 +91,7 @@ fn generic_string_void_sentinel_instruction_may_apply(
             value: ConstValue::String(_) | ConstValue::Null | ConstValue::Void,
             ..
         } => true,
-        MirInstruction::NewBox { box_type, .. } if box_type == "StringBox" => true,
+        MirInstruction::NewBox { target: crate::mir::ConstructionTarget::Named(box_type), .. } if box_type == "StringBox" => true,
         MirInstruction::Return { value: None } => true,
         MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Extern(name)),
@@ -313,7 +313,7 @@ fn refine_generic_string_return_value_class(
             };
             set_generic_string_return_value_class(values, *dst, class, changed);
         }
-        MirInstruction::NewBox { dst, box_type, .. } => {
+        MirInstruction::NewBox { dst, target: crate::mir::ConstructionTarget::Named(box_type), .. } => {
             let class = if box_type == "StringBox" {
                 GenericStringReturnValueClass::String
             } else {

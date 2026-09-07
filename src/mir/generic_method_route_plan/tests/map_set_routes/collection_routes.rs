@@ -103,7 +103,7 @@ fn records_runtime_data_arraybox_push_through_copy_as_cold_core_method_route() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {
@@ -157,7 +157,7 @@ fn records_runtime_data_arraybox_push_through_phi_flow_as_cold_core_method_route
         .expect("entry");
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {
@@ -251,7 +251,7 @@ fn does_not_record_ordered_mapbox_get_as_generic_map_load_route() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "OrderedMapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("OrderedMapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -417,7 +417,7 @@ fn records_mapbox_set_with_redundant_receiver_arg_as_core_method_route() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {
@@ -471,12 +471,12 @@ fn rejects_mapbox_set_with_non_alias_redundant_receiver_arg() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {
@@ -507,7 +507,7 @@ fn records_runtime_data_mapbox_set_through_typed_phi_as_cold_core_method_route()
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Phi {
@@ -549,7 +549,7 @@ fn records_runtime_data_arraybox_get_through_typed_phi_origin() {
         .expect("entry");
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {

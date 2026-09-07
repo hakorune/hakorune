@@ -90,7 +90,10 @@ fn route_flow_origin_instruction_box_name(
         .instructions
         .get(instruction_index)?;
     match instruction {
-        MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+        MirInstruction::NewBox {
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } => Some(box_type.clone()),
         MirInstruction::Phi {
             inputs, type_hint, ..
         } => type_hint

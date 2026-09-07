@@ -209,7 +209,7 @@ fn refresh_module_global_call_routes_accepts_same_module_mixed_runtime_return() 
     let item_entry = item.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     item_entry.instructions.push(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: Vec::new(),
     });
     item_entry.instructions.push(MirInstruction::LegacyCallV0 {
@@ -246,7 +246,7 @@ fn refresh_module_global_call_routes_accepts_same_module_mixed_runtime_return() 
     let helper_entry = helper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     helper_entry.instructions.push(MirInstruction::NewBox {
         dst: ValueId::new(10),
-        box_type: "Node".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Node".to_string()),
         args: Vec::new(),
     });
     helper_entry.instructions.push(MirInstruction::Const {
@@ -349,7 +349,7 @@ fn refresh_module_global_call_routes_accepts_same_module_map_get_return() {
     let mut ordered_get_block = BasicBlock::new(BasicBlockId::new(0));
     ordered_get_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: Vec::new(),
     });
     ordered_get_block.add_instruction(MirInstruction::LegacyCallV0 {
@@ -470,7 +470,7 @@ fn refresh_module_global_call_routes_accepts_map_handle_child_field_get_string_b
     let make_map_entry = make_map.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     make_map_entry.instructions.push(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     make_map_entry.set_terminator(MirInstruction::Return {
@@ -624,7 +624,7 @@ fn refresh_module_global_call_routes_marks_void_signature_object_or_void_return_
     let mut object_block = BasicBlock::new(BasicBlockId::new(2));
     object_block.instructions.push(MirInstruction::NewBox {
         dst: ValueId::new(3),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     object_block.instructions.push(MirInstruction::Copy {

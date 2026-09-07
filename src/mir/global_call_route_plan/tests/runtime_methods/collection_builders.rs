@@ -382,12 +382,12 @@ fn refresh_module_global_call_routes_accepts_collection_births_in_generic_pure_s
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {
@@ -433,13 +433,13 @@ fn refresh_module_semantic_metadata_accepts_collection_builder_surface_in_generi
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         method_call(None, "ArrayBox", "birth", ValueId::new(1), vec![]),
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         method_call(None, "MapBox", "birth", ValueId::new(2), vec![]),
@@ -501,7 +501,7 @@ fn refresh_module_semantic_metadata_accepts_array_size_in_generic_pure_string_bo
     entry.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {
@@ -613,7 +613,7 @@ fn refresh_module_semantic_metadata_accepts_array_string_push_in_generic_pure_st
     entry.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {

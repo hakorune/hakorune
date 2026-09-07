@@ -34,7 +34,7 @@ fn export_contains_refreshed_weak_field_spec_carrier_and_operation() {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(0),
-            box_type: "Node".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Node".to_string()),
             args: Vec::new(),
         },
         MirInstruction::Const {

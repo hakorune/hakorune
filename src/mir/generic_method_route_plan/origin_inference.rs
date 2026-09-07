@@ -467,7 +467,10 @@ pub(super) fn typed_object_value_box_name(
     if let Some((block_id, instruction_index)) = def_map.get(&origin).copied() {
         let block = function.blocks.get(&block_id)?;
         match block.instructions.get(instruction_index)? {
-            MirInstruction::NewBox { box_type, .. } => return Some(box_type.clone()),
+            MirInstruction::NewBox {
+                target: crate::mir::ConstructionTarget::Named(box_type),
+                ..
+            } => return Some(box_type.clone()),
             MirInstruction::Phi { type_hint, .. } => {
                 if let Some(box_name) = type_hint.as_ref().and_then(box_name_from_mir_type) {
                     return Some(box_name.to_string());
@@ -576,7 +579,10 @@ fn handle_value_origin_box_name_with_context_inner(
                     value: ConstValue::String(_),
                     ..
                 } => return Some("StringBox".to_string()),
-                MirInstruction::NewBox { box_type, .. } => return Some(box_type.clone()),
+                MirInstruction::NewBox {
+                    target: crate::mir::ConstructionTarget::Named(box_type),
+                    ..
+                } => return Some(box_type.clone()),
                 MirInstruction::Phi { inputs, .. } if !inputs.is_empty() => {
                     let mut input_box = None;
                     for (_, input) in inputs {
@@ -718,78 +724,4 @@ fn value_box_name(function: &MirFunction, value: ValueId) -> Option<&str> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mir::{BasicBlock, EffectMask, FunctionSignature};
-
-    #[test]
-    fn collection_field_key_returns_none_for_self_referential_phi() {
-        let signature = FunctionSignature {
-            name: "cycle".to_string(),
-            params: vec![],
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        };
-        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-        let mut block = BasicBlock::new(BasicBlockId::new(0));
-        block.add_instruction(MirInstruction::Phi {
-            dst: ValueId::new(1),
-            inputs: vec![
-                (BasicBlockId::new(0), ValueId::new(1)),
-                (BasicBlockId::new(0), ValueId::new(2)),
-            ],
-            type_hint: None,
-        });
-        block.add_instruction(MirInstruction::FieldGet {
-            dst: ValueId::new(2),
-            base: ValueId::new(3),
-            field: "items".to_string(),
-            declared_type: None,
-        });
-        function.add_block(block);
-
-        let def_map = build_value_def_map(&function);
-        assert_eq!(
-            typed_object_collection_field_key(&function, &def_map, ValueId::new(1)),
-            None
-        );
-    }
-
-    #[test]
-    fn handle_value_origin_box_name_returns_none_for_self_referential_phi() {
-        let signature = FunctionSignature {
-            name: "cycle_origin".to_string(),
-            params: vec![],
-            return_type: MirType::Void,
-            effects: EffectMask::PURE,
-        };
-        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
-        let mut block = BasicBlock::new(BasicBlockId::new(0));
-        block.add_instruction(MirInstruction::Phi {
-            dst: ValueId::new(1),
-            inputs: vec![
-                (BasicBlockId::new(0), ValueId::new(1)),
-                (BasicBlockId::new(0), ValueId::new(2)),
-            ],
-            type_hint: None,
-        });
-        block.add_instruction(MirInstruction::NewBox {
-            dst: ValueId::new(2),
-            box_type: "ArrayBox".to_string(),
-            args: vec![],
-        });
-        function.add_block(block);
-
-        let def_map = build_value_def_map(&function);
-        assert_eq!(
-            handle_value_origin_box_name_with_context(
-                &MirModule::new(String::new()),
-                &function,
-                &def_map,
-                ValueId::new(1),
-                &MethodParamBoxOriginMap::new(),
-            ),
-            None
-        );
-    }
-}
+mod tests;

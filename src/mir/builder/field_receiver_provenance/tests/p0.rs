@@ -98,7 +98,7 @@ fn p0_rejects_every_unsupported_value_definition_family() {
                 0,
                 MirInstruction::NewBox {
                     dst,
-                    box_type: OWNER.to_string(),
+                    target: crate::mir::ConstructionTarget::Named(OWNER.to_string()),
                     args: Vec::new(),
                 },
             );

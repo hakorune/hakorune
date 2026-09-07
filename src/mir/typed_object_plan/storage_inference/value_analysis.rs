@@ -216,7 +216,10 @@ fn box_name_from_origin_instruction(
     let (block_id, instruction_index) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
     match block.instructions.get(instruction_index)? {
-        MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+        MirInstruction::NewBox {
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } => Some(box_type.clone()),
         MirInstruction::Phi { type_hint, .. } => type_hint
             .as_ref()
             .and_then(box_name_from_mir_type)
@@ -363,7 +366,10 @@ fn box_origin_for_value_inner(
                     value: ConstValue::String(_),
                     ..
                 } => Some("StringBox".to_string()),
-                MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+                MirInstruction::NewBox {
+                    target: crate::mir::ConstructionTarget::Named(box_type),
+                    ..
+                } => Some(box_type.clone()),
                 MirInstruction::Phi {
                     inputs, type_hint, ..
                 } => box_origin_for_phi_type_facts(function, origin, type_hint.as_ref()).or_else(

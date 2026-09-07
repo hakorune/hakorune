@@ -124,7 +124,7 @@ fn refresh_module_global_call_routes_publishes_print_need_kind() {
         .instructions
         .push(MirInstruction::NewBox {
             dst: ValueId::new(7),
-            box_type: "StringBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("StringBox".to_string()),
             args: vec![],
         });
     function

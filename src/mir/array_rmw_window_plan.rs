@@ -473,7 +473,7 @@ mod tests {
     fn new_box(dst: u32, box_type: &str) -> MirInstruction {
         MirInstruction::NewBox {
             dst: ValueId::new(dst),
-            box_type: box_type.to_string(),
+            target: crate::mir::ConstructionTarget::Named(box_type.to_string()),
             args: vec![],
         }
     }

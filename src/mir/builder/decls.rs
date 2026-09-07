@@ -254,7 +254,7 @@ impl super::MirBuilder {
                     // new ArrayBox() with no args
                     self.emit_instruction(MirInstruction::NewBox {
                         dst: pid,
-                        box_type: "ArrayBox".to_string(),
+                        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
                         args: vec![],
                     })?;
                     self.function_state

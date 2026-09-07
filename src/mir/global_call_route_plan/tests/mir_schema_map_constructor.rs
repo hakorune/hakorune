@@ -47,7 +47,7 @@ fn mir_schema_i_function(name: &str) -> MirFunction {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {
@@ -108,7 +108,7 @@ fn mir_schema_inst_const_function(name: &str, child_name: &str) -> MirFunction {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(3),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {
@@ -172,7 +172,7 @@ fn mir_schema_block_function(name: &str) -> MirFunction {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(3),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {
@@ -219,7 +219,7 @@ fn mir_schema_inst_ret_function(name: &str, child_name: &str) -> MirFunction {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {
@@ -271,7 +271,7 @@ fn mir_schema_ret_block_wrapper_function(name: &str) -> MirFunction {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(4),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         global_call(
@@ -325,7 +325,7 @@ fn mir_schema_module_root_function(name: &str, child_name: &str) -> MirFunction 
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         },
         MirInstruction::Const {
@@ -361,7 +361,7 @@ fn mir_schema_module_root_function(name: &str, child_name: &str) -> MirFunction 
         ),
         MirInstruction::NewBox {
             dst: ValueId::new(10),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         method_call(None, "ArrayBox", "birth", ValueId::new(10), vec![]),

@@ -35,7 +35,7 @@ impl WasmCodegen {
 
             MirInstruction::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } => {
                 // Create a new Box using the generic allocator

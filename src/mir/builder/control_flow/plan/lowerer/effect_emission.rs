@@ -137,9 +137,7 @@ impl super::PlanLowerer {
                         "RuntimeDataBox",
                         box_val,
                     )
-                    && builder.try_emit_known_array_method_write(
-                        *dst, box_val, method, &args,
-                    )?
+                    && builder.try_emit_known_array_method_write(*dst, box_val, method, &args)?
                 {
                     let box_kind = crate::mir::policies::callee_box_kind::classify_callee_box_kind_v1(
                         crate::mir::policies::callee_box_kind::CalleeBoxKindPolicyContextV1::GeneralEmission,
@@ -149,8 +147,7 @@ impl super::PlanLowerer {
                         box_name: "RuntimeDataBox".to_string(),
                         method: method.clone(),
                         receiver: Some(box_val),
-                        certainty:
-                            crate::mir::definitions::call_unified::TypeCertainty::Union,
+                        certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
                         box_kind,
                     };
                     crate::mir::builder::types::array_element::observe_array_write_call(
@@ -211,14 +208,10 @@ impl super::PlanLowerer {
                     *effects,
                 )?;
             }
-            CoreEffectPlan::NewBox {
-                dst,
-                box_type,
-                args,
-            } => {
+            CoreEffectPlan::NewBox { dst, target, args } => {
                 builder.emit_instruction(MirInstruction::NewBox {
                     dst: *dst,
-                    box_type: box_type.clone(),
+                    target: target.clone(),
                     args: args.clone(),
                 })?;
             }

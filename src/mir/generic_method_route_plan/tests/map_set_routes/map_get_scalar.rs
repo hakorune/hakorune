@@ -9,7 +9,7 @@ fn promotes_runtime_data_mapbox_i64_has_to_map_contains_i64() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -46,7 +46,7 @@ fn promotes_runtime_data_mapbox_i64_get_to_mixed_map_load() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -95,7 +95,7 @@ fn proves_same_block_runtime_data_get_scalar_i64_return_shape() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -145,7 +145,7 @@ fn proves_same_block_direct_mapbox_get_scalar_i64_route() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -196,7 +196,7 @@ fn rejects_same_block_get_scalar_shape_when_store_value_is_not_i64() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -205,7 +205,7 @@ fn rejects_same_block_get_scalar_shape_when_store_value_is_not_i64() {
     });
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(3),
-        box_type: "StringBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("StringBox".to_string()),
         args: vec![],
     });
     block.add_instruction(method_call(Some(4), "MapBox", "set", 1, vec![2, 3]));

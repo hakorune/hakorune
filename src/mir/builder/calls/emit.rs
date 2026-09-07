@@ -157,7 +157,7 @@ impl MirBuilder {
                 let dst = dst.ok_or("Constructor must have destination")?;
                 self.emit_instruction(MirInstruction::NewBox {
                     dst,
-                    box_type,
+                    target: crate::mir::ConstructionTarget::Named(box_type),
                     args,
                 })
             }

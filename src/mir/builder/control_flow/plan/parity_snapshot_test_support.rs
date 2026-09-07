@@ -137,7 +137,7 @@ pub(in crate::mir::builder) enum NormalizedEffectV1 {
     },
     NewBox {
         dst: ValueId,
-        box_type: String,
+        target: crate::mir::ConstructionTarget,
         args: Vec<ValueId>,
     },
     VariantMake {
@@ -378,13 +378,9 @@ fn normalize_effect(effect: &CoreEffectPlan) -> Result<NormalizedEffectV1, &'sta
             args: args.clone(),
             effects: *effects,
         },
-        CoreEffectPlan::NewBox {
-            dst,
-            box_type,
-            args,
-        } => NormalizedEffectV1::NewBox {
+        CoreEffectPlan::NewBox { dst, target, args } => NormalizedEffectV1::NewBox {
             dst: *dst,
-            box_type: box_type.clone(),
+            target: target.clone(),
             args: args.clone(),
         },
         CoreEffectPlan::VariantMake {

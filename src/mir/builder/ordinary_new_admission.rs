@@ -47,7 +47,7 @@ where
     let dst = builder.next_value_id();
     builder.emit_instruction(MirInstruction::NewBox {
         dst,
-        box_type: class.to_owned(),
+        target: crate::mir::ConstructionTarget::Named(class.to_owned()),
         args: arg_values.clone(),
     })?;
     builder

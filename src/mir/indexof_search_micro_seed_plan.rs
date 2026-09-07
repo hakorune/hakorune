@@ -304,7 +304,10 @@ fn collect_facts(function: &MirFunction) -> IndexOfSearchFacts {
 
 fn collect_instruction_facts(instruction: &MirInstruction, facts: &mut IndexOfSearchFacts) {
     match instruction {
-        MirInstruction::NewBox { box_type, .. } if box_type == "ArrayBox" => {
+        MirInstruction::NewBox {
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } if box_type == "ArrayBox" => {
             facts.has_array_box_birth = true;
         }
         MirInstruction::Const {
@@ -507,7 +510,7 @@ mod tests {
             0,
             MirInstruction::NewBox {
                 dst: ValueId::new(5),
-                box_type: "ArrayBox".to_string(),
+                target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
                 args: vec![],
             },
         );

@@ -220,7 +220,7 @@ fn route_decision_reports_map_missing_empty_selected_route() {
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -268,7 +268,7 @@ fn route_decision_reports_typed_object_exact_slot_selected_route() {
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Page".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Page".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::FieldGet {
@@ -365,7 +365,7 @@ fn route_decision_reports_typed_object_exact_slot_native_direct_when_direct_stat
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Page".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Page".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::FieldGet {

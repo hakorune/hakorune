@@ -128,7 +128,7 @@ fn test_dce_does_not_drop_typeop_used_by_console_log() {
     let v1 = ValueId::new(1);
     b0.add_instruction(MirInstruction::NewBox {
         dst: v0,
-        box_type: "IntegerBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("IntegerBox".to_string()),
         args: vec![],
     });
     b0.add_instruction(MirInstruction::TypeOp {
@@ -183,7 +183,7 @@ fn test_method_call_not_rewritten_even_if_legacy_env_is_set() {
     let v1 = ValueId::new(1);
     b0.add_instruction(MirInstruction::NewBox {
         dst: v0,
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     b0.add_instruction(MirInstruction::Const {
@@ -244,7 +244,7 @@ fn test_normalize_keeps_weakref_load_instruction() {
     let v2 = ValueId::new(2);
     b0.add_instruction(MirInstruction::NewBox {
         dst: v0,
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     b0.add_instruction(MirInstruction::WeakRef {

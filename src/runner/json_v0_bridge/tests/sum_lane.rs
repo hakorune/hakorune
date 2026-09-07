@@ -283,7 +283,7 @@ fn parse_json_v0_to_module_lowers_record_enum_payload_through_hidden_box() {
     assert!(
         insts.iter().any(|inst| matches!(
             inst,
-            MirInstruction::NewBox { box_type, .. } if box_type == payload_box
+            MirInstruction::NewBox { target: crate::mir::ConstructionTarget::Named(box_type), .. } if box_type == payload_box
         )),
         "record payload should materialize through one hidden payload box"
     );
@@ -424,7 +424,7 @@ fn parse_json_v0_to_module_lowers_tuple_enum_payload_through_hidden_box() {
     assert!(
         insts.iter().any(|inst| matches!(
             inst,
-            MirInstruction::NewBox { box_type, .. } if box_type == payload_box
+            MirInstruction::NewBox { target: crate::mir::ConstructionTarget::Named(box_type), .. } if box_type == payload_box
         )),
         "tuple payload should materialize through one hidden payload box"
     );

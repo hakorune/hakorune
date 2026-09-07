@@ -24,7 +24,7 @@ fn jit_readonly_array_push_denied() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: a,
-            box_type: "ArrayBox".into(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".into()),
             args: vec![],
         });
     let three = f.next_value_id();
@@ -98,7 +98,7 @@ fn jit_readonly_map_set_denied() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: mbox,
-            box_type: "MapBox".into(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".into()),
             args: vec![],
         });
     let key = f.next_value_id();

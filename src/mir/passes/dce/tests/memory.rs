@@ -27,7 +27,7 @@ fn test_dce_prunes_dead_load_from_private_carrier_root() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -85,7 +85,7 @@ fn test_dce_keeps_live_load_from_private_carrier_root() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -142,7 +142,7 @@ fn test_dce_keeps_load_when_private_carrier_escapes_via_call() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -213,7 +213,7 @@ fn test_dce_keeps_dead_load_when_same_private_carrier_has_store() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -278,7 +278,7 @@ fn test_dce_prunes_dead_load_through_copy_alias_private_carrier() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -346,7 +346,7 @@ fn test_dce_prunes_overwritten_store_on_private_carrier_root() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -418,7 +418,7 @@ fn test_dce_keeps_overwritten_store_when_load_intervenes_on_private_carrier() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -496,7 +496,7 @@ fn test_dce_prunes_overwritten_store_through_copy_alias_private_carrier() {
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());

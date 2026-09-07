@@ -439,7 +439,11 @@ fn collect_object_defs(function: &MirFunction) -> HashMap<ValueId, ObjectDef> {
     for block in function.blocks.values() {
         for spanned in block.all_spanned_instructions() {
             match spanned.inst {
-                MirInstruction::NewBox { dst, box_type, .. } => {
+                MirInstruction::NewBox {
+                    dst,
+                    target: crate::mir::ConstructionTarget::Named(box_type),
+                    ..
+                } => {
                     defs.insert(*dst, ObjectDef::Box(box_type.clone()));
                 }
                 MirInstruction::Copy { dst, src } => {

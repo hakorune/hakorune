@@ -20,7 +20,7 @@ fn count_newbox(module: &MirModule, box_type: &str) -> usize {
             matches!(
                 inst,
                 MirInstruction::NewBox {
-                    box_type: inst_box,
+                    target: crate::mir::ConstructionTarget::Named(inst_box),
                     ..
                 } if inst_box == box_type
             )

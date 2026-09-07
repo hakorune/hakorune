@@ -81,7 +81,7 @@ fn build_typed_object_plans_keeps_exact_declared_storage_with_integer_lane_obser
         .unwrap();
     block.add_instruction(crate::mir::MirInstruction::NewBox {
         dst: obj,
-        box_type: "Counters".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Counters".to_string()),
         args: vec![],
     });
     block.add_instruction(crate::mir::MirInstruction::Const {

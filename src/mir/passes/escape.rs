@@ -143,7 +143,7 @@ mod tests {
 
         block.add_instruction(MirInstruction::NewBox {
             dst: local_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::Copy {
@@ -180,7 +180,7 @@ mod tests {
 
         block.add_instruction(MirInstruction::NewBox {
             dst: local_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::Copy {
@@ -229,7 +229,7 @@ mod tests {
 
         block.add_instruction(MirInstruction::NewBox {
             dst: local_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::Copy {
@@ -281,7 +281,7 @@ mod tests {
         let entry_block = func.blocks.get_mut(&entry).expect("entry");
         entry_block.add_instruction(MirInstruction::NewBox {
             dst: local_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         entry_block.add_instruction(MirInstruction::Copy {
@@ -333,7 +333,7 @@ mod tests {
         let entry_block = func.blocks.get_mut(&entry).expect("entry");
         entry_block.add_instruction(MirInstruction::NewBox {
             dst: local_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         entry_block.set_terminator(MirInstruction::Jump {

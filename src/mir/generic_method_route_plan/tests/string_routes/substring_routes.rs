@@ -217,7 +217,7 @@ fn records_runtime_data_substring_from_string_origin() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "StringBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("StringBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {

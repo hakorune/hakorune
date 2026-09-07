@@ -157,7 +157,8 @@ fn match_array_getset_micro_seed_route(
 
     let b0 = interesting(blocks[0])?;
     expect_ops(&b0, &["newbox", "const", "jump"])?;
-    if !matches!(b0[0], MirInstruction::NewBox { box_type, .. } if box_type == "ArrayBox") {
+    if !matches!(b0[0], MirInstruction::NewBox { target: crate::mir::ConstructionTarget::Named(box_type), .. } if box_type == "ArrayBox")
+    {
         return None;
     }
     if const_i64(b0[1])? != 0 {
@@ -455,7 +456,7 @@ mod tests {
             vec![
                 MirInstruction::NewBox {
                     dst: ValueId::new(5),
-                    box_type: "ArrayBox".to_string(),
+                    target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
                     args: vec![],
                 },
                 const_i(7, 0),

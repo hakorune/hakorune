@@ -235,7 +235,12 @@ fn infer_box_origins(function: &MirFunction) -> BTreeMap<ValueId, String> {
         .flat_map(|block| block.instructions.iter())
         .collect::<Vec<_>>();
     for instruction in &instructions {
-        if let MirInstruction::NewBox { dst, box_type, .. } = instruction {
+        if let MirInstruction::NewBox {
+            dst,
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } = instruction
+        {
             origins.insert(*dst, box_type.clone());
         }
     }

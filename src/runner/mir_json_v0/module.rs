@@ -424,7 +424,7 @@ pub(super) fn lower_functions(functions: &[Value], module: &mut MirModule) -> Re
                         let args = parse_value_id_array(inst, "args", "newbox arg")?;
                         block_ref.add_instruction(MirInstruction::NewBox {
                             dst: ValueId::new(dst),
-                            box_type: ty,
+                            target: crate::mir::ConstructionTarget::Named(ty),
                             args,
                         });
                         max_value_id = max_value_id.max(dst + 1);

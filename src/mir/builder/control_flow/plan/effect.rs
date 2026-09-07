@@ -52,7 +52,7 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
     /// New box allocation
     NewBox {
         dst: ValueId,
-        box_type: String,
+        target: crate::mir::ConstructionTarget,
         args: Vec<ValueId>,
     },
 

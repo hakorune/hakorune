@@ -29,7 +29,7 @@ mod tests {
 
         b0.add_instruction(I::NewBox {
             dst: arr,
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         });
         b0.add_instruction(I::Const {
@@ -105,7 +105,7 @@ mod tests {
 
         b0.add_instruction(I::NewBox {
             dst: box_val,
-            box_type: "RecordBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("RecordBox".to_string()),
             args: vec![],
         });
         b0.add_instruction(I::RefNew {

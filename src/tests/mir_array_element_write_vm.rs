@@ -25,7 +25,7 @@ fn vm_array_element_write_delegates_to_array_surface() {
     let block = function.get_block_mut(function.entry_block).unwrap();
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(0),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: Vec::new(),
     });
     block.add_instruction(MirInstruction::Const {

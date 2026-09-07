@@ -88,7 +88,7 @@ fn make_registry_dispatch(child_name: &str) -> MirFunction {
     entry.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         MirInstruction::LegacyCallV0 {

@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-COLLECTION-ALLOCATION-TARGET-NAMED-I0"
-current_execution_cohort = "mir_collection_allocation_target_named_i0"
-current_design_stop = "none; accepted target-preservation design selects behavior-preserving Named conversion only"
-current_blocker_token = "Named target BoxShape: preserve existing producers and behavior while replacing string targets in MIR/Core allocation. Intrinsic source emission remains zero. Do not conflate type display with provider authority; source cutover waits for kind8 allocation selection, four C consumers and boundary acceptance."
+current_execution_row = "MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0"
+current_execution_cohort = "mir_collection_intrinsic_array_consumer_i0"
+current_design_stop = "none; Named-only conversion verified, accepted intrinsic consumer preparation is next with source producers still gated"
+current_blocker_token = "Intrinsic Array consumer preparation: add variant/view allocation selection/frame kind8/four C consumers and explicit preservation/rejection. Keep production source Named; no intrinsic name repair. Empty allocation must select without dummy Call. Source cutover/birth retirement follows consumer acceptance."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Accepted construction design covers MIR/Core targets, raw/typed/Loop issuers,
-Core13 preservation and four selected C consumers. Allocation kind8 will select
-empty literals without dummy calls. First executable slice is Named-only
-representation preservation; intrinsic source cutover and runtime proof remain.
+Named target conversion preserves current MIR/Core producers, remaps and old
+wire behavior. Cargo check/test build, focused60 and existing Pair/Bool host1
+pass; max changed source777. Next intrinsic consumer preparation remains
+source-gated and must cover allocation-only selection plus exact row validation.
 """
-next_design_card = "MIR-COLLECTION-ALLOCATION-TARGET-NAMED-I0"
-next_execution_card = "MIR-COLLECTION-ALLOCATION-TARGET-NAMED-I0"
+next_design_card = "MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0"
+next_execution_card = "MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

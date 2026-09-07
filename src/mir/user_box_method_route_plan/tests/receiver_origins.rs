@@ -100,12 +100,12 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_call_arg_ori
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Store".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Store".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "Worker".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Worker".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(MirInstruction::Const {
@@ -311,7 +311,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_generic_resu
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(20),
-        box_type: "Store".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Store".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(MirInstruction::LegacyCallV0 {
@@ -413,7 +413,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_objec
     let mut create_object_block = BasicBlock::new(BasicBlockId::new(0));
     create_object_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "JsonNodeInstance".to_string(),
+        target: crate::mir::ConstructionTarget::Named("JsonNodeInstance".to_string()),
         args: Vec::new(),
     });
     create_object_block.set_terminator(MirInstruction::Return {
@@ -479,7 +479,8 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_objec
     module.add_function(create_object);
     module.add_function(main);
 
-    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module)
+        .expect("semantic refresh");
 
     let main = module.get_function("main").expect("main");
     let route = main
@@ -599,7 +600,7 @@ fn refresh_module_user_box_method_routes_propagates_callee_param_box_to_caller_p
     });
     heap_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(15),
-        box_type: "Page".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Page".to_string()),
         args: Vec::new(),
     });
     heap_block.add_instruction(MirInstruction::LegacyCallV0 {

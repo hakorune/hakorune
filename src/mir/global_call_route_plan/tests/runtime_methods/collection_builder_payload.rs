@@ -44,7 +44,7 @@ fn refresh_module_semantic_metadata_accepts_array_push_write_any_payload_in_stri
     invoke_block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(4),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         MirInstruction::Copy {

@@ -236,11 +236,11 @@ impl FirstSeenIdRemapper {
             },
             NormalizedEffectV1::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } => NormalizedEffectV1::NewBox {
                 dst: self.value(*dst),
-                box_type: box_type.clone(),
+                target: crate::mir::ConstructionTarget::Named(box_type.clone()),
                 args: values(args, self),
             },
             NormalizedEffectV1::VariantMake {

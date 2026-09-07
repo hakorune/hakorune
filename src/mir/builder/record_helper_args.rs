@@ -528,7 +528,10 @@ impl MirBuilder {
                 declared_type: Some(MirType::Box(box_name)),
                 ..
             } => Some(box_name.clone()),
-            MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+            MirInstruction::NewBox {
+                target: crate::mir::ConstructionTarget::Named(box_type),
+                ..
+            } => Some(box_type.clone()),
             _ => None,
         }
     }

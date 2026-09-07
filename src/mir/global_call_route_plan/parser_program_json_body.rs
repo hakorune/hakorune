@@ -80,7 +80,7 @@ impl ParserProgramJsonBodyState {
         match instruction {
             MirInstruction::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } => self.observe_newbox(*dst, box_type, args),
             MirInstruction::Copy { dst, src } => {

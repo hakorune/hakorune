@@ -300,7 +300,7 @@ fn collect_loop_micro_facts(blocks: &[&BasicBlock]) -> Option<LoopMicroFacts> {
             match inst {
                 MirInstruction::NewBox {
                     dst,
-                    box_type,
+                    target: crate::mir::ConstructionTarget::Named(box_type),
                     args,
                 } => {
                     if !args.is_empty() || facts.newbox.is_some() {

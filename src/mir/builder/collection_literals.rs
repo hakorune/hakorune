@@ -61,7 +61,7 @@ impl super::MirBuilder {
         let arr_id = self.next_value_id();
         self.emit_instruction(MirInstruction::NewBox {
             dst: arr_id,
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         })?;
         self.emit_constructor_birth_marker(arr_id, "ArrayBox")?;
@@ -141,7 +141,7 @@ impl super::MirBuilder {
         let map_id = self.next_value_id();
         self.emit_instruction(MirInstruction::NewBox {
             dst: map_id,
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         })?;
         self.emit_constructor_birth_marker(map_id, "MapBox")?;
@@ -284,8 +284,12 @@ mod tests {
                         && call.effects == EffectMask::MUT
                 }
                 MirInstruction::LegacyCallV0 {
-                    callee: Some(Callee::Method { box_name, method, .. }),
-                    effects, ..
+                    callee:
+                        Some(Callee::Method {
+                            box_name, method, ..
+                        }),
+                    effects,
+                    ..
                 } => box_name == "MapBox" && method == "set" && *effects == EffectMask::MUT,
                 _ => false,
             })

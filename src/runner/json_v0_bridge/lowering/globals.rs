@@ -58,7 +58,7 @@ pub(super) fn resolve_bridge_global(
             if let Some(bb) = f.get_block_mut(cur_bb) {
                 bb.add_instruction(MirInstruction::NewBox {
                     dst,
-                    box_type: env.me_class.clone(),
+                    target: crate::mir::ConstructionTarget::Named(env.me_class.clone()),
                     args: vec![],
                 });
             }

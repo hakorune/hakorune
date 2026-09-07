@@ -292,7 +292,7 @@ fn const_i(dst: u32, value: i64) -> MirInstruction {
 fn newbox(dst: u32, box_type: &str) -> MirInstruction {
     MirInstruction::NewBox {
         dst: ValueId::new(dst),
-        box_type: box_type.to_string(),
+        target: crate::mir::ConstructionTarget::Named(box_type.to_string()),
         args: vec![],
     }
 }

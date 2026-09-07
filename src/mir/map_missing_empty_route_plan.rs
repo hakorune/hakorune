@@ -153,7 +153,7 @@ fn receiver_root_is_new_mapbox(
     };
     matches!(
         block.instructions.get(instruction_index),
-        Some(MirInstruction::NewBox { box_type, .. }) if box_type == "MapBox"
+        Some(MirInstruction::NewBox { target: crate::mir::ConstructionTarget::Named(box_type), .. }) if box_type == "MapBox"
     )
 }
 
@@ -243,7 +243,7 @@ mod tests {
         let mut block = BasicBlock::new(BasicBlockId::new(0));
         block.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::Const {
@@ -274,7 +274,7 @@ mod tests {
         let mut block = BasicBlock::new(BasicBlockId::new(0));
         block.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "MapBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::Const {

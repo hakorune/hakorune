@@ -22,7 +22,7 @@ fn vtable_map_keys_values_delete_clear() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: m,
-            box_type: "MapBox".into(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".into()),
             args: vec![],
         });
     // set two entries
@@ -157,7 +157,7 @@ fn vtable_map_keys_values_delete_clear() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: m2v,
-            box_type: "MapBox".into(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".into()),
             args: vec![],
         });
     let k = f2.next_value_id();
@@ -262,7 +262,7 @@ fn vtable_method_callee_map_set_get_roundtrip() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: mapv,
-            box_type: "MapBox".into(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".into()),
             args: vec![],
         });
 
@@ -359,7 +359,7 @@ fn vtable_method_callee_map_setfield_getfield_roundtrip() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: mapv,
-            box_type: "MapBox".into(),
+            target: crate::mir::ConstructionTarget::Named("MapBox".into()),
             args: vec![],
         });
 

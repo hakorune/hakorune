@@ -218,7 +218,7 @@ fn compile_array_element_writes_object_on_large_stack() {
         .expect("entry block");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_owned(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_owned()),
         args: Vec::new(),
     });
     for (dst, value) in [(2, 1), (3, 9), (4, 0)] {

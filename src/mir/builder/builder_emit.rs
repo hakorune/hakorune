@@ -379,7 +379,7 @@ impl MirBuilder {
                             } => format!("call {:?} {}({:?}) -> {:?}", callee, func, args, dst),
                             MirInstruction::NewBox {
                                 dst,
-                                box_type,
+                                target: crate::mir::ConstructionTarget::Named(box_type),
                                 args,
                             } => format!("new {}({:?}) -> {}", box_type, args, dst),
                             MirInstruction::Const { dst, value } =>

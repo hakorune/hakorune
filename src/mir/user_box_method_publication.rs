@@ -448,7 +448,7 @@ mod tests {
         let mut block = BasicBlock::new(BasicBlockId::new(0));
         block.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "Pair".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Pair".to_string()),
             args: vec![],
         });
         block.add_instruction(pair_sum_call(ValueId::new(1)));

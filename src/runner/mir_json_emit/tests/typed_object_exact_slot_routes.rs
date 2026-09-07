@@ -45,7 +45,7 @@ fn build_mir_json_root_emits_typed_object_exact_slot_route_decisions() {
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Page".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Page".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::FieldGet {

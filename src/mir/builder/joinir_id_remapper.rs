@@ -51,7 +51,6 @@ impl JoinIrIdRemapper {
         self.value_map.insert(old_id, new_id);
     }
 
-
     /// 命令を新しい ID空間にリマップ
     pub fn remap_instruction(&self, inst: &MirInstruction) -> MirInstruction {
         use crate::mir::EdgeArgs;
@@ -201,7 +200,9 @@ impl JoinIrIdRemapper {
                 kind: kind.remap_values(remap),
             },
             ObjectFieldGet { dst, base, field } => ObjectFieldGet {
-                dst: remap(*dst), base: remap(*base), field: *field,
+                dst: remap(*dst),
+                base: remap(*base),
+                field: *field,
             },
             FieldGet {
                 dst,
@@ -344,13 +345,9 @@ impl JoinIrIdRemapper {
                 base: base.map(remap),
                 fields: fields.iter().copied().map(remap).collect(),
             },
-            NewBox {
-                dst,
-                box_type,
-                args,
-            } => NewBox {
+            NewBox { dst, target, args } => NewBox {
                 dst: remap(*dst),
-                box_type: box_type.clone(),
+                target: target.clone(),
                 args: args.iter().map(|&a| remap(a)).collect(),
             },
             NewClosure {
@@ -589,13 +586,24 @@ mod tests {
         remapper.set_value(ValueId(1), ValueId(11));
         remapper.set_value(ValueId(2), ValueId(22));
         let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(3).unwrap();
-        let field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, 4).unwrap();
+        let field =
+            hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, 4).unwrap();
         let instruction = MirInstruction::ObjectFieldGet {
-            dst: ValueId(1), base: ValueId(2), field,
+            dst: ValueId(1),
+            base: ValueId(2),
+            field,
         };
-        assert_eq!(remapper.collect_values_in_instruction(&instruction), vec![ValueId(1), ValueId(2)]);
-        assert_eq!(remapper.remap_instruction(&instruction), MirInstruction::ObjectFieldGet {
-            dst: ValueId(11), base: ValueId(22), field,
-        });
+        assert_eq!(
+            remapper.collect_values_in_instruction(&instruction),
+            vec![ValueId(1), ValueId(2)]
+        );
+        assert_eq!(
+            remapper.remap_instruction(&instruction),
+            MirInstruction::ObjectFieldGet {
+                dst: ValueId(11),
+                base: ValueId(22),
+                field,
+            }
+        );
     }
 }

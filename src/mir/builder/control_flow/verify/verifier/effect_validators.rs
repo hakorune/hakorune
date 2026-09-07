@@ -104,7 +104,7 @@ pub(super) fn verify_effect(
         }
         CoreEffectPlan::NewBox {
             dst,
-            box_type,
+            target: crate::mir::ConstructionTarget::Named(box_type),
             args,
         } => {
             primitives::verify_value_id_basic(*dst, depth, "NewBox.dst")?;

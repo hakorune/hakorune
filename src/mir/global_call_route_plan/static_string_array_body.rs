@@ -60,7 +60,7 @@ impl StaticStringArrayFacts {
             },
             MirInstruction::NewBox {
                 dst,
-                box_type,
+                target: crate::mir::ConstructionTarget::Named(box_type),
                 args,
             } => {
                 if box_type != "ArrayBox" || !args.is_empty() {

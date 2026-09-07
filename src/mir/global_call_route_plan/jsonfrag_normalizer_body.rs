@@ -50,7 +50,11 @@ impl JsonFragNormalizerFacts {
                 ConstValue::Null | ConstValue::Void => self.void_sentinel_const = true,
                 _ => {}
             },
-            MirInstruction::NewBox { box_type, args, .. } if args.is_empty() => {
+            MirInstruction::NewBox {
+                target: crate::mir::ConstructionTarget::Named(box_type),
+                args,
+                ..
+            } if args.is_empty() => {
                 if box_type == "ArrayBox" {
                     self.array_births += 1;
                 } else if box_type == "MapBox" {

@@ -275,7 +275,10 @@ fn typed_object_value_box_name(
                 .and_then(|(block_id, instruction_index)| {
                     let block = function.blocks.get(block_id)?;
                     match block.instructions.get(*instruction_index)? {
-                        MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+                        MirInstruction::NewBox {
+                            target: crate::mir::ConstructionTarget::Named(box_type),
+                            ..
+                        } => Some(box_type.clone()),
                         MirInstruction::Phi { type_hint, .. } => type_hint
                             .as_ref()
                             .and_then(box_name_from_mir_type)

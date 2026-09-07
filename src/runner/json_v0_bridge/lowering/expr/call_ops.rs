@@ -35,7 +35,7 @@ pub(super) fn lower_call_expr<S: VarScope>(
         if let Some(bb) = f.get_block_mut(cur_bb) {
             bb.add_instruction(MirInstruction::NewBox {
                 dst: mapv,
-                box_type: "MapBox".into(),
+                target: crate::mir::ConstructionTarget::Named("MapBox".into()),
                 args: vec![],
             });
         }
@@ -93,7 +93,7 @@ pub(super) fn lower_array_values_expr<S: VarScope>(
     if let Some(bb) = f.get_block_mut(cur_bb) {
         bb.add_instruction(MirInstruction::NewBox {
             dst: arr,
-            box_type: "ArrayBox".into(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".into()),
             args: vec![],
         });
     }
@@ -314,7 +314,7 @@ pub(super) fn lower_new_expr<S: VarScope>(
     if let Some(bb) = f.get_block_mut(cur) {
         bb.add_instruction(MirInstruction::NewBox {
             dst,
-            box_type: class.to_string(),
+            target: crate::mir::ConstructionTarget::Named(class.to_string()),
             args: arg_ids,
         });
     }

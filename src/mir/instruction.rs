@@ -15,6 +15,9 @@ use crate::mir::types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
 };
 
+mod construction_target;
+pub use construction_target::ConstructionTarget;
+
 mod invoke;
 pub use invoke::{FaultFrameMode, InvokeOperation};
 
@@ -582,7 +585,7 @@ pub enum MirInstruction {
     /// `%dst = new_box "BoxType"(%args...)`
     NewBox {
         dst: ValueId,
-        box_type: String,
+        target: crate::mir::ConstructionTarget,
         args: Vec<ValueId>,
     },
 

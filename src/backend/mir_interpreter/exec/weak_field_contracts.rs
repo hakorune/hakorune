@@ -55,12 +55,12 @@ fn known_weak_field_write_reads_and_upgrades() {
         vec![
             MirInstruction::NewBox {
                 dst: base,
-                box_type: "Node".to_string(),
+                target: crate::mir::ConstructionTarget::Named("Node".to_string()),
                 args: Vec::new(),
             },
             MirInstruction::NewBox {
                 dst: target,
-                box_type: "Node".to_string(),
+                target: crate::mir::ConstructionTarget::Named("Node".to_string()),
                 args: Vec::new(),
             },
             MirInstruction::WeakRef {
@@ -108,7 +108,7 @@ fn weak_field_void_clear_reads_as_void() {
         vec![
             MirInstruction::NewBox {
                 dst: base,
-                box_type: "Node".to_string(),
+                target: crate::mir::ConstructionTarget::Named("Node".to_string()),
                 args: Vec::new(),
             },
             MirInstruction::Const {
@@ -149,12 +149,12 @@ fn known_strong_write_rejects_before_slot_mutation() {
         vec![
             MirInstruction::NewBox {
                 dst: base,
-                box_type: "Node".to_string(),
+                target: crate::mir::ConstructionTarget::Named("Node".to_string()),
                 args: Vec::new(),
             },
             MirInstruction::NewBox {
                 dst: target,
-                box_type: "Node".to_string(),
+                target: crate::mir::ConstructionTarget::Named("Node".to_string()),
                 args: Vec::new(),
             },
             MirInstruction::FieldSet {

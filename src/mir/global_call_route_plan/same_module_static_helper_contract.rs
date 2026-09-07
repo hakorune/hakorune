@@ -53,7 +53,11 @@ pub(super) fn infer_same_module_static_helper_return_contract(
                         result_contracts.insert(*dst, contract);
                     }
                 }
-                MirInstruction::NewBox { dst, box_type, .. } => {
+                MirInstruction::NewBox {
+                    dst,
+                    target: crate::mir::ConstructionTarget::Named(box_type),
+                    ..
+                } => {
                     if let Some(contract) =
                         same_module_static_helper_box_return_contract(box_type, typed_plan_type_ids)
                     {
@@ -374,7 +378,7 @@ mod tests {
         let mut block = BasicBlock::new(entry);
         block.instructions.push(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         });
         block.set_terminator(MirInstruction::Return {

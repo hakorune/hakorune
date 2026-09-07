@@ -29,7 +29,7 @@ fn vtable_string_substring_concat() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: sb,
-            box_type: "StringBox".into(),
+            target: crate::mir::ConstructionTarget::Named("StringBox".into()),
             args: vec![s],
         });
     let i1 = f.next_value_id();
@@ -88,7 +88,7 @@ fn vtable_string_substring_concat() {
         .unwrap()
         .add_instruction(MirInstruction::NewBox {
             dst: ab,
-            box_type: "StringBox".into(),
+            target: crate::mir::ConstructionTarget::Named("StringBox".into()),
             args: vec![a],
         });
     let c = f2.next_value_id();

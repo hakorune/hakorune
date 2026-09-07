@@ -22,7 +22,7 @@ fn refresh_module_global_call_routes_marks_parser_known_receiver_method_blocker(
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(2),
-            box_type: "ParserBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ParserBox".to_string()),
             args: vec![],
         },
         MirInstruction::Copy {
@@ -104,7 +104,7 @@ fn refresh_module_global_call_routes_marks_parser_program_json_contract_direct_t
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(3),
-            box_type: "ParserBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ParserBox".to_string()),
             args: vec![],
         },
         MirInstruction::Copy {

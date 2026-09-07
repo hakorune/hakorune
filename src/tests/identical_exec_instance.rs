@@ -58,7 +58,7 @@ mod tests {
             .unwrap()
             .add_instruction(MirInstruction::NewBox {
                 dst: person,
-                box_type: "Person".into(),
+                target: crate::mir::ConstructionTarget::Named("Person".into()),
                 args: vec![],
             });
 

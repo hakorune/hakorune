@@ -51,7 +51,7 @@ pub fn normalize_pure_core13(_opt: &mut MirOptimizer, module: &mut MirModule) ->
                     }
                     I::NewBox {
                         dst,
-                        box_type,
+                        target: crate::mir::ConstructionTarget::Named(box_type),
                         mut args,
                     } => {
                         // prepend type name as Const String
@@ -169,7 +169,7 @@ pub fn normalize_pure_core13(_opt: &mut MirOptimizer, module: &mut MirModule) ->
                     ),
                     I::NewBox {
                         dst,
-                        box_type,
+                        target: crate::mir::ConstructionTarget::Named(box_type),
                         mut args,
                     } => {
                         let ty_id = ValueId::new(function.next_value_id);

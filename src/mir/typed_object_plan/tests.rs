@@ -2,8 +2,8 @@ use super::*;
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::function::UserBoxFieldDecl;
 use crate::mir::{
-    BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
-    MirInstruction, MirModule,
+    BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
+    MirModule,
 };
 
 #[test]
@@ -215,7 +215,7 @@ fn publishes_integer_result_from_observed_method_param_array_write() {
         .expect("caller entry");
     caller_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(10),
-        box_type: "Holder".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Holder".to_string()),
         args: vec![],
     });
     caller_block.add_instruction(MirInstruction::Const {

@@ -137,7 +137,10 @@ pub(crate) fn receiver_origin_box_name(
     let (block_id, instruction_index) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
     match block.instructions.get(instruction_index)? {
-        MirInstruction::NewBox { box_type, .. } => Some(box_type.clone()),
+        MirInstruction::NewBox {
+            target: crate::mir::ConstructionTarget::Named(box_type),
+            ..
+        } => Some(box_type.clone()),
         MirInstruction::Phi { type_hint, .. } => type_hint
             .as_ref()
             .and_then(box_name_from_mir_type)
@@ -277,7 +280,7 @@ mod tests {
         let mut block = BasicBlock::new(BasicBlockId::new(0));
         block.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "StringBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("StringBox".to_string()),
             args: vec![],
         });
         function.add_block(block);

@@ -100,7 +100,7 @@ fn records_runtime_data_get_from_typed_object_array_field_origin() {
     let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
     birth_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     birth_block.add_instruction(MirInstruction::FieldSet {
@@ -213,7 +213,7 @@ fn records_array_get_result_origin_from_typed_object_collection_push_param_flow(
     let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
     birth_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: Vec::new(),
     });
     birth_block.add_instruction(MirInstruction::FieldSet {
@@ -314,12 +314,12 @@ fn records_array_get_result_origin_from_typed_object_collection_push_param_flow(
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "Manifest".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Manifest".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "Store".to_string(),
+        target: crate::mir::ConstructionTarget::Named("Store".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(method_call(Some(3), "Store", "put", 2, vec![]));
@@ -388,12 +388,12 @@ fn records_array_get_result_origin_from_same_module_returned_arraybox() {
     let mut tokenize_block = BasicBlock::new(BasicBlockId::new(0));
     tokenize_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: Vec::new(),
     });
     tokenize_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(2),
-        box_type: "JsonToken".to_string(),
+        target: crate::mir::ConstructionTarget::Named("JsonToken".to_string()),
         args: Vec::new(),
     });
     tokenize_block.add_instruction(method_call(Some(3), "RuntimeDataBox", "push", 1, vec![2]));
@@ -414,7 +414,7 @@ fn records_array_get_result_origin_from_same_module_returned_arraybox() {
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
     main_block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "JsonTokenizer".to_string(),
+        target: crate::mir::ConstructionTarget::Named("JsonTokenizer".to_string()),
         args: Vec::new(),
     });
     main_block.add_instruction(MirInstruction::LegacyCallV0 {

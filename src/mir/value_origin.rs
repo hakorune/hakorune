@@ -127,7 +127,7 @@ mod tests {
         let mut block = BasicBlock::new(BasicBlockId::new(0));
         block.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::Copy {
@@ -159,7 +159,7 @@ mod tests {
         let mut block = BasicBlock::new(BasicBlockId::new(0));
         block.add_instruction(MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         block.add_instruction(MirInstruction::Copy {

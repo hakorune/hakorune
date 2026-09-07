@@ -126,7 +126,7 @@ pub(super) fn parse_v1_mir_call(
             })?;
             block_ref.add_instruction(MirInstruction::NewBox {
                 dst,
-                box_type: bt.to_string(),
+                target: crate::mir::ConstructionTarget::Named(bt.to_string()),
                 args: argv.clone(),
             });
             if let Some(arg_max) = argv.iter().map(|v| v.as_u32()).max() {

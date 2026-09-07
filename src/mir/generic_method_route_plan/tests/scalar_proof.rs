@@ -9,7 +9,7 @@ fn rejects_same_block_get_scalar_shape_after_unknown_same_receiver_mutation() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -48,7 +48,7 @@ fn rejects_same_block_get_scalar_shape_after_different_key_same_receiver_set() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -87,7 +87,7 @@ fn proves_dominating_preheader_scalar_i64_map_get_return_shape() {
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {
@@ -138,7 +138,7 @@ fn rejects_dominating_preheader_scalar_shape_after_body_mutation() {
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {
@@ -181,7 +181,7 @@ fn proves_covered_dynamic_i64_key_scalar_map_get_return_shape() {
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {
@@ -259,7 +259,7 @@ fn rejects_covered_dynamic_i64_key_scalar_map_get_when_residue_is_missing() {
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {

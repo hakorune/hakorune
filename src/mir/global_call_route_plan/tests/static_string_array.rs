@@ -36,7 +36,7 @@ fn static_string_array_function(name: &str) -> MirFunction {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         MirInstruction::Copy {

@@ -202,7 +202,7 @@ fn records_arraybox_length_self_arg_route() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {
@@ -265,7 +265,7 @@ fn records_runtime_data_len_from_receiver_origin() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Copy {
@@ -302,7 +302,7 @@ fn records_runtime_data_array_len_from_phi_origin() {
         .expect("entry");
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "ArrayBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Copy {

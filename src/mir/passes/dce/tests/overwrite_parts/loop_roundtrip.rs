@@ -27,7 +27,7 @@ fn test_dce_prunes_overwritten_local_field_set_after_one_loop_header_roundtrip()
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());
@@ -172,7 +172,7 @@ fn test_dce_keeps_loop_roundtrip_field_set_when_header_reads_before_overwrite() 
         let bb0 = func.blocks.get_mut(&BasicBlockId(0)).unwrap();
         bb0.instructions.push(MirInstruction::NewBox {
             dst: v_box,
-            box_type: "Point".to_string(),
+            target: crate::mir::ConstructionTarget::Named("Point".to_string()),
             args: vec![],
         });
         bb0.instruction_spans.push(Span::unknown());

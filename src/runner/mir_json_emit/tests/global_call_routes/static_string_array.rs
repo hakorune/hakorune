@@ -56,7 +56,7 @@ fn build_mir_json_root_emits_direct_plan_for_static_string_array_contract() {
     block.instructions.extend([
         MirInstruction::NewBox {
             dst: ValueId::new(1),
-            box_type: "ArrayBox".to_string(),
+            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
             args: vec![],
         },
         MirInstruction::Copy {

@@ -82,7 +82,7 @@ pub(super) fn const_i64_any(inst: &MirInstruction) -> Option<(ValueId, i64)> {
 pub(super) fn newbox_named(inst: &MirInstruction, expected_box: &str) -> Option<ValueId> {
     let MirInstruction::NewBox {
         dst,
-        box_type,
+        target: crate::mir::ConstructionTarget::Named(box_type),
         args,
     } = inst
     else {

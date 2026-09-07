@@ -57,7 +57,7 @@ pub(super) fn generic_pure_string_value_instruction_reject_reason(
         }
         MirInstruction::NewBox {
             dst,
-            box_type,
+            target: crate::mir::ConstructionTarget::Named(box_type),
             args,
         } => {
             if !args.is_empty() {

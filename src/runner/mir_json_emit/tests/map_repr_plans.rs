@@ -84,7 +84,7 @@ fn build_mir_json_root_emits_map_repr_plans() {
         .expect("entry");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     block.add_instruction(MirInstruction::Const {
@@ -136,7 +136,7 @@ fn build_mir_json_root_emits_local_map_storage_realization_plans() {
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {
@@ -212,7 +212,7 @@ fn build_mir_json_root_emits_local_i64_map_direct_storage_plans() {
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {
@@ -289,7 +289,7 @@ fn build_mir_json_root_emits_local_i64_map_entry_value_tracking_plans() {
     entry.successors.insert(body_id);
     entry.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        box_type: "MapBox".to_string(),
+        target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
         args: vec![],
     });
     entry.add_instruction(MirInstruction::Const {

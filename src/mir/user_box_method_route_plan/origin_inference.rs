@@ -613,7 +613,10 @@ fn user_box_value_box_name_with_origin_context(
                 value: ConstValue::String(_),
                 ..
             } => return Some("StringBox".to_string()),
-            MirInstruction::NewBox { box_type, .. } => return Some(box_type.clone()),
+            MirInstruction::NewBox {
+                target: crate::mir::ConstructionTarget::Named(box_type),
+                ..
+            } => return Some(box_type.clone()),
             MirInstruction::Phi {
                 inputs, type_hint, ..
             } => {

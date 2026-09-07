@@ -57,7 +57,7 @@ fn assert_property_read_uses_getter(
                 block.instructions.iter().any(|instruction| {
                     matches!(
                         instruction,
-                        MirInstruction::NewBox { box_type: ty, .. } if ty == box_type
+                        MirInstruction::NewBox { target: crate::mir::ConstructionTarget::Named(ty), .. } if ty == box_type
                     )
                 })
             })
@@ -72,7 +72,9 @@ fn assert_property_read_uses_getter(
         .iter()
         .filter_map(|instruction| match instruction {
             MirInstruction::NewBox {
-                dst, box_type: ty, ..
+                dst,
+                target: crate::mir::ConstructionTarget::Named(ty),
+                ..
             } if ty == box_type => Some(*dst),
             _ => None,
         })

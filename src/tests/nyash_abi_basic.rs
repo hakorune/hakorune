@@ -71,7 +71,7 @@ mod tests {
             .unwrap()
             .add_instruction(MirInstruction::NewBox {
                 dst: mapv,
-                box_type: "MapBox".into(),
+                target: crate::mir::ConstructionTarget::Named("MapBox".into()),
                 args: vec![],
             });
 

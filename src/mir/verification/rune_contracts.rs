@@ -144,7 +144,7 @@ mod tests {
             &["no_alloc"],
             vec![MirInstruction::NewBox {
                 dst: ValueId::new(1),
-                box_type: "Box".to_string(),
+                target: crate::mir::ConstructionTarget::Named("Box".to_string()),
                 args: vec![],
             }],
         );
@@ -179,7 +179,7 @@ mod tests {
             &["no_alloc"],
             vec![MirInstruction::NewBox {
                 dst: ValueId::new(1),
-                box_type: "Box".to_string(),
+                target: crate::mir::ConstructionTarget::Named("Box".to_string()),
                 args: vec![],
             }],
         );
@@ -196,7 +196,7 @@ mod tests {
             vec![
                 MirInstruction::NewBox {
                     dst: ValueId::new(1),
-                    box_type: "Box".to_string(),
+                    target: crate::mir::ConstructionTarget::Named("Box".to_string()),
                     args: vec![],
                 },
                 MirInstruction::Return { value: None },
@@ -248,7 +248,7 @@ mod tests {
             &["pure"],
             vec![MirInstruction::NewBox {
                 dst: ValueId::new(1),
-                box_type: "Box".to_string(),
+                target: crate::mir::ConstructionTarget::Named("Box".to_string()),
                 args: vec![],
             }],
         );

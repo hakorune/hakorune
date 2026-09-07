@@ -153,7 +153,7 @@ fn build_refnew_mir_module() -> MirModule {
     // Create DataBox with initial value
     block.add_instruction(MirInstruction::NewBox {
         dst: box_ptr,
-        box_type: "DataBox".to_string(),
+        target: nyash_rust::mir::ConstructionTarget::Named("DataBox".to_string()),
         args: vec![init_val],
     });
 
@@ -214,7 +214,7 @@ fn build_refget_refset_mir_module() -> MirModule {
     // Create DataBox with initial value
     block.add_instruction(MirInstruction::NewBox {
         dst: box_ptr,
-        box_type: "DataBox".to_string(),
+        target: nyash_rust::mir::ConstructionTarget::Named("DataBox".to_string()),
         args: vec![init_val],
     });
 
@@ -310,13 +310,13 @@ fn build_complete_workflow_mir_module() -> MirModule {
     // Create DataBoxes
     block.add_instruction(MirInstruction::NewBox {
         dst: box1_ptr,
-        box_type: "DataBox".to_string(),
+        target: nyash_rust::mir::ConstructionTarget::Named("DataBox".to_string()),
         args: vec![val1_init],
     });
 
     block.add_instruction(MirInstruction::NewBox {
         dst: box2_ptr,
-        box_type: "DataBox".to_string(),
+        target: nyash_rust::mir::ConstructionTarget::Named("DataBox".to_string()),
         args: vec![val2_init],
     });
 
