@@ -1,7 +1,9 @@
 // Process entry point for NyRT.
 
 // ---- Process entry (driver) ----
-#[cfg(not(test))]
+// The generic process entry belongs only to the legacy archive.  A selected
+// lifecycle archive links the same runtime core without this strong `main`.
+#[cfg(all(not(test), feature = "legacy-entry"))]
 #[no_mangle]
 pub extern "C" fn main() -> i32 {
     crate::rss_observe::checkpoint("entry_start");

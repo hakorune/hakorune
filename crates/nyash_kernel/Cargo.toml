@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = []
+default = ["legacy-entry"]
+legacy-entry = []
 perf-observe = ["nyash-rust/perf-observe"]
 perf-trace = []
 promotion-test-support = ["nyash-rust/promotion-test-support"]
