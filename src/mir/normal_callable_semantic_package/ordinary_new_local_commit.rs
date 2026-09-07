@@ -6,6 +6,7 @@
 
 use super::birth_abi_handoff::BirthAbiHandoffV1;
 use super::OrdinaryNewClaimLedgerV1;
+use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1};
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
 use crate::mir::resolved_semantics::home_new_prefix::{
@@ -100,24 +101,6 @@ pub(super) struct NewLocalCommitV1 {
     emission: NewEmissionProgress,
 }
 
-/// Final artifact handoff for one exact root and its already-issued Birth keys.
-/// It is an opaque retention of source products, never a source or ABI issuer.
-#[derive(Debug)]
-pub(crate) enum FinalizedRootBirthHandoffV1 {
-    NoBirth {
-        root_key: String,
-        root_source: Option<FinalizedRootSourceHandoffV1>,
-        root_result: Option<FinalizedRootResultAbiV1>,
-    },
-    Births {
-        root_key: String,
-        root_source: Option<FinalizedRootSourceHandoffV1>,
-        root_result: Option<FinalizedRootResultAbiV1>,
-        keys: Box<[CanonicalSameModuleCallableKeyV1]>,
-        births: Box<[BirthAbiHandoffV1]>,
-    },
-}
-
 /// Exact source relation retained after its matching physical root passed
 /// final validation. This is transport only: it cannot select an entry ABI or
 /// recreate source membership from a physical key.
@@ -159,42 +142,6 @@ pub(crate) enum FinalizedRootResultAbiV1 {
     UnitReturn { owner: FunctionOwnerIdV1 },
     IntegerLiteralReturn { owner: FunctionOwnerIdV1 },
     I64FieldReturn { owner: FunctionOwnerIdV1 },
-}
-
-impl FinalizedRootBirthHandoffV1 {
-    pub(crate) fn root_key(&self) -> &str {
-        match self {
-            Self::NoBirth { root_key, .. } | Self::Births { root_key, .. } => root_key,
-        }
-    }
-
-    pub(crate) fn root_result(&self) -> Option<FinalizedRootResultAbiV1> {
-        match self {
-            Self::NoBirth { root_result, .. } | Self::Births { root_result, .. } => *root_result,
-        }
-    }
-
-    pub(crate) fn root_source(&self) -> Option<&FinalizedRootSourceHandoffV1> {
-        match self {
-            Self::NoBirth { root_source, .. } | Self::Births { root_source, .. } => {
-                root_source.as_ref()
-            }
-        }
-    }
-
-    pub(crate) fn births(&self) -> &[BirthAbiHandoffV1] {
-        match self {
-            Self::NoBirth { .. } => &[],
-            Self::Births { births, .. } => births,
-        }
-    }
-
-    pub(crate) fn birth_keys(&self) -> &[CanonicalSameModuleCallableKeyV1] {
-        match self {
-            Self::NoBirth { .. } => &[],
-            Self::Births { keys, .. } => keys,
-        }
-    }
 }
 
 impl NewLocalCommitV1 {

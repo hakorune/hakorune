@@ -37,6 +37,10 @@ See `docs/reference/mir/INSTRUCTION_SET.md` for the current vocabulary boundary.
 - `contracts/`: backend acceptance allowlists and fail-fast instruction tags.
 - `control_tree/`: structure-only control-flow SSOT and normalized shadow path.
 - `definitions/`: MIR definition data and shared type/shape declarations.
+- `finalized_root_handoff.rs`: final artifact product owned by the published
+  pipeline and borrowed by its backend view. Callable source/result and Birth
+  evidence stay with their issuers; this owner neither reissues meaning nor
+  grants backend admission. Script Array retention is the selected successor.
 - `instruction/`, `instruction_kinds/`: instruction model and kind definitions.
 - `join_ir/`: normalized JoinIR lowering and ownership helpers. Docs-first only for now.
 - Structured JoinIR -> MIR reference conversion was retired after its

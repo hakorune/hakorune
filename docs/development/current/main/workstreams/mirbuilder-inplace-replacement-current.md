@@ -625,7 +625,9 @@ Fail-fast boundary: missing/foreign/uncompleted binding rejects; Script cannot u
 Smallest next slice: pipeline owns the Array payload in its existing handoff; its one view slot borrows it.
 Non-claims: root ABI, RootOwned/frame/Invoke/cleanup, checked runtime ABI or typed C execution.
 The [accepted artifact design](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice) owns callers/boundary/gates.
-Delete Script-to-None loss, Birth-only slot type and universal constructor binding.
+Checkpoint: root handoff owner/type extracted; callable behavior unchanged.
+Gates: quick plugins build peak8.79GiB, focused38, Pair EXE/OBJ30 and guards pass.
+Still delete Script-to-None loss and universal constructor binding; this row stays active.
 Gates: artifact/view retention, binding rejects, Script constructor rejection,
 Pair handoff/EXE/OBJ30, typed Array pre-output Stop. Terminal/storage cleanup stays
 in the existing [feedback queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08); V4 feature repair is landed.

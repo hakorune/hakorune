@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0"
 current_execution_cohort = "mir_script_array_final_artifact_handoff_i0"
 current_design_stop = "none; completed-root -> existing final handoff -> pipeline owner -> borrowed view path audited"
-current_blocker_token = "Script source/emission finishing validation is closed. Next move validated Array payload through the existing root-neutral final artifact handoff and borrowed view; delete Script-to-None loss without callable retagging or ABI admission. Frame/Invoke/cleanup/checked ABI/C remain mandatory successors."
+current_blocker_token = "Root handoff owner/type extraction is complete; callable behavior unchanged. Next move validated Array payload through the existing root-neutral final artifact handoff and borrowed view; delete Script-to-None loss without callable retagging or ABI admission. Frame/Invoke/cleanup/checked ABI/C remain mandatory successors."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,8 +32,8 @@ latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
 Script allocation/claim/write/Local/Return bindings now survive both finishing
-consumers with actual optimizer on/off evidence. Next retain the validated Array
-payload in the existing final artifact handoff; typed C remains stopped.
+consumers with actual optimizer on/off evidence. Final root handoff owner/type
+is extracted; Script Array payload retention remains active. Typed C stays stopped.
 """
 next_design_card = "MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0"
 next_execution_card = "MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0"

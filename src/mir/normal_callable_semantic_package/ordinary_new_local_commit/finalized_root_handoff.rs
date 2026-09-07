@@ -7,7 +7,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         root_key: String,
         construction_keys: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
-    ) -> Result<FinalizedRootBirthHandoffV1, String> {
+    ) -> Result<FinalizedRootHandoffV1, String> {
         match *self.root_validation.borrow() {
             RootNewValidation::FinishingChecked => {}
             _ => return Err(freeze("artifact-root-not-finished")),
@@ -177,13 +177,13 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("artifact-actual-root-source-missing"));
         }
         Ok(if births.is_empty() {
-            FinalizedRootBirthHandoffV1::NoBirth {
+            FinalizedRootHandoffV1::NoBirth {
                 root_key,
                 root_source,
                 root_result,
             }
         } else {
-            FinalizedRootBirthHandoffV1::Births {
+            FinalizedRootHandoffV1::Births {
                 root_key,
                 root_source,
                 root_result,

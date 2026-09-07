@@ -42,9 +42,9 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(self)
     }
 
-    pub(in crate::mir::compiler) fn bind_finalized_root_birth_handoff(
+    pub(in crate::mir::compiler) fn bind_finalized_root_handoff(
         mut self,
-        handoff: Option<&'module crate::mir::normal_callable_semantic_package::FinalizedRootBirthHandoffV1>,
+        handoff: Option<&'module crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     ) -> Result<Self, String> {
         let Some(handoff) = handoff else {
             return self

@@ -90,7 +90,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         impl FnOnce(
             &MirModule,
         ) -> Result<
-            Option<crate::mir::normal_callable_semantic_package::FinalizedRootBirthHandoffV1>,
+            Option<crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
             String,
         >,
     ) {

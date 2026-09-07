@@ -614,7 +614,7 @@ impl MirCompiler {
                 let prepared = session
                     .prepare_external_commit()
                     .map_err(|error| error.to_string())?;
-                let view = view.bind_finalized_root_birth_handoff(retained_root.as_ref())?;
+                let view = view.bind_finalized_root_handoff(retained_root.as_ref())?;
                 let selected_profile =
                     if view.route() == PublishedStaticMethodRouteV1::UnsupportedBeforeObject {
                         let profile_name = crate::config::env::env_string("HAKO_TYPED_OBJECT_STORE");

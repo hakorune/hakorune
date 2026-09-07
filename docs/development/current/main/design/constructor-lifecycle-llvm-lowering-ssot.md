@@ -1321,7 +1321,7 @@ one exact final-view function/result/formal contract. This D1 opens no C schema,
 object, EXE, kernel change, or Bool relation.
 
 **Decision (accepted):** after `prepare_external_commit`,
-`bind_finalized_root_birth_handoff`, and lifecycle activation, final-view
+`bind_finalized_root_handoff`, and lifecycle activation, final-view
 admission is the sole physical issuer. It co-seals only existing handoff and
 final-MIR products into a view-private `CompiledEntryContractV1`; no semantic
 receipt is created. The contract has canonical Root then Birth membership,
@@ -1561,7 +1561,7 @@ Ordered work within this series:
    validation checks the literal correspondence. The former final root handoff retained
    deduplicated Birth definitions but dropped per-New actual relations.
    **Retention slice (now verified):** retain the existing validated per-New relations in
-   `FinalizedRootBirthHandoffV1` through its existing finalizer and compiled-entry
+   `FinalizedRootHandoffV1` through its existing finalizer and compiled-entry
    consumer. Match exact New membership, Birth target, binding and ordinal;
    definition dedup must not dedup call actuals. Do not reclassify MIR constants
    or add a second source receipt. Declaration dispositions remain unchanged

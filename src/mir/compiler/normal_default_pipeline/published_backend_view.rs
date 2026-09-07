@@ -157,7 +157,7 @@ pub(crate) struct PublishedMirBackendView<'module> {
     module: &'module MirModule,
     retained_root: Option<&'module MirFunction>,
     retained_handoff:
-        Option<&'module crate::mir::normal_callable_semantic_package::FinalizedRootBirthHandoffV1>,
+        Option<&'module crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     route: PublishedStaticMethodRouteV1,
     static_method_calls: Vec<PublishedStaticMethodCallRef<'module>>,
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,

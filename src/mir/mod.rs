@@ -62,6 +62,7 @@ pub mod compile_target_capability {
     };
 }
 pub mod edge_args;
+pub(crate) mod finalized_root_handoff;
 pub(crate) mod linear_metadata_slot; // clone-scrub lifecycle observation vocabulary
 pub(crate) mod normal_callable_semantic_package;
 pub(crate) mod raw_finalization_contract;

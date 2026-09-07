@@ -368,24 +368,14 @@ nonfinal Return, opaque tail, foreign owner, dropped/duplicate Home, double take
 and incomplete Local reject. Source data remains in completed state. Selected
 OBJ/EXE still reaches the typed capability Stop; no runtime frame claim.
 
-The obligatory successor changes the existing completed-root validation slot
-and finalized-root product into root-neutral finite variants. Current real path:
-CompletedNormalDefaultRootCatalogLifecycleV1 { root_new_validation, ... } ->
-into_artifact_parts -> FnOnce(&MirModule) -> FinalizedRootBirthHandoffV1 -> normal
-published pipeline. root_new_validation currently holds an ordinary-New ledger;
-its final seal requires FinishingChecked/App Main/Birth evidence. It cannot
-already accept a Script ledger. Move the completed Script source data through
-this same outlet, add exact source-to-physical bindings and reject dropped or
-stale bindings; the published view borrows the result. Do not recover meanings
-from the module or create fake Birth entries to satisfy the old variant.
-
-Then source-checked Script admission in with_script_semantic_source_v1 selects
-one RootOwned frame; each Array borrows it. Existing Invoke vocabulary must
-represent actual Array allocation/claim/checked write, incomplete disposal and
-committed Home release, using source cutpoints and first-Fault cleanup order.
-Only after source/physical finalization and optimizer mapping are verified may
-the already-inventoried checked runtime ABI/C activation and original execution/
-retirement gates proceed. Source-only admission is not final handoff completion.
+The completed-root validation slot now retains Script source and emission
+bindings in its own finite variant. The artifact outlet remains the mandatory
+successor: into_artifact_parts -> FinalizedRootHandoffV1 -> normal published
+pipeline -> borrowed view. Callable sealing still requires
+FinishingChecked/App Main/Birth evidence; it cannot issue Script semantics.
+Move the completed Script Array payload through this same outlet and reject
+dropped or stale bindings. Do not recover meanings from the module or create
+fake Birth entries to satisfy a callable variant.
 
 ### Completed-root validation handoff slice
 
@@ -455,6 +445,12 @@ No alias chase, literal re-inference, unknown rename/reorder or optimizer skip.
 RootCleanupBoundary remains only a bounded-validation design precedent.
 
 ### Root-neutral finalized artifact retention slice
+
+Owner extraction checkpoint: `mir/finalized_root_handoff.rs` now owns the
+existing `FinalizedRootHandoffV1`; callable sealing imports it directly and the
+pipeline/view use `bind_finalized_root_handoff`. Old type/re-export paths are
+removed. This behavior-preserving step retains the two callable variants;
+Script-to-None retirement and Script Array borrowing remain required below.
 
 Decision: generalize the existing final root handoff enum and its one borrowed
 view slot; move the validated Script Array source and emission payload into a
