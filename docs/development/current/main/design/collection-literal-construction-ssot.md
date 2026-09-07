@@ -9,7 +9,7 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: explicit Script root-frame/Invoke failure mapping, then runtime checked ABI. Source cutpoint co-seal and one-shot typed Local admission are implemented; Loop source admission remains open.
+- Next: whole Script root terminal co-seal and retained completion, then root-neutral final handoff, frame/Invoke and checked ABI. Local cutpoint admission is implemented; implicit completion and Loop remain open.
 - Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
 - Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
@@ -329,6 +329,60 @@ and its physical operations before C activation. The accepted native contract
 must be implemented with the sole ArrayBox state owner, checked status and profile
 rejection described above. Do not accumulate unconsumed source products or open
 another source family before this original series reaches execution/retirement.
+
+### Script root terminal and final handoff order
+
+Decision: before frame/Invoke activation, the existing Script continuation
+must prove the whole root terminal and preserve its Array rows after Local
+consumption. Local-prefix proof alone is not root cleanup proof. Extend existing
+owners; do not add a parallel optional Script artifact receipt.
+
+Actual source inputs are `shadow/stmt.rs::resolve_return` (Value relation,
+ExplicitReturn and exact target function region), Script core owner/function
+scope/function region/resolved exits, body-shape Return site/value, literal
+source facts and the same verified root window. ScriptRootReturnExitAdmission
+is only admission, not a result or cleanup issuer. App Main's function completion
+product is not a Script completion product.
+
+Next bounded source row: co-seal explicit final Integer Return or bare Return
+with its exact outward target, root scope and complete reverse committed-Home
+order. The existing continuation is the sole issuer. Require that coverage
+before selected typed Local lowering; Script scope finish verifies terminal
+coverage and all Local completions, retaining source rows in a completed state.
+Delete Available-to-unit-Consumed payload destruction and the finish path that
+accepts consumed locals without inspecting the tail. No MIR/source re-resolution.
+
+This row does not equate absent Return with Unit. Implicit Unit needs positive
+whole-window normal-completion coverage and remains an explicit uncompleted
+source obligation, as do unclassified result/tail, unknown/effectful child,
+nested Array and Loop. These are capability-unavailable, not language-invalid;
+no raw retry or changed original execution finish line.
+
+Acceptance: real seven-spec source with empty/populated and prior Array/scalar/
+borrowed-alias prefix; last Array included in terminal release order; exact
+Integer/bare Return target/value/root scope; wrong target, missing value edge,
+nonfinal Return, opaque tail, foreign owner, dropped/duplicate Home, double take
+and incomplete Local reject. Source data remains in completed state. Selected
+OBJ/EXE still reaches the typed capability Stop; no runtime frame claim.
+
+The obligatory successor changes the existing completed-root validation slot
+and finalized-root product into root-neutral finite variants. Current real path:
+CompletedNormalDefaultRootCatalogLifecycleV1 { root_new_validation, ... } ->
+into_artifact_parts -> FnOnce(&MirModule) -> FinalizedRootBirthHandoffV1 -> normal
+published pipeline. root_new_validation currently holds an ordinary-New ledger;
+its final seal requires FinishingChecked/App Main/Birth evidence. It cannot
+already accept a Script ledger. Move the completed Script source data through
+this same outlet, add exact source-to-physical bindings and reject dropped or
+stale bindings; the published view borrows the result. Do not recover meanings
+from the module or create fake Birth entries to satisfy the old variant.
+
+Then source-checked Script admission in with_script_semantic_source_v1 selects
+one RootOwned frame; each Array borrows it. Existing Invoke vocabulary must
+represent actual Array allocation/claim/checked write, incomplete disposal and
+committed Home release, using source cutpoints and first-Fault cleanup order.
+Only after source/physical finalization and optimizer mapping are verified may
+the already-inventoried checked runtime ABI/C activation and original execution/
+retirement gates proceed. Source-only admission is not final handoff completion.
 
 Removing post-allocation birth markers preserves failure handling structurally:
 entry `emit_method_birth_mir_call` validates but emits no runtime operation;

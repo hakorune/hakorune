@@ -535,18 +535,10 @@ retains task2–4 responsibilities and acceptance.
 
 #### MIR-CALL-PUBLISHED-GLOBAL-ROW-REQUIRED-I0
 
-Landed at 183aede6e6: required Global rows reject before legacy plan/name dispatch.
-C ABI positives/negatives, generic preservation, view32 and host1 passed.
-The commit owns exact evidence and C README/header/reference updates.
-Parent ba62871459 reproduced the stale semantic README heading guard failure;
-the heading lookup was fixed without changing source/test checks. No whole-suite claim.
-
-#### MIR-CALL-PUBLISHED-EXTERN-STOP-I0
-
-Landed at 7891dbf747: published Call(Extern) rejects before legacy lookup in
-both prepasses and emitters. C positive/negative/generic-preservation, view32
-and host1 passed. Generic Extern and independent externcall remain unchanged;
-no new authority or whole-R7 claim. Git owns the complete edge/evidence record.
+Landed at183aede6e6: required Global rows stop before legacy interpretation.
+Landed at7891dbf747 (`MIR-CALL-PUBLISHED-EXTERN-STOP-I0`): published Extern stops
+before legacy lookup; generic compatibility remains. C/view/host evidence and
+parent ba62871459 stale README guard diagnosis/fix live in Git. No R7-wide claim.
 
 #### MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0
 
@@ -618,15 +610,25 @@ worker-confirmed source count/edge retention; both now pass. No baseline waiver.
 
 #### LLVM-LIFECYCLE-V4-PLUGIN-FEATURE-I0
 
-Decision: give V4 the same explicit plugins boundary and unavailable stub as its siblings.
-Source authority + canonical issuer: existing Cargo feature contract and capi_transport V4 entry; no semantic issuance.
-Non-authority: default-feature success and runtime caller absence.
-Fail-fast boundary: no-plugins uses stable unavailable error; never references plugin-only loader/libloading.
-Smallest next slice: matching cfg/stub, nonplugins library check and existing plugins V4 regression.
-Non-claims: typed Array C activation, terminal enum cleanup or whole-builder completion.
-The [audited follow-up queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08)
-then owns terminal enum/storage-tag BoxShape. Array root-frame/failure mapping
-resumes after this bounded feature repair; no alternate Array implementation.
+V4 now uses the existing plugins cfg/stub convention. The same no-default-features
+library check at parent efbc22b14b gives13 diagnostics, after repair11: only the
+V4 missing-loader/libloading errors disappear. The remaining runtime/stub errors
+match exactly; [owner inventory](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08)
+records known baseline debt, not a nonplugins-wide green claim. Plugins build,
+Pair EXE/linked OBJ30 and Bool Fault70, and corridor guard pass; source505 lines.
+
+#### MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0
+
+Decision: require exact whole-root terminal coverage and retain completed Array source rows.
+Source authority + canonical issuer: same Script core scope/region/resolved Return, body-shape/value relation and window; existing Script continuation.
+Non-authority: Return admission ZST, last Local prefix, final MIR or fake App Main/Birth identity.
+Fail-fast boundary: unclassified terminal/tail and absent proof of implicit Unit remain unavailable before selected effects.
+Smallest next slice: explicit Integer/bare Return co-seal, typed Local coverage check and source-preserving scope completion.
+Non-claims: implicit Unit, root-neutral finalized handoff, RootOwned/Invoke/C activation, broader children or Loop completion.
+The [accepted root terminal/handoff order](../design/collection-literal-construction-ssot.md#script-root-terminal-and-final-handoff-order)
+owns exact APIs, rejection coverage and mandatory successors. Delete payload
+destruction at consume and finish-without-terminal proof; keep completed source
+for the next existing-root-product handoff change. No parallel optional receipt.
 
 ## Source and ownership budget
 
