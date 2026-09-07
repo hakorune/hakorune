@@ -1,639 +1,393 @@
 # Normal Callable Semantic Package
 
-This module owns the one pre-Builder semantic package for a final parser
-callable source batch.
+This module owns one pre-Builder semantic package for a final parser callable
+source batch. It co-seals products from their source owners in that batch;
+physical ABI, CFG/PHI, runtime exit chronology, dispatch and backend admission are not
+package responsibilities. The package never repairs source identity or retries
+failed source-backed lowering through compatibility.
 
-Constructor semantic issuance stays in `instance_constructor_semantic.rs`; its
-focused tests live in its child module. The brand-catalog test module keeps its
-test paths while including its tail tests, and local-commit's final-root checks
-live beside its emission state in `ordinary_new_local_commit/root_validation.rs`.
-Root Home progress and validation live in
-`ordinary_new_local_commit/root_home.rs`. These layout splits change no source
-contract, public API, or lifecycle route.
+Current implementation scope and execution evidence belong to the
+[constructor lifecycle card](../../../docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md)
+and [current-state pointer](../../../docs/development/current/main/CURRENT_STATE.toml).
+Selected Pair V4 EXE/independent OBJ and Fault cleanup are verified there.
+That does not authorize other source families or turn package retention into
+backend permission. Historical implementation steps belong to Git history.
 
-The exact ordinary-Box definition issuer also owns the bounded destruction
-disposition, independently of construction and runtime layout. Ordinary-New
-co-seal copies its object ID/disposition before the definition payload moves
-to the collector; completed local claims retain that immutable projection.
-Post-transfer lookup cannot reissue it. This transport does not authorize
-Birth execution or prove normal/Fault cleanup has been emitted.
+## Source and install ownership
 
-The exact root finalizer preserves the ledger's ordinary-New observation on
-that function after final physical binding validation: NotIssued, no selected
-local New, unavailable (Completion missing/rejected, terminal Homes, New
-emission or root exit unavailable), or source-complete at finalization.
-Residual/foreign/drifted bindings remain errors. This is not backend admission:
-MirFunction is still mutable, and Birth validation belongs to its own owner.
-
-For selected direct-`New` scalar arguments, the same ledger co-seals the
-existing ordered source rows. Its selected consumer records only a physical
-snapshot of each consumed row and emitted `ValueId`; the root finalizer checks
-row cardinality/identity, integer or bool literal definitions, and exact Birth
-Call argument order. A trivial local is validated when its exact binding is
-consumed and retains that emitted identity. This snapshot is not a new source
-receipt and cannot recover an argument from AST, infer an ABI, or permit C
-execution.
-Executable lifecycle activation requires freezing the validated module before
-mutable access escapes; a later wrapper or an observation flag is insufficient.
-The normal invocation completion now retains the same root ledger and exact
-physical root key through compiler finishing. It rechecks New/frame/local/exit
-bindings before external commit; changed or missing roots fail without retry.
-For a single-Home root, the existing root exit ledger also retains the prefinish
-cleanup entry prefix and incoming boundary. Finalization compares its recorded
-cleanup graph with final MIR, allowing only Jump contraction into a deleted,
-empty, sole-predecessor internal node. Full release operands, frame, Normal/Fault
-successors, Return/ReturnFault, prefix order and boundary ingress remain exact.
-Diagnostic and artifact finishing share that check; artifact lifecycle coverage
-consumes the same temporary mapped bindings before FinishingChecked is installed.
-No source obligation is reissued and no optimizer skip is added. Multiple-Home
-roots retain exact-placement checks; this does not claim their optimized coverage.
-Birth capture similarly moves its existing construction state and Fault frame
-through the payload session and exact collector draft. Source scope marks this
-as Transferred, not absent; a second take or later store/frame use rejects.
-Normal drain moves these states with their exact definition keys into the
-invocation's single-use final validator. Replacement and other drains cannot
-discard retained state. Unavailable construction is still unavailable, not
-execution permission. The normal compiler now consumes selected published
-artifacts synchronously after final validation/strict verification and commit
-preparation, without later mutable passes or admitted module extraction.
-Exact ExplicitCompatibility alone returns the existing non-admitted result.
-Lifecycle admission is still fenced: source eligibility and typed-C lifecycle
-coverage are not opened by state retention or the synchronous terminal alone.
+[The issuer](issuer.rs) co-seals sibling products from the same final source:
 
 ```text
 VerifiedFinalCallableProgramSourceV1
-  ├─ source-backed installable callable catalog
-  └─ one FunctionSemanticResolverSessionV1 allocation
-       -> complete resolved callable batch
-            ↓ exact opaque declaration identity co-seal
-       selected key -> private batch slot
-  -> exact owned direct-method parameter-contract subset
-  -> private Dynamic projection
-       ValidUnselected
-       Selected {
-         owned catalog-neutral call relations
-         Recipe / JoinSig / invocation lifecycle / operator lifecycle
-         parameter #1 -> V1/C0/B0/Enter borrowed ingress
-         commit-before-end rebind relation (I13/I15/I16/Fault/Backedge)
-       }
-```
-
-Complete batch membership comes from final callable anchors, not the parameter
-catalog. A mixed Program may therefore retain top-level rows while only its
-direct Box methods contribute parameter contracts. When selected, the Dynamic
-candidate and its required contract must resolve to the same private batch
-slot. A complete batch with no Dynamic candidate is a typed valid-unselected
-projection, not an issuer failure or fallback.
-
-The package is non-Clone and non-splittable. Catalog installation is one
-consuming prepare/commit transition. After installation, the only production
-lowering surface is a one-shot scoped package port:
-
-```text
-Builder-private package scope
-  -> open_lowering_once(context)
-       -> with_selected_lowering_input(key, callback)
-       -> complete()
-```
-
-The Builder-private scope owns the installed package and rejects a second
-`open_lowering_once` call. The returned package port is still borrowed from
-that scope; it is not a new package or a direct-call target carrier.
-
-The port never exposes a batch slot, rejects foreign catalog contexts and
-duplicate selected-key consumption, and closes only after complete selected
-coverage. Borrowed lowering inputs and parameter contracts remain scoped to the
-callback. ExactText(StringBox-as-Text) rows remain formal source contracts in
-this loan; `HomeDemandV1::Handle` does not become a runtime Text handle or
-wire. HomeDemand is only a derived Dynamic-ingress view. This module does not
-own callable-name selection, CFG, PHI, runtime exit chronology, physical ABI,
-runtime dispatch, retry, or fallback.
-
-Dynamic call relations are issued from the same batch-scoped lowering input as
-owned owner/site/binding/argument rows. The Recipe co-seal no longer stores a
-callable catalog borrow, and the resulting semantic/lifecycle program carries
-no catalog lifetime.
-
-## BridgeReady package install boundary (2026-08-26)
-
-The selected normal-root production lifecycle now consumes the package through
-`with_normal_callable_install_once`. This one-shot bridge owns the semantic
-`prepare_install`/`commit` transition and returns only a Builder-private,
-non-`Clone` package bundle, then converts it into a Builder-private lowering
-scope; a bare installed package cannot escape to the caller. Source-backed
-lowering borrows the parser Program through a scoped HRTB loan on that scope,
-and opens the existing package port once before the lowering consumer receives
-it, while compatibility roots keep their explicit compatibility source owner.
-This row carries no direct-call inventory or `Callee` loan;
-Cataloged affine direct-call provisioning remains a separate later row.
-
-The normal/default source-backed lifecycle issues this package before Builder
-effects, consumes its catalog through one typed install transition, and lowers
-selected callables through the package port. The Builder-side adapter owns only
-raw source lineage and temporary lowering-state installation. The old semantic
-seal, Dynamic target extension, Complete-source pairing, and semantic-loan port
-are absent from that production edge. Source-backed package failure is
-terminal; the AST-only compatibility catalog is not a retry route.
-
-## Raw ordinary-`New` claim co-seal (D2c)
-
-The claim retains the exact parser-issued enclosing Box row for both Birth and
-NoBirthZero. Constructor lookup validates that row against the same-source
-catalog, rather than joining constructor definitions by final ordinal alone.
-Foreign source and mismatched parent are errors, never no-Birth evidence.
-The pending local-commit row keeps that relation after target take and rejects
-completion for another Box. Construction field/native obligations remain a
-separate required source consumer; retaining identity does not make cleanup empty.
-
-The same constructor batch assigns one `CanonicalObjectIdV1` per exact ordinary
-Box (including NoBirth). Construction plans retain it and store sites carry
-`CanonicalFieldRefV1`, not an unqualified ordinal. The private exact-source
-correspondence rejects foreign parser sessions even when numeric indices match.
-These references still require the atomic object-definition publication and
-physical consumer; they do not by themselves enable Birth execution.
-The source batch now also owns one take-once, AST-free definition payload using
-the existing field-declaration vocabulary. The installed package port moves it
-to the normal collector before body lowering, after validating the installed
-context; source correspondence remains for claims. Duplicate transfer rejects.
-Package completion and source-backed collector drain require transfer, including
-an empty payload. Drain moves definitions with drafts into the private candidate;
-failed preflight publishes neither, and an occupied destination is not overwritten.
-Runtime layouts and executable admission are still later, required stages.
-
-The final source transport now carries ordinary-box coverage into this same
-package. The issuer selects exact direct-local initializer relations, validates
-their declaration BindingRef and Local kind, and joins the located `New` with the
-exact parser-owned `ConstructorSourceIdV1` and its typed `Birth(N)` signature.
-Uninitialized and non-New locals are skipped; Outbox and nested allocations
-remain outside this cohort. Allocation effects are not the selection entry or
-an execution timeline. Initializer/binding identity alone is not a Home demand,
-local installation commit or complete Fault obligation.
-It emits either a non-`Clone` `VerifiedOrdinaryNewBirthRecipeV1` or the
-explicit `NoBirthZero` disposition; no `Class.birth/N` text is reconstructed
-from Builder headers. The selected Raw adapter consumes a matching
-owner-branded site exactly once before `NewBox` emission, validates the shared
-source-N/physical-N+1 ABI, and emits the already-sealed recipe target. Package
-completion rejects leftover claims and pending local completions. The existing
-claim ledger retains exact destination BindingRef/declaration identity and the
-issued canonical Birth target after target take. After finalization it checks
-that target against one retained construction draft and returns an opaque
-root/Birth handoff; this never infers a target from MIR or a symbol. `new_expression` records its result only after overrides; the
-callable state's existing completed-local handoff then validates ordinal,
-initializer ValueId and destination before discharging the pending row.
-`resolved_semantics::home_new_prefix` now issues the source prefix relation;
-the claim ledger checks that every prior Home has completed its exact local
-installation before the next target take. `ordinary_new_local_commit.rs`
-retains this relation with the physical correspondence, but does not issue
-Home meaning, Fault cutpoints or cleanup. Completed correspondence does not
-remove the Birth backend rejection. Non-cohort and compatibility rows remain
-outside this claim surface and retain their explicitly parked compatibility
-behavior; they cannot issue or retry a source-backed claim.
-
-For App Main, this same source loan issues its first Completion and extends the
-Home walk through the exact terminal Return. The package creates the existing
-New ledger once; install shares it rather than rebuilding a second claim owner.
-Terminal cleanup retains ordered BindingRefs or an explicit unavailable outcome.
-It is not inferred from the last New prefix. Return selects before Match/value
-descent, joins completed locals and definition-owned destruction, and emits
-HomeRelease in reverse acquisition order. A cleanup Fault switches to the
-fault-pending suffix; later successful releases cannot restore Normal Return.
-Package completion requires selected exit consumption, and final root validation
-checks actual cleanup/terminal instructions. This does not admit runtime Birth,
-returned Homes, arbitrary suffix expressions, or other source completion forms.
-For root cleanup, `RootHomeExitProgress` retains each installed Home binding,
-the completion's exact exit site, object identity, and bound `ValueId` through
-the selected `HomeRelease` emitter. Final validation checks the ordered source
-origins and the actual emitted release operation; block layout does not issue
-or reconstruct a cleanup origin. A Completion-backed explicit bare return is a
-separate Unit terminal relation. Only the selected root-home emitter may consume
-it; it emits `Return { value: None }` after the same cleanup graph. The void
-constant used as the statement-lowering result is never the return payload.
-Final handoff retains Unit separately from the I64 Add relation. The lifecycle
-frame is its sole physical schema issuer: `root_unit` is the finite
-`ROOT_UNIT / UNIT / Return(None)` row/control relation, validated by the C
-pending consumer without deriving Unit from a value-bearing return.
-Terminal field reads join the original Home binding to its selected New and
-same-session object definition through a synchronous borrow. Only successful
-source construction and an exact nonweak i64 field qualify; declaration names
-outside that definition, runtime slots and physical types are not authority.
-Integer Add is terminal-only. Missing/foreign source products propagate their
-existing error rather than being relabeled as an unsupported field.
-The existing New ledger stages exact read-site/receiver-site, actual receiver
-BindingRef, Home BindingRef and canonical field rows until the whole terminal
-succeeds. The existing field port lowers the receiver once and compares its
-ValueId to the retained binding before emitting `ObjectFieldGet`. Final root
-and compiler-finishing validation reject missing, duplicate or drifted reads.
-For the one accepted `Pair` result shape, the same Completion walk additionally
-issues `TerminalI64AddReturnV1`: its owner, explicit Return and Add source sites,
-and the ordered two already-staged FieldRead sites. It is present only when the
-terminal Home result succeeds and both operands are exact qualifying i64 field
-accesses. It carries no ValueId, MIR, ABI, JSON, recipe key, or raw-dispatch
-authority. Its dedicated consumer reserves the relation once, consumes the two
-exact receiver demands and FieldRead rows in source order, emits the i64 Add,
-then sends that exact value through the existing Home cleanup/Return owner.
-Physical progress remains in the ledger and final validation rejects absent,
-duplicate or drifted results; selected raw FieldRead re-entry rejects rather
-than retrying AST descent.
-For the separately accepted direct-field shape, the same Completion walk issues
-`TerminalI64FieldReturnV1` with the exact Return/value sites and one existing
-staged FieldRead site. Its consumer reserves that read, emits exactly one
-`ObjectFieldGet`, and routes its value through the existing Home cleanup and
-Return owner. The final handoff retains `I64FieldReturn` separately from Add,
-Unit, and integer-literal results; the lifecycle transport projects it through
-the existing `ROOT_I64 / I64` pair. Bool, local aliases, typed integers and
-all Add extensions do not borrow this relation.
-The package issuer passes the validated comparison-only AppMain identity into
-that same ledger, rather than reducing it to a batch slot at the handoff.
-After finishing validation, the final handoff retains that identity with the
-existing terminal relation and its checked physical root. Normal finalization
-owns this completed handoff through its synchronous backend callback. The
-published view borrows it and verifies source-to-result correspondence; it does
-not destructure it into independently owned fields or recollect Birth targets.
-It cannot recreate source membership from the root key or choose an entry ABI.
-Each selected New site remains separately validated; if several sites call the
-same canonical Birth definition, the final handoff retains that definition once.
-This does not activate generic JSON transport or a lifecycle backend consumer.
-Unavailable cleanup is exercised as a private physical-state test on real
-source-issued read rows, not as an accepted `fini` syntax or executable proof.
-The selected read remains exact; artifact eligibility remains unavailable.
-
-`instance_construction` issues the AST-free construction plan inside the exact
-constructor/Box source loan. It joins direct Plain stores and lexical receiver
-relations to declaration-ordered explicit i64 fields. Each source store has a
-Normal commit cutpoint; allocation Normal always creates an unpublished outer
-storage reclaim obligation. For selected canonical Birth, the existing
-`ConstructionPlanV1` constructor identity and exact owned New site remain in
-`NewEmissionProgress` until the Birth-fault `ReclaimUnpublished` is emitted.
-Final New validation checks that one concrete operation against that origin;
-cleanup block placement cannot reconstruct or replace it. Trivial field demand
-is not an empty cleanup proof.
-Only empty NoBirthZero and exhaustively covered, fully initialized scalar Birth
-bodies are initially eligible. Missing initialization, other field demands,
-acquisition/structured bodies and overrides remain explicit unavailable results,
-not invalid-source claims or zero-filled success. A declared Birth with a different
-arity is not NoBirthZero. New co-seal copies this existing result without issuing
-field meaning; pending local completion retains it after target consumption.
-The plan keeps the existing ConstructorSourceId and resolver owner together
-with its owner-local store sites; NoBirth retains explicit absence. A Box alone
-never reconstructs the consumed constructor identity.
-For the selected scalar Birth profile, each store additionally co-seals the
-receiver source site/binding and, when applicable, the parameter RHS source
-site/binding. Callable lowering consumes these existing variable uses through
-the exact binding observer before emitting `FieldSet`; it does not recover them
-from assignment AST after issuance.
-Declared initializer presence comes from the parser's sealed
-`StoredFieldInitializer` trigger, retained in ordinary Box coverage. Parser
-normalization into Birth stores does not turn an excluded default into an
-eligible handwritten store; nonselected build-gate triggers do not participate.
-This is source eligibility only: actual Fault CFG, runtime reclaim and typed-C
-execution still require their selected consumers before backend rejection lifts.
-
-The package now carries the bounded `VerifiedDynamicExitTransactionCoSealV1`
-in the selected Dynamic row. This is the final semantic co-seal for the
-current bounded lane: it transitively owns the semantic program, carrier flow,
-carrier-only cleanup, and the exact logical inner-Return/outer-Tail route
-pair. It does not claim runtime exit chronology or Dynamic physical
-completion. In particular,
-`ParserScanLoopBox.skip_while/4` currently reaches the installed package and
-then fails closed at the existing physical source-ledger consumption boundary.
-The package owns only semantic carrier flow, cleanup evidence, and the logical
-inner-Return/outer-Tail function-exit relation; actual rebind, End, Home,
-physical Return/ABI, and physicalization remain later owners.
-
-For the selected cataloged Dynamic row, the installed catalog declaration also
-issues one move-only physical-header projection. The package loan transports
-that projection to A-prime exactly once; A-prime consumes it for the physical
-header and never re-observes the AST/root declaration.
-
-## DeclaredInstance package locator (2026-08-31)
-
-The package now cross-checks the already-issued root lexical `me.method(...)`
-products with one private, non-`Clone` locator catalog. A locator row contains
-only the owned source site and batch/row ordinals for the relation, semantic
-effect, already-issued `InstanceBoxMethod` key, result/Completion, and
-physical-signature siblings. It does not issue a new target and still does not
-contain a `Callee`, receiver `ValueId`, AST, arguments, physical symbol,
-`EffectMask`, or backend capability; it never performs a lookup or reissues
-meaning. The issuer publishes either an explicit no-root disposition or a
-complete catalog; missing, foreign, duplicate, ambiguous, and coverage
-drift cases reject before lowering effects. Selected-C admission remains a
-separate downstream NoSafeSlice until an existing source-backed capability can
-validate the full relation and lane contract.
-
-The install bridge retains this disposition in
-`InstalledNormalCallableSemanticPackageV1` instead of dropping it. The package
-port and Builder lowering scope lend only a callback-scoped
-`DeclaredInstanceCallLocatorViewV1`; the view cannot be cloned or carried into
-a later lowering step. This is transport of the existing source-backed locator
-only. Selected-C admission, receiver materialization, target/effect
-reclassification, and physical publication remain separate downstream owners.
-
-## Top-level FreeFunction publication (2026-09-02)
-
-The bounded normal-call publication path also retains the exact source identity
-of a selected top-level helper. `SelectedTopLevelFunctionKeyV1` is crosswalked
-once, in the same source-backed catalog session, to the existing
-`CanonicalSameModuleCallableKeyV1::FreeFunction` key. The key survives normal
-draft admission and the generic collector into the atomic module definition
-table; a published backend view borrows that relation and projects the physical
-symbol only in its temporary transport frame.
-
-This is not a name/arity resolver and does not convert a top-level helper into a
-`StaticBoxMethod`. Missing, duplicate, foreign, or signature-drifted rows fail
-before argument effects or object emission. The selected typed backend consumes
-the published FreeFunction row directly; JSON, registry, header, `args[0]`, and
-alternate-backend retry remain compatibility-only and are not authorities.
-
-## Callable physical signature mapping (2026-08-16)
-
-The package now issues one non-`Clone` physical-signature cohort from the same
-selected/batch identity, declaration mode, exact instance `Receiver` binding,
-and complete explicit parameter-contract rows. It is a projection-only
-mapping: no `ValueId`, Completion, runtime token, call-site actual, or Text
-residence is owned here.
-
-```text
-source_logical_arity       = explicit source formal count (/N)
-receiver_lane_count        = 1 iff InstanceBoxMethod, otherwise 0
-physical_formal_lane_count = sum(explicit formal lane widths)
-physical_callable_lane_count
-  = receiver_lane_count + physical_formal_lane_count
-
-physical order:
-  [InstanceReceiver?]
-  then each explicit formal in ordinal order
-    ordinary   -> [OrdinaryScalar]
-    ExactText  -> [ExactTextSlot, ExactTextGeneration]
-```
-
-The receiver is `SourceBindingSiteV1::Receiver`, not an explicit formal and
-not an ExactText ordinal. Static methods have no receiver lane. Lengths of
-`/N`, `FunctionSignature`, or `Vec<ValueId>` never repair or infer this map.
-The installed Port lends the selected input, parameter contracts, package
-S6C child, and its matching signature row through one exactly-once HRTB loan;
-separate child/key loans cannot be recombined. Skeleton, call-edge, and
-Canonical-session consumers remain later mechanical projections.
-
-## Source/header transport (2026-08-15)
-
-The package also has one caller-zero, Builder-free sparse source/header cohort.
-Each selected cataloged row that has its own complete formal parameter contract
-and an explicit source result annotation accepted by the current scalar
-bootstrap (`i64`) is co-sealed with `verify_function_completion_v1`. Missing or
-unannotated sibling rows are absent from the sparse physical-header projection
-and cannot erase an eligible row. The result-contract cohort itself is always
-present and moves through install; only physical-header row lookup is optional
-and is lent as an
-`Option<CallablePhysicalHeaderRefV1>` on the selected lowering view. A callable
-without that explicit row admission remains valid for its ordinary semantic
-route and lends `None`; it is not inferred from a body, MIR, ResultCatalog, or
-fixture expectation.
-
-This row does not define a Text handle ABI or runtime wire. In particular,
-`StringBox`/ExactText physical parameters, TextEq residence, Builder IDs, and
-the S6C physical session remain downstream design stops. The cohort owns the
-source result spelling and Completion proof only; the formal parameter issuer
-continues to own ordinal, BindingRef, owner, and formal-kind evidence.
-
-## Retained result/Completion cohort (2026-08-31)
-
-The package now moves the remaining completion seeds into one private,
-non-`Clone` result-contract cohort after the exclusive S6C child consumes its
-seed. Every retained Cataloged row keeps its original
-`DeclaredFunctionResultContractV1` and `VerifiedFunctionCompletionV1`,
-including Unannotated and Void rows. The sparse physical-header cohort is a
-projection over that retained product: it borrows Completion details and
-contains only the existing supported scalar projection (`i64`). It does not
-verify, infer, clone, or reissue a result, and a physical-header miss does not
-erase the ordinary retained result contract.
-
-## Installed S6C child composition (2026-08-15)
-
-The caller-zero S6C child row is issued only inside the same package issuer
-that owns the selected batch map. A private Completion seed cohort performs
-the one `verify_function_completion_v1` pass; an exact `AppMainStaticChild`
-candidate consumes its seed into `VerifiedS6CSemanticChildV1`, while ordinary
-seeds alone are offered to the generic header projection. The child retains
-the complete S6C Facts/Recipe/Join/prephysical parent and lends only its
-result/parity views; Completion, Loop Return, and callable Tail remain
-projections of that retained parent, not a second field or clone.
-
-After install, `NormalCallableSemanticPackagePortV1::with_s6c_child` is the
-sole child loan. It has no slot/key argument, rejects the generic selected
-entry points for the Main-child role, and records the child key in the same
-exactly-once coverage ledger. A second child loan is typed rejection. This
-row is still Builder-free and caller-zero: it does not define TextFormal wire
-mapping, TextEq residence/route, V2 transport, MIR IDs, a production caller,
-fallback, or retry.
-
-The common-V2 caller-zero row is now issued through
-`NormalCallableSemanticPackagePortV1::with_s6c_common_v2_pre_session`. This
-single HRTB lends the selected callable, its physical-signature sibling, the
-installed child, and `PreparedLoopV2PreSessionEnvelopeV1` together. The
-envelope is created inside the child’s retained source loan, so operation,
-control, and coverage products cannot be acquired or re-paired independently.
-`with_s6c_child` remains only a compatibility wrapper over this canonical
-seam. The port still consumes the selected Main-child key exactly once and
-does not open Builder/session, lifecycle, Text residence, route, fallback, or
-production publication.
-
-The selected lowering view also lends the batch-owned
-`VerifiedResolvedBlockExpressionExpectationV1` from that same callable row.
-This is a scoped transport accessor only: the package does not clone, reissue,
-recount, or expose a raw `usize`; a missing batch row is terminal. The receipt
-can therefore reach the later common admission without opening a session,
-Completion consumption, CFG/SSA/PHI, physical lowering, fallback, or retry.
-
-## S6C physical header/effects co-seal I0 (2026-08-17)
-
-The installed S6C loan now carries two additional sibling projections from
-the same source-backed cohort. `VerifiedS6CStorageHeaderProjectionV1` is a
-catalog-declaration projection for storage-facing params/result/attrs/uses;
-the catalog declaration remains its sole source authority and the projection
-is intentionally distinct from the Dynamic legacy header. The child also
-lends `VerifiedS6CPhysicalFunctionEffectsV1`, whose `EffectMask::READ` is
-issued only after the retained S6C call contracts prove the two external
-operations are exactly the expected pure reads. CoreMethod/Facts remain the
-semantic effect authority.
-
-This I0 is caller-zero and Builder-free. It opens no skeleton, `ValueId`,
-formal lane adoption, Loop CFG/PHI, Completion claim, DraftSeal, lifecycle,
-Text residence, route selection, production caller, fallback, or retry. The
-future function-entry consumer must take header, signature, result, and
-effects through the same HRTB cohort rather than re-reading a declaration or
-reconstructing an effect from MIR.
-
-## Typed BlockExpr transport I0 receipt (2026-08-17)
-
-`SelectedCallableLoweringInputRefV1::block_expr_expectation` now borrows the
-resolver-issued expectation through the existing package HRTB. A selected
-static method containing a BlockExpr is covered by the focused handoff test;
-the input and its physical-signature sibling remain the only callback-scoped
-views. No second source issuer or package-owned semantic count was added.
-
-## Anchor/package audit reconciliation (2026-08-10)
-
-The selected-mapping boundary is closed and must not be reopened as a second
-catalog or batch authority. The accepted shape is:
-
-```text
-parser-issued anchor
-  -> cloneable comparison-only identity view
-  -> source-backed catalog row
-  + complete resolved semantic-batch row
-  -> one exact identity co-seal
+  -> source-backed installable callable catalog
+  + one FunctionSemanticResolverSessionV1 / complete resolved callable batch
+  -> exact opaque declaration identity co-seal
   -> selected key -> private batch slot
+  + exact owned direct-method parameter-contract subset
+  -> installed package -> one scoped lowering port -> complete coverage
 ```
 
-The HRTB syntax loan remains the only AST-borrowing boundary. The cloneable
-identity is comparison-only: it cannot be serialized, converted to a pointer
-or number, used as a key, or used to issue a resolver owner. The catalog and
-batch are sibling products from the same final source; neither is derived from
-the other. `prepare_install`/`commit` is the only catalog installation path,
-and `with_selected_lowering_input(key, callback)` is the only production
-lowering surface.
+Final callable anchors define complete batch membership; parameter contracts
+are only a subset. Top-level and instance rows remain ordinary-owned while
+bounded Dynamic admission uses the resolved declaration mode and only selected
+StaticBoxMethod rows. A valid unselected row remains in the complete batch,
+cannot steal selection, and is neither issuer failure nor fallback. Selected
+Dynamic input and its required contract must match the same private batch slot.
 
-Dynamic admission uses the resolved declaration mode from each complete-batch
-row and lends only `StaticBoxMethod` rows to the bounded Dynamic issuer.
-Instance and top-level rows remain ordinary-owned without Dynamic source or
-parameter probing; production selection is still restricted to rows present
-in the sealed selected-map. A valid unselected row remains in the complete
-batch and cannot steal the selected route. Missing, duplicate, foreign, or
-repaired identity is terminal; the AST-only compatibility catalog is never a
-retry path.
+Parser identity is cloneable for comparison only: no serialization, pointer or
+numeric conversion, key use, or resolver-owner issuance. Catalog and batch are
+siblings, not reconstructions of one another. Missing, duplicate, foreign,
+ambiguous, repaired or coverage-drifted identity rejects before Builder effects.
+The HRTB syntax loan is the sole AST-borrowing boundary; no public batch slot,
+owner number, raw CallSlot getter or independent target catalog may bypass it.
 
-This audit does not authorize a new physical target catalog or a raw
-`CallSlot` getter. Exact source-bound target retention for a future V2
-operation/physical-demand bridge is a separate design stop; it must either be
-co-sealed in that bridge or be retained by an existing private semantic
-product. No package API, public selected key, batch slot, owner number, or
-standalone ingress relation may be added for that purpose.
+[Installation](install.rs) is one consuming `prepare_install`/`commit` transition.
+The package is non-Clone and non-splittable. `with_normal_callable_install_once`
+returns a Builder-private bundle, then a private lowering scope; no bare installed
+package escapes. That scope borrows the parser Program and opens the package
+port before invoking source-backed lowering:
 
-## Instance constructor semantic owner I0 (2026-08-20)
+```text
+open_lowering_once(context)
+  -> with_selected_lowering_input(key, callback)
+  -> complete()
+```
 
-The final parser callable source now retains one non-Clone constructor source
-catalog whose opaque `ConstructorSourceIdV1` comes from the parser transaction.
-Final Box ordinals and normalized constructor keys validate placement only;
-Builder work ordering and `(box name, key)` never reissue occurrence identity.
+A second open, foreign catalog context, duplicate selected-key consumption or
+incomplete coverage rejects. Inputs and parameter contracts live only through
+the callback; the borrowed port is not a new package or direct-call carrier.
+Compatibility roots keep their explicit source owner, never a retry after
+source-backed failure. The Builder adapter owns raw lineage and temporary
+lowering-state installation only. It does not repeat the old semantic seal,
+Dynamic target extension, Complete-source pairing or semantic-loan ownership.
+Cataloged affine direct-call provisioning is a separate contract.
 
-Before the ordinary callable batch consumes the final source, the existing
-Brand-aware resolver issues one complete owner forest for every constructor
-root and all nested lambdas. The semantic package retains those forests as one
-non-Clone batch and carries them through installation unchanged. Missing or
-changed syntax, deferred resolution, root/profile drift, and cardinality drift
-reject before Builder effects. This row does not consume the batch physically,
-activate Brand unwrap, or remove the legacy `is_brand_declared` probe.
+## Callable projections
 
-## Birth definition publication
+### Dynamic
 
-Birth definition publication uses the existing constructor semantic row:
-its exact source ID, declaration object and typed Birth kind issue one
-`BirthConstructor` callable key. Admission carries that relation into
-`CatalogedConstructor` and the existing Atomic Publish definition table;
-physical symbol text and object membership only validate it, never reissue it.
-Source arity N requires physical N+1. Duplicate key, symbol/arity drift, and
-ordinary-method admission of a birth key reject before publication. Non-birth
-constructor kinds keep their existing compatibility disposition. Definition
-retention alone does not establish backend execution or source-to-EXE acceptance.
+A selected Dynamic row retains owned catalog-neutral owner/site/binding/argument
+relations, Recipe/JoinSig/invocation/operator lifecycle, the parameter-1
+V1/C0/B0/Enter ingress, and commit-before-end rebind relations
+(I13/I15/I16/Fault/Backedge). Recipe co-seal does not retain a catalog borrow;
+the semantic/lifecycle program carries no catalog lifetime. ExactText
+(StringBox-as-Text) stays a formal source contract. `HomeDemandV1::Handle` is
+a derived ingress view, not runtime Text residence or a wire ABI.
 
-The selected Pair source explicitly uses `i64` fields, not an IntegerBox
-unboxing exception. Its normal-publication test checks exact ObjectFieldGet/Add/main
-results after final refresh and retains both dynamic FieldSet check contracts
-at their exact instruction/value sites. Birth parameters remain unannotated;
-an integer-width ABI is not permission to elide those checks. The original
-source snapshot and migrated hash belong to the acceptance workstream.
+`VerifiedDynamicExitTransactionCoSealV1` owns the bounded semantic program,
+carrier flow, carrier-only cleanup and exact logical inner-Return/outer-Tail
+pair. Actual rebind, End, Home, physical Return/ABI and exit chronology belong
+to downstream owners. The recorded `ParserScanLoopBox.skip_while/4` frontier
+is physical source-ledger consumption, not package completion. A catalog-issued
+move-only physical header is lent once to A-prime; it cannot reread the AST/root
+declaration. Source-bound targets for a V2 operation/physical-demand bridge must
+be co-sealed there or retained by an existing private product, never exposed as
+an independent ingress relation. No new package API/public selected key may
+bypass that co-seal.
 
-Each Birth formal now has one constructor-issued contract retained with the
-semantic row and Birth ABI handoff. It records the exact declaration spelling,
-resolver binding/ordinal, and selected construction-store uses. An unannotated
-formal written into an `i64` field remains unannotated: the store is a checked
-representation requirement, never a declaration inferred from a caller value.
-When the selected body has no complete construction coverage, the relation
-records that explicitly and remains physical-unavailable. Actual argument
-representation is deferred to the later physical-binding owner; this retention
-does not enable C execution or select an `input_kind` default.
+### Signature, result and header
 
-Constructor rows retain the resolver's body-shape products for every function
-owner, including nested functions, and reject missing/foreign/residual products.
-Before a Birth row is issued, `instance_constructor_non_escape` checks every
-resolved receiver/alias occurrence. Exact local initializer/plain rebind edges
-propagate a conservative may-alias set; only local copies and field receiver
-uses are admitted. Captures, opaque calls, return/store values and unclassified
-uses reject as non-escape unproven. Rebinding never clears taint without a
-reaching-definition proof. No name scan, new receipt or runtime check is added.
-This is Birth-body admission only, not initializer/override coverage, Home Flow
-or Fault cleanup. The published backend rejection remains in force.
-The source-ID lowering loan borrows the checked root shape instead of dropping
-it. Birth rows additionally retain the existing source Completion verification;
-implicit Unit and value-returning completion remain distinct. This does not
-enable a value-returning Birth backend family. Body effect events identify
-source sites/kinds only: they are not a complete semantic effect/failure contract
-and cannot independently authorize an effect mask.
+[Physical signature](physical_signature.rs) projects the same selected/batch
+identity, declaration mode, exact instance Receiver binding and complete formal
+contracts. It owns no ValueId, Completion, runtime token, actual argument or Text
+residence. Explicit source arity is `/N`; physical ordering is:
 
-The selected unannotated Birth source row issues the existing OpaqueObservable
-vocabulary, not a synthetic method identity or a call to the method effect issuer.
-Explicit constructor attributes/signature contracts have no selected
-effect admission yet and are not silently treated as the default. Ordinary-new
-co-seal checks the exact Birth key and source-owned Unit Completion before any
-argument lowering. The existing recipe explicitly projects all current observable
-barrier bits (not Pure); this conservative policy is not a body-event inference
-or a no-Fault guarantee. FieldSet type checks and construction failure remain
-separate obligations. The physical owner emits `Callee::BirthConstructor` with
-mandatory receiver, N source args and no dst; selected Global reconstruction,
-manual receiver-prefix and fixed IO are removed. Published selected-C admission
-is still UnsupportedBeforeObject until a lossless consumer is implemented.
+```text
+[InstanceReceiver?]
+then each explicit formal in ordinal order:
+  ordinary -> [OrdinaryScalar]
+  ExactText -> [ExactTextSlot, ExactTextGeneration]
+physical lanes = receiver lane count + sum(explicit formal lane widths)
+```
 
-## Script instance-Box transferred boundary I0 (2026-08-20)
+`SourceBindingSiteV1::Receiver` is not a formal/ExactText ordinal. Static methods
+have no receiver lane. `/N`, FunctionSignature and ValueId-vector lengths cannot
+infer or repair this map. The selected input, parameter contracts, S6C child and
+matching signature travel in one exactly-once HRTB loan, never recombined loans.
+Skeleton, call-edge and canonical-session owners perform later projections.
+Birth's checked kind/payload representation is a separate physical contract.
 
-For non-app selected Script, an instance Box is transparent to the Script
-resolver only after one pre-Builder census proves that every retained method is
-owned by the callable semantic package and every constructor is owned by the
-parser-issued constructor semantic batch. Exact Program ordinals select the
-cohort; Box names and constructor keys only validate issued placement.
+[Result retention](result_contract.rs) moves the remaining Completion seeds,
+after the exclusive S6C child takes its seed, into one private non-Clone cohort.
+Cataloged rows retain their original `DeclaredFunctionResultContractV1` and
+`VerifiedFunctionCompletionV1`, including Unannotated and Void. The
+[sparse header](physical_header.rs) borrows this product; it does not verify,
+clone, infer or reissue a result. Only rows with complete formal contracts and
+an explicit currently supported scalar result annotation (`i64`) project a
+header. Missing/unannotated siblings cannot erase eligible rows or ordinary
+result contracts. `Option<CallablePhysicalHeaderRefV1>::None` is a valid ordinary
+semantic route, not permission to infer a header from body, MIR, ResultCatalog
+or fixture expectations.
 
-The root demand window records `InstanceBoxSemanticOwner`, so the Script
-resolver owns surrounding expressions without entering the transferred Box.
-Missing, foreign, or extra method/constructor coverage rejects before Builder
-effects. Runtime Box lowering is unchanged, and this row neither consumes Brand
-relations physically nor removes the legacy raw name probe.
+The formal issuer retains ordinal/binding/owner/kind authority. This cohort
+does not define TextFormal wire, ExactText physical residence or TextEq routing;
+Builder IDs and S6C physical-session adoption remain downstream obligations.
 
-## Instance-constructor semantic loan consumer I0 (2026-08-20)
+### S6C and BlockExpr
 
-Selected-normal constructor lowering now consumes the work-plan-issued
-`(ConstructorSourceIdV1, InstanceConstructorDemandRoleV1)` ticket by value.
-The installed package loans the matching resolver forest by source ID only;
-the same immutable forest may serve the immediate and one permitted Script
-runtime role. The adapter installs a request-local callable semantic scope
-around the existing raw constructor body and restores the enclosing scope
-afterwards. Manifest exhaustion is checked together with ordinary package
-completion. Compatibility, RawLegacy, unlocated calls, and raw
-`is_brand_declared` routing remain outside this row.
+[The S6C child](s6c_child.rs) is issued inside the same package/batch owner.
+A private seed cohort runs `verify_function_completion_v1` once. Exact
+AppMainStaticChild consumes its seed into `VerifiedS6CSemanticChildV1`; ordinary
+seeds feed the generic header projection. The child retains the complete
+Facts/Recipe/Join/prephysical parent. Result/parity, Completion, Loop Return and
+callable Tail are borrowed projections, not duplicate fields or clones.
 
-## Canonical trivial callable row I0 (2026-08-22)
+`with_s6c_common_v2_pre_session` lends selected callable, signature, installed
+child and `PreparedLoopV2PreSessionEnvelopeV1` in one HRTB. The envelope is created
+inside the retained source loan: operation/control/coverage cannot be separately
+acquired or re-paired. `with_s6c_child` is its compatibility wrapper; there is no
+slot/key argument. Generic selected entry points reject the Main-child role;
+the same coverage ledger consumes its key once and rejects a second loan.
 
-One ordinary static cataloged callable row, `Scan.run(value) { return value }`,
-now enters the existing resolved canonical trivial lowerer. The route is
-single-source and pre-effect:
+The same loan includes [storage header](s6c_storage_header.rs) params/result/
+attrs/uses from the catalog declaration, distinct from the Dynamic legacy header,
+and [physical effects](s6c_effects.rs). `VerifiedS6CPhysicalFunctionEffectsV1`
+projects READ only after retained call contracts prove the two expected pure
+reads; CoreMethod/Facts remain semantic effect authority. A function-entry
+consumer must take header/signature/result/effects together, never reread a
+declaration or infer effects from MIR.
+
+`SelectedCallableLoweringInputRefV1::block_expr_expectation` borrows the same
+row's resolver-issued `VerifiedResolvedBlockExpressionExpectationV1`. Missing
+batch rows reject; no raw usize, clone, recount or second issuer is exposed.
+Its focused BlockExpr handoff test proves scoped transport, not physicalization.
+These Builder-free projections do not themselves authorize skeletons, ValueIds,
+formal adoption, CFG/PHI, Completion claims, DraftSeal, lifecycle, Text residence,
+route selection, production publication or fallback. Adoption evidence belongs
+to each selected physical consumer, not package projection tests.
+
+### DeclaredInstance and FreeFunction
+
+[DeclaredInstance locators](declared_instance_locator.rs) cross-check existing
+root-lexical `me.method(...)` products. A private non-Clone catalog retains exact
+owned site and batch/row ordinals for relation, semantic effect, issued
+InstanceBoxMethod key, result/Completion and signature siblings. No Callee,
+receiver ValueId, AST, arguments, symbol, EffectMask or capability is issued.
+The disposition is explicit no-root or a complete catalog; all missing/foreign/
+duplicate/ambiguous/coverage drift rejects before effects. Install retains it;
+the port lends `DeclaredInstanceCallLocatorViewV1` only within a callback, never
+a clone carried into later lowering. Receiver materialization, target/effect
+reclassification and publication stay downstream. Selected-C remains NoSafeSlice
+until a source-backed capability covers the full relation and lane contract.
+
+A selected top-level `SelectedTopLevelFunctionKeyV1` crosswalks once in the same
+source catalog to the existing FreeFunction key. Normal draft admission and the
+collector preserve it through Atomic Publish; the backend view borrows the
+relation and projects symbol text in its temporary frame. This is not a
+name/arity resolver or a conversion to StaticBoxMethod. Missing/duplicate/foreign/
+signature drift rejects before argument effects or object emission. Typed
+FreeFunction consumption uses the published row; JSON, registry, header,
+`args[0]` and alternate-backend retry are not source authorities.
+
+## Constructor source and Birth
+
+[Constructor issuance](instance_constructor_semantic.rs) retains a non-Clone
+parser-transaction catalog with opaque `ConstructorSourceIdV1`. Final Box ordinals
+and normalized keys validate placement; work order or `(box name, key)` cannot
+issue occurrence identity. Before ordinary callable-batch consumption, the
+Brand-aware resolver issues complete forests for every constructor and nested
+lambda. Forests and body-shape products move through install; missing/changed
+syntax, deferred resolution, root/profile/cardinality drift or residual owners
+reject before Builder effects. Retention alone does not consume Brand relations
+physically or retire raw `is_brand_declared` probes.
+
+`instance_constructor_non_escape` checks every resolved receiver/alias use before
+Birth issuance. Exact local initializer/plain rebind propagates conservative
+may-alias taint; only local copies and field-receiver uses qualify. Capture,
+opaque calls, return/store values and unclassified uses leave non-escape unproven.
+Rebinding cannot clear taint without reaching-definition proof. No name scan,
+new receipt or runtime check substitutes. This admission does not establish
+initializer/override coverage, Home Flow or Fault cleanup.
+
+The exact source ID, declaration object and typed Birth kind issue one
+BirthConstructor key. `CatalogedConstructor` admission and Atomic Publish retain
+it; symbol text/object membership validate rather than reissue. Source N requires
+physical N+1 with explicit receiver, N source arguments and no dst. Duplicate
+key, symbol/arity drift or ordinary-method admission of a Birth key rejects.
+Non-Birth constructor kinds retain their explicit compatibility disposition.
+Selected Global reconstruction, manual receiver-prefix and fixed IO are retired.
+
+Each formal retains constructor-issued declaration spelling, binding/ordinal
+and selected construction-store uses in its ABI handoff. Writing an unannotated
+formal into an i64 field does not declare it i64 or permit first-caller
+specialization. Missing complete construction coverage remains physical-unavailable.
+Per-New actual binding and C kind/payload realization belong to later owners,
+not an implicit input-kind default. The Pair source uses explicit i64 fields;
+its unannotated formals retain exact dynamic FieldSet checks, not IntegerBox
+unboxing exceptions.
+
+Source Completion keeps implicit Unit distinct from value-returning Birth;
+value-returning backend support is not implied. Body effect events retain only
+sites/kinds, not a complete semantic effect/failure contract. The selected
+unannotated Birth row uses existing OpaqueObservable vocabulary; no synthetic
+method identity or method-effect issuer. Explicit attributes/signature contracts
+have no selected default effect admission. New co-seal checks exact Birth key and
+source-owned Unit Completion before arguments. The recipe conservatively projects
+all observable barrier bits, never Pure, body-event inference or no-Fault proof.
+FieldSet type failure and construction failure remain separate obligations.
+
+## Ordinary objects and New claims
+
+[Ordinary-New co-seal](ordinary_new_coseal.rs) retains the parser-owned enclosing
+Box for Birth and NoBirthZero. Same-source catalog correspondence rejects foreign
+sessions even if numeric indices match; wrong Birth arity is not NoBirthZero.
+The batch assigns one CanonicalObjectIdV1 per ordinary Box, including NoBirth;
+CanonicalFieldRefV1 carries object identity, not an unqualified field ordinal.
+The definition issuer separately owns bounded destruction disposition, independent
+of construction/runtime layout. Claims copy ID/disposition before transfer;
+post-transfer lookup cannot reissue them or prove empty cleanup.
+
+The AST-free take-once definition payload uses existing field declarations.
+After installed-context validation, the port moves it to the normal collector
+before bodies. Duplicate transfer rejects. Package completion and source-backed
+drain require transfer even for an empty payload. Drain moves definitions with
+exact drafts into a private candidate; failed preflight publishes neither and
+occupied destinations are not overwritten. Correspondence remains for claims;
+atomic publication, runtime layout and executable admission remain required.
+
+Exact direct-local initializer relations join declaration BindingRef/Local kind,
+located New and parser ConstructorSourceId/typed Birth(N). Uninitialized/non-New
+locals are skipped; Outbox/nested allocations are outside this cohort. Allocation
+effects or initializer identity cannot establish Home demand, local installation
+or complete Fault obligation. The non-Clone VerifiedOrdinaryNewBirthRecipeV1 or
+explicit NoBirthZero disposition contains the issued target, never reconstructed
+`Class.birth/N` text. The selected adapter takes each branded site once before
+NewBox and validates source-N/physical-N+1. Noncohort/compatibility rows cannot
+issue or retry source-backed claims.
+
+[The existing ledger](ordinary_new_local_commit.rs) retains destination binding/
+declaration, constructor relation and canonical target after take. It rejects
+another Box's completion and leftover claims/pending locals. `new_expression`
+records its result only after overrides; the completed-local handoff checks
+ordinal, initializer ValueId and destination. `home_new_prefix` owns Home source
+relations; every prior Home must complete its exact installation before the next
+target take. The ledger records correspondence, not Home meaning or cutpoints.
+Ordered scalar actual rows retain consumed identity and emitted ValueId; finishing
+checks cardinality/order, literal Integer/Bool definitions and Birth argument
+order. A trivial local is checked at exact binding consumption. This snapshot
+cannot recover AST arguments or infer an executable ABI.
+
+`instance_construction` issues its AST-free plan in the exact constructor/Box
+loan. Direct Plain stores and lexical receiver relations join declaration-ordered
+explicit i64 fields. Store Normal has an exact commit cutpoint; allocation Normal
+creates an unpublished outer-storage reclaim obligation. Constructor identity
+and exact owned New site stay in NewEmissionProgress until Birth-fault
+ReclaimUnpublished emission; final validation checks that operation against its
+source origin, never cleanup-block placement. Trivial fields are not empty-cleanup
+proof. Selected stores also retain receiver and parameter-RHS sites/bindings;
+consumers use the exact binding observer, not assignment AST recovery.
+
+Only empty NoBirthZero and exhaustively initialized scalar Birth bodies have
+this construction eligibility. Missing initialization, other field demands,
+acquisition/structured bodies and overrides are explicit unavailable outcomes,
+not invalid-source or zero-filled success. NoBirth retains explicit absence;
+a Box alone cannot recover consumed constructor identity. Parser-sealed
+StoredFieldInitializer triggers survive normalization: excluded defaults cannot
+become eligible handwritten stores, and nonselected build-gate triggers do not
+participate. Runtime Fault CFG/reclaim and physical admission remain separate.
+
+## Root results, cleanup and finishing
+
+The validated comparison-only AppMain identity and first Completion enter the
+same source loan/New ledger once. Installation shares that owner. The Home walk
+extends through exact terminal Return; ordered cleanup bindings or explicit
+unavailability are not inferred from the last New prefix. Return selects before
+Match/value descent, joins completed locals and definition-owned destruction,
+and releases Homes in reverse acquisition order. A cleanup Fault switches to the
+fault-pending suffix; later successful releases cannot restore Normal Return.
+Returned Homes, arbitrary suffixes and other Completion forms are not admitted
+by this cleanup relation.
+
+RootHomeExitProgress retains installed bindings, exact exit site, object ID and
+bound ValueId through emission. Finalization checks source origins against actual
+releases/terminals. Terminal field reads join original Home, selected New and
+same-session definition: successful source construction and exact nonweak i64
+fields qualify, not names outside the definition, runtime slots or physical types.
+Missing/foreign products preserve their error rather than become unsupported.
+The ledger stages read/receiver sites, actual/Home bindings and canonical fields
+until the whole terminal succeeds. Receiver consumption occurs once; its ValueId
+must equal the retained binding. Missing/duplicate/drifted reads reject.
+
+The terminal relations are separate source proofs:
+
+| Relation | Dedicated consumption and retained result |
+| --- | --- |
+| TerminalI64AddReturnV1 | Exact owner/Return/Add and ordered two qualifying FieldRead sites; reserve once, consume receivers/reads in order, emit Add, pass the exact result through cleanup/Return. |
+| TerminalI64FieldReturnV1 | Exact Return/value and one staged FieldRead; reserve once, emit one ObjectFieldGet, then the same cleanup/Return owner. |
+| Explicit bare Return / Unit | Completion-backed Unit relation; only selected root-home emitter consumes it and emits Return(None) after cleanup. The void statement result is not a return payload. |
+| Integer literal | Retains its own exact terminal/result relation, separate from Add, field and Unit. |
+
+These relations carry no MIR IDs, ABI, JSON, Recipe key or raw-dispatch authority.
+Progress is physical ledger state; missing/duplicate/drifted results reject and
+selected raw FieldRead re-entry cannot retry AST descent. Bool, local aliases,
+typed integers and generalized Add cannot borrow the field/Add relation. Add is
+terminal-only. Unit remains distinct in the completed entry, but current direct
+physical input rejects it; the retired V2 pending ROOT_UNIT frame is not a live
+consumer. Current physical admission is owned by
+[physical_abi.rs](../compiler/normal_default_pipeline/published_backend_view/physical_abi.rs).
+Unavailable cleanup tests mutate physical state on real source-issued reads;
+they prove neither accepted fini syntax nor executable coverage.
+
+[Root validation](ordinary_new_local_commit/root_validation.rs) preserves exact
+observations: NotIssued, no selected local New, unavailable (Completion missing/
+rejected, terminal Homes, New emission or root exit), or source-complete. Residual,
+foreign and drifted bindings are errors. A mutable MirFunction observation is not
+backend admission, and Birth has its own validator. The invocation retains the
+same root ledger/key through finishing and rechecks New/frame/local/exit before
+external commit. For single Home, [root-home state](ordinary_new_local_commit/root_home.rs)
+retains prefinish cleanup entry prefix/incoming boundary: only Jump contraction
+into a deleted empty sole-predecessor internal node is allowed. Release operands,
+frame, Normal/Fault successors, Return/ReturnFault, prefix and ingress stay exact.
+Diagnostic/artifact finishing share the check and temporary mapped bindings before
+FinishingChecked. No source obligation or optimizer skip is added; multiple-Home
+roots keep exact-placement checks without an optimized-coverage claim.
+
+Birth capture moves construction state/Fault frame through payload session and
+exact collector draft. Source scope becomes Transferred, not absent; second take
+or later store/frame use rejects. Normal drain moves states with definition keys
+to a single-use validator; replacement/other drains cannot discard them. The root
+handoff checks targets against retained construction drafts, never MIR/symbol
+recovery. Each New site is validated, but repeated calls retain each Birth
+definition once. The handoff keeps AppMain identity, terminal relation and checked
+physical root together. Normal finalization owns it through synchronous backend
+consumption; the view borrows and checks source/result agreement without splitting
+owned products or recollecting targets. Root keys cannot reconstruct membership
+or select ABI. After validation/strict verification/commit preparation, no mutable
+passes or admitted-module extraction escape. Exact ExplicitCompatibility alone
+returns the non-admitted result; all selected failures are terminal.
+
+## Script and callable consumers
+
+For non-app selected Script, one pre-Builder census proves every instance-Box
+method belongs to this package and each constructor to the parser semantic batch.
+Exact Program ordinals select; names/keys only validate placement.
+InstanceBoxSemanticOwner marks transfer so the Script resolver owns surrounding
+expressions without re-entering the Box. Missing/foreign/extra coverage rejects
+before effects. Runtime Box lowering, physical Brand consumption and raw name
+probe retirement are separate responsibilities.
+
+The work-plan-issued `(ConstructorSourceIdV1, InstanceConstructorDemandRoleV1)`
+ticket is consumed by value. The installed package loans its matching forest by
+source ID; the same immutable forest may serve immediate and one permitted Script
+runtime role. The adapter scopes callable semantics around the existing raw body,
+then restores the enclosing scope. Manifest exhaustion joins package completion.
+Compatibility, RawLegacy, unlocated calls and `is_brand_declared` remain outside
+this source-ID consumer.
+
+For the bounded ordinary static trivial row (`Scan.run(value) { return value }`):
 
 ```text
 SelectedCallableLoweringInputRefV1::source()
   -> CanonicalLoweringPreflightV1::verify_function
   -> CanonicalTrivialBindingSsaPlanV1
-  -> existing resolved trivial lowerer
-  -> unpublished resolved function session
+  -> resolved trivial lowerer -> unpublished resolved function session
   -> existing physical-signature/collector owner
 ```
 
-The resolver-issued plan is the BindingRef authority. Catalog admission lends
-only the already validated physical symbol and signature owner; the callable
-path does not re-read AST names, allocate legacy BindingIds, or enter
-`CallableSemanticLoweringState`. A physical-symbol mismatch or session
-failure is terminal before collector publication and cannot retry through the
-old body driver.
-
-`CallableSemanticLoweringState` remains an outside compatibility projection
-for rows not admitted by this I0. Those rows use an explicit `Outside` route
-selected before child-session effects; it is not a post-failure fallback from
-the canonical lowerer. Loops, calls, locals, instance receivers, typed
-signatures, parser-scan expansion, and production-wide callable cutover remain
-outside this I0.
+The resolver plan owns BindingRef; catalog admission lends validated physical
+symbol/signature only. No AST-name reread, legacy BindingId allocation or
+CallableSemanticLoweringState entry occurs on that path. Symbol mismatch/session
+failure rejects before publication without retry. Unadmitted rows use explicit
+Outside before child-session effects and may retain CallableSemanticLoweringState;
+this is not post-failure fallback. Loops, calls, locals, receivers, typed signatures,
+parser-scan expansion and whole-callable cutover are outside this bounded row.

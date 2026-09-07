@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: condense the semantic-package owner README without losing live contracts (task 6b below).
+Smallest next slice: existing backend/runtime task2 Global-required-row enforcement in the workstream; selected constructor cleanup is closed.
 Non-claims: new source acceptance, optimized multiple-Home coverage, complete view thinning, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -2149,29 +2149,33 @@ semantic or execution change, or whole-suite green claim.
 
 ### NORMAL-CALLABLE-SEMANTIC-README-R0 (task 6b)
 
-Classification: documentation closeout of the selected constructor cutover;
-no semantic, source acceptance or production-edge change.
+Documentation closeout: semantic-package README condensed from639 to393 lines.
+The old introduction plus16 dated sections now have six responsibility sections.
+Contract-preservation audit boundary: parent8c5fe55166 README -> rewritten README;
+includes all source/install/loan/publication/non-authority and unsupported rules;
+excludes new implementation verification or production adoption claims.
 
-Change:
-  Condense the existing semantic-package README's639 lines and dated progress
-  sections into current ownership, issue/install/loan/finalization boundaries,
-  family-specific supported/unsupported contracts and concise evidence pointers.
-  Git history owns the journal. Keep this README as the module's one entry.
-Contract:
-  Preserve each live rule, owner/reference link and unsupported distinction;
-  remove repeated progress/physical-split narration. Do not turn source retention
-  into C permission or claim all source families execute. Current Pair V4 status
-  comes from this card; source package remains non-authority for physical ABI.
-Done:
-  Compare every old section against retained contract text or its exact existing
-  owner reference. Check all links/anchors; current search found no repository
-  inbound section-anchor links. No Cargo/build/test is needed for prose-only
-  edits. Pointer guard and diff check pass; next pointer selects the existing
-  canonical/compatibility-boundary task with a bounded design audit if required.
-Stop:
-  If a rule conflicts with current code/SSOT, preserve its uncertainty and resolve
-  the named owner before rewriting the contract. No silent scope widening, new
-  source classifier/receipt, or new archive document. Dependency: placement closeout.
+| Previous material | Current contract owner in README |
+| --- | --- |
+| Intro, BridgeReady, anchor reconciliation | Source and install ownership; constructor/root detail moved to its responsibility sections. |
+| Dynamic paragraphs; signature/header/result; S6C/effects/BlockExpr | Callable projections, including exact HRTB co-loans and downstream physical obligations. |
+| DeclaredInstance and FreeFunction | Callable projections, retaining NoSafeSlice and same-source key publication. |
+| Constructor semantic owner and Birth publication | Constructor source and Birth: identity, non-escape, formal/effect/Completion and checked-store constraints. |
+| Ordinary-New co-seal, terminal reads, final handoff | Ordinary objects/New and Root results/cleanup/finishing. |
+| Script transfer, constructor loan, canonical trivial | Script and callable consumers, including explicit Outside before effects. |
+
+Removed repeated progress/file-split narration. Superseded V2 pending/blanket
+Birth-backend-stop claims now point to current Pair V4 evidence; Unit still stops
+at physical_abi.rs, verified against its I64-only admission. Source retention is
+not backend permission. No semantic rule or accepted source shape changed.
+All17 added local owner/reference links resolve. No inbound repository section
+anchor links were found; old README had no Markdown links to drop. Pointer guard
+and diff check pass; no Cargo/build/test run for this prose-only change.
+
+The existing [backend/runtime task2](../workstreams/mirbuilder-inplace-replacement-current.md#backendruntime-feedback-and-task-order-2026-09-06)
+now owns the next accepted Global-required-row slice after a read-only worker
+issuer/caller/state audit. Non-Global absence remains its explicit next uncertainty;
+this closes neither all compatibility nor the broader MirBuilder goal.
 
 ### Task 3: exact root cleanup contraction
 

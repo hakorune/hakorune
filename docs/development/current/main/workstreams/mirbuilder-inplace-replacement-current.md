@@ -565,26 +565,66 @@ unrelated performance remain outside this task.
 
 ### Backend/runtime feedback and task order (2026-09-06)
 
-Decision: retain C ABI and the physical C LLVM backend; separate compatibility
-selection and make each runtime/compile state have one owner. Planning stops here.
-Source authority + canonical issuer: source Facts/Recipe -> Atomic Publish;
-backend consumes published relations; runtime hook owner accepts registrations.
-Non-authority: JSON names, C language choice, duplicate registries and local green.
-Fail-fast boundary: missing selected authority stops before effects/artifact;
-no unproved canonical-to-compatibility fallback or concurrency guarantee.
-Smallest next slice: the constructor frontier selected by CURRENT_STATE; follow
-its linked owner plan through execution and exclusive old-edge replacement.
-Non-claims: Pair EXE30/OBJ30, legacy retirement, races or compiler binary size.
+Constructor Pair V4 source execution, EXE/independent OBJ30, Fault cleanup and
+selected V2/V3 retirement are recorded in the
+[constructor owner card](../design/constructor-lifecycle-llvm-lowering-ssot.md).
+View ownership/row storage and transport placement cleanup are closed; the
+semantic-package README closeout preserves their source/physical boundary.
+This does not close uncovered constructor representations or the whole Call R7.
 
-Order: constructor plan through execution/retirement -> canonical/compatibility separation ->
-compile-call state/options -> kernel hook single storage -> later runtime crate
-dependency reduction. Retire each selected old edge within its own series;
-do not postpone deletion to a final cleanup project. A demonstrated shared-state
-failure on the selected constructor path reopens that dependency immediately.
-The [C boundary owner](../../../../../lang/c-abi/README.md#boundary-ownership-and-queued-cleanup-2026-09-06)
-records current evidence, actual consumers, acceptance and deletion constraints.
-The external review used 93dde7b882; verification here used branch 55f2817a5d.
-No source, fixture, fallback, production switch or semantic receipt is changed.
+Order: canonical/compatibility separation -> compile-call state/options -> kernel
+hook single storage -> later runtime crate dependency reduction. Each selected
+series retires its replaced edge. A demonstrated shared-state failure on the
+selected path reopens that dependency immediately; concurrency is not assumed.
+The [C boundary owner](../../../../../lang/c-abi/README.md)
+retains task2–4 responsibilities and acceptance.
+
+#### MIR-CALL-PUBLISHED-GLOBAL-ROW-REQUIRED-I0
+
+Status: **selected_fast**. Classification: Stop of the selected missing-input
+edge; no new source family, ABI revision, row schema or receipt.
+
+Decision: require the existing typed row for Global Calls in published ingress.
+Source authority + canonical issuer: canonical Call target/Atomic Publish; existing Rust published view emits all Print/FreeFunction/StaticBoxMethod Global rows.
+Non-authority: C input shape, names, JSON and row-session state do not issue source meaning.
+Fail-fast boundary: the shared typed-row peek rejects selected Global absence before plan/name dispatch or artifact output.
+Smallest next slice: enforce mandatory absence in hako_llvmc_published_static_method_peek_i64_global_row_v1 and extend its existing C ABI test.
+Non-claims: complete compatibility separation, Method/Constructor admission, detecting Global-to-Method transport corruption, constructor V4 or concurrent compilation.
+
+Worker audit boundary: Rust view -> capi -> published static/free/print/array
+entry -> prepass peek and two emitter take->peek callers. Includes all three
+canonical Global forms; excludes V4, generic compilation, non-Global disposition
+issuance and state ownership. Each Global already has a projected row.
+
+| Observed input state | Existing authority / required terminal |
+| --- | --- |
+| Published session, Global, valid row | Existing published row -> typed consumer/take. |
+| Published session, Global, absent row | Required-input error; no plan/name dispatch. |
+| Present malformed shape/arity/kind | Existing typed-input rejection. |
+| Duplicate rows/take | Existing duplicate rejection. |
+| Supplied but unconsumed row | Existing finish rejection. |
+| Published entry with empty row set | Existing begin rejection. |
+| Explicit generic entry without row session | Its existing compatibility consumer. |
+| Published non-Global site with absent row | Unchanged for this slice; disposition gap remains open. |
+
+Change:
+  Shared peek rejects absent Global under its existing published-session marker.
+  Delete absent -> legacy plan/JSON name-dispatch for all three callers; retain
+  generic helper bodies with real compatibility callers. No wrapper/new guard.
+Contract:
+  Use the existing Global tag, never name inference. Preserve malformed/duplicate/
+  residual rejection and take-once semantics. Non-Global sites lack an explicit
+  per-site compatibility disposition: leave that next boundary open.
+Done:
+  Extend `published_rows_preartifact_test.c`: omit entry/nested Global row while
+  another valid row remains; legacy-readable JSON must reject without an object.
+  Preserve valid/malformed/duplicate/residual/array and explicit generic cases.
+  C build and existing selected source/typed gates pass; sync C README/reference.
+Stop:
+  If session/tag cannot distinguish the finite states, return to design. Do not
+  reject all absent sites, infer a missing disposition or widen backend scope.
+
+Worker findings are integrated into this Decision, not execution evidence.
 
 ## Source and ownership budget
 

@@ -93,12 +93,13 @@ JSON may transport already-decided operands; it is not a second source resolver.
 | Runtime implementation | Rust value, handle, array, string and OS owners |
 | Compatibility | Explicit ingress and libc canary, with their own selection |
 
-Static verification at branch `55f2817a5d`, superseding the review's `93dde7b882`:
-the published Rust view still reads both Call and LegacyCallV0. The same-module
-C call emitter rejects malformed typed rows, but absent rows continue to legacy
-classification. This is missing-row ambiguity, not retry after typed failure.
-The lifecycle companion remains a pre-artifact pending terminal; this review
-does not establish constructor execution or Pair EXE/linked OBJ exit 30.
+The Rust view retains Call and LegacyCallV0 readers. Typed malformed rows reject;
+absent rows can still reach legacy classification, not retry after typed failure.
+Task2 now selects only published Global row absence: all canonical Global targets
+(Print/FreeFunction/StaticBoxMethod) already have Rust-issued rows. The shared peek
+will reject missing Global rows before same-module prepass/emitter and entry dispatch
+fallback. Non-Global per-site disposition is still unresolved. The constructor V4
+execution/retirement receipt above supersedes the old lifecycle-pending review.
 
 Ordered tasks are owned by the current
 [workstream](../../docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#backendruntime-feedback-and-task-order-2026-09-06).
