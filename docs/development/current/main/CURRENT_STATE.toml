@@ -41,7 +41,19 @@ archive record and the host reader proves actual extraction plus malformed
 rejection. The selected target was already x86_64 GNU/Linux LP64. The host half
 of session I0 retains one explicit archive through lifecycle EXE compilation
 and link; C V3 now validates descriptor/header geometry plus the selected LLVM target-data Diagnostic/Frame layout before pending. Direct physical input I0 owns
-the one-pass final ABI transport and real parser ingress; parser closure I0 is landed at 23824e64f7 with dedicated and source-issued Pair acceptance. C body consumer D0 selected the V4 Pair emitter. Its invocation-contract I0 is closed: the compiled-entry-owned physical input issues the selected Pair's five checked-runtime diagnostic sites, rejects Unit roots before C, and the lifecycle-private LLVM 18 text session writes/verifies the selected triple/data-layout without generic flags or object emission. The lifecycle kernel artifact boundary is verified: separate release archives each own one main; the normalized launcher passes five status cases, legacy regression passes five, mixed features reject, and the host checks entry ABI plus runtime layout from its retained archive. V4 C-boundary execution now passes source-issued JSON through llc-18 and the actual lifecycle archive with exit30; 11 runtime executions prove Fault/range cleanup. The changed Rust direct EXE and session-bound OBJ callers remain unverified after resource-stopped builds. Selected old transport retirement remains gated on those host paths.
+the one-pass final ABI transport and real parser ingress; parser closure I0 is landed at
+23824e64f7 with dedicated and source-issued Pair acceptance. C body consumer D0 selected
+the V4 Pair emitter. Its invocation-contract I0 is closed: the compiled-entry-owned
+physical input issues the selected Pair's five checked-runtime diagnostic sites, rejects
+Unit roots before C, and the lifecycle-private LLVM 18 text session writes/verifies the
+selected triple/data-layout without generic flags or object emission. The lifecycle kernel
+artifact boundary is verified: separate release archives each own one main; the normalized
+launcher passes five status cases, legacy regression passes five, mixed features reject,
+and the host checks entry ABI plus runtime layout from its retained archive. V4 C-boundary
+execution now passes source-issued JSON through llc-18 and the actual lifecycle archive
+with exit30; 11 runtime executions prove Fault/range cleanup. The changed Rust direct EXE
+and session-bound OBJ callers remain unverified after resource-stopped builds. Selected
+old transport retirement remains gated on those host paths.
 """
 next_design_card = "none (V4 Pair consumer D0 accepted)"
 next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
