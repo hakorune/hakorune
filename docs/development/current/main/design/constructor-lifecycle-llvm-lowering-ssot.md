@@ -1573,6 +1573,21 @@ Ordered work within this series:
    Integer/Bool and its current emission validator proves no kind. Local remains
    physically unavailable; this does not change its source validity. Text/handle
    lie outside this selected argument issuer. Do not invent tags for them.
+   Retention implementation checkpoint: existing root-source handoff now owns
+   per-New site/destination/target/receiver plus checked argument snapshots.
+   RetainedUnavailable contributes no invented actual. Compiled-entry uses
+   exact target/receiver/ordered-args matching with owner/site/ordinal checks,
+   consumes each row once and rejects residue. Its call list and V2 observer
+   are now per-call: multiple calls can reference one deduplicated definition.
+   This deliberately changes internal contract/V2 acceptance; it adds no source
+   family or V4 execution permission. Existing two-New Local source remains
+   Local and reaches the unchanged formal physical Stop.
+   Typecheck including tests passes (7.12 GiB); read-only diff audit found no
+   identity/reclassification defect. The added test covers two-New retention,
+   order independence, duplicate retained row and missing row, not a direct
+   duplicate-Invoke mutation. Focused execution is still unproven after an
+   8 GiB resource stop. A 12 GiB allowance for this series' focused tests has
+   been requested; until answered, normal 8 GiB remains mandatory.
    Subsequent ABI task fixes the lifecycle-private kind/payload wire and a named
    field type-mismatch Fault reason/details in the runtime/reference owner.
    Unknown kind or invalid Bool payload is InvalidContract, never source Fault.

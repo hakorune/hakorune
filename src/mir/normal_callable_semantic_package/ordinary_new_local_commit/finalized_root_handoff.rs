@@ -16,7 +16,7 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(Ok(completion)) => completion.owner(),
             _ => return Err(freeze("artifact-root-completion-unavailable")),
         };
-        let root_source = match (
+        let mut root_source = match (
             &self.terminal_result,
             &self.terminal_unit_return,
             &self.terminal_integer_literal,
@@ -38,6 +38,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
                     .clone();
                 FinalizedRootSourceHandoffV1 {
+                    birth_actuals: Box::new([]),
                     app_main_identity,
                     terminal_i64_add: Some(relation.clone()),
                     terminal_unit_return: None,
@@ -63,6 +64,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
                     .clone();
                 FinalizedRootSourceHandoffV1 {
+                    birth_actuals: Box::new([]),
                     app_main_identity,
                     terminal_i64_add: None,
                     terminal_unit_return: Some(relation.clone()),
@@ -77,6 +79,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("artifact-root-literal-unavailable"));
                 }
                 FinalizedRootSourceHandoffV1 {
+                    birth_actuals: Box::new([]),
                     app_main_identity: self
                         .app_main_identity
                         .as_ref()
@@ -93,6 +96,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("artifact-root-field-unavailable"));
                 }
                 FinalizedRootSourceHandoffV1 {
+                    birth_actuals: Box::new([]),
                     app_main_identity: self
                         .app_main_identity
                         .as_ref()
@@ -119,7 +123,8 @@ impl OrdinaryNewClaimLedgerV1 {
         });
         let mut keys = BTreeSet::new();
         let mut births = Vec::new();
-        for (_, row) in self
+        let mut actuals = Vec::new();
+        for (site, row) in self
             .local_commits
             .borrow()
             .iter()
@@ -148,6 +153,15 @@ impl OrdinaryNewClaimLedgerV1 {
             if !construction_keys.contains(&key) {
                 return Err(freeze("artifact-birth-construction-missing"));
             }
+            if let NewEmissionProgress::Emitted {
+                result, arguments, checked: true, ..
+            } = &row.emission {
+                actuals.push(FinalizedBirthActualsV1 {
+                    site: site.clone(), destination: row.binding, target: key.clone(),
+                    receiver: *result, arguments: arguments.clone(),
+                });
+            }
+            // RetainedUnavailable remains unavailable: never invent an empty actual.
             // Multiple exact New sites may invoke one canonical Birth
             // definition. Local emission validation above remains per site;
             // the final handoff retains each definition relation once.
@@ -156,6 +170,11 @@ impl OrdinaryNewClaimLedgerV1 {
             } else if !births.iter().any(|existing| existing == relation) {
                 return Err(freeze("artifact-birth-abi-duplicate-drift"));
             }
+        }
+        if let Some(source) = root_source.as_mut() {
+            source.birth_actuals = actuals.into_boxed_slice();
+        } else if !actuals.is_empty() {
+            return Err(freeze("artifact-actual-root-source-missing"));
         }
         Ok(if births.is_empty() {
             FinalizedRootBirthHandoffV1::NoBirth {

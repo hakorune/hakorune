@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "Birth formal checked/tagged representation after verified unresolved-input Stop"
-current_blocker_token = "Unresolved-formal Stop verified 3/3; next decide the value-kind-preserving Birth actual/formal representation and exact Integer-check/Fault consumer. No source specialization, generic OBJ whitelist or C i64 default. Optimizer mapping and host execution remain later."
+current_design_stop = "none (per-New actual retention and exact call consumption accepted; representation remains unavailable)"
+current_blocker_token = "Per-New actual retention and exact per-call compiled-entry/V2 consumption implemented; test compilation passes 7.12 GiB. Execute compiled_entry_contract::tests (8 GiB resource stop; constructor-series focused 12 GiB allowance requested). Formal physical Stop remains; no V4 execution promotion."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -49,7 +49,7 @@ execution claim is permitted. Rust V4 host edits and the focused test remain
 uncommitted; no positive host EXE/OBJ or representation promotion is claimed.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
-next_execution_card = "none"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

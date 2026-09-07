@@ -58,7 +58,7 @@ mod terminal_access;
 mod terminal_home;
 
 pub(crate) use local_commit::{
-    FinalizedRootBirthHandoffV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
+    FinalizedBirthActualsV1, FinalizedRootBirthHandoffV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
 };
 
 #[derive(Debug, PartialEq, Eq)]

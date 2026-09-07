@@ -521,3 +521,9 @@ discharge that obligation. Direct input rejects it, including an undischarged De
 until the existing formal/actual owners supply a valid representation and
 Integer-check consumer. The retained compiled-entry contract remains available
 for diagnostics; its existence is not permission to issue executable input.
+
+Per-New actual retention preserves source argument kind and its already-checked
+emitted value correspondence in the existing root handoff. Sharing a Birth
+definition does not merge its call arguments or specialize its formal types.
+Local remains Local until its value-kind authority exists; neither retained
+actuals nor internal call-row acceptance grant executable representation.

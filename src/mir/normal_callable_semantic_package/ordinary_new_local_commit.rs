@@ -51,10 +51,33 @@ enum NewEmissionProgress {
 ///
 /// This is a finalizer-owned snapshot of an emitted MIR value.  It neither
 /// issues source meaning nor selects an ABI lane.
-#[derive(Debug)]
-struct EmittedNewArgumentV1 {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct EmittedNewArgumentV1 {
     source: super::OrdinaryNewTrivialArgumentV1,
     value: ValueId,
+}
+
+impl EmittedNewArgumentV1 {
+    pub(crate) fn source(&self) -> &super::OrdinaryNewTrivialArgumentV1 { &self.source }
+    pub(crate) fn value(&self) -> ValueId { self.value }
+}
+
+/// Existing checked emission retained per New, not deduplicated per definition.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct FinalizedBirthActualsV1 {
+    site: OwnedExprSiteV1,
+    destination: BindingRefV1,
+    target: CanonicalSameModuleCallableKeyV1,
+    receiver: ValueId,
+    arguments: Box<[EmittedNewArgumentV1]>,
+}
+
+impl FinalizedBirthActualsV1 {
+    pub(crate) fn site(&self) -> &OwnedExprSiteV1 { &self.site }
+    pub(crate) fn destination(&self) -> BindingRefV1 { self.destination }
+    pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 { &self.target }
+    pub(crate) fn receiver(&self) -> ValueId { self.receiver }
+    pub(crate) fn arguments(&self) -> &[EmittedNewArgumentV1] { &self.arguments }
 }
 
 #[derive(Debug)]
@@ -100,6 +123,7 @@ pub(crate) enum FinalizedRootBirthHandoffV1 {
 /// recreate source membership from a physical key.
 #[derive(Debug, Clone)]
 pub(crate) struct FinalizedRootSourceHandoffV1 {
+    birth_actuals: Box<[FinalizedBirthActualsV1]>,
     app_main_identity: CallableDeclarationIdentityV1,
     terminal_i64_add: Option<TerminalI64AddReturnV1>,
     terminal_unit_return: Option<TerminalUnitReturnV1>,
@@ -108,6 +132,8 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
 }
 
 impl FinalizedRootSourceHandoffV1 {
+    pub(crate) fn birth_actuals(&self) -> &[FinalizedBirthActualsV1] { &self.birth_actuals }
+
     pub(crate) fn app_main_identity(&self) -> &CallableDeclarationIdentityV1 {
         &self.app_main_identity
     }

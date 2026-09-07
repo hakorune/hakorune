@@ -5,7 +5,7 @@
 
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
-    BirthFormalPhysicalDispositionV1, FinalizedRootResultAbiV1,
+    BirthFormalPhysicalDispositionV1, FinalizedRootResultAbiV1, FinalizedBirthActualsV1,
 };
 use crate::mir::{Callee, MirInstruction, ValueId};
 
@@ -65,19 +65,17 @@ pub(crate) struct CompiledEntryBirthV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CompiledEntryBirthCallV1 {
     function_index: u32,
-    receiver: ValueId,
-    arguments: Box<[ValueId]>,
+    actual: FinalizedBirthActualsV1,
 }
 
 impl CompiledEntryBirthCallV1 {
     pub(crate) const fn function_index(&self) -> u32 {
         self.function_index
     }
-    pub(crate) const fn receiver(&self) -> ValueId {
-        self.receiver
-    }
-    pub(crate) fn arguments(&self) -> &[ValueId] {
-        &self.arguments
+    pub(crate) fn receiver(&self) -> ValueId { self.actual.receiver() }
+    pub(crate) fn actual(&self) -> &FinalizedBirthActualsV1 { &self.actual }
+    pub(crate) fn arguments(&self) -> impl ExactSizeIterator<Item = ValueId> + '_ {
+        self.actual.arguments().iter().map(|argument| argument.value())
     }
 }
 
@@ -212,7 +210,9 @@ impl<'module> PublishedMirBackendView<'module> {
                     formals: formals.into_boxed_slice(),
                 });
             }
-            let birth_calls = issue_birth_calls(root, births)?;
+            let source = self.retained_root_source()
+                .ok_or_else(|| fault("compiled-entry-actual-source-missing"))?;
+            let birth_calls = issue_birth_calls(root, births, source.birth_actuals())?;
             let cleanup = issue_cleanup_coordinates(program.functions())?;
             (
                 root_result_category(*result),
@@ -234,51 +234,66 @@ impl<'module> PublishedMirBackendView<'module> {
 fn issue_birth_calls(
     root: &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
     births: &[super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>],
+    actuals: &[FinalizedBirthActualsV1],
 ) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
-    let mut calls = vec![None; births.len()];
-    for block in root.blocks() {
-        for row in block
-            .instructions()
-            .iter()
-            .copied()
-            .chain(std::iter::once(block.terminator()))
+    let PublishedLifecyclePhysicalFunctionRoleV1::RootI64 { result } = root.role()
+        else { return Err(fault("compiled-entry-actual-root")) };
+    let owner = match result {
+        FinalizedRootResultAbiV1::I64AddReturn { owner }
+        | FinalizedRootResultAbiV1::UnitReturn { owner }
+        | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
+        | FinalizedRootResultAbiV1::I64FieldReturn { owner } => *owner,
+    };
+    for (i, actual) in actuals.iter().enumerate() {
+        if actuals[..i].iter().any(|previous|
+            previous.site() == actual.site() || previous.destination() == actual.destination())
+            || actual.site().owner() != owner || actual.destination().owner() != owner
+            || actual.arguments().iter().enumerate().any(|(ordinal, argument)|
+                argument.source().ordinal() as usize != ordinal
+                    || argument.source().owner() != actual.destination().owner()
+                    || argument.source().new_site() != actual.site())
         {
-            let MirInstruction::Invoke {
-                operation: InvokeOperation::Call(call),
-                ..
-            } = row.instruction()
-            else {
-                continue;
-            };
-            let Callee::BirthConstructor { key, receiver } = &call.callee else {
-                continue;
-            };
-            let index = births.iter().position(|birth| matches!(birth.role(), PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } if abi.target() == key))
-                .ok_or_else(|| fault("compiled-entry-call-target"))?;
-            if calls[index]
-                .replace(CompiledEntryBirthCallV1 {
-                    function_index: u32::try_from(index + 1)
-                        .map_err(|_| fault("compiled-entry-call-index"))?,
-                    receiver: *receiver,
-                    arguments: call.args.to_vec().into_boxed_slice(),
-                })
-                .is_some()
-            {
-                return Err(fault("compiled-entry-call-duplicate"));
-            }
+            return Err(fault("compiled-entry-actual-membership"));
         }
     }
-    calls
-        .into_iter()
-        .enumerate()
-        .map(|(index, call)| {
-            let call = call.ok_or_else(|| fault("compiled-entry-call-missing"))?;
-            if call.arguments.len() != births[index].params().len().saturating_sub(1) {
+    let mut consumed = vec![false; actuals.len()];
+    let mut referenced = vec![false; births.len()];
+    let mut calls = Vec::new();
+    for block in root.blocks() {
+        for row in block.instructions().iter().copied()
+            .chain(std::iter::once(block.terminator()))
+        {
+            let MirInstruction::Invoke { operation: InvokeOperation::Call(call), .. }
+                = row.instruction() else { continue };
+            let Callee::BirthConstructor { key, receiver } = &call.callee else { continue };
+            let index = births.iter().position(|birth| matches!(birth.role(),
+                PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } if abi.target() == key))
+                .ok_or_else(|| fault("compiled-entry-call-target"))?;
+            let matching = actuals.iter().enumerate().filter(|(_, actual)|
+                actual.target() == key && actual.receiver() == *receiver
+                    && actual.arguments().iter().map(|argument| argument.value())
+                        .eq(call.args.iter().copied())).map(|(i, _)| i).collect::<Vec<_>>();
+            let [actual_index] = matching.as_slice() else {
+                return Err(fault("compiled-entry-call-actual-mismatch"));
+            };
+            if std::mem::replace(&mut consumed[*actual_index], true) {
+                return Err(fault("compiled-entry-call-duplicate"));
+            }
+            if call.args.len() != births[index].params().len().saturating_sub(1) {
                 return Err(fault("compiled-entry-call-arity"));
             }
-            Ok(call)
-        })
-        .collect()
+            referenced[index] = true;
+            calls.push(CompiledEntryBirthCallV1 {
+                function_index: u32::try_from(index + 1)
+                    .map_err(|_| fault("compiled-entry-call-index"))?,
+                actual: actuals[*actual_index].clone(),
+            });
+        }
+    }
+    if consumed.contains(&false) || referenced.contains(&false) {
+        return Err(fault("compiled-entry-call-missing"));
+    }
+    Ok(calls)
 }
 
 fn issue_cleanup_coordinates(
@@ -336,3 +351,7 @@ fn root_result_category(result: FinalizedRootResultAbiV1) -> CompiledEntryRootRe
 fn fault(detail: &str) -> String {
     format!("[freeze:contract][published-lifecycle/{detail}]")
 }
+
+#[cfg(test)]
+#[path = "compiled_entry_contract_tests.rs"]
+mod tests;

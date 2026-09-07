@@ -555,18 +555,14 @@ fn mark_birth_call(
                 .then_some(index)
         })
         .ok_or_else(|| fault("compiled-entry-call-target"))?;
-    let expected = contract
-        .birth_calls()
-        .get(index - 1)
-        .ok_or_else(|| fault("compiled-entry-call-index"))?;
-    if expected.function_index() != index as u32
-        || expected.receiver() != *receiver
-        || expected.arguments() != call.args.as_slice()
-    {
+    let matches = contract.birth_calls().iter().enumerate().filter(|(_, expected)|
+        expected.function_index() == index as u32 && expected.receiver() == *receiver
+            && expected.arguments().eq(call.args.iter().copied()))
+        .map(|(i, _)| i).collect::<Vec<_>>();
+    let [call_index] = matches.as_slice() else {
         return Err(fault("compiled-entry-call-drift"));
-    }
-    let consumed = seen
-        .get_mut(index - 1)
+    };
+    let consumed = seen.get_mut(*call_index)
         .ok_or_else(|| fault("compiled-entry-call-index"))?;
     if std::mem::replace(consumed, true) {
         return Err(fault("compiled-entry-call-duplicate"));

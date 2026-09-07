@@ -12,6 +12,12 @@ enter V4. Checked/tagged representation needs its own completed consumer.
 Admitted inputs own operation diagnostic ordinals and one `process_result_site`
 for the I64 epilogue; these are physical identities, never source coordinates.
 
+Per-New actuals travel inside the existing root-source handoff. Compiled-entry
+matches each physical Birth call to exactly one retained target/receiver/ordered
+argument row and exhausts the rows. Birth definitions remain deduplicated; call
+rows do not. The V2 observer likewise consumes per-call indices. This internal
+retention does not bind Local to i64 or remove the formal physical Stop.
+
 ### Final published artifact consumption
 
 `compile_normal_with_published` shares the ordinary build/finish implementation, then verifies the final selected module and prepares external commit before a synchronous view callback. Callback failure aborts; success returns only its output and commits once. EXE and llvm-boundary OBJ consume this terminal before post-compile mutation/execution.
