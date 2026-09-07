@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: close exact cleanup-observer mapping across compiler finishing before host cutover.
+Smallest next slice: implement accepted Task 3 cleanup-contraction validation before host cutover.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -1716,18 +1716,102 @@ Ordered work within this series:
    guards pass, touched source maximum 656 lines. Parser-only success remains
    structural evidence; type/cohort rejection belongs to V4 admission.
 
-3. **Close optimizer observer mapping.** Default Pair currently rejects
-   `root-exit-operation-drift`; `--no-optimize` instead reaches numeric OBJ
-   rejection (`contracts=2`). SimplifyCFG merges the HomeRelease block while
-   root-home validation retains its old coordinate. Decide an exact remapping
-   or post-transform operation/path witness; keep operation/count/edge checks.
-   Do not borrow SelectedDynamic's unrelated metadata-based optimizer skip.
+3. **Close optimizer observer mapping (accepted design, implementation next).**
+   Default Pair rejects `root-exit-operation-drift`; no-opt reaches the separate
+   numeric OBJ boundary. The existing root ledger will validate a finite cleanup
+   graph contraction, retaining source obligations and replacing only its stale
+   physical-coordinate assumption. The bounded contract below owns this step.
 4. **Connect the selected capability and execute.** Prove all numeric obligations
    consumed by this completed input; keep generic OBJ unsupported contracts.
    Default CLI EXE30 and independent session OBJ/link30 precede retirement.
    Remove only caller-zero V2 JSON profile/emitter, V2 Rust frame/rows/wrappers,
    C V2/V3 pending exports and private probes. Retain/move the shared storage
    profile, physical parser, target-session core, descriptor and V4 runtime tests.
+
+### Task 3: exact root cleanup contraction
+
+Classification: BoxCount, one physical acceptance family (single-Home cleanup
+Jump contraction); source acceptance is unchanged.
+
+Decision: accept the existing ledger's finite Jump-contraction check for the
+single-Home selected root; do not add an optimizer callback or remap registry.
+Source authority + canonical issuer: existing Completion terminal Homes and
+`OrdinaryNewClaimLedgerV1`; `selected::emit_root_home_exit_payload` binds their
+physical cleanup graph. Neither finishing nor the new check issues meaning.
+Non-authority: block numbers as source identity, global matching of a similar
+Invoke, metadata, and the current CFG used to reconstruct lost obligations.
+Fail-fast boundary: root finishing validation, before artifact handoff/commit.
+Smallest next slice: replace stale same-block cleanup checks with exact bounded
+contraction validation, shared by diagnostic and artifact finalization.
+Non-claims: implementation already landed, host capability/cutover, multi-Home
+optimizer coverage, PHI/value substitution, or new source result acceptance.
+
+Audit boundary: emitted single-Home root cleanup bindings -> prefinish root
+validation -> default compiler finishing -> artifact lifecycle coverage.
+Includes entry prefix, all cleanup Jump/Invoke/Return/ReturnFault nodes, boundary
+incoming edges and both validator callers. Excludes New/Birth ledgers (their
+existing checks remain mandatory), generic CFG families and opt-in finish passes.
+Multiple-Home optimized cleanup remains a cutover blocker if required by selected
+acceptance; preserving its no-opt path does not close that coverage obligation.
+
+Change:
+  Reuse `RootHomeExitProgress::Emitted.bindings` as the original graph. At the
+  existing successful prefinish validation retain only entry ID, entry instruction
+  prefix and outside incoming edge coordinates (source block plus edge slot/kind).
+  Verify unique recorded nodes, exact terminators, empty non-entry prefixes and
+  no outside incoming to internal cleanup nodes by scanning the complete function.
+  Do not copy the whole function or keep another source obligation table.
+
+Contract:
+  The observed Pair graph contracts three edges, not just HomeRelease placement:
+  `10 -> 13(Invoke normal14/fault15)`, `14 -> 11(Return)`, and
+  `15 -> 12(ReturnFault)`. IDs are observations, never implementation constants.
+  For each surviving recorded node, follow its recorded Jump only when its target
+  disappeared from final MIR. Require no edge args, an internal non-entry target,
+  exactly that one incoming edge, empty target prefix and no cycle. Consume every
+  original node exactly once; compare the resulting full terminator and prefix
+  with final MIR. A surviving target requires the original Jump to remain.
+  Compare final outside incoming with the retained boundary; no bypass/new ingress,
+  prefix reorder, extra internal instruction, Invoke-edge rewrite or SSA repair.
+
+  The resulting physical binding projection must also feed the existing artifact
+  lifecycle inventory in `ordinary_new_local_commit.rs`. Fixing only
+  `root_home.rs` leaves `artifact-unowned-lifecycle-site` at the next consumer.
+  Consolidate the existing artifact/diagnostic finishing checks so the graph is
+  checked once, the temporary mapped bindings supply exact coverage, and
+  `Checked -> FinishingChecked` occurs only after every required check succeeds.
+  Keep source origins unchanged. Do not persist a sibling final receipt or use an
+  observation flag to bypass validation. Compiled-entry cleanup coordinates are
+  subsequently projected from that validated final program by their existing owner.
+
+| State | Owner / terminal behavior | Fallback |
+| --- | --- | --- |
+| No issued Home / existing unavailable | Existing source disposition remains unchanged; no new artifact eligibility | None added |
+| Single Home, unchanged graph | Existing ledger validates exact original graph and all other obligations | None |
+| Single Home, permitted contraction | Same ledger validates complete graph/boundary and supplies mapped physical bindings | None |
+| Multiple Homes | Existing exact-placement checks remain; contraction coverage not claimed | No permissive retry |
+| Missing/ambiguous graph, changed operation/edge/prefix/boundary | Typed contract rejection before handoff/artifact | None |
+
+Done:
+  Existing source Pair with normal optimization reaches compiled-entry and v2
+  physical input, with actual contraction asserted; unchanged-source no-opt and
+  both Bool actual positions retain their contracts. Mutation tests reject release
+  omission/duplication, receiver/frame substitution, Normal/Fault swap, changed
+  return, bypass/new incoming, prefix changes and extra internal instructions.
+  Exercise artifact coverage as well as diagnostic finalization; preserve existing
+  multiple-Home no-opt tests. Reuse pointer/M7-S guards, the existing source test
+  owners and owning README/reference; no new guard, fixture family or C schema.
+  Keep source files below 800 lines. Source-to-input is dependency evidence only;
+  the following host task still must prove EXE30 and independent OBJ/link30.
+
+Stop:
+  A needed transformation outside these exact rules returns to this same card;
+  do not skip optimization, clear numeric contracts or enable generic OBJ support.
+
+Read-only audit correction: current selected reads are `ObjectFieldGet`; CSE's
+observed duplicate-read arm handles `FieldGet`. The earlier same-field CSE concern
+is not evidence of a blocker in this selected vocabulary. No build/test was run
+for this design decision, and the default-optimizer acceptance remains open.
 
 ### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-D1`
 

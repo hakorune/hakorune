@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "Exact root cleanup-observer mapping across SimplifyCFG; v2 tagged input and V4 consumer verified"
-current_blocker_token = "V2 tagged input and V4 consumer verified: Rust 9 focused tests, C parser and 16 execution cases plus 14 type/schema negatives. Next: design exact root cleanup-observer remapping across SimplifyCFG without skipping finishing or weakening operation/edge checks; then prove selected host numeric coverage and EXE/OBJ cutover. Host draft remains parked."
+current_design_stop = "none; Task 3 exact single-Home cleanup-contraction design accepted"
+current_blocker_token = "Implement accepted Task 3: existing root ledger checks single-Home cleanup Jump contractions and feeds mapped bindings to artifact coverage, with exact prefix/incoming/operation/edge checks. Default-optimized source-to-input remains unproved. Then selected numeric capability, EXE/OBJ cutover and old transport retirement. No optimizer skip; host draft remains parked."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -42,12 +42,14 @@ Fourteen extra schema/type negatives preserve artifacts. Peak aggregate 8.70 GiB
 under one-job, opt0/nonincremental/CGU256 and the standing 12 GiB monitor.
 Source host EXE/OBJ remains unproved: optimizer moves the root cleanup coordinate,
 and generic numeric OBJ admission remains unsupported until exact input coverage.
-Next is root observer mapping design, then host cutover and caller-zero V2/V3
-retirement. Draft bdc7b0506e is parked on codex/lifecycle-v4-host-draft; do not
+Task 3 design is accepted: exact finite Jump contractions in the existing root
+ledger, shared finishing validation and mapped artifact coverage. Implementation
+and default-optimized source-to-input acceptance are next, before host cutover
+and caller-zero V2/V3 retirement. Draft bdc7b0506e is parked on codex/lifecycle-v4-host-draft; do not
 cherry-pick it before adapting it to v2 and closing capability/optimizer checks.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
-next_execution_card = "none"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
