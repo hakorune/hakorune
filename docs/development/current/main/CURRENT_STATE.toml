@@ -49,8 +49,8 @@ Next is the kind/payload wire and field type-mismatch Fault contract design.
 4237b20d feedback is reconciled in the card: containment and single serialization
 landed; Unit role cleanup, host retirement and view ownership cleanup remain.
 No whitelist bypass, source specialization, Dynamic-V2 metadata reuse, or source
-execution claim is permitted. Rust V4 host edits and the focused test remain
-uncommitted; no positive host EXE/OBJ or representation promotion is claimed.
+execution claim is permitted. V4 host draft and its unproved test are saved at bdc7b0506e on
+codex/lifecycle-v4-host-draft; no positive host EXE/OBJ or representation promotion is claimed.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card = "none"

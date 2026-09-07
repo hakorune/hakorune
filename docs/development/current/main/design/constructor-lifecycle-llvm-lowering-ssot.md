@@ -1789,7 +1789,7 @@ input into the direct parser before implementing the selected LLVM consumer.
 The direct parser remains a validation ingress; V4 additionally emits and
 executes physical protocol inputs. The committed host still uses the V3/V2
 pending companion, and unresolved source formals stop before serialization.
-The direct V4 host draft is not landed. Neither parser success nor physical
+The direct V4 host draft is saved on codex/lifecycle-v4-host-draft, not activated. Neither parser success nor physical
 protocol execution closes source host acceptance.
 
 The LLVM series switches that actual host edge and removes its selected old
@@ -1817,7 +1817,7 @@ or automatic LLVM embedding.
 ### Feedback reconciliation queue (2026-09-07)
 
 The 4237b20d feedback was reconciled against committed c8e32fdeb4 and the
-separate uncommitted V4 host draft. Boundary: selected finalized constructor
+separate V4 host draft (bdc7b0506e, codex/lifecycle-v4-host-draft). Boundary: selected finalized constructor
 handoff -> physical input -> selected host/C consumer -> OBJ/linked EXE;
 includes root kind, formal obligations, retained actuals and cleanup; excludes
 other source families, generic compatibility and whole-builder size census.
@@ -1827,7 +1827,7 @@ No new build/runtime evidence was collected for this read-only reconciliation.
 | --- | --- | --- |
 | Unit represented as RootI64 | `physical_program.rs` still uses RootI64, but `physical_abi.rs` rejects Unit before serialization; V2 emits ROOT_UNIT correctly. Unsafe direct admission is stopped, not Unit execution completed. | As a separate BoxShape retaining the Unit execution Stop, physical-program owner projects the existing compiled result into distinct Unit/I64 roles and deletes unconditional RootI64 assignment. V2/direct role agreement and malformed/result-slot negatives are required; Unit execution is separate from Pair. |
 | Sibling final input | PhysicalAbiInput now owns CompiledEntryContract; the sibling-product gap is closed. Unresolved formal dispositions are consumed as an explicit pre-JSON Stop; per-New actual retention is verified. | Existing R1 task 2 closes kind/payload and FieldSet type-failure binding, then deletes positional I64 defaults. Keep one contract issuer and call-local runtime session; moving source decisions into the session is forbidden. |
-| Three transport paths | Committed host constructs V2 rows, validates physical JSON, then sends generic JSON through V3 to pending V2. Direct V4 host replacement is only a working-tree draft; C V4 emission is landed physical-protocol evidence. | Existing R1 tasks 3–4: close optimizer mapping, prove real host EXE30 and independent same-session OBJ/link30 plus Fault/cleanup, then delete selected generic JSON/V2 rows/V3 delegation, duplicate pre-parser call and caller-zero exclusive probes. Shared parser/session/runtime validation survives. |
+| Three transport paths | Committed host constructs V2 rows, validates physical JSON, then sends generic JSON through V3 to pending V2. Direct V4 host replacement is saved only on codex/lifecycle-v4-host-draft; C V4 emission is landed physical-protocol evidence. | Existing R1 tasks 3–4: close optimizer mapping, prove real host EXE30 and independent same-session OBJ/link30 plus Fault/cleanup, then delete selected generic JSON/V2 rows/V3 delegation, duplicate pre-parser call and caller-zero exclusive probes. Shared parser/session/runtime validation survives. |
 | View owns and activates | PublishedMirBackendView still owns handoffs/vectors/profile and mutates admission; it is not borrow-only and is not a new source issuer. | Post-cutover view responsibility task below; do not count file moves as closing it. |
 
 Order remains: representation/Fault contract -> exact physical binding ->

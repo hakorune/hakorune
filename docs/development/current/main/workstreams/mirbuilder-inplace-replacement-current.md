@@ -548,7 +548,7 @@ The current [lowering card](../design/constructor-lifecycle-llvm-lowering-ssot.m
 owns the updated status and ordering: Birth representation contract -> optimizer
 observer mapping -> actual host EXE/OBJ acceptance -> caller-zero retirement.
 C V4 physical execution exists, but the committed host still has the V3/V2
-pending path; its direct V4 replacement is an uncommitted draft. Unresolved
+pending path; its direct V4 replacement is saved on codex/lifecycle-v4-host-draft (bdc7b0506e). Unresolved
 Birth formals now stop before JSON. Physical execution does not prove source
 Pair EXE30/linked OBJ30. View responsibility cleanup follows cutover.
 
