@@ -1526,31 +1526,44 @@ both executable paths pass.
 
 ### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-D1`
 
-Decision: **NoSafeSlice.** The V4 body must return a normalized status and may
-not rely on the shared kernel's raw handle decoder. A generated V4 `main` that
-calls a dedicated kernel launcher would be the right semantic boundary, but
-the current release `libnyash_kernel.a` co-locates its generic `main` and any
-new launcher in one archive member. Pulling that launcher would also pull the
-legacy `main`, producing a duplicate strong `main`; changing the generic entry
-would silently alter every native producer. No C emitter or kernel change is
-authorized until link-artifact ownership is decided.
+**Decision (accepted):** split link artifacts without splitting runtime meaning.
+`nyash_kernel` keeps its legacy `main` and compatibility handle decoding behind
+an explicit `legacy-entry` feature. Its no-default-feature rlib is the runtime
+core: exports, descriptor, startup/flush helper and no process `main`. A new
+`nyash_lifecycle_kernel` staticlib depends on that core with legacy entry
+absent, defines the selected V4 process `main`, and invokes the V4 `ny_main()`
+exactly once through the core's normalized-status launcher. The lifecycle host
+selects `libnyash_lifecycle_kernel.a` explicitly; generic routes retain
+`libnyash_kernel.a`. C emits only V4 `ny_main`, never a second `main`.
 
 ```text
-Decision: choose a core-runtime / legacy-entry artifact boundary that gives V4 one explicit launcher without linking the generic main.
-Source authority + canonical issuer: V4 C body owns normalized `ny_main() -> i64`; the selected runtime launcher owns startup, flush and checked i64-to-OS-status adaptation.
-Non-authority: generic kernel main, host-handle/IntegerBox decoding, generic C emitters, V2/V3, source names and ambient link policy.
+Decision: two explicit artifacts select legacy raw-result entry or V4 normalized-status entry; neither guesses from a symbol or environment.
+Source authority + canonical issuer: V4 C body owns normalized `ny_main() -> i64`; core launcher owns startup/flush and checked i64-to-OS-status adaptation.
+Non-authority: legacy generic main, host-handle/IntegerBox decoding, generic C emitters, V2/V3, source names and ambient link policy.
 Fail-fast boundary: missing or duplicate main/launcher, entry ABI mismatch, wrong archive/target, or out-of-range status rejects with no EXE and no fallback.
-Smallest next slice: release artifact/member and symbol census, then one explicit split/link-owner Decision; implementation waits for that Decision.
+Smallest next slice: feature-gate legacy main, extract the behavior-preserving core startup/flush owner, add the lifecycle staticlib and release symbol census.
 Non-claims: no generic kernel modernization, no raw-decode deletion, no C body emission, no process-policy widening or multi-target ABI claim.
 ```
 
-The finite census boundary is V4 generated object plus its selected runtime
-archive and generic legacy native entry. It includes `main`, `ny_main` and the
-prospective `nyash.lifecycle.v4.launch`; it excludes generic source semantics,
-other backends and a general kernel crate split. The selected archive is built
-with LTO and one codegen unit, so a source-level new launcher is insufficient
-evidence: the release archive member and final link symbols must prove exactly
-one process `main` before I0 reopens.
+The finite boundary is V4 generated object plus its selected lifecycle archive
+and generic legacy native entry. It includes `main`, `ny_main` and the
+normalized-status launcher; it excludes generic source semantics, other
+backends and a general runtime rewrite. Release `libnyash_kernel.a` currently
+places `main` in its `nyash_kernel` codegen member, so the explicit new archive
+is necessary to prove exactly one process `main` before V4 C emission opens.
+
+### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-I0`
+
+Implement only the selected link-artifact boundary. Extract the current kernel
+startup/flush sequence into the core owner without changing the legacy `main`'s
+observable behavior. Gate that legacy `main` behind `legacy-entry`; add the
+lifecycle staticlib with a distinct normalized-status `main` that calls exactly
+one `ny_main` and accepts only `0..=255` before the OS `i32` return. The host
+must explicitly select the lifecycle archive only for the selected lifecycle
+route. Acceptance is release symbol/member evidence showing exactly one
+`main` in each chosen artifact, no legacy `main` in the lifecycle archive, and
+focused launcher behavior for `0`, `30`, `255`, `-1`, and `256`. It emits no
+V4 C object and changes no generic caller.
 
 ### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0`
 
