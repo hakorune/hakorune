@@ -150,11 +150,11 @@ static int hako_llvmc_published_static_method_peek_i64_global_row_v1(
           function_name, block_id, instruction_index);
   if (out_row) *out_row = NULL;
   if (!row) {
-    /* Published Global targets are exhaustively row-projected by Rust.
-     * Missing input cannot authorize legacy name/plan dispatch. Non-Global
-     * and explicit generic ingress retain their separate existing behavior. */
+    /* Published Global targets require rows; published Extern is rejected
+     * by Rust host admission. Neither absence permits legacy dispatch.
+     * Other shapes and explicit generic ingress keep their existing rules. */
     if (hako_llvmc_published_static_method_rows && call_type &&
-        !strcmp(call_type, "Global"))
+        (!strcmp(call_type, "Global") || !strcmp(call_type, "Extern")))
       return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
     return HAKO_LLVMC_PUBLISHED_ROW_ABSENT;
   }

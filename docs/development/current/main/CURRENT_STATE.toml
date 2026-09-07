@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-PUBLISHED-EXTERN-STOP-I0"
-current_execution_cohort = "mir_call_published_extern_stop_i0"
-current_design_stop = "none; published Extern C boundary Stop aligns with existing Rust host rejection after read-only variant audit"
-current_blocker_token = "Task2 Extern Stop: align published C Call(Extern) with existing Rust host rejection at shared peek; missing typed-session Extern must not enter legacy extern-plan/name dispatch. Preserve valid Global, generic no-session Extern and other existing shapes. Method/Constructor per-site disposition remains open; no source-production cutover or full non-Global closure claim."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0"
+current_execution_cohort = "mir_call_published_method_constructor_disposition_d0"
+current_design_stop = "Method/Constructor canonical per-site disposition issuer and operand contract remain unresolved; existing legacy plan issuers are not canonical authority"
+current_blocker_token = "Task2 Method/Constructor: name an existing canonical per-site disposition issuer and consuming C boundary before Stop/Promote. LegacyCallV0-only route plans cannot authorize canonical calls; explicit-arg birth markers and receiver-prefixed Method producers both remain live. No blanket absence rejection."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,15 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Published Global row absence now rejects at shared peek before all three legacy
-plan/name-dispatch edges. C ABI positives/negatives and generic behavior pass;
-view32 and normal-source Pair/Bool host1 preserve existing execution and cleanup.
-Next Extern C-boundary Stop reuses the existing Rust host capability rejection.
-Non-Global audit retains Method/Constructor disposition as open; no blanket Stop,
-new receipt/ABI/state owner or new source-production cutover is authorized.
+Published Extern rejects through shared peek, including the discovered entry
+prescan edge before legacy plan lookup. Existing C ABI test, view32 and host1
+pass; generic missing-plan behavior remains. Method/Constructor now requires
+a bounded issuer/operand design; legacy-only plan metadata is not authority.
 """
-next_design_card = "MIR-CALL-PUBLISHED-EXTERN-STOP-I0"
-next_execution_card = "MIR-CALL-PUBLISHED-EXTERN-STOP-I0"
+next_design_card = "MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

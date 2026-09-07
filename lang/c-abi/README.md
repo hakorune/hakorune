@@ -97,7 +97,7 @@ The Rust view retains Call and LegacyCallV0 readers. Typed malformed rows reject
 published Global absence now rejects at shared peek before legacy classification.
 All canonical Global targets (Print/FreeFunction/StaticBoxMethod) already have
 Rust-issued rows; same-module prepass/emitter and entry dispatch share that check.
-Task2 next closes published Extern absence to match Rust host rejection. Generic
+Published Extern now rejects with or without a row, matching Rust host rejection. Generic
 Extern remains separate; Method/Constructor per-site disposition is unresolved. The constructor V4
 execution/retirement receipt above supersedes the old lifecycle-pending review.
 

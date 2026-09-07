@@ -59,6 +59,7 @@ typedef struct hako_llvmc_lifecycle_target_session_v1 {
 // cohort; target identity for selected calls comes only from `calls`.
 // Every Global Call in this published session requires its exact row. Missing
 // Global rows reject before legacy plan/name dispatch; generic ingress is separate.
+// Published Call(Extern) rejects with or without a row, as in Rust host admission.
 int hako_llvmc_compile_published_static_method_v1(
     const char* json_in,
     const hako_llvmc_published_static_method_call_v1* calls,

@@ -352,6 +352,15 @@
               if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
             }
             if (ctype && !strcmp(ctype, "Extern")) {
+              if (hako_llvmc_published_static_method_peek_i64_global_row_v1(
+                      fn0 ? read_str(fn0, "name") : NULL,
+                      bid, ii, ctype, dst, args, NULL) < 0) {
+                pure_prepass_note_extern_reject(
+                    bid, ii, op, "published_extern_not_allowed", mname, NULL,
+                    "published ingress rejects Call(Extern)");
+                yyjson_doc_free(d);
+                goto GEN_ABORT;
+              }
               if (!pure_prepass_validate_extern_call(
                       bid,
                       ii,

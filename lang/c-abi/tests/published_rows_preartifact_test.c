@@ -59,6 +59,12 @@ static void test_prepass_peek_and_emitter_take(void) {
       "missing", 7, 3, "Global", 2, args, &found) == -1);
   assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
       "missing", 7, 3, "Method", 2, args, &found) == 0);
+  assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
+      "missing", 7, 3, "Extern", 2, args, &found) == -1);
+  assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
+      "missing", 7, 3, "Extern", 2, args, &found) == -1);
+  assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
+      row.function_name, 7, 3, "Extern", 2, args, &found) == -1);
   assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
       row.function_name, 7, 3, "Method", 2, args, &found) == -1);
   assert(found == NULL);
@@ -73,6 +79,8 @@ static void test_prepass_peek_and_emitter_take(void) {
   assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
       "missing", 7, 3, "Global", 2, args, &found) == 0);
   assert(found == NULL);
+  assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
+      "missing", 7, 3, "Extern", 2, args, &found) == 0);
   yyjson_doc_free(doc);
 }
 
@@ -206,7 +214,35 @@ static void test_missing_global_rows_cannot_use_legacy_names(void) {
   if (rc != 0) fprintf(stderr, "generic print rc=%d: %s\n", rc, error ? error : "none");
   assert(rc == 0 && access(output, F_OK) == 0);
   free(error);
-  assert(unlink(input) == 0 && unlink(output) == 0);
+  error = NULL;
+  assert(unlink(output) == 0);
+  const char *global = "{\"type\":\"Global\",\"name\":\"print\"}";
+  const char *external = "{\"type\":\"Extern\",\"name\":\"nyash.console.log\"}";
+  for (int site = 0; site < 2; site++) {
+    const char *at = strstr(body, global);
+    if (site == 1) at = strstr(at + strlen(global), global);
+    assert(at);
+    file = fopen(input, "w");
+    assert(file);
+    assert(fwrite(body, 1, (size_t)(at - body), file) == (size_t)(at - body));
+    assert(fputs(external, file) >= 0 && fputs(at + strlen(global), file) >= 0);
+    assert(fclose(file) == 0);
+    rc = hako_llvmc_compile_published_static_method_v1(
+        input, &rows[1 - site], 1, output, &error);
+    assert(rc != 0 && error && access(output, F_OK) != 0);
+    assert(!strstr(error, "typed row was not consumed"));
+    assert(!strstr(error, "extern_call_missing_plan"));
+    if (site == 0) assert(strstr(error, "published_extern_not_allowed"));
+    free(error);
+    error = NULL;
+    rc = hako_llvmc_compile_json_pure_first(input, output, &error);
+    /* Generic admission still reaches its existing required-plan terminal. */
+    assert(rc != 0 && error && strstr(error, "extern_call_missing_plan"));
+    assert(access(output, F_OK) != 0);
+    free(error);
+    error = NULL;
+  }
+  assert(unlink(input) == 0);
 }
 
 int main(int argc, char **argv) {

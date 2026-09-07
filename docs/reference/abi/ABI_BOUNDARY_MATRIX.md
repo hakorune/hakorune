@@ -89,3 +89,6 @@ dispatch. Present-invalid, duplicate and residual checks remain mandatory; expli
 generic ingress without a published session is unchanged. This is an input-contract
 restriction with unchanged row layout/revision, not full non-Global disposition
 coverage or concurrent-compile support.
+Published Call(Extern), with or without a row, rejects at that same shared peek
+before extern-plan/name dispatch, matching Rust host admission. This does not
+restrict generic no-session Extern or the independent ExternCall opcode.

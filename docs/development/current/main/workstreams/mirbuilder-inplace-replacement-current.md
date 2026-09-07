@@ -592,46 +592,46 @@ without changing source/test checks. No whole-suite claim.
 
 #### MIR-CALL-PUBLISHED-EXTERN-STOP-I0
 
-Status: **selected_fast**. Stop at C public input boundary; Rust source admission
-already rejects this family, so this is not a new source-production cutover.
+Closed: published Call(Extern) with or without a row now rejects before legacy
+extern-plan/name handling, matching src/mir/backend_capability.rs host admission.
+Shared peek remains the owner; same-module prepass and both emitters consume it.
+Actual ABI testing exposed a fourth edge: the entry generic lowering prescan's
+mir_call/Extern branch validated a legacy plan before shared peek. It now peeks
+before plan lookup; rejection uses published_extern_not_allowed. It does not take
+a row, change generic no-session handling, or touch independent externcall.
+Worker read-only audit confirmed this branch precedes IR output and is the sole
+pure_prepass_validate_extern_call caller; no new authority/ABI/schema/guard.
 
-Decision: make published C Call(Extern) stop match existing Rust host admission.
-Source authority + canonical issuer: unchanged call owners; backend_capability::validate_published_ingress already rejects Call(Extern).
-Non-authority: C transport tags/session cannot issue source meaning or compatibility permission.
-Fail-fast boundary: shared peek rejects selected Extern before legacy extern-plan/name dispatch.
-Smallest next slice: reject absent Extern only under the published-row session; present Extern already rejects.
-Non-claims: Method/Constructor selection, independent ExternCall opcode, V4, generic ingress restriction or concurrency.
+C build and existing real ABI suite pass: typed Free/Static/Print, missing Global,
+entry/nested Extern with another valid row, present-invalid Extern, duplicate,
+array and residual rejection without object output. Generic plan-less Extern
+retains extern_call_missing_plan; the initial test's generic-success assumption
+was wrong and corrected, not classified as baseline debt. View32 passes; existing
+Pair/Bool EXE/OBJ/cleanup host1 passes (15.05s). No new source acceptance claim.
+Source stays below 800 lines (prescan742, shared owner357, C test275).
+C README/header/reference updated; no full non-Global or concurrency claim.
 
-Worker census boundary: published view -> host capability -> Call transport ->
-shared C consumers; includes Call variants below, excludes Invoke, V4, independent
-ExternCall and generic compilation. Read-only findings are design, not execution.
+#### MIR-CALL-PUBLISHED-METHOD-CONSTRUCTOR-DISPOSITION-D0
 
-| Variant / state | Existing selection or next obligation |
-| --- | --- |
-| Extern | Rust host rejects Call/extern routes; C published absence still reaches legacy. Close this edge. |
-| Method / Constructor | No row and may coexist with selected calls; per-site disposition remains open. |
-| Value / SameModuleInstance | Existing UnsupportedBeforeObject. |
-| BirthConstructor | Separate lifecycle observation/finalized V4 path. |
-| Closure | No C arm; no current canonical producer established here, no promotion claim. |
-| LegacyCallV0 / missing callee | Host rejects all LegacyCallV0; do not treat transition reading as admission. |
+Status: **design_stop**; resolve the actual per-site issuer before further Stop.
 
-Change:
-  In the same shared peek, published Extern absence becomes malformed input.
-  Preserve present-invalid rejection; close prepass and both emitter edges into
-  legacy extern-plan/name consumers. Generic consumers remain live.
-Contract:
-  Published Extern (present or absent) rejects; published valid Global still takes
-  its row; other shapes keep current rules; no-session Extern keeps generic handling.
-  Method/Constructor disposition is a named open contract, not blanket absence permission.
-Done:
-  Extend existing published_rows_preartifact C test: missing Extern under a typed
-  session rejects before artifact; no-session generic behavior stays unchanged.
-  Existing Rust Extern/Legacy rejection and C typed/array/residual gates pass.
-  Sync owning C README/header/reference; no new fixture/guard/receipt.
-Stop:
-  If the Rust terminal or C tag/session correspondence differs, retain the edge
-  and resolve that owner before coding. Do not widen to all non-Global sites.
+Decision: retain live Method/Constructor edges until canonical disposition is issued.
+Source authority + canonical issuer: existing selected call owners retain targets/receivers; a canonical per-site backend disposition issuer is not established.
+Non-authority: module row presence, JSON tag/name, and LegacyCallV0-only lowering plans cannot authorize canonical compatibility.
+Fail-fast boundary: existing published host and typed peek terminals remain; no new blanket Method/Constructor rejection.
+Smallest next slice: decide which existing completed product retains source-selected runtime operation, mandatory receiver and explicit arity, then binds them to an exact site at Atomic Publish; name consumer/delete-set before implementation.
+Non-claims: a new receipt, semantic acceptance, all-absent Stop, R7 closure, V4 or generic route removal.
 
+Worker boundary: canonical Method/Constructor producer -> published host -> C plan consumer.
+Includes unified emitter, collection/declaration birth and MathBox; excludes Invoke, V4, ExternCall and generic ingress.
+generic_method_route_plan and constructor_call_route_plan classify legacy Call
+variants, while the published host rejects LegacyCallV0. These plans cannot be
+promoted into canonical per-site authority merely because their fields fit.
+Collection/declaration birth markers carry explicit args; unified emitter Method
+uses receiver-prefixed args. Preserve these live contracts until issuer/consumer
+mapping is explicit. Acceptance must cover both operand conventions and an
+unchanged valid selected typed call, plus malformed/missing disposition rejection.
+No implementation row is authorized by this read-only finding.
 ## Source and ownership budget
 
 Do not append semantic code to these owners:
