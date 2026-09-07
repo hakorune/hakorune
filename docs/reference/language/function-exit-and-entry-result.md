@@ -527,3 +527,8 @@ emitted value correspondence in the existing root handoff. Sharing a Birth
 definition does not merge its call arguments or specialize its formal types.
 Local remains Local until its value-kind authority exists; neither retained
 actuals nor internal call-row acceptance grant executable representation.
+
+Compiled-entry must likewise retain each existing Birth formal contract in full.
+An availability disposition alone cannot distinguish declarations and use
+requirements. The receiver has no source formal declaration; retained contracts
+do not discharge missing representation or authorize physical execution.

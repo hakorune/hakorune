@@ -83,6 +83,35 @@ archive and proving equality to the backend target/LLVM layout are separate
 invocation responsibilities; this descriptor does not authorize C lifecycle
 execution or process-exit policy.
 
+### Selected Birth scalar boundary — accepted design, not execution admission
+
+Decision (2026-09-07): the lifecycle-private unannotated Birth boundary uses
+separate kind and payload lanes, preserving Integer versus Bool. The receiver
+is a separate object handle; it never consumes a source argument ordinal.
+Kind 1 denotes Integer with any signed i64 payload; kind 2 denotes Bool with
+payload exactly 0 or 1. Kind 0 and other tags are invalid in this bounded
+protocol. These tags do not reuse Dynamic-V2/CallSlot or heap-handle encoding.
+The existing source argument issuer supplies the kind; MIR types, constants,
+first-call values and field names cannot recover missing source authority.
+
+The exact i64 FieldSet consumer checks the kind before calling the existing
+raw-i64 checked store. Valid Bool produces `FieldTypeMismatch`, reserved reason
+103, at the already issued FieldSet diagnostic site, with details
+`{expected_kind=1, actual_kind=2}`. It calls `nyash.fault.record_static_v1` and
+follows that FieldSet's existing Fault successor only on Fault. Recording
+failure, unknown kind or malformed Bool payload follows InvalidContract, never
+source Fault. Propagation adds no second diagnostic; root reclaim precedes
+final report/disposal. The failed field is not mutated. Reasons 100/101/102
+retain their existing meanings. No boxing or additional runtime wrapper is
+introduced; FaultFrame layout and the runtime descriptor revision are unchanged.
+
+This decision fixes the future wire and diagnostic interpretation only. The
+header constants, compiler binding and C consumer are not implemented by this
+document change. Unresolved formal/actual relations still reject before input
+issuance. Local has no selected initializer-kind relation and remains unavailable;
+Text/handle arguments are outside this bounded protocol. Source declarations
+remain unannotated and each definition has one unspecialized body.
+
 ### `include/nyrt_dynamic_call_slot_v2.h` and `include/nyrt_dynamic_text_scan_v1.h`
 
 The selected Boundary AOT CheckedCallOut lane uses the versioned CallSlot

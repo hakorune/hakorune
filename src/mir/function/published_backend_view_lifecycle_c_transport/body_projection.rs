@@ -66,7 +66,7 @@ impl PublishedLifecycleCFrameV2 {
                 frame_mode: definition_frame_mode(function)?,
                 flags: 0,
             });
-            for formal in entry_birth.formals().iter().copied() {
+            for formal in entry_birth.formals() {
                 let input_kind = match formal.kind() {
                     CompiledEntryFormalKindV1::Receiver => 1,
                     CompiledEntryFormalKindV1::Parameter => 2,

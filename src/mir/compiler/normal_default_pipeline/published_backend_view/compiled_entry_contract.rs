@@ -5,7 +5,8 @@
 
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
-    BirthFormalPhysicalDispositionV1, FinalizedRootResultAbiV1, FinalizedBirthActualsV1,
+    BirthFormalContractV1, BirthFormalPhysicalDispositionV1, FinalizedBirthActualsV1,
+    FinalizedRootResultAbiV1,
 };
 use crate::mir::{Callee, MirInstruction, ValueId};
 
@@ -29,30 +30,33 @@ pub(crate) enum CompiledEntryRootResultV1 {
     Unit,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CompiledEntryFormalV1 {
     source_ordinal: Option<u32>,
     physical_ordinal: u32,
     value: ValueId,
     kind: CompiledEntryFormalKindV1,
-    disposition: Option<BirthFormalPhysicalDispositionV1>,
+    contract: Option<BirthFormalContractV1>,
 }
 
 impl CompiledEntryFormalV1 {
-    pub(crate) const fn source_ordinal(self) -> Option<u32> {
+    pub(crate) const fn source_ordinal(&self) -> Option<u32> {
         self.source_ordinal
     }
-    pub(crate) const fn physical_ordinal(self) -> u32 {
+    pub(crate) const fn physical_ordinal(&self) -> u32 {
         self.physical_ordinal
     }
-    pub(crate) const fn value(self) -> ValueId {
+    pub(crate) const fn value(&self) -> ValueId {
         self.value
     }
-    pub(crate) const fn kind(self) -> CompiledEntryFormalKindV1 {
+    pub(crate) const fn kind(&self) -> CompiledEntryFormalKindV1 {
         self.kind
     }
-    pub(crate) const fn disposition(self) -> Option<BirthFormalPhysicalDispositionV1> {
-        self.disposition
+    pub(crate) fn contract(&self) -> Option<&BirthFormalContractV1> {
+        self.contract.as_ref()
+    }
+    pub(crate) fn disposition(&self) -> Option<BirthFormalPhysicalDispositionV1> {
+        self.contract.as_ref().map(BirthFormalContractV1::disposition)
     }
 }
 
@@ -179,7 +183,7 @@ impl<'module> PublishedMirBackendView<'module> {
                     physical_ordinal: receiver.physical_lane(),
                     value: function.params()[0],
                     kind: CompiledEntryFormalKindV1::Receiver,
-                    disposition: None,
+                    contract: None,
                 });
                 for (ordinal, (lane, contract)) in abi
                     .parameters()
@@ -201,7 +205,7 @@ impl<'module> PublishedMirBackendView<'module> {
                         physical_ordinal: lane.physical_lane(),
                         value: function.params()[lane.physical_lane() as usize],
                         kind: CompiledEntryFormalKindV1::Parameter,
-                        disposition: Some(contract.disposition()),
+                        contract: Some(contract.clone()),
                     });
                 }
                 contract_births.push(CompiledEntryBirthV1 {

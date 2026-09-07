@@ -198,6 +198,16 @@ source-parent/cohort/admission boundary.  The lexical `recipe.clone()` used by
 the forest verifier is unrelated: it stays inside that verifier scope and is
 not a physical or semantic escape.
 
+## Selected lifecycle formal retention
+
+Compiled-entry retains the existing source-issued `BirthFormalContractV1`
+(declaration, resolver binding, ordinal and exact use sites), not only its
+physical availability disposition. Receiver has no source formal contract.
+Disposition is derived from the retained contract; no second classifier or
+mutable synchronized status is introduced. Unavailable/Deferred formals still
+stop before physical input issuance. Full-contract retention does not activate
+kind/payload wire, a new source family or the V4 host draft.
+
 ## Typed ingress contract
 
 ### LLVM compile-target capability transport (I0)

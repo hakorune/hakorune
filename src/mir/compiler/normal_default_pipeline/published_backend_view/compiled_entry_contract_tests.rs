@@ -28,6 +28,17 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
                     crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Local { .. })));
             }
             let [root, births @ ..] = contract.program().functions() else { panic!("root missing") };
+            let PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = births[0].role()
+                else { panic!("Birth ABI missing") };
+            let formals = contract.births()[0].formals();
+            assert!(formals[0].contract().is_none());
+            assert_eq!(formals.len(), abi.formal_contracts().len() + 1);
+            for (formal, source) in formals[1..].iter().zip(abi.formal_contracts()) {
+                assert_eq!(formal.contract(), Some(source),
+                    "declaration, binding, ordinal and exact use sites must survive together");
+                assert_eq!(formal.source_ordinal(), Some(source.ordinal()));
+                assert_eq!(formal.disposition(), Some(source.disposition()));
+            }
             let mut reordered = actuals.to_vec();
             reordered.reverse();
             assert_eq!(issue_birth_calls(root, births, &reordered)?, contract.birth_calls());

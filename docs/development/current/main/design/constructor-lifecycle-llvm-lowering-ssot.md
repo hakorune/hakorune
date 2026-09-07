@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: fix the Birth kind/payload wire and field type-mismatch Fault contract selected by `CURRENT_STATE.toml`.
+Smallest next slice: fix tagged wire revision/keys and exact formal/actual binding; full formal retention is verified.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -1558,9 +1558,9 @@ Ordered work within this series:
    Integer-handle getter that substitutes zero enters this trivial cohort.
    `selected_new_arguments.rs` already issues Integer/Bool actual meaning;
    `EmittedNewArgumentV1` retains source row + emitted ValueId and emission
-   validation checks the literal correspondence. The final root handoff keeps
-   deduplicated Birth definitions but drops these per-New actual relations.
-   **Smallest next slice:** retain the existing validated per-New relations in
+   validation checks the literal correspondence. The former final root handoff retained
+   deduplicated Birth definitions but dropped per-New actual relations.
+   **Retention slice (now verified):** retain the existing validated per-New relations in
    `FinalizedRootBirthHandoffV1` through its existing finalizer and compiled-entry
    consumer. Match exact New membership, Birth target, binding and ordinal;
    definition dedup must not dedup call actuals. Do not reclassify MIR constants
@@ -1602,6 +1602,57 @@ Ordered work within this series:
    consumes issued lanes, deleting positional I64 defaults. Prove unchanged
    Pair EXE30/OBJ-link30, varying Integer values, Bool Fault70 with cleanup, and
    malformed-kind/binding pre-artifact rejection before any execution claim.
+   **Exact formal contract retention (worker-audited, now verified).**
+   `instance_constructor_semantic/formal_contract.rs` maps both Unannotated
+   with I64FieldStores and ExactText to the same unavailable disposition.
+   `CompiledEntryFormalV1` formerly dropped declaration, binding and use
+   sites by storing only that disposition. Opening this bucket is forbidden.
+
+   Decision: replace disposition-only storage with the exact existing
+   `BirthFormalContractV1`; one source issuer, no new semantic receipt.
+   Source authority + canonical issuer: `issue_birth_formal_contracts` issues;
+   BirthAbiHandoff retains; compiled-entry copies the complete existing contract.
+   Non-authority: disposition, first caller, MIR type and parameter position.
+   Fail-fast boundary: current physical-input rejects are unchanged.
+   Smallest next slice: compiled-entry formal retention plus its V2 reader;
+   receiver has None, parameter has the exact cloned source contract, all
+   accessors borrow and disposition is derived, never stored twice.
+   Non-claims: kind/payload wire implementation, actual/formal discharge,
+   ExactText admission, Bool execution, host cutover or runtime ABI promotion.
+
+   This is BoxShape: remove the disposition-only field and its projection in
+   the real compiled-entry issuer; retain declarations/bindings/ordinals/use
+   sites with unchanged admission. No self-reference into the returned owned
+   program and no second source classification. Focused acceptance must use
+   existing source admission; do not widen a source family to test retention.
+   ExactText reachability is unproved and must not be forced through admission.
+   Acceptance: existing two-New Page full-contract equality against its retained
+   Birth ABI, receiver None and unchanged physical Stop (including Pair); reuse the source issuer's
+   ExactI64/Unannotated NoUse test sharing DeferredActualBinding. This covers
+   the lossy-disposition counterexample without a new source fixture or seam.
+
+   Implementation retains the full contract, derives disposition on read and
+   removes Copy/disposition-only storage; V2 borrows the same rows. Focused
+   compiled-entry 1/1, physical-input negatives 3/3 and existing source formal
+   issuer 2/2 pass with one Cargo job, opt0/nonincremental/CGU256 (peak 8.55 GiB).
+   Initial unresolved import was a current-change failure, fixed by reexporting
+   the existing type; the rerun passes. Pointer/corridor guards pass. The
+   physical Stop, source families and parked host draft are unchanged.
+
+   Subsequent wire design must fix JSON keys and revision before code: project
+   logical MIR receiver + N arguments into LLVM `frame, receiver,
+   (kind:i32,payload:i64) x N`; physical_ordinal remains a MIR parameter index,
+   not an expanded LLVM lane index. Replace params/args entries rather than
+   adding sibling representations. Old untagged schema must reject at the new
+   consumer, with no Integer default. Preserve kind through Copy; Add/root I64
+   cannot consume tagged payload or object handles. Bool requires an explicit
+   physical Const form: current serializer rejection is not implicit Integer.
+   The [accepted scalar ABI/Fault decision](../../../../reference/abi/nyrt_c_abi_v0.md#selected-birth-scalar-boundary--accepted-design-not-execution-admission)
+   fixes kind 1/2 and FieldTypeMismatch reason 103; header/consumer implementation
+   stays a subsequent revision-coherent slice. Named C delete-set is lv4_type's
+   nonreceiver-I64 default, I64-only actual checks, single-lane Birth emission
+   and unchecked payload-to-field_set edge. Preserve receiver/HANDLE distinction.
+
 3. **Close optimizer observer mapping.** Default Pair currently rejects
    `root-exit-operation-drift`; `--no-optimize` instead reaches numeric OBJ
    rejection (`contracts=2`). SimplifyCFG merges the HomeRelease block while
