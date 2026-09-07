@@ -3,12 +3,14 @@
 This directory owns module-level route selection before `MirBuilder` creates
 module, entry-block, or FunctionRegion state.
 
-The selected lifecycle physical input owns one additional `process_result_site`
-for the I64 entry epilogue, after its checked-operation site ordinals. It is not
-a fabricated MIR coordinate. The direct JSON carries it explicitly; C rejects
-missing or colliding sites. Out-of-range result reason/details are owned by
-`include/nyrt_fault_v1.h` and the entry-result reference; V4 execution remains
-pending until source-to-artifact acceptance passes.
+The compiled-entry product retains Birth formal dispositions for inspection.
+Physical input admission rejects unavailable, unsupported, missing and
+undischarged `DeferredActualBinding` dispositions before JSON generation.
+A ValueId, destination i64 field or caller literal cannot prove an executable
+formal lane. The source Pair keeps its unannotated contract and cannot yet
+enter V4. Checked/tagged representation needs its own completed consumer.
+Admitted inputs own operation diagnostic ordinals and one `process_result_site`
+for the I64 epilogue; these are physical identities, never source coordinates.
 
 ### Final published artifact consumption
 

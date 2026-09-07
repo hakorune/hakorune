@@ -517,5 +517,7 @@ from this C consumer evidence.
 
 Host integration audit: unannotated Birth formals currently retain an unavailable
 checked/tagged representation. A raw-i64 physical execution probe does not
-discharge that obligation. Direct input must reject it until the existing
-formal/actual owners supply a valid representation and Integer-check consumer.
+discharge that obligation. Direct input rejects it, including an undischarged DeferredActualBinding,
+until the existing formal/actual owners supply a valid representation and
+Integer-check consumer. The retained compiled-entry contract remains available
+for diagnostics; its existence is not permission to issue executable input.

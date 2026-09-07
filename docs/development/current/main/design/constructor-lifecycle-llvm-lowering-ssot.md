@@ -1517,7 +1517,7 @@ CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_OPT_LEVEL=0 cargo build --profile quick
 --features plugins --bin hakorune`. Full lib-test still resource-stops at 8 GiB;
 its new private-module import error was corrected, but execution is unverified.
 
-Decision: reopen host admission; no V4 production/retirement claim or gate bypass.
+Decision: accept the bounded unresolved-formal Stop first; no representation promotion, V4 production claim or gate bypass.
 Source authority + canonical issuer: constructor declaration/use contracts, retained by the compiled-entry owner; source arguments never specialize formal declarations.
 Non-authority: raw i64 C parameters, first caller literals, backend-name whitelist, generated block IDs, or Dynamic-V2 optimizer metadata.
 Fail-fast boundary: all unresolved formal dispositions stop before physical input/JSON/artifact; numeric obligations cannot be cleared or silently ignored.
@@ -1539,6 +1539,14 @@ Ordered work within this series:
    unannotated source contracts; add no permissive enum/receipt or C default.
    Acceptance: unchanged Pair and unavailable/foreign/missing obligations reject
    before artifact; compiled-entry still retains original declaration facts.
+   Implementation checkpoint: physical admission now rejects each existing
+   unresolved disposition before site/layout/JSON issuance. Compiled-entry
+   inspection remains available. The source Pair serializer/parser positives
+   were replaced by a retained-contract + input-rejection test in the dedicated
+   `physical_program_json_tests.rs` boundary. Test compilation passes with
+   opt0/nonincremental quick (7.12 GiB); focused execution still hits 8 GiB even
+   with one codegen unit. Runtime test evidence is required before this Stop
+   closes; a one-run 12 GiB ceiling request is pending, not approved.
 2. **Decide checked/tagged Birth representation.** Declaration/use owner and
    same-root actual relation must preserve value kind, check Integer at exact
    FieldSet sites, and route failure through existing Fault/reclaim. Test Bool,

@@ -51,8 +51,9 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   rename only after success. No generic flags, JSON re-resolution or V3 retry.
   `python3 lang/c-abi/tests/published_lifecycle_v4_execution_test.py <issued.json>`
   checks real-runtime execution, Fault/range cleanup and pre-artifact failures.
-  Supply unchanged JSON from the source-issued Pair transport test. Range
-  mutations exercise physical ABI policy only. This driver uses C header
+  The current source Pair cannot issue this input: its Birth formal
+  representation is unresolved. Supplied physical samples and range mutations
+  exercise C ABI policy only; they cannot authorize source execution. This driver uses C header
   geometry; Rust archive admission and direct EXE/OBJ cutover need their own
   host integration test. V2/V3 remain until that cutover is verified.
 - `.inc` files consume MIR-owned metadata and emit backend calls.

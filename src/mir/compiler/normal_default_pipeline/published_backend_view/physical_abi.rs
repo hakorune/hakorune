@@ -6,6 +6,8 @@
 use std::collections::BTreeSet;
 
 use crate::mir::MirInstruction;
+use crate::mir::normal_callable_semantic_package::BirthFormalPhysicalDispositionV1;
+use super::compiled_entry_contract::CompiledEntryFormalKindV1;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::function::{ObjectDestructionDispositionV1, TypedObjectFieldStorage};
 
@@ -124,6 +126,23 @@ impl<'module> PublishedMirBackendView<'module> {
         let entry = self.issue_lifecycle_compiled_entry_contract()?;
         if entry.root_result() != CompiledEntryRootResultV1::I64 {
             return Err(fault("root-result-unavailable"));
+        }
+        // Retained declarations are inspectable before physical admission, but
+        // no current formal disposition proves an executable parameter lane.
+        // Never infer that proof from a ValueId, call literal or storage slot.
+        for formal in entry.births().iter().flat_map(|birth| birth.formals()) {
+            if formal.kind() == CompiledEntryFormalKindV1::Receiver {
+                continue;
+            }
+            return Err(fault(match formal.disposition() {
+                Some(BirthFormalPhysicalDispositionV1::DeferredActualBinding) =>
+                    "formal-actual-binding-unresolved",
+                Some(BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation) =>
+                    "formal-representation-unavailable",
+                Some(BirthFormalPhysicalDispositionV1::UnavailableUnsupportedDeclaration) =>
+                    "formal-declaration-unsupported",
+                None => "formal-disposition-missing",
+            }));
         }
         let diagnostic_sites = issue_diagnostic_sites(entry.program())?;
         // The process projection is an entry epilogue, not a MIR Invoke.
