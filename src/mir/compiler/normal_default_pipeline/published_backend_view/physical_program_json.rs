@@ -22,18 +22,22 @@ const SCHEMA: &str = "hako.published-lifecycle-physical-program.v1";
 pub(crate) fn emit_lifecycle_physical_program_json(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
 ) -> Result<String, String> {
-    serde_json::to_string(&emit_lifecycle_physical_program_value(program)?)
+    serde_json::to_string(&emit_lifecycle_physical_program_value(program, None)?)
         .map_err(|error| fault(&format!("serialize:{error}")))
 }
 
 fn emit_lifecycle_physical_program_value(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
+    abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
     let births = birth_ordinals(program)?;
     let functions = program
         .functions()
         .iter()
-        .map(|function| {
+        .enumerate()
+        .map(|(function_ordinal, function)| {
+            let function_ordinal = u32::try_from(function_ordinal)
+                .map_err(|_| fault("function-ordinal"))?;
             let blocks = function
                 .blocks()
                 .iter()
@@ -43,7 +47,11 @@ fn emit_lifecycle_physical_program_value(
                         .iter()
                         .map(|row| -> Result<Value, String> { Ok(json!({
                             "index": row.index(),
-                            "instruction": encode_instruction(row.instruction(), &births)?,
+                            "instruction": encode_instruction(
+                                row.instruction(), &births,
+                                diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), row.instruction())?,
+                                abi_input.is_some(),
+                            )?,
                         })) })
                         .collect::<Result<Vec<_>, String>>()?;
                     Ok(json!({
@@ -51,7 +59,14 @@ fn emit_lifecycle_physical_program_value(
                         "instructions": instructions,
                         "terminator": {
                             "index": block.terminator().index(),
-                            "instruction": encode_instruction(block.terminator().instruction(), &births)?,
+                            "instruction": encode_instruction(
+                                block.terminator().instruction(), &births,
+                                diagnostic_site(
+                                    abi_input, function_ordinal, block.id().0,
+                                    block.terminator().index(), block.terminator().instruction(),
+                                )?,
+                                abi_input.is_some(),
+                            )?,
                         },
                         "edges": block.edges().iter().map(encode_edge).collect::<Vec<_>>(),
                     }))
@@ -74,7 +89,7 @@ fn emit_lifecycle_physical_program_value(
 pub(crate) fn emit_lifecycle_physical_abi_json(
     input: &PublishedLifecyclePhysicalAbiInputV1<'_>,
 ) -> Result<String, String> {
-    let mut root = emit_lifecycle_physical_program_value(input.program())?;
+    let mut root = emit_lifecycle_physical_program_value(input.program(), Some(input))?;
     let object = root.as_object_mut().ok_or_else(|| fault("program-root"))?;
     object.insert("fault_abi_version".into(), json!(input.fault_abi_version()));
     object.insert("storage_profile".into(), json!(input.storage_profile()));
@@ -122,6 +137,8 @@ fn encode_edge_args(args: &EdgeArgs) -> Value {
 fn encode_instruction(
     instruction: &MirInstruction,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+    diagnostic_site: Option<u64>,
+    require_diagnostic_site: bool,
 ) -> Result<Value, String> {
     Ok(match instruction {
         MirInstruction::Const { dst, value: ConstValue::Integer(integer) } =>
@@ -143,7 +160,9 @@ fn encode_instruction(
             "object_id": field.object().declaration_index(), "field_ordinal": field.declaration_ordinal(),
         }),
         MirInstruction::Invoke { operation, fault_frame, normal_landing, fault_landing } => json!({
-            "op": "invoke", "operation": encode_invoke(operation, births)?,
+            "op": "invoke", "operation": encode_invoke(
+                operation, births, diagnostic_site, require_diagnostic_site,
+            )?,
             "fault_frame": value(fault_frame), "normal": normal_landing.0, "fault": fault_landing.0,
         }),
         MirInstruction::InvokeNormalResult { invoke_block, dst } =>
@@ -170,22 +189,61 @@ fn encode_instruction(
     })
 }
 
+fn diagnostic_site(
+    abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
+    function: u32,
+    block: u32,
+    instruction: u32,
+    mir_instruction: &MirInstruction,
+) -> Result<Option<u64>, String> {
+    let Some(input) = abi_input else { return Ok(None) };
+    let expected = super::physical_abi::PublishedLifecycleCheckedOperationKindV1::from_instruction(mir_instruction);
+    let issued = input.diagnostic_site_at(function, block, instruction);
+    match (expected, issued) {
+        (Some(expected), Some(issued)) if issued.kind() == expected => Ok(Some(issued.site())),
+        (None, None) => Ok(None),
+        _ => Err(fault("site-coordinate-drift")),
+    }
+}
+
 fn encode_invoke(
     operation: &InvokeOperation,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+    diagnostic_site: Option<u64>,
+    require_diagnostic_site: bool,
 ) -> Result<Value, String> {
     Ok(match operation {
-        InvokeOperation::Call(call) => json!({ "kind": "birth_call", "call": encode_birth_call(call, births)? }),
-        InvokeOperation::NewBox { object } => json!({ "kind": "new_box", "object_id": object.declaration_index() }),
-        InvokeOperation::FieldSet { field, base, value: stored } => json!({
+        InvokeOperation::Call(call) => {
+            if diagnostic_site.is_some() { return Err(fault("site-on-birth-call")); }
+            json!({ "kind": "birth_call", "call": encode_birth_call(call, births)? })
+        }
+        InvokeOperation::NewBox { object } => with_site(json!({
+            "kind": "new_box", "object_id": object.declaration_index(),
+        }), required_site(diagnostic_site, require_diagnostic_site)?)?,
+        InvokeOperation::FieldSet { field, base, value: stored } => with_site(json!({
             "kind": "field_set", "object_id": field.object().declaration_index(),
             "field_ordinal": field.declaration_ordinal(), "base": value(base), "value": value(stored),
-        }),
+        }), required_site(diagnostic_site, require_diagnostic_site)?)?,
         InvokeOperation::HomeRelease { object, value: released } =>
-            json!({ "kind": "home_release", "object_id": object.declaration_index(), "value": value(released) }),
+            with_site(json!({ "kind": "home_release", "object_id": object.declaration_index(), "value": value(released),
+            }), required_site(diagnostic_site, require_diagnostic_site)?)?,
         InvokeOperation::ReclaimUnpublished { object, value: reclaimed } =>
-            json!({ "kind": "reclaim_unpublished", "object_id": object.declaration_index(), "value": value(reclaimed) }),
+            with_site(json!({ "kind": "reclaim_unpublished", "object_id": object.declaration_index(), "value": value(reclaimed),
+            }), required_site(diagnostic_site, require_diagnostic_site)?)?,
     })
+}
+
+fn required_site(site: Option<u64>, required: bool) -> Result<Option<u64>, String> {
+    if required && site.is_none() { return Err(fault("site-missing")); }
+    Ok(site)
+}
+
+fn with_site(mut operation: Value, site: Option<u64>) -> Result<Value, String> {
+    if let Some(site) = site {
+        operation.as_object_mut().ok_or_else(|| fault("operation-object"))?
+            .insert("site".into(), json!(site));
+    }
+    Ok(operation)
 }
 
 fn encode_birth_call(
@@ -237,6 +295,11 @@ mod tests {
                 request(include_str!("../../../../../apps/typed-object-birth-min/main.hako")),
                 |view, _| -> Result<(), String> {
                     let input = view.issue_lifecycle_physical_abi_input()?;
+                    assert_eq!(input.diagnostic_sites().len(), 5);
+                    assert_eq!(
+                        input.diagnostic_sites().iter().map(|site| site.site()).collect::<Vec<_>>(),
+                        vec![0, 1, 2, 3, 4],
+                    );
                     let encoded = emit_lifecycle_physical_abi_json(&input)?;
                     let json: Value = serde_json::from_str(&encoded)
                         .map_err(|error| error.to_string())?;
@@ -266,6 +329,14 @@ mod tests {
                     });
                     assert!(rows.clone().any(|row| row["instruction"]["op"] == "add"));
                     assert_eq!(rows.filter(|row| row["instruction"]["op"] == "object_field_get").count(), 2);
+                    let sites = functions.iter().flat_map(|function| {
+                        function["blocks"].as_array().unwrap().iter().flat_map(|block| {
+                            block["instructions"].as_array().unwrap().iter()
+                                .chain(std::iter::once(&block["terminator"]))
+                        })
+                    }).filter_map(|row| row["instruction"]["operation"]["site"].as_u64())
+                        .collect::<Vec<_>>();
+                    assert_eq!(sites, vec![0, 1, 2, 3, 4]);
                     Err("[freeze:contract][published-lifecycle/consumer-pending]".into())
                 },
             );
@@ -332,8 +403,30 @@ mod tests {
             value: ConstValue::Bool(true),
         };
         assert!(matches!(
-            encode_instruction(&instruction, &BTreeMap::new()),
+            encode_instruction(&instruction, &BTreeMap::new(), None, false),
             Err(error) if error.contains("instruction-unsupported"),
         ));
+    }
+
+    #[test]
+    fn direct_physical_input_rejects_unit_root_before_c() {
+        let source = r#"
+box Pair { left: i64 right: i64
+  birth(left, right) { me.left = left me.right = right }
+}
+static box Main { main() { local pair = new Pair(10, 20) return } }
+"#;
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            let mut compiler = MirCompiler::with_options(false);
+            let result = compiler.compile_normal_with_published(request(source), |view, _| {
+                match view.issue_lifecycle_physical_abi_input() {
+                    Err(error) if error.contains("root-result-unavailable") => Ok(()),
+                    Err(error) => Err(format!("unexpected direct-input rejection: {error}")),
+                    Ok(_) => Err("Unit root unexpectedly entered direct physical input".into()),
+                }
+            });
+            if let Err(error) = result { panic!("{error}"); }
+        });
     }
 }

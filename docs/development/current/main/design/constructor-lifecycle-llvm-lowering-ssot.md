@@ -1470,7 +1470,11 @@ object.
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-I0`
 
 After physical-parser closure I0, implement only the D1 products and their
-transport validation. Add the physical operation-to-diagnostic map within the existing ABI-input owner,
+transport validation. The existing `CompiledEntryContractV1` is owned by the
+physical ABI input, which delegates program/root result/Birth/call/cleanup
+access to that one final product. The selected direct cohort accepts only its
+already-issued I64 root result; Unit rejects before JSON, C or artifact effects.
+Add the physical operation-to-diagnostic map within that ABI-input owner,
 serialize it in the existing direct physical JSON, and make the C physical
 parser reject its finite missing/duplicate/kind/coordinate/range mutations.
 Add a lifecycle-private text-tool/session helper that accepts the selected
@@ -1479,13 +1483,29 @@ observed layout before an explicitly targeted `llc` command is possible. It
 ends at the existing pre-artifact terminal: it emits no Pair object, alters no
 kernel entry, and deletes no V2/V3 path.
 
-Acceptance: issued Pair physical input reaches the same parser with four
+Acceptance: issued Pair physical input reaches the same parser with five
 unique checked-operation site ordinals; mutations for missing/duplicate/site on
-Birth/ObjectFieldGet/out-of-range coordinate reject. A target triple/layout
+Birth/ObjectFieldGet/out-of-range coordinate reject. A Unit root rejects before
+physical JSON is written. A target triple/layout
 mismatch and an ambient generic `llc` flag cannot select the lifecycle tool
 route. No object or EXE is created. The exclusive delete-set is only the old site-less operation encoding and the
 V4-ineligible generic target helper from the future V4 call; existing generic
 cohorts retain their helper. This task does not substitute for parser closure.
+
+### Lifecycle transport disposition
+
+Three current carriers have separate temporary roles: the generic lifecycle
+body JSON plus V2 frame/V3 call remains the production pending route; the
+compiled-entry contract is the sole final product for formals, Birth calls,
+cleanup and root result; direct physical ABI JSON is the selected V4 input and
+pre-artifact parser input. The direct input owns the compiled-entry contract,
+so it is not a sibling program issuer. V4 cutover, after both Pair executable
+paths pass, deletes only the lifecycle generic temporary JSON, V3→V2
+delegation, pending terminal and their private probes. V2/V3 exports and
+wrappers retire only after caller-zero evidence. `PublishedMirBackendView`
+remains the final admission owner during this cutover; its physical placement
+may be cleaned up after retirement, but no second view or source authority is
+introduced here.
 
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1`
 

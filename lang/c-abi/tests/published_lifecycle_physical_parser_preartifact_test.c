@@ -52,8 +52,8 @@ int main(void) {
   const char* valid =
       "{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"storage_profile\":1,\"functions\":["
       "{\"name\":\"main\",\"role\":\"root_i64\",\"params\":[],\"entry\":0,\"blocks\":["
-      "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"const_i64\",\"dst\":1,\"value\":30}},{\"index\":1,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":2,\"mode\":\"root_owned\"}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"new_box\",\"object_id\":7},\"fault_frame\":2,\"normal\":1,\"fault\":2}},\"edges\":[{\"target\":1,\"args\":null},{\"target\":2,\"args\":null}]},"
-      "{\"id\":1,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":3}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":4,\"value\":10}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"field_set\",\"object_id\":7,\"field_ordinal\":0,\"base\":3,\"value\":4},\"fault_frame\":2,\"normal\":3,\"fault\":2}},\"edges\":[{\"target\":3,\"args\":null},{\"target\":2,\"args\":null}]},"
+      "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"const_i64\",\"dst\":1,\"value\":30}},{\"index\":1,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":2,\"mode\":\"root_owned\"}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"new_box\",\"object_id\":7,\"site\":0},\"fault_frame\":2,\"normal\":1,\"fault\":2}},\"edges\":[{\"target\":1,\"args\":null},{\"target\":2,\"args\":null}]},"
+      "{\"id\":1,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":3}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":4,\"value\":10}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"field_set\",\"object_id\":7,\"field_ordinal\":0,\"base\":3,\"value\":4,\"site\":1},\"fault_frame\":2,\"normal\":3,\"fault\":2}},\"edges\":[{\"target\":3,\"args\":null},{\"target\":2,\"args\":null}]},"
       "{\"id\":2,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return_fault\",\"fault_frame\":2}},\"edges\":[]},"
       "{\"id\":3,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"object_field_get\",\"dst\":5,\"base\":3,\"object_id\":7,\"field_ordinal\":0}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":6,\"value\":20}},{\"index\":2,\"instruction\":{\"op\":\"add\",\"dst\":7,\"lhs\":5,\"rhs\":6}},{\"index\":3,\"instruction\":{\"op\":\"copy\",\"dst\":8,\"src\":7}}],\"terminator\":{\"index\":4,\"instruction\":{\"op\":\"jump\",\"target\":4,\"args\":null}},\"edges\":[{\"target\":4,\"args\":null}]},"
       "{\"id\":4,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"phi\",\"dst\":9,\"inputs\":[{\"block\":3,\"value\":8}]}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"birth_call\",\"call\":{\"target\":1,\"receiver\":3,\"args\":[4,6],\"dst\":null}},\"fault_frame\":2,\"normal\":5,\"fault\":2}},\"edges\":[{\"target\":5,\"args\":null},{\"target\":2,\"args\":null}]},"
@@ -71,7 +71,9 @@ int main(void) {
   rejects_replace(valid, "\"inputs\":[{\"block\":3,\"value\":8}]", "\"inputs\":[{\"block\":3,\"value\":8},{\"block\":3,\"value\":8}]", "function-body");
   rejects_replace(valid, "\"src\":7", "\"src\":99", "function-body");
   rejects_replace(valid, "\"lhs\":5", "\"lhs\":7", "function-body");
-  rejects_replace(valid, "\"operation\":{\"kind\":\"new_box\",\"object_id\":7}", "\"operation\":{\"kind\":\"new_box\",\"object_id\":99}", "function-body");
+  rejects_replace(valid, "\"operation\":{\"kind\":\"new_box\",\"object_id\":7,\"site\":0}", "\"operation\":{\"kind\":\"new_box\",\"object_id\":99,\"site\":0}", "function-body");
+  rejects_replace(valid, "\"site\":1", "\"site\":0", "diagnostic-sites");
+  rejects_replace(valid, "\"site\":1", "\"site\":-1", "function-body");
   rejects_replace(valid, "\"mode\":\"root_owned\"", "\"mode\":\"borrowed\"", "function-body");
   rejects_replace(valid, "\"invoke_block\":0", "\"invoke_block\":1", "function-body");
   rejects_replace(valid, "\"op\":\"return\",\"value\":9", "\"op\":\"return\",\"value\":null", "function-body");

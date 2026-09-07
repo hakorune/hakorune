@@ -9,7 +9,51 @@ use crate::mir::MirInstruction;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::function::{ObjectDestructionDispositionV1, TypedObjectFieldStorage};
 
-use super::{PublishedMirBackendView, physical_program::PublishedLifecyclePhysicalProgramV1};
+use super::{
+    CompiledEntryContractV1, CompiledEntryRootResultV1, PublishedMirBackendView,
+    physical_program::PublishedLifecyclePhysicalProgramV1,
+};
+
+/// Runtime diagnostic operation kinds admitted by the selected lifecycle ABI.
+/// These are physical runtime calls, never source-level diagnostic sites.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
+    NewBox,
+    FieldSet,
+    HomeRelease,
+    ReclaimUnpublished,
+}
+
+impl PublishedLifecycleCheckedOperationKindV1 {
+    pub(crate) const fn from_instruction(instruction: &MirInstruction) -> Option<Self> {
+        let MirInstruction::Invoke { operation, .. } = instruction else { return None };
+        match operation {
+            InvokeOperation::NewBox { .. } => Some(Self::NewBox),
+            InvokeOperation::FieldSet { .. } => Some(Self::FieldSet),
+            InvokeOperation::HomeRelease { .. } => Some(Self::HomeRelease),
+            InvokeOperation::ReclaimUnpublished { .. } => Some(Self::ReclaimUnpublished),
+            InvokeOperation::Call(_) => None,
+        }
+    }
+}
+
+/// One final-view-issued runtime diagnostic identity at an exact physical row.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct PublishedLifecycleOperationDiagnosticSiteV1 {
+    function: u32,
+    block: u32,
+    instruction: u32,
+    kind: PublishedLifecycleCheckedOperationKindV1,
+    site: u64,
+}
+
+impl PublishedLifecycleOperationDiagnosticSiteV1 {
+    pub(crate) const fn function(&self) -> u32 { self.function }
+    pub(crate) const fn block(&self) -> u32 { self.block }
+    pub(crate) const fn instruction(&self) -> u32 { self.instruction }
+    pub(crate) const fn kind(&self) -> PublishedLifecycleCheckedOperationKindV1 { self.kind }
+    pub(crate) const fn site(&self) -> u64 { self.site }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct PublishedLifecyclePhysicalFieldLayoutV1 {
@@ -44,15 +88,28 @@ impl PublishedLifecyclePhysicalObjectLayoutV1 {
 /// One C-consumer input whose parts were issued by the same final view.
 #[derive(Debug, Clone)]
 pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
-    program: PublishedLifecyclePhysicalProgramV1<'module>,
+    entry: CompiledEntryContractV1<'module>,
     layouts: Box<[PublishedLifecyclePhysicalObjectLayoutV1]>,
+    diagnostic_sites: Box<[PublishedLifecycleOperationDiagnosticSiteV1]>,
     fault_abi_version: u32,
     storage_profile: u32,
 }
 
 impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
-    pub(crate) fn program(&self) -> &PublishedLifecyclePhysicalProgramV1<'module> { &self.program }
+    pub(crate) fn entry(&self) -> &CompiledEntryContractV1<'module> { &self.entry }
+    pub(crate) fn program(&self) -> &PublishedLifecyclePhysicalProgramV1<'module> {
+        self.entry.program()
+    }
     pub(crate) fn layouts(&self) -> &[PublishedLifecyclePhysicalObjectLayoutV1] { &self.layouts }
+    pub(crate) fn diagnostic_sites(&self) -> &[PublishedLifecycleOperationDiagnosticSiteV1] {
+        &self.diagnostic_sites
+    }
+    pub(crate) fn diagnostic_site_at(
+        &self, function: u32, block: u32, instruction: u32,
+    ) -> Option<PublishedLifecycleOperationDiagnosticSiteV1> {
+        self.diagnostic_sites.iter().copied().find(|site|
+            site.function == function && site.block == block && site.instruction == instruction)
+    }
     pub(crate) const fn fault_abi_version(&self) -> u32 { self.fault_abi_version }
     pub(crate) const fn storage_profile(&self) -> u32 { self.storage_profile }
 }
@@ -62,10 +119,14 @@ impl<'module> PublishedMirBackendView<'module> {
     pub(crate) fn issue_lifecycle_physical_abi_input(
         &self,
     ) -> Result<PublishedLifecyclePhysicalAbiInputV1<'module>, String> {
-        let program = self.issue_lifecycle_physical_program()?;
+        let entry = self.issue_lifecycle_compiled_entry_contract()?;
+        if entry.root_result() != CompiledEntryRootResultV1::I64 {
+            return Err(fault("root-result-unavailable"));
+        }
+        let diagnostic_sites = issue_diagnostic_sites(entry.program())?;
         let storage_profile = self.lifecycle_storage_profile()
             .ok_or_else(|| fault("storage-profile-missing"))? as u32;
-        let ids = referenced_objects(&program);
+        let ids = referenced_objects(entry.program());
         let definitions = self.module().canonical_object_definitions()
             .ok_or_else(|| fault("object-definitions-missing"))?;
         let mut layouts = Vec::with_capacity(ids.len());
@@ -95,10 +156,38 @@ impl<'module> PublishedMirBackendView<'module> {
             });
         }
         Ok(PublishedLifecyclePhysicalAbiInputV1 {
-            program, layouts: layouts.into_boxed_slice(), fault_abi_version: 1,
+            entry, layouts: layouts.into_boxed_slice(),
+            diagnostic_sites: diagnostic_sites.into_boxed_slice(), fault_abi_version: 1,
             storage_profile,
         })
     }
+}
+
+fn issue_diagnostic_sites(
+    program: &PublishedLifecyclePhysicalProgramV1<'_>,
+) -> Result<Vec<PublishedLifecycleOperationDiagnosticSiteV1>, String> {
+    let mut sites = Vec::new();
+    let mut coordinates = BTreeSet::new();
+    for (function_ordinal, physical_function) in program.functions().iter().enumerate() {
+        let function = u32::try_from(function_ordinal).map_err(|_| fault("site-function-overflow"))?;
+        for block in physical_function.blocks() {
+            for row in block.instructions().iter().copied().chain(std::iter::once(block.terminator())) {
+                let Some(kind) = PublishedLifecycleCheckedOperationKindV1::from_instruction(row.instruction()) else {
+                    continue;
+                };
+                let coordinate = (function, block.id().0, row.index());
+                if !coordinates.insert(coordinate) {
+                    return Err(fault("site-coordinate-duplicate"));
+                }
+                let site = u64::try_from(sites.len()).map_err(|_| fault("site-overflow"))?;
+                sites.push(PublishedLifecycleOperationDiagnosticSiteV1 {
+                    function, block: block.id().0, instruction: row.index(), kind, site,
+                });
+            }
+        }
+    }
+    if sites.is_empty() { return Err(fault("site-missing")); }
+    Ok(sites)
 }
 
 fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTreeSet<u32> {
