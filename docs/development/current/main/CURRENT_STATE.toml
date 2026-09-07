@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "Default derive source augmentation: bind producer-issued generated declarations to existing generated origins and complete callable publication before default CLI cutover"
-current_blocker_token = "Parent 910b92d99b reproduces default CLI RootPreservation(CompatibilityLoss) and all eight serial lifecycle failures; baseline classification closed. CLI is blocked by missing default-derive generated source relation. Keep Equals/ToString, co-seal authorized additions through existing transform/catalog/semantic batch/publication; close body-driver mapping before implementation. Task 4 execution and V2/V3 retirement remain open."
+current_design_stop = "Pure derive prerequisite verified; fix explicit normal-parse policy and early generated-source/parameter co-seal API before activation"
+current_blocker_token = "Pure default-derive owner extracted and existing tests3+7 pass. Next design: explicit policy from normal caller into open parser postpass, generated Box/declaration/receiver/parameter authority before initial co-seal, same complete semantic batch. Keep finish_exact. Generated parameters=None causes MissingParameterContract; nonempty fields need dynamic read/Text conversion contracts. No source/CLI activation or old transport retirement yet."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,18 +32,20 @@ latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
 Checked V4 host checkpoint c17ea4ca7c remains: internal EXE/OBJ Pair30 and
-Bool103/70 with default optimizer but test-only macro disable.
-Parent 910b92d99b reproduces the same default CLI transform failure and eight
-serial lifecycle failures (parent114/8; current115/8). No V4-host regression
-claim from that filter; earlier semantic package116/2 debt stays separate.
-Two bounded worker audits locate one missing source-owned default-derive
-relation. Preserve default Equals/ToString and original Box/constructor/root
-identity, then carry recorded additions through existing generated origins,
-complete callable semantic batch and canonical publication. Unused methods
-must still be verified/published. No generic MacroOrImport or equality bypass.
-Next design task fixes that augmentation API and all generated body mappings;
-implementation stays closed until then. No new user policy choice is needed.
-Then default CLI/host cleanup evidence and recorded V2/V3 retirement follow.
+Bool103/70 with normal optimizer and test-only macro disable. Parent910b92d99b
+reproduced default CLI stop plus eight lifecycle failures; baseline remains.
+Pure default-derive selection/body owner now lives in macro/default_derive.rs;
+engine preflight/expansion reuse it, old implementations deleted. Existing
+derive3 and transform7 tests pass; touched source max291, no behavior change.
+Adopt early generation inside existing open parser transaction before initial
+co-seal, preserving final finish_exact. Explicit macro policy comes from caller;
+parser never reads macro env or invokes MacroBox. Mixed Pair/Main arm matters.
+Generated source must include explicit parameters: one unannotated OpaqueHandle
+other for Equals, empty coverage for ToString. Missing is not empty.
+Nonempty fields still need dynamic read/Text conversion authority; do not use
+raw FieldGet/name repair/backend coercion as canonical support.
+Next: close early source/config API, then implement publication and prove default
+CLI/cleanup before V2/V3 deletion. No additional source family is open yet.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card = "none"

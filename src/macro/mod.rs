@@ -5,6 +5,7 @@
 
 pub mod ast_json;
 pub mod ctx;
+pub(crate) mod default_derive;
 pub mod engine;
 pub mod log;
 pub mod macro_box;

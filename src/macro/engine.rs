@@ -1,9 +1,11 @@
 use nyash_rust::ast::Span;
 use nyash_rust::{
-    ast::{BinaryOperator, BoxMethodGeneratedProvenanceV1, BoxMethodInventoryV1, LiteralValue},
+    ast::{BoxMethodGeneratedProvenanceV1, BoxMethodInventoryV1},
     ASTNode,
 };
 use std::time::Instant;
+
+use super::default_derive::{build_equals_method, build_tostring_method, DefaultDeriveSelectionV1};
 
 /// HIR Patch description (MVP placeholder)
 #[derive(Clone, Debug, Default)]
@@ -253,12 +255,6 @@ impl MacroEngine {
     }
 }
 
-#[derive(Clone, Copy)]
-struct DefaultDeriveSelectionV1 {
-    equals: bool,
-    to_string: bool,
-}
-
 fn default_derive_selection(
     is_static: bool,
     methods: &BoxMethodInventoryV1,
@@ -266,15 +262,7 @@ fn default_derive_selection(
     let derive_all = crate::config::env::macro_derive_all();
     let derive_set =
         crate::config::env::macro_derive().unwrap_or_else(|| "Equals,ToString".to_string());
-    let receiver_based = !is_static;
-    DefaultDeriveSelectionV1 {
-        equals: receiver_based
-            && (derive_all || derive_set.contains("Equals"))
-            && methods.get_declaration("equals").is_none(),
-        to_string: receiver_based
-            && (derive_all || derive_set.contains("ToString"))
-            && methods.get_declaration("toString").is_none(),
-    }
+    super::default_derive::select(is_static, methods, derive_all, &derive_set)
 }
 
 fn jsonl_trace(pass: usize, before: usize, after: usize, changed: bool, dt: std::time::Duration) {
@@ -299,129 +287,5 @@ fn jsonl_trace(pass: usize, before: usize, after: usize, changed: bool, dt: std:
                 use std::io::Write;
                 writeln!(f, "{}", rec)
             });
-    }
-}
-
-fn me_field(name: &str) -> ASTNode {
-    ASTNode::FieldAccess {
-        object: Box::new(ASTNode::Me {
-            span: Span::unknown(),
-        }),
-        field: name.to_string(),
-        span: Span::unknown(),
-    }
-}
-
-fn var_field(var: &str, field: &str) -> ASTNode {
-    ASTNode::FieldAccess {
-        object: Box::new(ASTNode::Variable {
-            name: var.to_string(),
-            span: Span::unknown(),
-        }),
-        field: field.to_string(),
-        span: Span::unknown(),
-    }
-}
-
-fn bin_add(lhs: ASTNode, rhs: ASTNode) -> ASTNode {
-    ASTNode::BinaryOp {
-        operator: BinaryOperator::Add,
-        left: Box::new(lhs),
-        right: Box::new(rhs),
-        span: Span::unknown(),
-    }
-}
-
-fn bin_and(lhs: ASTNode, rhs: ASTNode) -> ASTNode {
-    ASTNode::BinaryOp {
-        operator: BinaryOperator::And,
-        left: Box::new(lhs),
-        right: Box::new(rhs),
-        span: Span::unknown(),
-    }
-}
-
-fn bin_eq(lhs: ASTNode, rhs: ASTNode) -> ASTNode {
-    ASTNode::BinaryOp {
-        operator: BinaryOperator::Equal,
-        left: Box::new(lhs),
-        right: Box::new(rhs),
-        span: Span::unknown(),
-    }
-}
-
-fn lit_str(s: &str) -> ASTNode {
-    ASTNode::Literal {
-        value: LiteralValue::String(s.to_string()),
-        span: Span::unknown(),
-    }
-}
-
-fn build_equals_method(_box_name: &str, fields: &Vec<String>) -> ASTNode {
-    // equals(other) { return me.f1 == other.f1 && ...; }
-    let cond = if fields.is_empty() {
-        ASTNode::Literal {
-            value: LiteralValue::Bool(true),
-            span: Span::unknown(),
-        }
-    } else {
-        let mut it = fields.iter();
-        let first = it.next().unwrap();
-        let mut expr = bin_eq(me_field(first), var_field("__ny_other", first));
-        for f in it {
-            expr = bin_and(expr, bin_eq(me_field(f), var_field("__ny_other", f)));
-        }
-        expr
-    };
-    // Hygiene: use gensym-like param to avoid collisions
-    let param_name = "__ny_other".to_string();
-    ASTNode::FunctionDeclaration {
-        name: "equals".to_string(),
-        params: vec![param_name.clone()],
-        param_decls: vec![crate::ast::ParamDecl {
-            name: param_name.clone(),
-            declared_type_name: None,
-        }],
-        return_type_name: None,
-        body: vec![ASTNode::Return {
-            value: Some(Box::new(cond)),
-            span: Span::unknown(),
-        }],
-        is_static: false,
-        is_override: false,
-        attrs: crate::ast::DeclarationAttrs::default(),
-        uses: vec![],
-        contracts: vec![],
-        span: Span::unknown(),
-    }
-}
-
-fn build_tostring_method(box_name: &str, fields: &Vec<String>) -> ASTNode {
-    // toString() { return "Name(" + me.f1 + "," + me.f2 + ")" }
-    let mut expr = lit_str(&format!("{}(", box_name));
-    let mut first = true;
-    for f in fields {
-        if !first {
-            expr = bin_add(expr, lit_str(","));
-        }
-        first = false;
-        expr = bin_add(expr, me_field(f));
-    }
-    expr = bin_add(expr, lit_str(")"));
-    ASTNode::FunctionDeclaration {
-        name: "toString".to_string(),
-        params: vec![],
-        param_decls: vec![],
-        return_type_name: None,
-        body: vec![ASTNode::Return {
-            value: Some(Box::new(expr)),
-            span: Span::unknown(),
-        }],
-        is_static: false,
-        is_override: false,
-        attrs: crate::ast::DeclarationAttrs::default(),
-        uses: vec![],
-        contracts: vec![],
-        span: Span::unknown(),
     }
 }

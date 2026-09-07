@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: close default-derive source augmentation and downstream callable issuance mapping before Task 4 CLI cutover or old transport deletion.
+Smallest next slice: close explicit policy and early generated-source/parameter issuance after the verified pure-producer extraction, before Task 4 CLI cutover.
 Non-claims: new source acceptance, source host EXE30/OBJ30 cutover, optimized multiple-Home coverage, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -1832,78 +1832,101 @@ normal-pipeline frame tests to preserve source/compiled-entry invariants.
 Fresh caller/discovery and shared-object export checks are still required;
 this inventory is not retirement evidence.
 
-### Default derive: source augmentation boundary
+### Default derive: issue before the initial source co-seal
 
-Decision: retain the existing default Equals/ToString behavior and validate
-explicit generated additions without changing original source declarations.
-Source authority + canonical issuer: parser Box identity/public-field relations;
-MacroEngine default-derive producer; existing parser generated-callable source
-owner, then the complete callable semantic batch and canonical collector.
-Non-authority: generator labels, method-name equality, reparsing expansion,
-backend-derived result kinds, unused-method omission and macro-disable switches.
-Fail-fast boundary: final callable source issuance rejects changed original
-source, wrong source owner/fields, duplicate or missing additions, substituted
-generated bodies and unrecorded slots. No compatibility retry.
-Smallest next slice: specify the source-owned default-derive relation and its
-single transfer through transform preservation and complete callable issuance.
-Non-claims: an executable augmentation API already exists; general MacroBox or
-test-tail admission; generated instance-call C support; default Pair CLI green.
+Decision: preserve default Equals/ToString and issue them inside the existing
+open parser postpass transaction, after gate/delegate selection and before
+initial callable/source/root co-seal. Keep final `finish_exact` unchanged.
+Source authority + canonical issuer: parser Box/public-field identity plus the
+existing MacroEngine default-derive producer; parser generated-callable owner
+issues declaration/parameter coverage; existing semantic batch/collector consume.
+Non-authority: generator labels, names as identity, reparsing expansion,
+backend-derived parameter/result meaning, macro-disable and unused-method omission.
+Fail-fast boundary: missing/foreign generation or parameter coverage rejects
+before executable product publication. Nonempty public-field derive bodies need
+dynamic field/Text-conversion authority and must not fall into raw field repair.
+Smallest next slice: specify one explicit normal-parse policy and early generated
+source transaction, including generated parameter coverage in the same co-seal.
+Non-claims: source issuance or CLI activation from that extraction; all generated
+body shapes are canonical; general MacroBox/test-tail or derived instance-call C.
 
-**Finite audit boundary:** normal callable parser product -> macro transform ->
-final callable source -> complete instance method batch -> canonical collector;
-includes default derive and all transform disposition arms. Excludes general
-MacroBox/test-tail implementation and selected C generated-method invocation.
-The absent default-derive relation is `CutoverBlockerOpen`, not ParkedSealed.
+**Boundary:** normal parse input -> open source postpass -> initial/final callable
+source -> complete semantic batch -> canonical collector. Includes default derive,
+all selection arms and source parameters; excludes general MacroBox/test-tail
+implementation and generated instance-call C admission. Missing generated coverage
+and nonempty field/conversion contracts are `CutoverBlockerOpen` within this series.
 
-| Existing owner / terminal | Observation and required connection |
+The earlier late-augmentation proposal would require callable slots, constructor,
+ordinary Box and root observers to each consume an authorized AST delta. The open
+postpass already owns generated Delegate transactions and prefix/coverage checks
+(`source_seal/finalize.rs`, `generated_callable_anchor.rs`). Extend that owner
+before sealing instead. Do not relax whole-Program equality or mint a second
+completed-source authority. The mixed Pair/static Main source arm must participate;
+fixing only `OrdinaryTopLevelBox` would miss the real CLI caller.
+
+| Responsibility | Contract for the connection |
 | --- | --- |
-| `runner/modes/common_util/normal_callable.rs` -> `macro/normal_callable_transform.rs` | Real CLI caller. Macro disabled passes exact source; enabled registration rejects first; eligible default derive rejects next; no-generation expansion must remain exact; generated test tail and unclassified mutation reject. Preserve those other boundaries. |
-| `macro/engine.rs` | `would_generate_default_callable` and generation use the same nonstatic/derive-selected/declaration-absent decision. `build_equals_method` and `build_tostring_method` own generated bodies and use public fields only. Static boxes and existing declarations are not overwritten. |
-| `parser/callable_source_anchor.rs` | `GeneratedCallableOriginV1` currently has Property/Delegate only. Extend this owner lineage with a source-bound derive kind, Box identity/public-field relation, generated declaration/body identity and placement. A `MacroOrImport` string is insufficient. |
-| `initial_callable_program_source/issue.rs::expected_callable_slots` | Rejects MacroOrImport. Do not broadly permit that provenance. Final augmented coverage must admit exactly the producer-recorded default-derive additions. |
-| `normal_callable_program_source/transform.rs` | Current production API is exact-only. Callable slots/contracts, constructor source, ordinary Box coverage and root preservation must consume the same authorized augmentation; retain original declaration anchors and source statement meaning. Do not independently reconstruct or re-pair their authority. |
-| `normal_callable_semantic_package/issuer.rs` and `physical_signature.rs` | Transfer generated rows into the complete catalog/semantic batch. Instance receiver plus unannotated ordinary parameters retain their existing lane contract; no I64 specialization of Equals' other argument. |
-| `instance_box_method_batch` -> semantic loan -> `normal_cataloged_box_method_lowering` -> resolved loan/collector | Every instance method is lowered, including uncalled generated methods. Validate exact declaration and loan/admission ownership, then canonical duplicate-reject publication. No unvalidated omission. |
-| Lifecycle physical program and published admission | The selected program projects retained root/Birth definitions, while module capability still checks published contents. Invoking derived instance methods is outside this consumer; that does not authorize dropping their source verification/publication. |
+| Macro invocation policy | Capture enable/derive selection once at the normal parse boundary; pass explicit configuration to the open postpass. Parser reads no macro environment and invokes no MacroBox. AST-only compatibility keeps its explicit expansion caller and shares the same pure generator. |
+| Pure default producer | One selection and one body implementation. Nonstatic, selected derive, absent existing method. Preserve existing Equals/ToString selection behavior, explicit method precedence and ordered public fields. This syntax generator does not mint source identity or ABI. |
+| Open source transaction | Borrow the actual parser Box identity and selected public fields; append generated rows with exact placement and generated-origin coverage before initial callable co-seal. Keep original methods/constructor/root keys. Do not manufacture a source-member ordinal for an implicit derive. |
+| Generated source owner | Extend existing `GeneratedCallableOriginV1` lineage. Bind Box origin, finite derive kind, declaration/body, receiver and exact parameter coverage in one transaction. Equals owns one unannotated other binding; ToString owns explicit empty coverage. Generic MacroOrImport remains rejected. |
+| Semantic syntax/parameter issuer | Direct-method optional projection is not total parameter coverage. Consume the generated declaration authority explicitly; do not fabricate a direct Ordinary source row. Bind generated parameter ordinal to its resolver-issued binding before existing parameter/Completion/physical-signature issuance. |
+| Complete method batch | All instance methods, called or not, traverse exact declaration/loan checks and canonical duplicate-reject collection. Lifecycle physical input still projects only retained root/Birth; module admission remains mandatory. |
+| Final transform | Already-issued derives are not generated again. Keep `finish_exact`, registration/test-tail rejection and original source lineage. Generation policy and body production have one owner, not a late retry. |
 
-The finite selection matrix includes neither/Equals/ToString/both selected,
-either/one/both already declared, static versus instance, and empty/nonempty
-public-field sets. Existing derived declaration selection must not be overwritten.
-Pair's plain `left:i64/right:i64` are not public-field declarations: its generated
-bodies are `equals(__ny_other) { return true }` and
-`toString() { return "Pair(" + ")" }`. Nonempty public fields generate
-field Equal/And and text/field Add respectively. All generated signatures are
-instance and unannotated; preserve those contracts instead of inferring a new
-Bool/Text ABI from backend output.
+Downstream audit corrects an earlier assumption: generated `parameters=None`
+is not an ordinary parameter list. Parameter issuer skips it; Completion skips
+it; `physical_signature.rs` then rejects `MissingParameterContract`. ToString's
+zero parameters must be `Some(empty)` issued from generated origin, not absence.
+The existing unannotated other contract is `OpaqueHandle`, never same-Box or I64.
 
-**Ordered tasks within the existing constructor series:**
+| Generated body | Existing mapping / missing authority |
+| --- | --- |
+| Empty-field Equals | Const Bool -> Return exists. Supply generated receiver/parameter/Completion coverage first. |
+| Empty-field ToString | String literals -> ordinary Add -> Return exists, with String operand facts. No derive-specific LLVM path is needed. |
+| Public-field Equal/And | Compare/SC0 driver exists, but `other.field` has no canonical field relation. Existing raw dynamic FieldGet is not a canonical completion. |
+| Public-field Text/Add | Raw field read and mixed Add leave conversion/type/effect to backend coercion. Source-owned dynamic read and Text conversion are required before promotion. |
 
-1. Fix the augmentation relation's producer/consumer API in the existing owners:
-   Box source binding, derive kind, ordered public-field membership, exact generated
-   declaration and append-only slot relation. Co-seal it with the original
-   callable/parameter/constructor/ordinary-Box/root product. Verify how all four
-   generated body shapes map to the existing semantic/body driver; any missing
-   authority remains a named blocker before implementation. This is the next
-   design work, not another general caller census.
-2. Implement that one source augmentation -> catalog -> semantic batch ->
-   publication path after the mapping is closed. Acceptance must retain original
-   constructor/root keys and publish both Pair generated methods; cover existing
-   method overrides, static/no-op cases, public-field order and changed/extra/
-   missing/foreign generated rows. Keep arbitrary MacroOrImport, registration,
-   test-tail and unexpected mutations rejected. Do not change the Pair fixture.
-3. Resume normal CLI EXE30 and independent checked OBJ/link30, both Bool103/70
-   cases and host-origin cleanup ordering. Source/semantic tests alone cannot
-   close this stage. A concrete downstream unsupported terminal is recorded at
-   its own owner; do not reopen generic C repair or bypass module admission.
-4. Only then execute the recorded old transport retirement inventory. Keep
-   shared profile/session/parser owners and the existing guards; add no new
-   guard family or source-shaped ABI rows.
+Pair's plain `left:i64/right:i64` are not public-field declarations. Its bodies
+are `equals(__ny_other) { return true }` and
+`toString() { return "Pair(" + ")" }`; preserve them and the unchanged fixture.
+The selection matrix is neither/Equals/ToString/both, existing-method precedence,
+static/instance and empty/nonempty public fields. Do not narrow derive selection
+to make Pair pass. Unsupported semantic bodies must have a typed pre-effect Stop
+until their owner contracts exist; their eventual implementation remains required.
 
-Worker premise audits found no need for a second MirBuilder or a user-visible
-change to default derive policy. They do not authorize implementation while
-the generated relation/body-driver mapping above remains open. Source files
-at the candidate owners are currently 139–513 lines; keep changes below 800
-and split at the owner boundary if approaching 760.
+**Finite implementation order (one series, no extra per-shape cards):**
+
+1. **Verified BoxShape prerequisite:** moved pure selection/body constructors from
+   `macro/engine.rs` into one shared macro owner. Keep current call order, config
+   reads, provenance, generated syntax and rejection behavior. The engine must
+   consume the moved owner; delete its old implementations. Existing macro derive
+   positives/static negatives and normal-transform rejection tests are the gate.
+   No parser/AST/source receipt or production switch in this step.
+   The shared owner is `src/macro/default_derive.rs`; both engine consumers use
+   it and the old implementations are deleted. Existing derive tests 3/3 and
+   normal-transform tests 7/7 pass with quick/plugins, one job, opt0,
+   nonincremental, CGU256; peak aggregate 8.68 GiB. Direct text comparison against
+   ca0945333b confirms unchanged selector and all syntax-construction bodies
+   apart from visibility. Touched source maximum 291 lines. Existing canonical
+   and pointer guards pass; no new test/guard or language/ABI contract added.
+2. Close the explicit normal-parse policy and generated-source transaction API,
+   then connect Box-origin/declaration/parameter coverage through initial co-seal
+   and the complete semantic batch. Preserve exact final transform. Acceptance:
+   both empty-field generated methods reach canonical publication; wrong parent,
+   generated body/slot/parameter and extra/missing rows reject; nonempty semantic
+   gaps stop before raw lowering. No arbitrary MacroOrImport acceptance.
+3. Prove unchanged default CLI EXE30 and checked OBJ/link30, both Bool103/70 and
+   host-origin cleanup ordering; then execute the recorded old transport deletion.
+   Source-only or macro-disabled success cannot close this step. Nonempty-field
+   dynamic read/Text conversion is a named follow-on semantic obligation, not a
+   reason to synthesize same-Box facts or let C decide coercion.
+
+The two read-only worker audits plus the downstream audit support this boundary;
+no user-visible default policy change is needed. Steps 2/3 remain closed until
+step 2's explicit source issuance API is accepted. Step 1 is a behavior-preserving
+prerequisite, not acceptance of another source family. Candidate source owners
+are 139–513 lines; keep edits below 800 and plan a responsibility split at 760.
 
 ### Task 3: exact root cleanup contraction
 
