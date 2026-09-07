@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: classify the default CLI RootPreservation(CompatibilityLoss) incident before further Task 4 cutover or old transport deletion.
+Smallest next slice: close default-derive source augmentation and downstream callable issuance mapping before Task 4 CLI cutover or old transport deletion.
 Non-claims: new source acceptance, source host EXE30/OBJ30 cutover, optimized multiple-Home coverage, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -1762,8 +1762,8 @@ calls V4. EXE delegates to this checked entry; generic OBJ remains unchanged.
 The old production V3 call and generic JSON/frame construction are removed
 from this caller. Unused V2 definitions/exports are still present.
 
-Blocking incident, not yet classified against parent: the freshly built default
-CLI command below returns exit 1 before the host callback, with
+Parent-reproduced acceptance blocker: fresh CLI builds at c17ea4ca7c and
+910b92d99b both return exit 1 before the host callback with
 `ExactSourceChanged(RootPreservation(CompatibilityLoss))`. Do not use
 `NYASH_MACRO_DISABLE=1` to call default CLI acceptance green. The focused host
 test deliberately uses that setting and proves only its source-backed compiler
@@ -1775,9 +1775,14 @@ target/quick/hakorune --emit-exe /tmp/hako-host-cli-pair \
   apps/typed-object-birth-min/main.hako
 ```
 
-Next: classify the transform incident at parent 910b92d99b with the same
-source/configuration before changing source authority. Default CLI acceptance
-and source-host cleanup ordering evidence remain required before retirement.
+The parent CLI used the same source, cwd, runtime directory and command;
+quick/plugins parent build passed (peak aggregate 6.49 GiB). The macro
+transform's default-derive preflight rejects before expansion: Pair lacks the
+existing default Equals/ToString methods, whereas static Main is ineligible.
+This is existing generated-callable source coverage debt and remains a required
+CLI cutover blocker, even though V4 did not introduce it. Next is the generated
+default-derive preservation/issuance design below. Default CLI acceptance and
+source-host cleanup ordering evidence remain required before retirement.
 Task 4 and the whole constructor cutover remain open.
 
 Checkpoint verification: fresh quick/plugins library compilation succeeds
@@ -1788,12 +1793,22 @@ passes 1/1 (14.20 s): direct EXE and separately compiled checked session OBJ/lin
 each return 30 for Pair, 70 with primary reason103 for both Bool positions.
 It uses normal optimization and test-only macro disable. No new host cleanup
 probe was run. Canonical-corridor/pointer guards and diff whitespace check pass.
-An overly broad `lifecycle --include-ignored` run executed 123 tests: 103 pass,
-20 fail in parallel; rerunning the same binary with `--test-threads=1` gives
-115 pass/8 fail. The serial failures below are **unclassified blocking**;
-parent comparison has not been run and no baseline claim is made. Preserve
-assertions and classify before implementation resumes. This is distinct from
-the previously parent-reproduced two semantic-package Bool-expression failures.
+The broad `lifecycle --include-ignored` selection executed 123 tests: 103 pass,
+20 fail in parallel, then 115 pass/8 fail serial. Parent **910b92d99b**, built
+with the identical copied Cargo.lock and quick/plugins options, reproduces the
+same eight failures: 114 pass/8 fail. Both comparison binaries ran from the
+main checkout with `lifecycle --include-ignored --test-threads=1`; the new
+numeric lifecycle test accounts for the one-test increase. These eight are
+**known baseline debt**, not new V4-host failures. The original parallel result
+is not a separate regression claim; environment-mutating tests require the
+serial comparison. Parent compilation peaked at 8.64 GiB aggregate.
+
+The first parent run from its temporary checkout also failed the runtime
+archive-selection test because that checkout lacks the built relative
+`target/lifecycle-kernel` archive. Repeating from the same main cwd restores
+that test and leaves exactly the eight failures below. This setup failure is
+not classified as product debt. The two earlier semantic-package
+Bool-expression baseline failures remain a separate filter/scope.
 
 - `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::actual_string_helpers_general_result_row_reaches_its_first_loop_carrier`
 - `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::artifact_validation_rejects_exact_read_drift_and_birth_reentry`
@@ -1816,6 +1831,79 @@ tests; remove only V3-exclusive session preamble helpers. Rewrite the three
 normal-pipeline frame tests to preserve source/compiled-entry invariants.
 Fresh caller/discovery and shared-object export checks are still required;
 this inventory is not retirement evidence.
+
+### Default derive: source augmentation boundary
+
+Decision: retain the existing default Equals/ToString behavior and validate
+explicit generated additions without changing original source declarations.
+Source authority + canonical issuer: parser Box identity/public-field relations;
+MacroEngine default-derive producer; existing parser generated-callable source
+owner, then the complete callable semantic batch and canonical collector.
+Non-authority: generator labels, method-name equality, reparsing expansion,
+backend-derived result kinds, unused-method omission and macro-disable switches.
+Fail-fast boundary: final callable source issuance rejects changed original
+source, wrong source owner/fields, duplicate or missing additions, substituted
+generated bodies and unrecorded slots. No compatibility retry.
+Smallest next slice: specify the source-owned default-derive relation and its
+single transfer through transform preservation and complete callable issuance.
+Non-claims: an executable augmentation API already exists; general MacroBox or
+test-tail admission; generated instance-call C support; default Pair CLI green.
+
+**Finite audit boundary:** normal callable parser product -> macro transform ->
+final callable source -> complete instance method batch -> canonical collector;
+includes default derive and all transform disposition arms. Excludes general
+MacroBox/test-tail implementation and selected C generated-method invocation.
+The absent default-derive relation is `CutoverBlockerOpen`, not ParkedSealed.
+
+| Existing owner / terminal | Observation and required connection |
+| --- | --- |
+| `runner/modes/common_util/normal_callable.rs` -> `macro/normal_callable_transform.rs` | Real CLI caller. Macro disabled passes exact source; enabled registration rejects first; eligible default derive rejects next; no-generation expansion must remain exact; generated test tail and unclassified mutation reject. Preserve those other boundaries. |
+| `macro/engine.rs` | `would_generate_default_callable` and generation use the same nonstatic/derive-selected/declaration-absent decision. `build_equals_method` and `build_tostring_method` own generated bodies and use public fields only. Static boxes and existing declarations are not overwritten. |
+| `parser/callable_source_anchor.rs` | `GeneratedCallableOriginV1` currently has Property/Delegate only. Extend this owner lineage with a source-bound derive kind, Box identity/public-field relation, generated declaration/body identity and placement. A `MacroOrImport` string is insufficient. |
+| `initial_callable_program_source/issue.rs::expected_callable_slots` | Rejects MacroOrImport. Do not broadly permit that provenance. Final augmented coverage must admit exactly the producer-recorded default-derive additions. |
+| `normal_callable_program_source/transform.rs` | Current production API is exact-only. Callable slots/contracts, constructor source, ordinary Box coverage and root preservation must consume the same authorized augmentation; retain original declaration anchors and source statement meaning. Do not independently reconstruct or re-pair their authority. |
+| `normal_callable_semantic_package/issuer.rs` and `physical_signature.rs` | Transfer generated rows into the complete catalog/semantic batch. Instance receiver plus unannotated ordinary parameters retain their existing lane contract; no I64 specialization of Equals' other argument. |
+| `instance_box_method_batch` -> semantic loan -> `normal_cataloged_box_method_lowering` -> resolved loan/collector | Every instance method is lowered, including uncalled generated methods. Validate exact declaration and loan/admission ownership, then canonical duplicate-reject publication. No unvalidated omission. |
+| Lifecycle physical program and published admission | The selected program projects retained root/Birth definitions, while module capability still checks published contents. Invoking derived instance methods is outside this consumer; that does not authorize dropping their source verification/publication. |
+
+The finite selection matrix includes neither/Equals/ToString/both selected,
+either/one/both already declared, static versus instance, and empty/nonempty
+public-field sets. Existing derived declaration selection must not be overwritten.
+Pair's plain `left:i64/right:i64` are not public-field declarations: its generated
+bodies are `equals(__ny_other) { return true }` and
+`toString() { return "Pair(" + ")" }`. Nonempty public fields generate
+field Equal/And and text/field Add respectively. All generated signatures are
+instance and unannotated; preserve those contracts instead of inferring a new
+Bool/Text ABI from backend output.
+
+**Ordered tasks within the existing constructor series:**
+
+1. Fix the augmentation relation's producer/consumer API in the existing owners:
+   Box source binding, derive kind, ordered public-field membership, exact generated
+   declaration and append-only slot relation. Co-seal it with the original
+   callable/parameter/constructor/ordinary-Box/root product. Verify how all four
+   generated body shapes map to the existing semantic/body driver; any missing
+   authority remains a named blocker before implementation. This is the next
+   design work, not another general caller census.
+2. Implement that one source augmentation -> catalog -> semantic batch ->
+   publication path after the mapping is closed. Acceptance must retain original
+   constructor/root keys and publish both Pair generated methods; cover existing
+   method overrides, static/no-op cases, public-field order and changed/extra/
+   missing/foreign generated rows. Keep arbitrary MacroOrImport, registration,
+   test-tail and unexpected mutations rejected. Do not change the Pair fixture.
+3. Resume normal CLI EXE30 and independent checked OBJ/link30, both Bool103/70
+   cases and host-origin cleanup ordering. Source/semantic tests alone cannot
+   close this stage. A concrete downstream unsupported terminal is recorded at
+   its own owner; do not reopen generic C repair or bypass module admission.
+4. Only then execute the recorded old transport retirement inventory. Keep
+   shared profile/session/parser owners and the existing guards; add no new
+   guard family or source-shaped ABI rows.
+
+Worker premise audits found no need for a second MirBuilder or a user-visible
+change to default derive policy. They do not authorize implementation while
+the generated relation/body-driver mapping above remains open. Source files
+at the candidate owners are currently 139–513 lines; keep changes below 800
+and split at the owner boundary if approaching 760.
 
 ### Task 3: exact root cleanup contraction
 

@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "Task 4 checkpoint: classify default CLI RootPreservation and eight serial lifecycle failures against parent before further implementation"
-current_blocker_token = "Unclassified blocking evidence: default CLI Pair stops at ExactSourceChanged(RootPreservation(CompatibilityLoss)); broader lifecycle filter is 115 pass/8 fail serial, parent comparison pending. Selected numeric/layout tests pass; checked internal host execution has separate macro-disabled evidence. Task 4 cutover and V2/V3 retirement remain open. Resume with parent classification, not new implementation."
+current_design_stop = "Default derive source augmentation: bind producer-issued generated declarations to existing generated origins and complete callable publication before default CLI cutover"
+current_blocker_token = "Parent 910b92d99b reproduces default CLI RootPreservation(CompatibilityLoss) and all eight serial lifecycle failures; baseline classification closed. CLI is blocked by missing default-derive generated source relation. Keep Equals/ToString, co-seal authorized additions through existing transform/catalog/semantic batch/publication; close body-driver mapping before implementation. Task 4 execution and V2/V3 retirement remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,18 +31,19 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Task 4 checked host connection is saved as a checkpoint, not row completion.
-The private session OBJ entry consumes exact retained numeric obligations using
-its same completed physical input and invokes V4; EXE delegates to that entry.
-Generic OBJ remains unchanged; old V2/V3 definitions await retirement.
-Focused numeric identity/contract and physical-layout rejection tests pass.
-Internal host test passes: EXE and independent OBJ/link Pair30, both Bool103/70;
-normal optimizer enabled, macro disabled in test only.
-Default source CLI fails before host at RootPreservation(CompatibilityLoss).
-Broader lifecycle filter: 103/20 parallel, 115/8 serial; these newly observed
-failures are unclassified, not asserted baseline. Parent comparison is next.
-Previously recorded package116/2 parent-reproduced debt remains separate.
-No default CLI acceptance, old transport retirement or whole-suite green claim.
+Checked V4 host checkpoint c17ea4ca7c remains: internal EXE/OBJ Pair30 and
+Bool103/70 with default optimizer but test-only macro disable.
+Parent 910b92d99b reproduces the same default CLI transform failure and eight
+serial lifecycle failures (parent114/8; current115/8). No V4-host regression
+claim from that filter; earlier semantic package116/2 debt stays separate.
+Two bounded worker audits locate one missing source-owned default-derive
+relation. Preserve default Equals/ToString and original Box/constructor/root
+identity, then carry recorded additions through existing generated origins,
+complete callable semantic batch and canonical publication. Unused methods
+must still be verified/published. No generic MacroOrImport or equality bypass.
+Next design task fixes that augmentation API and all generated body mappings;
+implementation stays closed until then. No new user policy choice is needed.
+Then default CLI/host cleanup evidence and recorded V2/V3 retirement follow.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card = "none"
