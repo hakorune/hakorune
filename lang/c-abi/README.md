@@ -50,8 +50,9 @@ Lifecycle invocation ownership
 - `hako_lts_open` retains the selected LLVM library, TargetMachine, TargetData,
   triple and data-layout in one private call-local session. `hako_lts_close`
   releases it and clears the owner; failed open leaves no retained resources.
-- V3 still has its pending host route. V4 retains the target session through
+- The selected Rust host now uses V4 and retains the target session through
   `.ll` verification, LLVM18 object generation and atomic output publication.
+  Unused V2/V3 exports remain pending their caller-zero retirement.
 - V4 accepts only `hako.published-lifecycle-physical-program.v2`. The v2 parser
   replaces v1; it checks structure/SSA, then V4 checks type and cohort coverage.
   Parser success alone does not prove executable input. Receiver is explicit,
@@ -62,13 +63,17 @@ Lifecycle invocation ownership
   InvalidContract. Tagged Copy preserves both lanes; HANDLE is never scalar.
 - `process_result_site` remains distinct from checked-operation sites; out-of-
   range I64 returns record reason102 after Home cleanup. Runtime frame/descriptor
-  revisions remain unchanged. Generic host V4 cutover is still separate.
+  revisions remain unchanged. The selected session host has source-backed
+  EXE/independent OBJ acceptance; generic session-less OBJ stays rejected.
 - Focused reproduction: build with `bash tools/build_hako_llvmc_ffi.sh`; run the
   existing physical parser preartifact C test and `published_lifecycle_v4_execution_test.py`
   with the three JSON paths captured by the Rust physical_program_json tests
   (`/tmp/hako-issued-physical-v2.json`, and `...-bool-0.json`, `...-bool-1.json`).
   The Python test links the actual lifecycle kernel; temporary LLVM mutation
   probes only test dynamic ABI rejection and grant no new source acceptance.
+  `published_mir_object_tests.rs` separately links the same runtime probe against
+  actual normal-source host objects. Its DISPOSE observation reports prior Home,
+  reclaim and report calls, so totals alone are not mistaken for ordering proof.
 
 Boundary ownership and queued cleanup (2026-09-06)
 

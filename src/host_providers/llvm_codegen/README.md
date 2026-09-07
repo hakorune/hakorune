@@ -59,10 +59,14 @@ Thin Rust bridge for backend object emission.
   ownership, storage and route checks remain mandatory; names do not establish
   input identity. V2 frames and generic lifecycle JSON no longer serve this
   host caller; their unused definitions await caller-zero retirement.
-  The focused source-backed host test disables macros and exercises Pair30
-  and both Bool103/exit70 cases through EXE and independent session OBJ/link.
-  This does not establish default CLI acceptance: the current default Pair
-  command stops at `ExactSourceChanged(RootPreservation(CompatibilityLoss))`.
+  The focused host test uses the same common source materialization as the
+  normal CLI, with default macro policy and normal optimization. Pair exits30
+  through EXE and independent session OBJ/link; either Bool argument produces
+  Fault103/exit70. The existing C runtime probe links that actual host object:
+  success releases Home once; failure reclaims the unpublished object before
+  reporting; disposal follows reporting and runs once. The unchanged Pair
+  application also passes the separately rebuilt normal CLI. These tests do
+  not claim V2/V3 retirement or support for another source family.
 
 - mainline owner is being cut over shape-by-shape from legacy C `.inc` to `.hako ll emitter`
 - route policy ownership lives in `BackendRecipeBox` and the LLVM boundary-lock SSOT; `llvm_codegen` stays transport-only and must not be read as the daily policy owner

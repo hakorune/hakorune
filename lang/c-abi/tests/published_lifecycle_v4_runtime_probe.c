@@ -58,5 +58,6 @@ int32_t wrap_report(const void* f) {
 uint32_t real_dispose(void*) __asm__("__real_nyash.fault.frame_dispose_v1");
 uint32_t wrap_dispose(void*) __asm__("__wrap_nyash.fault.frame_dispose_v1");
 uint32_t wrap_dispose(void* f) {
+  printf("DISPOSE HOME %u RECLAIM %u REPORT %u\n", home, reclaim, report);
   dispose++; return real_dispose(f);
 }

@@ -1994,15 +1994,39 @@ The checked-in application was not changed. A separate CLI process with
 its output artifact. This supplies registered-MacroBox rejection evidence
 without contaminating the library test process's global registry.
 
-Source/default CLI acceptance is now observed; it is not the full host cutover.
-Next update the existing ignored host test to the actual common materialization
-caller/default macro policy (it still disables macros and uses a separate parser),
-prove independent OBJ/link plus cleanup/report/dispose ordering with the existing
-runtime probe, then retire V2/V3 under the recorded inventory. The macro/parser
-README and reference contract were synced at 59e6c5c34b. Parser module remains
-762 lines; further growth should move its helper responsibility into existing
-string_postpass_entry, below the 800-line hard boundary. No new source family,
-whole-suite green claim or old-transport retirement is implied.
+**Normal host execution acceptance (2026-09-07):** the existing ignored
+`issued_pair_v4_direct_exe_and_linked_object_exit_30` test now consumes the
+actual common materialization caller with default macros and normal optimization.
+No dedicated parse path or macro-disable bypass remains in this host acceptance.
+The test passes for unchanged Pair and both Bool argument positions through
+EXE and independently emitted session OBJ/link. The same host OBJ is also linked
+with the existing C runtime probe and actual selected lifecycle archive:
+
+| Source | Exit | init/store/Home/reclaim/report/dispose | Ordering evidence |
+| --- | --- | --- | --- |
+| Pair(10,20) | 30 | 1/2/1/0/0/1 | Home complete before dispose; no report |
+| Pair(true,20) | 70 | 1/0/0/1/1/1 | Fault103 observes reclaim=1; dispose observes report=1 |
+| Pair(10,false) | 70 | 1/1/0/1/1/1 | Fault103 observes reclaim=1; dispose observes report=1 |
+
+The reused probe adds a disposal observation, without changing runtime status.
+Fresh command: `cargo test --locked --profile quick --lib --features plugins
+issued_pair_v4_direct_exe_and_linked_object_exit_30 -- --include-ignored
+--test-threads=1`: 1/1 pass (three sources, each direct/linked/probe), 15.58s runtime.
+Single-job opt0/nonincremental/CGU256; aggregate peak 8.63 GiB. Existing
+`published_lifecycle_v4_execution_test.py` passed again with the three previously
+source-issued physical-v2 JSON files: 16 executions plus 14 tag/schema/type
+negatives and session/site/tool failure checks. Those physical mutation probes
+remain ABI evidence, not new source acceptance. Pointer/canonical guards and
+diff check pass; host/C READMEs describe the actual selected route.
+
+Next execute the recorded V2/V3 retirement inventory: move shared storage profile,
+remove old frame/schema/wrappers and generic JSON, C pending exports and exclusive
+probes, migrate the three frame tests to retained compiled-entry invariants,
+then verify repository callers/discovery and rebuilt shared-object exports.
+No old-transport retirement or whole-suite green claim is made yet. Parser module
+remains 762 lines; further growth should move its helper responsibility into
+existing string_postpass_entry. All touched source in this host slice is below
+800 lines (host test193; C probe63). No build/test is running at checkpoint.
 
 
 
