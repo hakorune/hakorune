@@ -40,12 +40,14 @@ fn typed_local_input_rejects_annotation_site_and_initializer_drift() {
         relation.clone(),
         site,
         Some(&initializer),
+        None,
     )
     .is_ok());
     assert!(RawLegacyLocalInputV1::from_script_relation(
         statement.clone(),
         relation.clone(),
         site,
+        None,
         None,
     )
     .is_err());
@@ -54,6 +56,7 @@ fn typed_local_input_rejects_annotation_site_and_initializer_drift() {
         relation.clone(),
         root.site().unwrap(),
         Some(&initializer),
+        None,
     )
     .is_err());
     assert!(RawLegacyLocalInputV1::from_script_relation(
@@ -61,6 +64,7 @@ fn typed_local_input_rejects_annotation_site_and_initializer_drift() {
         relation.clone(),
         site,
         Some(&PreparedRawChildSourceV1::Preserve),
+        None,
     )
     .is_err());
     let mut drifted = statement.clone();
@@ -77,6 +81,7 @@ fn typed_local_input_rejects_annotation_site_and_initializer_drift() {
         relation.clone(),
         site,
         Some(&initializer),
+        None,
     )
     .is_err());
     let mut drifted = statement;
@@ -89,6 +94,7 @@ fn typed_local_input_rejects_annotation_site_and_initializer_drift() {
         relation,
         site,
         Some(&initializer),
+        None,
     )
     .is_err());
 }

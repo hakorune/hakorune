@@ -4,6 +4,7 @@ use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct ArrayLiteralEmission {
+    pub recipe: super::ArrayLocalRecipeV1,
     pub entry: BasicBlockId,
     pub allocation: ValueId,
     pub allocation_site: (BasicBlockId, usize),
@@ -51,6 +52,7 @@ impl ArrayLiteralEmission {
         allocation: ValueId,
         allocation_site: (BasicBlockId, usize),
         claim: String,
+        recipe: super::ArrayLocalRecipeV1,
     ) -> Result<Self, String> {
         let (claim_site, instruction) = last_instruction(builder)?;
         if !matches!(instruction, MirInstruction::ArrayStateContractClaim { contract_id, array }
@@ -59,6 +61,7 @@ impl ArrayLiteralEmission {
             return Err(fault("claim-emission-drift"));
         }
         Ok(Self {
+            recipe,
             entry: builder
                 .function_state
                 .current_function

@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0"
 current_execution_cohort = "mir_script_array_lifecycle_physical_lowering_i0"
 current_design_stop = "none; source Recipe, Array Invoke/result/release vocabulary, identity/refresh/finishing and Script Stop mapping accepted"
-current_blocker_token = "Array Invoke/release vocabulary, structural verification, write-site allocation and metadata refresh now cover Invoke sites. Continue the selected Script Array physical cutover from one pre-emission source Recipe through Local emission, exact Normal/Fault cleanup, finishing and typed host Stop. Retire selected standalone emission/binding and raw Return in this same I0. Checked allocation/claim/write ABI and C execution remain successors."
+current_blocker_token = "Pre-emission Script Array Recipe is issued from complete source cutpoints and moved through existing Local/Return inputs into retained bindings; Written-only late projection is retired. Continue actual allocation/claim/write Invoke, source-ordered Fault/Return release emission and dedicated Script finishing coverage. Physical emission remains standalone; do not count retained cleanup plans as executed. Preserve typed host Stop and retire the selected old emission/binding/direct Return in this I0. Checked runtime ABI and C execution remain successors."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,10 +31,10 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Array physical vocabulary and shared readers are implemented: three Invoke
-operations, one nonfallible residence release, exact Normal-result verification
-and Invoke-aware site/metadata refresh. Script source Recipe, control emission
-and finishing cutover remain active. Typed C stays stopped.
+Array physical vocabulary/readers and pre-emission source Recipe are connected.
+Local/Return consume the issued plans and retain them beside physical bindings;
+Written-only late projection is removed. Actual Invoke/cleanup emission and
+Script finishing cutover remain active. Typed C stays stopped.
 """
 next_design_card = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0"
 next_execution_card = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0"

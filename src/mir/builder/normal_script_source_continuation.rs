@@ -8,7 +8,10 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[path = "normal_script_array_source_lifecycle.rs"]
 mod array_lifecycle;
-pub(super) use array_lifecycle::root_terminal::{RootResult, RootTerminal};
+pub(in crate::mir::builder) use array_lifecycle::recipe::{
+    ArrayLocalRecipeV1, ArrayReturnRecipeV1, ScriptArrayLifecycleRecipeV1,
+};
+pub(super) use array_lifecycle::root_terminal::RootResult;
 pub(super) use array_lifecycle::ArraySourceLifecycleRows;
 
 use crate::mir::resolved_semantics::{
@@ -133,6 +136,10 @@ impl VerifiedScriptSourceContinuationV1 {
         })
     }
 
+    pub(super) fn array_recipe(&self) -> Result<ScriptArrayLifecycleRecipeV1, String> {
+        self.arrays.lowering_recipe()
+    }
+
     pub(super) fn into_array_parts(self) -> (FunctionOwnerIdV1, ArraySourceLifecycleRows) {
         (self.owner, self.arrays)
     }
@@ -150,23 +157,6 @@ impl VerifiedScriptSourceContinuationV1 {
         relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
     ) -> Result<(), String> {
         self.arrays.complete(relation)
-    }
-
-    pub(super) fn array_element_sites(
-        &self,
-        relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
-    ) -> Result<
-        Option<(
-            crate::typed_array_contract_spec::ArrayElementContractSpec,
-            Vec<SourceExprSiteV1>,
-        )>,
-        String,
-    > {
-        self.arrays.element_sites(relation)
-    }
-
-    pub(super) fn array_root_terminal(&self) -> Result<Option<&RootTerminal>, String> {
-        self.arrays.terminal()
     }
 
     pub(super) fn array_bindings(

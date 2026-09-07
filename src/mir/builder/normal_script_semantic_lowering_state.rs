@@ -23,6 +23,7 @@ pub(super) struct ScriptSemanticLoweringState {
     direct_static_claim_ledger: direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     array_emissions: array_emissions::ArrayEmissionBindings,
+    array_recipe: super::normal_script_source_continuation::ScriptArrayLifecycleRecipeV1,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
 
@@ -38,6 +39,7 @@ enum ScriptDirectStaticLoweringProductsV1 {
 impl ScriptSemanticLoweringState {
     pub(super) fn new(input: VerifiedScriptSemanticLoweringInputV1) -> Result<Self, String> {
         let (projection, continuation, direct_static_claim_input) = input.into_parts();
+        let array_recipe = continuation.array_recipe()?;
         let (direct_static_products, direct_static_claim_ledger) = match direct_static_claim_input {
             ScriptDirectStaticClaimInputV1::CompleteNoDirectStaticClaims(witness) => (
                 ScriptDirectStaticLoweringProductsV1::CompleteNoDirect,
@@ -70,6 +72,7 @@ impl ScriptSemanticLoweringState {
             direct_static_claim_ledger,
             variable_values: BTreeMap::new(),
             array_emissions: Default::default(),
+            array_recipe,
             materialized_outboxes: BTreeSet::new(),
         })
     }
@@ -112,11 +115,19 @@ impl ScriptSemanticLoweringState {
         self.projection().local_relation_at(site)
     }
 
-    pub(super) fn consume_array_local(
+    pub(super) fn take_array_local_recipe(
         &mut self,
         relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
-    ) -> Result<(), String> {
-        self.continuation.consume_array_local(relation)
+    ) -> Result<Option<super::normal_script_source_continuation::ArrayLocalRecipeV1>, String> {
+        self.continuation.consume_array_local(relation)?;
+        self.array_recipe.take_local(relation)
+    }
+
+    pub(super) fn take_array_return_recipe(
+        &mut self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<Option<super::normal_script_source_continuation::ArrayReturnRecipeV1>, String> {
+        self.array_recipe.take_return(site)
     }
 
     pub(super) fn complete_array_local(
@@ -205,6 +216,7 @@ impl ScriptSemanticLoweringState {
 
     pub(super) fn finish_source_claims(&mut self) -> Result<(), String> {
         self.continuation.finish_array_locals()?;
+        self.array_recipe.finish()?;
         self.direct_static_claim_ledger.finish().map_err(|error| {
             format!("[freeze:contract][script-direct-static/claim-finish] {error:?}")
         })

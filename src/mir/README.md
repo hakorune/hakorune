@@ -34,8 +34,10 @@ See `docs/reference/mir/INSTRUCTION_SET.md` for the current vocabulary boundary.
 Array lifecycle vocabulary uses Invoke allocation/claim/write, Normal-only
 allocation results and nonfallible ArrayResidenceRelease. The existing write-site
 allocator and metadata refresh read both ordinary and Invoke writes/claims; Fresh
-state traces an exact IntrinsicArrayNew Normal result. Source control emission and
-finishing are still pending, and typed C remains stopped before artifacts.
+state traces an exact IntrinsicArrayNew Normal result. Script lowering issues one
+Recipe from complete source cutpoints before emission, moves Local/Return plans
+through existing inputs and retains them with physical observations. Source
+control emission and finishing cutover are still pending; typed C remains stopped.
 
 - `analysis/`: analysis helpers and shared inspection utilities.
 - `builder/`: AST -> MIR construction. FlowPlanner / JoinIR glue are

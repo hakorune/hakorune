@@ -42,14 +42,17 @@ impl RawInvocationChildPortV1<'_, '_> {
         };
         let source_relation = relation.clone();
         let observations = std::rc::Rc::new(std::cell::RefCell::new(Vec::new()));
+        let array_recipe = ledger
+            .borrow_mut()
+            .take_array_local_recipe(&source_relation)?;
         let input = RawLegacyLocalInputV1::from_script_relation(
             input,
             relation,
             &site,
             initializer_source.as_ref(),
+            array_recipe,
         )?
         .observe_into(std::rc::Rc::clone(&observations));
-        ledger.borrow_mut().consume_array_local(&source_relation)?;
         let value = drive_local_statement_v1(builder, self, input)?;
         let observations = std::rc::Rc::try_unwrap(observations)
             .map_err(|_| "[freeze:contract][script-array/observer-alias]".to_owned())?

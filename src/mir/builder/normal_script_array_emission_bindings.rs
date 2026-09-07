@@ -5,7 +5,7 @@ use crate::mir::builder::collection_literals::array_emission::{
 };
 use crate::mir::builder::raw_structured_child_scope::PreparedRawChildSourceV1;
 use crate::mir::builder::stmts::LocalInitializerObservationV1;
-use crate::mir::resolved_semantics::{ResolvedInitializerRelationV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
 use crate::mir::{BasicBlockId, ConstValue, MirBuilder, MirFunction, MirInstruction};
 
 #[derive(Debug, Default)]
@@ -53,9 +53,6 @@ impl FinalizedScriptArrayV1 {
 
 #[derive(Debug)]
 struct BoundArray {
-    initializer: SourceExprSiteV1,
-    spec: crate::typed_array_contract_spec::ArrayElementContractSpec,
-    children: Vec<SourceExprSiteV1>,
     literal: ArrayLiteralEmission,
     local: ValueId,
     local_slot: crate::mir::LocalSlotId,
@@ -64,6 +61,7 @@ struct BoundArray {
 
 #[derive(Debug)]
 struct RootReturnEmission {
+    recipe: super::super::normal_script_source_continuation::ArrayReturnRecipeV1,
     block: BasicBlockId,
     instruction: MirInstruction,
     definition: Option<((BasicBlockId, usize), MirInstruction)>,
@@ -101,9 +99,13 @@ impl ScriptSemanticLoweringState {
         local: ValueId,
         observations: Vec<LocalInitializerObservationV1>,
     ) -> Result<(), String> {
-        let Some((spec, children)) = self.continuation.array_element_sites(relation)? else {
+        if !observations
+            .iter()
+            .any(|observation| observation.array.is_some())
+        {
+            // Required selected Recipe consumption is checked by Local descent.
             return Ok(());
-        };
+        }
         let [observation]: [LocalInitializerObservationV1; 1] = observations
             .try_into()
             .map_err(|_| fault("initializer-count"))?;
@@ -119,7 +121,10 @@ impl ScriptSemanticLoweringState {
         let literal = observation
             .array
             .ok_or_else(|| fault("literal-emission-missing"))?;
-        if observation.value != literal.allocation || children.len() != literal.elements.len() {
+        if literal.recipe.relation() != relation
+            || observation.value != literal.allocation
+            || literal.recipe.elements().len() != literal.elements.len()
+        {
             return Err(fault("initializer-value-or-children"));
         }
         let (local_site, instruction) = last_instruction(builder)?;
@@ -153,9 +158,6 @@ impl ScriptSemanticLoweringState {
         self.array_emissions.rows.insert(
             relation.binding(),
             BoundArray {
-                initializer: initializer.clone(),
-                spec,
-                children,
                 literal,
                 local,
                 local_slot: *local_slot,
@@ -168,13 +170,11 @@ impl ScriptSemanticLoweringState {
     pub(in crate::mir::builder) fn record_array_root_return(
         &mut self,
         builder: &MirBuilder,
-        site: &SourceNodeSiteV1,
+        recipe: Option<super::super::normal_script_source_continuation::ArrayReturnRecipeV1>,
     ) -> Result<(), String> {
         use super::super::normal_script_source_continuation::RootResult;
-        let Some(source) = self.continuation.array_root_terminal()? else {
-            return Ok(());
-        };
-        if source.site().node() != site || self.array_emissions.terminal.is_some() {
+        let Some(recipe) = recipe else { return Ok(()) };
+        if self.array_emissions.terminal.is_some() {
             return Err(fault("return-source-or-duplicate"));
         }
         let root = builder
@@ -191,7 +191,7 @@ impl ScriptSemanticLoweringState {
             .get(&block)
             .and_then(|body| body.terminator.as_ref())
             .ok_or_else(|| fault("return-missing"))?;
-        let definition = match (source.result(), instruction) {
+        let definition = match (recipe.result(), instruction) {
             (RootResult::Unit, MirInstruction::Return { value: None }) => None,
             (result, MirInstruction::Return { value: Some(value) }) => {
                 let (position, definition) = last_instruction(builder)?;
@@ -219,6 +219,7 @@ impl ScriptSemanticLoweringState {
             _ => return Err(fault("return-operation")),
         };
         self.array_emissions.terminal = Some(RootReturnEmission {
+            recipe,
             block,
             instruction: instruction.clone(),
             definition,
@@ -289,8 +290,12 @@ impl ArrayEmissionBindings {
                 .ok_or_else(|| fault("source-binding-set"))?;
             let literal = &row.literal;
             if root.entry_block != literal.entry
-                || row.children.len() != literal.elements.len()
-                || row.children.iter().any(|site| site == &row.initializer)
+                || literal.recipe.elements().len() != literal.elements.len()
+                || literal
+                    .recipe
+                    .elements()
+                    .iter()
+                    .any(|site| Some(site) == literal.recipe.relation().initializer_site())
             {
                 return Err(fault("source-or-root-drift"));
             }
@@ -316,7 +321,7 @@ impl ArrayEmissionBindings {
                 .carriers
                 .get(literal.claim.as_str())
                 .ok_or_else(|| fault("claim-source-carrier"))?;
-            if source.element_spec != row.spec
+            if source.element_spec != literal.recipe.spec()
                 || source.boundary_value
                     != crate::mir::function::TypedArrayBoundaryValue::Value(literal.allocation)
                 || source.boundary != crate::mir::function::TypedArrayContractBoundary::LocalInit

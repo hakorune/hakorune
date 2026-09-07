@@ -57,8 +57,10 @@ invented. Other aliases/references can keep native storage alive after residence
 retirement. This is neither alias-group ReleaseStrong nor ordinary-object
 HomeRelease/ReclaimUnpublished, and it does not activate passive DestroyOwned.
 
-Selected source issuance, emitted control/cleanup correspondence and finished
-validation are required before publication. Allocation failure releases only
+Script lowering now selects one source Recipe before emission; Local/Return
+inputs move its exact plans into retained bindings. Physical emission is still
+standalone: the release plans are not yet executed. Emitted control/cleanup
+correspondence and finished validation are required before lifecycle publication. Allocation failure releases only
 prior Homes; claim/write failure first releases the acquired incomplete Array.
 Return releases the exact reverse Home sequence, with no alias double release.
 The physical vocabulary, structural verifier and metadata readers include these

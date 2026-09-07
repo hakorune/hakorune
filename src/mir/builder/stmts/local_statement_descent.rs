@@ -34,7 +34,10 @@ pub(in crate::mir::builder) struct RawLegacyLocalInputV1 {
 // This is an input provenance choice, not a second semantic issuer.
 enum LocalAnnotationSourceV1 {
     RawCompatibility,
-    Script(ResolvedInitializerRelationV1),
+    Script {
+        relation: ResolvedInitializerRelationV1,
+        array_recipe: Option<super::super::normal_script_source_continuation::ArrayLocalRecipeV1>,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -74,6 +77,7 @@ impl RawLegacyLocalInputV1 {
         relation: ResolvedInitializerRelationV1,
         active_site: &SourceNodeSiteV1,
         initializer_source: Option<&PreparedRawChildSourceV1>,
+        array_recipe: Option<super::super::normal_script_source_continuation::ArrayLocalRecipeV1>,
     ) -> Result<Self, String> {
         let drift = || "[freeze:contract][script-lexical/local-source-drift]".to_owned();
         let SourceBindingSiteV1::Local {
@@ -111,7 +115,10 @@ impl RawLegacyLocalInputV1 {
         Ok(Self {
             statement,
             initializer_observer: None,
-            annotation_source: LocalAnnotationSourceV1::Script(relation),
+            annotation_source: LocalAnnotationSourceV1::Script {
+                relation,
+                array_recipe,
+            },
         })
     }
 
@@ -236,7 +243,7 @@ where
         };
         let mut syntax =
             LocalStatementSyntaxViewV1::new(variables, initial_values, declared_type_names);
-        if let LocalAnnotationSourceV1::Script(relation) = &input.annotation_source {
+        if let LocalAnnotationSourceV1::Script { relation, .. } = &input.annotation_source {
             syntax.declared_type_names =
                 Cow::Owned(vec![relation.declared_type_name().map(str::to_owned)]);
         }
@@ -288,12 +295,23 @@ where
             unreachable!("typed-array shape checked before taking initializer")
         };
         let mut scoped = RawStructuredChildScopePortV1::new(self, sources, Vec::new());
-        let retain_emission = matches!(input.annotation_source, LocalAnnotationSourceV1::Script(_));
-        let (value, contract, emission) = builder.build_typed_array_literal_with_port_v1(
-            &mut scoped,
-            elements,
-            retain_emission,
-        )?;
+        let array_recipe = match &mut input.annotation_source {
+            LocalAnnotationSourceV1::RawCompatibility => None,
+            LocalAnnotationSourceV1::Script {
+                relation,
+                array_recipe,
+            } => {
+                let recipe = array_recipe.take().ok_or_else(|| {
+                    "[freeze:contract][script-array/selected-recipe-missing]".to_owned()
+                })?;
+                if recipe.relation() != relation {
+                    return Err("[freeze:contract][script-array/selected-recipe-drift]".into());
+                }
+                Some(recipe)
+            }
+        };
+        let (value, contract, emission) =
+            builder.build_typed_array_literal_with_port_v1(&mut scoped, elements, array_recipe)?;
         scoped.complete_exact_demands_v1()?;
         input.observe_initializer(index, observation_source, value, emission)?;
         Ok((value, contract))

@@ -552,6 +552,12 @@ reclaim versus committed Home remains in the source/control binding, even though
 both use the same physical release primitive. Passive DestroyOwned, alias-group
 ReleaseStrong and ordinary-object cleanup retain their existing meanings.
 
+Current connection: the pre-emission Recipe is issued at Script lowering-state
+entry and moved through selected Local/Return inputs into retained bindings.
+The Written-only late projection is retired. Allocation/claim/write and Return
+still use the standalone physical emitter; consuming the selected release plans
+as actual control emission, finishing coverage and host Stop remains this I0.
+
 Source-to-physical owner chain:
 
 1. ScriptSemanticLoweringState::new consumes the already co-sealed continuation
@@ -588,6 +594,14 @@ schema rather than keep competing validators. Each failure site has the source
 specified release set and order: allocation failure excludes the new residence;
 claim/write failure includes it, then prior Homes. A release never overwrites
 an existing first Fault. Source Return and ReturnFault remain distinct terminals.
+
+Physical audit: Script roots already enter validate_finished_array_root, not the
+ordinary-New coverage validator. The Script validator must cover all emitted
+frame/Invoke/release/ReturnFault sites itself. Prefer a direct Invoke chain with
+no Array-internal Jump. DCE can shift instruction indices; SimplifyCFG can merge
+nonempty single-predecessor Jump targets and rewrite InvokeNormalResult origins.
+Where an emitted Jump exists, validate only contraction of that retained graph;
+do not infer cleanup obligations from optimized MIR or skip the optimizer.
 
 Finite physical consumer inventory for the same series:
 

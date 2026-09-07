@@ -13,6 +13,8 @@ use std::collections::{BTreeMap, BTreeSet};
 #[path = "normal_script_array_root_terminal.rs"]
 pub(super) mod root_terminal;
 use root_terminal::RootTerminalCoverage;
+#[path = "normal_script_array_lifecycle_recipe.rs"]
+pub(in crate::mir::builder) mod recipe;
 
 #[derive(Debug, PartialEq, Eq)]
 enum LocalProgress {
@@ -264,31 +266,6 @@ impl ArraySourceLifecycleRows {
         }
         row.progress = LocalProgress::Completed;
         Ok(())
-    }
-
-    pub(super) fn element_sites(
-        &self,
-        relation: &ResolvedInitializerRelationV1,
-    ) -> Result<Option<(ArrayElementContractSpec, Vec<SourceExprSiteV1>)>, String> {
-        let SourceBindingSiteV1::Local { statement, .. } = relation.declaration_site() else {
-            return Err(freeze("local-site"));
-        };
-        match self.rows.get(statement.node()) {
-            None => Ok(None),
-            Some(ArraySourceCoverage::Available(row)) if row.initializer == *relation => {
-                Ok(Some((
-                    row.spec,
-                    row.cutpoints
-                        .iter()
-                        .filter_map(|cut| match cut {
-                            Cutpoint::Written(site) => Some(site.clone()),
-                            _ => None,
-                        })
-                        .collect(),
-                )))
-            }
-            _ => Err(freeze("emission-source-drift")),
-        }
     }
 
     pub(in crate::mir::builder) fn terminal(

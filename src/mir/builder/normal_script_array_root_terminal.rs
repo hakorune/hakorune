@@ -8,7 +8,7 @@ use crate::mir::resolved_semantics::{
     VerifiedScriptRootDemandWindowV1,
 };
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RootResult {
     Unit,
     Integer { site: SourceExprSiteV1, value: i64 },

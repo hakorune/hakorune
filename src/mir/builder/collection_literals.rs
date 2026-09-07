@@ -1,6 +1,7 @@
 #[path = "array_literal_emission.rs"]
 pub(super) mod array_emission;
 use array_emission::{last_instruction, ArrayLiteralEmission};
+use super::normal_script_source_continuation::ArrayLocalRecipeV1;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::observe::types as type_trace;
@@ -23,7 +24,7 @@ impl super::MirBuilder {
     where
         Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
     {
-        self.build_array_literal_with_contract_and_port_v1(port, elements, None, false)
+        self.build_array_literal_with_contract_and_port_v1(port, elements, None, None)
             .map(|(value, _, _)| value)
     }
 
@@ -32,7 +33,7 @@ impl super::MirBuilder {
         elements: Vec<ASTNode>,
     ) -> Result<(ValueId, String), String> {
         let mut port = RawLegacyChildLoweringPortV1;
-        self.build_typed_array_literal_with_port_v1(&mut port, elements, false)
+        self.build_typed_array_literal_with_port_v1(&mut port, elements, None)
             .map(|(value, contract, _)| (value, contract))
     }
 
@@ -42,7 +43,7 @@ impl super::MirBuilder {
         &mut self,
         port: &mut Port,
         elements: Vec<ASTNode>,
-        retain_emission: bool,
+        array_recipe: Option<ArrayLocalRecipeV1>,
     ) -> Result<(ValueId, String, Option<ArrayLiteralEmission>), String>
     where
         Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
@@ -51,7 +52,7 @@ impl super::MirBuilder {
             port,
             elements,
             Some("local-literal"),
-            retain_emission,
+            array_recipe,
         )?;
         Ok((
             value,
@@ -65,18 +66,21 @@ impl super::MirBuilder {
         port: &mut Port,
         elements: Vec<ASTNode>,
         contract_prefix: Option<&str>,
-        retain_emission: bool,
+        array_recipe: Option<ArrayLocalRecipeV1>,
     ) -> Result<(ValueId, Option<String>, Option<ArrayLiteralEmission>), String>
     where
         Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
     {
+        if array_recipe.as_ref().is_some_and(|recipe| recipe.elements().len() != elements.len()) {
+            return Err("[freeze:contract][array-emission/recipe-child-count]".into());
+        }
         let arr_id = self.next_value_id();
         self.emit_instruction(MirInstruction::NewBox {
             dst: arr_id,
             target: crate::mir::ConstructionTarget::IntrinsicArray,
             args: vec![],
         })?;
-        let allocation_site = retain_emission
+        let allocation_site = array_recipe.is_some()
             .then(|| last_instruction(self).map(|(site, _)| site))
             .transpose()?;
         self.function_state
@@ -108,15 +112,16 @@ impl super::MirBuilder {
             })?;
         }
 
-        let mut emission = match (allocation_site, contract_id.as_ref()) {
-            (Some(site), Some(claim)) => Some(ArrayLiteralEmission::begin(
+        let mut emission = match (allocation_site, contract_id.as_ref(), array_recipe) {
+            (Some(site), Some(claim), Some(recipe)) => Some(ArrayLiteralEmission::begin(
                 self,
                 arr_id,
                 site,
                 claim.clone(),
+                recipe,
             )?),
-            (None, _) => None,
-            (Some(_), None) => return Err("[freeze:contract][array-emission/claim-missing]".into()),
+            (None, _, None) => None,
+            _ => return Err("[freeze:contract][array-emission/claim-missing]".into()),
         };
         let mut element_types = Vec::new();
         for element in elements {
