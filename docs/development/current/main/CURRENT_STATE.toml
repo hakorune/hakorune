@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-SCRIPT-ARRAY-CHECKED-RUNTIME-ABI-D0"
-current_execution_cohort = "mir_script_array_checked_runtime_abi_d0"
-current_design_stop = "Checked native Array allocation/claim/write failure representation and sole runtime owner require physical premise audit before implementation."
-current_blocker_token = "Script Array source-to-MIR lifecycle cutover is verified: Invoke, source-ordered Fault/Return cleanup, dedicated finishing and pre-artifact typed Stop. Next audit checked native allocation/claim/write ABI, actual callers, first-Fault and atomic state behavior, and exclusive delete-set. No runtime/C execution permission yet."
+work_mode = "fast"
+current_execution_row = "MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0"
+current_execution_cohort = "mir_array_primitive_result_preservation_i0"
+current_design_stop = "none; primitive state Result BoxShape accepted after runtime and allocation premise audits; allocation/toolchain remains a separate mandatory design dependency"
+current_blocker_token = "Replace the three primitive Array bool mutation bodies with owner-local Result implementations; existing public raw wrappers delegate and preserve behavior. Keep one state lock, original contract errors, bounds/storage rejection and alias identity. Do not activate checked ABI/C or claim allocation recovery: inner/outer Arc, registry initialization/growth/release capacity and storage allocation remain explicit successors."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Script Array lifecycle physical cutover is verified; selected standalone
-emission/binding/direct Return are retired. Focused41 plus Array/Pair EXE/OBJ
-pass. Checked runtime ABI premise audit is next; typed C stays stopped.
+Runtime premise audit selects the existing primitive Array state Result
+BoxShape, with raw wrappers preserving behavior. Fallible shared ownership,
+registry/storage allocation, checked ABI and Script C input/execution remain
+explicit cutover dependencies. Typed host Stop stays closed.
 """
-next_design_card = "MIR-SCRIPT-ARRAY-CHECKED-RUNTIME-ABI-D0"
-next_execution_card = "none"
+next_design_card = "MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0"
+next_execution_card = "MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

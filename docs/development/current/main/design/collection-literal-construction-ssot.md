@@ -9,7 +9,7 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: root-neutral final handoff, frame/Invoke and checked ABI. Explicit Script root terminal and source-preserving Local completion are implemented; implicit completion and Loop remain open.
+- Next: preserve primitive runtime write Results, then close fallible allocation and checked ABI. Script handoff/frame/Invoke/cleanup/finishing are implemented; typed C remains stopped.
 - Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
 - Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
@@ -175,7 +175,9 @@ policy (cleanup, report/dispose, process70) remains owned by
 [function exit and entry result](../../../../reference/language/function-exit-and-entry-result.md#target-process-exit-projection).
 It does not prove that Array cleanup has been issued.
 
-This census covers: materialized Script numeric Array literal LocalInit -> source
+Historical pre-source-cutover census (superseded source/physical rows are resolved
+by the Script physical mapping below; runtime/C rows remain open). Boundary:
+materialized Script numeric Array literal LocalInit -> source
 claim/element write -> published ordinary entry/C dispatch -> kernel Array handles
 -> ArrayBox state; plus existing source failure and final-completion owners.
 Includes ordinary/shared aliases, existing kernel integer/boxed/text mutation
@@ -202,8 +204,8 @@ concurrent clone/slice snapshot guarantees.
 | kernel plugin/array_slot_backend.rs | safe_rwlock uses ArrayBox; single_thread_exact copies handle-keyed Vec, direct_array_i64_exact uses separate storage. Explicit profile rejection or real state participation is required; default-env tests are insufficient. |
 | kernel exports/fault.rs and fault_checked_object.rs | Existing caller-owned frame/status infrastructure is reusable physical input only. Array failure reasons/profile/wire spec and entry integration are undesigned. |
 
-Runtime audit and independent source-failure audit agree on the first blocker:
-`TypedArraySourceFaultContinuationIssuerMissing`. The reference interpreter's
+The historical first blocker was `TypedArraySourceFaultContinuationIssuerMissing`;
+the source and physical Script slices below now discharge that issuer gap. The reference interpreter's
 VMError and final exit70 do not supply a source cleanup continuation. No new
 empty Home/Verified/Prepared receipt may be fabricated from metadata, EffectMask,
 ArrayStateTerm or an emitted instruction sequence.
@@ -239,9 +241,9 @@ Ordered remaining tasks (not implementation permission):
    evidence; original typed execution remains CutoverBlockerOpen until real entry
    and obsolete selected edges are closed.
 
-Step1 source cutpoint issuance/admission is implemented; its Script root-frame
-and physical failure consumer remain next before step2. Reuse this runtime/C inventory while the named blockers
-remain open; this is not an Exhausted/zero-blocker cutover claim. No new guard,
+Step1 source cutpoints, Script frame/control and both finishing consumers are
+implemented. Step2 now follows the checked-runtime audit below. Reuse the
+runtime/C inventory while its named blockers remain open; this is not an Exhausted/zero-blocker cutover claim. No new guard,
 sibling design document or speculative C entry is authorized.
 
 ### Accepted Script Array source lifecycle slice
@@ -648,6 +650,83 @@ prove existing allocation exports report Normal/Fault or convert OOM to a
 language Fault. Native abort is not successful cleanup or source Fault evidence.
 Implicit completion, nested/opaque
 children and Loop remain their existing unsupported obligations.
+
+## Checked Array runtime premise audit and task order
+
+Decision (2026-09-08, audited at `7be46e37e4`): first preserve structured
+primitive write outcomes in the sole Array state owner. This is BoxShape with
+live raw callers, not checked ABI activation. Two read-only workers audited
+state outcomes and the independent allocation substrate; compiler/Fault
+consumers were audited by the primary agent. No build or runtime proof is
+claimed for this design audit.
+
+Boundary: selected Script Array Recipe/finished handoff -> runtime physical
+input -> native allocation/claim/primitive literal write/release -> root entry.
+Includes i64/Bool/F64 children, seven numeric specs, Integer/Unit completion,
+existing native aliases and selected storage/session agreement. Excludes new
+source families, VM/WASM parity, boxed/text/RMW expansion and performance.
+This is an open prerequisite inventory, not Exhausted or caller-zero closure.
+
+| Owner | Observed fact / required work |
+| --- | --- |
+| `boxes/array/mod.rs` ArrayStateCell | One RwLock holds storage and element contract. Preserve that state identity; no handle-keyed contract table. |
+| `boxes/array/ops/store.rs` primitive methods | i64/Bool/F64 each return bool. Negative/beyond-end index, InlineRecord storage and contract violation reject before mutation; i64 discards exact validator errors. Replace these three bodies with Result implementations and retain delegating raw bool wrappers. |
+| `boxes/array/runtime_contract.rs` | Claim already returns StateConflict or indexed ExistingElementMismatch, audits before installing and is idempotent. It and its error type are crate-visible; a future kernel bridge must deliberately expose the existing owner. |
+| kernel `array_compat`, `array_slot_store`, `array_slot_append`, safe `array_slot_backend` | Real primitive raw callers. Keep their legacy boolean/sentinel behavior through the sole Result implementation. Future checked callers consume Result directly. |
+| `array_handle_cache::with_array_box_direct` | Reuse native Array access for checked entries; do not dispatch selected writes through environment-selected alternate stores. Other reachable alias mutation paths still require profile closure. |
+| `exports/fault.rs`, `include/nyrt_fault_v1.h` | Reuse Normal=0/Fault=1/InvalidContract=2, caller-owned frame, allocation-free diagnostic recording and first-Fault retention. InvalidContract is never a cleanup successor. New Array wire/reason mapping is still required. |
+| `storage.rs`, kernel `exports/env.rs`, `host_handles.rs` | Inner/outer Arc allocation, registry initialization/three-vector growth and element conversion/growth have no returned allocation-failure contract. Native release may grow its free-list. CutoverBlockerOpen. BoxBase creation is heap-free. |
+| final Script handoff -> compiled-entry/physical input | Script retains source/result/control but callable RootI64/Birth-only input cannot consume it. Extend the existing final input with explicit root result, checked sites and Array contract/value representations; do not forge Births or object profiles. CutoverBlockerOpen. |
+| C lifecycle V4 admission/emission | Admits exactly Pair's two functions/two-field layout; no Array operations, Float lanes or Unit root execution. A shared frame descriptor is not Array consumer admission. CutoverBlockerOpen. |
+| runtime descriptor/session | Existing descriptor proves frame/entry layout; it does not prove new checked Array symbols/capability. Require archive agreement for the eventual Array operation ABI before output. |
+
+Immediate slice: `MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0`.
+Source authority remains existing annotation/spec and source Recipe. Runtime
+state methods validate supplied values against that installed contract; they
+issue no source meaning. Use one owner-local runtime error enum for index,
+unsupported storage and existing element-contract reason. Keep new Result APIs
+crate-visible in this slice; public raw methods delegate `.is_ok()` and preserve
+OOB observations, append-at-end, conversion and return values. Claim is reused
+unchanged. Delete the three bool mutation bodies and their internal reason
+loss; do not keep parallel implementations or precheck-then-mutate locks.
+
+Acceptance: all three primitive overwrite/append/conversion paths; all seven
+specs with endpoints/range/signed-to-unsigned failure; Bool/F64 type mismatch;
+negative/beyond-end index and InlineRecord rejection; storage/length unchanged
+on every returned rejection; alias shares the contract; existing raw/claim
+behavior preserved. F64 uncontracted NaN/infinity acceptance stays unchanged.
+Use the existing Array owner tests and corridor guard, plus the typed host Stop
+regression. This slice does not turn allocation failures into returned errors.
+
+Ordered remaining dependencies, all within the open cutover boundary:
+
+1. Primitive Result BoxShape above, with live wrappers using the sole body.
+2. Fallible shared-ownership Decision: installed Rust1.89 std Arc::try_new is
+   gated by allocator_api; no existing fallible Arc owner was found. Choose an
+   explicit toolchain policy or a separately designed shared substrate before
+   implementing inner/outer Arc failure propagation. Neither allocator preflight,
+   raw Arc layout fabrication nor catch_unwind closes this requirement.
+3. Same host registry reserve -> commit: reserve slots/generations/call-lifetime
+   and release free-list capacity under one lock before ID/generation/publication;
+   initialize the same registry fallibly, preserve payload on failure, update TLS
+   cache only after success. ID exhaustion is distinct from allocation failure.
+   Concurrent allocations must preserve capacity for all required releases.
+4. Connect Array construction/registration rollback and existing element storage
+   fallible conversion/growth. Returned rejection must leave published state
+   intact; memory exhaustion tests must target real allocation failure paths.
+5. Checked kernel ABI: narrow cross-crate state bridge, explicit seven-spec and
+   primitive-lane wire mapping, handle/profile validation, status/reason mapping,
+   out-slot written only on Normal, allocation-free failure recording. Native
+   void release keeps the original Fault and gains no invented status.
+6. Existing final-input projection, Script root I64/Unit policy and physical
+   diagnostic sites -> selected C status/control emission -> source EXE and
+   independently linked OBJ. Retire selected lossy transport/dispatch edges and
+   the selected pre-artifact Stop only with complete end-to-end evidence.
+
+No checked ABI implementation is selected while its allocation substrate is
+unclosed. OS kill/overcommit termination is distinct from a returned allocator
+failure, and neither is evidence that source Fault cleanup ran. Global allocator
+replacement, duplicate Array state and compatibility fallback are not fixes.
 
 ## Instance-prefix boundary repair
 

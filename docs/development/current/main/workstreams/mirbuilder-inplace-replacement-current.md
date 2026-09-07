@@ -606,31 +606,31 @@ three Array Invoke operations, nonfallible release, one Recipe and shared frame 
 
 #### MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0
 
-Decision: replace selected standalone Array operations and direct Return with source-backed Normal/Fault/cleanup emission.
-Source authority + canonical issuer: existing Script continuation -> one ScriptArrayLifecycleRecipeV1 at lowering-state entry.
-Non-authority: MIR/source reconstruction, App Main/Birth admission, alias-group release or fabricated runtime status.
-Fail-fast boundary: missing source/control/metadata/result/release binding rejects; selected typed C remains pre-artifact Stop.
-Smallest next slice: one selected Script physical emitter plus its existing Local, identity, refresh, finishing and Stop consumers.
-Non-claims: checked allocation/claim/write runtime ABI, C execution, nested/opaque children, implicit completion or Loop.
-Closed: selected Local/Return now emit Invoke, one frame and source-ordered
-Fault/normal cleanup; old standalone binding/emission/direct Return retired.
-Evidence: focused41 (including21 control mutations), Array/Pair EXE/linked OBJ,
-optimizer on/off, seven specs, multiple/empty literals, alias and pre-artifact Stop.
-Current-change failures (constant type fact, diagnostic precedence, Script coverage)
-were repaired and the affected suites rerun green; no baseline waiver.
-Runtime execution is not proved by emitted MIR. Terminal/storage cleanup stays in
-[feedback queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
+Closed at `7be46e37e4`: source Recipe -> Invoke/frame/Fault and Return cleanup ->
+both finishing consumers -> pre-artifact typed Stop. Selected standalone
+emission/binding/direct Return retired. Focused41 plus Array/Pair EXE/OBJ and
+guards pass; source max644. Runtime/C execution remains open.
 
 #### MIR-SCRIPT-ARRAY-CHECKED-RUNTIME-ABI-D0
 
-Decision: audit checked allocation/claim/write against native runtime before selecting implementation.
-Source authority + canonical issuer: existing Script continuation and Array Recipe retain all meaning; runtime ABI owner must be verified.
-Non-authority: legacy zero/sentinel results, object-store cleanup, noop shim or abstract Invoke success.
-Fail-fast boundary: typed OBJ/EXE stays pre-artifact Stop until checked ABI and C consumer are proven.
-Smallest next slice: one read-only worker premise audit of native callers, failure/status representation, atomic claim/write and release; integrate one bounded Decision.
-Non-claims: runtime/C activation, OOM-to-Fault, new source families or performance.
-Audit must name owner, real callers, exclusive old-edge delete-set and acceptance;
-then order checked runtime implementation before selected C execution/OBJ/EXE.
+Accepted [runtime premise audit and order](../design/collection-literal-construction-ssot.md#checked-array-runtime-premise-audit-and-task-order).
+Two read-only audits distinguish returned state errors from infallible allocation.
+Existing Fault owner is reusable; checked-runtime/C promotion remains closed.
+
+#### MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0
+
+Decision: BoxShape; preserve primitive write Results in the existing Array state owner.
+Source authority + canonical issuer: source annotation/Recipe unchanged; ArrayStateCell validates the installed runtime contract under one lock.
+Non-authority: bool/sentinel decoding, MIR types, alternate handle-keyed storage or new semantic receipts.
+Fail-fast boundary: returned index/storage/contract failures do not mutate; typed host Stop and allocation blockers remain.
+Smallest next slice: three primitive Result bodies with existing raw bool callers delegating to them; keep new API crate-visible.
+Non-claims: claim API promotion, allocation recovery, checked ABI, C execution or expanded source/backend acceptance.
+Delete-set: old i64/Bool/F64 bool implementation bodies and internal reason loss.
+Acceptance: primitive overwrite/append/conversion, seven specs and bounds/type
+rejection without mutation, alias/claim invariants, raw boolean compatibility;
+existing Array suites, typed host Stop and corridor guard. Update Array owner
+README/reference and commit/push. Then fallible shared-ownership/toolchain D0;
+registry reserve/commit, storage fallibility, ABI and C remain ordered successors.
 
 ## Source and ownership budget
 
