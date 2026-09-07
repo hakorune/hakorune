@@ -251,6 +251,7 @@ pub(super) fn compile_published_static_method_v1(
     }
 }
 
+#[cfg(feature = "plugins")]
 pub(super) fn compile_published_lifecycle_physical_v4(
     json_in: &Path,
     session: &LifecycleRuntimeSessionV1,
@@ -337,6 +338,15 @@ pub(super) fn compile_via_capi_keep(
         opts,
     )?;
     Ok(out_path)
+}
+
+#[cfg(not(feature = "plugins"))]
+pub(super) fn compile_published_lifecycle_physical_v4(
+    _json_in: &Path,
+    _session: &LifecycleRuntimeSessionV1,
+    _obj_out: &Path,
+) -> Result<(), String> {
+    Err("capi not available (plugins feature disabled)".into())
 }
 
 #[cfg(not(feature = "plugins"))]

@@ -2552,14 +2552,24 @@ ordinary-New ledger -> finalized handoff -> compiled entry; and V4 feature/wire
 entry. Includes all four terminal alternatives; excludes current Array source
 work and other source families. No build or runtime evidence was collected.
 
-1. **V4 feature boundary repair**, first at the next implementation boundary.
-   `capi_transport.rs::compile_published_lifecycle_physical_v4` has no plugins
-   cfg while its loader and optional libloading dependency do. The module and
+1. **V4 feature boundary repair**, implemented with the existing cfg/stub pair.
+   Previously `capi_transport.rs::compile_published_lifecycle_physical_v4` lacked
+   the plugins cfg required by its loader and optional libloading. The module and
    production caller in `published_mir_object.rs` are unconditional; absence of
-   runtime calls cannot prevent Rust name-resolution failure. Match the existing
-   sibling cfg/stub convention, removing the unconditional plugin-only reference
-   edge. Verify nonplugins library check, stable unavailable stub and existing
-   plugins V4 acceptance. This changes no selected backend capability.
+   runtime calls cannot prevent Rust name-resolution failure. The sibling
+   cfg/stub convention now removes the unconditional plugin-only reference
+   edge and preserves the stable unavailable error. Plugins library build and
+   real Pair EXE/OBJ30 plus Bool Fault70 pass; no backend capability is added.
+   Before/after evidence at parent `efbc22b14b`: identical
+   `cargo check --locked --profile quick --lib --no-default-features` reports
+   13 errors before and 11 after; the only removed diagnostics are V4 E0425
+   (load_ffi_library) and E0433 (libloading). Nonplugins-wide success is not
+   claimed. Remaining known baseline debt: plugin_loader_unified.rs config
+   assignment/libraries and load_plugin_direct/ingest_box_specs (151/154/163/169),
+   resolve_method_id (201/256), method_returns_result (330); runtime/semantics.rs
+   PluginBoxV2::instance_id (59/74/105/126). These exact diagnostics match before
+   and after. Runtime plugin-loader/stub owner must close them when nonplugins
+   runtime support is selected; they do not authorize a fake loader or handle.
 2. **Terminal relation BoxShape**, under existing ordinary-New source/emission
    and finalization owners. Source `home_new_prefix` chooses one terminal and
    breaks; final seal also rejects conflicts, so no conflicting production

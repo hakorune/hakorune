@@ -62,6 +62,12 @@ Decision (2026-09-07): the selected constructor lifecycle compiler ingress is
 `hako.published-lifecycle-physical-program.v2` input and explicit target/runtime
 session for a synchronous call. It publishes an object only after validation
 and code generation succeed; selected failures do not retry compatibility.
+Rust host transport availability is gated by Cargo `plugins`, including this
+V4 entry. Without that feature the same Rust signature returns
+`capi not available (plugins feature disabled)` without entering the C library;
+there is no compatibility retry or artifact publication. This host build feature
+does not specify the runtime plugin loadset of the generated program.
+
 The input contains the compiled-entry contract and referenced layouts. Rust normal
 finalization owns the completed semantic handoff and module until its synchronous
 consumer callback finishes; it also owns lifecycle admission and the selected

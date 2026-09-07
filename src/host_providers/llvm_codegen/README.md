@@ -47,6 +47,12 @@ Thin Rust bridge for backend object emission.
 
 ## Current policy
 
+The CAPI loader, including lifecycle V4, is compiled only with the Cargo
+`plugins` feature. Without it, each transport entry retains its signature and
+returns `capi not available (plugins feature disabled)` before loading or
+writing an artifact. This is compiler transport availability, not a claim that
+the generated program requires dynamically loaded runtime plugins.
+
 - `published_mir_object` consumes one borrowed final view for typed rows and
   CanonicalV1 body projection. Selected OBJ/EXE capability checks validate
   retained contracts without cloning, refreshing or repairing the module.
