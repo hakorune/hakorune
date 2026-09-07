@@ -105,7 +105,8 @@ or residual rows, ambiguous type+target, unknown targets and malformed payloads
 reject before object output. Generic and legacy name-only ingress cannot repair
 an intrinsic target. Shared raw/typed-local and Core Array producers preserve this
 target. Materialized untyped empty/populated/nested and plain/generic shadow
-sources execute through EXE and independently linked OBJ. Script typed Local
-and Loop still stop at source admission; typed selected-C state-guard execution
-also remains open. These stops do not establish downstream acceptance. See the
+sources execute through EXE and independently linked OBJ. Numeric Array<T> literal locals now reach this selected entry from materialized
+Script source with one claim and matching refreshed LocalInit carrier. OBJ/EXE
+still reject before artifacts at typed_array_contract_backend_unsupported. Loop
+remains stopped at source admission. These stops do not establish downstream execution. See the
 [construction design](../../development/current/main/design/collection-literal-construction-ssot.md).

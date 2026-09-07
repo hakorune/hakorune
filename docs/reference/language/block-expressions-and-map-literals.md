@@ -178,7 +178,11 @@ The concrete migration schedule is tracked in design SSOT:
 
 Decision: accepted target — collection literals have intrinsic collection identity;
 Array construction producers now preserve intrinsic identity and omit redundant
-literal birth markers. Map cutover and broader source acceptance remain open.
+literal birth markers. Selected Script additionally supports single-binding
+Array<T> literal initialization for the existing seven exact numeric element
+contracts, preserving the resolver-issued annotation and initializer relation.
+Its typed C execution remains unsupported. Nonliteral typed initialization and
+other annotation admission, Map cutover and Loop source admission remain open.
 This decision does not change literal syntax.
 
 Array literals `[...]` and Map literals `%{...}` select the language's builtin

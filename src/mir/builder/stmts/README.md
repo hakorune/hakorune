@@ -26,6 +26,14 @@ dispatcher has selected a statement family.
 5. publish bindings once through the existing from-values completion owner
    after every initializer succeeds.
 
+Selected Script Local uses the existing resolver initializer relation, retained
+by its same-source lowering projection. The local input explicitly distinguishes
+that source-backed annotation from raw/callable compatibility syntax. Declaration
+and initializer coordinates and annotation drift reject before effects; absence
+never falls back to raw input. Numeric Array<T> literal initialization reuses one
+preclaim through ordered writes and LocalSlot completion. The source admission
+row does not open typed C execution or nonliteral typed initialization.
+
 The specialized hooks do not bypass located coverage. The intact Local remains
 with the shared driver until its existing typed-array or Builder-dependent
 record selection. The selected hook then uses the exact

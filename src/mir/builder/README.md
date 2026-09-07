@@ -27,8 +27,9 @@ Pointers:
 Construction target migration: MIR/Core allocation distinguishes `Named(String)`
 from `IntrinsicArray`. The selected view/frame/C consumer supports the intrinsic
 variant; raw/typed-local/Core Array allocation implementations preserve intrinsic
-identity. Source-backed typed Local and Loop remain earlier admission blockers,
-so this does not close the wider source cutover. Name-only JSON remains Named. Remaps preserve identity, Core13 preserves
+identity. Source-backed numeric Array<T> literal locals preserve their exact initializer
+relation and reach the existing typed backend Stop. Loop source admission and
+typed C execution remain open, so this does not close the wider source cutover. Name-only JSON remains Named. Remaps preserve identity, Core13 preserves
 intrinsic allocation, and unsupported consumers do not retry provider lookup.
 
 ## Active replacement law

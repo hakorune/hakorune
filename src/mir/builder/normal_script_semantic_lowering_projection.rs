@@ -10,15 +10,16 @@ use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
 use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDemandReceiptPackV1;
 use super::normal_script_semantic_source_core::ScriptSemanticSourceCoreV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, EnumVariantAdmissionV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
-    SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    BindingRefV1, EnumVariantAdmissionV1, ResolvedAssignmentTargetV1,
+    ResolvedInitializerRelationV1, ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceNodeSiteV1, SourcePathSegmentV1,
 };
 
 /// Source-only lowering facts derived exactly once while the semantic product
 /// is sealed. Physical `ValueId` materialization remains request-local.
 #[derive(Debug)]
 pub(super) struct VerifiedScriptLoweringProjectionV1 {
-    locals: Box<[(SourceNodeSiteV1, BindingRefV1)]>,
+    locals: Box<[(SourceNodeSiteV1, ResolvedInitializerRelationV1)]>,
     nowaits: Box<[(SourceNodeSiteV1, BindingRefV1)]>,
     outboxes: Box<[(SourceNodeSiteV1, Box<[BindingRefV1]>)]>,
     variables: Box<[(SourceExprSiteV1, BindingRefV1)]>,
@@ -62,7 +63,7 @@ impl VerifiedScriptLoweringProjectionV1 {
             .map(|(site, call)| (site.node().clone(), call.symbol().into()))
             .collect();
 
-        let mut locals = BTreeMap::new();
+        let mut local_bindings = BTreeMap::new();
         let mut nowaits = BTreeMap::new();
         for site in owner.core().data().declarations.keys() {
             let binding = owner
@@ -75,7 +76,9 @@ impl VerifiedScriptLoweringProjectionV1 {
                 return Err(freeze("foreign-declaration-binding"));
             }
             let destination = match site {
-                SourceBindingSiteV1::Local { statement, .. } => Some((&mut locals, statement)),
+                SourceBindingSiteV1::Local { statement, .. } => {
+                    Some((&mut local_bindings, statement))
+                }
                 SourceBindingSiteV1::Nowait { statement } => Some((&mut nowaits, statement)),
                 _ => None,
             };
@@ -85,6 +88,13 @@ impl VerifiedScriptLoweringProjectionV1 {
                 }
             }
         }
+
+        let locals = seal_local_relations(
+            owner_id,
+            local_bindings,
+            owner.core().data().expression_source.initializers(),
+            owner.core().expression_sites(),
+        )?;
 
         let mut variables = BTreeMap::new();
         for (site, reference) in &owner.core().data().variable_uses {
@@ -208,10 +218,13 @@ impl VerifiedScriptLoweringProjectionV1 {
             .find_map(|(candidate, symbol)| (candidate == site).then_some(symbol.as_ref()))
     }
 
-    pub(super) fn local_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
+    pub(super) fn local_relation_at(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Option<&ResolvedInitializerRelationV1> {
         self.locals
             .iter()
-            .find_map(|(candidate, binding)| (candidate == site).then_some(*binding))
+            .find_map(|(candidate, relation)| (candidate == site).then_some(relation))
     }
 
     pub(super) fn variable_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
@@ -277,3 +290,50 @@ impl VerifiedScriptLoweringProjectionV1 {
 fn freeze(detail: &str) -> String {
     format!("[freeze:contract][script-lowering-projection/{detail}]")
 }
+
+fn seal_local_relations<'a>(
+    owner_id: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    mut local_bindings: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
+    relations: impl Iterator<Item = &'a ResolvedInitializerRelationV1>,
+    expression_sites: impl Iterator<Item = &'a SourceExprSiteV1>,
+) -> Result<BTreeMap<SourceNodeSiteV1, ResolvedInitializerRelationV1>, String> {
+    let expression_sites: BTreeSet<_> = expression_sites.collect();
+    let mut locals = BTreeMap::new();
+    for relation in relations {
+        let SourceBindingSiteV1::Local {
+            statement,
+            ordinal: 0,
+        } = relation.declaration_site()
+        else {
+            return Err(freeze("local-relation-declaration"));
+        };
+        if relation.binding().owner() != owner_id
+            || local_bindings.remove(statement.node()) != Some(relation.binding())
+        {
+            return Err(freeze("local-relation-binding"));
+        }
+        if let Some(initializer) = relation.initializer_site() {
+            let mut segments = statement.node().segments().to_vec();
+            segments.push(SourcePathSegmentV1::Initializer(0));
+            if initializer.node() != &SourceNodeSiteV1::from_segments(segments)
+                || !expression_sites.contains(initializer)
+            {
+                return Err(freeze("local-relation-initializer"));
+            }
+        }
+        if locals
+            .insert(statement.node().clone(), relation.clone())
+            .is_some()
+        {
+            return Err(freeze("duplicate-local-relation"));
+        }
+    }
+    if !local_bindings.is_empty() {
+        return Err(freeze("missing-local-relation"));
+    }
+    Ok(locals)
+}
+
+#[cfg(test)]
+#[path = "normal_script_local_relation_projection_tests.rs"]
+mod local_relation_tests;

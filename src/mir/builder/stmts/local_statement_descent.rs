@@ -10,8 +10,11 @@ use crate::ast::ASTNode;
 use crate::mir::builder::raw_structured_child_scope::{
     PreparedRawChildSourceV1, RawStructuredChildScopePortV1,
 };
-use crate::mir::resolved_semantics::ExprChildRoleV1;
+use crate::mir::resolved_semantics::{
+    ExprChildRoleV1, ResolvedInitializerRelationV1, SourceBindingSiteV1, SourceNodeSiteV1,
+};
 use crate::mir::{MirBuilder, ValueId};
+use std::borrow::Cow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -25,6 +28,13 @@ use super::variable_stmt::{
 pub(in crate::mir::builder) struct RawLegacyLocalInputV1 {
     statement: ASTNode,
     initializer_observer: Option<LocalInitializerObservationSinkV1>,
+    annotation_source: LocalAnnotationSourceV1,
+}
+
+// This is an input provenance choice, not a second semantic issuer.
+enum LocalAnnotationSourceV1 {
+    RawCompatibility,
+    Script(ResolvedInitializerRelationV1),
 }
 
 #[derive(Debug, Clone)]
@@ -42,6 +52,7 @@ impl RawLegacyLocalInputV1 {
         Self {
             statement,
             initializer_observer: None,
+            annotation_source: LocalAnnotationSourceV1::RawCompatibility,
         }
     }
 
@@ -52,7 +63,54 @@ impl RawLegacyLocalInputV1 {
         Self {
             statement,
             initializer_observer: Some(initializer_observer),
+            annotation_source: LocalAnnotationSourceV1::RawCompatibility,
         }
+    }
+
+    pub(in crate::mir::builder) fn from_script_relation(
+        statement: ASTNode,
+        relation: ResolvedInitializerRelationV1,
+        active_site: &SourceNodeSiteV1,
+        initializer_source: Option<&PreparedRawChildSourceV1>,
+    ) -> Result<Self, String> {
+        let drift = || "[freeze:contract][script-lexical/local-source-drift]".to_owned();
+        let SourceBindingSiteV1::Local {
+            statement: declared_site,
+            ordinal: 0,
+        } = relation.declaration_site()
+        else {
+            return Err(drift());
+        };
+        let ASTNode::Local {
+            variables,
+            initial_values,
+            declared_type_names,
+            ..
+        } = &statement
+        else {
+            return Err(drift());
+        };
+        if declared_site.node() != active_site
+            || variables.len() != 1
+            || initial_values.len() != 1
+            || declared_type_names.len() > 1
+            || declared_type_names.first().and_then(Option::as_deref)
+                != relation.declared_type_name()
+            || initial_values[0].is_some() != relation.initializer_site().is_some()
+        {
+            return Err(drift());
+        }
+        match (relation.initializer_site(), initializer_source) {
+            (None, None) => {}
+            (Some(site), Some(PreparedRawChildSourceV1::Exact(context)))
+                if context.site() == Some(site.node()) => {}
+            _ => return Err(drift()),
+        }
+        Ok(Self {
+            statement,
+            initializer_observer: None,
+            annotation_source: LocalAnnotationSourceV1::Script(relation),
+        })
     }
 
     pub(in crate::mir::builder) const fn statement(&self) -> &ASTNode {
@@ -83,7 +141,7 @@ impl RawLegacyLocalInputV1 {
 pub(in crate::mir::builder) struct LocalStatementSyntaxViewV1<'input> {
     variables: &'input [String],
     initial_values: &'input [Option<Box<ASTNode>>],
-    declared_type_names: &'input [Option<String>],
+    declared_type_names: Cow<'input, [Option<String>]>,
 }
 
 impl<'input> LocalStatementSyntaxViewV1<'input> {
@@ -95,7 +153,7 @@ impl<'input> LocalStatementSyntaxViewV1<'input> {
         Self {
             variables,
             initial_values,
-            declared_type_names,
+            declared_type_names: Cow::Borrowed(declared_type_names),
         }
     }
 
@@ -107,8 +165,8 @@ impl<'input> LocalStatementSyntaxViewV1<'input> {
         self.initial_values
     }
 
-    pub(in crate::mir::builder) const fn declared_type_names(&self) -> &'input [Option<String>] {
-        self.declared_type_names
+    pub(in crate::mir::builder) fn declared_type_names(&self) -> &[Option<String>] {
+        &self.declared_type_names
     }
 }
 
@@ -164,11 +222,13 @@ where
         else {
             return Err("[freeze:contract][local-descent/raw-input-requires-local]".to_owned());
         };
-        Ok(LocalStatementSyntaxViewV1::new(
-            variables,
-            initial_values,
-            declared_type_names,
-        ))
+        let mut syntax =
+            LocalStatementSyntaxViewV1::new(variables, initial_values, declared_type_names);
+        if let LocalAnnotationSourceV1::Script(relation) = &input.annotation_source {
+            syntax.declared_type_names =
+                Cow::Owned(vec![relation.declared_type_name().map(str::to_owned)]);
+        }
+        Ok(syntax)
     }
 
     fn lower_ordinary_initializer(

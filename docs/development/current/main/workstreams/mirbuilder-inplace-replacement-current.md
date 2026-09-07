@@ -602,26 +602,29 @@ shadow DuplicateKey and static-negative syntax error are fixed and rerun green.
 
 #### MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0
 
-Decision: preserve existing initializer relation through Script Local lowering; one numeric Array<T> literal family.
-Source authority + canonical issuer: resolver Local relation, co-sealed by the existing Script pre-effect source issuer.
-Non-authority: AST annotation reread, parallel binding/annotation maps, physical types and FullFunction products.
-Fail-fast boundary: foreign/missing/drifted relation before allocation; excluded annotations/owners remain Deferred; typed C remains unsupported.
-Smallest next slice: replace local projection payload and selected local-input edge, then admit supported Script literal annotations together.
-Non-claims: typed EXE, nonliteral typed initialization, Loop admission, ScriptLambda/BlockExpr widening or Array-series completion.
+Implemented the [accepted relation connection](../design/collection-literal-construction-ssot.md#script-typed-local-relation-connection):
+Script local projection retains the existing resolver relation; selected local
+input consumes its annotation and rejects source drift, with no raw fallback.
+Seven numeric Array<T> literal spellings reach verified MIR, one preclaim and
+matching refreshed LocalInit, then the existing OBJ/EXE capability Stop. Relation
+negative tests and typed child ordering pass; Script19/pre-effect6/located3/view35,
+Array untyped EXE/OBJ30 and Pair EXE/OBJ30 regressions pass. Final library build
+peak8.72GiB; instance-transfer/canonical/pointer guards pass. One zero-match filter was discarded and exact host names rerun5/5.
+Local compile errors were corrected; no current-change red or whole-suite claim.
 
-The [construction design](../design/collection-literal-construction-ssot.md#script-typed-local-relation-connection)
-owns the accepted main/worker audit and full chain through claim, LocalSlot and
-LocalInit refresh. Real callers are raw_invocation_source_transport child dispatch
--> normal_script_binding_materialization; delete selected RawLegacyLocalInput::new
-as annotation authority. Reuse the existing relation and typed literal consumer.
-No missing-source fallback and no new semantic receipt. All seven existing numeric
-Array<T> spellings share one slice; no per-spelling card or library rebuild.
-Acceptance: materialized fixed typed source -> verified intrinsic MIR -> one claim
-and matching LocalInit/writes -> existing C capability Stop, plus source drift,
-child-order and excluded-owner negatives. Use existing instance/canonical guards,
-module README and language/ABI references; source budget remains <760.
-Next obligations stay open: typed C state-guard design/execution and source-backed
-Loop admission. Dependency-only stops cannot close their original EXE witnesses.
+#### MIR-TYPED-ARRAY-SELECTED-C-STATE-GUARD-D0
+
+Decision: audit the existing typed state-guard contract before enabling selected C execution.
+Source authority + canonical issuer: existing typed_array_contract_spec and source claims; refreshed carrier preserves their relation.
+Non-authority: C JSON/name/type guessing, homogeneous literal evidence and deleting the capability Stop alone.
+Fail-fast boundary: retain typed_array_contract_backend_unsupported before artifacts until the complete runtime consumer is named.
+Smallest next slice: worker audit claim -> array state/alias -> write/check -> failure terminal across published/C/runtime owners, then select one closed consumer slice.
+Non-claims: typed EXE acceptance, blanket numeric/tag ABI, Loop admission, new backend parity or R7 closure.
+
+The construction design owns this outstanding task. Inventory must include actual
+runtime ABI/callers, state mutation, alias identity, failure ownership and the
+exclusive old edge; no new semantic issuer or guard family. Source-backed Loop
+admission remains separately CutoverBlockerOpen for its unchanged EXE witness.
 
 ## Source and ownership budget
 

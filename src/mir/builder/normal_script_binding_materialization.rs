@@ -4,6 +4,7 @@
 //! name or inspect an AST shape to choose an authority.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use crate::mir::builder::stmts::async_stmt::build_nowait_statement_with_port_v1;
 use crate::mir::builder::stmts::{drive_local_statement_v1, RawLegacyLocalInputV1};
 use crate::mir::{MirBuilder, ValueId};
@@ -25,11 +26,27 @@ impl RawInvocationChildPortV1<'_, '_> {
             .current_source_context_v1()
             .and_then(|context| context.site().cloned())
             .ok_or_else(|| "[freeze:contract][script-lexical/local-site]".to_owned())?;
-        let binding = ledger
+        let relation = ledger
             .borrow()
-            .local_binding(&site)
+            .local_relation(&site)
+            .cloned()
             .ok_or_else(|| "[freeze:contract][script-lexical/local-binding]".to_owned())?;
-        let value = drive_local_statement_v1(builder, self, RawLegacyLocalInputV1::new(input))?;
+        let binding = relation.binding();
+        let initializer_source = if relation.initializer_site().is_some() {
+            Some(self.prepare_expression_child_source_v1(
+                &input,
+                crate::mir::resolved_semantics::ExprChildRoleV1::LocalInitializer(0),
+            )?)
+        } else {
+            None
+        };
+        let input = RawLegacyLocalInputV1::from_script_relation(
+            input,
+            relation,
+            &site,
+            initializer_source.as_ref(),
+        )?;
+        let value = drive_local_statement_v1(builder, self, input)?;
         ledger.borrow_mut().record(binding, value)?;
         Ok(value)
     }

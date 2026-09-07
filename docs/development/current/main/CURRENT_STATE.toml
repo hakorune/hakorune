@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0"
-current_execution_cohort = "mir_script_typed_local_source_relation_i0"
-current_design_stop = "none; existing relation co-seal and numeric Array literal consumer mapping accepted"
-current_blocker_token = "Preserve ResolvedInitializerRelation through Script local projection and explicit source-backed local input; retire selected AST annotation decision. Admit only seven supported Array<T> literal annotations; verify same preclaim/LocalInit and existing C Stop. Nonliteral/other annotations/Lambda/BlockExpr remain Deferred; Loop and typed C execution remain open."
+work_mode = "design_stop"
+current_execution_row = "MIR-TYPED-ARRAY-SELECTED-C-STATE-GUARD-D0"
+current_execution_cohort = "mir_typed_array_selected_c_state_guard_d0"
+current_design_stop = "Typed Array selected-C state-guard consumer and runtime failure mapping require an end-to-end owner audit"
+current_blocker_token = "Script numeric Array literal relation connection is verified. Keep typed_array_contract_backend_unsupported until claim/state/alias/write/failure consumer and actual runtime ABI are closed. Worker read-only audit next; Loop source admission remains an independent open cutover obligation."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,14 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Intrinsic Array source producers and sole immediate Script instance publication
-are verified: materialized untyped/shadow EXE and independent OBJ exit30;
-runtime clone/ticket/role/prefix edges retired. Existing guard and Pair pass.
-Main/worker design accepts existing relation consumption for numeric Array literal
-locals. Implement one source connection; Loop/typed C execution remain open.
+Script numeric Array<T> literal locals now retain existing initializer relations,
+one claim and refreshed LocalInit; all seven spellings reach the typed C Stop.
+Source/drift/order regressions and Array/Pair EXE+OBJ30 pass; old selected Script
+AST annotation decision edge retired. Next audits typed selected-C state guard.
 """
-next_design_card = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0"
-next_execution_card = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0"
+next_design_card = "MIR-TYPED-ARRAY-SELECTED-C-STATE-GUARD-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

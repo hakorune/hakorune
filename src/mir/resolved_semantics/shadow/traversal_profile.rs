@@ -38,7 +38,19 @@ impl ShadowTraversalProfileV1 {
                     variables.len() == 1
                         && initial_values.len() == 1
                         && (declared_type_names.is_empty()
-                            || (declared_type_names.len() == 1 && declared_type_names[0].is_none()))
+                            || (declared_type_names.len() == 1 && declared_type_names[0].is_none())
+                            || (matches!(self, Self::ScriptLexicalCoreV1)
+                                && declared_type_names.len() == 1
+                                && matches!(
+                                    initial_values[0].as_deref(),
+                                    Some(ASTNode::ArrayLiteral { .. })
+                                )
+                                && declared_type_names[0].as_deref().is_some_and(|name| {
+                                    matches!(
+                                        crate::typed_array_contract_spec::parse_annotation(name),
+                                        Ok(Some(_))
+                                    )
+                                })))
                 }
                 _ => self.allows_expression(statement),
             },

@@ -103,8 +103,11 @@ impl ScriptSemanticLoweringState {
         self.projection().assignment_binding_at(site)
     }
 
-    pub(super) fn local_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
-        self.projection().local_binding_at(site)
+    pub(super) fn local_relation(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Option<&crate::mir::resolved_semantics::ResolvedInitializerRelationV1> {
+        self.projection().local_relation_at(site)
     }
 
     pub(super) fn nowait_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {

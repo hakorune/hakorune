@@ -91,3 +91,23 @@ fn qmark_and_throw_remain_explicitly_unsupported() {
         ShadowAstDispositionV0::ExplicitUnsupported
     );
 }
+
+#[test]
+fn typed_local_profile_preserves_lambda_and_block_expression_boundaries() {
+    let ast = crate::parser::NyashParser::parse_from_string("local a: Array<i64> = []").unwrap();
+    let ASTNode::Program { mut statements, .. } = ast else {
+        panic!("Program")
+    };
+    let local = statements.remove(0);
+    assert!(ShadowTraversalProfileV1::ScriptLexicalCoreV1.allows_statement(&local));
+    assert!(!ShadowTraversalProfileV1::ScriptLambdaLeafV1.allows_statement(&local));
+    let block = ASTNode::BlockExpr {
+        prelude_stmts: vec![local],
+        tail_expr: Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(0),
+            span: span(),
+        }),
+        span: span(),
+    };
+    assert!(!ShadowTraversalProfileV1::ScriptLexicalCoreV1.allows_expression(&block));
+}

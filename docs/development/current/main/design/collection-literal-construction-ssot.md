@@ -9,8 +9,8 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: Script typed-local source relation/admission design; Loop source admission and typed C state-guard execution remain open.
-- Production stop: typed Local and Loop source admission remain Deferred; typed C state-guard capability remains unsupported.
+- Next: typed C state-guard consumer design; Script numeric Array literal relation connection is implemented and verified. Loop source admission remains open.
+- Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
 - Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
 The [language contract](../../../../reference/language/block-expressions-and-map-literals.md#4-collection-literal-construction-identity)
@@ -83,16 +83,16 @@ runtime acceptance or removal of the typed carrier.
 
 Raw, typed-local and Core allocation implementations switch together. The
 runner's materializer, not a manually chosen AST request, determines the source
-entry. In source-backed Script, typed Local currently stops even earlier:
-`shadow/traversal_profile.rs::ScriptLexicalCoreV1` excludes annotated Local before
-initializer traversal; `NormalScriptPreEffectSourceObservationIssuerV1` produces
-Deferred. No typed initializer/helper/backend acceptance follows from that Stop.
+entry. In source-backed Script, the relation connection below admits supported numeric
+Array<T> literal locals through the existing Script source issuer. Other annotated
+Local shapes retain Deferred before initializer traversal; no downstream acceptance
+follows from those excluded source stops.
 The successful AST-only typed capability test remains dependency evidence.
 Untyped empty/populated/nested/Loop and unchanged same-name Box source must use
 materialized source ingress and actual EXE/independently linked OBJ execution.
 
-The original wider series remains open: the accepted Script typed-local relation
-connection below must reach the existing typed backend Stop; a separately accepted
+The original wider series remains open: the Script typed-local relation
+connection below now reaches the existing typed backend Stop; a separately accepted
 state-guard consumer must then open typed execution. Script Loop source admission
 is also CutoverBlockerOpen: its unchanged materialized source reaches
 Deferred/UnsupportedStatement(Loop) before Core. Earlier stops and AST-only
@@ -158,6 +158,14 @@ source/claim/drift tests, existing instance/canonical guards and owner/reference
 updates close this row. Source owners are below760; no new file-count/guard layer
 or additional worker census is required for this closed mapping.
 
+Verification receipt: materialized numeric Array source covers all seven spellings,
+one matching source claim/refreshed LocalInit carrier and pre-artifact OBJ/EXE Stop.
+Relation-set missing/duplicate/foreign/missing-expression and input annotation/site
+drift tests pass. Typed/untyped child-owner failure tests retain only preceding
+writes; undefined-name natural source still stops earlier at resolution. Existing
+Script19, pre-effect6, located3, view35 and Array/Pair EXE+OBJ30 regressions pass.
+This is source connection evidence, not typed runtime execution or whole-suite green.
+
 Outstanding task: typed Array selected-C state-guard consumer design, owned by
 `typed_array_backend_capability.rs` and `function/typed_array_contract.rs`, with
 `typed_array_exact_numeric_state_guard_v1` as its required capability. Execution
@@ -209,8 +217,8 @@ unconsumed-source checks. No new semantic receipt, resolver or registry.
 Acceptance: unchanged materialized shadow source through EXE/linked OBJ; plain
 and nonplain source each publishes each constructor/method once and demands each
 constructor once; field/weak/slot/getter metadata survives; declaration-only Script
-retains Unit completion. Keep the typed-local/source and typed-C blockers above
-open. Materialized plain/generic shadow EXE and independently linked OBJ exit30,
+retains Unit completion. The typed-local relation row now reaches the existing C
+Stop; keep typed-C execution and Loop source blockers open. Materialized plain/generic shadow EXE and independently linked OBJ exit30,
 parser-backed one-demand witnesses, metadata regression and declaration-only Unit
 checks pass. Worker inspection and execution are separate evidence.
 
