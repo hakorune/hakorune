@@ -104,12 +104,12 @@ impl std::error::Error for NormalDefaultRootCatalogLifecycleErrorV1 {}
 pub(in crate::mir) struct CompletedNormalDefaultRootCatalogLifecycleV1 {
     session: ModuleBuilderInvocationSessionV1,
     module: MirModule,
-    root_new_validation: Option<(String, Rc<OrdinaryNewClaimLedgerV1>)>,
+    root_validation: final_validation::RootValidation,
     construction: RetainedConstructionDrafts,
 }
 
 #[path = "normal_default_root_final_validation.rs"]
-mod final_validation;
+pub(super) mod final_validation;
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedNormalDefaultRootCatalogLifecycleV1 {
@@ -644,14 +644,14 @@ impl ModuleBuilderInvocationSessionV1 {
         let result = result.and_then(|inner| inner);
 
         match result {
-            Ok((module, root_new_validation, construction)) => {
+            Ok((module, root_validation, construction)) => {
                 if let Some(source) = compatibility_source {
                     source.discard_at_named_lifecycle_terminal();
                 }
                 Ok(CompletedNormalDefaultRootCatalogLifecycleV1 {
                     session: self,
                     module,
-                    root_new_validation,
+                    root_validation,
                     construction,
                 })
             }

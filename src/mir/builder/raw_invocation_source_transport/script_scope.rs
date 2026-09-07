@@ -44,7 +44,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         &mut self,
         source: CanonicalScriptCPreparedLoweringSourceV1<'_>,
         execute: impl FnOnce(&mut Self) -> Result<R, String>,
-    ) -> Result<R, String> {
+    ) -> Result<(R, ScriptSemanticLoweringState), String> {
         let [root] = source.source().forest().roots() else {
             return Err("[freeze:contract][mir/script-semantic/root-cardinality]".to_owned());
         };
@@ -75,17 +75,14 @@ impl RawInvocationChildPortV1<'_, '_> {
             RawInvocationSourceTransportV1::script_semantic_root(()),
             |port, ()| execute(port),
         );
-        let result = match result {
-            Ok(value) => finish_state
-                .try_borrow_mut()
-                .map_err(|_| {
-                    "[freeze:contract][script-direct-static/claim-finish-borrow]".to_owned()
-                })?
-                .finish_source_claims()
-                .map(|()| value),
-            Err(error) => Err(error),
-        };
+        // Restore the enclosing scope before propagating any finish error.
+        // The completed payload moves out; no shared mutable source survives.
         self.semantic_ledger = parent;
-        result
+        let value = result?;
+        let mut state = Rc::try_unwrap(finish_state)
+            .map_err(|_| "[freeze:contract][script-source/retained-scope-alias]".to_owned())?
+            .into_inner();
+        state.finish_source_claims()?;
+        Ok((value, state))
     }
 }

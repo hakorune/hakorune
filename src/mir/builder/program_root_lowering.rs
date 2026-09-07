@@ -151,7 +151,14 @@ impl MirBuilder {
         static_result_publication_owner: Option<VerifiedStaticCallResultPublicationOwnerV1>,
         target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
-    ) -> Result<(ValueId, super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts), String> {
+    ) -> Result<
+        (
+            ValueId,
+            super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts,
+            Option<super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState>,
+        ),
+        String,
+    > {
         self.lower_program_root_after_catalog_install_v1(
             work,
             source_ast,
@@ -182,7 +189,14 @@ impl MirBuilder {
         static_result_publication_owner: Option<VerifiedStaticCallResultPublicationOwnerV1>,
         target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
-    ) -> Result<(ValueId, super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts), String> {
+    ) -> Result<
+        (
+            ValueId,
+            super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts,
+            Option<super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState>,
+        ),
+        String,
+    > {
         let mut collector = match &callable_mode {
             NormalCallableSemanticPackageMode::Installed(_) =>
                 ModuleDraftCollectorV1::with_required_object_definitions(brand),
@@ -232,7 +246,8 @@ impl MirBuilder {
                             port,
                             target_binding,
                         )
-                    }),
+                    })
+                    .map(|(value, source)| (value, Some(source))),
                 NormalScriptRootLoweringMode::Unavailable if installed_app_main_root => {
                     // Installed App Main owns its exact Cataloged root scope
                     // in the body hook.  Do not wrap the whole lowering in a
@@ -249,6 +264,7 @@ impl MirBuilder {
                         &mut port,
                         target_binding,
                     )
+                    .map(|value| (value, None))
                 }
                 NormalScriptRootLoweringMode::Unavailable => port.with_source_transport_v1(
                     RawInvocationSourceTransportV1::script_root(()),
@@ -265,7 +281,8 @@ impl MirBuilder {
                             target_binding,
                         )
                     },
-                ),
+                )
+                .map(|value| (value, None)),
             }
         };
         let direct_call_loan_result = direct_call_loan.take().map(|loan| {
@@ -289,7 +306,7 @@ impl MirBuilder {
                 format!("[freeze:contract][mir/callable-collector/atomic-commit] {error}")
             })?;
         let construction = prepared.commit();
-        Ok((result, construction))
+        Ok((result.0, construction, result.1))
     }
 
     #[allow(clippy::too_many_arguments)]

@@ -4,6 +4,8 @@
 //! bound Script source wrapper and retains the existing Bundle/Recipe/Join and
 //! physical lowering order; it does not issue a new source authority.
 
+use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
+use super::normal_default_root_catalog_lifecycle::final_validation::RootValidation;
 use crate::ast::ASTNode;
 use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
@@ -20,9 +22,6 @@ use crate::mir::builder::{
     UnpublishedCallableLoopRootScopeV1,
 };
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
-use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
-use std::rc::Rc;
-use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
 
 pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package>(
     builder: &mut MirBuilder,
@@ -42,7 +41,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
     target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
     callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
 ) -> Result<
-    (MirModule, Option<(String, Rc<OrdinaryNewClaimLedgerV1>)>, RetainedConstructionDrafts),
+    (MirModule, RootValidation, RetainedConstructionDrafts),
     NormalDefaultRootCatalogLifecycleErrorV1,
 > {
     let script_source = match script_source {
@@ -64,7 +63,9 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
     };
 
     let root_new_ledger = match &callable_mode {
-        NormalCallableSemanticPackageMode::Installed(port) => Some(port.ordinary_new_claim_ledger()),
+        NormalCallableSemanticPackageMode::Installed(port) => {
+            Some(port.ordinary_new_claim_ledger())
+        }
         NormalCallableSemanticPackageMode::Compatibility(_) => None,
     };
     let source_backed = matches!(
@@ -93,7 +94,17 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
         }
     };
 
-    let (result_value, construction) = builder
+    let root_entry = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| {
+            NormalDefaultRootCatalogLifecycleErrorV1::RootLower(
+                "[freeze:contract][script-source/root-missing]".into(),
+            )
+        })?
+        .entry_block;
+    let (result_value, construction, script_source) = builder
         .lower_normal_default_program_root_after_catalog_install_v1(
             work,
             source_ast,
@@ -112,20 +123,38 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
             callable_loop_root_scope,
         )
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))?;
-    let mut root_key = None;
+    let mut root_validation = RootValidation::Absent;
     let module = builder
         .finalize_module_with_root_validation(result_value, |function| {
-            match &root_new_ledger {
-                Some(ledger) => {
-                    let observation = ledger.validate_finalized_new_root(function)?;
-                    // Physical key from this exact finalized function, not
-                    // a source-name lookup or reconstructed target identity.
-                    root_key = Some(function.signature.name.clone());
-                    Ok(observation)
+            let observation = match &root_new_ledger {
+                Some(ledger) => ledger.validate_finalized_new_root(function)?,
+                None => crate::mir::function::RootOrdinaryNewObservation::NotIssued,
+            };
+            root_validation = match (script_source, root_new_ledger) {
+                (Some(mut source), _) => {
+                    if function.entry_block != root_entry
+                        || !matches!(
+                            observation,
+                            crate::mir::function::RootOrdinaryNewObservation::NotIssued
+                        )
+                    {
+                        return Err("[freeze:contract][script-source/root-owner-drift]".into());
+                    }
+                    source.finish_source_claims()?;
+                    RootValidation::Script {
+                        key: function.signature.name.clone(),
+                        entry: root_entry,
+                        source,
+                    }
                 }
-                None => Ok(crate::mir::function::RootOrdinaryNewObservation::NotIssued),
-            }
+                (None, Some(ledger)) => RootValidation::OrdinaryNew {
+                    key: function.signature.name.clone(),
+                    ledger,
+                },
+                (None, None) => RootValidation::Absent,
+            };
+            Ok(observation)
         })
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into()))?;
-    Ok((module, root_key.zip(root_new_ledger), construction))
+    Ok((module, root_validation, construction))
 }

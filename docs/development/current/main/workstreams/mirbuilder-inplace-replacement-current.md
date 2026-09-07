@@ -593,23 +593,19 @@ receipts live in Git; implicit completion, Loop and typed C remain open.
 
 #### LLVM-LIFECYCLE-V4-PLUGIN-FEATURE-I0
 
-V4 now uses the existing plugins cfg/stub convention. The same no-default-features
-library check at parent efbc22b14b gives13 diagnostics, after repair11: only the
-V4 missing-loader/libloading errors disappear. The remaining runtime/stub errors
-match exactly; [owner inventory](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08)
-records known baseline debt, not a nonplugins-wide green claim. Plugins build,
-Pair EXE/linked OBJ30 and Bool Fault70, and corridor guard pass; source505 lines.
+Landed at 27a4e1ed78. Same nonplugins check at efbc22b14b:13 errors before,
+11 after; only V4 loader/libloading errors removed. Remaining exact baseline
+inventory and plugins/Pair/Fault evidence belong to the
+[feature owner](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
+No nonplugins-wide success claim.
 
 #### MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0
 
-Implemented: exact Script Return/value, body Sequence scope/region and function
-target co-seal with terminal Home order. Local start/completion are distinct;
-source payload survives completion. Finish rejects dropped Homes and incomplete
-locals; implicit Unit/unclassified tail remain unavailable. Root8, Script19/2,
-pre-effect6/continuation2, host6, explicit Array/Pair EXE+OBJ regressions pass;
-final build peak 8.84 GiB, corridor guard green, changed source maximum 429 lines.
-The draft source-region-equals-target check was a current-change error, corrected
-to the existing body-to-function relationship and rerun green. No baseline waiver.
+Landed at 87a689b013: exact Return/body-to-function scope and terminal Home
+co-seal, distinct Local progress and preserved source. Root8, Script19/2,
+pre-effect6/continuation2, host6, Array/Pair EXE+OBJ and corridor pass.
+Implicit completion/Loop/typed C remain open; Git owns full evidence and the
+corrected draft source-region mismatch (not baseline debt).
 
 #### MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0
 
@@ -621,6 +617,20 @@ Smallest next slice: existing completed-root finite variant, actual source/emiss
 Non-claims: root-neutral artifact handoff already exists, RootOwned/Invoke/C activation, implicit Unit or Loop closure.
 The [accepted validation handoff](../design/collection-literal-construction-ssot.md#completed-root-validation-handoff-slice)
 names real APIs, exact delete-set, mutation gates and mandatory artifact successors.
+Source-retention checkpoint: scope moves state into the root-neutral validation
+slot; both finishing closures check retained source/key/entry. Emission bindings
+are still open, so this row remains active. The physical-owner audit found no
+general optimizer remapper; the same design owner now specifies stable emitted
+identities and bounded transformation validation. No optimizer skip or Script
+artifact ABI is authorized by this checkpoint.
+Checkpoint gates: quick plugins library build (peak8.80GiB), source2+8+19+2,
+host6, retained Pair handoff1, real Array/Pair EXE+OBJ and corridor/pointer pass.
+Known baseline debt reproduced at parent87a689b013, identical locked quick build
+and `normal_default_root_catalog_lifecycle_tests::artifact_validation_` filter:
+parent/current2pass2fail. Exact failing tests are
+`artifact_validation_rejects_exact_read_drift_and_birth_reentry` (finished-node)
+and `artifact_validation_rejects_terminal_add_operand_drift` (expected token).
+Their source and assertions are unchanged; no whole-lib green claim.
 
 ## Source and ownership budget
 

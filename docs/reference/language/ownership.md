@@ -163,6 +163,9 @@ or an empty set of evaluation responsibilities. Root cleanup also includes
 completed acquisitions after the last acquisition's own failure prefix. A
 prefix proof cannot substitute for the whole root's normal completion and
 outward transfer; the source body scope and function return target are distinct.
+Completed source obligations must survive lowering-scope teardown and reach
+both diagnostic and artifact finishing. Retaining them does not itself prove
+that optimized physical operations implement those obligations.
 
 For the supported primitive numeric `Array<T>` contract, intrinsic literal
 allocation creates a builtin acquisition responsibility. From successful

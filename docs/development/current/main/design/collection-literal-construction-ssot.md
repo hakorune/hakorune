@@ -428,6 +428,28 @@ Local/Return operands. Existing optimizer owners must update changed physical
 coordinates; unresolved mapping remains a blocker. Keep typed OBJ/EXE capability
 Stop and existing Array/Pair regressions.
 
+Implementation checkpoint: Script scope now moves the completed lowering state
+out after restoring its parent, and rejects retained Rc aliases. The existing
+root slot is Absent/OrdinaryNew/Script, with the exact finalized key/entry and
+source retained through either finishing closure. This removes source payload
+loss, but is not yet emission correspondence or a completed validation row.
+
+Physical-owner follow-up audit: the actual Script finishing schedule is Legacy.
+DCE rebuilds instruction vectors and can remove unused Local Copy; CSE replaces
+Const/BinOp with same-destination Copy; RC insertion shifts instruction indexes.
+There is no existing general remap observer. RootCleanupBoundary::capture/project
+is a bounded before/after validation pattern, not a reusable Array remapper.
+Accepted next implementation uses emitter-issued allocation dst, claim contract
+ID and ArrayWriteSiteId with retained source/operands/order. It locates only
+those retained identities after finishing and rejects missing/duplicate/foreign
+or changed operations. LocalCommit records exact BindingRef-to-acquisition
+correspondence; dead Copy survival is not the commit proof. Retained primitive
+definitions permit only the explicitly checked Const-to-Copy transformation;
+unbounded alias chasing or inferring a new literal proof from MIR is forbidden.
+Test actual optimization on/off, dead Copy removal, repeated-literal CSE and RC
+insertion. Unsupported rename/reorder must reject; do not skip optimization or
+borrow the selected Dynamic schedule to make this Script proof pass.
+
 Mandatory next edge: the existing FinalizedRootBirthHandoffV1 itself must become
 root-neutral before Script data can reach artifact execution. The first validation
 row cannot claim that constructor-specific return type already accepts Script.

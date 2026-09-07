@@ -886,8 +886,12 @@ terminal coverage is not implicit Unit. Local start and successful completion
 are distinct; the source row remains intact with completed progress. Scope
 finish checks the full reverse Home list, including the last Array, against
 completed locals. Missing, foreign, drifted, reused or unconsumed rows reject.
-Root-neutral final artifact handoff, frame/Invoke and typed C execution remain
-subsequent consumers; retaining the ledger here does not complete those edges.
+The Script scope moves its completed state into the existing completed-root
+finite validation slot; both diagnostic and artifact finishing retain and check
+that source with the exact finalized root key/entry. The slot cannot contain
+both Script and ordinary-New ownership. Script retention returns no invented
+Birth artifact handoff. Emission correspondence after optimization, root-neutral
+final artifact handoff, frame/Invoke and typed C remain subsequent obligations.
 Transparent, transferred, and diagnostic root entries are explicit boundaries
 and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
 transports this continuation together with the existing lowering projection and

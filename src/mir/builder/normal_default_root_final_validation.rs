@@ -3,6 +3,60 @@
 use super::*;
 use std::collections::BTreeSet;
 
+/// One completed root owns either the callable or Script source payload.
+/// This retention slot does not issue Script artifact ABI or lifecycle permission.
+#[derive(Debug)]
+pub(in crate::mir::builder) enum RootValidation {
+    Absent,
+    OrdinaryNew {
+        key: String,
+        ledger: Rc<OrdinaryNewClaimLedgerV1>,
+    },
+    Script {
+        key: String,
+        entry: crate::mir::BasicBlockId,
+        source: super::super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState,
+    },
+}
+
+impl RootValidation {
+    fn key(&self) -> Option<&str> {
+        match self {
+            Self::Absent => None,
+            Self::OrdinaryNew { key, .. } | Self::Script { key, .. } => Some(key),
+        }
+    }
+
+    fn validate(&mut self, module: &MirModule, artifact: bool) -> Result<(), String> {
+        let Some(key) = self.key() else { return Ok(()) };
+        let root = module
+            .functions
+            .get(key)
+            .ok_or_else(|| fault("root-missing"))?;
+        if root.signature.name != key {
+            return Err(fault("root-key-drift"));
+        }
+        match self {
+            Self::Absent => unreachable!(),
+            Self::OrdinaryNew { ledger, .. } => {
+                if artifact && (has_lifecycle(root) || has_exact_field_read(root)) {
+                    ledger.validate_artifact_after_compiler_finishing(root)
+                } else {
+                    ledger.validate_after_compiler_finishing(root)
+                }
+            }
+            Self::Script { entry, source, .. } => {
+                if root.entry_block != *entry {
+                    return Err(fault("script-root-owner-drift"));
+                }
+                // Source retention check only. Emission correspondence is the
+                // next obligation, and cannot be inferred by scanning this MIR.
+                source.finish_source_claims()
+            }
+        }
+    }
+}
+
 impl CompletedNormalDefaultRootCatalogLifecycleV1 {
     pub(in crate::mir) fn into_parts(
         self,
@@ -12,12 +66,8 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         impl FnOnce(&MirModule) -> Result<(), String>,
     ) {
         let validate = move |module: &MirModule| {
-            if let Some((root_key, ledger)) = self.root_new_validation {
-                let root = module.functions.get(&root_key).ok_or_else(|| {
-                    "[freeze:contract][ordinary-new/finished-root-missing]".to_owned()
-                })?;
-                ledger.validate_after_compiler_finishing(root)?;
-            }
+            let mut root_validation = self.root_validation;
+            root_validation.validate(module, false)?;
             for (key, validation) in self.construction {
                 let definition = module
                     .canonical_callable_definition_symbol(&key)
@@ -48,19 +98,14 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
     ) {
         let validate = move |module: &MirModule| {
             let mut covered = BTreeSet::new();
-            let root_validation = self.root_new_validation;
-            let retained_root = root_validation.as_ref().map(|(key, _)| key.clone());
-            if let Some((root_key, ledger)) = root_validation.as_ref() {
-                let root = module
-                    .functions
-                    .get(root_key.as_str())
-                    .ok_or_else(|| fault("root-missing"))?;
-                if has_lifecycle(root) || has_exact_field_read(root) {
-                    ledger.validate_artifact_after_compiler_finishing(root)?;
-                } else {
-                    ledger.validate_after_compiler_finishing(root)?;
-                }
-                covered.insert(root_key.clone());
+            let mut root_validation = self.root_validation;
+            let retained_root = match &root_validation {
+                RootValidation::OrdinaryNew { key, .. } => Some(key.clone()),
+                RootValidation::Script { .. } | RootValidation::Absent => None,
+            };
+            root_validation.validate(module, true)?;
+            if let Some(key) = &retained_root {
+                covered.insert(key.clone());
             }
             let mut birth_keys = BTreeSet::new();
             for (key, validation) in self.construction {
@@ -107,11 +152,12 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                     return Err(fault("uncovered-lifecycle-function"));
                 }
             }
-            root_validation
-                .map(|(root_key, ledger)| {
-                    ledger.seal_finalized_root_birth_handoff(root_key, &birth_keys)
-                })
-                .transpose()
+            match root_validation {
+                RootValidation::OrdinaryNew { key, ledger } => ledger
+                    .seal_finalized_root_birth_handoff(key, &birth_keys)
+                    .map(Some),
+                RootValidation::Script { .. } | RootValidation::Absent => Ok(None),
+            }
         };
         (self.session, self.module, validate)
     }
@@ -141,3 +187,7 @@ fn has_exact_field_read(function: &crate::mir::MirFunction) -> bool {
 fn fault(reason: &str) -> String {
     format!("[freeze:contract][lifecycle-artifact/{reason}]")
 }
+
+#[cfg(test)]
+#[path = "normal_default_script_source_handoff_tests.rs"]
+mod script_source_tests;
