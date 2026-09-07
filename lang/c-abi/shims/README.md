@@ -1,6 +1,7 @@
 # Shims
 
-This directory keeps C-side ABI shims thin and responsibility-partitioned.
+This directory contains the C LLVM backend and ABI/compatibility shims.
+The backend performs physical lowering; it does not issue source meaning.
 
 ## Responsibility Boundary
 
@@ -22,40 +23,32 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   The same C test exercises these contracts and a nested typed call without
   legacy call metadata, including wrong-arity rejection before object output.
   This is physical-consumer evidence, not constructor source-to-EXE proof.
-- The versioned lifecycle V2 header reserves one synchronous frame for typed
-  definition, formal, operation, operand, control, layout, and field rows plus
-  one admitted `SafeMutex | SingleThreadExact` storage profile. V1 remains
-  byte-compatible. The schema alone is not a callable ingress: the final Rust
-  borrow must issue and the C consumer must exhaust every row before V2 is
-  activated. C-side env selection, pinned/direct profiles, missing rows, and
-  V1 retry cannot admit lifecycle execution.
-- The final published-view scan retains selected lifecycle and Return
-  coordinates as synchronous borrows. Generic views remain fenced; only the
-  normal pipeline may activate the final artifact view after strict validation,
-  commit preparation, root binding, and exact Birth-definition checks. The V2
-  ingress currently validates frame/profile/site relations and stops before
-  artifact emission. Its nonempty body path is not read as a JSON program until
-  the source-backed physical body owner exists; it is not Pair execution
-  evidence.
-- The direct lifecycle physical-v1 parser is a call-local preartifact decoder
-  for the final-view ABI-bearing JSON. It checks function/block/value/layout,
-  Birth, PHI, invoke/frame and CFG references without source-name recovery;
-  the focused Pair transport check proves this validation boundary only.
-- Lifecycle V3 opens its LLVM 18 target session from the host-issued row,
-  observes the target-machine triple and data-layout, and writes/verifies only
-  that module preamble before returning the pre-artifact terminal. It never
-  reads generic `llc` flags or emits an object; V4 owns the later explicit tool
-  invocation.
-- Lifecycle V4 admits the finite physical Pair graph, retains one target
-  session through explicit llc-18 PIC emission, and publishes by same-directory
-  rename only after success. No generic flags, JSON re-resolution or V3 retry.
-  `python3 lang/c-abi/tests/published_lifecycle_v4_execution_test.py <issued.json>`
-  checks real-runtime execution, Fault/range cleanup and pre-artifact failures.
-  The current source Pair cannot issue this input: its Birth formal
-  representation is unresolved. Supplied physical samples and range mutations
-  exercise C ABI policy only; they cannot authorize source execution. This driver uses C header
-  geometry; Rust archive admission and direct EXE/OBJ cutover need their own
-  host integration test. V2/V3 remain until that cutover is verified.
+- Selected lifecycle compilation consumes one completed physical-v2 input through
+  `hako_llvmc_compile_published_lifecycle_physical_v4`. The V2 frame/companion
+  and V3 pending ingress are retired; static V1 remains unchanged. Finalization
+  owns the source handoff, admission and storage profile. Its published view
+  borrows the products and observes lifecycle presence without retaining another
+  instruction-coordinate array or activating itself. Generic views stay fenced.
+- The call-local physical-v2 parser checks structure/SSA, function/block/value/
+  layout, Birth, PHI, invoke/frame and CFG references without source-name repair.
+  V4 separately checks type/cohort coverage. Parser success alone does not prove
+  executable input. Explicit receivers are HANDLE; unannotated formals consume
+  kind/payload lanes and are checked before the Birth body. Valid Bool used by an
+  i64 FieldSet records reason103 on the existing Fault edge; invalid kind/payload
+  is InvalidContract. Tagged Copy preserves both lanes.
+- V4 retains the selected LLVM18 target session through preamble/layout checking,
+  explicit llc-18 PIC emission and atomic same-directory object publication.
+  Failure cleans temporary artifacts; no generic flags or compatibility retry.
+  Shared parser, target/session, layout and runtime descriptors remain live.
+- After `bash tools/build_hako_llvmc_ffi.sh`, run the existing physical parser
+  preartifact test and `published_lifecycle_v4_execution_test.py` with the three
+  source-issued inputs documented in [the C ABI README](../README.md).
+  The physical execution driver checks real-runtime Pair/Fault/range behavior,
+  invalid input and tool/session/temp cleanup. Mutations test ABI rejection and
+  grant no new source acceptance. The Rust normal-source host test separately
+  proves unchanged Pair EXE/independent linked OBJ exit30 and Bool Fault70/103,
+  including actual Home/reclaim/report/dispose observations. Generic sessionless
+  lifecycle OBJ remains rejected.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.

@@ -232,7 +232,6 @@ static int hako_physical_layout_has_field(yyjson_val* layouts, uint32_t object_i
   return 0;
 }
 
-static int hako_physical_values_exist(yyjson_val* function, yyjson_val* values);
 static int hako_physical_values_available_at(yyjson_val* function, yyjson_val* values,
     uint32_t block_id, uint32_t index);
 
@@ -388,17 +387,6 @@ static int hako_physical_phi_predecessors_exact(yyjson_val* function, uint32_t t
     for (j = i + 1; j < yyjson_arr_size(inputs); j++) { uint32_t other;
       if (!hako_physical_u32(yyjson_obj_get(yyjson_arr_get(inputs, j), "block"), &other) || other == pred) return 0;
     }
-  }
-  return 1;
-}
-
-static int hako_physical_values_exist(yyjson_val* function, yyjson_val* values) {
-  size_t i;
-  if (!hako_physical_array_u32(values)) return 0;
-  for (i = 0; i < yyjson_arr_size(values); i++) {
-    uint32_t value;
-    if (!hako_physical_u32(yyjson_arr_get(values, i), &value) || !hako_physical_has_value(function, value))
-      return 0;
   }
   return 1;
 }

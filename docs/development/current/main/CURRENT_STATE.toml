@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CLEANUP-R0"
-current_execution_cohort = "constructor_lifecycle_c_physical_cleanup_r0"
-current_design_stop = "none; task 6-C caller-zero physical-value helper deletion accepted after read-only reference census"
-current_blocker_token = "Task6-C caller-zero Delete: remove hako_physical_values_exist declaration and body only; preserve live availability/has-value helpers, parser and V4/session/tool/cleanup consumers. Sync stale shims README pending claims. Existing C parser/V4 gates; no new fixture/guard, feature or production-edge reduction claim."
+current_execution_row = "PUBLISHED-BACKEND-VIEW-PLACEMENT-R0"
+current_execution_cohort = "published_backend_view_placement_r0"
+current_design_stop = "none; task 6a surviving transport placement is a mechanical same-logical-module move"
+current_blocker_token = "Task6a BoxShape: move surviving published_backend_view_c_transport.rs under the actual published-view module and remove its external path mount; update guard filesystem owner paths and compiler README. Preserve logical exports, bytes/lifetimes and selected static/array/lifecycle behavior. V2 transport is already retired; no new wrapper or guard."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,15 +31,15 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-View ownership series removes owned handoff/profile, lifecycle activation and
-both lifecycle/Return observation Vecs. Presence is a boolean; finalization
-borrows functions and preserves Return-only Birth and direct-call validation.
-Next is the read-only-audited caller-zero C helper deletion: only declaration
-and body of hako_physical_values_exist. Live physical/V4/session state stays.
-C owner README must describe the current selected V4 host and V2/V3 retirement.
+View handoff/profile and observation-row cleanup is committed. C dead helper
+hako_physical_values_exist is removed (12 lines); parser and V4 execution gates
+pass, and shims README now describes the actual selected V4 source host.
+Next is the existing placement task: only the static C transport mount survives.
+Move it under the view owner without changing its logical module or public API;
+update actual filesystem guard paths, preserving historical card-token checks.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CLEANUP-R0"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CLEANUP-R0"
+next_design_card = "PUBLISHED-BACKEND-VIEW-PLACEMENT-R0"
+next_execution_card = "PUBLISHED-BACKEND-VIEW-PLACEMENT-R0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

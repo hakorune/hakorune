@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: delete the caller-zero physical-value helper and sync the C owner README (task 6-C below).
+Smallest next slice: move the remaining mounted C transport file under its existing view owner (task 6a below).
 Non-claims: new source acceptance, optimized multiple-Home coverage, complete view thinning, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -2098,41 +2098,53 @@ No whole-suite green or complete MIRBuilder claim.
 
 ### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CLEANUP-R0 (task 6-C)
 
-Classification: caller-zero Delete; no behavior or source acceptance change.
+Caller-zero Delete: removed the declaration and body of
+`hako_physical_values_exist` from physical_v2.inc (12 source lines). Only these
+two references existed; no dedicated export/test/guard was removed. Live
+`hako_physical_values_available_at`, `hako_physical_has_value`, parser and
+V4/session/layout/tool/cleanup owners remain unchanged. The shims README now
+states the actual selected V4 source host and V2/V3 retirement, replacing stale
+pending/formal-unresolved and lifecycle-coordinate-storage claims.
 
-Decision: remove the unused physical-value-existence helper; keep live availability validation.
-Source authority + canonical issuer: unchanged source/handoff owners; C parser owns structural physical-input validation only.
-Non-authority: unused helper, C tool/session and README do not issue source meaning.
-Fail-fast boundary: existing physical parser/V4 admission before object publication remains unchanged.
-Smallest next slice: delete hako_physical_values_exist declaration and definition in physical_v2.inc; synchronize the owning shims README's stale pending claims.
-Non-claims: production execution-edge reduction, general state thinning, in-process LLVM or all C helpers retired.
+Census boundary: V4 export -> physical-v2 document validator -> V4 admission/
+emission -> llc -> object publication/cleanup. Includes direct src/tools/lang/
+crates/.github references and translation-unit/build/test discovery; excludes
+historical docs, external consumers and generic/static implementation retirement.
+The removed helper was static with no address/token-pasting caller; references
+in the included tracked code boundary are now zero. This is dead code deletion,
+not deletion of a running production edge or a claim that all C state is thin.
 
-Worker census boundary: V4 export -> physical-v2 document validator -> V4
-admission/emission -> llc -> object publication/cleanup. Includes direct code,
-translation-unit aggregate (`hako_llvmc_ffi.c` / build script), manifest/test
-export callers and directory discovery; excludes generic/static consumers,
-source issuance and other backends. The static helper has only declaration and
-definition, no caller/address/token-pasting reference, and no dedicated test or
-export. This closes only the named helper's inventory, not the whole backend.
+Evidence: C shared-library build passes; existing physical parser preartifact
+positive/negative test exits0. Existing V4 test passes16 executions,14 tag/schema/
+type negatives, target/session/site/tool atomicity and temporary-file cleanup,
+using the three source-issued JSON inputs from the preceding view tests and the
+actual lifecycle archive. No Rust source or runtime ABI changed; no new test or
+guard. Physical parser file is616 lines. No whole-suite green claim.
+
+### PUBLISHED-BACKEND-VIEW-PLACEMENT-R0 (task 6a)
+
+Classification: mechanical BoxShape; the V2 lifecycle transport file was already
+retired at7c8041c075, leaving one physical mount rather than the old planned two.
 
 Change:
-  Remove the forward declaration and body of `hako_physical_values_exist` from
-  `published_mir/hako_llvmc_ffi_published_lifecycle_physical_v2.inc`. Preserve
-  `hako_physical_values_available_at`, `hako_physical_has_value`, public parser,
-  session/target/layout/preamble/tool state and all current V4 probes.
+  Move `src/mir/function/published_backend_view_c_transport.rs` to
+  `src/mir/compiler/normal_default_pipeline/published_backend_view/c_transport.rs`
+  and delete the remaining external `#[path]` mount. Keep the logical module and
+  public re-exports unchanged. Update the existing delegated guard's filesystem
+  owner paths to the real view and transport files; historical card-text tokens
+  are historical contract observers, not filesystem callers.
 Contract:
-  No new tests/guards/wrappers. Update shims README to reflect the existing
-  selected V4 source host and retired V2/V3 paths, preserving live ABI contracts.
+  Same code, logical parent, row bytes, CString ownership and synchronous lifetime.
+  No new source/capability/ABI, static/array dispatch change, wrapper or guard.
+  C-frame header documentation describes projection, not a new source authority.
 Done:
-  Reconfirm the exact caller-zero set, C build, existing parser positive/negative
-  and V4 execution/Fault/target/temp-cleanup acceptance. Record this as unused
-  code deletion, not deletion of a running production branch.
+  Old filesystem path/mount has no direct/build/manifest/directory caller;
+  historical docs/card-token checks are excluded explicitly. Existing published
+  view tests and canonical/pointer guards pass. Compiler README records the one
+  module tree. Existing source host gate preserves lifecycle EXE/OBJ/Fault.
 Stop:
-  Any real caller/reference or shared requirement outside the named set invalidates
-  this deletion; retain the helper and classify that caller before changing it.
-
-Dependency: close out the observation-row slice. No new design consultation or
-semantic issuer is required for this compiler-proven dead-code removal.
+  Any relative include/child path or new owner/ABI requirement makes this more
+  than placement; stop before changing behavior. Dependency: task6-C closeout.
 
 ### Task 3: exact root cleanup contraction
 
@@ -2492,7 +2504,7 @@ The later source convergence task below remains separate from this cutover.
 | 6-owner. Published-view responsibility cleanup | Existing finalized invocation/handoff owns completed products; PublishedMirBackendView borrows them; backend invocation owns target/profile and admission. Real callers are normal finalization and shared OBJ/EXE host. | After host cutover, move rather than duplicate ownership; remove view-owned retained product storage and bind/activate mutation. Preserve missing/foreign/stale rejection and same-borrow EXE/OBJ acceptance. No module-to-source reconstruction. |
 | 6-C. C physical responsibility cleanup | Existing V4 admission/emission/compile owners hide parser, LLVM emission and tool lifetime details at their boundary. | After caller-zero V2/V3 removal, remove obsolete shared state/helpers and private probes. Preserve physical/Fault/target/temp-file acceptance; no whole-directory move or include-count target. |
 | Later source convergence | Existing normal_callable_semantic_loan_port routes CanonicalTrivialRouteV1::Outside to lower_normal_cataloged_static_box_method_with_source_v1; source Facts/Recipe producer owns its eventual replacement. | Select one finite source family with an actual issuer and terminal, remove that family's raw-body edge, and prove source-to-Recipe plus rejection and selected execution. No blanket Outside rejection or second resolver. Until selected, this is outside the constructor cutover; reopen if that edge bypasses a selected constructor obligation. |
-| 6a. `PUBLISHED-BACKEND-VIEW-PLACEMENT-R0` | After the selected reader is stable and old wrapper callers are zero, move the two `#[path]`-mounted transport implementation files under their owning published-view module and remove the mounts. | One physical module tree, direct/manifest/aggregate/directory caller census zero for the old paths, and unchanged selected acceptance. This is placement only, not a second view authority. |
+| 6a. `PUBLISHED-BACKEND-VIEW-PLACEMENT-R0` | After the selected reader is stable and old wrapper callers are zero, move the one surviving `#[path]`-mounted static C transport implementation under its owning published-view module and remove the mount (V2 transport already retired). | One physical module tree, direct/manifest/aggregate/directory caller census zero for the old paths, and unchanged selected acceptance. This is placement only, not a second view authority. |
 | 6b. `NORMAL-CALLABLE-SEMANTIC-README-R0` | After constructor lifecycle closeout, condense dated journal material in the semantic package README into current authority, boundary and landed-evidence sections. | Preserve every live contract link and current decision; no semantic or production-edge change. |
 | post-6. `C-LLVM-COMPILE-SESSION-INPROCESS-D0` | The parked in-process investigation above owns the C `system()` tool route. | It begins only after Steps 5–6; choice and equivalence acceptance above are required before deleting tool invocations. |
 
