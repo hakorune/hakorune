@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: implement Task 4 selected numeric coverage against the same completed physical input, then switch the real host.
+Smallest next slice: classify the default CLI RootPreservation(CompatibilityLoss) incident before further Task 4 cutover or old transport deletion.
 Non-claims: new source acceptance, source host EXE30/OBJ30 cutover, optimized multiple-Home coverage, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -1753,6 +1753,69 @@ Ordered work within this series:
    probes. Retain/move shared storage profile, physical parser, target-session
    core, descriptor and V4 runtime tests. If the finite value/caller inventory
    cannot close these comparisons, stop here rather than expand capability.
+
+### Task 4 commit checkpoint (2026-09-07)
+
+The private session OBJ entry now issues one physical input, checks exact
+numeric coverage against its physical borrows, serializes the same input and
+calls V4. EXE delegates to this checked entry; generic OBJ remains unchanged.
+The old production V3 call and generic JSON/frame construction are removed
+from this caller. Unused V2 definitions/exports are still present.
+
+Blocking incident, not yet classified against parent: the freshly built default
+CLI command below returns exit 1 before the host callback, with
+`ExactSourceChanged(RootPreservation(CompatibilityLoss))`. Do not use
+`NYASH_MACRO_DISABLE=1` to call default CLI acceptance green. The focused host
+test deliberately uses that setting and proves only its source-backed compiler
+callback -> checked session OBJ -> V4 -> linked execution boundary.
+
+```bash
+target/quick/hakorune --emit-exe /tmp/hako-host-cli-pair \
+  --emit-exe-nyrt target/lifecycle-kernel/release \
+  apps/typed-object-birth-min/main.hako
+```
+
+Next: classify the transform incident at parent 910b92d99b with the same
+source/configuration before changing source authority. Default CLI acceptance
+and source-host cleanup ordering evidence remain required before retirement.
+Task 4 and the whole constructor cutover remain open.
+
+Checkpoint verification: fresh quick/plugins library compilation succeeds
+(one job, opt0, nonincremental, CGU256; peak aggregate 8.78 GiB). The exact
+numeric contract/borrow and physical layout mutation tests each pass 1/1.
+The explicit host test `issued_pair_v4_direct_exe_and_linked_object_exit_30`
+passes 1/1 (14.20 s): direct EXE and separately compiled checked session OBJ/link
+each return 30 for Pair, 70 with primary reason103 for both Bool positions.
+It uses normal optimization and test-only macro disable. No new host cleanup
+probe was run. Canonical-corridor/pointer guards and diff whitespace check pass.
+An overly broad `lifecycle --include-ignored` run executed 123 tests: 103 pass,
+20 fail in parallel; rerunning the same binary with `--test-threads=1` gives
+115 pass/8 fail. The serial failures below are **unclassified blocking**;
+parent comparison has not been run and no baseline claim is made. Preserve
+assertions and classify before implementation resumes. This is distinct from
+the previously parent-reproduced two semantic-package Bool-expression failures.
+
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::actual_string_helpers_general_result_row_reaches_its_first_loop_carrier`
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::artifact_validation_rejects_exact_read_drift_and_birth_reentry`
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::artifact_validation_rejects_terminal_add_operand_drift`
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::parser_scan_package_passes_callable_source_handoff_without_fallback`
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::source_backed_package_failure_is_terminal_before_builder_effects`
+- `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::source_bound_static_result_owner_reaches_the_raw_terminal`
+- `mir::builder::program_root_work_plan::tests::selected_nonplain_script_retains_constructor_source_for_full_runtime_lifecycle`
+- `runtime::weak_handles::tests::test_weak_handle_lifecycle`
+
+Read-only worker retirement inventory covers current V4 host -> Rust old
+transport/reexports -> C header/include/exports -> repo test/build/discovery;
+it excludes historical docs, parked branch and external ABI consumers. Delete
+only after the acceptance gate: old lifecycle frame/projection/schema modules,
+V2 wrappers, generic lifecycle JSON profile/emitter, C V2/body-V2 validators and
+V2/V3 route exports, plus their two exclusive C tests. Move shared
+`PublishedObjectStorageProfileV1` into the existing view lifecycle owner first.
+Keep physical-v2 parser, V4 consumer, runtime session core/descriptor and V4
+tests; remove only V3-exclusive session preamble helpers. Rewrite the three
+normal-pipeline frame tests to preserve source/compiled-entry invariants.
+Fresh caller/discovery and shared-object export checks are still required;
+this inventory is not retirement evidence.
 
 ### Task 3: exact root cleanup contraction
 

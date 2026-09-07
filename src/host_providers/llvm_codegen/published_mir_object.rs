@@ -8,8 +8,7 @@ use std::path::{Path, PathBuf};
 
 use crate::mir::emit_lifecycle_physical_abi_json;
 use crate::mir::function::{
-    PublishedLifecycleCFrameV2, PublishedMirBackendView, PublishedStaticMethodCFrameV1,
-    PublishedStaticMethodRouteV1,
+    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodRouteV1,
 };
 use crate::mir::MirModule;
 
@@ -63,30 +62,24 @@ fn compile_published_view_object(
                     .to_owned(),
             );
         }
-        let frame = PublishedLifecycleCFrameV2::from_view(view)
-            .map_err(|error| format!("published lifecycle C frame rejected: {error}"))?;
-        let physical_json_path = transport_io::prepare_backend_input_json_file(
-            &emit_lifecycle_physical_abi_json(&view.issue_lifecycle_physical_abi_input()?)?,
+        let input = view.issue_lifecycle_physical_abi_input()?;
+        crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(
+            view, &input,
         )?;
-        let physical_result =
-            capi_transport::validate_published_lifecycle_physical_v2(&physical_json_path);
-        transport_io::remove_backend_temp_file(&physical_json_path);
-        physical_result?;
-        let mir_json_path = transport_io::prepare_backend_input_json_file(
-            &crate::runner::mir_json_emit::emit_published_lifecycle_body(view)?,
+        let physical_json_path = transport_io::prepare_backend_input_json_file(
+            &emit_lifecycle_physical_abi_json(&input)?,
         )?;
         let output = PathBuf::from(obj_out);
         transport_io::ensure_backend_output_parent(&output);
-        let result = capi_transport::compile_published_lifecycle_body_v3(
-            &mir_json_path,
-            frame.header(),
-            frame.body_sites(),
+        let result = capi_transport::compile_published_lifecycle_physical_v4(
+            &physical_json_path,
             lifecycle_session.expect("checked lifecycle session"),
             &output,
         );
-        transport_io::remove_backend_temp_file(&mir_json_path);
+        transport_io::remove_backend_temp_file(&physical_json_path);
         return result;
     }
+    crate::mir::backend_capability::enforce_published_backend_supported(view, "ny-llvmc-obj")?;
     let frame = PublishedStaticMethodCFrameV1::from_view(view)
         .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
     let mir_json_path = transport_io::prepare_backend_input_json_file(
@@ -142,7 +135,6 @@ pub(crate) fn emit_published_view_exe(
     }
     let object_path = format!("{}.published-static-method.o", exe_out);
     let result = (|| {
-        crate::mir::backend_capability::enforce_published_backend_supported(view, "ny-llvmc-obj")?;
         let runtime_dir = nyrt_dir.ok_or("published EXE requires an explicit runtime directory")?;
         let lifecycle_session = if view.lifecycle_instructions().is_empty() {
             None
@@ -167,3 +159,7 @@ pub(crate) fn emit_published_view_exe(
     let _ = std::fs::remove_file(&object_path);
     result
 }
+
+#[cfg(all(test, feature = "plugins"))]
+#[path = "published_mir_object_tests.rs"]
+mod tests;

@@ -52,10 +52,17 @@ Thin Rust bridge for backend object emission.
   retained contracts without cloning, refreshing or repairing the module.
   Nonleading Phi, missing/stale contracts and mixed legacy/Extern ingress
   reject before C emission; explicit compatibility retains its separate owner.
-  Generic lifecycle admission remains fenced. The final normal-pipeline
-  artifact borrow may pass its issued V2 frame to `capi_transport`; the current
-  C terminal validates the frame and stops before an artifact. Export does not
-  itself authorize Birth execution or Pair EXE/OBJ success.
+  Generic lifecycle OBJ admission remains fenced. The private session OBJ
+  entry issues one completed physical input, checks its retained exact numeric
+  obligations against the same borrowed module, then serializes that input for
+  the V4 consumer. EXE delegates to this checked entry. Other published,
+  ownership, storage and route checks remain mandatory; names do not establish
+  input identity. V2 frames and generic lifecycle JSON no longer serve this
+  host caller; their unused definitions await caller-zero retirement.
+  The focused source-backed host test disables macros and exercises Pair30
+  and both Bool103/exit70 cases through EXE and independent session OBJ/link.
+  This does not establish default CLI acceptance: the current default Pair
+  command stops at `ExactSourceChanged(RootPreservation(CompatibilityLoss))`.
 
 - mainline owner is being cut over shape-by-shape from legacy C `.inc` to `.hako ll emitter`
 - route policy ownership lives in `BackendRecipeBox` and the LLVM boundary-lock SSOT; `llvm_codegen` stays transport-only and must not be read as the daily policy owner

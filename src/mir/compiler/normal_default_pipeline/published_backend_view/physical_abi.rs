@@ -253,3 +253,7 @@ pub(super) fn scalar_actual_kind(
         Kind::Local { .. } => Err(fault("actual-kind-unavailable")),
     }
 }
+
+#[cfg(test)]
+#[path = "physical_abi_tests.rs"]
+mod tests;

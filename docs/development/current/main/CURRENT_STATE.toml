@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "none; Task 3 verified, Task 4 selected numeric coverage/host connection accepted"
-current_blocker_token = "Task 3 verified: default-optimized Pair and Bool source reach v2 input; C execution16 and negatives14 pass. Next Task 4: exact retained numeric obligations must be consumed by the same completed input at the private session OBJ entry before real host EXE/OBJ cutover and V2/V3 retirement. Generic OBJ stays unchanged. Package116 pass/2 parent-reproduced Bool-expression baseline failures; no full-suite green claim."
+current_design_stop = "Task 4 checkpoint: classify default CLI RootPreservation and eight serial lifecycle failures against parent before further implementation"
+current_blocker_token = "Unclassified blocking evidence: default CLI Pair stops at ExactSourceChanged(RootPreservation(CompatibilityLoss)); broader lifecycle filter is 115 pass/8 fail serial, parent comparison pending. Selected numeric/layout tests pass; checked internal host execution has separate macro-disabled evidence. Task 4 cutover and V2/V3 retirement remain open. Resume with parent classification, not new implementation."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,25 +31,21 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-V2 tagged Birth input and V4 physical execution remain verified.
-Task 3 closes single-Home cleanup placement across normal compiler finishing.
-Existing root bindings plus entry prefix/incoming context verify only exact
-recorded Jump contractions; original cycles, operation/edge/prefix/ingress drift
-reject. Diagnostic and artifact finishing share one physical projection.
-Source tests 6/6 and compiled-entry 1/1 pass. Package116/118: two Bool-expression
-classification failures reproduce at parent df1829b772; two obsolete physical
-fixtures were repaired using existing Birth and terminal records, source unchanged.
-Optimized source-issued JSON drives C16 executions/14 type-schema negatives;
-OBJ/link30 and Bool103 cleanup pass. This is not source host cutover evidence.
-Next: existing exact_numeric_backend_capability consumes exact function/site,
-FieldSet/value/canonical layout obligations from the host's same final input.
-Private session OBJ must check capability; EXE delegates there; generic OBJ
-remains unchanged. Then prove real host EXE30/OBJ-link30 and retire V2/V3 callers.
-Draft bdc7b0506e remains parked on codex/lifecycle-v4-host-draft; adapt it to v2,
-normal optimization and checked private OBJ entry before restoring it.
+Task 4 checked host connection is saved as a checkpoint, not row completion.
+The private session OBJ entry consumes exact retained numeric obligations using
+its same completed physical input and invokes V4; EXE delegates to that entry.
+Generic OBJ remains unchanged; old V2/V3 definitions await retirement.
+Focused numeric identity/contract and physical-layout rejection tests pass.
+Internal host test passes: EXE and independent OBJ/link Pair30, both Bool103/70;
+normal optimizer enabled, macro disabled in test only.
+Default source CLI fails before host at RootPreservation(CompatibilityLoss).
+Broader lifecycle filter: 103/20 parallel, 115/8 serial; these newly observed
+failures are unclassified, not asserted baseline. Parent comparison is next.
+Previously recorded package116/2 parent-reproduced debt remains separate.
+No default CLI acceptance, old transport retirement or whole-suite green claim.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

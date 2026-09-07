@@ -146,7 +146,12 @@ and symbol, but becomes v2-document-only. Old v1 schema and numeric-array
 params/args reject without default tags before target-session/temp-output work.
 FaultFrame/status ABI and runtime descriptor stay v1: the changed revision is
 the compiler physical document, not the runtime frame. V2 replaces v1 in the compiler serializer, validator export and V4 consumer.
-This does not activate the parked direct V4 host path.
+The selected host now passes the same completed v2 input through exact numeric
+capability and V4 compile, using an explicit runtime session. Capability binds
+runtime obligations to physical borrow identity, exact FieldSet/value, canonical
+field/layout and retained tagged formal coverage. Generic OBJ admission is
+unchanged. Default source CLI acceptance and old transport retirement remain
+separate acceptance requirements; host-test execution alone does not close them.
 
 ### `include/nyrt_dynamic_call_slot_v2.h` and `include/nyrt_dynamic_text_scan_v1.h`
 

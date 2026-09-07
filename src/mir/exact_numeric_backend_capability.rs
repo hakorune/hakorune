@@ -27,7 +27,18 @@ pub(crate) fn enforce_exact_numeric_backend_supported(
     backend: &str,
 ) -> Result<(), String> {
     enforce_exact_numeric_runtime_checks_supported(module, backend)?;
+    enforce_storage_and_routes(module, backend)
+}
 
+pub(crate) fn enforce_lifecycle_input(
+    module: &MirModule,
+    input: &crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalAbiInputV1<'_>,
+) -> Result<(), String> {
+    lifecycle::enforce(module, input)?;
+    enforce_storage_and_routes(module, "ny-llvmc-obj")
+}
+
+fn enforce_storage_and_routes(module: &MirModule, backend: &str) -> Result<(), String> {
     let report = inspect_exact_numeric_backend_capability(module);
     let mut errors = Vec::new();
     if report.typed_object_exact_storage_fields > 0
@@ -198,3 +209,6 @@ mod tests {
         assert!(err.contains("route_facts=1"));
     }
 }
+
+#[path = "exact_numeric_backend_capability/lifecycle.rs"]
+mod lifecycle;

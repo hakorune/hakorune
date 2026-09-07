@@ -5,6 +5,25 @@ pub(crate) fn enforce_published_backend_supported(
     view: &crate::mir::function::PublishedMirBackendView<'_>,
     backend: &str,
 ) -> Result<(), String> {
+    validate_published_ingress(view)?;
+    enforce_refreshed_mir_backend_supported(view.module(), backend)
+}
+
+/// The lifecycle consumer proves numeric coverage using the exact input it emits.
+/// No arbitrary skip flag or alternate backend spelling can select this path.
+pub(crate) fn enforce_published_lifecycle_backend_supported(
+    view: &crate::mir::function::PublishedMirBackendView<'_>,
+    input: &crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalAbiInputV1<'_>,
+) -> Result<(), String> {
+    validate_published_ingress(view)?;
+    crate::mir::ownership_backend_capability::enforce(view.module(), "ny-llvmc-obj")?;
+    crate::mir::exact_numeric_backend_capability::enforce_lifecycle_input(view.module(), input)?;
+    enforce_remaining_backend_supported(view.module(), "ny-llvmc-obj")
+}
+
+fn validate_published_ingress(
+    view: &crate::mir::function::PublishedMirBackendView<'_>,
+) -> Result<(), String> {
     let module = view.module();
     for function in module.functions.values() {
         if !function.metadata.extern_call_routes.is_empty()
@@ -21,8 +40,7 @@ pub(crate) fn enforce_published_backend_supported(
             return Err("[freeze:contract][published-backend/compatibility-ingress]".into());
         }
     }
-    crate::mir::semantic_refresh::validate_published_contracts(module)?;
-    enforce_refreshed_mir_backend_supported(module, backend)
+    crate::mir::semantic_refresh::validate_published_contracts(module)
 }
 
 pub(crate) fn enforce_mir_backend_supported(
@@ -44,6 +62,10 @@ fn enforce_refreshed_mir_backend_supported(
     crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module, backend,
     )?;
+    enforce_remaining_backend_supported(module, backend)
+}
+
+fn enforce_remaining_backend_supported(module: &MirModule, backend: &str) -> Result<(), String> {
     crate::mir::array_record_backend_capability::enforce_array_record_backend_supported(
         module, backend,
     )?;
