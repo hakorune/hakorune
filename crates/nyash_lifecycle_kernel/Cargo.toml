@@ -1,0 +1,12 @@
+[package]
+name = "nyash_lifecycle_kernel"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib"]
+test = false
+doctest = false
+
+[dependencies]
+nyash_kernel = { path = "../nyash_kernel", default-features = false, features = ["lifecycle-core"] }

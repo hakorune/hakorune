@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-I0"
-current_execution_cohort = "constructor_lifecycle_kernel_entry_artifact_split_i0"
-current_design_stop = "none (kernel entry artifact decision accepted)"
-current_blocker_token = "Finish the selected lifecycle kernel artifact: common launcher, exclusive Cargo features and isolated build output, archive-issued entry ABI checked by the lifecycle-only host selection; prove symbols and launcher status before V4 emission."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
+current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
+current_design_stop = "none (kernel artifact boundary verified; V4 Pair consumer selected)"
+current_blocker_token = "Implement the selected V4 Pair body consumer using the co-sealed physical input and explicit lifecycle archive/session; prove direct EXE30 and independently linked OBJ30, then retire selected pending transport edges."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -41,10 +41,10 @@ archive record and the host reader proves actual extraction plus malformed
 rejection. The selected target was already x86_64 GNU/Linux LP64. The host half
 of session I0 retains one explicit archive through lifecycle EXE compilation
 and link; C V3 now validates descriptor/header geometry plus the selected LLVM target-data Diagnostic/Frame layout before pending. Direct physical input I0 owns
-the one-pass final ABI transport and real parser ingress; parser closure I0 is landed at 23824e64f7 with dedicated and source-issued Pair acceptance. C body consumer D0 selected the V4 Pair emitter. Its invocation-contract I0 is closed: the compiled-entry-owned physical input issues the selected Pair's five checked-runtime diagnostic sites, rejects Unit roots before C, and the lifecycle-private LLVM 18 text session writes/verifies the selected triple/data-layout without generic flags or object emission. V4 launcher design is accepted: a distinct lifecycle kernel archive will depend on the core kernel with legacy main disabled, while the old archive keeps generic main and raw compatibility decoding. The active I0 now establishes that artifact/symbol boundary before C emission. Pair EXE30/linked OBJ30 remain unproven.
+the one-pass final ABI transport and real parser ingress; parser closure I0 is landed at 23824e64f7 with dedicated and source-issued Pair acceptance. C body consumer D0 selected the V4 Pair emitter. Its invocation-contract I0 is closed: the compiled-entry-owned physical input issues the selected Pair's five checked-runtime diagnostic sites, rejects Unit roots before C, and the lifecycle-private LLVM 18 text session writes/verifies the selected triple/data-layout without generic flags or object emission. The lifecycle kernel artifact boundary is verified: separate release archives each own one main; the normalized launcher passes five status cases, legacy regression passes five, mixed features reject, and the host checks entry ABI plus runtime layout from its retained archive. The active V4 consumer now connects the issued program to LLVM/object execution. Pair EXE30/linked OBJ30 and selected old transport retirement remain unproven.
 """
-next_design_card = "none (kernel entry artifact D1 accepted)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-I0"
+next_design_card = "none (V4 Pair consumer D0 accepted)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

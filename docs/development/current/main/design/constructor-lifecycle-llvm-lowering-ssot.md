@@ -1534,55 +1534,44 @@ adaptation. Neither archive names nor host-handle lookup issue entry meaning.
 The boundary is package selection -> compiled archive -> host session -> native
 entry; source families and generic result-policy migration are excluded.
 
-The feature gate landed at `557a812464`; the archive/launcher split has not.
-Read-only follow-up found two required cutover conditions:
+Cargo feature merging is an explicit fail-fast boundary: the core rejects
+`legacy-entry + lifecycle-core`. The wildcard workspace's generic build callers
+(`tools/build_plugins_all.sh`, `.github/workflows/fast-smoke.yml`) exclude the
+lifecycle package; its explicit build uses `target/lifecycle-kernel`, preserving
+the legacy archive. A separate invocation alone is not the exclusivity proof.
 
-- `Cargo.toml` includes `crates/*`; `tools/build_plugins_all.sh` and
-  `.github/workflows/fast-smoke.yml` build the workspace. A dependency's
-  `default-features=false` cannot cancel another selection's `legacy-entry`.
-  The core must reject `legacy-entry + lifecycle-core` at compile time.
-  Build lifecycle with explicit package selection and a separate target-dir;
-  generic workspace callers explicitly exclude the lifecycle package.
-- `LifecycleRuntimeSessionV1::select` currently verifies target/Fault geometry,
-  not entry ABI. A renamed legacy archive must not pass lifecycle selection.
-  The lifecycle entry owner must emit a versioned entry-ABI record in its own
-  named ELF section. The host reads exactly one such record from the same
-  archive as the runtime descriptor, rejects missing/duplicate/unsupported
-  records before emission, and retains that archive through link. This record
-  identifies the physical entry contract, never source meaning or Fault layout.
+The lifecycle entry owner emits `.nyash.entry_abi.v1`; its exact 16-byte ABI is
+specified in `docs/reference/language/function-exit-and-entry-result.md`.
+`LifecycleRuntimeSessionV1::select` checks exactly one supported entry record
+and the runtime descriptor from the same archive. Renaming a legacy archive
+cannot supply this evidence. The host selects this archive only for lifecycle
+instructions and retains it through link; generic callers use the old archive.
 
 No V4 emission, raw-decode retirement, generic policy change or Pair execution
-is claimed by this artifact prerequisite. Prior release command completion is
-unverified; a fresh explicit release gate must supply artifact evidence.
+is claimed by this artifact prerequisite. Executed evidence belongs in I0.
 
 ### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-I0`
 
-**Change:** close the existing artifact boundary in this order:
-1. Extract common startup/flush without changing legacy entry behavior; add
-   the lifecycle launcher accepting only `0..=255`, otherwise status 70.
-2. Add mutually exclusive feature enforcement, the distinct staticlib and its
-   entry-ABI record, isolated build output, and generic workspace exclusions.
-3. Require the record in lifecycle session selection and switch only the
-   selected lifecycle host branch to its explicit archive. Generic callers
-   retain their existing archive choice.
+**Closed artifact boundary:** common startup/flush, explicit normalized launcher,
+exclusive Cargo features, isolated lifecycle archive and entry-ABI record are
+implemented. The lifecycle-only host branch requires the record and retains
+that archive through link; generic entry/result behavior remains legacy.
 
-**Contract:** source -> Facts/Recipe -> compiled-entry contract is unchanged;
-this BoxShape series changes the physical invocation boundary only. The
-lifecycle launcher never decodes handles. Missing entry ABI, incompatible
-features or target/layout mismatch fail before publication with no fallback.
+Evidence: separate `cargo build -p nyash_kernel --release` and
+`cargo build -p nyash_lifecycle_kernel --release --target-dir target/lifecycle-kernel`
+passed with `CARGO_BUILD_JOBS=4`. The same isolated kernel build with default
+features plus `--features lifecycle-core` failed at the intended compile error.
+`crates/nyash_lifecycle_kernel/tests/launcher.py` against both release archives
+proved one `main` each and ten status/one-call cases. The five descriptor tests
+(including real archives and renamed-legacy rejection) passed via standalone
+`rustc --test src/host_providers/llvm_codegen/runtime_abi_descriptor.rs` and
+`--include-ignored`. Pointer guard, shell syntax and diff checks passed.
+README/reference own the executable commands and physical entry ABI.
 
-**Done:** separate release archives each contain exactly one intended `main`;
-explicit mixed-feature selection fails; launcher executions cover
-`0/30/255/-1/256` and one `ny_main` call; renamed legacy/missing/duplicate entry
-records reject before artifact; generic archive selection is unchanged.
-Update kernel README and entry-result reference with implementation, run the
-pointer guard, then return to the existing V4 body-consumer row. Its finish line
-remains direct Pair EXE30 and independently same-archive linked OBJ EXE30,
-exactly-once cleanup/Fault report/dispose, and selected old transport retirement.
-
-**Stop:** unresolved entry-record ownership/schema or changed startup/flush
-semantics requires design clarification before code. No additional source
-family, runtime modernization or generic backend work enters this series.
+Next: existing `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1`. Direct Pair EXE30,
+independently same-archive linked OBJ EXE30, exactly-once lifecycle cleanup/Fault
+report/dispose, and old transport retirement remain unproved. ABI-stub launcher
+execution is not source Pair or C body-consumer evidence.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 

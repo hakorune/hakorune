@@ -143,16 +143,23 @@ pub(crate) fn emit_published_view_exe(
     let object_path = format!("{}.published-static-method.o", exe_out);
     let result = (|| {
         crate::mir::backend_capability::enforce_published_backend_supported(view, "ny-llvmc-obj")?;
-        let runtime_dir =
-            nyrt_dir.ok_or("published lifecycle EXE requires an explicit runtime directory")?;
-        let lifecycle_session = LifecycleRuntimeSessionV1::select(
-            PathBuf::from(runtime_dir).join("libnyash_kernel.a"),
-        )?;
-        compile_published_view_object(view, &object_path, Some(&lifecycle_session))?;
+        let runtime_dir = nyrt_dir.ok_or("published EXE requires an explicit runtime directory")?;
+        let lifecycle_session = if view.lifecycle_instructions().is_empty() {
+            None
+        } else {
+            Some(LifecycleRuntimeSessionV1::select(
+                PathBuf::from(runtime_dir).join("libnyash_lifecycle_kernel.a"),
+            )?)
+        };
+        let archive = lifecycle_session.as_ref().map_or_else(
+            || PathBuf::from(runtime_dir).join("libnyash_kernel.a"),
+            |session| session.runtime_archive().to_path_buf(),
+        );
+        compile_published_view_object(view, &object_path, lifecycle_session.as_ref())?;
         super::link_object_capi_v2(
             Path::new(&object_path),
             Path::new(exe_out),
-            lifecycle_session.runtime_archive(),
+            &archive,
             extra_libs,
         )?;
         Ok(true)

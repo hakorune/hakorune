@@ -13,7 +13,7 @@ echo "[plugins] building all (profile=$PROFILE, jobs=$JOBS)"
 
 # Build all plugins in one go for maximum efficiency
 echo "[plugins] building workspace..."
-cargo build --workspace --$PROFILE -j $JOBS >/dev/null
+cargo build --workspace --exclude nyash_lifecycle_kernel --$PROFILE -j $JOBS >/dev/null
 
 # Copy artifacts to plugin directories
 for dir in plugins/*; do

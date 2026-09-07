@@ -1,6 +1,12 @@
 // Minimal NyRT static shim library (libnyrt.a)
 // Exposes C ABI entry points used by AOT/JIT-emitted objects.
 
+#[cfg(all(feature = "legacy-entry", feature = "lifecycle-core"))]
+compile_error!("nyash_kernel: legacy-entry and lifecycle-core require separate build invocations");
+
+#[cfg(feature = "lifecycle-core")]
+pub use entry::run_normalized_entry;
+
 mod backend_env;
 mod c_string;
 mod encode;

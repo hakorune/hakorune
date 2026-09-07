@@ -17,14 +17,21 @@ or source Fault. Supported profiles are SafeMutex and SingleThreadExact.
 The trusted pointer contract is in `include/nyrt_fault_v1.h`; the ABI alone does
 not activate a compiler/backend lifecycle consumer.
 
-### Legacy process entry feature
+### Process entry artifacts
 
 The default `legacy-entry` feature exports the compatibility `main`, including
-its existing positive-handle decoding. Disabling default features removes that
-entry; it does not provide a lifecycle launcher. Cargo features are additive,
-so a no-default dependency alone does not prove absence of the legacy entry
-when another selected package enables it. The distinct lifecycle artifact and
-its build/entry-ABI checks remain pending in the active constructor card.
+its existing positive-handle decoding. The `lifecycle-core` feature instead
+exposes the common startup/flush launcher to the separate
+[`nyash_lifecycle_kernel`](../nyash_lifecycle_kernel/README.md) staticlib.
+Enabling both features is a compile error; Cargo feature merging cannot silently
+change the selected entry. Disabling both exports no process entry.
+
+Build the legacy archive with `cargo build -p nyash_kernel --release`. Build the
+lifecycle package separately in its documented target directory. Generic
+workspace builds exclude `nyash_lifecycle_kernel`. Both artifacts reuse one
+runtime implementation; only the lifecycle entry carries its normalized-status
+ABI record. Its host session verifies that record and this kernel's runtime
+layout descriptor from the same selected archive before object emission.
 
 ### Target-compiled ABI descriptor
 

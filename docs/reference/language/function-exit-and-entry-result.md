@@ -350,11 +350,20 @@ source entry
   -> native main: checked OS adaptation
 ```
 
-The kernel's current `legacy-entry` Cargo feature defaults on and gates its
-compatibility `main`. Turning it off removes that entry only; it does not
-activate the normalized-status ABI or establish a lifecycle archive. The
-selected lifecycle artifact must carry entry-ABI evidence verified from the
-same archive as its runtime layout descriptor before emission/link.
+Decision: the selected lifecycle native entry uses a distinct
+`nyash_lifecycle_kernel` artifact. Its `main` invokes generated `ny_main` once
+through the common kernel startup/flush owner, accepts `0..=255`, and maps an
+out-of-contract status to 70 without handle decoding. This physical adapter
+does not activate source-result projection or the still-pending V4 emitter.
+The default `nyash_kernel/legacy-entry` retains compatibility behavior;
+`lifecycle-core` and `legacy-entry` together are a compile-time error.
+
+The lifecycle entry owner retains `.nyash.entry_abi.v1`, exactly 16 bytes:
+ASCII `NYENTRY1`, little-endian u32 revision 1, u32 entry kind 1 (normalized i64).
+Host selection requires exactly one supported record in the same archive as
+the runtime layout descriptor and retains that archive through link. Missing,
+duplicate, truncated or foreign records reject before emission. Filenames
+cannot supply entry-ABI evidence. The core's Fault layout record is unchanged.
 
 `ny_main` must not permanently multiplex a raw source Integer, generic object
 handle, and normalized status in the same untagged `i64`.
