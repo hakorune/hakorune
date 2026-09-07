@@ -2576,12 +2576,14 @@ work and other source families. No build or runtime evidence was collected.
    terminal or causal link to the historical Unit defect is proven. Nonetheless,
    `ordinary_new_coseal` and `ordinary_new_local_commit` retain four parallel
    Options; Add/Unit preparation checks differ. Replace them by one private
-   finite enum carrying the existing relation, then remove stored derived
+   finite enum carrying the existing relation (one optional enum only where
+   no terminal has been issued), then remove stored derived
    root_result and project once at the established result boundary. Delete pair
    collision matrix, parallel storage, duplicate finalization classification and
    source/result synchronization checks. Preserve source owner/site, duplicate
    reservation, Completion/progress, field-read completeness and unsupported
-   local/Bool refusal. Gates: four existing terminal families, their rejection
+   local/Bool refusal. Structural exclusivity does not replace progress checks
+   or establish a second source authority. Gates: four existing terminal families, their rejection
    tests, selected Pair EXE/linked OBJ30. No new public receipt or source family.
 3. **Physical storage wire tag BoxShape**, existing Rust physical ABI and shared
    C header/parser/admission owner. Name the I64 storage tag now written as1 in
