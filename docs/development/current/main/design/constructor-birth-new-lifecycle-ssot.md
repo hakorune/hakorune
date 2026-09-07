@@ -861,7 +861,7 @@ Decision: finish one selected physical transport and consumer; retire the replac
 Source authority + canonical issuer: constructor semantic row and finalized root/Birth handoff own membership and lanes; final view projects final MIR and installed canonical object layouts; `include/nyrt_fault_v1.h` owns runtime ABI.
 Non-authority: generic JSON dispatch, function names, V2 partial rows, physical ordinal defaults, fixture values and parser success cannot issue missing source meaning.
 Fail-fast boundary: malformed physical input rejects before LLVM/artifact; missing lowering ABI remains a design stop; canonical admission never retries compatibility.
-Smallest next slice: close the existing `CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-I0` contract as one BoxShape, using actual issued JSON and a finite schema/reference matrix.
+Smallest next slice: follow CURRENT_STATE and the lowering card; parser completion is historical dependency evidence, not the current frontier.
 Non-claims: parser completion today, C execution, Pair EXE30/linked OBJ30, production cutover, concurrency safety, Call R7 or whole-MirBuilder completion.
 
 #### Evidence correction and finite boundary
@@ -927,10 +927,10 @@ physical mapping; an absent semantic issuer requires a named design stop.
    and rejects missing/duplicate fields, out-of-range or foreign block/value/
    layout/Birth references, malformed invokes, frame-mode drift, PHI
    predecessor drift, and terminal/edge disagreement before artifact output.
-   The focused C fixture is a complete input, and unchanged Pair source now
-   reaches the same exported C parser through final-view serialization. This
-   proves transport validation only; it does not emit an object or execute the
-   runtime.
+   This historical input reached the exported parser, but later formal auditing
+   found its unavailable Birth obligation was omitted. Current input issuance
+   stops before serialization. It remains physical-protocol evidence only;
+   consult the lowering card for the landed V4 emitter and open host cutover.
 
 ### CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1 — lowering ABI completion
 

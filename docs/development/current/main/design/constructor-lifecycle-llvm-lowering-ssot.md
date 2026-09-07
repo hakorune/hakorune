@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: follow the kernel artifact I0 selected by `CURRENT_STATE.toml`.
+Smallest next slice: fix the Birth kind/payload wire and field type-mismatch Fault contract selected by `CURRENT_STATE.toml`.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -1786,9 +1786,11 @@ remaining source representations/origins (including Birth receiver/formal
 classes and uncovered result arms), then physical binding and final handoff,
 then explicit target/runtime entry and status agreement. Project that complete
 input into the direct parser before implementing the selected LLVM consumer.
-The direct parser is currently a validation-only ingress; the actual host still
-uses generic lifecycle body JSON plus the V2 pending companion. Do not call
-parser success host cutover or complete program proof.
+The direct parser remains a validation ingress; V4 additionally emits and
+executes physical protocol inputs. The committed host still uses the V3/V2
+pending companion, and unresolved source formals stop before serialization.
+The direct V4 host draft is not landed. Neither parser success nor physical
+protocol execution closes source host acceptance.
 
 The LLVM series switches that actual host edge and removes its selected old
 route, with unchanged Pair EXE30 and OBJ-linked EXE30 plus Fault/frame/cleanup
@@ -1814,14 +1816,33 @@ or automatic LLVM embedding.
 
 ### Feedback reconciliation queue (2026-09-07)
 
-The following audit findings are queued here rather than opened as parallel
-authorities. Their order follows the existing constructor lifecycle: source and
-physical input first, selected host cutover next, then physical cleanup.
+The 4237b20d feedback was reconciled against committed c8e32fdeb4 and the
+separate uncommitted V4 host draft. Boundary: selected finalized constructor
+handoff -> physical input -> selected host/C consumer -> OBJ/linked EXE;
+includes root kind, formal obligations, retained actuals and cleanup; excludes
+other source families, generic compatibility and whole-builder size census.
+No new build/runtime evidence was collected for this read-only reconciliation.
+
+| Finding | Current evidence / disposition | Existing task and completion condition |
+| --- | --- | --- |
+| Unit represented as RootI64 | `physical_program.rs` still uses RootI64, but `physical_abi.rs` rejects Unit before serialization; V2 emits ROOT_UNIT correctly. Unsafe direct admission is stopped, not Unit execution completed. | As a separate BoxShape retaining the Unit execution Stop, physical-program owner projects the existing compiled result into distinct Unit/I64 roles and deletes unconditional RootI64 assignment. V2/direct role agreement and malformed/result-slot negatives are required; Unit execution is separate from Pair. |
+| Sibling final input | PhysicalAbiInput now owns CompiledEntryContract; the sibling-product gap is closed. Unresolved formal dispositions are consumed as an explicit pre-JSON Stop; per-New actual retention is verified. | Existing R1 task 2 closes kind/payload and FieldSet type-failure binding, then deletes positional I64 defaults. Keep one contract issuer and call-local runtime session; moving source decisions into the session is forbidden. |
+| Three transport paths | Committed host constructs V2 rows, validates physical JSON, then sends generic JSON through V3 to pending V2. Direct V4 host replacement is only a working-tree draft; C V4 emission is landed physical-protocol evidence. | Existing R1 tasks 3–4: close optimizer mapping, prove real host EXE30 and independent same-session OBJ/link30 plus Fault/cleanup, then delete selected generic JSON/V2 rows/V3 delegation, duplicate pre-parser call and caller-zero exclusive probes. Shared parser/session/runtime validation survives. |
+| View owns and activates | PublishedMirBackendView still owns handoffs/vectors/profile and mutates admission; it is not borrow-only and is not a new source issuer. | Post-cutover view responsibility task below; do not count file moves as closing it. |
+
+Order remains: representation/Fault contract -> exact physical binding ->
+optimizer observer mapping -> real host execution -> old transport retirement
+-> view/C boundary cleanup. Unit widening is not a prerequisite to proving
+Pair I64, but its role mismatch must close before Unit direct admission.
+The later source convergence task below remains separate from this cutover.
 
 | Order / task | Owner and bounded change | Gate and acceptance |
 | --- | --- | --- |
 | 4-pre. `CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-D0` | Step 4's existing Rust/C physical ABI owner names each absent source ordinal currently encoded as `u32::MAX`, replaces only anonymous literals in that frame, and rejects impossible presence combinations. | Wire bytes stay unchanged; Rust/C boundary cases prove absent versus ordinal semantics. It cannot issue receiver/source meaning or permit LLVM execution. |
-| 4. `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0` | Step 4's existing `physical_program_json.rs` owner constructs the final ABI input once and passes it directly to its consumer; delete the intermediate JSON-string `from_str` reparse. | Only after Steps 1–3 and the sentinel contract have issued the complete input. Actual issued Pair input and variant/range/coverage/target negatives pass the same parser. This is parser evidence, never host cutover. |
+| 4. `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0` | Single Value construction and final serialization are landed in `physical_program_json.rs`; intermediate String reparse is removed. PhysicalAbiInput contains the compiled-entry contract. | Construction is not an open reparse task. Unresolved source formals stop before this serializer; historical parser/physical-input success does not close formal execution or host cutover. |
+| 6-owner. Published-view responsibility cleanup | Existing finalized invocation/handoff owns completed products; PublishedMirBackendView borrows them; backend invocation owns target/profile and admission. Real callers are normal finalization and shared OBJ/EXE host. | After host cutover, move rather than duplicate ownership; remove view-owned retained product storage and bind/activate mutation. Preserve missing/foreign/stale rejection and same-borrow EXE/OBJ acceptance. No module-to-source reconstruction. |
+| 6-C. C physical responsibility cleanup | Existing V4 admission/emission/compile owners hide parser, LLVM emission and tool lifetime details at their boundary. | After caller-zero V2/V3 removal, remove obsolete shared state/helpers and private probes. Preserve physical/Fault/target/temp-file acceptance; no whole-directory move or include-count target. |
+| Later source convergence | Existing normal_callable_semantic_loan_port routes CanonicalTrivialRouteV1::Outside to lower_normal_cataloged_static_box_method_with_source_v1; source Facts/Recipe producer owns its eventual replacement. | Select one finite source family with an actual issuer and terminal, remove that family's raw-body edge, and prove source-to-Recipe plus rejection and selected execution. No blanket Outside rejection or second resolver. Until selected, this is outside the constructor cutover; reopen if that edge bypasses a selected constructor obligation. |
 | 6a. `PUBLISHED-BACKEND-VIEW-PLACEMENT-R0` | After the selected reader is stable and old wrapper callers are zero, move the two `#[path]`-mounted transport implementation files under their owning published-view module and remove the mounts. | One physical module tree, direct/manifest/aggregate/directory caller census zero for the old paths, and unchanged selected acceptance. This is placement only, not a second view authority. |
 | 6b. `NORMAL-CALLABLE-SEMANTIC-README-R0` | After constructor lifecycle closeout, condense dated journal material in the semantic package README into current authority, boundary and landed-evidence sections. | Preserve every live contract link and current decision; no semantic or production-edge change. |
 | post-6. `C-LLVM-COMPILE-SESSION-INPROCESS-D0` | The parked in-process investigation above owns the C `system()` tool route. | It begins only after Steps 5–6; choice and equivalence acceptance above are required before deleting tool invocations. |

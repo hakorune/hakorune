@@ -46,6 +46,8 @@ Per-New retention at ffa36b0823 is verified: compiled_entry_contract 1/1 and
 physical_program_json 3/3 pass with CGU256, one job, peak aggregate 8.54 GiB.
 The standing 12 GiB monitored ceiling replaces per-run resource approval.
 Next is the kind/payload wire and field type-mismatch Fault contract design.
+4237b20d feedback is reconciled in the card: containment and single serialization
+landed; Unit role cleanup, host retirement and view ownership cleanup remain.
 No whitelist bypass, source specialization, Dynamic-V2 metadata reuse, or source
 execution claim is permitted. Rust V4 host edits and the focused test remain
 uncommitted; no positive host EXE/OBJ or representation promotion is claimed.

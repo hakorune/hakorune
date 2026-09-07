@@ -544,11 +544,13 @@ The [accepted physical consumer plan](../design/constructor-birth-new-lifecycle-
 owns the current evidence, exact owners/callers, acceptance and exclusive
 retirement sets. Do not recreate its task details here.
 
-Direct parser contract -> lowering ABI completeness -> actual selected C/host
-cutover with Pair/Fault execution -> selected caller-zero retirement.
-The parser is still incomplete; the production host remains at
-`body-consumer-pending`. Retained source/Birth handoff and serialized physical
-rows are dependency evidence. Neither proves EXE30/linked OBJ30.
+The current [lowering card](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-queue-2026-09-07)
+owns the updated status and ordering: Birth representation contract -> optimizer
+observer mapping -> actual host EXE/OBJ acceptance -> caller-zero retirement.
+C V4 physical execution exists, but the committed host still has the V3/V2
+pending path; its direct V4 replacement is an uncommitted draft. Unresolved
+Birth formals now stop before JSON. Physical execution does not prove source
+Pair EXE30/linked OBJ30. View responsibility cleanup follows cutover.
 
 Initial 11-entry fresh llvm_static acceptance was 1 pass / 10 failures: six
 RootPreservation(CompatibilityLoss), four generated birth/0. Existing records
@@ -570,8 +572,8 @@ backend consumes published relations; runtime hook owner accepts registrations.
 Non-authority: JSON names, C language choice, duplicate registries and local green.
 Fail-fast boundary: missing selected authority stops before effects/artifact;
 no unproved canonical-to-compatibility fallback or concurrency guarantee.
-Smallest next slice: existing constructor parser contract; follow its linked
-owner plan through actual consumer execution and exclusive old-edge replacement.
+Smallest next slice: the constructor frontier selected by CURRENT_STATE; follow
+its linked owner plan through execution and exclusive old-edge replacement.
 Non-claims: Pair EXE30/OBJ30, legacy retirement, races or compiler binary size.
 
 Order: constructor plan through execution/retirement -> canonical/compatibility separation ->
