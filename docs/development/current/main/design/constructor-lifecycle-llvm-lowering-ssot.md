@@ -14,9 +14,9 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0`; retain
-the existing source declaration object through Birth handoff and remove the
-transport's name-index reconstruction. See the issuance design below.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0`; issue
+target-derived runtime ABI facts for the selected compile invocation. See the
+accepted target-session ownership and ordered tasks below.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -32,7 +32,7 @@ No second MirBuilder or new semantic `Verified*`/`Prepared*` receipt is needed.
 | Recipe -> physical emission | Bind those requirements to emitted values and operations once | `ordinary_new_admission/selected`, `normal_callable_construction_state`, existing root/New completion ledger |
 | Finishing -> final view | Verify complete retained bindings against final MIR and borrow them | `ordinary_new_local_commit`, normal pipeline final validation, `published_backend_view/lifecycle` |
 | Final view -> LLVM | Project completed physical bindings; backend realizes their representation categories under explicit runtime/target ABI | `published_backend_view/physical_abi`, dedicated lifecycle C consumer |
-| LLVM -> object/link | Use the same selected target and matching runtime library | selected host invocation, call-local TargetMachine/DataLayout session, EXE/OBJ linker owner |
+| LLVM -> object/link | Use the same selected target and matching runtime library | selected host invocation, call-local target/tool session with LLVM layout evidence, EXE/OBJ linker owner |
 
 Extend existing plans with the information they currently discard. Aggregate
 handoff co-seals completed products and issues no new source meaning. Do not
@@ -231,12 +231,87 @@ must not reuse PTFB or issue semantic meaning.
 
 ### `CONSTRUCTOR-LIFECYCLE-TARGET-SESSION-ISSUER-D0`
 
-Design the one physical lifecycle target-session issuer and its finite caller
-inventory before any target layout, direct physical input or C body emission.
-It may reuse existing structural ABI vocabulary only after naming a lifecycle
-owner; absent/mismatched target, layout, FaultFrame revision or runtime archive
-must reject pre-artifact. This is a decision-only row with no new semantic
-receipt, C emission, kernel switch or EXE claim.
+Decision: extend the selected host compile invocation as the sole physical
+session owner; runtime builds issue their own ABI description. Missing current
+implementation is an implementation dependency, not a reason for another
+issuer census. The already selected target remains x86_64 GNU/Linux LP64.
+Source authority + canonical issuer: source meaning stays in the existing
+semantic package/final handoff; kernel target compilation issues runtime ABI
+facts, and the lifecycle host invocation binds target, runtime and backend.
+Non-authority: archive pathname/package version alone, host sizeof, ambient
+llc defaults, source names, and pinned-text semantic admission.
+Fail-fast boundary: missing or conflicting runtime descriptor, selected target,
+ABI revision, LLVM layout or archive binding rejects before user-object output.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0` below.
+Non-claims: this decision does not prove layout equality, complete physical
+representation coverage, C execution, EXE30, or MirBuilder-wide retirement.
+
+The previous NoSafeSlice findings establish that the objects do not exist yet;
+they do not forbid designing them under the runtime/backend owners already
+named in Runtime and target ABI. No semantic receipt or second MirBuilder is
+needed. Pinned-text capability/census remains cohort-specific; low-level LLVM
+tool loading, target observation and resource disposal are ordinary reuse
+candidates when separated from that admission. In-process conversion remains
+parked: a call-local session may own explicit LLVM tool invocations.
+
+#### Ownership and lifetime
+
+| Owner | Product and consumption |
+| --- | --- |
+| Kernel target build (`exports/fault.rs`, `build.rs`, `include/nyrt_fault_v1.h`) | A versioned, target-compiled ABI descriptor embedded in the runtime archive. Rust layout constants derive sizes, alignments and offsets; Cargo TARGET supplies target identity. No hand-written duplicate byte-layout table. |
+| Host lifecycle invocation (`published_mir_object.rs`, `capi_transport.rs`) | Select target and runtime archive once before compilation. Read the descriptor without executing target code, retain archive identity for this invocation, and pass explicit backend options. EXE must not select a different archive after object generation. |
+| Dedicated C lifecycle consumer | Own one call-local backend session; verify LLVM target layout against runtime facts and target-compiled C header evidence. Use the same explicitly selected tools/target/options for validation and object emission; release resources on every failure. |
+| Selected OBJ/EXE linker | Consume an object ABI requirement and matching runtime descriptor. Standalone OBJ may link an ABI-compatible archive; byte identity is an invocation integrity check, not the definition of ABI compatibility. |
+
+The audited caller boundary is runner published OBJ/EXE requests → selected
+host lifecycle compile/link invocation. Includes module EXE calls in
+`src/runner/modes/common_util/exec.rs` (two call sites), its module OBJ call,
+view EXE in `src/runner/modes/mir.rs`, and view OBJ in
+`src/runner/product/llvm/mod.rs`: five runner call sites, converging on
+`compile_published_view_object` and then `compile_published_lifecycle_body_v2`.
+Excludes unrelated generic/compatibility link drivers and other backends; this
+inventory does not establish their caller-zero retirement. Task 2 threads one
+explicit session from those selected lifecycle requests, and replaces the
+lifecycle branch's late runtime-dir/env/default archive fallback.
+
+Descriptor encoding is fixed-width, versioned and independent of native C
+struct padding. It includes magic/length/revision, target identity, endian and
+pointer width, Fault ABI revision, and Diagnostic/Frame size, alignment and
+field offsets. Embed one retained, named descriptor in the target object/archive;
+extract it by its defined symbol/section, never by byte-pattern search. Reject
+missing, duplicate, truncated, unsupported or inconsistent descriptors. A
+sidecar may not become a second source of runtime ABI facts. The descriptor
+records implemented ABI only; it must not advertise the future normalized
+entry terminal before that terminal is implemented.
+
+#### Ordered implementation tasks
+
+| Order | Owner / bounded work | Acceptance and removed edge |
+| --- | --- | --- |
+| 1. Runtime ABI descriptor I0 | Kernel target build plus host archive descriptor reader. Issue and decode one target-derived descriptor; no executable route switch. | Read the actual built archive without running target code. Compare Rust constants and target-compiled C header layout; reject missing/duplicate/malformed/revision/target mismatches. Establish the dependency used by task 2, without claiming standalone codegen. |
+| 2. Lifecycle invocation/session I0 | Existing host object/EXE entry, C target options/session, selected link owner. Bind descriptor and target before compilation; preserve OBJ ABI requirements through link. | Source-selected invocation consumes task 1; explicit target/layout/archive mutations reject before user artifacts. Delete late EXE archive re-selection and ambient target selection on this lane. Prove LLVM layout with the same toolchain/target used for emission. |
+| 3. Complete direct input I0 | Existing physical ABI/JSON owner and dedicated parser. Co-seal the compiled-entry contract, layouts and session input; construct final JSON once. | Actual issued Pair input reaches the real C parser. Full opcode/operand/CFG/PHI/formal/cleanup/target mutation coverage; delete serialize/parse/serialize and name-only acceptance. Deferred actual representations and unsupported admitted siblings remain cutover blockers, not implicit i64. |
+| 4. Lifecycle execution and entry cutover | Dedicated C body emitter, host caller and kernel entry selected together. Implement allocation/Birth/field/Add/control and cleanup, plus normalized root status. | Unchanged Pair source exits 30 through direct EXE and independently linked OBJ. Inject normal/fault/report failures, check exactly-once cleanup and no output on compilation rejection. Delete selected pending/generic-body route and selected raw kernel result decoding in the same series. |
+| 5. Caller-zero retirement | Transport/entry owners. Remove obsolete wrappers and exclusive probes after all discovery paths are checked. | Direct/manifest/aggregate/directory callers of the selected old route are zero. Shared compatibility helpers retain named callers; broader source families and Call R7 obligations remain explicit. |
+
+Before task 4 activation, the existing runtime/final-entry owners must settle
+InvalidContract and reporting failure behavior. InvalidContract must not enter
+a source Fault successor or touch an untrusted frame; report failure on a valid
+frame still requires disposal. These are explicit unresolved terminal-policy
+items within task 4, not permissions to invent a numeric exit code in C. They
+do not block the runtime descriptor implementation.
+
+### `CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0`
+
+BoxShape: implement task 1 only. The source of every descriptor layout value is
+target-compiled Rust Fault ABI representation; C header checks are independent
+boundary evidence. A small host reader consumes the embedded descriptor of the
+specified archive. Keep producer/reader/tests in bounded children below 800
+lines and update runtime README plus the owning reference ABI page with the
+implementation. Test actual archive extraction and malformed/foreign inputs;
+no new guard family or semantic Verified/Prepared product. Task 2 must use this
+reader on the selected production invocation before the series is called a
+production replacement. Task 1 alone claims descriptor evidence only.
 
 ### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
 

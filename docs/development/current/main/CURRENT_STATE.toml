@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-TARGET-SESSION-ISSUER-D0"
-current_execution_cohort = "constructor_lifecycle_target_session_issuer_d0"
-current_design_stop = "TARGET-SESSION-ISSUER-D0 must name one lifecycle invocation owner for target, FaultFrame layout and kernel archive compatibility."
-current_blocker_token = "TARGET-SESSION-ISSUER-D0 must establish lifecycle target ownership; no existing selected issuer exists and pinned-text is non-authority."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0"
+current_execution_cohort = "constructor_lifecycle_runtime_abi_descriptor_i0"
+current_design_stop = "none"
+current_blocker_token = "Implement the target-compiled runtime ABI descriptor and archive reader; prove actual archive extraction and mismatch rejection. No lifecycle execution or target equality claim until session integration."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,15 +31,19 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Birth declaration-object handoff I0 retains exact source object through the
-constructor/Birth final handoff and transport, deleting key-owner object
-derivation while preserving per-New receiver checks. Formal declaration/use D0
-now selects a constructor-issued BirthFormalContractV1: declaration class and
-complete use coverage are retained without actual-value specialization; I0 is
-landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. Root Unit C schema I0 is landed: typed ROOT_UNIT / UNIT rows and Return(None) controls reach C pending while ROOT_I64 / I64 remains stable; no object is emitted. Root scalar direct untyped Integer literal I0 is landed. Scalar I64-field I0 is landed: the existing Home scan issues the direct-field relation, the selected field-read consumer replaces its one raw return-value descent, and the final handoff/C pending frame retain the distinct I64 result. C body and target-layout D0s are NoSafeSlice. Sentinel I0 landed. Active: lifecycle target-session issuer D0; local/alias, typed integer and general Add remain NoIssuer.
+Constructor source keys and root/Birth handoff are retained; compiled-entry
+projection and V2 sentinel checks have landed. C execution remains pending.
+Target/session issuer D0 is accepted: runtime target compilation owns ABI
+facts, host lifecycle invocation owns target/archive selection, and the C
+consumer owns a call-local tool session with LLVM layout evidence.
+The selected target was already x86_64 GNU/Linux LP64. No further absence-only
+issuer census is needed. Next implement runtime descriptor plus archive reader,
+then session integration, complete direct input, C execution/status cutover and
+caller-zero retirement. Physical representation/CFG coverage and failure
+terminal policies remain cutover blockers; Pair EXE30/linked OBJ30 are unproven.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-TARGET-SESSION-ISSUER-D0"
-next_execution_card = "none (design stop active)"
+next_design_card = "none (accepted physical issuer design; descriptor I0 ready)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
