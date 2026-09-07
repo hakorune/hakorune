@@ -598,35 +598,30 @@ under their existing dispositions. No blanket Stop, new registry or legacy-plan 
 
 #### MIR-COLLECTION-LITERAL-CONSTRUCTION-D1
 
-Status: **selected design_stop**. User delegated design; implementation is not authorized yet.
+Accepted [construction design](../design/collection-literal-construction-ssot.md).
+Worker/root inventory includes raw/typed-local and Loop Core source, Core13
+name-erasure, semantic re-entry observers, legacy wire and four selected C
+consumers. Empty allocation itself requires published selection: existing frame
+kind8 will carry exact allocation site/dst; no dummy Call activates the route.
+This closes representation design, not collection Facts/Recipe or runtime acceptance.
 
-Decision: preserve intrinsic-vs-named selection in the existing construction product.
-Source authority + canonical issuer: source ArrayLiteral owner selects builtin Array before child descent; D1 must bind that selection through the existing source/product/publication owners.
-Non-authority: NewBox box_type String, C whitelist, provider config, JSON, destination-only completion and Main-input receipts.
-Fail-fast boundary: missing/lost construction identity rejects before artifact; no name repair or fallback.
-Smallest next slice: close Array literal source -> retained construction target -> selected C mapping, including all touched structural consumers, before I0.
-Non-claims: Map cutover, Main argument arrays, named new changes, Math/general Method, whole R7, VM/WASM parity or builtin physical-layout freezing.
+#### MIR-COLLECTION-ALLOCATION-TARGET-NAMED-I0
 
-Boundary: ArrayLiteral (including existing typed-local entry) -> collection_literals
--> construction instruction/publication -> body transport -> selected C allocation.
-Includes empty/nonempty arrays, exact child order and existing Array<T> validation;
-excludes named New, Map emission, Main synthesis, Invoke/Birth lifecycle and generic
-provider migration. NewBox currently has only dst/box_type:String/args, so literal
-identity is lost there. D1 chooses explicit targets in that existing representation,
-not a side metadata owner. Name-only compatibility inputs must remain distinguishable.
-This issuance/drop boundary is CutoverBlockerOpen; no census Exhausted claim.
+Status: **selected fast / BoxShape**, first step of the accepted <=4-commit series.
+Decision: replace string-only construction target in existing MIR/Core products.
+Source authority + canonical issuer: unchanged source owners; all existing source production remains Named in this step.
+Non-authority: target display/type observation cannot authorize name resolution for intrinsic targets.
+Fail-fast boundary: explicit target shape/unsupported consumer; never intrinsic-to-name fallback.
+Smallest next slice: Named conversion plus structural/wire preservation; no intrinsic source emission.
+Non-claims: Array/Map source cutover, birth deletion, empty/Loop runtime acceptance or full R7.
 
-| Order | Owner / bounded work | Retirement and acceptance |
-| --- | --- | --- |
-| 1 D1 | raw_expression_dispatch + collection_literals + instruction owner: fix source/product mapping and finite structural consumer inventory | Name target issuer, transport representation and unsupported terminal; no speculative receipt/code. |
-| 2 Array I0 series | Existing source/publication/transport/selected C owners preserve and consume intrinsic Array target | Remove only Array literal's named birth caller after cutover; test same-named box/plugin noninterference, named-new separation, empty/populated/typed arrays, child order/failure, malformed transport and OBJ/EXE. |
-| 3 Map follow-up | Reuse established construction target for Map source owner and selected consumer | Remove Map literal birth caller; preserve existing key/order/duplicate behavior; no Map method expansion. |
-| 4 Task2 remainder | Resume named Method/Constructor isolation with existing dispositions | Keep Main caller/shared birth helper until their own caller-zero proof; full R7 remains open. |
-
-Classify each touched structural consumer (retain/reject); never reinterpret old named input.
-Reuse focused tests/guard; no new guard family.
-Keep changed source below800; plan any >=760 owner split before modification.
-This turn changes reference/task docs only; no build/runtime acceptance claimed.
+Owner, finite semantic inventory and ordered gates are in the construction design.
+Required: focused named construction, remap, old-wire tests; existing canonical
+corridor/pointer guards; module/reference updates. Preserve old behavior and
+classify failures before closeout. Intrinsic production count remains zero until
+consumer preparation passes. Source changes stay below800; >=760 triggers split
+planning. Next consumer preparation then simultaneous raw/typed-local/Core Array
+cutover retires Array-only birth edges; Map/Main/shared helper remain separate.
 
 ## Source and ownership budget
 

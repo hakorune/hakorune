@@ -15,6 +15,7 @@ Pointers:
   - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - collection literal construction (accepted target; implementation pending):
   - [language contract](../../../docs/reference/language/block-expressions-and-map-literals.md#4-collection-literal-construction-identity)
+  - [construction representation and cutover](../../../docs/development/current/main/design/collection-literal-construction-ssot.md)
 - MIR navigation root:
   - `src/mir/README.md`
 
