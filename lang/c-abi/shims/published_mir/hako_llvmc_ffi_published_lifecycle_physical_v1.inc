@@ -22,7 +22,14 @@ static int hako_physical_u32(yyjson_val* value, uint32_t* out) {
 
 static int hako_physical_string(yyjson_val* value, const char* expected) {
   const char* text = (value && yyjson_is_str(value)) ? yyjson_get_str(value) : NULL;
-  return text && expected && strcmp(text, expected) == 0;
+  size_t expected_len = expected ? strlen(expected) : 0u;
+  return text && expected && yyjson_get_len(value) == expected_len &&
+      memcmp(text, expected, expected_len) == 0;
+}
+
+static int hako_physical_i64(yyjson_val* value) {
+  return (value && yyjson_is_sint(value)) ||
+      (value && yyjson_is_uint(value) && yyjson_get_uint(value) <= INT64_MAX);
 }
 
 static int hako_physical_exact_keys(yyjson_val* object, const char* const* names, size_t count) {
@@ -36,7 +43,7 @@ static int hako_physical_exact_keys(yyjson_val* object, const char* const* names
     size_t i;
     int known = 0;
     for (i = 0; i < count; i++) {
-      if (text && strcmp(text, names[i]) == 0) { known = 1; break; }
+      if (hako_physical_string(key, names[i])) { known = 1; break; }
     }
     if (!known) return 0;
     seen[i]++;
@@ -362,7 +369,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   if (!op) return 0;
   if (terminal && strcmp(op, "invoke") && strcmp(op, "branch") && strcmp(op, "jump") && strcmp(op, "return") && strcmp(op, "return_fault")) return 0;
   if (!terminal && (!strcmp(op, "branch") || !strcmp(op, "jump") || !strcmp(op, "return") || !strcmp(op, "return_fault"))) return 0;
-  if (!strcmp(op, "const_i64")) return hako_physical_exact_keys(instruction, const_i64, 3) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && yyjson_is_int(yyjson_obj_get(instruction, "value"));
+  if (!strcmp(op, "const_i64")) return hako_physical_exact_keys(instruction, const_i64, 3) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_i64(yyjson_obj_get(instruction, "value"));
   if (!strcmp(op, "const_string")) return hako_physical_exact_keys(instruction, const_i64, 3) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && yyjson_is_str(yyjson_obj_get(instruction, "value"));
   if (!strcmp(op, "const_unit")) return hako_physical_exact_keys(instruction, const_unit, 2) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a);
   if (!strcmp(op, "add")) return hako_physical_exact_keys(instruction, binary, 4) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) && hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) && hako_physical_has_value(function, b) && hako_physical_has_value(function, c);
@@ -395,7 +402,7 @@ static int hako_physical_validate_layouts(yyjson_val* layouts) {
     yyjson_val* layout = yyjson_arr_get(layouts, i); yyjson_val* fields; uint32_t object, count;
     if (!hako_physical_exact_keys(layout, layout_keys, 4) || !hako_physical_u32(yyjson_obj_get(layout, "object_id"), &object) || !hako_physical_u32(yyjson_obj_get(layout, "runtime_type_id"), NULL) || !hako_physical_u32(yyjson_obj_get(layout, "field_count"), &count) || !(fields = yyjson_obj_get(layout, "fields")) || !yyjson_is_arr(fields) || yyjson_arr_size(fields) != count) return 0;
     for (j = 0; j < yyjson_arr_size(fields); j++) { uint32_t ordinal, storage; yyjson_val* field = yyjson_arr_get(fields, j);
-      if (!hako_physical_exact_keys(field, field_keys, 3) || !hako_physical_u32(yyjson_obj_get(field, "declaration_ordinal"), &ordinal) || ordinal != j || !hako_physical_u32(yyjson_obj_get(field, "runtime_slot"), NULL) || !hako_physical_u32(yyjson_obj_get(field, "storage_kind"), &storage) || storage != 1u) return 0; }
+      if (!hako_physical_exact_keys(field, field_keys, 3) || !hako_physical_u32(yyjson_obj_get(field, "declaration_ordinal"), &ordinal) || ordinal != j || !hako_physical_u32(yyjson_obj_get(field, "runtime_slot"), &storage) || storage != ordinal || !hako_physical_u32(yyjson_obj_get(field, "storage_kind"), &storage) || storage != 1u) return 0; }
     for (j = i + 1; j < yyjson_arr_size(layouts); j++) { uint32_t other; if (!hako_physical_u32(yyjson_obj_get(yyjson_arr_get(layouts, j), "object_id"), &other) || object == other) return 0; }
   }
   return 1;
