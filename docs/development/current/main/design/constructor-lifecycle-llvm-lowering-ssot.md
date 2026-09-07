@@ -1959,27 +1959,50 @@ receipt, raw fallback, source fixture edits or nonselected backend parity.
 The worker API audit names the actual shared materialization caller and confirms
 that pre-seal cohort classification exists; no further inventory is required.
 
-**Restart after WIP fdfb79688f (2026-09-07):** the nested environment-lock
-snapshot test is fixed by ending the first scope before starting the second.
-Generated origin issuance now enforces Equals=1 / ToString=0 parameters; its
-negative test exchanges the two valid parameter lists while preserving matching
-`params`/`param_decls`, proving the kind-specific rejection. The prior SIGINT
-run was a current-change test-harness defect and is superseded for this filter.
+**Source acceptance and default CLI evidence (2026-09-07):** generated origin
+arity and nested environment-lock defects were fixed at 59e6c5c34b after WIP
+fdfb79688f. The completed focused source filter now passes 12/12:
+`cargo test --locked --profile quick --lib --features plugins default_derive
+-- --test-threads=1`. Coverage includes ordinary/mixed publication, exact one/zero
+parameters, wrong arity, body/parameter drift, missing/duplicate/foreign rows,
+wrong placement, unissued extra declaration, explicit method precedence/static
+omission, disabled settings, policy snapshot, AST-only behavior, record
+compatibility and the named public-field source stop. Existing transform tests
+pass 7/7 on the same binary, including composite/root test-tail rejection.
+One test overlaps the focused filter. The first added-test build had an ambiguous
+`.into()` in its tokenizer helper (current-change compile error); it was fixed
+and the fresh build/test above passed. Single-job opt0/nonincremental/CGU256,
+monitored aggregate peak 8.53 GiB. Touched source maximum 207 lines.
 
-Fresh validation: `cargo test --locked --profile quick --lib --features plugins
-default_derive -- --test-threads=1` passed 4/4, including Pair source-to-semantic
-publication and snapshot retention. The freshly built library binary then passed
-`normal_callable_transform_tests` 7/7 and `macro_derive` 3/3 serially (one test
-overlaps the first filter). One Cargo job, opt0, nonincremental, CGU256; monitored
-aggregate peak 8.69 GiB. Pointer/canonical corridor guards and diff check passed.
-The macro/parser owner READMEs and reference macro capability decision are synced.
-These focused facts do not close the complete source acceptance matrix above.
+A fresh `cargo build --locked --profile quick --bin hakorune --features plugins`
+with the same settings passed (aggregate peak 6.62 GiB). With default macro
+settings and the unchanged source:
 
-Resume with remaining source rejection/policy coverage, then default CLI/host
-cleanup execution, then V2/V3 retirement. Parser module is 762 lines; further
-growth should move its parsing helper responsibility into existing
-string_postpass_entry, keeping the 800-line hard boundary. No new family is
-selected here; no Cargo/test process remains running at this checkpoint.
+```bash
+target/quick/hakorune --emit-exe /tmp/hako-default-derive-pair \
+  --emit-exe-nyrt target/lifecycle-kernel/release \
+  apps/typed-object-birth-min/main.hako
+/tmp/hako-default-derive-pair
+```
+
+Compilation exits 0; generated EXE reports `Result: 30`, exit 30. Two temporary
+negative sources replace only constructor arguments with `(true, 20)` or
+`(10, false)`: both compile, then exit 70 with primary Fault103 at site3/site4.
+The checked-in application was not changed. A separate CLI process with
+`NYASH_MACRO_BOX_EXAMPLE=1` rejects with
+`ExactSourceChanged(RootPreservation(CompatibilityLoss))`, exit1, before creating
+its output artifact. This supplies registered-MacroBox rejection evidence
+without contaminating the library test process's global registry.
+
+Source/default CLI acceptance is now observed; it is not the full host cutover.
+Next update the existing ignored host test to the actual common materialization
+caller/default macro policy (it still disables macros and uses a separate parser),
+prove independent OBJ/link plus cleanup/report/dispose ordering with the existing
+runtime probe, then retire V2/V3 under the recorded inventory. The macro/parser
+README and reference contract were synced at 59e6c5c34b. Parser module remains
+762 lines; further growth should move its helper responsibility into existing
+string_postpass_entry, below the 800-line hard boundary. No new source family,
+whole-suite green claim or old-transport retirement is implied.
 
 
 

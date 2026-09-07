@@ -34,3 +34,6 @@ mod source_seal_misc_tests;
 #[cfg(test)]
 #[path = "../source_seal_finalizer_tests.rs"]
 mod source_seal_finalizer_tests;
+
+#[cfg(test)]
+mod default_derive_tests;

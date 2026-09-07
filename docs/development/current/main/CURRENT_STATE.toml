@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
 current_design_stop = "none; normal-only early default generation API accepted after worker premise review"
-current_blocker_token = "Early derive arity and test-lock defects fixed; finish source acceptance (explicit/disabled policy, foreign/body/slot/parameter/row drift and compatibility), then default CLI/host cleanup evidence before V2/V3 retirement."
+current_blocker_token = "Source/default CLI acceptance observed: Pair30 and both Bool Fault103/70. Next switch existing host acceptance test to common default materialization, prove independent OBJ/link and cleanup order with existing probe, then retire V2/V3 under the recorded inventory."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,14 +31,14 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Early derive source connection remains under acceptance after WIP fdfb79688f.
-Fixed nested environment-lock test and Equals1/ToString0 origin arity checking.
-Fresh default_derive filter passes4, existing transform7 and derive3 pass
-(one overlapping test); guards pass. Pair semantic publication and same-policy
-parse/transform are verified, not default CLI/host runtime execution.
-Macro/parser owner README and reference now describe the source contract.
-Next complete the recorded source acceptance matrix, then normal CLI/host
-cleanup checks and V2/V3 retirement. No broader constructor completion claim.
+Early default derive source acceptance: focused12 and existing transform7 pass.
+Fresh normal CLI with unchanged Pair and default macros generates EXE exit30.
+Both Bool argument positions compile and produce Fault103/exit70; registered
+MacroBox rejects before artifact creation. No macro-disable bypass in this CLI.
+Next migrate existing internal host test from its old parse/macro-disable setup
+to the real common materialization caller, verify independent OBJ/link and
+cleanup/report/dispose ordering, then retire V2/V3. Source docs are synced;
+no whole-suite or completed host-retirement claim. Details live in active card.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"

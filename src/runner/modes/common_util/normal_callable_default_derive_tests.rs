@@ -108,3 +108,100 @@ fn early_derive_snapshot_does_not_read_later_settings_or_change_ast_only_parser(
         source.discard_at_named_root_execution_terminal();
     });
 }
+
+#[test]
+fn default_derive_explicit_method_precedence_and_static_omission() {
+    enabled(|| {
+        let result = materialize_normal_callable_program_v1(
+            "box Plain { equals(other) { return false } } static box Main { main() { return 0 } }",
+            ParserBuildConfig::default(),
+        )
+        .unwrap();
+        let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = result else {
+            panic!("source")
+        };
+        source.with_callable_semantic_syntax(|loan| {
+            let names: Vec<_> = loan.rows().iter().map(|row| {
+                let crate::ast::ASTNode::FunctionDeclaration { name, .. } = row.declaration() else { panic!("method") };
+                name.as_str()
+            }).collect();
+            assert_eq!(names.iter().filter(|name| **name == "equals").count(), 1);
+            assert_eq!(names.iter().filter(|name| **name == "toString").count(), 1);
+            assert_eq!(names.len(), 3);
+            let equals = loan.rows().iter().find(|row| matches!(row.declaration(), crate::ast::ASTNode::FunctionDeclaration {name, ..} if name == "equals")).unwrap();
+            assert_eq!(equals.parameters().unwrap()[0].name(), "other");
+        }).unwrap();
+        source.discard_at_named_root_execution_terminal();
+    });
+}
+
+#[test]
+fn default_derive_disabled_normal_policy_keeps_no_generated_methods() {
+    crate::test_support::with_env_vars(&[("NYASH_MACRO_DISABLE", Some("1"))], || {
+        let result =
+            materialize_normal_callable_program_v1("box Plain {}", ParserBuildConfig::default())
+                .unwrap();
+        let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = result else {
+            panic!("source")
+        };
+        source
+            .with_callable_semantic_syntax(|loan| assert!(loan.rows().is_empty()))
+            .unwrap();
+        source.discard_at_named_root_execution_terminal();
+    });
+}
+
+#[test]
+fn default_derive_public_fields_stop_at_source_contract() {
+    enabled(|| {
+        let result = materialize_normal_callable_program_v1(
+            "box Plain { public { value } }",
+            ParserBuildConfig::default(),
+        );
+        assert!(
+            matches!(result, Err(NormalCallableMaterializationErrorV1::Parse(ParseError::GrammarContract { stable_reject_tag: "parser/default-derive-source", ref detail, .. })) if detail == "dynamic-field-text-contract-missing")
+        );
+    });
+}
+
+#[test]
+fn default_derive_record_keeps_single_compatibility_expansion() {
+    enabled(|| {
+        let policy = NormalMacroPolicyV1::capture();
+        let parsed =
+            crate::parser::string_postpass_entry::parse_with_callable_parameter_source_policy(
+                "record Pair { left: i64, right: i64 }".into(),
+                Some(100_000),
+                ParserBuildConfig::default(),
+                Some(&policy),
+            )
+            .unwrap()
+            .into_normal_callable_program()
+            .unwrap();
+        let NormalCallableTransformOutcomeV1::Compatibility { ast, .. } =
+            transform_normal_callable_program_with_policy_v1(parsed, policy).unwrap()
+        else {
+            panic!("compatibility")
+        };
+        let crate::ast::ASTNode::Program { statements, .. } = ast else {
+            panic!("program")
+        };
+        let crate::ast::ASTNode::BoxDeclaration { methods, .. } = &statements[0] else {
+            panic!("record")
+        };
+        assert_eq!(
+            methods
+                .iter_selected_declaration_order()
+                .filter(|entry| entry.name() == "equals")
+                .count(),
+            1
+        );
+        assert_eq!(
+            methods
+                .iter_selected_declaration_order()
+                .filter(|entry| entry.name() == "toString")
+                .count(),
+            1
+        );
+    });
+}
