@@ -159,7 +159,10 @@ records are Trivial” is not a valid rule.
 Decision: numeric literal acquisition follows the existing Home law below.
 Every source element participates in order; an empty literal has exactly zero
 source elements. Missing compiler child relations never prove an empty literal
-or an empty set of evaluation responsibilities.
+or an empty set of evaluation responsibilities. Root cleanup also includes
+completed acquisitions after the last acquisition's own failure prefix. A
+prefix proof cannot substitute for the whole root's normal completion and
+outward transfer; the source body scope and function return target are distinct.
 
 For the supported primitive numeric `Array<T>` contract, intrinsic literal
 allocation creates a builtin acquisition responsibility. From successful

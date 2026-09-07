@@ -135,11 +135,19 @@ impl VerifiedScriptSourceContinuationV1 {
         &mut self,
         relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
     ) -> Result<(), String> {
-        self.arrays.consume(relation)
+        self.arrays.consume(relation)?;
+        self.arrays.require_root_for(relation)
+    }
+
+    pub(super) fn complete_array_local(
+        &mut self,
+        relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+    ) -> Result<(), String> {
+        self.arrays.complete(relation)
     }
 
     pub(super) fn finish_array_locals(&self) -> Result<(), String> {
-        self.arrays.finish()
+        self.arrays.finish_root()
     }
 
     pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {

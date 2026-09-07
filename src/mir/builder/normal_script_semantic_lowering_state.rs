@@ -117,6 +117,13 @@ impl ScriptSemanticLoweringState {
         self.continuation.consume_array_local(relation)
     }
 
+    pub(super) fn complete_array_local(
+        &mut self,
+        relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+    ) -> Result<(), String> {
+        self.continuation.complete_array_local(relation)
+    }
+
     pub(super) fn nowait_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
         self.projection().nowait_binding_at(site)
     }

@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0"
-current_execution_cohort = "mir_script_array_root_terminal_coseal_i0"
-current_design_stop = "none; exact Script Return/scope/source rows identified; source-only terminal consumer accepted separately from required final artifact handoff"
-current_blocker_token = "Co-seal explicit final Integer/bare Return from exact Script scope/region/resolved exit/value/window; require it before typed Local and at scope finish. Retain completed source payload. Implicit Unit/unclassified tails remain unavailable obligations. Root-neutral final handoff/frame/Invoke/checked ABI/C remain successors."
+current_execution_row = "MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0"
+current_execution_cohort = "mir_script_array_root_validation_handoff_i0"
+current_design_stop = "none; exact source scope -> current root emission -> root finalization -> completed-root validation path audited"
+current_blocker_token = "Move completed Script source through existing root-validation finite slot and retain exact allocation/claim/write/Local/Return emission bindings. Validate diagnostic/artifact finishing without source reconstruction. Root-neutral finalized artifact product/frame/Invoke/checked ABI/C remain mandatory successors."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,14 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-V4 plugins cfg/stub repair verified: two V4 diagnostics removed; eleven unchanged
-runtime no-plugins baseline errors recorded. Plugins build and Pair EXE/OBJ30,
-Bool Fault70 pass. Exact Script root-terminal source consumer is accepted next;
-root-neutral final handoff/frame/Invoke remain mandatory successors. Local-only
-cutpoints are not full-root cleanup or C execution proof.
+Script explicit root terminal and source-preserving Local completion are implemented;
+focused source/host tests and Array/Pair EXE/OBJ regressions pass. Next closes
+scope payload drop through the existing completed-root validation slot, using
+exact emitted bindings. Typed C and implicit Unit remain uncompleted obligations.
 """
-next_design_card = "MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0"
-next_execution_card = "MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0"
+next_design_card = "MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0"
+next_execution_card = "MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

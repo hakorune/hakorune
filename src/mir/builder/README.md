@@ -880,8 +880,14 @@ Numeric Array LocalInit also consumes private source lifecycle rows once: the
 existing resolver seals explicit Array cardinality and exact Element edges,
 then the continuation proves primitive children and the preceding Home prefix.
 Unknown child/prefix capability stops before Local lowering; aliases add no
-Home. Missing, foreign, drifted, reused or unconsumed rows reject. Runtime
-frame/Invoke and typed C execution remain subsequent consumers.
+Home. Explicit final Integer/bare Return must also match the same Script
+resolved exit, body Sequence region, function target and scope chain. Missing
+terminal coverage is not implicit Unit. Local start and successful completion
+are distinct; the source row remains intact with completed progress. Scope
+finish checks the full reverse Home list, including the last Array, against
+completed locals. Missing, foreign, drifted, reused or unconsumed rows reject.
+Root-neutral final artifact handoff, frame/Invoke and typed C execution remain
+subsequent consumers; retaining the ledger here does not complete those edges.
 Transparent, transferred, and diagnostic root entries are explicit boundaries
 and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
 transports this continuation together with the existing lowering projection and

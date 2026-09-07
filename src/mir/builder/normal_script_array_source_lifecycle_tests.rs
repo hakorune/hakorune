@@ -5,7 +5,10 @@ use crate::mir::resolved_semantics::{
     VerifiedScriptRootDemandEntryV1,
 };
 
-fn source(text: &str, unit: u32) -> (VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1) {
+pub(super) fn source(
+    text: &str,
+    unit: u32,
+) -> (VerifiedResolvedScriptV1, VerifiedScriptRootDemandWindowV1) {
     let ast = crate::parser::NyashParser::parse_from_string(text).unwrap();
     let crate::ast::ASTNode::Program { statements, .. } = &ast else {
         panic!("Program")
@@ -14,7 +17,11 @@ fn source(text: &str, unit: u32) -> (VerifiedResolvedScriptV1, VerifiedScriptRoo
         .iter()
         .enumerate()
         .map(|(index, statement)| {
-            let demand = if matches!(
+            let demand = if matches!(statement, crate::ast::ASTNode::Return { .. }) {
+                ScriptRootResolvedDemandV1::ReturnExit(
+                    crate::mir::resolved_semantics::ScriptRootReturnExitAdmissionV1::new(),
+                )
+            } else if matches!(
                 statement,
                 crate::ast::ASTNode::Assignment { .. }
                     | crate::ast::ASTNode::CompoundAssignment { .. }
@@ -82,6 +89,7 @@ fn all_numeric_specs_preserve_cutpoints_and_consume_exactly_once() {
         );
         assert!(rows.finish().unwrap_err().contains("unconsumed-row"));
         rows.consume(relation).unwrap();
+        rows.complete(relation).unwrap();
         rows.finish().unwrap();
         assert!(rows
             .consume(relation)
@@ -108,6 +116,7 @@ fn committed_homes_unwind_in_reverse_and_aliases_do_not_duplicate_them() {
     );
     for relation in relations {
         rows.consume(relation).unwrap();
+        rows.complete(relation).unwrap();
     }
     rows.finish().unwrap();
 }
@@ -147,6 +156,7 @@ fn primitive_child_ownership_does_not_claim_numeric_write_success() {
         let mut rows = ArraySourceLifecycleRows::issue(&product, &window).unwrap();
         let relation = product.expression_source().initializers().next().unwrap();
         rows.consume(relation).unwrap();
+        rows.complete(relation).unwrap();
         rows.finish().unwrap();
     }
 }
@@ -172,5 +182,66 @@ fn missing_foreign_spec_and_annotation_drift_reject_without_consumption() {
             .contains(error));
     }
     rows.consume(relation).unwrap();
+    rows.complete(relation).unwrap();
     rows.finish().unwrap();
+}
+
+#[test]
+fn root_completion_preserves_payload_and_checks_last_home_and_commit() {
+    for spec in ["i8", "i16", "i32", "i64", "u8", "u16", "u32"] {
+        for terminal in ["return 30", "return"] {
+            let text = format!("local n = 1\nlocal a: Array<{spec}> = []\nlocal alias = a\nlocal b: Array<{spec}> = [20]\n{terminal}");
+            let (product, window) = source(&text, 0);
+            let mut rows = ArraySourceLifecycleRows::issue(&product, &window).unwrap();
+            rows.require_root().unwrap();
+            let relations = product
+                .expression_source()
+                .initializers()
+                .collect::<Vec<_>>();
+            assert_eq!(
+                rows.terminal.require().unwrap().homes(),
+                &[relations[3].binding(), relations[1].binding()]
+            );
+            assert!(rows.complete(relations[1]).is_err());
+            assert!(rows
+                .consume(relations[3])
+                .unwrap_err()
+                .contains("prior-home-not-completed"));
+            for relation in &relations {
+                rows.consume(relation).unwrap();
+                assert!(rows.finish_root().is_err());
+                rows.complete(relation).unwrap();
+            }
+            rows.finish_root().unwrap();
+            for coverage in rows.rows.values() {
+                let ArraySourceCoverage::Available(row) = coverage else {
+                    panic!("source payload retained")
+                };
+                assert_eq!(row.progress, LocalProgress::Completed);
+                assert!(!row.cutpoints.is_empty());
+            }
+            assert!(rows.complete(relations[1]).is_err());
+            rows.rows.clear();
+            assert!(rows
+                .finish_root()
+                .unwrap_err()
+                .contains("terminal-home-drift"));
+        }
+    }
+}
+
+#[test]
+fn root_unclassified_suffix_or_result_is_not_implicit_unit() {
+    for text in [
+        "local a: Array<i64> = []",
+        "local a: Array<i64> = []\nlocal s = \"x\"\nreturn 30",
+        "local a: Array<i64> = []\nreturn true",
+        "local a: Array<i64> = []\nlocal alias = a\nreturn alias",
+        "local a: Array<i64> = []\na = []\nreturn 30",
+    ] {
+        let (product, window) = source(text, 0);
+        let rows = ArraySourceLifecycleRows::issue(&product, &window).unwrap();
+        assert!(rows.require_root().is_err(), "{text}");
+        assert!(rows.finish_root().is_err(), "{text}");
+    }
 }

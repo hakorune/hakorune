@@ -9,7 +9,7 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: whole Script root terminal co-seal and retained completion, then root-neutral final handoff, frame/Invoke and checked ABI. Local cutpoint admission is implemented; implicit completion and Loop remain open.
+- Next: root-neutral final handoff, frame/Invoke and checked ABI. Explicit Script root terminal and source-preserving Local completion are implemented; implicit completion and Loop remain open.
 - Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
 - Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
@@ -344,11 +344,14 @@ source facts and the same verified root window. ScriptRootReturnExitAdmission
 is only admission, not a result or cleanup issuer. App Main's function completion
 product is not a Script completion product.
 
-Next bounded source row: co-seal explicit final Integer Return or bare Return
-with its exact outward target, root scope and complete reverse committed-Home
-order. The existing continuation is the sole issuer. Require that coverage
-before selected typed Local lowering; Script scope finish verifies terminal
-coverage and all Local completions, retaining source rows in a completed state.
+Implemented source row: co-seal explicit final Integer Return or bare Return
+with its exact outward target, function scope, source body Sequence scope/region
+and complete reverse committed-Home order. The body region is the return source,
+not the target function region. The existing continuation is the sole issuer. Require that coverage
+before selected typed Local lowering; Local start requires prior Homes completed,
+and successful Local generation records completion while preserving the payload.
+Script scope finish verifies terminal coverage and all Local completions against
+the complete Home order, retaining source rows in a completed state.
 Delete Available-to-unit-Consumed payload destruction and the finish path that
 accepts consumed locals without inspecting the tail. No MIR/source re-resolution.
 
@@ -383,6 +386,52 @@ committed Home release, using source cutpoints and first-Fault cleanup order.
 Only after source/physical finalization and optimizer mapping are verified may
 the already-inventoried checked runtime ABI/C activation and original execution/
 retirement gates proceed. Source-only admission is not final handoff completion.
+
+### Completed-root validation handoff slice
+
+Decision: move completed Script source and exact emission bindings into the
+existing completed-root validation slot, and consume them in both diagnostic
+and artifact finishing checks. This is the next retention/physical-validation
+row, not permission to issue RootOwned/Invoke or activate typed C.
+
+The actual path is program_root_lowering::lower_program_root_after_catalog_install_v1
+-> with_script_semantic_source_v1 -> finish_normal_default_root_after_pre_effect_bind
+-> finalize_module_with_root_validation -> CompletedNormalDefaultRootCatalogLifecycleV1
+-> into_parts/into_artifact_parts finishing closures. Source scope closeout must
+return its completed source with the normal result rather than discard it.
+
+module_lifecycle::prepare_module_with_callable_main_policy creates the current
+root function/entry. The caller captures that physical root anchor when installing
+the same invocation's Script source. Local emission records bindings only under
+that anchor. finalize_module_with_root_validation passes the exact finalized
+function to its callback; bind its signature key there after matching the entry.
+Later lookup uses this retained physical key. Never search for source identity
+using the spelling main, a fixture value or an unrelated catalog entry.
+
+Replace root_new_validation: Option<(String, Rc<OrdinaryNewClaimLedgerV1>)> in
+normal_default_root_catalog_post_install and the completed-root owner with one
+root-neutral finite slot: absent, existing ordinary-New validation, or completed
+Script Array source plus physical bindings. Do not add a parallel script_validation
+Option. Both finishing closures validate their selected variant.
+
+Bind results at emission: initializer -> intrinsic allocation destination/site;
+claim -> contract id/array/site; each exact child -> emitted value and ArrayWriteSiteId,
+operands/site; LocalCommit -> BindingRef/value; root terminal -> Return operand/site.
+Expose the write id already issued by emit_array_element_write instead of dropping
+it. MIR scans may validate retained bindings, not discover source correspondence.
+
+Delete source scope's successful payload-drop edge, result-only root return edge,
+ordinary-New-only validation slot type and discarded selected emission results.
+Acceptance runs real source compilation through both finishing closures, rejects
+foreign root, duplicate bindings and deleted/swapped/changed allocation/claim/write/
+Local/Return operands. Existing optimizer owners must update changed physical
+coordinates; unresolved mapping remains a blocker. Keep typed OBJ/EXE capability
+Stop and existing Array/Pair regressions.
+
+Mandatory next edge: the existing FinalizedRootBirthHandoffV1 itself must become
+root-neutral before Script data can reach artifact execution. The first validation
+row cannot claim that constructor-specific return type already accepts Script.
+Then continue the frame/Invoke/cleanup, checked runtime ABI and C execution series.
 
 Removing post-allocation birth markers preserves failure handling structurally:
 entry `emit_method_birth_mir_call` validates but emits no runtime operation;

@@ -10,6 +10,16 @@ use crate::mir::resolved_semantics::{
 };
 use crate::typed_array_contract_spec::{parse_annotation, ArrayElementContractSpec};
 use std::collections::{BTreeMap, BTreeSet};
+#[path = "normal_script_array_root_terminal.rs"]
+mod root_terminal;
+use root_terminal::RootTerminalCoverage;
+
+#[derive(Debug, PartialEq, Eq)]
+enum LocalProgress {
+    Pending,
+    InFlight,
+    Completed,
+}
 
 #[derive(Debug, PartialEq, Eq)]
 enum Cutpoint {
@@ -31,18 +41,19 @@ struct ArraySourceLifecycle {
     cutpoints: Box<[Cutpoint]>,
     // Each row names one actual Home, in release order. Aliases add none.
     caller_homes: Box<[BindingRefV1]>,
+    progress: LocalProgress,
 }
 
 #[derive(Debug, PartialEq, Eq)]
 enum ArraySourceCoverage {
     Available(ArraySourceLifecycle),
     Unavailable(&'static str),
-    Consumed,
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub(super) struct ArraySourceLifecycleRows {
     rows: BTreeMap<SourceNodeSiteV1, ArraySourceCoverage>,
+    terminal: RootTerminalCoverage,
 }
 
 impl ArraySourceLifecycleRows {
@@ -55,7 +66,18 @@ impl ArraySourceLifecycleRows {
         let mut aliases = BTreeSet::new();
         let mut prefix_available = true;
         let source = &product.core().data().expression_source;
-        for entry in window.entries() {
+        for (ordinal, entry) in window.entries().iter().enumerate() {
+            if product
+                .body_shape()
+                .statements()
+                .iter()
+                .any(|row| row.site() == entry.site() && row.is_return())
+            {
+                result.terminal =
+                    RootTerminalCoverage::issue(product, window, ordinal, prefix_available, &homes);
+                prefix_available = false;
+                continue;
+            }
             if matches!(
                 entry.semantic(),
                 ScriptRootSemanticDispositionV1::Transparent(_)
@@ -96,6 +118,7 @@ impl ArraySourceLifecycleRows {
                             spec,
                             cutpoints,
                             caller_homes: homes.iter().rev().copied().collect(),
+                            progress: LocalProgress::Pending,
                         }),
                         Err(reason) => ArraySourceCoverage::Unavailable(reason),
                     }
@@ -133,6 +156,9 @@ impl ArraySourceLifecycleRows {
                 }
             }
         }
+        if result.rows.is_empty() {
+            result.terminal = RootTerminalCoverage::NotSelected;
+        }
         Ok(result)
     }
 
@@ -152,6 +178,16 @@ impl ArraySourceLifecycleRows {
         else {
             return Err(freeze("local-site"));
         };
+        let completed_homes = self
+            .rows
+            .values()
+            .filter_map(|row| match row {
+                ArraySourceCoverage::Available(row) if row.progress == LocalProgress::Completed => {
+                    Some(row.initializer.binding())
+                }
+                _ => None,
+            })
+            .collect::<BTreeSet<_>>();
         let slot = self.rows.get_mut(statement.node());
         let Some(spec) = spec else {
             return if slot.is_none() {
@@ -168,21 +204,95 @@ impl ArraySourceLifecycleRows {
                 if row.initializer != *relation || row.spec != spec {
                     return Err(freeze("source-drift"));
                 }
-                *slot = ArraySourceCoverage::Consumed;
+                if row.progress != LocalProgress::Pending {
+                    return Err(freeze("duplicate-consume"));
+                }
+                if row
+                    .caller_homes
+                    .iter()
+                    .any(|binding| !completed_homes.contains(binding))
+                {
+                    return Err(freeze("prior-home-not-completed"));
+                }
+                row.progress = LocalProgress::InFlight;
                 Ok(())
             }
             ArraySourceCoverage::Unavailable(reason) => Err(format!(
                 "[freeze:contract][script-array/source-lifecycle-unavailable] {reason}"
             )),
-            ArraySourceCoverage::Consumed => Err(freeze("duplicate-consume")),
         }
     }
 
-    pub(super) fn finish(&self) -> Result<(), String> {
+    pub(super) fn require_root_for(
+        &self,
+        relation: &ResolvedInitializerRelationV1,
+    ) -> Result<(), String> {
+        if let SourceBindingSiteV1::Local { statement, .. } = relation.declaration_site() {
+            if self.rows.contains_key(statement.node()) {
+                return self.require_root();
+            }
+        }
+        Ok(())
+    }
+
+    pub(super) fn require_root(&self) -> Result<(), String> {
+        if matches!(self.terminal, RootTerminalCoverage::NotSelected) {
+            return if self.rows.is_empty() {
+                Ok(())
+            } else {
+                Err(freeze("root-selection-drift"))
+            };
+        }
+        self.terminal.require().map(|_| ()).map_err(freeze)
+    }
+
+    pub(super) fn complete(
+        &mut self,
+        relation: &ResolvedInitializerRelationV1,
+    ) -> Result<(), String> {
+        let SourceBindingSiteV1::Local { statement, .. } = relation.declaration_site() else {
+            return Err(freeze("local-site"));
+        };
+        let Some(coverage) = self.rows.get_mut(statement.node()) else {
+            return Ok(());
+        };
+        let ArraySourceCoverage::Available(row) = coverage else {
+            return Err(freeze("incomplete-local"));
+        };
+        if row.initializer != *relation || row.progress != LocalProgress::InFlight {
+            return Err(freeze("incomplete-local"));
+        }
+        row.progress = LocalProgress::Completed;
+        Ok(())
+    }
+
+    pub(super) fn finish_root(&self) -> Result<(), String> {
+        self.require_root()?;
+        self.finish()?;
+        if matches!(self.terminal, RootTerminalCoverage::NotSelected) {
+            return Ok(());
+        }
+        let terminal = self.terminal.require().map_err(freeze)?;
+        let homes = self
+            .rows
+            .values()
+            .rev()
+            .map(|row| match row {
+                ArraySourceCoverage::Available(row) => Ok(row.initializer.binding()),
+                _ => Err(freeze("incomplete-local")),
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        if terminal.homes() != homes.as_slice() {
+            return Err(freeze("terminal-home-drift"));
+        }
+        Ok(())
+    }
+
+    fn finish(&self) -> Result<(), String> {
         if self
             .rows
             .values()
-            .any(|row| !matches!(row, ArraySourceCoverage::Consumed))
+            .any(|row| !matches!(row, ArraySourceCoverage::Available(row) if row.progress == LocalProgress::Completed))
         {
             return Err(freeze("unconsumed-row"));
         }

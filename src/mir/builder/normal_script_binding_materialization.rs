@@ -50,6 +50,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         ledger.borrow_mut().consume_array_local(&source_relation)?;
         let value = drive_local_statement_v1(builder, self, input)?;
         ledger.borrow_mut().record(binding, value)?;
+        ledger.borrow_mut().complete_array_local(&source_relation)?;
         Ok(value)
     }
 

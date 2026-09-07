@@ -551,17 +551,13 @@ general Method/Math and Call-carried Constructor keep their existing disposition
 
 Accepted [construction design](../design/collection-literal-construction-ssot.md) owns the finite inventory and task order; source Facts/Recipe and runtime proof remain open.
 
-#### MIR-COLLECTION-ALLOCATION-TARGET-NAMED-I0
+#### Collection allocation checkpoints
 
-Landed at 44c10a5cec: Named-only structural conversion; source/provider behavior
-preserved, no birth deletion. Cargo check/test build, focused60, Pair/Bool host1
-and canonical corridor guard pass; changed source max777. Details live in Git.
-
-#### MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0
-
-Landed at 9b5ef392cc: typed intrinsic consumer, allocation-only selection and
-entry/nested rejection. Rust65 + host1, C gates and corridor pass; source max754.
-No source-cutover/R7 claim; full receipt lives in Git.
+`MIR-COLLECTION-ALLOCATION-TARGET-NAMED-I0` landed at 44c10a5cec;
+`MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0` landed at 9b5ef392cc.
+Named/provider separation, typed intrinsic selection, C/Rust rejection and
+Pair/corridor evidence live in those commits and the construction owner.
+No broader source, Loop or R7 completion claim.
 
 #### MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0
 
@@ -586,27 +582,14 @@ fixtures are deleted. Remaining failures (all `cohort-missing`):
 No source gate was relaxed and no baseline test ignored. The prior current-change
 shadow DuplicateKey and static-negative syntax error are fixed and rerun green.
 
-#### MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0
+#### Script typed Array source checkpoints
 
-Landed at b129f066c0: exact resolver initializer relation now reaches typed
-Script Local without annotation/site repair. Seven numeric specs reach verified
-MIR and OBJ/EXE capability Stop. Focused source/negative/order tests, Array/Pair
-execution and guards pass; full receipt is in Git and the construction owner.
-
-#### MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0
-
-Implemented: existing resolver now seals Array cardinality plus exact Element
-relations; existing Script continuation co-seals private acquisition rows and
-typed Local consumes once. Removed coarse Array Other(kind), empty-list inference
-and selected typed lowering without source lifecycle admission. Unknown child/
-prefix stays explicitly unavailable; aliases add no Home. Root frame/Invoke/C
-execution, Loop and broader children remain open in the original Array series.
-Tests: lifecycle5, Array seal2, shape10, leaf3, Script19/Array2/pre-effect6,
-S6C9/continuation2, host source5 plus explicit ignored Array and Pair EXE/OBJ
-regressions pass (success30, Pair Bool Fault70). Final build peak8.85GiB;
-instance-transfer/canonical-corridor/pointer guards pass (guard peak2.74GiB).
-The draft populated/nested failures were current-change errors, corrected by
-worker-confirmed source count/edge retention; both now pass. No baseline waiver.
+`MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0` landed at b129f066c0;
+`MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0` landed at efbc22b14b.
+Exact initializer, Array count/Element seal and Local cutpoints replace source
+repair/empty-list inference. Initial populated/nested failures were corrected,
+not waived as baseline. Focused source/host/guard and Array/Pair execution
+receipts live in Git; implicit completion, Loop and typed C remain open.
 
 #### LLVM-LIFECYCLE-V4-PLUGIN-FEATURE-I0
 
@@ -619,16 +602,25 @@ Pair EXE/linked OBJ30 and Bool Fault70, and corridor guard pass; source505 lines
 
 #### MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0
 
-Decision: require exact whole-root terminal coverage and retain completed Array source rows.
-Source authority + canonical issuer: same Script core scope/region/resolved Return, body-shape/value relation and window; existing Script continuation.
-Non-authority: Return admission ZST, last Local prefix, final MIR or fake App Main/Birth identity.
-Fail-fast boundary: unclassified terminal/tail and absent proof of implicit Unit remain unavailable before selected effects.
-Smallest next slice: explicit Integer/bare Return co-seal, typed Local coverage check and source-preserving scope completion.
-Non-claims: implicit Unit, root-neutral finalized handoff, RootOwned/Invoke/C activation, broader children or Loop completion.
-The [accepted root terminal/handoff order](../design/collection-literal-construction-ssot.md#script-root-terminal-and-final-handoff-order)
-owns exact APIs, rejection coverage and mandatory successors. Delete payload
-destruction at consume and finish-without-terminal proof; keep completed source
-for the next existing-root-product handoff change. No parallel optional receipt.
+Implemented: exact Script Return/value, body Sequence scope/region and function
+target co-seal with terminal Home order. Local start/completion are distinct;
+source payload survives completion. Finish rejects dropped Homes and incomplete
+locals; implicit Unit/unclassified tail remain unavailable. Root8, Script19/2,
+pre-effect6/continuation2, host6, explicit Array/Pair EXE+OBJ regressions pass;
+final build peak 8.84 GiB, corridor guard green, changed source maximum 429 lines.
+The draft source-region-equals-target check was a current-change error, corrected
+to the existing body-to-function relationship and rerun green. No baseline waiver.
+
+#### MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0
+
+Decision: move completed Script source and emitted bindings through the existing root validation slot.
+Source authority + canonical issuer: same Script continuation; current root emission and exact finalization callback bind physical identity only.
+Non-authority: main-name rediscovery, MIR-derived source correspondence or parallel optional receipt.
+Fail-fast boundary: missing/stale/foreign root or operation binding rejects; typed C remains stopped.
+Smallest next slice: existing completed-root finite variant, actual source/emission retention and diagnostic/artifact finishing validation.
+Non-claims: root-neutral artifact handoff already exists, RootOwned/Invoke/C activation, implicit Unit or Loop closure.
+The [accepted validation handoff](../design/collection-literal-construction-ssot.md#completed-root-validation-handoff-slice)
+names real APIs, exact delete-set, mutation gates and mandatory artifact successors.
 
 ## Source and ownership budget
 
