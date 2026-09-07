@@ -537,7 +537,7 @@ static int hako_physical_validate_function(yyjson_val* function, yyjson_val* fun
   return 1;
 }
 
-static int hako_physical_checked_sites_unique(yyjson_val* functions) {
+static int hako_physical_checked_sites_unique(yyjson_val* functions, uint64_t process_result_site) {
   uint64_t* sites = NULL;
   size_t count = 0, capacity = 0, fi, bi, ri;
   for (fi = 0; functions && fi < yyjson_arr_size(functions); fi++) {
@@ -559,6 +559,7 @@ static int hako_physical_checked_sites_unique(yyjson_val* functions) {
         if (!kind || (strcmp(kind, "new_box") && strcmp(kind, "field_set") &&
             strcmp(kind, "home_release") && strcmp(kind, "reclaim_unpublished"))) continue;
         if (!hako_physical_u64(yyjson_obj_get(operation, "site"), &site)) { free(sites); return 0; }
+        if (site == process_result_site) { free(sites); return 0; }
         for (i = 0; i < count; i++) if (sites[i] == site) { free(sites); return 0; }
         if (count == capacity) {
           size_t next = capacity ? capacity * 2u : 8u;
@@ -575,13 +576,14 @@ static int hako_physical_checked_sites_unique(yyjson_val* functions) {
 }
 
 static int hako_llvmc_validate_published_lifecycle_physical_v1_doc(yyjson_val* root, char** err_out) {
-  static const char* const root_keys[] = {"schema", "functions", "fault_abi_version", "storage_profile", "layouts"};
-  yyjson_val *functions, *layouts; size_t i;
-  if (!hako_physical_exact_keys(root, root_keys, 5) || !hako_physical_string(yyjson_obj_get(root, "schema"), HAKO_PHYSICAL_SCHEMA)) return hako_physical_fail(err_out, "schema");
+  static const char* const root_keys[] = {"schema", "functions", "fault_abi_version", "storage_profile", "layouts", "process_result_site"};
+  yyjson_val *functions, *layouts; size_t i; uint64_t process_result_site;
+  if (!hako_physical_exact_keys(root, root_keys, 6) || !hako_physical_string(yyjson_obj_get(root, "schema"), HAKO_PHYSICAL_SCHEMA)) return hako_physical_fail(err_out, "schema");
   functions = yyjson_obj_get(root, "functions"); layouts = yyjson_obj_get(root, "layouts");
   if (!(functions && yyjson_is_arr(functions) && yyjson_arr_size(functions) >= 2u)) return hako_physical_fail(err_out, "functions");
   if (!hako_physical_u32(yyjson_obj_get(root, "fault_abi_version"), NULL) || yyjson_get_uint(yyjson_obj_get(root, "fault_abi_version")) != 1u || !hako_physical_storage_profile(yyjson_obj_get(root, "storage_profile")) || !hako_physical_validate_layouts(layouts)) return hako_physical_fail(err_out, "abi-layout");
   for (i = 0; i < yyjson_arr_size(functions); i++) if (!hako_physical_validate_function(yyjson_arr_get(functions, i), functions, layouts, i)) return hako_physical_fail(err_out, "function-body");
-  if (!hako_physical_checked_sites_unique(functions)) return hako_physical_fail(err_out, "diagnostic-sites");
+  if (!hako_physical_u64(yyjson_obj_get(root, "process_result_site"), &process_result_site) ||
+      !hako_physical_checked_sites_unique(functions, process_result_site)) return hako_physical_fail(err_out, "diagnostic-sites");
   return 0;
 }

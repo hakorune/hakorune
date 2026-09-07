@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
 current_design_stop = "none (kernel artifact boundary verified; V4 Pair consumer selected)"
-current_blocker_token = "Implement the selected V4 Pair body consumer using the co-sealed physical input and explicit lifecycle archive/session; prove direct EXE30 and independently linked OBJ30, then retire selected pending transport edges."
+current_blocker_token = "Emit the selected V4 Pair body with retained target session and issued process-result diagnostic site (Fault reason 102); prove direct EXE30, independently linked OBJ30 and range/Fault cleanup before retiring pending transport edges."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

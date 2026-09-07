@@ -3,6 +3,13 @@
 This directory owns module-level route selection before `MirBuilder` creates
 module, entry-block, or FunctionRegion state.
 
+The selected lifecycle physical input owns one additional `process_result_site`
+for the I64 entry epilogue, after its checked-operation site ordinals. It is not
+a fabricated MIR coordinate. The direct JSON carries it explicitly; C rejects
+missing or colliding sites. Out-of-range result reason/details are owned by
+`include/nyrt_fault_v1.h` and the entry-result reference; V4 execution remains
+pending until source-to-artifact acceptance passes.
+
 ### Final published artifact consumption
 
 `compile_normal_with_published` shares the ordinary build/finish implementation, then verifies the final selected module and prepares external commit before a synchronous view callback. Callback failure aborts; success returns only its output and commits once. EXE and llvm-boundary OBJ consume this terminal before post-compile mutation/execution.

@@ -91,6 +91,7 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
 ) -> Result<String, String> {
     let mut root = emit_lifecycle_physical_program_value(input.program(), Some(input))?;
     let object = root.as_object_mut().ok_or_else(|| fault("program-root"))?;
+    object.insert("process_result_site".into(), json!(input.process_result_site()));
     object.insert("fault_abi_version".into(), json!(input.fault_abi_version()));
     object.insert("storage_profile".into(), json!(input.storage_profile()));
     object.insert("layouts".into(), Value::Array(input.layouts().iter().map(|layout| json!({
@@ -296,6 +297,7 @@ mod tests {
                 |view, _| -> Result<(), String> {
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     assert_eq!(input.diagnostic_sites().len(), 5);
+                    assert_eq!(input.process_result_site(), 5);
                     assert_eq!(
                         input.diagnostic_sites().iter().map(|site| site.site()).collect::<Vec<_>>(),
                         vec![0, 1, 2, 3, 4],
@@ -310,6 +312,7 @@ mod tests {
                     assert_eq!(functions[1]["role"], "birth_unit");
                     assert_eq!(functions[1]["params"].as_array().unwrap().len(), 3);
                     assert_eq!(json["fault_abi_version"], 1);
+                    assert_eq!(json["process_result_site"], 5);
                     assert_eq!(json["storage_profile"], 1);
                     let layouts = json["layouts"].as_array().expect("layout array");
                     assert_eq!(layouts.len(), 1);

@@ -46,6 +46,18 @@ Caller-zero pinned-Text lowering fixture
   foreign, stale, duplicate, or trap Finish carrier data rejects before the
   output file is opened.
 
+Lifecycle invocation ownership
+- `hako_lts_open` retains the selected LLVM library, TargetMachine, TargetData,
+  triple and data-layout in one private call-local session. `hako_lts_close`
+  releases it and clears the owner; failed open leaves no retained resources.
+- V3 currently opens, validates and closes before its pending terminal. V4 must
+  retain this owner through its real `.ll`/object publication, checking the
+  actual module preamble. The existing preamble self-test is not that proof.
+- Direct physical JSON requires a root `process_result_site` distinct from all
+  checked-operation sites. The selected I64 projection will use Fault reason
+  `NYRT_FAULT_REASON_EXIT_CODE_OUT_OF_RANGE_V1` with details `{actual, 0}`.
+  Neither this input validation nor session ownership emits a lifecycle object.
+
 Boundary ownership and queued cleanup (2026-09-06)
 
 Source/Facts/Recipe decides meaning; MirBuilder atomically publishes MIR and

@@ -365,6 +365,17 @@ the runtime layout descriptor and retains that archive through link. Missing,
 duplicate, truncated or foreign records reject before emission. Filenames
 cannot supply entry-ABI evidence. The core's Fault layout record is unchanged.
 
+For the selected I64 lifecycle entry, Decision: the existing physical-input
+issuer reserves one process-result diagnostic site after its checked-operation
+sites in the same ordinal namespace. It is a root epilogue site, not a fabricated
+MIR instruction. Direct physical JSON carries the required `process_result_site`.
+The internal Fault ABI names reason 102 as `ExitCodeOutOfRange`, with
+`details[0]` equal to the actual signed i64 and `details[1]` zero. After normal
+Home cleanup, C checks the range; on failure it records that reason and wire
+site, reports, disposes, and returns 70. InvalidContract from recording is not
+a source Fault; report failure still requires disposal. This physical mapping
+does not activate the pending V4 consumer or admit another result kind.
+
 `ny_main` must not permanently multiplex a raw source Integer, generic object
 handle, and normalized status in the same untagged `i64`.
 

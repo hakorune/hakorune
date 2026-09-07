@@ -91,6 +91,7 @@ pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
     entry: CompiledEntryContractV1<'module>,
     layouts: Box<[PublishedLifecyclePhysicalObjectLayoutV1]>,
     diagnostic_sites: Box<[PublishedLifecycleOperationDiagnosticSiteV1]>,
+    process_result_site: u64,
     fault_abi_version: u32,
     storage_profile: u32,
 }
@@ -110,6 +111,7 @@ impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
         self.diagnostic_sites.iter().copied().find(|site|
             site.function == function && site.block == block && site.instruction == instruction)
     }
+    pub(crate) const fn process_result_site(&self) -> u64 { self.process_result_site }
     pub(crate) const fn fault_abi_version(&self) -> u32 { self.fault_abi_version }
     pub(crate) const fn storage_profile(&self) -> u32 { self.storage_profile }
 }
@@ -124,6 +126,9 @@ impl<'module> PublishedMirBackendView<'module> {
             return Err(fault("root-result-unavailable"));
         }
         let diagnostic_sites = issue_diagnostic_sites(entry.program())?;
+        // The process projection is an entry epilogue, not a MIR Invoke.
+        let process_result_site = u64::try_from(diagnostic_sites.len())
+            .map_err(|_| fault("process-result-site-overflow"))?;
         let storage_profile = self.lifecycle_storage_profile()
             .ok_or_else(|| fault("storage-profile-missing"))? as u32;
         let ids = referenced_objects(entry.program());
@@ -157,7 +162,7 @@ impl<'module> PublishedMirBackendView<'module> {
         }
         Ok(PublishedLifecyclePhysicalAbiInputV1 {
             entry, layouts: layouts.into_boxed_slice(),
-            diagnostic_sites: diagnostic_sites.into_boxed_slice(), fault_abi_version: 1,
+            diagnostic_sites: diagnostic_sites.into_boxed_slice(), process_result_site, fault_abi_version: 1,
             storage_profile,
         })
     }

@@ -1466,26 +1466,12 @@ object.
 
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-I0` — landed at `15b4140944`
 
-After physical-parser closure I0, this D1 product and its transport validation landed. The existing `CompiledEntryContractV1` is owned by the
-physical ABI input, which delegates program/root result/Birth/call/cleanup
-access to that one final product. The selected direct cohort accepts only its
-already-issued I64 root result; Unit rejects before JSON, C or artifact effects.
-The ABI-input owner now issues the physical operation-to-diagnostic map, serializes
-it in direct physical JSON, and the C parser rejects finite
-missing/duplicate/kind/coordinate/range mutations. The lifecycle-private
-text-tool/session helper accepts the selected session input, observes its LLVM
-18 target-machine triple and data-layout, then writes and verifies the exact
-temporary module preamble before the existing pre-artifact terminal. It emits
-no Pair object, alters no kernel entry, and deletes no V2/V3 path.
-
-Acceptance passed: the issued Pair physical input reaches the parser with five
-unique checked-operation site ordinals; missing/duplicate/site mutations on
-Birth/ObjectFieldGet/out-of-range coordinates reject. A Unit root rejects before
-physical JSON is written. Target triple/layout mismatch rejects, and an ambient
-generic `llc` flag cannot select the lifecycle route. No object or EXE is
-created. The exclusive delete-set is only the old site-less operation encoding and the
-V4-ineligible generic target helper from the future V4 call; existing generic
-cohorts retain their helper. This task does not substitute for parser closure.
+The physical input owns the compiled-entry contract, accepts its I64 root,
+and issues five checked-operation diagnostic sites for Pair. Parser and
+source-issued Pair checks passed; Unit and malformed sites reject before C.
+Target observation and the preamble self-test emit no object and establish no
+llc execution or V2/V3 retirement. The active consumer row below owns the
+additional process-result site and actual object/EXE acceptance.
 
 ### Lifecycle transport disposition
 
@@ -1502,24 +1488,37 @@ remains the final admission owner during this cutover; its physical placement
 may be cleaned up after retirement, but no second view or source authority is
 introduced here.
 
-**Remaining invocation-session slice:** a lifecycle-private C text-tool
-session opens exactly one LLVM 18 TargetMachine/TargetData from the already
-selected V3 session row, preserves the proven triple and observed data-layout,
-writes and verifies a temporary module preamble, then disposes every resource
-before the existing pending terminal. It neither reads generic `llc` flags nor
-emits an object. V4 alone may later invoke `llc` with its session's explicit
-`-mtriple`; generic mem2reg/tool helpers and PTFB stay outside this route.
+**Invocation ownership:** `hako_lts_open/close` now retains the selected LLVM
+machine/data/triple/layout as one call-local owner. V3 consumes it only for
+validation; V4 must keep it through actual module verification and publication.
+The preamble self-test does not prove llc target application.
 
 ### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1`
 
-After invocation-contract I0, implement the selected Pair V4 consumer. Its
-acceptance is source Pair → final issued physical input → V4 object →
-retained-archive direct EXE exit 30, and independently V4 OBJ linked with that
-same archive → EXE exit 30. Prove Birth and HomeRelease execute once on normal
-completion; inject a runtime Fault to prove report/dispose once and exit 70;
-reject malformed physical JSON, session/layout mismatch and unsupported cohort
-with no artifact. V2/V3 and the kernel raw decode edge are deleted only after
-both executable paths pass.
+Decision: implement the selected Pair V4 consumer under the existing final-entry
+policy. The physical-input issuer additionally reserves one required
+`process_result_site` after operation sites, in the same ordinal namespace.
+This is a root epilogue identity, not a MIR Invoke coordinate. The Fault ABI
+owner assigns named out-of-range reason 102 and details `{actual_i64, 0}`.
+This closes a missing physical mapping; it introduces no semantic receipt.
+C consumes this wire site and header reason after normal Home cleanup, then
+records/reports/disposes on out-of-range values. Recording InvalidContract is
+not a source Fault; report failure still disposes. No kernel silent-70 repair,
+C-invented site, or literal whitelist is permitted.
+
+Acceptance remains source Pair -> issued input -> V4 -> direct EXE30 and
+independently same-archive linked OBJ EXE30. Prove Birth/HomeRelease once,
+injected runtime Fault report/dispose once and exit70, plus I64 projection
+0/255 normal and -1/256/computed out-of-range with exact reason/site/value.
+Missing/colliding projection site, malformed body, session/layout mismatch or
+unsupported cohort reject before artifact. Retire selected V2/V3 pending edges
+after the connected executable paths pass; preserve unrelated legacy users.
+
+Input/session closeout: C build and both physical-parser/session preartifact
+checks pass. `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib --features
+plugins physical_program_json::tests -- --include-ignored` passes 4/4, including
+unchanged Pair source -> issued JSON -> C parser. This proves transport only;
+range-Fault execution and Pair object/EXE remain the active row's next work.
 
 ### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-D1`
 

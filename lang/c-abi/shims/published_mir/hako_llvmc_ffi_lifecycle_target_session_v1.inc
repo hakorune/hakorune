@@ -22,6 +22,27 @@ typedef unsigned long long (*hako_lts_abi_size_fn)(void*, void*);
 typedef unsigned (*hako_lts_abi_align_fn)(void*, void*);
 typedef unsigned long long (*hako_lts_element_offset_fn)(void*, void*, unsigned);
 
+/* One invocation owns every LLVM resource through object publication. */
+typedef struct {
+  void *lib, *machine, *data;
+  char *triple, *data_layout;
+  hako_lts_dispose_message_fn dispose_message;
+  hako_lts_dispose_machine_fn dispose_machine;
+  hako_lts_dispose_data_fn dispose_data;
+} hako_lts_session;
+
+static void hako_lts_close(hako_lts_session* session) {
+  if (!session) return;
+  if (session->data_layout) session->dispose_message(session->data_layout);
+  if (session->triple) session->dispose_message(session->triple);
+  if (session->data) session->dispose_data(session->data);
+  if (session->machine) session->dispose_machine(session->machine);
+#if !defined(_WIN32)
+  if (session->lib) dlclose(session->lib);
+#endif
+  memset(session, 0, sizeof(*session));
+}
+
 static int hako_lts_fault_layout_matches(
     void* data, const hako_llvmc_lifecycle_target_session_v1* in,
     hako_lts_make_context_fn make_context, hako_lts_dispose_context_fn dispose_context,
@@ -94,8 +115,10 @@ done:
   return matched;
 }
 
-static int hako_llvmc_lifecycle_target_session_v1_validate_inner(
-    const hako_llvmc_lifecycle_target_session_v1* in, int require_text_preamble, char** err_out) {
+static int hako_lts_open(
+    const hako_llvmc_lifecycle_target_session_v1* in, hako_lts_session* out, char** err_out) {
+  if (!out) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/output]");
+  memset(out, 0, sizeof(*out));
 #if defined(_WIN32)
   (void)in;
   return set_err_owned(err_out, "[freeze:contract][lifecycle-session/windows]");
@@ -186,16 +209,17 @@ static int hako_llvmc_lifecycle_target_session_v1_validate_inner(
       !hako_lts_fault_layout_matches(data, in, make_context, dispose_context, int32_type,
           int64_type, pointer_type, array_type, struct_type, abi_size, abi_align, element_offset))
     goto cleanup;
-  if (require_text_preamble && !hako_lts_text_preamble_matches(actual_triple, data_layout)) {
-    if (data_layout && dispose_message) dispose_message(data_layout);
-    if (actual_triple && dispose_message) dispose_message(actual_triple);
-    if (data && dispose_data) dispose_data(data);
-    if (machine && dispose_machine) dispose_machine(machine);
-    if (lib) dlclose(lib);
-    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/text-preamble]");
-  }
   rc = 0;
 cleanup:
+  if (rc == 0) {
+    out->lib = lib; out->machine = machine; out->data = data;
+    out->triple = actual_triple; out->data_layout = data_layout;
+    out->dispose_message = dispose_message;
+    out->dispose_machine = dispose_machine;
+    out->dispose_data = dispose_data;
+    lib = machine = data = NULL;
+    actual_triple = data_layout = NULL;
+  }
   if (diagnostic && dispose_message) dispose_message(diagnostic);
   if (data_layout && dispose_message) dispose_message(data_layout);
   if (actual_triple && dispose_message) dispose_message(actual_triple);
@@ -209,5 +233,11 @@ cleanup:
 
 static int hako_llvmc_lifecycle_text_tool_session_v1_validate(
     const hako_llvmc_lifecycle_target_session_v1* in, char** err_out) {
-  return hako_llvmc_lifecycle_target_session_v1_validate_inner(in, 1, err_out);
+  hako_lts_session session = {0};
+  int matched;
+  if (hako_lts_open(in, &session, err_out) != 0) return -1;
+  matched = hako_lts_text_preamble_matches(session.triple, session.data_layout);
+  hako_lts_close(&session);
+  if (!matched) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/text-preamble]");
+  return 0;
 }
