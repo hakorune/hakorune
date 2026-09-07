@@ -71,6 +71,18 @@
               publish_plain_i64_value(dst);
             }
           } else if (strcmp(op, "newbox")==0) {
+            int intrinsic = hako_llvmc_published_intrinsic_array_peek_v1(
+                fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins, NULL);
+            if (intrinsic < 0) {
+              note_pure_unsupported_shape(bid, ii, op, "intrinsic_array_contract", NULL);
+              yyjson_doc_free(d); goto GEN_ABORT;
+            }
+            if (intrinsic > 0) {
+              needs.arr_birth = 1;
+              generic_pure_publish_i64_origin(read_int(ins, "dst"), ORG_ARRAY_BIRTH);
+              continue;
+            }
+
             long long dst = read_int(ins, "dst");
             const char* tname = read_str(ins, "type");
             int typed_plan_index = -1;

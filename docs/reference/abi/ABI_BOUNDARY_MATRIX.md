@@ -93,8 +93,15 @@ Published Call(Extern), with or without a row, rejects at that same shared peek
 before extern-plan/name dispatch, matching Rust host admission. This does not
 restrict generic no-session Extern or the independent ExternCall opcode.
 
-Rust MIR/Core construction now uses an explicit `ConstructionTarget::Named(String)`
-target. This representation-preserving stage does not change the existing
-`newbox/type` JSON or runtime ABI. Intrinsic literal selection, its typed frame
-kind and source cutover are still pending under the
+Construction distinguishes `Named(String)` from `IntrinsicArray`. Named bodies
+retain `newbox/type`; intrinsic bodies use `newbox/target:{kind:intrinsic_array}`
+with empty args and require an exact kind8 `IntrinsicArrayNew` frame row. Its
+required dst permits ValueId0 but rejects UINT32_MAX. Only DST_PRESENT is set;
+symbol/arity/site_id/receiver/index/value are absent or zero. Row layout and runtime
+ABI are unchanged. Allocation alone selects the published session.
+
+Both entry and nested prepasses peek; emitters take once. Missing/wrong/duplicate
+or residual rows, ambiguous type+target, unknown targets and malformed payloads
+reject before object output. Generic and legacy name-only ingress cannot repair
+an intrinsic target. This is consumer preparation, not source cutover; see the
 [construction design](../../development/current/main/design/collection-literal-construction-ssot.md).

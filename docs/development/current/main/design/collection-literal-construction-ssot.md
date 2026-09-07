@@ -8,8 +8,8 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 ## Current capsule
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
-- Implementation: committed Named conversion is complete; IntrinsicArray consumer changes are uncommitted and source cutover remains gated.
-- Next: add IntrinsicArray with selected consumer preparation; existing sources stay Named.
+- Implementation: Named conversion and IntrinsicArray consumer preparation are verified; source producers remain Named.
+- Next: coordinated raw/typed-local/Core Array source cutover and exclusive birth retirement.
 - Production stop: source intrinsic emission waits for consumer and preservation acceptance.
 - Retirement: Array literal birth callers/effects disappear in the cutover series; Map/Main remain.
 
@@ -102,9 +102,9 @@ account for each touched match; unresolved reclassification blocks cutover.
 
 ## Selected transport and allocation
 
-The published view must select intrinsic allocation itself. Today selection is
-based on Call/ArrayElementWrite rows and the C entry requires a nonempty session;
-an empty literal cannot rely on an unrelated Print or mutation to become selected.
+The published view selects intrinsic allocation itself, including allocation-only
+bodies. The C entry requires a nonempty session; an empty literal cannot rely on
+an unrelated Print or mutation to become selected.
 
 Extend the existing physical frame with kind 8, IntrinsicArrayNew, using its exact
 function/block/instruction coordinate and required destination. Target symbol,
@@ -164,7 +164,10 @@ Cargo check including test targets and a fresh library-test build (peak8.60GiB),
 60 existing focused tests, Pair/Bool host1 (14.19s), and the canonical corridor guard. The 795-line origin
 owner moved its existing tests into its standard child module without changing
 logical test paths; changed source
-max777. No intrinsic target can be produced by this one-variant schema.
+max777. That Named-only checkpoint did not prove intrinsic acceptance. Consumer preparation
+now has a fresh quick test build, view35, old-wire12, remap/Core/source regressions18,
+Pair/Bool host1 and C entry/nested/negative/residual acceptance. Production source
+producers still issue Named; these physical tests do not establish source cutover.
 Core push uses the existing
 receiver-is-array-like/known-write branch, while actual Loop, Core13 and empty
 source acceptance remain required implementation evidence; the Named regression

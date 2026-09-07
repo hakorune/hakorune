@@ -393,6 +393,14 @@
           return 1;
         }
         if (!strcmp(op, "newbox")) {
+          int intrinsic = hako_llvmc_published_intrinsic_array_peek_v1(
+              fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins, NULL);
+          if (intrinsic < 0) return 0;
+          if (intrinsic > 0) {
+            same_module_function_publish_i64_origin(read_int(ins, "dst"), ORG_ARRAY_BIRTH);
+            return 1;
+          }
+
           long long dst = read_int(ins, "dst");
           const char* tname = read_str(ins, "type");
           if (tname && (!strcmp(tname, "ArrayBox") ||

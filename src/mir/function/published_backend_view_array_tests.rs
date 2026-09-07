@@ -191,14 +191,19 @@ fn published_array_element_writes_compile_object_without_void_result_leak() {
         .name("published-array-write-object".to_owned())
         .stack_size(32 * 1024 * 1024)
         .spawn(|| {
-            compile_array_element_writes_object_on_large_stack();
+            compile_array_element_writes_object_on_large_stack(
+                crate::mir::ConstructionTarget::Named("ArrayBox".into()),
+            );
+            compile_array_element_writes_object_on_large_stack(
+                crate::mir::ConstructionTarget::IntrinsicArray,
+            );
         })
         .expect("spawn large-stack object compile test")
         .join()
         .expect("large-stack object compile test");
 }
 
-fn compile_array_element_writes_object_on_large_stack() {
+fn compile_array_element_writes_object_on_large_stack(target: crate::mir::ConstructionTarget) {
     let mut function = MirFunction::new(
         FunctionSignature {
             name: "array-write-object/0".to_owned(),
@@ -218,7 +223,7 @@ fn compile_array_element_writes_object_on_large_stack() {
         .expect("entry block");
     block.add_instruction(MirInstruction::NewBox {
         dst: ValueId::new(1),
-        target: crate::mir::ConstructionTarget::Named("ArrayBox".to_owned()),
+        target,
         args: Vec::new(),
     });
     for (dst, value) in [(2, 1), (3, 9), (4, 0)] {

@@ -340,6 +340,19 @@ fn emit_instruction(
         } => Ok(control_flow::emit_checked_callout_end(site_id, lease_slot)),
         I::NewBox {
             dst,
+            target: crate::mir::ConstructionTarget::IntrinsicArray,
+            args,
+        } => {
+            if !args.is_empty() {
+                return Err("[freeze:contract][intrinsic-array/constructor-args]".into());
+            }
+            Ok(serde_json::json!({
+                "op": "newbox", "target": {"kind": "intrinsic_array"},
+                "dst": dst.as_u32(), "args": []
+            }))
+        }
+        I::NewBox {
+            dst,
             target: crate::mir::ConstructionTarget::Named(box_type),
             args,
         } => Ok(calls::emit_new_box(dst, box_type, args)),

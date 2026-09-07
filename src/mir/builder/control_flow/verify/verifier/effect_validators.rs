@@ -104,6 +104,20 @@ pub(super) fn verify_effect(
         }
         CoreEffectPlan::NewBox {
             dst,
+            target: crate::mir::ConstructionTarget::IntrinsicArray,
+            args,
+        } => {
+            primitives::verify_value_id_basic(*dst, depth, "NewBox.dst")?;
+            if !args.is_empty() {
+                return Err(primitives::err(
+                    "V6",
+                    "intrinsic_array_args",
+                    "IntrinsicArray constructor args must be empty",
+                ));
+            }
+        }
+        CoreEffectPlan::NewBox {
+            dst,
             target: crate::mir::ConstructionTarget::Named(box_type),
             args,
         } => {

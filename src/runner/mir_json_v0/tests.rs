@@ -236,3 +236,12 @@ fn parse_mir_call_stops_before_legacy_carrier_construction() {
     let err = parse_mir_v0_to_module(&json).expect_err("legacy mir_call must stop");
     assert_eq!(err, "[freeze:contract][mir-json-v0/legacy-call-stopped]");
 }
+
+#[test]
+fn intrinsic_target_cannot_reenter_legacy_named_wire() {
+    let input = r#"{"functions":[{"name":"main","blocks":[{"id":0,"instructions":[
+        {"op":"newbox","dst":1,"type":"ArrayBox","target":{"kind":"intrinsic_array"},"args":[]},
+        {"op":"ret","value":1}]}]}]}"#;
+    let error = parse_mir_v0_to_module(input).unwrap_err();
+    assert!(error.contains("construction-target-unsupported"), "{error}");
+}

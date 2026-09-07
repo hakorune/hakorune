@@ -495,6 +495,12 @@ pub fn format_instruction(
 
         MirInstruction::NewBox {
             dst,
+            target: crate::mir::ConstructionTarget::IntrinsicArray,
+            args,
+        } => format!("{} new intrinsic_array({:?})", format_dst(dst, types), args),
+
+        MirInstruction::NewBox {
+            dst,
             target: crate::mir::ConstructionTarget::Named(box_type),
             args,
         } => {

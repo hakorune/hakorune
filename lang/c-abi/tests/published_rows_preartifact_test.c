@@ -245,7 +245,92 @@ static void test_missing_global_rows_cannot_use_legacy_names(void) {
   assert(unlink(input) == 0);
 }
 
+static void test_intrinsic_array_allocation_rows(void) {
+  const char *valid = "\"target\":{\"kind\":\"intrinsic_array\"},\"args\":[]";
+  const char *bad[] = {
+      "\"type\":\"ArrayBox\",\"args\":[]",
+      "\"target\":{\"kind\":\"intrinsic_array\"},\"type\":\"ArrayBox\",\"args\":[]",
+      "\"target\":{\"kind\":\"other\"},\"args\":[]",
+      "\"target\":{\"kind\":\"intrinsic_array\"},\"args\":[1]",
+      "\"target\":null,\"args\":[]"
+  };
+  const char *format =
+      "{\"functions\":[{\"name\":\"main\",\"params\":[],\"metadata\":{"
+      "\"same_module_function_definitions\":[{\"target_symbol\":\"nested\","
+      "\"definition_kind\":\"same_module_function\"}]},\"blocks\":[{\"id\":0,"
+      "\"instructions\":[{\"op\":\"newbox\",\"dst\":0,%s},"
+      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":30}},"
+      "{\"op\":\"ret\",\"value\":2}]}]},"
+      "{\"name\":\"nested\",\"params\":[],\"metadata\":{},\"blocks\":[{\"id\":1,"
+      "\"instructions\":[{\"op\":\"newbox\",\"dst\":1,%s},"
+      "{\"op\":\"const\",\"dst\":2,\"value\":{\"type\":\"i64\",\"value\":4}},"
+      "{\"op\":\"ret\",\"value\":2}]}]}]}";
+  hako_llvmc_published_static_method_call_v1 rows[2] = {0};
+  rows[0].function_name = "main";
+  rows[1].function_name = "nested";
+  rows[1].block_id = rows[1].dst = 1;
+  for (int i = 0; i < 2; i++) {
+    rows[i].kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_INTRINSIC_ARRAY_NEW;
+    rows[i].flags = HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT;
+  }
+  char input[] = "/tmp/hakorune-intrinsic-array-XXXXXX";
+  int fd = mkstemp(input);
+  assert(fd >= 0 && close(fd) == 0);
+  char output[sizeof(input) + 2], body[4096];
+  snprintf(output, sizeof(output), "%s.o", input);
+  char *error = NULL;
+  for (int test = -1; test < (int)(sizeof(bad) / sizeof(bad[0])); test++) {
+    for (int site = 0; site < 2; site++) {
+      const char *first = test >= 0 && site == 0 ? bad[test] : valid;
+      const char *second = test >= 0 && site == 1 ? bad[test] : valid;
+      int length = snprintf(body, sizeof(body), format, first, second);
+      assert(length > 0 && length < (int)sizeof(body));
+      FILE *file = fopen(input, "w");
+      assert(file && fputs(body, file) >= 0 && fclose(file) == 0);
+      int rc = hako_llvmc_compile_published_static_method_v1(input, rows, 2, output, &error);
+      if (test < 0) {
+        if (rc) fprintf(stderr, "intrinsic allocation rc=%d: %s\n", rc, error ? error : "none");
+        assert(rc == 0 && access(output, F_OK) == 0 && unlink(output) == 0);
+        assert(hako_llvmc_compile_published_static_method_v1(
+            input, &rows[site], 1, output, &error) != 0);
+        assert(error && access(output, F_OK) != 0);
+        free(error); error = NULL;
+        assert(hako_llvmc_compile_json_pure_first(input, output, &error) != 0);
+        assert(error && access(output, F_OK) != 0);
+      } else {
+        assert(rc != 0 && error && access(output, F_OK) != 0);
+      }
+      free(error); error = NULL;
+    }
+  }
+  yyjson_doc *doc = yyjson_read(
+      "{\"op\":\"newbox\",\"target\":{\"kind\":\"intrinsic_array\"},\"args\":[],\"dst\":0}",
+      strlen("{\"op\":\"newbox\",\"target\":{\"kind\":\"intrinsic_array\"},\"args\":[],\"dst\":0}"), 0);
+  assert(doc);
+  assert(hako_llvmc_published_static_method_rows_begin(rows, 2, &error) == 0);
+  assert(hako_llvmc_published_intrinsic_array_peek_v1("main", 0, 0, yyjson_doc_get_root(doc), NULL) == 1);
+  assert(hako_llvmc_published_intrinsic_array_take_v1("main", 0, 0, yyjson_doc_get_root(doc)) == 1);
+  assert(hako_llvmc_published_intrinsic_array_take_v1("main", 0, 0, yyjson_doc_get_root(doc)) == -1);
+  assert(hako_llvmc_published_static_method_rows_finish(&error) != 0);
+  free(error); error = NULL;
+  hako_llvmc_published_static_method_rows_end();
+  for (int field = 0; field < 5; field++) {
+    hako_llvmc_published_static_method_call_v1 malformed = rows[0];
+    if (field == 0) malformed.flags = 0;
+    if (field == 1) malformed.receiver = 1;
+    if (field == 2) malformed.arity = 1;
+    if (field == 3) malformed.target_symbol = "ArrayBox";
+    if (field == 4) malformed.dst = UINT32_MAX;
+    assert(hako_llvmc_published_static_method_rows_begin(&malformed, 1, &error) != 0);
+    assert(error); free(error); error = NULL;
+  }
+  yyjson_doc_free(doc);
+  assert(unlink(input) == 0);
+  puts("intrinsic array allocation entry/nested and rejection: PASS");
+}
+
 int main(int argc, char **argv) {
+  test_intrinsic_array_allocation_rows();
   test_prepass_peek_and_emitter_take();
   test_array_row_rejects_second_take();
   test_same_module_prepass_uses_published_row();

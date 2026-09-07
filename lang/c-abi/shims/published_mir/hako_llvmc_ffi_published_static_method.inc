@@ -5,7 +5,7 @@
  * exact function/block/instruction coordinate; every supplied row must be
  * consumed before a successful object is returned.  The historical symbol
  * name is retained for the bounded API, while `kind` distinguishes the
- * selected call and ArrayElementWrite physical consumers.
+ * selected call, ArrayElementWrite and intrinsic allocation physical consumers.
  */
 
 static const hako_llvmc_published_static_method_call_v1*
@@ -43,7 +43,8 @@ static int hako_llvmc_published_static_method_rows_begin(
         row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_LITERAL_APPEND ||
         row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_PUSH ||
         row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_SET ||
-        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_INSERT;
+        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_INSERT ||
+        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_INTRINSIC_ARRAY_NEW;
     int valid_payload =
         (row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
          row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION)
@@ -51,6 +52,10 @@ static int hako_llvmc_published_static_method_rows_begin(
             : (row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT
                    ? (row->target_symbol == NULL && row->arity == 1)
                    : (row->target_symbol == NULL && row->arity == 0));
+    if (row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_INTRINSIC_ARRAY_NEW)
+      valid_payload = valid_payload && row->dst != UINT32_MAX &&
+          row->flags == HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT &&
+          !row->site_id && !row->receiver && !row->index && !row->value;
     if (!(row->function_name && row->function_name[0] && valid_kind && valid_payload)) {
       return set_err_owned(
           err_out,
@@ -218,6 +223,47 @@ static int hako_llvmc_published_mir_read_u32_field_v1(
   if (raw < 0 || (unsigned long long)raw > UINT32_MAX) return 0;
   if (out) *out = (uint32_t)raw;
   return 1;
+}
+
+/* Explicit allocation target admission. No target means named compatibility
+ * only if this exact site has no typed row. Unknown/ambiguous tags never fall
+ * through, including generic ingress without a published session. */
+static int hako_llvmc_published_intrinsic_array_peek_v1(
+    const char* function_name, long long block_id, size_t instruction_index,
+    yyjson_val* instruction,
+    const hako_llvmc_published_static_method_call_v1** out_row) {
+  const hako_llvmc_published_static_method_call_v1* row =
+      hako_llvmc_published_static_method_peek_row_for_site(
+          function_name, block_id, instruction_index);
+  yyjson_val* target = yyjson_obj_get(instruction, "target");
+  yyjson_val* kind = target ? yyjson_obj_get(target, "kind") : NULL;
+  yyjson_val* args = yyjson_obj_get(instruction, "args");
+  yyjson_val* op = yyjson_obj_get(instruction, "op");
+  uint32_t dst = 0;
+  if (out_row) *out_row = NULL;
+  if (!target) return row ? HAKO_LLVMC_PUBLISHED_ROW_MALFORMED : HAKO_LLVMC_PUBLISHED_ROW_ABSENT;
+  if (!row || row->kind != HAKO_LLVMC_PUBLISHED_CALL_KIND_INTRINSIC_ARRAY_NEW ||
+      !yyjson_is_obj(target) || yyjson_obj_size(target) != 1 ||
+      !yyjson_is_str(kind) || strcmp(yyjson_get_str(kind), "intrinsic_array") ||
+      yyjson_obj_get(instruction, "type") ||
+      !yyjson_is_str(op) || strcmp(yyjson_get_str(op), "newbox") ||
+      !yyjson_is_arr(args) || yyjson_arr_size(args) != 0 ||
+      !yyjson_is_int(yyjson_obj_get(instruction, "dst")) ||
+      !hako_llvmc_published_mir_read_u32_field_v1(instruction, "dst", &dst) ||
+      dst == UINT32_MAX || row->dst != dst)
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  if (out_row) *out_row = row;
+  return HAKO_LLVMC_PUBLISHED_ROW_READY;
+}
+
+static int hako_llvmc_published_intrinsic_array_take_v1(
+    const char* function_name, long long block_id, size_t instruction_index,
+    yyjson_val* instruction) {
+  const hako_llvmc_published_static_method_call_v1* row = NULL;
+  int status = hako_llvmc_published_intrinsic_array_peek_v1(
+      function_name, block_id, instruction_index, instruction, &row);
+  return status == HAKO_LLVMC_PUBLISHED_ROW_READY
+      ? hako_llvmc_published_static_method_take_row_v1(row) : status;
 }
 
 static int hako_llvmc_published_mir_read_optional_u32_field_v1(

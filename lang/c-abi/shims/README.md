@@ -5,6 +5,14 @@ The backend performs physical lowering; it does not issue source meaning.
 
 ## Responsibility Boundary
 
+- Intrinsic Array allocation uses the existing frame's kind8 exact-site row and
+  explicit body target. Both entry/nested prepasses peek; allocation emission
+  takes once. A literal name cannot replace a missing row. Allocation-only input
+  is selected without a dummy Call. The entry allocation block is physically
+  isolated in `hako_llvmc_ffi_pure_compile_generic_newbox_emit.inc`, included in
+  the same instruction walk; it is not a second dispatcher. The published-row
+  regression below covers positive entry/nested allocation and malformed input.
+
 - Published typed rows are exhausted before object emission. Exact-seed
   dispatch is forbidden while these rows are active; non-contract typed
   output selects the existing opt/llc emitter once, never the optional legacy

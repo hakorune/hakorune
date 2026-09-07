@@ -432,7 +432,7 @@
           return 0;
         }
         if (!strcmp(op, "newbox")) {
-          return same_module_function_emit_newbox(ins);
+          return same_module_function_emit_newbox(bid, ii, ins);
         }
         if (!strcmp(op, "array_element_write")) {
           const char* active_function_name = fn0 ? read_str(fn0, "name") : NULL;

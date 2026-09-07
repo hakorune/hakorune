@@ -608,28 +608,29 @@ and canonical corridor guard pass; changed source max777. Details live in Git.
 
 #### MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0
 
-Status: **selected fast**, step2 of the accepted construction series.
-Decision: add IntrinsicArray only with its selected physical consumer and rejection rules.
-Source authority + canonical issuer: accepted literal source owners remain gated; production source continues to issue Named.
-Non-authority: body names, type/origin metadata and unrelated call rows cannot issue intrinsic identity.
-Fail-fast boundary: intrinsic shape/required exact row/unsupported consumer before artifact; no provider-name fallback.
-Smallest next slice: intrinsic variant, view selection, frame kind8 and four C prepass/emission consumers; synthetic boundary acceptance only.
-Non-claims: source cutover, birth deletion, Loop/empty source execution, Map/Main, VM/WASM parity or R7 closure.
+Consumer preparation verified: target, allocation-only selection, kind8 and shared
+entry/nested peek/take/rejection. Source remains Named. Owner splits keep touched
+source max754. Fresh quick test build, view35,
+old-wire12, remap/Core/source18 and Pair/Bool host1 (14.48s) pass. C build and
+entry/nested/negative/residual regression pass; canonical corridor guard passes.
+No source cutover, natural Loop/empty execution or whole-suite/R7 claim.
 
-The construction design owns reader/transport contracts. Intrinsic args must be
-empty; its allocation alone selects the published session. Prepass peeks,
-emission takes once, finish checks residuals. Reject ambiguous body tags/names,
-bad destination/payload, missing/wrong/duplicate rows; preserve Named old wire.
-Core13 must preserve intrinsic target; named-only observers must not reclassify it.
-Keep all actual source producers Named until consumer preparation passes.
-Next queued slice: raw/typed-local/Core Array cutover together, after consumer
-verification and commit. Delete only collection_literals.rs Array birth caller
-and normalizer/helpers_value/lower.rs Array birth effect; shared helper remains
-for Map/Main. Natural-source OBJ/EXE, Loop write consumption, provider separation
-and failure/order evidence are mandatory. The design's ordered table owns detail.
-Read-only worker audit found no new construction issuer contradiction. Current
-working-tree view35 and old-wire12 pass; this is not consumer closeout or source
-cutover evidence. Keep this row active until its remaining checks/docs/commit.
+#### MIR-COLLECTION-ARRAY-SOURCE-CUTOVER-I0
+
+Status: **selected fast**, step3 of the accepted construction series.
+Decision: switch raw/typed-local/Core ArrayLiteral together and retire Array birth edges.
+Source authority + canonical issuer: exact ArrayLiteral source arms; shared collection helper and Core normalizer preserve that syntax identity.
+Non-authority: body names, type/origin metadata, provider settings and synthetic physical tests.
+Fail-fast boundary: unsupported target or missing exact row before artifact; preserve child failure without name fallback.
+Smallest next slice: switch the two allocation issuers; delete Array helper birth call and Core Array birth MethodCall.
+Non-claims: Map/Main cutover, shared birth-helper deletion, AST-free Facts/Recipe completion, VM/WASM parity or R7 closure.
+
+The [construction design](../design/collection-literal-construction-ssot.md) owns inventory/order. Acceptance requires
+natural empty/populated/nested/typed/Loop source, provider separation, failure/order,
+Core13 preservation and selected EXE/independently linked OBJ. Observe Loop's existing
+known-array write consumer; surviving Method push is a blocker, not C repair scope.
+Keep locators/order; no dummy Call or earlier-terminal substitution. Update owner
+docs and retire exclusive obsolete tests in the same series.
 
 ## Source and ownership budget
 

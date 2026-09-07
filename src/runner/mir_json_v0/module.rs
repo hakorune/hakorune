@@ -415,6 +415,13 @@ pub(super) fn lower_functions(functions: &[Value], module: &mut MirModule) -> Re
                         }
                     }
                     "newbox" => {
+                        if inst.get("target").is_some() {
+                            return Err(
+                                "[freeze:contract][mir-json-v0/construction-target-unsupported]"
+                                    .into(),
+                            );
+                        }
+
                         let dst = require_u64(inst, "dst", "newbox dst")? as u32;
                         let ty = inst
                             .get("type")

@@ -46,6 +46,13 @@ Caller-zero pinned-Text lowering fixture
   foreign, stale, duplicate, or trap Finish carrier data rejects before the
   output file is opened.
 
+Intrinsic allocation transport
+- The existing published frame supports kind8 `IntrinsicArrayNew`, with an exact
+  site and required dst, plus an explicit intrinsic body tag. It reuses the
+  selected Array allocation ABI. Named construction retains its legacy encoding.
+- Consumer acceptance does not activate literal source producers; raw/typed/Core
+  source cutover is separately gated by the construction design and source tests.
+
 Lifecycle invocation ownership
 - `hako_lts_open` retains the selected LLVM library, TargetMachine, TargetData,
   triple and data-layout in one private call-local session. `hako_lts_close`

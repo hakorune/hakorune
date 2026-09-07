@@ -24,10 +24,11 @@ Pointers:
 旧 JoinIR merge/remap は `cfg(test)` の reference surface であり、production
 の ValueId lifecycle collection は `mir_value_id_inventory.rs` が所有する。
 
-Construction target migration: MIR and Core allocation now carry
-`ConstructionTarget::Named(String)` explicitly. Existing source/provider behavior
-and name-only JSON remain unchanged. Intrinsic literal targets wait for selected
-consumer preparation; no implicit target-to-provider-name adapter is provided.
+Construction target migration: MIR/Core allocation distinguishes `Named(String)`
+from `IntrinsicArray`. The selected view/frame/C consumer supports the intrinsic
+variant; actual source producers remain Named until the coordinated raw/typed/Core
+cutover. Name-only JSON remains Named. Remaps preserve identity, Core13 preserves
+intrinsic allocation, and unsupported consumers do not retry provider lookup.
 
 ## Active replacement law
 

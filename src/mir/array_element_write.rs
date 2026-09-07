@@ -416,6 +416,14 @@ fn classify_state_term(
     match definitions.get(&value).copied() {
         Some(MirInstruction::NewBox {
             dst,
+            target: crate::mir::ConstructionTarget::IntrinsicArray,
+            ..
+        }) => ArrayStateTermKind::Fresh {
+            allocation_site: *dst,
+        },
+
+        Some(MirInstruction::NewBox {
+            dst,
             target: crate::mir::ConstructionTarget::Named(box_type),
             ..
         }) if box_type == "ArrayBox" => ArrayStateTermKind::Fresh {

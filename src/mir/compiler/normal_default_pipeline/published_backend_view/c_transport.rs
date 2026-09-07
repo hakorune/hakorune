@@ -21,6 +21,7 @@ pub(crate) enum PublishedCallKindV1 {
     ArrayPush = 5,
     ArraySet = 6,
     ArrayInsert = 7,
+    IntrinsicArrayNew = 8,
 }
 
 pub(crate) const PUBLISHED_ROW_DST_PRESENT_V1: u32 = 1;
@@ -61,7 +62,8 @@ impl PublishedStaticMethodCFrameV1 {
         let total = view.static_method_calls.len()
             + view.free_function_calls.len()
             + view.builtin_print_calls.len()
-            + view.array_element_writes.len();
+            + view.array_element_writes.len()
+            + view.intrinsic_arrays.len();
         let mut function_names = Vec::with_capacity(total);
         let mut target_symbols =
             Vec::with_capacity(view.static_method_calls.len() + view.free_function_calls.len());
@@ -124,6 +126,27 @@ impl PublishedStaticMethodCFrameV1 {
                 value: 0,
                 dst: 0,
                 flags: 0,
+            });
+        }
+        for allocation in &view.intrinsic_arrays {
+            function_names.push(CString::new(allocation.function_name).map_err(|_| {
+                PublishedMirBackendViewErrorV1::IntrinsicArrayShapeMismatch {
+                    function: allocation.function_name.to_owned(),
+                }
+            })?);
+            rows.push(PublishedStaticMethodCallCRowV1 {
+                function_name: function_names.last().unwrap().as_ptr(),
+                block_id: allocation.block_id,
+                instruction_index: allocation.instruction_index,
+                target_symbol: std::ptr::null(),
+                arity: 0,
+                kind: PublishedCallKindV1::IntrinsicArrayNew as u32,
+                site_id: 0,
+                receiver: 0,
+                index: 0,
+                value: 0,
+                dst: allocation.dst.as_u32(),
+                flags: PUBLISHED_ROW_DST_PRESENT_V1,
             });
         }
         for call in &view.builtin_print_calls {

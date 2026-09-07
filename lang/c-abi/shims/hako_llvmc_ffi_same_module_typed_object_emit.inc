@@ -54,8 +54,19 @@
              ii);
       }
 
-      auto int same_module_function_emit_newbox(yyjson_val* ins) {
+      auto int same_module_function_emit_newbox(long long bid, size_t ii, yyjson_val* ins) {
         long long dst = read_int(ins, "dst");
+        int intrinsic = hako_llvmc_published_intrinsic_array_take_v1(
+            fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins);
+        if (intrinsic < 0) return -1;
+        if (intrinsic > 0) {
+          const char* symbol = hako_llvmc_direct_array_i64_exact_enabled()
+              ? "nyash.array.direct_i64.birth_h" : "nyash.array.birth_h";
+          EMIT("  %%r%lld = call i64 @\"%s\"()\n", dst, symbol);
+          same_module_function_publish_i64_origin(dst, ORG_ARRAY_BIRTH);
+          return 1;
+        }
+
         const char* tname = read_str(ins, "type");
         int typed_plan_index = -1;
         if (tname && !strcmp(tname, "DirectArrayI64")) {

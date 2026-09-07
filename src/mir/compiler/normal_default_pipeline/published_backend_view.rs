@@ -13,6 +13,12 @@ use hakorune_mir_defs::{
 
 use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, MirModule, ValueId};
 
+mod row_refs;
+pub(crate) use row_refs::{
+    PublishedArrayElementWriteRef, PublishedBuiltinPrintCallRef, PublishedFreeFunctionCallRef,
+    PublishedStaticMethodCallRef,
+};
+
 mod c_transport;
 mod compiled_entry_contract;
 mod lifecycle;
@@ -30,8 +36,8 @@ pub(crate) use compiled_entry_contract::{
     CompiledEntryCleanupKindV1, CompiledEntryContractV1, CompiledEntryFormalKindV1,
     CompiledEntryRootResultV1,
 };
-pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 pub(in crate::mir) use physical_abi::PublishedLifecyclePhysicalAbiInputV1;
+pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 pub(crate) use physical_program_json::emit_lifecycle_physical_abi_json;
 
 /// The only route decisions a backend may observe for the selected published
@@ -57,6 +63,9 @@ pub(crate) enum PublishedStaticMethodRouteV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum PublishedMirBackendViewErrorV1 {
     RetainedRootMissing,
+    IntrinsicArrayShapeMismatch {
+        function: String,
+    },
     DefinitionMissing {
         key: CanonicalSameModuleCallableKeyV1,
     },
@@ -137,156 +146,6 @@ impl std::fmt::Display for PublishedMirBackendViewErrorV1 {
 
 impl std::error::Error for PublishedMirBackendViewErrorV1 {}
 
-/// A single selected static-method call borrowed from the published module.
-/// The key and operands are never reconstructed from a physical symbol.
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct PublishedStaticMethodCallRef<'module> {
-    function_name: &'module str,
-    block_id: u32,
-    instruction_index: u32,
-    key: &'module CanonicalSameModuleCallableKeyV1,
-    args: &'module [ValueId],
-}
-
-/// A same-module free-function call borrowed from the published module.
-/// `key` is the source-issued identity retained through Atomic Publish; the
-/// physical symbol is projected only when the temporary C frame is built.
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct PublishedFreeFunctionCallRef<'module> {
-    function_name: &'module str,
-    block_id: u32,
-    instruction_index: u32,
-    key: &'module CanonicalSameModuleCallableKeyV1,
-    args: &'module [ValueId],
-}
-
-impl<'module> PublishedFreeFunctionCallRef<'module> {
-    pub(crate) fn function_name(self) -> &'module str {
-        self.function_name
-    }
-
-    pub(crate) fn key(self) -> &'module CanonicalSameModuleCallableKeyV1 {
-        self.key
-    }
-
-    pub(crate) const fn block_id(self) -> u32 {
-        self.block_id
-    }
-
-    pub(crate) const fn instruction_index(self) -> u32 {
-        self.instruction_index
-    }
-
-    pub(crate) fn args(self) -> &'module [ValueId] {
-        self.args
-    }
-}
-
-impl<'module> PublishedStaticMethodCallRef<'module> {
-    pub(crate) fn function_name(self) -> &'module str {
-        self.function_name
-    }
-
-    pub(crate) fn key(self) -> &'module CanonicalSameModuleCallableKeyV1 {
-        self.key
-    }
-
-    pub(crate) const fn block_id(self) -> u32 {
-        self.block_id
-    }
-
-    pub(crate) const fn instruction_index(self) -> u32 {
-        self.instruction_index
-    }
-
-    pub(crate) fn args(self) -> &'module [ValueId] {
-        self.args
-    }
-}
-
-/// A reserved builtin print call borrowed from the published module.  Unlike
-/// same-module methods it has no definition-table key: its finite builtin
-/// identity is already carried by the canonical global target.
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct PublishedBuiltinPrintCallRef<'module> {
-    function_name: &'module str,
-    block_id: u32,
-    instruction_index: u32,
-    args: &'module [ValueId],
-}
-
-impl<'module> PublishedBuiltinPrintCallRef<'module> {
-    pub(crate) fn function_name(self) -> &'module str {
-        self.function_name
-    }
-
-    pub(crate) const fn block_id(self) -> u32 {
-        self.block_id
-    }
-
-    pub(crate) const fn instruction_index(self) -> u32 {
-        self.instruction_index
-    }
-
-    pub(crate) fn args(self) -> &'module [ValueId] {
-        self.args
-    }
-}
-
-/// A canonical ArrayElementWrite borrowed from the atomically-published MIR.
-/// The operation kind, receiver, index, and value are already decided by the
-/// ArrayElementWrite owner; the backend only projects these operands.
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct PublishedArrayElementWriteRef<'module> {
-    function_name: &'module str,
-    block_id: u32,
-    instruction_index: u32,
-    site_id: u32,
-    kind: ArrayElementWriteKind,
-    dst: Option<ValueId>,
-    receiver: ValueId,
-    index: Option<ValueId>,
-    value: ValueId,
-}
-
-impl<'module> PublishedArrayElementWriteRef<'module> {
-    pub(crate) fn function_name(self) -> &'module str {
-        self.function_name
-    }
-
-    pub(crate) const fn block_id(self) -> u32 {
-        self.block_id
-    }
-
-    pub(crate) const fn instruction_index(self) -> u32 {
-        self.instruction_index
-    }
-
-    pub(crate) const fn site_id(self) -> u32 {
-        self.site_id
-    }
-
-    pub(crate) const fn kind(self) -> ArrayElementWriteKind {
-        self.kind
-    }
-
-    pub(crate) const fn dst(self) -> Option<ValueId> {
-        self.dst
-    }
-
-    pub(crate) const fn receiver(self) -> ValueId {
-        self.receiver
-    }
-
-    pub(crate) const fn index(self) -> Option<ValueId> {
-        self.index
-    }
-
-    pub(crate) const fn value(self) -> ValueId {
-        self.value
-    }
-}
-
 /// Read-only projection of an already atomically-published module.
 ///
 /// No AST, resolver, registry, JSON, fallback state, or independently-owned
@@ -304,6 +163,7 @@ pub(crate) struct PublishedMirBackendView<'module> {
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
     builtin_print_calls: Vec<PublishedBuiltinPrintCallRef<'module>>,
     array_element_writes: Vec<PublishedArrayElementWriteRef<'module>>,
+    intrinsic_arrays: Vec<row_refs::PublishedIntrinsicArrayRef<'module>>,
     has_lifecycle_instructions: bool,
     pub(super) has_non_lifecycle_unsupported: bool,
     pub(super) lifecycle_storage_profile: Option<&'module PublishedObjectStorageProfileV1>,
@@ -319,6 +179,7 @@ impl<'module> PublishedMirBackendView<'module> {
         let mut free_function_calls = Vec::new();
         let mut builtin_print_calls = Vec::new();
         let mut array_element_writes = Vec::new();
+        let mut intrinsic_arrays = Vec::new();
         let mut has_lifecycle_instructions = false;
         let mut has_non_lifecycle_unsupported = false;
         for (function_name, function) in &module.functions {
@@ -331,6 +192,34 @@ impl<'module> PublishedMirBackendView<'module> {
                     .expect("sorted MIR block id must remain present");
                 for (instruction_index, instruction) in block.all_instructions().enumerate() {
                     if matches!(instruction, MirInstruction::Return { .. }) {
+                        continue;
+                    }
+                    if let MirInstruction::NewBox {
+                        dst,
+                        target: crate::mir::ConstructionTarget::IntrinsicArray,
+                        args,
+                    } = instruction
+                    {
+                        if !args.is_empty()
+                            || *dst == ValueId::INVALID
+                            || function_name.contains('\0')
+                        {
+                            return Err(
+                                PublishedMirBackendViewErrorV1::IntrinsicArrayShapeMismatch {
+                                    function: function_name.clone(),
+                                },
+                            );
+                        }
+                        intrinsic_arrays.push(row_refs::PublishedIntrinsicArrayRef {
+                            function_name,
+                            block_id: block_id.as_u32(),
+                            instruction_index: u32::try_from(instruction_index).map_err(|_| {
+                                PublishedMirBackendViewErrorV1::IntrinsicArrayShapeMismatch {
+                                    function: function_name.clone(),
+                                }
+                            })?,
+                            dst: *dst,
+                        });
                         continue;
                     }
                     if is_lifecycle_instruction(instruction) {
@@ -446,6 +335,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 free_function_calls,
                 builtin_print_calls,
                 array_element_writes,
+                intrinsic_arrays,
                 has_lifecycle_instructions,
                 has_non_lifecycle_unsupported,
                 lifecycle_storage_profile: None,
@@ -455,6 +345,7 @@ impl<'module> PublishedMirBackendView<'module> {
             && free_function_calls.is_empty()
             && builtin_print_calls.is_empty()
             && array_element_writes.is_empty()
+            && intrinsic_arrays.is_empty()
         {
             return Ok(Self {
                 module,
@@ -465,6 +356,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 free_function_calls,
                 builtin_print_calls,
                 array_element_writes,
+                intrinsic_arrays,
                 has_lifecycle_instructions,
                 has_non_lifecycle_unsupported,
                 lifecycle_storage_profile: None,
@@ -479,6 +371,7 @@ impl<'module> PublishedMirBackendView<'module> {
             free_function_calls,
             builtin_print_calls,
             array_element_writes,
+            intrinsic_arrays,
             has_lifecycle_instructions,
             has_non_lifecycle_unsupported,
             lifecycle_storage_profile: None,
