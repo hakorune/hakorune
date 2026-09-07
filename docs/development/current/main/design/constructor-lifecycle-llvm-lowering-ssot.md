@@ -220,6 +220,24 @@ select or explicitly reject an existing target session; it must not reuse the
 pinned-text session, infer layout from host defaults, emit C, or open direct
 physical input.
 
+**D0 result: NoSafeSlice.** The only existing triple/DataLayout/TargetMachine
+issuer is explicitly pinned-text-only. The selected lifecycle C ingress and
+archive link have no target/session input; structural Rust/C FaultFrame checks
+are not target proof. The next design stop is
+`CONSTRUCTOR-LIFECYCLE-TARGET-SESSION-ISSUER-D0`: identify one lifecycle
+invocation owner binding target triple, LLVM layout observation, FaultFrame ABI
+revision/size/alignment/offsets and exact kernel archive target/revision. It
+must not reuse PTFB or issue semantic meaning.
+
+### `CONSTRUCTOR-LIFECYCLE-TARGET-SESSION-ISSUER-D0`
+
+Design the one physical lifecycle target-session issuer and its finite caller
+inventory before any target layout, direct physical input or C body emission.
+It may reuse existing structural ABI vocabulary only after naming a lifecycle
+owner; absent/mismatched target, layout, FaultFrame revision or runtime archive
+must reject pre-artifact. This is a decision-only row with no new semantic
+receipt, C emission, kernel switch or EXE claim.
+
 ### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
 
 This is the concrete Step 4 owner/caller row: final view physical program and
