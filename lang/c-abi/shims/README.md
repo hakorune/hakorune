@@ -41,6 +41,11 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   for the final-view ABI-bearing JSON. It checks function/block/value/layout,
   Birth, PHI, invoke/frame and CFG references without source-name recovery;
   the focused Pair transport check proves this validation boundary only.
+- Lifecycle V3 opens its LLVM 18 target session from the host-issued row,
+  observes the target-machine triple and data-layout, and writes/verifies only
+  that module preamble before returning the pre-artifact terminal. It never
+  reads generic `llc` flags or emits an object; V4 owns the later explicit tool
+  invocation.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.

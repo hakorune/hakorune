@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -152,6 +154,9 @@ int main(void) {
     .frame_suppressed_offset = offsetof(NyrtFaultFrameV1, suppressed),
   };
   rejects_body_v3(&frame, &site, &session, "body-consumer-pending");
+  assert(setenv("NYASH_NY_LLVM_LLC_FLAGS", "-mtriple=i386-unknown-linux-gnu", 1) == 0);
+  rejects_body_v3(&frame, &site, &session, "body-consumer-pending");
+  assert(unsetenv("NYASH_NY_LLVM_LLC_FLAGS") == 0);
   session.pointer_width = 4;
   rejects_body_v3(&frame, &site, &session, "lifecycle-session/runtime-abi");
   session.pointer_width = sizeof(void *);

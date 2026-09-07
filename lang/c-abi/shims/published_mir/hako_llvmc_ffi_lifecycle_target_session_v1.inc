@@ -11,6 +11,7 @@ typedef int (*hako_lts_get_target_fn)(const char*, void**, char**);
 typedef void* (*hako_lts_make_machine_fn)(void*, const char*, const char*, const char*, int, int, int);
 typedef char* (*hako_lts_machine_triple_fn)(void*);
 typedef void* (*hako_lts_make_data_fn)(void*);
+typedef char* (*hako_lts_data_layout_text_fn)(void*);
 typedef unsigned (*hako_lts_pointer_size_fn)(void*);
 typedef void* (*hako_lts_make_context_fn)(void);
 typedef void* (*hako_lts_int_type_fn)(void*);
@@ -61,14 +62,46 @@ done:
   return matched;
 }
 
-static int hako_llvmc_lifecycle_target_session_v1_validate(
-    const hako_llvmc_lifecycle_target_session_v1* in, char** err_out) {
+/* This is deliberately a text-only session check: it never selects a tool or emits an object. */
+static int hako_lts_text_preamble_matches(const char* triple, const char* data_layout) {
+  FILE* file;
+  char *expected = NULL, *actual = NULL;
+  size_t expected_len, read_count;
+  int matched = 0;
+  if (!triple || !data_layout) return 0;
+  expected_len = strlen("target triple = \"\"\n") + strlen(triple) +
+      strlen("target datalayout = \"\"\n") + strlen(data_layout);
+  expected = (char*)malloc(expected_len + 1u);
+  actual = (char*)malloc(expected_len + 1u);
+  if (!expected || !actual) goto done;
+  if (snprintf(expected, expected_len + 1u,
+          "target triple = \"%s\"\ntarget datalayout = \"%s\"\n",
+          triple, data_layout) != (int)expected_len) goto done;
+  file = tmpfile();
+  if (!file) goto done;
+  if (fwrite(expected, 1u, expected_len, file) != expected_len || fflush(file) != 0 ||
+      fseek(file, 0L, SEEK_SET) != 0) {
+    fclose(file);
+    goto done;
+  }
+  read_count = fread(actual, 1u, expected_len, file);
+  fclose(file);
+  actual[read_count] = '\0';
+  matched = read_count == expected_len && strcmp(actual, expected) == 0;
+done:
+  free(actual);
+  free(expected);
+  return matched;
+}
+
+static int hako_llvmc_lifecycle_target_session_v1_validate_inner(
+    const hako_llvmc_lifecycle_target_session_v1* in, int require_text_preamble, char** err_out) {
 #if defined(_WIN32)
   (void)in;
   return set_err_owned(err_out, "[freeze:contract][lifecycle-session/windows]");
 #else
   void *lib = NULL, *target = NULL, *machine = NULL, *data = NULL;
-  char *diagnostic = NULL, *actual_triple = NULL;
+  char *diagnostic = NULL, *actual_triple = NULL, *data_layout = NULL;
   unsigned major = 0, minor = 0, patch = 0;
   hako_lts_dispose_message_fn dispose_message;
   hako_lts_dispose_machine_fn dispose_machine;
@@ -79,6 +112,7 @@ static int hako_llvmc_lifecycle_target_session_v1_validate(
   hako_lts_make_machine_fn make_machine;
   hako_lts_machine_triple_fn machine_triple;
   hako_lts_make_data_fn make_data;
+  hako_lts_data_layout_text_fn data_layout_text;
   hako_lts_pointer_size_fn pointer_size;
   hako_lts_make_context_fn make_context;
   hako_lts_int_type_fn int32_type, int64_type;
@@ -116,6 +150,7 @@ static int hako_llvmc_lifecycle_target_session_v1_validate(
   make_machine = HAKO_LTS_SYM("LLVMCreateTargetMachine", hako_lts_make_machine_fn);
   machine_triple = HAKO_LTS_SYM("LLVMGetTargetMachineTriple", hako_lts_machine_triple_fn);
   make_data = HAKO_LTS_SYM("LLVMCreateTargetDataLayout", hako_lts_make_data_fn);
+  data_layout_text = HAKO_LTS_SYM("LLVMCopyStringRepOfTargetData", hako_lts_data_layout_text_fn);
   pointer_size = HAKO_LTS_SYM("LLVMPointerSize", hako_lts_pointer_size_fn);
   make_context = HAKO_LTS_SYM("LLVMContextCreate", hako_lts_make_context_fn);
   int32_type = HAKO_LTS_SYM("LLVMInt32TypeInContext", hako_lts_int_type_fn);
@@ -132,7 +167,7 @@ static int hako_llvmc_lifecycle_target_session_v1_validate(
   init_printer = HAKO_LTS_SYM("LLVMInitializeX86AsmPrinter", hako_lts_init_fn);
 #undef HAKO_LTS_SYM
   if (!dispose_message || !dispose_machine || !dispose_data || !dispose_context || !get_version ||
-      !get_target || !make_machine || !machine_triple || !make_data || !pointer_size ||
+      !get_target || !make_machine || !machine_triple || !make_data || !data_layout_text || !pointer_size ||
       !make_context || !int32_type || !int64_type || !pointer_type || !array_type || !struct_type ||
       !abi_size || !abi_align || !element_offset || !init_info || !init_target || !init_mc || !init_printer)
     goto cleanup;
@@ -144,14 +179,25 @@ static int hako_llvmc_lifecycle_target_session_v1_validate(
   machine = make_machine(target, in->target_triple, "generic", "", 0, 0, 0);
   data = machine ? make_data(machine) : NULL;
   actual_triple = machine ? machine_triple(machine) : NULL;
+  data_layout = data ? data_layout_text(data) : NULL;
   if (!data || !actual_triple || strcmp(actual_triple, in->target_triple) != 0 ||
+      !data_layout || !data_layout[0] ||
       pointer_size(data) != in->pointer_width ||
       !hako_lts_fault_layout_matches(data, in, make_context, dispose_context, int32_type,
           int64_type, pointer_type, array_type, struct_type, abi_size, abi_align, element_offset))
     goto cleanup;
+  if (require_text_preamble && !hako_lts_text_preamble_matches(actual_triple, data_layout)) {
+    if (data_layout && dispose_message) dispose_message(data_layout);
+    if (actual_triple && dispose_message) dispose_message(actual_triple);
+    if (data && dispose_data) dispose_data(data);
+    if (machine && dispose_machine) dispose_machine(machine);
+    if (lib) dlclose(lib);
+    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/text-preamble]");
+  }
   rc = 0;
 cleanup:
   if (diagnostic && dispose_message) dispose_message(diagnostic);
+  if (data_layout && dispose_message) dispose_message(data_layout);
   if (actual_triple && dispose_message) dispose_message(actual_triple);
   if (data && dispose_data) dispose_data(data);
   if (machine && dispose_machine) dispose_machine(machine);
@@ -159,4 +205,9 @@ cleanup:
   if (rc != 0) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/llvm-layout]");
   return 0;
 #endif
+}
+
+static int hako_llvmc_lifecycle_text_tool_session_v1_validate(
+    const hako_llvmc_lifecycle_target_session_v1* in, char** err_out) {
+  return hako_llvmc_lifecycle_target_session_v1_validate_inner(in, 1, err_out);
 }

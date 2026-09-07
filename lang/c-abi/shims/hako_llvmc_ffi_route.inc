@@ -529,7 +529,7 @@ int hako_llvmc_compile_published_lifecycle_body_v3(
     const hako_llvmc_lifecycle_target_session_v1* session,
     const char* obj_out,
     char** err_out) {
-  if (hako_llvmc_lifecycle_target_session_v1_validate(session, err_out) != 0)
+  if (hako_llvmc_lifecycle_text_tool_session_v1_validate(session, err_out) != 0)
     return -1;
   return hako_llvmc_compile_published_lifecycle_body_v2(
       json_in, frame, sites, site_count, obj_out, err_out);
