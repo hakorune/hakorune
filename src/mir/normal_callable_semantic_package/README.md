@@ -245,9 +245,11 @@ all Add extensions do not borrow this relation.
 The package issuer passes the validated comparison-only AppMain identity into
 that same ledger, rather than reducing it to a batch slot at the handoff.
 After finishing validation, the final handoff retains that identity with the
-existing terminal relation and its checked physical root. The published view
-only verifies this source-to-result correspondence; it cannot recreate source
-membership from the root key or choose an entry ABI.
+existing terminal relation and its checked physical root. Normal finalization
+owns this completed handoff through its synchronous backend callback. The
+published view borrows it and verifies source-to-result correspondence; it does
+not destructure it into independently owned fields or recollect Birth targets.
+It cannot recreate source membership from the root key or choose an entry ABI.
 Each selected New site remains separately validated; if several sites call the
 same canonical Birth definition, the final handoff retains that definition once.
 This does not activate generic JSON transport or a lifecycle backend consumer.

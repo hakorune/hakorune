@@ -97,16 +97,18 @@ impl<'module> PublishedMirBackendView<'module> {
 
     pub(in crate::mir::compiler) fn bind_finalized_root_birth_handoff(
         mut self,
-        handoff: Option<crate::mir::normal_callable_semantic_package::FinalizedRootBirthHandoffV1>,
+        handoff: Option<&'module crate::mir::normal_callable_semantic_package::FinalizedRootBirthHandoffV1>,
     ) -> Result<Self, String> {
         let Some(handoff) = handoff else {
             return self
                 .bind_retained_root(None)
                 .map_err(|error| error.to_string());
         };
-        let (root_key, root_source, root_result, births) = handoff.into_parts();
+        let births = handoff.births();
+        let root_source = handoff.root_source();
+        let root_result = handoff.root_result();
         self = self
-            .bind_retained_root(Some(&root_key))
+            .bind_retained_root(Some(handoff.root_key()))
             .map_err(|error| error.to_string())?;
         if births.iter().any(|birth| {
             let key = birth.target();
@@ -123,10 +125,7 @@ impl<'module> PublishedMirBackendView<'module> {
         }) {
             return Err(fault("retained-birth-missing"));
         }
-        self.retained_birth_keys =
-            Some(births.iter().map(|birth| birth.target().clone()).collect());
-        self.retained_birth_abi = Some(births);
-        if let Some(source) = root_source.as_ref() {
+        if let Some(source) = root_source {
             let valid = match (source.terminal_i64_add(), source.terminal_unit_return(), source.terminal_integer_literal(), source.terminal_i64_field_return(), root_result) {
                 (Some(terminal), None, None, None, Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })) => terminal.owner() == owner,
                 (None, Some(terminal), None, None, Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { owner })) => terminal.owner() == owner,
@@ -138,8 +137,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 return Err(fault("retained-root-source-result-drift"));
             }
         }
-        self.retained_root_source = root_source;
-        self.retained_root_result = root_result;
+        self.retained_handoff = Some(handoff);
         Ok(self)
     }
 
@@ -149,20 +147,20 @@ impl<'module> PublishedMirBackendView<'module> {
 
     pub(crate) fn retained_birth_abi(
         &self,
-    ) -> Option<&[crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1]> {
-        self.retained_birth_abi.as_deref()
+    ) -> Option<&'module [crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1]> {
+        self.retained_handoff.map(|handoff| handoff.births())
     }
 
-    pub(crate) const fn retained_root_result(
+    pub(crate) fn retained_root_result(
         &self,
     ) -> Option<crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1> {
-        self.retained_root_result
+        self.retained_handoff.and_then(|handoff| handoff.root_result())
     }
 
     pub(crate) fn retained_root_source(
         &self,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1> {
-        self.retained_root_source.as_ref()
+    ) -> Option<&'module crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1> {
+        self.retained_handoff.and_then(|handoff| handoff.root_source())
     }
 
     /// Diagnostic/physical borrow only; cloning this module does not carry
@@ -197,12 +195,12 @@ impl<'module> PublishedMirBackendView<'module> {
             .retained_root
             .ok_or_else(|| fault("retained-root-missing"))?;
         let root_name = root.signature.name.as_str();
-        let retained_birth_keys = self
-            .retained_birth_keys
-            .as_deref()
-            .ok_or_else(|| fault("retained-birth-handoff-missing"))?;
+        let retained_births = self
+            .retained_handoff
+            .ok_or_else(|| fault("retained-birth-handoff-missing"))?
+            .births();
         if !matches!(
-            self.retained_root_result,
+            self.retained_root_result(),
             Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. }
                 | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. }
                 | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
@@ -210,7 +208,7 @@ impl<'module> PublishedMirBackendView<'module> {
         ) {
             return Err(fault("retained-root-result-missing"));
         }
-        if self.retained_root_source.is_none() {
+        if self.retained_root_source().is_none() {
             return Err(fault("retained-root-source-missing"));
         }
         self.lifecycle_instructions
@@ -221,7 +219,7 @@ impl<'module> PublishedMirBackendView<'module> {
                         .canonical_callable_definitions
                         .iter()
                         .any(|(key, symbol)| {
-                            retained_birth_keys.contains(key)
+                            retained_births.iter().any(|birth| birth.target() == key)
                                 && symbol.as_str() == row.function_name
                         })
             }));

@@ -62,7 +62,10 @@ Decision (2026-09-07): the selected constructor lifecycle compiler ingress is
 `hako.published-lifecycle-physical-program.v2` input and explicit target/runtime
 session for a synchronous call. It publishes an object only after validation
 and code generation succeed; selected failures do not retry compatibility.
-The input contains the compiled-entry contract and referenced layouts. Source
+The input contains the compiled-entry contract and referenced layouts. Rust normal
+finalization owns the completed semantic handoff and module until its synchronous
+consumer callback finishes; the published view borrows them. This ownership
+boundary does not transfer semantic issuance to the backend/runtime session. Source
 meaning is issued before this boundary; neither JSON nor C reconstructs it.
 
 The experimental lifecycle frame V2, companion-body V2 and pending-body V3

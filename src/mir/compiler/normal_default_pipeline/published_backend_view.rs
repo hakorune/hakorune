@@ -1,8 +1,10 @@
-//! Borrow-only view of the canonical callable relation after module publish.
+//! Borrowed module and finalized handoff after canonical callable publication.
 //!
 //! This module deliberately does not resolve names, inspect source, or repair
 //! legacy call operands.  It validates the relation already published by
-//! `MirModule` and exposes only references for a backend consumer.
+//! `MirModule` and exposes references for a backend consumer. Physical row
+//! vectors and admission/profile state remain local to this view; finalized
+//! semantic products stay owned by the normal finalization invocation.
 
 use hakorune_mir_defs::{
     CanonicalBuiltinGlobalV1, CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV1,
@@ -296,13 +298,8 @@ impl<'module> PublishedArrayElementWriteRef<'module> {
 pub(crate) struct PublishedMirBackendView<'module> {
     module: &'module MirModule,
     retained_root: Option<&'module MirFunction>,
-    retained_birth_keys: Option<Box<[CanonicalSameModuleCallableKeyV1]>>,
-    retained_birth_abi:
-        Option<Box<[crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1]>>,
-    retained_root_source:
-        Option<crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1>,
-    retained_root_result:
-        Option<crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1>,
+    retained_handoff:
+        Option<&'module crate::mir::normal_callable_semantic_package::FinalizedRootBirthHandoffV1>,
     route: PublishedStaticMethodRouteV1,
     static_method_calls: Vec<PublishedStaticMethodCallRef<'module>>,
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
@@ -457,10 +454,7 @@ impl<'module> PublishedMirBackendView<'module> {
             return Ok(Self {
                 module,
                 retained_root: None,
-                retained_birth_keys: None,
-                retained_birth_abi: None,
-                retained_root_source: None,
-                retained_root_result: None,
+                retained_handoff: None,
                 route: PublishedStaticMethodRouteV1::UnsupportedBeforeObject,
                 static_method_calls,
                 free_function_calls,
@@ -480,10 +474,7 @@ impl<'module> PublishedMirBackendView<'module> {
             return Ok(Self {
                 module,
                 retained_root: None,
-                retained_birth_keys: None,
-                retained_birth_abi: None,
-                retained_root_source: None,
-                retained_root_result: None,
+                retained_handoff: None,
                 route: PublishedStaticMethodRouteV1::ExplicitCompatibility,
                 static_method_calls,
                 free_function_calls,
@@ -498,10 +489,7 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(Self {
             module,
             retained_root: None,
-            retained_birth_keys: None,
-            retained_birth_abi: None,
-            retained_root_source: None,
-            retained_root_result: None,
+            retained_handoff: None,
             route: PublishedStaticMethodRouteV1::CanonicalTyped,
             static_method_calls,
             free_function_calls,

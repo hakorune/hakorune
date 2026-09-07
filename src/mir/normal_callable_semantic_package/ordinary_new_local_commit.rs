@@ -195,30 +195,6 @@ impl FinalizedRootBirthHandoffV1 {
             Self::Births { keys, .. } => keys,
         }
     }
-
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        String,
-        Option<FinalizedRootSourceHandoffV1>,
-        Option<FinalizedRootResultAbiV1>,
-        Box<[BirthAbiHandoffV1]>,
-    ) {
-        match self {
-            Self::NoBirth {
-                root_key,
-                root_source,
-                root_result,
-            } => (root_key, root_source, root_result, Box::new([])),
-            Self::Births {
-                root_key,
-                root_source,
-                root_result,
-                keys: _,
-                births,
-            } => (root_key, root_source, root_result, births),
-        }
-    }
 }
 
 impl NewLocalCommitV1 {

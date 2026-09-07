@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: existing finalization owns the finalized handoff; replace view-owned semantic products with one borrow (task 6-owner below).
+Smallest next slice: move lifecycle admission/profile selection into existing finalization; view borrows the selection (task 6-owner below).
 Non-claims: new source acceptance, optimized multiple-Home coverage, admission/controller separation, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -2055,36 +2055,69 @@ compiler/host/C READMEs are synchronized. No build/test remains running.
 
 Classification: BoxShape; no source family or physical acceptance changes.
 
-Decision: the existing finalization invocation owns finalized handoff; view borrows it.
-Source authority + canonical issuer: existing root ledger and `seal_finalized_root_birth_handoff`.
-Non-authority: view, host and runtime session do not reissue source meaning.
-Fail-fast boundary: retain post-finish, bind and activation validation before artifact.
-Smallest next slice: replace four owned handoff fields with one borrowed finalized handoff.
-Non-claims: full admission/controller split, physical ABI clone cleanup or source widening.
+**Handoff ownership slice:** existing finalization now owns the completed module
+and handoff throughout the synchronous callback. View retains
+`Option<&FinalizedRootBirthHandoffV1>` and delegates existing accessors. Removed
+its four owned semantic fields, target cloning/recollection and the sole-called
+handoff.into_parts consumer. Bind definition/namespace/arity/source-result
+checks and activation conditions are retained. The handoff's own tested key
+inventory stays with its original owner. No new receipt/result type or lifetime
+parameter was added; physical row vectors and admission/profile are still local
+view responsibilities pending the next slice.
 
-The read-only worker verified that the existing final closure in
-`normal_default_pipeline.rs` already owns result.module and retained_root together.
-Pass `retained_root.as_ref()` through the synchronous `for<'module>` callback;
-no second lifetime, self-reference or new result/receipt type is needed. Existing
-handoff accessors provide root_key/root_source/root_result/births.
+Evidence: fresh published-view filter32 passes, including physical input,
+actual/formal retention and negative capability/schema/generic admission tests.
+Normal-source host1 passes for Pair/Bool through EXE, independent OBJ/link and
+cleanup probe. Broader normal-pipeline filter23 has21 pass and2 failures; same
+command/cwd/config/Cargo.lock at parent7c8041c075 reproduces exactly21/2:
+- `mir::compiler::normal_default_pipeline::tests::published_consumer_does_not_consume_explicit_compatibility`:
+  `ordinary-new/local-commit/artifact-root-completion-unavailable` before callback.
+- `mir::compiler::normal_default_pipeline::tests::published_consumer_runs_once_and_propagates_failure_without_retry`:
+  assertion requiring `selected-consumer-failed` fails before that expected callback result.
+These are known baseline debt, not waived or repaired by this BoxShape. Existing
+Unit/I64 and generic-root tests are among the21 passing cases. Parent worktree
+was clean and removed after the comparison; the current test binary was restored
+from its tested snapshot. Single-job quick/plugins, opt0/nonincremental/CGU256;
+current library peak8.63 GiB, parent peak8.62 GiB. Fresh current CLI build passes
+(peak6.53 GiB); unchanged Pair source produces `/tmp/hako-borrowed-handoff-pair`
+and exit30. Pointer/canonical corridor guards and diff check pass; touched
+source max747. Owner READMEs and ABI ownership reference are synced. No running
+build/test remains. No whole-suite green claim.
 
-Finite boundary: post-finish handoff -> finalization callback -> view bind/activation
--> physical/compiled-entry projection -> shared host synchronous input consumption.
-Diagnostic compile, module-only ingress, FFI and runtime-session ownership stay
-outside this slice. Delete-set: view retained_birth_keys/retained_birth_abi/
-retained_root_source/retained_root_result owned fields; view target cloning and
-recollection; handoff.into_parts if its bind caller is still unique. Replace with
-`Option<&FinalizedRootBirthHandoffV1>` and accessor delegation. Birth membership
-continues to use births/target identity; do not switch authority to an unrelated
-name or table. The handoff's own tested birth_keys inventory need not change.
+**Accepted next slice: finalization-owned lifecycle admission/profile.**
 
-Acceptance: current Unit/I64/source/formal/actual/cleanup checks and default
-EXE/independent OBJ successes remain; missing/foreign/stale source-result or
-Birth definition/arity rejects before artifact; generic try_new(module) cannot
-activate lifecycle. Confirm deleted ownership/clone sites absent. Route/profile
-and activation relocation remain a separate subsequent slice of task6-owner.
-The worker report is premise evidence; this integrated Decision selects the
-bounded ownership move, without widening task scope.
+Decision: move lifecycle admission into existing finalization; view observes its borrowed selection.
+Source authority + canonical issuer: unchanged root ledger/finalized handoff; normal finalization owns physical admission and profile selection.
+Non-authority: view, runtime archive session and profile alone do not issue source meaning.
+Fail-fast boundary: preserve the current admission checks and order before the consumer callback/artifact.
+Smallest next slice: move activation validation to a private finalization helper; borrow its selected profile and remove lifecycle route rewriting.
+Non-claims: forced PhysicalAbiInput issuance, static/array route changes, row Vec thinning, or new source acceptance.
+
+Worker's read-only caller/lifetime audit closes this mapping: the existing
+`NormalDefaultPublishedPipelineV1` final closure owns
+`Option<PublishedObjectStorageProfileV1>`, reads the same configuration once at
+the same stage, validates, and lends the selection through callback completion.
+Keep generic structural route classification for static/free/print/array.
+Remove `activate_lifecycle_for_final_artifact` from view, its lifecycle
+`route = CanonicalTyped` mutation and owned profile. `route()` observes the
+finalization's successful borrowed selection. No public profile setter; only
+the finalization owner may assemble that selection into the completed view.
+No new semantic or capability wrapper is required.
+
+Finite boundary: finished handoff -> finalization admission -> view -> existing
+compiled-entry/physical input -> same-input host gate -> runtime-session V4.
+Generic module-only view remains Unsupported for lifecycle. Physical input is
+not forced before every callback: Unit remains observable in the compiled entry
+but unsupported at physical input. Runtime session continues to own only archive/
+target descriptor, not semantic admission. Return-row projection/namespace checks
+must move unchanged; host empty checks alone are not evidence that those rows
+are dead. After this slice, row projection cleanup can be considered separately.
+
+Acceptance: preserve missing handoff, mixed unsupported, absent root source/result,
+foreign function and Birth receiver/definition rejection before artifact;
+Unit observer/physical Stop and static/array routes remain unchanged; existing
+default EXE/independent OBJ/Fault cleanup pass. Parent baseline pair above stays
+classified separately. Dependency: handoff ownership slice closeout only.
 
 
 
