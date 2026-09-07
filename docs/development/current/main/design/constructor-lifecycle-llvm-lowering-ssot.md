@@ -186,6 +186,24 @@ frame, replaced by named shared Rust/C ABI constants where that does not alter
 the wire. It does not change receiver/source semantics, other `u32::MAX` uses,
 or enable LLVM execution.
 
+**Decision (accepted):** `u32::MAX` is V2 wire absence only. The Rust schema
+and `hako_llvmc_ffi.h` jointly own its spelling; each V2 row kind declares
+required-present versus required-absent fields, and C rejects either inverse
+before its pending terminal. `nyrt_fault_v1.h` and Rust fault exports own
+structural FaultFrame vocabulary only; no target triple/session currently
+proves target layout equality. The smallest implementation is therefore
+sentinel/validator-only I0, leaving target layout and direct input gated.
+
+### `CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-I0`
+
+Replace only anonymous V2 absence literals with the named shared wire constant
+and make C validation exhaustive for formal, definition, operation, control
+and body-site presence combinations. Keep the ABI bytes and revision unchanged.
+Positive Pair V2 frames reach the existing pending terminal; malformed
+receiver/source-ordinal or required-present/absent fields reject before it and
+produce no artifact. No source meaning, FaultFrame target layout, JSON/input
+route, LLVM emission, kernel switch or EXE claim opens.
+
 ### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
 
 This is the concrete Step 4 owner/caller row: final view physical program and
@@ -1217,9 +1235,10 @@ with exactly-once normal/fault cleanup and no artifact on rejection.
 **D0 result:** execution I0 remains unavailable because Rust exports accept
 opaque FaultFrame storage without issuing C-visible target size/alignment/offset
 layout. The smallest ordered next slice is the existing
-`CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-D0`; it decides that frame
-layout contract before direct physical input. This D0 opens no C codegen,
-kernel switch, object, EXE or Bool work.
+`CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-D0`; it names V2 absence-wire
+semantics before direct physical input. Structural FaultFrame ABI vocabulary is
+not target-session layout proof. This D0 opens no C codegen, kernel switch,
+object, EXE or Bool work.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
