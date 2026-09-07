@@ -14,8 +14,8 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: implement accepted Task 3 cleanup-contraction validation before host cutover.
-Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
+Smallest next slice: implement Task 4 selected numeric coverage against the same completed physical input, then switch the real host.
+Non-claims: new source acceptance, source host EXE30/OBJ30 cutover, optimized multiple-Home coverage, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
 permanent execution park or treated all physical placement as source meaning.
@@ -1716,17 +1716,43 @@ Ordered work within this series:
    guards pass, touched source maximum 656 lines. Parser-only success remains
    structural evidence; type/cohort rejection belongs to V4 admission.
 
-3. **Close optimizer observer mapping (accepted design, implementation next).**
-   Default Pair rejects `root-exit-operation-drift`; no-opt reaches the separate
-   numeric OBJ boundary. The existing root ledger will validate a finite cleanup
-   graph contraction, retaining source obligations and replacing only its stale
-   physical-coordinate assumption. The bounded contract below owns this step.
-4. **Connect the selected capability and execute.** Prove all numeric obligations
-   consumed by this completed input; keep generic OBJ unsupported contracts.
-   Default CLI EXE30 and independent session OBJ/link30 precede retirement.
-   Remove only caller-zero V2 JSON profile/emitter, V2 Rust frame/rows/wrappers,
-   C V2/V3 pending exports and private probes. Retain/move the shared storage
-   profile, physical parser, target-session core, descriptor and V4 runtime tests.
+3. **Close optimizer observer mapping (verified).** The existing root ledger
+   validates finite single-Home cleanup contractions; one temporary physical
+   projection also feeds artifact lifecycle coverage. Default-optimized Pair and
+   both Bool actual positions now reach completed v2 input. The bounded contract
+   and classified verification below own this completed step; host capability is
+   the next boundary, not another optimizer skip or observation adapter.
+4. **Connect the selected capability and execute (accepted owner boundary).**
+   Existing `exact_numeric_backend_capability` owns comparison of retained runtime
+   checks with the completed physical input. `published_mir_object` issues that
+   input once, supplies it to the selected capability check, serializes it and
+   calls V4 within the same host scope. Input from another view/module must not
+   pass on matching names alone; verify physical borrow identity. Generic OBJ
+   capability and every nonnumeric published/storage/route check remain intact.
+
+   Consume each `DynamicIntegerRange` obligation once at its exact function,
+   block/index and stored ValueId; require an Invoke FieldSet, its canonical field
+   key and referenced I64 layout/declaration/slot. Metadata field/type strings
+   check that canonical declaration's diagnostic projection, never select it.
+   Source-issued Unannotated/I64FieldStores formals already retain the tagged
+   parameter identity required by V4. Do not specialize Birth by actual values.
+   Before admitting another value form, establish its already-issued value proof;
+   keep existing constant-store coverage and reject unknown/residual obligations.
+   No `skip_numeric` flag, generic OBJ whitelist or metadata clearing is allowed.
+
+   The private session OBJ entry must perform this check itself. EXE delegates
+   to that same entry; session-less generic OBJ stays rejected. Adapt parked
+   bdc7b0506e to v2 and default optimization: its private OBJ probe bypasses
+   capability and its generic EXE->OBJ gate is not a completed replacement.
+   Default source CLI EXE30, independent checked session OBJ/link30 and both
+   source Bool FieldTypeMismatch103/exit70 cleanup cases precede retirement.
+   Negatives cover mismatched value/site/field/layout/diagnostic projection,
+   duplicate/extra contract, foreign input and session/output atomicity.
+   Local, annotation and Unit Stops remain. Remove only caller-zero V2 JSON
+   profile/emitter, V2 Rust frame/rows/wrappers, C V2/V3 pending exports and private
+   probes. Retain/move shared storage profile, physical parser, target-session
+   core, descriptor and V4 runtime tests. If the finite value/caller inventory
+   cannot close these comparisons, stop here rather than expand capability.
 
 ### Task 3: exact root cleanup contraction
 
@@ -1743,8 +1769,8 @@ Invoke, metadata, and the current CFG used to reconstruct lost obligations.
 Fail-fast boundary: root finishing validation, before artifact handoff/commit.
 Smallest next slice: replace stale same-block cleanup checks with exact bounded
 contraction validation, shared by diagnostic and artifact finalization.
-Non-claims: implementation already landed, host capability/cutover, multi-Home
-optimizer coverage, PHI/value substitution, or new source result acceptance.
+Non-claims: host capability/cutover, multi-Home optimizer coverage, PHI/value
+substitution, or new source result acceptance.
 
 Audit boundary: emitted single-Home root cleanup bindings -> prefinish root
 validation -> default compiler finishing -> artifact lifecycle coverage.
@@ -1810,8 +1836,53 @@ Stop:
 
 Read-only audit correction: current selected reads are `ObjectFieldGet`; CSE's
 observed duplicate-read arm handles `FieldGet`. The earlier same-field CSE concern
-is not evidence of a blocker in this selected vocabulary. No build/test was run
-for this design decision, and the default-optimizer acceptance remains open.
+is not evidence of a blocker in this selected vocabulary. The original design
+was read-only; implementation verification is recorded separately below.
+
+Task 3 verification (2026-09-07): source physical-input tests 6/6 include default
+and no-opt Pair, three actual contractions, both Bool actual positions and the
+separate diagnostic finishing caller. Compiled-entry 1/1 retains two-New/no-opt
+coverage. The package run is 116 passed / 2 known baseline failures, including
+four graph tests (original/partial/full contraction, 16 mutation cases, malformed
+capture and original-cycle rejection). Artifact inventory also rejects an extra
+ReturnFault and duplicate HomeRelease before allowing the unchanged function;
+failed checks cannot commit FinishingChecked. Whole-function extra lifecycle
+ownership belongs to artifact coverage, not the graph-local comparison alone.
+
+The unchanged source-issued optimized JSON drives the existing V4 C execution
+suite: 16 executions, including OBJ/link30 and both Bool103 cleanup paths, plus
+14 type/schema negatives and session/site/tool-failure preservation. Final Rust
+reruns reproduce the same three input SHA-256 hashes (Pair `e5f070c207aa7354`,
+Bool-first `c03851de300bb990`, Bool-second `bcb037b4f20d26f4`). This is physical
+consumer evidence, not a CLI/host cutover claim. One Cargo at a time,
+nonincremental opt0/CGU256/one job, monitored aggregate peak at most 8.72 GiB.
+Pointer/M7-S guards and diff checks pass; touched Rust maximum is 608 lines.
+The near-limit brand-catalog test owner was split at its existing New/Home
+completion responsibility (486 + 357 lines), preserving the source fixtures.
+
+Red classification:
+- Current-change failures: initial cycle-check wiring and test fixture ownership
+  errors were corrected; the final focused checks above pass.
+- Parent `df1829b772`, isolated checkout with byte-identical Cargo.lock, same
+  `cargo test --locked --profile quick --lib --features plugins
+  normal_callable_semantic_package:: -- --include-ignored` and resource settings:
+  110 passed / 4 failed. The first unlocked parent attempt was cancelled on lock
+  mismatch before tests; it is not baseline evidence.
+- Two parent failures were obsolete hand-built MIR records: the multi-Home
+  completion and unavailable-cleanup field-read tests omitted the retained Birth
+  call and literal/field terminal completion. They now use existing issued
+  contracts/record APIs with the original source unchanged and pass.
+- Two baseline failures remain: `brand_catalog_tests::
+  normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix`
+  rejects expected-unavailable `return first.left + true`, and
+  `ordinary_new_coseal::field_reads::tests::
+  terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`
+  observes one read for `return page.slot + true` where the test expects zero.
+  Parent and final run reproduce the same assertions. Owner: source terminal
+  classifier/read inventory (`resolved_semantics/home_new_prefix`), outside this
+  single-Home physical-equivalence change. Revisit when that source result family
+  or its artifact coverage is selected; do not weaken these assertions or count
+  the package as green. These baseline failures do not prove artifact acceptance.
 
 ### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-D1`
 

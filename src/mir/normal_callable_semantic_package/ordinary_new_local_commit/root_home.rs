@@ -15,6 +15,7 @@ pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
     Emitted {
         origins: Vec<RootHomeReleaseEmissionV1>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
+        boundary: Option<super::root_cleanup_graph::RootCleanupBoundary>,
     },
 }
 
@@ -155,32 +156,51 @@ impl OrdinaryNewClaimLedgerV1 {
                 instruction,
             })
             .collect();
-        *progress = RootHomeExitProgress::Emitted { origins, bindings };
+        *progress = RootHomeExitProgress::Emitted {
+            origins,
+            bindings,
+            boundary: None,
+        };
         Ok(())
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn validate_root_home_exit(
         &self,
         function: &MirFunction,
-    ) -> Result<(), String> {
+        finishing: bool,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
         let Some(Ok(completion)) = &self.root_completion else {
-            return Ok(());
+            return Ok(Vec::new());
         };
         if !matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
-            return Ok(());
+            return Ok(Vec::new());
         }
         let expected_exit = completion
             .explicit_site()
             .ok_or_else(|| freeze("root-exit-source-missing"))?;
         let Some(Ok(expected_homes)) = completion.cleanup().terminal_homes() else {
-            return Ok(());
+            return Ok(Vec::new());
         };
         match &*self.root_exit.borrow() {
-            RootHomeExitProgress::Unavailable => Ok(()),
-            RootHomeExitProgress::Emitted { origins, bindings } => {
+            RootHomeExitProgress::Unavailable => Ok(Vec::new()),
+            RootHomeExitProgress::Emitted {
+                origins,
+                bindings,
+                boundary,
+            } => {
                 if origins.len() != expected_homes.len() {
                     return Err(freeze("root-exit-origin-count"));
                 }
+                let mapped = if finishing && origins.len() == 1 {
+                    Some(
+                        boundary
+                            .as_ref()
+                            .ok_or_else(|| freeze("root-cleanup-boundary-missing"))?
+                            .project(function, bindings)?,
+                    )
+                } else {
+                    None
+                };
                 for (emitted, expected_binding) in origins.iter().zip(expected_homes) {
                     if emitted.origin.binding() != *expected_binding
                         || emitted.origin.exit() != expected_exit
@@ -198,6 +218,21 @@ impl OrdinaryNewClaimLedgerV1 {
                         } if object == emitted.origin.object() && value == emitted.origin.value()
                     ) {
                         return Err(freeze("root-exit-operation-drift"));
+                    }
+                    if bindings
+                        .iter()
+                        .filter(|(id, instruction)| {
+                            *id == emitted.block && *instruction == emitted.instruction
+                        })
+                        .count()
+                        != 1
+                    {
+                        return Err(freeze("root-exit-origin-binding-drift"));
+                    }
+                    // The complete graph projection already checked placement and
+                    // the full Invoke tuple; source origins above remain unchanged.
+                    if mapped.is_some() {
+                        continue;
                     }
                     if !function.blocks.get(&emitted.block).is_some_and(|block| {
                         block.all_instructions().any(|actual| {
@@ -223,6 +258,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("root-exit-origin-binding-drift"));
                     }
                 }
+                if let Some(mapped) = mapped {
+                    return Ok(mapped);
+                }
                 for (id, expected) in bindings {
                     if !function.blocks.get(id).is_some_and(|block| {
                         block.all_instructions().any(|actual| actual == expected)
@@ -230,9 +268,34 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("root-exit-binding-drift"));
                     }
                 }
-                Ok(())
+                Ok(bindings.clone())
             }
             _ => Err(freeze("root-exit-unconsumed")),
         }
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(super) fn capture_root_cleanup_boundary(
+        &self,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let mut exit = self.root_exit.borrow_mut();
+        if let RootHomeExitProgress::Emitted {
+            origins,
+            bindings,
+            boundary,
+        } = &mut *exit
+        {
+            if origins.len() == 1 {
+                if boundary.is_some() {
+                    return Err(freeze("duplicate-root-cleanup-capture"));
+                }
+                *boundary = Some(super::root_cleanup_graph::RootCleanupBoundary::capture(
+                    function, bindings,
+                )?);
+            }
+        }
+        Ok(())
     }
 }

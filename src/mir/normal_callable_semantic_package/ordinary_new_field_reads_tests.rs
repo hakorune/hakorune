@@ -54,13 +54,41 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     let mut reclaim_physical = BasicBlock::new(reclaim_block);
     reclaim_physical.add_instruction(reclaim_instruction.clone());
     function.add_block(reclaim_physical);
+    let OrdinaryNewConstructorDispositionV1::Birth(recipe) = &claim.constructor else {
+        panic!("source-issued Birth")
+    };
+    let MirInstruction::Call(call) = MirInstruction::call(
+        None,
+        crate::mir::Callee::BirthConstructor {
+            key: recipe.target_ref().clone(),
+            receiver: ValueId(1),
+        },
+        vec![],
+        recipe.physical_effect_mask(),
+    ) else {
+        unreachable!()
+    };
+    let birth_id = BasicBlockId(2);
+    let birth = MirInstruction::Invoke {
+        operation: crate::mir::instruction::InvokeOperation::Call(call),
+        fault_frame: ValueId(100),
+        normal_landing: entry,
+        fault_landing: reclaim_block,
+    };
+    let mut birth_block = BasicBlock::new(birth_id);
+    birth_block.set_terminator(birth.clone());
+    function.add_block(birth_block);
     ledger
         .record_new_emission(
             &site,
             ValueId(1),
             Vec::new(),
             Some((reclaim, reclaim_block, reclaim_instruction.clone())),
-            vec![(entry, initializer), (reclaim_block, reclaim_instruction)],
+            vec![
+                (entry, initializer),
+                (reclaim_block, reclaim_instruction),
+                (birth_id, birth),
+            ],
         )
         .unwrap();
     ledger
@@ -83,13 +111,20 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
         .unwrap();
     *ledger.root_exit.borrow_mut() = local_commit::RootHomeExitProgress::Unavailable;
     let read_site = ledger.field_reads.borrow().keys().next().unwrap().clone();
-    let (base, field) = ledger
-        .take_terminal_field_read(&read_site, |binding| {
+    let return_site = ledger
+        .terminal_i64_field_return()
+        .unwrap()
+        .return_site()
+        .node();
+    let prepared = ledger
+        .prepare_terminal_i64_field_return(site.owner(), return_site, |binding, _| {
             assert_eq!(binding, claim.destination);
             Ok(ValueId(2))
         })
         .unwrap()
         .expect("selected read remains exact despite unavailable cleanup");
+    assert_eq!(prepared.site, read_site);
+    let (base, field) = (prepared.base, prepared.field);
     assert!(ledger
         .take_terminal_field_read(&read_site, |_| panic!("duplicate take"))
         .unwrap_err()
@@ -111,6 +146,7 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     block.set_terminator(MirInstruction::Return {
         value: Some(ValueId(3)),
     });
+    ledger.record_terminal_i64_field_return(ValueId(3)).unwrap();
     assert!(ledger.field_reads_complete());
     ledger
         .validate_field_reads(site.owner(), &function)

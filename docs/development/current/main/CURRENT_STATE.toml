@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "none; Task 3 exact single-Home cleanup-contraction design accepted"
-current_blocker_token = "Implement accepted Task 3: existing root ledger checks single-Home cleanup Jump contractions and feeds mapped bindings to artifact coverage, with exact prefix/incoming/operation/edge checks. Default-optimized source-to-input remains unproved. Then selected numeric capability, EXE/OBJ cutover and old transport retirement. No optimizer skip; host draft remains parked."
+current_design_stop = "none; Task 3 verified, Task 4 selected numeric coverage/host connection accepted"
+current_blocker_token = "Task 3 verified: default-optimized Pair and Bool source reach v2 input; C execution16 and negatives14 pass. Next Task 4: exact retained numeric obligations must be consumed by the same completed input at the private session OBJ entry before real host EXE/OBJ cutover and V2/V3 retirement. Generic OBJ stays unchanged. Package116 pass/2 parent-reproduced Bool-expression baseline failures; no full-suite green claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,22 +31,22 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Exact source identity, full Birth formal contracts and per-New actuals are retained.
-V2 replaces untagged v1 JSON/parser; receiver is explicit and Birth uses kind/payload.
-Unannotated Integer/Bool actuals bind without definition specialization; Local,
-unsupported declarations and Unit root still reject before physical input.
-Rust physical JSON5 + compiled-entry1 + physical-program1 + source-formal2 pass.
-Fresh C build/parser pass; Rust-issued Pair/Bool input drives 16 V4 executable
-cases, including OBJ/link30, Bool FieldTypeMismatch103, range and InvalidContract.
-Fourteen extra schema/type negatives preserve artifacts. Peak aggregate 8.70 GiB
-under one-job, opt0/nonincremental/CGU256 and the standing 12 GiB monitor.
-Source host EXE/OBJ remains unproved: optimizer moves the root cleanup coordinate,
-and generic numeric OBJ admission remains unsupported until exact input coverage.
-Task 3 design is accepted: exact finite Jump contractions in the existing root
-ledger, shared finishing validation and mapped artifact coverage. Implementation
-and default-optimized source-to-input acceptance are next, before host cutover
-and caller-zero V2/V3 retirement. Draft bdc7b0506e is parked on codex/lifecycle-v4-host-draft; do not
-cherry-pick it before adapting it to v2 and closing capability/optimizer checks.
+V2 tagged Birth input and V4 physical execution remain verified.
+Task 3 closes single-Home cleanup placement across normal compiler finishing.
+Existing root bindings plus entry prefix/incoming context verify only exact
+recorded Jump contractions; original cycles, operation/edge/prefix/ingress drift
+reject. Diagnostic and artifact finishing share one physical projection.
+Source tests 6/6 and compiled-entry 1/1 pass. Package116/118: two Bool-expression
+classification failures reproduce at parent df1829b772; two obsolete physical
+fixtures were repaired using existing Birth and terminal records, source unchanged.
+Optimized source-issued JSON drives C16 executions/14 type-schema negatives;
+OBJ/link30 and Bool103 cleanup pass. This is not source host cutover evidence.
+Next: existing exact_numeric_backend_capability consumes exact function/site,
+FieldSet/value/canonical layout obligations from the host's same final input.
+Private session OBJ must check capability; EXE delegates there; generic OBJ
+remains unchanged. Then prove real host EXE30/OBJ-link30 and retire V2/V3 callers.
+Draft bdc7b0506e remains parked on codex/lifecycle-v4-host-draft; adapt it to v2,
+normal optimization and checked private OBJ entry before restoring it.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"

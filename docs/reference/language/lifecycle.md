@@ -168,9 +168,19 @@ claim consumer checks those prior installations before consuming the next New.
 Unknown prefixes, entry demands, Handle arguments and explicit overrides do
 not become empty cleanup plans. Each admitted New prefix retains its exact
 control-owned outward function target and body scope. This is a conditional
-Fault continuation, not a Normal Return or proof of empty cleanup. Physical
-propagation and runtime cleanup remain unimplemented; Birth execution stays
-disabled at the existing backend boundary.
+Fault continuation, not a Normal Return or proof of empty cleanup. These source
+facts alone do not authorize a backend. The selected lifecycle host still requires
+completed physical coverage; C consumer execution is a separate acceptance scope.
+
+Compiler-finishing invariant: source-issued Home obligations retain their exact
+binding and Completion exit even when physical blocks are merged. For the
+selected single-Home root, a recorded Jump may disappear only with its empty,
+sole-predecessor target; the complete resulting cleanup operation, normal/fault
+edges, return, entry prefix and outside incoming boundary must still match.
+Diagnostic finalization and artifact coverage use the same verified physical
+mapping. Block coordinates do not issue new Home or Fault meaning. This bounded
+physical equivalence neither changes source acceptance nor authorizes a backend
+or multiple-Home optimization without its own coverage.
 
 Object reuse is an ordinary domain operation. Methods named `reset`, `reactivate`, `configure`, `clear`, or `attach` may prepare an already-alive object according to its Box contract; they never re-run `birth` or bypass the terminal Home DropPlan.
 

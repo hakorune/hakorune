@@ -38,6 +38,15 @@ mutable access escapes; a later wrapper or an observation flag is insufficient.
 The normal invocation completion now retains the same root ledger and exact
 physical root key through compiler finishing. It rechecks New/frame/local/exit
 bindings before external commit; changed or missing roots fail without retry.
+For a single-Home root, the existing root exit ledger also retains the prefinish
+cleanup entry prefix and incoming boundary. Finalization compares its recorded
+cleanup graph with final MIR, allowing only Jump contraction into a deleted,
+empty, sole-predecessor internal node. Full release operands, frame, Normal/Fault
+successors, Return/ReturnFault, prefix order and boundary ingress remain exact.
+Diagnostic and artifact finishing share that check; artifact lifecycle coverage
+consumes the same temporary mapped bindings before FinishingChecked is installed.
+No source obligation is reissued and no optimizer skip is added. Multiple-Home
+roots retain exact-placement checks; this does not claim their optimized coverage.
 Birth capture similarly moves its existing construction state and Fault frame
 through the payload session and exact collector draft. Source scope marks this
 as Transferred, not absent; a second take or later store/frame use rejects.
