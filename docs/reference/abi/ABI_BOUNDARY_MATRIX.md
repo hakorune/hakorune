@@ -67,7 +67,11 @@ finalization owns the completed semantic handoff and module until its synchronou
 consumer callback finishes; it also owns lifecycle admission and the selected
 storage profile. The published view borrows these products and observes selection
 without rewriting its generic structural route. Generic module-only construction
-cannot select lifecycle; Unit observation does not imply physical admission. This ownership
+cannot select lifecycle; Unit observation does not imply physical admission.
+Lifecycle presence is a boolean observation; finalization validates borrowed
+functions, including Return-only retained Birth, without retaining a second set
+of instruction coordinates. The physical program retains its required coordinates.
+This ownership
 boundary does not transfer semantic issuance to the backend/runtime session. Source
 meaning is issued before this boundary; neither JSON nor C reconstructs it.
 

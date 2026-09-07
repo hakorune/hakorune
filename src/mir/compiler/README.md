@@ -31,11 +31,14 @@ that handoff once and delegates source/result/Birth accessors; it does not own
 four separate semantic products or recollect a cloned target-key list. Binding
 still validates definitions, arity and source/result correspondence before
 finalization admission. The private `lifecycle_admission.rs` helper preserves
-candidate, root/result/source, function namespace and Birth-call checks, including
-projected Return rows. Finalization owns the selected storage profile; the view
+candidate and root/result/source checks, then borrows the published functions
+for namespace and direct Birth-call validation. Return-only retained Birth
+functions remain checked before calls. Lifecycle/Return row arrays and their
+coordinate wrapper are retired; the view keeps only lifecycle presence from
+its existing scan. Presence is an observation, never admission permission. Finalization owns the selected storage profile; the view
 borrows it through callback completion and observes selection without rewriting
 its structural route. Generic module-only lifecycle views remain unsupported.
-Physical row vectors remain view-local. Unit remains observable before its
+Static/free/print/array row vectors remain view-local. Unit remains observable before its
 physical-input Stop; finalization does not force physical-input issuance.
 
 `compile_normal_with_published` shares the ordinary build/finish implementation, then verifies the final selected module and prepares external commit before a synchronous view callback. Callback failure aborts; success returns only its output and commits once. EXE and llvm-boundary OBJ consume this terminal before post-compile mutation/execution.

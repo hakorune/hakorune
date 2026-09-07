@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0"
-current_execution_cohort = "constructor_lifecycle_published_view_owner_i0"
-current_design_stop = "none; task 6-owner observation-row storage removal accepted after read-only caller and validation census"
-current_blocker_token = "Task6-owner next BoxShape: remove lifecycle/Return row Vecs and coordinate wrapper; preserve exact presence predicate and finalization namespace/Birth-call validation by borrow, including Return-only retained Birth signature checks. Preserve Unit observer/physical Stop, generic/static/array and EXE/OBJ/Fault. No source widening or new receipt."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CLEANUP-R0"
+current_execution_cohort = "constructor_lifecycle_c_physical_cleanup_r0"
+current_design_stop = "none; task 6-C caller-zero physical-value helper deletion accepted after read-only reference census"
+current_blocker_token = "Task6-C caller-zero Delete: remove hako_physical_values_exist declaration and body only; preserve live availability/has-value helpers, parser and V4/session/tool/cleanup consumers. Sync stale shims README pending claims. Existing C parser/V4 gates; no new fixture/guard, feature or production-edge reduction claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,15 +31,15 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Finalization owns completed handoff and lifecycle admission/profile. View borrows
-semantic products and selected profile; activation API and lifecycle route
-rewriting are removed. View32/host1 pass; pipeline21/2 matches known parent debt.
-Next accepted BoxShape removes both observation row Vecs, their coordinate
-wrapper and append edge, while preserving Return-only Birth validation and all
-admission phases. Physical program/compiled-entry coordinates remain unchanged.
+View ownership series removes owned handoff/profile, lifecycle activation and
+both lifecycle/Return observation Vecs. Presence is a boolean; finalization
+borrows functions and preserves Return-only Birth and direct-call validation.
+Next is the read-only-audited caller-zero C helper deletion: only declaration
+and body of hako_physical_values_exist. Live physical/V4/session state stays.
+C owner README must describe the current selected V4 host and V2/V3 retirement.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CLEANUP-R0"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CLEANUP-R0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

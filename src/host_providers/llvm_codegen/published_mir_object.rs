@@ -55,7 +55,7 @@ fn compile_published_view_object(
     obj_out: &str,
     lifecycle_session: Option<&LifecycleRuntimeSessionV1>,
 ) -> Result<(), String> {
-    if !view.lifecycle_instructions().is_empty() {
+    if view.has_lifecycle_instructions() {
         if lifecycle_session.is_none() {
             return Err(
                 "published lifecycle object ingress requires an explicit runtime session"
@@ -136,7 +136,7 @@ pub(crate) fn emit_published_view_exe(
     let object_path = format!("{}.published-static-method.o", exe_out);
     let result = (|| {
         let runtime_dir = nyrt_dir.ok_or("published EXE requires an explicit runtime directory")?;
-        let lifecycle_session = if view.lifecycle_instructions().is_empty() {
+        let lifecycle_session = if !view.has_lifecycle_instructions() {
             None
         } else {
             Some(LifecycleRuntimeSessionV1::select(

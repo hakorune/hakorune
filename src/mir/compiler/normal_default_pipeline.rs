@@ -575,7 +575,7 @@ impl MirCompiler {
                 use published_backend_view::PublishedStaticMethodRouteV1;
                 match view.route() {
                     PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
-                        if view.lifecycle_instructions().is_empty() {
+                        if !view.has_lifecycle_instructions() {
                             return Err(
                             "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer".to_owned(),
                         );

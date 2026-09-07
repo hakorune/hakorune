@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: remove lifecycle/Return observation row storage while finalization preserves borrowed validation (task 6-owner below).
+Smallest next slice: delete the caller-zero physical-value helper and sync the C owner README (task 6-C below).
 Non-claims: new source acceptance, optimized multiple-Home coverage, complete view thinning, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -2053,74 +2053,86 @@ compiler/host/C READMEs are synchronized. No build/test remains running.
 
 ### CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0 (task 6-owner)
 
-Classification: BoxShape; no source family or physical acceptance changes.
+BoxShape series: handoff borrowing25b3d2ad4c; finalization-owned admission/profile
+e620bbbf66; observation-row storage removal in this slice. The final invocation
+owns the semantic handoff and selected profile, and the view borrows them. Its
+activation API and lifecycle route mutation are gone. Generic structural route
+classification and static/free/print/array row storage remain unchanged.
 
-Handoff borrowing landed at25b3d2ad4c. Existing finalization now also owns
-lifecycle admission and the selected profile through callback completion.
-`lifecycle_admission.rs` preserves candidate/root/result/source, namespace and
-Birth-call checks, including appended Return rows. View borrows the profile and
-observes selection; its activation API and lifecycle route mutation are gone.
-Generic structural classification remains unchanged. No new semantic receipt,
-public profile setter or forced physical-input issuance. Physical row vectors
-remain the next cleanup target.
+Both lifecycle/Return Vecs, collection/append edge and instruction-coordinate
+wrapper are removed. Pipeline1/host2/test1 presence consumers use the same exact
+lifecycle predicate as a boolean observation; ordinary Return is not lifecycle
+presence. Finalization validates borrowed functions in the existing phases:
+lifecycle-bearing namespaces, Return-only retained Birth namespaces, then direct
+Birth-call receiver/namespace/definition. Root exemption and return-only signature
+checks remain. The old `function-missing` branch is structurally unnecessary:
+validation now holds the function borrowed from the module instead of stored
+coordinates. Physical-program/compiled-entry/diagnostic coordinates are untouched.
+No new source receipt or capability, acceptance widening, forced physical-input
+issuance, fewer-total-scans claim or runtime-session change.
 
-Evidence: published-view32 passes; normal-pipeline23 remains21 pass/2 known
-baseline failures reproduced at7c8041c075 in the prior handoff slice:
+Finite boundary: generic view scan -> finalization admission -> compiled-entry/
+physical program -> shared host. Includes the presence callers, namespace and
+Birth-call checks; excludes source issuance, optimizer, V4 parser, other backends.
+Read-only worker census was integrated before implementation. A normal-source
+handoff mutation test covers noncataloged/non-Birth lifecycle functions,
+Return-only retained Birth signature drift, and invalid direct Birth receiver
+inside both root and Birth. Mutated modules are admission witnesses only and
+never reach an artifact.
+
+Evidence: fresh lifecycle-admission mutation test1 and published-view32 pass.
+Normal-source host1 passes direct EXE/independent OBJ for Pair30 and Bool Fault70,
+plus the actual runtime cleanup probe (15.19s). Pipeline23 remains21 pass/2 with
+the exact existing diagnostics below. Single-job quick/plugins,
+opt0/nonincremental/CGU256, library peak8.66 GiB. Initial local predicate-visibility
+compile errors were corrected; the fresh build passes. Pointer/canonical guard
+and diff check pass; touched source max735. Retired type/Vec/API references are
+zero in tracked src/tools/lang/crates; compiled artifacts and historical docs
+are excluded. No new Cargo or C build is running. Baseline classification remains
+the two failures reproduced at7c8041c075 and unchanged at e620bbbf66:
 - `mir::compiler::normal_default_pipeline::tests::published_consumer_does_not_consume_explicit_compatibility`:
   `ordinary-new/local-commit/artifact-root-completion-unavailable` before callback.
 - `mir::compiler::normal_default_pipeline::tests::published_consumer_runs_once_and_propagates_failure_without_retry`:
   assertion requiring `selected-consumer-failed` fails before that callback result.
-Current failures match those names and diagnostics. Unit/I64 observation, generic
-root fencing and lifecycle admission tests pass. Normal-source host1 passes for
-Pair/Bool through direct EXE, independent OBJ/link and cleanup probe (15.03s).
-Single-job quick/plugins, opt0/nonincremental/CGU256; library peak8.62 GiB.
-Fresh CLI build passes (51.08s, peak6.50 GiB); unchanged default Pair source
-produces `/tmp/hako-finalization-admission-pair`, prints `Result: 30` and exits30.
-Pointer/canonical corridor guards and diff check pass; touched source max751.
-Owner README/ABI reference are synced. No whole-suite green or complete
-MIRBuilder claim.
+No whole-suite green or complete MIRBuilder claim.
 
-**Accepted next slice: remove lifecycle observation row storage.**
+### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CLEANUP-R0 (task 6-C)
 
-Decision: replace stored lifecycle/Return rows with presence observation and finalization-owned borrowed validation.
-Source authority + canonical issuer: existing finalized root/Birth handoff; finalization owns physical admission.
-Non-authority: presence boolean, view and borrowed MIR traversal issue no semantic meaning or admission proof.
-Fail-fast boundary: preserve candidate/root/result/source checks, then namespace checks, then Birth-call checks before callback/artifact.
-Smallest next slice: delete both row Vecs and coordinate wrapper; keep the existing exact instruction predicate and validate affected functions by borrow.
-Non-claims: fewer total MIR scans, physical-program/diagnostic coordinate deletion, source widening or backend parity.
+Classification: caller-zero Delete; no behavior or source acceptance change.
 
-Read-only worker census boundary: generic view scan -> finalization admission ->
-compiled-entry/physical program -> shared host. Includes lifecycle presence
-callers (pipeline1, host2, test1), namespace checks and direct Birth-call checks.
-Excludes source issuance, optimizer, V4 parser and other backends. Compiled-entry
-and physical program do not consume these Vecs; their own coordinates remain.
+Decision: remove the unused physical-value-existence helper; keep live availability validation.
+Source authority + canonical issuer: unchanged source/handoff owners; C parser owns structural physical-input validation only.
+Non-authority: unused helper, C tool/session and README do not issue source meaning.
+Fail-fast boundary: existing physical parser/V4 admission before object publication remains unchanged.
+Smallest next slice: delete hako_physical_values_exist declaration and definition in physical_v2.inc; synchronize the owning shims README's stale pending claims.
+Non-claims: production execution-edge reduction, general state thinning, in-process LLVM or all C helpers retired.
+
+Worker census boundary: V4 export -> physical-v2 document validator -> V4
+admission/emission -> llc -> object publication/cleanup. Includes direct code,
+translation-unit aggregate (`hako_llvmc_ffi.c` / build script), manifest/test
+export callers and directory discovery; excludes generic/static consumers,
+source issuance and other backends. The static helper has only declaration and
+definition, no caller/address/token-pasting reference, and no dedicated test or
+export. This closes only the named helper's inventory, not the whole backend.
 
 Change:
-  Store only `has_lifecycle_instructions` from the existing scan. Preserve the
-  exact Invoke/InvokeNormalResult/ReturnFault/FaultFrameEnter/ObjectFieldGet/direct
-  Birth Call predicate; ordinary Return is excluded. Replace empty checks with
-  the boolean observer. Delete both Vecs, Return collection/append, instruction
-  reference type/coordinates/accessors, import and constructor initializations.
+  Remove the forward declaration and body of `hako_physical_values_exist` from
+  `published_mir/hako_llvmc_ffi_published_lifecycle_physical_v2.inc`. Preserve
+  `hako_physical_values_available_at`, `hako_physical_has_value`, public parser,
+  session/target/layout/preamble/tool state and all current V4 probes.
 Contract:
-  Admission validates lifecycle-bearing functions plus retained Birth functions
-  with an ordinary Return. Preserve root exemption, canonical definition/Birth
-  namespace/signature projection checks. Validate lifecycle-bearing functions
-  first and then Return-only retained Birth functions, retaining existing error
-  phase precedence. Only afterward check direct Birth Calls for INVALID receiver,
-  namespace and missing definition. Runtime/session/capability checks stay intact;
-  boolean presence never grants lifecycle admission.
+  No new tests/guards/wrappers. Update shims README to reflect the existing
+  selected V4 source host and retired V2/V3 paths, preserving live ABI contracts.
 Done:
-  Existing view/pipeline/host gates preserve Unit observer/physical Stop, generic
-  lifecycle fencing, static/array/compatibility, Pair30 and Bool Fault/cleanup.
-  Focused negative evidence must cover noncataloged/non-Birth lifecycle functions,
-  Return-only retained Birth signature drift and bad direct Birth Calls in root
-  and Birth. Preserve existing counterexamples or add missing meaningful ones.
+  Reconfirm the exact caller-zero set, C build, existing parser positive/negative
+  and V4 execution/Fault/target/temp-cleanup acceptance. Record this as unused
+  code deletion, not deletion of a running production branch.
 Stop:
-  If the exact validation set/order or caller inventory differs, stop this slice
-  before deleting storage. Do not replace it with a new receipt or source repair.
+  Any real caller/reference or shared requirement outside the named set invalidates
+  this deletion; retain the helper and classify that caller before changing it.
 
-Dependency: admission/profile slice closeout. Worker audit is integrated into
-this Decision; it did not run tests or authorize implementation independently.
+Dependency: close out the observation-row slice. No new design consultation or
+semantic issuer is required for this compiler-proven dead-code removal.
 
 ### Task 3: exact root cleanup contraction
 
@@ -2465,7 +2477,7 @@ No new build/runtime evidence was collected for this read-only reconciliation.
 | Unit represented as RootI64 | `physical_program.rs` still uses RootI64, but `physical_abi.rs` rejects Unit before serialization; V2 emits ROOT_UNIT correctly. Unsafe direct admission is stopped, not Unit execution completed. | As a separate BoxShape retaining the Unit execution Stop, physical-program owner projects the existing compiled result into distinct Unit/I64 roles and deletes unconditional RootI64 assignment. V2/direct role agreement and malformed/result-slot negatives are required; Unit execution is separate from Pair. |
 | Sibling final input | PhysicalAbiInput now owns CompiledEntryContract; the sibling-product gap is closed. Exact Unannotated Integer/Bool binding is implemented; unsupported declarations/Local still stop pre-JSON, and per-New actual retention is verified. | Existing R1 task 2 closes kind/payload and FieldSet type-failure binding, then deletes positional I64 defaults. Keep one contract issuer and call-local runtime session; moving source decisions into the session is forbidden. |
 | Three transport paths | Historical audit finding, now retired: selected host uses one completed input and V4; frame/generic JSON/V2/V3 paths are deleted. See the current receipt above. | Existing R1 tasks 3–4: close optimizer mapping, prove real host EXE30 and independent same-session OBJ/link30 plus Fault/cleanup, then delete selected generic JSON/V2 rows/V3 delegation, duplicate pre-parser call and caller-zero exclusive probes. Shared parser/session/runtime validation survives. |
-| View owns and activates | PublishedMirBackendView still owns handoffs/vectors/profile and mutates admission; it is not borrow-only and is not a new source issuer. | Post-cutover view responsibility task below; do not count file moves as closing it. |
+| View owns and activates | Finalization owns handoff/admission/profile; view borrows them and observes lifecycle presence. Lifecycle/Return vectors and activation mutation are retired. Shared generic cohort vectors remain physical view data. | Post-cutover view responsibility task below; do not count file moves as closing it. |
 
 Order remains: representation/Fault contract -> exact physical binding ->
 optimizer observer mapping -> real host execution -> old transport retirement

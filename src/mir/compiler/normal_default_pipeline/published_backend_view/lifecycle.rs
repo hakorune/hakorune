@@ -1,6 +1,6 @@
-//! Borrowed lifecycle coordinates retained by the one published-view scan.
+//! Lifecycle presence observation and borrowed finalized handoff access.
 //!
-//! These rows are physical observation only. They do not admit a generic view
+//! Presence is physical observation only. It does not admit a generic view
 //! or issue constructor meaning; the parent pipeline performs the final
 //! artifact-only admission after verification and commit preparation.
 
@@ -10,69 +10,18 @@ use crate::mir::{Callee, MirInstruction};
 
 use super::{PublishedMirBackendView, PublishedMirBackendViewErrorV1};
 
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct PublishedLifecycleInstructionRef<'module> {
-    function_name: &'module str,
-    block_id: u32,
-    instruction_index: u32,
-    instruction: &'module MirInstruction,
-}
-
-impl<'module> PublishedLifecycleInstructionRef<'module> {
-    pub(super) fn return_instruction(
-        function_name: &'module str,
-        block_id: u32,
-        instruction_index: u32,
-        instruction: &'module MirInstruction,
-    ) -> Option<Self> {
-        matches!(instruction, MirInstruction::Return { .. }).then_some(Self {
-            function_name,
-            block_id,
-            instruction_index,
-            instruction,
-        })
-    }
-
-    pub(super) fn from_instruction(
-        function_name: &'module str,
-        block_id: u32,
-        instruction_index: u32,
-        instruction: &'module MirInstruction,
-    ) -> Option<Self> {
-        let selected = matches!(
-            instruction,
-            MirInstruction::Invoke { .. }
-                | MirInstruction::InvokeNormalResult { .. }
-                | MirInstruction::ReturnFault { .. }
-                | MirInstruction::FaultFrameEnter { .. }
-                | MirInstruction::ObjectFieldGet { .. }
-        ) || matches!(
-            instruction,
-            MirInstruction::Call(call) if matches!(call.callee, Callee::BirthConstructor { .. })
-        );
-        selected.then_some(Self {
-            function_name,
-            block_id,
-            instruction_index,
-            instruction,
-        })
-    }
-
-    pub(crate) fn function_name(self) -> &'module str {
-        self.function_name
-    }
-
-    pub(crate) const fn block_id(self) -> u32 {
-        self.block_id
-    }
-
-    pub(crate) const fn instruction_index(self) -> u32 {
-        self.instruction_index
-    }
-
-    pub(crate) fn instruction(self) -> &'module MirInstruction {
-        self.instruction
-    }
+pub(in crate::mir::compiler::normal_default_pipeline) fn is_lifecycle_instruction(instruction: &MirInstruction) -> bool {
+    matches!(
+        instruction,
+        MirInstruction::Invoke { .. }
+            | MirInstruction::InvokeNormalResult { .. }
+            | MirInstruction::ReturnFault { .. }
+            | MirInstruction::FaultFrameEnter { .. }
+            | MirInstruction::ObjectFieldGet { .. }
+    ) || matches!(
+        instruction,
+        MirInstruction::Call(call) if matches!(call.callee, Callee::BirthConstructor { .. })
+    )
 }
 
 impl<'module> PublishedMirBackendView<'module> {
@@ -167,8 +116,8 @@ impl<'module> PublishedMirBackendView<'module> {
         self.module
     }
 
-    pub(crate) fn lifecycle_instructions(&self) -> &[PublishedLifecycleInstructionRef<'module>] {
-        &self.lifecycle_instructions
+    pub(crate) const fn has_lifecycle_instructions(&self) -> bool {
+        self.has_lifecycle_instructions
     }
 
     pub(crate) fn lifecycle_storage_profile(

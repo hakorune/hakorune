@@ -3,11 +3,13 @@
 //! Consumes existing published identity and handoff only; no source meaning is
 //! issued here. The callback borrows the selected profile from finalization.
 
-use hakorune_mir_defs::SameModuleCallableNamespaceV1;
-use crate::mir::{Callee, MirInstruction, ValueId};
 use super::published_backend_view::{
-    PublishedMirBackendView, PublishedObjectStorageProfileV1, PublishedStaticMethodRouteV1,
+    is_lifecycle_instruction, PublishedMirBackendView, PublishedObjectStorageProfileV1,
+    PublishedStaticMethodRouteV1,
 };
+use crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1;
+use crate::mir::{Callee, MirFunction, MirInstruction, MirModule, ValueId};
+use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
 pub(super) fn admit_lifecycle<'module>(
     mut view: PublishedMirBackendView<'module>,
@@ -15,7 +17,7 @@ pub(super) fn admit_lifecycle<'module>(
 ) -> Result<PublishedMirBackendView<'module>, String> {
     if view.route() != PublishedStaticMethodRouteV1::UnsupportedBeforeObject
         || view.has_non_lifecycle_unsupported
-        || view.lifecycle_instructions.is_empty()
+        || !view.has_lifecycle_instructions()
     {
         return Err(fault("candidate-unavailable"));
     }
@@ -38,58 +40,97 @@ pub(super) fn admit_lifecycle<'module>(
     if view.retained_root_source().is_none() {
         return Err(fault("retained-root-source-missing"));
     }
-    let module = view.module();
-    view.lifecycle_instructions
-        .extend(view.return_instructions.iter().copied().filter(|row| {
-            row.function_name() == root_name
-                || module
-                    .canonical_callable_definitions
-                    .iter()
-                    .any(|(key, symbol)| {
-                        retained_births.iter().any(|birth| birth.target() == key)
-                            && symbol.as_str() == row.function_name()
-                    })
-        }));
-    for row in &view.lifecycle_instructions {
-        if row.function_name() == root_name {
-            continue;
-        }
-        let Some(function) = view.module().functions.get(row.function_name()) else {
-            return Err(fault("function-missing"));
-        };
-        let Some((key, _)) = view
-            .module()
-            .canonical_callable_definitions
-            .iter()
-            .find(|(_, symbol)| symbol.as_str() == row.function_name())
-        else {
-            return Err(fault("function-not-cataloged"));
-        };
-        if key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
-            || function.signature.name != key.mir_symbol_projection()
-        {
-            return Err(fault("function-not-birth"));
+    validate_functions(view.module(), root_name, retained_births)?;
+    view.lifecycle_storage_profile = Some(profile);
+    Ok(view)
+}
+
+// Preserve namespace validation before call validation. Return-only retained
+// Birth functions participated in the former appended rows and remain checked.
+fn validate_functions(
+    module: &MirModule,
+    root_name: &str,
+    retained_births: &[BirthAbiHandoffV1],
+) -> Result<(), String> {
+    for (name, function) in &module.functions {
+        if name != root_name && has_lifecycle(function) {
+            validate_birth_function(module, name, function)?;
         }
     }
-    for row in &view.lifecycle_instructions {
-        if let MirInstruction::Call(call) = row.instruction() {
+    for (name, function) in &module.functions {
+        if name == root_name || has_lifecycle(function) {
+            continue;
+        }
+        let retained = module
+            .canonical_callable_definitions
+            .iter()
+            .any(|(key, symbol)| {
+                symbol == name && retained_births.iter().any(|birth| birth.target() == key)
+            });
+        if retained
+            && function.blocks.values().any(|block| {
+                block
+                    .all_instructions()
+                    .any(|instruction| matches!(instruction, MirInstruction::Return { .. }))
+            })
+        {
+            validate_birth_function(module, name, function)?;
+        }
+    }
+    for function in module.functions.values() {
+        for instruction in function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+        {
+            let MirInstruction::Call(call) = instruction else {
+                continue;
+            };
             let Callee::BirthConstructor { key, receiver } = &call.callee else {
                 continue;
             };
             if *receiver == ValueId::INVALID
                 || key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
-                || module
-                    .canonical_callable_definition_symbol(key)
-                    .is_none()
+                || module.canonical_callable_definition_symbol(key).is_none()
             {
                 return Err(fault("birth-call-drift"));
             }
         }
     }
-    view.lifecycle_storage_profile = Some(profile);
-    Ok(view)
+    Ok(())
+}
+
+fn has_lifecycle(function: &MirFunction) -> bool {
+    function
+        .blocks
+        .values()
+        .any(|block| block.all_instructions().any(is_lifecycle_instruction))
+}
+
+fn validate_birth_function(
+    module: &MirModule,
+    name: &str,
+    function: &MirFunction,
+) -> Result<(), String> {
+    let Some((key, _)) = module
+        .canonical_callable_definitions
+        .iter()
+        .find(|(_, symbol)| symbol.as_str() == name)
+    else {
+        return Err(fault("function-not-cataloged"));
+    };
+    if key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
+        || function.signature.name != key.mir_symbol_projection()
+    {
+        return Err(fault("function-not-birth"));
+    }
+    Ok(())
 }
 
 fn fault(reason: &str) -> String {
     format!("[freeze:contract][published-lifecycle/admission-{reason}]")
 }
+
+#[cfg(test)]
+#[path = "lifecycle_admission_tests.rs"]
+mod tests;

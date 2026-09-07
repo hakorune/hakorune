@@ -18,7 +18,7 @@ fn non_program() -> ASTNode {
     }
 }
 
-fn published_request(source: &str) -> NormalCompileRequestV1 {
+pub(super) fn published_request(source: &str) -> NormalCompileRequestV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         crate::parser::ParserBuildConfig::default(),
@@ -158,7 +158,7 @@ fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
             |view, _| -> Result<(), String> {
                 callbacks.set(callbacks.get() + 1);
                 assert_eq!(view.route(), PublishedStaticMethodRouteV1::CanonicalTyped);
-                assert!(!view.lifecycle_instructions().is_empty());
+                assert!(view.has_lifecycle_instructions());
                 let root_source = view
                     .retained_root_source()
                     .expect("final lifecycle view retains its source relation");
