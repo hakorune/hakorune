@@ -70,6 +70,9 @@ int main(void) {
   rejects_replace(valid, "\"src\":7", "\"src\":99", "function-body");
   rejects_replace(valid, "\"operation\":{\"kind\":\"new_box\",\"object_id\":7}", "\"operation\":{\"kind\":\"new_box\",\"object_id\":99}", "function-body");
   rejects_replace(valid, "\"mode\":\"root_owned\"", "\"mode\":\"borrowed\"", "function-body");
+  rejects_replace(valid, "\"invoke_block\":0", "\"invoke_block\":1", "function-body");
+  rejects_replace(valid, "\"op\":\"return\",\"value\":9", "\"op\":\"return\",\"value\":null", "function-body");
+  rejects_replace(valid, "\"op\":\"return\",\"value\":null", "\"op\":\"return\",\"value\":0", "function-body");
   rejects_replace(valid, "\"op\":\"return\",\"value\":9", "\"op\":\"add\",\"value\":9", "function-body");
   rejects_replace(valid, "\"field_count\":1", "\"field_count\":2", "abi-layout");
   rejects_replace(valid, "\"storage_profile\":1,", "", "schema");
