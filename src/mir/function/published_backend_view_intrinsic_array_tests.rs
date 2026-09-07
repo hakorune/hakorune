@@ -1,4 +1,4 @@
-// Physical consumer witnesses only. Source producers still emit Named.
+// Physical consumer witnesses only; source acceptance has separate host tests.
 fn intrinsic_array_module() -> MirModule {
     let mut function = MirFunction::new(
         FunctionSignature {

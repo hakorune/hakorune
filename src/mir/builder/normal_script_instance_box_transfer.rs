@@ -306,39 +306,39 @@ box Holder {
 
     #[test]
     fn physical_constructor_demands_retain_one_parser_source_id() {
-        let source = r#"
-box Holder {
-    init(value) { return value }
-}
-"#;
-        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-            source,
-            crate::parser::ParserBuildConfig::default(),
-        )
-        .expect("callable source");
-        let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-            crate::r#macro::transform_normal_callable_program_v1(parsed)
-                .expect("exact callable transform")
-        });
-        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
-        else {
-            panic!("fixture must stay source-backed")
-        };
-        let mut resolver = FunctionSemanticResolverSessionV1::new(144).unwrap();
-        let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1(
+        for source in [
+            "box Holder { init(value) { return value } }",
+            "box Holder<T> { init(value) { return value } }",
+        ] {
+            let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+                source,
+                crate::parser::ParserBuildConfig::default(),
+            )
+            .expect("callable source");
+            let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+                crate::r#macro::transform_normal_callable_program_v1(parsed)
+                    .expect("exact callable transform")
+            });
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                transformed
+            else {
+                panic!("fixture must stay source-backed")
+            };
+            let mut resolver = FunctionSemanticResolverSessionV1::new(144).unwrap();
+            let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1(
             &mut resolver,
             source,
         )
         .expect("semantic package");
-        let physical = VerifiedInstanceConstructorPhysicalSourceCohortV1::issue(
-            package.source_ast(),
-            &package,
-        )
-        .expect("physical source cohort");
-        let ASTNode::Program { statements, .. } = package.source_ast().clone() else {
-            panic!("Program source")
-        };
-        let plan = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers_and_constructor_sources(
+            let physical = VerifiedInstanceConstructorPhysicalSourceCohortV1::issue(
+                package.source_ast(),
+                &package,
+            )
+            .expect("physical source cohort");
+            let ASTNode::Program { statements, .. } = package.source_ast().clone() else {
+                panic!("Program source")
+            };
+            let plan = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers_and_constructor_sources(
             statements,
             false,
             ProgramRootWorkPlanAdmissionV1::SelectedNormal,
@@ -347,34 +347,38 @@ box Holder {
             Some(&physical),
         )
         .expect("physical source transfer");
-        let parts = plan.into_parts();
-        let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
-            panic!("expected immediate instance Box")
-        };
-        let immediate_id = immediate
-            .normal_constructor_sources()
-            .expect("immediate source")
-            .sources()[0]
-            .source_id()
-            .clone();
-        assert_eq!(
-            immediate
-                .normal_constructor_sources()
-                .expect("immediate role")
-                .role(),
-            InstanceConstructorDemandRoleV1::ImmediateDeclaration
-        );
-        let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
-            panic!("expected selected runtime")
-        };
-        let (runtime_sources, _) = runtime.constructor_admission_at(0).expect("runtime source");
-        assert_eq!(
-            runtime_sources.role(),
-            InstanceConstructorDemandRoleV1::ScriptRuntimePrefix
-        );
-        assert!(runtime_sources.sources()[0]
-            .source_id()
-            .same_as(&immediate_id));
+            let parts = plan.into_parts();
+            let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0]
+            else {
+                panic!("expected immediate instance Box")
+            };
+            let sources = immediate.normal_constructor_sources().unwrap();
+            assert_eq!(sources.sources().len(), 1);
+            assert!(sources.sources()[0]
+                .source_id()
+                .same_as(package.instance_constructors().rows()[0].source_id()));
+            assert_eq!(
+                parts
+                    .constructor_demand_manifest
+                    .as_ref()
+                    .unwrap()
+                    .expectations()
+                    .len(),
+                1
+            );
+            assert_eq!(
+                immediate
+                    .normal_constructor_sources()
+                    .expect("immediate role")
+                    .role(),
+                InstanceConstructorDemandRoleV1::ImmediateDeclaration
+            );
+            let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
+                panic!("expected selected runtime")
+            };
+            assert!(matches!(runtime.admission_at(0),
+            crate::mir::builder::normal_script_runtime_work::NormalScriptRuntimeStatementAdmissionV1::InstanceDeclarationCompletion));
+        }
     }
 
     #[test]

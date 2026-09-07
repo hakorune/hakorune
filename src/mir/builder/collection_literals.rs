@@ -61,10 +61,9 @@ impl super::MirBuilder {
         let arr_id = self.next_value_id();
         self.emit_instruction(MirInstruction::NewBox {
             dst: arr_id,
-            target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
+            target: crate::mir::ConstructionTarget::IntrinsicArray,
             args: vec![],
         })?;
-        self.emit_constructor_birth_marker(arr_id, "ArrayBox")?;
         self.function_state
             .type_ctx
             .value_origin_newbox
@@ -185,6 +184,7 @@ impl super::MirBuilder {
 
 #[cfg(test)]
 mod tests {
+    include!("collection_literal_cutover_tests.rs");
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1;
     use crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1;

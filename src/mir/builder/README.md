@@ -13,7 +13,7 @@ Pointers:
   - `docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md`
 - current selfhost bootstrap authority:
   - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
-- collection literal construction (accepted target; implementation pending):
+- collection literal construction (intrinsic Array implementation; wider source acceptance open):
   - [language contract](../../../docs/reference/language/block-expressions-and-map-literals.md#4-collection-literal-construction-identity)
   - [construction representation and cutover](../../../docs/development/current/main/design/collection-literal-construction-ssot.md)
 - MIR navigation root:
@@ -26,8 +26,9 @@ Pointers:
 
 Construction target migration: MIR/Core allocation distinguishes `Named(String)`
 from `IntrinsicArray`. The selected view/frame/C consumer supports the intrinsic
-variant; actual source producers remain Named until the coordinated raw/typed/Core
-cutover. Name-only JSON remains Named. Remaps preserve identity, Core13 preserves
+variant; raw/typed-local/Core Array allocation implementations preserve intrinsic
+identity. Source-backed typed Local and Loop remain earlier admission blockers,
+so this does not close the wider source cutover. Name-only JSON remains Named. Remaps preserve identity, Core13 preserves
 intrinsic allocation, and unsupported consumers do not retry provider lookup.
 
 ## Active replacement law
@@ -324,10 +325,11 @@ unchanged until the later constructor-consumer cutover.
 
 The selected-normal work plan now issues an explicit role ticket for every
 physical constructor demand. `ImmediateDeclaration` is required once for each
-source row; non-app Script `Prefix` and `FullLifecycle` rows receive their
-matching runtime ticket, while app and compatibility work receive no runtime
-ticket. The manifest validates the complete immediate/runtime ticket set before
-Builder effects, rejecting duplicate, foreign, swapped, or missing roles. It
+source row. Selected Script runtime declarations carry no constructor batch or
+ticket; plain and nonplain declarations retain only Unit completion. Immediate
+work preserves field/weak/type/slot/getter metadata and publishes definitions
+once. The manifest validates immediate tickets before Builder effects, rejecting
+duplicate, foreign or missing demands. It
 does not select a constructor or replace the later semantic package loan; the
 raw Brand consumer remains parked for that separate cutover.
 
@@ -337,9 +339,8 @@ Selected-normal constructor work now moves one non-Clone demand ticket through
 the capture surface. The installed semantic package loans the matching
 constructor forest by `ConstructorSourceIdV1` only, and the adapter installs a
 request-local callable semantic scope around the existing raw body lowering.
-Immediate and permitted Script-runtime roles may borrow the same immutable
-forest, but each physical ticket is consumed exactly once and completion checks
-manifest exhaustion. Compatibility, RawLegacy, bare/unlocated calls, and the
+Only immediate declaration work borrows the constructor forest; each physical
+ticket is consumed exactly once and completion checks manifest exhaustion. Compatibility, RawLegacy, bare/unlocated calls, and the
 legacy `is_brand_declared` route remain outside this consumer row.
 
 The same loan carries construction eligibility into callable state, whose shared

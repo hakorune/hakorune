@@ -573,23 +573,54 @@ No source-cutover/R7 claim; full receipt lives in Git.
 
 #### MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0
 
-Decision: immediate declaration lifecycle is sole publisher; runtime keeps Unit completion.
-Source authority + canonical issuer: parser instance cohort -> existing work-plan; immediate owns canonical publication.
-Non-authority: receipt pack, names, collector-existence checks and runtime declaration replay.
-Fail-fast boundary: preserve duplicate CatalogedConstructor and source/window checks.
-Smallest next slice: delete plain/nonplain runtime batch clones/tickets/roles; emit existing Unit completion only.
-Non-claims: wider Array series, typed source/C execution, unrelated registration thinning or R7 closure.
+The [construction design](../design/collection-literal-construction-ssot.md) owns
+the accepted boundary: parser cohort -> immediate sole publication -> runtime Unit.
+No by-name skip, second authority or broader typed/Loop/R7 closure.
+Checkpoint: raw/typed-local/Core Array allocation now retains intrinsic identity;
+Array birth edges, runtime constructor batch/ticket/role transport and exclusive
+prefix helper are removed. Default mismatch and duplicate-publication rejection remain.
+Materialized empty/populated/nested/plain-shadow/generic-shadow EXE and independent
+OBJ all exit30; declaration-only Unit, parser-backed one-demand plain/generic,
+child failure/order, boundary rejection and metadata tests pass. View35 and Pair
+EXE/OBJ30 regression pass. Library build peak8.75GiB; instance-transfer and canonical corridor guards pass.
+No OOM/whole-suite claim.
 
-The [construction design](../design/collection-literal-construction-ssot.md) owns the audit: immediate handles registration/definitions; runtime only void.
-Acceptance: unchanged materialized shadow EXE/OBJ, one definition/demand per source,
-plain/nonplain metadata preservation and declaration-only Unit. Retire caller-zero
-prefix helper, preserve shared lifecycle and manifest checks; no by-name skip.
-Pending Array/birth and missing-boundary-arm edits remain uncommitted. Build7
-passes (peak8.70GiB); static negative syntax corrected but not rerun. Current
-shadow DuplicateKey is the duplicate-demand blocker, not waived baseline debt.
-Source-backed empty/populated/nested execute; typed stops before initializer.
-Next after this repair: Script typed-local relation D0, then typed C state guard;
-the original wider Array series remains open. No OOM/whole-suite claim.
+Known baseline debt reproduced at parent `95f400280d` with identical quick profile:
+`program_root_work_plan` parent6pass6fail, current6pass4fail; two retired second-demand
+fixtures are deleted. Remaining failures (all `cohort-missing`):
+`app_partition_preserves_source_order_and_runtime_retention`,
+`script_partition_keeps_static_boxes_out_of_deferred_work`,
+`selected_constructor_sources_keep_parser_key_order_and_skip_nonfunctions`,
+`selected_script_window_keeps_callable_transfer_at_its_original_ordinal`.
+`normal_script_runtime_work` parent/current3pass4fail at retired raw ingress:
+`selected_generic_script_box_keeps_full_legacy_callable_parity`,
+`selected_generic_static_script_box_keeps_legacy_callable_parity`,
+`selected_script_box_methods_match_legacy_without_duplicate_functions`,
+`selected_script_catalog_failure_discards_candidate_and_reuses_compiler`.
+No source gate was relaxed and no baseline test ignored. The prior current-change
+shadow DuplicateKey and static-negative syntax error are fixed and rerun green.
+
+#### MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-D0
+
+Decision: connect existing exact Local relation to Script source admission before typed execution.
+Source authority + canonical issuer: resolver Local observation and ResolvedInitializerRelationV1; Script source issuer co-seals its own source product.
+Non-authority: raw AST annotation reread, FullFunction product, MIR inferred types and AST-only acceptance.
+Fail-fast boundary: retain Deferred before initializer until Script binding/annotation/initializer mapping is closed; retain selected-C typed state-guard Stop.
+Smallest next slice: audit existing relation consumption from Script projection through binding materializer to typed claim, then name one bounded implementation.
+Non-claims: typed C execution, Loop admission, ScriptLambda/BlockExpr widening and original Array-series closure.
+
+Worker premise audit: resolver stmt/expression relation already carries the exact
+Local binding, annotation and initializer site. Script projection currently keeps
+only site-to-BindingRef; binding materialization passes RawLegacyLocalInput and
+local descent re-reads annotation. Reuse the relation with existing
+`typed_array_contract_spec::parse_annotation`; do not invent a new receipt or
+simply remove the Script annotation gate. Fixed source remains
+`local a: Array<i64> = [10, 20]; return 30`.
+Ordered open obligations: this source relation -> reach existing typed backend
+Stop -> separately accepted typed state-guard consumer. Script Loop admission is
+also CutoverBlockerOpen for the original unchanged Loop execution witness;
+AST-only Loop success cannot close it. Ownership and finish conditions remain in
+the construction design; no new guard or task-document family.
 
 ## Source and ownership budget
 

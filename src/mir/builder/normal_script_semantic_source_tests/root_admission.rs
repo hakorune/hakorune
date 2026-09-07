@@ -392,3 +392,45 @@ fn context_scope_is_complete_without_observing_value_or_body() {
         )
         .expect("fresh request succeeds");
 }
+
+#[test]
+fn instance_transfer_boundary_rejects_static_box_and_non_box_source() {
+    use crate::mir::builder::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
+    use crate::mir::resolved_semantics::ScriptTransferredBoundaryV1;
+    let source = NyashParser::parse_from_string("0").unwrap();
+    let resolved = VerifiedScriptRootDemandWindowV1::seal(vec![resolved_entry(0)], 1).unwrap();
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let ResolveScriptOutcomeV1::Complete(product) = resolver
+        .resolve_script(
+            ScriptSyntaxViewV1::from_program(&source).unwrap(),
+            &resolved,
+        )
+        .unwrap()
+    else {
+        panic!("literal source must resolve")
+    };
+    // Deliberately mismatched transport: an issued product must not make a
+    // transferred instance boundary accept static or non-Box source syntax.
+    let transferred = VerifiedScriptRootDemandWindowV1::seal(
+        vec![VerifiedScriptRootDemandEntryV1::new(
+            SourcePathV1::program_body()
+                .child(SourcePathSegmentV1::ProgramBody(0))
+                .stmt(),
+            ScriptRootSemanticDispositionV1::Transferred(
+                ScriptTransferredBoundaryV1::InstanceBoxSemanticOwner,
+            ),
+            ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
+        )],
+        1,
+    )
+    .unwrap();
+    for text in ["0", "static box ArrayBox { marker() {} }"] {
+        let foreign = NyashParser::parse_from_string(text).unwrap();
+        let error =
+            ScriptBoundaryReceiptPackV1::seal(&foreign, &product, &transferred).unwrap_err();
+        assert!(
+            error.contains("[mir/script-semantic/window-boundary] source mismatch"),
+            "{error}"
+        );
+    }
+}

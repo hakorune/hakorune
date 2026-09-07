@@ -105,6 +105,9 @@ impl ScriptBoundaryReceiptPackV1 {
                     } if name != "Main"
                 ) => {}
                 ScriptRootSemanticDispositionV1::Transferred(
+                    ScriptTransferredBoundaryV1::InstanceBoxSemanticOwner,
+                ) if matches!(statement, ASTNode::BoxDeclaration { is_static: false, .. }) => {}
+                ScriptRootSemanticDispositionV1::Transferred(
                     ScriptTransferredBoundaryV1::ProgramEnumDeclaration,
                 ) if matches!(statement, ASTNode::EnumDeclaration { .. }) => {}
                 ScriptRootSemanticDispositionV1::Transferred(

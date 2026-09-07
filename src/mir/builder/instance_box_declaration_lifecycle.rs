@@ -135,19 +135,6 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
         methods.lower_raw_with_port_v1(builder, port)
     }
 
-    pub(in crate::mir::builder) fn lower_normal_runtime_prefix_with_port_v1<Port>(
-        self,
-        builder: &mut MirBuilder,
-        port: &mut Port,
-        constructor_sources: NormalInstanceConstructorSourceBatchV1,
-    ) -> Result<(), String>
-    where
-        Port: RootCallableCapturePortV1,
-    {
-        let (constructors, _) = self.lower_declaration_prefix_v1(builder)?;
-        constructors.lower_normal_with_port_v1(builder, port, constructor_sources)
-    }
-
     fn lower_declaration_prefix_v1(
         self,
         builder: &mut MirBuilder,

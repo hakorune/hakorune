@@ -155,54 +155,6 @@ fn script_partition_keeps_static_boxes_out_of_deferred_work() {
 }
 
 #[test]
-fn selected_script_transports_one_constructor_source_to_its_second_demand() {
-    let plan = selected_plan(vec![instance_box_with_birth("Page")], false);
-    let parts = plan.into_parts();
-    let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
-        panic!("expected immediate instance Box")
-    };
-    let immediate_sources = immediate
-        .normal_constructor_sources
-        .as_ref()
-        .expect("selected immediate source");
-    assert_eq!(immediate_sources.sources()[0].statement_index(), 0);
-    assert_eq!(
-        immediate_sources.sources()[0].parser_constructor_key(),
-        "birth/0"
-    );
-    let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
-        panic!("expected selected Script runtime work")
-    };
-    let (runtime_sources, _) = runtime
-        .constructor_admission_at(0)
-        .expect("selected Script second demand source");
-    assert_eq!(runtime_sources.sources(), immediate_sources.sources());
-}
-
-#[test]
-fn selected_nonplain_script_retains_constructor_source_for_full_runtime_lifecycle() {
-    let mut nonplain = instance_box_with_birth("RecordPage");
-    let ASTNode::BoxDeclaration { is_record, .. } = &mut nonplain else {
-        unreachable!()
-    };
-    *is_record = true;
-    let plan = selected_plan(vec![nonplain], false);
-    let parts = plan.into_parts();
-    let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
-        panic!("expected immediate instance Box")
-    };
-    assert!(immediate.normal_constructor_sources.is_some());
-    let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
-        panic!("expected selected Script runtime work")
-    };
-    assert!(matches!(
-        runtime.admission_at(0),
-        NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle { .. }
-    ));
-    assert!(runtime.constructor_admission_at(0).is_some());
-}
-
-#[test]
 fn selected_constructor_sources_keep_parser_key_order_and_skip_nonfunctions() {
     let mut declaration = box_declaration("Page", false);
     let ASTNode::BoxDeclaration { constructors, .. } = &mut declaration else {

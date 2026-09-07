@@ -117,8 +117,6 @@ struct PreparedProgramRootRuntimeStatementV1 {
     source_statement_index: usize,
     statement: ASTNode,
     normal_script_kind: Option<NormalScriptProgramItemAdmissionV1>,
-    constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
-    constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
 }
 impl PreparedProgramRootRuntimeWorkV1 {
     fn prepare(
@@ -143,8 +141,6 @@ impl PreparedProgramRootRuntimeWorkV1 {
                                 statement
                                     .normal_script_kind
                                     .expect("selected Script runtime classifier"),
-                                statement.constructor_sources,
-                                statement.constructor_batch,
                             )
                         })
                         .collect(),
@@ -332,7 +328,7 @@ impl PreparedProgramRootWorkPlanV1 {
             ProgramRootWorkPlanAdmissionV1::RawCompatibility => None,
             ProgramRootWorkPlanAdmissionV1::SelectedNormal => Some(demand_manifest.finish()),
         };
-        let actual_tickets = collect_constructor_demand_expectations(&immediate, &runtime);
+        let actual_tickets = collect_constructor_demand_expectations(&immediate);
         if let Some(manifest) = constructor_demand_manifest.as_ref() {
             manifest
                 .validate_exact(&actual_tickets)
@@ -370,7 +366,6 @@ mod production;
 
 fn collect_constructor_demand_expectations(
     immediate: &[PreparedProgramRootImmediateWorkV1],
-    runtime: &PreparedProgramRootRuntimeWorkV1,
 ) -> Vec<InstanceConstructorDemandExpectationV1> {
     let mut tickets = Vec::new();
     for work in immediate {
@@ -379,9 +374,6 @@ fn collect_constructor_demand_expectations(
                 tickets.extend(sources.demand_expectations());
             }
         }
-    }
-    if let PreparedProgramRootRuntimeWorkV1::SelectedNormal(work) = runtime {
-        tickets.extend(work.constructor_demand_expectations());
     }
     tickets
 }
@@ -401,23 +393,10 @@ fn issue_manifest_for_disposition(
         Ok::<_, String>(())
     };
     match disposition {
-        ProgramRootStatementDispositionV1::ImmediateAndRuntime { work, runtime } => {
-            issue_work(work)?;
-            if let Some(sources) = runtime.constructor_sources.as_ref() {
-                manifest
-                    .issue_batch(sources)
-                    .map_err(|error| error.to_string())?;
-            }
-        }
-        ProgramRootStatementDispositionV1::ImmediateOnly(work) => issue_work(work)?,
-        ProgramRootStatementDispositionV1::DeferredAndRuntime { runtime, .. }
-        | ProgramRootStatementDispositionV1::RuntimeOnly(runtime) => {
-            if let Some(sources) = runtime.constructor_sources.as_ref() {
-                manifest
-                    .issue_batch(sources)
-                    .map_err(|error| error.to_string())?;
-            }
-        }
+        ProgramRootStatementDispositionV1::ImmediateAndRuntime { work, .. }
+        | ProgramRootStatementDispositionV1::ImmediateOnly(work) => issue_work(work)?,
+        ProgramRootStatementDispositionV1::DeferredAndRuntime { .. }
+        | ProgramRootStatementDispositionV1::RuntimeOnly(_) => {}
     }
     Ok(())
 }
@@ -599,38 +578,6 @@ fn classify_statement(
                     })
                 }
             };
-            let runtime_constructor_batch = if is_app_mode {
-                None
-            } else {
-                Some(constructors.clone())
-            };
-            let selected_runtime_instance_demand = !is_app_mode
-                && matches!(
-                    normal_script_kind,
-                    Some(
-                        NormalScriptProgramItemAdmissionV1::InstancePrefixCompatibility
-                            | NormalScriptProgramItemAdmissionV1::NonPlainInstanceFullLifecycle
-                    )
-                );
-            let runtime_role = match normal_script_kind {
-                Some(NormalScriptProgramItemAdmissionV1::InstancePrefixCompatibility) => {
-                    Some(InstanceConstructorDemandRoleV1::ScriptRuntimePrefix)
-                }
-                Some(NormalScriptProgramItemAdmissionV1::NonPlainInstanceFullLifecycle) => {
-                    Some(InstanceConstructorDemandRoleV1::ScriptRuntimeFullLifecycle)
-                }
-                _ => None,
-            };
-            let runtime_constructor_sources =
-                runtime_role.map(|role| match constructor_source_cohort {
-                    Some(cohort) => constructors
-                        .normal_sources(statement_index, cohort, role)
-                        .expect("validated constructor source cohort"),
-                    #[cfg(test)]
-                    None => constructors.normal_sources_for_test(statement_index, role),
-                    #[cfg(not(test))]
-                    None => unreachable!("SelectedNormal source cohort validated above"),
-                });
             ProgramRootStatementDispositionV1::ImmediateAndRuntime {
                 work: PreparedProgramRootImmediateWorkV1::InstanceBox(
                     PreparedProgramRootInstanceBoxWorkV1 {
@@ -649,16 +596,6 @@ fn classify_statement(
                     source_statement_index: statement_index,
                     statement,
                     normal_script_kind,
-                    constructor_sources: if selected_runtime_instance_demand {
-                        runtime_constructor_sources
-                    } else {
-                        None
-                    },
-                    constructor_batch: if selected_runtime_instance_demand {
-                        runtime_constructor_batch
-                    } else {
-                        None
-                    },
                 },
             }
         }
@@ -678,8 +615,6 @@ fn classify_statement(
                     source_statement_index: statement_index,
                     statement,
                     normal_script_kind,
-                    constructor_sources: None,
-                    constructor_batch: None,
                 },
             }
         }
@@ -731,8 +666,6 @@ fn classify_statement(
                 source_statement_index: statement_index,
                 statement,
                 normal_script_kind,
-                constructor_sources: None,
-                constructor_batch: None,
             })
         }
     }

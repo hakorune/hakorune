@@ -134,10 +134,10 @@ mod tests {
         assert_eq!(
             ledger
                 .consume(InstanceConstructorDemandTicketV1::issue(
-                    &source_id,
-                    InstanceConstructorDemandRoleV1::ScriptRuntimePrefix,
+                    &crate::parser::ConstructorSourceIdV1::test_new(991),
+                    InstanceConstructorDemandRoleV1::ImmediateDeclaration,
                 ))
-                .expect_err("foreign role"),
+                .expect_err("foreign source"),
             InstanceConstructorDemandLoanIssueV1::ForeignTicket
         );
         ledger.complete().expect("complete after one ticket");

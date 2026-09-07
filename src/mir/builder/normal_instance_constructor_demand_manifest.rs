@@ -11,8 +11,6 @@ use super::NormalInstanceConstructorSourceBatchV1;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum InstanceConstructorDemandRoleV1 {
     ImmediateDeclaration,
-    ScriptRuntimePrefix,
-    ScriptRuntimeFullLifecycle,
 }
 
 /// Typed failures owned by the physical constructor-demand manifest.

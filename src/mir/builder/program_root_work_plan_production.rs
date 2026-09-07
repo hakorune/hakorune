@@ -115,7 +115,7 @@ impl PreparedProgramRootWorkPlanV1 {
             ProgramRootWorkPlanAdmissionV1::RawCompatibility => None,
             ProgramRootWorkPlanAdmissionV1::SelectedNormal => Some(demand_manifest.finish()),
         };
-        let actual_tickets = collect_constructor_demand_expectations(&immediate, &runtime);
+        let actual_tickets = collect_constructor_demand_expectations(&immediate);
         if let Some(manifest) = constructor_demand_manifest.as_ref() {
             manifest
                 .validate_exact(&actual_tickets)

@@ -103,5 +103,9 @@ ABI are unchanged. Allocation alone selects the published session.
 Both entry and nested prepasses peek; emitters take once. Missing/wrong/duplicate
 or residual rows, ambiguous type+target, unknown targets and malformed payloads
 reject before object output. Generic and legacy name-only ingress cannot repair
-an intrinsic target. This is consumer preparation, not source cutover; see the
+an intrinsic target. Shared raw/typed-local and Core Array producers preserve this
+target. Materialized untyped empty/populated/nested and plain/generic shadow
+sources execute through EXE and independently linked OBJ. Script typed Local
+and Loop still stop at source admission; typed selected-C state-guard execution
+also remains open. These stops do not establish downstream acceptance. See the
 [construction design](../../development/current/main/design/collection-literal-construction-ssot.md).

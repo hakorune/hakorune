@@ -1,18 +1,12 @@
 //! Selected-normal Script runtime descent: one Program classification, ordered existing terminals.
 
-#[path = "normal_script_runtime_demand_manifest.rs"]
-mod demand_manifest;
-
 #[cfg(test)]
 use super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_runtime_block_port::NormalScriptRuntimeBlockPortV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::emission::constant::emit_void;
-use crate::mir::builder::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
-use crate::mir::builder::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
-use crate::mir::builder::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
 use crate::mir::builder::raw_expression_dispatch::{
     reject_sync_box_lowering_v1, PreparedRawNonMainStaticBoxLifecycleV1,
 };
@@ -29,34 +23,17 @@ pub(super) struct PreparedNormalScriptRuntimeInputV1 {
     source_statement_index: usize,
     statement: ASTNode,
     kind: NormalScriptProgramItemAdmissionV1,
-    constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
-    constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
 }
 impl PreparedNormalScriptRuntimeInputV1 {
     pub(super) fn preclassified_at(
         source_statement_index: usize,
         statement: ASTNode,
         kind: NormalScriptProgramItemAdmissionV1,
-        constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
-        constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
     ) -> Self {
-        let (constructor_sources, constructor_batch) = match kind {
-            NormalScriptProgramItemAdmissionV1::InstancePrefixCompatibility
-            | NormalScriptProgramItemAdmissionV1::NonPlainInstanceFullLifecycle => {
-                (constructor_sources, constructor_batch)
-            }
-            _ => {
-                debug_assert!(constructor_sources.is_none());
-                debug_assert!(constructor_batch.is_none());
-                (None, None)
-            }
-        };
         Self {
             source_statement_index,
             statement,
             kind,
-            constructor_sources,
-            constructor_batch,
         }
     }
 }
@@ -78,14 +55,7 @@ pub(super) enum NormalScriptRuntimeStatementAdmissionV1 {
     CatalogedNonMainStaticBox,
     StaticMainCompatibility,
     SyncBoxRejection,
-    InstancePrefixCompatibility {
-        constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
-        constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
-    },
-    NonPlainInstanceFullLifecycle {
-        constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
-        constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
-    },
+    InstanceDeclarationCompletion,
 }
 impl PreparedNormalScriptRuntimeWorkV1 {
     pub(super) fn prepare(inputs: Vec<PreparedNormalScriptRuntimeInputV1>) -> Self {
@@ -113,14 +83,9 @@ impl PreparedNormalScriptRuntimeWorkV1 {
                 Kind::CatalogedNonMainStaticBox => Admission::CatalogedNonMainStaticBox,
                 Kind::StaticMainCompatibility => Admission::StaticMainCompatibility,
                 Kind::SyncBoxRejection => Admission::SyncBoxRejection,
-                Kind::InstancePrefixCompatibility => Admission::InstancePrefixCompatibility {
-                    constructor_sources: input.constructor_sources,
-                    constructor_batch: input.constructor_batch,
-                },
-                Kind::NonPlainInstanceFullLifecycle => Admission::NonPlainInstanceFullLifecycle {
-                    constructor_sources: input.constructor_sources,
-                    constructor_batch: input.constructor_batch,
-                },
+                Kind::InstancePrefixCompatibility | Kind::NonPlainInstanceFullLifecycle => {
+                    Admission::InstanceDeclarationCompletion
+                }
             };
             statements.push(input.statement);
             admissions.push(LocatedNormalScriptRuntimeAdmissionV1 {
@@ -160,26 +125,6 @@ impl PreparedNormalScriptRuntimeWorkV1 {
     #[cfg(test)]
     pub(super) fn statement_at(&self, index: usize) -> &ASTNode {
         &self.statements[index]
-    }
-    #[cfg(test)]
-    pub(super) fn constructor_admission_at(
-        &self,
-        index: usize,
-    ) -> Option<(
-        &NormalInstanceConstructorSourceBatchV1,
-        &PreparedInstanceBoxConstructorBatchV1,
-    )> {
-        match &self.admissions[index].admission {
-            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
-                constructor_sources: Some(sources),
-                constructor_batch: Some(batch),
-            }
-            | NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle {
-                constructor_sources: Some(sources),
-                constructor_batch: Some(batch),
-            } => Some((sources, batch)),
-            _ => None,
-        }
     }
 }
 
@@ -239,91 +184,21 @@ pub(super) fn reject_sync_box_at_runtime_v1(statement: &ASTNode) -> Result<Value
     Err(reject_sync_box_lowering_v1(name))
 }
 
-pub(super) fn lower_instance_runtime_prefix_v1<Port>(
+/// Definitions and metadata were published by immediate declaration work.
+/// The retained statement owns only its existing Unit completion.
+pub(super) fn complete_instance_declaration_v1(
     builder: &mut MirBuilder,
-    port: &mut Port,
     statement: &ASTNode,
-    constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
-    constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
-) -> Result<ValueId, String>
-where
-    Port: RootCallableCapturePortV1,
-{
-    let ASTNode::BoxDeclaration {
-        name,
-        methods,
-        fields,
-        field_decls,
-        constructors: _,
-        init_fields,
-        weak_fields,
-        is_static: false,
-        ..
-    } = statement
-    else {
+) -> Result<ValueId, String> {
+    if !matches!(
+        statement,
+        ASTNode::BoxDeclaration {
+            is_static: false,
+            ..
+        }
+    ) {
         return Err("[freeze:contract][mir/script-runtime/instance-source-drift]".to_owned());
-    };
-    let constructor_sources = constructor_sources.ok_or_else(|| {
-        "[freeze:contract][mir/script-runtime/instance-constructor-source]".to_owned()
-    })?;
-    let constructor_batch = constructor_batch.ok_or_else(|| {
-        "[freeze:contract][mir/script-runtime/instance-constructor-batch]".to_owned()
-    })?;
-    PreparedInstanceBoxDeclarationLifecycleV1::prepare_with_constructor_batch_v1(
-        name,
-        methods,
-        fields,
-        field_decls,
-        init_fields,
-        weak_fields,
-        constructor_batch,
-    )
-    .lower_normal_runtime_prefix_with_port_v1(builder, port, constructor_sources)?;
-    emit_void(builder)
-}
-
-pub(super) fn lower_nonplain_instance_runtime_lifecycle_v1<Port>(
-    builder: &mut MirBuilder,
-    port: &mut Port,
-    statement: &ASTNode,
-    constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
-    constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
-) -> Result<ValueId, String>
-where
-    Port: RootCallableCapturePortV1,
-{
-    let ASTNode::BoxDeclaration {
-        name,
-        methods,
-        fields,
-        field_decls,
-        constructors: _,
-        init_fields,
-        weak_fields,
-        is_static: false,
-        ..
-    } = statement
-    else {
-        return Err(
-            "[freeze:contract][mir/script-runtime/nonplain-instance-source-drift]".to_owned(),
-        );
-    };
-    let constructor_sources = constructor_sources.ok_or_else(|| {
-        "[freeze:contract][mir/script-runtime/nonplain-instance-constructor-source]".to_owned()
-    })?;
-    let constructor_batch = constructor_batch.ok_or_else(|| {
-        "[freeze:contract][mir/script-runtime/nonplain-instance-constructor-batch]".to_owned()
-    })?;
-    PreparedInstanceBoxDeclarationLifecycleV1::prepare_with_constructor_batch_v1(
-        name,
-        methods,
-        fields,
-        field_decls,
-        init_fields,
-        weak_fields,
-        constructor_batch,
-    )
-    .lower_normal_root_with_port_v1(builder, port, constructor_sources)?;
+    }
     emit_void(builder)
 }
 
@@ -445,36 +320,26 @@ mod tests {
                 0,
                 plain_box("Helpers", true),
                 classify_normal_script_program_item_v1(&plain_box("Helpers", true)),
-                None,
-                None,
             ),
             PreparedNormalScriptRuntimeInputV1::preclassified_at(
                 0,
                 plain_box("Page", false),
                 classify_normal_script_program_item_v1(&plain_box("Page", false)),
-                None,
-                None,
             ),
             PreparedNormalScriptRuntimeInputV1::preclassified_at(
                 0,
                 plain_box("Main", true),
                 classify_normal_script_program_item_v1(&plain_box("Main", true)),
-                None,
-                None,
             ),
             PreparedNormalScriptRuntimeInputV1::preclassified_at(
                 0,
                 sync_box.clone(),
                 classify_normal_script_program_item_v1(&sync_box),
-                None,
-                None,
             ),
             PreparedNormalScriptRuntimeInputV1::preclassified_at(
                 0,
                 record_box.clone(),
                 classify_normal_script_program_item_v1(&record_box),
-                None,
-                None,
             ),
         ]);
 
@@ -485,7 +350,7 @@ mod tests {
         ));
         assert!(matches!(
             work.admission_at(1),
-            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility { .. }
+            NormalScriptRuntimeStatementAdmissionV1::InstanceDeclarationCompletion
         ));
         assert!(matches!(
             work.admission_at(2),
@@ -497,7 +362,7 @@ mod tests {
         ));
         assert!(matches!(
             work.admission_at(4),
-            NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle { .. }
+            NormalScriptRuntimeStatementAdmissionV1::InstanceDeclarationCompletion
         ));
     }
 

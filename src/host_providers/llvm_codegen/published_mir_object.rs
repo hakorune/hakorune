@@ -163,3 +163,7 @@ pub(crate) fn emit_published_view_exe(
 #[cfg(all(test, feature = "plugins"))]
 #[path = "published_mir_object_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "published_array_source_tests.rs"]
+mod array_source_tests;

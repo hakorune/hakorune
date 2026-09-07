@@ -6,9 +6,9 @@
 //! source occurrence: each physical demand receives a fresh linear admission.
 
 use super::calls::LegacyFunctionPayloadPendingSessionV1;
-use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
 use super::module_draft_collector::FunctionDraftKeyV1;
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
+use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::instance_constructor_abi::{
@@ -606,20 +606,6 @@ mod tests {
         assert_eq!(
             InstanceConstructorDemandManifestIssueV1::CountMismatch.to_string(),
             "[freeze:contract][mir/instance-constructor-demand/count]"
-        );
-        let swapped = vec![InstanceConstructorDemandExpectationV1::new(
-            batch.sources()[0].source_id(),
-            InstanceConstructorDemandRoleV1::ScriptRuntimePrefix,
-        )];
-        assert!(matches!(
-            manifest
-                .validate_exact(&swapped)
-                .expect_err("swapped role must not satisfy manifest"),
-            InstanceConstructorDemandManifestIssueV1::CoverageMismatch
-        ));
-        assert_eq!(
-            InstanceConstructorDemandManifestIssueV1::CoverageMismatch.to_string(),
-            "[freeze:contract][mir/instance-constructor-demand/coverage]"
         );
         let foreign = vec![InstanceConstructorDemandExpectationV1::new(
             &ConstructorSourceIdV1::test_new(1),

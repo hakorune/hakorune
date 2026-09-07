@@ -537,16 +537,8 @@ impl super::super::PlanNormalizer {
                 record_newbox_metadata(builder, array_id, "ArrayBox");
                 effects.push(CoreEffectPlan::NewBox {
                     dst: array_id,
-                    target: crate::mir::ConstructionTarget::Named("ArrayBox".to_string()),
+                    target: crate::mir::ConstructionTarget::IntrinsicArray,
                     args: vec![],
-                });
-                effects.push(CoreEffectPlan::MethodCall {
-                    source: CoreCallSourceV1::Unlocated,
-                    dst: None,
-                    object: array_id,
-                    method: "birth".to_string(),
-                    args: vec![],
-                    effects: EffectMask::MUT,
                 });
                 for (index, _) in elements.iter().enumerate() {
                     let element = port

@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0"
-current_execution_cohort = "mir_script_instance_runtime_completion_i0"
-current_design_stop = "none; immediate sole publisher and retained runtime Unit completion design accepted"
-current_blocker_token = "Replace selected Script plain/nonplain instance runtime relowering with Unit completion. Immediate owns fields/metadata/constructors/methods. Delete runtime batch clones/tickets/roles and caller-zero prefix helper; preserve duplicate rejection. Verify unchanged shadow source and one definition/demand per source. Typed Script source and typed C state guard remain open."
+work_mode = "design_stop"
+current_execution_row = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-D0"
+current_execution_cohort = "mir_script_typed_local_source_relation_d0"
+current_design_stop = "Script typed Local relation exists but its projection/materialization consumer is not connected"
+current_blocker_token = "Close exact Local binding/annotation/initializer relation -> Script source product -> existing typed claim mapping. Do not relax annotation admission or infer from MIR. Typed C state guard and Script Loop admission remain open; prior instance publication repair verified."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Consumer committed at 9b5ef392cc. Pending Array and boundary edits exposed two
-physical demands for each Script constructor. Worker audit closes ownership:
-immediate publishes all definitions/metadata; runtime keeps only Unit completion.
-Next deletes runtime duplicate transport/roles. Typed source/C work remains open.
+Intrinsic Array source producers and sole immediate Script instance publication
+are verified: materialized untyped/shadow EXE and independent OBJ exit30;
+runtime clone/ticket/role/prefix edges retired. Existing guard and Pair pass.
+Next design is Script typed Local relation consumption; Loop/typed C remain open.
 """
-next_design_card = "MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0"
-next_execution_card = "MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0"
+next_design_card = "MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

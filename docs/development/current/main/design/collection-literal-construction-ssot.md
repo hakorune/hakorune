@@ -8,10 +8,10 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 ## Current capsule
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
-- Implementation: Named conversion and IntrinsicArray consumer preparation are verified; source producers remain Named.
-- Next: coordinated raw/typed-local/Core Array source cutover and exclusive birth retirement.
-- Production stop: source intrinsic emission waits for consumer and preservation acceptance.
-- Retirement: Array literal birth callers/effects disappear in the cutover series; Map/Main remain.
+- Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
+- Next: Script typed-local source relation/admission design; Loop source admission and typed C state-guard execution remain open.
+- Production stop: typed Local and Loop source admission remain Deferred; typed C state-guard capability remains unsupported.
+- Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
 The [language contract](../../../../reference/language/block-expressions-and-map-literals.md#4-collection-literal-construction-identity)
 owns intrinsic literal semantics and named provider compatibility. This document
@@ -99,6 +99,9 @@ The original wider series remains open, in this order:
    `normal_script_pre_effect_source_observation.rs` and `shadow/traversal_profile.rs`.
 2. With that source product, reach and preserve the existing typed backend Stop;
    only the separately accepted state-guard consumer below can open execution.
+3. Script Loop source admission: the unchanged materialized Loop source also
+   reaches Deferred/UnsupportedStatement(Loop) before its Core consumer. Keep the
+   existing Loop EXE requirement open; AST-only Loop success is dependency evidence.
 Neither earlier source Stop nor AST-only success closes the original typed
 source-to-EXE requirement. No fallback, alternate ingress or changed source fixture
 may bridge either missing link. Both are CutoverBlockerOpen within this series.
@@ -137,26 +140,27 @@ existing Unit completion. Never skip by name or collector contents.
 Boundary: selected-normal Script nonstatic Box -> exact transfer/source cohort
 -> work-plan -> immediate publication -> retained runtime statement. Includes
 plain/nonplain runtime arms; excludes raw compatibility, nested Box ingress and
-App runtime-nonexecution. The work-plan currently clones each constructor batch
-and issues ImmediateDeclaration plus ScriptRuntimePrefix/ScriptRuntimeFullLifecycle
-demands. Both reach canonical publication, so DuplicateKey is the correct refusal.
+App runtime-nonexecution. The former work-plan cloned each constructor batch
+and issued immediate plus runtime demands. Both reached canonical publication.
+Now one ImmediateDeclaration demand remains; runtime retains only Unit completion.
 
 Immediate lowering already owns fields, weak fields, type ID, method slots,
 property getters, metadata constants and constructor/ordinary-method definitions.
 Neither runtime arm owns additional registration work; retain only `emit_void`.
 Do not combine the earlier declaration-facts registration cleanup with this fix.
 
-Ordered implementation: replace both selected runtime arms with declaration Unit
-completion; remove runtime source/constructor batch transport and demand tickets;
-retire the two exclusive runtime roles, manifest expectations and caller-zero
-prefix helper. Preserve immediate/shared lifecycle, duplicate rejection and
+Implemented: both selected runtime arms use declaration Unit completion; runtime
+source/constructor batch transport, demand tickets, the two exclusive runtime
+roles and caller-zero prefix helper are removed. Preserve immediate/shared lifecycle, duplicate rejection and
 unconsumed-source checks. No new semantic receipt, resolver or registry.
 
 Acceptance: unchanged materialized shadow source through EXE/linked OBJ; plain
 and nonplain source each publishes each constructor/method once and demands each
 constructor once; field/weak/slot/getter metadata survives; declaration-only Script
 retains Unit completion. Keep the typed-local/source and typed-C blockers above
-open. Worker inspection proves ownership mapping, not executable acceptance.
+open. Materialized plain/generic shadow EXE and independently linked OBJ exit30,
+parser-backed one-demand witnesses, metadata regression and declaration-only Unit
+checks pass. Worker inspection and execution are separate evidence.
 
 ## Bounded inventory and treatment
 

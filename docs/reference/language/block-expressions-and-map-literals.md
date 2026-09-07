@@ -177,7 +177,9 @@ The concrete migration schedule is tracked in design SSOT:
 ## 4. Collection literal construction identity
 
 Decision: accepted target — collection literals have intrinsic collection identity;
-implementation cutover is pending. This decision does not change literal syntax.
+Array construction producers now preserve intrinsic identity and omit redundant
+literal birth markers. Map cutover and broader source acceptance remain open.
+This decision does not change literal syntax.
 
 Array literals `[...]` and Map literals `%{...}` select the language's builtin
 Array and Map semantics. A same-named user box, static singleton or plugin override

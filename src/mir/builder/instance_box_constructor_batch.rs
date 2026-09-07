@@ -20,13 +20,13 @@ use super::recursive_child_lowering::RawBoxMethodChildPortV1;
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::MirBuilder;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub(super) struct PreparedInstanceBoxConstructorBatchV1 {
     owner: String,
     constructors: Box<[PreparedInstanceBoxConstructorV1]>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 struct PreparedInstanceBoxConstructorV1 {
     parser_constructor_key: String,
     function_name: String,
@@ -79,8 +79,8 @@ impl PreparedInstanceBoxConstructorBatchV1 {
     }
 
     /// Issues one source occurrence for each parser-normalized constructor row.
-    /// The returned batch may be transported to Script runtime work, where a
-    /// second physical demand still materializes a fresh collector admission.
+    /// Immediate declaration work owns the only physical demand. Runtime
+    /// declaration completion carries no constructor source or admission.
     pub(super) fn normal_sources(
         &self,
         statement_index: usize,

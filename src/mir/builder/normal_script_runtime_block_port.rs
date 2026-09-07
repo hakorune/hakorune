@@ -11,10 +11,9 @@ use super::normal_script_direct_statement_owner::{
     lower_direct_static_const_runtime_completion_v1,
 };
 use super::normal_script_runtime_work::{
-    lower_cataloged_nonmain_static_box_v1, lower_instance_runtime_prefix_v1,
-    lower_nonplain_instance_runtime_lifecycle_v1, lower_static_main_compatibility_v1,
-    reject_sync_box_at_runtime_v1, LocatedNormalScriptRuntimeAdmissionV1,
-    NormalScriptRuntimeStatementAdmissionV1,
+    complete_instance_declaration_v1, lower_cataloged_nonmain_static_box_v1,
+    lower_static_main_compatibility_v1, reject_sync_box_at_runtime_v1,
+    LocatedNormalScriptRuntimeAdmissionV1, NormalScriptRuntimeStatementAdmissionV1,
 };
 use super::recursive_child_lowering::drive_legacy_statement_v1;
 use super::stmts::block_driver::LegacyBlockDescentPortV1;
@@ -134,26 +133,9 @@ where
             NormalScriptRuntimeStatementAdmissionV1::SyncBoxRejection => {
                 reject_sync_box_at_runtime_v1(&statement)
             }
-            NormalScriptRuntimeStatementAdmissionV1::InstancePrefixCompatibility {
-                constructor_sources,
-                constructor_batch,
-            } => lower_instance_runtime_prefix_v1(
-                builder,
-                self.port,
-                &statement,
-                constructor_sources,
-                constructor_batch,
-            ),
-            NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle {
-                constructor_sources,
-                constructor_batch,
-            } => lower_nonplain_instance_runtime_lifecycle_v1(
-                builder,
-                self.port,
-                &statement,
-                constructor_sources,
-                constructor_batch,
-            ),
+            NormalScriptRuntimeStatementAdmissionV1::InstanceDeclarationCompletion => {
+                complete_instance_declaration_v1(builder, &statement)
+            }
         }
     }
 }
