@@ -9,6 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 #[path = "normal_script_array_source_lifecycle.rs"]
 mod array_lifecycle;
 pub(super) use array_lifecycle::root_terminal::{RootResult, RootTerminal};
+pub(super) use array_lifecycle::ArraySourceLifecycleRows;
 
 use crate::mir::resolved_semantics::{
     BodyShapeRelationV1, BodyStatementShapeV1, FunctionOwnerIdV1, ScriptRootResolvedDemandV1,
@@ -130,6 +131,10 @@ impl VerifiedScriptSourceContinuationV1 {
             rows,
             arrays,
         })
+    }
+
+    pub(super) fn into_array_parts(self) -> (FunctionOwnerIdV1, ArraySourceLifecycleRows) {
+        (self.owner, self.arrays)
     }
 
     pub(super) fn consume_array_local(

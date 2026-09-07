@@ -170,6 +170,10 @@ must retain the exact allocation, claim, element write, Local commit and Return
 bindings alongside the source obligation. Finishing validates those identities
 and their order after supported optimization; it must not reconstruct missing
 source relations from the resulting instructions.
+The final artifact product retains this completed source and binding information;
+its backend view borrows that product. Array-unissued source is distinct from a
+completed empty Array literal. Retention alone grants neither constructor
+semantics nor permission to execute an unsupported Array backend path.
 
 For the supported primitive numeric `Array<T>` contract, intrinsic literal
 allocation creates a builtin acquisition responsibility. From successful

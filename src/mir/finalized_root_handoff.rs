@@ -7,10 +7,14 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
-/// Final artifact handoff for one exact root and its already-issued Birth keys.
+/// Final artifact handoff for one exact callable or Script Array root.
 /// It is an opaque retention of source products, never a source or ABI issuer.
 #[derive(Debug)]
 pub(crate) enum FinalizedRootHandoffV1 {
+    ScriptArray {
+        root_key: String,
+        array: crate::mir::builder::FinalizedScriptArrayV1,
+    },
     NoBirth {
         root_key: String,
         root_source: Option<FinalizedRootSourceHandoffV1>,
@@ -26,37 +30,50 @@ pub(crate) enum FinalizedRootHandoffV1 {
 }
 
 impl FinalizedRootHandoffV1 {
+    pub(crate) fn script_array(&self) -> Option<&crate::mir::builder::FinalizedScriptArrayV1> {
+        match self {
+            Self::ScriptArray { array, .. } => Some(array),
+            Self::NoBirth { .. } | Self::Births { .. } => None,
+        }
+    }
+
     pub(crate) fn root_key(&self) -> &str {
         match self {
-            Self::NoBirth { root_key, .. } | Self::Births { root_key, .. } => root_key,
+            Self::NoBirth { root_key, .. }
+            | Self::Births { root_key, .. }
+            | Self::ScriptArray { root_key, .. } => root_key,
         }
     }
 
     pub(crate) fn root_result(&self) -> Option<FinalizedRootResultAbiV1> {
         match self {
+            Self::ScriptArray { .. } => None,
             Self::NoBirth { root_result, .. } | Self::Births { root_result, .. } => *root_result,
         }
     }
 
     pub(crate) fn root_source(&self) -> Option<&FinalizedRootSourceHandoffV1> {
         match self {
+            Self::ScriptArray { .. } => None,
             Self::NoBirth { root_source, .. } | Self::Births { root_source, .. } => {
                 root_source.as_ref()
             }
         }
     }
 
-    pub(crate) fn births(&self) -> &[BirthAbiHandoffV1] {
+    pub(crate) fn births(&self) -> Option<&[BirthAbiHandoffV1]> {
         match self {
-            Self::NoBirth { .. } => &[],
-            Self::Births { births, .. } => births,
+            Self::ScriptArray { .. } => None,
+            Self::NoBirth { .. } => Some(&[]),
+            Self::Births { births, .. } => Some(births),
         }
     }
 
-    pub(crate) fn birth_keys(&self) -> &[CanonicalSameModuleCallableKeyV1] {
+    pub(crate) fn birth_keys(&self) -> Option<&[CanonicalSameModuleCallableKeyV1]> {
         match self {
-            Self::NoBirth { .. } => &[],
-            Self::Births { keys, .. } => keys,
+            Self::ScriptArray { .. } => None,
+            Self::NoBirth { .. } => Some(&[]),
+            Self::Births { keys, .. } => Some(keys),
         }
     }
 }

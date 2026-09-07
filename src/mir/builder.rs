@@ -317,6 +317,7 @@ mod normal_script_pre_effect_source_observation; // AST-free Script source hando
 mod normal_script_semantic_lowering_input; // Retained Script source products into lowering
 mod normal_script_semantic_lowering_projection; // Immutable Script lowering projection
 mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
+pub(crate) use normal_script_semantic_lowering_state::FinalizedScriptArrayV1;
 mod normal_script_semantic_source; // Producer-backed lexical Script source
 mod normal_script_semantic_source_core; // Shared Script source/forest/projection core
 mod normal_script_source_continuation; // Resolver-issued Script source continuation

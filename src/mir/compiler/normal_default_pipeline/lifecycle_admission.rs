@@ -15,6 +15,9 @@ pub(super) fn admit_lifecycle<'module>(
     mut view: PublishedMirBackendView<'module>,
     profile: &'module PublishedObjectStorageProfileV1,
 ) -> Result<PublishedMirBackendView<'module>, String> {
+    if view.retained_script_array().is_some() {
+        return Err(fault("script-root-not-callable"));
+    }
     if view.route() != PublishedStaticMethodRouteV1::UnsupportedBeforeObject
         || view.has_non_lifecycle_unsupported
         || !view.has_lifecycle_instructions()

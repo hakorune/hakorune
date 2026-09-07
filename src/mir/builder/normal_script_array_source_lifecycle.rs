@@ -51,7 +51,7 @@ enum ArraySourceCoverage {
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
-pub(super) struct ArraySourceLifecycleRows {
+pub(in crate::mir::builder) struct ArraySourceLifecycleRows {
     rows: BTreeMap<SourceNodeSiteV1, ArraySourceCoverage>,
     terminal: RootTerminalCoverage,
 }
@@ -291,14 +291,16 @@ impl ArraySourceLifecycleRows {
         }
     }
 
-    pub(super) fn terminal(&self) -> Result<Option<&root_terminal::RootTerminal>, String> {
+    pub(in crate::mir::builder) fn terminal(
+        &self,
+    ) -> Result<Option<&root_terminal::RootTerminal>, String> {
         match &self.terminal {
             RootTerminalCoverage::NotSelected => Ok(None),
             terminal => terminal.require().map(Some).map_err(freeze),
         }
     }
 
-    pub(super) fn bindings(&self) -> Result<Vec<BindingRefV1>, String> {
+    pub(in crate::mir::builder) fn bindings(&self) -> Result<Vec<BindingRefV1>, String> {
         self.finish_root()?;
         self.rows
             .values()
@@ -309,7 +311,7 @@ impl ArraySourceLifecycleRows {
             .collect()
     }
 
-    pub(super) fn finish_root(&self) -> Result<(), String> {
+    pub(in crate::mir::builder) fn finish_root(&self) -> Result<(), String> {
         self.require_root()?;
         self.finish()?;
         if matches!(self.terminal, RootTerminalCoverage::NotSelected) {

@@ -10,7 +10,9 @@ use crate::mir::{Callee, MirInstruction};
 
 use super::{PublishedMirBackendView, PublishedMirBackendViewErrorV1};
 
-pub(in crate::mir::compiler::normal_default_pipeline) fn is_lifecycle_instruction(instruction: &MirInstruction) -> bool {
+pub(in crate::mir::compiler::normal_default_pipeline) fn is_lifecycle_instruction(
+    instruction: &MirInstruction,
+) -> bool {
     matches!(
         instruction,
         MirInstruction::Invoke { .. }
@@ -51,12 +53,25 @@ impl<'module> PublishedMirBackendView<'module> {
                 .bind_retained_root(None)
                 .map_err(|error| error.to_string());
         };
-        let births = handoff.births();
-        let root_source = handoff.root_source();
-        let root_result = handoff.root_result();
         self = self
             .bind_retained_root(Some(handoff.root_key()))
             .map_err(|error| error.to_string())?;
+        if let Some(array) = handoff.script_array() {
+            let root = self
+                .retained_root
+                .ok_or_else(|| fault("retained-root-missing"))?;
+            if root.signature.name != handoff.root_key() {
+                return Err(fault("retained-root-key-drift"));
+            }
+            array.validate_root_binding(root)?;
+            self.retained_handoff = Some(handoff);
+            return Ok(self);
+        }
+        let births = handoff
+            .births()
+            .ok_or_else(|| fault("retained-callable-missing"))?;
+        let root_source = handoff.root_source();
+        let root_result = handoff.root_result();
         if births.iter().any(|birth| {
             let key = birth.target();
             key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
@@ -95,19 +110,29 @@ impl<'module> PublishedMirBackendView<'module> {
     pub(crate) fn retained_birth_abi(
         &self,
     ) -> Option<&'module [crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1]> {
-        self.retained_handoff.map(|handoff| handoff.births())
+        self.retained_handoff.and_then(|handoff| handoff.births())
+    }
+
+    pub(crate) fn retained_script_array(
+        &self,
+    ) -> Option<&'module crate::mir::builder::FinalizedScriptArrayV1> {
+        self.retained_handoff
+            .and_then(|handoff| handoff.script_array())
     }
 
     pub(crate) fn retained_root_result(
         &self,
     ) -> Option<crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1> {
-        self.retained_handoff.and_then(|handoff| handoff.root_result())
+        self.retained_handoff
+            .and_then(|handoff| handoff.root_result())
     }
 
     pub(crate) fn retained_root_source(
         &self,
-    ) -> Option<&'module crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1> {
-        self.retained_handoff.and_then(|handoff| handoff.root_source())
+    ) -> Option<&'module crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1>
+    {
+        self.retained_handoff
+            .and_then(|handoff| handoff.root_source())
     }
 
     /// Diagnostic/physical borrow only; cloning this module does not carry
@@ -150,7 +175,10 @@ impl PublishedObjectStorageProfileV1 {
     }
 }
 
-
 #[cfg(test)]
 #[path = "lifecycle_profile_tests.rs"]
 mod profile_tests;
+
+#[cfg(test)]
+#[path = "script_artifact_tests.rs"]
+mod script_artifact_tests;

@@ -274,3 +274,4 @@ pub(in crate::mir::builder) use direct_static_claim_ledger::{
 
 #[path = "normal_script_array_emission_bindings.rs"]
 mod array_emissions;
+pub(crate) use array_emissions::FinalizedScriptArrayV1;

@@ -446,11 +446,16 @@ RootCleanupBoundary remains only a bounded-validation design precedent.
 
 ### Root-neutral finalized artifact retention slice
 
-Owner extraction checkpoint: `mir/finalized_root_handoff.rs` now owns the
-existing `FinalizedRootHandoffV1`; callable sealing imports it directly and the
-pipeline/view use `bind_finalized_root_handoff`. Old type/re-export paths are
-removed. This behavior-preserving step retains the two callable variants;
-Script-to-None retirement and Script Array borrowing remain required below.
+Implementation: `mir/finalized_root_handoff.rs` owns `FinalizedRootHandoffV1`;
+callable sealing imports it directly and pipeline/view use
+`bind_finalized_root_handoff`. ScriptArray owns the moved Array source rows and
+emitter bindings, with the original continuation owner and exact entry. The
+consuming accessor requires Finished physical progress and preserves unissued
+Array as absent. No map or complete lowering ledger is copied. The view borrows
+the same product and checks exact root key/entry/source ownership; callable
+projections return unavailable and constructor admission explicitly rejects
+Script. The selected Script-to-None loss and universal constructor binding
+assumption are removed; frame/Invoke/cleanup and typed C are still successors.
 
 Decision: generalize the existing final root handoff enum and its one borrowed
 view slot; move the validated Script Array source and emission payload into a
@@ -461,8 +466,8 @@ Boundary: completed-root artifact finishing -> pipeline retained_root owner ->
 published view callback -> existing typed backend capability Stop. Includes
 selected Script Array and existing callable projections; excludes other Script
 families, implicit completion, frame/Invoke/cleanup and runtime/C execution.
-The current Script branch returning Ok(None) is the exclusive information-loss
-edge to remove. Array-unissued Script remains distinct; it must not become an
+The selected Script-to-None information-loss edge is retired. Array-unissued
+Script remains distinct; it must not become an
 empty completed Array product or a constructor NoBirth variant.
 
 Existing source continuation and actual emitters are the issuers; finishing
@@ -487,6 +492,69 @@ entry `emit_method_birth_mir_call` validates but emits no runtime operation;
 nested birth is likewise a no-op. The allocation symbol and allocation-before-
 children order stay unchanged. This is code-inspection evidence, not executed
 OOM evidence; child failure/order has its own source tests.
+
+## Script Array physical lifecycle mapping
+
+Decision: consume the existing source cutpoints and terminal Home order in one
+selected Script lifecycle lowering responsibility. Do not add a frame-only row:
+a frame without Array Normal/Fault successors retires no execution edge and
+cannot discharge the retained source obligations.
+
+Source authority is the existing Script continuation's same-owner
+ArraySourceLifecycleRows plus RootTerminal (exact source/body/function scope,
+Return/result and terminal Homes). Recipe/control selection must co-seal those
+products before physical emission. Physical identity, MIR lookup, object-store
+metadata and a runtime handle are not source authorities.
+
+The existing CallableFaultFrame materialization mechanics can be reused after
+separating them from App Main selection permission. The Script consumer selects
+RootOwned from its own source/root binding and materializes once. Its control
+mapping must account for these finite transitions:
+
+| Operation | Normal successor | Fault successor |
+| --- | --- | --- |
+| Array allocation | Normal-only result -> claim | prior Homes -> outward Fault; no nonexistent residence release |
+| claim | first child or Local commit | incomplete residence -> prior Homes -> outward Fault |
+| primitive child/write | next child or Local commit | incomplete residence -> prior Homes -> outward Fault |
+| Local commit | exact binding gains one Home | no fabricated Fault edge for the existing nonfallible binding |
+| explicit root Return | reverse terminal Home cleanup -> exact source Return | an existing first Fault remains outward Fault |
+
+Primitive child capability is source-proven; its lack of child Homes is not a
+default for arbitrary expressions. Aliases add no Home. Array incomplete and
+committed ownership remain distinct even when native cleanup uses one primitive.
+
+Physical premise correction: native `nyrt_handle_release_h`/`ny_release_strong`
+return void and call host_handles::drop_handle. They do not call source fini or
+modify FaultFrame. Do not fabricate a checked Normal/Fault status for this API,
+or branch on a nonexistent source cleanup Fault. Registry retirement may be
+deferred by call pins and surviving Arc/cache references; residence release is
+not proof that every Array reference was freed. Nonpositive/missing handles are
+not currently checked errors. Object HomeRelease/ReclaimUnpublished target the
+typed-object store and are not Array cleanup. The same-named noop shim is not
+native execution evidence.
+
+Before implementation, fix the exact operation/result vocabulary for Array
+allocation/claim/write and source-proven residence release, their Normal-only
+result projections, finished source/control bindings and Script artifact Stop.
+Existing passive DestroyOwned/legacy ReleaseStrong names alone do not authorize
+ownership-token or alias-group semantics. A checked invalid-handle cleanup API,
+if selected, needs one registry-lock check+retirement owner; it is not a wrapper
+around lookup followed by drop_handle. This physical mapping is the current D0
+output, not an implicit source-language redesign or C activation permission.
+
+Exclusive same-series retirement: selected Script typed Array standalone
+IntrinsicArray allocation, ArrayStateContractClaim, ArrayElementWrite and direct
+Return without source Home cleanup. Preserve explicit compatibility and the
+unselected backend roles. Gates cover one frame, each Normal/Fault landing,
+result availability, cleanup order/exactly once, no allocation-failure release,
+no alias double-release, first-Fault preservation, seven numeric specs,
+empty/multiple literals and Integer/bare Return. Keep typed OBJ/EXE pre-output
+Stop until checked claim/write ABI and selected C consumer are implemented.
+
+Ordered successors: accepted physical mapping -> selected lowering and finished
+validation cutover -> checked runtime ABI -> selected C execution plus independent
+linked OBJ/EXE and caller-zero retirement. Implicit completion, nested/opaque
+children and Loop remain their existing unsupported obligations.
 
 ## Instance-prefix boundary repair
 

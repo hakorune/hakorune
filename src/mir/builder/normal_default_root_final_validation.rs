@@ -154,7 +154,10 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 RootValidation::OrdinaryNew { key, ledger } => ledger
                     .seal_finalized_root_birth_handoff(key, &birth_keys)
                     .map(Some),
-                RootValidation::Script { .. } | RootValidation::Absent => Ok(None),
+                RootValidation::Script { key, entry, source } => source
+                    .into_array_artifact(entry)
+                    .map(|array| array.map(|array| crate::mir::finalized_root_handoff::FinalizedRootHandoffV1::ScriptArray { root_key: key, array })),
+                RootValidation::Absent => Ok(None),
             }
         };
         (self.session, self.module, validate)

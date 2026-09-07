@@ -553,11 +553,8 @@ Accepted [construction design](../design/collection-literal-construction-ssot.md
 
 #### Collection allocation checkpoints
 
-`MIR-COLLECTION-ALLOCATION-TARGET-NAMED-I0` landed at 44c10a5cec;
-`MIR-COLLECTION-INTRINSIC-ARRAY-CONSUMER-I0` landed at 9b5ef392cc.
-Named/provider separation, typed intrinsic selection, C/Rust rejection and
-Pair/corridor evidence live in those commits and the construction owner.
-No broader source, Loop or R7 completion claim.
+Named target separation (44c10a5cec) and intrinsic Array consumer (9b5ef392cc)
+are closed. Git and the construction owner retain contracts and acceptance.
 
 #### MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0
 
@@ -593,44 +590,46 @@ retains the exact remaining baseline inventory. No whole-build success claim.
 
 #### MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0
 
-Landed at 87a689b013: exact Return/body-to-function scope and terminal Home
-co-seal, distinct Local progress and preserved source. Root8, Script19/2,
-pre-effect6/continuation2, host6, Array/Pair EXE+OBJ and corridor pass.
-Implicit completion/Loop/typed C remain open; Git owns full evidence and the
-corrected draft source-region mismatch (not baseline debt).
+Landed at 87a689b013: exact Return scope/Home co-seal and Local progress.
+Git owns gates and corrected source-region mismatch; typed C/Loop remain open.
 
 #### MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0
 
-Closed: completed Script source plus emitted allocation/claim/write/Local/Return
-bindings reach both finishing consumers. Selected emission-result loss and
-source-only finishing checks are removed. Actual optimizer on/off confirms dead
-Local Copy removal; default RC is a stub and CSE does not rewrite Const.
-Acceptance: quick plugins build peak8.79GiB; finishing4 (11 mutations in both
-consumers), source8/19/2, host6, literal4, Local9/7, retained Pair1; real untyped
-Array/Pair EXE+linked OBJ30, corridor/pointer pass. Typed C remains stopped.
-The [validation owner](../design/collection-literal-construction-ssot.md#completed-root-validation-handoff-slice) retains the contract.
+Landed at c1ab5fd057: exact source/emission bindings survive both finishing
+consumers and actual optimizer on/off. Git and the construction owner retain
+mutation/source/execution evidence. Typed C remains stopped.
 Known baseline debt reproduced at parent87a689b013, identical locked quick build
 and `normal_default_root_catalog_lifecycle_tests::artifact_validation_` filter:
-parent/current2pass2fail. Exact failing tests are
+parent/c991da509a2pass2fail. Exact failing tests are
 `artifact_validation_rejects_exact_read_drift_and_birth_reentry` (finished-node)
 and `artifact_validation_rejects_terminal_add_operand_drift` (expected token).
 Their source and assertions are unchanged; no whole-lib green claim.
 
 #### MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0
 
-Decision: generalize the existing final root handoff enum; move validated Script Array payload into it.
-Source authority + canonical issuer: existing Script continuation/emitter products, checked by completed-root finishing.
-Non-authority: constructor NoBirth retagging, empty Array product, view reconstruction or new receipt.
-Fail-fast boundary: missing/foreign/uncompleted binding rejects; Script cannot use callable admission.
-Smallest next slice: pipeline owns the Array payload in its existing handoff; its one view slot borrows it.
-Non-claims: root ABI, RootOwned/frame/Invoke/cleanup, checked runtime ABI or typed C execution.
-The [accepted artifact design](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice) owns callers/boundary/gates.
-Checkpoint: root handoff owner/type extracted; callable behavior unchanged.
-Gates: quick plugins build peak8.79GiB, focused38, Pair EXE/OBJ30 and guards pass.
-Still delete Script-to-None loss and universal constructor binding; this row stays active.
-Gates: artifact/view retention, binding rejects, Script constructor rejection,
-Pair handoff/EXE/OBJ30, typed Array pre-output Stop. Terminal/storage cleanup stays
-in the existing [feedback queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08); V4 feature repair is landed.
+Closed: ScriptArray owns moved Array source/emission products after Finished;
+pipeline/view use one owned/borrowed handoff. Script-to-None and universal
+constructor binding are retired. Unissued Array stays absent; callable
+projections/admission reject Script. Root-owner extraction is 32b03fd707.
+Gates: quick plugins build peak8.80GiB, focused78, real Array/Pair EXE+OBJ30,
+corridor/pointer. Three handoff tests moved to their existing focused owner;
+original 812-line test file is now714. Rejections/source families unchanged.
+[Artifact owner](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice)
+retains the contract; typed C execution is not claimed.
+
+#### MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-D0
+
+Decision: seal the Array Normal/Fault/cleanup mapping before physical emission; no frame-only row.
+Source authority + canonical issuer: existing Script continuation Array cutpoints and exact RootTerminal/Home order.
+Non-authority: App Main/Birth admission, physical handle, default cleanup status or passive ownership opcode.
+Fail-fast boundary: missing operation/result/cleanup mapping stops before implementation or artifact.
+Smallest next slice: fix Array Invoke/result and native residence-release vocabulary with finished binding and selected Script Stop consumers.
+Non-claims: checked runtime ABI, C execution, implicit completion, nested/opaque children or Loop.
+The [physical mapping owner](../design/collection-literal-construction-ssot.md#script-array-physical-lifecycle-mapping)
+contains the two disjoint worker audits, real void release contract, delete-set
+and acceptance. Next implementation must retire standalone selected operations
+and direct Return together; native cleanup must preserve an existing first Fault.
+Terminal/storage cleanup stays in the existing [feedback queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
 
 ## Source and ownership budget
 
@@ -638,7 +637,7 @@ Do not append semantic code to these owners:
 
 ```text
 src/mir/builder/raw_invocation_source_transport.rs      778
-src/mir/builder.rs                                      741
+src/mir/builder.rs                                      750
 src/mir/builder/normal_callable_semantic_loan_port.rs   710
 src/mir/builder/raw_expression_dispatch/mod.rs          706
 src/mir/builder/calls/unified_emitter.rs                 711

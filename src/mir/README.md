@@ -40,7 +40,8 @@ See `docs/reference/mir/INSTRUCTION_SET.md` for the current vocabulary boundary.
 - `finalized_root_handoff.rs`: final artifact product owned by the published
   pipeline and borrowed by its backend view. Callable source/result and Birth
   evidence stay with their issuers; this owner neither reissues meaning nor
-  grants backend admission. Script Array retention is the selected successor.
+  grants backend admission. Script Array has a distinct variant containing moved
+  source/emission products; callable projections do not accept it.
 - `instruction/`, `instruction_kinds/`: instruction model and kind definitions.
 - `join_ir/`: normalized JoinIR lowering and ownership helpers. Docs-first only for now.
 - Structured JoinIR -> MIR reference conversion was retired after its

@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0"
-current_execution_cohort = "mir_script_array_final_artifact_handoff_i0"
-current_design_stop = "none; completed-root -> existing final handoff -> pipeline owner -> borrowed view path audited"
-current_blocker_token = "Root handoff owner/type extraction is complete; callable behavior unchanged. Next move validated Array payload through the existing root-neutral final artifact handoff and borrowed view; delete Script-to-None loss without callable retagging or ABI admission. Frame/Invoke/cleanup/checked ABI/C remain mandatory successors."
+work_mode = "design_stop"
+current_execution_row = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-D0"
+current_execution_cohort = "mir_script_array_lifecycle_physical_lowering_d0"
+current_design_stop = "Array physical operation/result vocabulary and cleanup control mapping must be sealed; source authority and native void-release owner audited"
+current_blocker_token = "Script Array artifact retention is closed. Next fix Array Normal/Fault/result and native residence-release vocabulary, finished source/control bindings and selected Script Stop. No standalone frame, fake checked release status or constructor retagging. Runtime checked claim/write ABI and C execution remain successors."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Script allocation/claim/write/Local/Return bindings now survive both finishing
-consumers with actual optimizer on/off evidence. Final root handoff owner/type
-is extracted; Script Array payload retention remains active. Typed C stays stopped.
+Validated Script Array source/emission products now reach the final borrowed
+view without constructor admission. Next seal physical Normal/Fault/cleanup
+mapping; native residence release is void and must not fabricate a Fault status.
 """
-next_design_card = "MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0"
-next_execution_card = "MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0"
+next_design_card = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -35,12 +35,18 @@ fn script_source_survives_scope_and_reaches_both_finishing_consumers() {
             RootValidation::Script { .. }
         ));
         let (_, module, validate) = artifact.into_artifact_parts();
-        assert!(
-            validate(&module)
-                .expect("artifact source retention")
-                .is_none(),
-            "Script retention must not synthesize an App Main/Birth handoff"
-        );
+        let handoff = validate(&module)
+            .expect("artifact source retention")
+            .expect("selected Array has a final handoff");
+        let array = handoff.script_array().expect("Script variant");
+        assert_eq!(array.acquisition_count(), 2);
+        array
+            .validate_root_binding(&module.functions[handoff.root_key()])
+            .unwrap();
+        assert!(handoff.root_source().is_none());
+        assert!(handoff.root_result().is_none());
+        assert!(handoff.births().is_none());
+        assert!(handoff.birth_keys().is_none());
     }
 }
 
@@ -259,4 +265,19 @@ fn array_source_binding_survives_actual_compiler_finishing_with_optimization() {
             }
         }
     }
+}
+
+#[test]
+fn script_array_artifact_requires_finishing_and_preserves_unissued_distinction() {
+    let finished = completed("local a: Array<i64> = []\nreturn 30");
+    let RootValidation::Script { source, entry, .. } = finished.root_validation else {
+        panic!("Script source required")
+    };
+    let error = source.into_array_artifact(entry).unwrap_err();
+    assert!(error.contains("artifact-before-finishing"), "{error}");
+    let (_, module, validate) = completed("local scalar = 1\nreturn 30").into_artifact_parts();
+    assert!(
+        validate(&module).unwrap().is_none(),
+        "unissued Array is not an empty Array product"
+    );
 }

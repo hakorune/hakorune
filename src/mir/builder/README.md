@@ -889,13 +889,17 @@ completed locals. Missing, foreign, drifted, reused or unconsumed rows reject.
 The Script scope moves its completed state into the existing completed-root
 finite validation slot; both diagnostic and artifact finishing retain and check
 that source with the exact finalized root key/entry. The slot cannot contain
-both Script and ordinary-New ownership. Script retention returns no invented
-Birth artifact handoff. Actual Local/element/Return emission retains allocation,
+both Script and ordinary-New ownership. Artifact finishing moves only the
+completed Array source and emitted bindings into `FinalizedRootHandoffV1::ScriptArray`;
+it does not expose the lowering ledger or invent a Birth artifact handoff. Actual Local/element/Return emission retains allocation,
 claim, write, primitive value and Local slot identities beside the source rows.
 Both finishing consumers validate these bindings and operation order, including
 default optimization that removes dead Local Copies. MIR lookup checks retained
-identities; it never reconstructs source correspondence. Root-neutral final
-artifact handoff, frame/Invoke and typed C remain subsequent obligations.
+identities; it never reconstructs source correspondence. Final handoff creation
+requires Finished progress; Array-unissued Script remains absent. The pipeline
+owns this moved product and the published view borrows it. Callable Birth/result
+projections are unavailable for Script and constructor admission rejects it.
+Frame/Invoke/cleanup and typed C remain subsequent obligations.
 Transparent, transferred, and diagnostic root entries are explicit boundaries
 and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
 transports this continuation together with the existing lowering projection and

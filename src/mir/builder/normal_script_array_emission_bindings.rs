@@ -11,8 +11,44 @@ use crate::mir::{BasicBlockId, ConstValue, MirBuilder, MirFunction, MirInstructi
 #[derive(Debug, Default)]
 pub(super) struct ArrayEmissionBindings {
     rows: BTreeMap<BindingRefV1, BoundArray>,
-    root_bound: bool,
+    root_progress: RootBindingProgress,
     terminal: Option<RootReturnEmission>,
+}
+
+#[derive(Debug, Default, PartialEq, Eq)]
+enum RootBindingProgress {
+    #[default]
+    Unbound,
+    Bound,
+    Finished,
+}
+
+/// Moved source and physical products, not a new semantic issuance.
+#[derive(Debug)]
+pub(crate) struct FinalizedScriptArrayV1 {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    entry: BasicBlockId,
+    source: super::super::normal_script_source_continuation::ArraySourceLifecycleRows,
+    emissions: ArrayEmissionBindings,
+}
+
+impl FinalizedScriptArrayV1 {
+    pub(crate) fn validate_root_binding(&self, root: &MirFunction) -> Result<(), String> {
+        if root.entry_block != self.entry {
+            return Err(fault("artifact-entry-drift"));
+        }
+        // The exact owner travels with the same moved source, never from MIR.
+        let bindings = self.source.bindings()?;
+        if bindings.is_empty() || bindings.iter().any(|binding| binding.owner() != self.owner) {
+            return Err(fault("artifact-source-owner"));
+        }
+        self.emissions.check_bindings(&bindings)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn acquisition_count(&self) -> usize {
+        self.emissions.rows.len()
+    }
 }
 
 #[derive(Debug)]
@@ -34,6 +70,30 @@ struct RootReturnEmission {
 }
 
 impl ScriptSemanticLoweringState {
+    pub(in crate::mir::builder) fn into_array_artifact(
+        self,
+        entry: BasicBlockId,
+    ) -> Result<Option<FinalizedScriptArrayV1>, String> {
+        if self.array_emissions.root_progress != RootBindingProgress::Finished {
+            return Err(fault("artifact-before-finishing"));
+        }
+        let bindings = self.continuation.array_bindings()?;
+        self.array_emissions.check_bindings(&bindings)?;
+        if bindings.is_empty() {
+            return Ok(None);
+        }
+        let (owner, source) = self.continuation.into_array_parts();
+        if bindings.iter().any(|binding| binding.owner() != owner) {
+            return Err(fault("artifact-source-owner"));
+        }
+        Ok(Some(FinalizedScriptArrayV1 {
+            owner,
+            entry,
+            source,
+            emissions: self.array_emissions,
+        }))
+    }
+
     pub(in crate::mir::builder) fn record_array_local_emission(
         &mut self,
         builder: &MirBuilder,
@@ -173,11 +233,11 @@ impl ScriptSemanticLoweringState {
         self.finish_source_claims()?;
         let bindings = self.continuation.array_bindings()?;
         self.array_emissions.check_bindings(&bindings)?;
-        if self.array_emissions.root_bound {
+        if self.array_emissions.root_progress != RootBindingProgress::Unbound {
             return Err(fault("duplicate-root-bind"));
         }
         self.array_emissions.validate(root, false, &bindings)?;
-        self.array_emissions.root_bound = true;
+        self.array_emissions.root_progress = RootBindingProgress::Bound;
         Ok(())
     }
 
@@ -188,10 +248,12 @@ impl ScriptSemanticLoweringState {
         self.finish_source_claims()?;
         let bindings = self.continuation.array_bindings()?;
         self.array_emissions.check_bindings(&bindings)?;
-        if !self.array_emissions.root_bound {
+        if self.array_emissions.root_progress == RootBindingProgress::Unbound {
             return Err(fault("root-unbound"));
         }
-        self.array_emissions.validate(root, true, &bindings)
+        self.array_emissions.validate(root, true, &bindings)?;
+        self.array_emissions.root_progress = RootBindingProgress::Finished;
+        Ok(())
     }
 }
 
