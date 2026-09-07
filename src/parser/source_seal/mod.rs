@@ -5,6 +5,7 @@
 //! the only owner that can compare that payload with the final AST inventory
 //! and issue the non-Clone source seal.
 
+mod default_derive;
 mod finalize;
 mod gate_projection;
 mod model;

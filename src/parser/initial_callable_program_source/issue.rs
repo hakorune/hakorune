@@ -46,11 +46,7 @@ pub(in crate::parser) fn issue_initial_callable_program_source_v1(
     let program_brand = program_slots.brand();
     for (index, row) in callable_rows.iter().enumerate() {
         if !row.parser_brand().same_as(program_brand)
-            || !row
-                .source_path()
-                .declaration()
-                .brand()
-                .same_as(program_brand)
+            || !row.source_declaration().brand().same_as(program_brand)
         {
             return Err(InitialCallableProgramSourceRejectV1::ForeignParser);
         }
@@ -62,7 +58,7 @@ pub(in crate::parser) fn issue_initial_callable_program_source_v1(
         }
     }
 
-    let expected = expected_callable_slots(&ast)?;
+    let expected = expected_callable_slots_with_generated(&ast, &callable_rows)?;
     let mut verified = Vec::with_capacity(callable_rows.len());
     for row in callable_rows {
         let slot = resolve_callable_slot(&ast, &program_slots, box_seals, &row)?;
@@ -177,8 +173,9 @@ pub(in crate::parser) fn compatibility_program_can_enter_initial_callable_lane_v
     })
 }
 
-pub(in crate::parser) fn expected_callable_slots(
+pub(in crate::parser) fn expected_callable_slots_with_generated(
     ast: &ASTNode,
+    sources: &[PreparedCallableSourceV1],
 ) -> Result<Vec<InitialCallableFinalSlotV1>, InitialCallableProgramSourceRejectV1> {
     let ASTNode::Program { statements, .. } = ast else {
         return Err(InitialCallableProgramSourceRejectV1::NotProgram);
@@ -210,6 +207,12 @@ pub(in crate::parser) fn expected_callable_slots(
                             BoxMethodGeneratedProvenanceV1::Property { .. }
                             | BoxMethodGeneratedProvenanceV1::Delegate { .. },
                         ) => {}
+                        BoxMethodProvenanceV1::Generated(provenance @ BoxMethodGeneratedProvenanceV1::MacroOrImport { .. })
+                            if sources.iter().any(|source| source.generated().is_some_and(|generated|
+                                matches!(generated.origin(), GeneratedCallableOriginV1::DefaultDerive(origin)
+                                    if origin.placement() == entry.site()
+                                        && origin.kind().provenance() == *provenance
+                                        && origin.validates(entry.declaration())))) => {}
                         BoxMethodProvenanceV1::Generated(
                             BoxMethodGeneratedProvenanceV1::MacroOrImport { .. },
                         )
@@ -240,7 +243,26 @@ fn resolve_callable_slot(
     box_seals: &[PreparedBoxSourceSealV1],
     row: &PreparedCallableSourceV1,
 ) -> Result<InitialCallableFinalSlotV1, InitialCallableProgramSourceRejectV1> {
-    let source_path = row.source_path();
+    if let Some(generated) = row.generated() {
+        if let GeneratedCallableOriginV1::DefaultDerive(origin) = generated.origin() {
+            let statement = program_slots
+                .exact_final_slot(origin.declaration())
+                .map_err(map_program_slot_error)?
+                .ok_or(InitialCallableProgramSourceRejectV1::MissingProgramSlot)?;
+            let seal = exact_box_seal(origin.declaration(), box_seals)?;
+            if seal.box_site() != origin.parent() {
+                return Err(InitialCallableProgramSourceRejectV1::GeneratedOriginMismatch);
+            }
+            validate_box_method(ast, statement, origin.placement(), row)?;
+            return Ok(InitialCallableFinalSlotV1::BoxMethod {
+                statement,
+                method: origin.placement(),
+            });
+        }
+    }
+    let source_path = row
+        .source_path()
+        .ok_or(InitialCallableProgramSourceRejectV1::GeneratedOriginMismatch)?;
     let statement = program_slots
         .exact_final_slot(source_path.declaration())
         .map_err(map_program_slot_error)?
@@ -339,8 +361,11 @@ fn resolve_method_ordinal(
         .generated()
         .ok_or(InitialCallableProgramSourceRejectV1::WrongDeclarationKind)?;
     match generated.origin() {
+        GeneratedCallableOriginV1::DefaultDerive(_) => {
+            Err(InitialCallableProgramSourceRejectV1::GeneratedOriginMismatch)
+        }
         GeneratedCallableOriginV1::Property(origin) => {
-            if origin.source_path() != row.source_path()
+            if Some(origin.source_path()) != row.source_path()
                 || origin.source_path().declaration() != declaration
             {
                 return Err(InitialCallableProgramSourceRejectV1::GeneratedOriginMismatch);
@@ -348,7 +373,7 @@ fn resolve_method_ordinal(
             Ok(origin.placement().inventory_ordinal())
         }
         GeneratedCallableOriginV1::Delegate(origin) => {
-            if origin.source_path() != row.source_path()
+            if Some(origin.source_path()) != row.source_path()
                 || origin.relation().host_box_path() != declaration.compatibility_box_path()
             {
                 return Err(InitialCallableProgramSourceRejectV1::GeneratedOriginMismatch);
@@ -403,6 +428,12 @@ fn validate_box_method(
             }
         }
         PreparedCallableSourceV1::Generated(generated) => match generated.origin() {
+            GeneratedCallableOriginV1::DefaultDerive(origin)
+                if !*is_static
+                    && origin.validates(entry.declaration())
+                    && matches!(entry.provenance(),
+                    BoxMethodProvenanceV1::Generated(provenance) if *provenance == origin.kind().provenance()) =>
+                {}
             GeneratedCallableOriginV1::Property(origin)
                 if matches!(
                     entry.provenance(),
@@ -486,17 +517,34 @@ fn slot_key(slot: InitialCallableFinalSlotV1) -> (u32, u32) {
 }
 
 trait CallableSourcePathV1 {
-    fn source_path(&self) -> &SourceProgramCallablePathV1;
+    fn source_path(&self) -> Option<&SourceProgramCallablePathV1>;
+    fn source_declaration(&self) -> &SourceProgramDeclarationPathV1;
 }
-
 impl CallableSourcePathV1 for PreparedCallableSourceV1 {
-    fn source_path(&self) -> &SourceProgramCallablePathV1 {
+    fn source_path(&self) -> Option<&SourceProgramCallablePathV1> {
         match self {
-            PreparedCallableSourceV1::Direct(row) => row.path(),
-            PreparedCallableSourceV1::Generated(row) => match row.origin() {
-                GeneratedCallableOriginV1::Property(origin) => origin.source_path(),
-                GeneratedCallableOriginV1::Delegate(origin) => origin.source_path(),
+            Self::Direct(row) => Some(row.path()),
+            Self::Generated(row) => match row.origin() {
+                GeneratedCallableOriginV1::Property(origin) => Some(origin.source_path()),
+                GeneratedCallableOriginV1::Delegate(origin) => Some(origin.source_path()),
+                GeneratedCallableOriginV1::DefaultDerive(_) => None,
             },
+        }
+    }
+    fn source_declaration(&self) -> &SourceProgramDeclarationPathV1 {
+        match self {
+            Self::Generated(row)
+                if matches!(row.origin(), GeneratedCallableOriginV1::DefaultDerive(_)) =>
+            {
+                let GeneratedCallableOriginV1::DefaultDerive(origin) = row.origin() else {
+                    unreachable!()
+                };
+                origin.declaration()
+            }
+            _ => self
+                .source_path()
+                .expect("as-written source path")
+                .declaration(),
         }
     }
 }

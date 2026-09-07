@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "Pure derive prerequisite verified; fix explicit normal-parse policy and early generated-source/parameter co-seal API before activation"
-current_blocker_token = "Pure default-derive owner extracted and existing tests3+7 pass. Next design: explicit policy from normal caller into open parser postpass, generated Box/declaration/receiver/parameter authority before initial co-seal, same complete semantic batch. Keep finish_exact. Generated parameters=None causes MissingParameterContract; nonempty fields need dynamic read/Text conversion contracts. No source/CLI activation or old transport retirement yet."
+current_design_stop = "none; normal-only early default generation API accepted after worker premise review"
+current_blocker_token = "WIP checkpoint: first fix nested environment-lock test and enforce Equals=1/ToString=0 origin arity with negative coverage; rerun focused source acceptance on final tree, update owner README/reference, then default CLI/host cleanup acceptance before V2/V3 retirement."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,24 +31,18 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Checked V4 host checkpoint c17ea4ca7c remains: internal EXE/OBJ Pair30 and
-Bool103/70 with normal optimizer and test-only macro disable. Parent910b92d99b
-reproduced default CLI stop plus eight lifecycle failures; baseline remains.
-Pure default-derive selection/body owner now lives in macro/default_derive.rs;
-engine preflight/expansion reuse it, old implementations deleted. Existing
-derive3 and transform7 tests pass; touched source max291, no behavior change.
-Adopt early generation inside existing open parser transaction before initial
-co-seal, preserving final finish_exact. Explicit macro policy comes from caller;
-parser never reads macro env or invokes MacroBox. Mixed Pair/Main arm matters.
-Generated source must include explicit parameters: one unannotated OpaqueHandle
-other for Equals, empty coverage for ToString. Missing is not empty.
-Nonempty fields still need dynamic read/Text conversion authority; do not use
-raw FieldGet/name repair/backend coercion as canonical support.
-Next: close early source/config API, then implement publication and prove default
-CLI/cleanup before V2/V3 deletion. No additional source family is open yet.
+Early default-derive source transaction is saved as WIP, not accepted closeout.
+One policy now flows through normal parser and transform; generated origin and
+parameter coverage join the initial co-seal. Pair semantic publication passed
+in an intermediate build. The second test deadlocked on nested environment
+locks and was interrupted; the suite did not pass. Later edits are untested.
+Worker found missing kind-specific origin arity validation (Equals1/ToString0).
+Resume these fixes and focused acceptance first, then README/reference sync,
+default CLI and host cleanup evidence. V2/V3 retirement remains open.
+No build/test is left running at checkpoint; mode fast names the resume work.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
-next_execution_card = "none"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

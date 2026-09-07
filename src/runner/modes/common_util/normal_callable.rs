@@ -4,17 +4,20 @@
 //! remains an explicit AST lane; its legacy normalization is applied exactly
 //! once here and never touches a `VerifiedFinalCallableProgramSourceV1`.
 
+#[cfg(test)]
+use crate::parser::NyashParser;
+
 use crate::mir::normal_source_plan::{
     NormalCallableCompatibilityOriginErrorV1, NormalCallableCompatibilityOriginV1,
 };
 use crate::mir::CanonicalSourceBytesDigestV1;
 use crate::parser::{
-    NormalParserSourceLineageErrorV1, NormalParserSourceLineageV1, NyashParser, ParseError,
+    NormalParserSourceLineageErrorV1, NormalParserSourceLineageV1, ParseError,
     ParserBuildConfig, VerifiedFinalCallableProgramSourceV1,
 };
 use crate::r#macro::{
-    transform_normal_callable_program_v1, NormalCallableTransformOutcomeV1,
-    NormalCallableTransformRejectV1,
+    transform_normal_callable_program_with_policy_v1, NormalCallableTransformOutcomeV1,
+    NormalCallableTransformRejectV1, NormalMacroPolicyV1,
 };
 
 #[derive(Debug)]
@@ -59,13 +62,19 @@ pub(crate) fn materialize_normal_callable_program_with_identity_v1(
         1,
     )
     .map_err(NormalCallableMaterializationErrorV1::SourceLineage)?;
+    let policy = NormalMacroPolicyV1::capture();
     let product =
-        NyashParser::parse_from_string_with_callable_parameter_source(input, build_config)
-            .map_err(NormalCallableMaterializationErrorV1::Parse)?;
+        crate::parser::string_postpass_entry::parse_with_callable_parameter_source_policy(
+            input,
+            Some(100_000),
+            build_config,
+            Some(&policy),
+        )
+        .map_err(NormalCallableMaterializationErrorV1::Parse)?;
     let parsed = product
         .into_normal_callable_program()
         .map_err(NormalCallableMaterializationErrorV1::Parse)?;
-    let transformed = transform_normal_callable_program_v1(parsed)
+    let transformed = transform_normal_callable_program_with_policy_v1(parsed, policy)
         .map_err(NormalCallableMaterializationErrorV1::Transform)?;
     Ok(match transformed {
         NormalCallableTransformOutcomeV1::SourceBacked(source) => {
@@ -146,3 +155,7 @@ mod tests {
         ));
     }
 }
+
+#[cfg(test)]
+#[path = "normal_callable_default_derive_tests.rs"]
+mod default_derive_tests;

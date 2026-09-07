@@ -9,7 +9,7 @@ use super::super::callable_parameter_source::{
 use super::super::callable_source_anchor::PreparedCallableSourceV1;
 use super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1;
 use super::super::initial_callable_program_source::{
-    declaration_at, expected_callable_slots, InitialCallableFinalSlotV1,
+    declaration_at, expected_callable_slots_with_generated, InitialCallableFinalSlotV1,
 };
 use super::normal_root_execution_preservation::{
     ParserNormalRootExecutionPreservationIssuerV1, ParserNormalRootExecutionPreservationRejectV1,
@@ -134,13 +134,14 @@ fn issue_callable_program_source_v1(
         input.discard_at_named_transform_reject_terminal(transformed);
         return Err(error);
     }
-    let transformed_slots = match expected_callable_slots(transformed_ast) {
-        Ok(slots) => slots,
-        Err(_) => {
-            input.discard_at_named_transform_reject_terminal(transformed);
-            return Err(FinalCallableProgramSourceRejectV1::CallableCoverage);
-        }
-    };
+    let transformed_slots =
+        match expected_callable_slots_with_generated(transformed_ast, &input.sources) {
+            Ok(slots) => slots,
+            Err(_) => {
+                input.discard_at_named_transform_reject_terminal(transformed);
+                return Err(FinalCallableProgramSourceRejectV1::CallableCoverage);
+            }
+        };
     if transformed_slots.as_slice() != input.slots.as_ref()
         || input.sources.len() != input.slots.len()
         || input.callable_contract_sources.len() != input.slots.len()
@@ -165,7 +166,10 @@ fn issue_callable_program_source_v1(
         input.discard_at_named_transform_reject_terminal(transformed);
         return Err(FinalCallableProgramSourceRejectV1::ConstructorSourceChanged);
     }
-    if !input.ordinary_box_coverage.preserves_declarations(&input.initial_ast, transformed_ast) {
+    if !input
+        .ordinary_box_coverage
+        .preserves_declarations(&input.initial_ast, transformed_ast)
+    {
         drop(transformed_slots);
         input.discard_at_named_transform_reject_terminal(transformed);
         return Err(FinalCallableProgramSourceRejectV1::OrdinaryBoxSourceChanged);

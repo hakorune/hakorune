@@ -110,6 +110,7 @@ impl GeneratedPropertyCallableOriginV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum GeneratedCallableOriginV1 {
+    DefaultDerive(super::default_derive_source::GeneratedDefaultDeriveOriginV1),
     Property(GeneratedPropertyCallableOriginV1),
     Delegate(GeneratedDelegateCallableOriginV1),
 }

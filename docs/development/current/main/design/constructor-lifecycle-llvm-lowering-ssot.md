@@ -1845,8 +1845,8 @@ backend-derived parameter/result meaning, macro-disable and unused-method omissi
 Fail-fast boundary: missing/foreign generation or parameter coverage rejects
 before executable product publication. Nonempty public-field derive bodies need
 dynamic field/Text-conversion authority and must not fall into raw field repair.
-Smallest next slice: specify one explicit normal-parse policy and early generated
-source transaction, including generated parameter coverage in the same co-seal.
+Smallest next slice: implement the accepted normal-only early generation transaction
+with one policy and generated declaration/parameter co-seal.
 Non-claims: source issuance or CLI activation from that extraction; all generated
 body shapes are canonical; general MacroBox/test-tail or derived instance-call C.
 
@@ -1922,11 +1922,68 @@ until their owner contracts exist; their eventual implementation remains require
    dynamic read/Text conversion is a named follow-on semantic obligation, not a
    reason to synthesize same-Box facts or let C decide coercion.
 
-The two read-only worker audits plus the downstream audit support this boundary;
-no user-visible default policy change is needed. Steps 2/3 remain closed until
-step 2's explicit source issuance API is accepted. Step 1 is a behavior-preserving
-prerequisite, not acceptance of another source family. Candidate source owners
-are 139–513 lines; keep edits below 800 and plan a responsibility split at 760.
+**Accepted step 2 API (2026-09-07):** the MIR/LLVM common materialization
+function captures one normal macro policy. The new normal-only parser call
+borrows it; the transform consumes the same value. AST-only/metadata/explain
+postpass demands remain without early generation. Existing pre-seal classification
+(`OrdinaryTopLevelBox` or `compatibility_program_can_enter_initial_callable_lane`)
+selects eligible source candidates before generation. Record/interface compatibility
+retains its original single expansion using the same normal snapshot.
+
+The postpass checks original inventory/delegate coverage before appending any
+new default methods. It records generated parent Box identity, derive kind,
+placement and explicit parameter declarations with the existing generated anchor.
+There is no invented as-written member ordinal. Existing canonical row coverage
+must authorize every MacroOrImport-shaped AST projection; a generator label by
+itself remains insufficient. The same source transaction retains the expected
+inventory, so altered original/generated declarations reject at initial co-seal.
+Final root/ordinary-Box/callable equality is unchanged. Complete generated
+parameter projection is taken from that origin, and the existing resolver binding,
+parameter, Completion and physical signature owners consume it normally.
+
+The source-backed post-transform never runs default generation again. It rejects
+inconsistent early coverage, registered macros, test tails and unknown changes;
+macro-disabled normal input stays exact. Nonempty selected public-field derive
+stops with a named missing dynamic-read/Text-conversion contract before raw body
+lowering. This Stop preserves the selected unsupported boundary; it is not a
+claim that the eventual public-field implementation is complete. Source selection
+itself (including explicit methods/static boxes) must remain unchanged.
+
+Acceptance for this single source-family slice: ordinary and mixed Pair/Main
+source, both default methods, explicit method precedence, disabled policy,
+parse/transform setting drift, exact empty/one-parameter coverage, foreign parent,
+body/slot/parameter drift and missing/extra rows; AST-only/record behavior;
+registered/test-tail rejection; complete semantic batch and canonical publication.
+Then run the existing selected host and normal CLI acceptance. No extra semantic
+receipt, raw fallback, source fixture edits or nonselected backend parity.
+The worker API audit names the actual shared materialization caller and confirms
+that pre-seal cohort classification exists; no further inventory is required.
+
+**WIP save point (2026-09-07, user requested commit organization):** early
+source issuance and normal caller wiring are saved for restart, not slice
+acceptance. `cargo check --locked --profile quick --lib --tests --features
+plugins` passed on an intermediate tree. The `default_derive_tests` library
+filter (same profile/features, serial) ran the Pair source/semantic-publication
+test successfully, then hung in
+`early_derive_snapshot_does_not_read_later_settings_or_change_ast_only_parser`:
+its nested scoped environment helpers acquire the same non-reentrant lock.
+The exact test process was interrupted with SIGINT (Cargo exit 101). This is a
+current-change test-harness defect, not baseline debt; the suite is not green.
+Later small edits have not been rebuilt. No Cargo/test process remains running.
+
+Resume in order:
+1. Make the snapshot test return `(parsed, policy)` from its first environment
+   scope and enter the changed-settings scope afterward; never nest the locks.
+2. Enforce Equals=1 and ToString=0 parameters in generated origin issuance and
+   add wrong-arity rejection coverage. The read-only worker found this finite
+   contract gap; correct pure generator output does not prove issuer rejection.
+3. Run the source acceptance above on the final tree, synchronize macro/parser
+   README and owning reference contract, then prove default CLI/host cleanup.
+   These docs and execution checks are still outstanding, not waived by WIP.
+4. Only then retire V2/V3. Parser module is 762 lines; any further growth should
+   move its parsing helper responsibility into existing string_postpass_entry,
+   keeping the 800-line hard boundary. No new family is selected here.
+
 
 ### Task 3: exact root cleanup contraction
 

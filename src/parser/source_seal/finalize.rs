@@ -11,7 +11,7 @@ use super::model::{
 };
 
 impl PreparedBoxSourceSealV1 {
-    fn validate_against(
+    pub(super) fn validate_against(
         &self,
         final_name: &str,
         final_is_sync: bool,
@@ -142,6 +142,16 @@ impl OpenParserPostpassProductV1 {
         demand: super::super::postpass_envelope::PostpassDemandV1,
     ) -> Result<super::super::postpass_envelope::CompletedParserPostpassV1, crate::parser::ParseError>
     {
+        self.finish_total_with_policy(parser, demand, None)
+    }
+
+    pub(in crate::parser) fn finish_total_with_policy(
+        self,
+        parser: &NyashParser,
+        demand: super::super::postpass_envelope::PostpassDemandV1,
+        policy: Option<&crate::r#macro::NormalMacroPolicyV1>,
+    ) -> Result<super::super::postpass_envelope::CompletedParserPostpassV1, crate::parser::ParseError>
+    {
         let product = self.prune_build_gates_with_explain(
             parser,
             matches!(
@@ -155,7 +165,11 @@ impl OpenParserPostpassProductV1 {
             cohort,
             super::super::postpass_envelope::ParserPostpassProgramCohortV1::OrdinaryTopLevelBox
         ) {
-            let sealed = product.lower_delegates()?.finalize().map_err(map_error)?;
+            let sealed = product
+                .lower_delegates()?
+                .issue_default_derives(policy)?
+                .finalize()
+                .map_err(map_error)?;
             return super::super::postpass_envelope::CompletedParserPostpassV1::from_source_product(
                 sealed, explain,
             )
@@ -163,6 +177,13 @@ impl OpenParserPostpassProductV1 {
         }
 
         let semantic_candidate = super::super::initial_callable_program_source::compatibility_program_can_enter_initial_callable_lane_v1(&product.ast);
+        let mut product = product;
+        product.ast = super::super::postpass_compatibility::lower(product.ast)?;
+        let product = if semantic_candidate {
+            product.issue_default_derives(policy)?
+        } else {
+            product
+        };
         let (
             ast,
             metadata,
@@ -178,7 +199,6 @@ impl OpenParserPostpassProductV1 {
                 &prepared_static_box_sources,
                 &callable_rows,
             );
-        let ast = super::super::postpass_compatibility::lower(ast)?;
         if semantic_candidate {
             let seed =
                 super::super::callable_parameter_source::ParserNormalSourcePlanSeedV1::issue(

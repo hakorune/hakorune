@@ -180,7 +180,7 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
             return Err(FinalCallableSemanticSyntaxLoanErrorV1::DeclarationMissing);
         }
         let projected = exact_parameter_projection(source, parameter_catalog)?;
-        let parameters = projected.map(|declaration| {
+        let mut parameters = projected.map(|declaration| {
             declaration
                 .parameters()
                 .iter()
@@ -193,6 +193,31 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
                 .collect::<Vec<_>>()
                 .into_boxed_slice()
         });
+        if let Some(generated) = source.generated() {
+            if let super::super::callable_source_anchor::GeneratedCallableOriginV1::DefaultDerive(
+                origin,
+            ) = generated.origin()
+            {
+                if parameters.is_some() || !origin.validates(declaration) {
+                    return Err(FinalCallableSemanticSyntaxLoanErrorV1::CoverageMismatch);
+                }
+                // This explicit generated declaration authority includes Some([])
+                // for ToString, and the producer's unannotated ordinary argument.
+                parameters = Some(
+                    origin
+                        .parameters()
+                        .iter()
+                        .enumerate()
+                        .map(|(ordinal, name)| FinalCallableParameterSourceRefV1 {
+                            ordinal: ordinal as u32,
+                            name,
+                            declared_type_name: None,
+                            ordinary: true,
+                        })
+                        .collect(),
+                );
+            }
+        }
         rows.push(FinalCallableSemanticSyntaxRowRefV1 {
             batch_slot,
             identity: source.anchor().identity(),

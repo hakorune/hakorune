@@ -35,8 +35,25 @@ pub(crate) fn parse_with_callable_parameter_source(
     fuel: Option<usize>,
     build_config: ParserBuildConfig,
 ) -> Result<ParsedProgramWithCallableParameterSourceV1, ParseError> {
+    parse_with_callable_parameter_source_policy(input, fuel, build_config, None)
+}
+
+pub(crate) fn parse_with_callable_parameter_source_policy(
+    input: String,
+    fuel: Option<usize>,
+    build_config: ParserBuildConfig,
+    policy: Option<&crate::r#macro::NormalMacroPolicyV1>,
+) -> Result<ParsedProgramWithCallableParameterSourceV1, ParseError> {
     let mut parser = parser_from_string(input, fuel, build_config)?;
-    let completed = parser.parse_postpass_s0()?;
+    let completed = match policy {
+        None => parser.parse_postpass_s0()?,
+        Some(policy) => {
+            let ast = parser.parse_program()?;
+            parser
+                .open_postpass_product(ast)?
+                .finish_total_with_policy(&parser, PostpassDemandV1::default(), Some(policy))?
+        }
+    };
     let parameter_source = parser.finish_callable_parameter_source_for_normal()?;
     Ok(ParsedProgramWithCallableParameterSourceV1::new(
         completed,

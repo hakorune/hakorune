@@ -11,6 +11,8 @@ pub mod log;
 pub mod macro_box;
 pub mod macro_box_ny;
 mod normal_callable_transform;
+mod normal_policy;
+pub(crate) use normal_policy::NormalMacroPolicyV1;
 #[cfg(test)]
 #[path = "normal_callable_transform_tests.rs"]
 mod normal_callable_transform_tests;
@@ -18,8 +20,9 @@ pub mod pattern;
 pub mod test_harness;
 
 pub(crate) use normal_callable_transform::{
-    transform_normal_callable_program_v1, NormalCallableTransformCompatibilityV1,
-    NormalCallableTransformOutcomeV1, NormalCallableTransformRejectV1,
+    transform_normal_callable_program_v1, transform_normal_callable_program_with_policy_v1,
+    NormalCallableTransformCompatibilityV1, NormalCallableTransformOutcomeV1,
+    NormalCallableTransformRejectV1,
 };
 
 use nyash_rust::ASTNode;

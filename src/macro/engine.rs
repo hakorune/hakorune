@@ -18,6 +18,7 @@ pub struct MacroEngine {
     cycle_window: usize,
     trace: bool,
     measure_ast_bytes: bool,
+    default_policy: Option<super::NormalMacroPolicyV1>,
 }
 
 impl MacroEngine {
@@ -36,6 +37,7 @@ impl MacroEngine {
             cycle_window,
             trace,
             measure_ast_bytes,
+            default_policy: None,
         }
     }
 
@@ -99,20 +101,11 @@ impl MacroEngine {
         (cur, patches)
     }
 
-    pub(crate) fn would_generate_default_callable(ast: &ASTNode) -> bool {
-        let ASTNode::Program { statements, .. } = ast else {
-            return false;
-        };
-        statements.iter().any(|statement| {
-            let ASTNode::BoxDeclaration {
-                methods, is_static, ..
-            } = statement
-            else {
-                return false;
-            };
-            let selection = default_derive_selection(*is_static, methods);
-            selection.equals || selection.to_string
-        })
+    pub(crate) fn with_default_policy(policy: super::NormalMacroPolicyV1) -> Self {
+        Self {
+            default_policy: Some(policy),
+            ..Self::new()
+        }
     }
 
     fn expand_node(&mut self, node: &ASTNode) -> ASTNode {
@@ -167,9 +160,11 @@ impl MacroEngine {
                     );
                 }
                 // Derive set: default Equals+ToString when macro is enabled
-                let derive_all = crate::config::env::macro_derive_all();
-                let derive_set = crate::config::env::macro_derive()
-                    .unwrap_or_else(|| "Equals,ToString".to_string());
+                let (derive_all, derive_set) = match &self.default_policy {
+                    Some(policy) => { let (all, set) = policy.settings(); (all, set.to_owned()) }
+                    None => (crate::config::env::macro_derive_all(), crate::config::env::macro_derive()
+                        .unwrap_or_else(|| "Equals,ToString".to_string())),
+                };
                 if crate::config::env::macro_trace() {
                     crate::macro_log!(
                         "[macro][derive] box={} derive_all={} set={}",
@@ -180,7 +175,10 @@ impl MacroEngine {
                 }
                 // Default derives are instance methods. A static box has no
                 // receiver, so it cannot own receiver-based generated methods.
-                let selection = default_derive_selection(is_static, &methods);
+                let selection = match &self.default_policy {
+                    Some(policy) => policy.selection(is_static, &methods),
+                    None => default_derive_selection(is_static, &methods),
+                };
                 let want_equals = selection.equals;
                 let want_tostring = selection.to_string;
                 // Philosophy-2: respect box independence — operate on public interface only

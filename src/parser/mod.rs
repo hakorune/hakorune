@@ -25,6 +25,7 @@ mod callable_gate_projection;
 mod callable_gate_projection_tests;
 pub(crate) mod callable_parameter_source;
 mod callable_source_anchor;
+mod default_derive_source;
 pub(crate) use callable_source_anchor::CallableDeclarationIdentityV1;
 pub(crate) use initial_callable_program_source::InitialCallableFinalSlotV1;
 mod common;
@@ -53,7 +54,9 @@ mod items;
 mod lifecycle;
 pub(crate) mod log;
 mod normal_callable_program_source;
-pub(crate) use normal_callable_program_source::{ParserOrdinaryBoxSourceCoverageV1, ParserOrdinaryBoxSourceRowV1};
+pub(crate) use normal_callable_program_source::{
+    ParserOrdinaryBoxSourceCoverageV1, ParserOrdinaryBoxSourceRowV1,
+};
 mod public_api;
 pub(crate) use public_api::*;
 mod postpass_compatibility;

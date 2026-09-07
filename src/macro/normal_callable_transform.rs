@@ -32,22 +32,29 @@ pub(crate) enum NormalCallableTransformRejectV1 {
 pub(crate) fn transform_normal_callable_program_v1(
     parsed: ParsedNormalCallableProgramV1,
 ) -> Result<NormalCallableTransformOutcomeV1, NormalCallableTransformRejectV1> {
+    transform_normal_callable_program_with_policy_v1(parsed, super::NormalMacroPolicyV1::capture())
+}
+
+pub(crate) fn transform_normal_callable_program_with_policy_v1(
+    parsed: ParsedNormalCallableProgramV1,
+    policy: super::NormalMacroPolicyV1,
+) -> Result<NormalCallableTransformOutcomeV1, NormalCallableTransformRejectV1> {
     match parsed {
         ParsedNormalCallableProgramV1::Compatibility { ast, cohort } => {
             Ok(NormalCallableTransformOutcomeV1::Compatibility {
-                ast: super::maybe_expand_and_dump(&ast, false),
+                ast: expand_compatibility_with_policy(ast, policy),
                 reason: NormalCallableTransformCompatibilityV1::Parser(cohort),
             })
         }
         ParsedNormalCallableProgramV1::SourceBacked(initial) => {
             super::macro_box::init_builtin();
             super::macro_box_ny::init_from_env();
-            let macro_enabled = super::enabled();
+            let macro_enabled = policy.enabled();
             let compatibility = if !macro_enabled {
                 None
             } else if super::macro_box::has_registered_transform() {
                 Some(NormalCallableTransformCompatibilityV1::RegisteredMacroBox)
-            } else if super::engine::MacroEngine::would_generate_default_callable(initial.ast()) {
+            } else if policy.would_generate(initial.ast()) {
                 Some(NormalCallableTransformCompatibilityV1::DefaultDeriveWouldGenerateCallable)
             } else {
                 None
@@ -76,14 +83,9 @@ pub(crate) fn transform_normal_callable_program_v1(
                 if trace {
                     crate::macro_log!("[macro] input AST: {:?}", initial.ast());
                 }
-                let (expanded, _patches) = super::engine::MacroEngine::new().expand(initial.ast());
-                if let Err(error) =
-                    require_unchanged_source_macro_output_v1(initial.ast(), &expanded)
-                {
-                    drop(expanded);
-                    initial.discard_at_named_transform_reject_terminal();
-                    return Err(error);
-                }
+                // Default generation has already been handled before co-seal.
+                // This source-backed stage owns no AST mutation or macro retry.
+                let expanded = initial.ast();
                 match super::test_harness::issue_test_harness_transform_v1(&expanded) {
                     super::test_harness::TestHarnessTransformDispositionV1::Unchanged => {
                         if trace {
@@ -111,12 +113,10 @@ pub(crate) fn transform_normal_callable_program_v1(
                             )
                         };
                         drop(transformed);
-                        drop(expanded);
                         initial.discard_at_named_transform_reject_terminal();
                         return Err(error);
                     }
                 }
-                drop(expanded);
             }
 
             let session: ParserNormalCallableTransformSessionV1 = initial.begin_transform();
@@ -136,4 +136,17 @@ pub(super) fn require_unchanged_source_macro_output_v1(
         return Err(NormalCallableTransformRejectV1::UnclassifiedSourceMutation);
     }
     Ok(())
+}
+
+fn expand_compatibility_with_policy(ast: ASTNode, policy: super::NormalMacroPolicyV1) -> ASTNode {
+    if !policy.enabled() {
+        return ast;
+    }
+    super::macro_box::init_builtin();
+    super::macro_box_ny::init_from_env();
+    let (expanded, _) = super::engine::MacroEngine::with_default_policy(policy).expand(&ast);
+    match super::test_harness::issue_test_harness_transform_v1(&expanded) {
+        super::test_harness::TestHarnessTransformDispositionV1::Unchanged => expanded,
+        super::test_harness::TestHarnessTransformDispositionV1::GeneratedTail(ast) => ast,
+    }
 }
