@@ -1539,20 +1539,50 @@ Ordered work within this series:
    unannotated source contracts; add no permissive enum/receipt or C default.
    Acceptance: unchanged Pair and unavailable/foreign/missing obligations reject
    before artifact; compiled-entry still retains original declaration facts.
-   Implementation checkpoint: physical admission now rejects each existing
-   unresolved disposition before site/layout/JSON issuance. Compiled-entry
-   inspection remains available. The source Pair serializer/parser positives
-   were replaced by a retained-contract + input-rejection test in the dedicated
-   `physical_program_json_tests.rs` boundary. Test compilation passes with
-   opt0/nonincremental quick (7.12 GiB); focused execution still hits 8 GiB even
-   with one codegen unit. Runtime test evidence is required before this Stop
-   closes; a one-run 12 GiB ceiling request is pending, not approved.
-2. **Decide checked/tagged Birth representation.** Declaration/use owner and
-   same-root actual relation must preserve value kind, check Integer at exact
-   FieldSet sites, and route failure through existing Fault/reclaim. Test Bool,
-   text, handle, changing integer actuals and argument evaluation; never infer
-   a parameter annotation from 10/20 or the destination field. This design is
-   required by the existing unannotated-formal policy below, not waived by V4.
+   **Stop verified at `acc3a20f1f`:** physical admission rejects existing
+   unresolved dispositions before site/layout/JSON issuance, retaining the
+   compiled-entry for inspection. Dedicated `physical_program_json_tests.rs`
+   passes 3/3: unchanged Pair retains unavailable formals and cannot issue
+   input; Unit root and unsupported serializer vocabulary also reject.
+   Command: `CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0
+   CARGO_PROFILE_QUICK_OPT_LEVEL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=256 cargo test
+   --profile quick --lib --features plugins physical_program_json::tests --
+   --include-ignored`. User-approved temporary 12 GiB monitor observed 8.46 GiB;
+   prior CGU1 exceeded 12 GiB and stopped before tests. Normal limit stays 8 GiB.
+   This closes the input Stop only; no host execution or formal promotion.
+2. **Retain actual identity, then bind kind/payload representation.**
+   Decision: one unspecialized unannotated Birth body receives value kind and
+   payload; Integer checking belongs to each exact i64 FieldSet, before the
+   existing raw-i64 store. Receiver stays separate. No boxing allocator or
+   Integer-handle getter that substitutes zero enters this trivial cohort.
+   `selected_new_arguments.rs` already issues Integer/Bool actual meaning;
+   `EmittedNewArgumentV1` retains source row + emitted ValueId and emission
+   validation checks the literal correspondence. The final root handoff keeps
+   deduplicated Birth definitions but drops these per-New actual relations.
+   **Smallest next slice:** retain the existing validated per-New relations in
+   `FinalizedRootBirthHandoffV1` through its existing finalizer and compiled-entry
+   consumer. Match exact New membership, Birth target, binding and ordinal;
+   definition dedup must not dedup call actuals. Do not reclassify MIR constants
+   or add a second source receipt. Declaration dispositions remain unchanged
+   and the physical-input Stop remains until representation binding is complete.
+   Acceptance: distinct New sites keep distinct actuals, wrong/missing/foreign
+   source/value/ordinal correspondence rejects, and no executable input opens.
+
+   Finite source inventory: Integer and Bool have exact source/value relations.
+   Local(binding) has no initializer/value-kind authority: `Trivial` merges
+   Integer/Bool and its current emission validator proves no kind. Local remains
+   physically unavailable; this does not change its source validity. Text/handle
+   lie outside this selected argument issuer. Do not invent tags for them.
+   Subsequent ABI task fixes the lifecycle-private kind/payload wire and a named
+   field type-mismatch Fault reason/details in the runtime/reference owner.
+   Unknown kind or invalid Bool payload is InvalidContract, never source Fault.
+   Valid Bool at an i64 store is the specified type failure; reuse record_static,
+   exact FieldSet Fault successor, root reclaim, report and dispose. Do not reuse
+   object reasons 100/101 or process-result reason 102 for a different meaning.
+   Then compiled-entry binds each actual/formal/FieldSet obligation once and V4
+   consumes issued lanes, deleting positional I64 defaults. Prove unchanged
+   Pair EXE30/OBJ-link30, varying Integer values, Bool Fault70 with cleanup, and
+   malformed-kind/binding pre-artifact rejection before any execution claim.
 3. **Close optimizer observer mapping.** Default Pair currently rejects
    `root-exit-operation-drift`; `--no-optimize` instead reaches numeric OBJ
    rejection (`contracts=2`). SimplifyCFG merges the HomeRelease block while
