@@ -623,8 +623,8 @@ Non-authority: MIR/source reconstruction, App Main/Birth admission, alias-group 
 Fail-fast boundary: missing source/control/metadata/result/release binding rejects; selected typed C remains pre-artifact Stop.
 Smallest next slice: one selected Script physical emitter plus its existing Local, identity, refresh, finishing and Stop consumers.
 Non-claims: checked allocation/claim/write runtime ABI, C execution, nested/opaque children, implicit completion or Loop.
-Checkpoint: shared FunctionFaultFrameV1 extracted; callable behavior unchanged,
-Script still unconnected. Build peak8.87GiB, focused18, Pair EXE/OBJ30 and guards pass.
+Checkpoint: Array Invoke/release and site/metadata readers: focused27, peak8.94GiB,
+Array/Pair EXE/OBJ and guards pass. Script source control/finishing remains unconnected.
 Same-series delete-set: selected standalone allocation/claim/write and raw direct
 Return, old standalone binding schema, and observer blindness to Invoke sites.
 Gates: seven specs, empty/multiple literals, prior Homes/alias, exact result/frame,

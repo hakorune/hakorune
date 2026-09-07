@@ -65,16 +65,21 @@ impl MirBuilder {
         Ok(true)
     }
 
-    fn next_array_write_site_id(&self) -> ArrayWriteSiteId {
+    pub(super) fn next_array_write_site_id(&self) -> ArrayWriteSiteId {
         let next = self
             .function_state
             .current_function
             .as_ref()
             .into_iter()
             .flat_map(|function| function.blocks.values())
-            .flat_map(|block| block.instructions.iter())
+            .flat_map(|block| block.all_instructions())
             .filter_map(|instruction| match instruction {
-                MirInstruction::ArrayElementWrite { site_id, .. } => Some(site_id.0),
+                MirInstruction::ArrayElementWrite { site_id, .. }
+                | MirInstruction::Invoke {
+                    operation:
+                        crate::mir::instruction::InvokeOperation::ArrayElementWrite { site_id, .. },
+                    ..
+                } => Some(site_id.0),
                 _ => None,
             })
             .max()
@@ -82,3 +87,7 @@ impl MirBuilder {
         ArrayWriteSiteId::new(next)
     }
 }
+
+#[cfg(test)]
+#[path = "array_element_write_tests.rs"]
+mod tests;

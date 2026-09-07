@@ -31,6 +31,12 @@ JSON/VM admission remain closed while source emission binding and runtime
 cleanup are connected; this substrate is not a Birth execution claim.
 See `docs/reference/mir/INSTRUCTION_SET.md` for the current vocabulary boundary.
 
+Array lifecycle vocabulary uses Invoke allocation/claim/write, Normal-only
+allocation results and nonfallible ArrayResidenceRelease. The existing write-site
+allocator and metadata refresh read both ordinary and Invoke writes/claims; Fresh
+state traces an exact IntrinsicArrayNew Normal result. Source control emission and
+finishing are still pending, and typed C remains stopped before artifacts.
+
 - `analysis/`: analysis helpers and shared inspection utilities.
 - `builder/`: AST -> MIR construction. FlowPlanner / JoinIR glue are
   physically under builder today but conceptually separate from builder core.

@@ -252,6 +252,17 @@ pub(crate) fn project_module_to_legacy_calls(module: &MirModule) -> Result<MirMo
     if module.functions.values().any(|function| {
         !function.metadata.typed_array_contract_sources.is_empty()
             || !function.metadata.typed_array_element_contracts.is_empty()
+            || function
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+                .any(|inst| {
+                    matches!(inst, MirInstruction::ArrayResidenceRelease { .. }
+                    | MirInstruction::Invoke { operation:
+                        crate::mir::instruction::InvokeOperation::IntrinsicArrayNew
+                        | crate::mir::instruction::InvokeOperation::ArrayStateContractClaim { .. }
+                        | crate::mir::instruction::InvokeOperation::ArrayElementWrite { .. }, .. })
+                })
     }) {
         return Err(TYPED_ARRAY_LEGACY_PROJECTION_FORBIDDEN_TAG.to_string());
     }
@@ -319,7 +330,7 @@ fn rebuild(
     let mut writes = function
         .blocks
         .values()
-        .flat_map(|block| block.instructions.iter())
+        .flat_map(|block| block.all_instructions())
         .filter_map(|instruction| match instruction {
             MirInstruction::ArrayElementWrite {
                 site_id,
@@ -328,6 +339,18 @@ fn rebuild(
                 receiver,
                 index,
                 value,
+                ..
+            }
+            | MirInstruction::Invoke {
+                operation:
+                    crate::mir::instruction::InvokeOperation::ArrayElementWrite {
+                        site_id,
+                        kind,
+                        producer,
+                        receiver,
+                        index,
+                        value,
+                    },
                 ..
             } => Some((*site_id, *kind, *producer, *receiver, *index, *value)),
             _ => None,
@@ -341,9 +364,14 @@ fn rebuild(
     let mut claim_values = function
         .blocks
         .values()
-        .flat_map(|block| block.instructions.iter())
+        .flat_map(|block| block.all_instructions())
         .filter_map(|instruction| match instruction {
-            MirInstruction::ArrayStateContractClaim { array, .. } => Some(*array),
+            MirInstruction::ArrayStateContractClaim { array, .. }
+            | MirInstruction::Invoke {
+                operation:
+                    crate::mir::instruction::InvokeOperation::ArrayStateContractClaim { array, .. },
+                ..
+            } => Some(*array),
             _ => None,
         })
         .collect::<BTreeSet<_>>();
@@ -362,7 +390,7 @@ fn rebuild(
         terms.push(ArrayStateTerm {
             term_id,
             value,
-            kind: classify_state_term(value, &definitions),
+            kind: classify_state_term(value, &definitions, function),
         });
         term_by_value.insert(value, term_id);
     }
@@ -382,7 +410,7 @@ fn rebuild(
             terms.push(ArrayStateTerm {
                 term_id,
                 value: receiver,
-                kind: classify_state_term(receiver, &definitions),
+                kind: classify_state_term(receiver, &definitions, function),
             });
             term_by_value.insert(receiver, term_id);
             term_id
@@ -412,8 +440,25 @@ fn value_definitions(function: &MirFunction) -> BTreeMap<ValueId, &MirInstructio
 fn classify_state_term(
     value: ValueId,
     definitions: &BTreeMap<ValueId, &MirInstruction>,
+    function: &MirFunction,
 ) -> ArrayStateTermKind {
     match definitions.get(&value).copied() {
+        Some(MirInstruction::InvokeNormalResult { dst, invoke_block })
+            if function.blocks.get(invoke_block).is_some_and(|origin| {
+                matches!(&origin.terminator, Some(MirInstruction::Invoke {
+                    operation: crate::mir::instruction::InvokeOperation::IntrinsicArrayNew,
+                    normal_landing, ..
+                }) if function.blocks.get(normal_landing).is_some_and(|landing| {
+                    landing.instructions.iter().any(|inst| matches!(inst,
+                        MirInstruction::InvokeNormalResult { dst: actual, invoke_block: site }
+                        if actual == dst && site == invoke_block))
+                }))
+            }) =>
+        {
+            ArrayStateTermKind::Fresh {
+                allocation_site: *dst,
+            }
+        }
         Some(MirInstruction::NewBox {
             dst,
             target: crate::mir::ConstructionTarget::IntrinsicArray,

@@ -534,7 +534,7 @@ not currently checked errors. Object HomeRelease/ReclaimUnpublished target the
 typed-object store and are not Array cleanup. The same-named noop shim is not
 native execution evidence.
 
-Accepted physical vocabulary (implementation pending):
+Physical vocabulary implemented; selected source emission/finishing pending:
 
 | Physical operation | Operands | Normal result |
 | --- | --- | --- |

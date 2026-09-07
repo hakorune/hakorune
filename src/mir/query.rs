@@ -118,7 +118,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             Debug { value, .. } => vec![*value],
             // Phase 287: Lifecycle management reads all values
             KeepAlive { values } => values.clone(),
-            DestroyOwned { value } => vec![*value],
+            DestroyOwned { value } | ArrayResidenceRelease { value } => vec![*value],
             ReleaseStrong { values } => values.clone(),
             Throw { exception, .. } => vec![*exception],
             Catch { .. } => Vec::new(),

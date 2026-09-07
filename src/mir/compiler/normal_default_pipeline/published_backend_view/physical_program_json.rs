@@ -212,6 +212,9 @@ fn encode_invoke(
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
     Ok(match operation {
+        InvokeOperation::IntrinsicArrayNew
+        | InvokeOperation::ArrayStateContractClaim { .. }
+        | InvokeOperation::ArrayElementWrite { .. } => return Err(fault("array-lifecycle-unsupported")),
         InvokeOperation::Call(call) => {
             if diagnostic_site.is_some() { return Err(fault("site-on-birth-call")); }
             json!({ "kind": "birth_call", "call": encode_birth_call(call, births, abi_input)? })

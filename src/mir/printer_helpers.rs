@@ -531,6 +531,7 @@ pub fn format_instruction(
             s
         }
         MirInstruction::CopyOwned { dst, src } => format!("{} = copy_owned {}", dst, src),
+        MirInstruction::ArrayResidenceRelease { value } => format!("array_residence_release {}", value),
         MirInstruction::DestroyOwned { value } => format!("destroy_owned {}", value),
 
         MirInstruction::TypeOp { dst, op, value, ty } => {

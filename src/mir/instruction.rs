@@ -617,6 +617,10 @@ pub enum MirInstruction {
     /// This is distinct from legacy alias-group `ReleaseStrong`.
     DestroyOwned { value: ValueId },
 
+    /// Consume one source-proven native Array residence, without producing Fault.
+    /// Incomplete acquisition and committed Home roles stay in retained bindings.
+    ArrayResidenceRelease { value: ValueId },
+
     /// Check an exact-numeric local contract, then publish `%dst = %src`.
     LocalContractWrite {
         dst: ValueId,

@@ -220,9 +220,15 @@ fn collect_claims(function: &MirFunction) -> Result<BTreeMap<&str, ValueId>, Str
     for instruction in function
         .blocks
         .values()
-        .flat_map(|block| block.instructions.iter())
+        .flat_map(|block| block.all_instructions())
     {
-        let MirInstruction::ArrayStateContractClaim { contract_id, array } = instruction else {
+        let (MirInstruction::ArrayStateContractClaim { contract_id, array }
+        | MirInstruction::Invoke {
+            operation:
+                crate::mir::instruction::InvokeOperation::ArrayStateContractClaim { contract_id, array },
+            ..
+        }) = instruction
+        else {
             continue;
         };
         if claims.insert(contract_id.as_str(), *array).is_some() {

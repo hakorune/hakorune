@@ -8,9 +8,14 @@ impl crate::mir::MirInstruction {
     /// Identifies physical sites needing retained lifecycle validation.
     /// Presence is an obligation, never source eligibility or permission.
     pub(crate) fn requires_lifecycle_validation(&self) -> bool {
-        matches!(self, Self::Invoke { .. } | Self::InvokeNormalResult { .. }
-            | Self::ReturnFault { .. } | Self::FaultFrameEnter { .. })
-            || matches!(self, Self::Call(call)
+        matches!(
+            self,
+            Self::Invoke { .. }
+                | Self::InvokeNormalResult { .. }
+                | Self::ReturnFault { .. }
+                | Self::FaultFrameEnter { .. }
+                | Self::ArrayResidenceRelease { .. }
+        ) || matches!(self, Self::Call(call)
                 if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }))
     }
 }
@@ -29,6 +34,19 @@ pub enum InvokeOperation {
     /// Allocation only; constructor arguments belong to the subsequent Birth.
     NewBox {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
+    },
+    /// Intrinsic Array allocation; one value exists only on Normal.
+    IntrinsicArrayNew,
+    /// Adopt the source-issued numeric state contract; Unit on Normal.
+    ArrayStateContractClaim { contract_id: String, array: ValueId },
+    /// Checked mutation; Unit on Normal and no mutation on Fault.
+    ArrayElementWrite {
+        site_id: crate::mir::ArrayWriteSiteId,
+        kind: crate::mir::ArrayElementWriteKind,
+        producer: crate::mir::ArrayWriteProducerKind,
+        receiver: ValueId,
+        index: Option<ValueId>,
+        value: ValueId,
     },
     /// Exact declaration field; Unit on Normal, no mutation on Fault.
     FieldSet {
@@ -52,11 +70,14 @@ impl InvokeOperation {
     pub fn effects(&self) -> EffectMask {
         match self {
             Self::Call(call) => call.effects.add(Effect::Control),
-            Self::NewBox { .. } => EffectMask::CONTROL.add(Effect::Alloc),
-            Self::FieldSet { .. } => EffectMask::WRITE.add(Effect::Control),
-            Self::HomeRelease { .. } | Self::ReclaimUnpublished { .. } =>
-                EffectMask::WRITE.union(EffectMask::MUT).union(EffectMask::IO)
-                    .add(Effect::Control),
+            Self::NewBox { .. } | Self::IntrinsicArrayNew => EffectMask::CONTROL.add(Effect::Alloc),
+            Self::FieldSet { .. }
+            | Self::ArrayStateContractClaim { .. }
+            | Self::ArrayElementWrite { .. } => EffectMask::WRITE.add(Effect::Control),
+            Self::HomeRelease { .. } | Self::ReclaimUnpublished { .. } => EffectMask::WRITE
+                .union(EffectMask::MUT)
+                .union(EffectMask::IO)
+                .add(Effect::Control),
         }
     }
 
@@ -69,9 +90,23 @@ impl InvokeOperation {
                 values.extend(call.args.iter().copied());
                 values
             }
-            Self::NewBox { .. } => Vec::new(),
+            Self::NewBox { .. } | Self::IntrinsicArrayNew => Vec::new(),
+            Self::ArrayStateContractClaim { array, .. } => vec![*array],
+            Self::ArrayElementWrite {
+                receiver,
+                index,
+                value,
+                ..
+            } => {
+                let mut values = vec![*receiver];
+                values.extend(index.iter().copied());
+                values.push(*value);
+                values
+            }
             Self::FieldSet { base, value, .. } => vec![*base, *value],
-            Self::HomeRelease { value, .. } | Self::ReclaimUnpublished { value, .. } => vec![*value],
+            Self::HomeRelease { value, .. } | Self::ReclaimUnpublished { value, .. } => {
+                vec![*value]
+            }
         }
     }
 
@@ -83,8 +118,23 @@ impl InvokeOperation {
                     rewrite(value);
                 }
             }
-            Self::NewBox { .. } => {}
-            Self::HomeRelease { value, .. } | Self::ReclaimUnpublished { value, .. } => rewrite(value),
+            Self::NewBox { .. } | Self::IntrinsicArrayNew => {}
+            Self::ArrayStateContractClaim { array, .. } => rewrite(array),
+            Self::ArrayElementWrite {
+                receiver,
+                index,
+                value,
+                ..
+            } => {
+                rewrite(receiver);
+                if let Some(index) = index {
+                    rewrite(index);
+                }
+                rewrite(value);
+            }
+            Self::HomeRelease { value, .. } | Self::ReclaimUnpublished { value, .. } => {
+                rewrite(value)
+            }
             Self::FieldSet { base, value, .. } => {
                 rewrite(base);
                 rewrite(value);

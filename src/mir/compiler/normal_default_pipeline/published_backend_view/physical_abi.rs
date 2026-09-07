@@ -33,7 +33,10 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             InvokeOperation::FieldSet { .. } => Some(Self::FieldSet),
             InvokeOperation::HomeRelease { .. } => Some(Self::HomeRelease),
             InvokeOperation::ReclaimUnpublished { .. } => Some(Self::ReclaimUnpublished),
-            InvokeOperation::Call(_) => None,
+            InvokeOperation::Call(_)
+            | InvokeOperation::IntrinsicArrayNew
+            | InvokeOperation::ArrayStateContractClaim { .. }
+            | InvokeOperation::ArrayElementWrite { .. } => None,
         }
     }
 }
@@ -229,6 +232,9 @@ fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTre
                         | InvokeOperation::ReclaimUnpublished { object, .. } => { ids.insert(object.declaration_index()); }
                         InvokeOperation::FieldSet { field, .. } => { ids.insert(field.object().declaration_index()); }
                         InvokeOperation::Call(_) => {}
+                        InvokeOperation::IntrinsicArrayNew
+                        | InvokeOperation::ArrayStateContractClaim { .. }
+                        | InvokeOperation::ArrayElementWrite { .. } => {},
                     },
                     _ => {}
                 }

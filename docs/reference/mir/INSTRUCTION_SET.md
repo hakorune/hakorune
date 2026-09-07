@@ -31,14 +31,14 @@ Primary implementation pointers:
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=55
+DOC_SYNC_MIR_KEPT_COUNT=57
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=71
+DOC_SYNC_MIR_VOCABULARY_COUNT=73
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
-### Selected Script Array lifecycle (accepted design; not implemented)
+### Selected Script Array lifecycle (physical vocabulary; source cutover pending)
 
 The selected Script Array physical cutover adds these operations to existing
 `Invoke`: `IntrinsicArrayNew` (no operands, one Normal-only Array result),
@@ -61,8 +61,8 @@ Selected source issuance, emitted control/cleanup correspondence and finished
 validation are required before publication. Allocation failure releases only
 prior Homes; claim/write failure first releases the acquired incomplete Array.
 Return releases the exact reverse Home sequence, with no alias double release.
-These declarations do not change current vocabulary counts or authorize runtime,
-JSON/C or unselected backend execution. Implementation order and physical reader
+The physical vocabulary, structural verifier and metadata readers include these
+operations. This does not authorize runtime, JSON/C or unselected backend execution. Implementation order and physical reader
 inventory: [collection construction SSOT](../../development/current/main/design/collection-literal-construction-ssot.md#script-array-physical-lifecycle-mapping).
 
 ### Normal/Fault control (implementation in progress)

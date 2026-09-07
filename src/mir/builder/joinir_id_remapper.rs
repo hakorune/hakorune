@@ -383,6 +383,9 @@ impl JoinIrIdRemapper {
             DestroyOwned { value } => DestroyOwned {
                 value: remap(*value),
             },
+            ArrayResidenceRelease { value } => ArrayResidenceRelease {
+                value: remap(*value),
+            },
             ReleaseStrong { values } => ReleaseStrong {
                 values: values.iter().map(|&v| remap(v)).collect(),
             },

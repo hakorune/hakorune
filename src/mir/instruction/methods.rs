@@ -83,6 +83,7 @@ impl MirInstruction {
             // Phase 287: Reference lifecycle
             MirInstruction::CopyOwned { .. }
             | MirInstruction::DestroyOwned { .. }
+            | MirInstruction::ArrayResidenceRelease { .. }
             | MirInstruction::ReleaseStrong { .. } => EffectMask::WRITE,
 
             // Function calls use provided effect mask
@@ -202,6 +203,7 @@ impl MirInstruction {
             | MirInstruction::Debug { .. }
             | MirInstruction::KeepAlive { .. }
             | MirInstruction::DestroyOwned { .. }
+            | MirInstruction::ArrayResidenceRelease { .. }
             | MirInstruction::ReleaseStrong { .. }
             | MirInstruction::Throw { .. }
             | MirInstruction::Barrier { .. }
@@ -351,7 +353,7 @@ impl MirInstruction {
 
             // Phase 287: Lifecycle management uses all values
             MirInstruction::KeepAlive { values } => values.clone(),
-            MirInstruction::DestroyOwned { value } => vec![*value],
+            MirInstruction::DestroyOwned { value } | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
             MirInstruction::ReleaseStrong { values } => values.clone(),
 
             // Phase 256 P1.5: Select instruction uses cond, then_val, else_val

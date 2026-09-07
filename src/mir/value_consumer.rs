@@ -148,7 +148,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
             used
         }
         MirInstruction::KeepAlive { values } => values.clone(),
-        MirInstruction::DestroyOwned { value } => vec![*value],
+        MirInstruction::DestroyOwned { value } | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
         MirInstruction::ReleaseStrong { values } => values.clone(),
         MirInstruction::Throw { exception, .. } => vec![*exception],
         MirInstruction::Catch {
