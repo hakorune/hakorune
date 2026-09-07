@@ -45,6 +45,7 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
 
 // V2 lifecycle transport is a separate ABI. V1 remains byte-for-byte stable.
 #define HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABI_REVISION_V2 2u
+#define HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABSENT_U32_V2 UINT32_MAX
 #define HAKO_LLVMC_OBJECT_STORAGE_SAFE_MUTEX_V1 1u
 #define HAKO_LLVMC_OBJECT_STORAGE_SINGLE_THREAD_EXACT_V1 2u
 

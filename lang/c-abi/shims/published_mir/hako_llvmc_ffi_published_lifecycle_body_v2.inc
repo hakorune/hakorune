@@ -16,9 +16,9 @@ static int hako_llvmc_published_lifecycle_body_v2_validate(
     return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-site-rows]");
   for (i = 0; i < site_count; i++) {
     const hako_llvmc_published_lifecycle_body_site_v1* site = &sites[i];
-    if (!site->function_name || site->normal_result == UINT32_MAX ||
-        site->fault_frame == UINT32_MAX || site->normal_landing == UINT32_MAX ||
-        site->fault_landing == UINT32_MAX || site->object_id == UINT32_MAX)
+    if (!site->function_name || site->normal_result == HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABSENT_U32_V2 ||
+        site->fault_frame == HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABSENT_U32_V2 || site->normal_landing == HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABSENT_U32_V2 ||
+        site->fault_landing == HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABSENT_U32_V2 || site->object_id == HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABSENT_U32_V2)
       return set_err_owned(err_out, "[freeze:contract][published-lifecycle/body-site-invalid]");
     matches = 0u;
     for (j = 0; j < frame->operation_count; j++) {

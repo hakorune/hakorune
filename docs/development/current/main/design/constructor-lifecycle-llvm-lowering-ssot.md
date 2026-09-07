@@ -204,6 +204,22 @@ receiver/source-ordinal or required-present/absent fields reject before it and
 produce no artifact. No source meaning, FaultFrame target layout, JSON/input
 route, LLVM emission, kernel switch or EXE claim opens.
 
+**I0 landed:** Rust and C now share the named V2 absence wire constant. The C
+validator covers formals, operation kind/lane combinations and control
+presence combinations before root/body validation. The preartifact C test
+proves valid pending plus malformed receiver ordinal, NewBox object and Return
+origin rejection without an object. Wire layout/revision are unchanged.
+
+### `CONSTRUCTOR-LIFECYCLE-TARGET-FRAME-LAYOUT-D0`
+
+Step-3 design stop. Name the sole selected target/session issuer that proves
+Rust `NyrtFaultFrameV1`, C ABI and future LLVM placement agree on
+size/alignment/offsets for one target triple. The existing fault header and
+Rust exports provide structural vocabulary, not target proof. This D0 must
+select or explicitly reject an existing target session; it must not reuse the
+pinned-text session, infer layout from host defaults, emit C, or open direct
+physical input.
+
 ### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
 
 This is the concrete Step 4 owner/caller row: final view physical program and

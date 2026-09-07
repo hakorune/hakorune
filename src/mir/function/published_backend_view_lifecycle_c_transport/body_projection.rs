@@ -78,7 +78,9 @@ impl PublishedLifecycleCFrameV2 {
                 }
                 self.formals.push(PublishedLifecycleFormalCRowV2 {
                     definition_index: as_u32(index, "definition-index")?,
-                    source_ordinal: formal.source_ordinal().unwrap_or(ABSENT_U32),
+                    source_ordinal: formal
+                        .source_ordinal()
+                        .unwrap_or(PUBLISHED_LIFECYCLE_ABSENT_U32_V2),
                     physical_ordinal: formal.physical_ordinal(),
                     value_id: formal.value().0,
                     wire_revision: 2,
@@ -97,8 +99,8 @@ impl PublishedLifecycleCFrameV2 {
             target_symbol: root_symbol,
             role: root_role,
             source_arity: 0,
-            receiver_formal: ABSENT_U32,
-            object_id: ABSENT_U32,
+            receiver_formal: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+            object_id: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
             result_kind: root_result_kind,
             frame_mode: definition_frame_mode(root)?,
             flags: 1,
@@ -229,10 +231,10 @@ impl PublishedLifecycleCFrameV2 {
                                 block_id: block.id().0,
                                 instruction_index: row.index(),
                                 kind: 6,
-                                definition_index: u32::MAX,
-                                fault_frame: u32::MAX,
-                                normal_landing: u32::MAX,
-                                fault_landing: u32::MAX,
+                                definition_index: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+                                fault_frame: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+                                normal_landing: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+                                fault_landing: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
                                 object_id: field.object().declaration_index(),
                                 field_ordinal: field.declaration_ordinal(),
                                 base: base.0,
@@ -266,7 +268,7 @@ impl PublishedLifecycleCFrameV2 {
                                 row.index(),
                                 2,
                                 fault_frame.0,
-                                u32::MAX,
+                                PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
                                 0,
                             ))
                         }
@@ -277,7 +279,7 @@ impl PublishedLifecycleCFrameV2 {
                                 row.index(),
                                 3,
                                 dst.0,
-                                u32::MAX,
+                                PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
                                 match mode {
                                     FaultFrameMode::RootOwned => 1,
                                     FaultFrameMode::Borrowed => 2,
@@ -289,8 +291,8 @@ impl PublishedLifecycleCFrameV2 {
                             block.id().0,
                             row.index(),
                             CONTROL_KIND_RETURN,
-                            value.map_or(ABSENT_U32, |value| value.0),
-                            ABSENT_U32,
+                            value.map_or(PUBLISHED_LIFECYCLE_ABSENT_U32_V2, |value| value.0),
+                            PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
                             u32::from(value.is_some()),
                         )),
                         MirInstruction::Call(call) => {
@@ -309,13 +311,15 @@ impl PublishedLifecycleCFrameV2 {
                                 instruction_index: row.index(),
                                 kind: 1,
                                 definition_index: as_u32(definition_index, "definition-index")?,
-                                fault_frame: u32::MAX,
-                                normal_landing: u32::MAX,
-                                fault_landing: u32::MAX,
-                                object_id: u32::MAX,
-                                field_ordinal: u32::MAX,
-                                base: u32::MAX,
-                                value: call.dst.map_or(u32::MAX, |value| value.0),
+                                fault_frame: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+                                normal_landing: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+                                fault_landing: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+                                object_id: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+                                field_ordinal: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+                                base: PUBLISHED_LIFECYCLE_ABSENT_U32_V2,
+                                value: call
+                                    .dst
+                                    .map_or(PUBLISHED_LIFECYCLE_ABSENT_U32_V2, |value| value.0),
                                 receiver: receiver.0,
                                 operand_count: as_u32(call.args.len() + 1, "operand-count")?,
                                 flags: 0,
@@ -387,7 +391,7 @@ fn operation_row(
     operation: &InvokeOperation,
     definitions: &[(&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, &str)],
 ) -> Result<(u32, u32, u32, u32, u32, u32, u32, Vec<u32>), String> {
-    let absent = u32::MAX;
+    let absent = PUBLISHED_LIFECYCLE_ABSENT_U32_V2;
     Ok(match operation {
         InvokeOperation::Call(call) => {
             let Callee::BirthConstructor { key, receiver } = &call.callee else {

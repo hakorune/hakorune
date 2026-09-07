@@ -16,8 +16,9 @@ use crate::mir::{Callee, MirInstruction};
 
 use super::{
     lifecycle_schema::{
-        ABSENT_U32, CONTROL_KIND_RETURN, DEFINITION_ROLE_BIRTH_UNIT, DEFINITION_ROLE_ROOT_I64,
-        DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_I64, RESULT_KIND_UNIT,
+        CONTROL_KIND_RETURN, DEFINITION_ROLE_BIRTH_UNIT, DEFINITION_ROLE_ROOT_I64,
+        DEFINITION_ROLE_ROOT_UNIT, PUBLISHED_LIFECYCLE_ABSENT_U32_V2, RESULT_KIND_I64,
+        RESULT_KIND_UNIT,
     },
     CompiledEntryCleanupKindV1, CompiledEntryContractV1, CompiledEntryFormalKindV1,
     CompiledEntryRootResultV1, PublishedLifecyclePhysicalFunctionRoleV1, PublishedMirBackendView,
