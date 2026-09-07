@@ -2544,3 +2544,41 @@ reparse is the Step-4 physical-input construction above. The `#[path]` files
 are one implementation mounted from two module locations during migration, not
 two semantic issuers. The README and placement cleanups wait for their live
 consumer/contract to stabilize, so they cannot obscure constructor cutover.
+
+### Feedback reconciliation follow-ups (2026-09-08)
+
+Read-only worker audit at `2e427577a1`. Boundary: source terminal issuance ->
+ordinary-New ledger -> finalized handoff -> compiled entry; and V4 feature/wire
+entry. Includes all four terminal alternatives; excludes current Array source
+work and other source families. No build or runtime evidence was collected.
+
+1. **V4 feature boundary repair**, first at the next implementation boundary.
+   `capi_transport.rs::compile_published_lifecycle_physical_v4` has no plugins
+   cfg while its loader and optional libloading dependency do. The module and
+   production caller in `published_mir_object.rs` are unconditional; absence of
+   runtime calls cannot prevent Rust name-resolution failure. Match the existing
+   sibling cfg/stub convention, removing the unconditional plugin-only reference
+   edge. Verify nonplugins library check, stable unavailable stub and existing
+   plugins V4 acceptance. This changes no selected backend capability.
+2. **Terminal relation BoxShape**, under existing ordinary-New source/emission
+   and finalization owners. Source `home_new_prefix` chooses one terminal and
+   breaks; final seal also rejects conflicts, so no conflicting production
+   terminal or causal link to the historical Unit defect is proven. Nonetheless,
+   `ordinary_new_coseal` and `ordinary_new_local_commit` retain four parallel
+   Options; Add/Unit preparation checks differ. Replace them by one private
+   finite enum carrying the existing relation, then remove stored derived
+   root_result and project once at the established result boundary. Delete pair
+   collision matrix, parallel storage, duplicate finalization classification and
+   source/result synchronization checks. Preserve source owner/site, duplicate
+   reservation, Completion/progress, field-read completeness and unsupported
+   local/Bool refusal. Gates: four existing terminal families, their rejection
+   tests, selected Pair EXE/linked OBJ30. No new public receipt or source family.
+3. **Physical storage wire tag BoxShape**, existing Rust physical ABI and shared
+   C header/parser/admission owner. Name the I64 storage tag now written as1 in
+   physical_abi.rs, physical-v2 parser and V4 admission; delete those anonymous
+   constants. Keep wire value1, unknown-tag rejection and layout mutation tests.
+   No Bool/handle widening or runtime storage redesign.
+
+These are ordered independent repairs, not evidence that Array or the whole
+MirBuilder cutover is complete. Feature repair precedes physical C activation;
+terminal/storage cleanup must not grow another source classifier or ABI product.
