@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-INVOCATION-SESSION-I0"
 current_execution_cohort = "constructor_lifecycle_invocation_session_i0"
 current_design_stop = "none"
-current_blocker_token = "Bind the target-compiled runtime ABI descriptor to one selected lifecycle invocation and LLVM tool session; delete late EXE archive re-selection. No C lifecycle execution or target equality claim until session integration."
+current_blocker_token = "Complete the selected lifecycle session's LLVM target-data projection for Diagnostic/Frame before opening direct physical input; no C lifecycle execution or target equality claim until that session agreement is complete."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -40,8 +40,8 @@ descriptor I0 is landed: the target-compiled Rust Fault ABI emits one fixed
 archive record and the host reader proves actual extraction plus malformed
 rejection. The selected target was already x86_64 GNU/Linux LP64. The host half
 of session I0 retains one explicit archive through lifecycle EXE compilation
-and link; C V3 now validates descriptor/header geometry plus LLVM target triple/pointer layout before pending. Next complete direct input,
-C execution/status cutover and caller-zero retirement. Physical representation/CFG coverage and failure
+and link; C V3 now validates descriptor/header geometry plus LLVM target triple/pointer layout before pending. The remaining session-I0 slice is target-data
+Diagnostic/Frame struct geometry. Next are direct input, C execution/status cutover and caller-zero retirement. Physical representation/CFG coverage and failure
 terminal policies remain cutover blockers; Pair EXE30/linked OBJ30 are unproven.
 """
 next_design_card = "none (accepted physical issuer design; descriptor I0 ready)"

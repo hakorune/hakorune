@@ -343,14 +343,25 @@ re-selection. The remaining part of this same row is the neutral C LLVM
 resource helper and descriptor-to-target-layout verification; no target
 equality or lifecycle C execution is claimed by this checkpoint.
 
-C session checkpoint: V3 receives only the host-decoded fixed descriptor row.
-Its neutral helper opens an LLVM 18 X86 TargetMachine, checks the selected
-triple and target-data pointer width, and independently compares every
-Fault Diagnostic/Frame field with the C header before returning the existing
-typed pending terminal. It owns and releases the library, machine, target-data
-and LLVM diagnostic on every outcome. This is call-local target observation;
-it neither imports PTFB semantics nor emits an object. Full LLVM struct-layout
-projection remains coupled to the direct physical-input consumer.
+C session checkpoint (partial): V3 receives only the host-decoded fixed
+descriptor row. Its neutral helper opens an LLVM 18 X86 TargetMachine, checks
+the selected triple and target-data pointer width, and independently compares
+every Fault Diagnostic/Frame field with the C header before returning the
+existing typed pending terminal. It owns and releases the library, machine,
+target-data and LLVM diagnostic on every outcome. This is call-local target
+observation; it neither imports PTFB semantics nor emits an object.
+
+The remaining bounded slice of this same I0 is LLVM struct-layout projection.
+The C session helper must construct the Diagnostic and Frame LLVM structures
+from the declared wire fields, then compare their target-data ABI
+size/alignment and the declared member offsets with the selected archive
+descriptor. C `sizeof`/`offsetof` remains independent boundary evidence; it
+does not substitute for target-data evidence. A valid x86_64 session must
+reach the existing pending terminal, while an i386 target paired with the
+LP64 descriptor must reject as `llvm-layout` before body transport or object
+output. This closes target/session agreement only. It does not activate direct
+physical input, body execution, a process exit, or a target equality claim for
+any other backend.
 
 ### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
 
