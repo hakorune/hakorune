@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: fix tagged wire revision/keys and exact formal/actual binding; full formal retention is verified.
+Smallest next slice: implement the accepted v2 kind/payload physical input and V4 consumer as one revision-coherent series.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -1639,19 +1639,62 @@ Ordered work within this series:
    the existing type; the rerun passes. Pointer/corridor guards pass. The
    physical Stop, source families and parked host draft are unchanged.
 
-   Subsequent wire design must fix JSON keys and revision before code: project
-   logical MIR receiver + N arguments into LLVM `frame, receiver,
-   (kind:i32,payload:i64) x N`; physical_ordinal remains a MIR parameter index,
-   not an expanded LLVM lane index. Replace params/args entries rather than
-   adding sibling representations. Old untagged schema must reject at the new
-   consumer, with no Integer default. Preserve kind through Copy; Add/root I64
-   cannot consume tagged payload or object handles. Bool requires an explicit
-   physical Const form: current serializer rejection is not implicit Integer.
-   The [accepted scalar ABI/Fault decision](../../../../reference/abi/nyrt_c_abi_v0.md#selected-birth-scalar-boundary--accepted-design-not-execution-admission)
-   fixes kind 1/2 and FieldTypeMismatch reason 103; header/consumer implementation
-   stays a subsequent revision-coherent slice. Named C delete-set is lv4_type's
-   nonreceiver-I64 default, I64-only actual checks, single-lane Birth emission
-   and unchecked payload-to-field_set edge. Preserve receiver/HANDLE distinction.
+   **Tagged wire decision accepted (read-only worker plus compiler audit).**
+   Exact schema/keys and LLVM lanes are owned by the existing
+   [ABI reference](../../../../reference/abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2--accepted-wire-decision).
+   No second MirBuilder, semantic receipt, generic numeric whitelist or v1
+   compatibility parser is introduced. This fixes the mapping, not execution.
+
+   Transition: replace v1 untagged physical input -> V4 single-i64 Birth ABI
+   with v2 explicit kind/payload input -> the same V4 consumer and Fault edges.
+   Responsibility: `physical_abi.rs` admits exact retained Unannotated formals
+   with I64FieldStores or NoUse and matches every call's ordered actuals once.
+   `selected_new_arguments` owns Integer/Bool kind; checked EmittedNewArgument
+   supplies the payload ValueId. Local, ExactI64, ExactText, explicit unsupported
+   declarations and uncovered uses keep named physical unavailability in this
+   bounded slice. NoUse still evaluates/passes its actual; it is not dropped.
+   Initial C function/object cohort remains root I64 + one Unit Birth + two i64
+   fields/two source arguments; schema shape alone cannot widen that cohort.
+
+   Existing construction emission maps exact source bindings to each FieldSet;
+   `RetainedConstructionValidation` checks final operations and is consumed by
+   `normal_default_root_final_validation::into_artifact_parts` before view
+   admission. Preserve that gate and generic-view fencing. Do not rebuild a
+   source-to-store relation in C. Serializer obtains call kind from retained
+   actuals, never MIR-constant inference. C checks physical representation and
+   SSA consistency, not source declarations; Copy keeps both tagged lanes.
+
+   Atomic delete-set: disposition-only retention is already removed. This slice
+   removes v1 schema/parser/export acceptance, numeric-array params/args decoder,
+   lv4_type's nonreceiver-I64 default, I64-only actual checks, single-lane Birth
+   definition/call emission and unchecked tagged payload-to-raw-store edge.
+   Preserve: exact target/session, receiver/HANDLE separation, whole FaultFrame
+   lifetime and existing selected preartifact failures. No host draft promotion,
+   optimizer skip or generic numeric metadata deletion is part of this slice.
+
+   Acceptance: extend existing parser/V4 protocol tests and unchanged source
+   Pair input issuance; Integer payload variants retain one Birth definition,
+   Bool actual at either store reports reason103 at that store's exact site,
+   with no failed-slot mutation and root reclaim before report/dispose. Add
+   parser negatives for v1, missing/duplicate/extra keys, numeric params/args,
+   receiver/param/dst collision, missing/unknown representation, bad arity,
+   unknown/mismatched kind, Bool non-boolean constant, undefined/undominated
+   payload, HANDLE-as-scalar and tagged Add/return. Invalid dynamic kind or Bool
+   payload follows InvalidContract, never a source Fault. Preserve existing
+   range/Fault/report-failure/session/output-atomicity tests. Source Local and
+   unresolved declaration cases remain pre-input negatives. Update owning Rust/C
+   READMEs and the reference in the same revision-coherent implementation.
+
+   Work as one bounded compiler/C schema-consumer series, with the actual
+   validator caller and V4 internal parser changed together. The v1 validator
+   currently has host, header/route, V4 and parser-test callers; retirement must
+   also check include/build and test discovery before claiming caller-zero.
+   Reuse focused tests and existing guards; no new pending consumer or guard.
+   Later selected-host capability must compare every retained numeric contract
+   against the completed input's exact FieldSet/ValueId/i64-layout coverage.
+   Metadata names may check integrity, not resolve meaning. Reject residuals
+   and leave generic OBJ capability unchanged; do not clear contracts. This
+   obligation remains in host task 4 after optimizer coordinate task 3.
 
 3. **Close optimizer observer mapping.** Default Pair currently rejects
    `root-exit-operation-drift`; `--no-optimize` instead reaches numeric OBJ

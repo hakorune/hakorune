@@ -112,6 +112,43 @@ issuance. Local has no selected initializer-kind relation and remains unavailabl
 Text/handle arguments are outside this bounded protocol. Source declarations
 remain unannotated and each definition has one unspecialized body.
 
+### Selected lifecycle physical program v2 — accepted wire decision
+
+Decision (2026-09-07): replace the untagged v1 document, retaining one parser
+and one V4 physical consumer. Schema is exactly
+`hako.published-lifecycle-physical-program.v2`. Function keys are exactly
+`name, role, receiver, params, entry, blocks`. Root uses `receiver:null` and
+`params:[]`; Birth uses an explicit receiver ValueId (u32) and source-ordered
+`params:[{"value":11,"representation":"kind_payload_v1"}, ...]`. Params omit
+receiver. They share the existing SSA namespace; receiver, params and other
+value definitions must not collide. No redundant ordinal/arity/lane fields.
+
+Birth call keeps `target, receiver, args, dst` with `dst:null` for Unit;
+args become `[{"kind":1,"value":21}, {"kind":2,"value":22}]`. Kind is an
+unsigned JSON integer; value is the existing payload SSA ValueId (u32), not
+another literal copy. Explicit Bool is
+`{"op":"const_bool","dst":22,"value":true}` with a JSON boolean only.
+Integer(1) and Bool(true) remain different definitions. Call kind must agree
+with payload representation; malformed/unknown keys, values, references,
+dominance, arity, target or kind disagreement reject before LLVM/artifact.
+Other root/layout/operation/edge keys keep their existing closed contracts.
+
+MIR keeps receiver + N logical parameters. LLVM projects these once into
+`ptr frame, i64 receiver, (i32 kind, i64 payload) x N`; existing physical_ordinal
+remains the MIR parameter index. Birth formal has TAGGED representation, root
+ConstBool has BOOL, object identities have HANDLE, and scalar arithmetic/result
+has I64. Tagged Copy preserves both lanes. Add and I64 return cannot read tagged
+payload or HANDLE as an integer. Every tagged FieldSet consumes the kind check
+and its existing Fault/Normal edges according to the scalar decision above.
+
+The v2 validator replaces the v1 validator/export and their host/internal V4
+callers in the same schema implementation. V4 compile keeps its pointer ABI
+and symbol, but becomes v2-document-only. Old v1 schema and numeric-array
+params/args reject without default tags before target-session/temp-output work.
+FaultFrame/status ABI and runtime descriptor stay v1: the changed revision is
+the compiler physical document, not the runtime frame. This design document
+itself does not change any accepted input or activate host execution.
+
 ### `include/nyrt_dynamic_call_slot_v2.h` and `include/nyrt_dynamic_text_scan_v1.h`
 
 The selected Boundary AOT CheckedCallOut lane uses the versioned CallSlot

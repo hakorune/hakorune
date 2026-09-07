@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "Birth tagged wire revision/keys and exact formal/actual binding; full formal retention verified"
-current_blocker_token = "Full Birth formal contract retention verified: compiled-entry 1/1, physical-input Stop 3/3, source formal issuer 2/2; peak 8.55 GiB. Next design: fix tagged schema revision and params/args/Bool-Const encoding before compiler/C promotion. Kind 1/2 and FieldTypeMismatch 103 policy accepted; host draft remains parked."
+current_design_stop = "none (v2 schema/LLVM lanes and exact Unannotated Integer/Bool binding accepted; generic host capability remains later)"
+current_blocker_token = "Implement accepted v2 tagged physical input and V4 consumer together: explicit receiver, params representation, call kind/value and Bool Const; remove v1/parser and positional I64 defaults. Exact formal/actual source contracts and construction final validation are prerequisites. Preserve Local/declaration Stops; host draft and numeric OBJ promotion remain parked until execution evidence."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -46,7 +46,8 @@ Per-New retention at ffa36b0823 is verified: compiled_entry_contract 1/1 and
 physical_program_json 3/3 pass with CGU256, one job, peak aggregate 8.54 GiB.
 The standing 12 GiB monitored ceiling replaces per-run resource approval.
 Exact formal retention now passes 6 focused tests; disposition-only storage is
-removed. Wire keys/revision and formal/actual binding are the next design boundary. Kind/payload and FieldTypeMismatch policy are recorded
+removed. V2 wire keys/revision and bounded Unannotated Integer/Bool binding
+are accepted; the next implementation is compiler/C schema-consumer replacement. Kind/payload and FieldTypeMismatch policy are recorded
 in the existing ABI reference, without execution admission.
 4237b20d feedback is reconciled in the card: containment and single serialization
 landed; Unit role cleanup, host retirement and view ownership cleanup remain.
@@ -55,7 +56,7 @@ execution claim is permitted. V4 host draft and its unproved test are saved at b
 codex/lifecycle-v4-host-draft; no positive host EXE/OBJ or representation promotion is claimed.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
-next_execution_card = "none"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
