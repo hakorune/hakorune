@@ -30,12 +30,17 @@ root/Birth handoff together through the synchronous callback. The view borrows
 that handoff once and delegates source/result/Birth accessors; it does not own
 four separate semantic products or recollect a cloned target-key list. Binding
 still validates definitions, arity and source/result correspondence before
-activation. Physical row vectors and route/profile state remain view-local;
-their later admission-owner cleanup is separate from this ownership change.
+finalization admission. The private `lifecycle_admission.rs` helper preserves
+candidate, root/result/source, function namespace and Birth-call checks, including
+projected Return rows. Finalization owns the selected storage profile; the view
+borrows it through callback completion and observes selection without rewriting
+its structural route. Generic module-only lifecycle views remain unsupported.
+Physical row vectors remain view-local. Unit remains observable before its
+physical-input Stop; finalization does not force physical-input issuance.
 
 `compile_normal_with_published` shares the ordinary build/finish implementation, then verifies the final selected module and prepares external commit before a synchronous view callback. Callback failure aborts; success returns only its output and commits once. EXE and llvm-boundary OBJ consume this terminal before post-compile mutation/execution.
 Only an exact `ExplicitCompatibility` view returns the existing non-admitted `MirCompileResult`, without cloning or recompilation; it never represents a selected failure. EXE also consumes its historical verification diagnostics. Other backend feature selections remain unchanged.
-The sole view implementation is a child of `normal_default_pipeline`; historical imports/test paths are re-exports. The completed root owner selects diagnostic or artifact validation once, retaining root/Birth payloads through finishing. Artifact validation exhausts lifecycle sites and Birth definitions and returns its exact root key. After selected strict verification and commit preparation, private binding retains that root reference on the same view without rescanning or changing its route. Missing keys reject; absent/no-New identity is not lifecycle permission. Unavailable source and uncovered siblings reject; generic module/clone admission remains lifecycle-fenced until the typed-C consumer is connected.
+The sole view implementation is a child of `normal_default_pipeline`; historical imports/test paths are re-exports. The completed root owner selects diagnostic or artifact validation once, retaining root/Birth payloads through finishing. Artifact validation exhausts lifecycle sites and Birth definitions and returns its exact root key. After selected strict verification and commit preparation, private binding retains that root reference on the same view without rescanning or changing its route. Missing keys reject; absent/no-New identity is not lifecycle permission. Unavailable source and uncovered siblings reject; generic module/clone construction remains lifecycle-fenced; only the finalized selected view reaches the typed-C consumer.
 
 ### Builder operator-call retirement I0
 

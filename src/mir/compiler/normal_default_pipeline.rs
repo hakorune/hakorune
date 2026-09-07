@@ -19,6 +19,7 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use super::{finish_schedule_for_normal_module, MirCompileResult, MirCompiler};
 
 pub(in crate::mir) mod published_backend_view;
+mod lifecycle_admission;
 pub(crate) use published_backend_view::emit_lifecycle_physical_abi_json;
 
 /// Only the unselected compatibility branch may return an owned module.
@@ -614,16 +615,20 @@ impl MirCompiler {
                     .prepare_external_commit()
                     .map_err(|error| error.to_string())?;
                 let view = view.bind_finalized_root_birth_handoff(retained_root.as_ref())?;
-                let view = if view.route() == PublishedStaticMethodRouteV1::UnsupportedBeforeObject
-                {
-                    let profile_name = crate::config::env::env_string("HAKO_TYPED_OBJECT_STORE");
-                    let profile =
-                        published_backend_view::PublishedObjectStorageProfileV1::from_runtime_name(
-                            profile_name.as_deref(),
-                        )?;
-                    view.activate_lifecycle_for_final_artifact(profile)?
-                } else {
-                    view
+                let selected_profile =
+                    if view.route() == PublishedStaticMethodRouteV1::UnsupportedBeforeObject {
+                        let profile_name = crate::config::env::env_string("HAKO_TYPED_OBJECT_STORE");
+                        Some(
+                            published_backend_view::PublishedObjectStorageProfileV1::from_runtime_name(
+                                profile_name.as_deref(),
+                            )?,
+                        )
+                    } else {
+                        None
+                    };
+                let view = match selected_profile.as_ref() {
+                    Some(profile) => lifecycle_admission::admit_lifecycle(view, profile)?,
+                    None => view,
                 };
                 let output = consume(&view, &result.verification_result)?;
                 Ok((prepared, NormalPublishedCompileOutcome::Consumed(output)))

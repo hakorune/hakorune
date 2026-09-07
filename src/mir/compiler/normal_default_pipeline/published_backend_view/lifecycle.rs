@@ -6,11 +6,9 @@
 
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
-use crate::mir::{Callee, MirInstruction, ValueId};
+use crate::mir::{Callee, MirInstruction};
 
-use super::{
-    PublishedMirBackendView, PublishedMirBackendViewErrorV1, PublishedStaticMethodRouteV1,
-};
+use super::{PublishedMirBackendView, PublishedMirBackendViewErrorV1};
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct PublishedLifecycleInstructionRef<'module> {
@@ -176,93 +174,7 @@ impl<'module> PublishedMirBackendView<'module> {
     pub(crate) fn lifecycle_storage_profile(
         &self,
     ) -> Option<super::PublishedObjectStorageProfileV1> {
-        self.lifecycle_storage_profile
-    }
-
-    /// Final-artifact-only admission. Generic view construction deliberately
-    /// keeps these rows at `UnsupportedBeforeObject`.
-    pub(in crate::mir::compiler) fn activate_lifecycle_for_final_artifact(
-        mut self,
-        profile: super::PublishedObjectStorageProfileV1,
-    ) -> Result<Self, String> {
-        if self.route != PublishedStaticMethodRouteV1::UnsupportedBeforeObject
-            || self.has_non_lifecycle_unsupported
-            || self.lifecycle_instructions.is_empty()
-        {
-            return Err(fault("candidate-unavailable"));
-        }
-        let root = self
-            .retained_root
-            .ok_or_else(|| fault("retained-root-missing"))?;
-        let root_name = root.signature.name.as_str();
-        let retained_births = self
-            .retained_handoff
-            .ok_or_else(|| fault("retained-birth-handoff-missing"))?
-            .births();
-        if !matches!(
-            self.retained_root_result(),
-            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. }
-                | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. }
-                | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
-                | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { .. })
-        ) {
-            return Err(fault("retained-root-result-missing"));
-        }
-        if self.retained_root_source().is_none() {
-            return Err(fault("retained-root-source-missing"));
-        }
-        self.lifecycle_instructions
-            .extend(self.return_instructions.iter().copied().filter(|row| {
-                row.function_name == root_name
-                    || self
-                        .module
-                        .canonical_callable_definitions
-                        .iter()
-                        .any(|(key, symbol)| {
-                            retained_births.iter().any(|birth| birth.target() == key)
-                                && symbol.as_str() == row.function_name
-                        })
-            }));
-        for row in &self.lifecycle_instructions {
-            if row.function_name == root_name {
-                continue;
-            }
-            let Some(function) = self.module.functions.get(row.function_name) else {
-                return Err(fault("function-missing"));
-            };
-            let Some((key, _)) = self
-                .module
-                .canonical_callable_definitions
-                .iter()
-                .find(|(_, symbol)| symbol.as_str() == row.function_name)
-            else {
-                return Err(fault("function-not-cataloged"));
-            };
-            if key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
-                || function.signature.name != key.mir_symbol_projection()
-            {
-                return Err(fault("function-not-birth"));
-            }
-        }
-        for row in &self.lifecycle_instructions {
-            if let MirInstruction::Call(call) = row.instruction {
-                let Callee::BirthConstructor { key, receiver } = &call.callee else {
-                    continue;
-                };
-                if *receiver == ValueId::INVALID
-                    || key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
-                    || self
-                        .module
-                        .canonical_callable_definition_symbol(key)
-                        .is_none()
-                {
-                    return Err(fault("birth-call-drift"));
-                }
-            }
-        }
-        self.route = PublishedStaticMethodRouteV1::CanonicalTyped;
-        self.lifecycle_storage_profile = Some(profile);
-        Ok(self)
+        self.lifecycle_storage_profile.copied()
     }
 }
 

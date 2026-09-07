@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0"
 current_execution_cohort = "constructor_lifecycle_published_view_owner_i0"
-current_design_stop = "none; task 6-owner finalization-owned admission/profile slice accepted after read-only caller/lifetime audit"
-current_blocker_token = "Task6-owner next BoxShape: move lifecycle admission checks into private finalization owner; view borrows selected profile and observes selection instead of rewriting lifecycle route. Preserve Unit observer/physical Stop, return-row namespace checks, generic/static/array routes and EXE/OBJ/Fault. Do not force PhysicalAbiInput before callback."
+current_design_stop = "none; task 6-owner observation-row storage removal accepted after read-only caller and validation census"
+current_blocker_token = "Task6-owner next BoxShape: remove lifecycle/Return row Vecs and coordinate wrapper; preserve exact presence predicate and finalization namespace/Birth-call validation by borrow, including Return-only retained Birth signature checks. Preserve Unit observer/physical Stop, generic/static/array and EXE/OBJ/Fault. No source widening or new receipt."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,14 +31,12 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-View now borrows the completed handoff from existing finalization. Four owned
-semantic fields, target clones/recollection and handoff.into_parts are removed.
-View32 and normal-source host1 pass; pipeline23 gives21 pass/2 failures reproduced
-unchanged at parent7c8041c075 (known baseline debt; exact names in active card).
-Next accepted BoxShape moves admission/profile to the same finalization owner,
-keeping generic structural route classification and Unit observer semantics.
-No new receipt/result type, forced input issuance or source widening. Runtime
-session stays archive/target-only; preserve return-row validation and host checks.
+Finalization owns completed handoff and lifecycle admission/profile. View borrows
+semantic products and selected profile; activation API and lifecycle route
+rewriting are removed. View32/host1 pass; pipeline21/2 matches known parent debt.
+Next accepted BoxShape removes both observation row Vecs, their coordinate
+wrapper and append edge, while preserving Return-only Birth validation and all
+admission phases. Physical program/compiled-entry coordinates remain unchanged.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0"
 next_execution_card = "CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0"

@@ -3,8 +3,8 @@
 //! This module deliberately does not resolve names, inspect source, or repair
 //! legacy call operands.  It validates the relation already published by
 //! `MirModule` and exposes references for a backend consumer. Physical row
-//! vectors and admission/profile state remain local to this view; finalized
-//! semantic products stay owned by the normal finalization invocation.
+//! vectors remain local to this view; finalized semantic products and selected
+//! lifecycle profile stay owned by the normal finalization invocation.
 
 use hakorune_mir_defs::{
     CanonicalBuiltinGlobalV1, CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV1,
@@ -305,10 +305,10 @@ pub(crate) struct PublishedMirBackendView<'module> {
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
     builtin_print_calls: Vec<PublishedBuiltinPrintCallRef<'module>>,
     array_element_writes: Vec<PublishedArrayElementWriteRef<'module>>,
-    lifecycle_instructions: Vec<PublishedLifecycleInstructionRef<'module>>,
-    return_instructions: Vec<PublishedLifecycleInstructionRef<'module>>,
-    has_non_lifecycle_unsupported: bool,
-    lifecycle_storage_profile: Option<PublishedObjectStorageProfileV1>,
+    pub(super) lifecycle_instructions: Vec<PublishedLifecycleInstructionRef<'module>>,
+    pub(super) return_instructions: Vec<PublishedLifecycleInstructionRef<'module>>,
+    pub(super) has_non_lifecycle_unsupported: bool,
+    pub(super) lifecycle_storage_profile: Option<&'module PublishedObjectStorageProfileV1>,
 }
 
 impl<'module> PublishedMirBackendView<'module> {
@@ -503,7 +503,11 @@ impl<'module> PublishedMirBackendView<'module> {
     }
 
     pub(crate) const fn route(&self) -> PublishedStaticMethodRouteV1 {
-        self.route
+        if self.lifecycle_storage_profile.is_some() {
+            PublishedStaticMethodRouteV1::CanonicalTyped
+        } else {
+            self.route
+        }
     }
 
     pub(crate) fn static_method_calls(&self) -> &[PublishedStaticMethodCallRef<'module>] {
