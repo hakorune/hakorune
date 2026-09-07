@@ -521,6 +521,21 @@ int hako_llvmc_compile_published_lifecycle_body_v2(
 }
 
 __attribute__((visibility("default")))
+int hako_llvmc_compile_published_lifecycle_body_v3(
+    const char* json_in,
+    const hako_llvmc_published_lifecycle_frame_v2* frame,
+    const hako_llvmc_published_lifecycle_body_site_v1* sites,
+    size_t site_count,
+    const hako_llvmc_lifecycle_target_session_v1* session,
+    const char* obj_out,
+    char** err_out) {
+  if (hako_llvmc_lifecycle_target_session_v1_validate(session, err_out) != 0)
+    return -1;
+  return hako_llvmc_compile_published_lifecycle_body_v2(
+      json_in, frame, sites, site_count, obj_out, err_out);
+}
+
+__attribute__((visibility("default")))
 int hako_llvmc_validate_published_lifecycle_physical_v1(
     const char* json_in, char** err_out) {
   yyjson_doc* doc;

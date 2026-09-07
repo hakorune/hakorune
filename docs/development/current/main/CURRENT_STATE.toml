@@ -40,7 +40,7 @@ descriptor I0 is landed: the target-compiled Rust Fault ABI emits one fixed
 archive record and the host reader proves actual extraction plus malformed
 rejection. The selected target was already x86_64 GNU/Linux LP64. The host half
 of session I0 retains one explicit archive through lifecycle EXE compilation
-and link; next add neutral C LLVM layout validation to that invocation, then complete direct input,
+and link; C V3 now validates descriptor/header geometry plus LLVM target triple/pointer layout before pending. Next complete direct input,
 C execution/status cutover and caller-zero retirement. Physical representation/CFG coverage and failure
 terminal policies remain cutover blockers; Pair EXE30/linked OBJ30 are unproven.
 """

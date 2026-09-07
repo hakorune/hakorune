@@ -3,12 +3,33 @@ use std::path::{Path, PathBuf};
 
 use super::defaults;
 use super::normalize;
+use super::runtime_abi_descriptor::LifecycleRuntimeSessionV1;
 use super::transport_io;
 use super::transport_paths;
 use super::Opts;
 use crate::mir::function::{
-    PublishedLifecycleBodySiteCRowV1, PublishedLifecycleCFrameHeaderV2, PublishedStaticMethodCallCRowV1,
+    PublishedLifecycleBodySiteCRowV1, PublishedLifecycleCFrameHeaderV2,
+    PublishedStaticMethodCallCRowV1,
 };
+
+#[repr(C)]
+struct LifecycleTargetSessionCRowV1 {
+    revision: u32,
+    target_triple: *const std::os::raw::c_char,
+    endian: u32,
+    pointer_width: u32,
+    fault_abi_version: u32,
+    status_abi_version: u32,
+    diagnostic_size: u32,
+    diagnostic_align: u32,
+    diagnostic_site_offset: u32,
+    diagnostic_details_offset: u32,
+    diagnostic_message_offset: u32,
+    frame_size: u32,
+    frame_align: u32,
+    frame_primary_offset: u32,
+    frame_suppressed_offset: u32,
+}
 
 #[cfg(feature = "plugins")]
 fn resolve_ffi_library_path() -> Result<PathBuf, String> {
@@ -239,11 +260,15 @@ pub(super) fn compile_published_lifecycle_v2(
     obj_out: &Path,
 ) -> Result<(), String> {
     use std::os::raw::{c_char, c_int, c_void};
-    extern "C" { fn free(ptr: *mut c_void); }
+    extern "C" {
+        fn free(ptr: *mut c_void);
+    }
     unsafe {
         let lib = load_ffi_library()?;
         type CompileFn = unsafe extern "C" fn(
-            *const PublishedLifecycleCFrameHeaderV2, *const c_char, *mut *mut c_char,
+            *const PublishedLifecycleCFrameHeaderV2,
+            *const c_char,
+            *mut *mut c_char,
         ) -> c_int;
         let func: libloading::Symbol<CompileFn> = lib
             .get(b"hako_llvmc_compile_published_lifecycle_v2\0")
@@ -253,9 +278,14 @@ pub(super) fn compile_published_lifecycle_v2(
         let mut err_ptr: *mut c_char = std::ptr::null_mut();
         let rc = func(frame, output.as_ptr(), &mut err_ptr);
         if rc != 0 {
-            let message = if err_ptr.is_null() { "published lifecycle V2 compile failed".to_owned() }
-                else { CStr::from_ptr(err_ptr).to_string_lossy().into_owned() };
-            if !err_ptr.is_null() { free(err_ptr as *mut c_void); }
+            let message = if err_ptr.is_null() {
+                "published lifecycle V2 compile failed".to_owned()
+            } else {
+                CStr::from_ptr(err_ptr).to_string_lossy().into_owned()
+            };
+            if !err_ptr.is_null() {
+                free(err_ptr as *mut c_void);
+            }
             return Err(message);
         }
         transport_io::ensure_backend_artifact_written(obj_out, "object")
@@ -264,26 +294,132 @@ pub(super) fn compile_published_lifecycle_v2(
 
 #[cfg(feature = "plugins")]
 pub(super) fn compile_published_lifecycle_body_v2(
-    json_in: &Path, frame: &PublishedLifecycleCFrameHeaderV2,
-    sites: &[PublishedLifecycleBodySiteCRowV1], obj_out: &Path,
+    json_in: &Path,
+    frame: &PublishedLifecycleCFrameHeaderV2,
+    sites: &[PublishedLifecycleBodySiteCRowV1],
+    obj_out: &Path,
 ) -> Result<(), String> {
     use std::os::raw::{c_char, c_int, c_void};
-    extern "C" { fn free(ptr: *mut c_void); }
-    if sites.is_empty() { return Err("published lifecycle body requires NewBox sites".into()); }
+    extern "C" {
+        fn free(ptr: *mut c_void);
+    }
+    if sites.is_empty() {
+        return Err("published lifecycle body requires NewBox sites".into());
+    }
     unsafe {
         let lib = load_ffi_library()?;
-        type CompileFn = unsafe extern "C" fn(*const c_char, *const PublishedLifecycleCFrameHeaderV2,
-            *const PublishedLifecycleBodySiteCRowV1, usize, *const c_char, *mut *mut c_char) -> c_int;
-        let func: libloading::Symbol<CompileFn> = lib.get(b"hako_llvmc_compile_published_lifecycle_body_v2\0")
-            .map_err(|error| format!("dlsym failed for published lifecycle body V2 ingress: {error}"))?;
-        let input = CString::new(json_in.to_string_lossy().as_bytes()).map_err(|_| "invalid json path".to_owned())?;
-        let output = CString::new(obj_out.to_string_lossy().as_bytes()).map_err(|_| "invalid out path".to_owned())?;
+        type CompileFn = unsafe extern "C" fn(
+            *const c_char,
+            *const PublishedLifecycleCFrameHeaderV2,
+            *const PublishedLifecycleBodySiteCRowV1,
+            usize,
+            *const c_char,
+            *mut *mut c_char,
+        ) -> c_int;
+        let func: libloading::Symbol<CompileFn> = lib
+            .get(b"hako_llvmc_compile_published_lifecycle_body_v2\0")
+            .map_err(|error| {
+                format!("dlsym failed for published lifecycle body V2 ingress: {error}")
+            })?;
+        let input = CString::new(json_in.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid json path".to_owned())?;
+        let output = CString::new(obj_out.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid out path".to_owned())?;
         let mut err_ptr: *mut c_char = std::ptr::null_mut();
-        let rc = func(input.as_ptr(), frame, sites.as_ptr(), sites.len(), output.as_ptr(), &mut err_ptr);
+        let rc = func(
+            input.as_ptr(),
+            frame,
+            sites.as_ptr(),
+            sites.len(),
+            output.as_ptr(),
+            &mut err_ptr,
+        );
         if rc != 0 {
-            let message = if err_ptr.is_null() { "published lifecycle body V2 compile failed".into() }
-                else { CStr::from_ptr(err_ptr).to_string_lossy().into_owned() };
-            if !err_ptr.is_null() { free(err_ptr as *mut c_void); }
+            let message = if err_ptr.is_null() {
+                "published lifecycle body V2 compile failed".into()
+            } else {
+                CStr::from_ptr(err_ptr).to_string_lossy().into_owned()
+            };
+            if !err_ptr.is_null() {
+                free(err_ptr as *mut c_void);
+            }
+            return Err(message);
+        }
+        transport_io::ensure_backend_artifact_written(obj_out, "object")
+    }
+}
+
+pub(super) fn compile_published_lifecycle_body_v3(
+    json_in: &Path,
+    frame: &PublishedLifecycleCFrameHeaderV2,
+    sites: &[PublishedLifecycleBodySiteCRowV1],
+    session: &LifecycleRuntimeSessionV1,
+    obj_out: &Path,
+) -> Result<(), String> {
+    use std::os::raw::{c_char, c_int, c_void};
+    extern "C" {
+        fn free(ptr: *mut c_void);
+    }
+    if sites.is_empty() {
+        return Err("published lifecycle body requires NewBox sites".into());
+    }
+    let d = session.descriptor();
+    let triple =
+        CString::new(d.target_triple.as_str()).map_err(|_| "invalid lifecycle target triple")?;
+    let row = LifecycleTargetSessionCRowV1 {
+        revision: 1,
+        target_triple: triple.as_ptr(),
+        endian: d.endian,
+        pointer_width: d.pointer_width,
+        fault_abi_version: d.fault_abi_version,
+        status_abi_version: d.status_abi_version,
+        diagnostic_size: d.diagnostic_size,
+        diagnostic_align: d.diagnostic_align,
+        diagnostic_site_offset: d.diagnostic_site_offset,
+        diagnostic_details_offset: d.diagnostic_details_offset,
+        diagnostic_message_offset: d.diagnostic_message_offset,
+        frame_size: d.frame_size,
+        frame_align: d.frame_align,
+        frame_primary_offset: d.frame_primary_offset,
+        frame_suppressed_offset: d.frame_suppressed_offset,
+    };
+    unsafe {
+        let lib = load_ffi_library()?;
+        type CompileFn = unsafe extern "C" fn(
+            *const c_char,
+            *const PublishedLifecycleCFrameHeaderV2,
+            *const PublishedLifecycleBodySiteCRowV1,
+            usize,
+            *const LifecycleTargetSessionCRowV1,
+            *const c_char,
+            *mut *mut c_char,
+        ) -> c_int;
+        let func: libloading::Symbol<CompileFn> = lib
+            .get(b"hako_llvmc_compile_published_lifecycle_body_v3\0")
+            .map_err(|e| format!("dlsym failed for lifecycle V3 ingress: {e}"))?;
+        let input =
+            CString::new(json_in.to_string_lossy().as_bytes()).map_err(|_| "invalid json path")?;
+        let output =
+            CString::new(obj_out.to_string_lossy().as_bytes()).map_err(|_| "invalid out path")?;
+        let mut error: *mut c_char = std::ptr::null_mut();
+        if func(
+            input.as_ptr(),
+            frame,
+            sites.as_ptr(),
+            sites.len(),
+            &row,
+            output.as_ptr(),
+            &mut error,
+        ) != 0
+        {
+            let message = if error.is_null() {
+                "published lifecycle V3 compile failed".into()
+            } else {
+                CStr::from_ptr(error).to_string_lossy().into_owned()
+            };
+            if !error.is_null() {
+                free(error as *mut c_void);
+            }
             return Err(message);
         }
         transport_io::ensure_backend_artifact_written(obj_out, "object")
@@ -344,9 +480,13 @@ pub(super) fn compile_published_lifecycle_v2(
 
 #[cfg(not(feature = "plugins"))]
 pub(super) fn compile_published_lifecycle_body_v2(
-    _json_in: &Path, _frame: &PublishedLifecycleCFrameHeaderV2,
-    _sites: &[PublishedLifecycleBodySiteCRowV1], _obj_out: &Path,
-) -> Result<(), String> { Err("capi not available (plugins feature disabled)".into()) }
+    _json_in: &Path,
+    _frame: &PublishedLifecycleCFrameHeaderV2,
+    _sites: &[PublishedLifecycleBodySiteCRowV1],
+    _obj_out: &Path,
+) -> Result<(), String> {
+    Err("capi not available (plugins feature disabled)".into())
+}
 
 #[cfg(feature = "plugins")]
 pub(super) fn link_via_capi(

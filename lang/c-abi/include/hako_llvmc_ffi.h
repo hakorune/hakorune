@@ -120,6 +120,17 @@ typedef struct hako_llvmc_published_lifecycle_frame_v2 {
   size_t field_count;
 } hako_llvmc_published_lifecycle_frame_v2;
 
+/* Invocation-owned physical target facts decoded from the selected runtime
+ * archive. This is not MIR/source authority and is consumed only by V3. */
+typedef struct hako_llvmc_lifecycle_target_session_v1 {
+  uint32_t revision;
+  const char* target_triple;
+  uint32_t endian, pointer_width, fault_abi_version, status_abi_version;
+  uint32_t diagnostic_size, diagnostic_align, diagnostic_site_offset;
+  uint32_t diagnostic_details_offset, diagnostic_message_offset;
+  uint32_t frame_size, frame_align, frame_primary_offset, frame_suppressed_offset;
+} hako_llvmc_lifecycle_target_session_v1;
+
 // Compile a module whose selected published call sites are described by the
 // typed rows.  json_in remains a physical body transport for this bounded
 // cohort; target identity for selected calls comes only from `calls`.
@@ -140,6 +151,15 @@ int hako_llvmc_compile_published_lifecycle_body_v2(
     const hako_llvmc_published_lifecycle_frame_v2* frame,
     const hako_llvmc_published_lifecycle_body_site_v1* sites,
     size_t site_count,
+    const char* obj_out,
+    char** err_out);
+
+int hako_llvmc_compile_published_lifecycle_body_v3(
+    const char* json_in,
+    const hako_llvmc_published_lifecycle_frame_v2* frame,
+    const hako_llvmc_published_lifecycle_body_site_v1* sites,
+    size_t site_count,
+    const hako_llvmc_lifecycle_target_session_v1* session,
     const char* obj_out,
     char** err_out);
 

@@ -69,10 +69,11 @@ fn compile_published_view_object(
         )?;
         let output = PathBuf::from(obj_out);
         transport_io::ensure_backend_output_parent(&output);
-        let result = capi_transport::compile_published_lifecycle_body_v2(
+        let result = capi_transport::compile_published_lifecycle_body_v3(
             &mir_json_path,
             frame.header(),
             frame.body_sites(),
+            lifecycle_session.expect("checked lifecycle session"),
             &output,
         );
         transport_io::remove_backend_temp_file(&mir_json_path);

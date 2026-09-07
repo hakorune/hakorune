@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "../include/hako_llvmc_ffi.h"
+#include "../../../include/nyrt_fault_v1.h"
 
 static void rejects(hako_llvmc_published_lifecycle_frame_v2* frame, const char* reason) {
   char* error = NULL;
@@ -27,6 +28,24 @@ static void rejects_body(
       "/tmp/hako-v2-body-no-object.o", &error) != 0);
   assert(error && strstr(error, reason));
   assert(fopen("/tmp/hako-v2-body-no-object.o", "rb") == NULL);
+  free(error);
+}
+
+static void rejects_body_v3(
+    hako_llvmc_published_lifecycle_frame_v2* frame,
+    hako_llvmc_published_lifecycle_body_site_v1* site,
+    hako_llvmc_lifecycle_target_session_v1* session,
+    const char* reason) {
+  char* error = NULL;
+  FILE* json = fopen("/tmp/published-lifecycle-body-v3.json", "wb");
+  assert(json);
+  fputs("not-yet-consumed-body", json);
+  fclose(json);
+  assert(hako_llvmc_compile_published_lifecycle_body_v3(
+      "/tmp/published-lifecycle-body-v3.json", frame, site, 1, session,
+      "/tmp/hako-v3-body-no-object.o", &error) != 0);
+  assert(error && strstr(error, reason));
+  assert(fopen("/tmp/hako-v3-body-no-object.o", "rb") == NULL);
   free(error);
 }
 
@@ -120,6 +139,22 @@ int main(void) {
     .fault_landing = 9, .object_id = 11,
   };
   rejects_body(&frame, &site, "body-consumer-pending");
+  hako_llvmc_lifecycle_target_session_v1 session = {
+    .revision = 1, .target_triple = "x86_64-unknown-linux-gnu",
+    .endian = 1, .pointer_width = sizeof(void *), .fault_abi_version = 1,
+    .status_abi_version = 1, .diagnostic_size = sizeof(NyrtFaultDiagnosticV1),
+    .diagnostic_align = _Alignof(NyrtFaultDiagnosticV1),
+    .diagnostic_site_offset = offsetof(NyrtFaultDiagnosticV1, site),
+    .diagnostic_details_offset = offsetof(NyrtFaultDiagnosticV1, details),
+    .diagnostic_message_offset = offsetof(NyrtFaultDiagnosticV1, runtime_private_message),
+    .frame_size = sizeof(NyrtFaultFrameV1), .frame_align = _Alignof(NyrtFaultFrameV1),
+    .frame_primary_offset = offsetof(NyrtFaultFrameV1, primary),
+    .frame_suppressed_offset = offsetof(NyrtFaultFrameV1, suppressed),
+  };
+  rejects_body_v3(&frame, &site, &session, "body-consumer-pending");
+  session.pointer_width = 4;
+  rejects_body_v3(&frame, &site, &session, "lifecycle-session/runtime-abi");
+  session.pointer_width = sizeof(void *);
   site.normal_result = HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABSENT_U32_V2;
   rejects_body(&frame, &site, "body-site-invalid");
   site.normal_result = 12;

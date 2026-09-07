@@ -343,6 +343,15 @@ re-selection. The remaining part of this same row is the neutral C LLVM
 resource helper and descriptor-to-target-layout verification; no target
 equality or lifecycle C execution is claimed by this checkpoint.
 
+C session checkpoint: V3 receives only the host-decoded fixed descriptor row.
+Its neutral helper opens an LLVM 18 X86 TargetMachine, checks the selected
+triple and target-data pointer width, and independently compares every
+Fault Diagnostic/Frame field with the C header before returning the existing
+typed pending terminal. It owns and releases the library, machine, target-data
+and LLVM diagnostic on every outcome. This is call-local target observation;
+it neither imports PTFB semantics nor emits an object. Full LLVM struct-layout
+projection remains coupled to the direct physical-input consumer.
+
 ### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
 
 This is the concrete Step 4 owner/caller row: final view physical program and
