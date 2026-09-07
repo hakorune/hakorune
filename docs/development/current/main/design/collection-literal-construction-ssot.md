@@ -515,7 +515,8 @@ mapping must account for these finite transitions:
 | --- | --- | --- |
 | Array allocation | Normal-only result -> claim | prior Homes -> outward Fault; no nonexistent residence release |
 | claim | first child or Local commit | incomplete residence -> prior Homes -> outward Fault |
-| primitive child/write | next child or Local commit | incomplete residence -> prior Homes -> outward Fault |
+| source-proven primitive child | exact result -> write | no fabricated source Fault for literal evaluation |
+| write | next child or Local commit | incomplete residence -> prior Homes -> outward Fault |
 | Local commit | exact binding gains one Home | no fabricated Fault edge for the existing nonfallible binding |
 | explicit root Return | reverse terminal Home cleanup -> exact source Return | an existing first Fault remains outward Fault |
 
@@ -533,14 +534,85 @@ not currently checked errors. Object HomeRelease/ReclaimUnpublished target the
 typed-object store and are not Array cleanup. The same-named noop shim is not
 native execution evidence.
 
-Before implementation, fix the exact operation/result vocabulary for Array
-allocation/claim/write and source-proven residence release, their Normal-only
-result projections, finished source/control bindings and Script artifact Stop.
-Existing passive DestroyOwned/legacy ReleaseStrong names alone do not authorize
-ownership-token or alias-group semantics. A checked invalid-handle cleanup API,
-if selected, needs one registry-lock check+retirement owner; it is not a wrapper
-around lookup followed by drop_handle. This physical mapping is the current D0
-output, not an implicit source-language redesign or C activation permission.
+Accepted physical vocabulary (implementation pending):
+
+| Physical operation | Operands | Normal result |
+| --- | --- | --- |
+| InvokeOperation::IntrinsicArrayNew | none | one InvokeNormalResult Array value |
+| InvokeOperation::ArrayStateContractClaim | contract_id, array | Unit; no projection |
+| InvokeOperation::ArrayElementWrite | site_id, kind, producer, receiver, index, value | Unit; no embedded dst/projection |
+| MirInstruction::ArrayResidenceRelease | value | no result, frame operand or source-Fault successor |
+
+This emitter issues only LiteralAppend/Literal/index=None writes. Shared kind
+vocabulary grants no additional source family. Allocation/claim/write carry the
+existing Invoke frame and distinct Normal/Fault successors. Allocation result
+exists only on Normal. Release is WRITE/non-pure and requires retained lifecycle
+validation; it consumes one source-proven residence obligation. Incomplete
+reclaim versus committed Home remains in the source/control binding, even though
+both use the same physical release primitive. Passive DestroyOwned, alias-group
+ReleaseStrong and ordinary-object cleanup retain their existing meanings.
+
+Source-to-physical owner chain:
+
+1. ScriptSemanticLoweringState::new consumes the already co-sealed continuation
+   and seals one private ScriptArrayLifecycleRecipeV1 from its complete Array
+   cutpoints, prior Homes and exact RootTerminal. No source AST classifier,
+   physical ID, Recipe key or default cleanup enters the Facts owner. The Recipe
+   is the sole control selector; it never reissues source capability.
+2. lower_script_local_v1 takes that exact Local recipe before emission and
+   passes it through the existing Script-proven Local input. The typed literal
+   descent consumes the recipe and existing exact Element child port. Existing
+   Local preflight/slot/type-carrier/commit remains the sole Local owner; do not
+   duplicate it in an Array wrapper. A selected recipe missing from a typed
+   Script input rejects, never falls through to standalone compatibility.
+3. The selected Array emitter creates allocation/claim/write Invoke sites,
+   Normal projections and Fault cleanup directly. Reuse the current value/block
+   and ArrayWriteSiteId issuers. Extend next_array_write_site_id to see Invoke
+   writes as well as standalone writes; otherwise every new write can reuse0.
+   No post-hoc standalone-MIR-to-Invoke semantic reconstruction.
+4. The Script Return hook consumes the selected terminal recipe and current
+   BindingRef values. It preserves the exact terminal result while emitting
+   reverse Home releases before Return; it no longer lowers a raw direct Return
+   for this selected family. Array-unissued Script keeps its separate ingress.
+5. Extract the physical FaultFrame materialization/validation mechanics for
+   reuse by callable and Script lowering. Source entry owners retain selection
+   permission. The selected Script recipe selects RootOwned; its first Array
+   consumer materializes once at entry. No standalone frame series or fake
+   App Main selection is permitted.
+
+Finishing retains source plus exact origin/Normal/Fault/result/release bindings
+in the existing ScriptArray handoff. Replace the selected standalone binding
+schema rather than keep competing validators. Each failure site has the source
+specified release set and order: allocation failure excludes the new residence;
+claim/write failure includes it, then prior Homes. A release never overwrites
+an existing first Fault. Source Return and ReturnFault remain distinct terminals.
+
+Finite physical consumer inventory for the same series:
+
+- instruction/invoke and the existing release instruction visitors (effects,
+  operands, rewrite, display/printer/query) consume the declared shapes;
+- verification/invoke preserves one frame, exclusive Normal landing and result
+  dominance; Array operations do not require an ordinary-object definition;
+- type_contracts/typed_array::collect_claims and array_element_write::rebuild
+  read exact Invoke operations, including terminators, under their current
+  metadata owners; classify_state_term follows InvokeNormalResult to its exact
+  IntrinsicArrayNew origin. Missing carriers are not compatibility evidence;
+- DCE keeps non-pure release and existing Invoke result anchors; finishing
+  validates any bounded SimplifyCFG coordinate change without optimizer skip;
+- completed Script validation covers its own lifecycle sites without treating
+  them as ordinary-New coverage; compiler finalization binds the same handoff;
+- published Script lifecycle stays UnsupportedBeforeObject, bypasses object
+  profile/constructor admission, and reaches the existing typed Array capability
+  Stop before any host artifact/session. No CanonicalTyped promotion. Constructor
+  physical program/JSON matches explicitly reject Array operations; nonselected
+  interpreters/transports reject unsupported vocabulary, with no parity work.
+
+The boundary is selected source scope/Recipe -> selected Local and Return
+emission -> finishing/metadata refresh -> borrowed view -> typed Array host
+Stop. Includes the above selected path and shared physical readers; excludes
+runtime checked entries/C emission and all unselected source/backend families.
+A missing mapping in this inventory is an implementation blocker, not permission
+for a new semantic receipt, fixture bypass or generic fallback.
 
 Exclusive same-series retirement: selected Script typed Array standalone
 IntrinsicArray allocation, ArrayStateContractClaim, ArrayElementWrite and direct
@@ -549,11 +621,14 @@ unselected backend roles. Gates cover one frame, each Normal/Fault landing,
 result availability, cleanup order/exactly once, no allocation-failure release,
 no alias double-release, first-Fault preservation, seven numeric specs,
 empty/multiple literals and Integer/bare Return. Keep typed OBJ/EXE pre-output
-Stop until checked claim/write ABI and selected C consumer are implemented.
+Stop until checked allocation/claim/write ABI and selected C consumer are implemented.
 
 Ordered successors: accepted physical mapping -> selected lowering and finished
-validation cutover -> checked runtime ABI -> selected C execution plus independent
-linked OBJ/EXE and caller-zero retirement. Implicit completion, nested/opaque
+validation cutover -> checked allocation/claim/write runtime ABI -> selected C execution plus independent
+linked OBJ/EXE and caller-zero retirement. Abstract Invoke vocabulary does not
+prove existing allocation exports report Normal/Fault or convert OOM to a
+language Fault. Native abort is not successful cleanup or source Fault evidence.
+Implicit completion, nested/opaque
 children and Loop remain their existing unsupported obligations.
 
 ## Instance-prefix boundary repair

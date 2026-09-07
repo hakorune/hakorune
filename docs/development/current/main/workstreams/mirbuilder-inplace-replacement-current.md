@@ -581,12 +581,9 @@ shadow DuplicateKey and static-negative syntax error are fixed and rerun green.
 
 #### Script typed Array source checkpoints
 
-Source relation/failure co-seal landed at b129f066c0/efbc22b14b. Exact
-initializer/Element/Local evidence and corrected failures live in Git.
-V4 plugins repair landed at 27a4e1ed78; nonplugins parent efbc22b14b has
-13 errors versus current 11. Removed only V4 loader/libloading diagnostics;
-[feature owner](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08)
-retains the exact remaining baseline inventory. No whole-build success claim.
+Source retention landed b129f066c0/efbc22b14b; V4 feature repair27a4e1ed78.
+Nonplugins errors13->11 are not whole-build green. Git and the
+[feature owner](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08) retain exact baseline inventory/evidence.
 
 #### MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0
 
@@ -607,28 +604,32 @@ Their source and assertions are unchanged; no whole-lib green claim.
 
 #### MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0
 
-Closed: ScriptArray owns moved Array source/emission products after Finished;
-pipeline/view use one owned/borrowed handoff. Script-to-None and universal
-constructor binding are retired. Unissued Array stays absent; callable
-projections/admission reject Script. Root-owner extraction is 32b03fd707.
-Gates: quick plugins build peak8.80GiB, focused78, real Array/Pair EXE+OBJ30,
-corridor/pointer. Three handoff tests moved to their existing focused owner;
-original 812-line test file is now714. Rejections/source families unchanged.
-[Artifact owner](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice)
-retains the contract; typed C execution is not claimed.
+Landed at 05945284bb after owner extraction32b03fd707: ScriptArray product moves
+through pipeline/view; selected drop and constructor mixing retired. Focused78,
+Array/Pair EXE+OBJ30 and guards pass. Three tests moved; old812-line file now714.
+Git and the [artifact owner](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice)
+retain full evidence; typed C remains stopped.
 
 #### MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-D0
 
-Decision: seal the Array Normal/Fault/cleanup mapping before physical emission; no frame-only row.
-Source authority + canonical issuer: existing Script continuation Array cutpoints and exact RootTerminal/Home order.
-Non-authority: App Main/Birth admission, physical handle, default cleanup status or passive ownership opcode.
-Fail-fast boundary: missing operation/result/cleanup mapping stops before implementation or artifact.
-Smallest next slice: fix Array Invoke/result and native residence-release vocabulary with finished binding and selected Script Stop consumers.
-Non-claims: checked runtime ABI, C execution, implicit completion, nested/opaque children or Loop.
-The [physical mapping owner](../design/collection-literal-construction-ssot.md#script-array-physical-lifecycle-mapping)
-contains the two disjoint worker audits, real void release contract, delete-set
-and acceptance. Next implementation must retire standalone selected operations
-and direct Return together; native cleanup must preserve an existing first Fault.
+Accepted physical mapping: three Array Invoke operations plus nonfallible
+ArrayResidenceRelease, one source Recipe and shared frame mechanics. The
+[physical mapping owner](../design/collection-literal-construction-ssot.md#script-array-physical-lifecycle-mapping)
+fixes the Local/Return consumers, refresh/site allocator and void-release contract.
+
+#### MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0
+
+Decision: replace selected standalone Array operations and direct Return with source-backed Normal/Fault/cleanup emission.
+Source authority + canonical issuer: existing Script continuation -> one ScriptArrayLifecycleRecipeV1 at lowering-state entry.
+Non-authority: MIR/source reconstruction, App Main/Birth admission, alias-group release or fabricated runtime status.
+Fail-fast boundary: missing source/control/metadata/result/release binding rejects; selected typed C remains pre-artifact Stop.
+Smallest next slice: one selected Script physical emitter plus its existing Local, identity, refresh, finishing and Stop consumers.
+Non-claims: checked allocation/claim/write runtime ABI, C execution, nested/opaque children, implicit completion or Loop.
+Same-series delete-set: selected standalone allocation/claim/write and raw direct
+Return, old standalone binding schema, and observer blindness to Invoke sites.
+Gates: seven specs, empty/multiple literals, prior Homes/alias, exact result/frame,
+every Normal/Fault release set/order, metadata continuity, optimizer on/off and
+unchanged typed host Stop; existing Array/Pair execution regressions stay required.
 Terminal/storage cleanup stays in the existing [feedback queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
 
 ## Source and ownership budget

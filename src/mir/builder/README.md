@@ -900,6 +900,13 @@ requires Finished progress; Array-unissued Script remains absent. The pipeline
 owns this moved product and the published view borrows it. Callable Birth/result
 projections are unavailable for Script and constructor admission rejects it.
 Frame/Invoke/cleanup and typed C remain subsequent obligations.
+The accepted next physical row seals one Array control Recipe from the existing
+continuation before emission. The Script-proven Local input carries its exact
+recipe into the current Local owner; the selected Array/Return consumers replace
+standalone operations with Invoke plus source-ordered native residence release.
+Shared claim/write refresh and site-ID allocation must read the new operations.
+The design is in the collection construction SSOT; no frame-only or typed C
+activation is implied by current artifact retention.
 Transparent, transferred, and diagnostic root entries are explicit boundaries
 and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
 transports this continuation together with the existing lowering projection and

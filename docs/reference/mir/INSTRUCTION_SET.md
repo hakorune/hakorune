@@ -38,6 +38,33 @@ DOC_SYNC_MIR_VOCABULARY_COUNT=71
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
+### Selected Script Array lifecycle (accepted design; not implemented)
+
+The selected Script Array physical cutover adds these operations to existing
+`Invoke`: `IntrinsicArrayNew` (no operands, one Normal-only Array result),
+`ArrayStateContractClaim { contract_id, array }` (Unit), and
+`ArrayElementWrite { site_id, kind, producer, receiver, index, value }` (Unit).
+Neither Unit operation embeds a destination or emits `InvokeNormalResult`.
+This cohort uses only LiteralAppend/Literal/no-index writes; existing shared
+write-kind vocabulary is not source acceptance permission.
+
+`ArrayResidenceRelease { value }` is an ordinary non-pure WRITE instruction,
+without result, FaultFrame operand or source-Fault successor. It consumes the
+one native Array residence obligation named by the source/control binding.
+Incomplete residence and committed Home remain different source responsibilities.
+The native void release preserves an existing first Fault; no checked status is
+invented. Other aliases/references can keep native storage alive after residence
+retirement. This is neither alias-group ReleaseStrong nor ordinary-object
+HomeRelease/ReclaimUnpublished, and it does not activate passive DestroyOwned.
+
+Selected source issuance, emitted control/cleanup correspondence and finished
+validation are required before publication. Allocation failure releases only
+prior Homes; claim/write failure first releases the acquired incomplete Array.
+Return releases the exact reverse Home sequence, with no alias double release.
+These declarations do not change current vocabulary counts or authorize runtime,
+JSON/C or unselected backend execution. Implementation order and physical reader
+inventory: [collection construction SSOT](../../development/current/main/design/collection-literal-construction-ssot.md#script-array-physical-lifecycle-mapping).
+
 ### Normal/Fault control (implementation in progress)
 
 Decision: `Invoke` is a terminator wrapping existing `MirCall` operands

@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-D0"
-current_execution_cohort = "mir_script_array_lifecycle_physical_lowering_d0"
-current_design_stop = "Array physical operation/result vocabulary and cleanup control mapping must be sealed; source authority and native void-release owner audited"
-current_blocker_token = "Script Array artifact retention is closed. Next fix Array Normal/Fault/result and native residence-release vocabulary, finished source/control bindings and selected Script Stop. No standalone frame, fake checked release status or constructor retagging. Runtime checked claim/write ABI and C execution remain successors."
+work_mode = "fast"
+current_execution_row = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0"
+current_execution_cohort = "mir_script_array_lifecycle_physical_lowering_i0"
+current_design_stop = "none; source Recipe, Array Invoke/result/release vocabulary, identity/refresh/finishing and Script Stop mapping accepted"
+current_blocker_token = "Implement the selected Script Array physical lifecycle cutover from one pre-emission source Recipe: allocation/claim/write Invoke, Normal-only results and nonfallible source-ordered residence release. Extend existing site allocator and metadata refresh to Invoke; preserve typed host Stop. Checked allocation/claim/write ABI and C execution remain successors."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Validated Script Array source/emission products now reach the final borrowed
-view without constructor admission. Next seal physical Normal/Fault/cleanup
-mapping; native residence release is void and must not fabricate a Fault status.
+Array physical mapping is accepted: three Invoke operations, one nonfallible
+residence-release instruction, one source Recipe and exact shared physical
+readers. Next implement selected lowering/finishing together; typed C stays stopped.
 """
-next_design_card = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-D0"
-next_execution_card = "none"
+next_design_card = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0"
+next_execution_card = "MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
