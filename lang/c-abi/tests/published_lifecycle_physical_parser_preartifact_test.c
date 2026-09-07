@@ -70,6 +70,7 @@ int main(void) {
   rejects_replace(valid, "\"block\":3,\"value\":8", "\"block\":3,\"value\":9", "function-body");
   rejects_replace(valid, "\"inputs\":[{\"block\":3,\"value\":8}]", "\"inputs\":[{\"block\":3,\"value\":8},{\"block\":3,\"value\":8}]", "function-body");
   rejects_replace(valid, "\"src\":7", "\"src\":99", "function-body");
+  rejects_replace(valid, "\"lhs\":5", "\"lhs\":7", "function-body");
   rejects_replace(valid, "\"operation\":{\"kind\":\"new_box\",\"object_id\":7}", "\"operation\":{\"kind\":\"new_box\",\"object_id\":99}", "function-body");
   rejects_replace(valid, "\"mode\":\"root_owned\"", "\"mode\":\"borrowed\"", "function-body");
   rejects_replace(valid, "\"invoke_block\":0", "\"invoke_block\":1", "function-body");
