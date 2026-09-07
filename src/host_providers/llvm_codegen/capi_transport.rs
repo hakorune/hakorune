@@ -383,19 +383,14 @@ pub(super) fn compile_published_lifecycle_body_v2(
     }
 }
 
-pub(super) fn compile_published_lifecycle_body_v3(
+pub(super) fn compile_published_lifecycle_physical_v4(
     json_in: &Path,
-    frame: &PublishedLifecycleCFrameHeaderV2,
-    sites: &[PublishedLifecycleBodySiteCRowV1],
     session: &LifecycleRuntimeSessionV1,
     obj_out: &Path,
 ) -> Result<(), String> {
     use std::os::raw::{c_char, c_int, c_void};
     extern "C" {
         fn free(ptr: *mut c_void);
-    }
-    if sites.is_empty() {
-        return Err("published lifecycle body requires NewBox sites".into());
     }
     let d = session.descriptor();
     let triple =
@@ -421,16 +416,13 @@ pub(super) fn compile_published_lifecycle_body_v3(
         let lib = load_ffi_library()?;
         type CompileFn = unsafe extern "C" fn(
             *const c_char,
-            *const PublishedLifecycleCFrameHeaderV2,
-            *const PublishedLifecycleBodySiteCRowV1,
-            usize,
             *const LifecycleTargetSessionCRowV1,
             *const c_char,
             *mut *mut c_char,
         ) -> c_int;
         let func: libloading::Symbol<CompileFn> = lib
-            .get(b"hako_llvmc_compile_published_lifecycle_body_v3\0")
-            .map_err(|e| format!("dlsym failed for lifecycle V3 ingress: {e}"))?;
+            .get(b"hako_llvmc_compile_published_lifecycle_physical_v4\0")
+            .map_err(|e| format!("dlsym failed for lifecycle V4 ingress: {e}"))?;
         let input =
             CString::new(json_in.to_string_lossy().as_bytes()).map_err(|_| "invalid json path")?;
         let output =
@@ -438,16 +430,13 @@ pub(super) fn compile_published_lifecycle_body_v3(
         let mut error: *mut c_char = std::ptr::null_mut();
         if func(
             input.as_ptr(),
-            frame,
-            sites.as_ptr(),
-            sites.len(),
             &row,
             output.as_ptr(),
             &mut error,
         ) != 0
         {
             let message = if error.is_null() {
-                "published lifecycle V3 compile failed".into()
+                "published lifecycle V4 compile failed".into()
             } else {
                 CStr::from_ptr(error).to_string_lossy().into_owned()
             };

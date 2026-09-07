@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 
 use crate::mir::emit_lifecycle_physical_abi_json;
 use crate::mir::function::{
-    PublishedLifecycleCFrameV2, PublishedMirBackendView, PublishedStaticMethodCFrameV1,
+    PublishedMirBackendView, PublishedStaticMethodCFrameV1,
     PublishedStaticMethodRouteV1,
 };
 use crate::mir::MirModule;
@@ -63,28 +63,17 @@ fn compile_published_view_object(
                     .to_owned(),
             );
         }
-        let frame = PublishedLifecycleCFrameV2::from_view(view)
-            .map_err(|error| format!("published lifecycle C frame rejected: {error}"))?;
         let physical_json_path = transport_io::prepare_backend_input_json_file(
             &emit_lifecycle_physical_abi_json(&view.issue_lifecycle_physical_abi_input()?)?,
         )?;
-        let physical_result =
-            capi_transport::validate_published_lifecycle_physical_v1(&physical_json_path);
-        transport_io::remove_backend_temp_file(&physical_json_path);
-        physical_result?;
-        let mir_json_path = transport_io::prepare_backend_input_json_file(
-            &crate::runner::mir_json_emit::emit_published_lifecycle_body(view)?,
-        )?;
         let output = PathBuf::from(obj_out);
         transport_io::ensure_backend_output_parent(&output);
-        let result = capi_transport::compile_published_lifecycle_body_v3(
-            &mir_json_path,
-            frame.header(),
-            frame.body_sites(),
+        let result = capi_transport::compile_published_lifecycle_physical_v4(
+            &physical_json_path,
             lifecycle_session.expect("checked lifecycle session"),
             &output,
         );
-        transport_io::remove_backend_temp_file(&mir_json_path);
+        transport_io::remove_backend_temp_file(&physical_json_path);
         return result;
     }
     let frame = PublishedStaticMethodCFrameV1::from_view(view)
@@ -167,3 +156,7 @@ pub(crate) fn emit_published_view_exe(
     let _ = std::fs::remove_file(&object_path);
     result
 }
+
+#[cfg(all(test, feature = "plugins"))]
+#[path = "published_mir_object_tests.rs"]
+mod tests;
