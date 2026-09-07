@@ -1507,20 +1507,56 @@ Missing/colliding projection site, malformed body, session/layout mismatch or
 unsupported cohort reject before artifact. Retire selected V2/V3 pending edges
 after the connected executable paths pass; preserve unrelated legacy users.
 
-Verification checkpoint (2026-09-07): existing input/session tests passed 4/4.
-The prebuilt test binary from `2c91ec15d0` reran the unchanged source Pair ->
-C parser test (1/1); strace captured its exact 4284-byte JSON without repair.
-`published_lifecycle_v4_execution_test.py` consumes that JSON, emits x86_64
-object with llc-18 and links the actual lifecycle archive: Pair exits 30.
-Eleven runtime executions cover normal 0/30/255, computed -1/256/400,
-first/second Birth store Fault, report failure, Invalid store and init failure.
-Wrappers prove Home/Reclaim/report/dispose counts, cleanup before range report,
-and exact reason/site/value. Session/site/tool negatives preserve existing
-objects and leave no temporary artifacts. This is C-boundary execution evidence,
-not verification of the changed Rust direct EXE or session-bound OBJ callers.
-Those two host paths remain required. Both attempted Rust quick builds stopped
-at the 8 GiB aggregate limit (resource-stop, not test failure); do not repeat
-unchanged builds. Old selected transport retirement remains gated on host proof.
+Verification checkpoint (2026-09-07): V4 C build, parser/session negatives,
+11 physical runtime executions and guards pass (`de9bd95e22`). Pair-shaped
+JSON links to the real lifecycle archive and exits 30; Fault/range probes
+verify cleanup/report/dispose. These are physical-protocol evidence only:
+the JSON drops an unresolved source formal obligation, as the host audit found.
+Low-memory CLI build succeeds at 6.47 GiB with `CARGO_BUILD_JOBS=1
+CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_OPT_LEVEL=0 cargo build --profile quick
+--features plugins --bin hakorune`. Full lib-test still resource-stops at 8 GiB;
+its new private-module import error was corrected, but execution is unverified.
+
+Decision: reopen host admission; no V4 production/retirement claim or gate bypass.
+Source authority + canonical issuer: constructor declaration/use contracts, retained by the compiled-entry owner; source arguments never specialize formal declarations.
+Non-authority: raw i64 C parameters, first caller literals, backend-name whitelist, generated block IDs, or Dynamic-V2 optimizer metadata.
+Fail-fast boundary: all unresolved formal dispositions stop before physical input/JSON/artifact; numeric obligations cannot be cleared or silently ignored.
+Smallest next slice: consume retained formal dispositions at physical admission, keeping the existing compiled-entry diagnostic product inspectable.
+Non-claims: no checked/tagged representation, optimized lifecycle parity, source Pair EXE30, host OBJ30 or V2/V3 retirement yet.
+
+Census boundary: constructor formal issuance -> compiled-entry -> direct JSON ->
+V4 Birth field stores; includes the exact two Pair formals and their stores;
+excludes unrelated numeric families and other backends. Both formals are
+`UnavailableTaggedOrCheckedRepresentation`. `DeferredActualBinding` is also
+unresolved until an actual binding consumer proves it; no disposition currently
+means executable i64. V2 checks only presence, direct JSON drops disposition,
+and V4 classifies nonreceiver params as i64. Raw checked_field_set cannot
+recover Integer/Bool/handle identity. This is `CutoverBlockerOpen`, not parking.
+
+Ordered work within this series:
+1. **Stop the missing disposition consumer.** Existing physical-input owner
+   rejects missing/Unavailable/undischarged Deferred before JSON. Preserve
+   unannotated source contracts; add no permissive enum/receipt or C default.
+   Acceptance: unchanged Pair and unavailable/foreign/missing obligations reject
+   before artifact; compiled-entry still retains original declaration facts.
+2. **Decide checked/tagged Birth representation.** Declaration/use owner and
+   same-root actual relation must preserve value kind, check Integer at exact
+   FieldSet sites, and route failure through existing Fault/reclaim. Test Bool,
+   text, handle, changing integer actuals and argument evaluation; never infer
+   a parameter annotation from 10/20 or the destination field. This design is
+   required by the existing unannotated-formal policy below, not waived by V4.
+3. **Close optimizer observer mapping.** Default Pair currently rejects
+   `root-exit-operation-drift`; `--no-optimize` instead reaches numeric OBJ
+   rejection (`contracts=2`). SimplifyCFG merges the HomeRelease block while
+   root-home validation retains its old coordinate. Decide an exact remapping
+   or post-transform operation/path witness; keep operation/count/edge checks.
+   Do not borrow SelectedDynamic's unrelated metadata-based optimizer skip.
+4. **Connect the selected capability and execute.** Prove all numeric obligations
+   consumed by this completed input; keep generic OBJ unsupported contracts.
+   Default CLI EXE30 and independent session OBJ/link30 precede retirement.
+   Remove only caller-zero V2 JSON profile/emitter, V2 Rust frame/rows/wrappers,
+   C V2/V3 pending exports and private probes. Retain/move the shared storage
+   profile, physical parser, target-session core, descriptor and V4 runtime tests.
 
 ### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-D1`
 

@@ -514,3 +514,8 @@ The physical execution test is
 lifecycle archive with linker wrappers. Its range mutations do not admit new
 source families. Rust host cutover and generic policy activation remain separate
 from this C consumer evidence.
+
+Host integration audit: unannotated Birth formals currently retain an unavailable
+checked/tagged representation. A raw-i64 physical execution probe does not
+discharge that obligation. Direct input must reject it until the existing
+formal/actual owners supply a valid representation and Integer-check consumer.
