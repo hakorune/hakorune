@@ -15,15 +15,12 @@ use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, Mir
 mod c_transport;
 mod compiled_entry_contract;
 mod lifecycle;
-#[path = "../../function/published_backend_view_lifecycle_c_transport.rs"]
-mod lifecycle_c_transport;
-#[path = "../../function/published_backend_view_lifecycle_schema.rs"]
-mod lifecycle_schema;
 mod physical_abi;
 mod physical_program;
 mod physical_program_json;
 
 use lifecycle::PublishedLifecycleInstructionRef;
+pub(crate) use lifecycle::PublishedObjectStorageProfileV1;
 
 pub(crate) use c_transport::{
     PublishedCallKindV1, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
@@ -31,10 +28,6 @@ pub(crate) use c_transport::{
 pub(crate) use compiled_entry_contract::{
     CompiledEntryCleanupKindV1, CompiledEntryContractV1, CompiledEntryFormalKindV1,
     CompiledEntryRootResultV1,
-};
-pub(crate) use lifecycle_c_transport::{
-    PublishedLifecycleBodySiteCRowV1, PublishedLifecycleCFrameHeaderV2, PublishedLifecycleCFrameV2,
-    PublishedObjectStorageProfileV1,
 };
 pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 pub(in crate::mir) use physical_abi::PublishedLifecyclePhysicalAbiInputV1;

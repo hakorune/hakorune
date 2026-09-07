@@ -83,38 +83,6 @@ done:
   return matched;
 }
 
-/* This is deliberately a text-only session check: it never selects a tool or emits an object. */
-static int hako_lts_text_preamble_matches(const char* triple, const char* data_layout) {
-  FILE* file;
-  char *expected = NULL, *actual = NULL;
-  size_t expected_len, read_count;
-  int matched = 0;
-  if (!triple || !data_layout) return 0;
-  expected_len = strlen("target triple = \"\"\n") + strlen(triple) +
-      strlen("target datalayout = \"\"\n") + strlen(data_layout);
-  expected = (char*)malloc(expected_len + 1u);
-  actual = (char*)malloc(expected_len + 1u);
-  if (!expected || !actual) goto done;
-  if (snprintf(expected, expected_len + 1u,
-          "target triple = \"%s\"\ntarget datalayout = \"%s\"\n",
-          triple, data_layout) != (int)expected_len) goto done;
-  file = tmpfile();
-  if (!file) goto done;
-  if (fwrite(expected, 1u, expected_len, file) != expected_len || fflush(file) != 0 ||
-      fseek(file, 0L, SEEK_SET) != 0) {
-    fclose(file);
-    goto done;
-  }
-  read_count = fread(actual, 1u, expected_len, file);
-  fclose(file);
-  actual[read_count] = '\0';
-  matched = read_count == expected_len && strcmp(actual, expected) == 0;
-done:
-  free(actual);
-  free(expected);
-  return matched;
-}
-
 static int hako_lts_open(
     const hako_llvmc_lifecycle_target_session_v1* in, hako_lts_session* out, char** err_out) {
   if (!out) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/output]");
@@ -229,15 +197,4 @@ cleanup:
   if (rc != 0) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/llvm-layout]");
   return 0;
 #endif
-}
-
-static int hako_llvmc_lifecycle_text_tool_session_v1_validate(
-    const hako_llvmc_lifecycle_target_session_v1* in, char** err_out) {
-  hako_lts_session session = {0};
-  int matched;
-  if (hako_lts_open(in, &session, err_out) != 0) return -1;
-  matched = hako_lts_text_preamble_matches(session.triple, session.data_layout);
-  hako_lts_close(&session);
-  if (!matched) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/text-preamble]");
-  return 0;
 }

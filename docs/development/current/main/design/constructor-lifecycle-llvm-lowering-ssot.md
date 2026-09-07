@@ -1,5 +1,5 @@
 ---
-Status: Active; v2 physical consumer verified; host cutover pending
+Status: Active; selected Pair V4 cutover/old transport retirement verified; view ownership cleanup next
 Date: 2026-09-07
 Scope: selected constructor lifecycle from source-owned requirements to LLVM object and linked EXE.
 Related:
@@ -14,8 +14,8 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: close explicit policy and early generated-source/parameter issuance after the verified pure-producer extraction, before Task 4 CLI cutover.
-Non-claims: new source acceptance, source host EXE30/OBJ30 cutover, optimized multiple-Home coverage, or complete MirBuilder retirement.
+Smallest next slice: existing finalization owns the finalized handoff; replace view-owned semantic products with one borrow (task 6-owner below).
+Non-claims: new source acceptance, optimized multiple-Home coverage, admission/controller separation, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
 permanent execution park or treated all physical placement as source meaning.
@@ -2019,14 +2019,72 @@ negatives and session/site/tool failure checks. Those physical mutation probes
 remain ABI evidence, not new source acceptance. Pointer/canonical guards and
 diff check pass; host/C READMEs describe the actual selected route.
 
-Next execute the recorded V2/V3 retirement inventory: move shared storage profile,
-remove old frame/schema/wrappers and generic JSON, C pending exports and exclusive
-probes, migrate the three frame tests to retained compiled-entry invariants,
-then verify repository callers/discovery and rebuilt shared-object exports.
-No old-transport retirement or whole-suite green claim is made yet. Parser module
-remains 762 lines; further growth should move its helper responsibility into
-existing string_postpass_entry. All touched source in this host slice is below
-800 lines (host test193; C probe63). No build/test is running at checkpoint.
+**Selected old transport retirement (2026-09-07):** after the host acceptance,
+removed Rust lifecycle frame/projection/schema, V2 compile wrappers and the unused
+Rust structural-parser wrapper; generic lifecycle JSON entry/profile and its
+instruction/terminator exceptions; C V2/body-V2 validators, V2/V3 pending exports,
+V3-only text-preamble probe, and the two exclusive V2 C tests. Shared storage
+profile and its finite test moved into the existing lifecycle owner. Three
+normal-pipeline tests now inspect completed input/source; Unit still rejects at
+`root-result-unavailable`, not an artificial test-generated pending token.
+
+Census boundary: current selected host -> Rust transport/reexports -> C header,
+translation-unit includes and exports -> tracked repository build/test discovery.
+Includes direct callers, aliases/reexports, manifests, aggregate scripts and
+test-directory discovery. Excludes historical documentation, parked branches,
+untracked developer binaries and external consumers. Within this finite boundary,
+old compile symbols/frame types/profile/helper names and deleted-path callers
+are zero; no retained sibling or fallback uses the retired payload. Deleted tests
+are absent from the discovery directory. Shared V4/parser/session owners remain.
+`nm -D --defined-only` on the rebuilt library confirms all three old compile
+exports absent and static V1/V4/physical-v2 validation exports present. This is
+selected transport retirement, not a claim of all compiler/runtime legacy zero.
+
+Validation after deletion: C build passes; fresh library build passes. The first
+Cargo filter `normal_default_pipeline_tests` matched zero and is not test evidence.
+The three migrated tests were then executed by full `--exact` names and pass.
+Published-view filter32 passes; host1 passes through all three sources and
+EXE/independent OBJ/probe; JSON emitter153 passes (one preexisting ignored).
+Existing C V4 execution16 plus schema14 and session/site/tool checks pass.
+Fresh quick CLI build and unchanged Pair source generate EXE exit30 against the
+rebuilt C library. Single-job opt0/nonincremental/CGU256; library peak8.59 GiB,
+CLI peak6.53 GiB. Guards/diff check pass, touched source max759. ABI reference,
+compiler/host/C READMEs are synchronized. No build/test remains running.
+
+### CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0 (task 6-owner)
+
+Classification: BoxShape; no source family or physical acceptance changes.
+
+Decision: the existing finalization invocation owns finalized handoff; view borrows it.
+Source authority + canonical issuer: existing root ledger and `seal_finalized_root_birth_handoff`.
+Non-authority: view, host and runtime session do not reissue source meaning.
+Fail-fast boundary: retain post-finish, bind and activation validation before artifact.
+Smallest next slice: replace four owned handoff fields with one borrowed finalized handoff.
+Non-claims: full admission/controller split, physical ABI clone cleanup or source widening.
+
+The read-only worker verified that the existing final closure in
+`normal_default_pipeline.rs` already owns result.module and retained_root together.
+Pass `retained_root.as_ref()` through the synchronous `for<'module>` callback;
+no second lifetime, self-reference or new result/receipt type is needed. Existing
+handoff accessors provide root_key/root_source/root_result/births.
+
+Finite boundary: post-finish handoff -> finalization callback -> view bind/activation
+-> physical/compiled-entry projection -> shared host synchronous input consumption.
+Diagnostic compile, module-only ingress, FFI and runtime-session ownership stay
+outside this slice. Delete-set: view retained_birth_keys/retained_birth_abi/
+retained_root_source/retained_root_result owned fields; view target cloning and
+recollection; handoff.into_parts if its bind caller is still unique. Replace with
+`Option<&FinalizedRootBirthHandoffV1>` and accessor delegation. Birth membership
+continues to use births/target identity; do not switch authority to an unrelated
+name or table. The handoff's own tested birth_keys inventory need not change.
+
+Acceptance: current Unit/I64/source/formal/actual/cleanup checks and default
+EXE/independent OBJ successes remain; missing/foreign/stale source-result or
+Birth definition/arity rejects before artifact; generic try_new(module) cannot
+activate lifecycle. Confirm deleted ownership/clone sites absent. Route/profile
+and activation relocation remain a separate subsequent slice of task6-owner.
+The worker report is premise evidence; this integrated Decision selects the
+bounded ownership move, without widening task scope.
 
 
 
@@ -2332,10 +2390,10 @@ classes and uncovered result arms), then physical binding and final handoff,
 then explicit target/runtime entry and status agreement. Project that complete
 input into the direct parser before implementing the selected LLVM consumer.
 The direct parser remains a validation ingress; V4 additionally emits and
-executes physical protocol inputs. The committed host still uses the V3/V2
-pending companion, and unresolved source formals stop before serialization.
-The direct V4 host draft is saved on codex/lifecycle-v4-host-draft, not activated. Neither parser success nor physical
-protocol execution closes source host acceptance.
+executes physical protocol inputs. At the earlier audit checkpoint the host used the V3/V2
+pending companion; the current retirement receipt above supersedes that status.
+The historical V4 draft remains on codex/lifecycle-v4-host-draft. Current source
+host execution is proved separately above; parser-only evidence remains insufficient.
 
 The LLVM series switches that actual host edge and removes its selected old
 route, with unchanged Pair EXE30 and OBJ-linked EXE30 plus Fault/frame/cleanup
@@ -2372,7 +2430,7 @@ No new build/runtime evidence was collected for this read-only reconciliation.
 | --- | --- | --- |
 | Unit represented as RootI64 | `physical_program.rs` still uses RootI64, but `physical_abi.rs` rejects Unit before serialization; V2 emits ROOT_UNIT correctly. Unsafe direct admission is stopped, not Unit execution completed. | As a separate BoxShape retaining the Unit execution Stop, physical-program owner projects the existing compiled result into distinct Unit/I64 roles and deletes unconditional RootI64 assignment. V2/direct role agreement and malformed/result-slot negatives are required; Unit execution is separate from Pair. |
 | Sibling final input | PhysicalAbiInput now owns CompiledEntryContract; the sibling-product gap is closed. Exact Unannotated Integer/Bool binding is implemented; unsupported declarations/Local still stop pre-JSON, and per-New actual retention is verified. | Existing R1 task 2 closes kind/payload and FieldSet type-failure binding, then deletes positional I64 defaults. Keep one contract issuer and call-local runtime session; moving source decisions into the session is forbidden. |
-| Three transport paths | Committed host constructs V2 rows, validates physical JSON, then sends generic JSON through V3 to pending V2. Direct V4 host replacement is saved only on codex/lifecycle-v4-host-draft; C V4 emission is landed physical-protocol evidence. | Existing R1 tasks 3–4: close optimizer mapping, prove real host EXE30 and independent same-session OBJ/link30 plus Fault/cleanup, then delete selected generic JSON/V2 rows/V3 delegation, duplicate pre-parser call and caller-zero exclusive probes. Shared parser/session/runtime validation survives. |
+| Three transport paths | Historical audit finding, now retired: selected host uses one completed input and V4; frame/generic JSON/V2/V3 paths are deleted. See the current receipt above. | Existing R1 tasks 3–4: close optimizer mapping, prove real host EXE30 and independent same-session OBJ/link30 plus Fault/cleanup, then delete selected generic JSON/V2 rows/V3 delegation, duplicate pre-parser call and caller-zero exclusive probes. Shared parser/session/runtime validation survives. |
 | View owns and activates | PublishedMirBackendView still owns handoffs/vectors/profile and mutates admission; it is not borrow-only and is not a new source issuer. | Post-cutover view responsibility task below; do not count file moves as closing it. |
 
 Order remains: representation/Fault contract -> exact physical binding ->

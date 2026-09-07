@@ -57,7 +57,7 @@ pub use object_metadata::{
     TypedObjectPlan, UserBoxFieldDecl, WeakFieldContractSpec, WeakFieldId, WeakFieldWriteContract,
 };
 pub(crate) use published_backend_view::{
-    PublishedLifecycleBodySiteCRowV1, PublishedLifecycleCFrameHeaderV2, PublishedLifecycleCFrameV2, PublishedMirBackendView,
+    PublishedMirBackendView,
     PublishedStaticMethodCFrameV1,
     PublishedStaticMethodCallCRowV1, PublishedStaticMethodRouteV1,
 };

@@ -57,8 +57,10 @@ Thin Rust bridge for backend object emission.
   obligations against the same borrowed module, then serializes that input for
   the V4 consumer. EXE delegates to this checked entry. Other published,
   ownership, storage and route checks remain mandatory; names do not establish
-  input identity. V2 frames and generic lifecycle JSON no longer serve this
-  host caller; their unused definitions await caller-zero retirement.
+  input identity. V2 frames, companion generic lifecycle JSON, their Rust
+  wrappers, and pending C V2/V3 exports are retired. The selected lifecycle
+  input is the completed physical-program.v2 contract consumed by V4;
+  the standalone physical-v2 parser remains structural validation only.
   The focused host test uses the same common source materialization as the
   normal CLI, with default macro policy and normal optimization. Pair exits30
   through EXE and independent session OBJ/link; either Bool argument produces

@@ -168,16 +168,13 @@ fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
                         if root_source.terminal_i64_add().expect("I64 source relation").owner() == owner
                 ));
                 let _identity = root_source.app_main_identity();
-                let frame = published_backend_view::PublishedLifecycleCFrameV2::from_view(view)?;
-                let root = frame.definition_rows().iter().find(|row| row.flags == 1)
-                    .ok_or_else(|| "root definition missing".to_owned())?;
-                assert_eq!((root.role, root.result_kind), (2, 1));
-                assert!(frame.header().definition_count > 0);
-                assert!(frame.header().operation_count > 0);
-                assert!(frame.header().control_count > 0);
-                assert!(frame.header().layout_count > 0);
-                assert!(frame.header().field_count > 0);
-                assert!(!frame.body_sites().is_empty());
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                assert_eq!(input.entry().root_result(), published_backend_view::CompiledEntryRootResultV1::I64);
+                assert!(!input.entry().births().is_empty());
+                assert!(!input.entry().birth_calls().is_empty());
+                assert!(!input.entry().cleanup().is_empty());
+                assert!(!input.layouts().is_empty());
+                assert!(!input.diagnostic_sites().is_empty());
                 let generic =
                     published_backend_view::PublishedMirBackendView::try_new(view.module())
                         .unwrap();
@@ -692,55 +689,37 @@ fn vm_keep_post_macro_preserves_named_source_and_exact_imports() {
 }
 
 #[test]
-fn direct_i64_field_return_reaches_root_i64_c_row_before_pending_consumer() {
+fn direct_i64_field_return_reaches_completed_entry_contract() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let source = "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return pair.left } }";
         let mut compiler = MirCompiler::with_options(false);
-        let result = compiler.compile_normal_with_published(published_request(source), |view, _| {
+        compiler.compile_normal_with_published(published_request(source), |view, _| -> Result<(), String> {
             let source = view.retained_root_source().ok_or_else(|| "root source missing".to_owned())?;
-            assert!(matches!(
-                view.retained_root_result(),
+            assert!(matches!(view.retained_root_result(),
                 Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { owner })
-                    if source.terminal_i64_field_return().is_some_and(|relation| relation.owner() == owner)
-            ));
-            let frame = published_backend_view::PublishedLifecycleCFrameV2::from_view(view)?;
-            let root = frame.definition_rows().iter().find(|row| row.flags == 1)
-                .ok_or_else(|| "root definition missing".to_owned())?;
-            assert_eq!((root.role, root.result_kind), (2, 1));
-            Err::<(), _>("[freeze:contract][published-lifecycle/body-consumer-pending]".into())
-        });
-        match result {
-            Err(error) => assert!(
-                error.contains("body-consumer-pending"),
-                "direct field terminal must reach the selected C pending boundary: {error}"
-            ),
-            Ok(_) => panic!("direct field terminal bypassed the selected C pending boundary"),
-        }
+                    if source.terminal_i64_field_return().is_some_and(|relation| relation.owner() == owner)));
+            let input = view.issue_lifecycle_physical_abi_input()?;
+            assert_eq!(input.entry().root_result(), published_backend_view::CompiledEntryRootResultV1::I64);
+            Ok(())
+        }).unwrap();
     });
 }
 
 #[test]
-fn explicit_bare_return_issues_root_unit_c_row_before_pending_consumer() {
+fn explicit_bare_return_retains_unit_source_before_physical_stop() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let source = "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return } }";
         let mut compiler = MirCompiler::with_options(false);
-        let result =
-            compiler.compile_normal_with_published(published_request(source), |view, _| {
-                let frame = published_backend_view::PublishedLifecycleCFrameV2::from_view(view)?;
-                let root = frame
-                    .definition_rows()
-                    .iter()
-                    .find(|row| row.flags == 1)
-                    .ok_or_else(|| "root definition missing".to_owned())?;
-                assert_eq!(root.role, 3);
-                assert_eq!(root.result_kind, 0);
-                assert_eq!(root.source_arity, 0);
-                assert_eq!(root.receiver_formal, u32::MAX);
-                assert_eq!(root.object_id, u32::MAX);
-                Err::<(), _>("[freeze:contract][published-lifecycle/body-consumer-pending]".into())
-            });
-        assert!(matches!(result, Err(ref error) if error.contains("body-consumer-pending")));
+        compiler.compile_normal_with_published(published_request(source), |view, _| -> Result<(), String> {
+            let source = view.retained_root_source().expect("retained Unit source");
+            assert!(matches!(view.retained_root_result(),
+                Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { owner })
+                    if source.terminal_unit_return().is_some_and(|relation| relation.owner() == owner)));
+            let error = view.issue_lifecycle_physical_abi_input().expect_err("Unit physical input remains unsupported");
+            assert!(error.contains("root-result-unavailable"), "{error}");
+            Ok(())
+        }).unwrap();
     });
 }

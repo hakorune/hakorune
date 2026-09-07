@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
-current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "none; normal-only early default generation API accepted after worker premise review"
-current_blocker_token = "Normal CLI and common-source host EXE/independent OBJ plus Fault103 cleanup/report/dispose accepted. Next execute recorded caller-zero V2/V3 retirement: move shared profile, delete old transport/schema/wrappers/JSON and C pending exports/probes, migrate three frame tests, rebuild and verify callers/discovery/exports."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0"
+current_execution_cohort = "constructor_lifecycle_published_view_owner_i0"
+current_design_stop = "none; task 6-owner bounded handoff borrow accepted after read-only lifetime/caller audit"
+current_blocker_token = "Task6-owner BoxShape: finalization retains finalized handoff; view borrows it. Replace four owned handoff fields and target clone/recollection with one borrow, delegate existing accessors, preserve bind/activation rejection and normal EXE/OBJ. Admission/profile relocation is a later slice; no source widening."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,18 +31,18 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Default-source CLI and checked host both execute Pair30 and Bool103/70.
-Existing host test now uses real common materialization/default macros and
-normal optimization, with EXE plus independent session OBJ/link acceptance.
-Actual host-object runtime probe proves Home/reclaim before dispose, reclaim
-before Fault report, and report before dispose; each required action runs once.
-Focused host1 passes for three sources/direct/link/probe. Existing C V4 suite
-passes16 executions plus14 negatives and session/site/tool atomicity checks.
-Next retire caller-zero V2/V3 assets under the recorded inventory, preserving
-shared profile/parser/session/runtime owners. No retirement/whole-suite claim.
+Selected Pair host cutover and V2/V3 retirement are verified. Old frame/schema,
+generic lifecycle JSON, Rust wrappers and C pending exports/probes are deleted;
+shared profile/parser/session/runtime remain. Source max759, guards pass.
+View32, migrated tests3, host1, JSON153 and C16/schema14 pass; fresh CLI Pair30.
+Old symbols absent from rebuilt library and tracked callers/discovery zero
+within the recorded boundary. Existing broader baseline debt remains separate.
+Next accepted task6-owner: existing finalization owns handoff, view borrows one
+product instead of four owned fields. Worker verified synchronous lifetime and
+real callers; preserve rejection/EXE/OBJ. No new result or semantic receipt.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -52,7 +52,9 @@ Lifecycle invocation ownership
   releases it and clears the owner; failed open leaves no retained resources.
 - The selected Rust host now uses V4 and retains the target session through
   `.ll` verification, LLVM18 object generation and atomic output publication.
-  Unused V2/V3 exports remain pending their caller-zero retirement.
+  V2/V3 pending exports, frame ABI and exclusive validators/tests are retired;
+  V4 is the sole selected lifecycle object consumer. Physical-v2 validation,
+  target/session core and runtime descriptors remain shared owners.
 - V4 accepts only `hako.published-lifecycle-physical-program.v2`. The v2 parser
   replaces v1; it checks structure/SSA, then V4 checks type and cohort coverage.
   Parser success alone does not prove executable input. Receiver is explicit,

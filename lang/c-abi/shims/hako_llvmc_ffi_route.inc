@@ -492,49 +492,6 @@ int hako_llvmc_compile_published_static_method_v1(
   return rc;
 }
 
-// This terminal proves the selected V2 ingress without manufacturing an
-// object. The following slice replaces it with typed body emission.
-__attribute__((visibility("default")))
-int hako_llvmc_compile_published_lifecycle_v2(
-    const hako_llvmc_published_lifecycle_frame_v2* frame,
-    const char* obj_out,
-    char** err_out) {
-  if (hako_llvmc_published_lifecycle_v2_validate(frame, obj_out, err_out) != 0)
-    return -1;
-  return set_err_owned(err_out,
-      "[freeze:contract][published-lifecycle/consumer-pending]");
-}
-
-__attribute__((visibility("default")))
-int hako_llvmc_compile_published_lifecycle_body_v2(
-    const char* json_in,
-    const hako_llvmc_published_lifecycle_frame_v2* frame,
-    const hako_llvmc_published_lifecycle_body_site_v1* sites,
-    size_t site_count,
-    const char* obj_out,
-    char** err_out) {
-  if (hako_llvmc_published_lifecycle_body_v2_validate(
-          json_in, frame, sites, site_count, obj_out, err_out) != 0)
-    return -1;
-  return set_err_owned(err_out,
-      "[freeze:contract][published-lifecycle/body-consumer-pending]");
-}
-
-__attribute__((visibility("default")))
-int hako_llvmc_compile_published_lifecycle_body_v3(
-    const char* json_in,
-    const hako_llvmc_published_lifecycle_frame_v2* frame,
-    const hako_llvmc_published_lifecycle_body_site_v1* sites,
-    size_t site_count,
-    const hako_llvmc_lifecycle_target_session_v1* session,
-    const char* obj_out,
-    char** err_out) {
-  if (hako_llvmc_lifecycle_text_tool_session_v1_validate(session, err_out) != 0)
-    return -1;
-  return hako_llvmc_compile_published_lifecycle_body_v2(
-      json_in, frame, sites, site_count, obj_out, err_out);
-}
-
 __attribute__((visibility("default")))
 int hako_llvmc_validate_published_lifecycle_physical_v2(
     const char* json_in, char** err_out) {

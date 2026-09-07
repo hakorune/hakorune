@@ -53,3 +53,21 @@ Host-facing Core C ABI surface lock:
   - Expected: X51 precondition + borrowed/owned matrix conformance are replayable in one gate.
 - `bash tools/checks/phase29cc_runtime_v0_abi_slice_guard.sh`
   - Expected: `[runtime-v0-abi-slice-guard] ok`
+
+## 5. Compiler transport boundary (separate from runtime/plugin ABIs)
+
+Decision (2026-09-07): the selected constructor lifecycle compiler ingress is
+`hako_llvmc_compile_published_lifecycle_physical_v4`, declared in
+`lang/c-abi/include/hako_llvmc_ffi.h`. It borrows one completed
+`hako.published-lifecycle-physical-program.v2` input and explicit target/runtime
+session for a synchronous call. It publishes an object only after validation
+and code generation succeed; selected failures do not retry compatibility.
+The input contains the compiled-entry contract and referenced layouts. Source
+meaning is issued before this boundary; neither JSON nor C reconstructs it.
+
+The experimental lifecycle frame V2, companion-body V2 and pending-body V3
+compile symbols and row ABI are retired. Static-method V1 remains unchanged.
+`hako_llvmc_validate_published_lifecycle_physical_v2` remains structural/SSA
+validation only, with no executable admission or object publication. The target
+session descriptor and runtime Fault ABI are unchanged. This compiler transport
+is not another canonical runtime/plugin ABI.

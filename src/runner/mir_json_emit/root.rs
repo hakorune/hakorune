@@ -26,7 +26,6 @@ use serde_json::{json, Value};
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum JsonEgressProfile {
     CanonicalV1,
-    PublishedLifecycleV2,
     CompatibilityV0 { methodize: bool },
 }
 
@@ -75,16 +74,12 @@ impl JsonEgressProfile {
     }
 
     pub(crate) const fn is_canonical_v1(self) -> bool {
-        matches!(self, Self::CanonicalV1 | Self::PublishedLifecycleV2)
-    }
-
-    pub(crate) const fn is_published_lifecycle_v2(self) -> bool {
-        matches!(self, Self::PublishedLifecycleV2)
+        matches!(self, Self::CanonicalV1)
     }
 
     pub(crate) const fn methodize(self) -> bool {
         match self {
-            Self::CanonicalV1 | Self::PublishedLifecycleV2 => false,
+            Self::CanonicalV1 => false,
             Self::CompatibilityV0 { methodize } => methodize,
         }
     }
@@ -192,7 +187,7 @@ pub(super) fn build_mir_json_root_with_profile(
 
                 // Phase 131-13: Terminator emitted inline (no delayed copies)
                 if let Some(term) =
-                    emitters::emit_terminator(&bb.terminator, pinned_text_residence_transport, profile)?
+                    emitters::emit_terminator(&bb.terminator, pinned_text_residence_transport)?
                 {
                     insts.push(term);
                 }

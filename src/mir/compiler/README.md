@@ -7,16 +7,21 @@ The compiled-entry product retains Birth formal dispositions for inspection.
 Physical input admission rejects unavailable, unsupported, missing and
 undischarged `DeferredActualBinding` dispositions before JSON generation.
 A ValueId, destination i64 field or caller literal cannot prove an executable
-formal lane. The source Pair keeps its unannotated contract and cannot yet
-enter V4. Checked/tagged representation needs its own completed consumer.
+formal lane. The source Pair retains its unannotated contract and now enters
+V4 through the checked kind/payload consumer. Bool at either I64 store follows
+its source-issued Fault edge; unsupported Local/annotation/Unit admission
+remains a named stop.
 Admitted inputs own operation diagnostic ordinals and one `process_result_site`
 for the I64 epilogue; these are physical identities, never source coordinates.
 
 Per-New actuals travel inside the existing root-source handoff. Compiled-entry
 matches each physical Birth call to exactly one retained target/receiver/ordered
 argument row and exhausts the rows. Birth definitions remain deduplicated; call
-rows do not. The V2 observer likewise consumes per-call indices. This internal
-retention does not bind Local to i64 or remove the formal physical Stop.
+rows do not. The final physical input owns this compiled-entry contract and
+referenced layouts. The retired V2 frame/companion JSON observer is not an
+alternate representation. Storage profile and its finite validation live in
+`published_backend_view/lifecycle.rs`; they issue no source meaning.
+This retention does not bind Local to i64 or widen formal acceptance.
 
 ### Final published artifact consumption
 

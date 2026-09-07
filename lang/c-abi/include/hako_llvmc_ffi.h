@@ -43,85 +43,8 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
 #define HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT 1u
 #define HAKO_LLVMC_PUBLISHED_ROW_FLAG_INDEX_PRESENT 2u
 
-// V2 lifecycle transport is a separate ABI. V1 remains byte-for-byte stable.
-#define HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABI_REVISION_V2 2u
-#define HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABSENT_U32_V2 UINT32_MAX
-#define HAKO_LLVMC_OBJECT_STORAGE_SAFE_MUTEX_V1 1u
-#define HAKO_LLVMC_OBJECT_STORAGE_SINGLE_THREAD_EXACT_V1 2u
-
-#define HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_BIRTH_UNIT_V2 1u
-#define HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_ROOT_I64_V2 2u
-#define HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_ROOT_UNIT_V2 3u
-#define HAKO_LLVMC_LIFECYCLE_RESULT_KIND_UNIT_V2 0u
-#define HAKO_LLVMC_LIFECYCLE_RESULT_KIND_I64_V2 1u
-#define HAKO_LLVMC_LIFECYCLE_CONTROL_KIND_RETURN_V2 4u
-
-typedef struct hako_llvmc_published_lifecycle_definition_v2 {
-  const char* function_name;
-  const char* target_symbol;
-  uint32_t role, source_arity, receiver_formal, object_id;
-  uint32_t result_kind, frame_mode, flags;
-} hako_llvmc_published_lifecycle_definition_v2;
-
-typedef struct hako_llvmc_published_lifecycle_formal_v2 {
-  uint32_t definition_index, source_ordinal, physical_ordinal;
-  uint32_t value_id, wire_revision, input_kind;
-} hako_llvmc_published_lifecycle_formal_v2;
-
-typedef struct hako_llvmc_published_lifecycle_operation_v2 {
-  const char* function_name;
-  uint32_t block_id, instruction_index, kind, definition_index;
-  uint32_t fault_frame, normal_landing, fault_landing;
-  uint32_t object_id, field_ordinal, base, value, receiver;
-  uint32_t operand_count, flags;
-} hako_llvmc_published_lifecycle_operation_v2;
-
-typedef struct hako_llvmc_published_lifecycle_operand_v2 {
-  uint32_t operation_index, ordinal, value_id, kind;
-} hako_llvmc_published_lifecycle_operand_v2;
-
-typedef struct hako_llvmc_published_lifecycle_control_v2 {
-  const char* function_name;
-  uint32_t block_id, instruction_index, kind, operand, origin_block, mode, flags;
-} hako_llvmc_published_lifecycle_control_v2;
-
-typedef struct hako_llvmc_published_lifecycle_layout_v2 {
-  uint32_t object_id, runtime_type_id, field_count, destruction_kind;
-} hako_llvmc_published_lifecycle_layout_v2;
-
-typedef struct hako_llvmc_published_lifecycle_field_v2 {
-  uint32_t object_id, declaration_ordinal, runtime_slot, storage_kind;
-} hako_llvmc_published_lifecycle_field_v2;
-
-/* V2 companion payload: the exact Normal result of a NewBox Invoke. */
-typedef struct hako_llvmc_published_lifecycle_body_site_v1 {
-  const char* function_name;
-  uint32_t block_id, instruction_index, normal_result, fault_frame;
-  uint32_t normal_landing, fault_landing, object_id;
-} hako_llvmc_published_lifecycle_body_site_v1;
-
-typedef struct hako_llvmc_published_lifecycle_frame_v2 {
-  uint32_t abi_revision, storage_profile;
-  const hako_llvmc_published_static_method_call_v1* call_rows;
-  size_t call_row_count;
-  const hako_llvmc_published_lifecycle_definition_v2* definitions;
-  size_t definition_count;
-  const hako_llvmc_published_lifecycle_formal_v2* formals;
-  size_t formal_count;
-  const hako_llvmc_published_lifecycle_operation_v2* operations;
-  size_t operation_count;
-  const hako_llvmc_published_lifecycle_operand_v2* operands;
-  size_t operand_count;
-  const hako_llvmc_published_lifecycle_control_v2* controls;
-  size_t control_count;
-  const hako_llvmc_published_lifecycle_layout_v2* layouts;
-  size_t layout_count;
-  const hako_llvmc_published_lifecycle_field_v2* fields;
-  size_t field_count;
-} hako_llvmc_published_lifecycle_frame_v2;
-
 /* Invocation-owned physical target facts decoded from the selected runtime
- * archive. This is not MIR/source authority and is consumed only by V3. */
+ * archive. This is not MIR/source authority and is consumed by V4. */
 typedef struct hako_llvmc_lifecycle_target_session_v1 {
   uint32_t revision;
   const char* target_triple;
@@ -138,28 +61,6 @@ int hako_llvmc_compile_published_static_method_v1(
     const char* json_in,
     const hako_llvmc_published_static_method_call_v1* calls,
     size_t call_count,
-    const char* obj_out,
-    char** err_out);
-
-int hako_llvmc_compile_published_lifecycle_v2(
-    const hako_llvmc_published_lifecycle_frame_v2* frame,
-    const char* obj_out,
-    char** err_out);
-
-int hako_llvmc_compile_published_lifecycle_body_v2(
-    const char* json_in,
-    const hako_llvmc_published_lifecycle_frame_v2* frame,
-    const hako_llvmc_published_lifecycle_body_site_v1* sites,
-    size_t site_count,
-    const char* obj_out,
-    char** err_out);
-
-int hako_llvmc_compile_published_lifecycle_body_v3(
-    const char* json_in,
-    const hako_llvmc_published_lifecycle_frame_v2* frame,
-    const hako_llvmc_published_lifecycle_body_site_v1* sites,
-    size_t site_count,
-    const hako_llvmc_lifecycle_target_session_v1* session,
     const char* obj_out,
     char** err_out);
 

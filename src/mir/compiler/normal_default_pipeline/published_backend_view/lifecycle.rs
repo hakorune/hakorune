@@ -271,3 +271,27 @@ impl<'module> PublishedMirBackendView<'module> {
 fn fault(reason: &str) -> String {
     format!("[freeze:contract][published-lifecycle/admission-{reason}]")
 }
+
+#[repr(u32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PublishedObjectStorageProfileV1 {
+    SafeMutex = 1,
+    SingleThreadExact = 2,
+}
+
+impl PublishedObjectStorageProfileV1 {
+    pub(crate) fn from_runtime_name(value: Option<&str>) -> Result<Self, String> {
+        match value {
+            None | Some("") | Some("safe_mutex") => Ok(Self::SafeMutex),
+            Some("single_thread_exact") => Ok(Self::SingleThreadExact),
+            Some(other) => Err(format!(
+                "[freeze:contract][published-lifecycle/storage-profile] unsupported profile: {other}"
+            )),
+        }
+    }
+}
+
+
+#[cfg(test)]
+#[path = "lifecycle_profile_tests.rs"]
+mod profile_tests;
