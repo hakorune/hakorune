@@ -350,6 +350,12 @@ source entry
   -> native main: checked OS adaptation
 ```
 
+The kernel's current `legacy-entry` Cargo feature defaults on and gates its
+compatibility `main`. Turning it off removes that entry only; it does not
+activate the normalized-status ABI or establish a lifecycle archive. The
+selected lifecycle artifact must carry entry-ABI evidence verified from the
+same archive as its runtime layout descriptor before emission/link.
+
 `ny_main` must not permanently multiplex a raw source Integer, generic object
 handle, and normalized status in the same untagged `i64`.
 

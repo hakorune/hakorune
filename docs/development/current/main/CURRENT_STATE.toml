@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-I0"
 current_execution_cohort = "constructor_lifecycle_kernel_entry_artifact_split_i0"
 current_design_stop = "none (kernel entry artifact decision accepted)"
-current_blocker_token = "Create the selected V4 lifecycle kernel archive without legacy main: extract common startup/flush owner, feature-gate the generic entry, and prove release symbols before reopening C body emission."
+current_blocker_token = "Finish the selected lifecycle kernel artifact: common launcher, exclusive Cargo features and isolated build output, archive-issued entry ABI checked by the lifecycle-only host selection; prove symbols and launcher status before V4 emission."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

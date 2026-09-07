@@ -17,6 +17,15 @@ or source Fault. Supported profiles are SafeMutex and SingleThreadExact.
 The trusted pointer contract is in `include/nyrt_fault_v1.h`; the ABI alone does
 not activate a compiler/backend lifecycle consumer.
 
+### Legacy process entry feature
+
+The default `legacy-entry` feature exports the compatibility `main`, including
+its existing positive-handle decoding. Disabling default features removes that
+entry; it does not provide a lifecycle launcher. Cargo features are additive,
+so a no-default dependency alone does not prove absence of the legacy entry
+when another selected package enables it. The distinct lifecycle artifact and
+its build/entry-ABI checks remain pending in the active constructor card.
+
 ### Target-compiled ABI descriptor
 
 `libnyash_kernel.a` retains exactly one `.nyash.runtime_abi.v1` ELF section.

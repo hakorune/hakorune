@@ -14,14 +14,11 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0`; issue
-target-derived runtime ABI facts for the selected compile invocation. See the
-accepted target-session ownership and ordered tasks below.
+Smallest next slice: follow the kernel artifact I0 selected by `CURRENT_STATE.toml`.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
 permanent execution park or treated all physical placement as source meaning.
-The implementation stays fenced until the required connected acceptance passes.
 No second MirBuilder or new semantic `Verified*`/`Prepared*` receipt is needed.
 
 ## Responsibility and lifetime
@@ -1526,66 +1523,66 @@ both executable paths pass.
 
 ### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-D1`
 
-**Decision (accepted):** split link artifacts without splitting runtime meaning.
-`nyash_kernel` keeps its legacy `main` and compatibility handle decoding behind
-an explicit `legacy-entry` feature. Its no-default-feature rlib is the runtime
-core: exports, descriptor, startup/flush helper and no process `main`. A new
-`nyash_lifecycle_kernel` staticlib depends on that core with legacy entry
-absent, defines the selected V4 process `main`, and invokes the V4 `ny_main()`
-exactly once through the core's normalized-status launcher. The lifecycle host
-selects `libnyash_lifecycle_kernel.a` explicitly; generic routes retain
-`libnyash_kernel.a`. C emits only V4 `ny_main`, never a second `main`.
+**Decision (accepted):** two explicit link artifacts share one runtime core.
+The default `nyash_kernel` archive retains legacy `main` and raw handle decoding.
+The selected `nyash_lifecycle_kernel` archive owns normalized-status `main` and
+calls V4 `ny_main` once through the core startup/flush owner. C emits no `main`.
 
-```text
-Decision: two explicit artifacts select legacy raw-result entry or V4 normalized-status entry; neither guesses from a symbol or environment.
-Source authority + canonical issuer: V4 C body owns normalized `ny_main() -> i64`; core launcher owns startup/flush and checked i64-to-OS-status adaptation.
-Non-authority: legacy generic main, host-handle/IntegerBox decoding, generic C emitters, V2/V3, source names and ambient link policy.
-Fail-fast boundary: missing or duplicate main/launcher, entry ABI mismatch, wrong archive/target, or out-of-range status rejects with no EXE and no fallback.
-Smallest next slice: feature-gate legacy main, extract the behavior-preserving core startup/flush owner, add the lifecycle staticlib and release symbol census.
-Non-claims: no generic kernel modernization, no raw-decode deletion, no C body emission, no process-policy widening or multi-target ABI claim.
-```
+Source authority + canonical issuer: the issued compiled-entry contract and V4
+consumer own normalized status; the kernel launcher owns startup/flush and OS
+adaptation. Neither archive names nor host-handle lookup issue entry meaning.
+The boundary is package selection -> compiled archive -> host session -> native
+entry; source families and generic result-policy migration are excluded.
 
-The finite boundary is V4 generated object plus its selected lifecycle archive
-and generic legacy native entry. It includes `main`, `ny_main` and the
-normalized-status launcher; it excludes generic source semantics, other
-backends and a general runtime rewrite. Release `libnyash_kernel.a` currently
-places `main` in its `nyash_kernel` codegen member, so the explicit new archive
-is necessary to prove exactly one process `main` before V4 C emission opens.
+The feature gate landed at `557a812464`; the archive/launcher split has not.
+Read-only follow-up found two required cutover conditions:
+
+- `Cargo.toml` includes `crates/*`; `tools/build_plugins_all.sh` and
+  `.github/workflows/fast-smoke.yml` build the workspace. A dependency's
+  `default-features=false` cannot cancel another selection's `legacy-entry`.
+  The core must reject `legacy-entry + lifecycle-core` at compile time.
+  Build lifecycle with explicit package selection and a separate target-dir;
+  generic workspace callers explicitly exclude the lifecycle package.
+- `LifecycleRuntimeSessionV1::select` currently verifies target/Fault geometry,
+  not entry ABI. A renamed legacy archive must not pass lifecycle selection.
+  The lifecycle entry owner must emit a versioned entry-ABI record in its own
+  named ELF section. The host reads exactly one such record from the same
+  archive as the runtime descriptor, rejects missing/duplicate/unsupported
+  records before emission, and retains that archive through link. This record
+  identifies the physical entry contract, never source meaning or Fault layout.
+
+No V4 emission, raw-decode retirement, generic policy change or Pair execution
+is claimed by this artifact prerequisite. Prior release command completion is
+unverified; a fresh explicit release gate must supply artifact evidence.
 
 ### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-I0`
 
-Implement only the selected link-artifact boundary. Extract the current kernel
-startup/flush sequence into the core owner without changing the legacy `main`'s
-observable behavior. Gate that legacy `main` behind `legacy-entry`; add the
-lifecycle staticlib with a distinct normalized-status `main` that calls exactly
-one `ny_main` and accepts only `0..=255` before the OS `i32` return. The host
-must explicitly select the lifecycle archive only for the selected lifecycle
-route. Acceptance is release symbol/member evidence showing exactly one
-`main` in each chosen artifact, no legacy `main` in the lifecycle archive, and
-focused launcher behavior for `0`, `30`, `255`, `-1`, and `256`. It emits no
-V4 C object and changes no generic caller.
+**Change:** close the existing artifact boundary in this order:
+1. Extract common startup/flush without changing legacy entry behavior; add
+   the lifecycle launcher accepting only `0..=255`, otherwise status 70.
+2. Add mutually exclusive feature enforcement, the distinct staticlib and its
+   entry-ABI record, isolated build output, and generic workspace exclusions.
+3. Require the record in lifecycle session selection and switch only the
+   selected lifecycle host branch to its explicit archive. Generic callers
+   retain their existing archive choice.
 
-### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-TARGET-SESSION-D0`
+**Contract:** source -> Facts/Recipe -> compiled-entry contract is unchanged;
+this BoxShape series changes the physical invocation boundary only. The
+lifecycle launcher never decodes handles. Missing entry ABI, incompatible
+features or target/layout mismatch fail before publication with no fallback.
 
-**Decision (accepted):** the selected lifecycle C body compiler will solely
-produce normalized `ny_main() -> i64` status after cleanup. Its session binds
-the issued contract/V2 frame, one target triple, and the exact kernel archive.
-The kernel owns startup/flush and checked OS-status adaptation only; its current
-raw handle-decode and `i32` cast are non-authority. Fault is C frame-init →
-record → report-final → dispose → 70; normal Pair reaches HomeRelease → 30.
+**Done:** separate release archives each contain exactly one intended `main`;
+explicit mixed-feature selection fails; launcher executions cover
+`0/30/255/-1/256` and one `ny_main` call; renamed legacy/missing/duplicate entry
+records reject before artifact; generic archive selection is unchanged.
+Update kernel README and entry-result reference with implementation, run the
+pointer guard, then return to the existing V4 body-consumer row. Its finish line
+remains direct Pair EXE30 and independently same-archive linked OBJ EXE30,
+exactly-once cleanup/Fault report/dispose, and selected old transport retirement.
 
-The archive/link owner is `link_object_capi_v2` / `hako_llvmc_link_obj_v2`.
-Missing target, archive, frame/status map, Fault report/dispose relation or
-layout contract rejects before object creation. Generic lifecycle JSON, its
-pending parser, generic C lowering and Raw VM remain non-authority. Future
-acceptance remains direct Pair EXE30 plus independently kernel-linked OBJ EXE30
-with exactly-once normal/fault cleanup and no artifact on rejection.
-
-**D0 follow-through landed:** the target-compiled runtime descriptor and V3
-target-data session now prove the required FaultFrame layout, the V2 sentinel
-contract is named, and direct physical input is parser-validated. The next
-selected row is `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0`; its bounded V4
-consumer is the only permitted C codegen and kernel-entry change.
+**Stop:** unresolved entry-record ownership/schema or changed startup/flush
+semantics requires design clarification before code. No additional source
+family, runtime modernization or generic backend work enters this series.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
