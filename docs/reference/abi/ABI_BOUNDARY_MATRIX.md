@@ -81,3 +81,11 @@ compile symbols and row ABI are retired. Static-method V1 remains unchanged.
 validation only, with no executable admission or object publication. The target
 session descriptor and runtime Fault ABI are unchanged. This compiler transport
 is not another canonical runtime/plugin ABI.
+
+For static/free/Print/array published ingress, every Global Call requires its exact
+row (Print, FreeFunction or StaticBoxMethod). The shared peek returns malformed
+on required absence before the prepass or either emitter can use legacy plan/name
+dispatch. Present-invalid, duplicate and residual checks remain mandatory; explicit
+generic ingress without a published session is unchanged. This is an input-contract
+restriction with unchanged row layout/revision, not full non-Global disposition
+coverage or concurrent-compile support.

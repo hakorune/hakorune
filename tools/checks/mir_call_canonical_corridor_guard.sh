@@ -135,7 +135,7 @@ require "$ORDINARY_NEW_INSTALL" "IncompleteOrdinaryNewCoverage"
 require "$ORDINARY_SOURCE_MODEL" "ordinary_box_coverage"
 require "$ORDINARY_SOURCE_COVERAGE" "ParserOrdinaryBoxSourceCoverageV1"
 require "$BUILDER_README" "Raw ordinary-\`New\` source claim consumer (D2c)"
-require "$PACKAGE_README" "Raw ordinary-\`New\` claim co-seal (D2c)"
+require "$PACKAGE_README" "## Ordinary objects and New claims"
 require "$SCHEDULE" "canonicalize_callsites_for_site(module)"
 require "$SCHEDULE" "ProgramJsonV0Bridge"
 require "$MIR_V0_MODULE" '"call" | "mir_call"'

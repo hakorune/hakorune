@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-PUBLISHED-GLOBAL-ROW-REQUIRED-I0"
-current_execution_cohort = "mir_call_published_global_row_required_i0"
-current_design_stop = "none; published Global mandatory-row boundary accepted after read-only issuer/caller/state audit"
-current_blocker_token = "Task2 selected Global Stop: existing published-session peek must reject a missing Global Call row before plan/name dispatch across prepass and both emitters. Preserve valid/malformed/duplicate/residual/array and explicit generic ingress. Non-Global per-site disposition remains unresolved; do not blanket-reject absence or claim complete compatibility separation."
+current_execution_row = "MIR-CALL-PUBLISHED-EXTERN-STOP-I0"
+current_execution_cohort = "mir_call_published_extern_stop_i0"
+current_design_stop = "none; published Extern C boundary Stop aligns with existing Rust host rejection after read-only variant audit"
+current_blocker_token = "Task2 Extern Stop: align published C Call(Extern) with existing Rust host rejection at shared peek; missing typed-session Extern must not enter legacy extern-plan/name dispatch. Preserve valid Global, generic no-session Extern and other existing shapes. Method/Constructor per-site disposition remains open; no source-production cutover or full non-Global closure claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,16 +31,15 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Constructor view/C/placement cleanup and semantic README closeout are recorded
-in the constructor owner card; existing backend/runtime task2 is now selected.
-Canonical Global has three row-projected forms: Print, FreeFunction, StaticBoxMethod.
-The shared C peek can require their row only under published ingress, closing
-absent -> legacy plan/JSON dispatch for prepass and both emitters. Preserve generic
-and non-Global behavior; the latter needs its own explicit disposition contract.
-No new receipt/ABI/schema/global-state change or whole compatibility closure claim.
+Published Global row absence now rejects at shared peek before all three legacy
+plan/name-dispatch edges. C ABI positives/negatives and generic behavior pass;
+view32 and normal-source Pair/Bool host1 preserve existing execution and cleanup.
+Next Extern C-boundary Stop reuses the existing Rust host capability rejection.
+Non-Global audit retains Method/Constructor disposition as open; no blanket Stop,
+new receipt/ABI/state owner or new source-production cutover is authorized.
 """
-next_design_card = "MIR-CALL-PUBLISHED-GLOBAL-ROW-REQUIRED-I0"
-next_execution_card = "MIR-CALL-PUBLISHED-GLOBAL-ROW-REQUIRED-I0"
+next_design_card = "MIR-CALL-PUBLISHED-EXTERN-STOP-I0"
+next_execution_card = "MIR-CALL-PUBLISHED-EXTERN-STOP-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

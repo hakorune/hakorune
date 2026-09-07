@@ -94,11 +94,11 @@ JSON may transport already-decided operands; it is not a second source resolver.
 | Compatibility | Explicit ingress and libc canary, with their own selection |
 
 The Rust view retains Call and LegacyCallV0 readers. Typed malformed rows reject;
-absent rows can still reach legacy classification, not retry after typed failure.
-Task2 now selects only published Global row absence: all canonical Global targets
-(Print/FreeFunction/StaticBoxMethod) already have Rust-issued rows. The shared peek
-will reject missing Global rows before same-module prepass/emitter and entry dispatch
-fallback. Non-Global per-site disposition is still unresolved. The constructor V4
+published Global absence now rejects at shared peek before legacy classification.
+All canonical Global targets (Print/FreeFunction/StaticBoxMethod) already have
+Rust-issued rows; same-module prepass/emitter and entry dispatch share that check.
+Task2 next closes published Extern absence to match Rust host rejection. Generic
+Extern remains separate; Method/Constructor per-site disposition is unresolved. The constructor V4
 execution/retirement receipt above supersedes the old lifecycle-pending review.
 
 Ordered tasks are owned by the current

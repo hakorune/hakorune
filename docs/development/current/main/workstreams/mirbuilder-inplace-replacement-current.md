@@ -565,12 +565,9 @@ unrelated performance remain outside this task.
 
 ### Backend/runtime feedback and task order (2026-09-06)
 
-Constructor Pair V4 source execution, EXE/independent OBJ30, Fault cleanup and
-selected V2/V3 retirement are recorded in the
-[constructor owner card](../design/constructor-lifecycle-llvm-lowering-ssot.md).
-View ownership/row storage and transport placement cleanup are closed; the
-semantic-package README closeout preserves their source/physical boundary.
-This does not close uncovered constructor representations or the whole Call R7.
+The [constructor card](../design/constructor-lifecycle-llvm-lowering-ssot.md)
+records Pair V4 EXE/OBJ30, Fault cleanup, V2/V3 retirement and view/C/docs cleanup.
+Uncovered source representations and full Call R7 remain open.
 
 Order: canonical/compatibility separation -> compile-call state/options -> kernel
 hook single storage -> later runtime crate dependency reduction. Each selected
@@ -581,50 +578,59 @@ retains task2–4 responsibilities and acceptance.
 
 #### MIR-CALL-PUBLISHED-GLOBAL-ROW-REQUIRED-I0
 
-Status: **selected_fast**. Classification: Stop of the selected missing-input
-edge; no new source family, ABI revision, row schema or receipt.
+Selected Global missing-input edge is closed at the shared typed peek. Under a
+published session, missing Global returns existing malformed status, never absent;
+prepass and both emitters reject before plan/name dispatch. Generic ingress and
+non-Global absence are unchanged. No ABI/schema/state-owner change or new receipt.
+C build and real ABI test pass: valid FreeFunction/StaticMethod/Print, entry/nested
+missing row with another valid row, malformed/duplicate/array/residual behavior,
+no output on rejection, and the same legacy-readable JSON via generic ingress.
+View32/normal-source host1 pass (EXE/OBJ/Fault15.24s); no new Global source claim.
+C README/header/reference are synced. Parentba62871459 reproduces the stale
+semantic README heading guard failure; its single heading lookup is corrected
+without changing source/test checks. No whole-suite claim.
 
-Decision: require the existing typed row for Global Calls in published ingress.
-Source authority + canonical issuer: canonical Call target/Atomic Publish; existing Rust published view emits all Print/FreeFunction/StaticBoxMethod Global rows.
-Non-authority: C input shape, names, JSON and row-session state do not issue source meaning.
-Fail-fast boundary: the shared typed-row peek rejects selected Global absence before plan/name dispatch or artifact output.
-Smallest next slice: enforce mandatory absence in hako_llvmc_published_static_method_peek_i64_global_row_v1 and extend its existing C ABI test.
-Non-claims: complete compatibility separation, Method/Constructor admission, detecting Global-to-Method transport corruption, constructor V4 or concurrent compilation.
+#### MIR-CALL-PUBLISHED-EXTERN-STOP-I0
 
-Worker audit boundary: Rust view -> capi -> published static/free/print/array
-entry -> prepass peek and two emitter take->peek callers. Includes all three
-canonical Global forms; excludes V4, generic compilation, non-Global disposition
-issuance and state ownership. Each Global already has a projected row.
+Status: **selected_fast**. Stop at C public input boundary; Rust source admission
+already rejects this family, so this is not a new source-production cutover.
 
-| Observed input state | Existing authority / required terminal |
+Decision: make published C Call(Extern) stop match existing Rust host admission.
+Source authority + canonical issuer: unchanged call owners; backend_capability::validate_published_ingress already rejects Call(Extern).
+Non-authority: C transport tags/session cannot issue source meaning or compatibility permission.
+Fail-fast boundary: shared peek rejects selected Extern before legacy extern-plan/name dispatch.
+Smallest next slice: reject absent Extern only under the published-row session; present Extern already rejects.
+Non-claims: Method/Constructor selection, independent ExternCall opcode, V4, generic ingress restriction or concurrency.
+
+Worker census boundary: published view -> host capability -> Call transport ->
+shared C consumers; includes Call variants below, excludes Invoke, V4, independent
+ExternCall and generic compilation. Read-only findings are design, not execution.
+
+| Variant / state | Existing selection or next obligation |
 | --- | --- |
-| Published session, Global, valid row | Existing published row -> typed consumer/take. |
-| Published session, Global, absent row | Required-input error; no plan/name dispatch. |
-| Present malformed shape/arity/kind | Existing typed-input rejection. |
-| Duplicate rows/take | Existing duplicate rejection. |
-| Supplied but unconsumed row | Existing finish rejection. |
-| Published entry with empty row set | Existing begin rejection. |
-| Explicit generic entry without row session | Its existing compatibility consumer. |
-| Published non-Global site with absent row | Unchanged for this slice; disposition gap remains open. |
+| Extern | Rust host rejects Call/extern routes; C published absence still reaches legacy. Close this edge. |
+| Method / Constructor | No row and may coexist with selected calls; per-site disposition remains open. |
+| Value / SameModuleInstance | Existing UnsupportedBeforeObject. |
+| BirthConstructor | Separate lifecycle observation/finalized V4 path. |
+| Closure | No C arm; no current canonical producer established here, no promotion claim. |
+| LegacyCallV0 / missing callee | Host rejects all LegacyCallV0; do not treat transition reading as admission. |
 
 Change:
-  Shared peek rejects absent Global under its existing published-session marker.
-  Delete absent -> legacy plan/JSON name-dispatch for all three callers; retain
-  generic helper bodies with real compatibility callers. No wrapper/new guard.
+  In the same shared peek, published Extern absence becomes malformed input.
+  Preserve present-invalid rejection; close prepass and both emitter edges into
+  legacy extern-plan/name consumers. Generic consumers remain live.
 Contract:
-  Use the existing Global tag, never name inference. Preserve malformed/duplicate/
-  residual rejection and take-once semantics. Non-Global sites lack an explicit
-  per-site compatibility disposition: leave that next boundary open.
+  Published Extern (present or absent) rejects; published valid Global still takes
+  its row; other shapes keep current rules; no-session Extern keeps generic handling.
+  Method/Constructor disposition is a named open contract, not blanket absence permission.
 Done:
-  Extend `published_rows_preartifact_test.c`: omit entry/nested Global row while
-  another valid row remains; legacy-readable JSON must reject without an object.
-  Preserve valid/malformed/duplicate/residual/array and explicit generic cases.
-  C build and existing selected source/typed gates pass; sync C README/reference.
+  Extend existing published_rows_preartifact C test: missing Extern under a typed
+  session rejects before artifact; no-session generic behavior stays unchanged.
+  Existing Rust Extern/Legacy rejection and C typed/array/residual gates pass.
+  Sync owning C README/header/reference; no new fixture/guard/receipt.
 Stop:
-  If session/tag cannot distinguish the finite states, return to design. Do not
-  reject all absent sites, infer a missing disposition or widen backend scope.
-
-Worker findings are integrated into this Decision, not execution evidence.
+  If the Rust terminal or C tag/session correspondence differs, retain the edge
+  and resolve that owner before coding. Do not widen to all non-Global sites.
 
 ## Source and ownership budget
 

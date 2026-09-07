@@ -20,6 +20,9 @@ The backend performs physical lowering; it does not issue source meaning.
   legacy name/plan lookup. Emission validates the same shape and takes once;
   peeking cannot satisfy residual exhaustion, duplicate takes are malformed
   rather than absent, and out-of-range coordinates cannot wrap to a row.
+  Published Global calls require an exact row even when another valid row is
+  present; absence is malformed input and cannot enter legacy plan/name dispatch.
+  Explicit generic ingress without a row session remains separate.
   The same C test exercises these contracts and a nested typed call without
   legacy call metadata, including wrong-arity rejection before object output.
   This is physical-consumer evidence, not constructor source-to-EXE proof.

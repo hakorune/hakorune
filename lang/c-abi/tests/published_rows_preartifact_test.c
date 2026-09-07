@@ -1,6 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
-/* Exercise the real typed ABI with an existing call-free MIR input.
- * No source fixture or semantic target is synthesized by this test. */
+/* Exercise shared typed admission and the real ABI. Synthetic MIR cases are
+ * physical contract witnesses, not source/publication acceptance. */
 #include "../include/hako_llvmc_ffi.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,6 +52,13 @@ static void test_prepass_peek_and_emitter_take(void) {
     assert(!hako_llvmc_published_static_method_peek_row_for_site(
         row.function_name, 7, (size_t)UINT32_MAX + 4));
   assert(!hako_llvmc_published_static_method_peek_row_for_site("foreign", 7, 3));
+  assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
+      "missing", 7, 3, "Global", 2, args, &found) == -1);
+  assert(found == NULL);
+  assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
+      "missing", 7, 3, "Global", 2, args, &found) == -1);
+  assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
+      "missing", 7, 3, "Method", 2, args, &found) == 0);
   assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
       row.function_name, 7, 3, "Method", 2, args, &found) == -1);
   assert(found == NULL);
@@ -63,6 +70,9 @@ static void test_prepass_peek_and_emitter_take(void) {
       row.function_name, 7, 3, "Global", 2, args, &found) == -1);
   assert(found == NULL); /* duplicate is not absence/generic fallback */
   hako_llvmc_published_static_method_rows_end();
+  assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
+      "missing", 7, 3, "Global", 2, args, &found) == 0);
+  assert(found == NULL);
   yyjson_doc_free(doc);
 }
 
@@ -143,6 +153,59 @@ static void test_same_module_prepass_uses_published_row(void) {
   if (rc != 0) fprintf(stderr, "nested prepass rc=%d: %s\n", rc, error ? error : "none");
   assert(rc == 0 && access(output, F_OK) == 0);
   free(error);
+  error = NULL;
+  assert(unlink(output) == 0);
+  rows[0].kind = rows[1].kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD;
+  assert(hako_llvmc_compile_published_static_method_v1(input, rows, 2, output, &error) == 0);
+  assert(error == NULL && access(output, F_OK) == 0);
+  assert(unlink(input) == 0 && unlink(output) == 0);
+}
+
+/* The explicit generic C entry has no published-row session. */
+extern int hako_llvmc_compile_json_pure_first(const char*, const char*, char**);
+
+static void test_missing_global_rows_cannot_use_legacy_names(void) {
+  const char *body =
+      "{\"functions\":[{\"name\":\"main\",\"params\":[],\"metadata\":{"
+      "\"same_module_function_definitions\":[{\"target_symbol\":\"nested\","
+      "\"definition_kind\":\"same_module_function\"}]},\"blocks\":[{\"id\":0,"
+      "\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":6}},"
+      "{\"op\":\"mir_call\",\"mir_call\":{\"callee\":{\"type\":\"Global\",\"name\":\"print\"},\"args\":[1]}},"
+      "{\"op\":\"ret\",\"value\":1}]}]},"
+      "{\"name\":\"nested\",\"params\":[1],\"metadata\":{},\"blocks\":[{\"id\":1,"
+      "\"instructions\":[{\"op\":\"mir_call\",\"mir_call\":{\"callee\":{\"type\":\"Global\",\"name\":\"print\"},\"args\":[1]}},"
+      "{\"op\":\"ret\",\"value\":1}]}]}]}";
+  char input[] = "/tmp/hakorune-published-missing-XXXXXX";
+  int fd = mkstemp(input);
+  assert(fd >= 0);
+  FILE *file = fdopen(fd, "w");
+  assert(file && fputs(body, file) >= 0 && fclose(file) == 0);
+  char output[sizeof(input) + 2];
+  snprintf(output, sizeof(output), "%s.o", input);
+  hako_llvmc_published_static_method_call_v1 rows[2] = {0};
+  rows[0].function_name = "main";
+  rows[0].instruction_index = 1;
+  rows[1].function_name = "nested";
+  rows[1].block_id = 1;
+  for (int i = 0; i < 2; i++) {
+    rows[i].kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT;
+    rows[i].arity = 1;
+  }
+  char *error = NULL;
+  assert(hako_llvmc_compile_published_static_method_v1(input, rows, 2, output, &error) == 0);
+  assert(error == NULL && access(output, F_OK) == 0 && unlink(output) == 0);
+  for (int retained = 0; retained < 2; retained++) {
+    int rc = hako_llvmc_compile_published_static_method_v1(input, &rows[retained], 1, output, &error);
+    assert(rc != 0 && error && access(output, F_OK) != 0);
+    /* Not a late residual error: the supplied other row is valid. */
+    assert(!strstr(error, "typed row was not consumed"));
+    free(error);
+    error = NULL;
+  }
+  int rc = hako_llvmc_compile_json_pure_first(input, output, &error);
+  if (rc != 0) fprintf(stderr, "generic print rc=%d: %s\n", rc, error ? error : "none");
+  assert(rc == 0 && access(output, F_OK) == 0);
+  free(error);
   assert(unlink(input) == 0 && unlink(output) == 0);
 }
 
@@ -150,6 +213,7 @@ int main(int argc, char **argv) {
   test_prepass_peek_and_emitter_take();
   test_array_row_rejects_second_take();
   test_same_module_prepass_uses_published_row();
+  test_missing_global_rows_cannot_use_legacy_names();
   puts("published peek/take and coordinate tests: PASS");
   if (argc == 1) return 0;
   if (argc != 3) return 2;
