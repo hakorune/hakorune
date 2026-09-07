@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
 current_execution_cohort = "constructor_lifecycle_c_body_consumer_i0_r1"
-current_design_stop = "none (v2 schema/LLVM lanes and exact Unannotated Integer/Bool binding accepted; generic host capability remains later)"
-current_blocker_token = "Implement accepted v2 tagged physical input and V4 consumer together: explicit receiver, params representation, call kind/value and Bool Const; remove v1/parser and positional I64 defaults. Exact formal/actual source contracts and construction final validation are prerequisites. Preserve Local/declaration Stops; host draft and numeric OBJ promotion remain parked until execution evidence."
+current_design_stop = "Exact root cleanup-observer mapping across SimplifyCFG; v2 tagged input and V4 consumer verified"
+current_blocker_token = "V2 tagged input and V4 consumer verified: Rust 9 focused tests, C parser and 16 execution cases plus 14 type/schema negatives. Next: design exact root cleanup-observer remapping across SimplifyCFG without skipping finishing or weakening operation/edge checks; then prove selected host numeric coverage and EXE/OBJ cutover. Host draft remains parked."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,32 +31,23 @@ current_execution_design = "docs/development/current/main/design/constructor-lif
 latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Constructor identity/handoff and the compiled-entry product are retained.
-V4 C physical execution passes Pair-shaped OBJ/link30 and 11 runtime/Fault/range
-cases, but the direct JSON omitted unresolved Birth formal dispositions.
-The real CLI now builds within 6.47 GiB using opt0/nonincremental quick settings.
-Default Pair rejects optimizer root-exit-operation-drift; --no-optimize rejects
-exact-numeric runtime-check backend=ny-llvmc-obj contracts=2. Two read-only audits
-identify unconsumed Unavailable/Deferred formal representation and stale cleanup
-block observations after SimplifyCFG. Existing card orders: stop unresolved
-physical input issuance; design checked/tagged Birth representation; close
-optimizer observer mapping; prove host EXE/OBJ; retire selected V2/V3 edges.
-The physical-input Stop now rejects retained unresolved dispositions before JSON.
-Per-New retention at ffa36b0823 is verified: compiled_entry_contract 1/1 and
-physical_program_json 3/3 pass with CGU256, one job, peak aggregate 8.54 GiB.
-The standing 12 GiB monitored ceiling replaces per-run resource approval.
-Exact formal retention now passes 6 focused tests; disposition-only storage is
-removed. V2 wire keys/revision and bounded Unannotated Integer/Bool binding
-are accepted; the next implementation is compiler/C schema-consumer replacement. Kind/payload and FieldTypeMismatch policy are recorded
-in the existing ABI reference, without execution admission.
-4237b20d feedback is reconciled in the card: containment and single serialization
-landed; Unit role cleanup, host retirement and view ownership cleanup remain.
-No whitelist bypass, source specialization, Dynamic-V2 metadata reuse, or source
-execution claim is permitted. V4 host draft and its unproved test are saved at bdc7b0506e on
-codex/lifecycle-v4-host-draft; no positive host EXE/OBJ or representation promotion is claimed.
+Exact source identity, full Birth formal contracts and per-New actuals are retained.
+V2 replaces untagged v1 JSON/parser; receiver is explicit and Birth uses kind/payload.
+Unannotated Integer/Bool actuals bind without definition specialization; Local,
+unsupported declarations and Unit root still reject before physical input.
+Rust physical JSON5 + compiled-entry1 + physical-program1 + source-formal2 pass.
+Fresh C build/parser pass; Rust-issued Pair/Bool input drives 16 V4 executable
+cases, including OBJ/link30, Bool FieldTypeMismatch103, range and InvalidContract.
+Fourteen extra schema/type negatives preserve artifacts. Peak aggregate 8.70 GiB
+under one-job, opt0/nonincremental/CGU256 and the standing 12 GiB monitor.
+Source host EXE/OBJ remains unproved: optimizer moves the root cleanup coordinate,
+and generic numeric OBJ admission remains unsupported until exact input coverage.
+Next is root observer mapping design, then host cutover and caller-zero V2/V3
+retirement. Draft bdc7b0506e is parked on codex/lifecycle-v4-host-draft; do not
+cherry-pick it before adapting it to v2 and closing capability/optimizer checks.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

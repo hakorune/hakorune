@@ -515,18 +515,18 @@ lifecycle archive with linker wrappers. Its range mutations do not admit new
 source families. Rust host cutover and generic policy activation remain separate
 from this C consumer evidence.
 
-Host integration audit: unannotated Birth formals currently retain an unavailable
-checked/tagged representation. A raw-i64 physical execution probe does not
-discharge that obligation. Direct input rejects it, including an undischarged DeferredActualBinding,
-until the existing formal/actual owners supply a valid representation and
-Integer-check consumer. The retained compiled-entry contract remains available
+Host integration audit found that raw-i64 physical execution did not discharge
+unannotated Birth formal obligations. V2 now binds exact Unannotated declarations
+to retained Integer/Bool actuals and V4 performs the kind check at each i64 store.
+Other declaration/actual kinds remain unavailable, including Local without an
+initializer-kind issuer. A source disposition is never promoted wholesale. The retained compiled-entry contract remains available
 for diagnostics; its existence is not permission to issue executable input.
 
 Per-New actual retention preserves source argument kind and its already-checked
 emitted value correspondence in the existing root handoff. Sharing a Birth
 definition does not merge its call arguments or specialize its formal types.
-Local remains Local until its value-kind authority exists; neither retained
-actuals nor internal call-row acceptance grant executable representation.
+Local remains Local until its value-kind authority exists. Retention alone is
+not execution permission; the v2 physical binding and V4 consumer are required.
 
 Compiled-entry must likewise retain each existing Birth formal contract in full.
 An availability disposition alone cannot distinguish declarations and use

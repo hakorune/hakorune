@@ -6,7 +6,6 @@
 use std::collections::BTreeSet;
 
 use crate::mir::MirInstruction;
-use crate::mir::normal_callable_semantic_package::BirthFormalPhysicalDispositionV1;
 use super::compiled_entry_contract::CompiledEntryFormalKindV1;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::function::{ObjectDestructionDispositionV1, TypedObjectFieldStorage};
@@ -127,22 +126,25 @@ impl<'module> PublishedMirBackendView<'module> {
         if entry.root_result() != CompiledEntryRootResultV1::I64 {
             return Err(fault("root-result-unavailable"));
         }
-        // Retained declarations are inspectable before physical admission, but
-        // no current formal disposition proves an executable parameter lane.
-        // Never infer that proof from a ValueId, call literal or storage slot.
+        use crate::mir::normal_callable_semantic_package::{
+            BirthFormalDeclarationClassV1 as Declaration, BirthFormalUseCoverageV1 as Uses,
+        };
         for formal in entry.births().iter().flat_map(|birth| birth.formals()) {
-            if formal.kind() == CompiledEntryFormalKindV1::Receiver {
-                continue;
+            if formal.kind() == CompiledEntryFormalKindV1::Receiver { continue; }
+            let contract = formal.contract().ok_or_else(|| fault("formal-contract-missing"))?;
+            if contract.declaration() != Declaration::Unannotated {
+                return Err(fault("formal-declaration-unavailable"));
             }
-            return Err(fault(match formal.disposition() {
-                Some(BirthFormalPhysicalDispositionV1::DeferredActualBinding) =>
-                    "formal-actual-binding-unresolved",
-                Some(BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation) =>
-                    "formal-representation-unavailable",
-                Some(BirthFormalPhysicalDispositionV1::UnavailableUnsupportedDeclaration) =>
-                    "formal-declaration-unsupported",
-                None => "formal-disposition-missing",
-            }));
+            if !matches!(contract.uses(), Uses::NoUse | Uses::I64FieldStores { .. }) {
+                return Err(fault("formal-use-unavailable"));
+            }
+        }
+        // Exact call identity, arity and ordering were checked by compiled-entry.
+        // Inspect every actual, including unused formals; never specialize a body.
+        for call in entry.birth_calls() {
+            for actual in call.actual().arguments() {
+                scalar_actual_kind(actual.source().kind())?;
+            }
         }
         let diagnostic_sites = issue_diagnostic_sites(entry.program())?;
         // The process projection is an entry epilogue, not a MIR Invoke.
@@ -238,4 +240,16 @@ fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTre
 
 fn fault(reason: &str) -> String {
     format!("[freeze:contract][published-lifecycle-physical-abi/{reason}]")
+}
+
+/// Sole source-kind to physical-tag projection for this bounded input.
+pub(super) fn scalar_actual_kind(
+    kind: &crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1,
+) -> Result<u32, String> {
+    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
+    match kind {
+        Kind::Integer(_) => Ok(1),
+        Kind::Bool(_) => Ok(2),
+        Kind::Local { .. } => Err(fault("actual-kind-unavailable")),
+    }
 }

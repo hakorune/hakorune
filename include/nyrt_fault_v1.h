@@ -7,6 +7,8 @@
 /* Selected I64 process projection, after normal Home cleanup.
  * details = { actual signed i64, 0 }; site is issued by the physical input. */
 #define NYRT_FAULT_REASON_EXIT_CODE_OUT_OF_RANGE_V1 102u
+/* Exact FieldSet type failure; details = { expected kind, actual kind }. */
+#define NYRT_FAULT_REASON_FIELD_TYPE_MISMATCH_V1 103u
 
 /* Internal synchronous ABI. Fields are runtime-owned, never copied/mutated by
  * generated code. Storage must be fresh, aligned and uniquely owned at init;

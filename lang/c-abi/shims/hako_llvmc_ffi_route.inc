@@ -536,7 +536,7 @@ int hako_llvmc_compile_published_lifecycle_body_v3(
 }
 
 __attribute__((visibility("default")))
-int hako_llvmc_validate_published_lifecycle_physical_v1(
+int hako_llvmc_validate_published_lifecycle_physical_v2(
     const char* json_in, char** err_out) {
   yyjson_doc* doc;
   int rc;
@@ -545,7 +545,7 @@ int hako_llvmc_validate_published_lifecycle_physical_v1(
   doc = yyjson_read_file(json_in, 0, NULL, NULL);
   if (!doc)
     return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/json]");
-  rc = hako_llvmc_validate_published_lifecycle_physical_v1_doc(yyjson_doc_get_root(doc), err_out);
+  rc = hako_llvmc_validate_published_lifecycle_physical_v2_doc(yyjson_doc_get_root(doc), err_out);
   yyjson_doc_free(doc);
   return rc;
 }

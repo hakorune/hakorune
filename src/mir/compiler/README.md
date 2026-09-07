@@ -204,9 +204,12 @@ Compiled-entry retains the existing source-issued `BirthFormalContractV1`
 (declaration, resolver binding, ordinal and exact use sites), not only its
 physical availability disposition. Receiver has no source formal contract.
 Disposition is derived from the retained contract; no second classifier or
-mutable synchronized status is introduced. Unavailable/Deferred formals still
-stop before physical input issuance. Full-contract retention does not activate
-kind/payload wire, a new source family or the V4 host draft.
+mutable synchronized status is introduced. The v2 physical owner consumes exact
+Unannotated declarations with covered uses and retained Integer/Bool actuals;
+Local and other declarations remain unavailable. It never admits a disposition
+bucket wholesale or specializes a Birth body from callers. The serializer emits
+one explicit receiver and kind/payload parameter/argument rows; Bool Const has
+its own wire opcode. V4 host cutover remains a separate selected task.
 
 ## Typed ingress contract
 

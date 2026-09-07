@@ -51,7 +51,7 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
   if (!json_in || !json_in[0] || !obj_out || !obj_out[0]) goto done;
   doc = yyjson_read_file(json_in, 0, NULL, NULL);
   if (!doc) { failure = "json"; goto done; }
-  if (hako_llvmc_validate_published_lifecycle_physical_v1_doc(yyjson_doc_get_root(doc), error) != 0 ||
+  if (hako_llvmc_validate_published_lifecycle_physical_v2_doc(yyjson_doc_get_root(doc), error) != 0 ||
       lv4_admit(yyjson_doc_get_root(doc), &input, error) != 0 ||
       hako_lts_open(abi, &session, error) != 0) {
     failure = NULL; goto done;

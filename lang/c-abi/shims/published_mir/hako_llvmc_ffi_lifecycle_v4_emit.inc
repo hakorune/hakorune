@@ -7,8 +7,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   int birth = fi != 0;
   if (birth) {
     fprintf(f, "define internal i32 @hako_lifecycle_birth_1(ptr %%frame");
-    for (size_t i = 0; i < yyjson_arr_size(params); i++)
-      fprintf(f, ", i64 %%v%u", (uint32_t)yyjson_get_uint(yyjson_arr_get(params, i)));
+    fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
+    for (size_t i = 0; i < yyjson_arr_size(params); i++) {
+      uint32_t value = lv4_u(yyjson_arr_get(params, i), "value");
+      fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
+    }
     fprintf(f, ") {\nstart:\n");
   } else {
     fprintf(f, "define i64 @ny_main() {\nstart:\n  %%frame = alloca [%u x i8], align %u\n",
@@ -25,6 +28,17 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(ins, "op", "object_field_get"))
         fprintf(f, "  %%read%u = alloca i64, align 8\n", lv4_u(ins, "dst"));
     }
+  }
+  if (birth) for (size_t i = 0; i < yyjson_arr_size(params); i++) {
+    uint32_t v = lv4_u(yyjson_arr_get(params, i), "value");
+    fprintf(f,
+        "  %%arg_int%u = icmp eq i32 %%k%u, 1\n"
+        "  %%arg_bool%u = icmp eq i32 %%k%u, 2\n"
+        "  %%arg_bit%u = icmp ule i64 %%v%u, 1\n"
+        "  %%arg_valid_bool%u = and i1 %%arg_bool%u, %%arg_bit%u\n"
+        "  %%arg_ok%u = or i1 %%arg_int%u, %%arg_valid_bool%u\n"
+        "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+        v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
   }
   fprintf(f, "  br label %%bb%u\n", lv4_u(fn, "entry"));
   for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
@@ -45,8 +59,14 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         yyjson_val* value = yyjson_obj_get(ins, "value");
         int64_t n = yyjson_is_sint(value) ? yyjson_get_sint(value) : (int64_t)yyjson_get_uint(value);
         fprintf(f, "  %%v%u = add i64 0, %lld\n", dst, (long long)n);
+      } else if (lv4_is(ins, "op", "const_bool")) {
+        fprintf(f, "  %%v%u = add i64 0, %u\n", dst,
+            yyjson_get_bool(yyjson_obj_get(ins, "value")) ? 1u : 0u);
       } else if (lv4_is(ins, "op", "copy")) {
-        fprintf(f, "  %%v%u = add i64 0, %%v%u\n", dst, lv4_u(ins, "src"));
+        uint32_t src = lv4_u(ins, "src");
+        fprintf(f, "  %%v%u = add i64 0, %%v%u\n", dst, src);
+        if (lv4_type(fn, src, lv4_value_budget(fn)) == LV4_TAGGED)
+          fprintf(f, "  %%k%u = add i32 0, %%k%u\n", dst, src);
       } else if (lv4_is(ins, "op", "add")) {
         fprintf(f, "  %%v%u = add i64 %%v%u, %%v%u\n", dst, lv4_u(ins, "lhs"), lv4_u(ins, "rhs"));
       } else if (lv4_is(ins, "op", "invoke_normal_result")) {
@@ -86,13 +106,26 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     } else {
       yyjson_val* op = yyjson_obj_get(term, "operation");
       unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
+      if (lv4_is(op, "kind", "field_set") &&
+          lv4_type(fn, lv4_u(op, "value"), lv4_value_budget(fn)) == LV4_TAGGED) {
+        uint32_t value = lv4_u(op, "value");
+        fprintf(f,
+            "  %%store_int%u = icmp eq i32 %%k%u, 1\n"
+            "  br i1 %%store_int%u, label %%store%u, label %%type_fault%u\ntype_fault%u:\n"
+            "  %%type_status%u = call i32 @\"nyash.fault.record_static_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 1, i64 2)\n"
+            "  switch i32 %%type_status%u, label %%invalid [ i32 1, label %%bb%u ]\nstore%u:\n",
+            b,value,b,b,b,b,b,NYRT_FAULT_REASON_FIELD_TYPE_MISMATCH_V1,site,
+            b,lv4_u(term,"fault"),b);
+      }
       fprintf(f, "  %%status%u = call i32 ", b);
       if (lv4_is(op, "kind", "birth_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
         fprintf(f, "@hako_lifecycle_birth_1(ptr %%frame, i64 %%v%u", lv4_u(call, "receiver"));
-        for (size_t i = 0; i < yyjson_arr_size(args); i++)
-          fprintf(f, ", i64 %%v%u", (uint32_t)yyjson_get_uint(yyjson_arr_get(args, i)));
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          yyjson_val* arg = yyjson_arr_get(args, i);
+          fprintf(f, ", i32 %u, i64 %%v%u", lv4_u(arg, "kind"), lv4_u(arg, "value"));
+        }
         fprintf(f, ")\n");
       } else if (lv4_is(op, "kind", "new_box")) {
         fprintf(f, "@\"nyash.object.checked_new_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %lld, ptr @hako_lifecycle_layout, i64 2, ptr %%new%u)\n",

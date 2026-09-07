@@ -50,13 +50,25 @@ Lifecycle invocation ownership
 - `hako_lts_open` retains the selected LLVM library, TargetMachine, TargetData,
   triple and data-layout in one private call-local session. `hako_lts_close`
   releases it and clears the owner; failed open leaves no retained resources.
-- V3 currently opens, validates and closes before its pending terminal. V4 must
-  retain this owner through its real `.ll`/object publication, checking the
-  actual module preamble. The existing preamble self-test is not that proof.
-- Direct physical JSON requires a root `process_result_site` distinct from all
-  checked-operation sites. The selected I64 projection will use Fault reason
-  `NYRT_FAULT_REASON_EXIT_CODE_OUT_OF_RANGE_V1` with details `{actual, 0}`.
-  Neither this input validation nor session ownership emits a lifecycle object.
+- V3 still has its pending host route. V4 retains the target session through
+  `.ll` verification, LLVM18 object generation and atomic output publication.
+- V4 accepts only `hako.published-lifecycle-physical-program.v2`. The v2 parser
+  replaces v1; it checks structure/SSA, then V4 checks type and cohort coverage.
+  Parser success alone does not prove executable input. Receiver is explicit,
+  Birth formals use kind/payload lanes, and Bool constants keep their own kind.
+- Birth validates all kind/payload pairs, including unused arguments. Integer
+  reaches the raw i64 store; valid Bool records FieldTypeMismatch (103) at the
+  existing FieldSet site and follows its Fault edge. Invalid kind/payload is
+  InvalidContract. Tagged Copy preserves both lanes; HANDLE is never scalar.
+- `process_result_site` remains distinct from checked-operation sites; out-of-
+  range I64 returns record reason102 after Home cleanup. Runtime frame/descriptor
+  revisions remain unchanged. Generic host V4 cutover is still separate.
+- Focused reproduction: build with `bash tools/build_hako_llvmc_ffi.sh`; run the
+  existing physical parser preartifact C test and `published_lifecycle_v4_execution_test.py`
+  with the three JSON paths captured by the Rust physical_program_json tests
+  (`/tmp/hako-issued-physical-v2.json`, and `...-bool-0.json`, `...-bool-1.json`).
+  The Python test links the actual lifecycle kernel; temporary LLVM mutation
+  probes only test dynamic ABI rejection and grant no new source acceptance.
 
 Boundary ownership and queued cleanup (2026-09-06)
 

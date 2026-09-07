@@ -16,15 +16,7 @@ use super::physical_program::{
 };
 use super::physical_abi::PublishedLifecyclePhysicalAbiInputV1;
 
-const SCHEMA: &str = "hako.published-lifecycle-physical-program.v1";
-
-/// Serializes only the image already issued by the activated final view.
-pub(crate) fn emit_lifecycle_physical_program_json(
-    program: &PublishedLifecyclePhysicalProgramV1<'_>,
-) -> Result<String, String> {
-    serde_json::to_string(&emit_lifecycle_physical_program_value(program, None)?)
-        .map_err(|error| fault(&format!("serialize:{error}")))
-}
+const SCHEMA: &str = "hako.published-lifecycle-physical-program.v2";
 
 fn emit_lifecycle_physical_program_value(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
@@ -50,7 +42,7 @@ fn emit_lifecycle_physical_program_value(
                             "instruction": encode_instruction(
                                 row.instruction(), &births,
                                 diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), row.instruction())?,
-                                abi_input.is_some(),
+                                abi_input,
                             )?,
                         })) })
                         .collect::<Result<Vec<_>, String>>()?;
@@ -65,7 +57,7 @@ fn emit_lifecycle_physical_program_value(
                                     abi_input, function_ordinal, block.id().0,
                                     block.terminator().index(), block.terminator().instruction(),
                                 )?,
-                                abi_input.is_some(),
+                                abi_input,
                             )?,
                         },
                         "edges": block.edges().iter().map(encode_edge).collect::<Vec<_>>(),
@@ -75,7 +67,10 @@ fn emit_lifecycle_physical_program_value(
             Ok(json!({
                 "name": function.name(),
                 "role": function.role().wire_name(),
-                "params": function.params().iter().map(value).collect::<Vec<_>>(),
+                "receiver": if function_ordinal == 0 { None } else { function.params().first().map(value) },
+                "params": function.params().iter().skip(if function_ordinal == 0 { 0 } else { 1 })
+                    .map(|param| json!({"value": value(param), "representation": "kind_payload_v1"}))
+                    .collect::<Vec<_>>(),
                 "entry": function.entry().0,
                 "blocks": blocks,
             }))
@@ -85,7 +80,8 @@ fn emit_lifecycle_physical_program_value(
 }
 
 /// Extends the issued program transport with layout rows from the same final
-/// view and the runtime-owned FaultFrame ABI revision.  It never reads MIR.
+/// view and the runtime-owned FaultFrame ABI revision. Uses the retained
+/// program and argument relations without source reclassification.
 pub(crate) fn emit_lifecycle_physical_abi_json(
     input: &PublishedLifecyclePhysicalAbiInputV1<'_>,
 ) -> Result<String, String> {
@@ -139,9 +135,11 @@ fn encode_instruction(
     instruction: &MirInstruction,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
     diagnostic_site: Option<u64>,
-    require_diagnostic_site: bool,
+    abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
     Ok(match instruction {
+        MirInstruction::Const { dst, value: ConstValue::Bool(boolean) } =>
+            json!({ "op": "const_bool", "dst": value(dst), "value": boolean }),
         MirInstruction::Const { dst, value: ConstValue::Integer(integer) } =>
             json!({ "op": "const_i64", "dst": value(dst), "value": integer }),
         MirInstruction::Const { dst, value: ConstValue::String(text) } =>
@@ -162,7 +160,7 @@ fn encode_instruction(
         }),
         MirInstruction::Invoke { operation, fault_frame, normal_landing, fault_landing } => json!({
             "op": "invoke", "operation": encode_invoke(
-                operation, births, diagnostic_site, require_diagnostic_site,
+                operation, births, diagnostic_site, abi_input,
             )?,
             "fault_frame": value(fault_frame), "normal": normal_landing.0, "fault": fault_landing.0,
         }),
@@ -185,7 +183,7 @@ fn encode_instruction(
         MirInstruction::Return { value: result } =>
             json!({ "op": "return", "value": result.map(|value| value.0) }),
         MirInstruction::Call(call) =>
-            json!({ "op": "birth_call", "call": encode_birth_call(call, births)? }),
+            json!({ "op": "birth_call", "call": encode_birth_call(call, births, abi_input)? }),
         _ => return Err(fault("instruction-unsupported")),
     })
 }
@@ -211,26 +209,26 @@ fn encode_invoke(
     operation: &InvokeOperation,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
     diagnostic_site: Option<u64>,
-    require_diagnostic_site: bool,
+    abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
     Ok(match operation {
         InvokeOperation::Call(call) => {
             if diagnostic_site.is_some() { return Err(fault("site-on-birth-call")); }
-            json!({ "kind": "birth_call", "call": encode_birth_call(call, births)? })
+            json!({ "kind": "birth_call", "call": encode_birth_call(call, births, abi_input)? })
         }
         InvokeOperation::NewBox { object } => with_site(json!({
             "kind": "new_box", "object_id": object.declaration_index(),
-        }), required_site(diagnostic_site, require_diagnostic_site)?)?,
+        }), required_site(diagnostic_site, abi_input.is_some())?)?,
         InvokeOperation::FieldSet { field, base, value: stored } => with_site(json!({
             "kind": "field_set", "object_id": field.object().declaration_index(),
             "field_ordinal": field.declaration_ordinal(), "base": value(base), "value": value(stored),
-        }), required_site(diagnostic_site, require_diagnostic_site)?)?,
+        }), required_site(diagnostic_site, abi_input.is_some())?)?,
         InvokeOperation::HomeRelease { object, value: released } =>
             with_site(json!({ "kind": "home_release", "object_id": object.declaration_index(), "value": value(released),
-            }), required_site(diagnostic_site, require_diagnostic_site)?)?,
+            }), required_site(diagnostic_site, abi_input.is_some())?)?,
         InvokeOperation::ReclaimUnpublished { object, value: reclaimed } =>
             with_site(json!({ "kind": "reclaim_unpublished", "object_id": object.declaration_index(), "value": value(reclaimed),
-            }), required_site(diagnostic_site, require_diagnostic_site)?)?,
+            }), required_site(diagnostic_site, abi_input.is_some())?)?,
     })
 }
 
@@ -250,15 +248,24 @@ fn with_site(mut operation: Value, site: Option<u64>) -> Result<Value, String> {
 fn encode_birth_call(
     call: &crate::mir::definitions::MirCall,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+    abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
     let Callee::BirthConstructor { key, receiver } = &call.callee else {
         return Err(fault("call-not-birth"));
     };
     let target = births.get(key).ok_or_else(|| fault("birth-target-foreign"))?;
-    Ok(json!({
-        "target": target, "receiver": value(receiver),
-        "args": call.args.iter().map(|value| value.0).collect::<Vec<_>>(), "dst": call.dst.map(|value| value.0),
-    }))
+    let input = abi_input.ok_or_else(|| fault("birth-input-missing"))?;
+    let mut matches = input.entry().birth_calls().iter().filter(|issued|
+        issued.function_index() == *target && issued.receiver() == *receiver
+            && issued.arguments().eq(call.args.iter().copied()));
+    let issued = matches.next().ok_or_else(|| fault("birth-actual-missing"))?;
+    if matches.next().is_some() { return Err(fault("birth-actual-duplicate")); }
+    let args = issued.actual().arguments().iter().map(|argument| {
+        Ok(json!({ "kind": super::physical_abi::scalar_actual_kind(argument.source().kind())?,
+            "value": argument.value().0 }))
+    }).collect::<Result<Vec<Value>, String>>()?;
+    Ok(json!({ "target": target, "receiver": value(receiver),
+        "args": args, "dst": call.dst.map(|value| value.0) }))
 }
 
 fn value(value: &ValueId) -> u32 { value.0 }

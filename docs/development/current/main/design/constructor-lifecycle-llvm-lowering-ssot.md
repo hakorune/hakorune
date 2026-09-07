@@ -1,5 +1,5 @@
 ---
-Status: Accepted design; implementation pending
+Status: Active; v2 physical consumer verified; host cutover pending
 Date: 2026-09-07
 Scope: selected constructor lifecycle from source-owned requirements to LLVM object and linked EXE.
 Related:
@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: implement the accepted v2 kind/payload physical input and V4 consumer as one revision-coherent series.
+Smallest next slice: close exact cleanup-observer mapping across compiler finishing before host cutover.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -1639,11 +1639,12 @@ Ordered work within this series:
    the existing type; the rerun passes. Pointer/corridor guards pass. The
    physical Stop, source families and parked host draft are unchanged.
 
-   **Tagged wire decision accepted (read-only worker plus compiler audit).**
+   **Tagged wire implementation verified (worker-audited).**
    Exact schema/keys and LLVM lanes are owned by the existing
-   [ABI reference](../../../../reference/abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2--accepted-wire-decision).
+   [ABI reference](../../../../reference/abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2).
    No second MirBuilder, semantic receipt, generic numeric whitelist or v1
-   compatibility parser is introduced. This fixes the mapping, not execution.
+   compatibility parser is introduced. V2 input and C execution now consume
+   this mapping; generic host cutover remains separate.
 
    Transition: replace v1 untagged physical input -> V4 single-i64 Birth ABI
    with v2 explicit kind/payload input -> the same V4 consumer and Fault edges.
@@ -1695,6 +1696,25 @@ Ordered work within this series:
    Metadata names may check integrity, not resolve meaning. Reject residuals
    and leave generic OBJ capability unchanged; do not clear contracts. This
    obligation remains in host task 4 after optimizer coordinate task 3.
+
+   Verified checkpoint: Rust physical JSON tests 5/5 (Integer source issuance,
+   both source Bool actual positions with identical Birth definition, annotation
+   Stop, Unit and vocabulary negatives), compiled-entry 1/1, physical program
+   1/1 and source formal issuer 2/2. One-job opt0/nonincremental/CGU256 peak
+   aggregate 8.70 GiB. The first Bool test exposed a missing physical-program
+   ConstBool whitelist arm (current-change failure); the corrected rerun passes.
+   Fresh C build/parser test pass. Existing V4 execution test consumes the three
+   unchanged Rust-issued JSON files: 16 runs cover Pair30, range, runtime Fault,
+   report failure, Bool103 at either store, tagged Copy and two InvalidContract
+   injections; 14 additional schema/type negatives preserve existing artifacts.
+   Dynamic invalid probes mutate temporary LLVM after admission, not source
+   fixtures or the production compiler. No failed Bool store calls raw storage;
+   reclaim precedes report/dispose. Session/site/tool-failure checks also pass.
+   The v1 validator has no remaining code/build/test callers in src, lang/c-abi
+   or tools; the fresh shared object exports only v2 validation and V4 compile.
+   Old v1 schema remains solely as explicit negative input. Both reusable
+   guards pass, touched source maximum 656 lines. Parser-only success remains
+   structural evidence; type/cohort rejection belongs to V4 admission.
 
 3. **Close optimizer observer mapping.** Default Pair currently rejects
    `root-exit-operation-drift`; `--no-optimize` instead reaches numeric OBJ
@@ -1920,7 +1940,7 @@ No new build/runtime evidence was collected for this read-only reconciliation.
 | Finding | Current evidence / disposition | Existing task and completion condition |
 | --- | --- | --- |
 | Unit represented as RootI64 | `physical_program.rs` still uses RootI64, but `physical_abi.rs` rejects Unit before serialization; V2 emits ROOT_UNIT correctly. Unsafe direct admission is stopped, not Unit execution completed. | As a separate BoxShape retaining the Unit execution Stop, physical-program owner projects the existing compiled result into distinct Unit/I64 roles and deletes unconditional RootI64 assignment. V2/direct role agreement and malformed/result-slot negatives are required; Unit execution is separate from Pair. |
-| Sibling final input | PhysicalAbiInput now owns CompiledEntryContract; the sibling-product gap is closed. Unresolved formal dispositions are consumed as an explicit pre-JSON Stop; per-New actual retention is verified. | Existing R1 task 2 closes kind/payload and FieldSet type-failure binding, then deletes positional I64 defaults. Keep one contract issuer and call-local runtime session; moving source decisions into the session is forbidden. |
+| Sibling final input | PhysicalAbiInput now owns CompiledEntryContract; the sibling-product gap is closed. Exact Unannotated Integer/Bool binding is implemented; unsupported declarations/Local still stop pre-JSON, and per-New actual retention is verified. | Existing R1 task 2 closes kind/payload and FieldSet type-failure binding, then deletes positional I64 defaults. Keep one contract issuer and call-local runtime session; moving source decisions into the session is forbidden. |
 | Three transport paths | Committed host constructs V2 rows, validates physical JSON, then sends generic JSON through V3 to pending V2. Direct V4 host replacement is saved only on codex/lifecycle-v4-host-draft; C V4 emission is landed physical-protocol evidence. | Existing R1 tasks 3–4: close optimizer mapping, prove real host EXE30 and independent same-session OBJ/link30 plus Fault/cleanup, then delete selected generic JSON/V2 rows/V3 delegation, duplicate pre-parser call and caller-zero exclusive probes. Shared parser/session/runtime validation survives. |
 | View owns and activates | PublishedMirBackendView still owns handoffs/vectors/profile and mutates admission; it is not borrow-only and is not a new source issuer. | Post-cutover view responsibility task below; do not count file moves as closing it. |
 

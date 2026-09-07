@@ -545,12 +545,12 @@ owns the current evidence, exact owners/callers, acceptance and exclusive
 retirement sets. Do not recreate its task details here.
 
 The current [lowering card](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-queue-2026-09-07)
-owns the updated status and ordering: Birth representation contract -> optimizer
-observer mapping -> actual host EXE/OBJ acceptance -> caller-zero retirement.
+owns the updated status and ordering: v2 representation/consumer verified ->
+optimizer observer mapping -> actual host EXE/OBJ acceptance -> caller-zero retirement.
 C V4 physical execution exists, but the committed host still has the V3/V2
-pending path; its direct V4 replacement is saved on codex/lifecycle-v4-host-draft (bdc7b0506e). Unresolved
-Birth formals now stop before JSON. Physical execution does not prove source
-Pair EXE30/linked OBJ30. View responsibility cleanup follows cutover.
+pending path; its direct V4 replacement is saved on codex/lifecycle-v4-host-draft (bdc7b0506e). V2 now binds
+Unannotated Integer/Bool actuals; Local and unsupported declarations still stop
+before JSON. Consumer execution does not prove the selected host cutover. View responsibility cleanup follows cutover.
 
 Initial 11-entry fresh llvm_static acceptance was 1 pass / 10 failures: six
 RootPreservation(CompatibilityLoss), four generated birth/0. Existing records

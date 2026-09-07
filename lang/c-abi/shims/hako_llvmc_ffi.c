@@ -32,7 +32,7 @@
 #include "published_mir/hako_llvmc_ffi_published_lifecycle_v2.inc"
 #include "published_mir/hako_llvmc_ffi_published_lifecycle_body_v2.inc"
 #include "published_mir/hako_llvmc_ffi_lifecycle_target_session_v1.inc"
-#include "published_mir/hako_llvmc_ffi_published_lifecycle_physical_v1.inc"
+#include "published_mir/hako_llvmc_ffi_published_lifecycle_physical_v2.inc"
 #include "published_mir/hako_llvmc_ffi_lifecycle_v4_admission.inc"
 #include "published_mir/hako_llvmc_ffi_lifecycle_v4_emit.inc"
 #include "published_mir/hako_llvmc_ffi_lifecycle_v4_compile.inc"

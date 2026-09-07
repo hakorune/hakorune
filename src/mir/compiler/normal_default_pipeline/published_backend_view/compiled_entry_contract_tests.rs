@@ -45,7 +45,7 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
             assert!(issue_birth_calls(root, births, &actuals[..1]).unwrap_err().contains("actual-mismatch"));
             let duplicated = vec![actuals[0].clone(), actuals[0].clone()];
             assert!(issue_birth_calls(root, births, &duplicated).unwrap_err().contains("actual-membership"));
-            assert!(view.issue_lifecycle_physical_abi_input().unwrap_err().contains("formal-representation-unavailable"));
+            assert!(view.issue_lifecycle_physical_abi_input().unwrap_err().contains("actual-kind-unavailable"));
             Ok::<(), String>(())
         }).unwrap();
     });

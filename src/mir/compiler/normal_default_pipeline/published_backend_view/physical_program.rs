@@ -265,7 +265,7 @@ fn validate_instruction(instruction: &MirInstruction) -> Result<(), String> {
     let supported = matches!(
         instruction,
         MirInstruction::Const {
-            value: ConstValue::Integer(_) | ConstValue::String(_) | ConstValue::Void,
+            value: ConstValue::Integer(_) | ConstValue::Bool(_) | ConstValue::String(_) | ConstValue::Void,
             ..
         } | MirInstruction::BinOp {
             op: BinaryOp::Add,

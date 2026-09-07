@@ -1,8 +1,8 @@
-/* Call-local decoder for hako.published-lifecycle-physical-program.v1.
+/* Call-local decoder for hako.published-lifecycle-physical-program.v2.
  * It validates final-view transport before LLVM is touched. It never resolves
  * source names or supplements a missing physical relation. */
 
-#define HAKO_PHYSICAL_SCHEMA "hako.published-lifecycle-physical-program.v1"
+#define HAKO_PHYSICAL_SCHEMA "hako.published-lifecycle-physical-program.v2"
 
 static int hako_physical_fail(char** err_out, const char* reason) {
   char message[160];
@@ -63,6 +63,29 @@ static int hako_physical_array_u32(yyjson_val* array) {
   if (!(array && yyjson_is_arr(array))) return 0;
   for (i = 0; i < yyjson_arr_size(array); i++)
     if (!hako_physical_u32(yyjson_arr_get(array, i), NULL)) return 0;
+  return 1;
+}
+
+/* Receiver and logical formals share one SSA namespace, never LLVM lane indices. */
+static size_t hako_physical_formal_count(yyjson_val* fn) {
+  return yyjson_arr_size(yyjson_obj_get(fn, "params")) +
+      (yyjson_is_uint(yyjson_obj_get(fn, "receiver")) ? 1u : 0u);
+}
+static yyjson_val* hako_physical_formal_value(yyjson_val* fn, size_t index) {
+  yyjson_val* receiver = yyjson_obj_get(fn, "receiver");
+  if (yyjson_is_uint(receiver)) { if (!index) return receiver; index--; }
+  return yyjson_obj_get(yyjson_arr_get(yyjson_obj_get(fn, "params"), index), "value");
+}
+static int hako_physical_params(yyjson_val* fn) {
+  static const char* const keys[] = {"value", "representation"};
+  yyjson_val* params = yyjson_obj_get(fn, "params");
+  if (!yyjson_is_arr(params)) return 0;
+  for (size_t i = 0; i < yyjson_arr_size(params); i++) {
+    yyjson_val* param = yyjson_arr_get(params, i);
+    if (!hako_physical_exact_keys(param, keys, 2) ||
+        !hako_physical_u32(yyjson_obj_get(param, "value"), NULL) ||
+        !hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1")) return 0;
+  }
   return 1;
 }
 
@@ -128,7 +151,7 @@ static yyjson_val* hako_physical_instruction_dst(yyjson_val* instruction) {
   const char* op = instruction ? yyjson_get_str(yyjson_obj_get(instruction, "op")) : NULL;
   yyjson_val* call;
   if (!op) return NULL;
-  if (strcmp(op, "const_i64") == 0 || strcmp(op, "const_string") == 0 ||
+  if (strcmp(op, "const_i64") == 0 || strcmp(op, "const_bool") == 0 || strcmp(op, "const_string") == 0 ||
       strcmp(op, "const_unit") == 0 || strcmp(op, "add") == 0 ||
       strcmp(op, "copy") == 0 || strcmp(op, "phi") == 0 ||
       strcmp(op, "object_field_get") == 0 || strcmp(op, "invoke_normal_result") == 0 ||
@@ -146,9 +169,9 @@ static int hako_physical_value_def_count(yyjson_val* function, uint32_t wanted) 
   int count = 0;
   if (params && yyjson_is_arr(params)) {
     size_t i;
-    for (i = 0; i < yyjson_arr_size(params); i++) {
+    for (i = 0; i < hako_physical_formal_count(function); i++) {
       uint32_t value;
-      if (hako_physical_u32(yyjson_arr_get(params, i), &value) && value == wanted) count++;
+      if (hako_physical_u32(hako_physical_formal_value(function, i), &value) && value == wanted) count++;
     }
   }
   if (!(blocks && yyjson_is_arr(blocks))) return count;
@@ -284,8 +307,8 @@ static int hako_physical_validate_terminal_edges(yyjson_val* terminal, yyjson_va
 
 static int hako_physical_value_def_block(yyjson_val* function, uint32_t wanted, uint32_t* out) {
   yyjson_val* params = yyjson_obj_get(function, "params"); yyjson_val* blocks = hako_physical_blocks(function); size_t bi, i; int count = 0; uint32_t block = 0;
-  for (i = 0; params && i < yyjson_arr_size(params); i++) { uint32_t value;
-    if (hako_physical_u32(yyjson_arr_get(params, i), &value) && value == wanted) { count++; if (!hako_physical_u32(yyjson_obj_get(function, "entry"), &block)) return 0; }
+  for (i = 0; params && i < hako_physical_formal_count(function); i++) { uint32_t value;
+    if (hako_physical_u32(hako_physical_formal_value(function, i), &value) && value == wanted) { count++; if (!hako_physical_u32(yyjson_obj_get(function, "entry"), &block)) return 0; }
   }
   for (bi = 0; blocks && bi < yyjson_arr_size(blocks); bi++) { yyjson_val* item = yyjson_arr_get(blocks, bi); yyjson_val* rows = yyjson_obj_get(item, "instructions"); uint32_t id;
     if (!hako_physical_u32(yyjson_obj_get(item, "id"), &id)) return 0;
@@ -334,8 +357,8 @@ static int hako_physical_value_available_at(yyjson_val* function, uint32_t value
   uint32_t def; size_t i;
   yyjson_val* params = yyjson_obj_get(function, "params");
   if (!hako_physical_value_def_block(function, value, &def)) return 0;
-  for (i = 0; params && i < yyjson_arr_size(params); i++) { uint32_t param;
-    if (hako_physical_u32(yyjson_arr_get(params, i), &param) && param == value) return 1;
+  for (i = 0; params && i < hako_physical_formal_count(function); i++) { uint32_t param;
+    if (hako_physical_u32(hako_physical_formal_value(function, i), &param) && param == value) return 1;
   }
   if (def != block_id) return hako_physical_block_dominates(function, def, block_id);
   for (i = 0; rows && i < index; i++) { uint32_t dst;
@@ -410,6 +433,21 @@ static int hako_physical_frame_mode(yyjson_val* function, uint32_t frame, const 
   return 0;
 }
 
+static int hako_physical_call_args(yyjson_val* function, yyjson_val* args,
+    uint32_t block, uint32_t index) {
+  static const char* const keys[] = {"kind", "value"};
+  if (!yyjson_is_arr(args)) return 0;
+  for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+    yyjson_val* arg = yyjson_arr_get(args, i);
+    uint32_t kind, value;
+    if (!hako_physical_exact_keys(arg, keys, 2) ||
+        !hako_physical_u32(yyjson_obj_get(arg, "kind"), &kind) || (kind != 1 && kind != 2) ||
+        !hako_physical_u32(yyjson_obj_get(arg, "value"), &value) ||
+        !hako_physical_value_available_at(function, value, block, index)) return 0;
+  }
+  return 1;
+}
+
 static int hako_physical_validate_call(yyjson_val* function, yyjson_val* functions, yyjson_val* call, uint32_t block, uint32_t index) {
   static const char* const keys[] = {"target", "receiver", "args", "dst"};
   uint32_t target, receiver;
@@ -417,12 +455,12 @@ static int hako_physical_validate_call(yyjson_val* function, yyjson_val* functio
   if (!hako_physical_exact_keys(call, keys, 4) ||
       !hako_physical_u32(yyjson_obj_get(call, "target"), &target) ||
       !hako_physical_u32(yyjson_obj_get(call, "receiver"), &receiver) ||
-      !hako_physical_values_available_at(function, yyjson_obj_get(call, "args"), block, index) ||
+      !hako_physical_call_args(function, yyjson_obj_get(call, "args"), block, index) ||
       !hako_physical_value_available_at(function, receiver, block, index) || target == 0 || target >= yyjson_arr_size(functions))
     return 0;
   callee = yyjson_arr_get(functions, target);
   return hako_physical_string(callee ? yyjson_obj_get(callee, "role") : NULL, "birth_unit") &&
-      yyjson_arr_size(yyjson_obj_get(callee, "params")) == yyjson_arr_size(yyjson_obj_get(call, "args")) + 1 &&
+      yyjson_arr_size(yyjson_obj_get(callee, "params")) == yyjson_arr_size(yyjson_obj_get(call, "args")) &&
       yyjson_is_null(yyjson_obj_get(call, "dst"));
 }
 
@@ -469,6 +507,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   if (terminal && strcmp(op, "invoke") && strcmp(op, "branch") && strcmp(op, "jump") && strcmp(op, "return") && strcmp(op, "return_fault")) return 0;
   if (!terminal && (!strcmp(op, "invoke") || !strcmp(op, "branch") || !strcmp(op, "jump") || !strcmp(op, "return") || !strcmp(op, "return_fault"))) return 0;
   if (!strcmp(op, "const_i64")) return hako_physical_exact_keys(instruction, const_i64, 3) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_i64(yyjson_obj_get(instruction, "value"));
+  if (!strcmp(op, "const_bool")) return hako_physical_exact_keys(instruction, const_i64, 3) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && yyjson_is_bool(yyjson_obj_get(instruction, "value"));
   if (!strcmp(op, "const_string")) return hako_physical_exact_keys(instruction, const_i64, 3) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && yyjson_is_str(yyjson_obj_get(instruction, "value"));
   if (!strcmp(op, "const_unit")) return hako_physical_exact_keys(instruction, const_unit, 2) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a);
   if (!strcmp(op, "add")) return hako_physical_exact_keys(instruction, binary, 4) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) && hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) && hako_physical_value_available_at(function, b, current_block, current_index) && hako_physical_value_available_at(function, c, current_block, current_index);
@@ -517,12 +556,12 @@ static int hako_physical_storage_profile(yyjson_val* value) {
 }
 
 static int hako_physical_validate_function(yyjson_val* function, yyjson_val* functions, yyjson_val* layouts, size_t ordinal) {
-  static const char* const keys[] = {"name", "role", "params", "entry", "blocks"};
+  static const char* const keys[] = {"name", "role", "receiver", "params", "entry", "blocks"};
   yyjson_val* blocks; yyjson_val* params; uint32_t entry; const char* mode; size_t bi, i, j;
-  if (!hako_physical_exact_keys(function, keys, 5) || !(yyjson_get_str(yyjson_obj_get(function, "name"))) || !(params = yyjson_obj_get(function, "params")) || !hako_physical_array_u32(params) || !hako_physical_u32(yyjson_obj_get(function, "entry"), &entry) || !(blocks = hako_physical_blocks(function)) || !yyjson_is_arr(blocks) || !yyjson_arr_size(blocks) || !hako_physical_unique_block_ids(function) || !hako_physical_has_block(function, entry)) return 0;
-  if (ordinal == 0) { if (!hako_physical_string(yyjson_obj_get(function, "role"), "root_i64") || yyjson_arr_size(params)) return 0; mode = "root_owned"; }
-  else { if (!hako_physical_string(yyjson_obj_get(function, "role"), "birth_unit") || !yyjson_arr_size(params)) return 0; mode = "borrowed"; }
-  for (i = 0; i < yyjson_arr_size(params); i++) for (j = i + 1; j < yyjson_arr_size(params); j++) { uint32_t a, b; if (!hako_physical_u32(yyjson_arr_get(params, i), &a) || !hako_physical_u32(yyjson_arr_get(params, j), &b) || a == b) return 0; }
+  if (!hako_physical_exact_keys(function, keys, 6) || !(yyjson_get_str(yyjson_obj_get(function, "name"))) || !(params = yyjson_obj_get(function, "params")) || !hako_physical_params(function) || !hako_physical_u32(yyjson_obj_get(function, "entry"), &entry) || !(blocks = hako_physical_blocks(function)) || !yyjson_is_arr(blocks) || !yyjson_arr_size(blocks) || !hako_physical_unique_block_ids(function) || !hako_physical_has_block(function, entry)) return 0;
+  if (ordinal == 0) { if (!hako_physical_string(yyjson_obj_get(function, "role"), "root_i64") || yyjson_arr_size(params) || !yyjson_is_null(yyjson_obj_get(function, "receiver"))) return 0; mode = "root_owned"; }
+  else { if (!hako_physical_string(yyjson_obj_get(function, "role"), "birth_unit") || !hako_physical_u32(yyjson_obj_get(function, "receiver"), NULL)) return 0; mode = "borrowed"; }
+  for (i = 0; i < hako_physical_formal_count(function); i++) for (j = i + 1; j < hako_physical_formal_count(function); j++) { uint32_t a, b; if (!hako_physical_u32(hako_physical_formal_value(function, i), &a) || !hako_physical_u32(hako_physical_formal_value(function, j), &b) || a == b) return 0; }
   for (bi = 0; bi < yyjson_arr_size(blocks); bi++) {
     static const char* const block_keys[] = {"id", "instructions", "terminator", "edges"};
     yyjson_val* block = yyjson_arr_get(blocks, bi); yyjson_val* rows; yyjson_val* term; yyjson_val* edges; uint32_t block_id;
@@ -575,7 +614,7 @@ static int hako_physical_checked_sites_unique(yyjson_val* functions, uint64_t pr
   return count != 0;
 }
 
-static int hako_llvmc_validate_published_lifecycle_physical_v1_doc(yyjson_val* root, char** err_out) {
+static int hako_llvmc_validate_published_lifecycle_physical_v2_doc(yyjson_val* root, char** err_out) {
   static const char* const root_keys[] = {"schema", "functions", "fault_abi_version", "storage_profile", "layouts", "process_result_site"};
   yyjson_val *functions, *layouts; size_t i; uint64_t process_result_site;
   if (!hako_physical_exact_keys(root, root_keys, 6) || !hako_physical_string(yyjson_obj_get(root, "schema"), HAKO_PHYSICAL_SCHEMA)) return hako_physical_fail(err_out, "schema");

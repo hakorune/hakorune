@@ -7,6 +7,7 @@ Range variants below test the physical ABI only, not new source acceptance.
 import copy
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -15,6 +16,8 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / "lang/c-abi/tests"
 issued = json.loads(Path(sys.argv[1]).read_text())
+bool_inputs = [json.loads(Path(path).read_text()) for path in sys.argv[2:]]
+assert len(bool_inputs) == 2, "pass source-issued Pair JSON and both source-issued Bool JSON files"
 archive = ROOT / "target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a"
 assert archive.is_file()
 env = dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off")
@@ -93,6 +96,59 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
             execute("normal", 70, "1 2 1 0 1 1",
                     f"FAULT 102 {data['process_result_site']} {value} 0 HOME 1 RECLAIM 0")
 
+    # Same unspecialized Birth, actual source-issued Bool values at either store.
+    for index, data in enumerate(bool_inputs):
+        assert data["functions"][1] == bool_inputs[0]["functions"][1]
+        compile_input(data)
+        link()
+        execute("normal", 70, f"1 {index} 0 1 1 1",
+                f"FAULT 103 {sites[index]} 1 2 HOME 0 RECLAIM 1")
+
+    def call_args(data):
+        return next(block["terminator"]["instruction"]["operation"]["call"]["args"]
+                    for block in data["functions"][0]["blocks"]
+                    if block["terminator"]["instruction"].get("operation", {}).get("kind") == "birth_call")
+
+    # Physical Copy must retain both lanes; it is not a new source-family proof.
+    copied = copy.deepcopy(bool_inputs[0])
+    birth = copied["functions"][1]
+    next_id = max(row["instruction"].get("dst", 0) for block in birth["blocks"]
+                  for row in block["instructions"]) + 1
+    block = next(block for block in birth["blocks"]
+                 if block["terminator"]["instruction"].get("operation", {}).get("kind") == "field_set")
+    op = block["terminator"]["instruction"]["operation"]
+    block["instructions"].append({"index": len(block["instructions"]),
+                                  "instruction": {"op": "copy", "dst": next_id, "src": op["value"]}})
+    block["terminator"]["index"] += 1
+    op["value"] = next_id
+    compile_input(copied)
+    link()
+    execute("normal", 70, "1 0 0 1 1 1", f"FAULT 103 {sites[0]} 1 2 HOME 0 RECLAIM 1")
+
+    # Fault-inject the LLVM call after parser admission to exercise dynamic ABI
+    # rejection. The production compiler remains unchanged; this tool lives only
+    # in the temporary test directory and delegates to the actual LLVM18 tool.
+    real_llc = shutil.which("llc-18")
+    injection = work / "inject"
+    injection.mkdir()
+    tool = injection / "llc-18"
+    payload = call_args(bool_inputs[0])[0]["value"]
+    for label, old, new in [
+            ("invalid-kind", "@hako_lifecycle_birth_1(ptr %frame, i64 %v", None),
+            ("invalid-bool", f"%v{payload} = add i64 0, 1", f"%v{payload} = add i64 0, 2")]:
+        if label == "invalid-kind":
+            old = ", i32 2, i64 %v" + str(payload)
+            new = ", i32 99, i64 %v" + str(payload)
+        tool.write_text("#!" + sys.executable + "\nimport pathlib,sys,os\n"
+                        "p=pathlib.Path(sys.argv[-1]); s=p.read_text()\n"
+                        f"assert {old!r} in s\ns=s.replace({old!r},{new!r},1); p.write_text(s)\n"
+                        f"os.execv({real_llc!r},[{real_llc!r}]+sys.argv[1:])\n")
+        tool.chmod(0o755)
+        compile_input(bool_inputs[0], custom_env=dict(env, PATH=str(injection) + os.pathsep + env["PATH"]))
+        link()
+        execute("normal", 70, "1 0 0 0 0 1")
+        print(label, "InvalidContract without source Fault")
+
     # Every failure preserves an existing published object, with no temporary debris.
     sentinel = b"existing artifact"
     obj.write_bytes(sentinel)
@@ -108,6 +164,37 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
     malformed["process_result_site"] = 0
     compile_input(malformed, False)
     assert obj.read_bytes() == sentinel
+    malformed_inputs = []
+    def malformed_case(change):
+        data = copy.deepcopy(issued)
+        change(data)
+        malformed_inputs.append(data)
+    malformed_case(lambda d: d.update(schema="hako.published-lifecycle-physical-program.v1"))
+    malformed_case(lambda d: d["functions"][1].update(params=[0, 1, 2]))
+    malformed_case(lambda d: d["functions"][1]["params"][0].update(representation="i64"))
+    malformed_case(lambda d: d["functions"][1].update(receiver=d["functions"][1]["params"][0]["value"]))
+    malformed_case(lambda d: call_args(d)[0].pop("kind"))
+    malformed_case(lambda d: call_args(d)[0].update(kind=99))
+    malformed_case(lambda d: call_args(d)[0].update(kind=2))  # Integer payload is not Bool
+    malformed_case(lambda d: call_args(d)[0].update(value=999999))
+    malformed_case(lambda d: call_args(d)[0].update(value=next(
+        b["terminator"]["instruction"]["operation"]["call"]["receiver"] for b in d["functions"][0]["blocks"]
+        if b["terminator"]["instruction"].get("operation", {}).get("kind") == "birth_call")))
+    for wrong in [0, 1, "true", None]:
+        data = copy.deepcopy(bool_inputs[0])
+        const = next(r["instruction"] for b in data["functions"][0]["blocks"] for r in b["instructions"]
+                     if r["instruction"]["op"] == "const_bool")
+        const["value"] = wrong
+        malformed_inputs.append(data)
+    bad_add = copy.deepcopy(copied)
+    row = next(r["instruction"] for b in bad_add["functions"][1]["blocks"] for r in b["instructions"]
+               if r["instruction"]["op"] == "copy")
+    row.update(op="add", lhs=row.pop("src"), rhs=bad_add["functions"][1]["params"][0]["value"])
+    malformed_inputs.append(bad_add)
+    for data in malformed_inputs:
+        compile_input(data, False)
+        assert obj.read_bytes() == sentinel
+    print(len(malformed_inputs), "tag/schema/type negative inputs preserve artifact")
     compile_input(issued, False, dict(env, PATH=str(work)))  # llc unavailable
     assert obj.read_bytes() == sentinel
     obj.unlink()

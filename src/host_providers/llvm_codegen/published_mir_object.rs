@@ -69,7 +69,7 @@ fn compile_published_view_object(
             &emit_lifecycle_physical_abi_json(&view.issue_lifecycle_physical_abi_input()?)?,
         )?;
         let physical_result =
-            capi_transport::validate_published_lifecycle_physical_v1(&physical_json_path);
+            capi_transport::validate_published_lifecycle_physical_v2(&physical_json_path);
         transport_io::remove_backend_temp_file(&physical_json_path);
         physical_result?;
         let mir_json_path = transport_io::prepare_backend_input_json_file(

@@ -83,7 +83,7 @@ archive and proving equality to the backend target/LLVM layout are separate
 invocation responsibilities; this descriptor does not authorize C lifecycle
 execution or process-exit policy.
 
-### Selected Birth scalar boundary — accepted design, not execution admission
+### Selected Birth scalar boundary
 
 Decision (2026-09-07): the lifecycle-private unannotated Birth boundary uses
 separate kind and payload lanes, preserving Integer versus Bool. The receiver
@@ -105,14 +105,13 @@ final report/disposal. The failed field is not mutated. Reasons 100/101/102
 retain their existing meanings. No boxing or additional runtime wrapper is
 introduced; FaultFrame layout and the runtime descriptor revision are unchanged.
 
-This decision fixes the future wire and diagnostic interpretation only. The
-header constants, compiler binding and C consumer are not implemented by this
-document change. Unresolved formal/actual relations still reject before input
-issuance. Local has no selected initializer-kind relation and remains unavailable;
+The v2 compiler input and V4 consumer implement this bounded wire and
+diagnostic interpretation. Unresolved formal/actual relations still reject
+before input issuance; selected host cutover remains separately gated. Local has no selected initializer-kind relation and remains unavailable;
 Text/handle arguments are outside this bounded protocol. Source declarations
 remain unannotated and each definition has one unspecialized body.
 
-### Selected lifecycle physical program v2 — accepted wire decision
+### Selected lifecycle physical program v2
 
 Decision (2026-09-07): replace the untagged v1 document, retaining one parser
 and one V4 physical consumer. Schema is exactly
@@ -146,8 +145,8 @@ callers in the same schema implementation. V4 compile keeps its pointer ABI
 and symbol, but becomes v2-document-only. Old v1 schema and numeric-array
 params/args reject without default tags before target-session/temp-output work.
 FaultFrame/status ABI and runtime descriptor stay v1: the changed revision is
-the compiler physical document, not the runtime frame. This design document
-itself does not change any accepted input or activate host execution.
+the compiler physical document, not the runtime frame. V2 replaces v1 in the compiler serializer, validator export and V4 consumer.
+This does not activate the parked direct V4 host path.
 
 ### `include/nyrt_dynamic_call_slot_v2.h` and `include/nyrt_dynamic_text_scan_v1.h`
 
