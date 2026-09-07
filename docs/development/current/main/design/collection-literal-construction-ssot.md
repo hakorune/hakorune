@@ -574,8 +574,10 @@ Source-to-physical owner chain:
    BindingRef values. It preserves the exact terminal result while emitting
    reverse Home releases before Return; it no longer lowers a raw direct Return
    for this selected family. Array-unissued Script keeps its separate ingress.
-5. Extract the physical FaultFrame materialization/validation mechanics for
-   reuse by callable and Script lowering. Source entry owners retain selection
+5. FunctionFaultFrameV1 in builder/function_fault_frame.rs owns the extracted
+   physical materialization/validation mechanics. Existing callable lowering
+   and retained construction validation now use that one owner; Script wiring
+   remains part of this I0. Source entry owners retain selection
    permission. The selected Script recipe selects RootOwned; its first Array
    consumer materializes once at entry. No standalone frame series or fake
    App Main selection is permitted.

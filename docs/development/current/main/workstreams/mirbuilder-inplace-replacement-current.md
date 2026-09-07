@@ -612,10 +612,8 @@ retain full evidence; typed C remains stopped.
 
 #### MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-D0
 
-Accepted physical mapping: three Array Invoke operations plus nonfallible
-ArrayResidenceRelease, one source Recipe and shared frame mechanics. The
-[physical mapping owner](../design/collection-literal-construction-ssot.md#script-array-physical-lifecycle-mapping)
-fixes the Local/Return consumers, refresh/site allocator and void-release contract.
+Accepted [physical mapping](../design/collection-literal-construction-ssot.md#script-array-physical-lifecycle-mapping):
+three Array Invoke operations, nonfallible release, one Recipe and shared frame mechanics.
 
 #### MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0
 
@@ -625,6 +623,8 @@ Non-authority: MIR/source reconstruction, App Main/Birth admission, alias-group 
 Fail-fast boundary: missing source/control/metadata/result/release binding rejects; selected typed C remains pre-artifact Stop.
 Smallest next slice: one selected Script physical emitter plus its existing Local, identity, refresh, finishing and Stop consumers.
 Non-claims: checked allocation/claim/write runtime ABI, C execution, nested/opaque children, implicit completion or Loop.
+Checkpoint: shared FunctionFaultFrameV1 extracted; callable behavior unchanged,
+Script still unconnected. Build peak8.87GiB, focused18, Pair EXE/OBJ30 and guards pass.
 Same-series delete-set: selected standalone allocation/claim/write and raw direct
 Return, old standalone binding schema, and observer blindness to Invoke sites.
 Gates: seven specs, empty/multiple literals, prior Homes/alias, exact result/frame,
@@ -638,7 +638,7 @@ Do not append semantic code to these owners:
 
 ```text
 src/mir/builder/raw_invocation_source_transport.rs      778
-src/mir/builder.rs                                      750
+src/mir/builder.rs                                      751
 src/mir/builder/normal_callable_semantic_loan_port.rs   710
 src/mir/builder/raw_expression_dispatch/mod.rs          706
 src/mir/builder/calls/unified_emitter.rs                 711

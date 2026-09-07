@@ -900,6 +900,10 @@ requires Finished progress; Array-unissued Script remains absent. The pipeline
 owns this moved product and the published view borrows it. Callable Birth/result
 projections are unavailable for Script and constructor admission rejects it.
 Frame/Invoke/cleanup and typed C remain subsequent obligations.
+`function_fault_frame.rs::FunctionFaultFrameV1` owns shared physical frame
+materialization/validation. Callable source entry wrappers keep role selection
+permission and their diagnostic contract. Script frame emission is not yet wired;
+that consumer must land together with Array Normal/Fault/cleanup control.
 The accepted next physical row seals one Array control Recipe from the existing
 continuation before emission. The Script-proven Local input carries its exact
 recipe into the current Local owner; the selected Array/Return consumers replace

@@ -33,7 +33,7 @@ mod fault;
 /// only projects that identity onto the `ValueId`s allocated by existing Lower.
 #[derive(Debug)]
 pub(super) struct CallableSemanticLoweringState {
-    fault_frame: Option<fault::CallableFaultFrame>,
+    fault_frame: Option<crate::mir::builder::function_fault_frame::FunctionFaultFrameV1>,
     construction: construction::ConstructionState,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     receiver: Option<BindingRefV1>,
@@ -227,7 +227,7 @@ impl CallableSemanticLoweringState {
             values: BTreeMap::new(),
             dynamic_origins,
             construction: construction::ConstructionState::NotConstruction,
-            fault_frame: Some(fault::CallableFaultFrame::borrowed()),
+            fault_frame: Some(crate::mir::builder::function_fault_frame::FunctionFaultFrameV1::borrowed()),
             entry_installed: false,
             materialized_locals: BTreeSet::new(),
             consumed_variables: BTreeSet::new(),

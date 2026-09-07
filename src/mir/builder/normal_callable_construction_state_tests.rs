@@ -160,7 +160,7 @@ impl RetainedConstructionValidation {
                 frame: None,
                 completed: true,
             },
-            fault_frame: super::super::fault::CallableFaultFrame::borrowed(),
+            fault_frame: crate::mir::builder::function_fault_frame::FunctionFaultFrameV1::borrowed(),
         }
     }
 }

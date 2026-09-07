@@ -30,7 +30,7 @@ pub(super) enum ConstructionState {
 pub(in crate::mir::builder) struct RetainedConstructionValidation {
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     construction: ConstructionState,
-    fault_frame: super::fault::CallableFaultFrame,
+    fault_frame: crate::mir::builder::function_fault_frame::FunctionFaultFrameV1,
 }
 
 pub(in crate::mir::builder) type RetainedConstructionDrafts = Vec<(
