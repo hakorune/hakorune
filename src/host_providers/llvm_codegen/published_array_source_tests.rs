@@ -334,3 +334,39 @@ fn numeric_typed_array_materialized_source_keeps_one_claim_and_backend_stop() {
         std::fs::remove_dir(dir).unwrap();
     }
 }
+
+#[test]
+fn typed_array_source_lifecycle_consumes_real_prefix_and_stops_unknown_children() {
+    use crate::runner::modes::common_util::normal_callable::{
+        materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
+    };
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    for (text, expected_error) in [
+        ("local n = 30\nlocal a: Array<i64> = [10]\nlocal alias = a\nlocal b: Array<u8> = [20]\nreturn 30", None),
+        ("local s = \"x\"\nlocal a: Array<i64> = []\nreturn 30", Some("caller-prefix-capability")),
+        ("local a: Array<i64> = [[10]]\nreturn 30", Some("child-capability")),
+        ("local a: Array<i64> = [\"x\"]\nreturn 30", Some("child-capability")),
+    ] {
+        let NormalCallableMaterializationOutcomeV1::SourceBacked(source) =
+            materialize_normal_callable_program_v1(text, Default::default()).unwrap()
+        else { panic!("source-backed required") };
+        let result = MirCompiler::with_options(false).compile_normal(
+            NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()),
+        );
+        if let Some(reason) = expected_error {
+            let error = match result { Err(error) => error, Ok(_) => panic!("expected stop: {text}") };
+            assert!(error.contains("[script-array/source-lifecycle-unavailable]"), "{error}");
+            assert!(error.contains(reason), "{error}");
+        } else {
+            let result = result.unwrap();
+            assert!(result.verification_result.is_ok(), "{:?}", result.verification_result);
+            let view = crate::mir::function::PublishedMirBackendView::try_new(&result.module).unwrap();
+            let dir = std::env::temp_dir().join(format!("hako-array-prefix-stop-{}", std::process::id()));
+            std::fs::create_dir_all(&dir).unwrap();
+            let error = compile_published_view_object(&view, dir.join("source.o").to_str().unwrap(), None).unwrap_err();
+            assert!(error.contains("typed_array_contract_backend_unsupported"), "{error}");
+            assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 0);
+            std::fs::remove_dir(dir).unwrap();
+        }
+    }
+}

@@ -875,7 +875,13 @@ Prep rule:
 product for a Complete Script root. The resolver's existing shadow seal issues
 the `VerifiedBodyShape` and the Script product retains that same owner/shape
 pair; the continuation sibling validates the canonical demand window and
-projects only already-issued parent relations and terminal statements.
+projects already-issued parent relations and terminal statements.
+Numeric Array LocalInit also consumes private source lifecycle rows once: the
+existing resolver seals explicit Array cardinality and exact Element edges,
+then the continuation proves primitive children and the preceding Home prefix.
+Unknown child/prefix capability stops before Local lowering; aliases add no
+Home. Missing, foreign, drifted, reused or unconsumed rows reject. Runtime
+frame/Invoke and typed C execution remain subsequent consumers.
 Transparent, transferred, and diagnostic root entries are explicit boundaries
 and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
 transports this continuation together with the existing lowering projection and

@@ -156,6 +156,11 @@ records are Trivial” is not a valid rule.
 
 ### Intrinsic numeric Array literal acquisition
 
+Decision: numeric literal acquisition follows the existing Home law below.
+Every source element participates in order; an empty literal has exactly zero
+source elements. Missing compiler child relations never prove an empty literal
+or an empty set of evaluation responsibilities.
+
 For the supported primitive numeric `Array<T>` contract, intrinsic literal
 allocation creates a builtin acquisition responsibility. From successful
 allocation until Local initialization commits, its evaluation frame owns the

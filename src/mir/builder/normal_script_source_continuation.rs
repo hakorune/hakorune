@@ -6,6 +6,9 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "normal_script_array_source_lifecycle.rs"]
+mod array_lifecycle;
+
 use crate::mir::resolved_semantics::{
     BodyShapeRelationV1, BodyStatementShapeV1, FunctionOwnerIdV1, ScriptRootResolvedDemandV1,
     ScriptRootSemanticDispositionV1, SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1,
@@ -27,6 +30,7 @@ pub(super) enum ScriptSourceContinuationIssueV1 {
     DanglingParent(SourceNodeSiteV1),
     ParentCycle(SourceNodeSiteV1),
     DuplicateMethodCall(SourceExprSiteV1),
+    ArrayLifecycle(&'static str),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -65,6 +69,7 @@ impl VerifiedScriptSourceContinuationRowV1 {
 pub(super) struct VerifiedScriptSourceContinuationV1 {
     owner: FunctionOwnerIdV1,
     rows: BTreeMap<SourceExprSiteV1, VerifiedScriptSourceContinuationRowV1>,
+    arrays: array_lifecycle::ArraySourceLifecycleRows,
 }
 
 impl VerifiedScriptSourceContinuationV1 {
@@ -117,7 +122,24 @@ impl VerifiedScriptSourceContinuationV1 {
                 ));
             }
         }
-        Ok(Self { owner, rows })
+        let arrays = array_lifecycle::ArraySourceLifecycleRows::issue(product, window)
+            .map_err(ScriptSourceContinuationIssueV1::ArrayLifecycle)?;
+        Ok(Self {
+            owner,
+            rows,
+            arrays,
+        })
+    }
+
+    pub(super) fn consume_array_local(
+        &mut self,
+        relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+    ) -> Result<(), String> {
+        self.arrays.consume(relation)
+    }
+
+    pub(super) fn finish_array_locals(&self) -> Result<(), String> {
+        self.arrays.finish()
     }
 
     pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
@@ -281,7 +303,8 @@ fn expression_site(
     expression: &crate::mir::resolved_semantics::BodyExpressionShapeV1,
 ) -> SourceExprSiteV1 {
     match expression {
-        crate::mir::resolved_semantics::BodyExpressionShapeV1::Variable { site, .. }
+        crate::mir::resolved_semantics::BodyExpressionShapeV1::ArrayLiteral { site, .. }
+        | crate::mir::resolved_semantics::BodyExpressionShapeV1::Variable { site, .. }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::QualifiedReceiver { site }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::Me { site, .. }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { site, .. }

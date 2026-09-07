@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0"
-current_execution_cohort = "mir_typed_array_source_failure_coseal_i0"
-current_design_stop = "none; builtin numeric Array acquisition law and existing Script continuation source slice accepted"
-current_blocker_token = "Implement private Array cutpoint rows in existing ScriptSourceContinuation and one-shot exact typed Local consumption. Prove primitive children and caller prefix obligations from same source; no empty defaults/raw retry for unavailable families. Keep C Stop; Script root-frame/Invoke, checked runtime ABI, Loop and broader children remain open."
+current_execution_row = "LLVM-LIFECYCLE-V4-PLUGIN-FEATURE-I0"
+current_execution_cohort = "llvm_lifecycle_v4_plugin_feature_i0"
+current_design_stop = "none; worker-confirmed V4 feature boundary repair has an existing cfg/stub owner pattern"
+current_blocker_token = "Repair unconditional V4 transport references to plugins-only loader/libloading with matching cfg and stable unavailable stub. Verify nonplugins library check and existing plugins V4 acceptance. Array source cutpoints landed; Script frame/Invoke/runtime ABI remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Source lifecycle Decision accepted after worker design review: incomplete numeric
-Array belongs to evaluation frame; LocalInit transfers one Home, aliases add none.
-Existing Script continuation co-seals private source cutpoints and typed Local
-consumes once. No C activation; unavailable source families remain open.
+Array source cardinality/Element co-seal and one-shot typed Local admission are
+implemented; corrected populated/nested premise failures and focused regressions
+pass. Next is the independently audited V4 plugins cfg/stub repair, then return
+to Array source root-frame/physical failure mapping. Typed C execution stays stopped.
 """
-next_design_card = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0"
-next_execution_card = "MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0"
+next_design_card = "LLVM-LIFECYCLE-V4-PLUGIN-FEATURE-I0"
+next_execution_card = "LLVM-LIFECYCLE-V4-PLUGIN-FEATURE-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

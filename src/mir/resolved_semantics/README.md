@@ -1110,3 +1110,13 @@ catalog loan. Physical constructor consumption, unwrap activation, nominal MIR
 Brand identity, mismatch verification, and legacy cache retirement are later
 rows; the current raw `is_brand_declared` consumer intentionally remains until
 the constructor cutover.
+
+### Array literal source coverage
+
+The existing body-shape owner retains `ArrayLiteral { site, element_count }`
+and each source-policy Element edge from the same shadow traversal. Canonical
+seal rejects missing/all-dropped, duplicate, extra or foreign children; count0
+is the positive witness for an empty literal. Source paths alone do not prove
+that a parent-child relation survived. These are passive syntax facts, without
+Home, effect, Recipe or ABI authority. Script continuation consumes them under
+[the numeric acquisition law](../../../docs/reference/language/ownership.md#intrinsic-numeric-array-literal-acquisition).

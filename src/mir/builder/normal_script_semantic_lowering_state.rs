@@ -18,7 +18,7 @@ use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1
 #[derive(Debug)]
 pub(super) struct ScriptSemanticLoweringState {
     projection: VerifiedScriptLoweringProjectionV1,
-    _continuation: VerifiedScriptSourceContinuationV1,
+    continuation: VerifiedScriptSourceContinuationV1,
     _direct_static_products: ScriptDirectStaticLoweringProductsV1,
     direct_static_claim_ledger: direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
@@ -64,7 +64,7 @@ impl ScriptSemanticLoweringState {
         };
         Ok(Self {
             projection,
-            _continuation: continuation,
+            continuation,
             _direct_static_products: direct_static_products,
             direct_static_claim_ledger,
             variable_values: BTreeMap::new(),
@@ -108,6 +108,13 @@ impl ScriptSemanticLoweringState {
         site: &SourceNodeSiteV1,
     ) -> Option<&crate::mir::resolved_semantics::ResolvedInitializerRelationV1> {
         self.projection().local_relation_at(site)
+    }
+
+    pub(super) fn consume_array_local(
+        &mut self,
+        relation: &crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+    ) -> Result<(), String> {
+        self.continuation.consume_array_local(relation)
     }
 
     pub(super) fn nowait_binding(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
@@ -187,7 +194,8 @@ impl ScriptSemanticLoweringState {
         self.direct_static_claim_ledger.complete(claimed)
     }
 
-    pub(super) fn finish_direct_static_claims(&mut self) -> Result<(), String> {
+    pub(super) fn finish_source_claims(&mut self) -> Result<(), String> {
+        self.continuation.finish_array_locals()?;
         self.direct_static_claim_ledger.finish().map_err(|error| {
             format!("[freeze:contract][script-direct-static/claim-finish] {error:?}")
         })

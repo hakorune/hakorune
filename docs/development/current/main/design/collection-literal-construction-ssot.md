@@ -9,7 +9,7 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: implement the accepted source failure/cleanup co-seal in the existing Script continuation owner. Root frame/Invoke and runtime checked ABI follow; Loop source admission remains open.
+- Next: explicit Script root-frame/Invoke failure mapping, then runtime checked ABI. Source cutpoint co-seal and one-shot typed Local admission are implemented; Loop source admission remains open.
 - Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
 - Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
 
@@ -239,11 +239,22 @@ Ordered remaining tasks (not implementation permission):
    evidence; original typed execution remains CutoverBlockerOpen until real entry
    and obsolete selected edges are closed.
 
-The next task is step1. Reuse this runtime/C inventory while the named blockers
+Step1 source cutpoint issuance/admission is implemented; its Script root-frame
+and physical failure consumer remain next before step2. Reuse this runtime/C inventory while the named blockers
 remain open; this is not an Exhausted/zero-blocker cutover claim. No new guard,
 sibling design document or speculative C entry is authorized.
 
 ### Accepted Script Array source lifecycle slice
+
+Accepted premise correction: Array traversal previously retained child paths but
+not body-shape edges. The existing shadow resolver issues passive
+`ArrayLiteral { site, element_count }` and record each exact Element relation.
+Existing body-shape seal verifies count, ordinal coverage, endpoint membership
+and unique child/parent/role; zero is valid only with source-issued count0.
+Do not reconstruct missing edges from path prefixes. Array-specific seal work
+may be private within the same owner to respect the source line limit. This
+replaces Array's coarse Other(kind) row and the draft consumer's empty-list
+assumption. It adds no semantic Home/ABI authority or source family.
 
 Decision: connect the existing
 [intrinsic numeric acquisition law](../../../../reference/language/ownership.md#intrinsic-numeric-array-literal-acquisition)
@@ -278,7 +289,7 @@ state must represent this missing evaluation responsibility explicitly; an empty
 list, ArrayStateTerm, EffectMask, handle or successful sample cannot stand for it.
 There are no Recipe keys, ValueIds, blocks or physical runtime pointers here.
 
-First source row covers direct Script typed numeric Array literal LocalInit for
+The implemented source row covers direct Script typed numeric Array literal LocalInit for
 all seven specs, with source-proven Integer/Bool/Float primitive literal children.
 Float kind proves no owned resource, not a particular value or range. Boolean and
 floating child kinds do not prove numeric contract success. Source prefix

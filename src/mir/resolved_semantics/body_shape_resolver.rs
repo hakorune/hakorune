@@ -39,6 +39,12 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
         site: SourceExprSiteV1,
     ) {
         let shape = match expression {
+            crate::ast::ASTNode::ArrayLiteral { elements, .. } => {
+                ShadowExpressionShapeV0::ArrayLiteral {
+                    site: site.clone(),
+                    element_count: elements.len(),
+                }
+            }
             crate::ast::ASTNode::Variable { .. } => {
                 ShadowExpressionShapeV0::Variable { site: site.clone() }
             }

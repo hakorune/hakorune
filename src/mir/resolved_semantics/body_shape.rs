@@ -42,6 +42,10 @@ impl BodyStatementShapeV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BodyExpressionShapeV1 {
+    ArrayLiteral {
+        site: SourceExprSiteV1,
+        element_count: u32,
+    },
     Variable {
         site: SourceExprSiteV1,
         resolved: ResolvedLexicalRefV1,
@@ -146,6 +150,10 @@ pub(crate) enum ShadowStatementShapeV0 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShadowExpressionShapeV0 {
+    ArrayLiteral {
+        site: SourceExprSiteV1,
+        element_count: usize,
+    },
     Variable {
         site: SourceExprSiteV1,
     },
@@ -549,7 +557,8 @@ pub(crate) fn issue_resolved_method_call_sources_with_relations_for_test(
 
 fn expression_shape_site(expression: &BodyExpressionShapeV1) -> SourceExprSiteV1 {
     match expression {
-        BodyExpressionShapeV1::Variable { site, .. }
+        BodyExpressionShapeV1::ArrayLiteral { site, .. }
+        | BodyExpressionShapeV1::Variable { site, .. }
         | BodyExpressionShapeV1::QualifiedReceiver { site }
         | BodyExpressionShapeV1::Me { site, .. }
         | BodyExpressionShapeV1::FieldAccess { site, .. }
@@ -591,143 +600,6 @@ pub(crate) fn duplicate_shadow_body_shape_relation_rejects_for_test(
     seal_shadow_body_shape_relations(vec![row.clone(), row]).is_err()
 }
 
-pub(crate) fn seal_shadow_body_shape(
-    owner: FunctionOwnerIdV1,
-    root_profile: SemanticOwnerRootProfileV1,
-    draft: ShadowBodyShapeDraftV0,
-    variable_refs: &BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>,
-    statement_sites: &BTreeSet<SourceStmtSiteV1>,
-    expression_sites: &BTreeSet<SourceExprSiteV1>,
-) -> Result<VerifiedResolvedBodyShapeInventoryV1, &'static str> {
-    if draft.statements.len() != statement_sites.len()
-        || draft
-            .statements
-            .keys()
-            .any(|site| !statement_sites.contains(site))
-        || draft.expressions.len() != expression_sites.len()
-        || draft
-            .expressions
-            .keys()
-            .any(|site| !expression_sites.contains(site))
-    {
-        return Err("body shape coverage does not match resolver source inventory");
-    }
-
-    let statements = draft
-        .statements
-        .into_values()
-        .map(|row| match row {
-            ShadowStatementShapeV0::SequenceItem { site } => {
-                BodyStatementShapeV1::SequenceItem { site }
-            }
-            ShadowStatementShapeV0::Return { site, value } => {
-                BodyStatementShapeV1::Return { site, value }
-            }
-        })
-        .collect::<Vec<_>>()
-        .into_boxed_slice();
-
-    let method_call_parents = draft
-        .expressions
-        .values()
-        .filter_map(|row| match row {
-            ShadowExpressionShapeV0::MethodCall { site, .. } => Some(site.node().clone()),
-            _ => None,
-        })
-        .collect::<BTreeSet<_>>();
-    let method_receiver_sites = draft
-        .relations
-        .iter()
-        .filter_map(|row| {
-            (row.role == SourcePathSegmentV1::Receiver && method_call_parents.contains(&row.parent))
-                .then(|| row.child.clone())
-        })
-        .collect::<BTreeSet<_>>();
-
-    let expressions = draft
-        .expressions
-        .into_values()
-        .map(|row| match row {
-            ShadowExpressionShapeV0::Variable { site } => match variable_refs.get(&site).copied() {
-                Some(resolved) => Ok(BodyExpressionShapeV1::Variable { site, resolved }),
-                None if method_receiver_sites.contains(&site) => {
-                    Ok(BodyExpressionShapeV1::QualifiedReceiver { site })
-                }
-                None => Err("body variable shape lacks lexical resolution"),
-            },
-            ShadowExpressionShapeV0::Me { site } => {
-                let receiver = match variable_refs.get(&site).copied() {
-                    Some(ResolvedLexicalRefV1::Local(receiver)) => {
-                        BodyMeReceiverV1::Lexical(receiver)
-                    }
-                    None if matches!(
-                        root_profile,
-                        SemanticOwnerRootProfileV1::DeclaredFunction {
-                            receiver_policy:
-                                super::function_view::ReceiverPolicyV1::StaticCurrentOwner,
-                        }
-                    ) =>
-                    {
-                        BodyMeReceiverV1::StaticCurrentOwner
-                    }
-                    _ => return Err("body Me shape lacks exact receiver authority"),
-                };
-                Ok(BodyExpressionShapeV1::Me { site, receiver })
-            }
-            ShadowExpressionShapeV0::FieldAccess {
-                site,
-                object,
-                field,
-            } => Ok(BodyExpressionShapeV1::FieldAccess {
-                site,
-                object,
-                field,
-            }),
-            ShadowExpressionShapeV0::MethodCall {
-                site,
-                object,
-                method,
-                arity,
-            } => {
-                let arity = u32::try_from(arity)
-                    .map_err(|_| "method-call arity exceeds resolver source identity")?;
-                Ok(BodyExpressionShapeV1::MethodCall {
-                    site,
-                    object,
-                    method,
-                    arity,
-                })
-            }
-            ShadowExpressionShapeV0::BlockExpr { site } => {
-                Ok(BodyExpressionShapeV1::BlockExpr { site })
-            }
-            ShadowExpressionShapeV0::Other { site, kind } => {
-                Ok(BodyExpressionShapeV1::Other { site, kind })
-            }
-        })
-        .collect::<Result<Vec<_>, _>>()?
-        .into_boxed_slice();
-
-    let effects = draft
-        .effects
-        .into_iter()
-        .map(|(site, kind)| BodyEffectShapeV1 { site, kind })
-        .collect::<Vec<_>>()
-        .into_boxed_slice();
-    let relations = seal_shadow_body_shape_relations(draft.relations)?;
-    let assignment_sources = draft
-        .assignment_sources
-        .into_values()
-        .collect::<Vec<_>>()
-        .into_boxed_slice();
-
-    Ok(VerifiedResolvedBodyShapeInventoryV1 {
-        owner,
-        body_root: root_profile.body_root(),
-        statements,
-        expressions,
-        effects,
-        relations,
-        assignment_sources,
-    })
-}
+#[path = "body_shape_seal.rs"]
+mod seal;
+pub(crate) use seal::seal_shadow_body_shape;

@@ -81,7 +81,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 .map_err(|_| {
                     "[freeze:contract][script-direct-static/claim-finish-borrow]".to_owned()
                 })?
-                .finish_direct_static_claims()
+                .finish_source_claims()
                 .map(|()| value),
             Err(error) => Err(error),
         };

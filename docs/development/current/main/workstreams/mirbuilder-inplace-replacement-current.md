@@ -573,17 +573,11 @@ No source-cutover/R7 claim; full receipt lives in Git.
 
 #### MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0
 
-The [construction design](../design/collection-literal-construction-ssot.md) owns
-the accepted boundary: parser cohort -> immediate sole publication -> runtime Unit.
-No by-name skip, second authority or broader typed/Loop/R7 closure.
-Checkpoint: raw/typed-local/Core Array allocation now retains intrinsic identity;
-Array birth edges, runtime constructor batch/ticket/role transport and exclusive
-prefix helper are removed. Default mismatch and duplicate-publication rejection remain.
-Materialized empty/populated/nested/plain-shadow/generic-shadow EXE and independent
-OBJ all exit30; declaration-only Unit, parser-backed one-demand plain/generic,
-child failure/order, boundary rejection and metadata tests pass. View35 and Pair
-EXE/OBJ30 regression pass. Library build peak8.75GiB; instance-transfer and canonical corridor guards pass.
-No OOM/whole-suite claim.
+Landed at 278b519d1f: intrinsic Array identity retained; literal birth and
+second Script constructor publication/demand transport retired. Real Array
+empty/populated/nested/shadow EXE+OBJ30, declaration Unit, Pair and focused guards
+pass. The [construction owner](../design/collection-literal-construction-ssot.md)
+and Git retain full acceptance. Typed execution, Loop and R7 remain open.
 
 Known baseline debt reproduced at parent `95f400280d` with identical quick profile:
 `program_root_work_plan` parent6pass6fail, current6pass4fail; two retired second-demand
@@ -602,32 +596,37 @@ shadow DuplicateKey and static-negative syntax error are fixed and rerun green.
 
 #### MIR-SCRIPT-TYPED-LOCAL-SOURCE-RELATION-I0
 
-Implemented the [accepted relation connection](../design/collection-literal-construction-ssot.md#script-typed-local-relation-connection):
-Script local projection retains the existing resolver relation; selected local
-input consumes its annotation and rejects source drift, with no raw fallback.
-Seven numeric Array<T> literal spellings reach verified MIR, one preclaim and
-matching refreshed LocalInit, then the existing OBJ/EXE capability Stop. Relation negatives/child order, Script19/pre-effect6/located3/view35 and Array/Pair
-EXE+OBJ30 pass; library peak8.72GiB and existing guards green. Exact host names5/5
-supersede a discarded zero-match filter. Receipt details live in Git; no whole-suite claim.
+Landed at b129f066c0: exact resolver initializer relation now reaches typed
+Script Local without annotation/site repair. Seven numeric specs reach verified
+MIR and OBJ/EXE capability Stop. Focused source/negative/order tests, Array/Pair
+execution and guards pass; full receipt is in Git and the construction owner.
 
 #### MIR-TYPED-ARRAY-SOURCE-FAILURE-COSEAL-I0
 
-Decision: extend the existing Script continuation owner with numeric Array evaluation/commit/Fault source cutpoints.
-Source authority + canonical issuer: ownership.md intrinsic numeric acquisition law and exact forest/window/initializer/element relations; VerifiedScriptSourceContinuationV1::issue.
-Non-authority: Arc/handles, emitted MIR, empty cleanup defaults, New-specific Home products and fabricated App Main identity.
-Fail-fast boundary: unavailable child/prefix authority stays capability-stopped; missing/foreign/reused selected rows cannot admit lowering.
-Smallest next slice: private source-operation rows co-sealed once, consumed once by the existing typed Local relation entry.
-Non-claims: RootOwned/Invoke/C activation, arbitrary child/alias ownership, Loop or original Array-series closure.
+Implemented: existing resolver now seals Array cardinality plus exact Element
+relations; existing Script continuation co-seals private acquisition rows and
+typed Local consumes once. Removed coarse Array Other(kind), empty-list inference
+and selected typed lowering without source lifecycle admission. Unknown child/
+prefix stays explicitly unavailable; aliases add no Home. Root frame/Invoke/C
+execution, Loop and broader children remain open in the original Array series.
+Tests: lifecycle5, Array seal2, shape10, leaf3, Script19/Array2/pre-effect6,
+S6C9/continuation2, host source5 plus explicit ignored Array and Pair EXE/OBJ
+regressions pass (success30, Pair Bool Fault70). Final build peak8.85GiB;
+instance-transfer/canonical-corridor/pointer guards pass (guard peak2.74GiB).
+The draft populated/nested failures were current-change errors, corrected by
+worker-confirmed source count/edge retention; both now pass. No baseline waiver.
 
-The [accepted slice](../design/collection-literal-construction-ssot.md#accepted-script-array-source-lifecycle-slice)
-owns cutpoints, source-prefix inventory, explicit unavailable families and the
-real Script A/C -> lowering-state -> typed Local consumer. All seven specs share
-one lifecycle. Empty obligations require source coverage; no passive receipt.
-Acceptance: ordered cutpoints/destination, prior committed Home reverse order,
-source drift/reuse refusal and retained C capability Stop; existing focused
-source/claim/order tests and guards. Source root-frame/physical failure mapping,
-checked runtime ABI and C execution/retirement follow in this series. Loop and
-excluded child/prefix families remain open; do not repeat the runtime census.
+#### LLVM-LIFECYCLE-V4-PLUGIN-FEATURE-I0
+
+Decision: give V4 the same explicit plugins boundary and unavailable stub as its siblings.
+Source authority + canonical issuer: existing Cargo feature contract and capi_transport V4 entry; no semantic issuance.
+Non-authority: default-feature success and runtime caller absence.
+Fail-fast boundary: no-plugins uses stable unavailable error; never references plugin-only loader/libloading.
+Smallest next slice: matching cfg/stub, nonplugins library check and existing plugins V4 regression.
+Non-claims: typed Array C activation, terminal enum cleanup or whole-builder completion.
+The [audited follow-up queue](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08)
+then owns terminal enum/storage-tag BoxShape. Array root-frame/failure mapping
+resumes after this bounded feature repair; no alternate Array implementation.
 
 ## Source and ownership budget
 

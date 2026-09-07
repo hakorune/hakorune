@@ -40,12 +40,14 @@ impl RawInvocationChildPortV1<'_, '_> {
         } else {
             None
         };
+        let source_relation = relation.clone();
         let input = RawLegacyLocalInputV1::from_script_relation(
             input,
             relation,
             &site,
             initializer_source.as_ref(),
         )?;
+        ledger.borrow_mut().consume_array_local(&source_relation)?;
         let value = drive_local_statement_v1(builder, self, input)?;
         ledger.borrow_mut().record(binding, value)?;
         Ok(value)
