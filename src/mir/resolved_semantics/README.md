@@ -33,6 +33,10 @@ Handle result; alias initialization cannot install a Home. Integer/Bool values
 and exact Trivial local bindings survive the selected-argument projection.
 The source scanner still owns traversal, Normal installation and cleanup order.
 This does not issue Map transfer, Shared acquisition or Dynamic carrier adoption.
+Terminal Add additionally requires integer evidence on both operands. Bool and
+coarse Trivial locals cannot supply that proof; rejected expressions publish no
+terminal relation or staged field reads. Exact field-pair and integer-only
+recursive evidence keep their existing meanings, without general Add activation.
 
 `home_new_prefix` owns the bounded ordinary-New caller-prefix facts, from one
 resolved source loan and exact selected initializer bindings. It walks source

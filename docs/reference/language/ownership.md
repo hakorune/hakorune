@@ -125,6 +125,11 @@ cannot escape beyond the Home that supports it. The selected constructor-prefix
 implementation keeps owning local state separate from ordinary expression
 observations: both direct Home reads and alias-chain reads yield only handles.
 This structural separation does not activate Map transfer or general Home Flow.
+For the selected constructor-root terminal, Trivial capability alone does not
+prove an integer Add operand. Bool and locals without retained integer-kind
+proof are unsupported there; rejection retains no partial terminal field-read
+product. This is a compiler coverage boundary, not a general ban on integer
+local arithmetic in the language.
 
 Dynamic invocation does not change this rule based on a runtime tag. Its
 receiver and arguments are borrowed without escape for the exact invocation,

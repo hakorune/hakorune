@@ -143,3 +143,36 @@ fn direct_bool_does_not_issue_i64_field_terminal_relation() {
     assert!(ledger.terminal_i64_add_return().is_none());
     assert!(ledger.terminal_integer_literal_return().is_none());
 }
+
+#[test]
+fn mixed_or_unproven_add_discards_terminal_and_all_staged_reads() {
+    for suffix in [
+        "return true + 1",
+        "return 1 + true",
+        "return pair.left + true",
+        "return false + pair.right",
+        "return (pair.left + pair.right) + true",
+        "return true + (pair.left + pair.right)",
+        "return (pair.left + true) + pair.right",
+        "return pair.left + (true + pair.right)",
+        "local value = true return value + pair.left",
+        "local value = true return pair.left + value",
+        "local value = 1 return value + pair.left",
+        "local value = 1 return pair.left + value",
+    ] {
+        let source = format!(
+            "box Pair {{ left: i64 right: i64
+             birth(left, right) {{ me.left = left me.right = right }} }}
+             static box Main {{ main() {{ local pair = new Pair(10, 20) {suffix} }} }}"
+        );
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(&source)
+            .expect("source package retains explicit unsupported completion");
+        let ledger = &package.ordinary_new_claim_ledger;
+        let completion = ledger.root_completion_for_test();
+        assert!(matches!(completion.cleanup().terminal_homes(),
+            Some(Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::ReturnValueNotCovered(_)))),
+            "{suffix}");
+        assert!(ledger.terminal_relation.is_none(), "{suffix}");
+        assert!(ledger.field_reads.borrow().is_empty(), "{suffix}");
+    }
+}

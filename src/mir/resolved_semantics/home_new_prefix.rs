@@ -224,6 +224,15 @@ enum ReturnScalar {
     },
 }
 
+impl ReturnScalar {
+    fn proves_integer(&self) -> bool {
+        match self {
+            Self::Integer | Self::IntegerField(_) | Self::I64Add { .. } => true,
+            Self::OtherTrivial => false,
+        }
+    }
+}
+
 // This classifier is terminal-only: argument and prefix-local eligibility
 // still belongs to the local-flow observation. Field authority is borrowed from the exact
 // selected New's source definition, never from runtime layout or MIR types.
@@ -303,7 +312,9 @@ fn return_scalar<E>(
                     site: add_site,
                     field_reads: [left, right],
                 })),
-                (Some(_), Some(_)) => Ok(Some(ReturnScalar::Integer)),
+                (Some(left), Some(right)) if left.proves_integer() && right.proves_integer() => {
+                    Ok(Some(ReturnScalar::Integer))
+                }
                 _ => Ok(None),
             }
         }

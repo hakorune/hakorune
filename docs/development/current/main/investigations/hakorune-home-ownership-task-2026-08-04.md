@@ -424,18 +424,56 @@ and 1 passed / 1 failed for
 Commands use `CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib FILTER`;
 the isolated parent shares the target cache and the same ignored Cargo.lock
 (SHA256 `24b148fd057103161445d0fe96cc4d47fa9aa2a43b04fc3c6ed9b78dd5473c70`).
-Known baseline debt, not waived or repaired in this BoxShape:
+Historical baseline debt, retained unchanged in that BoxShape and repaired by
+the subsequent integer-evidence Stop below:
 
 - `mir::normal_callable_semantic_package::brand_catalog_tests::normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix`: `return first.left + true` unexpectedly retains cleanup availability on both revisions.
 - `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`: `return page.slot + true` retains one read instead of zero on both revisions. The new two-alias case executes successfully before this existing failure.
 
-These are open terminal-classification debt in `home_new_prefix::return_scalar`,
-not proof of valid mixed Add execution. Reconcile source scalar evidence and
-whole-expression acceptance before widening this terminal family; do not weaken
-the tests or infer Map ownership from its coarse Integer fallback. Current-change
-failures: zero observed in these suites; whole-library green is not claimed.
+These failures exposed terminal-classification debt in
+`home_new_prefix::return_scalar`, not valid mixed Add execution. The following
+Stop closes those failures without weakening expectations; coarse Integer still
+does not imply general Add execution or Map ownership. Whole-library green is
+not claimed.
 Pointer/corridor guards and diff check pass. Source destination-demand/commit
 issuance remains the next Map design after this completed prerequisite.
+
+
+##### Accepted terminal integer-evidence Stop
+
+Decision: repair the observed source correctness debt before extending this
+owner for Map demand. Add may combine only Integer, IntegerField or I64Add
+observations. OtherTrivial is not integer evidence; standalone handling remains
+unchanged. Exact field-pair I64Add issuance precedes recursive integer folding.
+Source authority + canonical issuer: `home_new_prefix::return_scalar`, borrowing
+exact literal/field source evidence and the existing prefix ordinary observation.
+Non-authority: Trivial alone, physical i64, Bool payload and a local's unretained
+initializer kind do not prove integer operands.
+Fail-fast boundary: `ReturnValueNotCovered` in source Completion; package co-seal
+must retain neither terminal relation nor staged field rows for rejected Add.
+Smallest next slice: delete `(Some(_), Some(_)) -> Integer`, require integer
+proof on both sides, exercise package-level rejection and existing positive tests.
+Non-claims: general Add/local-result execution, Map transfer, new capability ABI.
+
+Boundary: source terminal classification -> Completion cleanup verdict -> retained
+ordinary-New terminal/read rows -> existing artifact eligibility. Includes all
+four ReturnScalar arms, both operand orders and nested expressions; excludes new
+initializer-kind issuance and other language families. Integer locals currently
+share the coarse Trivial state with Bool locals and remain unsupported in this
+Add proof; no runtime classification or source repair is allowed. Existing
+package staging already discards rows unless terminal cleanup is available, so
+no second rollback owner is needed. This is a deliberate Stop change, separate
+from the preceding behavior-preserving extraction.
+
+Implementation checkpoint: the unconstrained present/present Add edge is removed.
+`CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib
+'mir::normal_callable_semantic_package::'` passes 119/119. Both historical failures
+above are green. The new package test covers 12 rejected source expressions and
+checks `ReturnValueNotCovered`, absent terminal relation and empty retained field
+rows together; existing exact field-pair, integer-only nested Add and standalone
+result cases pass. Pointer/corridor guards and diff check pass; changed sources
+max628. This closes the named source correctness debt. Map destination demand,
+commit-aware availability, runtime and full source cutover remain open.
 
 
 ### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0`
