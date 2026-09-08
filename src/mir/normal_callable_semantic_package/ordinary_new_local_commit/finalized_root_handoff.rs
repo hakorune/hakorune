@@ -101,7 +101,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if let NewEmissionProgress::Emitted {
                 result,
                 arguments,
-                checked: true,
+                progress: EmittedLocalProgress::Checked { .. },
                 ..
             } = &row.emission
             {

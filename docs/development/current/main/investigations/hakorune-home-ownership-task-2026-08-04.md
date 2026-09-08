@@ -1063,8 +1063,8 @@ Runtime opaque ABI validation does not close this compiler queue.
    overlapping distinct rows/options, failure cleanup and unchanged environment,
    followed by deletion of globals/mutation. No race or serialization proof.
 
-8. Before adding Map progress to the ledger, consolidate existing New physical
-   progress inside NewEmissionProgress/NewLocalCommitV1 (one BoxShape). Worker
+8. New ledger progress BoxShape completed before adding Map progress.
+   NewEmissionProgress/NewLocalCommitV1 remain the sole physical owner. Worker
    audit confirms Emitted.result and initializer store the same accepted value;
    local is a distinct Copy destination and must remain distinct. Move the
    independent expression/local completion states into the existing progress
@@ -1079,7 +1079,21 @@ Runtime opaque ABI validation does not close this compiler queue.
    observation local batch -> child port complete_new_emissions. Acceptance:
    existing coseal order/duplicate/foreign/value drift tests, later-New completion,
    failed batch leaves every row unchanged, unavailable never becomes Checked.
-   This is representational debt; no reachable corrupt state was demonstrated.
+   This was representational debt; no reachable corrupt state was demonstrated.
+   Private progress.rs now owns expression/install/check transitions. Emitted
+   retains result once, distinct local lives in Installed/Checked; independent
+   initializer/local Options and checked bool are deleted. Unavailable has no
+   Checked variant. Original/finishing graph validation remains at its owner.
+   Validation: serial jobs4 locked quick lib filters ordinary_new_coseal::tests
+   (11 pass), ordinary_new_emission_validation_tests (2), source-backed two-New
+   completion (1), prior Home order (1), diagnostic Pair finishing (1). Includes
+   Installed-before-Checked lookup, bad-Copy validation leaving progress intact,
+   checked graph revalidation, and two-local rejected batch without partial
+   installation. Logs /tmp/hakorune-new-progress-{coseal,emission,two-new,order,finishing}.log.
+   Initial test placement could not access the private owner; moved it under
+   that owner and reran successfully without widening production visibility.
+   Pointer/corridor/diff guards pass, source max566. Module README updated;
+   ownership reference meaning is unchanged. No new accepted shape/C execution.
 9. Terminal validation dispatch BoxShape in ordinary_new_local_commit/
    root_validation.rs: draft and finishing duplicate Unit/Add/literal/field
    calls. Use the existing TerminalRelationV1 in private shared dispatch while
@@ -1093,8 +1107,10 @@ Runtime opaque ABI validation does not close this compiler queue.
    Schedule at the next root-validation edit after ledger consolidation; this
    maintenance task alone does not block the Map source emitter.
 
-Next: consolidate existing ledger progress before adding Map emission/cleanup
-using the mixed-origin contract. Source snapshot storage is closed. The LocalSSA split
+Next: actual Map source emission/progress and local completion through the
+existing callable child port and ledger, then mixed-origin cleanup/finishing and
+C consumption. Source snapshot storage and New ledger progress are closed.
+Share terminal dispatch when root validation is touched, preserving both stages. The LocalSSA split
 is queued before that owner grows; static Call state follows its existing lane
 selection and does not block unrelated Map work. Corrected counts and these
 registrations are not evidence that outstanding source changes have landed.

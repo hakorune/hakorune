@@ -147,7 +147,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for row in rows.values().filter(|row| row.binding.owner() == owner) {
             let NewEmissionProgress::Emitted {
                 bindings,
-                checked: true,
+                progress: EmittedLocalProgress::Checked { .. },
                 ..
             } = &row.emission
             else {

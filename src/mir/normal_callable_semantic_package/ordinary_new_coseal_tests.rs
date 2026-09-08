@@ -379,3 +379,92 @@ fn ordinary_new_local_commit_rejects_drift_without_consuming_pending_installatio
         .unwrap_err()
         .contains("duplicate-local-installation"));
 }
+
+#[test]
+fn local_batch_rejection_does_not_install_an_earlier_row() {
+    use crate::mir::ValueId;
+    let first_site = test_site();
+    let second_site = OwnedExprSiteV1::new(
+        first_site.owner(),
+        SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::Initializer(1),
+        ])),
+    );
+    let first = claim(first_site.clone(), 0);
+    let mut second = claim(second_site.clone(), 0);
+    second.destination =
+        BindingRefV1::new(first_site.owner(), hakorune_mir_core::BindingId::new(1));
+    let SourceBindingSiteV1::Local { ordinal, .. } = &mut second.declaration else {
+        unreachable!()
+    };
+    *ordinal = 1;
+    let SourceBindingSiteV1::Local { statement, .. } = first.declaration.clone() else {
+        unreachable!()
+    };
+    let completed = [
+        (first.destination, 0, ValueId(8), ValueId(9)),
+        (second.destination, 1, ValueId(10), ValueId(11)),
+    ];
+    let ledger = OrdinaryNewClaimLedgerV1::issue(
+        vec![first, second].into_boxed_slice(),
+        vec!["Page".into()].into_boxed_slice(),
+    );
+    for (site, value) in [(&first_site, ValueId(8)), (&second_site, ValueId(10))] {
+        let taken = ledger.try_take(site, "Page", 0).unwrap().unwrap();
+        assert!(!ledger.prepare_new_emission(&taken).unwrap());
+        ledger.complete_new_expression(site, "Page", value).unwrap();
+    }
+    let mut bad = completed;
+    bad[1].2 = ValueId(99);
+    assert!(ledger
+        .complete_local_installation(first_site.owner(), statement.node(), &bad)
+        .is_err());
+    assert!(ledger
+        .local_commits
+        .borrow()
+        .values()
+        .all(|row| !row.is_complete()));
+    ledger
+        .complete_local_installation(first_site.owner(), statement.node(), &completed)
+        .unwrap();
+    assert!(
+        ledger.is_empty(),
+        "retained unavailable consumption still completes"
+    );
+}
+
+#[test]
+fn installed_home_precedes_checked_and_failed_validation_preserves_progress() {
+    let fixture = super::super::ordinary_new_emission_validation_tests::fixture();
+    let ledger = &fixture.ledger;
+    {
+        let rows = ledger.local_commits.borrow();
+        let home = local_commit::installed_home(&rows, fixture.binding).unwrap();
+        assert!(!home.is_complete(), "installed does not imply checked");
+    }
+    let mut bad = fixture.function.clone();
+    for block in bad.blocks.values_mut() {
+        block.instructions.retain(|instruction|
+            !matches!(instruction, crate::mir::MirInstruction::Copy { .. }));
+    }
+    assert!(ledger
+        .complete_new_emissions(fixture.owner, &bad)
+        .unwrap_err()
+        .contains("emission-local-copy-drift"));
+    assert!(ledger
+        .local_commits
+        .borrow()
+        .values()
+        .all(|row| !row.is_complete()));
+    ledger
+        .complete_new_emissions(fixture.owner, &fixture.function)
+        .unwrap();
+    assert!(ledger
+        .local_commits
+        .borrow()
+        .values()
+        .all(|row| row.is_complete()));
+    // Revalidation keeps checking the graph even when its progress is Checked.
+    assert!(ledger.validate_new_emissions(fixture.owner, &bad).is_err());
+}

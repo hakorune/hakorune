@@ -15,7 +15,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|(_, row)| row.binding.owner() == owner)
         {
             match &row.emission {
-                NewEmissionProgress::RetainedUnavailable => {}
+                NewEmissionProgress::RetainedUnavailable { .. } => {}
                 NewEmissionProgress::Emitted {
                     result,
                     arguments,
@@ -23,9 +23,10 @@ impl OrdinaryNewClaimLedgerV1 {
                     bindings,
                     ..
                 } => {
-                    if row.initializer != Some(*result) || row.local.is_none() {
-                        return Err(freeze("emission-local-result-drift"));
-                    }
+                    let local = row
+                        .emission
+                        .local()
+                        .ok_or_else(|| freeze("emission-local-result-drift"))?;
                     let source_arguments = row
                         .argument_rows
                         .as_ref()
@@ -45,7 +46,6 @@ impl OrdinaryNewClaimLedgerV1 {
                         }
                         self.validate_argument_definition(function, source, emitted.value)?;
                     }
-                    let local = row.local.expect("checked local installation");
                     let mut copies = function
                         .blocks
                         .values()

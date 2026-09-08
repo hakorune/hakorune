@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Map source snapshot BoxShape closed: four per-entry arrays deleted, initial order plus exact transfer/replacement points retained; 6 source tests pass. Next consolidate existing New ledger expression/local/check progression before adding Map progress and mixed cleanup. Preserve Installed-before-Checked and unavailable completion. Map source/C execution and old-edge cutover remain open; common install Stop stays."
+current_blocker_token = "New ledger progress BoxShape closed: initializer/local Options and checked bool replaced by private expression/Installed/Checked transitions; 16 focused tests pass. Next actual Map source emission/progress and local completion via existing callable child port/ledger, then mixed cleanup/finishing and C consumer. Preserve Installed-before-Checked, empty Map, unused aliases and prior Map on later-New Fault. Source install Stop remains until source/OBJ/EXE and old-edge cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

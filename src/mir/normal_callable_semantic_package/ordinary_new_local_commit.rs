@@ -9,6 +9,7 @@ use super::OrdinaryNewClaimLedgerV1;
 use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1};
 use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
+use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::home_new_prefix::{
     TerminalI64AddReturnV1, TerminalI64FieldReturnV1, TerminalIntegerLiteralReturnV1,
     TerminalRelationV1, TerminalUnitReturnV1,
@@ -17,7 +18,6 @@ use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
 };
 use crate::mir::ValueId;
-use crate::mir::instruction::InvokeOperation;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use crate::parser::CallableDeclarationIdentityV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
@@ -31,23 +31,9 @@ pub(super) enum RootNewValidation {
     FinishingChecked,
 }
 
-#[derive(Debug)]
-enum NewEmissionProgress {
-    Unprepared,
-    RetainedUnavailable,
-    Prepared {
-        operands: Vec<InvokeOperation>,
-        reclaim: Option<ReclaimUnpublishedOriginV1>,
-    },
-    Emitting,
-    Emitted {
-        result: ValueId,
-        arguments: Box<[EmittedNewArgumentV1]>,
-        reclaim: Option<ReclaimUnpublishedEmissionV1>,
-        bindings: Vec<(BasicBlockId, MirInstruction)>,
-        checked: bool,
-    },
-}
+#[path = "ordinary_new_local_commit/progress.rs"]
+mod progress;
+use progress::{EmittedLocalProgress, NewEmissionProgress, UnavailableLocalProgress};
 
 /// Physical consumption of one already-issued selected-New argument row.
 ///
@@ -106,8 +92,6 @@ pub(super) struct NewLocalCommitV1 {
     birth_abi: Option<BirthAbiHandoffV1>,
     binding: BindingRefV1,
     declaration: SourceBindingSiteV1,
-    initializer: Option<ValueId>,
-    local: Option<ValueId>,
     home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
     argument_rows: Result<
         Box<[super::OrdinaryNewTrivialArgumentV1]>,
@@ -217,8 +201,6 @@ impl NewLocalCommitV1 {
             birth_abi,
             binding,
             declaration,
-            initializer: None,
-            local: None,
             home_prefix,
             argument_rows,
             emission: NewEmissionProgress::Unprepared,
@@ -226,19 +208,12 @@ impl NewLocalCommitV1 {
     }
 
     pub(super) fn is_complete(&self) -> bool {
-        self.initializer.is_some()
-            && self.local.is_some()
-            && matches!(
-                self.emission,
-                NewEmissionProgress::RetainedUnavailable
-                    | NewEmissionProgress::Emitted { checked: true, .. }
-            )
+        self.emission.is_complete()
     }
 
     pub(super) fn installs(&self, binding: BindingRefV1) -> bool {
         self.binding == binding
-            && self.initializer.is_some()
-            && self.local.is_some()
+            && self.emission.local().is_some()
             && matches!(&self.home_prefix, Ok(prefix) if prefix.destination() == binding)
     }
 
@@ -251,7 +226,10 @@ impl NewLocalCommitV1 {
 
 // One lookup over installed physical bindings; source order remains caller-owned.
 #[derive(Debug)]
-pub(super) enum HomeLookupError { Missing, Duplicate }
+pub(super) enum HomeLookupError {
+    Missing,
+    Duplicate,
+}
 
 pub(super) fn installed_home(
     rows: &std::collections::BTreeMap<OwnedExprSiteV1, NewLocalCommitV1>,
@@ -259,7 +237,9 @@ pub(super) fn installed_home(
 ) -> Result<&NewLocalCommitV1, HomeLookupError> {
     let mut candidates = rows.values().filter(|row| row.installs(binding));
     let row = candidates.next().ok_or(HomeLookupError::Missing)?;
-    if candidates.next().is_some() { return Err(HomeLookupError::Duplicate); }
+    if candidates.next().is_some() {
+        return Err(HomeLookupError::Duplicate);
+    }
     Ok(row)
 }
 
@@ -267,7 +247,7 @@ impl NewLocalCommitV1 {
     fn end_operation(&self) -> InvokeOperation {
         InvokeOperation::HomeRelease {
             object: self.object,
-            value: self.local.expect("installed Home"),
+            value: self.emission.local().expect("installed Home"),
         }
     }
 }
@@ -311,7 +291,12 @@ impl OrdinaryNewClaimLedgerV1 {
         if !matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
             return Unavailable(TerminalHomesUnavailable);
         }
-        if selected.any(|row| matches!(row.emission, NewEmissionProgress::RetainedUnavailable)) {
+        if selected.any(|row| {
+            matches!(
+                row.emission,
+                NewEmissionProgress::RetainedUnavailable { .. }
+            )
+        }) {
             return Unavailable(NewEmissionUnavailable);
         }
         match &*self.root_exit.borrow() {
@@ -391,7 +376,9 @@ impl OrdinaryNewClaimLedgerV1 {
         rows.get_mut(claim.site()).expect("checked row").emission = if available {
             NewEmissionProgress::Prepared { operands, reclaim }
         } else {
-            NewEmissionProgress::RetainedUnavailable
+            NewEmissionProgress::RetainedUnavailable {
+                progress: UnavailableLocalProgress::PendingExpression,
+            }
         };
         Ok(available)
     }
@@ -399,13 +386,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn begin_new_emission(
         &self,
         site: &OwnedExprSiteV1,
-    ) -> Result<
-        (
-            Vec<InvokeOperation>,
-            Option<ReclaimUnpublishedOriginV1>,
-        ),
-        String,
-    > {
+    ) -> Result<(Vec<InvokeOperation>, Option<ReclaimUnpublishedOriginV1>), String> {
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
             .get_mut(site)
@@ -462,7 +443,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 },
             ),
             bindings,
-            checked: false,
+            progress: EmittedLocalProgress::PendingExpression,
         };
         Ok(())
     }
@@ -479,9 +460,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .values_mut()
             .filter(|row| row.binding.owner() == owner)
         {
-            if let NewEmissionProgress::Emitted { checked, .. } = &mut row.emission {
-                *checked = true;
-            }
+            row.emission.mark_checked();
         }
         Ok(())
     }
@@ -507,16 +486,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if row.box_source.name() != class {
             return Err(freeze("expression-parent-mismatch"));
         }
-        if row.initializer.is_some() || row.local.is_some() {
-            return Err(freeze("duplicate-expression-completion"));
-        }
-        match &row.emission {
-            NewEmissionProgress::RetainedUnavailable => {}
-            NewEmissionProgress::Emitted { result, .. } if *result == value => {}
-            _ => return Err(freeze("expression-before-emission-or-result-drift")),
-        }
-        row.initializer = Some(value);
-        Ok(())
+        row.emission.complete_expression(value)
     }
 
     /// The caller supplies exact BindingRefs from the existing callable state
@@ -555,10 +525,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 .iter()
                 .find(|(binding, index, _, _)| *binding == row.binding && index == ordinal)
                 .ok_or_else(|| freeze("local-binding-or-ordinal-mismatch"))?;
-            if row.local.is_some() {
+            if row.emission.local().is_some() {
                 return Err(freeze("duplicate-local-installation"));
             }
-            if row.initializer != Some(*initializer) || initializer == local {
+            if row.emission.completed_initializer() != Some(*initializer) || initializer == local {
                 return Err(freeze("local-initializer-mismatch"));
             }
             commits.push((site.clone(), *local));
@@ -566,7 +536,8 @@ impl OrdinaryNewClaimLedgerV1 {
         for (site, local) in commits {
             rows.get_mut(&site)
                 .expect("validated row remains present")
-                .local = Some(local);
+                .emission
+                .install(local);
         }
         Ok(())
     }

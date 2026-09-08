@@ -8,13 +8,14 @@ const RESULT: crate::mir::ValueId = crate::mir::ValueId(12);
 const LOCAL: crate::mir::ValueId = crate::mir::ValueId(13);
 const FRAME: crate::mir::ValueId = crate::mir::ValueId(14);
 
-struct EmissionFixture {
-    ledger: std::rc::Rc<OrdinaryNewClaimLedgerV1>,
-    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
-    function: crate::mir::MirFunction,
+pub(super) struct EmissionFixture {
+    pub(super) ledger: std::rc::Rc<OrdinaryNewClaimLedgerV1>,
+    pub(super) owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    pub(super) function: crate::mir::MirFunction,
+    pub(super) binding: crate::mir::resolved_semantics::BindingRefV1,
 }
 
-fn fixture() -> EmissionFixture {
+pub(super) fn fixture() -> EmissionFixture {
     let package = super::brand_catalog_tests::issue_with_brand_catalog(
         "box Page { birth(integer, boolean) { } }
          static box Main { main() {
@@ -157,6 +158,7 @@ fn fixture() -> EmissionFixture {
         ledger,
         owner,
         function,
+        binding: declaration.0,
     }
 }
 

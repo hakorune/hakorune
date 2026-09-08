@@ -283,6 +283,13 @@ records its result only after overrides; the completed-local handoff checks
 ordinal, initializer ValueId and destination. `home_new_prefix` owns Home source
 relations; every prior Home must complete its exact installation before the next
 target take. The ledger records correspondence, not Home meaning or cutpoints.
+The private `ordinary_new_local_commit/progress.rs` owns physical expression,
+installation and check transitions. An emitted initializer borrows the retained
+result; it is not stored again. Installed exposes its distinct local Copy target
+before Checked so later-New cleanup can use it. Local and emission batches still
+validate all rows before updating any. RetainedUnavailable can finish source
+consumption but has no Checked state. Finalized-MIR and compiler-finishing checks
+remain independent of these progress transitions.
 Claim preflight, prior-New cleanup preparation and root exit share the same
 installed-Home lookup, with missing and duplicate bindings rejected. The ledger
 supplies the physical end operation directly; Builder no longer reconstructs it
