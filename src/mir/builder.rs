@@ -319,6 +319,7 @@ mod normal_script_semantic_lowering_input; // Retained Script source products in
 mod normal_script_semantic_lowering_projection; // Immutable Script lowering projection
 mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
 pub(crate) use normal_script_semantic_lowering_state::FinalizedScriptArrayV1;
+pub(crate) use normal_script_source_continuation::RootResult as ScriptArrayRootResultV1;
 mod normal_script_semantic_source; // Producer-backed lexical Script source
 mod normal_script_semantic_source_core; // Shared Script source/forest/projection core
 mod normal_script_source_continuation; // Resolver-issued Script source continuation

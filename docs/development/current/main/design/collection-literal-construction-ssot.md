@@ -898,19 +898,13 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    or output creation, while preserving Pair and the actual typed host Stop.
    Full EXE/linked OBJ and returned-Fault execution remain task4, not input proof.
 
-   **Host binding checkpoint (task3 remains open):** existing Pair production
-   now passes one LifecycleInvocationInput to the CAPI wrapper. Independent
-   JSON/session Rust arguments and the separate EXE archive selection are
-   retired; temporary JSON lifetime moved to that wrapper. Explicit physical
-   runtime requirements replace the unconditional profile field. Only the
-   callable TypedObject requirement is currently issued; NativeArray emission
-   awaits retained Script projection. Archive symbol inventory/requirement
-   checks are implemented with exact external-function definitions.
-   Descriptor/binding tests6, physical input8, hostStop7 and actual Pair
-   EXE/independently linked OBJ30 pass; quick peak8.88GiB and guards green.
-   Remaining task3 work is retained Script projections, I64/Unit normalization,
-   native cleanup/primitive Float-bit serialization and source/negative input
-   acceptance; these are not completed by this checkpoint.
+   **Task3 implementation:** the existing final input now borrows retained Script
+   correspondence and carries normalized I64/Unit, exact seven-spec claims,
+   distinct primitive lanes and native cleanup through the same serializer.
+   Callable-only projection restrictions are removed for this retained cohort;
+   Pair keeps its formal/layout checks. The host binding checkpoint is
+   `c14cc1e140`; selected C execution remains task4. The rolling card owns the
+   current verification receipt; symbol fixtures establish availability only.
 
 4. **`MIR-SCRIPT-ARRAY-C-EXECUTION-I0`: complete selected consumer and switch.**
    Extend the dedicated physical C consumer for the issued Script root cohort;
@@ -959,8 +953,8 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
 Task1 is verified: the four kernel sequences now call atomic primitive append;
 Array52, hostStop7 and kernel caller2/existing Array10 pass. The exact receipt
 is in the rolling workstream card. Task2 is verified as a runtime dependency.
-Task3 is the next implementation slice with the physical-owner closure above;
-task4 retains its selected emission/cutover work. Runtime availability does not
+Task3 implements the physical-owner closure above; its verification receipt
+is in the rolling card. Task4 owns selected emission/cutover work. Runtime availability does not
 activate C; full selected entry-to-terminal acceptance remains required.
 
 ### CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0

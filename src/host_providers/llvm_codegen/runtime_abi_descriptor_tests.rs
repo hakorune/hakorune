@@ -210,6 +210,7 @@ fn native_array_availability_reads_defined_symbols_from_actual_archives() {
             missing == NATIVE_ARRAY_SYMBOLS.len(),
             "{result:?}"
         );
+        assert_script_input_binding(&archive, missing == NATIVE_ARRAY_SYMBOLS.len());
     }
     let source = directory.join("undefined.c");
     let object = source.with_extension("o");
@@ -310,5 +311,75 @@ fn bound_pair_input_checks_runtime_before_serialization_and_ignores_array_symbol
             },
         );
         assert!(matches!(result, Err(error) if error.contains("bound-pair-input-verified")));
+    });
+}
+
+// These archive fixtures prove availability/binding, not runtime call behavior.
+fn assert_script_input_binding(archive: &Path, available: bool) {
+    use super::super::lifecycle_invocation::LifecycleInvocationInputV1;
+    use crate::mir::{MirCompiler, NormalCompileRequestV1};
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for terminal in ["return 30", "return"] {
+            let parsed =
+                crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                    &format!("local a: Array<i64> = [10, 20]\n{terminal}"),
+                    crate::parser::ParserBuildConfig::default(),
+                )
+                .unwrap();
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+            else {
+                panic!("source must be retained")
+            };
+            MirCompiler::with_options(true)
+                .compile_normal_with_published(
+                    NormalCompileRequestV1::for_mir_mode_callable_source(
+                        source,
+                        None,
+                        Default::default(),
+                    ),
+                    |view, verification| -> Result<(), String> {
+                        assert!(verification.is_ok());
+                        let physical = view.issue_lifecycle_physical_abi_input()?;
+                        assert_eq!(
+                            physical.runtime_requirements(),
+                            PublishedLifecycleRuntimeRequirementsV1::NativeArray
+                        );
+                        let mut descriptor = decode_descriptor(&descriptor_bytes())?;
+                        descriptor.target_triple = "x86_64-unknown-linux-gnu".into();
+                        let session = LifecycleRuntimeSessionV1 {
+                            runtime_archive: archive.to_owned(),
+                            descriptor,
+                        };
+                        let bound = LifecycleInvocationInputV1::bind(physical.clone(), &session);
+                        assert_eq!(bound.is_ok(), available);
+                        if let Ok(bound) = bound {
+                            assert_eq!(bound.runtime_archive(), archive);
+                            let json: serde_json::Value =
+                                serde_json::from_str(&bound.serialize()?).unwrap();
+                            assert_eq!(json["runtime_requirements"]["kind"], "native_array");
+                            assert_eq!(
+                                json["functions"][0]["role"],
+                                if terminal == "return" {
+                                    "root_unit"
+                                } else {
+                                    "root_i64"
+                                }
+                            );
+                            let mut wrong = session.clone();
+                            wrong.descriptor.fault_abi_version += 1;
+                            assert!(
+                                LifecycleInvocationInputV1::bind(physical.clone(), &wrong).is_err()
+                            );
+                            wrong = session.clone();
+                            wrong.descriptor.target_triple = "other".into();
+                            assert!(LifecycleInvocationInputV1::bind(physical, &wrong).is_err());
+                        }
+                        Ok(())
+                    },
+                )
+                .unwrap();
+        }
     });
 }

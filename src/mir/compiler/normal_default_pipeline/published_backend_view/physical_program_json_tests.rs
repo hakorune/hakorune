@@ -215,3 +215,28 @@ fn diagnostic_finishing_accepts_the_same_optimized_pair_cleanup() {
         }));
     });
 }
+
+#[test]
+fn native_float_wire_preserves_signed_zero_and_nan_payload_bits() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        MirCompiler::with_options(true).compile_normal_with_published(
+            request("local a: Array<i64> = [0.0]\nreturn 30"),
+            |view, _| -> Result<(), String> {
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                // Encoder-only evidence: this does not admit NaN or unary minus in source.
+                for bits in [0u64, 0x8000_0000_0000_0000, 0x7ff8_0000_0000_0042,
+                    0xfff8_0000_0000_0123, 0x7ff0_0000_0000_0001] {
+                    let instruction = MirInstruction::Const {
+                        dst: ValueId::new(0), value: ConstValue::Float(f64::from_bits(bits)),
+                    };
+                    let encoded = encode_instruction(&instruction, &BTreeMap::new(), None, Some(&input))?;
+                    let decoded: Value = serde_json::from_str(&serde_json::to_string(&encoded).unwrap()).unwrap();
+                    assert_eq!(decoded["op"], "const_f64_bits");
+                    assert_eq!(decoded["bits"].as_u64(), Some(bits));
+                }
+                Ok(())
+            },
+        ).unwrap();
+    });
+}

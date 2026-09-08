@@ -625,3 +625,6 @@ fn free_function_key(target: &CanonicalGlobalTargetV1) -> Option<CanonicalSameMo
         name, *arity,
     ))
 }
+
+#[cfg(test)]
+mod script_physical_input_tests;

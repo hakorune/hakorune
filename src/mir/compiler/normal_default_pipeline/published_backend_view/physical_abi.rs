@@ -5,14 +5,14 @@
 
 use std::collections::BTreeSet;
 
-use crate::mir::MirInstruction;
 use super::compiled_entry_contract::CompiledEntryFormalKindV1;
-use crate::mir::instruction::InvokeOperation;
 use crate::mir::function::{ObjectDestructionDispositionV1, TypedObjectFieldStorage};
+use crate::mir::instruction::InvokeOperation;
+use crate::mir::MirInstruction;
 
 use super::{
-    CompiledEntryContractV1, CompiledEntryRootResultV1, PublishedMirBackendView,
-    physical_program::PublishedLifecyclePhysicalProgramV1,
+    physical_program::PublishedLifecyclePhysicalProgramV1, CompiledEntryContractV1,
+    CompiledEntryRootResultV1, PublishedMirBackendView,
 };
 
 /// Runtime diagnostic operation kinds admitted by the selected lifecycle ABI.
@@ -20,6 +20,9 @@ use super::{
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     NewBox,
+    ArrayNew,
+    ArrayClaim,
+    ArrayWrite,
     FieldSet,
     HomeRelease,
     ReclaimUnpublished,
@@ -27,16 +30,18 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
 
 impl PublishedLifecycleCheckedOperationKindV1 {
     pub(crate) const fn from_instruction(instruction: &MirInstruction) -> Option<Self> {
-        let MirInstruction::Invoke { operation, .. } = instruction else { return None };
+        let MirInstruction::Invoke { operation, .. } = instruction else {
+            return None;
+        };
         match operation {
             InvokeOperation::NewBox { .. } => Some(Self::NewBox),
             InvokeOperation::FieldSet { .. } => Some(Self::FieldSet),
             InvokeOperation::HomeRelease { .. } => Some(Self::HomeRelease),
             InvokeOperation::ReclaimUnpublished { .. } => Some(Self::ReclaimUnpublished),
-            InvokeOperation::Call(_)
-            | InvokeOperation::IntrinsicArrayNew
-            | InvokeOperation::ArrayStateContractClaim { .. }
-            | InvokeOperation::ArrayElementWrite { .. } => None,
+            InvokeOperation::IntrinsicArrayNew => Some(Self::ArrayNew),
+            InvokeOperation::ArrayStateContractClaim { .. } => Some(Self::ArrayClaim),
+            InvokeOperation::ArrayElementWrite { .. } => Some(Self::ArrayWrite),
+            InvokeOperation::Call(_) => None,
         }
     }
 }
@@ -52,11 +57,21 @@ pub(crate) struct PublishedLifecycleOperationDiagnosticSiteV1 {
 }
 
 impl PublishedLifecycleOperationDiagnosticSiteV1 {
-    pub(crate) const fn function(&self) -> u32 { self.function }
-    pub(crate) const fn block(&self) -> u32 { self.block }
-    pub(crate) const fn instruction(&self) -> u32 { self.instruction }
-    pub(crate) const fn kind(&self) -> PublishedLifecycleCheckedOperationKindV1 { self.kind }
-    pub(crate) const fn site(&self) -> u64 { self.site }
+    pub(crate) const fn function(&self) -> u32 {
+        self.function
+    }
+    pub(crate) const fn block(&self) -> u32 {
+        self.block
+    }
+    pub(crate) const fn instruction(&self) -> u32 {
+        self.instruction
+    }
+    pub(crate) const fn kind(&self) -> PublishedLifecycleCheckedOperationKindV1 {
+        self.kind
+    }
+    pub(crate) const fn site(&self) -> u64 {
+        self.site
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -68,10 +83,18 @@ pub(crate) struct PublishedLifecyclePhysicalFieldLayoutV1 {
 }
 
 impl PublishedLifecyclePhysicalFieldLayoutV1 {
-    pub(crate) const fn object_id(&self) -> u32 { self.object_id }
-    pub(crate) const fn declaration_ordinal(&self) -> u32 { self.declaration_ordinal }
-    pub(crate) const fn runtime_slot(&self) -> u32 { self.runtime_slot }
-    pub(crate) const fn storage_kind(&self) -> u32 { self.storage_kind }
+    pub(crate) const fn object_id(&self) -> u32 {
+        self.object_id
+    }
+    pub(crate) const fn declaration_ordinal(&self) -> u32 {
+        self.declaration_ordinal
+    }
+    pub(crate) const fn runtime_slot(&self) -> u32 {
+        self.runtime_slot
+    }
+    pub(crate) const fn storage_kind(&self) -> u32 {
+        self.storage_kind
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -83,10 +106,18 @@ pub(crate) struct PublishedLifecyclePhysicalObjectLayoutV1 {
 }
 
 impl PublishedLifecyclePhysicalObjectLayoutV1 {
-    pub(crate) const fn object_id(&self) -> u32 { self.object_id }
-    pub(crate) const fn runtime_type_id(&self) -> u32 { self.runtime_type_id }
-    pub(crate) const fn field_count(&self) -> u32 { self.field_count }
-    pub(crate) fn fields(&self) -> &[PublishedLifecyclePhysicalFieldLayoutV1] { &self.fields }
+    pub(crate) const fn object_id(&self) -> u32 {
+        self.object_id
+    }
+    pub(crate) const fn runtime_type_id(&self) -> u32 {
+        self.runtime_type_id
+    }
+    pub(crate) const fn field_count(&self) -> u32 {
+        self.field_count
+    }
+    pub(crate) fn fields(&self) -> &[PublishedLifecyclePhysicalFieldLayoutV1] {
+        &self.fields
+    }
 }
 
 /// Physical runtime dependency of the retained root cohort.
@@ -108,28 +139,42 @@ pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
 }
 
 impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
-    pub(crate) fn entry(&self) -> &CompiledEntryContractV1<'module> { &self.entry }
+    pub(crate) fn entry(&self) -> &CompiledEntryContractV1<'module> {
+        &self.entry
+    }
     pub(crate) fn program(&self) -> &PublishedLifecyclePhysicalProgramV1<'module> {
         self.entry.program()
     }
-    pub(crate) fn layouts(&self) -> &[PublishedLifecyclePhysicalObjectLayoutV1] { &self.layouts }
+    pub(crate) fn layouts(&self) -> &[PublishedLifecyclePhysicalObjectLayoutV1] {
+        &self.layouts
+    }
     pub(crate) fn diagnostic_sites(&self) -> &[PublishedLifecycleOperationDiagnosticSiteV1] {
         &self.diagnostic_sites
     }
     pub(crate) fn diagnostic_site_at(
-        &self, function: u32, block: u32, instruction: u32,
+        &self,
+        function: u32,
+        block: u32,
+        instruction: u32,
     ) -> Option<PublishedLifecycleOperationDiagnosticSiteV1> {
-        self.diagnostic_sites.iter().copied().find(|site|
-            site.function == function && site.block == block && site.instruction == instruction)
+        self.diagnostic_sites.iter().copied().find(|site| {
+            site.function == function && site.block == block && site.instruction == instruction
+        })
     }
-    pub(crate) const fn process_result_site(&self) -> u64 { self.process_result_site }
-    pub(crate) const fn fault_abi_version(&self) -> u32 { self.fault_abi_version }
+    pub(crate) const fn process_result_site(&self) -> u64 {
+        self.process_result_site
+    }
+    pub(crate) const fn fault_abi_version(&self) -> u32 {
+        self.fault_abi_version
+    }
     pub(crate) const fn runtime_requirements(&self) -> PublishedLifecycleRuntimeRequirementsV1 {
         self.runtime_requirements
     }
     pub(crate) const fn storage_profile(&self) -> Option<u32> {
         match self.runtime_requirements {
-            PublishedLifecycleRuntimeRequirementsV1::TypedObject { storage_profile } => Some(storage_profile),
+            PublishedLifecycleRuntimeRequirementsV1::TypedObject { storage_profile } => {
+                Some(storage_profile)
+            }
             PublishedLifecycleRuntimeRequirementsV1::NativeArray => None,
         }
     }
@@ -141,15 +186,21 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Result<PublishedLifecyclePhysicalAbiInputV1<'module>, String> {
         let entry = self.issue_lifecycle_compiled_entry_contract()?;
-        if entry.root_result() != CompiledEntryRootResultV1::I64 {
+        if !entry.program().is_native_array()
+            && entry.root_result() != CompiledEntryRootResultV1::I64
+        {
             return Err(fault("root-result-unavailable"));
         }
         use crate::mir::normal_callable_semantic_package::{
             BirthFormalDeclarationClassV1 as Declaration, BirthFormalUseCoverageV1 as Uses,
         };
         for formal in entry.births().iter().flat_map(|birth| birth.formals()) {
-            if formal.kind() == CompiledEntryFormalKindV1::Receiver { continue; }
-            let contract = formal.contract().ok_or_else(|| fault("formal-contract-missing"))?;
+            if formal.kind() == CompiledEntryFormalKindV1::Receiver {
+                continue;
+            }
+            let contract = formal
+                .contract()
+                .ok_or_else(|| fault("formal-contract-missing"))?;
             if contract.declaration() != Declaration::Unannotated {
                 return Err(fault("formal-declaration-unavailable"));
             }
@@ -168,41 +219,75 @@ impl<'module> PublishedMirBackendView<'module> {
         // The process projection is an entry epilogue, not a MIR Invoke.
         let process_result_site = u64::try_from(diagnostic_sites.len())
             .map_err(|_| fault("process-result-site-overflow"))?;
-        let storage_profile = self.lifecycle_storage_profile()
+        if entry.program().is_native_array() {
+            return Ok(PublishedLifecyclePhysicalAbiInputV1 {
+                entry,
+                layouts: Box::new([]),
+                diagnostic_sites: diagnostic_sites.into_boxed_slice(),
+                process_result_site,
+                fault_abi_version: 1,
+                runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::NativeArray,
+            });
+        }
+        let storage_profile = self
+            .lifecycle_storage_profile()
             .ok_or_else(|| fault("storage-profile-missing"))? as u32;
         let ids = referenced_objects(entry.program());
-        let definitions = self.module().canonical_object_definitions()
+        let definitions = self
+            .module()
+            .canonical_object_definitions()
             .ok_or_else(|| fault("object-definitions-missing"))?;
         let mut layouts = Vec::with_capacity(ids.len());
         for object_id in ids {
-            let definition = definitions.get(object_id as usize)
+            let definition = definitions
+                .get(object_id as usize)
                 .ok_or_else(|| fault("object-definition-missing"))?;
-            if definition.destruction_disposition() != ObjectDestructionDispositionV1::PlainI64NoHook {
+            if definition.destruction_disposition()
+                != ObjectDestructionDispositionV1::PlainI64NoHook
+            {
                 return Err(fault("object-destruction"));
             }
-            let layout = definition.runtime_layout().ok_or_else(|| fault("layout-not-issued"))?
-                .as_ref().map_err(|_| fault("layout-unavailable"))?;
+            let layout = definition
+                .runtime_layout()
+                .ok_or_else(|| fault("layout-not-issued"))?
+                .as_ref()
+                .map_err(|_| fault("layout-unavailable"))?;
             if layout.field_count as usize != layout.fields.len() {
                 return Err(fault("layout-field-count"));
             }
-            let fields = layout.fields.iter().enumerate().map(|(ordinal, field)| {
-                if field.storage != TypedObjectFieldStorage::I64 || field.slot != ordinal as u32 {
-                    return Err(fault("layout-field-drift"));
-                }
-                Ok(PublishedLifecyclePhysicalFieldLayoutV1 {
-                    object_id, declaration_ordinal: ordinal as u32,
-                    runtime_slot: field.slot, storage_kind: 1,
+            let fields = layout
+                .fields
+                .iter()
+                .enumerate()
+                .map(|(ordinal, field)| {
+                    if field.storage != TypedObjectFieldStorage::I64 || field.slot != ordinal as u32
+                    {
+                        return Err(fault("layout-field-drift"));
+                    }
+                    Ok(PublishedLifecyclePhysicalFieldLayoutV1 {
+                        object_id,
+                        declaration_ordinal: ordinal as u32,
+                        runtime_slot: field.slot,
+                        storage_kind: 1,
+                    })
                 })
-            }).collect::<Result<Vec<_>, String>>()?;
+                .collect::<Result<Vec<_>, String>>()?;
             layouts.push(PublishedLifecyclePhysicalObjectLayoutV1 {
-                object_id, runtime_type_id: layout.type_id, field_count: layout.field_count,
+                object_id,
+                runtime_type_id: layout.type_id,
+                field_count: layout.field_count,
                 fields: fields.into_boxed_slice(),
             });
         }
         Ok(PublishedLifecyclePhysicalAbiInputV1 {
-            entry, layouts: layouts.into_boxed_slice(),
-            diagnostic_sites: diagnostic_sites.into_boxed_slice(), process_result_site, fault_abi_version: 1,
-            runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::TypedObject { storage_profile },
+            entry,
+            layouts: layouts.into_boxed_slice(),
+            diagnostic_sites: diagnostic_sites.into_boxed_slice(),
+            process_result_site,
+            fault_abi_version: 1,
+            runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::TypedObject {
+                storage_profile,
+            },
         })
     }
 }
@@ -213,10 +298,18 @@ fn issue_diagnostic_sites(
     let mut sites = Vec::new();
     let mut coordinates = BTreeSet::new();
     for (function_ordinal, physical_function) in program.functions().iter().enumerate() {
-        let function = u32::try_from(function_ordinal).map_err(|_| fault("site-function-overflow"))?;
+        let function =
+            u32::try_from(function_ordinal).map_err(|_| fault("site-function-overflow"))?;
         for block in physical_function.blocks() {
-            for row in block.instructions().iter().copied().chain(std::iter::once(block.terminator())) {
-                let Some(kind) = PublishedLifecycleCheckedOperationKindV1::from_instruction(row.instruction()) else {
+            for row in block
+                .instructions()
+                .iter()
+                .copied()
+                .chain(std::iter::once(block.terminator()))
+            {
+                let Some(kind) =
+                    PublishedLifecycleCheckedOperationKindV1::from_instruction(row.instruction())
+                else {
                     continue;
                 };
                 let coordinate = (function, block.id().0, row.index());
@@ -225,12 +318,18 @@ fn issue_diagnostic_sites(
                 }
                 let site = u64::try_from(sites.len()).map_err(|_| fault("site-overflow"))?;
                 sites.push(PublishedLifecycleOperationDiagnosticSiteV1 {
-                    function, block: block.id().0, instruction: row.index(), kind, site,
+                    function,
+                    block: block.id().0,
+                    instruction: row.index(),
+                    kind,
+                    site,
                 });
             }
         }
     }
-    if sites.is_empty() { return Err(fault("site-missing")); }
+    if sites.is_empty() {
+        return Err(fault("site-missing"));
+    }
     Ok(sites)
 }
 
@@ -238,18 +337,29 @@ fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTre
     let mut ids = BTreeSet::new();
     for function in program.functions() {
         for block in function.blocks() {
-            for row in block.instructions().iter().copied().chain(std::iter::once(block.terminator())) {
+            for row in block
+                .instructions()
+                .iter()
+                .copied()
+                .chain(std::iter::once(block.terminator()))
+            {
                 match row.instruction() {
-                    MirInstruction::ObjectFieldGet { field, .. } => { ids.insert(field.object().declaration_index()); }
+                    MirInstruction::ObjectFieldGet { field, .. } => {
+                        ids.insert(field.object().declaration_index());
+                    }
                     MirInstruction::Invoke { operation, .. } => match operation {
                         InvokeOperation::NewBox { object }
                         | InvokeOperation::HomeRelease { object, .. }
-                        | InvokeOperation::ReclaimUnpublished { object, .. } => { ids.insert(object.declaration_index()); }
-                        InvokeOperation::FieldSet { field, .. } => { ids.insert(field.object().declaration_index()); }
+                        | InvokeOperation::ReclaimUnpublished { object, .. } => {
+                            ids.insert(object.declaration_index());
+                        }
+                        InvokeOperation::FieldSet { field, .. } => {
+                            ids.insert(field.object().declaration_index());
+                        }
                         InvokeOperation::Call(_) => {}
                         InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::ArrayStateContractClaim { .. }
-                        | InvokeOperation::ArrayElementWrite { .. } => {},
+                        | InvokeOperation::ArrayElementWrite { .. } => {}
                     },
                     _ => {}
                 }
@@ -261,6 +371,22 @@ fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTre
 
 fn fault(reason: &str) -> String {
     format!("[freeze:contract][published-lifecycle-physical-abi/{reason}]")
+}
+
+/// Explicit physical ABI mapping; source enum discriminants are not wire tags.
+pub(super) fn array_element_tag(
+    spec: crate::typed_array_contract_spec::ArrayElementContractSpec,
+) -> u32 {
+    use crate::typed_array_contract_spec::ExactArrayElementType;
+    match spec.element {
+        ExactArrayElementType::I8 => 1,
+        ExactArrayElementType::I16 => 2,
+        ExactArrayElementType::I32 => 3,
+        ExactArrayElementType::I64 => 4,
+        ExactArrayElementType::U8 => 5,
+        ExactArrayElementType::U16 => 6,
+        ExactArrayElementType::U32 => 7,
+    }
 }
 
 /// Sole source-kind to physical-tag projection for this bounded input.

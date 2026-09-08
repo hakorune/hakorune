@@ -229,8 +229,12 @@ This check establishes physical ABI availability, not source admission or
 implementation correctness. Typed-object requirements preserve their own
 profile/layout contract and do not demand Array symbols. The existing runtime
 and entry descriptors remain authoritative; no additional Array descriptor is
-introduced. Script physical projection and selected C execution remain separate
-completion requirements.
+introduced. Retained Script inputs use this same binding for I64 and Unit roots;
+their native requirement carries ABI version1, seven explicit claim tags and
+distinct i64/Bool/f64 append representations. Float transport preserves u64 bits.
+No object layout/profile is synthesized. Issued cleanup/Normal/Fault coordinates
+remain physical input, not runtime inference. Input issuance and symbol-backed
+binding do not activate selected Script C execution.
 
 ### Selected native Array failure policy
 

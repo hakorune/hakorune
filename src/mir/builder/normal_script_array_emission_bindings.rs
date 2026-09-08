@@ -48,6 +48,58 @@ impl FinalizedScriptArrayV1 {
         self.emissions.validate(root, true, &bindings)
     }
 
+    /// Borrow the already-issued source result; no MIR result classification.
+    pub(crate) fn root_result(
+        &self,
+    ) -> Result<&crate::mir::builder::ScriptArrayRootResultV1, String> {
+        self.emissions
+            .terminal
+            .as_ref()
+            .map(|terminal| terminal.recipe.result())
+            .ok_or_else(|| fault("return-unbound"))
+    }
+
+    pub(crate) fn claims(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            ValueId,
+            &str,
+            crate::typed_array_contract_spec::ArrayElementContractSpec,
+        ),
+    > {
+        self.emissions.rows.values().map(|row| {
+            (
+                row.literal.allocation,
+                row.literal.claim.as_str(),
+                row.literal.recipe.spec(),
+            )
+        })
+    }
+
+    /// Definition snapshots are the issued correspondence, not a finished-body search.
+    pub(crate) fn writes(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            crate::mir::ArrayWriteSiteId,
+            ValueId,
+            ValueId,
+            &MirInstruction,
+        ),
+    > {
+        self.emissions.rows.values().flat_map(|row| {
+            row.literal.elements.iter().map(|element| {
+                (
+                    element.write,
+                    row.literal.allocation,
+                    element.value,
+                    &element.definition,
+                )
+            })
+        })
+    }
+
     #[cfg(test)]
     pub(crate) fn acquisition_count(&self) -> usize {
         self.emissions.rows.len()

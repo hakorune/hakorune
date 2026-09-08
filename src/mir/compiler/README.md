@@ -19,10 +19,14 @@ matches each physical Birth call to exactly one retained target/receiver/ordered
 argument row and exhausts the rows. Birth definitions remain deduplicated; call
 rows do not. The final physical input owns this compiled-entry contract and
 referenced layouts. Runtime requirements distinguish typed-object profile from
-native Array dependency; only the callable typed-object projection is currently
-issued. The host binds this product to its selected runtime session before
-serialization; MIR has no host-module dependency. Retained Script projection is
-the remaining final-input task.
+native Array dependency. Script input borrows the finalized source/Recipe/emission
+handoff, validates its finished root correspondence, and projects its result once
+to I64/Unit. Exact claim specs and write representations feed the same compiled
+entry and serializer; native input has no fake Birth or object profile/layout.
+Float payloads use exact u64 bits, Bool stays distinct, and issued Invoke edges,
+Normal results and native cleanup retain their order. The host binds this product
+to its selected runtime session before serialization; MIR has no host-module
+dependency. Script C execution remains stopped pending its physical consumer.
 The retired V2 frame/companion JSON observer is not an
 alternate representation. Storage profile and its finite validation live in
 `published_backend_view/lifecycle.rs`; they issue no source meaning.
@@ -43,8 +47,9 @@ coordinate wrapper are retired; the view keeps only lifecycle presence from
 its existing scan. Presence is an observation, never admission permission. Finalization owns the selected storage profile; the view
 borrows it through callback completion and observes selection without rewriting
 its structural route. Generic module-only lifecycle views remain unsupported.
-Static/free/print/array row vectors remain view-local. Unit remains observable before its
-physical-input Stop; finalization does not force physical-input issuance.
+Static/free/print/array row vectors remain view-local. Callable Unit retains its
+physical-input Stop; Script Unit has its own retained result projection without
+C activation. Finalization does not force physical-input issuance.
 
 `compile_normal_with_published` shares the ordinary build/finish implementation, then verifies the final selected module and prepares external commit before a synchronous view callback. Callback failure aborts; success returns only its output and commits once. EXE and llvm-boundary OBJ consume this terminal before post-compile mutation/execution.
 Only an exact `ExplicitCompatibility` view returns the existing non-admitted `MirCompileResult`, without cloning or recompilation; it never represents a selected failure. EXE also consumes its historical verification diagnostics. Other backend feature selections remain unchanged.

@@ -617,18 +617,18 @@ Closed at `32ed589930`: checked native Array ABI; ABI8/Fault9/kernelArray12/
 rootArray52/hostStop7 green. Runtime reference/collection SSOT own exact errors
 and evidence; C activation remains open.
 
-#### MIR-SCRIPT-ARRAY-FINAL-INPUT-I0
+Task3 `MIR-SCRIPT-ARRAY-FINAL-INPUT-I0` verified: retained Script -> compiled entry -> same physical input/session; I64/Unit, seven specs, primitive bits and cleanup. Source constructors stay private; typed C Stop remains.
+Evidence: Script input3, physical9 (including signed-zero/NaN wire bits), binding6, Birth actual1, artifact2, hostStop7; actual Pair EXE/linked OBJ30 and untyped Array EXE/OBJ pass. Quick build peak8.97GiB; prior four compile errors and Float refusal regression repaired. No whole-lib/C Script execution claim.
 
-Decision: extend the existing compiled-entry/physical product with retained Script projections and one host-bound runtime invocation.
-Source authority + canonical issuer: FinalizedScriptArray source/Recipe/emission; existing compiled-entry issuer consumes borrowed evidence.
-Non-authority: MIR-derived source repair, fake Birth/profile0, sibling JSON or independent input/session arguments.
-Fail-fast boundary: exact-binding drift and runtime requirement/session mismatch reject before serialization/artifacts; typed C Stop remains.
-Smallest next slice: NativeArray requirements, exact I64/Unit and primitive/cleanup projections, one bound invocation using existing serializer.
-Non-claims: C emission, selected OBJ/EXE activation, new source family or Array descriptor.
-The [owner SSOT](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) fixes finite operations, exact defined symbols, caller/delete-set and acceptance.
-Host checkpoint `c14cc1e140`: bound input/session and EXE archive; Binding6/physical8/hostStop7 and actual Pair EXE/linked OBJ30 pass. Script input acceptance remains open.
-Current-change failure (uncommitted Script projection): quick/plugins lib-test build reports E0432 for `script_physical_input_tests::published_request` and three E0061 calls in `compiled_entry_contract_tests.rs` (missing result argument).
-Next: repair test integration and rerun input/binding acceptance; no Script green claim. Owner task4 now includes audited parser/emitter, real OBJ session/capability switch and observable cleanup acceptance; C execution remains unimplemented.
+#### MIR-SCRIPT-ARRAY-C-EXECUTION-I0
+
+Decision: extend the existing physical parser/V4 consumer for retained NativeArray, then switch the actual selected OBJ/EXE callers.
+Source authority + canonical issuer: finalized Script source/Recipe/emission; existing compiled-entry and bound invocation own physical input/session.
+Non-authority: C source inference, fake object profile, generic retry and exit70-only cleanup proof.
+Fail-fast boundary: exact wire/CFG/lane/liveness and runtime mismatch reject before artifacts; unselected families keep their Stops.
+Smallest next slice: owner task4a NativeArray parser/admission, then 4b emitter and 4c real runner/capability switch in the same bounded cutover series.
+Non-claims: task3 input proof is not C execution; no new source forms, Array descriptor or nonselected backend parity.
+The [owner task4](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) contains worker-audited owners, finite mapping, exclusive delete-set and full task4d execution/cleanup acceptance. Observe source760/hard800; split coherent C validation before growth.
 
 ## Source and ownership budget
 

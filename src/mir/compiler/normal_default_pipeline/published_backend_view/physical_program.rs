@@ -1,27 +1,27 @@
 //! Complete physical program projection for the selected lifecycle consumer.
 //!
-//! The activated final view is the only owner permitted to join its retained
-//! root/Birth source handoff with final MIR bodies.  This is a physical borrow:
-//! it records neither source facts nor C lowering choices.
+//! The final view lends its finalized handoff and matching MIR bodies.
+//! This projection validates retained correspondence and borrows the result;
+//! it issues neither source facts nor C execution permission.
 
 use std::collections::BTreeSet;
 
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
-use crate::mir::{
-    BasicBlockId, BinaryOp, Callee, ConstValue, EdgeArgs, MirFunction,
-    MirInstruction, ValueId,
-};
-use crate::mir::instruction::InvokeOperation;
 use crate::mir::definitions::MirCall;
+use crate::mir::instruction::InvokeOperation;
+use crate::mir::{
+    BasicBlockId, BinaryOp, Callee, ConstValue, EdgeArgs, MirFunction, MirInstruction, ValueId,
+};
 
-use super::{PublishedMirBackendView, PublishedStaticMethodRouteV1};
+use super::{CompiledEntryRootResultV1, PublishedMirBackendView, PublishedStaticMethodRouteV1};
+use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 
 /// One exact selected function in the physical lifecycle program.
 #[derive(Debug, Clone)]
 pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
-    RootI64 {
-        result: crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1,
+    Root {
+        result: CompiledEntryRootResultV1,
     },
     BirthUnit {
         abi: crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1,
@@ -31,15 +31,22 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
 impl PublishedLifecyclePhysicalFunctionRoleV1 {
     pub(crate) const fn wire_name(&self) -> &'static str {
         match self {
-            Self::RootI64 { .. } => "root_i64",
+            Self::Root {
+                result: CompiledEntryRootResultV1::I64,
+            } => "root_i64",
+            Self::Root {
+                result: CompiledEntryRootResultV1::Unit,
+            } => "root_unit",
             Self::BirthUnit { .. } => "birth_unit",
         }
     }
 
-    pub(crate) fn birth_target(&self) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
+    pub(crate) fn birth_target(
+        &self,
+    ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
         match self {
             Self::BirthUnit { abi } => Some(abi.target()),
-            Self::RootI64 { .. } => None,
+            Self::Root { .. } => None,
         }
     }
 }
@@ -138,9 +145,17 @@ impl<'module> PublishedLifecyclePhysicalFunctionV1<'module> {
 #[derive(Debug, Clone)]
 pub(crate) struct PublishedLifecyclePhysicalProgramV1<'module> {
     functions: Box<[PublishedLifecyclePhysicalFunctionV1<'module>]>,
+    handoff: &'module FinalizedRootHandoffV1,
 }
 
 impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
+    pub(crate) fn handoff(&self) -> &'module FinalizedRootHandoffV1 {
+        self.handoff
+    }
+    pub(crate) fn is_native_array(&self) -> bool {
+        self.handoff.script_array().is_some()
+    }
+
     pub(crate) fn functions(&self) -> &[PublishedLifecyclePhysicalFunctionV1<'module>] {
         &self.functions
     }
@@ -155,24 +170,44 @@ impl<'module> PublishedMirBackendView<'module> {
     pub(crate) fn issue_lifecycle_physical_program(
         &self,
     ) -> Result<PublishedLifecyclePhysicalProgramV1<'module>, String> {
-        if self.route() != PublishedStaticMethodRouteV1::CanonicalTyped {
-            return Err(fault("not-final-lifecycle-view"));
-        }
+        let handoff = self
+            .retained_handoff
+            .ok_or_else(|| fault("root-handoff-missing"))?;
         let root = self.retained_root().ok_or_else(|| fault("root-missing"))?;
-        let root_result = self
-            .retained_root_result()
-            .ok_or_else(|| fault("root-result-missing"))?;
-        let births = self
-            .retained_birth_abi()
-            .ok_or_else(|| fault("birth-handoff-missing"))?;
+        let (root_result, births) = if let Some(script) = handoff.script_array() {
+            script.validate_root_binding(root)?;
+            let result = match script.root_result()? {
+                crate::mir::builder::ScriptArrayRootResultV1::Integer { .. } => {
+                    CompiledEntryRootResultV1::I64
+                }
+                crate::mir::builder::ScriptArrayRootResultV1::Unit => {
+                    CompiledEntryRootResultV1::Unit
+                }
+            };
+            (result, &[][..])
+        } else {
+            if self.route() != PublishedStaticMethodRouteV1::CanonicalTyped {
+                return Err(fault("not-final-lifecycle-view"));
+            }
+            let result = handoff
+                .root_result()
+                .ok_or_else(|| fault("root-result-missing"))?;
+            (
+                super::compiled_entry_contract::root_result_category(result),
+                handoff
+                    .births()
+                    .ok_or_else(|| fault("birth-handoff-missing"))?,
+            )
+        };
         let mut names = BTreeSet::new();
         let mut functions = Vec::with_capacity(births.len() + 1);
         names.insert(root.signature.name.as_str());
         functions.push(issue_function(
             root,
-            PublishedLifecyclePhysicalFunctionRoleV1::RootI64 {
+            PublishedLifecyclePhysicalFunctionRoleV1::Root {
                 result: root_result,
             },
+            handoff.script_array().is_some(),
         )?);
         for birth in births {
             let key = birth.target();
@@ -197,10 +232,12 @@ impl<'module> PublishedMirBackendView<'module> {
             functions.push(issue_function(
                 function,
                 PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi: birth.clone() },
+                false,
             )?);
         }
         Ok(PublishedLifecyclePhysicalProgramV1 {
             functions: functions.into_boxed_slice(),
+            handoff,
         })
     }
 }
@@ -208,6 +245,7 @@ impl<'module> PublishedMirBackendView<'module> {
 fn issue_function<'module>(
     function: &'module MirFunction,
     role: PublishedLifecyclePhysicalFunctionRoleV1,
+    script: bool,
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
     let mut ids: Vec<_> = function.blocks.keys().copied().collect();
     ids.sort();
@@ -226,13 +264,13 @@ fn issue_function<'module>(
             .ok_or_else(|| fault("block-terminator-missing"))?;
         let mut instructions = Vec::with_capacity(block.instructions.len());
         for (index, instruction) in block.instructions.iter().enumerate() {
-            validate_instruction(instruction)?;
+            validate_instruction(instruction, script)?;
             instructions.push(PublishedLifecyclePhysicalInstructionRefV1 {
                 index: as_u32(index, "instruction-index")?,
                 instruction,
             });
         }
-        validate_instruction(terminator)?;
+        validate_instruction(terminator, script)?;
         let terminator_index = as_u32(block.instructions.len(), "terminator-index")?;
         let edges = block
             .out_edges()
@@ -261,11 +299,41 @@ fn issue_function<'module>(
     })
 }
 
-fn validate_instruction(instruction: &MirInstruction) -> Result<(), String> {
+fn validate_instruction(instruction: &MirInstruction, script: bool) -> Result<(), String> {
+    if script {
+        return if matches!(
+            instruction,
+            MirInstruction::Const {
+                value: ConstValue::Integer(_)
+                    | ConstValue::Bool(_)
+                    | ConstValue::Float(_)
+                    | ConstValue::Void,
+                ..
+            } | MirInstruction::Copy { .. }
+                | MirInstruction::FaultFrameEnter { .. }
+                | MirInstruction::Invoke {
+                    operation: InvokeOperation::IntrinsicArrayNew
+                        | InvokeOperation::ArrayStateContractClaim { .. }
+                        | InvokeOperation::ArrayElementWrite { .. },
+                    ..
+                }
+                | MirInstruction::InvokeNormalResult { .. }
+                | MirInstruction::ArrayResidenceRelease { .. }
+                | MirInstruction::ReturnFault { .. }
+                | MirInstruction::Return { .. }
+        ) {
+            Ok(())
+        } else {
+            Err(fault("script-instruction-unsupported"))
+        };
+    }
     let supported = matches!(
         instruction,
         MirInstruction::Const {
-            value: ConstValue::Integer(_) | ConstValue::Bool(_) | ConstValue::String(_) | ConstValue::Void,
+            value: ConstValue::Integer(_)
+                | ConstValue::Bool(_)
+                | ConstValue::String(_)
+                | ConstValue::Void,
             ..
         } | MirInstruction::BinOp {
             op: BinaryOp::Add,
@@ -274,8 +342,7 @@ fn validate_instruction(instruction: &MirInstruction) -> Result<(), String> {
             | MirInstruction::Phi { .. }
             | MirInstruction::ObjectFieldGet { .. }
             | MirInstruction::Invoke {
-                operation:
-                    InvokeOperation::NewBox { .. }
+                operation: InvokeOperation::NewBox { .. }
                     | InvokeOperation::FieldSet { .. }
                     | InvokeOperation::HomeRelease { .. }
                     | InvokeOperation::ReclaimUnpublished { .. }
@@ -314,9 +381,7 @@ fn fault(reason: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::compiler::normal_default_pipeline::{
-        MirCompiler, NormalCompileRequestV1,
-    };
+    use crate::mir::compiler::normal_default_pipeline::{MirCompiler, NormalCompileRequestV1};
     use crate::parser::NyashParser;
     use std::collections::HashMap;
 
@@ -341,7 +406,9 @@ mod tests {
         crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
             let mut compiler = MirCompiler::with_options(false);
             let result = compiler.compile_normal_with_published(
-                request(include_str!("../../../../../apps/typed-object-birth-min/main.hako")),
+                request(include_str!(
+                    "../../../../../apps/typed-object-birth-min/main.hako"
+                )),
                 |view, _| -> Result<(), String> {
                     let program = view.issue_lifecycle_physical_program()?;
                     let contract = view.issue_lifecycle_compiled_entry_contract()?;
@@ -350,7 +417,9 @@ mod tests {
                     };
                     assert!(matches!(
                         root.role(),
-                        PublishedLifecyclePhysicalFunctionRoleV1::RootI64 { .. }
+                        PublishedLifecyclePhysicalFunctionRoleV1::Root {
+                            result: CompiledEntryRootResultV1::I64
+                        }
                     ));
                     let [entry_birth] = contract.births() else {
                         panic!("Pair must retain one compiled Birth contract");
@@ -371,20 +440,37 @@ mod tests {
                         PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi }
                             if abi.abi().source_arity() == 2 && birth.params().len() == 3
                     ));
-                    assert!(root.blocks().windows(2).all(|blocks| blocks[0].id() < blocks[1].id()));
+                    assert!(root
+                        .blocks()
+                        .windows(2)
+                        .all(|blocks| blocks[0].id() < blocks[1].id()));
                     let all = root.blocks().iter().flat_map(|block| {
-                        block.instructions().iter().copied().chain(std::iter::once(block.terminator()))
+                        block
+                            .instructions()
+                            .iter()
+                            .copied()
+                            .chain(std::iter::once(block.terminator()))
                     });
                     assert!(all.clone().any(|row| matches!(
                         row.instruction(),
-                        MirInstruction::Const { value: ConstValue::Integer(10 | 20), .. }
+                        MirInstruction::Const {
+                            value: ConstValue::Integer(10 | 20),
+                            ..
+                        }
                     )));
                     assert!(all.clone().any(|row| matches!(
                         row.instruction(),
-                        MirInstruction::BinOp { op: BinaryOp::Add, .. }
+                        MirInstruction::BinOp {
+                            op: BinaryOp::Add,
+                            ..
+                        }
                     )));
                     assert_eq!(
-                        all.filter(|row| matches!(row.instruction(), MirInstruction::ObjectFieldGet { .. })).count(),
+                        all.filter(|row| matches!(
+                            row.instruction(),
+                            MirInstruction::ObjectFieldGet { .. }
+                        ))
+                        .count(),
                         2,
                     );
                     Err("[freeze:contract][published-lifecycle/consumer-pending]".into())

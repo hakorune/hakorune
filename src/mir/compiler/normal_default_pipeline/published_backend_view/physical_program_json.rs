@@ -7,14 +7,12 @@ use std::collections::BTreeMap;
 
 use serde_json::{json, Value};
 
-use crate::mir::{BinaryOp, Callee, ConstValue, EdgeArgs, MirInstruction, ValueId};
 use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::instruction::{FaultFrameMode, InvokeOperation};
+use crate::mir::{BinaryOp, Callee, ConstValue, EdgeArgs, MirInstruction, ValueId};
 
-use super::physical_program::{
-    PublishedLifecyclePhysicalProgramV1,
-};
 use super::physical_abi::PublishedLifecyclePhysicalAbiInputV1;
+use super::physical_program::PublishedLifecyclePhysicalProgramV1;
 
 const SCHEMA: &str = "hako.published-lifecycle-physical-program.v2";
 
@@ -87,19 +85,45 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
 ) -> Result<String, String> {
     let mut root = emit_lifecycle_physical_program_value(input.program(), Some(input))?;
     let object = root.as_object_mut().ok_or_else(|| fault("program-root"))?;
-    object.insert("process_result_site".into(), json!(input.process_result_site()));
+    object.insert(
+        "process_result_site".into(),
+        json!(input.process_result_site()),
+    );
     object.insert("fault_abi_version".into(), json!(input.fault_abi_version()));
-    object.insert("storage_profile".into(), json!(input.storage_profile().ok_or_else(|| fault("native-array-projection-pending"))?));
-    object.insert("layouts".into(), Value::Array(input.layouts().iter().map(|layout| json!({
-        "object_id": layout.object_id(),
-        "runtime_type_id": layout.runtime_type_id(),
-        "field_count": layout.field_count(),
-        "fields": layout.fields().iter().map(|field| json!({
-            "declaration_ordinal": field.declaration_ordinal(),
-            "runtime_slot": field.runtime_slot(),
-            "storage_kind": field.storage_kind(),
-        })).collect::<Vec<_>>(),
-    })).collect()));
+    if input.program().is_native_array() {
+        object.insert(
+            "runtime_requirements".into(),
+            json!({"kind": "native_array", "abi_version": 1}),
+        );
+    } else {
+        object.insert(
+            "storage_profile".into(),
+            json!(input
+                .storage_profile()
+                .ok_or_else(|| fault("storage-profile-missing"))?),
+        );
+        object.insert(
+            "layouts".into(),
+            Value::Array(
+                input
+                    .layouts()
+                    .iter()
+                    .map(|layout| {
+                        json!({
+                            "object_id": layout.object_id(),
+                            "runtime_type_id": layout.runtime_type_id(),
+                            "field_count": layout.field_count(),
+                            "fields": layout.fields().iter().map(|field| json!({
+                                "declaration_ordinal": field.declaration_ordinal(),
+                                "runtime_slot": field.runtime_slot(),
+                                "storage_kind": field.storage_kind(),
+                            })).collect::<Vec<_>>(),
+                        })
+                    })
+                    .collect(),
+            ),
+        );
+    }
     serde_json::to_string(&root).map_err(|error| fault(&format!("serialize:{error}")))
 }
 
@@ -108,7 +132,9 @@ fn birth_ordinals(
 ) -> Result<BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>, String> {
     let mut result = BTreeMap::new();
     for (ordinal, function) in program.functions().iter().enumerate() {
-        let Some(key) = function.role().birth_target() else { continue };
+        let Some(key) = function.role().birth_target() else {
+            continue;
+        };
         let ordinal = u32::try_from(ordinal).map_err(|_| fault("function-ordinal"))?;
         if result.insert(key.clone(), ordinal).is_some() {
             return Err(fault("duplicate-birth-target"));
@@ -138,18 +164,37 @@ fn encode_instruction(
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
     Ok(match instruction {
-        MirInstruction::Const { dst, value: ConstValue::Bool(boolean) } =>
-            json!({ "op": "const_bool", "dst": value(dst), "value": boolean }),
-        MirInstruction::Const { dst, value: ConstValue::Integer(integer) } =>
-            json!({ "op": "const_i64", "dst": value(dst), "value": integer }),
-        MirInstruction::Const { dst, value: ConstValue::String(text) } =>
-            json!({ "op": "const_string", "dst": value(dst), "value": text }),
-        MirInstruction::Const { dst, value: ConstValue::Void } =>
-            json!({ "op": "const_unit", "dst": value(dst) }),
-        MirInstruction::BinOp { dst, op: BinaryOp::Add, lhs, rhs } =>
-            json!({ "op": "add", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
-        MirInstruction::Copy { dst, src } =>
-            json!({ "op": "copy", "dst": value(dst), "src": value(src) }),
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::Bool(boolean),
+        } => json!({ "op": "const_bool", "dst": value(dst), "value": boolean }),
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::Float(float),
+        } if abi_input.is_some_and(|input| input.program().is_native_array()) => {
+            json!({ "op": "const_f64_bits", "dst": value(dst), "bits": float.to_bits() })
+        }
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::Integer(integer),
+        } => json!({ "op": "const_i64", "dst": value(dst), "value": integer }),
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::String(text),
+        } => json!({ "op": "const_string", "dst": value(dst), "value": text }),
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::Void,
+        } => json!({ "op": "const_unit", "dst": value(dst) }),
+        MirInstruction::BinOp {
+            dst,
+            op: BinaryOp::Add,
+            lhs,
+            rhs,
+        } => json!({ "op": "add", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
+        MirInstruction::Copy { dst, src } => {
+            json!({ "op": "copy", "dst": value(dst), "src": value(src) })
+        }
         MirInstruction::Phi { dst, inputs, .. } => json!({
             "op": "phi", "dst": value(dst),
             "inputs": inputs.iter().map(|(block, value)| json!({ "block": block.0, "value": value.0 })).collect::<Vec<_>>(),
@@ -158,21 +203,38 @@ fn encode_instruction(
             "op": "object_field_get", "dst": value(dst), "base": value(base),
             "object_id": field.object().declaration_index(), "field_ordinal": field.declaration_ordinal(),
         }),
-        MirInstruction::Invoke { operation, fault_frame, normal_landing, fault_landing } => json!({
+        MirInstruction::Invoke {
+            operation,
+            fault_frame,
+            normal_landing,
+            fault_landing,
+        } => json!({
             "op": "invoke", "operation": encode_invoke(
                 operation, births, diagnostic_site, abi_input,
             )?,
             "fault_frame": value(fault_frame), "normal": normal_landing.0, "fault": fault_landing.0,
         }),
-        MirInstruction::InvokeNormalResult { invoke_block, dst } =>
-            json!({ "op": "invoke_normal_result", "invoke_block": invoke_block.0, "dst": value(dst) }),
-        MirInstruction::ReturnFault { fault_frame } =>
-            json!({ "op": "return_fault", "fault_frame": value(fault_frame) }),
+        MirInstruction::InvokeNormalResult { invoke_block, dst } => {
+            json!({ "op": "invoke_normal_result", "invoke_block": invoke_block.0, "dst": value(dst) })
+        }
+        MirInstruction::ArrayResidenceRelease { value: released } => {
+            require_native_input(abi_input)?;
+            json!({ "op": "array_residence_release", "value": value(released) })
+        }
+        MirInstruction::ReturnFault { fault_frame } => {
+            json!({ "op": "return_fault", "fault_frame": value(fault_frame) })
+        }
         MirInstruction::FaultFrameEnter { dst, mode } => json!({
             "op": "fault_frame_enter", "dst": value(dst),
             "mode": match mode { FaultFrameMode::RootOwned => "root_owned", FaultFrameMode::Borrowed => "borrowed" },
         }),
-        MirInstruction::Branch { condition, then_bb, else_bb, then_edge_args, else_edge_args } => json!({
+        MirInstruction::Branch {
+            condition,
+            then_bb,
+            else_bb,
+            then_edge_args,
+            else_edge_args,
+        } => json!({
             "op": "branch", "condition": value(condition), "then": then_bb.0, "else": else_bb.0,
             "then_args": then_edge_args.as_ref().map(encode_edge_args),
             "else_args": else_edge_args.as_ref().map(encode_edge_args),
@@ -180,10 +242,12 @@ fn encode_instruction(
         MirInstruction::Jump { target, edge_args } => json!({
             "op": "jump", "target": target.0, "args": edge_args.as_ref().map(encode_edge_args),
         }),
-        MirInstruction::Return { value: result } =>
-            json!({ "op": "return", "value": result.map(|value| value.0) }),
-        MirInstruction::Call(call) =>
-            json!({ "op": "birth_call", "call": encode_birth_call(call, births, abi_input)? }),
+        MirInstruction::Return { value: result } => {
+            json!({ "op": "return", "value": result.map(|value| value.0) })
+        }
+        MirInstruction::Call(call) => {
+            json!({ "op": "birth_call", "call": encode_birth_call(call, births, abi_input)? })
+        }
         _ => return Err(fault("instruction-unsupported")),
     })
 }
@@ -195,8 +259,12 @@ fn diagnostic_site(
     instruction: u32,
     mir_instruction: &MirInstruction,
 ) -> Result<Option<u64>, String> {
-    let Some(input) = abi_input else { return Ok(None) };
-    let expected = super::physical_abi::PublishedLifecycleCheckedOperationKindV1::from_instruction(mir_instruction);
+    let Some(input) = abi_input else {
+        return Ok(None);
+    };
+    let expected = super::physical_abi::PublishedLifecycleCheckedOperationKindV1::from_instruction(
+        mir_instruction,
+    );
     let issued = input.diagnostic_site_at(function, block, instruction);
     match (expected, issued) {
         (Some(expected), Some(issued)) if issued.kind() == expected => Ok(Some(issued.site())),
@@ -212,37 +280,126 @@ fn encode_invoke(
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
     Ok(match operation {
-        InvokeOperation::IntrinsicArrayNew
-        | InvokeOperation::ArrayStateContractClaim { .. }
-        | InvokeOperation::ArrayElementWrite { .. } => return Err(fault("array-lifecycle-unsupported")),
+        InvokeOperation::IntrinsicArrayNew => {
+            require_native_input(abi_input)?;
+            with_site(
+                json!({"kind": "array_new"}),
+                required_site(diagnostic_site, true)?,
+            )?
+        }
+        InvokeOperation::ArrayStateContractClaim { contract_id, array } => {
+            let input = require_native_input(abi_input)?;
+            let mut rows = input
+                .entry()
+                .array_claims()
+                .iter()
+                .filter(|row| row.array == *array && row.contract_id == contract_id);
+            let issued = rows.next().ok_or_else(|| fault("array-claim-unissued"))?;
+            if rows.next().is_some() {
+                return Err(fault("array-claim-duplicate"));
+            }
+            with_site(
+                json!({"kind": "array_claim", "array": value(array),
+                "element_tag": super::physical_abi::array_element_tag(issued.spec)}),
+                required_site(diagnostic_site, true)?,
+            )?
+        }
+        InvokeOperation::ArrayElementWrite {
+            site_id,
+            kind,
+            producer,
+            receiver,
+            index,
+            value: operand,
+        } => {
+            let input = require_native_input(abi_input)?;
+            if *kind != crate::mir::ArrayElementWriteKind::LiteralAppend
+                || *producer != crate::mir::ArrayWriteProducerKind::Literal
+                || index.is_some()
+            {
+                return Err(fault("array-write-shape"));
+            }
+            let mut rows = input.entry().array_writes().iter().filter(|row| {
+                row.site == *site_id && row.array == *receiver && row.value == *operand
+            });
+            let issued = rows.next().ok_or_else(|| fault("array-write-unissued"))?;
+            if rows.next().is_some() {
+                return Err(fault("array-write-duplicate"));
+            }
+            use super::compiled_entry_contract::CompiledEntryArrayValueKindV1 as Kind;
+            let representation = match issued.kind {
+                Kind::I64 => "i64",
+                Kind::Bool => "bool",
+                Kind::F64 => "f64",
+            };
+            with_site(
+                json!({"kind": "array_append", "array": value(receiver),
+                "value": value(operand), "representation": representation}),
+                required_site(diagnostic_site, true)?,
+            )?
+        }
         InvokeOperation::Call(call) => {
-            if diagnostic_site.is_some() { return Err(fault("site-on-birth-call")); }
+            if diagnostic_site.is_some() {
+                return Err(fault("site-on-birth-call"));
+            }
             json!({ "kind": "birth_call", "call": encode_birth_call(call, births, abi_input)? })
         }
-        InvokeOperation::NewBox { object } => with_site(json!({
-            "kind": "new_box", "object_id": object.declaration_index(),
-        }), required_site(diagnostic_site, abi_input.is_some())?)?,
-        InvokeOperation::FieldSet { field, base, value: stored } => with_site(json!({
-            "kind": "field_set", "object_id": field.object().declaration_index(),
-            "field_ordinal": field.declaration_ordinal(), "base": value(base), "value": value(stored),
-        }), required_site(diagnostic_site, abi_input.is_some())?)?,
-        InvokeOperation::HomeRelease { object, value: released } =>
-            with_site(json!({ "kind": "home_release", "object_id": object.declaration_index(), "value": value(released),
-            }), required_site(diagnostic_site, abi_input.is_some())?)?,
-        InvokeOperation::ReclaimUnpublished { object, value: reclaimed } =>
-            with_site(json!({ "kind": "reclaim_unpublished", "object_id": object.declaration_index(), "value": value(reclaimed),
-            }), required_site(diagnostic_site, abi_input.is_some())?)?,
+        InvokeOperation::NewBox { object } => with_site(
+            json!({
+                "kind": "new_box", "object_id": object.declaration_index(),
+            }),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
+        InvokeOperation::FieldSet {
+            field,
+            base,
+            value: stored,
+        } => with_site(
+            json!({
+                "kind": "field_set", "object_id": field.object().declaration_index(),
+                "field_ordinal": field.declaration_ordinal(), "base": value(base), "value": value(stored),
+            }),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
+        InvokeOperation::HomeRelease {
+            object,
+            value: released,
+        } => with_site(
+            json!({ "kind": "home_release", "object_id": object.declaration_index(), "value": value(released),
+            }),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
+        InvokeOperation::ReclaimUnpublished {
+            object,
+            value: reclaimed,
+        } => with_site(
+            json!({ "kind": "reclaim_unpublished", "object_id": object.declaration_index(), "value": value(reclaimed),
+            }),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
     })
 }
 
+fn require_native_input<'input, 'module>(
+    input: Option<&'input PublishedLifecyclePhysicalAbiInputV1<'module>>,
+) -> Result<&'input PublishedLifecyclePhysicalAbiInputV1<'module>, String> {
+    input
+        .filter(|input| input.program().is_native_array())
+        .ok_or_else(|| fault("native-array-input-missing"))
+}
+
 fn required_site(site: Option<u64>, required: bool) -> Result<Option<u64>, String> {
-    if required && site.is_none() { return Err(fault("site-missing")); }
+    if required && site.is_none() {
+        return Err(fault("site-missing"));
+    }
     Ok(site)
 }
 
 fn with_site(mut operation: Value, site: Option<u64>) -> Result<Value, String> {
     if let Some(site) = site {
-        operation.as_object_mut().ok_or_else(|| fault("operation-object"))?
+        operation
+            .as_object_mut()
+            .ok_or_else(|| fault("operation-object"))?
             .insert("site".into(), json!(site));
     }
     Ok(operation)
@@ -256,22 +413,39 @@ fn encode_birth_call(
     let Callee::BirthConstructor { key, receiver } = &call.callee else {
         return Err(fault("call-not-birth"));
     };
-    let target = births.get(key).ok_or_else(|| fault("birth-target-foreign"))?;
+    let target = births
+        .get(key)
+        .ok_or_else(|| fault("birth-target-foreign"))?;
     let input = abi_input.ok_or_else(|| fault("birth-input-missing"))?;
-    let mut matches = input.entry().birth_calls().iter().filter(|issued|
-        issued.function_index() == *target && issued.receiver() == *receiver
-            && issued.arguments().eq(call.args.iter().copied()));
-    let issued = matches.next().ok_or_else(|| fault("birth-actual-missing"))?;
-    if matches.next().is_some() { return Err(fault("birth-actual-duplicate")); }
-    let args = issued.actual().arguments().iter().map(|argument| {
-        Ok(json!({ "kind": super::physical_abi::scalar_actual_kind(argument.source().kind())?,
-            "value": argument.value().0 }))
-    }).collect::<Result<Vec<Value>, String>>()?;
+    let mut matches = input.entry().birth_calls().iter().filter(|issued| {
+        issued.function_index() == *target
+            && issued.receiver() == *receiver
+            && issued.arguments().eq(call.args.iter().copied())
+    });
+    let issued = matches
+        .next()
+        .ok_or_else(|| fault("birth-actual-missing"))?;
+    if matches.next().is_some() {
+        return Err(fault("birth-actual-duplicate"));
+    }
+    let args = issued
+        .actual()
+        .arguments()
+        .iter()
+        .map(|argument| {
+            Ok(
+                json!({ "kind": super::physical_abi::scalar_actual_kind(argument.source().kind())?,
+            "value": argument.value().0 }),
+            )
+        })
+        .collect::<Result<Vec<Value>, String>>()?;
     Ok(json!({ "target": target, "receiver": value(receiver),
         "args": args, "dst": call.dst.map(|value| value.0) }))
 }
 
-fn value(value: &ValueId) -> u32 { value.0 }
+fn value(value: &ValueId) -> u32 {
+    value.0
+}
 
 fn fault(reason: &str) -> String {
     format!("[freeze:contract][published-lifecycle-physical-json/{reason}]")

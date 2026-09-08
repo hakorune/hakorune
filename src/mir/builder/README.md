@@ -912,8 +912,12 @@ Both finishing consumers accept DCE index shifts without skipping validation;
 Home Copies remain live through cleanup. Artifact coverage includes only the
 source-selected Script root after this dedicated validation succeeds.
 The published view remains UnsupportedBeforeObject and the host typed Array
-Stop precedes object profile/session/artifacts. Checked runtime ABI and C
-execution are separate successors in the collection construction SSOT.
+Stop precedes object profile/session/artifacts. Checked native runtime ABI is
+implemented. FinalizedScriptArray lends its existing result Recipe, claim specs
+and exact write/definition snapshots to the common physical-input owner after
+root correspondence validation. This borrow issues no new source meaning and
+opens no C route; selected C execution remains the successor in the collection
+construction SSOT.
 Transparent, transferred, and diagnostic root entries are explicit boundaries
 and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
 transports this continuation together with the existing lowering projection and

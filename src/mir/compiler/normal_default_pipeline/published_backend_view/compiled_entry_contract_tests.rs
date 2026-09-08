@@ -39,12 +39,13 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
                 assert_eq!(formal.source_ordinal(), Some(source.ordinal()));
                 assert_eq!(formal.disposition(), Some(source.disposition()));
             }
+            let result = view.retained_root_result().unwrap();
             let mut reordered = actuals.to_vec();
             reordered.reverse();
-            assert_eq!(issue_birth_calls(root, births, &reordered)?, contract.birth_calls());
-            assert!(issue_birth_calls(root, births, &actuals[..1]).unwrap_err().contains("actual-mismatch"));
+            assert_eq!(issue_birth_calls(root, births, &reordered, result)?, contract.birth_calls());
+            assert!(issue_birth_calls(root, births, &actuals[..1], result).unwrap_err().contains("actual-mismatch"));
             let duplicated = vec![actuals[0].clone(), actuals[0].clone()];
-            assert!(issue_birth_calls(root, births, &duplicated).unwrap_err().contains("actual-membership"));
+            assert!(issue_birth_calls(root, births, &duplicated, result).unwrap_err().contains("actual-membership"));
             assert!(view.issue_lifecycle_physical_abi_input().unwrap_err().contains("actual-kind-unavailable"));
             Ok::<(), String>(())
         }).unwrap();

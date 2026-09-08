@@ -56,7 +56,9 @@ impl CompiledEntryFormalV1 {
         self.contract.as_ref()
     }
     pub(crate) fn disposition(&self) -> Option<BirthFormalPhysicalDispositionV1> {
-        self.contract.as_ref().map(BirthFormalContractV1::disposition)
+        self.contract
+            .as_ref()
+            .map(BirthFormalContractV1::disposition)
     }
 }
 
@@ -76,10 +78,17 @@ impl CompiledEntryBirthCallV1 {
     pub(crate) const fn function_index(&self) -> u32 {
         self.function_index
     }
-    pub(crate) fn receiver(&self) -> ValueId { self.actual.receiver() }
-    pub(crate) fn actual(&self) -> &FinalizedBirthActualsV1 { &self.actual }
+    pub(crate) fn receiver(&self) -> ValueId {
+        self.actual.receiver()
+    }
+    pub(crate) fn actual(&self) -> &FinalizedBirthActualsV1 {
+        &self.actual
+    }
     pub(crate) fn arguments(&self) -> impl ExactSizeIterator<Item = ValueId> + '_ {
-        self.actual.arguments().iter().map(|argument| argument.value())
+        self.actual
+            .arguments()
+            .iter()
+            .map(|argument| argument.value())
     }
 }
 
@@ -89,6 +98,7 @@ pub(crate) enum CompiledEntryCleanupKindV1 {
     ReclaimUnpublished,
     FaultFrameEnter,
     ReturnFault,
+    ArrayResidenceRelease,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -124,15 +134,46 @@ impl CompiledEntryBirthV1 {
 }
 
 #[derive(Debug, Clone)]
+pub(crate) struct CompiledEntryArrayClaimV1<'module> {
+    pub(crate) array: ValueId,
+    pub(crate) contract_id: &'module str,
+    pub(crate) spec: crate::typed_array_contract_spec::ArrayElementContractSpec,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CompiledEntryArrayValueKindV1 {
+    I64,
+    Bool,
+    F64,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct CompiledEntryArrayWriteV1 {
+    pub(crate) site: crate::mir::ArrayWriteSiteId,
+    pub(crate) array: ValueId,
+    pub(crate) value: ValueId,
+    pub(crate) kind: CompiledEntryArrayValueKindV1,
+}
+
+#[derive(Debug, Clone)]
 pub(crate) struct CompiledEntryContractV1<'module> {
     program: PublishedLifecyclePhysicalProgramV1<'module>,
     root_result: CompiledEntryRootResultV1,
     births: Box<[CompiledEntryBirthV1]>,
     birth_calls: Box<[CompiledEntryBirthCallV1]>,
     cleanup: Box<[CompiledEntryCleanupCoordinateV1]>,
+    array_claims: Box<[CompiledEntryArrayClaimV1<'module>]>,
+    array_writes: Box<[CompiledEntryArrayWriteV1]>,
 }
 
 impl<'module> CompiledEntryContractV1<'module> {
+    pub(crate) fn array_claims(&self) -> &[CompiledEntryArrayClaimV1<'module>] {
+        &self.array_claims
+    }
+    pub(crate) fn array_writes(&self) -> &[CompiledEntryArrayWriteV1] {
+        &self.array_writes
+    }
+
     pub(crate) fn program(&self) -> &PublishedLifecyclePhysicalProgramV1<'module> {
         &self.program
     }
@@ -159,7 +200,7 @@ impl<'module> PublishedMirBackendView<'module> {
             let [root, births @ ..] = program.functions() else {
                 return Err(fault("compiled-entry-root-missing"));
             };
-            let PublishedLifecyclePhysicalFunctionRoleV1::RootI64 { result } = root.role() else {
+            let PublishedLifecyclePhysicalFunctionRoleV1::Root { result } = root.role() else {
                 return Err(fault("compiled-entry-root-role"));
             };
             let mut contract_births = Vec::with_capacity(births.len());
@@ -214,23 +255,66 @@ impl<'module> PublishedMirBackendView<'module> {
                     formals: formals.into_boxed_slice(),
                 });
             }
-            let source = self.retained_root_source()
-                .ok_or_else(|| fault("compiled-entry-actual-source-missing"))?;
-            let birth_calls = issue_birth_calls(root, births, source.birth_actuals())?;
+            let birth_calls = if program.is_native_array() {
+                Vec::new()
+            } else {
+                let source = program
+                    .handoff()
+                    .root_source()
+                    .ok_or_else(|| fault("compiled-entry-actual-source-missing"))?;
+                let result = program
+                    .handoff()
+                    .root_result()
+                    .ok_or_else(|| fault("compiled-entry-actual-root"))?;
+                issue_birth_calls(root, births, source.birth_actuals(), result)?
+            };
             let cleanup = issue_cleanup_coordinates(program.functions())?;
-            (
-                root_result_category(*result),
-                contract_births,
-                birth_calls,
-                cleanup,
-            )
+            (*result, contract_births, birth_calls, cleanup)
         };
+        let mut array_claims = Vec::new();
+        let mut array_writes = Vec::new();
+        if let Some(script) = program.handoff().script_array() {
+            for (array, contract_id, spec) in script.claims() {
+                array_claims.push(CompiledEntryArrayClaimV1 {
+                    array,
+                    contract_id,
+                    spec,
+                });
+            }
+            for (site, array, value, definition) in script.writes() {
+                use crate::mir::ConstValue;
+                let MirInstruction::Const {
+                    dst,
+                    value: constant,
+                } = definition
+                else {
+                    return Err(fault("compiled-entry-array-definition"));
+                };
+                if *dst != value {
+                    return Err(fault("compiled-entry-array-value"));
+                }
+                let kind = match constant {
+                    ConstValue::Integer(_) => CompiledEntryArrayValueKindV1::I64,
+                    ConstValue::Bool(_) => CompiledEntryArrayValueKindV1::Bool,
+                    ConstValue::Float(_) => CompiledEntryArrayValueKindV1::F64,
+                    _ => return Err(fault("compiled-entry-array-representation")),
+                };
+                array_writes.push(CompiledEntryArrayWriteV1 {
+                    site,
+                    array,
+                    value,
+                    kind,
+                });
+            }
+        }
         Ok(CompiledEntryContractV1 {
             program,
             root_result,
             births: contract_births.into_boxed_slice(),
             birth_calls: birth_calls.into_boxed_slice(),
             cleanup: cleanup.into_boxed_slice(),
+            array_claims: array_claims.into_boxed_slice(),
+            array_writes: array_writes.into_boxed_slice(),
         })
     }
 }
@@ -239,23 +323,28 @@ fn issue_birth_calls(
     root: &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
     births: &[super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>],
     actuals: &[FinalizedBirthActualsV1],
+    result: FinalizedRootResultAbiV1,
 ) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
-    let PublishedLifecyclePhysicalFunctionRoleV1::RootI64 { result } = root.role()
-        else { return Err(fault("compiled-entry-actual-root")) };
     let owner = match result {
         FinalizedRootResultAbiV1::I64AddReturn { owner }
         | FinalizedRootResultAbiV1::UnitReturn { owner }
         | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
-        | FinalizedRootResultAbiV1::I64FieldReturn { owner } => *owner,
+        | FinalizedRootResultAbiV1::I64FieldReturn { owner } => owner,
     };
     for (i, actual) in actuals.iter().enumerate() {
-        if actuals[..i].iter().any(|previous|
-            previous.site() == actual.site() || previous.destination() == actual.destination())
-            || actual.site().owner() != owner || actual.destination().owner() != owner
-            || actual.arguments().iter().enumerate().any(|(ordinal, argument)|
-                argument.source().ordinal() as usize != ordinal
-                    || argument.source().owner() != actual.destination().owner()
-                    || argument.source().new_site() != actual.site())
+        if actuals[..i].iter().any(|previous| {
+            previous.site() == actual.site() || previous.destination() == actual.destination()
+        }) || actual.site().owner() != owner
+            || actual.destination().owner() != owner
+            || actual
+                .arguments()
+                .iter()
+                .enumerate()
+                .any(|(ordinal, argument)| {
+                    argument.source().ordinal() as usize != ordinal
+                        || argument.source().owner() != actual.destination().owner()
+                        || argument.source().new_site() != actual.site()
+                })
         {
             return Err(fault("compiled-entry-actual-membership"));
         }
@@ -264,19 +353,43 @@ fn issue_birth_calls(
     let mut referenced = vec![false; births.len()];
     let mut calls = Vec::new();
     for block in root.blocks() {
-        for row in block.instructions().iter().copied()
+        for row in block
+            .instructions()
+            .iter()
+            .copied()
             .chain(std::iter::once(block.terminator()))
         {
-            let MirInstruction::Invoke { operation: InvokeOperation::Call(call), .. }
-                = row.instruction() else { continue };
-            let Callee::BirthConstructor { key, receiver } = &call.callee else { continue };
-            let index = births.iter().position(|birth| matches!(birth.role(),
-                PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } if abi.target() == key))
+            let MirInstruction::Invoke {
+                operation: InvokeOperation::Call(call),
+                ..
+            } = row.instruction()
+            else {
+                continue;
+            };
+            let Callee::BirthConstructor { key, receiver } = &call.callee else {
+                continue;
+            };
+            let index = births
+                .iter()
+                .position(|birth| {
+                    matches!(birth.role(),
+                PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } if abi.target() == key)
+                })
                 .ok_or_else(|| fault("compiled-entry-call-target"))?;
-            let matching = actuals.iter().enumerate().filter(|(_, actual)|
-                actual.target() == key && actual.receiver() == *receiver
-                    && actual.arguments().iter().map(|argument| argument.value())
-                        .eq(call.args.iter().copied())).map(|(i, _)| i).collect::<Vec<_>>();
+            let matching = actuals
+                .iter()
+                .enumerate()
+                .filter(|(_, actual)| {
+                    actual.target() == key
+                        && actual.receiver() == *receiver
+                        && actual
+                            .arguments()
+                            .iter()
+                            .map(|argument| argument.value())
+                            .eq(call.args.iter().copied())
+                })
+                .map(|(i, _)| i)
+                .collect::<Vec<_>>();
             let [actual_index] = matching.as_slice() else {
                 return Err(fault("compiled-entry-call-actual-mismatch"));
             };
@@ -325,6 +438,9 @@ fn issue_cleanup_coordinates(
                         CompiledEntryCleanupKindV1::FaultFrameEnter
                     }
                     MirInstruction::ReturnFault { .. } => CompiledEntryCleanupKindV1::ReturnFault,
+                    MirInstruction::ArrayResidenceRelease { .. } => {
+                        CompiledEntryCleanupKindV1::ArrayResidenceRelease
+                    }
                     _ => continue,
                 };
                 rows.push(CompiledEntryCleanupCoordinateV1 {
@@ -343,7 +459,7 @@ fn issue_cleanup_coordinates(
     Ok(rows)
 }
 
-fn root_result_category(result: FinalizedRootResultAbiV1) -> CompiledEntryRootResultV1 {
+pub(super) fn root_result_category(result: FinalizedRootResultAbiV1) -> CompiledEntryRootResultV1 {
     match result {
         FinalizedRootResultAbiV1::I64AddReturn { .. }
         | FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
