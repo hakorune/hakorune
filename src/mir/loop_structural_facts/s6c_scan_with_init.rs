@@ -266,7 +266,8 @@ fn statement_shape_site(shape: &BodyStatementShapeV1) -> SourceStmtSiteV1 {
 
 fn expression_shape_site(shape: &BodyExpressionShapeV1) -> SourceExprSiteV1 {
     match shape {
-        BodyExpressionShapeV1::ArrayLiteral { site, .. }
+        BodyExpressionShapeV1::MapLiteral { site, .. }
+        | BodyExpressionShapeV1::ArrayLiteral { site, .. }
         | BodyExpressionShapeV1::Variable { site, .. }
         | BodyExpressionShapeV1::QualifiedReceiver { site }
         | BodyExpressionShapeV1::Me { site, .. }

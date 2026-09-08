@@ -888,6 +888,11 @@ product for a Complete Script root. The resolver's existing shadow seal issues
 the `VerifiedBodyShape` and the Script product retains that same owner/shape
 pair; the continuation sibling validates the canonical demand window and
 projects already-issued parent relations and terminal statements.
+Map ordered keys and EntryValue relations now survive the same resolver seal.
+MethodCall ancestry through EntryValue still rejects before direct/NonDirect
+classification, with UnsupportedMapEntryCall instead of an accidental missing
+structure parent. No Map ownership, carrier transfer or call admission is issued
+by these passive facts.
 Numeric Array LocalInit also consumes private source lifecycle rows once: the
 existing resolver seals explicit Array cardinality and exact Element edges,
 then the continuation proves primitive children and the preceding Home prefix.

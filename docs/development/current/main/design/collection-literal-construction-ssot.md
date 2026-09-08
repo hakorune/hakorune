@@ -467,11 +467,11 @@ Gate acceptance still requires lexical/schema/continuation and child-owner
 admission. Transparent/Transferred/Diagnostic rows are not Resolved body rows.
 
 Ordinary FunctionCall/Call/If reach existing source `ObservationDeferred` before
-MIR effects. A direct Map value MethodCall has no MapEntryValue parent body-shape
-relation and therefore reaches continuation `MissingParent`, wrapped as source
-`IntegrityInvalid`. The natural counterexample is
-`local text = "abc"; local map = %{"n": text.length()}`. This is a static code
-conclusion, not an executed fixture. Core value-if's separate pure-branch checks
+MIR effects. Map value MethodCalls now retain exact EntryValue relations and
+reach explicit `UnsupportedMapEntryCall`, wrapped as source `IntegrityInvalid`.
+The former accidental MissingParent boundary is retired; natural direct and
+bound-receiver counterexamples are covered by continuation tests. This preserves
+execution admission. Core value-if's separate pure-branch checks
 and then-side type are not a generic mixed-result ABI authority. Thus preserving
 Map's child port does not require promoting these unselected families. Float
 has no source Stop: do not invent one to dismiss its physical dependency.
@@ -1297,6 +1297,48 @@ obligations. No safe exclusive deletion set exists before the source decision.
 Existing codec/kernel tests prove their bounded ABI behavior only, not this
 destination/ownership contract or full runtime dependency completion.
 
+### Map source-shape preservation decision
+
+Decision: retain ordered Map keys and exact EntryValue source relations in the
+existing body-shape product; preserve executable call admission with an explicit
+unsupported Map-entry continuation terminal. This replaces accidental MissingParent
+diagnostics, not the missing ownership/commit contract.
+Source authority + canonical issuer: ShadowResolverV0::record_expression_shape
+and shadow/expr traversal, sealed by seal_shadow_body_shape into the existing
+VerifiedResolvedBodyShapeInventoryV1. Keys retain duplicates and source order;
+child ordinals/paths must be exact, complete and unique.
+Non-authority: literal syntax facts are not capability/Home/carrier issuance;
+no VerifiedMap receipt, runtime tag, Recipe key or alternate graph is introduced.
+Fail-fast boundary: reject malformed key/child relations at the existing seal.
+normal_script_source_continuation::find_terminal rejects EntryValue ancestry
+before direct/NonDirect call classification; no newly executable Map child calls.
+Implementation checkpoint: source-shape tests20, continuation rejection tests3,
+existing Script direct/NonDirect acceptance tests2 and pointer/corridor guards pass.
+Smallest next slice: single-entry candidate/destination ownership issuance and
+commit co-seal at the matching source root; source-shape preservation is closed.
+Non-claims: ownership commit, Map runtime escape, source/OBJ/EXE cutover.
+
+Worker audit closes one concrete coupling: adding EntryValue relations alone
+can move bound-receiver NonDirect calls past MissingParent; their issuer does not
+use the direct-static terminal validator. The shared continuation owner must
+therefore retain refusal explicitly for both classes. Do not report a structure
+parent missing once it exists. This is an information-preserving BoxShape with
+unchanged execution admission and an intentional unsupported diagnostic refinement.
+
+Function products consume the existing callable batch. Script products instead
+flow through resolve_script_forest_with_declaration_views, then
+normal_script_semantic_source::seal_ast_with_forest and
+VerifiedScriptSourceContinuationV1::issue after package construction. Do not
+put Script Map continuation into OrdinaryNewClaimLedger. Later ownership commit
+requires genuine candidate/destination co-seal at the matching root.
+
+Acceptance: empty/duplicate-key/nested/mixed-child Maps retain exact source order
+and cardinality; missing/duplicate/foreign child relations reject. Both direct
+and NonDirect nested calls reject before effects, while existing accepted
+continuations retain their behavior. Existing Array shape tests stay green.
+The removed edge is MapLiteral -> Other at the shared resolver; legacy source
+Map allocation/write edges remain until the full cutover.
+
 ### Demanded-formal ingress and use closure
 
 Decision: definitions gaining Map-demanded lanes use one **internal physical
@@ -1870,9 +1912,9 @@ explicit named New, missing/malformed/duplicate/residual rows and actual OBJ/EXE
 Earlier MIR parity tests remain dependency evidence only. A supported source
 must not be replaced by an easier fixture to hide an earlier terminal.
 
-Map AST-free lifecycle is a separate open obligation: body shape currently
-retains Map as Other; shadow traversal records value paths but not Array-style
-cardinality/key/entry relations, and Script final handoff seals Array only.
+Map AST-free lifecycle remains a separate open obligation: body shape now
+retains ordered keys and exact EntryValue relations, but Script final handoff
+still seals Array lifecycle only. Passive Map structure is not slot transfer.
 Do not borrow Array claim/Home/Fault proof. Absence of this lifecycle issuer alone
 also does not prove generic Map artifact execution impossible: the static path
 can select mixed modules. The planned dedicated write consumer replaces that gap; Map execution remains

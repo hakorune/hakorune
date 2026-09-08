@@ -112,6 +112,10 @@ pub(crate) fn seal_shadow_body_shape(
             ShadowExpressionShapeV0::BlockExpr { site } => {
                 Ok(BodyExpressionShapeV1::BlockExpr { site })
             }
+            ShadowExpressionShapeV0::MapLiteral { site, keys } => {
+                u32::try_from(keys.len()).map_err(|_| "map count exceeds resolver source identity")?;
+                Ok(BodyExpressionShapeV1::MapLiteral { site, keys })
+            }
             ShadowExpressionShapeV0::ArrayLiteral { site, element_count } => {
                 let element_count = u32::try_from(element_count)
                     .map_err(|_| "array count exceeds resolver source identity")?;
@@ -132,6 +136,7 @@ pub(crate) fn seal_shadow_body_shape(
         .into_boxed_slice();
     let relations = seal_shadow_body_shape_relations(draft.relations)?;
     validate_array_relations(&expressions, &relations)?;
+    validate_map_relations(&expressions, &relations)?;
     let assignment_sources = draft
         .assignment_sources
         .into_values()
@@ -208,3 +213,60 @@ fn validate_array_relations(
 #[cfg(test)]
 #[path = "body_shape_array_tests.rs"]
 mod array_tests;
+
+fn validate_map_relations(
+    expressions: &[BodyExpressionShapeV1],
+    relations: &[BodyShapeRelationV1],
+) -> Result<(), &'static str> {
+    let sites = expressions
+        .iter()
+        .map(expression_shape_site)
+        .collect::<BTreeSet<_>>();
+    let maps = expressions
+        .iter()
+        .filter_map(|expression| match expression {
+            BodyExpressionShapeV1::MapLiteral { site, keys } => Some((site.node(), keys.len())),
+            _ => None,
+        })
+        .collect::<BTreeMap<_, _>>();
+    let mut children = BTreeMap::<_, Vec<_>>::new();
+    let mut parent_counts = BTreeMap::<_, usize>::new();
+    for row in relations {
+        children.entry(row.parent()).or_default().push(row);
+        *parent_counts.entry(row.child()).or_default() += 1;
+        if matches!(row.role(), SourcePathSegmentV1::EntryValue(_))
+            && !maps.contains_key(row.parent())
+        {
+            return Err("map source child parent outside map inventory");
+        }
+    }
+    for (site, count) in maps {
+        let rows = children.get(site).map(Vec::as_slice).unwrap_or(&[]);
+        if rows.len() != count {
+            return Err("map source child cardinality mismatch");
+        }
+        let mut ordinals = BTreeSet::new();
+        for row in rows {
+            let SourcePathSegmentV1::EntryValue(ordinal) = row.role() else {
+                return Err("map source child role mismatch");
+            };
+            if *ordinal as usize >= count || !ordinals.insert(*ordinal) {
+                return Err("map source child ordinal mismatch");
+            }
+            let expected = super::super::source_site::SourcePathV1::from_node(site)
+                .child(SourcePathSegmentV1::EntryValue(*ordinal))
+                .expr();
+            if row.child() != &expected || !sites.contains(row.child()) {
+                return Err("map source child endpoint mismatch");
+            }
+            if parent_counts.get(row.child()) != Some(&1) {
+                return Err("map source child has multiple parents");
+            }
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+#[path = "body_shape_map_tests.rs"]
+mod map_tests;

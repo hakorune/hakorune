@@ -6,7 +6,7 @@ use crate::mir::resolved_semantics::{
     VerifiedScriptRootDemandWindowV1,
 };
 
-fn source(text: &str) -> VerifiedResolvedScriptV1 {
+pub(super) fn source(text: &str) -> VerifiedResolvedScriptV1 {
     let ast = crate::parser::NyashParser::parse_from_string(text).unwrap();
     let window = VerifiedScriptRootDemandWindowV1::seal(
         vec![VerifiedScriptRootDemandEntryV1::new(

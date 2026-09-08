@@ -273,6 +273,14 @@ escape refusal is retired merely by accepting this destination target.
 The next design is the single-entry source/commit/cleanup mapping, including
 duplicate keys, under existing `OWN-FIELD-CONTAINER-DEST-D0`.
 
+Implementation boundary: the shared resolver now preserves Map keys and ordered
+value-child source relations in its existing body-shape product, including empty
+and duplicate-key Maps. This is source structure, not an issued slot transfer.
+Complete Script MethodCalls nested under Map entries remain unsupported before
+effects for both direct and bound receivers. The diagnostic is now explicit
+`UnsupportedMapEntryCall`; a valid structure parent is no longer reported missing.
+
+
 ## 3. Accepted HomeV1 syntax target; production 0
 
 The durable semantics and bounded contextual spellings are accepted. They are

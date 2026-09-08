@@ -11,6 +11,20 @@ canonical function AST
   -> VerifiedResolvedFunctionV1
 ```
 
+## Map source shape
+
+The existing body-shape issuer retains Map literal keys in source order,
+including duplicate keys, and exact checked EntryValue child relations.
+Canonical sealing validates cardinality, ordinal, owner/path and unique child
+parentage. Key count is derived from the key list, not a second stored field.
+Empty and nested Maps use the same passive product as function/Script bodies.
+These facts do not classify values as Trivial/Home/carrier or authorize transfer.
+Complete Script call continuation explicitly rejects EntryValue ancestry until
+its semantic envelope is admitted; adding structure must not widen execution.
+The [Map slot target](../../../docs/reference/language/ownership.md#intrinsic-map-slot-destination-target)
+and [source-shape task](../../../docs/development/current/main/design/collection-literal-construction-ssot.md#map-source-shape-preservation-decision)
+own the destination semantics and remaining co-seal work.
+
 ## Ordinary-New caller-prefix facts
 
 `home_new_prefix` owns the bounded ordinary-New caller-prefix facts, from one

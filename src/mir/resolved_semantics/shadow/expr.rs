@@ -93,14 +93,20 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             }
             ASTNode::MapLiteral { entries, .. } => {
                 for (index, (_, value)) in entries.iter().enumerate() {
-                    self.resolve_expr(
-                        value,
-                        &Self::expr_child_path(
-                            expr,
-                            path,
-                            ExprChildRoleV1::MapEntryValue(index as u32),
-                        ),
-                    )?;
+                    let ordinal = u32::try_from(index).map_err(|_| {
+                        ShadowResolveErrorV0::UnsupportedExpression {
+                            kind: "MapEntryOrdinalOverflow",
+                            site: path.expr(),
+                        }
+                    })?;
+                    let child =
+                        Self::expr_child_path(expr, path, ExprChildRoleV1::MapEntryValue(ordinal));
+                    self.record_relation(
+                        path.expr().node().clone(),
+                        crate::mir::resolved_semantics::SourcePathSegmentV1::EntryValue(ordinal),
+                        child.expr(),
+                    );
+                    self.resolve_expr(value, &child)?;
                 }
                 Ok(())
             }

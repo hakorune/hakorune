@@ -31,6 +31,7 @@ pub(super) enum ScriptSourceContinuationIssueV1 {
     ReturnNotFinal(SourceStmtSiteV1),
     ReturnAdmissionMismatch(SourceStmtSiteV1),
     MissingParent(SourceExprSiteV1),
+    UnsupportedMapEntryCall(SourceExprSiteV1),
     DuplicateParent(SourceExprSiteV1),
     DanglingParent(SourceNodeSiteV1),
     ParentCycle(SourceNodeSiteV1),
@@ -321,6 +322,14 @@ fn find_terminal(
                 ))
             }
         };
+        if matches!(
+            relation.role(),
+            crate::mir::resolved_semantics::SourcePathSegmentV1::EntryValue(_)
+        ) {
+            return Err(ScriptSourceContinuationIssueV1::UnsupportedMapEntryCall(
+                call_site.clone(),
+            ));
+        }
         current = relation.parent().clone();
         path.push(relation.clone());
     }
@@ -330,7 +339,8 @@ fn expression_site(
     expression: &crate::mir::resolved_semantics::BodyExpressionShapeV1,
 ) -> SourceExprSiteV1 {
     match expression {
-        crate::mir::resolved_semantics::BodyExpressionShapeV1::ArrayLiteral { site, .. }
+        crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { site, .. }
+        | crate::mir::resolved_semantics::BodyExpressionShapeV1::ArrayLiteral { site, .. }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::Variable { site, .. }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::QualifiedReceiver { site }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::Me { site, .. }

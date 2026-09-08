@@ -42,6 +42,10 @@ impl BodyStatementShapeV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BodyExpressionShapeV1 {
+    MapLiteral {
+        site: SourceExprSiteV1,
+        keys: Box<[Box<str>]>,
+    },
     ArrayLiteral {
         site: SourceExprSiteV1,
         element_count: u32,
@@ -150,6 +154,10 @@ pub(crate) enum ShadowStatementShapeV0 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShadowExpressionShapeV0 {
+    MapLiteral {
+        site: SourceExprSiteV1,
+        keys: Box<[Box<str>]>,
+    },
     ArrayLiteral {
         site: SourceExprSiteV1,
         element_count: usize,
@@ -557,7 +565,8 @@ pub(crate) fn issue_resolved_method_call_sources_with_relations_for_test(
 
 fn expression_shape_site(expression: &BodyExpressionShapeV1) -> SourceExprSiteV1 {
     match expression {
-        BodyExpressionShapeV1::ArrayLiteral { site, .. }
+        BodyExpressionShapeV1::MapLiteral { site, .. }
+        | BodyExpressionShapeV1::ArrayLiteral { site, .. }
         | BodyExpressionShapeV1::Variable { site, .. }
         | BodyExpressionShapeV1::QualifiedReceiver { site }
         | BodyExpressionShapeV1::Me { site, .. }

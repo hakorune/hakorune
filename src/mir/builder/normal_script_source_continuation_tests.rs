@@ -94,3 +94,58 @@ fn continuation_rejects_a_non_return_window_for_return_shape() {
         Err(ScriptSourceContinuationIssueV1::ReturnAdmissionMismatch(_))
     ));
 }
+
+#[test]
+fn map_entry_calls_keep_explicit_pre_effect_stop_for_both_receiver_classes() {
+    for text in [
+        "local m = %{\"k\" => Tools.f()}",
+        "local text = \"hi\"
+local m = %{\"k\" => text.length()}",
+        "local text = \"hi\"
+local m = %{\"outer\" => %{\"k\" => text.length()}}",
+    ] {
+        let program = crate::parser::NyashParser::parse_from_string(text).unwrap();
+        let ASTNode::Program { statements, .. } = &program else {
+            panic!("Program")
+        };
+        let window = VerifiedScriptRootDemandWindowV1::seal(
+            (0..statements.len())
+                .map(|index| {
+                    VerifiedScriptRootDemandEntryV1::new(
+                        SourcePathV1::program_body()
+                            .child(SourcePathSegmentV1::ProgramBody(index as u32))
+                            .stmt(),
+                        ScriptRootSemanticDispositionV1::Resolved(
+                            ScriptRootResolvedDemandV1::LexicalCore,
+                        ),
+                        ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
+                    )
+                })
+                .collect(),
+            statements.len(),
+        )
+        .unwrap();
+        let catalog = issue_brand_program_declaration_catalog_v1(&program).unwrap();
+        let outcome = FunctionSemanticResolverSessionV1::new(990)
+            .unwrap()
+            .resolve_script_forest_with_declaration_views(
+                ScriptSyntaxViewV1::from_program(&program).unwrap(),
+                &window,
+                &(),
+                &(),
+                &(),
+                &catalog,
+            )
+            .unwrap();
+        let ResolveScriptForestOutcomeV1::Complete(forest) = outcome else {
+            panic!("Complete")
+        };
+        assert!(
+            matches!(
+                VerifiedScriptSourceContinuationV1::issue(&forest, &window),
+                Err(ScriptSourceContinuationIssueV1::UnsupportedMapEntryCall(_))
+            ),
+            "{text}"
+        );
+    }
+}
