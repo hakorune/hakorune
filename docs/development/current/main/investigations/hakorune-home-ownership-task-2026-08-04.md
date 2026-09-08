@@ -1180,6 +1180,36 @@ tests::mir::mir_corebox_router_unified::map. Actual/expected values match across
 parent and current runs. Logs `/tmp/hakorune-map-finished-parent.log` and
 `/tmp/hakorune-map-finished-focused.log`; this is no whole-library green claim.
 
+**Source install preflight Decision (2026-09-09, audited at bb74fa8078)**
+
+Decision: retain the common Map Stop until existing-owner source preflight is closed; Map Complete alone is insufficient.
+Source authority + canonical issuer: Completion and co-sealed root ordinary claims; existing Local initializer/variable relations and annotation policy.
+Non-authority: C consumer green, Map Complete and unrelated helper claims cannot establish readiness for the entire root or Local annotations.
+Fail-fast boundary: retain rejection before initializer MIR effects; do not silently move the existing Stop to a later emitter failure.
+Smallest next slice: audit and connect the existing Local annotation owner's preflight over retained initializer/alias relations, then select the same-owner ready Map cohort at common install.
+Non-claims: no source switch, new receipt, fixture workaround, Unit root support or R7 closure.
+
+Independent read-only audit names the finite install requirements: successful
+root Completion plus AppMain identity; nonempty all-Complete Map flows;
+successful terminal_homes; existing IntegerLiteral/I64Add/I64Field relation;
+and all claims owned by that Completion having successful construction,
+home_prefix and argument_rows with PlainI64NoHook destruction. Helper-owner
+claims remain under their own admission. The Map candidate compatibility check
+only covers transferred entry candidates; unrelated prior/later New readiness
+must not be inferred from it. Counterexample to the weaker rule: empty Map
+followed by an unavailable ordinary New.
+
+One preflight connection remains unresolved: local_placement currently rejects
+numeric/typed-Array annotations on Map initializers or aliases after evaluating
+the initializer. Complete Map does not certify that policy. The existing Local
+owner must expose/reuse the same policy before emission using retained relations;
+do not copy a new annotation classifier into the ledger or issue a parallel
+readiness receipt. Audit exact direct/alias callers before implementing this
+connection. Acceptance retains unsupported annotation/alias rejection before
+catalog/body mutation, unsupported New rejection, and existing valid aliases.
+After this bounded prerequisite, reuse the audited host source acceptance and
+remove the selected blanket Stop in the same source cutover series.
+
 **Selected C Map consumer Decision (2026-09-09, audited at 33c0c10c60)**
 
 C consumer verification checkpoint (2026-09-09; not source cutover): C build,
