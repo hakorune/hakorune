@@ -283,6 +283,12 @@ records its result only after overrides; the completed-local handoff checks
 ordinal, initializer ValueId and destination. `home_new_prefix` owns Home source
 relations; every prior Home must complete its exact installation before the next
 target take. The ledger records correspondence, not Home meaning or cutpoints.
+Claim preflight, prior-New cleanup preparation and root exit share the same
+installed-Home lookup, with missing and duplicate bindings rejected. The ledger
+supplies the physical end operation directly; Builder no longer reconstructs it
+from an object/value tuple. Root origins keep binding/exit plus that operation,
+and validation compares it to the emitted Invoke. Map progress is not issued by
+this ordinary-Home consolidation; the common Map install Stop remains required.
 Ordered scalar actual rows retain consumed identity and emitted ValueId; finishing
 checks cardinality/order, literal Integer/Bool definitions and Birth argument
 order. A trivial local is checked at exact binding consumption. This snapshot

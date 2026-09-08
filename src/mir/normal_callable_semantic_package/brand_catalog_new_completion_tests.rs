@@ -72,7 +72,10 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         let (prior, reclaim) = ledger.begin_new_emission(site).unwrap();
         let reclaim = reclaim.expect("Birth construction retains reclaim origin");
         assert_eq!(
-            prior.iter().map(|(_, value)| *value).collect::<Vec<_>>(),
+            prior.iter().map(|operation| match operation {
+                crate::mir::instruction::InvokeOperation::HomeRelease { value, .. } => *value,
+                _ => panic!("ordinary Home end operation changed"),
+            }).collect::<Vec<_>>(),
             (0..index)
                 .rev()
                 .map(|i| ValueId(i as u32 * 2 + 1))
@@ -210,7 +213,10 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     assert_eq!(
         origins
             .iter()
-            .map(|origin| origin.value())
+            .map(|origin| match origin.operation() {
+                crate::mir::instruction::InvokeOperation::HomeRelease { value, .. } => *value,
+                _ => panic!("ordinary Home end operation changed"),
+            })
             .collect::<Vec<_>>(),
         vec![ValueId(5), ValueId(3), ValueId(1)]
     );
@@ -236,25 +242,54 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         .unwrap();
     exit_block.set_terminator(exit.clone());
     physical.add_block(exit_block);
+    // Match the production emitter: N clean nodes plus N-1 pending-Fault nodes.
+    let fault_id = crate::mir::BasicBlockId(51);
+    let fault_return = crate::mir::MirInstruction::ReturnFault { fault_frame: ValueId(100) };
+    let mut fault_block = crate::mir::BasicBlock::new(fault_id);
+    fault_block.set_terminator(fault_return.clone());
+    physical.add_block(fault_block);
     let mut origin_bindings = Vec::new();
-    let mut bindings = vec![(exit_id, exit)];
+    let mut bindings = vec![(exit_id, exit), (fault_id, fault_return)];
     for (index, origin) in origins.into_iter().enumerate() {
         let block_id = crate::mir::BasicBlockId::new(60 + index as u32);
+        let normal = if index == 2 { exit_id } else { crate::mir::BasicBlockId(61 + index as u32) };
+        let fault = if index == 2 { fault_id } else { crate::mir::BasicBlockId(71 + index as u32) };
         let instruction = crate::mir::MirInstruction::Invoke {
-            operation: crate::mir::instruction::InvokeOperation::HomeRelease {
-                object: origin.object(),
-                value: origin.value(),
-            },
+            operation: origin.operation().clone(),
             fault_frame: ValueId(100),
-            normal_landing: exit_id,
-            fault_landing: exit_id,
+            normal_landing: normal,
+            fault_landing: fault,
         };
         let mut block = crate::mir::BasicBlock::new(block_id);
-        block.add_instruction(instruction.clone());
+        block.set_terminator(instruction.clone());
         physical.add_block(block);
         bindings.push((block_id, instruction.clone()));
+        if index > 0 {
+            let pending_id = crate::mir::BasicBlockId(70 + index as u32);
+            let pending = crate::mir::MirInstruction::Invoke {
+                operation: origin.operation().clone(),
+                fault_frame: ValueId(100),
+                normal_landing: fault,
+                fault_landing: fault,
+            };
+            let mut block = crate::mir::BasicBlock::new(pending_id);
+            block.set_terminator(pending.clone());
+            physical.add_block(block);
+            bindings.push((pending_id, pending));
+        }
         origin_bindings.push((origin, block_id, instruction));
     }
+    let entry_id = crate::mir::BasicBlockId(90);
+    let entry_jump = crate::mir::MirInstruction::Jump {
+        target: crate::mir::BasicBlockId(60), edge_args: None,
+    };
+    let mut entry = crate::mir::BasicBlock::new(entry_id);
+    entry.instructions = std::mem::take(&mut physical.blocks.get_mut(&exit_id).unwrap().instructions);
+    entry.set_terminator(entry_jump.clone());
+    physical.add_block(entry);
+    physical.blocks.get_mut(&crate::mir::BasicBlockId(2)).unwrap().set_terminator(
+        crate::mir::MirInstruction::Jump { target: entry_id, edge_args: None });
+    bindings.push((entry_id, entry_jump));
     ledger
         .record_root_home_exit(origin_bindings, bindings)
         .unwrap();
@@ -328,24 +363,23 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     assert!(ledger
         .validate_after_compiler_finishing(&changed_exit)
         .unwrap_err()
-        .contains("root-exit-binding-drift"));
-    for extra_terminal in [
-        crate::mir::MirInstruction::ReturnFault {
+        .contains("root-cleanup-graph/residual-node"));
+    for (extra_terminal, expected_error) in [
+        (crate::mir::MirInstruction::ReturnFault {
             fault_frame: ValueId(100),
-        },
-        physical.blocks[&crate::mir::BasicBlockId(60)]
+        }, "artifact-unowned-lifecycle-site"),
+        (physical.blocks[&crate::mir::BasicBlockId(60)]
             .terminator
             .clone()
-            .unwrap(),
+            .unwrap(), "root-cleanup-graph/internal-incoming"),
     ] {
         let mut extra_lifecycle = physical.clone();
         let mut extra_block = crate::mir::BasicBlock::new(crate::mir::BasicBlockId::new(99));
         extra_block.set_terminator(extra_terminal);
         extra_lifecycle.add_block(extra_block);
-        assert!(ledger
-            .validate_artifact_after_compiler_finishing(&extra_lifecycle)
-            .unwrap_err()
-            .contains("artifact-unowned-lifecycle-site"));
+        let error = ledger.validate_artifact_after_compiler_finishing(&extra_lifecycle)
+            .unwrap_err();
+        assert!(error.contains(expected_error), "{error}");
     }
     ledger
         .validate_artifact_after_compiler_finishing(&physical)

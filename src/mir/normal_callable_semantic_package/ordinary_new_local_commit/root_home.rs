@@ -22,12 +22,11 @@ pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
 /// One source-issued root Home obligation after its existing local value has
 /// been physically bound. The source binding and explicit return stay intact;
 /// neither block identity nor an emitted instruction issues this origin.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) struct RootHomeReleaseOriginV1 {
     binding: BindingRefV1,
     exit: crate::mir::resolved_semantics::SourceStmtSiteV1,
-    object: CanonicalObjectIdV1,
-    value: ValueId,
+    operation: InvokeOperation,
 }
 
 impl RootHomeReleaseOriginV1 {
@@ -39,13 +38,10 @@ impl RootHomeReleaseOriginV1 {
         &self.exit
     }
 
-    pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
-        self.object
+    pub(crate) fn operation(&self) -> &InvokeOperation {
+        &self.operation
     }
 
-    pub(crate) const fn value(&self) -> ValueId {
-        self.value
-    }
 }
 
 #[derive(Debug)]
@@ -101,21 +97,17 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut origins = Vec::new();
         let mut available = true;
         for binding in homes {
-            let mut candidates = rows.values().filter(|row| row.installs(*binding));
-            let row = candidates
-                .next()
-                .ok_or_else(|| freeze("root-home-not-installed"))?;
-            if candidates.next().is_some() {
-                return Err(freeze("duplicate-root-home"));
-            }
+            let row = installed_home(&rows, *binding).map_err(|error| match error {
+                HomeLookupError::Missing => freeze("root-home-not-installed"),
+                HomeLookupError::Duplicate => freeze("duplicate-root-home"),
+            })?;
             available &= row.destruction
                 == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
                 && matches!(row.emission, NewEmissionProgress::Emitted { .. });
             origins.push(RootHomeReleaseOriginV1 {
                 binding: *binding,
                 exit: exit.clone(),
-                object: row.object,
-                value: row.local.expect("installed Home"),
+                operation: row.end_operation(),
             });
         }
         *progress = if available {
@@ -208,14 +200,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("root-exit-origin-drift"));
                     }
                     if !matches!(
-                        emitted.instruction,
-                        MirInstruction::Invoke {
-                            operation: crate::mir::instruction::InvokeOperation::HomeRelease {
-                                object,
-                                value,
-                            },
-                            ..
-                        } if object == emitted.origin.object() && value == emitted.origin.value()
+                        &emitted.instruction,
+                        MirInstruction::Invoke { operation, .. }
+                            if operation == emitted.origin.operation()
                     ) {
                         return Err(freeze("root-exit-operation-drift"));
                     }
@@ -238,13 +225,8 @@ impl OrdinaryNewClaimLedgerV1 {
                         block.all_instructions().any(|actual| {
                             matches!(
                                 actual,
-                                MirInstruction::Invoke {
-                                    operation: crate::mir::instruction::InvokeOperation::HomeRelease {
-                                        object,
-                                        value,
-                                    },
-                                    ..
-                                } if *object == emitted.origin.object() && *value == emitted.origin.value()
+                                MirInstruction::Invoke { operation, .. }
+                                    if operation == emitted.origin.operation()
                             )
                         })
                     }) {

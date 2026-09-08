@@ -54,11 +54,7 @@ pub(in crate::mir::builder) fn emit(
         MirInstruction::ReturnFault { fault_frame: frame },
         &mut bindings,
     )?;
-    let prior_operations = prior
-        .into_iter()
-        .map(|(object, value)| InvokeOperation::HomeRelease { object, value })
-        .collect::<Vec<_>>();
-    let allocation_fault = cleanup_chain(builder, frame, prior_operations, outward, &mut bindings)?;
+    let allocation_fault = cleanup_chain(builder, frame, prior, outward, &mut bindings)?;
     let constructor = claim.constructor();
     let mut reclaim = None;
     let birth_fault = if matches!(constructor, OrdinaryNewConstructorDispositionV1::Birth(_)) {
@@ -328,10 +324,7 @@ fn emit_root_home_exit_payload(
     let count = operations.len();
     let mut origins = Vec::with_capacity(count);
     for (index, origin) in operations.into_iter().rev().enumerate() {
-        let operation = InvokeOperation::HomeRelease {
-            object: origin.object(),
-            value: origin.value(),
-        };
+        let operation = origin.operation().clone();
         // A clean call's Fault skips its own retry and joins the remaining
         // fault-pending suffix. Later Normal outcomes cannot clear that Fault.
         let next_clean = cleanup_step(

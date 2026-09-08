@@ -240,7 +240,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 || prefix
                     .prior_homes()
                     .iter()
-                    .any(|binding| !commits.values().any(|row| row.installs(*binding)))
+                    .any(|binding| local_commit::installed_home(&commits, *binding).is_err())
             {
                 return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
             }

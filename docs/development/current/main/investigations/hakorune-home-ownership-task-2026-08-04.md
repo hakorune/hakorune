@@ -920,6 +920,35 @@ missed the new count argument; corrected before successful rerun. Corridor/diff
 guards pass; touched source max326. No Map-specific end vocabulary, later-New
 suffix finishing or multi-Home source-to-EXE completion is claimed.
 
+Installed-Home owner consolidation: claim preflight, prior-New preparation and
+root exit now use one installed_home lookup over the existing physical ledger.
+Missing/duplicate bindings reject; source prior/terminal order remains unchanged.
+The ledger emits the end operation once, and both Builder cleanup paths consume
+it directly. Root origin validation compares the same operation instead of
+reconstructing object/value fields. No Map value or emitted progress is invented;
+Map remains stopped until its actual operation/progress consumer is connected.
+
+An existing synthetic order test exposed a parent failure at 32dc673170:
+`brand_catalog_tests::new_completion_tests::ordinary_new_home_prefix_retains_order_and_requires_prior_installation`
+failed root-cleanup-graph/release-count at parent and current. Parent reproduction
+used a detached worktree, the same ignored Cargo.lock and serial locked quick
+command. Its old three-Home fixture omitted pending-Fault suffixes/entry boundary.
+The fixture now matches the existing emitter's 3+2 nodes, keeping ordering and drift
+checks. Extra Invoke ingress now rejects at internal-incoming before unowned-site
+coverage; an isolated extra ReturnFault still rejects at unowned-site coverage.
+This is a test migration missed by the preceding graph change, not permission to
+weaken graph validation. Logs: /tmp/hakorune-home-end-{parent,order-fixed}.log.
+
+Consolidation validation: order test1, source-backed two-New completion1,
+root_cleanup_graph5 and diagnostic Pair finishing1 all pass after the fixture
+repair. Serial CARGO_BUILD_JOBS=4 / --locked --profile quick --lib filters with
+--test-threads=1; logs /tmp/hakorune-home-end-{order-fixed,owner,graph,finishing}.log.
+Pointer/corridor/diff guards pass; touched source max643. Package README updated.
+The parent red above is resolved, not carried forward as a baseline waiver.
+Next: actual Map Invoke/key/outcome emission progress and operation-derived
+projection at the now-shared ledger/cleanup consumers. Ordinary lookup alone does
+not establish a Map physical binding; keep the common source install Stop.
+
 **Map quality queue (2026-09-09, measured at 7cc63ab9ea)**
 
 Boundary: current Map physical-frame construction and the shared owners touched

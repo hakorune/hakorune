@@ -17,6 +17,7 @@ use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
 };
 use crate::mir::ValueId;
+use crate::mir::instruction::InvokeOperation;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use crate::parser::CallableDeclarationIdentityV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
@@ -35,7 +36,7 @@ enum NewEmissionProgress {
     Unprepared,
     RetainedUnavailable,
     Prepared {
-        operands: Vec<(CanonicalObjectIdV1, ValueId)>,
+        operands: Vec<InvokeOperation>,
         reclaim: Option<ReclaimUnpublishedOriginV1>,
     },
     Emitting,
@@ -248,6 +249,29 @@ impl NewLocalCommitV1 {
     }
 }
 
+// One lookup over installed physical bindings; source order remains caller-owned.
+#[derive(Debug)]
+pub(super) enum HomeLookupError { Missing, Duplicate }
+
+pub(super) fn installed_home(
+    rows: &std::collections::BTreeMap<OwnedExprSiteV1, NewLocalCommitV1>,
+    binding: BindingRefV1,
+) -> Result<&NewLocalCommitV1, HomeLookupError> {
+    let mut candidates = rows.values().filter(|row| row.installs(binding));
+    let row = candidates.next().ok_or(HomeLookupError::Missing)?;
+    if candidates.next().is_some() { return Err(HomeLookupError::Duplicate); }
+    Ok(row)
+}
+
+impl NewLocalCommitV1 {
+    fn end_operation(&self) -> InvokeOperation {
+        InvokeOperation::HomeRelease {
+            object: self.object,
+            value: self.local.expect("installed Home"),
+        }
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn register_new_root(&self, owner: FunctionOwnerIdV1) -> Result<(), String> {
         let mut state = self.root_validation.borrow_mut();
@@ -354,16 +378,13 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("prepare-outward-site"));
                 }
                 for binding in prefix.prior_homes() {
-                    let mut matches = rows.values().filter(|row| row.installs(*binding));
-                    let prior = matches
-                        .next()
-                        .ok_or_else(|| freeze("prior-home-not-installed"))?;
-                    if matches.next().is_some() {
-                        return Err(freeze("duplicate-prior-home"));
-                    }
+                    let prior = installed_home(&rows, *binding).map_err(|error| match error {
+                        HomeLookupError::Missing => freeze("prior-home-not-installed"),
+                        HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
+                    })?;
                     available &=
                         prior.destruction == super::ObjectDestructionDispositionV1::PlainI64NoHook;
-                    operands.push((prior.object, prior.local.expect("installed Home")));
+                    operands.push(prior.end_operation());
                 }
             }
         }
@@ -380,7 +401,7 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &OwnedExprSiteV1,
     ) -> Result<
         (
-            Vec<(CanonicalObjectIdV1, ValueId)>,
+            Vec<InvokeOperation>,
             Option<ReclaimUnpublishedOriginV1>,
         ),
         String,
