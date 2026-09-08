@@ -2,7 +2,6 @@
 // function declarations.  Included inside the generic pure compile scope.
 if (ptfc_selected) {
   if (hako_llvmc_ptfc_open_selected_draft(&ptfc_draft, err_out) != 0) {
-    yyjson_doc_free(d);
     goto GEN_ABORT;
   }
   f = ptfc_draft.stream;
@@ -17,7 +16,6 @@ if (!f) {
       "generic_pure_ir",
       "ir_temp_file_open_failed",
       NULL);
-  yyjson_doc_free(d);
   break;
 }
 #define HAKO_LLVMC_CLOSE_GENERIC_OUTPUT() do { \
@@ -43,6 +41,5 @@ if (!ptfc_selected && !hako_llvmc_c1_emit_artifact_descriptor(f, fn_metadata)) {
       "artifact_descriptor_projection_failed",
       NULL);
   HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-  yyjson_doc_free(d);
   goto GEN_ABORT;
 }

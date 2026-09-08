@@ -75,7 +75,7 @@
                 fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins, NULL);
             if (intrinsic < 0) {
               note_pure_unsupported_shape(bid, ii, op, "intrinsic_array_contract", NULL);
-              yyjson_doc_free(d); goto GEN_ABORT;
+              goto GEN_ABORT;
             }
             if (intrinsic > 0) {
               needs.arr_birth = 1;
@@ -208,7 +208,6 @@
             if (!publish_variant_binding_from_instruction(ins)) {
               note_pure_unsupported_shape(
                   bid, ii, op, "variant_binding_fact_missing", read_str(ins, "enum"));
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             (void)publish_value_representation_fact(read_int(ins, "dst"));
@@ -261,7 +260,7 @@
               set_type(dst, T_I64);
             }
           } else if (strcmp(op, "phi")==0) {
-            struct BlockPhi* pb = ensure_phi_block(bid); if (!pb) { yyjson_doc_free(d); goto GEN_END; }
+            struct BlockPhi* pb = ensure_phi_block(bid); if (!pb) { goto GEN_END; }
             struct PhiRec pr; pr.dst = read_int(ins, "dst"); pr.in_n=0; pr.explicit_type=0;
             yyjson_val* dst_type = yyjson_obj_get(ins, "dst_type");
             const char* dst_type_s = read_str(ins, "dst_type");
@@ -370,7 +369,6 @@
                 pure_prepass_note_extern_reject(
                     bid, ii, op, "published_extern_not_allowed", mname, NULL,
                     "published ingress rejects Call(Extern)");
-                yyjson_doc_free(d);
                 goto GEN_ABORT;
               }
               if (!pure_prepass_validate_extern_call(
@@ -381,7 +379,6 @@
                       args,
                       dst,
                       find_lowering_plan_entry_for_site(bid, ii))) {
-                yyjson_doc_free(d);
                 goto GEN_ABORT;
               }
             }
@@ -610,12 +607,10 @@
             "same_module_plan",
             "same_module_function_plan_failed",
             NULL);
-        yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       if (ptfb_contract_bound && !ptfc_selected &&
           hako_llvmc_ptfb_session_open(&ptfb_session, &ptfb_census, err_out) != 0) {
-        yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       #include "hako_llvmc_ffi_pure_compile_ir_open.inc"
@@ -747,7 +742,6 @@
       fprintf(f, "\n");
       if (emit_module_function_leaf_definitions(f) < 0) {
         HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-        yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       // Emit blocks

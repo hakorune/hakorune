@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Accepted BoxShape: one file-wrapper-owned document across the selected pure-first validator/census/route/generic compile boundary. Borrowed internal consumers never free it; delete repeated reads and inner frees, preserving validation order, late plan reading and non-document cleanup. Prove parse/free and parent behavior on success/error/pattern/Dynamic paths. No opaque session/query ABI, prescan repair or Map source switch in this extraction; subsequent session/config/frame obligations remain open."
+current_blocker_token = "Document ownership extraction is verified. Next accepted BoxShape captures the existing two allocation/runtime mode bits once at file ingress and passes them to borrowed consumers, including runtime requirement emission. Delete nested reads; prove four combinations with ambient mutation plus parent behavior. No new global, opaque session/query ABI or Map source switch; session observation/host/alias mapping remains open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,9 +31,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Document ownership audit selects the complete published pure-first boundary.
-Next: one owning file wrapper and borrowed validator/route/compile consumers.
-Opaque session, settings, frame and Map cutover remain subsequent work.
+Selected pure-first document ownership is implemented and verified.
+Eight lifetime cases and unchanged Named/role/Dynamic behavior are recorded.
+Next is accepted allocation settings capture; session and Map cutover remain open.
 """
 next_design_card = "none"
 next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"

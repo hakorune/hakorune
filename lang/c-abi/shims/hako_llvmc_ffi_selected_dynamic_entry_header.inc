@@ -8,7 +8,6 @@ if (ptfc_selected) {
         "pinned_text_selected_parameter_signature_mismatch",
         NULL);
     HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-    yyjson_doc_free(d);
     goto GEN_ABORT;
   }
 } else if (hako_llvmc_selected_dynamic_admission_present(fn0)) {
@@ -21,7 +20,6 @@ if (ptfc_selected) {
         "selected_dynamic_parameter_signature_mismatch",
         NULL);
     HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-    yyjson_doc_free(d);
     goto GEN_ABORT;
   }
 } else {

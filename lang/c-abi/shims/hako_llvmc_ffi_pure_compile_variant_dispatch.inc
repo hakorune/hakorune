@@ -15,7 +15,6 @@
             int boxed_emit = emit_boxed_sum_variant_make_lowering(
                 bid, ii, op, dst, tag, payload, has_payload, enum_name, payload_storage, boxed_plan_index);
             if (boxed_emit < 0) {
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             if (boxed_emit > 0) {
@@ -40,7 +39,6 @@
                 "local_variant_tag_binding_missing",
                 1);
             if (boxed_emit < 0) {
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             if (boxed_emit > 0) {
@@ -69,7 +67,6 @@
                 "local_variant_project_binding_missing",
                 1);
             if (boxed_emit < 0) {
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             if (boxed_emit > 0) {

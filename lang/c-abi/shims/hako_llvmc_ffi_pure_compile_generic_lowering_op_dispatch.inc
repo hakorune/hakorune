@@ -7,7 +7,6 @@
                     c1_current_llvm_label) < 0) {
               note_pure_unsupported_shape(
                   bid, ii, op, "checked_callout_projection_mismatch", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             continue;
@@ -18,7 +17,6 @@
             if (lane < 0 || !dst) {
               note_pure_unsupported_shape(
                   bid, ii, op, "checked_callout_normal_result_mismatch", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             set_type(dst, T_I64);
@@ -39,7 +37,6 @@
                     sizeof(c1_current_llvm_label)) < 0) {
               note_pure_unsupported_shape(
                   bid, ii, op, "checked_callout_end_mismatch", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             continue;
@@ -51,7 +48,6 @@
                 !hako_llvmc_c1_call_for_site(fn_metadata, site)) {
               note_pure_unsupported_shape(
                   bid, ii, op, "checked_callout_fault_mismatch", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             /* MIR marks this as a successorless terminal.  A semantic
@@ -107,7 +103,6 @@
                     op,
                     "flattened_nested_field_set_lowering_failed",
                     NULL);
-                yyjson_doc_free(d);
                 goto GEN_ABORT;
               }
               continue;
@@ -153,7 +148,6 @@
                         op,
                         "typed_object_unsigned_negative_const",
                         NULL);
-                    yyjson_doc_free(d);
                     goto GEN_ABORT;
                   }
                 } else {
@@ -233,7 +227,6 @@
                 op,
                 "typed_object_field_set_plan_missing",
                 NULL);
-            yyjson_doc_free(d);
             goto GEN_ABORT;
           }
           if (strcmp(op, "field_get")==0) {
@@ -289,7 +282,6 @@
                 op,
                 "typed_object_field_get_plan_missing",
                 NULL);
-            yyjson_doc_free(d);
             goto GEN_ABORT;
           }
           if (strcmp(op, "static_data_load")==0) {
@@ -304,7 +296,6 @@
                   op,
                   reason[0] ? reason : "static_data_load_lowering_failed",
                   NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             continue;
@@ -365,7 +356,6 @@
                   op,
                   "unsupported_unop_kind",
                   NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             if (!(dst && src)) {
@@ -375,7 +365,6 @@
                   op,
                   "malformed_unop_operands",
                   NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             base = resolve_copy_source_reg(src);
@@ -406,7 +395,7 @@
                   op,
                   "unsupported_compare_predicate",
                   NULL);
-              yyjson_doc_free(d); goto GEN_ABORT;
+              goto GEN_ABORT;
             }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); if (!lhs) lhs=read_int(ins, "left"); long long rhs = read_int(ins, "rhs"); if (!rhs) rhs=read_int(ins, "right"); if (!lhs && !rhs){
               note_pure_unsupported_shape(
@@ -415,7 +404,7 @@
                   op,
                   "malformed_compare_operands",
                   NULL);
-              yyjson_doc_free(d); goto GEN_ABORT;
+              goto GEN_ABORT;
             }
             if (should_emit_string_compare(ins, lhs, rhs)) {
               emit_string_compare(dst, p2, lhs, rhs);
@@ -433,7 +422,7 @@
                 lhs,
                 rhs);
             if (boxed_sum_compare_emit < 0) {
-              yyjson_doc_free(d); goto GEN_ABORT;
+              goto GEN_ABORT;
             }
             if (boxed_sum_compare_emit > 0) {
               continue;
@@ -528,7 +517,6 @@
             if (!(kind && (!strcmp(kind, "check") || !strcmp(kind, "Check")) &&
                   target_type && dst)) {
               note_pure_unsupported_shape(bid, ii, op, "unsupported_typeop_shape", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             if (!strcmp(target_type, "MapBox")) {
@@ -544,7 +532,6 @@
             }
             if (!type_global) {
               note_pure_unsupported_shape(bid, ii, op, "unsupported_typeop_target", target_type);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             src_base = resolve_copy_source_reg(src);
@@ -564,7 +551,6 @@
                     bid, (long long)ii, c1_current_llvm_label, th, el)) {
               note_pure_unsupported_shape(
                   bid, ii, op, "selected_dynamic_provenance_failed", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             continue;
@@ -577,7 +563,6 @@
                     bid, (long long)ii, c1_current_llvm_label, tgt)) {
               note_pure_unsupported_shape(
                   bid, ii, op, "selected_dynamic_provenance_failed", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             continue;
@@ -610,7 +595,6 @@
             if (typed_shape_rc != HAKO_LLVMC_PUBLISHED_ROW_READY) {
               note_pure_unsupported_shape(
                   bid, ii, op, "published_array_write_row_mismatch", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             HAKO_LLVMC_EMIT_PUBLISHED_ARRAY_WRITE_ROW(
@@ -632,7 +616,7 @@
             }
             if (!irop) {
               note_pure_unsupported_shape(bid, ii, op, "unsupported_binop_kind", NULL);
-              yyjson_doc_free(d); goto GEN_ABORT;
+              goto GEN_ABORT;
             }
             long long dst = read_int(ins, "dst"); long long lhs = read_int(ins, "lhs"); long long rhs = read_int(ins, "rhs");
             yyjson_val* dst_type = yyjson_obj_get(ins, "dst_type");
@@ -662,4 +646,4 @@
           #include "hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch_calls.inc"
           // any other op unsupported
           note_pure_unsupported_shape(bid, ii, op, "unknown_op", NULL);
-          yyjson_doc_free(d); goto GEN_ABORT;
+          goto GEN_ABORT;

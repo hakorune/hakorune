@@ -5,7 +5,7 @@
                 fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins);
             if (intrinsic < 0) {
               note_pure_unsupported_shape(bid, ii, op, "intrinsic_array_contract", NULL);
-              yyjson_doc_free(d); goto GEN_ABORT;
+              goto GEN_ABORT;
             }
             if (intrinsic > 0) {
               const char* symbol = hako_llvmc_direct_array_i64_exact_enabled()
@@ -81,7 +81,6 @@
                     op,
                     "string_const_materialization_failed",
                     NULL);
-                yyjson_doc_free(d);
                 goto GEN_ABORT;
               }
               set_copy_alias(dst, resolve_copy_source_reg(arg0));
@@ -107,9 +106,8 @@
                   op,
                   "typed_object_plan_invalid_new",
                   NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             note_pure_unsupported_shape(bid, ii, op, "unsupported_newbox_type", NULL);
-            yyjson_doc_free(d); goto GEN_ABORT;
+            goto GEN_ABORT;
           }

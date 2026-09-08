@@ -741,7 +741,7 @@ proofs; parent comparison for both-set numeric/non-numeric bodies, duplicate and
 missing targets, invalid/null metadata, capacities and Dynamic helper/launch.
 Do not replace actual role coverage with a guessed role supplied by a test.
 
-Next executable BoxShape: make the selected pure-first document boundary
+Implemented BoxShape: the selected pure-first document boundary is
 single-owned before adding an opaque session ABI. The existing file wrapper
 parses once, calls a borrowed `compile_doc_compat_pure` core, then frees once
 on every return. Reuse one private borrowed validator implementation from the
@@ -765,7 +765,7 @@ The latter retain a pathname and may reopen it; selected typed rows already
 reject those paths. A generic-only doc-taking extraction would not establish
 parse-once for the selected boundary and is not the selected next slice.
 
-Exclusive delete-set: repeated document reads/ownership in validator, pinned
+Retired delete-set: repeated document reads/ownership in validator, pinned
 census, rune logging, exact-seed reader, Dynamic signature and generic body;
 all71 textual `yyjson_doc_free(d)` sites in the audited compile include graph.
 The finite include inventory (common `hako_llvmc_ffi_` prefix, `.inc` suffix) is:
@@ -790,7 +790,29 @@ pattern success. Prove one successful parse/one free and no internal document
 free, including rejection paths. Use available memory checking for lifetime
 failures; an early preflight rejection alone cannot validate emitter cleanup.
 
-After that extraction, bind the same borrowed core, existing program view and
+Verification: selected C build, published rows and corridor pass. Named60 and
+role22 match the previous plan-owner baseline; selected Dynamic LLVM, origins,
+machine code and relocations match. ASan plus document counters pass eight
+cases including source-issued Dynamic and an early pattern return with a
+malformed later definition plan. Reproduction is in `lang/c-abi/README.md`.
+These observations close document extraction only; no session ABI is exported.
+
+Next executable BoxShape: capture the existing two allocation/runtime mode bits
+once at file ingress and pass them explicitly to the borrowed core. Reuse
+`common.inc::hako_llvmc_direct_exact_runtime_mode_flags` as the sole reader;
+no new global, session receipt or public ABI. Remove nested ambient reads in
+`generic_method_lowering`, `same_module_generic_method_collection_emit`,
+`same_module_generic_method_string_emit`, `typed_object_plan` and
+`same_module_typed_object_emit`. Runtime requirement declaration/check must use
+that same captured value, not call the environment reader again. This finite
+inventory covers these two settings only; other settings remain open.
+Acceptance adds all four bit combinations with ambient settings reversed after
+capture: actual allocation/method emission and runtime requirement must follow
+the captured value. Preserve Named60/role22/Dynamic behavior, document lifetime,
+rejection order and late plan reading. This closes the fixed-allocation-settings
+obligation only, not Map admission or concurrent compilation.
+
+After settings capture, bind the same borrowed core, existing program view and
 physical definition plan to the eventual opaque session. Open takes immutable
 JSON bytes+length, leaves its output handle null on error and activates no
 global rows. Query borrows session-owned observations. Compile consumes the

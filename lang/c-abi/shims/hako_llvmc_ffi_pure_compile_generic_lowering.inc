@@ -1,7 +1,6 @@
       #include "hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc"
       if (!generic_capacity_ok()) {
         HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-        yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       #include "hako_llvmc_ffi_emit_seam.inc"
@@ -480,12 +479,10 @@
             "unsupported_static_data_plan",
             NULL);
         HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-        yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       if (emit_same_module_function_definitions(f) < 0) {
         HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-        yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       // Unboxer (declare opportunistically; low cost)
@@ -526,7 +523,6 @@
               &c1_predecessor_projection)) {
         note_pure_unsupported_shape(
             -1, 0, "checked_callout", "c1_predecessor_emission_drift", NULL);
-        yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       fprintf(f, "}\n");
@@ -537,7 +533,6 @@
         if (llpath[0]) remove(llpath);
         free_owned_str_consts();
         hako_llvmc_ptfb_session_close(&ptfb_session);
-        yyjson_doc_free(d);
         return -1;
       }
       if (ptfc_selected) {
@@ -547,7 +542,6 @@
                 &ptfc_draft, &ptfc_bytes, err_out) != 0) {
           f = NULL;
           free_owned_str_consts();
-          yyjson_doc_free(d);
           return -1;
         }
         f = NULL;
@@ -565,7 +559,6 @@
         hako_llvmc_ptfc_release_selected_llvm_bytes(&ptfc_bytes);
         hako_llvmc_ptfb_session_close(&ptfb_session);
         free_owned_str_consts();
-        yyjson_doc_free(d);
         return ptfc_rc == 0 ? 0 : -1;
       }
       HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
@@ -574,7 +567,6 @@
           HAKO_LLVMC_C1_LOWERED_LLVM_EVIDENCE_V1(llpath, err_out) != 0) {
         remove(llpath);
         free_owned_str_consts();
-        yyjson_doc_free(d);
         return -1;
       }
 
@@ -595,7 +587,6 @@
       }
       remove(llpath);
       free_owned_str_consts();
-      yyjson_doc_free(d);
       if (ptfb_contract_bound) {
         hako_llvmc_ptfb_session_close(&ptfb_session);
         if (rc == 0) return 0;

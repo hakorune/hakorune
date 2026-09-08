@@ -19,7 +19,6 @@ if (program.selected_dynamic) {
         "launch_function_view_missing",
         NULL);
     fclose(f);
-    yyjson_doc_free(d);
     goto GEN_ABORT;
   }
   if (yyjson_arr_size(yyjson_obj_get(launch_function.fn, "params")) != 0) {
@@ -30,7 +29,6 @@ if (program.selected_dynamic) {
         "launch_function_requires_zero_parameters",
         NULL);
     fclose(f);
-    yyjson_doc_free(d);
     goto GEN_ABORT;
   }
 
@@ -43,7 +41,6 @@ if (program.selected_dynamic) {
         "launch_context_snapshot_allocation_failed",
         NULL);
     HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-    yyjson_doc_free(d);
     goto GEN_ABORT;
   }
 
@@ -64,7 +61,6 @@ if (program.selected_dynamic) {
         "launch_function_emission_failed",
         NULL);
     fclose(f);
-    yyjson_doc_free(d);
     goto GEN_ABORT;
   }
 }

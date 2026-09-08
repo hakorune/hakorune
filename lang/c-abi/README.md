@@ -66,6 +66,34 @@ Physical definition plan
   the existing selected Dynamic provenance producer cover the adjacent emitters.
   Synthetic physical cases do not establish source-family admission.
 
+Pure-first document ownership
+- `compile_json_compat_pure` owns one parsed document and frees it after the
+  borrowed core returns. Validator, pinned census, route readers and generic
+  emitters borrow that document; they do not free it. The standalone file
+  validator keeps its public ABI and uses the same private validator.
+- Validation order and late definition-plan reading are preserved, including
+  the earlier indexof pattern return. Non-document cleanup is unchanged.
+  Downstream legacy exact-seed/replay file readers and other ABI entrypoints
+  are outside this parse-once boundary; selected typed rows reject those routes.
+- Build the ownership instrument with ASan, then run the seven physical cases:
+
+```bash
+cc -fsanitize=address -fno-omit-frame-pointer -g \
+  -Iplugins/nyash-json-plugin/c/yyjson \
+  lang/c-abi/tests/pure_document_lifetime_driver.c \
+  lang/c-abi/shims/hako_aot.c lang/c-abi/shims/hako_json_v1.c \
+  plugins/nyash-json-plugin/c/yyjson/yyjson.c -ldl \
+  -o /tmp/hako-document-lifetime
+python3 lang/c-abi/tests/pure_document_lifetime_test.py /tmp/hako-document-lifetime
+```
+
+- An optional second argument to the Python runner is an existing source-issued
+  selected Dynamic JSON body, adding its eighth case. Counters require one read,
+  one free per successful parse and no live document at return; ASan checks
+  invalid access/double free. LeakSanitizer is disabled because unrelated LLVM
+  and global allocations are outside this test. These cases prove document
+  lifetime, not source admission, Map cutover or concurrent compilation.
+
 Named allocation emission
 - `shims/hako_llvmc_ffi_named_allocation_select.inc` selects the existing physical
   consumer once for the generic and same-module emitters. Walker and array-store

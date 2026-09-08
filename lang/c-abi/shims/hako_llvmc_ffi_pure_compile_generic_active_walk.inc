@@ -143,7 +143,6 @@
                   "preserved", "base_block") != 0) {
             note_pure_unsupported_shape(
                 bid, 0, "block", "selected_dynamic_provenance_failed", NULL);
-            yyjson_doc_free(d);
             goto GEN_ABORT;
           }
         }
@@ -159,7 +158,6 @@
                 "typed_object_layout_registration_failed",
                 NULL);
             HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-            yyjson_doc_free(d);
             goto GEN_ABORT;
           }
           if (!emit_boxed_sum_abi_layout_registrations(f)) {
@@ -170,7 +168,6 @@
                 "boxed_sum_abi_layout_registration_failed",
                 NULL);
             HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
-            yyjson_doc_free(d);
             goto GEN_ABORT;
           }
           emit_hoisted_string_const_defs(f);
@@ -185,7 +182,6 @@
           const char* op = read_str(ins, "op");
           if (!op) {
             note_pure_unsupported_shape(bid, ii, "unknown", "missing_op", NULL);
-            yyjson_doc_free(d);
             goto GEN_ABORT;
           }
           if (hako_llvmc_route_trace_enabled() && generic_walk_trace_budget > 0) {

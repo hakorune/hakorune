@@ -269,21 +269,15 @@ static int hako_llvmc_ptfb_function_has_pinned_text_op(yyjson_val* function) {
   return 0;
 }
 
-static int hako_llvmc_collect_pinned_text_module_census(
-    const char* json_in,
+static int hako_llvmc_collect_pinned_text_module_census_root(
+    yyjson_val* root,
     struct HakoPtfbModuleCensus* census,
     char** err_out) {
-  yyjson_read_err read_error;
-  yyjson_doc* document = yyjson_read_file(json_in, 0, NULL, &read_error);
-  yyjson_val* root;
   yyjson_val* functions;
   if (!census) return set_err_owned(err_out, "missing pinned Text module census");
   memset(census, 0, sizeof(*census));
-  if (!document) return set_err_owned(err_out, "cannot read pinned Text backend-frame JSON");
-  root = yyjson_doc_get_root(document);
   functions = root ? yyjson_obj_get(root, "functions") : NULL;
   if (!(functions && yyjson_is_arr(functions))) {
-    yyjson_doc_free(document);
     return set_err_owned(err_out, "pinned Text backend-frame JSON has no functions");
   }
   for (size_t i = 0; i < yyjson_arr_size(functions); i++) {
@@ -295,13 +289,11 @@ static int hako_llvmc_collect_pinned_text_module_census(
     if (has_pinned_text_op) census->pinned_text_op_count++;
     if (!contract) {
       if (has_pinned_text_op) {
-        yyjson_doc_free(document);
         return set_err_owned(
             err_out,
             "PinnedTextOp requires a pinned Text backend-frame contract");
       }
       if (carrier) {
-        yyjson_doc_free(document);
         return set_err_owned(
             err_out,
             "pinned Text residence carrier requires a backend-frame contract");
@@ -309,7 +301,6 @@ static int hako_llvmc_collect_pinned_text_module_census(
       continue;
     }
     if (hako_llvmc_ptfb_validate_contract(contract, err_out) != 0) {
-      yyjson_doc_free(document);
       return -1;
     }
     yyjson_val* invocation = yyjson_obj_get(contract, "invocation_ordinal");
@@ -317,14 +308,12 @@ static int hako_llvmc_collect_pinned_text_module_census(
     if (census->contract_count == 0) {
       census->invocation_ordinal = ordinal;
     } else if (census->invocation_ordinal != ordinal) {
-      yyjson_doc_free(document);
       return set_err_owned(
           err_out,
           "mixed pinned Text compile invocations in one module");
     }
     census->contract_count++;
   }
-  yyjson_doc_free(document);
   return 0;
 }
 
@@ -332,7 +321,12 @@ static int hako_llvmc_validate_pinned_text_backend_frame_contract_file(
     const char* json_in,
     char** err_out) {
   struct HakoPtfbModuleCensus census;
-  return hako_llvmc_collect_pinned_text_module_census(json_in, &census, err_out);
+  yyjson_doc* document = yyjson_read_file(json_in, 0, NULL, NULL);
+  if (!document) return set_err_owned(err_out, "cannot read pinned Text backend-frame JSON");
+  int rc = hako_llvmc_collect_pinned_text_module_census_root(
+      yyjson_doc_get_root(document), &census, err_out);
+  yyjson_doc_free(document);
+  return rc;
 }
 
 #endif

@@ -3,7 +3,6 @@
                     bid, ii, op, ins, &ptfc_candidate) != 0) {
               note_pure_unsupported_shape(
                   bid, ii, op, "pinned_text_provenance_failed", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             int ptfc_emit = hako_llvmc_ptfc_try_emit_selected_op(
@@ -11,7 +10,6 @@
             if (ptfc_emit < 0) {
               note_pure_unsupported_shape(
                   bid, ii, op, "pinned_text_selected_lowering_failed", NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             if (ptfc_emit > 0) {

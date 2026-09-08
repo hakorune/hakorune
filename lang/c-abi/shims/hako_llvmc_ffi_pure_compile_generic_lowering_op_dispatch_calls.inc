@@ -18,7 +18,6 @@
                   op,
                   "legacy_call_missing_structured_callee",
                   NULL);
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             if (ctype && (!strcmp(ctype, "Global") || !strcmp(ctype, "Extern"))) {
@@ -69,7 +68,6 @@
                     NULL,
                     "check_callee_route_or_receiver_origin");
               }
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             continue;
@@ -107,7 +105,6 @@
                     NULL,
                     "check_callee_route_or_receiver_origin");
               }
-              yyjson_doc_free(d);
               goto GEN_ABORT;
             }
             continue;

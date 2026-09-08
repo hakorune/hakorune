@@ -28,6 +28,7 @@
 #endif
 
 #include "hako_llvmc_ffi_common.inc"
+#include "hako_json_v1_borrowed.inc"
 #include "published_mir/hako_llvmc_ffi_published_static_method.inc"
 #include "published_mir/hako_llvmc_ffi_lifecycle_target_session_v1.inc"
 #include "published_mir/hako_llvmc_ffi_published_lifecycle_physical_v2.inc"
