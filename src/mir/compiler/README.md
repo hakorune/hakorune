@@ -46,6 +46,11 @@ planner contracts. The ignored `map_literal_actual_c_query` test uses the privat
 C live driver (`HAKO_NAMED_QUERY_TEST_DRIVER`) to bind actual observations and
 retain one invocation across planning and compile/cancel; its build/run procedure
 is in `lang/c-abi/README.md`. Retire the bridge with public V2 host tests.
+The shared `map_projection` leaf mapping now supplies both value domains and
+complete actions, including exact boxed-sum site plans. Bool projection uses its
+actual i64 storage; unit VariantMake remains an allocated Handle. Missing ABI,
+unseeded representation cycles and Map-demanded Float requiring an old lane
+reject. This does not prove materialization or expanded ABI consumption in C.
 Public host wiring, complete frame and Map production cutover remain open.
 Focused witnesses use `cargo test --profile quick --lib map_literal_`; private
 physical observations are not source-to-artifact evidence.

@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Private query/MIR binding and same-invocation compile/cancel are verified. Next: complete accepted V2 frame/leaf/expanded-function projection, input-aware capability and both C consumers, then atomic public session/host/source cutover and V1 retirement. No query-only public ABI, Map-through-V1 or renewed readiness census."
+current_blocker_token = "Complete demanded projection actions are verified (shared leaf/domain mapping, exact boxed ABI sites, original Float Stop). Next: owned V2 frame rows and expanded-function/caller lanes, both C consumers and input-aware capability, then atomic public session/host/source cutover and V1 retirement. No Map-through-V1 or renewed readiness census."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -35,7 +35,8 @@ Conditional representation is separated from execution coverage.
 Private invocation owns existing document/config/outcomes/program/definition products.
 Named binding closes demand/domain/original-lane handling in the MIR planner.
 Private query now binds actual C outcomes and retains input across compile/cancel.
-Next is complete V2 frame/C consumption before public host/source cutover.
+Complete demanded projection actions now reuse one leaf/domain mapping.
+Next is owned V2 rows/expanded lanes and C consumption before public host/source cutover.
 Actual session/host/Map cutover remains open.
 """
 next_design_card = "none"

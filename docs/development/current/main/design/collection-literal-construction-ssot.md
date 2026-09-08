@@ -647,13 +647,13 @@ still apply; exact-call inventory alone does not close external callers.
 
 `map_value_domains.rs` implements this bounded closure/operation selection.
 An empty operation map does not prove that all leaf producers are admitted.
-Named allocation, boxed-sum site/ABI binding and ownership capability retain
-their separate obligations. In particular, a Rust TypedObjectPlan match does
-not prove which C NewBox consumer wins: generic builtin arms precede typed
-plans, StringBox may alias arg0, and the same-module consumer has a different
-accepted subset. `NamedAllocationPhysicalAdmissionMissing` remains an open
-mapping; copying a Named-spelling classifier into Rust or rejecting all Named
-inputs to claim cutover is not an accepted resolution.
+The complete projection map consumes the shared leaf mapping and existing Named
+query binding; ownership capability and actual C materialization remain separate.
+A Rust TypedObjectPlan match cannot choose the C NewBox consumer: generic builtin
+arms precede typed plans, StringBox may alias arg0, and the same-module consumer
+has a different accepted subset. The retained C query supplies this conditional
+choice. Full frame/C consumption remains open; neither copying a Named-spelling
+classifier into Rust nor rejecting all Named inputs closes that obligation.
 
 ### Named allocation emission selection — shared physical owner
 
@@ -1176,10 +1176,10 @@ bypassed body, or reject a whole program merely because discovery visits an
 unrequested unsupported site. Rust binds relevant outcomes to the original
 `MapBodyIndex` instructions before domain/leaf admission. Handle follows the
 selected allocating consumer; AliasOperand(0) follows the original MIR operand,
-including exact Float bits. Allocation is currently a demand leaf in
-`map_body_index.rs`; alias binding must extend demand, domain and original-lane
-propagation together, without manufacturing an old Float lane or copying an
-operand graph. A new demanded alias input must not trigger a second role query.
+including exact Float bits. `map_body_index.rs` now follows bound alias operands
+in demand, domain and original-lane propagation together, without manufacturing
+an old Float lane or copying an operand graph. A new demanded alias input uses
+the already retained Named outcomes rather than triggering another role query.
 
 CutoverBlockerOpen until session/frame/C connection closes: generic StringBox
 prescan versus alias/typed-plan fallback, same-module early typed-plan facts,
@@ -1201,6 +1201,40 @@ Non-demanded formal positions retain their existing contract. A changed
 physical signature must be projected consistently at definition and every
 admitted caller, under an explicit compiler-input revision; the current v1 C
 row layout cannot be reused with silently changed field meanings.
+
+### Complete demanded projection mapping — verified implementation
+
+Change: complete the existing MapBodyIndex action map for every demanded producer;
+replace duplicated/coarse leaf domain handling with the same finite mapping.
+Contract: original ConstValue, checked canonical calls, bound Named outcomes and
+existing `build_function_boxed_sum_site_plan_map` own the physical evidence.
+VariantMake is Handle even for unit payload; VariantTag is I64; Project requires
+exact storage/type agreement (Bool uses OriginalBoolI64, never BoolI1). Graph and
+operation actions reuse original MIR and the existing fixed-point solver. No
+new semantic receipt or alternate graph. Only demanded leaves are admitted.
+Done: constants, graph/formal, checked calls, bound Named and exact boxed sites
+produce a complete action map consumed by original-use closure and then frame
+rows. Missing/ambiguous boxed plans, unsupported producers, Float project and
+Map-demanded Float with original-use demand reject. Tests retain String/Handle
+and Bool encoding distinctions and unit Make allocation. Reuse focused Map tests.
+Stop: no MIR-type/coarse representation repair of missing ABI, no old Float lane
+fabrication, no CopyOwned-to-Copy conversion. This mapping does not prove String
+NUL materialization, boxed C execution, expanded ingress or production cutover;
+those remain in the full frame/C consumer step. Worker leaf audit at a695ff2638
+and parent owner reads agree; existing view Integer return gates close Call mapping.
+
+Verification: `map_projection.rs` supplies one leaf domain/action mapping and a
+complete demanded action map. Boxed site binding calls the existing plan owner
+once per indexed function, retaining exact sites without another layout resolver.
+Focused Map33 passes, including five new projection tests: exact constants/NaN/
+NUL retention, original Float rejection, boxed Bool i64 versus Handle/String,
+unit Make, missing/ambiguous/wrong storage, unsupported payloads, unrequested
+bad sites, canonical Integer-result gate, demanded formals and seeded/unseeded
+cycles plus CopyOwned refusal. The live C-query compile/cancel test also passes;
+corridor and pointer guards are green. Initial new VariantProject fixture lacked
+its required variant field; corrected before passing, with no baseline waiver.
+Next is owned V2 frame rows and expanded definition/caller lanes, followed by
+both C consumers and input-aware capability, then public session/host cutover.
 
 ### Demanded-formal ingress and use closure
 

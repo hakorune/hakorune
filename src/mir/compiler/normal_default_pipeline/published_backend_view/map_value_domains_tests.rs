@@ -2,7 +2,7 @@
 use super::super::PublishedMirBackendView;
 use super::*;
 use crate::mir::{
-    BasicBlockId, Callee, CompareOp, EffectMask, FunctionSignature, MirFunction, MirModule,
+    BasicBlockId, Callee, CompareOp, ConstValue, EffectMask, FunctionSignature, MirFunction, MirModule,
     MirType, ValueId,
 };
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;

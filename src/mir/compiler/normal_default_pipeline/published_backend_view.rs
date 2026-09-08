@@ -25,6 +25,7 @@ mod map_body_index;
 mod map_original_demand;
 mod map_named_allocations;
 mod map_value_domains;
+mod map_projection;
 mod compiled_entry_contract;
 mod lifecycle;
 mod physical_abi;

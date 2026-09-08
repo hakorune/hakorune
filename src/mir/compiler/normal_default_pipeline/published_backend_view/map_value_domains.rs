@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::c_transport_v2::PhysicalOperation;
 use super::map_body_index::{MapBodyIndex, Producer, ValueKey};
-use crate::mir::{BinaryOp, ConstValue, ConstructionTarget, MirInstruction, UnaryOp};
+use crate::mir::{BinaryOp, ConstructionTarget, MirInstruction, UnaryOp};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(super) enum ValueDomain {
@@ -62,6 +62,9 @@ impl<'m> MapBodyIndex<'m> {
     ) -> Result<BTreeSet<ValueDomain>, String> {
         use ValueDomain::*;
         let one = |domain| BTreeSet::from([domain]);
+        if let Some((domain, _)) = self.map_leaf_projection(key)? {
+            return Ok(one(domain));
+        }
         let local = |value| {
             domains
                 .get(&(key.0, value))
@@ -86,17 +89,6 @@ impl<'m> MapBodyIndex<'m> {
                 }
             }
             Producer::Instruction { site, instruction } => match instruction {
-                MirInstruction::Const { value, .. } => one(match value {
-                    ConstValue::Integer(_) => I64,
-                    ConstValue::Bool(_) => Bool,
-                    ConstValue::Float(_) => F64,
-                    ConstValue::String(_) => String,
-                    ConstValue::Null | ConstValue::Void => Void,
-                }),
-                MirInstruction::NewBox {
-                    target: ConstructionTarget::IntrinsicMap | ConstructionTarget::IntrinsicArray,
-                    ..
-                } => one(Handle),
                 MirInstruction::NewBox {
                     target: ConstructionTarget::Named(_),
                     ..
@@ -134,8 +126,7 @@ impl<'m> MapBodyIndex<'m> {
                         })
                         .collect()
                 }
-                MirInstruction::Call(_) if self.calls.contains_key(&site) => one(I64),
-                // Boxed sums need exact site/ABI binding. CopyOwned keeps its capability Stop.
+                // Unsupported leaves stay unresolved; CopyOwned keeps its capability Stop.
                 _ => one(Unresolved),
             },
         })

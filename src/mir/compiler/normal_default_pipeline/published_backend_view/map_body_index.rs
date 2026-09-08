@@ -33,6 +33,8 @@ pub(super) struct MapBodyIndex<'m> {
     pub instructions: BTreeMap<Site<'m>, &'m MirInstruction>,
     pub calls: BTreeMap<Site<'m>, ExactCall<'m>>,
     pub(super) named_allocations: BTreeMap<Site<'m>, NamedAllocationConsumer>,
+    pub(super) boxed_sum_sites:
+        BTreeMap<Site<'m>, crate::mir::boxed_sum_abi_plan::BoxedSumSitePlan>,
     pub map_operations: BTreeMap<Site<'m>, MapOperationKind>,
 }
 
@@ -49,12 +51,25 @@ impl<'m> MapBodyIndex<'m> {
             calls: BTreeMap::new(),
             map_operations: BTreeMap::new(),
             named_allocations: BTreeMap::new(),
+            boxed_sum_sites: BTreeMap::new(),
         };
         for (name, function) in &view.module.functions {
             if name.contains('\0') {
                 return Err(reject("function-name-nul", name));
             }
             index.functions.insert(name, function);
+            for ((block, ordinal), plan) in
+                crate::mir::boxed_sum_abi_plan::build_function_boxed_sum_site_plan_map(
+                    function,
+                    &view.module.metadata.boxed_sum_abi_plans,
+                )
+            {
+                let ordinal = u32::try_from(ordinal)
+                    .map_err(|_| reject("instruction-index-overflow", name))?;
+                index
+                    .boxed_sum_sites
+                    .insert((name, block.as_u32(), ordinal), plan);
+            }
             for (ordinal, value) in function.params.iter().enumerate() {
                 let ordinal =
                     u32::try_from(ordinal).map_err(|_| reject("formal-ordinal-overflow", name))?;

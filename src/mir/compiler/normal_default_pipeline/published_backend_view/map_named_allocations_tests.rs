@@ -338,3 +338,6 @@ fn map_literal_named_alias_closes_phi_select_and_canonical_formal_cycle() {
 
 #[path = "map_named_query_tests.rs"]
 mod query;
+
+#[path = "map_projection_tests.rs"]
+mod projection;
