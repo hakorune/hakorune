@@ -266,3 +266,16 @@ allocations retain host-fatal behavior. Test returned failures and their cleanup
 through real operation paths; do not require a destructive host-OOM test as a
 language-Fault witness. Stronger allocator recovery needs a separate Decision.
 This policy alone does not activate the selected Array C consumer.
+
+## Map replacement native teardown
+
+The shared `MapBox::insert_key_str` commits the new value and detaches any old
+value while holding the Map write lock, then drops the old native Box after
+unlocking. Teardown may re-enter and observe the committed replacement. A
+missing-key insert drops no displaced value. Key equality and insertion return
+behavior are unchanged.
+
+This closes the insertion helper's lock-held native Drop edge only. It does not
+activate source Home transfer, user finalization, ordered Map end, or certify
+remove/clear/read/clone. Those remain governed by the
+[Map lifecycle target](../language/lifecycle.md#intrinsic-map-construction-and-end).

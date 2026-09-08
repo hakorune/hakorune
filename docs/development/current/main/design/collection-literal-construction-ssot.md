@@ -1352,14 +1352,30 @@ transfer before mutation; SafeMutex evidence is not TLS evidence.
 MapBox is in the root crate while indexed storage is in nyash_kernel, which
 already depends on root. The residence interface must respect that dependency
 direction. No root-to-kernel dependency or global callback registry is authorized.
-The concrete interface and end-result carrier remain the next bounded design.
-Root BoxCore is Send+Sync and NyashBox requires clone_box/share_box; neither
-provides a nonduplicating responsibility with explicit end. Text-only host leases
-are not a typed-object interface. SafeMutex needs no new ABA generation under
-its permanent-index contract; TLS needs confinement beyond the current enum-only
-profile check. Audit the Map read/clone/
-delete/clear/end callers together with intake; changing insertion alone cannot
-establish sole ownership. Child end remains outside the Map lock.
+Accepted interface: root defines a non-Clone `Send + Sync` canonical-object
+residence, independent of NyashBox, with consuming `end(self: Box<Self>)`.
+Kernel implements it with private SafeMutex indexed identity/type fields and
+existing reclaim. Its result carries only finite physical storage failure facts;
+kernel maps those to existing CheckedStorageError/FaultFrame handling. Root
+imports no kernel FaultFrame and no global callback registry is introduced.
+Precommit rejection returns the original candidate without end; successful
+install returns detached-old/no-old after the Map owns the new responsibility.
+Either outcome of explicit end consumes that attempt; never retry the old value.
+
+TLS is unsupported before residence creation/mutation until confinement is
+proved. SafeMutex permanent indices need no new ABA generation. The interface
+alone does not authorize owned slots: existing get/get_opt/values/Clone use
+clone/share, toJSON and get_data expose observers (JSON conversion and gc_trace).
+These callers must gain an explicit supported projection or reject; owned values
+cannot silently become missing keys, ordinary Boxes or cloned payloads. Remove,
+clear and terminal end must detach responsibilities and end outside locks.
+Current Send+Sync NyashBox and its mandatory clone/share methods are not a
+substitute. Source/Fault/end consumer migration remains required before intake.
+
+The immediate production repair is narrower: `insert_key_str` moves the old
+native Box out of the lock before Drop. It removes a real lock-held teardown
+edge without accepting owned residence; reentrant teardown must see the committed
+replacement once. Remove/clear and source finalization are not covered by it.
 
 Completion/root cleanup reuses the existing ordered binding list and suffix
 builder, selecting ordinary-object versus intrinsic-Map end at the existing

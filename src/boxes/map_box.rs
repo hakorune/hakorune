@@ -294,7 +294,13 @@ impl MapBox {
     /// Raw insert helper for substrate/plugin routes.
     pub fn insert_key_str(&self, key: String, value: Box<dyn NyashBox>) {
         let key = MapKeyDomain::from_text(&key);
-        self.data.write().unwrap().insert(key, value);
+        // Publish the replacement while locked, then run arbitrary old-value
+        // teardown after releasing the lock. Drop may re-enter this Map.
+        let displaced = {
+            let mut entries = self.data.write().unwrap();
+            entries.insert(key, value)
+        };
+        drop(displaced);
     }
 
     /// Raw clear helper for substrate/plugin routes.
@@ -585,3 +591,7 @@ mod tests {
         assert_eq!(str_val(&keys_arr.get_index_i64(1)), "1");
     }
 }
+
+#[cfg(test)]
+#[path = "map_box_replacement_tests.rs"]
+mod replacement_tests;

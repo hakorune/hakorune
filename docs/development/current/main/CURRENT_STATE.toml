@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Source Map end/PlainI64NoHook compatibility is closed, but physical residence is missing: indexed negative object identity cannot enter host Handle5 clone storage. Next close MapOwnedCanonicalObjectResidenceMissing interface and profile/thread identity without reverse crate dependency or second payload. Reuse ordered root bindings/first-Fault suffixes; install and detached-old end remain separate. Source flow, Map end/final handoff and public cutover stay open; escape Stops remain."
+current_blocker_token = "Map insertion lock-held Drop is removed and Map tests6 pass. Root non-Clone residence/kernel SafeMutex end interface is accepted; TLS remains unsupported before mutation. Next close explicit owned-residence read/clone/delete/clear/end consumers before intake, then source Normal/transfer flow and root cleanup. Existing APIs cannot hide owned values as missing or clone/share them. No public Map cutover; source/physical/final handoff remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -46,7 +46,8 @@ Map source-shape preservation and explicit Script Map-entry call Stop are implem
 After-group original i1 PHI normalization is implemented. Runtime escape ownership
 follows the accepted owned-slot target; single-entry semantic issuance/commit
 co-seal is the next design, with wider destination/runtime obligations still open.
-Actual session/host/Map cutover remains open.
+Native Map insertion now drops replaced values outside its lock; owned-slot
+residence/read/end migration and actual session/host/Map cutover remain open.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card = "none"

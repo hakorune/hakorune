@@ -282,8 +282,8 @@ tags/Arc/clone, declaration-only I64UnitTrivial ABI and matching owner numbers.
 Fail-fast boundary: reject missing/foreign source relation, unsupported candidate
 or stale obligation before effects/artifact; retain existing escape Stops until
 actual source/physical consumers close. No implicit share or carrier-to-Home cast.
-Smallest next slice: close the Map-owned indexed-residence interface and
-profile/thread identity, then connect source flow and the existing root cleanup owner.
+Smallest next slice: map explicit owned-residence read/clone/delete/clear/end
+consumers before source flow/intake activation; insertion lock repair is verified.
 The one-entry transfer law is fixed; do not repeat that policy census.
 Non-claims: source Map execution, runtime retention, general Home Flow, full
 key/residence/cleanup matrix or public cutover.
@@ -463,8 +463,9 @@ owns the storage Decision. Current checked object allocation returns a negative
 indexed-store identity; Map Handle5 accepts a positive host handle and clones
 its NyashBox. PlainI64NoHook proves end semantics, not interoperability. Keep
 `named-non-host-handle` and boxed-object escape Stops until the actual Map entry
-can accept and discharge that exact obligation. Fix the cross-crate residence
-interface and profile/thread identity before authorizing source transfer code;
+can accept and discharge that exact obligation. The root-defined non-Clone residence/kernel SafeMutex end interface is now
+accepted; TLS remains unsupported. Close actual read/clone/end consumers
+before authorizing source transfer code;
 do not merely add more accepted source rows with a pending physical consumer.
 
 **Transaction and acceptance**
@@ -504,6 +505,8 @@ No additional user policy is needed for the one-entry law; actual producer and
 consumer mapping must close before implementation is authorized.
 
 **Landed prerequisites / evidence**
+
+- Native Map replacement: displaced Drop runs after unlock; Map6 verifies reentry/commit/once and existing key behavior. Pointer/corridor pass; source max597. No owned-slot or remove/clear completion claim.
 
 - `aa4222541c`: ordered Map keys and exact EntryValue structure, explicit Script call Stop.
 - `a3ee41cfeb`: prefix stored state separated from ordinary observation; duplicate classifiers removed.
