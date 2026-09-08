@@ -1098,6 +1098,42 @@ callable-to-MIR dependencies only; installed production and C/OBJ/EXE remain
 separate acceptance. Include empty/populated Map, unused alias chain and later
 New, with opaque Copy rejection and source/physical drift checks.
 
+Placement rejection checkpoint (2026-09-09):
+source foreign-site/wrong-binding preflight rejects without preventing a later
+correct begin; duplicate begin, pending equal-value install and unconsumed Map
+remain rejected. Shared Local tests reject the second callback or i64/Array<i64>
+opaque contract before registering either local. Focused placement2, Map
+dependency2 and existing local-contract4 pass with jobs4 locked quick library
+filters; logs /tmp/hakorune-map-placement-reject.log,
+/tmp/hakorune-map-map_physical_dependency_tests.log and
+/tmp/hakorune-map-local_contract_tests.log. No production switch. Initial test
+field-path compile error was corrected before the green run.
+Next is the mixed finishing Decision below; no further source-family expansion.
+
+Mixed finishing physical Decision (read-only worker audit at 037b3f0ce9):
+the existing local-commit owner captures validated original New/Map/root
+associations at draft validation, then produces one temporary finished projection
+for both validation and artifact coverage. Source meaning remains in Completion;
+there is no new semantic issuer. Remove old-block fixed comparisons and artifact
+rereads of original checked_bindings together. Do not search the CFG for an equal
+instruction as a replacement proof.
+The existing root contraction comparison must handle instruction sequences:
+Map bindings include frame/projection instructions and multiple rows per block,
+so root-only one-terminator/empty-prefix assumptions cannot be applied wholesale.
+Only recorded Jump contraction through an originally sole-predecessor deleted
+node is permitted; concatenate recorded instruction order and update moved
+InvokeNormalResult origins using the same mapping. Preserve Normal/Fault slots,
+operands, frame, external ingress, reachability and acyclicity.
+Compiled-entry coordinates add Map End and EndOutcome, projected from the
+validated finished physical program; New/PrepareKey/Install are not cleanup.
+These coordinates do not implement C execution.
+Acceptance: actual simplify_cfg on populated Map failure suffixes, later-New
+allocation/Birth failure after Map, mixed/multiple/empty Map root; exact artifact
+site coverage and optimized cleanup coordinates. Reject swapped successors,
+changed frame/operands/order, omitted/duplicate cleanup, external reentry and
+arbitrary instruction relocation. Share terminal dispatch without changing the
+draft/finishing stages or their failure precedence. Source install Stop remains.
+
 **Map quality queue (2026-09-09, measured at 7cc63ab9ea)**
 
 Boundary: current Map physical-frame construction and the shared owners touched

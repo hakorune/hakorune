@@ -95,3 +95,71 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
         );
     }
 }
+
+#[test]
+fn map_physical_preflight_rejects_foreign_site_and_pending_install() {
+    let source = "static box Main { main() { local m = %{} local other = 1 return 30 } }";
+    let package = issue(source).unwrap();
+    let foreign = issue(source).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let map = ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap()
+        .maps()[0]
+        .complete()
+        .unwrap();
+    let foreign_completion = foreign.ordinary_new_claim_ledger.root_completion_for_test();
+    let foreign_site = foreign_completion.cleanup().root_flow().unwrap().maps()[0].site();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|d| d.owner() == map.site().owner())
+        .unwrap();
+    package
+        .batch()
+        .with_lowering_input(declaration.batch_slot(), |input| {
+            let relation = input
+                .function()
+                .expression_source()
+                .initializers()
+                .find(|r| r.initializer_site() == Some(map.site().site()))
+                .unwrap();
+            let other = input
+                .function()
+                .expression_source()
+                .initializers()
+                .find(|r| r.binding() != relation.binding())
+                .unwrap();
+            assert!(ledger.begin_map_emission(foreign_site, relation).is_err());
+            assert!(ledger
+                .begin_map_emission(map.site(), other)
+                .unwrap_err()
+                .contains("map-initializer-source-drift"));
+            assert!(!ledger.map_demands_consumed());
+            ledger.begin_map_emission(map.site(), relation).unwrap();
+            assert!(ledger
+                .begin_map_emission(map.site(), relation)
+                .unwrap_err()
+                .contains("map-duplicate-emission"));
+            let crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement, ordinal } =
+                relation.declaration_site()
+            else {
+                panic!("source local");
+            };
+            let value = crate::mir::ValueId(99);
+            assert!(!ledger.map_initializer_matches(map.site(), relation.binding(), value));
+            assert!(ledger
+                .complete_local_installation(
+                    input.owner(),
+                    statement.node(),
+                    &[(relation.binding(), *ordinal, value, value)]
+                )
+                .unwrap_err()
+                .contains("local-initializer-mismatch"));
+            assert!(!ledger.is_installed_map_binding(relation.binding(), value));
+            assert!(!ledger.map_demands_consumed());
+        })
+        .unwrap();
+}

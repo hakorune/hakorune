@@ -711,3 +711,7 @@ mod local_contract_tests {
         );
     }
 }
+
+#[cfg(test)]
+#[path = "local_placement_tests.rs"]
+mod local_placement_tests;
