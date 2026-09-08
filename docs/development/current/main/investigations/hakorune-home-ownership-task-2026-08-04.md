@@ -309,6 +309,82 @@ coordination must consume those source decisions; keep current escape Stops
 until real issuer/consumer and the exclusive deletion set are closed.
 
 
+##### Map candidate and commit owner mapping
+
+Decision: reuse `OWN-HOME-FLOW0-S0` for source availability; do not grow a
+Map-specific copy of `home_new_prefix::LocalValue`. Candidate capability and
+availability are separate: a Trivial proof needs no Home, while an owning value
+needs an exact available obligation. The source flow owner belongs beside the
+existing resolver Home issuers; the package joins its output and cannot invent
+availability. This assigns the missing responsibility, not implementation
+permission for a generic Home verifier or a new public receipt.
+
+Audit boundary: exact resolved Map child -> candidate evidence -> root co-seal
+-> selected raw/Core write -> detached cleanup result. Includes Script and
+callable root placement, all seven candidate categories below and pre/post-commit
+failure; excludes general CFG Home joins, other containers and runtime execution
+proof. The source-shape prerequisite landed at `aa4222541c`.
+
+| Candidate | Existing evidence to consume | Missing Map input / refusal |
+| --- | --- | --- |
+| Trivial | `callable_parameter_contract/issuer.rs::issue_callable_parameter_contract_v1` binds declared i64 to its exact parameter; `home_new_prefix.rs::value_class` classifies its bounded source prefix | Neither is a general Map-child issuer; share source classification instead of copying its private enum. |
+| Available Home | `home_new_prefix.rs::issue_new_home_prefixes_v1` records Normal local installation and unwind | Issue exact availability and removal of the old cleanup obligation at commit. A prefix Home list alone is insufficient. |
+| Existing Shared Home | Passive `home_relation.rs` vocabulary | No admitted producer in this audited boundary; preserve unsupported until a real producer exists. |
+| Explicit share result | Existing source acquisition law | Acquisition issuer remains separate and absent; Map insertion cannot create it. |
+| SelfContainedDynamicCarrier | `dynamic_invocation_contract/catalog.rs` supplies the exact target envelope | Bind an individual Normal result and its exactly-once forward; the fixed two-call LoopBodyLocal lifecycle is not a Map input. |
+| Ordinary borrow | Exact binding/parameter contract; prefix aliases classify as Handle | Reject owning transfer without a separate acquisition; never recover a root Home from alias provenance. |
+| Unknown/composite | No general capability proof in this boundary | Preserve unsupported; no syntax/tag/i64-width default. |
+
+Root join points are concrete. For Script, use
+`NormalScriptPreEffectSourceObservationIssuerV1::issue` under its checked parser
+loan, then `VerifiedScriptSemanticSourceV1::seal_ast_with_forest`; retain the
+joined source state through `ScriptSemanticSourcePreEffectPartsV1` across install.
+The callable package exists before this Script forest, so its ordinary-New ledger
+cannot own Script state. For callable roots, the existing package issuer owns the
+resolved batch and parameter contracts. Each root joins its own source facts;
+matching owner numbers after independent issuance is not a valid co-seal.
+
+The entry transaction must retain these distinct states before physical IDs:
+
+| Terminal | Candidate responsibility | Slot / detached-old responsibility |
+| --- | --- | --- |
+| Evaluation or preparation Fault | Any already-created candidate remains with evaluation cleanup; no nonexistent Normal value is consumed | Old slot unchanged. |
+| Installation Fault before commit | Evaluation owner retains the candidate | Old slot unchanged; no detached-old obligation. |
+| Successful commit, empty slot | Candidate obligation transferred once | New slot owns it; no old cleanup. |
+| Successful commit, replacement | Candidate obligation transferred once | New slot owns it; detached old obligation goes to cleanup. |
+| Old cleanup Normal or Fault | Candidate never returns to evaluation owner | New slot remains installed; discharge old once, preserve first Fault and continue required cleanup. |
+
+Equal keys do not merge source entry identities: each entry evaluates separately,
+and later entries observe the prior committed state. Key residence and Map end
+still need their own included obligations before whole cutover.
+
+Ordered dependency closure inside the existing Map series:
+
+1. Close the Map-scoped `OWN-HOME-FLOW0-S0` source issuer/API: exact root/site,
+   source capability evidence, available obligation and post-transfer state.
+   No standalone all-Unknown receipt or scalar-only completion. Acceptance must
+   distinguish borrowed aliases, foreign roots, repeated consume and Normal-only
+   carrier production. This is the next design, before new code.
+2. Co-seal that input and exact EntryValue destination with the transaction table
+   at the root join above; verify all duplicate-key and Fault transitions before
+   Recipe generation. Do not place CFG/Completion ownership in the callable
+   package, whose existing contract explicitly excludes it.
+3. Add the consuming physical transaction only after its semantic mapping closes.
+   Current `InvokeOperation` has no Map install/detached-old result; Array write
+   and FieldSet promise no mutation on Fault and cannot represent post-commit
+   cleanup Fault. Raw `collection_literals::build_map_literal_with_port_v1` and
+   Core `helpers_value/lower.rs` currently emit generic `set`. Their replacement
+   and exclusive tests belong to the same production cutover series.
+4. Connect runtime storage with detached cleanup outside its lock, then close
+   source/OBJ/EXE and the remaining destination matrix. Current
+   `nyash_map_literal_store_v1` status and `MapBox::insert_key_str` return no
+   detached obligation; changing their status alone cannot issue source transfer.
+
+This closes owner placement and dependency order, not candidate issuance or
+execution. Do not repeat this bounded absence audit to select a runtime-only
+retention workaround; the next unresolved decision is the source flow API.
+
+
 ### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0`
 
 Decision: accepted by
