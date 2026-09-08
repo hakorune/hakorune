@@ -53,8 +53,9 @@
             const char* box_type = tyobj ? read_str(tyobj, "box_type") : NULL;
             const char* sval = vobj ? read_str(vobj, "value") : NULL;
             if (box_type && strcmp(box_type, "StringBox") == 0 && sval) {
-              put_str_const(dst, sval);
-              put_known_string_len(dst, (long long)strlen(sval));
+              size_t byte_len = invocation->static_v2.frame ? yyjson_get_len(yyjson_obj_get(vobj, "value")) : strlen(sval);
+              put_str_const(dst, sval, byte_len);
+              put_known_string_len(dst, (long long)byte_len);
               set_type(dst, T_I64);
               set_scan_origin(dst, ORG_STRING);
               set_origin(dst, ORG_STRING);
@@ -71,6 +72,12 @@
               publish_plain_i64_value(dst);
             }
           } else if (strcmp(op, "newbox")==0) {
+            int map_site = hako_static_v2_map_find(&invocation->static_v2, fn0, ins);
+            if (map_site >= 0) {
+              needs.map_birth = 1;
+              generic_pure_publish_i64_origin(read_int(ins, "dst"), ORG_MAP_BIRTH);
+              continue;
+            }
             int intrinsic = hako_llvmc_published_intrinsic_array_peek_v1(
                 fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins, NULL);
             if (intrinsic < 0) {
@@ -438,13 +445,13 @@
               long long lhs_len = 0;
               long long rhs_len = 0;
               if (lhs_const && rhs_const) {
-                char* folded = concat_owned_string_consts(lhs_const, rhs_const);
-                if (folded && put_str_const_owned(dst, folded)) {
+                char* folded = concat_owned_string_consts(lhs_const, get_str_const_len(lhs), rhs_const, get_str_const_len(rhs));
+                if (folded && put_str_const_owned(dst, folded, get_str_const_len(lhs) + get_str_const_len(rhs))) {
                   if (dst) {
                     set_type(dst, T_I64);
                     set_scan_origin(dst, ORG_STRING);
                     set_origin(dst, ORG_STRING);
-                    put_known_string_len(dst, (long long)strlen(folded));
+                    put_known_string_len(dst, (long long)get_str_const_len(dst));
                   }
                   needs.string_const_box = 1;
                   continue;
@@ -620,9 +627,6 @@
         goto GEN_ABORT;
       }
       #include "hako_llvmc_ffi_pure_compile_ir_open.inc"
-      emit_module_function_declarations(f);
-      if (needs.map_birth || (definition_plan->same_module_count > 0))
-        fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
       if (needs.map_set || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.slot_store_hih\"(i64, i64, i64)\n");
       if (needs.map_set || (definition_plan->same_module_count > 0))

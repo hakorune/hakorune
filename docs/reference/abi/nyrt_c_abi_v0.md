@@ -124,8 +124,11 @@ int64_t nyash.box.from_i8_string_const_len_v1(const uint8_t *bytes, uint64_t len
 
 The dotted names are linker export names, not C source identifiers. Kernel
 exports are implemented in `plugin/map_literal.rs` and `exports/box_helpers.rs`.
-Compiler/source consumers remain unimplemented. Dedicated tests call both export
-names through C ABI declarations; runtime evidence is not Map OBJ/EXE evidence.
+Private V2 compiler consumers now execute allocation/ExactBits writes through
+both C walkers, with linked-kernel readback and nonzero-status trap evidence.
+String keys retain their byte length and zero handles trap at materialization.
+The complete projection/formal consumer and public host/source switch remain
+open; the physical fixture proof does not establish source-to-EXE cutover.
 
 Map kind constants are scoped to this protocol: `NYRT_MAP_LITERAL_I64=1`,
 `BOOL=2`, `F64=3`, `VOID=4`, `HANDLE=5` (each with the same prefix). Zero and

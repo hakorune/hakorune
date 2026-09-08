@@ -1,4 +1,4 @@
-// hako_llvmc_ffi.c — Minimal FFI bridge that forwards to hako_aot.c
+// hako_llvmc_ffi.c — Published MIR and compatibility LLVM-text backend.
 // Exports functions that hako_aot.c dlopens when HAKO_AOT_USE_FFI=1.
 // Phase 21.2 introduced a guarded "pure C-API" toggle (HAKO_CAPI_PURE=1).
 // Phase 29ck now names the current compile policy through
@@ -33,6 +33,7 @@
 #include "hako_llvmc_ffi_named_allocation_outcomes.inc"
 #include "hako_json_v1_borrowed.inc"
 #include "published_mir/hako_llvmc_ffi_published_static_method.inc"
+#include "published_mir/hako_llvmc_ffi_static_v2_index.inc"
 #include "published_mir/hako_llvmc_ffi_lifecycle_target_session_v1.inc"
 #include "published_mir/hako_llvmc_ffi_published_lifecycle_physical_v2.inc"
 #include "published_mir/hako_llvmc_ffi_lifecycle_v4_admission.inc"
@@ -55,3 +56,4 @@
 #include "hako_llvmc_ffi_dynamic_v2_artifact_descriptor.inc"
 #include "hako_llvmc_ffi_sum_local_seed.inc"
 #include "hako_llvmc_ffi_pure_compile.inc"
+#include "published_mir/hako_llvmc_ffi_static_v2_compile.inc"

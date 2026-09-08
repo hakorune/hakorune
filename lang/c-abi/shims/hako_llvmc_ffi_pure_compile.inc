@@ -410,9 +410,8 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
         yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
         return (params && yyjson_is_arr(params)) ? yyjson_arr_size(params) : 0;
       }
-      auto char* concat_owned_string_consts(const char* lhs, const char* rhs) {
-        size_t lhs_len = lhs ? strlen(lhs) : 0;
-        size_t rhs_len = rhs ? strlen(rhs) : 0;
+      auto char* concat_owned_string_consts(const char* lhs, size_t lhs_len, const char* rhs, size_t rhs_len) {
+        if (rhs_len == SIZE_MAX || lhs_len > SIZE_MAX - rhs_len - 1) return NULL;
         char* out = (char*)malloc(lhs_len + rhs_len + 1);
         if (!out) return NULL;
         if (lhs_len) memcpy(out, lhs, lhs_len);
@@ -420,14 +419,14 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
         out[lhs_len + rhs_len] = '\0';
         return out;
       }
-      auto int put_str_const_owned(long long r, char* v) {
+      auto int put_str_const_owned(long long r, char* v, size_t byte_len) {
         if (!v) return 0;
         if (owned_str_consts_n >= ARR_LEN(owned_str_consts)) {
           note_generic_capacity_overflow("generic_owned_string_const_inventory_full");
           free(v);
           return 0;
         }
-        if (!put_str_const(r, v)) {
+        if (!put_str_const(r, v, byte_len)) {
           free(v);
           return 0;
         }

@@ -13,6 +13,7 @@ struct HakoLlvmcInvocation {
   hako_llvmc_generic_pure_program_view program;
   struct PhysicalDefinitionPlan definitions;
   enum HakoLlvmcProgramObservation program_observation;
+  struct HakoStaticV2Index static_v2;
 };
 
 /* Takes document ownership; config is already captured by the invocation caller. */
@@ -25,6 +26,7 @@ static void hako_llvmc_invocation_init(
 }
 
 static void hako_llvmc_invocation_destroy(struct HakoLlvmcInvocation* invocation) {
+  hako_static_v2_clear(&invocation->static_v2);
   named_allocation_outcomes_destroy(&invocation->outcomes);
   yyjson_doc_free(invocation->document);
   *invocation = (struct HakoLlvmcInvocation){0};

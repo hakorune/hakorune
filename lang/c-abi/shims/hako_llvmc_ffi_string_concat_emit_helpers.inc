@@ -1,3 +1,9 @@
+      auto void emit_string_const_handle(FILE* out, long long dst, const char* global, size_t byte_len) {
+        if (invocation->static_v2.frame)
+          fprintf(out, "  %%r%lld = call i64 @\"nyash.box.from_i8_string_const_len_v1\"(ptr getelementptr inbounds ([%zu x i8], ptr %s, i64 0, i64 0), i64 %zu)\n", dst, byte_len + 1, global, byte_len);
+        else
+          fprintf(out, "  %%r%lld = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([%zu x i8], ptr %s, i64 0, i64 0))\n", dst, byte_len + 1, global);
+      }
 #include "hako_llvmc_ffi_string_concat_match.inc"
 
       auto int emit_piecewise_slot_hop_publish_call(
@@ -413,13 +419,9 @@
           finalize_string_concat_result(dst);
           return 1;
         }
-        size_t slen = strlen(sval);
-        fprintf(
-            f,
-            "  %%r%lld = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0))\n",
-            dst,
-            slen + 1,
-            dst);
+        char global[64];
+        snprintf(global, sizeof(global), "@.str_reg_%lld", dst);
+        emit_string_const_handle(f, dst, global, get_str_const_len(dst));
         mark_string_const_box_emitted(dst);
         finalize_string_concat_result(dst);
         return 1;
@@ -432,13 +434,9 @@
           finalize_string_concat_result(dst);
           return 1;
         }
-        size_t slen = strlen(sval);
-        fprintf(
-            f,
-            "  %%r%lld = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([%zu x i8], ptr @.str_reg_%lld, i64 0, i64 0))\n",
-            dst,
-            slen + 1,
-            dst);
+        char global[64];
+        snprintf(global, sizeof(global), "@.str_reg_%lld", dst);
+        emit_string_const_handle(f, dst, global, get_str_const_len(dst));
         mark_string_const_box_emitted(dst);
         finalize_string_concat_result(dst);
         return 1;

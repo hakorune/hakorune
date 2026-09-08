@@ -1,3 +1,11 @@
+          {
+            int v2 = emit_static_v2_instruction(program->entry.index, bid, ii, ins);
+            if (v2 < 0) {
+              note_pure_unsupported_shape(bid, ii, op, "static_v2_emission", NULL);
+              goto GEN_ABORT;
+            }
+            if (v2 > 0) continue;
+          }
           #include "hako_llvmc_ffi_pinned_text_selected_dispatch.inc"
           if (strcmp(op, "checked_callout")==0) {
             if (!hako_llvmc_c1_predecessor_note_emission_v1(

@@ -191,12 +191,27 @@ Map literal runtime boundary
 The unpublished static v2 value projection separates result kind from finite
 physical operation selection (integer/Bool/String comparison, String concat,
 integer binary and integer/Bool Not). Body opcode and operands remain the sole
-instruction graph. This header schema does not activate a consumer: both C
-walkers must validate and honor the selection before cutover, including direct
-integer Eq/Ne instead of the generic dynamic String-handle comparison helper.
+instruction graph. Private retained V2 compilation now binds an invocation-owned
+index, runs both walkers for Map allocation/ExactBits write, and publishes staged
+output only after both ledgers finish. Remaining value actions and expanded
+functions reject explicitly; public V2 is still closed. Full selection consumers,
+including direct integer Eq/Ne, precede the host/source cutover.
+
+String constants keep byte length in their existing record/global/owned storage;
+V2 materializes length-aware handles at the instruction and traps on zero.
+Map write checks i32 status0 and traps otherwise. Both use the existing checked
+status tail/PHI owner. V1 retains its prior String projection.
+
+For the private physical execution proof, build `tests/static_v2_execution_driver.c`
+with the same whole-C/yyjson sources as the document driver and ASan. Run
+`python3 lang/c-abi/tests/static_v2_execution_test.py DRIVER KERNEL_ARCHIVE`.
+The suite links `static_v2_runtime_probe.c` against the current kernel for actual
+readback and injects returned statuses to verify traps. Its JSON frame reader is
+only a fixture, not a new production transport or source acceptance proof.
 - The [v1 runtime contract](../../docs/reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1)
   fixes explicit value kinds, OK/InvalidContract and length-aware String input.
-  Kernel exports are implemented and tested; compiler consumers remain pending.
+  Kernel exports and private ExactBits consumers are tested; the complete
+  compiler/host/source cutover remains pending.
   Existing static C rows
   cannot be silently reinterpreted; formal-domain and input projection remain
   gated by the Map owner. Legacy Any Map entrypoints keep their current contract.

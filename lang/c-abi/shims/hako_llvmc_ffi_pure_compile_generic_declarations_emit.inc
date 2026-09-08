@@ -1,3 +1,11 @@
+      if (needs.map_birth || (definition_plan->same_module_count > 0) || invocation->static_v2.frame)
+        fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
+      emit_module_function_declarations(f);
+      if (invocation->static_v2.frame) {
+        fprintf(f, "declare i64 @\"nyash.box.from_i8_string_const_len_v1\"(ptr, i64)\n");
+        fprintf(f, "declare i32 @\"nyash.map.literal_store_v1\"(i64, i64, i32, i64)\n");
+        hako_llvmc_emit_llvm_trap_declaration_once(f, &llvm_trap_decl_emitted);
+      }
       if (needs.string_const_box ||
           (definition_plan->same_module_count > 0) ||
           object_storage_plan_selected_alignment_result_ready())
@@ -105,7 +113,7 @@
       if (needs.printf || (definition_plan->same_module_count > 0))
         fprintf(f, "@.fmt_i64 = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n");
       for (size_t sci=0; sci<str_consts_n; sci++) {
-        size_t slen = strlen(str_consts[sci].val);
+        size_t slen = str_consts[sci].byte_len;
         fprintf(f, "@.str_reg_%lld = private unnamed_addr constant [%zu x i8] c\"", str_consts[sci].reg, slen + 1);
         hako_llvmc_emit_llvm_byte_string(f, str_consts[sci].val, (long long)slen);
         fprintf(f, "\\00\", align 1\n");

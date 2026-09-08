@@ -2,7 +2,7 @@
 
       auto void same_module_function_emit_const_globals(FILE* f, size_t fn_index) {
         for (size_t sci = 0; sci < str_consts_n; sci++) {
-          size_t slen = strlen(str_consts[sci].val);
+          size_t slen = str_consts[sci].byte_len;
           fprintf(f, "@.fnstr_%zu_%lld = private unnamed_addr constant [%zu x i8] c\"",
                   fn_index,
                   str_consts[sci].reg,
@@ -35,13 +35,10 @@
           size_t fn_index,
           long long dst) {
         const char* sval = get_str_const(dst);
-        size_t slen = sval ? strlen(sval) : 0;
         if (!sval) return 0;
-        EMIT("  %%r%lld = call i64 @\"nyash.box.from_i8_string_const\"(ptr getelementptr inbounds ([%zu x i8], ptr @.fnstr_%zu_%lld, i64 0, i64 0))\n",
-             dst,
-             slen + 1,
-             fn_index,
-             dst);
+        char global[96];
+        snprintf(global, sizeof(global), "@.fnstr_%zu_%lld", fn_index, dst);
+        emit_string_const_handle(f, dst, global, get_str_const_len(dst));
         mark_string_const_box_emitted(dst);
         same_module_function_publish_i64_origin(dst, ORG_STRING);
         return 1;

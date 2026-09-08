@@ -1322,23 +1322,54 @@ parent observations, query17 and actual Rust/C integration1. The empty-V2 driver
 exercises non-Map bodies through the real core; it does not validate a full frame
 or prove Map execution. Public V1 admission and public Map stop remain intact.
 
-Read-only worker audit fixes the next private V2 compile owner sequence:
-validate/bind the frame and one expanded index, activate the existing call owner,
-compile to unpublished staging, finish both call and V2 ledgers, then publish.
-Generic lowering already checks calls before object emission; add V2 coverage at
-that point. The earlier indexof pattern writes an object and returns before it,
-so the outer V2 owner must check both ledgers on every successful core return.
-Residual rejection must remove staging and preserve any existing final object.
-Every exit clears frame/call activity. This staging/consumer implementation is
-still open; an outer error alone does not prove no artifact was published.
+The private retained compiler now binds the invocation-owned index and call
+activity, writes to same-directory staging, finishes both ledgers and renames only
+on success. Generic lowering checks residual rows before object emission; the
+outer owner also checks after early optimizer returns. Failure removes staging
+and preserves a previous final object. Both walkers consume one frame-wide ledger
+using original function/instruction identity; function-context snapshots never
+copy that ledger. Query/prescan only observe. The expanded-function table remains
+explicitly unsupported until its shared index/signature/ingress consumer lands.
 
-Both actual walkers consume one frame-wide ledger using current function/site;
-function-context save/restore must not copy it. Query and prescan never consume
-rows, and optimizer skips cannot be counted as consumption. Next acceptance
-includes Map-only call_count0, actual allocation/write/ExactBits value observation,
-both walkers, early-pattern residual, generic abort, duplicate take and cleanup.
-Unimplemented projection actions reject explicitly. Full expanded definition and
-remaining action consumers precede public session/host/source cutover.
+Both actual walkers now emit intrinsic Map allocation and ExactBits writes to
+`nyash.map.literal_store_v1`. Exact bits retain Integer/Bool/F64/Void; the body
+remains the operand/CFG authority. Unimplemented value actions reject with
+`value-consumer-unsupported`; malformed/unknown actions reject separately. This
+bounded consumer checks direct write demand and original-use compatibility;
+it does not silently interpret missing or extra value rows. Formal/transfer and
+OriginalValue/Operation actions remain the next consumers, not inferred support.
+
+Map success is i32 status0; all nonzero statuses trap without continuation or
+source Fault. String constants retain byte length in the existing StringConst
+record, including owned concat and Copy-alias lookup. V2 uses the length-aware
+runtime entry and checks nonzero handles at actual instruction emission; generic
+hoisting stays on the V1 path. The existing globals/owned storage remain sole
+owners. V1 retains its historical length/runtime projection. Map writes now count
+as uses in the existing literal observer, so a live key is not eliminated.
+
+String/Map continuations use the existing exact-status labels and PHI predecessor
+owner. Preplanning scans command order together with checked field stores,
+including not-yet-emitted backedges. No second tail table, literal pool, runtime
+wrapper or operand graph is added. Arbitrary String specialization/optimizer/C1
+combinations are not proved by this bounded consumer; input-aware capability
+must close changed-consumer coverage before public activation.
+
+Verification at parent da871db069: `static_v2_execution_test.py` exercises real
+private C compilation (49 cases), links the current kernel archive for30
+readbacks and checks8 injected traps. C build, Named60/definition22 parent
+equality, ASan lifetime22, query17/live Rust1, settings16, rows and guards pass;
+Dynamic provenance/machine/relocations match the parent. Coverage
+includes both walkers, I64/Bool/NaN payload/Void, empty/UTF-8/middle/trailing-NUL
+keys, Copy and concat, Map/checked-field backedges in both orders, status1/2/7 and
+String-zero traps. Malformed/missing/duplicate/undemanded rows, incompatible
+original use, generic abort and early-pattern residual preserve prior output.
+The fixture frame reader is test-only; this is physical execution evidence, not
+a Rust host/source cutover or public V2 acceptance. The independent read-only
+review found no bounded lifetime/publication/tail mismatch.
+
+Next: complete remaining projection consumers and the single expanded-function
+index, signatures and ingress rejection; then input-aware capability and atomic
+public session/host/source switch with V1 and six literal-edge retirement.
 
 ### Versioned compiler frame decision
 

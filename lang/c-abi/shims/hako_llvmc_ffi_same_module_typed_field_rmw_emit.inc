@@ -345,6 +345,8 @@
           yyjson_val* ins,
           yyjson_val* insts,
           size_t ilen) {
+        int v2 = emit_static_v2_instruction(fn_index, bid, ii, ins);
+        if (v2 != 0) return v2 > 0;
         const char* op = read_str(ins, "op");
         if (!op) return 0;
         if (!strcmp(op, "phi")) return 1;

@@ -311,13 +311,21 @@
           yyjson_val* ins) {
         const char* op = read_str(ins, "op");
         if (!op) return 0;
+        int map_site = hako_static_v2_map_find(&invocation->static_v2, fn0, ins);
+        if (map_site >= 0 && invocation->static_v2.frame->map_operations[map_site].kind == HAKO_LLVMC_MAP_OP_WRITE) return 1;
+        uint32_t projection_dst;
+        if (hako_static_v2_u32(yyjson_obj_get(ins, "dst"), &projection_dst)) {
+          int value_site = hako_static_v2_value_find(&invocation->static_v2, fn0, projection_dst);
+          if (value_site >= 0 && !invocation->static_v2.frame->values[value_site].flags) return 1;
+        }
         if (!strcmp(op, "const")) {
           long long dst = read_int(ins, "dst");
           const char* sval = NULL;
           long long ival = 0;
           if (same_module_function_read_string_const(ins, &sval)) {
-            put_str_const(dst, sval);
-            put_known_string_len(dst, (long long)strlen(sval));
+            size_t byte_len = invocation->static_v2.frame ? yyjson_get_len(yyjson_obj_get(yyjson_obj_get(ins, "value"), "value")) : strlen(sval);
+            put_str_const(dst, sval, byte_len);
+            put_known_string_len(dst, (long long)byte_len);
             same_module_function_publish_i64_origin(dst, ORG_STRING);
             return 1;
           }
@@ -394,6 +402,10 @@
           return 1;
         }
         if (!strcmp(op, "newbox")) {
+          if (hako_static_v2_map_find(&invocation->static_v2, fn0, ins) >= 0) {
+            generic_pure_publish_i64_origin(read_int(ins, "dst"), ORG_MAP_BIRTH);
+            return 1;
+          }
           int intrinsic = hako_llvmc_published_intrinsic_array_peek_v1(
               fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins, NULL);
           if (intrinsic < 0) return 0;

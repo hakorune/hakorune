@@ -7,7 +7,7 @@
  */
 
 struct GenericPureI64Const { long long reg; long long val; };
-struct GenericPureStringConst { long long reg; const char* val; };
+struct GenericPureStringConst { long long reg; const char* val; size_t byte_len; };
 struct GenericPureKnownStringLen { long long reg; long long len; };
 struct GenericPureRegMarker { long long reg; };
 struct GenericPureTypeBinding { long long reg; int ty; };

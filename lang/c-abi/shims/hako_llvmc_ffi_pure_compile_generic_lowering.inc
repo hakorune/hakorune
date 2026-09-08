@@ -281,6 +281,18 @@
             long long box_reg = 0;
             const char* field = NULL;
             struct GenericPureTypedObjectFieldSlotView field_slot;
+            if (invocation->static_v2.frame && op && (!strcmp(op, "const") || !strcmp(op, "binop"))) {
+              const struct GenericPureStringConst* text = get_str_const_record(read_int(ins, "dst"));
+              if (text && text->reg == read_int(ins, "dst")) {
+                last_exact_status_ii = ii;
+                continue;
+              }
+            }
+            int map_site = hako_static_v2_map_find(&invocation->static_v2, fn0, ins);
+            if (map_site >= 0 && invocation->static_v2.frame->map_operations[map_site].kind == HAKO_LLVMC_MAP_OP_WRITE) {
+              last_exact_status_ii = ii;
+              continue;
+            }
             if (!op || strcmp(op, "field_set") != 0) continue;
             box_reg = read_int(ins, "box");
             field = read_str(ins, "field");
@@ -470,6 +482,7 @@
         return 1;
       }
       #include "hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc"
+      #include "hako_llvmc_ffi_static_v2_emit.inc"
       #include "hako_llvmc_ffi_same_module_function_emit.inc"
       if (hako_llvmc_emit_static_data_globals_for_root(f, root) < 0) {
         note_pure_unsupported_shape(
@@ -528,7 +541,8 @@
       fprintf(f, "}\n");
       if (!ptfc_selected) hako_llvmc_emit_entry_alias_if_needed(f, &selection);
       /* All typed rows must be consumed before either object emitter runs. */
-      if (hako_llvmc_published_static_method_rows_finish(err_out) != 0) {
+      if (hako_llvmc_published_static_method_rows_finish(err_out) != 0 ||
+          hako_static_v2_finish(&invocation->static_v2, err_out) != 0) {
         HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         if (llpath[0]) remove(llpath);
         free_owned_str_consts();

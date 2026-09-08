@@ -201,18 +201,27 @@
         if (!r) return 0;
         return get_type(r) == T_I1 || has_bool_const(r, &bool_const);
       }
-      auto const char* get_str_const(long long r){
-        for (size_t i=0;i<str_consts_n;i++){ if (str_consts[i].reg==r) return str_consts[i].val; }
+      auto const struct GenericPureStringConst* get_str_const_record(long long r) {
+        for (size_t i = 0; i < str_consts_n; i++) if (str_consts[i].reg == r) return &str_consts[i];
         long long base = resolve_copy_source_reg(r);
         if (base != r) {
-          for (size_t i=0;i<str_consts_n;i++){ if (str_consts[i].reg==base) return str_consts[i].val; }
+          for (size_t i = 0; i < str_consts_n; i++) if (str_consts[i].reg == base) return &str_consts[i];
         }
         return NULL;
       }
-      auto int put_str_const(long long r, const char* v){
+      auto const char* get_str_const(long long r) {
+        const struct GenericPureStringConst* record = get_str_const_record(r);
+        return record ? record->val : NULL;
+      }
+      auto size_t get_str_const_len(long long r) {
+        const struct GenericPureStringConst* record = get_str_const_record(r);
+        return record ? record->byte_len : 0;
+      }
+      auto int put_str_const(long long r, const char* v, size_t byte_len){
         if (str_consts_n<ARR_LEN(str_consts)){
           str_consts[str_consts_n].reg=r;
           str_consts[str_consts_n].val=v;
+          str_consts[str_consts_n].byte_len=byte_len;
           str_consts_n++;
           return 1;
         }
@@ -294,6 +303,9 @@
         if (!ins || !reg) return 0;
         const char* op = read_str(ins, "op");
         if (!op) return 0;
+        if (strcmp(op, "map_literal_entry_write") == 0)
+          return read_int(ins, "receiver") == reg || read_int(ins, "key") == reg ||
+                 read_int(ins, "value") == reg;
         if (strcmp(op, "copy") == 0) return read_int(ins, "src") == reg;
         if (strcmp(op, "binop") == 0) {
           return read_int(ins, "lhs") == reg || read_int(ins, "rhs") == reg;
