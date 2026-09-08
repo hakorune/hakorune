@@ -298,6 +298,11 @@
         long long cond_base = resolve_copy_source_reg(cond);
         long long then_base = resolve_copy_source_reg(then_val);
         long long else_base = resolve_copy_source_reg(else_val);
+        if (invocation->static_v2.frame) {
+          cond_ty = get_type(cond_base);
+          then_ty = get_type(then_base);
+          else_ty = get_type(else_base);
+        }
         int cond_const = has_const(cond_base, &cond_cv);
         int then_const = has_const(then_base, &then_cv);
         int else_const = has_const(else_base, &else_cv);
@@ -326,6 +331,7 @@
           snprintf(cond_ref, sizeof(cond_ref), "%%t%lld", dst);
         }
 
+        if (static_v2_select_map_only(ins)) return emit_static_v2_select(ins, cond_ref);
         if (val_ty == T_I1) {
           if (then_const) snprintf(then_ref, sizeof(then_ref), "%s", then_cv ? "true" : "false");
           else snprintf(then_ref, sizeof(then_ref), "%%r%lld", then_base);
@@ -357,7 +363,7 @@
         }
         if (then_org != ORG_NONE && then_org == else_org) set_origin(dst, then_org);
         if (then_scan != ORG_NONE && then_scan == else_scan) set_scan_origin(dst, then_scan);
-        return 1;
+        return emit_static_v2_select(ins, cond_ref);
       }
 
       auto int same_module_function_emit_typeop(yyjson_val* ins) {
@@ -619,11 +625,11 @@
           for (int pi = 0; pi < phi_n; pi++) {
             if (phis[pi].bid != block.id) continue;
             for (int ri = 0; ri < phis[pi].rec_n; ri++) {
-              emit_phi(
+              if (!emit_phi(
                   block.id,
                   phis[pi].recs[ri].dst,
                   phis[pi].recs[ri].in,
-                  phis[pi].recs[ri].in_n);
+                  phis[pi].recs[ri].in_n)) return 0;
             }
           }
           unsigned char skip_inst[block.instruction_count ? block.instruction_count : 1];

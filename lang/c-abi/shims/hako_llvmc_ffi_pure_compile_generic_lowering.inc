@@ -368,7 +368,11 @@
         snprintf(buf, buf_len, "%%bb%lld", pred);
         return buf;
       }
-      auto void emit_phi(long long block_id, long long dst, struct Incoming* in, int in_n){
+      auto long long static_v2_phi_original_source(long long value);
+      auto int emit_static_v2_phi(long long block_id, long long dst, struct Incoming* in, int in_n);
+      auto int emit_phi(long long block_id, long long dst, struct Incoming* in, int in_n){
+        int selected = emit_static_v2_phi(block_id, dst, in, in_n);
+        if (selected != 0) return selected > 0;
         int phi_ty = get_type(dst);
         struct GenericPureVariantBinding variant_binding;
         int variant_phi = get_variant_binding(dst, &variant_binding) &&
@@ -378,7 +382,7 @@
         for (int i=0;i<in_n;i++){
           char pred_label[128];
           long long cv;
-          long long val_reg = resolve_copy_source_reg(in[i].val_reg);
+          long long val_reg = resolve_copy_source_reg(static_v2_phi_original_source(in[i].val_reg));
           int hc=has_const(val_reg,&cv);
           if (phi_ty == T_I1) {
             if (hc) EMIT("[ %s, %s ]%s", cv ? "true" : "false", phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
@@ -410,6 +414,7 @@
           }
           EMIT("\n");
         }
+        return 1;
       }
       auto void emit_icmp(long long dst, const char* pred, long long lhs_reg, long long rhs_reg){ long long vL,vR; long long lhs_base=resolve_copy_source_reg(lhs_reg), rhs_base=resolve_copy_source_reg(rhs_reg); int lc=has_const(lhs_base,&vL), rc=has_const(rhs_base,&vR); EMIT("  %%r%lld = icmp %s i64 %s%lld%s, %s%lld%s\n", dst, pred, lc?"":"%r", lc?vL:lhs_base, lc?"":"", rc?"":"%r", rc?vR:rhs_base, rc?"":""); set_type(dst,T_I1); }
       auto int should_emit_string_compare(yyjson_val* ins, long long lhs_reg, long long rhs_reg){

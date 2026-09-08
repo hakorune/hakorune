@@ -328,6 +328,10 @@
         pr.dst = read_int(ins, "dst");
         pr.in_n = 0;
         pr.explicit_type = 0;
+        if (invocation->static_v2.frame && yyjson_arr_size(vals) > 16) {
+          note_pure_unsupported_shape(bid, 0, "phi", "static_v2_phi_capacity", NULL);
+          return 0;
+        }
         if (vals && yyjson_is_arr(vals)) {
           size_t vn = yyjson_arr_size(vals);
           for (size_t vi = 0; vi < vn && pr.in_n < 16; vi++) {

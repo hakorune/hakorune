@@ -7,6 +7,12 @@
         int vi = hako_static_v2_value_find(index, fn0, dst);
         if (vi < 0) return 1;
         if (index->values[vi].instruction != ins || index->values[vi].used) return 0;
+        const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
+        if (row->action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE && row->value_kind != HAKO_LLVMC_MAP_VALUE_BOOL) {
+          long long bits, base = resolve_copy_source_reg(dst);
+          if (has_const(base, &bits)) EMIT("  %%map_payload_%u = add i64 %lld, 0\n", dst, bits);
+          else EMIT("  %%map_payload_%u = add i64 %%r%lld, 0\n", dst, base);
+        }
         index->values[vi].used = 1;
         return 1;
       }
@@ -87,7 +93,7 @@
         int vi = hako_static_v2_value_find(index, fn0, value);
         if (vi < 0) return 0;
         const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
-        if (hako_static_v2_is_copy(row->action)) {
+        if (hako_static_v2_is_transfer(row->action) || row->action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE) {
           snprintf(output, size, "%%map_payload_%u", value);
         } else if (row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS) {
           snprintf(output, size, "%llu", (unsigned long long)row->payload);
@@ -105,7 +111,7 @@
         int vi = hako_static_v2_value_find(&invocation->static_v2, fn0, value);
         if (vi < 0) return 0;
         const hako_llvmc_value_projection_v2* row = &invocation->static_v2.frame->values[vi];
-        if (hako_static_v2_is_copy(row->action)) snprintf(output, size, "%%map_kind_%u", value);
+        if (hako_static_v2_is_transfer(row->action)) snprintf(output, size, "%%map_kind_%u", value);
         else snprintf(output, size, "%u", row->value_kind);
         return 1;
       }
@@ -128,8 +134,10 @@
         if (row->flags) return 0; /* Existing original producer consumes after success. */
         return static_v2_consume_value(ins) ? 1 : -1;
       }
+      #include "hako_llvmc_ffi_static_v2_control_emit.inc"
+
       auto int emit_static_v2_operation(yyjson_val* ins, const hako_llvmc_value_projection_v2* row) {
-        uint32_t inputs[2], dst = row->value_id;
+        uint32_t inputs[16], dst = row->value_id;
         char refs[2][64];
         int count = hako_static_v2_value_inputs(row, ins, inputs);
         if (count < 1) return 0;

@@ -1417,8 +1417,9 @@ or wrong Named outcome rejects before artifact; CopyOwned keeps its unsupported
 physical owner rather than discarding an ownership operation.
 Implemented: Copy/NamedAlias forward both lanes; flags0 bypasses the old producer,
 flags1 keeps it and consumes the row only after actual success.
-Smallest next slice: Phi/Select within existing PHI/condition owners.
-Non-claims: no Phi/Select/Formal, object escape or public/source cutover closure.
+Smallest next slice: Formal/expanded ingress through one definition/call index.
+Non-claims: original PHI reference/width coverage, Formal, object escape and
+public/source cutover remain open; implemented transfer lanes do not close them.
 
 Read-only worker audit at05e6169bda found two Phi integration constraints: the
 same-module flags0 prepass currently skips Phi registration, and existing PhiRec
@@ -1439,6 +1440,20 @@ After convergence mark still-empty domains Unresolved and propagate again, so
 one seeded merge cannot hide a seedless arm. Each selected Operation requires
 its inputs' whole domain to match. Reachability, physical domain validation and
 actual-emission ledgers stay separate; no new semantic issuer or operand graph.
+Private implementation now emits both Phi/Select lanes in those owners. Fixed
+Original payload side names support future aliases on Map-only backedges. A
+future Operation's validated encoding supplies its actual width before emission;
+Select resolves actual alias types before normalizing its condition/arms.
+Original-required PHIs stop on incompatible widths, not-yet-emitted boxed aliases
+or Select width dependencies. These are CutoverBlockerOpen: the existing original
+value/predecessor owner must provide stable references and normalization before
+those cases can cut over. Do not turn these Stops into a completed Phi census.
+Verification: normal/ASan315 full cases each, including145 runtime readbacks,
+eight traps and one non-host domain probe. The final pending-Select Stop adds two
+negative cases; control78 then passes in both builds. C build and guards pass;
+Named60/definition22 match parent. The two reproduced width failures (future
+Operation and boxed Bool Select alias) are current-change failures fixed here.
+
 Expanded signatures/calls reuse one index; expanded leaf-only members must join
 the same-module emission traversal without changing original definition intent.
 Forward LLVM definitions need no separate declarations in the existing backend.

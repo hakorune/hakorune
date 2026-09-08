@@ -316,7 +316,8 @@
         uint32_t projection_dst;
         if (hako_static_v2_u32(yyjson_obj_get(ins, "dst"), &projection_dst)) {
           int value_site = hako_static_v2_value_find(&invocation->static_v2, fn0, projection_dst);
-          if (value_site >= 0 && !invocation->static_v2.frame->values[value_site].flags) return 1;
+          if (value_site >= 0 && !invocation->static_v2.frame->values[value_site].flags &&
+              invocation->static_v2.frame->values[value_site].action != HAKO_LLVMC_MAP_ACTION_PHI) return 1;
         }
         if (!strcmp(op, "const")) {
           long long dst = read_int(ins, "dst");

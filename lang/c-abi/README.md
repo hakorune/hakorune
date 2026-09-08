@@ -199,14 +199,23 @@ Integer comparison bypasses dynamic kind dispatch; Bool payload normalization
 preserves existing i1 producers. String concat uses proved payloads directly.
 Operation input closure checks demanded rows against the retained body. Direct
 array/typed-store tokens cannot escape as host handles; boxed Make/general handle
-escape, selected boxed Unit comparison, Phi/Select/Formal and expanded functions
+escape, selected boxed Unit comparison, Formal and expanded functions
 remain explicit unsupported. Public V2 and the host/source cutover stay closed.
 
 Copy/NamedAlias forward both Map lanes through the shared formatter. Map-only
 transfers omit the old producer; original-required transfers retain it and consume
 the row after success. NamedAlias requires the retained walker outcome, never a
 StringBox name exception. Missing/cyclic source rows and original-demand gaps
-reject. CopyOwned, Phi/Select/Formal remain explicit unsupported.
+reject. CopyOwned and Formal remain explicit unsupported.
+
+Phi/Select emit kind and payload lanes in the existing PHI/condition owners.
+Seeded loops are supported; unresolved inputs and incompatible whole operand
+domains reject (String remains distinct from other Handle). PHI overflow rejects
+before truncation. Original-required PHIs reject incompatible widths and future
+boxed aliases/Select widths until the existing original-value owner can provide
+stable predecessor references. These remain cutover blockers, not completed
+coverage. Select resolves actual alias widths and shares one normalized condition
+with both Map lanes. Original payload side names remain stable across backedges.
 
 String constants keep byte length in their existing record/global/owned storage;
 V2 materializes length-aware handles at the instruction and traps on zero.

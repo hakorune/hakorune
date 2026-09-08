@@ -125,7 +125,7 @@ def run_original_cases(compile_case, witness, const, root, kernel, env, no_core)
                     concat_frame['values'].append(dict(function=concat_fn['name'], value=3, action=7, operation=5, kind=5, flags=1, encoding=1))
                     concat_frame['maps'][-1]['instruction'] += 2
                     concat_ir = execute(label + '-concat', concat_body, concat_frame, 5, handle='StringBox', text_value='catdog')
-                    if runtime: assert '%r3 = call i64 @nyash.string.concat_hh(i64 %r23, i64 %r6)' in concat_ir, concat_ir
+                    if runtime: assert '%r3 = call i64 @nyash.string.concat_hh(i64 %map_payload_23, i64 %map_payload_6)' in concat_ir, concat_ir
                     if runtime:
                         pair_body, pair_frame = copy.deepcopy(concat_body), copy.deepcopy(concat_frame)
                         pair_ins = pair_body['functions'][-1]['blocks'][0]['instructions']

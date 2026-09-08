@@ -188,7 +188,18 @@ payload and operation fields are zero; operands come from the exact retained bod
 NamedAlias requires the captured selected walker's AliasOperandZero outcome.
 With original-required clear the old producer is omitted; with it set the
 existing producer and its original input demand remain mandatory. CopyOwned is
-not erased by this rule. Phi/Select/Formal and public cutover remain unimplemented.
+not erased by this rule. Formal and public cutover remain unimplemented.
+
+Private V2 Phi/Select now forward the two Map lanes from the retained body.
+Their non-flag wire fields are zero. Phi inputs must be unique by predecessor
+and fit the existing owner capacity; both lanes use its actual predecessor tail.
+Select shares the existing normalized condition and keeps its original demand.
+Finite physical domain closure includes every PHI input and both Select arms;
+unresolved cycles and mixed operation domains reject without branch pruning.
+Original-required PHIs require stable incoming references and matching physical
+widths; future boxed aliases or Select widths reject before artifact publication.
+Predecessor normalization/stable original references remain cutover blockers.
+This does not change runtime tags or activate the public static compiler V2.
 
 ### Map-demanded callable linkage (accepted design, not implemented)
 

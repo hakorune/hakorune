@@ -6,6 +6,11 @@
             int explicit_phi_ty = T_NONE;
             int explicit_phi_metadata = 0;
             yyjson_val* vals = yyjson_obj_get(ins, "values"); if (!vals) vals = yyjson_obj_get(ins, "incoming");
+            if (invocation->static_v2.frame &&
+                (yyjson_arr_size(vals) > 16 || pb->rec_n >= 16)) {
+              note_pure_unsupported_shape(bid, ii, "phi", "static_v2_phi_capacity", NULL);
+              goto GEN_ABORT;
+            }
             if (dst_type_s) {
               if (!strcmp(dst_type_s, "i1") || !strcmp(dst_type_s, "bool") ||
                   !strcmp(dst_type_s, "Bool")) {

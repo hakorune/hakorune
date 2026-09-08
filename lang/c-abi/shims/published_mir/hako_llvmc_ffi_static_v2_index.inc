@@ -153,6 +153,7 @@ static int hako_static_v2_original_use(yyjson_val* ins, uint32_t value) {
   else if (!strcmp(op, "copy") || !strcmp(op, "copy_owned") || !strcmp(op, "unop")) fields[0] = "src";
   else if (!strcmp(op, "ret") || !strcmp(op, "variant_tag") || !strcmp(op, "variant_project")) fields[0] = "value";
   else if (!strcmp(op, "branch")) fields[0] = "cond";
+  else if (!strcmp(op, "variant_make")) fields[0] = "payload";
   else if (!strcmp(op, "select")) { fields[0] = "cond"; fields[1] = "then_val"; fields[2] = "else_val"; }
   else if (!strcmp(op, "binop") || !strcmp(op, "compare")) {
     fields[0] = "lhs"; fields[1] = "rhs"; fields[2] = "left"; fields[3] = "right";
@@ -234,7 +235,7 @@ static int hako_static_v2_bind(
     const hako_llvmc_value_projection_v2* row = &frame->values[i];
     yyjson_val* fn = hako_static_v2_function(functions, row->function_name);
     yyjson_val* ins = hako_static_v2_definition(fn, row->value_id);
-    if ((row->action >= HAKO_LLVMC_MAP_ACTION_PHI && row->action <= HAKO_LLVMC_MAP_ACTION_FORMAL)) {
+    if (row->action == HAKO_LLVMC_MAP_ACTION_FORMAL) {
       reason = "[freeze:contract][static-v2/value-consumer-unsupported]";
       goto invalid;
     }
@@ -290,8 +291,12 @@ static int hako_static_v2_bind(
           uint32_t consumer_dst;
           int consumer = hako_static_v2_u32(yyjson_obj_get(ins, "dst"), &consumer_dst)
               ? hako_static_v2_value_find(index, fn, consumer_dst) : -1;
-          if (consumer >= 0 && hako_static_v2_is_copy(frame->values[consumer].action) &&
-              !frame->values[consumer].flags) continue;
+          if (consumer >= 0 && hako_static_v2_is_transfer(frame->values[consumer].action) &&
+              !frame->values[consumer].flags) {
+            uint32_t condition;
+            if (frame->values[consumer].action != HAKO_LLVMC_MAP_ACTION_SELECT ||
+                !hako_static_v2_u32(yyjson_obj_get(ins, "cond"), &condition) || condition != row->value_id) continue;
+          }
           if (hako_static_v2_original_use(ins, row->value_id) != 0) goto invalid;
         }
       }

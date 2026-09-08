@@ -147,7 +147,7 @@
           }
         }
         // phi first
-        for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(bid, phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
+        for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ if (!emit_phi(bid, phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n)) goto GEN_ABORT; } }
         if (bi == 0) {
           hako_llvmc_emit_direct_exact_runtime_mode_check(f, allocation_config->runtime_flags);
           if (!emit_typed_object_layout_registrations(f)) {
