@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "MIR-SCRIPT-ARRAY-C-EXECUTION-I0"
-current_execution_cohort = "mir_script_array_c_execution_i0"
-current_design_stop = "none; selected Script Array execution and finite retirement verified; commit/push checkpoint precedes terminal relation BoxShape owner audit"
-current_blocker_token = "Array task4d/task5 verified: host39 EXE/independent OBJ, eight injected returned-allocation Fault probes, final-result range cleanup/report/dispose and29 malformed rejects. Finite selected-path retirement audit finds no remaining blocker; shared compatibility edges remain live. Closeout commit/push, then existing terminal relation BoxShape follow-up2 and CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0. No fatal OOM or whole-MirBuilder completion claim."
+current_execution_row = "CONSTRUCTOR-TERMINAL-RELATION-BOXSHAPE"
+current_execution_cohort = "constructor_terminal_relation_boxshape"
+current_design_stop = "none; terminal relation BoxShape implemented and independently reviewed; final locked tests and parent-baseline comparison verified"
+current_blocker_token = "Terminal relation BoxShape verified: source-to-final-source enum, derived root-result accessor, collision/storage/view synchronization deletion. Handoff5/control33 and Pair EXE/linked OBJ30 plus Bool Fault70 pass. Identical-lock parent b61aef93ec and current package116/2 and pipeline21/2 share four exact known baseline failures; no unclassified red. Parent/pointer guards pass; changed source max730, net Rust -32. Commit/push then CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0; storage-tag cleanup stays independent."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,11 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Selected Script Array execution/retirement verified: host39, allocation Fault8,
-range cleanup and malformed29. Closeout checkpoint, then terminal relation BoxShape.
+Terminal relation BoxShape verified; one retained relation replaces parallel
+storage/synchronization. Next current-document reconciliation; four parent
+baseline test failures remain explicitly owned, not whole-package green.
 """
-next_design_card = "Terminal relation BoxShape (constructor-lifecycle-llvm-lowering follow-up2)"
-next_execution_card = "MIR-SCRIPT-ARRAY-C-EXECUTION-I0"
+next_design_card = "CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0"
+next_execution_card = "CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

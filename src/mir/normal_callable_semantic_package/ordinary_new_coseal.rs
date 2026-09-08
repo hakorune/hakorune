@@ -23,7 +23,7 @@ use crate::mir::instance_constructor_abi::{
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
     SelectedNewArgumentUnavailableV1, TerminalI64AddReturnV1, TerminalI64FieldReturnV1,
-    TerminalIntegerLiteralReturnV1, TerminalUnitReturnV1,
+    TerminalIntegerLiteralReturnV1, TerminalUnitReturnV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::resolved_semantics::{
@@ -142,11 +142,8 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_exit: RefCell<local_commit::RootHomeExitProgress>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
-    terminal_result: Option<TerminalI64AddReturnV1>,
-    terminal_unit_return: Option<TerminalUnitReturnV1>,
-    terminal_integer_literal: Option<TerminalIntegerLiteralReturnV1>,
+    terminal_relation: Option<TerminalRelationV1>,
     terminal_integer_literal_value: RefCell<Option<crate::mir::ValueId>>,
-    terminal_i64_field_return: Option<TerminalI64FieldReturnV1>,
     terminal_i64_field_value: RefCell<Option<crate::mir::ValueId>>,
     terminal_result_progress: RefCell<terminal_result::Progress>,
     root_completion: Option<
@@ -197,11 +194,8 @@ impl OrdinaryNewClaimLedgerV1 {
             root_exit: RefCell::new(local_commit::RootHomeExitProgress::Unprepared),
             field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
-            terminal_result: None,
-            terminal_unit_return: None,
-            terminal_integer_literal: None,
+            terminal_relation: None,
             terminal_integer_literal_value: RefCell::new(None),
-            terminal_i64_field_return: None,
             terminal_i64_field_value: RefCell::new(None),
             terminal_result_progress: RefCell::new(terminal_result::Progress::Pending),
             root_completion: None,
@@ -278,7 +272,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceNodeSiteV1,
     ) -> Result<bool, String> {
-        let Some(relation) = self.terminal_unit_return.as_ref() else {
+        let Some(relation) = self.terminal_unit_return() else {
             return Ok(false);
         };
         let Some(Ok(completion)) = self.root_completion.as_ref() else {
@@ -286,8 +280,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 "[freeze:contract][ordinary-new/unit-return-completion-missing]".to_owned(),
             );
         };
-        if self.terminal_result.is_some()
-            || relation.owner() != owner
+        if relation.owner() != owner
             || completion.owner() != owner
             || completion.explicit_site() != Some(relation.return_site())
             || relation.return_site().node() != site
@@ -399,10 +392,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     let mut claims = Vec::new();
     let mut root_completion = None;
     let mut root_field_reads = BTreeMap::new();
-    let mut root_terminal_result = None;
-    let mut root_terminal_unit_return = None;
-    let mut root_terminal_integer_literal = None;
-    let mut root_terminal_i64_field_return = None;
+    let mut root_terminal_relation = None;
     let mut birth_abi_handoffs = BTreeMap::new();
     for declaration in batch.declarations() {
         let owner = declaration.owner();
@@ -466,9 +456,9 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
                         input, &selected, &mut field_is_integer)? {
-                        Ok((completion, prefixes, terminal_result, terminal_unit_return, terminal_integer_literal, terminal_i64_field_return, observations)) => {
+                        Ok((completion, prefixes, terminal_relation, observations)) => {
                             if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
-                                if let Some(result) = &terminal_result {
+                                if let Some(TerminalRelationV1::I64Add(result)) = &terminal_relation {
                                     if result.owner() != input.owner()
                                         || result.field_reads().iter().any(|site|
                                             !staged_reads.contains_key(site))
@@ -480,7 +470,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                                         );
                                     }
                                 }
-                                if let Some(result) = &terminal_i64_field_return {
+                                if let Some(TerminalRelationV1::I64Field(result)) = &terminal_relation {
                                     if result.owner() != input.owner()
                                         || !staged_reads.contains_key(result.field_read_site())
                                     {
@@ -492,10 +482,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                                     }
                                 }
                                 root_field_reads = staged_reads;
-                                root_terminal_result = terminal_result;
-                                root_terminal_unit_return = terminal_unit_return;
-                                root_terminal_integer_literal = terminal_integer_literal;
-                                root_terminal_i64_field_return = terminal_i64_field_return;
+                                root_terminal_relation = terminal_relation;
                             }
                             root_completion = Some(Ok(completion));
                             (prefixes, observations)
@@ -675,10 +662,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     ledger.root_completion = root_completion;
     ledger.field_reads = RefCell::new(root_field_reads);
     ledger.birth_abi_handoffs = RefCell::new(birth_abi_handoffs);
-    ledger.terminal_result = root_terminal_result;
-    ledger.terminal_unit_return = root_terminal_unit_return;
-    ledger.terminal_integer_literal = root_terminal_integer_literal;
-    ledger.terminal_i64_field_return = root_terminal_i64_field_return;
+    ledger.terminal_relation = root_terminal_relation;
     ledger.app_main_identity = app_main_identity.cloned();
     Ok(ledger)
 }

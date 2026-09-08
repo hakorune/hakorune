@@ -620,19 +620,24 @@ and evidence; C activation remains open.
 Task3 `MIR-SCRIPT-ARRAY-FINAL-INPUT-I0` verified: retained Script -> compiled entry -> same physical input/session; I64/Unit, seven specs, primitive bits and cleanup. Source constructors stay private; typed C Stop remains.
 Evidence: Script input3, physical9 (including signed-zero/NaN wire bits), binding6, Birth actual1, artifact2, hostStop7; actual Pair EXE/linked OBJ30 and untyped Array EXE/OBJ pass. Quick build peak8.97GiB; prior four compile errors and Float refusal regression repaired. No whole-lib/C Script execution claim.
 
-#### MIR-SCRIPT-ARRAY-C-EXECUTION-I0
+#### MIR-SCRIPT-ARRAY-C-EXECUTION-I0 — closed
 
-Closeout: selected retained Script Array execution and retirement are verified. Current selected-normal parent/pointer guards and diff check pass; changed source maximum189 lines.
-Authority: finalized Script source/Recipe/emission -> compiled-entry physical input -> explicit bound runtime session -> V4 OBJ/EXE. C consumes supplied identity/control/cleanup; it cannot infer source meaning or retry generic dispatch.
-Evidence: task4c `feaaa5d5e8` switches real OBJ/EXE and preparation. Task4d's ignored host test passes (356.12s): 39 source cases execute host EXE and independently linked production OBJ, 8 injected returned-allocation Fault probes check exact skipped operations and cleanup/report/dispose, and 29 malformed inputs reject without replacing artifacts.
-Final-result cases0/255/256/i64::MAX run optimized and unoptimized; range Fault102 reports after both releases, then disposes once. Allocation failure at attempt1/2 covers I64/Unit roots with both optimizer settings; no claim/append or release targets the failed allocation, prior effects survive, and exit70 follows report/dispose.
-Prior task4c evidence remains: coverage2/source7/preparation3, Pair EXE/OBJ30/Bool Fault70 and untyped regressions; rebuilt CLI EXE/OBJ/link succeeds for i64, Unit and both Fault families. Missing runtime rejects before artifacts. This test-only closeout changes no production ABI.
-Census boundary: selected normal preparation -> retained Script handoff -> compiled-entry input -> explicit runtime OBJ/EXE -> NativeArray V4 terminal. Includes both real artifact callers; excludes arbitrary alias writes, other source families, module-only ingress, VM/compatibility and fatal allocator recovery.
-Retirement inventory: selected Local stripping (prelude/main/final normalization), implicit VM observer injection (discovery/merge), Script handoff loss, callable-only projection, typed host Stop and native C pending restriction are retired in this series. Same bound invocation owns runtime selection; no selected retry remains.
-Worker read-only audit found no additional selected blocker or caller-zero exclusive asset. Shared generic append/dispatch, compatibility preparation, Pair branches and module-only/unselected Stops retain callers; they are not deletion targets. Inventory Exhausted; open/reopened blocker0 within the stated boundary.
-Known baseline debt: at parent24cfe2cf7c, old inplace/raw-Loop, ingress-schema/stale-card and cataloged-affine-loan/unsupported-row guards reproduce their failures. Current selected-normal parent/pointer guards remain required; no waiver for changed contracts.
-Next: existing terminal relation BoxShape in [follow-up2](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08), then `CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0`. First audit current terminal issue/consume owners; no source-family widening or new public receipt.
-Non-claims: no fatal OOM recovery, arbitrary typed Array execution, other backend parity, whole-lib green or MirBuilder completion. Full owner contract: [accepted task order](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order).
+`feaaa5d5e8` / `b61aef93ec`: real OBJ/EXE switch and finite retirement verified; host39, allocation Fault8, malformed29, ordered range/Fault cleanup/report/dispose, parent/pointer guards pass. Pair/untyped and CLI regressions remain green. No fatal OOM or whole-MirBuilder claim.
+Boundary: selected normal preparation -> retained Script -> bound final input -> V4 OBJ/EXE terminal; both real callers included. Selected stripping/observer/projection/Stop/pending edges retired; shared generic/module-only/compatibility and other families excluded and still live. Inventory Exhausted, open/reopened blocker0. Git owns full audit/evidence.
+Known baseline debt at parent24cfe2cf7c: old inplace/raw-Loop, ingress-schema/stale-card and cataloged-affine-loan/unsupported-row guards. No waiver for current changes; use selected-normal parent guard.
+
+#### CONSTRUCTOR-TERMINAL-RELATION-BOXSHAPE
+
+Decision: accepted worker-audited mapping; execute existing [follow-up2](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08); one private terminal relation enum replaces parallel Options and derived result storage.
+Source authority + canonical issuer: existing ordinary-New source classification and Completion relation issuance; physical result projection stays at its existing boundary.
+Non-authority: enum shape, MIR return guessing, source-name lookup and backend/source reclassification.
+Fail-fast boundary: duplicate reservation, source/site drift, incomplete emission/field reads and unsupported families remain rejected; structural exclusion cannot replace progress checks.
+Closeout: enum from source scanner through Completion/co-seal/final source; derived result storage and view synchronization removed. Handoff5/control33 and real Pair EXE/OBJ30 plus Bool Fault70 pass; parent/pointer guards and diff check pass. New/Home forwarding extraction reduces function_control826->721; changed source max730, net Rust -32. Git owns the implementation detail.
+Non-claims: no new source family/public receipt, Array semantics, storage tag cleanup, backend parity or language change. Next remains `CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0`.
+Baseline comparison at parent `b61aef93ec`, identical Cargo.lock/profile quick: package filter `mir::normal_callable_semantic_package::` is116pass/2fail both before/after; pipeline filter `mir::compiler::normal_default_pipeline::tests::` is21pass/2fail both. Four reds are known baseline debt, not waived current failures; no whole-package green claim.
+Package failures: `ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression` (field+Bool retains1read, expected0) and `brand_catalog_tests::normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix` (same mixed suffix cleanup). Owner: `home_new_prefix::return_scalar`; reopen with scalar-source classification work, without widening terminal acceptance here.
+Pipeline failures: `published_consumer_runs_once_and_propagates_failure_without_retry` (expected callback failure absent) and `published_consumer_does_not_consume_explicit_compatibility` (`artifact-root-completion-unavailable`). Owner: normal-default callable/compatibility finalization and its test ingress; reopen when that ingress is selected, not by bypassing the artifact gate.
+
 
 ## Source and ownership budget
 
@@ -679,20 +684,9 @@ delete method-tail recovery context
 -> caller census -> retire -> test home -> compatibility shelf -> barrel shelf
 ```
 
-## Reduction forecast
+## Reduction boundary
 
-Finite read-only census estimates the Call corridor can remove roughly
-1,200–1,700 gross source lines after the authority cutover. A separately
-verified caller-zero `externals.rs` retirement raises the gross range to about
-1,600–2,100. These are forecasts, not acceptance evidence; typed identity and
-loan preparation may temporarily add code before old-edge deletion.
-
-The following are not current deletion claims:
-
-- `json_v0_bridge` still has multiple live caller families;
-- `variable_accum` and `source_coverage.rs` are production-live;
-- JoinIR merge code cannot be retired from text references alone;
-- `_p0` proof files require evidence migration, not suffix-based deletion.
+Forecasts are not deletion evidence. `json_v0_bridge`, `variable_accum` and source coverage have live families; JoinIR merge and `_p0` proofs require owner/caller and evidence migration before retirement. Git retains earlier LOC estimates.
 
 ## Production invariants
 

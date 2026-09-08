@@ -62,6 +62,11 @@ ny_main                              = process-exit projection ABI only
 Legacy AnyStatement tail             = migration observation only
 ```
 
+The selected ordinary-New implementation retains its admitted terminal source
+relation in one finite internal enum and derives the final result projection
+from it. This removes duplicate compiler storage; it neither admits additional
+source expressions nor replaces Completion and physical-progress validation.
+
 ## Canonical Unit Provenance
 
 `Unit` is the successful no-useful-value result already defined by

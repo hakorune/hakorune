@@ -36,7 +36,7 @@ impl OrdinaryNewClaimLedgerV1 {
         return_site: &SourceNodeSiteV1,
         mut resolve_binding: impl FnMut(BindingRefV1, &SourceNodeSiteV1) -> Result<ValueId, String>,
     ) -> Result<Option<PreparedTerminalI64AddReturnV1>, String> {
-        let Some(relation) = self.terminal_result.as_ref() else {
+        let Some(relation) = self.terminal_i64_add_return() else {
             return Ok(None);
         };
         if relation.owner() != owner || relation.return_site().node() != return_site {
@@ -144,14 +144,14 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     pub(crate) fn terminal_result_blocks_raw_field_read(&self, site: &OwnedExprSiteV1) -> bool {
-        self.terminal_result.as_ref().is_some_and(|relation| {
+        self.terminal_i64_add_return().is_some_and(|relation| {
             relation.field_reads().contains(site)
                 && matches!(*self.terminal_result_progress.borrow(), Progress::Pending)
         })
     }
 
     pub(super) fn terminal_result_complete(&self) -> bool {
-        self.terminal_result.is_none()
+        self.terminal_i64_add_return().is_none()
             || matches!(
                 *self.terminal_result_progress.borrow(),
                 Progress::Completed { .. }
@@ -163,7 +163,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(relation) = self.terminal_result.as_ref() else {
+        let Some(relation) = self.terminal_i64_add_return() else {
             return Ok(());
         };
         if relation.owner() != owner {

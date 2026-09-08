@@ -53,6 +53,10 @@ or physical MIR. This conditional outward Fault is not Normal completion and
 does not claim an empty cleanup set. Evaluation/construction unwind and caller
 Home discharge must precede it; physical projection/execution remain pending.
 
+`function_control_new_homes.rs` forwards the one source-issued terminal relation
+and attaches the same source walk's Home cleanup to Completion; it does not
+reclassify terminal families or own physical emission progress.
+
 `function_control.rs` seals the accepted function completion forms before
 Builder effects:
 

@@ -6,12 +6,12 @@
 
 use super::birth_abi_handoff::BirthAbiHandoffV1;
 use super::OrdinaryNewClaimLedgerV1;
-use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1};
+use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
 use crate::mir::resolved_semantics::home_new_prefix::{
     TerminalI64AddReturnV1, TerminalI64FieldReturnV1, TerminalIntegerLiteralReturnV1,
-    TerminalUnitReturnV1,
+    TerminalRelationV1, TerminalUnitReturnV1,
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
@@ -59,8 +59,12 @@ pub(crate) struct EmittedNewArgumentV1 {
 }
 
 impl EmittedNewArgumentV1 {
-    pub(crate) fn source(&self) -> &super::OrdinaryNewTrivialArgumentV1 { &self.source }
-    pub(crate) fn value(&self) -> ValueId { self.value }
+    pub(crate) fn source(&self) -> &super::OrdinaryNewTrivialArgumentV1 {
+        &self.source
+    }
+    pub(crate) fn value(&self) -> ValueId {
+        self.value
+    }
 }
 
 /// Existing checked emission retained per New, not deduplicated per definition.
@@ -74,11 +78,21 @@ pub(crate) struct FinalizedBirthActualsV1 {
 }
 
 impl FinalizedBirthActualsV1 {
-    pub(crate) fn site(&self) -> &OwnedExprSiteV1 { &self.site }
-    pub(crate) fn destination(&self) -> BindingRefV1 { self.destination }
-    pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 { &self.target }
-    pub(crate) fn receiver(&self) -> ValueId { self.receiver }
-    pub(crate) fn arguments(&self) -> &[EmittedNewArgumentV1] { &self.arguments }
+    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
+        &self.site
+    }
+    pub(crate) fn destination(&self) -> BindingRefV1 {
+        self.destination
+    }
+    pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.target
+    }
+    pub(crate) fn receiver(&self) -> ValueId {
+        self.receiver
+    }
+    pub(crate) fn arguments(&self) -> &[EmittedNewArgumentV1] {
+        &self.arguments
+    }
 }
 
 #[derive(Debug)]
@@ -108,30 +122,59 @@ pub(super) struct NewLocalCommitV1 {
 pub(crate) struct FinalizedRootSourceHandoffV1 {
     birth_actuals: Box<[FinalizedBirthActualsV1]>,
     app_main_identity: CallableDeclarationIdentityV1,
-    terminal_i64_add: Option<TerminalI64AddReturnV1>,
-    terminal_unit_return: Option<TerminalUnitReturnV1>,
-    terminal_integer_literal: Option<TerminalIntegerLiteralReturnV1>,
-    terminal_i64_field_return: Option<TerminalI64FieldReturnV1>,
+    terminal: TerminalRelationV1,
 }
 
 impl FinalizedRootSourceHandoffV1 {
-    pub(crate) fn birth_actuals(&self) -> &[FinalizedBirthActualsV1] { &self.birth_actuals }
+    /// Derived at this result boundary; never retained as a second source tag.
+    pub(crate) fn result_abi(&self) -> FinalizedRootResultAbiV1 {
+        match &self.terminal {
+            TerminalRelationV1::I64Add(row) => {
+                FinalizedRootResultAbiV1::I64AddReturn { owner: row.owner() }
+            }
+            TerminalRelationV1::Unit(row) => {
+                FinalizedRootResultAbiV1::UnitReturn { owner: row.owner() }
+            }
+            TerminalRelationV1::IntegerLiteral(row) => {
+                FinalizedRootResultAbiV1::IntegerLiteralReturn { owner: row.owner() }
+            }
+            TerminalRelationV1::I64Field(row) => {
+                FinalizedRootResultAbiV1::I64FieldReturn { owner: row.owner() }
+            }
+        }
+    }
+
+    pub(crate) fn birth_actuals(&self) -> &[FinalizedBirthActualsV1] {
+        &self.birth_actuals
+    }
 
     pub(crate) fn app_main_identity(&self) -> &CallableDeclarationIdentityV1 {
         &self.app_main_identity
     }
 
     pub(crate) fn terminal_i64_add(&self) -> Option<&TerminalI64AddReturnV1> {
-        self.terminal_i64_add.as_ref()
+        match &self.terminal {
+            TerminalRelationV1::I64Add(row) => Some(row),
+            _ => None,
+        }
     }
     pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> {
-        self.terminal_unit_return.as_ref()
+        match &self.terminal {
+            TerminalRelationV1::Unit(row) => Some(row),
+            _ => None,
+        }
     }
     pub(crate) fn terminal_integer_literal(&self) -> Option<&TerminalIntegerLiteralReturnV1> {
-        self.terminal_integer_literal.as_ref()
+        match &self.terminal {
+            TerminalRelationV1::IntegerLiteral(row) => Some(row),
+            _ => None,
+        }
     }
     pub(crate) fn terminal_i64_field_return(&self) -> Option<&TerminalI64FieldReturnV1> {
-        self.terminal_i64_field_return.as_ref()
+        match &self.terminal {
+            TerminalRelationV1::I64Field(row) => Some(row),
+            _ => None,
+        }
     }
 }
 

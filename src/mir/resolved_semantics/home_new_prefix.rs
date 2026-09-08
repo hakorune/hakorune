@@ -360,6 +360,16 @@ fn return_scalar<E>(
     }
 }
 
+/// One source-issued terminal relation. Absence stays outside this enum;
+/// no ABI, physical progress or new source classification is issued here.
+#[derive(Debug, Clone)]
+pub(crate) enum TerminalRelationV1 {
+    I64Add(TerminalI64AddReturnV1),
+    Unit(TerminalUnitReturnV1),
+    IntegerLiteral(TerminalIntegerLiteralReturnV1),
+    I64Field(TerminalI64FieldReturnV1),
+}
+
 /// One source walk supplies both New-failure prefixes and terminal ownership.
 /// The caller must take the terminal from the Completion verified on this input.
 pub(crate) fn scan_new_home_flow<E>(
@@ -377,29 +387,20 @@ pub(crate) fn scan_new_home_flow<E>(
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
         Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
-        Option<TerminalI64AddReturnV1>,
-        Option<TerminalUnitReturnV1>,
-        Option<TerminalIntegerLiteralReturnV1>,
-        Option<TerminalI64FieldReturnV1>,
+        Option<TerminalRelationV1>,
         BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
     ),
     E,
 > {
     let mut results = BTreeMap::new();
     let mut terminal_homes = Err(HomePrefixUnavailableV1::TerminalNotCovered);
-    let mut terminal_result = None;
-    let mut terminal_unit_return = None;
-    let mut terminal_integer_literal = None;
-    let mut terminal_i64_field_return = None;
+    let mut terminal_relation = None;
     let mut argument_observations = BTreeMap::new();
     if selected.is_empty() && terminal.is_none() {
         return Ok((
             results,
             terminal_homes,
-            terminal_result,
-            terminal_unit_return,
-            terminal_integer_literal,
-            terminal_i64_field_return,
+            terminal_relation,
             argument_observations,
         ));
     }
@@ -421,10 +422,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
                 .collect(),
             Err(HomePrefixUnavailableV1::SourceMismatch),
-            terminal_result,
-            terminal_unit_return,
-            terminal_integer_literal,
-            terminal_i64_field_return,
+            terminal_relation,
             argument_observations,
         ));
     };
@@ -443,9 +441,8 @@ pub(crate) fn scan_new_home_flow<E>(
         if terminal == Some(statement.site()) {
             let scalar_return = match statement.node() {
                 ASTNode::Return { value: None, .. } => {
-                    terminal_unit_return = Some(TerminalUnitReturnV1::issue(
-                        input.owner(),
-                        statement.site().clone(),
+                    terminal_relation = Some(TerminalRelationV1::Unit(
+                        TerminalUnitReturnV1::issue(input.owner(), statement.site().clone()),
                     ));
                     true
                 }
@@ -455,30 +452,36 @@ pub(crate) fn scan_new_home_flow<E>(
                 {
                     Ok(value) => match input.function().expression_source().literal(value.site()) {
                         Some(ResolvedLiteralSourceV1::Integer(number)) => {
-                            terminal_integer_literal = Some(TerminalIntegerLiteralReturnV1::issue(
-                                input.owner(),
-                                statement.site().clone(),
-                                value.site().clone(),
-                                *number,
+                            terminal_relation = Some(TerminalRelationV1::IntegerLiteral(
+                                TerminalIntegerLiteralReturnV1::issue(
+                                    input.owner(),
+                                    statement.site().clone(),
+                                    value.site().clone(),
+                                    *number,
+                                ),
                             ));
                             true
                         }
                         _ => match return_scalar(input, value.site(), &locals, field_is_integer)? {
                             Some(ReturnScalar::I64Add { site, field_reads }) => {
-                                terminal_result = Some(TerminalI64AddReturnV1::issue(
-                                    input.owner(),
-                                    statement.site().clone(),
-                                    site,
-                                    field_reads,
+                                terminal_relation = Some(TerminalRelationV1::I64Add(
+                                    TerminalI64AddReturnV1::issue(
+                                        input.owner(),
+                                        statement.site().clone(),
+                                        site,
+                                        field_reads,
+                                    ),
                                 ));
                                 true
                             }
                             Some(ReturnScalar::IntegerField(field_read_site)) => {
-                                terminal_i64_field_return = Some(TerminalI64FieldReturnV1::issue(
-                                    input.owner(),
-                                    statement.site().clone(),
-                                    value.site().clone(),
-                                    field_read_site,
+                                terminal_relation = Some(TerminalRelationV1::I64Field(
+                                    TerminalI64FieldReturnV1::issue(
+                                        input.owner(),
+                                        statement.site().clone(),
+                                        value.site().clone(),
+                                        field_read_site,
+                                    ),
                                 ));
                                 true
                             }
@@ -501,10 +504,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 None => Ok(homes.iter().rev().copied().collect()),
             };
             if terminal_homes.is_err() {
-                terminal_result = None;
-                terminal_unit_return = None;
-                terminal_integer_literal = None;
-                terminal_i64_field_return = None;
+                terminal_relation = None;
             }
             break;
         }
@@ -660,10 +660,7 @@ pub(crate) fn scan_new_home_flow<E>(
     Ok((
         results,
         terminal_homes,
-        terminal_result,
-        terminal_unit_return,
-        terminal_integer_literal,
-        terminal_i64_field_return,
+        terminal_relation,
         argument_observations,
     ))
 }

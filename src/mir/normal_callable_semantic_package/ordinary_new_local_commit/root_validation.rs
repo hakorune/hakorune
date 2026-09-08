@@ -91,7 +91,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(relation) = self.terminal_unit_return.as_ref() else {
+        let Some(relation) = self.terminal_unit_return() else {
             return Ok(());
         };
         if relation.owner() != owner {
@@ -116,7 +116,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(relation) = self.terminal_integer_literal.as_ref() else {
+        let Some(relation) = self.terminal_integer_literal_return() else {
             return Ok(());
         };
         if relation.owner() != owner {

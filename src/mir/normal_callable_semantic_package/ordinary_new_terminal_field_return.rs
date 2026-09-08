@@ -20,16 +20,13 @@ impl OrdinaryNewClaimLedgerV1 {
         return_site: &SourceNodeSiteV1,
         mut resolve_binding: impl FnMut(BindingRefV1, &SourceNodeSiteV1) -> Result<ValueId, String>,
     ) -> Result<Option<PreparedTerminalI64FieldReturnV1>, String> {
-        let Some(relation) = self.terminal_i64_field_return.as_ref() else {
+        let Some(relation) = self.terminal_i64_field_return() else {
             return Ok(None);
         };
         let Some(Ok(completion)) = self.root_completion.as_ref() else {
             return Err(fault("completion-missing"));
         };
-        if self.terminal_result.is_some()
-            || self.terminal_unit_return.is_some()
-            || self.terminal_integer_literal.is_some()
-            || relation.owner() != owner
+        if relation.owner() != owner
             || completion.owner() != owner
             || completion.explicit_site() != Some(relation.return_site())
             || relation.return_site().node() != return_site
@@ -56,7 +53,7 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     pub(crate) fn record_terminal_i64_field_return(&self, value: ValueId) -> Result<(), String> {
-        if self.terminal_i64_field_return.is_none()
+        if self.terminal_i64_field_return().is_none()
             || self.terminal_i64_field_value.replace(Some(value)).is_some()
         {
             return Err(fault("duplicate-emission"));
@@ -65,7 +62,8 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     pub(super) fn terminal_i64_field_return_complete(&self) -> bool {
-        self.terminal_i64_field_return.is_none() || self.terminal_i64_field_value.borrow().is_some()
+        self.terminal_i64_field_return().is_none()
+            || self.terminal_i64_field_value.borrow().is_some()
     }
 
     pub(super) fn validate_terminal_i64_field_return(
@@ -73,7 +71,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(relation) = self.terminal_i64_field_return.as_ref() else {
+        let Some(relation) = self.terminal_i64_field_return() else {
             return Ok(());
         };
         if relation.owner() != owner {

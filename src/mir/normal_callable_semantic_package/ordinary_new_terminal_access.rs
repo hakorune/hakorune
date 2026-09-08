@@ -14,27 +14,39 @@ impl OrdinaryNewClaimLedgerV1 {
             && self.field_reads_complete()
             && self.birth_abi_handoffs.borrow().is_empty()
             && self.terminal_result_complete()
-            && (self.terminal_integer_literal.is_none()
+            && (self.terminal_integer_literal_return().is_none()
                 || self.terminal_integer_literal_value.borrow().is_some())
             && self.terminal_i64_field_return_complete()
     }
 
     pub(crate) fn terminal_i64_add_return(&self) -> Option<&TerminalI64AddReturnV1> {
-        self.terminal_result.as_ref()
+        match self.terminal_relation.as_ref() {
+            Some(TerminalRelationV1::I64Add(row)) => Some(row),
+            _ => None,
+        }
     }
 
     pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> {
-        self.terminal_unit_return.as_ref()
+        match self.terminal_relation.as_ref() {
+            Some(TerminalRelationV1::Unit(row)) => Some(row),
+            _ => None,
+        }
     }
 
     pub(crate) fn terminal_integer_literal_return(
         &self,
     ) -> Option<&TerminalIntegerLiteralReturnV1> {
-        self.terminal_integer_literal.as_ref()
+        match self.terminal_relation.as_ref() {
+            Some(TerminalRelationV1::IntegerLiteral(row)) => Some(row),
+            _ => None,
+        }
     }
 
     pub(crate) fn terminal_i64_field_return(&self) -> Option<&TerminalI64FieldReturnV1> {
-        self.terminal_i64_field_return.as_ref()
+        match self.terminal_relation.as_ref() {
+            Some(TerminalRelationV1::I64Field(row)) => Some(row),
+            _ => None,
+        }
     }
 
     pub(crate) fn prepare_terminal_integer_literal_return(
@@ -42,16 +54,13 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceNodeSiteV1,
     ) -> Result<Option<i64>, String> {
-        let Some(relation) = self.terminal_integer_literal.as_ref() else {
+        let Some(relation) = self.terminal_integer_literal_return() else {
             return Ok(None);
         };
         let Some(Ok(completion)) = self.root_completion.as_ref() else {
             return Err("[freeze:contract][ordinary-new/literal-completion-missing]".into());
         };
-        if self.terminal_result.is_some()
-            || self.terminal_unit_return.is_some()
-            || self.terminal_i64_field_return.is_some()
-            || relation.owner() != owner
+        if relation.owner() != owner
             || completion.owner() != owner
             || completion.explicit_site() != Some(relation.return_site())
             || relation.return_site().node() != site
@@ -66,7 +75,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         value: crate::mir::ValueId,
     ) -> Result<(), String> {
-        if self.terminal_integer_literal.is_none()
+        if self.terminal_integer_literal_return().is_none()
             || self
                 .terminal_integer_literal_value
                 .replace(Some(value))

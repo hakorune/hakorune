@@ -18,12 +18,10 @@ pub(crate) enum FinalizedRootHandoffV1 {
     NoBirth {
         root_key: String,
         root_source: Option<FinalizedRootSourceHandoffV1>,
-        root_result: Option<FinalizedRootResultAbiV1>,
     },
     Births {
         root_key: String,
         root_source: Option<FinalizedRootSourceHandoffV1>,
-        root_result: Option<FinalizedRootResultAbiV1>,
         keys: Box<[CanonicalSameModuleCallableKeyV1]>,
         births: Box<[BirthAbiHandoffV1]>,
     },
@@ -46,10 +44,8 @@ impl FinalizedRootHandoffV1 {
     }
 
     pub(crate) fn root_result(&self) -> Option<FinalizedRootResultAbiV1> {
-        match self {
-            Self::ScriptArray { .. } => None,
-            Self::NoBirth { root_result, .. } | Self::Births { root_result, .. } => *root_result,
-        }
+        self.root_source()
+            .map(FinalizedRootSourceHandoffV1::result_abi)
     }
 
     pub(crate) fn root_source(&self) -> Option<&FinalizedRootSourceHandoffV1> {

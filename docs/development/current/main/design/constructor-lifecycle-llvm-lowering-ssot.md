@@ -2571,21 +2571,18 @@ work and other source families. No build or runtime evidence was collected.
    PluginBoxV2::instance_id (59/74/105/126). These exact diagnostics match before
    and after. Runtime plugin-loader/stub owner must close them when nonplugins
    runtime support is selected; they do not authorize a fake loader or handle.
-2. **Terminal relation BoxShape**, under existing ordinary-New source/emission
-   and finalization owners. Source `home_new_prefix` chooses one terminal and
-   breaks; final seal also rejects conflicts, so no conflicting production
-   terminal or causal link to the historical Unit defect is proven. Nonetheless,
-   `ordinary_new_coseal` and `ordinary_new_local_commit` retain four parallel
-   Options; Add/Unit preparation checks differ. Replace them by one private
-   finite enum carrying the existing relation (one optional enum only where
-   no terminal has been issued), then remove stored derived
-   root_result and project once at the established result boundary. Delete pair
-   collision matrix, parallel storage, duplicate finalization classification and
-   source/result synchronization checks. Preserve source owner/site, duplicate
-   reservation, Completion/progress, field-read completeness and unsupported
-   local/Bool refusal. Structural exclusivity does not replace progress checks
-   or establish a second source authority. Gates: four existing terminal families, their rejection
-   tests, selected Pair EXE/linked OBJ30. No new public receipt or source family.
+2. **Terminal relation BoxShape**, verified under existing source/emission and
+   finalization owners. One internal `TerminalRelationV1` starts at the four
+   existing `home_new_prefix` issuance sites and travels through Completion and
+   the ledger; finalized source retains a nonoptional relation. The finalization
+   owner derives the existing root-result accessor, with no stored second tag.
+   Parallel tuples/storage, cross-family exclusion/collision checks and view
+   synchronization are deleted; duplicate reservation, source/site agreement,
+   Completion, emitted field reads and existing local/Bool/general Add boundaries remain.
+   The former inconsistent checks did not prove a conflicting production terminal
+   or a causal link to the historical Unit defect. Gates: existing four terminal
+   families/rejections, retained handoff and selected Pair EXE/linked OBJ30.
+   The active rolling card owns verification; no public receipt/source widening.
 3. **Physical storage wire tag BoxShape**, existing Rust physical ABI and shared
    C header/parser/admission owner. Name the I64 storage tag now written as1 in
    physical_abi.rs, physical-v2 parser and V4 admission; delete those anonymous

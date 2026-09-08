@@ -70,8 +70,6 @@ impl<'module> PublishedMirBackendView<'module> {
         let births = handoff
             .births()
             .ok_or_else(|| fault("retained-callable-missing"))?;
-        let root_source = handoff.root_source();
-        let root_result = handoff.root_result();
         if births.iter().any(|birth| {
             let key = birth.target();
             key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
@@ -86,18 +84,6 @@ impl<'module> PublishedMirBackendView<'module> {
                     .is_none_or(|function| birth.abi().physical_arity() != function.params.len())
         }) {
             return Err(fault("retained-birth-missing"));
-        }
-        if let Some(source) = root_source {
-            let valid = match (source.terminal_i64_add(), source.terminal_unit_return(), source.terminal_integer_literal(), source.terminal_i64_field_return(), root_result) {
-                (Some(terminal), None, None, None, Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })) => terminal.owner() == owner,
-                (None, Some(terminal), None, None, Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { owner })) => terminal.owner() == owner,
-                (None, None, Some(terminal), None, Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { owner })) => terminal.owner() == owner,
-                (None, None, None, Some(terminal), Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { owner })) => terminal.owner() == owner,
-                _ => false,
-            };
-            if !valid {
-                return Err(fault("retained-root-source-result-drift"));
-            }
         }
         self.retained_handoff = Some(handoff);
         Ok(self)

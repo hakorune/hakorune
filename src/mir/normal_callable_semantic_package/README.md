@@ -308,7 +308,10 @@ The ledger stages read/receiver sites, actual/Home bindings and canonical fields
 until the whole terminal succeeds. Receiver consumption occurs once; its ValueId
 must equal the retained binding. Missing/duplicate/drifted reads reject.
 
-The terminal relations are separate source proofs:
+The terminal relations are separate source proofs carried by one internal
+`TerminalRelationV1` from the source scanner through Completion and the ledger.
+Only the not-yet-issued ledger uses `Option`; a finalized source handoff retains
+one nonoptional relation. Physical progress remains separate and mandatory:
 
 | Relation | Dedicated consumption and retained result |
 | --- | --- |
@@ -350,8 +353,9 @@ handoff checks targets against retained construction drafts, never MIR/symbol
 recovery. Each New site is validated, but repeated calls retain each Birth
 definition once. The handoff keeps AppMain identity, terminal relation and checked
 physical root together. Normal finalization owns it through synchronous backend
-consumption; the view borrows and checks source/result agreement without splitting
-owned products or recollecting targets. Root keys cannot reconstruct membership
+consumption; the view borrows the completed product. The existing root-result
+accessor derives its projection from that one relation in the finalization owner;
+there is no stored second result tag or source/result synchronization matrix. Root keys cannot reconstruct membership
 or select ABI. After validation/strict verification/commit preparation, no mutable
 passes or admitted-module extraction escape. Exact ExplicitCompatibility alone
 returns the non-admitted result; all selected failures are terminal.
