@@ -655,6 +655,56 @@ accepted subset. `NamedAllocationPhysicalAdmissionMissing` remains an open
 mapping; copying a Named-spelling classifier into Rust or rejecting all Named
 inputs to claim cutover is not an accepted resolution.
 
+### Named allocation emission selection — accepted next BoxShape
+
+Decision: retain allocation selection in its existing C physical owner. Extract
+the two actual Named emitters' priority decision into one side-effect-free
+selector, consuming the active walker, target/dst/arg0, array-store choice and
+existing borrowed typed-plan facts. It performs no getenv, source/provider
+lookup, register publication, materialization or emission. Preserve lazy typed
+plan validation: a builtin or successful alias must not be rejected by an
+irrelevant invalid typed plan. Keep emitter effects and failure handling in
+their existing consumers; do not add a public query ABI in this BoxShape.
+
+Boundary: existing generic/same-module Named emission -> selected consumer and
+current success/error terminal. Includes both actual emitters below; excludes
+source admission, intrinsic allocation, prescan changes, Rust leaf/frame
+binding, C query exports and Map production switch.
+
+| Existing choice | Selector disposition / preservation requirement |
+| --- | --- |
+| DirectArrayI64 / ArrayBox | Existing birth consumer; ArrayBox's exact-store choice is an explicit input. |
+| MapBox | Existing Map birth consumer. |
+| FileBox | Generic env.box.new consumer only; same-module keeps its prior typed-plan fallback/unsupported behavior. |
+| StringBox with dst and arg0 | Generic AliasOperand(0), not an issued String or Handle kind. Keep materialization, alias and origin side effects outside selection. |
+| StringBox without successful alias | Preserve generic typed-plan fallback; same-module retains its existing own selection. |
+| Remaining Named + typed plan | Only reached after the prior arms; preserve plan identity, type_id/field_count checks, and consumer-specific invalid/missing terminal. |
+
+Exclusive delete-set: duplicated Named priority/selection branches in
+`hako_llvmc_ffi_pure_compile_generic_newbox_emit.inc` and
+`hako_llvmc_ffi_same_module_typed_object_emit.inc`. Acceptance: full selected-C
+build plus focused selector/emitter evidence for both walkers, all above arms,
+builtin/invalid-plan collisions, alias success/failure and missing/invalid plan;
+preserve return codes and selection-side-effect ordering. Reuse existing guards.
+This closes two emission selections, not allocation-wide caller-zero.
+
+Prescan is explicit remaining observer debt. Generic StringBox prescan does not
+fall through to a typed plan when alias is absent, unlike emission; same-module
+prepass also observes typed-plan presence before the emitter's full validation.
+Changing either during this BoxShape would mix behavior repair into extraction.
+
+Future direction: one borrowed allocation preflight can return the actual
+consumer plus Handle or AliasOperand(0), then Rust runs its domain closure and
+C consumes the same bound disposition. Alias follows the retained Rust operand,
+including exact Float bits; a name cannot manufacture String. This direction is
+not query implementation permission: `AllocationPreflightEntryRoleBindingMissing`
+remains open. Existing C program-view/function planning must bind actual
+function identity to generic/same-module/leaf treatment, including Dynamic
+helper/launch; Rust cannot infer that role from function spelling. Program,
+array setting and role must stay fixed through query and compile, and prescan
+must agree before cutover. Existing global/config cleanup outside that binding
+remains separate. No new semantic receipt or second operand graph is needed.
+
 Decision: retain kind/payload across **Map-demanded formal positions**, using
 the existing published input/frame's physical projection and canonical call
 edges. Keep one definition/body; do not specialize by observed constants or add

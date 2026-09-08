@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "NamedAllocationPhysicalAdmissionMissing"
-current_blocker_token = "NamedAllocationPhysicalAdmissionMissing: Step1 domain closure and operation selection verified; Named producer binding cannot use TypedObjectPlan presence because existing C builtin/alias precedence may select another consumer. Resolve the sole physical allocation selection and both walker correspondence before leaf/frame implementation. No Rust copy of Named-spelling dispatch, blanket Named rejection, scalar-only cutover or legacy retry. Source/host switches remain closed."
+current_design_stop = ""
+current_blocker_token = "Accepted bounded BoxShape: extract the two existing C Named emitter selections into one physical selector, preserving walker-specific precedence, alias conditions, lazy typed-plan validation and terminals. No prescan repair, Rust classifier, query export or Map source switch. NamedAllocationPhysicalAdmissionMissing remains a series dependency; future preflight also needs C-owned entry-role/program/config binding before Rust leaf/frame admission."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Map domain closure and operation selection verified; source/host cutover remains closed.
-Next is the existing Named allocation physical-selection decision, not another value schema.
-Keep C allocation precedence and result ABI tied to one owner before binding the final frame.
+Named allocation design accepts a bounded C emitter-selection BoxShape.
+Next: one selector for both actual emitters; preserve precedence and terminals.
+Prescan reconciliation, query role binding and Rust leaf/frame admission stay open.
 """
-next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
