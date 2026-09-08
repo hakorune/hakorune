@@ -45,7 +45,7 @@ pub(crate) struct MapHomeFlow {
     destination: BindingRefV1,
     source_scope: ScopeId,
     target_function: RegionId,
-    allocation_fault: Box<[BindingRefV1]>,
+    outer: Box<[MapOuterHome]>,
     entries: Box<[MapHomeEntry]>,
 }
 impl MapHomeFlow {
@@ -62,12 +62,51 @@ impl MapHomeFlow {
         self.target_function
     }
     /// No Map exists on allocation Fault. Normal acquires an empty construction Map.
-    pub(crate) fn allocation_fault(&self) -> &[BindingRefV1] {
-        &self.allocation_fault
+    pub(crate) fn allocation_fault(&self) -> impl DoubleEndedIterator<Item = BindingRefV1> + '_ {
+        self.outer.iter().map(|home| home.binding)
+    }
+    /// Remaining outer Homes in cleanup order after exactly `installed` entries.
+    /// Before entry i installs use i; after Normal (including displaced-end Fault)
+    /// use i+1. Projection reads issued transfers, never reclassifies source keys.
+    pub(crate) fn outer_after_installs(
+        &self,
+        installed: usize,
+    ) -> Option<impl DoubleEndedIterator<Item = BindingRefV1> + '_> {
+        if installed > self.entries.len() {
+            return None;
+        }
+        Some(
+            self.outer
+                .iter()
+                .filter(move |home| home.transferred_at.is_none_or(|entry| entry >= installed))
+                .map(|home| home.binding),
+        )
+    }
+    /// Source audit projection. Runtime cleanup consumes MapEnd, not this list.
+    #[cfg(test)]
+    pub(crate) fn live_after_installs(
+        &self,
+        installed: usize,
+    ) -> Option<impl DoubleEndedIterator<Item = &SourceExprSiteV1> + '_> {
+        let prefix = self.entries.get(..installed)?;
+        Some(
+            prefix
+                .iter()
+                .rev()
+                .filter(move |entry| entry.replaced_at.is_none_or(|next| next >= installed))
+                .map(|entry| &entry.site),
+        )
     }
     pub(crate) fn entries(&self) -> &[MapHomeEntry] {
         &self.entries
     }
+}
+
+/// Initial reverse acquisition order, with the sole source-issued transfer point.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct MapOuterHome {
+    binding: BindingRefV1,
+    transferred_at: Option<usize>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -76,10 +115,7 @@ pub(crate) struct MapHomeEntry {
     key: Box<str>,
     acquisition: OwnedExprSiteV1,
     binding: BindingRefV1,
-    precommit_outer: Box<[BindingRefV1]>,
-    committed_outer: Box<[BindingRefV1]>,
-    live_before: Box<[SourceExprSiteV1]>,
-    live_after: Box<[SourceExprSiteV1]>,
+    replaced_at: Option<usize>,
     displaced: Option<SourceExprSiteV1>,
 }
 impl MapHomeEntry {
@@ -94,24 +130,6 @@ impl MapHomeEntry {
     }
     pub(crate) fn binding(&self) -> BindingRefV1 {
         self.binding
-    }
-    /// Key preparation / direct-local observation / install Fault: release any
-    /// temporary native key, then end the construction Map's live_before,
-    /// its native storage, then these outer Homes.
-    /// The direct candidate has acquired no evaluation-owned Home.
-    pub(crate) fn precommit_outer(&self) -> &[BindingRefV1] {
-        &self.precommit_outer
-    }
-    /// Install Normal transfers once. Detached-old end Fault uses this SAME state;
-    /// its end attempt is consumed on either outcome and must not be retried.
-    pub(crate) fn committed_outer(&self) -> &[BindingRefV1] {
-        &self.committed_outer
-    }
-    pub(crate) fn live_before(&self) -> &[SourceExprSiteV1] {
-        &self.live_before
-    }
-    pub(crate) fn live_after(&self) -> &[SourceExprSiteV1] {
-        &self.live_after
     }
     pub(crate) fn displaced(&self) -> Option<&SourceExprSiteV1> {
         self.displaced.as_ref()
@@ -139,9 +157,17 @@ pub(super) fn observe_map<E>(
     };
     let mut remaining = homes.to_vec();
     let mut used = std::collections::BTreeSet::new();
-    let mut entries = Vec::new();
-    // Install order is distinct from the Map's public sorted-key iteration.
-    let mut live: Vec<(Box<str>, SourceExprSiteV1)> = Vec::new();
+    let mut entries: Vec<MapHomeEntry> = Vec::new();
+    let mut outer: Vec<_> = homes
+        .iter()
+        .rev()
+        .map(|binding| MapOuterHome {
+            binding: *binding,
+            transferred_at: None,
+        })
+        .collect();
+    // Key comparison stays at this source issuer; consumers see issued deltas.
+    let mut last_install = std::collections::BTreeMap::<Box<str>, usize>::new();
     for (ordinal, key) in keys.iter().enumerate() {
         let Ok(ordinal) = u32::try_from(ordinal) else {
             return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
@@ -170,25 +196,25 @@ pub(super) fn observe_map<E>(
         let Some(position) = remaining.iter().position(|home| *home == binding) else {
             return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
         };
-        let precommit_outer = remaining.iter().rev().copied().collect();
-        let live_before = live.iter().rev().map(|(_, site)| site.clone()).collect();
         remaining.remove(position);
         // Literal String key equality follows the existing canonical key law:
         // canonical integer spellings are unique; noncanonical spellings stay text.
-        let displaced = live
-            .iter()
-            .position(|(old, _)| old == key)
-            .map(|position| live.remove(position).1);
-        live.push((key.clone(), child.clone()));
+        let entry_index = entries.len();
+        let displaced = last_install.insert(key.clone(), entry_index).map(|prior| {
+            entries[prior].replaced_at = Some(entry_index);
+            entries[prior].site.clone()
+        });
+        // Binding membership was checked above; update the same initial Home row.
+        let Some(home) = outer.iter_mut().find(|home| home.binding == binding) else {
+            return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
+        };
+        home.transferred_at = Some(entry_index);
         entries.push(MapHomeEntry {
             site: child.clone(),
             key: key.clone(),
             acquisition: acquisition.clone(),
             binding,
-            precommit_outer,
-            committed_outer: remaining.iter().rev().copied().collect(),
-            live_before,
-            live_after: live.iter().rev().map(|(_, site)| site.clone()).collect(),
+            replaced_at: None,
             displaced,
         });
     }
@@ -198,7 +224,7 @@ pub(super) fn observe_map<E>(
             destination,
             source_scope,
             target_function,
-            allocation_fault: homes.iter().rev().copied().collect(),
+            outer: outer.into_boxed_slice(),
             entries: entries.into_boxed_slice(),
         },
         remaining,

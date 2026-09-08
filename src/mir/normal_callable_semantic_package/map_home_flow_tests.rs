@@ -21,19 +21,27 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
     let [a, b, c] = map.entries() else {
         panic!("three entries");
     };
+    let outer = |count| map.outer_after_installs(count).unwrap().collect::<Vec<_>>();
+    let live = |count| {
+        map.live_after_installs(count)
+            .unwrap()
+            .cloned()
+            .collect::<Vec<_>>()
+    };
     assert_eq!(
-        map.allocation_fault(),
+        map.allocation_fault().collect::<Vec<_>>(),
         [c.binding(), b.binding(), a.binding()]
     );
-    assert_eq!(a.precommit_outer(), map.allocation_fault());
-    assert_eq!(a.committed_outer(), [c.binding(), b.binding()]);
-    assert!(a.live_before().is_empty());
-    assert_eq!(a.live_after(), [a.site().clone()]);
-    assert_eq!(b.precommit_outer(), a.committed_outer());
-    assert_eq!(c.precommit_outer(), [c.binding()]);
-    assert!(c.committed_outer().is_empty());
-    assert_eq!(c.live_before(), [b.site().clone(), a.site().clone()]);
-    assert_eq!(c.live_after(), [c.site().clone(), b.site().clone()]);
+    assert_eq!(outer(0), map.allocation_fault().collect::<Vec<_>>());
+    assert_eq!(outer(1), [c.binding(), b.binding()]);
+    assert!(live(0).is_empty());
+    assert_eq!(live(1), [a.site().clone()]);
+    assert_eq!(outer(2), [c.binding()]);
+    assert!(outer(3).is_empty());
+    assert_eq!(live(2), [b.site().clone(), a.site().clone()]);
+    assert_eq!(live(3), [c.site().clone(), b.site().clone()]);
+    assert!(map.outer_after_installs(4).is_none());
+    assert!(map.live_after_installs(4).is_none());
     assert_eq!(c.displaced(), Some(a.site()));
     assert!(a.displaced().is_none() && b.displaced().is_none());
     assert_eq!((a.key(), b.key(), c.key()), ("a", "b", "a"));
@@ -196,4 +204,48 @@ fn unavailable_prefix_and_implicit_exit_cannot_skip_map_install_stop() {
         assert!(package.prepare_install(&mut context).is_err());
         assert!(context.callable_declaration_catalog_vacant());
     }
+}
+
+#[test]
+fn map_delta_preserves_untransferred_homes_and_later_new_fault_order() {
+    let package = issue(&source(
+        "local prior = %{} local p = new Page() local a = new Page()
+         local m = %{\"a\" => a} local d = new Page() return 30",
+    ))
+    .unwrap();
+    let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    let [prior, current] = flow.maps() else {
+        panic!("two Maps");
+    };
+    let prior = prior.complete().unwrap();
+    let current = current.complete().unwrap();
+    assert_eq!(prior.allocation_fault().count(), 0);
+    assert_eq!(prior.outer_after_installs(0).unwrap().count(), 0);
+    assert!(prior.outer_after_installs(1).is_none());
+    let [entry] = current.entries() else {
+        panic!("one transfer");
+    };
+    let terminal = flow.terminal_homes().unwrap();
+    assert_eq!(terminal.len(), 4);
+    assert_eq!(terminal[1], current.destination());
+    assert_eq!(terminal[3], prior.destination());
+    assert_eq!(
+        current.outer_after_installs(0).unwrap().collect::<Vec<_>>(),
+        [entry.binding(), terminal[2], prior.destination()]
+    );
+    assert_eq!(
+        current.outer_after_installs(1).unwrap().collect::<Vec<_>>(),
+        [terminal[2], prior.destination()]
+    );
+    let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
+    let later = claims
+        .values()
+        .find(|claim| {
+            claim
+                .home_prefix()
+                .is_ok_and(|prefix| prefix.destination() == terminal[0])
+        })
+        .expect("later New source prefix");
+    assert_eq!(later.home_prefix().unwrap().prior_homes(), &terminal[1..]);
 }

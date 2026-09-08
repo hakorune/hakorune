@@ -1026,12 +1026,15 @@ Runtime opaque ABI validation does not close this compiler queue.
    If the old set path is edited before retirement, correct its physical mask
    with a focused check then; do not introduce a second source effect authority.
 
-6. Map source snapshot BoxShape, before the new emitter depends on its API:
-   owner resolved_semantics/home_map_flow.rs::observe_map currently retains
-   precommit_outer/committed_outer/live_before/live_after per entry. For n prior
-   Homes transferred into n distinct entries, these retain 2n² elements plus
-   allocation_fault's n. No elapsed-time or peak-memory measurement is claimed.
-   Direct snapshot accessor consumers are map_home_flow_tests only; production
+6. Map source snapshot BoxShape completed before the new emitter's API intake.
+   Owner resolved_semantics/home_map_flow.rs::observe_map formerly retained
+   precommit_outer/committed_outer/live_before/live_after per entry: 2n² elements
+   plus allocation_fault's n for n distinct transfers. These arrays are deleted.
+   One reverse initial Home list now records transfer points; entries retain
+   exact displaced/replacement points. outer_after_installs borrows the issued
+   prefix; out-of-range rejects. Live projection is test-only. No elapsed-time
+   or peak-memory measurement is claimed.
+   Former direct snapshot accessor consumers were map_home_flow_tests only; production
    home_new_prefix consumes entry bindings and remaining Normal state, while
    Completion retains the flow and common install checks Map presence.
    Keep the same source issuer: one initial outer order plus exact entry transfer
@@ -1043,8 +1046,14 @@ Runtime opaque ABI validation does not close this compiler queue.
    committed Fault order, allocation/key/install/displaced-end cases, alias and
    duplicate-binding rejection, prior Maps and later-New cleanup suffixes.
    Fresh/nested child refusal remains; do not claim newly supported child Fault.
-   Show retained structure proportional to initial outer+entries. Expanded MIR
+   Retained structure is proportional to initial outer+entries. Expanded MIR
    cleanup code size and total compile complexity are separate measurements.
+   Validation: serial jobs4 cargo test --locked --profile quick --lib
+   map_home_flow_tests -- --test-threads=1:6 pass, including untouched Home/prior
+   Map/later-New Fault ordering and out-of-range prefix rejection. Existing alias,
+   duplicate, fresh/nested and unavailable-prefix install Stops remain covered.
+   Log /tmp/hakorune-map-source-deltas.log; pointer/corridor/diff checks pass,
+   touched source max251. Module README/reference updated. No source/C cutover.
 7. Static Call invocation state is already task3 in lang/c-abi/README.md; keep
    that owner rather than creating a duplicate task. Reconfirmed Rust transport
    environment save/change/restore and C published-call static rows/count/used.
@@ -1054,8 +1063,38 @@ Runtime opaque ABI validation does not close this compiler queue.
    overlapping distinct rows/options, failure cleanup and unchanged environment,
    followed by deletion of globals/mutation. No race or serialization proof.
 
-Next: source snapshot BoxShape, then Map emission progress/cleanup cutover using
-operation-derived projections and the mixed-origin contract. The LocalSSA split
+8. Before adding Map progress to the ledger, consolidate existing New physical
+   progress inside NewEmissionProgress/NewLocalCommitV1 (one BoxShape). Worker
+   audit confirms Emitted.result and initializer store the same accepted value;
+   local is a distinct Copy destination and must remain distinct. Move the
+   independent expression/local completion states into the existing progress
+   representation; delete duplicate value storage and synchronization checks.
+   Preserve Unprepared/Prepared/Emitting/Emitted/expression-complete/Installed/
+   Checked transitions and the separate RetainedUnavailable completion path.
+   installed_home must accept Installed-before-Checked for later-New cleanup.
+   Keep is_complete versus installs distinct, all-local preflight before updates,
+   all-emission validation before marking Checked, original/finishing MIR checks
+   and argument/reclaim/source correspondence. No new manager or proof wrapper.
+   Callers: selected admission -> callable/raw expression completion -> semantic
+   observation local batch -> child port complete_new_emissions. Acceptance:
+   existing coseal order/duplicate/foreign/value drift tests, later-New completion,
+   failed batch leaves every row unchanged, unavailable never becomes Checked.
+   This is representational debt; no reachable corrupt state was demonstrated.
+9. Terminal validation dispatch BoxShape in ordinary_new_local_commit/
+   root_validation.rs: draft and finishing duplicate Unit/Add/literal/field
+   calls. Use the existing TerminalRelationV1 in private shared dispatch while
+   retaining BOTH validation stages. Unit currently precedes root cleanup and
+   field checks; scalar checks follow them. Preserve that failure precedence
+   (or explicitly design a changed diagnostic contract), root-state transitions,
+   cleanup capture/projection and artifact-only coverage. Do not skip unrelated
+   field validation or treat enum selection as final-MIR evidence. Acceptance:
+   all four result kinds at draft and finishing, mutated retained MIR rejection,
+   duplicate/order/artifact rejection; delete the duplicated dispatch list.
+   Schedule at the next root-validation edit after ledger consolidation; this
+   maintenance task alone does not block the Map source emitter.
+
+Next: consolidate existing ledger progress before adding Map emission/cleanup
+using the mixed-origin contract. Source snapshot storage is closed. The LocalSSA split
 is queued before that owner grows; static Call state follows its existing lane
 selection and does not block unrelated Map work. Corrected counts and these
 registrations are not evidence that outstanding source changes have landed.

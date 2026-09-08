@@ -1154,9 +1154,15 @@ exact acquisition site; ordinary observations expose Handles, while only an
 available direct Home can transfer. The package callback checks already-issued
 descriptor compatibility, not availability. Aliases cannot supply transfer and
 cannot recover an observation through a consumed root.
-`home_map_flow` records allocation Fault, precommit outer/live obligations,
-committed outer/live obligations and the detached old entry. Replacement becomes
-the newest live install; old-end Fault uses the committed state without retry.
+`home_map_flow` retains initial reverse Home order once, each Home's exact
+transfer entry, and each entry's issued displaced/replacement relation. Borrowed
+prefix projections expose precommit/committed outer cleanup without storing four
+full lists per entry or comparing keys again downstream. Prefix i is entry i's
+precommit state; i+1 is its committed state, including detached-old end Fault.
+Out-of-range prefixes reject. Replacement becomes the newest live install;
+old-end Fault uses the committed state without retry. Retained flow storage is
+linear in initial Homes plus entries; expanded cleanup code size is a separate
+concern. Runtime MapEnd consumes the live Map; live-prefix projection is test-only.
 Partial Maps remain unavailable exact-site observations, never partial transfers.
 These records and terminal order have one owner in Completion. The unconnected
 consumer is stopped at package install; fresh children, nested Maps and other

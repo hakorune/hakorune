@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Map Invoke roles/lifetime checks and JSON projection implemented; check plus 12 Invoke/7 JSON tests pass. Before actual source emitter, thin per-entry Map source snapshots to initial order plus issued deltas; then bind exact source progress and mixed cleanup. No Map physical binding or C execution yet; source install Stop remains until source/OBJ/EXE and old-edge cutover."
+current_blocker_token = "Map source snapshot BoxShape closed: four per-entry arrays deleted, initial order plus exact transfer/replacement points retained; 6 source tests pass. Next consolidate existing New ledger expression/local/check progression before adding Map progress and mixed cleanup. Preserve Installed-before-Checked and unavailable completion. Map source/C execution and old-edge cutover remain open; common install Stop stays."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

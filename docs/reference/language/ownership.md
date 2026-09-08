@@ -262,6 +262,12 @@ is nonconsuming. Successful installation must use the same still-available
 obligation in the source successor; observing it earlier is not permanent transfer
 permission. This is a static source-flow requirement, not runtime name lookup.
 
+The source owner may retain initial cleanup order plus exact transfer and
+replacement points instead of full per-entry successor lists. Projecting a
+prefix must preserve the same pre-commit/post-commit distinction and reverse
+live-install order; it must not re-resolve keys or infer ownership in the backend.
+This representation choice grants no additional source acceptance.
+
 Each duplicate-key entry is a separate transaction. Using the same direct Home
 in two entries consumes it at the first successful installation and rejects the
 second use, even when the keys are equal. Two separately authorized fresh child
