@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Opaque ABI landed at 7cc63ab9ea. Before Map opcode growth: behavior-neutral flow rewrite-owner split, then one bound-frame demand/domain/original analysis; ownership task Map quality queue owns acceptance and SSA/effect follow-ups. Resume operation-derived MIR and mixed-origin cleanup, then C emission. Source install Stop remains until source/OBJ/EXE and old-edge cutover."
+current_blocker_token = "Opaque ABI landed at 7cc63ab9ea. Flow rewrite-owner split passes16 focused tests and guard. Next one bound-frame demand/domain/original analysis before Map opcode growth; ownership task Map quality queue owns acceptance and SSA/effect follow-ups. Resume operation-derived MIR and mixed-origin cleanup, then C emission. Source install Stop remains until source/OBJ/EXE and old-edge cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

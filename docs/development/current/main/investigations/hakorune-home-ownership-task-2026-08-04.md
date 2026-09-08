@@ -882,10 +882,14 @@ Runtime opaque ABI validation does not close this compiler queue.
    transport and replace historical counts with measured live paths. Confirmed
    local.rs774, flow.rs759, instruction.rs744 and raw dispatch754. This repairs
    current documentation, not the outstanding source splits.
-2. Before Map opcode extension, extract value-use rewriting and its tests from
-   simplify_cfg/flow.rs; the existing flow owner keeps CFG/PHI decisions. Done:
-   old helper body removed, private owner wiring, focused rewrite/CFG tests and
-   corridor guard; no instruction semantics or new accepted form in this split.
+2. Flow rewrite-owner split completed: flow.rs414, value_uses.rs237 and
+   value_uses_tests.rs116. CFG/PHI decisions stay in flow; only two private
+   substitution entrypoints are exposed. Function bodies and three existing
+   tests match the parent modulo module wrapping/visibility. All16 simplify_cfg
+   tests pass (`CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib
+   simplify_cfg -- --test-threads=1`, /tmp/hakorune-flow-owner-split.log).
+   Corridor guard follows the new code/test owners and passes; no new guard,
+   accepted form or instruction contract. Module README updated.
 3. Before extending the Map frame, compute demand/domains/actions/original once
    in its existing private physical planner, after with_named_allocations binds
    the index. This is not source Facts: graph and Named observations are inputs.
@@ -915,9 +919,8 @@ Runtime opaque ABI validation does not close this compiler queue.
    If the old set path is edited before retirement, correct its physical mask
    with a focused check then; do not introduce a second source effect authority.
 
-The next bounded implementation is the flow rewrite-owner split (BoxShape),
-then the bound-frame analysis consolidation (BoxShape), then Map opcode/cleanup
-cutover. The SSA split is explicitly queued before that owner grows; it does not
+The next bounded implementation is bound-frame analysis consolidation
+(BoxShape), then Map opcode/cleanup cutover. The SSA split is explicitly queued before that owner grows; it does not
 block unrelated Map runtime work. These tasks remain open; corrected counts are
 not evidence that their source changes have landed.
 

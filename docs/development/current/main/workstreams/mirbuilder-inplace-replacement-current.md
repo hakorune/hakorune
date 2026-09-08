@@ -637,7 +637,7 @@ Decision: implement the accepted [v2 frame](../design/collection-literal-constru
 Source authority + canonical issuer: existing literal/child and canonical key/ordinal owners. Existing published frame owns pre-JSON representation and ABI projection; body remains the sole operand/CFG graph. No new semantic receipt or second instruction graph.
 Non-authority: old i64/origin, plan presence and incidental linkage cannot supply kinds or admission. Role uses existing program/definition/leaf/launch owners, not a Rust name classifier. Accepted parse-once session order and alias-demand obligations are in the [Map owner](../design/collection-literal-construction-ssot.md#allocation-preflight-ownership-and-ordered-implementation).
 Fail-fast boundary: missing/malformed/dangling projection, changed original inputs, stale compatibility ingress or residual rows reject before artifact. OriginalValue itself demands an original producer; Map-only Float gets no fabricated legacy lane.
-Smallest next slice: behavior-neutral flow value-use rewrite split before Map opcode growth, then consolidate bound-frame demand/domain/original analysis. Ownership task Map quality queue owns acceptance and SSA/effect follow-ups. Resume MIR/key/Map/outcome projection and mixed-origin cleanup afterward; preserve unused aliases and prior Maps on later New Fault. Opaque ABI is at 7cc63ab9ea; source install Stop stays until source/OBJ/EXE and old-edge cutover.
+Smallest next slice: consolidate bound-frame demand/domain/original analysis after Named observation binding. Flow rewrite split is verified (16 tests, corridor guard). Ownership task Map quality queue owns acceptance and SSA/effect follow-ups. Resume MIR/key/Map/outcome projection and mixed-origin cleanup afterward; preserve unused aliases and prior Maps on later New Fault. Source install Stop stays until source/OBJ/EXE and old-edge cutover.
 Use jobs4 locked quick focused Rust, selected C build/proofs when changed, existing pointer/corridor guards; sources stay below800.
 Checkpoint: Map Completion retains direct prior-Home transfer, replacement/Fault order and complete/unavailable demand; common prepare_install stops before catalog/body effects. Package126/Completion33 pass; root11 pass/six parent3661a9a907 baseline reds with matching causes. New Map root test passes. Exact tests/commands are in OWN-FIELD-CONTAINER-DEST-D0. Prefix early-exit bypasses are removed; source max737. No physical Map execution/intake/cutover claim.
 Baseline tests (parent a3ee23938d, identical command): program_json_v0_loader::typed_program_v0_import_compile_uses_published_program_pipeline; hmi_t0_fixtures::{ownership_transport,scalar_suite}_matches_checked_in_hmi_t0_fixture; metadata_and_annotations::source_to_program_json_v0_transports_local_type_annotation_metadata. Exact names/command/logs are retained in OWN-FIELD-CONTAINER-DEST-D0; no fixture refresh or semantic waiver.
@@ -646,11 +646,11 @@ Baseline observation: initial Print-based physical input hit missing @.fmt_i64 o
 Non-claims: existing runtime ABI evidence covers ABI8/String2/codec38/legacy Map11 only; object destination/lifetime dependency remains open. No compiler/source cutover has landed yet. Physical Map execution is bounded fixture evidence; source-level Map OBJ/EXE and R7 remain open. No blanket non-Map tagged rewrite, private-symbol wrapper or retained production v1 fallback.
 
 ## Source and ownership budget
-Measured at `7cc63ab9ea` (2026-09-09); remeasure affected owners before editing.
+Measured 2026-09-09; flow split updated below, others at 7cc63ab9ea; remeasure before edit.
 
 ```text
 src/mir/builder/ssa/local.rs                           774
-src/mir/passes/simplify_cfg/flow.rs                     759
+src/mir/passes/simplify_cfg/flow.rs                     414
 src/mir/builder/raw_expression_dispatch/mod.rs          754
 src/mir/builder.rs                                     752
 src/mir/string_dead_text_region_plan.rs                750
@@ -659,8 +659,8 @@ src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs 736
 ```
 
 The deleted raw_invocation_source_transport.rs is not a live budget owner.
-Before Map opcode work, split flow value-use rewriting with its focused tests;
-keep CFG edge/PHI decisions with the existing flow owner. Register local.rs's
+Flow split is closed (16 tests): value_uses.rs237, tests116; CFG/PHI stays in flow.
+Next consolidate bound-frame physical analysis. Keep registered local.rs's
 618-line materialize_local_v1 for behavior-neutral phase extraction, preserving
 cache/forwarding/failure order. Neither task creates a new semantic authority.
 Instruction/raw-dispatch growth requires deletion/delegation or a prior split.

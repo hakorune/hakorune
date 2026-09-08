@@ -104,3 +104,10 @@ Prep rule:
 - shared policy still belongs in `src/mir/policies/`
 - this subtree is docs-first only until the AST/runtime/config coupling is
   reduced enough to make packaging mechanical
+
+### SimplifyCFG ownership
+
+`simplify_cfg/flow.rs` owns branch threading, jump merging and PHI predecessor
+decisions. Its private `value_uses.rs` substitutes value operands only after the
+flow owner selects a rewrite; it does not infer control flow or select targets.
+`value_uses_tests.rs` retains operand/target preservation coverage.

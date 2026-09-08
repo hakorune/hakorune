@@ -42,7 +42,8 @@ MIR_V0_TESTS="$ROOT_DIR/src/runner/mir_json_v0/tests.rs"
 MIR_V1_CALL="$ROOT_DIR/src/runner/json_v1_bridge/parse/mir_call.rs"
 MIR_V1_TESTS="$ROOT_DIR/src/runner/json_v1_bridge/parse/tests.rs"
 CALLEE_DEFS="$ROOT_DIR/crates/hakorune_mir_defs/src/call_unified.rs"
-SIMPLIFY_FLOW="$ROOT_DIR/src/mir/passes/simplify_cfg/flow.rs"
+SIMPLIFY_VALUE_USES="$ROOT_DIR/src/mir/passes/simplify_cfg/value_uses.rs"
+SIMPLIFY_VALUE_TESTS="$ROOT_DIR/src/mir/passes/simplify_cfg/value_uses_tests.rs"
 VALUE_CONSUMER="$ROOT_DIR/src/mir/value_consumer.rs"
 ESCAPE_BARRIER="$ROOT_DIR/src/mir/escape_barrier.rs"
 OWNERSHIP_VERIFY="$ROOT_DIR/src/mir/ownership_ssa/verify.rs"
@@ -75,7 +76,7 @@ require() {
   local token="$2"
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$ARRAY_WRITE_BACKEND" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$BOXCALL_EMIT" "$RETAINED_LEN" "$SHARED_STRING_CORRIDOR" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_COSEAL_TESTS" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY" "$NEW_EXPRESSION" "$RAW_DISPATCH"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$ARRAY_WRITE_BACKEND" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$BOXCALL_EMIT" "$RETAINED_LEN" "$SHARED_STRING_CORRIDOR" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_COSEAL_TESTS" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_VALUE_USES" "$SIMPLIFY_VALUE_TESTS" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY" "$NEW_EXPRESSION" "$RAW_DISPATCH"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 if rg -F -q "CallsiteCanonicalizeScheduleSite::MirOptimizerLateCallAndInline" "$OPTIMIZER" || rg -F -q "MirOptimizerLateCallAndInline" "$SCHEDULE"; then
@@ -153,10 +154,10 @@ require "$MIR_V1_TESTS" "parse_v1_constructor_rejects_non_array_args_before_publ
 require "$MIR_V1_TESTS" "parse_v1_constructor_rejects_conflicting_name_aliases_before_publication"
 require "$CALLEE_DEFS" "pub fn rewrite_value_operands"
 require "$CALLEE_DEFS" "pub fn for_each_value_operand"
-require "$SIMPLIFY_FLOW" "callee.rewrite_value_operands"
-require "$SIMPLIFY_FLOW" "simplify_cfg_call_use_rewrite_preserves_typed_targets_and_args"
-require "$SIMPLIFY_FLOW" "simplify_cfg_call_use_rewrite_keeps_targetless_callees_empty"
-require "$SIMPLIFY_FLOW" "simplify_cfg_call_use_rewrite_preserves_legacy_func_parity"
+require "$SIMPLIFY_VALUE_USES" "callee.rewrite_value_operands"
+require "$SIMPLIFY_VALUE_TESTS" "simplify_cfg_call_use_rewrite_preserves_typed_targets_and_args"
+require "$SIMPLIFY_VALUE_TESTS" "simplify_cfg_call_use_rewrite_keeps_targetless_callees_empty"
+require "$SIMPLIFY_VALUE_TESTS" "simplify_cfg_call_use_rewrite_preserves_legacy_func_parity"
 require "$METHODS" "callee.for_each_value_operand"
 require "$ROOT_DIR/src/mir/instruction/tests.rs" "typed_call_used_values_project_callee_operands_before_args"
 require "$CALLEE_DEFS" "callee_for_each_value_operand_preserves_occurrence_order_and_duplicates"
@@ -465,7 +466,7 @@ for relative in (
     "src/parser/normal_callable_program_source/ordinary_new_source.rs",
     "src/runner/product/llvm/mod.rs",
     "crates/hakorune_mir_defs/src/call_unified.rs",
-    "src/mir/passes/simplify_cfg/flow.rs",
+    "src/mir/passes/simplify_cfg/value_uses.rs",
     "src/mir/value_consumer.rs",
     "src/mir/escape_barrier.rs",
     "src/mir/ownership_ssa/verify.rs",
@@ -548,7 +549,7 @@ if "_ =>" in projection:
     raise SystemExit("Callee projection introduced a wildcard variant arm")
 if "pub fn rewrite_value_operands" not in projection:
     raise SystemExit("Callee projection lost mutable rewrite facet")
-flow = (root / "src/mir/passes/simplify_cfg/flow.rs").read_text()
+flow = (root / "src/mir/passes/simplify_cfg/value_uses.rs").read_text()
 rewrite_start = flow.index("fn rewrite_value_uses_in_instruction")
 call_start = flow.index("MirInstruction::Call(call) =>", rewrite_start)
 call_end = flow.index("MirInstruction::LegacyCallV0", call_start)
