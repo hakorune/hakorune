@@ -1299,21 +1299,28 @@ destination/ownership contract or full runtime dependency completion.
 
 ### Map construction prerequisite for owned-slot transfer
 
-Decision: before the source candidate/commit issuer is implemented, this owner
-must close intrinsic Map acquisition and end responsibility, including key
-preparation residence, acquired child cleanup and already-installed entries on
-incomplete-construction Fault. The numeric Array end contract is not a substitute.
-The existing [Map destination task](../investigations/hakorune-home-ownership-task-2026-08-04.md#map-slot-dependency-of-the-selected-compiler-cutover)
-then co-seals exact slot compatibility with the original acquisition/end evidence.
-A prior Home list identifies local availability but cannot authorize a new
-storage destination. Move the same admitted responsibility; do not invent share,
-reclassify it from runtime tags or require a new generic root adapter.
+Decision: intrinsic Map acquisition, key residence and construction/end order
+are fixed by the [language lifecycle owner](../../../../reference/language/lifecycle.md#intrinsic-map-construction-and-end).
+Allocation Normal acquires the empty Map responsibility; prepared keys are native
+entry residence; completion forwards the same responsibility. Live value cleanup
+uses reverse successful install order, including replacement and construction
+Fault. Child cleanup runs outside storage locks, with first-Fault preservation.
+This closes the source policy, not its compiler/runtime implementation.
 
-This is the next source contract to close, not a new receipt or runtime
-implementation permission. The common resolved core and existing callable-row/
-Script-product loans already provide source access; their body-shape co-seal must
-be retained. Single-entry commit and failure laws are fixed in the reference;
-key residence and Map construction/root end remain included unresolved work.
+The [Map destination task](../investigations/hakorune-home-ownership-task-2026-08-04.md#map-slot-dependency-of-the-selected-compiler-cutover)
+next co-seals exact slot compatibility with the original acquisition/end evidence.
+A prior Home list is availability, not destination compatibility. Existing
+callable-row/Script-product loans supply same-issuance core and body shape;
+no generic root adapter or standalone core extraction is needed.
+
+Runtime follow-up must replace clone-based insertion and lock-held old-value
+drop with the authorized transfer/detach/end transaction in the existing storage
+owner. Current HashMap storage carries no successful-install order; keys/values
+sort by public key text. Neither behavior proves the new end contract. Required
+acceptance includes allocation/preinstall Fault, duplicate replacement, C-then-B
+cleanup after a:=A/b:=B/a:=C, old cleanup Fault and ending-state re-entry refusal.
+Keep runtime escape Stops until source, physical and actual runtime consumers
+close; no second payload table, implicit share or numeric-Array substitution.
 
 ### Map source-shape preservation decision
 

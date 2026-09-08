@@ -282,8 +282,8 @@ tags/Arc/clone, declaration-only I64UnitTrivial ABI and matching owner numbers.
 Fail-fast boundary: reject missing/foreign source relation, unsupported candidate
 or stale obligation before effects/artifact; retain existing escape Stops until
 actual source/physical consumers close. No implicit share or carrier-to-Home cast.
-Smallest next slice: close the intrinsic Map construction/end responsibility
-and exact obligation-preserving slot compatibility before issuing candidate flow.
+Smallest next slice: map exact obligation-preserving slot compatibility and
+candidate flow against the accepted intrinsic Map construction/end contract.
 The one-entry transfer law is fixed; do not repeat that policy census.
 Non-claims: source Map execution, runtime retention, general Home Flow, full
 key/residence/cleanup matrix or public cutover.
@@ -372,21 +372,22 @@ Do not require a new generic Unique/Shared classifier solely for moving an
 already-admitted obligation, and do not accept unknown obligations under that
 exception. Shared acquisition/representation remains separately gated.
 
-Two source contracts must close before the candidate issuer implementation:
+Source prerequisites before candidate issuer implementation:
 
-1. Intrinsic Map construction responsibility: acquisition on allocation Normal,
-   key preparation residence, acquired child obligations and already-installed
-   entries on incomplete-construction Fault, plus completed Map/root end.
-   Numeric Array's native structural-destruction contract is not Map authority.
+1. Accepted: [Map construction/end law](../../../../reference/language/lifecycle.md#intrinsic-map-construction-and-end).
+   Allocation Normal, native key residence, same-responsibility completion and
+   reverse successful live-install end order are fixed. Compiler/runtime
+   implementation remains required; numeric Array is not Map authority.
 2. Slot compatibility: borrow the exact acquisition/end evidence together with
    direct binding availability and exact Map destination; preserve that evidence
    through local-to-slot commit and later slot cleanup. Runtime clone, host
    handles or wrapper retention cannot substitute for it.
 
-The Map construction owner named above owns the first contract and its required
-key/end ordering; this destination task owns the second and the source-flow
-co-seal. Keep the already-fixed candidate API and root join points. Do not add
-empty receipt factories while either required contract is missing.
+The lifecycle reference owns the first law; the Map construction owner owns its
+physical/runtime mapping. This destination task owns slot compatibility and the
+source-flow co-seal. Keep the fixed candidate API and root join points. Next
+identify how the existing exact acquisition/end evidence reaches that co-seal;
+do not replace missing evidence with empty receipt factories.
 
 **Transaction and acceptance**
 
@@ -406,8 +407,8 @@ carrier publication; and postcommit cleanup Fault preserving new ownership.
 These are target cases, not claims that those programs compile today. Existing
 Map deletion returns Bool, not an ownership-returning value.
 
-Ordered closure: Map construction/end contract, exact slot compatibility and
-source issuance, then co-seal these transitions at the root;
+Ordered closure: accepted Map construction/end law -> exact slot compatibility
+and source issuance -> co-seal these transitions at the root;
 add consuming physical transaction; connect runtime storage/cleanup; switch
 source/host and retire the old edges with OBJ/EXE evidence. `InvokeOperation`
 currently has no Map install/detached-old result. Array write and FieldSet promise
@@ -417,8 +418,8 @@ no mutation on Fault and cannot represent postcommit cleanup Fault. Raw
 `nyash_map_literal_store_v1`/`MapBox::insert_key_str` return no detached obligation;
 a status change alone cannot issue source transfer.
 
-Included open work: candidate capability/availability, key residence, incomplete
-Map/root cleanup, multi-slot end order, borrow invalidation, Dynamic read
+Included open work: candidate capability/availability, implementation of key
+residence and Map/root cleanup under the fixed end order, borrow invalidation, Dynamic read
 publication, cycles/self-insertion, representation compatibility and runtime
 profile/finalizer affinity. Do not bypass these with a scalar-only cutover.
 No additional user policy is needed for the one-entry law; actual producer and

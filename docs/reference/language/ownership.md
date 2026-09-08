@@ -291,8 +291,9 @@ normal carrier. Independent owner acquisition on a read likewise needs an
 existing explicit authority, not an implicit retain.
 
 Still open within the full Map cutover: source capability/destination issuance,
-Home/carrier commit and cleanup co-seal, key residence ownership, multi-slot
-clear/parent-end ordering, slot-borrow invalidation, Dynamic read publication,
+Home/carrier commit and cleanup co-seal, implementation of the accepted
+[Map construction/end law](lifecycle.md#intrinsic-map-construction-and-end),
+general clear semantics, slot-borrow invalidation, Dynamic read publication,
 self-reference/cycles, exact runtime profile and finalizer affinity. No runtime
 escape refusal is retired merely by accepting this destination target.
 The next design is the single-entry source/commit/cleanup mapping, including

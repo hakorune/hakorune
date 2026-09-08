@@ -329,6 +329,64 @@ evaluate RHS once
 RHS/preflight failure preserves the old field. Hidden `share`, early old-value
 release, and same-identity double finalization are forbidden.
 
+## Intrinsic Map construction and end
+
+Decision (2026-09-09): intrinsic Map literals have a builtin structural
+lifecycle, with no user `birth` or `fini` on the Map itself. Child obligations
+retain their own exact end contracts, including terminal child hooks. This is
+an accepted source target; the Map source issuer and runtime cutover remain open.
+
+Allocation Normal acquires one empty Map construction responsibility. Before
+that Normal, including allocation Fault, there is no Map responsibility to end.
+Each entry prepares its key before evaluating its child, preserving existing
+evaluation and failure order. A prepared key is native entry bookkeeping, not
+a newly issued source String Home or user-finalizable value. Its current key
+equality is preserved: canonical i64 text such as `"1"` shares the integer key
+domain; `"01"`, `"+1"` and `"-0"` remain text keys.
+
+Before install, the entry evaluation frame owns prepared key residence. Install
+commits the needed residence to the Map; duplicate unused key residence is
+released natively. Preinstall Fault releases the temporary key. This does not
+move fallible key preparation after child evaluation.
+
+Candidate ownership follows the
+[slot destination law](ownership.md#intrinsic-map-slot-destination-target):
+a prior local Home stays local until commit, while a fresh child responsibility
+exists in evaluation only after acquisition Normal. Install commits the exact
+obligation once. Equal-key replacement installs the new value before detaching
+and immediately ending the old responsibility; old cleanup Fault cannot undo
+that commit or restore the candidate's prior owner.
+
+Map end releases live value obligations in **reverse successful value-install
+order**. Replacement gives the new obligation the newest position and removes
+the detached old obligation from the live set. This is a Map-specific order,
+not field reverse-declaration order or public key iteration order. For
+`a := A; b := B; a := C`, replacement ends A immediately, then Map end releases
+C followed by B. If ending A Faults and aborts construction, retain that Fault
+and attempt C then B; never retry A. Public `keys()`/`values()` order is unchanged.
+
+An incomplete-construction Fault unwinds in this order:
+
+1. Active child/entry evaluation responsibilities, including the temporary key,
+   under existing scope rules. An untransferred prior local is not ended here.
+2. Already-installed live Map value obligations in the order above.
+3. Remaining key and Map native residence.
+4. Outer lexical/local responsibilities under their existing scope rules.
+
+Preserve the first Fault, attempt remaining cleanup, and use the existing bounded
+suppressed-diagnostic policy. Completing construction forwards the same Map
+responsibility into its result/destination; it does not acquire a second Home.
+Completed Map terminal end uses the same live-value order before releasing key
+and native storage. Native release does not replace child obligation discharge.
+
+Storage locks protect detach/state changes only; child end runs outside them.
+Once terminal end begins, the Map cannot accept new ownership or revive a slot
+through child-finalizer re-entry. Physical bookkeeping belongs to the selected
+storage owner, not a second semantic registry. Its mechanism remains to be mapped.
+General `clear`, borrow invalidation, cycles and unsupported child producers are
+not enabled by this Decision. Returned Fault cleanup is required; this contract
+does not claim recovery from every host allocator abort or process termination.
+
 ## `close()` versus `fini`
 
 `close` is an ordinary method-name convention, not a keyword or reserved
