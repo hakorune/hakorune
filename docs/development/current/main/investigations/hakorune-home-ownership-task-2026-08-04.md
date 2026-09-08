@@ -624,35 +624,43 @@ freeze/assertion signatures, not unordered AST/config debug serialization.
 No fixture refresh, baseline repair or C execution is included in this slice.
 Pointer/canonical-corridor guards and diff checks pass; touched Rust max737.
 
-**Next physical contract boundary (independent worker premise audit)**
+**Accepted physical outcome and ordered implementation**
 
-Decision: use the existing lifecycle consumer for Map allocation, fallible
-install, detached-old end and intrinsic Map end. Do not divert lifecycle through
-the plain NewBox/Write static-V2 index or first create a separate cleanup ledger.
-Source authority + canonical issuer: the existing Completion MapHomeFlow and
-exact EntryValue membership; final handoff must retain the checked source/end
-product, rather than inventing a NoBirth object.
-Non-authority: raw set, result-discarding MapLiteralEntryWrite, runtime tags and
-physical progress cannot issue transfer or decide commit state.
-Fail-fast boundary: install Fault preserves the prior owner; install Normal
-transfers once; detached-old end Fault preserves that commit and never retries
-old end. Runtime residence/observer readiness remains a production intake gate.
-Smallest next slice: determine the exact detached-old/no-old Normal result and
-its consuming end operation in existing Invoke/result and lifecycle owners,
-including root progress/graph validation. This is design work, not permission
-to add an unconnected Map Invoke variant or another pending transport.
-Non-claims: owned-slot intake, wider candidate families, Script, whole-root Map
-return, OBJ/EXE and final source/host cutover remain unfinished.
+The [detached outcome contract](../design/collection-literal-construction-ssot.md#detached-install-outcome-physical-contract)
+now fixes caller-owned opaque storage, four live states plus disposal,
+commit-before-old-end, operation-derived projection and immediate matching end.
+Independent MIR and runtime audits confirmed the existing one-result projection
+can support this contract; current C handle classification cannot. Descriptor
+V1 is fixed-size and must be revised with its readers, never padded silently.
 
-Actual eventual caller/deletion boundary: selected root Map lowering replaces
-`collection_literals::build_map_literal_with_port_v1`'s named allocation and
-resultless set, the matching Core MapLiteralEntryWrite result discard, and
-ordinary-local end of transferred children. Common install Stop retires only
-when these selected source-to-runtime operations execute with OBJ/EXE evidence.
-Acceptance must observe exact source/operation correspondence, precommit Fault,
-committed replacement despite old-end Fault, duplicate replacement order,
-Map-before-outer cleanup, one-time old end and retained-operation/CFG drift
-rejection. Multi-origin validation cannot inherit a single-origin proof.
+Order within the existing Map series:
+1. Remove the remaining native remove/clear lock-held teardown at the existing
+   Map owner; this is a concrete dependency repair with current callers.
+2. Put native/owned residence in the actual Map entry owner, preserving one
+   payload table, ordered end and explicit observer/read/clone behavior. Keep
+   owned public intake gated; root imports no kernel FaultFrame or registry.
+3. Implement target descriptor and checked install/outcome/end primitives,
+   then connect existing lifecycle Invoke, projection and root cleanup consumers.
+   Tests must exercise real storage/end; schema-only acceptance is insufficient.
+4. Close remaining candidate/Script/observer obligations, execute selected
+   source OBJ/EXE, then delete matching raw set/MapLiteralEntryWrite and common
+   install Stop. Do not claim production caller-zero before that switch.
+
+**Accepted next implementation: native Map teardown dependency**
+
+Change: `MapBox::remove_key_str` and `clear_entries` detach under their existing
+write lock and drop detached native values after unlocking. BoxShape: no new
+source acceptance, ownership issuer, runtime ABI or owned-value variant.
+Contract: preserve key law, remove Bool, clear's empty-state visibility and table
+capacity. Reentrant child Drop sees the committed removal/clear and runs once.
+Callers: existing Map delete/clear and kernel substrate routes. Delete-set:
+these two lock-held native Drop edges; no new wrapper or second teardown owner.
+Done: existing Map focused tests plus real reentry probes for remove and clear,
+missing-key/empty-clear behavior, unchanged capacity and one-time teardown;
+existing pointer/corridor guards and `src/boxes/README.md` receipt.
+Stop: any need for source widening, owned intake or different failure policy.
+The ordered physical execution work above remains unfinished after this repair;
+this dependency does not replace the full Map cutover finish line.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

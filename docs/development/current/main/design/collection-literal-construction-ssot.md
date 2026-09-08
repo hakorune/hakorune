@@ -1398,6 +1398,57 @@ acceptance includes native end once, no old-local double end, duplicate-key
 replacement, pre/postcommit Fault, Map/root cleanup, drift and profile/thread
 mismatch. This accepted design is not runtime activation or source execution.
 
+### Detached install outcome physical contract
+
+Decision: use caller-owned opaque result storage for the committed install
+outcome. It is neither a source Home nor a host handle, and introduces no token
+registry or separately allocated outcome box. The runtime owns its layout;
+versioned size/alignment/contract revision travel through the existing target
+archive descriptor and invocation session. The current fixed 200-byte V1 cannot
+hide these fields in padding: revise descriptor, decoder, required symbols and
+C allocation together. C never guesses a Rust trait-object layout.
+
+| Storage state | Allowed transition | Ownership |
+| --- | --- | --- |
+| Fresh storage | init -> Unissued | valid aligned unique caller storage; no payload |
+| Unissued | install Fault -> Unissued; install Normal -> ReadyNoOld or ReadyOwned | Fault transfers nothing; Normal commits new slot and detaches old |
+| ReadyNoOld | detached end -> Consumed | mandatory consumption, no child end |
+| ReadyOwned | move payload and mark Consumed, then child end | either child outcome consumes old attempt; new slot remains committed |
+| Unissued / Consumed | dispose | no outstanding obligation; reuse requires a new valid lifetime |
+
+Ready states cannot be copied, reinitialized, overwritten, disposed or abandoned.
+Storage init has the same fresh/aligned/unique unsafe caller obligation as
+FaultFrame init; a header cannot validate arbitrary pointers. Reject end before
+issuance and repeated end without altering storage. NoOld is not Unissued.
+
+Precommit validates frame, Map state, candidate profile/type/identity, output
+state and valid nonoverlapping output storage; key preparation and capacity
+reservation precede mutation. Commit-to-output contains no allocation, hook,
+formatting or fallible work. Map install never runs detached-child end itself.
+Release Map/indexed-store locks and end any Rust mutable borrow of opaque storage
+before invoking callback-capable child end; similarly do not keep a reentrant
+FaultFrame borrow across that callback. Record Fault afterward without rollback.
+
+MIR keeps one operation-derived InvokeNormalResult with a distinct detached
+result class. For the selected direct-root shape, its exclusive Normal landing
+contains that projection and immediately terminates in the matching detached-end
+Invoke. The sole permitted use is that end: no Copy, Phi, Call, return or storage.
+Both end successors have consumed the result. Admission rejects escape, missing
+end, duplicate end and drift instead of adding a general affine-flow engine.
+Apply the same rule to the optimized retained graph, not just initial MIR.
+Physical slot preparation/disposal belongs to backend lifetime handling, not
+another semantic receipt. Install Fault disposes Unissued; either end outcome
+disposes Consumed. Recursive or repeated executions must not share a live slot.
+The current C universal LV4_HANDLE classification/i64 load must be replaced by
+operation-derived projection for this result, not reused as a token encoding.
+
+Implementation order: real Map teardown/storage/end primitives and explicit
+native/owned observer behavior; target descriptor plus checked opaque ABI;
+existing lifecycle emission/validation and root cleanup; then source activation
+and selected old-set/MapLiteralEntryWrite/install-Stop retirement. These remain
+one Map series. Native teardown tests prove only their current native boundary;
+no schema-only change or test behind install Stop proves public cutover.
+
 ### Checked Map reads and native observers
 
 Missing consumer: `MapOwnedReadProjectionConsumerMissing`. Kernel
