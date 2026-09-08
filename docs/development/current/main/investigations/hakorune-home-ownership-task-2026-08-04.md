@@ -669,16 +669,25 @@ missing/empty operations, capacity and one-time Drop. Pointer/corridor/diff
 checks pass; touched Rust max611. Runtime reference and native boxes README
 are synchronized. No C/OBJ/EXE or owned-intake evidence is claimed.
 
-Next design boundary: unify native/owned residence in the existing Map entry
-owner and close its read/clone/JSON/GC/remove/end contract. The bounded inventory
-starts at MapBox entry storage and ends at its real public/kernel observers and
-end consumers; source issuance and already-accepted detached ABI are not a new
-census. Decide explicit supported projection versus checked refusal for owned
-values without collapsing unavailable into missing. Keep one payload table,
-root-to-kernel dependency direction and first-Fault/outside-lock end discipline.
-Do not implement an owned variant while raw Box-table exposure or clone-only
-observers can silently consume it. The checked ABI/lifecycle/source activation
-steps above follow this real residence/consumer mapping.
+**Accepted next implementation: native GC observation to metrics**
+
+Change: replace GC raw Map access/skip and module-root empty-on-error with
+owner-projected native children and typed failure through actual RcDiagnostic
+and kernel metrics. The [finite observer contract](../design/collection-literal-construction-ssot.md#native-map-diagnostic-observer-transition)
+owns the exact boundary inventory and last-completed-result policy.
+Contract: no owned variant, clone-to-share conversion, graph-wide snapshot
+claim or semantic receipt. Same native success behavior; one finite last result
+replaces separate counters, with no callback under its mutex. Incomplete replaces
+old Complete; actual JSON/text sink identifies nonComplete and emits no numeric
+trial counts for it. Existing trigger/attempt/duration policy stays.
+Done: real native Map graph projection and controller success/failure transition;
+poisoned Map and module snapshot produce explicit errors; prior Complete cannot
+survive failed observation; kernel output tests distinguish null from numeric0.
+Focused root GC/Map and kernel entry tests/check, pointer/corridor guards,
+native boxes/kernel README and runtime reference. Sources stay below800.
+Stop: any need for owned publication, source family expansion, native clone
+semantic change or a new GC collection policy. JSON get_data and public
+read/clone/owned-end migration remain unfinished after this dependency.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

@@ -1477,6 +1477,52 @@ JSON; its Array/Map clone edges are removed, preserving top-level input disposal
 GC, raw table exposure, public Map read/clone and selected checked publication
 remain included blockers. Do not claim all observers migrated from JSON tests.
 
+### Native Map diagnostic observer transition
+
+Decision: before owned entry intake, move GC's raw Map table access into the
+Map owner's explicit native child projection and carry failure through the real
+RcDiagnostic controller and kernel metrics output. Preserve existing native
+`clone_box` behavior; this is not implicit share or owned projection support.
+The owner returns a complete native child projection or a storage error. GC
+never skips an unavailable Map as if it had no edges.
+
+The module-root snapshot also returns failure instead of an empty root list on
+lock error. The controller propagates both failures and stores one finite last-
+completed observation: NotRun, Complete(nodes, edges), or Incomplete(reason).
+Replace the two independent last-count atomics; callbacks and traversal never
+run under the result mutex. Concurrent trials publish in completion order; this
+is not an atomic snapshot of the mutating object graph. Failed attempts replace
+old Complete results and still update attempt count/duration. Do not add a
+sequence authority or change trigger policy.
+
+Kernel JSON metrics report numeric trial counts only for Complete. NotRun,
+Incomplete and absence of this controller report null counts with an explicit
+status/reason. The existing text sink also identifies incomplete observation;
+no old summary or numeric zero substitutes for failure. Existing env-controlled
+logging remains optional. Native clone panic and host termination retain their
+existing behavior; this transition does not turn arbitrary panic into Fault.
+
+Boundary inventory: root snapshots -> builtin Array/Map native projection ->
+controller observation -> kernel metrics. Includes module-root lock failure,
+Map lock failure and all current trace/last-result callers. Excludes external
+crate callers, owned values, JSON conversion, language reachability semantics,
+cycle reclamation and graph-wide concurrent snapshot consistency.
+
+| Owner | Actual consumer / terminal | Replacement |
+| --- | --- | --- |
+| host_handles snapshot | controller roots | existing native snapshot retained |
+| modules_registry snapshot_boxes | controller roots | typed unavailable, never empty-on-error |
+| MapBox native trace projection | gc_trace | owner access, explicit storage failure |
+| gc_trace | controller queue | Result propagation, native Array behavior retained |
+| controller last observation | kernel entry | one finite outcome, no stale complete counters |
+| kernel metrics JSON/text | env-selected output | null/status/reason for nonComplete |
+
+GC's get_data caller and silent skip plus module-root empty-on-error are the
+exclusive deletion set. JSON remains the other get_data caller until its real
+fallible set/conversion terminal is connected. Owned Native/Owned entry design,
+public fallible read/clone, ordered end, checked ABI and source activation all
+remain included later steps, not completed by this native observation repair.
+
 ### Map source-shape preservation decision
 
 Decision: retain ordered Map keys and exact EntryValue source relations in the
