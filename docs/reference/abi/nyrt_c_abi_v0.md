@@ -162,6 +162,16 @@ the [Map projection owner](../../development/current/main/design/collection-lite
 Do not reinterpret the existing static C row layout or widen call signatures
 silently to implement this planned runtime contract.
 
+Decision (2026-09-08): the unpublished static compiler frame v2 distinguishes
+result representation from physical operation selection. Its value row has an
+Operation action with a finite selection for I64 binary, I64/Bool/String
+comparison, String concat and I64/Bool Not; all other actions zero that field.
+The selection fixes the result kind/encoding and requires the original producer.
+The planner must validate operand domains and opcode; C checks the same body
+instruction without inferring a String subtype from an arbitrary Handle.
+This schema declaration is not producer admission or executable C support, and
+does not change runtime Map tags or activate static compiler v2.
+
 ### Map-demanded callable linkage (accepted design, not implemented)
 
 Decision (2026-09-08): the new selected Map consumer's expanded same-module

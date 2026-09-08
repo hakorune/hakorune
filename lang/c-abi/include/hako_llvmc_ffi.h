@@ -47,6 +47,15 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
 #define HAKO_LLVMC_MAP_ACTION_PHI 4u
 #define HAKO_LLVMC_MAP_ACTION_SELECT 5u
 #define HAKO_LLVMC_MAP_ACTION_FORMAL 6u
+#define HAKO_LLVMC_MAP_ACTION_OPERATION 7u
+/* Validated physical consumer; body still owns opcode and operands. */
+#define HAKO_LLVMC_MAP_PHYSICAL_I64_BINARY 1u
+#define HAKO_LLVMC_MAP_PHYSICAL_I64_COMPARE 2u
+#define HAKO_LLVMC_MAP_PHYSICAL_BOOL_COMPARE 3u
+#define HAKO_LLVMC_MAP_PHYSICAL_STRING_COMPARE 4u
+#define HAKO_LLVMC_MAP_PHYSICAL_STRING_CONCAT 5u
+#define HAKO_LLVMC_MAP_PHYSICAL_I64_NOT 6u
+#define HAKO_LLVMC_MAP_PHYSICAL_BOOL_NOT 7u
 #define HAKO_LLVMC_MAP_ENCODING_I64_BITS 1u
 #define HAKO_LLVMC_MAP_ENCODING_BOOL_I1_ZEXT 2u
 #define HAKO_LLVMC_MAP_ORIGINAL_REQUIRED 1u
@@ -58,7 +67,7 @@ typedef struct hako_llvmc_map_operation_v2 {
 
 typedef struct hako_llvmc_value_projection_v2 {
   const char* function_name;
-  uint32_t value_id, action, value_kind, encoding, flags, source_ordinal;
+  uint32_t value_id, action, value_kind, encoding, flags, source_ordinal, operation;
   uint64_t payload;
 } hako_llvmc_value_projection_v2;
 

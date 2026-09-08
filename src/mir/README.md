@@ -50,6 +50,11 @@ Its dependency closure retains all incoming actuals and does not admit leaf
 operations or infer value kinds from signature spelling. Original-lane demand is
 propagated separately over that same index; a used call result never forces all
 actuals onto old lanes, and each original-needed formal reaches every exact caller.
+The private v2 value row separates physical operation selection from result
+representation: an Integer and a String comparison cannot share an inferred
+consumer merely because both return Bool. Operation actions require their
+original producer; operand admission and both C consumers remain to be connected.
+CopyOwned demand traversal preserves the selected ownership capability Stop.
 This is the MIR/Core transport substrate; source and executable consumer cutover
 remain in progress. The [instruction reference](../../docs/reference/mir/INSTRUCTION_SET.md#map-literal-construction-substrate)
 records the boundary.

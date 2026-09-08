@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Accepted three-step compiler series: MIR/Core + v2 frame contract, both C consumers, then source/host switch and v1/six-edge retirement. Step1 substrate and original-demand propagation verified; exact producer/frame backing next. Literal issuers unchanged until consumers ready. Body is sole graph; exact Map representation and needed original lanes remain distinct. Missing mapping or changed non-Map inputs stops before artifact; no scalar-only shortcut or legacy retry."
+current_blocker_token = "Accepted three-step compiler series: MIR/Core + v2 frame contract, both C consumers, then source/host switch and v1/six-edge retirement. Step1 substrate, original-demand propagation and finite physical operation schema verified; exact producer/frame backing next. Literal issuers unchanged until consumers ready. Body is sole graph; exact Map representation and needed original lanes remain distinct. Missing mapping or changed non-Map inputs stops before artifact; no scalar-only shortcut or legacy retry."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,7 +33,7 @@ latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace
 latest_card_summary = """
 Map v2 frame and exact projection design accepted after C feasibility review.
 Three-step compiler series selected; MIR/Core, wire and borrowed index substrate verified.
-Step1 continues with exact producer admission and frame backing; original demand is verified.
+Step1 continues with exact producer admission and frame backing; original demand and operation schema are verified.
 """
 next_design_card = "none"
 next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"

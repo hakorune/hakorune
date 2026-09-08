@@ -54,6 +54,13 @@ Intrinsic allocation transport
   source cutover is separately gated by the construction design and source tests.
 
 Map literal runtime boundary
+
+The unpublished static v2 value projection separates result kind from finite
+physical operation selection (integer/Bool/String comparison, String concat,
+integer binary and integer/Bool Not). Body opcode and operands remain the sole
+instruction graph. This header schema does not activate a consumer: both C
+walkers must validate and honor the selection before cutover, including direct
+integer Eq/Ne instead of the generic dynamic String-handle comparison helper.
 - The [v1 runtime contract](../../docs/reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1)
   fixes explicit value kinds, OK/InvalidContract and length-aware String input.
   Kernel exports are implemented and tested; compiler consumers remain pending.

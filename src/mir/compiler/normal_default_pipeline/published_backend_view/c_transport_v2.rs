@@ -46,6 +46,35 @@ enum ActionKind {
     Phi = 4,
     Select = 5,
     Formal = 6,
+    Operation = 7,
+}
+
+/// Selected physical consumer, not a source type or another operand graph.
+/// The planner must prove its input domain; C checks the matched body opcode.
+#[repr(u32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum PhysicalOperation {
+    I64Binary = 1,
+    I64Compare = 2,
+    BoolCompare = 3,
+    StringCompare = 4,
+    StringConcat = 5,
+    I64Not = 6,
+    BoolNot = 7,
+}
+
+impl PhysicalOperation {
+    fn result(self) -> (ValueKind, OriginalEncoding) {
+        match self {
+            Self::I64Binary => (ValueKind::I64, OriginalEncoding::I64Bits),
+            Self::StringConcat => (ValueKind::Handle, OriginalEncoding::I64Bits),
+            Self::I64Compare
+            | Self::BoolCompare
+            | Self::StringCompare
+            | Self::I64Not
+            | Self::BoolNot => (ValueKind::Bool, OriginalEncoding::BoolI1ZeroExtend),
+        }
+    }
 }
 
 #[repr(u32)]
@@ -71,6 +100,7 @@ pub(super) enum ProjectionAction {
     Phi,
     Select,
     Formal(u32),
+    Operation(PhysicalOperation),
 }
 
 #[repr(C)]
@@ -83,6 +113,7 @@ pub(super) struct ValueProjectionRow {
     pub encoding: u32,
     pub flags: u32,
     pub source_ordinal: u32,
+    pub operation: u32,
     pub payload: u64,
 }
 
@@ -92,7 +123,8 @@ impl ProjectionAction {
             Self::OriginalI64
             | Self::OriginalBoolI64
             | Self::OriginalBoolI1
-            | Self::OriginalHandle => true,
+            | Self::OriginalHandle
+            | Self::Operation(_) => true,
             Self::ExactI64(_)
             | Self::ExactBool(_)
             | Self::ExactF64(_)
@@ -122,8 +154,17 @@ impl ProjectionAction {
                 0
             },
             source_ordinal: 0,
+            operation: 0,
             payload: 0,
         };
+        if let Self::Operation(operation) = self {
+            let (kind, encoding) = operation.result();
+            row.action = ActionKind::Operation as u32;
+            row.value_kind = kind as u32;
+            row.encoding = encoding as u32;
+            row.operation = operation as u32;
+            return row;
+        }
         let exact = match self {
             Self::ExactI64(value) => Some((ValueKind::I64, value as u64)),
             Self::ExactBool(value) => Some((ValueKind::Bool, u64::from(value))),

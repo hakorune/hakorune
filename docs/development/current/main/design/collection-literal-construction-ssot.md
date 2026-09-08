@@ -536,7 +536,8 @@ Exhausted claim over every MIR instruction or an implementation authorization.
 | Scalar/String/Null/Void Const | Exact Rust ConstValue before JSON; Float payload is `to_bits()`, String uses exact byte length. |
 | Intrinsic allocation | Construction target plus admitted allocation ABI yields Handle. |
 | Named allocation | Only the selected physical allocation/typed-object plan proves Handle; retain `unsupported_newbox_type` for unsupported allocation. |
-| Copy/CopyOwned | Retain the source projection through alias rewriting. |
+| Copy | Retain the source projection through alias rewriting. |
+| CopyOwned | Demand traversal retains the ownership operation; selected C keeps the existing ownership capability Stop, never emits it as Copy. |
 | PHI/Select | Retain all exact incoming values/edges or condition/arms, selecting both lanes; no unknown-to-known default. |
 | Integer Add/Sub/Mul/Div/Mod | Require exact integer operands and the admitted integer opcode contract. |
 | String Add | Require an admitted String operation's handle-return contract, not origin heuristics alone. |
@@ -559,6 +560,32 @@ No general Named-allocation or Compare/Not input-admission API was established
 by the bounded physical-owner audit. These mappings must remain explicit in
 Step1; the borrowed `map_body_index` dependency closure does not admit leaves
 or supply their missing physical contracts.
+
+Decision: the existing value row also carries a finite physical operation
+selection for demanded I64 binary, I64/Bool/String comparison, String concat,
+and I64/Bool Not. Result representation alone cannot select the consumer:
+String and Integer comparison both yield Bool. The planner validates exact
+operand domains and the admitted opcode before issuing this selection. C
+checks and consumes it against the same body instruction; no operand copies,
+String subtype on every value, source classifier or second graph are added.
+Operation actions require their original producer and keep existing non-Map
+uses. Float/mixed/unknown domains cannot default to an Integer/String mode.
+This corrects the unpublished v2 schema before planner/consumer cutover.
+
+Physical audit evidence: `hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc`
+calls `emit_dynamic_string_or_icmp` for Eq/Ne. That helper probes raw values as
+String handles, so distinct Integer payloads coinciding with equal-content
+String handles can select String equality. This is a static counterexample,
+not a reproduced runtime failure. Demanded exact Integer comparisons must use
+direct integer comparison in both walkers, bypassing that helper. Bool needs
+correct i1/i64 normalization; exact String comparison/concat uses its existing
+String consumer. Not's raw zero test only establishes the Integer/Bool case;
+String, Float and Void need their own contract and are not admitted by it.
+`ownership_backend_capability::enforce` already rejects CopyOwned/DestroyOwned
+for `ny-llvmc-obj` with `backend-missing-capability:owned-value-lifecycle-v1`.
+Demand propagation tests do not remove that Stop or prove identity-preserving
+execution. Named StringBox's arg0 alias is likewise not evidence that arbitrary
+arg0 is a String handle; Named/typed-object admission remains plan-specific.
 
 The Float issue is concrete: generic prescan registers every non-String Const
 using `yyjson_get_sint` and `publish_plain_i64_value`; generic dispatch skips
@@ -664,7 +691,10 @@ The frame carries revision/byte size and pointer/count pairs for four tables:
 | Expanded functions | Canonical definition's logical physical name and one internal LLVM target. Formal order comes from body params and Formal value rows; no duplicate formal list. |
 
 Value action is a tagged finite payload: ExactBits(tag,u64),
-OriginalValue(tag,encoding), Copy, Phi, Select, or Formal(source ordinal).
+OriginalValue(tag,encoding), Copy, Phi, Select, Formal(source ordinal), or
+Operation(selected physical consumer). Operation has one finite wire field;
+non-Operation rows keep it zero. Its result kind/encoding are fixed by the
+selection, not independently chosen by the caller.
 Encoding is existing i64 bits or Bool i1 zero-extension only. ExactBits tags use
 runtime v1 I64/Bool/F64/Void; Handle uses a proved original allocation/result.
 Copy/Phi/Select carry no operand/edge arrays: C reads them from the exact body
@@ -791,6 +821,23 @@ Step1 must account for these mechanical readers/writers and their explicit
 intrinsic or unsupported treatment. Compiler exhaustiveness does not cover
 wildcard observers. This is a series acceptance inventory, not an Exhausted
 claim from source/C design reviews.
+
+Bounded reader checkpoint (static inspection at the Step1 substrate):
+
+| Boundary | Observed treatment / remaining obligation |
+| --- | --- |
+| Core verifier -> lowerer | `effect_validators.rs` checks three write IDs and empty IntrinsicMap args; `effect_emission.rs` copies target/operands unchanged. |
+| MIR uses/effects -> remap | `instruction/methods.rs`, `query.rs`, `value_consumer.rs`, JoinIR remappers and simplify-CFG flow preserve three uses/no result and mutation/IO; freshen collector/remapper/verifier retain the Core effect. |
+| MIR -> generic JSON / printer | Explicit intrinsic target and result-free write in `mir_json_emit/emitters/mod.rs` and `printer_helpers.rs`; no Named reconstruction. |
+| JSON -> nonselected import | `mir_json_v0/module.rs`, `json_v1_bridge/parse/instruction.rs` and vm_hako subset reject explicit target before Named type handling; unsupported opcode remains unsupported. |
+| Published static view / V4 | Static view currently stops the two new forms before artifact; V4 `physical_program_json.rs` returns instruction-unsupported. v2 C admission/emission remains open. |
+| Interpreter / WASM | Named-only NewBox arm excludes IntrinsicMap; unsupported-instruction terminal handles it and the new write. No backend expansion. |
+| Map content observation | `value_representation_fact.rs` invalidates receiver-origin collection facts at a write, including aliases; focused mutation evidence belongs to the substrate commit. |
+| Named origin observers | `map_missing_empty_route_plan.rs` requires Named MapBox; ordered-map and generic flow origins retain Named/metadata logic. These are not intrinsic admission authorities; stale plans and metadata-fed consumers still require cutover validation. |
+
+This checkpoint covers the listed product/reader edges only. It does not close
+every wildcard observer, stale compatibility plan, C region shortcut or exported
+ingress; those remain Step1/Step2 obligations in the finite inventory above.
 
 Retirement set for the eventual series: both Map literal Named allocations and
 both literal birth emissions and both named literal set emissions when the
