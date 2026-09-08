@@ -59,5 +59,5 @@ pub(crate) fn flush_trace() {
     trace::flush();
 }
 
-#[cfg(all(not(test), not(feature = "perf-trace")))]
+#[cfg(not(feature = "perf-trace"))]
 pub(crate) fn flush_trace() {}
