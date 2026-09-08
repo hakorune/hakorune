@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Document ownership extraction is verified. Next accepted BoxShape captures the existing two allocation/runtime mode bits once at file ingress and passes them to borrowed consumers, including runtime requirement emission. Delete nested reads; prove four combinations with ambient mutation plus parent behavior. No new global, opaque session/query ABI or Map source switch; session observation/host/alias mapping remains open."
+current_blocker_token = "Corrected allocation capture BoxShape: unchanged runtime flags plus independent exact-slot-helper predicate. Capture three settings once, replace eight existing reads across Named/field/method/runtime requirement consumers. Verify 12 input classes and ambient mutation; helper is not a runtime bit. No new global/session ABI or source switch; session observation/host/alias mapping remains open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,7 +33,8 @@ latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace
 latest_card_summary = """
 Selected pure-first document ownership is implemented and verified.
 Eight lifetime cases and unchanged Named/role/Dynamic behavior are recorded.
-Next is accepted allocation settings capture; session and Map cutover remain open.
+Corrected settings capture is accepted: runtime flags plus independent helper.
+Session and Map cutover remain open.
 """
 next_design_card = "none"
 next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"

@@ -797,20 +797,45 @@ cases including source-issued Dynamic and an early pattern return with a
 malformed later definition plan. Reproduction is in `lang/c-abi/README.md`.
 These observations close document extraction only; no session ABI is exported.
 
-Next executable BoxShape: capture the existing two allocation/runtime mode bits
-once at file ingress and pass them explicitly to the borrowed core. Reuse
-`common.inc::hako_llvmc_direct_exact_runtime_mode_flags` as the sole reader;
-no new global, session receipt or public ABI. Remove nested ambient reads in
+Next executable BoxShape: capture allocation configuration once at file ingress
+and pass a private value to the borrowed core. This supersedes the two-bit-only
+premise: `typed_object_exact_slot_helper_enabled` observes a different mode.
+The capture owns unchanged runtime requirement flags (bits1/2) and a separate
+`exact_slot_helper` boolean. Its sole issuer reads each of three settings once:
+
+| Captured value | Existing exact predicate |
+| --- | --- |
+| Runtime bit1 | `HAKO_TYPED_OBJECT_STORE == "direct_slot_exact"` |
+| Runtime bit2 | `HAKO_ARRAY_SLOT_STORE == "direct_array_i64_exact"` |
+| Private helper boolean | `HAKO_TYPED_OBJECT_STORE == "single_thread_exact"` AND `HAKO_TYPED_OBJECT_EXACT_SLOT_HELPER == "1"` |
+
+Do not encode the helper as runtime bit4 or derive it from direct-slot mode.
+No raw string lifetime, new global, semantic receipt or public ABI is needed.
+Extend the existing common runtime-mode reader into this sole capture owner;
+requirement declaration/check consume its flags without re-reading settings.
+
+Boundary: selected pure compile file ingress -> Named allocation, related
+field/method and runtime requirement output. Includes eight textual reads of
+these three settings in `common.inc` and five nested predicate owners below;
+excludes Rust runtime settings, other environment variables, source admission
+and session ABI. The exclusive delete-set is the nested ambient reads in
 `generic_method_lowering`, `same_module_generic_method_collection_emit`,
-`same_module_generic_method_string_emit`, `typed_object_plan` and
-`same_module_typed_object_emit`. Runtime requirement declaration/check must use
-that same captured value, not call the environment reader again. This finite
-inventory covers these two settings only; other settings remain open.
-Acceptance adds all four bit combinations with ambient settings reversed after
-capture: actual allocation/method emission and runtime requirement must follow
-the captured value. Preserve Named60/role22/Dynamic behavior, document lifetime,
-rejection order and late plan reading. This closes the fixed-allocation-settings
-obligation only, not Map admission or concurrent compilation.
+`same_module_generic_method_string_emit`, `same_module_typed_object_emit` and
+`typed_object_plan`. The last reads both typed-store and helper settings.
+The helper consumers include generic field get/set, same-module field get/set,
+`same_module_typed_field_rmw_emit` and `same_module_body_emit`; they consume the
+same private boolean. Named-only success cannot prove this obligation.
+
+Acceptance covers typed-store {other,direct_slot_exact,single_thread_exact} ×
+array-store {other,direct_array_i64_exact} × helper {other,"1"}: 12 input classes,
+six capture outcomes. Also preserve unset/empty/unknown and helper "10"/"01"
+non-matches. After capture, reverse ambient settings and check actual allocation,
+field/method emission and runtime requirements against the captured value.
+Mandatory counterexample: single_thread_exact + helper=1 emits the exact-slot
+helper without a direct-slot runtime requirement. Keep Named60/role22/Dynamic,
+document lifetime, rejection order and late plan reading evidence unchanged.
+This fixes values after capture; it does not promise an atomic multi-variable
+environment snapshot, all-config freezing, Map admission or parallel compile.
 
 After settings capture, bind the same borrowed core, existing program view and
 physical definition plan to the eventual opaque session. Open takes immutable
