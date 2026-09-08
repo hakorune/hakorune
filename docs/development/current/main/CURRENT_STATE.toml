@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Complete demanded projection actions are verified (shared leaf/domain mapping, exact boxed ABI sites, original Float Stop). Next: owned V2 frame rows and expanded-function/caller lanes, both C consumers and input-aware capability, then atomic public session/host/source cutover and V1 retirement. No Map-through-V1 or renewed readiness census."
+current_blocker_token = "Owned V2 four-table frame and expanded target/Formal rows are verified. Next: shared C frame/expanded index and both consumers, including typed-site shadowing versus old-ABI ingress rejection, then input-aware capability and atomic public session/host/source cutover with V1 retirement. JSON callee names cannot reissue selected target identity; no Map-through-V1."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,7 +36,8 @@ Private invocation owns existing document/config/outcomes/program/definition pro
 Named binding closes demand/domain/original-lane handling in the MIR planner.
 Private query now binds actual C outcomes and retains input across compile/cancel.
 Complete demanded projection actions now reuse one leaf/domain mapping.
-Next is owned V2 rows/expanded lanes and C consumption before public host/source cutover.
+Owned V2 rows now retain backing and expanded target/Formal correspondence.
+Next is shared C frame/expanded-index consumption before public host/source cutover.
 Actual session/host/Map cutover remains open.
 """
 next_design_card = "none"

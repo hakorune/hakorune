@@ -51,7 +51,12 @@ complete actions, including exact boxed-sum site plans. Bool projection uses its
 actual i64 storage; unit VariantMake remains an allocated Handle. Missing ABI,
 unseeded representation cycles and Map-demanded Float requiring an old lane
 reject. This does not prove materialization or expanded ABI consumption in C.
-Public host wiring, complete frame and Map production cutover remain open.
+`PublishedStaticMethodCFrameV2` owns calls, Map operations, value rows, expanded
+function rows and string backing. Its constructor consumes the completed action
+map and original-use closure; Formal rows and body params determine expansion.
+Calls retain canonical logical targets; one fourth-table entry names each private
+physical target, with collisions avoided. Header pointers survive owner moves.
+C admission/expanded emission, public host wiring and Map cutover remain open.
 Focused witnesses use `cargo test --profile quick --lib map_literal_`; private
 physical observations are not source-to-artifact evidence.
 

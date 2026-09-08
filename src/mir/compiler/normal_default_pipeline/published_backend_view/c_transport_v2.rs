@@ -236,3 +236,121 @@ pub(super) struct FrameHeader {
 #[cfg(test)]
 #[path = "c_transport_v2_tests.rs"]
 mod tests;
+
+/// Owns the complete synchronous wire projection. The existing call frame is
+/// reused as backing, not reissued as another call graph. This is a candidate
+/// until the C consumer validates coverage, ingress and actual materialization.
+#[derive(Debug)]
+pub(super) struct PublishedStaticMethodCFrameV2 {
+    calls: super::c_transport::PublishedStaticMethodCFrameV1,
+    strings: Vec<std::ffi::CString>,
+    map_operations: Vec<MapOperationRow>,
+    values: Vec<ValueProjectionRow>,
+    expanded_functions: Vec<ExpandedFunctionRow>,
+}
+
+impl PublishedStaticMethodCFrameV2 {
+    pub(super) fn from_view<'m>(
+        view: &super::PublishedMirBackendView<'m>,
+        observations: impl IntoIterator<
+            Item = (
+                super::map_body_index::Site<'m>,
+                super::map_named_allocations::NamedAllocationConsumer,
+            ),
+        >,
+    ) -> Result<Self, String> {
+        use super::map_body_index::MapBodyIndex;
+        use std::collections::{BTreeMap, BTreeSet};
+        use std::ffi::CString;
+
+        let index = MapBodyIndex::from_view(view)?.with_named_allocations(observations)?;
+        let actions = index.map_projection_actions()?;
+        let original = index.original_value_demands(&actions)?;
+        let expanded: BTreeSet<_> = actions
+            .iter()
+            .filter_map(|(key, action)| {
+                matches!(action, ProjectionAction::Formal(_)).then_some(key.0)
+            })
+            .collect();
+        let mut frame = Self {
+            calls: super::c_transport::PublishedStaticMethodCFrameV1::from_view(view)
+                .map_err(|error| error.to_string())?,
+            strings: Vec::new(),
+            map_operations: Vec::with_capacity(index.map_operations.len()),
+            values: Vec::with_capacity(actions.len()),
+            expanded_functions: Vec::with_capacity(expanded.len()),
+        };
+        let names: BTreeSet<_> = actions
+            .keys()
+            .map(|key| key.0)
+            .chain(index.map_operations.keys().map(|site| site.0))
+            .collect();
+        let mut name_ptrs = BTreeMap::new();
+        for name in names {
+            let owned = CString::new(name)
+                .map_err(|_| "[freeze:contract][map-frame/function-name-nul]".to_string())?;
+            name_ptrs.insert(name, owned.as_ptr());
+            frame.strings.push(owned);
+        }
+        for (site, kind) in &index.map_operations {
+            frame.map_operations.push(MapOperationRow {
+                function_name: name_ptrs[site.0],
+                block_id: site.1,
+                instruction_index: site.2,
+                kind: *kind as u32,
+                reserved: 0,
+            });
+        }
+        for (key, action) in &actions {
+            frame
+                .values
+                .push(action.row(name_ptrs[key.0], key.1.as_u32(), original.contains(key)));
+        }
+        // Deterministic physical names; never infer a semantic target from them.
+        // Skip collisions with every original definition, including unused ones.
+        let mut serial = 0u64;
+        for function in expanded {
+            let target = loop {
+                let candidate = format!("__hako_map_expanded_v2_{serial}");
+                serial = serial
+                    .checked_add(1)
+                    .ok_or("[freeze:contract][map-frame/internal-symbol-overflow]")?;
+                if !index.functions.contains_key(candidate.as_str()) {
+                    break candidate;
+                }
+            };
+            let target = CString::new(target).expect("generated identifier has no NUL");
+            frame.expanded_functions.push(ExpandedFunctionRow {
+                function_name: name_ptrs[function],
+                internal_target: target.as_ptr(),
+            });
+            frame.strings.push(target);
+        }
+        Ok(frame)
+    }
+
+    /// Header borrows all pointers from this frame for one synchronous call.
+    /// Moving the frame preserves CString/Vec allocations; mutation is private.
+    pub(super) fn header(&self) -> FrameHeader {
+        fn pointer<T>(rows: &[T]) -> *const T {
+            if rows.is_empty() {
+                std::ptr::null()
+            } else {
+                rows.as_ptr()
+            }
+        }
+        let calls = self.calls.as_slice();
+        FrameHeader {
+            revision: FRAME_REVISION,
+            byte_size: std::mem::size_of::<FrameHeader>() as u32,
+            calls: pointer(calls),
+            call_count: calls.len() as u64,
+            map_operations: pointer(&self.map_operations),
+            map_operation_count: self.map_operations.len() as u64,
+            values: pointer(&self.values),
+            value_count: self.values.len() as u64,
+            expanded_functions: pointer(&self.expanded_functions),
+            expanded_function_count: self.expanded_functions.len() as u64,
+        }
+    }
+}

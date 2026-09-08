@@ -1056,8 +1056,8 @@ passing run. No baseline waiver or source acceptance change.
 
 Read-only C/host audit atde2113241d confirms static V2 is currently schema-only:
 no C validator/emitter consumes `hako_llvmc_published_static_frame_v2`; lifecycle
-physical_v2 is unrelated. Rust has no complete FrameHeader builder/production
-caller. Full frame/C consumption is therefore mandatory before public session
+physical_v2 is unrelated. At that audit Rust had no FrameHeader builder or production
+caller; owned candidate rows are now implemented below. Full frame/C consumption is therefore mandatory before public session
 cutover, but not before private query-to-planner dependency evidence.
 
 Freeze the remaining order: private query plus real MIR binding/same-invocation
@@ -1271,13 +1271,69 @@ publication. The audit proves the current exposure, not absence of every
 possible promised export contract; the new consumer must not claim a general
 external language ABI from incidental old linkage.
 
+### Expanded ingress — physical consumer binding
+
+Decision: the existing V2 frame admission builds one expanded-function index from
+the fourth table and exact document definitions/formals. Typed call formatting,
+definition signatures, ingress rejection and old-leaf exclusion share this index.
+Rust frame construction alone does not close ingress or prove internal linkage.
+
+C consumes `metadata.lowering_plan` through first matching block/instruction site;
+`route_json::build_lowering_plan_json` projects global/builtin-global/user-box
+route metadata into it. Checking only Rust mirror arrays is insufficient. A
+legacy global/user-box entry targeting an expanded logical name is shadowed as
+call ingress only when the typed Static/Free row binds its selected target to the
+exact published definition/expanded index and the matched body Global shape,
+args/arity/result coordinates agree. JSON callee-name equality is not required
+and must not reissue target identity. Typed dispatch terminates without retry. Row-coordinate existence, Print/Array rows, or Method
+with a Global row never establishes this. Shadowing does not skip prescan or
+other metadata validation. Nonshadowed old-ABI ingress rejects before artifact.
+
+Compatibility/direct-symbol references to an expanded internal target reject;
+existing runtime registry checks stay physical and do not resolve source names.
+Program entry/selected launch identity comes from the existing C program owner,
+not a Rust name convention. A required Formal row cannot use the ordinary root
+entry. Expanded members bypass old numeric-leaf eligibility and old same-module
+signatures; declaration/call/definition all use the same index and internal target.
+The emitted registry remains execution progress, never the planned layout owner.
+
+Next implementation: connect this index to admission and both C walkers after
+owned rows. Acceptance includes actual typed shadow versus forged shadow,
+nonshadowed global/user-box plans, direct internal-symbol ingress, missing/wrong
+Formal rows, root formals, old-leaf re-entry, recursive/nested signatures and
+LLVM internal/OBJ export evidence. The delete-set is expanded members' old
+argument formatting/signature/leaf/export-alias edges; planner tests cannot claim
+these deletions. Read-only worker audit at9063d4008a found no missing semantic
+issuer; this is the remaining physical consumer implementation.
+
 ### Versioned compiler frame decision
 
 Decision: replace the selected static ingress with one v2 synchronous frame;
 retain body JSON as the sole operand/CFG graph. The existing published frame
 owner reads finalized MIR before lossy JSON and owns all buffers until C returns.
 No second MIR, projection-register namespace, source receipt or independently
-issued call graph is added. The planned compile export is
+issued call graph is added.
+
+`PublishedStaticMethodCFrameV2` now owns the four wire arrays and all strings,
+reusing the existing selected call-frame backing. It builds complete actions and
+original-use closure from the same view and copied Named observations. Formal
+rows select expanded definitions; body params remain the only formal ordering.
+Internal target generation skips collisions with all original function names;
+typed call rows keep their canonical logical target for the C expanded index.
+Empty arrays use null pointers and zero counts. Header pointers remain valid
+across owner moves and after the original view/module is dropped.
+
+Verification: Map36 plus live query integration1 pass. Owned-frame witnesses
+cover recursive Integer/Bool/F64 actuals, Map-only versus original-needed formal
+flags, unchanged logical call arity/target, collision avoidance, empty tables,
+foreign observations and original-required Float rejection. The actual C query
+result also constructs this frame before compile/cancel dependency checks.
+Corridor/pointer guards pass; sources stay below800. This is wire construction,
+not C admission, expanded LLVM emission/internal linkage or source cutover.
+Next is the shared C frame/expanded index and both consumers, including exact
+site/row closure and ingress rules above; then input-aware capability and public
+session/host/source switch. No further schema-only public entry is authorized.
+ The planned compile export is
 `hako_llvmc_compile_published_static_method_v2(session, frame, obj_out, err_out)`.
 This consumes the same retained invocation used by query, not a pathname that
 would reparse the body. Public open/query/compile/close and the host switch land

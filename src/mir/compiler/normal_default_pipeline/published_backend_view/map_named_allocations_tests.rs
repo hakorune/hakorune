@@ -341,3 +341,6 @@ mod query;
 
 #[path = "map_projection_tests.rs"]
 mod projection;
+
+#[path = "map_frame_tests.rs"]
+mod frame;

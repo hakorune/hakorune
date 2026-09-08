@@ -136,6 +136,17 @@ fn map_literal_actual_c_query_binds_before_same_invocation_compile_or_cancel() {
                 .is_err());
         }
         if !planner_reject {
+            let frame =
+                super::super::super::c_transport_v2::PublishedStaticMethodCFrameV2::from_view(
+                    &view,
+                    [(("main", 0, 2), consumer)],
+                )
+                .unwrap();
+            let header = frame.header();
+            assert_eq!(header.call_count, 1);
+            assert_eq!(header.map_operation_count, if map_only { 2 } else { 0 });
+            assert_eq!(header.value_count, if map_only { 2 } else { 0 });
+            assert_eq!(header.expanded_function_count, 0);
             let index = MapBodyIndex::from_view(&view)
                 .unwrap()
                 .with_named_allocations([(("main", 0, 2), consumer)])
