@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "AllocationPreflightEntryRoleBindingMissing"
-current_blocker_token = "C Named emitter selection is shared and verified. Next: bind actual C function role, immutable program and array setting across borrowed allocation preflight/compile before Rust leaf/frame admission. Audit existing program-view/function planning with one read-only worker; no query export, Rust Named classifier, prescan repair or Map source switch before accepted Decision. NamedAllocationPhysicalAdmissionMissing remains a series dependency."
+current_design_stop = ""
+current_blocker_token = "Accepted BoxShape: extract existing planned leaf/same-module storage and metadata reader into one private C definition-plan owner; production membership and iteration consume it. Preserve capacities, duplicate/order/error behavior, leaf eligibility, emitted registries and Dynamic launch. No query export, session activation, prescan repair or Map source switch. Parse-once role/program/config session and alias-demand binding remain subsequent series obligations."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-C Named allocation selection is shared by both actual emitters.
-Sixty physical cases match the parent; source/Map cutover remains open.
-Next: C-owned preflight role/program/config binding design.
+Preflight design selects a C-owned parse-once session, preserving real role owners.
+Next: extract the existing physical definition-plan storage/reader without behavior change.
+Session/frame/alias-demand connection and Map production retirement remain open.
 """
-next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

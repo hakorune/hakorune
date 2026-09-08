@@ -693,17 +693,82 @@ fall through to a typed plan when alias is absent, unlike emission; same-module
 prepass also observes typed-plan presence before the emitter's full validation.
 Changing either during this BoxShape would mix behavior repair into extraction.
 
-Future direction: one borrowed allocation preflight can return the actual
-consumer plus Handle or AliasOperand(0), then Rust runs its domain closure and
-C consumes the same bound disposition. Alias follows the retained Rust operand,
-including exact Float bits; a name cannot manufacture String. This direction is
-not query implementation permission: `AllocationPreflightEntryRoleBindingMissing`
-remains open. Existing C program-view/function planning must bind actual
-function identity to generic/same-module/leaf treatment, including Dynamic
-helper/launch; Rust cannot infer that role from function spelling. Program,
-array setting and role must stay fixed through query and compile, and prescan
-must agree before cutover. Existing global/config cleanup outside that binding
-remains separate. No new semantic receipt or second operand graph is needed.
+### Allocation preflight ownership and ordered implementation
+
+Decision: the eventual selected static invocation uses one C-owned, parse-once
+session. It owns the `yyjson_doc`, borrowed program view, existing definition
+plan and fixed allocation settings. Preflight and compile consume this same
+session; reopening a pathname or repeating selection is not input binding.
+The Rust host retains the original published view, serialized body and loaded
+library until the session closes. It runs the MIR-side frame planner between
+C calls, without a C-to-Rust callback or MIR dependency on dlopen/host providers.
+This is physical invocation ownership, not a new semantic receipt.
+
+Boundary: selected published host invocation -> C program/definition role ->
+Named allocation consumer. Includes entry, dedicated Dynamic launch, ordinary
+same-module definitions, numeric leaf eligibility, exact site disposition and
+config lifetime. Excludes source admission, unrelated backend/config cleanup
+and runtime store semantics. The following is the finite role inventory, not
+a claim that all preflight consumers are implemented:
+
+| Existing owner | Role rule to preserve |
+| --- | --- |
+| `pure_compile.inc::hako_llvmc_read_generic_pure_program_view` | Ordinary entry selection; selected Dynamic identity selects the helper as generic entry. |
+| `selected_launch_emit.inc` | Dynamic launch explicitly uses the same-module pipeline as `ny_main`, independent of ordinary definition-plan membership. |
+| `same_module_function_plan.inc` | Read definition rows from entry metadata only, preserving registered order and both planned sets. |
+| `same_module_function_definition_emit.inc` | Same-module eligibility excludes an already emitted definition and a numeric body also planned as leaf; missing target/entry is skipped at its existing stage. |
+| `module_leaf_function_emit.inc` | Existing numeric-body validation and leaf membership determine leaf emission; leaf-only nonnumeric bodies do not become same-module automatically. |
+
+First executable BoxShape: move the existing planned leaf/same-module storage,
+metadata reader and membership operations into one private physical definition
+plan with explicit arguments. Production membership, iteration and declaration
+consumers use that owner directly; no preflight-only duplicate planner. Keep
+separate leaf capacity256 and same-module capacity1024, registration order,
+deduplication, duplicate-row return count, partial progress on malformed input,
+null/missing metadata result0 and malformed result-1. The same symbol may be
+present in both sets: one exclusive role enum would change this contract.
+Emitted registries remain separate progress state. Numeric-body validation,
+eligibility/skip timing and Dynamic launch stay in their existing consumers.
+
+Exclusive delete-set: the independent planned arrays/counts and add/membership
+implementations in `module_leaf_function_emit.inc` and
+`same_module_function_plan.inc`, plus direct array iteration in
+`same_module_function_definition_emit.inc`. Preserve overflow diagnostics
+(including the existing leaf/same-module difference), not just success values.
+No query export, session activation, prescan repair or Map source switch belongs
+in this extraction. Acceptance: full C build and existing published/corridor
+proofs; parent comparison for both-set numeric/non-numeric bodies, duplicate and
+missing targets, invalid/null metadata, capacities and Dynamic helper/launch.
+Do not replace actual role coverage with a guessed role supplied by a test.
+
+Then bind the extracted plan and existing program view to the parse-once
+session, and connect compilation to a doc-taking internal consumer. Session
+close precedes library unload on success, error and early Rust return; compile
+is single-use. The selected array-store choice is captured once and consumed
+by preflight and both emitters. No stale filename, ambient setting reread,
+independent function-name classifier or compile-error compatibility retry.
+This session step still requires its concrete lifecycle/ABI acceptance before
+exports or production activation; the first BoxShape does not close it.
+
+Query the retained program's Named sites once, returning exact-site consumer or
+explicit unavailable/invalid outcome. Do not invent a role for an un-emitted or
+bypassed body, or reject a whole program merely because discovery visits an
+unrequested unsupported site. Rust binds relevant outcomes to the original
+`MapBodyIndex` instructions before domain/leaf admission. Handle follows the
+selected allocating consumer; AliasOperand(0) follows the original MIR operand,
+including exact Float bits. Allocation is currently a demand leaf in
+`map_body_index.rs`; alias binding must extend demand, domain and original-lane
+propagation together, without manufacturing an old Float lane or copying an
+operand graph. A new demanded alias input must not trigger a second role query.
+
+CutoverBlockerOpen until session/frame/C connection closes: generic StringBox
+prescan versus alias/typed-plan fallback, same-module early typed-plan facts,
+indexof/pinned-text/region/skip bypasses and every unconsumed selected site.
+V2 must preserve selected exact-seed/replay rejection and account for dedicated
+launch and expanded Map formals that are not ordinary numeric leaves. Global
+layout validation and later consumer failure remain distinct from a selector's
+successful choice. The shared selector and extracted plan alone cannot claim
+allocation-wide admission, Map OBJ/EXE execution or legacy retirement.
 
 Decision: retain kind/payload across **Map-demanded formal positions**, using
 the existing published input/frame's physical projection and canonical call
