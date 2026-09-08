@@ -277,7 +277,7 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
       struct HakoPtfSelectedCandidateView ptfc_candidate;
       struct HakoPtfSelectedLlvmDraft ptfc_draft;
       int ptfc_selected = 0;
-      if (!hako_llvmc_read_generic_pure_program_view(root, program)) {
+      if (!hako_llvmc_invocation_observe_program(invocation)) {
         if (hako_llvmc_route_trace_enabled()) {
           hako_llvmc_emit_route_trace(
               "generic_pure_program_view",

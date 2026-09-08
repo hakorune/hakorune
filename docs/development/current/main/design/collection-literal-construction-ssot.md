@@ -1052,7 +1052,7 @@ passes28 tests, including four new binding witnesses with renamed targets,
 exact NaN bits, nested aliases, PHI/Select/formal cycles and mixed old uses.
 Initial new PHI fixture omitted mandatory `type_hint`; corrected before the
 passing run. No baseline waiver or source acceptance change.
-### Internal query integration — accepted next dependency
+### Internal query integration — verified dependency
 
 Read-only C/host audit atde2113241d confirms static V2 is currently schema-only:
 no C validator/emitter consumes `hako_llvmc_published_static_frame_v2`; lifecycle
@@ -1083,6 +1083,11 @@ shared rows lifecycle and real object emission; Map witnesses cancel after
 planner validation and never enter V1 compile. Planner failure/cancel destroys
 the same owner. Retire this temporary driver/protocol when public V2 host tests
 cover the connection; it is not a second runtime or compiler authority.
+For a Map cancellation witness, the production view remains unsupported until
+V2. Use the existing test-only unpublished-candidate exporter, borrowing the
+same module without clone/refresh; assert published body export still rejects.
+Non-Map compile evidence uses the production published-body exporter. Neither
+fixture is source admission, and no test may relax the production Map stop.
 
 Exclusive delete-set: duplicate program observation across query/compile,
 typed rows lifecycle's mandatory pathname compile coupling, and hand-supplied
@@ -1095,6 +1100,27 @@ required/unrequested bad outcomes, query storage error, planner cancel and
 compile failure/success cleanup, existing duplicate/residual/failure ordering.
 Reuse Named60/role22/lifetime16/settings16 and focused MIR tests as affected;
 no new mandatory guard or public ABI, no Map OBJ/EXE or source claim.
+
+Verification: private query -> actual Rust binding -> same-invocation compile/
+cancel passes the ignored integration test (three scenarios). The non-Map input
+file is removed before compile; the linked object exits30. Map-only Float and
+planner rejection both cancel with document freed once and no artifact. The
+instrumented driver verifies parse/free once, program read at most once, unchanged
+selector count, and inactive rows before query/after compile. Query17 includes
+Dynamic helper/launch roles, duplicate/NUL/u32 coordinates, target exclusion,
+unavailable program, storage failure and residual-row/consumer failure cleanup.
+Named60 and definition22 match parent results; ASan lifetime16, settings16,
+published rows and corridor/pointer guards pass. Dynamic LLVM/provenance and
+machine/relocations match parent. Focused map tests pass28 plus the separately
+run ignored integration witness. Initial fixture omissions (route/definition
+plans and using production export for an intentionally unsupported Map) were
+corrected; no production gate was relaxed or baseline waiver taken.
+
+Next: complete the already accepted V2 frame, leaf/expanded-function projection,
+capability and both C consumers, then atomic public session/host/source cutover.
+This checkpoint removes duplicate program reads and pathname-only internal
+compile coupling; it does not retire public V1 or open Map production.
+
 
 Bind the same borrowed core, existing program view and
 physical definition plan to the eventual opaque session. Open takes immutable
@@ -1131,11 +1157,12 @@ while retaining compatibility-ingress, ownership and all unrelated checks.
 V4's input-aware numeric boundary is a pattern, not permission to skip static
 validation or select a different backend spelling.
 
-Original-lane binding must also change `map_original_demand`'s default
-`instruction.used_values()` handling for admitted Named aliases: otherwise a
-Map-only Float alias forces a legacy lane through the NewBox argument. Bind the
-selected operand from original MIR simultaneously in demand, domain and original
-use propagation. These are CutoverBlockerOpen, not optional post-cutover cleanup.
+Original-lane binding in `map_original_demand` now handles admitted Named aliases
+through the bound original MIR operand, consistently with demand and domain
+propagation. A Map-only Float alias does not force an old lane through NewBox;
+a real original consumer still propagates that operand demand. Complete frame
+and host consumption of this binding remain CutoverBlockerOpen, not optional
+post-cutover cleanup.
 
 Settings that affect allocation/related method consumption must share a captured
 value through query and emission; changing only the two Named reads does not

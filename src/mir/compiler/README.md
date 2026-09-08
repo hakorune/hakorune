@@ -42,9 +42,13 @@ reject; unrequested unsupported observations grant no admission. The V2
 Named-alias action is distinct from Copy and contains no second operand graph.
 Map-only Float aliases keep their exact payload without forcing an old lane;
 original consumers still propagate their operand demand. These are private
-planner contracts; actual C query/host wiring, complete frame and Map production
-cutover remain open. Focused witnesses use `cargo test --profile quick --lib
-map_literal_`; synthetic outcomes are not source-to-artifact evidence.
+planner contracts. The ignored `map_literal_actual_c_query` test uses the private
+C live driver (`HAKO_NAMED_QUERY_TEST_DRIVER`) to bind actual observations and
+retain one invocation across planning and compile/cancel; its build/run procedure
+is in `lang/c-abi/README.md`. Retire the bridge with public V2 host tests.
+Public host wiring, complete frame and Map production cutover remain open.
+Focused witnesses use `cargo test --profile quick --lib map_literal_`; private
+physical observations are not source-to-artifact evidence.
 
 ### Final published artifact consumption
 

@@ -151,6 +151,22 @@ Named allocation emission
   eight injected OOM cases cover first/growth failure, earlier schema/pattern
   outcomes, and both actual Named dispatchers; an optional Dynamic input brings
   the total to16 cases. Same-module dispatch is boolean: lookup failure returns0.
+- Private `hako_llvmc_ffi_named_query.inc` projects unique function/block/ordinal
+  coordinates from the same invocation. Program observation is cached once;
+  unavailable program/storage and unaddressable/unobserved sites remain distinct.
+  Query neither activates typed rows nor reruns allocation selection. The retained
+  compile entry shares V1 rows begin/finish/end; the public V1 gate/read order stays
+  unchanged. There is no new exported query ABI or Map-through-V1 execution.
+- `tests/named_query_driver.c` is a temporary live subprocess bridge to the actual
+  Rust `MapBodyIndex` planner. Build like the document-lifetime driver, adding
+  `-finstrument-functions -fsanitize=address -fno-omit-frame-pointer -g`.
+  Run `tests/named_query_test.py DRIVER [DYNAMIC_JSON]` for coordinate/error cases.
+  Set `HAKO_NAMED_QUERY_TEST_DRIVER=DRIVER` and run the ignored Rust library test
+  `map_literal_actual_c_query` with the quick profile. The driver retains its
+  document across Rust planning; non-Map input compiles after its file is removed,
+  while Map/planner rejection cancels. Retire this driver/protocol when public
+  V2 host tests cover the connection. These are dependency witnesses, not source
+  admission or Map object/executable evidence.
 - This extraction changes no language or public ABI contract. Prescan is still
   a separate observer; it does not provide allocation admission for the Map frame.
 - Focused reproduction after `bash tools/build_hako_llvmc_ffi.sh`:

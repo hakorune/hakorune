@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Accepted private query-to-planner integration: same invocation/program cache/unique coordinates, shared retained-input typed rows lifecycle, test-only live driver across Rust planning and compile/cancel. Preserve V1 gate/read order; no reparse, isolated public query, V1 Map compile or source switch. Full frame/C consumer precedes public host cutover."
+current_blocker_token = "Private query/MIR binding and same-invocation compile/cancel are verified. Next: complete accepted V2 frame/leaf/expanded-function projection, input-aware capability and both C consumers, then atomic public session/host/source cutover and V1 retirement. No query-only public ABI, Map-through-V1 or renewed readiness census."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,7 +34,8 @@ latest_card_summary = """
 Conditional representation is separated from execution coverage.
 Private invocation owns existing document/config/outcomes/program/definition products.
 Named binding closes demand/domain/original-lane handling in the MIR planner.
-Next is accepted private query integration with real MIR binding and retained compile.
+Private query now binds actual C outcomes and retains input across compile/cancel.
+Next is complete V2 frame/C consumption before public host/source cutover.
 Actual session/host/Map cutover remains open.
 """
 next_design_card = "none"

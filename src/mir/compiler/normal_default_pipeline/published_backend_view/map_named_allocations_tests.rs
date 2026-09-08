@@ -335,3 +335,6 @@ fn map_literal_named_alias_closes_phi_select_and_canonical_formal_cycle() {
         assert_eq!(domains[&key], BTreeSet::from([ValueDomain::F64]));
     }
 }
+
+#[path = "map_named_query_tests.rs"]
+mod query;
