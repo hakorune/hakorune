@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
-current_execution_cohort = "map_literal_selected_construction_d1"
-current_design_stop = "Versioned private Map compiler frame and exact projection remain open"
-current_blocker_token = "Runtime Map v1 store and length-aware String exports implemented/tested. Next close versioned private Map compiler projection: exact payloads before lossy JSON, Copy/PHI/Select and demanded canonical formal forwarding, internal target/caller mapping. Preserve non-Map original operands/dispatch; no blanket tagged consumer rewrite. Float exact bits cannot overwrite lossy legacy registers. Source/C cutover and six-edge retirement remain pending."
+work_mode = "fast"
+current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+current_execution_cohort = "map_literal_compiler_cutover_i0"
+current_design_stop = ""
+current_blocker_token = "Accepted three-step compiler series: MIR/Core + v2 frame contract, both C consumers, then source/host switch and v1/six-edge retirement. Step1 next; literal issuers unchanged until consumers ready. Body is sole graph; exact Map representation and needed original lanes remain distinct. Missing mapping or changed non-Map inputs stops before artifact; no scalar-only shortcut or legacy retry."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,11 +31,11 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Runtime v1 dependency implemented with focused ABI/legacy evidence.
-Next is private compiler frame and exact projection preserving non-Map inputs.
+Map v2 frame and exact projection design accepted after C feasibility review.
+Three-step compiler series selected; MIR/Core + frame contract is next.
 """
-next_design_card = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

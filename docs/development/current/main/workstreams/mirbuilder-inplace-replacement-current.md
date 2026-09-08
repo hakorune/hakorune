@@ -631,14 +631,15 @@ At `dee0d91fd3`, two read-only audits plus parent source/host checks confirmed t
 Boundary: published static view/frame -> entry and same-module C walkers -> typed/compatibility terminal; includes Method/Call-Constructor/Named/intrinsic allocation. Excludes closed Global/Extern inventories, V4, general source census and other backends. Rowless Method and Named allocation retain compatibility; explicit intrinsic Array row absence rejects. Call-Constructor/Math keeps its prior disposition.
 Map literal remains CutoverBlockerOpen: raw and Core emit Named(MapBox)+birth; canonical set has no legacy-only write plan, so allocation-only extension cannot prove populated Map execution. The [Map owner task](../design/collection-literal-construction-ssot.md#map-literal-selected-construction-design) contains exact issuers, physical gap, inventory, deletion and acceptance. No Exhausted/R7 claim.
 
-#### MAP-LITERAL-SELECTED-CONSTRUCTION-D1 — compiler projection next
+#### MAP-LITERAL-COMPILER-CUTOVER-I0 — active implementation series
 
-Decision: runtime v1 dependency is implemented; next close the private compiler projection with [original non-Map input preservation](../design/collection-literal-construction-ssot.md#projection-preservation-and-runtime-first-task-order), not blanket tagged consumer expansion.
-Source authority + canonical issuer: existing literal/child and canonical key/ordinal owners; runtime accepts explicit tags without issuing source facts.
-Non-authority: old generic i64/origin guesses, runtime test success and incidental external linkage cannot authorize compiler/source cutover.
-Fail-fast boundary: missing exact projection, changed non-Map inputs or old-ABI ingress to expanded definitions block publication; no fallback.
-Smallest next work: fix the versioned private frame for exact Map payloads, Copy/PHI/Select and demanded formal forwarding, internal definition/typed caller mapping, then implement both C walkers and source switch. Keep Float exact payload separate from a lossy legacy register.
-Non-claims: runtime ABI8 + String2 + shared codec38 + legacy Map11 tests pass on jobs4 locked quick kernel; no source/C fixture, Map OBJ/EXE or six-edge retirement. Runtime compiler consumers remain pending. Pointer/corridor/link/diff checks and read-only runtime review complete the dependency evidence.
+Decision: implement the accepted [v2 frame](../design/collection-literal-construction-ssot.md#versioned-compiler-frame-decision) in three steps: MIR/Core plus frame contract; both C consumers; atomic source/host switch with v1 and six literal-edge retirement. Step1 is next; literal issuers stay unchanged until consumers are ready.
+Source authority + canonical issuer: existing literal/child and canonical key/ordinal owners. Existing published frame owns pre-JSON representation and ABI projection; body remains the sole operand/CFG graph. No new semantic receipt or second instruction graph.
+Non-authority: old generic i64/origin, runtime tests and incidental linkage cannot supply kinds, target identity or source acceptance.
+Fail-fast boundary: missing/malformed/dangling projection, changed original inputs, stale compatibility ingress or residual rows reject before artifact. OriginalValue itself demands an original producer; Map-only Float gets no fabricated legacy lane.
+Smallest next slice: add IntrinsicMap/result-free MapLiteralEntryWrite and explicit reader/writer/observer treatments with private frame actions and focused verifier/transport tests. Step2 covers both prepasses/emitters, PHI/status tail labels, formal/leaf/context handling and malformed C input; step3 proves natural Map-only OBJ/EXE, mixed Integer/Bool formal, NUL/Float values and six-edge deletion.
+Use jobs4 locked quick focused Rust, selected C build/proofs when changed, existing pointer/corridor guards; sources stay below800.
+Non-claims: runtime dependency is complete (ABI8, String2, codec38, legacy Map11). No compiler/source cutover has landed yet. Neither local transport tests nor design review prove Map OBJ/EXE or R7. No blanket non-Map tagged rewrite, private-symbol wrapper or retained production v1 fallback.
 
 ## Source and ownership budget
 

@@ -9,7 +9,7 @@ Scope: intrinsic literal identity, retained Script numeric Array lifecycle and s
 
 - **Current decision:** preserve Named versus IntrinsicArray identity, one source lifecycle/Recipe and one runtime storage/contract owner.
 - **Current implementation status:** raw/typed-local/Core literals preserve intrinsic identity; selected retained Script Arrays execute through the checked native ABI and bound V4 OBJ/EXE path. Literal birth and selected duplicate/preparation/projection/Stop edges are retired.
-- **Next ordered task:** close the Map literal selected-construction mapping below before the remaining canonical/compatibility and backend/runtime queue.
+- **Next ordered task:** implement the accepted three-step Map compiler cutover below, after the completed runtime ABI dependency; remaining canonical/compatibility and backend/runtime work follows.
 - **Production stop line:** exact retained Script LocalInit/claim coverage and a compatible explicit runtime session are required. Module-only/unselected typed families and Script Loop keep their Stops.
 - **Retirement finish line:** the admitted numeric Script execution series is closed; Map/Main/named/compatibility callers remain live. Wider Array and Call R7 completion are not claimed.
 
@@ -24,8 +24,9 @@ Use one construction-target enum, conceptually Named(String) | IntrinsicArray,
 in existing MirInstruction::NewBox and CoreEffectPlan::NewBox. Replace the
 box_type field; do not retain a parallel string/optional receipt/side table.
 The selected Array series added no allocation opcode. Map identity is accepted
-by the language contract, but its product/consumer cutover remains the bounded
-design obligation below; do not add a disconnected IntrinsicMap variant.
+by the language contract. Its product/consumer cutover is the accepted series
+below; IntrinsicMap must land with its MIR/view/transport contract, not as an
+unowned enum addition.
 Allocation destination, arguments, effect handling and remapping remain with their
 existing owners. IntrinsicArray has zero constructor arguments.
 
@@ -431,6 +432,10 @@ expressions, default an unknown value to i64 or search handles to infer a kind.
 
 ### Physical representation obligation — implementation still closed
 
+This retained anchor records the original loss boundary. The completed design
+and current implementation order are the versioned-frame decision below; the
+old stop does not override that accepted series.
+
 The read-only D1 audit at `ca2dba4724` closes the operation choice above, but
 found no existing general exact-value owner usable for the full Map domain:
 
@@ -629,6 +634,76 @@ publication. The audit proves the current exposure, not absence of every
 possible promised export contract; the new consumer must not claim a general
 external language ABI from incidental old linkage.
 
+### Versioned compiler frame decision
+
+Decision: replace the selected static ingress with one v2 synchronous frame;
+retain body JSON as the sole operand/CFG graph. The existing published frame
+owner reads finalized MIR before lossy JSON and owns all buffers until C returns.
+No second MIR, projection-register namespace, source receipt or independently
+issued call graph is added. The planned compile export is
+`hako_llvmc_compile_published_static_method_v2(json_path, frame, obj_out, err_out)`.
+The frame carries revision/byte size and pointer/count pairs for four tables:
+
+| Table | Payload and identity |
+| --- | --- |
+| Existing selected calls | Keep current call/Array row layout and meaning; exact selected site and canonical target projection. |
+| Map operations | Function + block/instruction site and allocation/write discriminator. Receiver/key/value/dst come from the matched body instruction, not another operand array. |
+| Value projection | Function + SSA ValueId, finite action and original-required flag. Admission binds a unique body definition or formal. |
+| Expanded functions | Canonical definition's logical physical name and one internal LLVM target. Formal order comes from body params and Formal value rows; no duplicate formal list. |
+
+Value action is a tagged finite payload: ExactBits(tag,u64),
+OriginalValue(tag,encoding), Copy, Phi, Select, or Formal(source ordinal).
+Encoding is existing i64 bits or Bool i1 zero-extension only. ExactBits tags use
+runtime v1 I64/Bool/F64/Void; Handle uses a proved original allocation/result.
+Copy/Phi/Select carry no operand/edge arrays: C reads them from the exact body
+instruction. Formal rows bind body params by ordinal, never by spelling. Unused
+variant fields, invalid tag/encoding combinations and duplicate definitions
+reject. Counts, null pointers, revision/size, definition/opcode identity and
+reference closure are checked before artifact output. This is a fixed-width
+C representation with Rust-owned backing, not an extensible JSON blob.
+
+The planner computes two physical demands over the same SSA graph: Map
+representation and original-consumer use. Map writes seed the former for value
+and the latter for receiver/key. Existing non-Map consumers keep original uses;
+Copy/Phi/Select propagate demand on their supplied edges and Select keeps its
+original condition. Ownership-bearing CopyOwned retains its existing original
+operation. Exact call key/ordinal propagates both demands to a finite fixed point
+before any signature is emitted. No first-call specialization or runtime kind
+inference is involved.
+
+A demanded formal always receives Map kind/payload. It additionally retains an
+original lane only when an original consumer needs it. This avoids fabricating
+an unused old-i64 argument for a Map-only Float formal. Both caller and definition
+read the same planned layout. OriginalValue requires an original producer;
+Map-only ExactBits/Copy/Phi/Select need not emit an unused old value. Do not erase
+an effectful producer or re-evaluate an actual. If an original lane is required
+but its existing backend contract is unavailable, preserve that explicit
+unsupported boundary; do not fill zero/poison or overwrite it with Map bits.
+No optimization based merely on equal transport widths is admitted.
+
+Both C walkers use one frame admission/index, Map operand formatter and shared
+operation emitter. Register all expanded function layouts first, including
+recursive components. The same-module save/activate/restore changes lookup
+context, not the frame-wide consumption ledger. Expanded definitions bypass
+old leaf emission. A region shortcut cannot skip a demanded producer and leave
+an undefined side value; preflight and residual checks must catch it.
+
+Map status branches pre-plan their LLVM tail labels through the existing
+`phi_predecessor_label` owner, including backedges. Emit tag/payload PHIs in the
+existing PHI group. Bool zero-extension belongs at the producer/predecessor,
+never between successor PHIs. Both Select lanes reuse the original condition;
+boxing occurs only at the runtime Map write. Exact Float constants use their
+retained bits without modifying a lossy original register.
+
+Acceptance spans both walkers: exact constants, Copy, mixed PHI/Select, Bool
+normalization, F64, Map-status-split predecessors/backedges, recursive/forwarded
+formals, original-needed versus Map-only formals, leaf bypass, private linkage,
+and malformed/missing/duplicate/residual rows before object. Source acceptance
+and six-edge retirement remain the series finish line below. The v1 export is
+retired with all selected host callers at cutover; do not leave a Map v2 route
+beside an independently selected static v1 route or add a fallback adapter.
+Lifecycle V4 and explicit generic compatibility remain separate existing owners.
+
 ### Projection preservation and runtime-first task order
 
 Premise correction: requiring every non-Map consumer to gain tagged semantics
@@ -660,7 +735,9 @@ contract dependency of the same Map cutover series. It has an exact input,
 existing storage/clone/cache owners and an observable runtime terminal; it does
 not depend on solving the compiler frame. This deliberately replaces the prior
 blanket prohibition on all code until the compiler mapping closes. Source/MIR,
-compiler frame, production route and fixtures for source capability stay closed.
+compiler production route and fixtures for source capability stayed closed in
+that runtime dependency. The next compiler series follows the frame decision
+above; design evidence is not execution evidence.
 Runtime tests prove that ABI only, never Map source/OBJ/EXE or retirement.
 
 Ordered work:
@@ -670,9 +747,13 @@ Ordered work:
    38 codec and11 legacy Map tests pass under the jobs4 locked quick kernel target.
    Scalar paths allocate boxes directly without registering handles; this is
    code-inspection evidence, not a global allocation counter or performance claim.
-2. Complete the private compiler frame/projection with the preservation rule
-   above and exact caller/internal-definition mapping. Then implement both C
-   walkers and the source/MIR/Core production switch in the same series.
+2. `MAP-LITERAL-COMPILER-CUTOVER-I0`: use three ordered implementation steps.
+   First add the MIR/Core operation contract, owner-local projection/frame and
+   focused verifier/transport tests, leaving literal issuers unchanged. Next
+   implement v2 admission and both C walkers with malformed-input and physical
+   LLVM coverage. Finally switch source issuers and all selected static host
+   callers together, retire v1 ingress and the six literal edges. Intermediate
+   contract evidence cannot claim production Map execution.
 3. Natural populated/nested/mixed-formal Map-only OBJ/EXE and the six old-edge
    deletion close the series. Runtime completion alone cannot advance this line.
 
@@ -694,8 +775,10 @@ published view/frame/exact-site C allocation/write consumers; target-sensitive
 method/map/typed-object origin observers; explicit named-new/Main callers; and
 nonselected backend terminals. Classify wildcard observers explicitly: compiler
 exhaustiveness alone cannot prove no intrinsic-to-named reclassification.
-This inventory is open until those owner treatments and acceptance are fixed;
-source/C audits are not an Exhausted/implementation-permission claim.
+Step1 must account for these mechanical readers/writers and their explicit
+intrinsic or unsupported treatment. Compiler exhaustiveness does not cover
+wildcard observers. This is a series acceptance inventory, not an Exhausted
+claim from source/C design reviews.
 
 Retirement set for the eventual series: both Map literal Named allocations and
 both literal birth emissions and both named literal set emissions when the
@@ -712,8 +795,8 @@ retains Map as Other; shadow traversal records value paths but not Array-style
 cardinality/key/entry relations, and Script final handoff seals Array only.
 Do not borrow Array claim/Home/Fault proof. Absence of this lifecycle issuer alone
 also does not prove generic Map artifact execution impossible: the static path
-can select mixed modules. The concrete write-plan gap above blocks declaring the
-whole proposed Map construction cutover executable today.
+can select mixed modules. The planned dedicated write consumer replaces that gap; Map execution remains
+unproved until source/caller switching and artifact acceptance complete.
 
 ## Remaining source obligations
 
