@@ -26,13 +26,18 @@ and [owned-slot target](../../docs/reference/language/ownership.md#intrinsic-map
 GC uses `MapBox::native_trace_children` rather than accessing the raw table.
 The owner retains native child clone semantics and rejects storage failure;
 callbacks run after child projection and unlocking. The controller and kernel
-metrics preserve incomplete observation. JSON remains the separate raw-table
-observer. Neither path authorizes owned-entry intake.
+metrics preserve incomplete observation. JSON and GC use scoped Map-owner
+access; the public raw-table accessor is removed. Neither path authorizes
+owned-entry intake.
 
 `JSONBox::set` converts native input into an owned JSON tree by borrowing values.
 Array/Map traversal does not clone or share stored children; fallback string
 conversion observes the stored object itself. The consumed top-level input is
-still disposed at the old conversion boundary. Output owns its strings/nodes.
-This does not change collection locking, cycle handling, or authorize projection
+disposed before destination locking and commit. The existing public Rust setter
+returns `Result<Box<dyn NyashBox>, JsonSetError>`: source Map storage failure,
+destination storage failure and non-object destinations have distinct errors.
+Success retains the `ok` Box; source failure takes priority over destination
+failure. Output owns its strings/nodes. This does not change collection traversal
+locking, cycle handling, or authorize projection
 of future owned native Map residences. See the
 [runtime observation contract](../../docs/reference/runtime/runtime-data-dispatch.md#native-json-observation).

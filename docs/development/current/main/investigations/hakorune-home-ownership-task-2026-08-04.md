@@ -686,8 +686,8 @@ survive failed observation; kernel output tests distinguish null from numeric0.
 Focused root GC/Map and kernel entry tests/check, pointer/corridor guards,
 native boxes/kernel README and runtime reference. Sources stay below800.
 Stop: any need for owned publication, source family expansion, native clone
-semantic change or a new GC collection policy. JSON get_data and public
-read/clone/owned-end migration remain unfinished after this dependency.
+semantic change or a new GC collection policy. The subsequent JSON transition
+below removes get_data; public read/clone/owned-end migration remains open.
 
 Validation: jobs4/locked/quick root lib filters `gc_controller`7,
 `modules_registry`1, `map_box`8 pass (`--test-threads=1` for env-sensitive
@@ -701,7 +701,7 @@ separates clone from share. Module-root evidence is local-registry real poison
 plus controller result replacement, not a production-global poisoning test.
 Kernel tests execute the formatter used by real JSON/text output, not an EXE.
 
-**Accepted next implementation: native JSON Result terminal**
+**Implemented dependency: native JSON Result terminal**
 
 Change: existing JSONBox::set returns Result; Map owner lends native entries,
 conversion propagates nested errors, and get_data is removed after JSON/GC tests
@@ -717,6 +717,18 @@ checks, native boxes README and runtime reference. No broad JSON filter with
 known unrelated baseline debt is required by this native boundary.
 Stop: need for new source dispatch, owned projection or altered native
 Array/fallback/clone semantics. External Rust client compatibility is not proven.
+Validation: `CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib`
+with filters `boxes::json::observation_tests`5, `map_box`8 and `gc_controller`7
+passes, serial `--test-threads=1`. Logs `/tmp/hakorune-map-json-{json,map,gc}.log`.
+Nested source failure retains the destination; source failure precedes poisoned
+destination refusal. Drop observes the destination unlocked and not yet committed
+on success and non-object refusal. No Rust get_data callers remain in src/crates.
+Pointer/corridor/diff checks pass; touched Rust max634. Native boxes README and
+runtime reference describe the Result boundary and explicit Rust API change.
+
+Next design boundary: public Map read/clone and one-table Native/Owned residence
+and end, before owned intake. Reuse the existing finite consumer inventory;
+no new unchecked adapter or source activation is authorized by this checkpoint.
 Public Map get/get_opt/scalar/values, Clone/clone_box, toJSON, owned end and
 kernel checked publication remain the subsequent Native/Owned intake blockers.
 Root surface catalog, native host, MapService and kernel bare-i64 adapters remain

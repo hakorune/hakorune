@@ -107,7 +107,7 @@ use crate::box_trait::{BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBo
 use crate::boxes::map_key_domain::MapKeyDomain;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct MapTraceUnavailable;
+pub(crate) struct MapStorageUnavailable;
 use crate::boxes::ArrayBox;
 use std::any::Any;
 use std::collections::HashMap;
@@ -369,17 +369,21 @@ impl MapBox {
     /// Storage failure is not an empty child list. Owned intake remains gated.
     pub(crate) fn native_trace_children(
         &self,
-    ) -> Result<Vec<Arc<dyn NyashBox>>, MapTraceUnavailable> {
-        let entries = self.data.read().map_err(|_| MapTraceUnavailable)?;
-        Ok(entries
-            .values()
-            .map(|value| Arc::from(value.clone_box()))
-            .collect())
+    ) -> Result<Vec<Arc<dyn NyashBox>>, MapStorageUnavailable> {
+        self.with_native_entries(|entries| {
+            entries.map(|(_, value)| Arc::from(value.clone_box())).collect()
+        })
     }
 
-    /// 内部データへのアクセス（JSONBox用）
-    pub fn get_data(&self) -> &RwLock<HashMap<MapKeyDomain, Box<dyn NyashBox>>> {
-        &self.data
+    /// Lend native observations for this call only, without exposing the table
+    /// or its guard. The result cannot borrow from this invocation's entries.
+    pub(crate) fn with_native_entries<R>(
+        &self,
+        visit: impl FnOnce(&mut dyn Iterator<Item = (&MapKeyDomain, &dyn NyashBox)>) -> R,
+    ) -> Result<R, MapStorageUnavailable> {
+        let entries = self.data.read().map_err(|_| MapStorageUnavailable)?;
+        let mut borrowed = entries.iter().map(|(key, value)| (key, value.as_ref()));
+        Ok(visit(&mut borrowed))
     }
 }
 
@@ -624,3 +628,7 @@ mod tests {
 #[cfg(test)]
 #[path = "map_box_replacement_tests.rs"]
 mod replacement_tests;
+
+#[cfg(test)]
+#[path = "map_box_storage_tests.rs"]
+pub(crate) mod storage_tests;

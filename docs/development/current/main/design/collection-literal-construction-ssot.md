@@ -1470,11 +1470,11 @@ a standalone try_get accessor does not authorize owned-slot intake.
 
 GC now obtains native child projection from the Map owner and propagates
 storage/module-root errors through the controller to kernel metrics. JSON
-conversion remains the production get_data observer, borrowing children for an
-owned JSON result. Raw table exposure is not retired while that caller remains.
-Native GC keeps child clone semantics; neither that native projection nor JSON
-borrowing establishes owned-native coverage. Public read/clone, JSON failure
-publication and selected checked publication remain included intake blockers.
+conversion borrows children through scoped Map-owner access and returns finite
+errors through public set. The raw get_data accessor is removed. Native GC keeps
+child clone semantics; neither that projection nor JSON borrowing establishes
+owned-native coverage. Public read/clone, owned end and selected checked
+publication remain included intake blockers.
 
 ### Native Map diagnostic observer transition
 
@@ -1517,8 +1517,8 @@ cycle reclamation and graph-wide concurrent snapshot consistency.
 | kernel metrics JSON/text | env-selected output | null/status/reason for nonComplete |
 
 GC's get_data caller and silent skip plus module-root empty-on-error are the
-exclusive deletion set. JSON remains the other get_data caller until its real
-fallible set/conversion terminal is connected. Owned Native/Owned entry design,
+exclusive deletion set. The subsequent native JSON Result transition removes
+the other caller and get_data itself. Owned Native/Owned entry design,
 public fallible read/clone, ordered end, checked ABI and source activation all
 remain included later steps, not completed by this native observation repair.
 
@@ -1542,8 +1542,8 @@ MapBox lends native key/value iteration within its lock and reports storage
 failure without exposing HashMap or RwLock. JSON's recursive conversion returns
 Result and propagates nested Map errors; it still borrows rather than cloning
 children. GC reuses owner access while retaining its distinct native clone
-projection. Remove get_data after these actual callers move; poisoning tests
-stay in a cfg(test) owner module, not a production raw-storage escape.
+projection. The get_data accessor is removed; poisoning tests use a cfg(test)
+owner module, not a production raw-storage escape.
 
 Evaluate key and convert the input, then dispose the top-level native input
 before taking the destination write lock. This preserves disposal-before-commit

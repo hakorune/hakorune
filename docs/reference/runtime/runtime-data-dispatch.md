@@ -288,13 +288,23 @@ read/clone. Those remain governed by the
 
 ## Native JSON observation
 
-`JSONBox::set` observes native Array/Map children by borrow and constructs an
-independent JSON Value. It does not invoke child `clone_box` or `share_box` for
-serialization. Existing scalar/key conversion remains unchanged; other boxed
-values use the stored object's string conversion, not a clone's potentially
-different value or side effects. The consumed top-level input is disposed at
-the same conversion boundary as before.
+`JSONBox::set` returns `Result<Box<dyn NyashBox>, JsonSetError>`. Success
+retains the StringBox `ok`; finite errors are `SourceMapUnavailable`,
+`DestinationUnavailable` and `DestinationNotObject`. This changes the public
+Rust signature; source-language dispatch and external client compatibility
+are not established by this native observer boundary.
 
-This is a native observer contract, not source Home acquisition or a checked
-projection for indexed owned Map slots. Existing destination/read locking,
-cycle/re-entry behavior, and unsupported owned residence remain separate work.
+The setter converts the key, borrows native Array/Map children into an
+independent JSON Value, disposes its consumed input, then locks and validates
+the destination object before committing. Nested Map failure propagates before
+destination validation; failure performs no direct destination mutation.
+Observation and input Drop run outside the destination lock. Arbitrary input
+callback side effects are not rolled back.
+
+Serialization invokes no child `clone_box` or `share_box`. Scalar/key and
+fallback string conversion retain their behavior. Map owns scoped borrowed
+iteration; its raw-table `get_data` accessor is removed. GC uses the same access
+with its distinct native child-clone semantics. This is not source Home
+acquisition or a checked projection for indexed owned Map slots. Collection
+traversal locking, cycles, native panics and unsupported owned residences remain
+separate concerns.

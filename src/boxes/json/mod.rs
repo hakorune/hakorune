@@ -9,6 +9,16 @@ use serde_json::{Error, Value};
 use std::any::Any;
 use std::sync::RwLock;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, thiserror::Error)]
+pub enum JsonSetError {
+    #[error("source Map storage unavailable")]
+    SourceMapUnavailable,
+    #[error("JSON destination storage unavailable")]
+    DestinationUnavailable,
+    #[error("JSON destination is not an object")]
+    DestinationNotObject,
+}
+
 #[derive(Debug)]
 pub struct JSONBox {
     value: RwLock<Value>,
@@ -88,19 +98,26 @@ impl JSONBox {
     }
 
     /// 値設定
-    pub fn set(&self, key: Box<dyn NyashBox>, new_value: Box<dyn NyashBox>) -> Box<dyn NyashBox> {
+    pub fn set(
+        &self,
+        key: Box<dyn NyashBox>,
+        new_value: Box<dyn NyashBox>,
+    ) -> Result<Box<dyn NyashBox>, JsonSetError> {
         let key_str = key.to_string_box().value;
-        let mut value = self.value.write().unwrap();
-
-        let json_value = nyash_box_to_json_value(new_value.as_ref());
-        // Preserve the input disposal point; recursive observation owns no Boxes.
+        let json_value = nyash_box_to_json_value(new_value.as_ref())?;
+        // Input callbacks/Drop may re-enter this JSONBox. Dispose before taking
+        // its write lock, preserving disposal-before-commit on the success path.
         drop(new_value);
+        let mut value = self
+            .value
+            .write()
+            .map_err(|_| JsonSetError::DestinationUnavailable)?;
 
         if let Some(obj) = value.as_object_mut() {
             obj.insert(key_str, json_value);
-            Box::new(StringBox::new("ok"))
+            Ok(Box::new(StringBox::new("ok")))
         } else {
-            Box::new(StringBox::new("Error: JSONBox is not an object"))
+            Err(JsonSetError::DestinationNotObject)
         }
     }
 
@@ -239,8 +256,8 @@ fn json_value_to_nyash_box(value: &Value) -> Box<dyn NyashBox> {
 
 /// Observe the stored value without cloning collection children. The returned
 /// JSON tree owns its data; no collection borrow escapes this conversion.
-fn nyash_box_to_json_value(value: &dyn NyashBox) -> Value {
-    if value
+fn nyash_box_to_json_value(value: &dyn NyashBox) -> Result<Value, JsonSetError> {
+    let json = if value
         .as_any()
         .downcast_ref::<crate::boxes::null_box::NullBox>()
         .is_some()
@@ -260,25 +277,28 @@ fn nyash_box_to_json_value(value: &dyn NyashBox) -> Value {
     } else if let Some(string_box) = value.as_any().downcast_ref::<StringBox>() {
         Value::String(string_box.value.clone())
     } else if let Some(array_box) = value.as_any().downcast_ref::<ArrayBox>() {
-        let arr: Vec<Value> = array_box.with_items_read(|items| {
+        let arr = array_box.with_items_read(|items| {
             items
                 .iter()
                 .map(|item| nyash_box_to_json_value(item.as_ref()))
-                .collect()
-        });
+                .collect::<Result<Vec<Value>, JsonSetError>>()
+        })?;
         Value::Array(arr)
     } else if let Some(map_box) = value.as_any().downcast_ref::<MapBox>() {
-        let data = map_box.get_data();
-        let map = data.read().unwrap();
-        let mut obj = serde_json::Map::new();
-        for (key, val) in map.iter() {
-            obj.insert(key.public_text(), nyash_box_to_json_value(val.as_ref()));
-        }
-        Value::Object(obj)
+        return map_box
+            .with_native_entries(|entries| {
+                let mut obj = serde_json::Map::new();
+                for (key, value) in entries {
+                    obj.insert(key.public_text(), nyash_box_to_json_value(value)?);
+                }
+                Ok(Value::Object(obj))
+            })
+            .map_err(|_| JsonSetError::SourceMapUnavailable)?;
     } else {
         // その他の型は文字列に変換
         Value::String(value.to_string_box().value)
-    }
+    };
+    Ok(json)
 }
 
 #[cfg(test)]

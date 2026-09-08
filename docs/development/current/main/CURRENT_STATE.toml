@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+work_mode = "design_stop"
+current_execution_row = "OWN-FIELD-CONTAINER-DEST-D0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Accepted native JSON boundary: existing set returns Result with finite source Map/destination errors; owner-borrowed conversion propagates failure before destination write, input disposal outside destination lock. Retire get_data and non-object Error String; private owner tests retain poison coverage. Explicit Rust signature change, no source dispatch or external compatibility claim. Public Map read/clone/owned end, checked ABI and source execution remain open."
+current_blocker_token = "Native JSON Result implemented: JSON5/Map8/GC7 pass; nested source failures precede destination writes, input Drop precedes lock/commit, and get_data is removed. Next OWN-FIELD-CONTAINER-DEST-D0 boundary: public Map read/clone and one-table Native/Owned residence/end before intake. Checked ABI and source execution remain open; no source dispatch or external compatibility claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -49,8 +49,8 @@ in Completion and unconnected Map demand stops at common package install.
 Native Map insert/remove/clear now drop detached values outside locks; owned-slot
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
-next_design_card = "none"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_design_card = "OWN-FIELD-CONTAINER-DEST-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

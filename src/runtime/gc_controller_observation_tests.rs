@@ -55,11 +55,7 @@ fn gc_trial_records_native_graph_then_replaces_success_on_map_failure() {
     assert_eq!(controller.collection_totals().0, 1);
 
     // Poison a real Map without poisoning a process-global root registry.
-    let poisoned = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        let _entries = map.get_data().write().unwrap();
-        panic!("test storage failure");
-    }));
-    assert!(poisoned.is_err());
+    crate::boxes::map_box::storage_tests::poison_storage(&map);
     let mut callbacks = 0;
     assert_eq!(
         gc_trace::trace_children(map.as_ref(), &mut |_| callbacks += 1),
