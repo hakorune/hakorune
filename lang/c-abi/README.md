@@ -94,6 +94,24 @@ python3 lang/c-abi/tests/pure_document_lifetime_test.py /tmp/hako-document-lifet
   and global allocations are outside this test. These cases prove document
   lifetime, not source admission, Map cutover or concurrent compilation.
 
+Allocation configuration ownership
+- File ingress captures `HAKO_TYPED_OBJECT_STORE`, `HAKO_ARRAY_SLOT_STORE` and
+  `HAKO_TYPED_OBJECT_EXACT_SLOT_HELPER` once through the private common owner.
+  The borrowed core receives runtime flags and an independent helper boolean.
+  Nested Named/field/method emitters and runtime requirements use this value.
+  Runtime bits remain1/2; single-thread exact helper selection is not a new bit.
+- `generic_method_lowering.inc` keeps dispatch; direct Array emission and fused
+  String slot stores are included at their original lexical positions from
+  `generic_direct_array_emit.inc` and `generic_array_string_slot_store.inc`.
+  This is physical size separation, not new semantic authority.
+- Build `tests/allocation_config_capture_driver.c` with the same C dependencies
+  as the document driver above (ASan optional), then run:
+  `python3 lang/c-abi/tests/allocation_config_capture_test.py DRIVER`.
+  Its16 physical cases cover12 input classes plus unset/unknown/nonexact values.
+  After capture the driver changes ambient settings; both walkers' allocation,
+  typed field get/set, Array get and generated runtime requirements must still
+  follow the capture. No atomic environment snapshot or concurrency claim.
+
 Named allocation emission
 - `shims/hako_llvmc_ffi_named_allocation_select.inc` selects the existing physical
   consumer once for the generic and same-module emitters. Walker and array-store

@@ -797,8 +797,8 @@ cases including source-issued Dynamic and an early pattern return with a
 malformed later definition plan. Reproduction is in `lang/c-abi/README.md`.
 These observations close document extraction only; no session ABI is exported.
 
-Next executable BoxShape: capture allocation configuration once at file ingress
-and pass a private value to the borrowed core. This supersedes the two-bit-only
+Implemented BoxShape: allocation configuration is captured once at file ingress
+and passed as a private value to the borrowed core. This supersedes the two-bit-only
 premise: `typed_object_exact_slot_helper_enabled` observes a different mode.
 The capture owns unchanged runtime requirement flags (bits1/2) and a separate
 `exact_slot_helper` boolean. Its sole issuer reads each of three settings once:
@@ -819,8 +819,9 @@ field/method and runtime requirement output. Includes eight textual reads of
 these three settings in `common.inc` and five nested predicate owners below;
 excludes Rust runtime settings, other environment variables, source admission
 and session ABI. The exclusive delete-set is the nested ambient reads in
-`generic_method_lowering`, `same_module_generic_method_collection_emit`,
-`same_module_generic_method_string_emit`, `same_module_typed_object_emit` and
+`generic_direct_array_emit` (extracted from `generic_method_lowering`),
+`same_module_generic_method_collection_emit`, `same_module_generic_method_string_emit`,
+`same_module_typed_object_emit` and
 `typed_object_plan`. The last reads both typed-store and helper settings.
 The helper consumers include generic field get/set, same-module field get/set,
 `same_module_typed_field_rmw_emit` and `same_module_body_emit`; they consume the
@@ -837,7 +838,20 @@ document lifetime, rejection order and late plan reading evidence unchanged.
 This fixes values after capture; it does not promise an atomic multi-variable
 environment snapshot, all-config freezing, Map admission or parallel compile.
 
-After settings capture, bind the same borrowed core, existing program view and
+Capture evidence: C build, Named60/role22 parent comparison and document ASan8
+pass. Dynamic LLVM/origins/machine code/relocations match. The mutation driver
+passes16 cases; both walkers emit allocation, typed field get/set and Array get
+from captured settings. Common is the only reader of these three settings.
+The touched1104-line generic method file is split at existing function boundaries
+into dispatch, direct Array and String slot-store includes, each below800.
+
+Next design boundary: before an opaque session ABI, fix how query observes late
+plan errors/partial progress without moving their rejection stage, how exact-site
+unavailable/bypassed differs from invalid, and how host body/library/session
+lifetime binds original MIR alias demand to one compile. An independent query
+export without this complete caller/deletion mapping is not an executable slice.
+
+Bind the same borrowed core, existing program view and
 physical definition plan to the eventual opaque session. Open takes immutable
 JSON bytes+length, leaves its output handle null on error and activates no
 global rows. Query borrows session-owned observations. Compile consumes the

@@ -1,6 +1,6 @@
       auto int same_module_function_direct_array_i64_exact_enabled(void) {
-        const char* value = getenv("HAKO_ARRAY_SLOT_STORE");
-        return value && !strcmp(value, "direct_array_i64_exact");
+        return (allocation_config.runtime_flags &
+                HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_ARRAY_I64_EXACT) != 0;
       }
 
       auto int same_module_function_is_selected_direct_array_i64_store_target(

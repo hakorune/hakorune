@@ -12,8 +12,8 @@
       };
 
       auto int same_module_function_direct_slot_nativedirect_backend_enabled(void) {
-        const char* store = getenv("HAKO_TYPED_OBJECT_STORE");
-        return store && !strcmp(store, "direct_slot_exact");
+        return (allocation_config.runtime_flags &
+                HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_SLOT_EXACT) != 0;
       }
 
       auto int same_module_function_direct_slot_nativedirect_storage_supported(

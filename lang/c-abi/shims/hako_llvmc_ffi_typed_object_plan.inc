@@ -94,11 +94,7 @@
       }
 
       auto int typed_object_exact_slot_helper_enabled(void) {
-        const char* store = getenv("HAKO_TYPED_OBJECT_STORE");
-        const char* helper = getenv("HAKO_TYPED_OBJECT_EXACT_SLOT_HELPER");
-        return store && helper &&
-               !strcmp(store, "single_thread_exact") &&
-               !strcmp(helper, "1");
+        return allocation_config.exact_slot_helper;
       }
 
       auto int typed_object_storage_is_exact_slot_i64(const char* storage) {

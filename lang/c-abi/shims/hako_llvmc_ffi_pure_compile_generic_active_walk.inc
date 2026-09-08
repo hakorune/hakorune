@@ -149,7 +149,7 @@
         // phi first
         for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(bid, phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
         if (bi == 0) {
-          hako_llvmc_emit_direct_exact_runtime_mode_check(f);
+          hako_llvmc_emit_direct_exact_runtime_mode_check(f, allocation_config.runtime_flags);
           if (!emit_typed_object_layout_registrations(f)) {
             note_pure_unsupported_shape(
                 -1,

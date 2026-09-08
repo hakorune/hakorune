@@ -27,26 +27,34 @@ static const char* hako_llvmc_backend_compile_recipe(void) {
   return getenv("HAKO_BACKEND_COMPILE_RECIPE");
 }
 
-static int hako_llvmc_direct_exact_runtime_mode_flags(void) {
-  int flags = 0;
+/* Invocation-local physical settings; helper is not a runtime ABI flag. */
+struct HakoLlvmcAllocationConfig {
+  int runtime_flags;
+  int exact_slot_helper;
+};
+
+static struct HakoLlvmcAllocationConfig hako_llvmc_capture_allocation_config(void) {
+  struct HakoLlvmcAllocationConfig config = {0, 0};
   const char* typed_store = getenv("HAKO_TYPED_OBJECT_STORE");
   const char* array_store = getenv("HAKO_ARRAY_SLOT_STORE");
+  const char* helper = getenv("HAKO_TYPED_OBJECT_EXACT_SLOT_HELPER");
   if (typed_store && strcmp(typed_store, "direct_slot_exact") == 0) {
-    flags |= HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_SLOT_EXACT;
+    config.runtime_flags |= HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_SLOT_EXACT;
   }
   if (array_store && strcmp(array_store, "direct_array_i64_exact") == 0) {
-    flags |= HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_ARRAY_I64_EXACT;
+    config.runtime_flags |= HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_ARRAY_I64_EXACT;
   }
-  return flags;
+  config.exact_slot_helper = typed_store && helper &&
+      !strcmp(typed_store, "single_thread_exact") && !strcmp(helper, "1");
+  return config;
 }
 
-static void hako_llvmc_emit_direct_exact_runtime_mode_declare(FILE* f) {
-  if (hako_llvmc_direct_exact_runtime_mode_flags() == 0) return;
+static void hako_llvmc_emit_direct_exact_runtime_mode_declare(FILE* f, int flags) {
+  if (flags == 0) return;
   fprintf(f, "declare i64 @\"nyash.runtime.require_backend_modes_i\"(i64)\n");
 }
 
-static void hako_llvmc_emit_direct_exact_runtime_mode_check(FILE* f) {
-  int flags = hako_llvmc_direct_exact_runtime_mode_flags();
+static void hako_llvmc_emit_direct_exact_runtime_mode_check(FILE* f, int flags) {
   if (flags == 0) return;
   fprintf(
       f,

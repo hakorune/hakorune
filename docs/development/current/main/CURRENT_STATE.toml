@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = ""
-current_blocker_token = "Corrected allocation capture BoxShape: unchanged runtime flags plus independent exact-slot-helper predicate. Capture three settings once, replace eight existing reads across Named/field/method/runtime requirement consumers. Verify 12 input classes and ambient mutation; helper is not a runtime bit. No new global/session ABI or source switch; session observation/host/alias mapping remains open."
+current_design_stop = "MAP-ALLOCATION-SESSION-BINDING"
+current_blocker_token = "Document/config ownership is verified. Next design closes opaque session binding: late plan error/partial-progress observation without early rejection; exact-site unavailable/bypassed/invalid outcomes; host body/library/session lifetime plus original MIR alias demand. Require real caller switch and delete-set before ABI implementation; no standalone query export or Map source switch."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Selected pure-first document ownership is implemented and verified.
-Eight lifetime cases and unchanged Named/role/Dynamic behavior are recorded.
-Corrected settings capture is accepted: runtime flags plus independent helper.
-Session and Map cutover remain open.
+Document/config ownership is verified; settings mutation16 and parent behavior pass.
+Touched generic method source is split below800 without changing include order.
+Next is opaque session binding design; Map compiler cutover remains open.
 """
-next_design_card = "none"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
