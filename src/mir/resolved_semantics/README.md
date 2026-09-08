@@ -1145,3 +1145,19 @@ is the positive witness for an empty literal. Source paths alone do not prove
 that a parent-child relation survived. These are passive syntax facts, without
 Home, effect, Recipe or ABI authority. Script continuation consumes them under
 [the numeric acquisition law](../../../docs/reference/language/ownership.md#intrinsic-numeric-array-literal-acquisition).
+
+### Direct-local Map Home flow
+
+`home_new_prefix` consumes ordered Map/EntryValue body relations in the same
+source walk as ordinary-New acquisition. `home_prefix_local_flow` retains the
+exact acquisition site; ordinary observations expose Handles, while only an
+available direct Home can transfer. The package callback checks already-issued
+descriptor compatibility, not availability. Aliases cannot supply transfer and
+cannot recover an observation through a consumed root.
+`home_map_flow` records allocation Fault, precommit outer/live obligations,
+committed outer/live obligations and the detached old entry. Replacement becomes
+the newest live install; old-end Fault uses the committed state without retry.
+Partial Maps remain unavailable exact-site observations, never partial transfers.
+These records and terminal order have one owner in Completion. The unconnected
+consumer is stopped at package install; fresh children, nested Maps and other
+candidate families are not admitted by this direct-Home relation.

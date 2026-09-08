@@ -505,7 +505,7 @@ contract; no language meaning or public ABI changes. Source files remain below80
 This deletes a real repeated source lookup, but does not close Map transfer,
 phase emission, runtime intake or the full source/host cutover.
 
-**Accepted next implementation: source flow through the install Stop**
+**Implemented source flow through the install Stop**
 
 Change: extend the existing source walk and Completion cleanup result for
 direct-local Map construction whose entries transfer prior direct ordinary-New
@@ -543,6 +543,14 @@ must also be unable to obtain a prepared package. Prepared fields remain private
 Do not put this backend-unconnected reason in source issuance or add a rich
 error product carrying Completion. Map requirement takes precedence over a
 catalog-occupied error for the same package.
+
+The completed scanner retains both complete and unavailable direct-local Map
+observations. An earlier unavailable prefix, implicit exit, empty Map or first
+rejected entry cannot erase the install requirement. A rejected Map publishes
+no partial transfer and consumes no candidate. Coverage is verified-Completion
+root bodies; nested-statement Maps, Completion rejection and Script are not
+claimed by this boundary. The prior prefix-count and absent-terminal early exits
+are removed because both could hide a later Map from the common install Stop.
 
 Acceptance: inspect actual package Completion for prior-Home transfer,
 precommit retention, committed replacement/old-end Fault, ordered Map/root
@@ -584,6 +592,67 @@ The final handoff must retain checked Map source/end evidence; Map is not an
 unverified NoBirth case. Whole-root Map forwarding also needs an outgoing Home
 and cleanup-Fault contract, not the current scalar return-value slot. These are
 included cutover blockers, not permission to open unsupported Home returns.
+
+**Source/install validation checkpoint**
+
+Commands: `CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib`
+with filters `normal_callable_semantic_package` (126 pass),
+`resolved_control_flow` (33 pass), and
+`normal_default_root_catalog_lifecycle_tests` (11 pass, six baseline failures).
+The added actual-root Map test reaches CatalogInstall without catalog/body
+installation. Source-flow tests cover transfer/replacement successors, empty and
+implicit-exit Maps, unavailable-prefix/entry retention, alias/reuse/fresh/nested
+refusal, consumed observation refusal and direct prepare package retention.
+
+The same root filter at isolated parent `3661a9a907` gives 10 pass and the same
+six failures with identical deterministic freeze/assertion signatures. These
+are known baseline debt, not a Map acceptance waiver. Prefix for all names:
+`mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::`.
+
+| Test suffix | Parent/current failure |
+| --- | --- |
+| `actual_string_helpers_general_result_row_reaches_its_first_loop_carrier` | `raw-compat/runtime-box-fate-retired/static` |
+| `source_bound_static_result_owner_reaches_the_raw_terminal` | `raw-compat/runtime-box-fate-retired/static` |
+| `source_backed_package_failure_is_terminal_before_builder_effects` | actual RootExpansion, expected CallableSemanticSeal |
+| `artifact_validation_rejects_terminal_add_operand_drift` | expected add-binding-drift diagnostic absent |
+| `artifact_validation_rejects_exact_read_drift_and_birth_reentry` | `ordinary-new/local-commit/root-cleanup-graph/finished-node` |
+| `parser_scan_package_passes_callable_source_handoff_without_fallback` | `static-result-ingress/no-exact-static-target` |
+
+Local logs: `/tmp/hakorune-map-home-{package,completion,root}-tests.log` and
+`/tmp/hakorune-map-home-parent-root-tests.log`. Comparison used names plus
+freeze/assertion signatures, not unordered AST/config debug serialization.
+No fixture refresh, baseline repair or C execution is included in this slice.
+Pointer/canonical-corridor guards and diff checks pass; touched Rust max737.
+
+**Next physical contract boundary (independent worker premise audit)**
+
+Decision: use the existing lifecycle consumer for Map allocation, fallible
+install, detached-old end and intrinsic Map end. Do not divert lifecycle through
+the plain NewBox/Write static-V2 index or first create a separate cleanup ledger.
+Source authority + canonical issuer: the existing Completion MapHomeFlow and
+exact EntryValue membership; final handoff must retain the checked source/end
+product, rather than inventing a NoBirth object.
+Non-authority: raw set, result-discarding MapLiteralEntryWrite, runtime tags and
+physical progress cannot issue transfer or decide commit state.
+Fail-fast boundary: install Fault preserves the prior owner; install Normal
+transfers once; detached-old end Fault preserves that commit and never retries
+old end. Runtime residence/observer readiness remains a production intake gate.
+Smallest next slice: determine the exact detached-old/no-old Normal result and
+its consuming end operation in existing Invoke/result and lifecycle owners,
+including root progress/graph validation. This is design work, not permission
+to add an unconnected Map Invoke variant or another pending transport.
+Non-claims: owned-slot intake, wider candidate families, Script, whole-root Map
+return, OBJ/EXE and final source/host cutover remain unfinished.
+
+Actual eventual caller/deletion boundary: selected root Map lowering replaces
+`collection_literals::build_map_literal_with_port_v1`'s named allocation and
+resultless set, the matching Core MapLiteralEntryWrite result discard, and
+ordinary-local end of transferred children. Common install Stop retires only
+when these selected source-to-runtime operations execute with OBJ/EXE evidence.
+Acceptance must observe exact source/operation correspondence, precommit Fault,
+committed replacement despite old-end Fault, duplicate replacement order,
+Map-before-outer cleanup, one-time old end and retained-operation/CFG drift
+rejection. Multi-origin validation cannot inherit a single-origin proof.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

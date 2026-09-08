@@ -28,6 +28,7 @@ pub(crate) enum HomePrefixUnavailableV1 {
     ArgumentNotCovered(SourceExprSiteV1),
     OverridesNotCovered(SourceExprSiteV1),
     TerminalNotCovered,
+    MapCandidateNotCovered(SourceExprSiteV1),
     ReturnValueNotCovered(SourceStmtSiteV1),
 }
 
@@ -62,6 +63,9 @@ impl CallerNewHomePrefixV1 {
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
+#[path = "home_map_flow.rs"]
+mod map_flow;
+pub(crate) use map_flow::RootHomeFlow;
 
 pub(crate) fn issue_new_home_prefixes_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -69,7 +73,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
 ) -> BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>> {
     scan_new_home_flow(input, selected, None, &mut |_, _, _, _, _| {
         Ok::<_, std::convert::Infallible>(false)
-    })
+    }, &mut |_, _| Ok(false))
     .unwrap_or_else(|never| match never {})
     .0
 }
@@ -345,10 +349,11 @@ pub(crate) fn scan_new_home_flow<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
-        Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
+        RootHomeFlow,
         Option<TerminalRelationV1>,
         BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
     ),
@@ -356,16 +361,9 @@ pub(crate) fn scan_new_home_flow<E>(
 > {
     let mut results = BTreeMap::new();
     let mut terminal_homes = Err(HomePrefixUnavailableV1::TerminalNotCovered);
+    let mut maps = Vec::new();
     let mut terminal_relation = None;
     let mut argument_observations = BTreeMap::new();
-    if selected.is_empty() && terminal.is_none() {
-        return Ok((
-            results,
-            terminal_homes,
-            terminal_relation,
-            argument_observations,
-        ));
-    }
     let function = input.function();
     let mut unavailable = (function.declaration_sites().any(|site| {
         matches!(
@@ -383,7 +381,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 .keys()
                 .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
                 .collect(),
-            Err(HomePrefixUnavailableV1::SourceMismatch),
+            RootHomeFlow { terminal: Err(HomePrefixUnavailableV1::SourceMismatch), maps },
             terminal_relation,
             argument_observations,
         ));
@@ -392,9 +390,6 @@ pub(crate) fn scan_new_home_flow<E>(
     let mut homes = Vec::new();
     let mut covered_statements = Vec::new();
     for index in 0..body.statements().len() {
-        if terminal.is_none() && results.len() == selected.len() {
-            break;
-        }
         let Ok(statement) = input.source().body_stmt(&body, index) else {
             unavailable = Some(HomePrefixUnavailableV1::SourceMismatch);
             break;
@@ -599,10 +594,38 @@ pub(crate) fn scan_new_home_flow<E>(
                             covered_statements: covered_statements.clone().into_boxed_slice(),
                         }),
                 };
-                results.insert(owned, result);
+                results.insert(owned.clone(), result);
                 // This is the Normal successor only, after exact local commit.
                 homes.push(binding);
-                locals.install_selected_normal_home(binding);
+                locals.install_selected_normal_home(binding, owned);
+            } else if let Some(keys) = input.body_shape().and_then(|shape| {
+                shape.expressions().iter().find_map(|row| match row {
+                    super::BodyExpressionShapeV1::MapLiteral { site: map_site, keys }
+                        if map_site == site => Some(keys.as_ref()),
+                    _ => None,
+                })
+            }) {
+                if unavailable.is_none() {
+                    match map_flow::observe_map(
+                        input, &owned, binding, keys, &locals, &homes, map_compatible,
+                    )? {
+                        Ok((map, remaining)) => {
+                            for entry in map.entries() {
+                                locals.consume_home(entry.binding());
+                            }
+                            homes = remaining;
+                            homes.push(binding);
+                            locals.install_map(binding);
+                            maps.push(map_flow::MapHomeObservation::Complete(map));
+                        }
+                        Err(issue) => {
+                            unavailable = Some(issue);
+                            maps.push(map_flow::MapHomeObservation::Unavailable { site: owned });
+                        }
+                    }
+                } else {
+                    maps.push(map_flow::MapHomeObservation::Unavailable { site: owned });
+                }
             } else if let Some(class) = locals.observe(site) {
                 locals.install_observed(binding, class);
             } else {
@@ -621,7 +644,7 @@ pub(crate) fn scan_new_home_flow<E>(
     }
     Ok((
         results,
-        terminal_homes,
+        RootHomeFlow { terminal: terminal_homes, maps },
         terminal_relation,
         argument_observations,
     ))

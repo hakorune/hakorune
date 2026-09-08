@@ -26,3 +26,6 @@ pub(crate) use function_control::{
     ReturnExitRelationV1, SealedFunctionExitContractV1, SealedFunctionExitDispositionV1,
     VerifiedFunctionCompletionV1,
 };
+
+mod map_control;
+pub(crate) use map_control::map_source_outward;

@@ -56,6 +56,14 @@ Home discharge must precede it; physical projection/execution remain pending.
 `function_control_new_homes.rs` forwards the one source-issued terminal relation
 and attaches the same source walk's Home cleanup to Completion; it does not
 reclassify terminal families or own physical emission progress.
+Its single root flow now includes direct-local Map entry transfer and explicit
+precommit/committed Fault cleanup, alongside terminal order. Complete and
+unavailable Map observations both retain a consumer requirement; an unavailable
+first Map must not disappear into ordinary-New installation. `map_control.rs`
+checks exact Map initializer/destination, body scope and outward region without
+relaxing the New-only continuation issuer. The package's common `prepare_install`
+rejects this unconnected lifecycle before catalog installation/body lowering.
+Source retention and that Stop do not prove runtime execution.
 
 `function_control.rs` seals the accepted function completion forms before
 Builder effects:

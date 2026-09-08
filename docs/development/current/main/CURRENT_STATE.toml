@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-current_execution_cohort = "map_literal_compiler_cutover_i0"
+work_mode = "design_stop"
+current_execution_row = "OWN-FIELD-CONTAINER-DEST-D0"
+current_execution_cohort = "own_field_container_dest_d0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Accepted source-to-install-Stop slice: direct-local Map entries transfer prior direct ordinary-New Homes using exact acquisition sites and scoped existing-descriptor compatibility. Store phase successors and terminal order once in Completion; reject sealed Map lowering demand in prepare_install with package retained (CatalogInstall, before catalog/body effects). Include direct caller, alias/reuse, replacement/Fault and empty Map evidence. Other candidate families, Script, physical Map Invoke/result, runtime intake and public cutover remain open."
+current_blocker_token = "Map source flow and common install Stop are implemented: package126/Completion33 pass, root11 pass with six parent3661a9a907 baseline failures. Next design boundary is detached-old/no-old install Normal result and its one-time end consumer in existing lifecycle Invoke/result/root progress owners. Preserve committed state on old-end Fault; no unconnected operation or static-V2 bypass. Runtime residence/observer readiness, wider source families, Script and source-to-OBJ/EXE cutover remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -44,13 +44,13 @@ Phi/Select lanes join existing owners; stable original i64 references are implem
 Formal/expanded-function consumers share one index and private signatures.
 Map source-shape preservation and explicit Script Map-entry call Stop are implemented.
 After-group original i1 PHI normalization is implemented. Runtime escape ownership
-follows the accepted owned-slot target; single-entry semantic issuance/commit
-co-seal is the next design, with wider destination/runtime obligations still open.
+follows the accepted owned-slot target; direct-local Map source flow is retained
+in Completion and unconnected Map demand stops at common package install.
 Native Map insertion now drops replaced values outside its lock; owned-slot
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
-next_design_card = "none"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_design_card = "OWN-FIELD-CONTAINER-DEST-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

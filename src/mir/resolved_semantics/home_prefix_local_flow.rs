@@ -9,7 +9,9 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use std::collections::BTreeMap;
 
 enum StoredLocal {
-    Home(BindingRefV1),
+    Home { acquisition: super::OwnedExprSiteV1 },
+    Map,
+    Consumed,
     Handle(BindingRefV1),
     Trivial,
     Uninitialized,
@@ -67,20 +69,50 @@ impl<'source> PrefixLocalFlow<'source> {
             return None;
         };
         match self.locals.get(&binding)? {
-            StoredLocal::Home(root) | StoredLocal::Handle(root) => {
+            StoredLocal::Home { .. } | StoredLocal::Map => {
+                Some(OrdinaryObservation::Handle(binding))
+            }
+            StoredLocal::Handle(root)
+                if !matches!(self.locals.get(root), Some(StoredLocal::Consumed)) =>
+            {
                 Some(OrdinaryObservation::Handle(*root))
             }
+            StoredLocal::Handle(_) | StoredLocal::Consumed => None,
             StoredLocal::Trivial => Some(OrdinaryObservation::TrivialLocal(binding)),
             StoredLocal::Uninitialized => None,
         }
+    }
+
+    pub(super) fn direct_available_home(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<(BindingRefV1, &super::OwnedExprSiteV1)> {
+        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {
+            return None;
+        };
+        match self.locals.get(&binding)? {
+            StoredLocal::Home { acquisition } => Some((binding, acquisition)),
+            _ => None,
+        }
+    }
+    pub(super) fn consume_home(&mut self, binding: BindingRefV1) {
+        self.locals.insert(binding, StoredLocal::Consumed);
+    }
+    pub(super) fn install_map(&mut self, binding: BindingRefV1) {
+        self.locals.insert(binding, StoredLocal::Map);
     }
 
     pub(super) fn install_uninitialized(&mut self, binding: BindingRefV1) {
         self.locals.insert(binding, StoredLocal::Uninitialized);
     }
 
-    pub(super) fn install_selected_normal_home(&mut self, binding: BindingRefV1) {
-        self.locals.insert(binding, StoredLocal::Home(binding));
+    pub(super) fn install_selected_normal_home(
+        &mut self,
+        binding: BindingRefV1,
+        acquisition: super::OwnedExprSiteV1,
+    ) {
+        self.locals
+            .insert(binding, StoredLocal::Home { acquisition });
     }
 
     pub(super) fn install_observed(&mut self, binding: BindingRefV1, value: OrdinaryObservation) {

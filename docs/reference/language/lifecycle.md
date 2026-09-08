@@ -339,7 +339,15 @@ release, and same-identity double finalization are forbidden.
 Decision (2026-09-09): intrinsic Map literals have a builtin structural
 lifecycle, with no user `birth` or `fini` on the Map itself. Child obligations
 retain their own exact end contracts, including terminal child hooks. This is
-an accepted source target; the Map source issuer and runtime cutover remain open.
+an accepted source target. The selected callable source walk now retains empty
+direct-local Maps and entries transferring prior direct ordinary-New Homes,
+including precommit versus committed Fault cleanup and duplicate-key order.
+Aliases and consumed locals do not supply new transfer evidence. Other candidate
+families and runtime cutover remain open. For roots with verified Completion,
+complete or unavailable direct-local Map observations stop at package install
+with `MapLifecycleConsumerMissing`, before catalog/body effects; source retention
+does not enable Map LLVM execution. Nested-statement Maps and Script are outside
+this bounded source walk.
 
 Allocation Normal acquires one empty Map construction responsibility. Before
 that Normal, including allocation Fault, there is no Map responsibility to end.

@@ -45,6 +45,7 @@ pub(crate) use signature_loan::ResolvedCallablePhysicalSignatureLoanV1;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     ForeignCatalog,
+    MapLifecycleConsumerMissing,
     SelectedKeyUnavailable,
     DuplicateSelectedKey,
     IncompleteSelectedCoverage,
@@ -341,7 +342,13 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     > {
         let prepared = self
             .prepare_install(context)
-            .map_err(|_package| NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied)?;
+            .map_err(|package| {
+                if package.ordinary_new_claim_ledger.requires_map_lifecycle_consumer() {
+                    NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
+                } else {
+                    NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied
+                }
+            })?;
         let installed = prepared.commit();
         Ok(consumer.seal(installed, BuilderInstallTokenV1::issue()))
     }
@@ -350,7 +357,9 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         self,
         context: &'context mut CompilationContext,
     ) -> Result<PreparedNormalCallableSemanticPackageInstallV1<'context>, Self> {
-        if !context.callable_declaration_catalog_vacant() {
+        if self.ordinary_new_claim_ledger.requires_map_lifecycle_consumer()
+            || !context.callable_declaration_catalog_vacant()
+        {
             return Err(self);
         }
         Ok(PreparedNormalCallableSemanticPackageInstallV1 {

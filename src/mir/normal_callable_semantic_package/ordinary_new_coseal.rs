@@ -162,6 +162,13 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(super) fn requires_map_lifecycle_consumer(&self) -> bool {
+        self.root_completion
+            .as_ref()
+            .and_then(|row| row.as_ref().ok())
+            .and_then(|completion| completion.cleanup().root_flow())
+            .is_some_and(|flow| !flow.maps().is_empty())
+    }
     #[cfg(test)]
     pub(super) fn root_completion_for_test(
         &self,
@@ -448,7 +455,13 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 }
                 let selected: BTreeMap<_, _> = candidates.iter()
                     .map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
-                let (home_prefixes, argument_observations) = if is_app_main && !selected.is_empty() {
+                let has_map = input.body_shape().is_some_and(|shape| {
+                    shape.expressions().iter().any(|row| matches!(
+                        row,
+                        crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { .. }
+                    ))
+                });
+                let (home_prefixes, argument_observations) = if is_app_main && (!selected.is_empty() || has_map) {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -461,7 +474,14 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                         Ok(true)
                     };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
-                        input, &selected, &mut field_is_integer)? {
+                        input, &selected, &mut field_is_integer, &mut |site, binding| {
+                            let mut exact = candidates.iter().filter(|row| &row.site == site);
+                            let candidate = exact.next().ok_or_else(|| OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() })?;
+                            if exact.next().is_some() || candidate.destination != binding {
+                                return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() });
+                            }
+                            Ok(candidate.construction.is_ok() && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
+                        })? {
                         Ok((completion, prefixes, terminal_relation, observations)) => {
                             if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
                                 if let Some(TerminalRelationV1::I64Add(result)) = &terminal_relation {

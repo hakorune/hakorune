@@ -1,7 +1,7 @@
 //! Ordered crossed-scope cleanup vocabulary for verified control exits.
 
+use crate::mir::resolved_semantics::home_new_prefix::{HomePrefixUnavailableV1, RootHomeFlow};
 use crate::mir::resolved_semantics::{BindingRefV1, ScopeId};
-use crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1;
 
 /// Immutable cleanup order sealed before canonical materialization.
 ///
@@ -11,14 +11,14 @@ use crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1;
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct ResolvedCleanupObligationsV1 {
     crossed_scopes: Box<[ScopeId]>,
-    terminal_homes: Option<Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>>,
+    root_flow: Option<RootHomeFlow>,
 }
 
 impl ResolvedCleanupObligationsV1 {
     pub(super) fn explicit_empty() -> Self {
         Self {
             crossed_scopes: Box::new([]),
-            terminal_homes: None,
+            root_flow: None,
         }
     }
 
@@ -26,14 +26,16 @@ impl ResolvedCleanupObligationsV1 {
         &self.crossed_scopes
     }
 
-    pub(super) fn with_terminal_homes(
-        mut self, homes: Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
-    ) -> Self {
-        self.terminal_homes = Some(homes);
+    pub(super) fn with_root_flow(mut self, flow: RootHomeFlow) -> Self {
+        self.root_flow = Some(flow);
         self
     }
-
-    pub(crate) fn terminal_homes(&self) -> Option<Result<&[BindingRefV1], &HomePrefixUnavailableV1>> {
-        self.terminal_homes.as_ref().map(|row| row.as_deref())
+    pub(crate) fn root_flow(&self) -> Option<&RootHomeFlow> {
+        self.root_flow.as_ref()
+    }
+    pub(crate) fn terminal_homes(
+        &self,
+    ) -> Option<Result<&[BindingRefV1], &HomePrefixUnavailableV1>> {
+        self.root_flow.as_ref().map(RootHomeFlow::terminal_homes)
     }
 }

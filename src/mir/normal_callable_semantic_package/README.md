@@ -246,6 +246,18 @@ into claims/ledger once. Multiple invalid candidates reject in candidate order;
 the previous field-driven diagnostic priority is not retained. Candidate presence
 does not issue source availability, Map transfer or physical progress.
 
+For direct-local Map entries, a scoped callback checks the same candidate's exact
+New site/binding, construction eligibility and PlainI64NoHook destruction.
+The source walk owns availability and transfer; it keeps the acquisition site in
+the Home state and invalidates old-local/alias observations after transfer.
+Completion owns one root flow, including successful or unavailable Map sites and
+their cleanup successors. `prepare_install` refuses either Map observation with
+the original package intact; `with_normal_callable_install_once` reports
+`MapLifecycleConsumerMissing` before catalog-occupied errors. This shared
+preflight also covers callers that invoke prepare/commit directly. The normal
+root pipeline reports `CatalogInstall` after module preparation, before catalog
+install or body allocation. No compatibility retry is authorized by the failure.
+
 The AST-free take-once definition payload uses existing field declarations.
 After installed-context validation, the port moves it to the normal collector
 before bodies. Duplicate transfer rejects. Package completion and source-backed

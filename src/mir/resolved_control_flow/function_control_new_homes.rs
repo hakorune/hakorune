@@ -38,6 +38,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         input,
         selected,
         field_is_integer,
+        &mut |_, _| Ok(false),
     )?;
     Ok(result.map(|(completion, prefixes, terminal, _)| {
         let terminal = match terminal {
@@ -62,6 +63,10 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         crate::mir::resolved_semantics::BindingRefV1,
         crate::mir::resolved_semantics::BindingRefV1,
         &str,
+    ) -> Result<bool, E>,
+    map_compatible: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        crate::mir::resolved_semantics::BindingRefV1,
     ) -> Result<bool, E>,
 ) -> Result<
     Result<
@@ -94,8 +99,9 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             selected,
             completion.explicit_site(),
             field_is_integer,
+            map_compatible,
         )?;
-    let cleanup = ResolvedCleanupObligationsV1::explicit_empty().with_terminal_homes(homes);
+    let cleanup = ResolvedCleanupObligationsV1::explicit_empty().with_root_flow(homes);
     match &mut completion {
         VerifiedFunctionCompletionV1::ExplicitReturn(row) => row.cleanup = cleanup,
         VerifiedFunctionCompletionV1::ExplicitReturns(row) => row.cleanup = cleanup,

@@ -98,3 +98,6 @@ pub(crate) use physical_signature::{
     PhysicalCallableLaneRoleV1, PhysicalCallableLaneV1, PhysicalCallableSignatureRowRefV1,
 };
 pub(crate) use s6c_effects::VerifiedS6CPhysicalFunctionEffectsV1;
+
+#[cfg(test)]
+mod map_home_flow_tests;

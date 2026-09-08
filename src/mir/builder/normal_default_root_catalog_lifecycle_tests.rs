@@ -712,3 +712,26 @@ fn actual_string_helpers_general_result_row_reaches_its_first_loop_carrier() {
             .any(|(_, function)| function.signature.name == "StringHelpers.int_to_str/1"));
     });
 }
+
+#[test]
+fn map_lifecycle_stop_precedes_catalog_install_and_body_allocation() {
+    for body in ["local m = %{} return 30", "local a = new Page() local m = %{\"a\" => a} return 30"] {
+        let source = callable_source(
+            &format!("box Page {{}} static box Main {{ main() {{ {body} }} }}"),
+            ParserBuildConfig::default(),
+        );
+        let rejected = session().complete_normal_default_program_root_catalog_lifecycle(
+            source, CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        ).expect_err("Map lowering is still unconnected");
+        assert_eq!(rejected.stage(), NormalDefaultRootCatalogLifecycleStageV1::CatalogInstall);
+        assert!(rejected.error().to_string().contains("MapLifecycleConsumerMissing"));
+        assert!(rejected.session.builder().comp_ctx.callable_declaration_catalog_vacant());
+        if let Some(module) = &rejected.session.builder().current_module {
+            assert!(module.functions.values().all(|function| function.blocks.values().all(|block|
+                block.all_instructions().next().is_none())));
+        }
+        assert!(rejected._source.is_none(), "no compatibility retry source");
+        rejected.discard();
+    }
+}
