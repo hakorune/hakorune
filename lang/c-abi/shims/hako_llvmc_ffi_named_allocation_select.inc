@@ -14,8 +14,9 @@ struct GenericPureTypedObjectNewPlanView {
   long long field_count;
 };
 
-auto enum GenericPureTypedObjectNewPlanStatus
+static enum GenericPureTypedObjectNewPlanStatus
 generic_pure_validate_typed_object_new_plan(
+    yyjson_val* root,
     long long dst,
     const char* box_name,
     struct GenericPureTypedObjectNewPlanView* out) {
@@ -25,11 +26,11 @@ generic_pure_validate_typed_object_new_plan(
   if (!(box_name && out)) {
     return GENERIC_PURE_TYPED_OBJECT_NEW_PLAN_MISSING;
   }
-  if (!find_typed_object_plan_index(box_name, &typed_plan_index)) {
+  if (!find_typed_object_plan_index(root, box_name, &typed_plan_index)) {
     return GENERIC_PURE_TYPED_OBJECT_NEW_PLAN_MISSING;
   }
-  type_id = typed_object_plan_type_id(typed_plan_index);
-  field_count = typed_object_plan_field_count(typed_plan_index);
+  type_id = typed_object_plan_type_id(root, typed_plan_index);
+  field_count = typed_object_plan_field_count(root, typed_plan_index);
   if (!(dst && type_id > 0 && field_count >= 0)) {
     return GENERIC_PURE_TYPED_OBJECT_NEW_PLAN_INVALID;
   }
@@ -54,7 +55,8 @@ enum NamedAllocationConsumer {
   NAMED_ALLOCATION_UNSUPPORTED
 };
 
-auto enum NamedAllocationConsumer select_named_allocation_consumer(
+static enum NamedAllocationConsumer select_named_allocation_consumer(
+    yyjson_val* root,
     enum NamedAllocationWalker walker,
     const char* target,
     long long dst,
@@ -72,7 +74,7 @@ auto enum NamedAllocationConsumer select_named_allocation_consumer(
     if (target && !strcmp(target, "StringBox") && dst && arg0)
       return NAMED_ALLOCATION_ALIAS_OPERAND_ZERO;
   }
-  switch (generic_pure_validate_typed_object_new_plan(dst, target, plan)) {
+  switch (generic_pure_validate_typed_object_new_plan(root, dst, target, plan)) {
     case GENERIC_PURE_TYPED_OBJECT_NEW_PLAN_OK:
       return NAMED_ALLOCATION_TYPED_OBJECT;
     case GENERIC_PURE_TYPED_OBJECT_NEW_PLAN_INVALID:

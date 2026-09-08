@@ -30,7 +30,7 @@
         } else if (!strcmp(box_name, "MapBox")) {
           origin_kind = ORG_MAP_BIRTH;
         } else {
-          if (!find_typed_object_plan_index(box_name, &typed_plan_index)) {
+          if (!find_typed_object_plan_index(root, box_name, &typed_plan_index)) {
             return 0;
           }
           set_type(reg, T_I64);

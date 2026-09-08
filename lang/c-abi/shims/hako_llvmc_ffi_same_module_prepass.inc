@@ -257,6 +257,7 @@
             int typed_plan_index = -1;
             if (user_box_method_view.target_result_box_name &&
                 find_typed_object_plan_index(
+                    root,
                     user_box_method_view.target_result_box_name,
                     &typed_plan_index)) {
               set_origin(dst, ORG_TYPED_OBJECT);

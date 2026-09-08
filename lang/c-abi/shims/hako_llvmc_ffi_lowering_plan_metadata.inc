@@ -571,7 +571,7 @@
         int origin_kind = ORG_NONE;
         if (!dst || !view) return;
         if (view->target_result_box_name &&
-            find_typed_object_plan_index(view->target_result_box_name, &typed_plan_index)) {
+            find_typed_object_plan_index(root, view->target_result_box_name, &typed_plan_index)) {
           set_origin(dst, ORG_TYPED_OBJECT);
           set_scan_origin(dst, ORG_TYPED_OBJECT);
           set_typed_object_binding(dst, typed_plan_index);

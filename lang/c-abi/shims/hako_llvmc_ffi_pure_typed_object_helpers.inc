@@ -18,7 +18,7 @@
           const char* box_name) {
         int typed_plan_index = -1;
         if (!(reg && box_name)) return 0;
-        if (!find_typed_object_plan_index(box_name, &typed_plan_index)) return 0;
+        if (!find_typed_object_plan_index(root, box_name, &typed_plan_index)) return 0;
         generic_pure_publish_typed_object_plan_index(reg, typed_plan_index);
         return 1;
       }
@@ -29,7 +29,6 @@
         const char* storage;
       };
 
-      #include "hako_llvmc_ffi_named_allocation_select.inc"
 
       auto int generic_pure_read_typed_object_field_slot(
           long long box_reg,

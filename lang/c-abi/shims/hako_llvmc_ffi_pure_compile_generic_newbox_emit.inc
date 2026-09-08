@@ -24,6 +24,7 @@
                 ? yyjson_arr_get_first(nb_args) : NULL;
             long long arg0 = nb0 ? (long long)yyjson_get_sint(nb0) : 0;
             enum NamedAllocationConsumer consumer = select_named_allocation_consumer(
+                root,
                 NAMED_ALLOCATION_GENERIC, tname, dst, arg0,
                 hako_llvmc_direct_array_i64_exact_enabled(), &typed_new_plan);
             if (consumer == NAMED_ALLOCATION_DIRECT_ARRAY) {

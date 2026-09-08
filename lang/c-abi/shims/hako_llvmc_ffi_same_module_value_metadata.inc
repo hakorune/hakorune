@@ -24,7 +24,7 @@
           const char* box_name) {
         int typed_plan_index = -1;
         if (!box_name) return 0;
-        if (!find_typed_object_plan_index(box_name, &typed_plan_index)) return 0;
+        if (!find_typed_object_plan_index(root, box_name, &typed_plan_index)) return 0;
         same_module_function_publish_i64_origin(reg, ORG_TYPED_OBJECT);
         set_typed_object_binding(reg, typed_plan_index);
         return 1;

@@ -845,24 +845,54 @@ from captured settings. Common is the only reader of these three settings.
 The touched1104-line generic method file is split at existing function boundaries
 into dispatch, direct Array and String slot-store includes, each below800.
 
-Session decision: retained observations and compile progress are different.
-The same document/config/program/definition intent is owned by the invocation;
-query must not become another classifier. Early observation retains errors for
-the original consumer stage, without global activation or object output.
+Session decision: conditional physical representation and execution coverage
+are separate obligations. This supersedes the earlier premise that all pattern/
+skip outcomes must be known before Named query. Query states only: if this exact
+site in the retained document is processed by the existing walker, its consumer
+is X. It does not issue source admission, reachability, success or Bypassed.
 
-Confirmed counterexamples keep exact-site query CutoverBlockerOpen:
-- `indexof_text_state_residence` performs object emission; the pure core bypasses
-  generic compilation only on actual success. Metadata match is a candidate,
-  not proof of Bypassed. Failure can continue through generic emission.
-- `same_module_typed_field_rmw_emit` reset-batch matching writes skip indices
-  incrementally; a later invalid index can return0 with earlier skip state kept.
-  A query-side clean validator would change behavior, including Named-site skips.
-- Numeric-leaf eligibility borrows lexical block state; active-walk region skips
-  depend on available/ready/emitted progress. Reuse those owners rather than
-  assigning prospective roles from names or plan membership alone.
-This is a confirmed owner inventory, not an Exhausted claim for every matcher.
-Selected/Bypassed/Unavailable/Invalid need distinct evidence; Unavailable cannot
-be a permanent substitute for completing required Map sites.
+The selector reads only target/dst/arg0, captured Array setting, walker and root
+`typed_object_plans`. Existing `program.entry` document identity selects generic;
+ordinary definitions exclude that same entry, and other Named-emitting bodies
+(including Dynamic launch) use same-module. NewBox cannot pass numeric-leaf
+validation. Definition-plan eligibility is therefore not a prerequisite for
+conditional representation and stays at its original late read position.
+
+Scan Named sites once with this existing selector and retain immutable outcomes,
+including Invalid/Unsupported. Unrequested observations do not reject the whole
+compile. Bind required observations to original MIR for Handle versus Alias(0)
+projection; actual dispatch consumes the same retained outcome without selecting
+again. Observation/peek never marks a frame obligation consumed. Only promoted
+frame obligations require coverage before object publication; ordinary unused
+observations do not gain an exact-once requirement.
+
+Dynamic launch can also be emitted as an ordinary definition. Both use the same
+conditional same-module consumer, but physical-instance coverage stays separate:
+immutable observations may be read repeatedly; required rows retain their exact
+consumption contract. Do not hide duplicate take with a symbol alias. Multiple
+required physical instances need an explicit mapping by the actual emission owner.
+
+Pattern emission can fail and continue generic, and reset-batch matching can
+retain partial skips after rejection. These counterexamples remain real but do
+not block conditional representation. Needed Map obligations replaced by an
+optimizer require coverage from the actual successful replacement owner; do not
+copy every matcher into query, pre-mark rows used, or permanently reject whole
+pattern families. Replacement/instance coverage remains CutoverBlockerOpen.
+
+Implemented BoxShape: the existing Named selector and root typed-plan
+lookup are private explicit-root functions. Move the original lookup and numeric
+reads, preserving first matching plan and builtin/File/alias-before-plan laziness.
+Both actual emitters consume that same owner; all existing typed-plan callers
+pass their current root. Delete lexical root/nested-helper dependencies, without
+retaining a query-only selector or duplicate lookup. Keep symbol/slot semantics,
+config capture and missing/invalid distinctions unchanged. Acceptance: selector
+lazy negative cases, duplicate-plan first match, Named60 parent behavior, both
+walkers' String difference, settings16 and C build. No public query/session ABI
+or Map source switch in this extraction. C build, selector lazy negatives,
+actual duplicate-plan/document-isolation test, Named60/role22 parent comparison,
+settings16, published rows and corridor pass. All changed sources stay below800.
+Next design binds retained conditional outcomes to actual dispatch and required
+frame consumption; no new whole-skip census is a prerequisite.
 
 Implemented BoxShape: diagnostic side effects are removed from the existing
 `PhysicalDefinitionPlan` reader/add operations. Retain read result and minimal

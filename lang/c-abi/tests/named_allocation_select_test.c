@@ -4,31 +4,35 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void) {
-  int present = 0, lookups = 0, reads = 0;
-  long long type_id = 11, field_count = 2;
-  auto int find_typed_object_plan_index(const char* name, int* index) {
-    assert(name);
-    lookups++;
-    if (!present) return 0;
-    *index = 7;
-    return 1;
-  }
-  auto long long typed_object_plan_type_id(int index) {
-    assert(index == 7); reads++; return type_id;
-  }
-  auto long long typed_object_plan_field_count(int index) {
-    assert(index == 7); reads++; return field_count;
-  }
+typedef struct yyjson_val yyjson_val;
+static int present = 0, lookups = 0, reads = 0;
+static long long type_id = 11, field_count = 2;
+static int find_typed_object_plan_index(yyjson_val* root, const char* name, int* index) {
+  assert(!root);
+  assert(name);
+  lookups++;
+  if (!present) return 0;
+  *index = 7;
+  return 1;
+}
+static long long typed_object_plan_type_id(yyjson_val* root, int index) {
+  assert(!root);
+  assert(index == 7); reads++; return type_id;
+}
+static long long typed_object_plan_field_count(yyjson_val* root, int index) {
+  assert(!root);
+  assert(index == 7); reads++; return field_count;
+}
 #include "../shims/hako_llvmc_ffi_named_allocation_select.inc"
 
+int main(void) {
   struct GenericPureTypedObjectNewPlanView plan;
   auto void expect(enum NamedAllocationWalker walker, const char* name,
       long long dst, long long arg0, int exact,
       enum NamedAllocationConsumer expected, int consult) {
     lookups = reads = 0;
     plan = (struct GenericPureTypedObjectNewPlanView){-9, -9, -9};
-    assert(select_named_allocation_consumer(walker, name, dst, arg0,
+    assert(select_named_allocation_consumer(NULL, walker, name, dst, arg0,
                                             exact, &plan) == expected);
     assert(lookups == consult);
     assert(reads == (consult && present ? 2 : 0));

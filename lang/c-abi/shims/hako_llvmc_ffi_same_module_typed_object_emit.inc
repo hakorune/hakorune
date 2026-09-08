@@ -70,6 +70,7 @@
         const char* tname = read_str(ins, "type");
         struct GenericPureTypedObjectNewPlanView plan;
         enum NamedAllocationConsumer consumer = select_named_allocation_consumer(
+                root,
             NAMED_ALLOCATION_SAME_MODULE, tname, dst, 0,
             hako_llvmc_direct_array_i64_exact_enabled(), &plan);
         if (consumer == NAMED_ALLOCATION_DIRECT_ARRAY || consumer == NAMED_ALLOCATION_ARRAY) {

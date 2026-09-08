@@ -120,7 +120,7 @@
                   }
                 }
               }
-            } else if (tname && find_typed_object_plan_index(tname, &typed_plan_index)) {
+            } else if (tname && find_typed_object_plan_index(root, tname, &typed_plan_index)) {
               needs.typed_object = 1;
               if (dst) {
                 generic_pure_publish_typed_object_plan_index(
@@ -716,7 +716,7 @@
         fprintf(f, "declare i64 @\"nyash.array.slot_load_store_i64_hihi\"(i64, i64, i64, i64)\n");
       if (needs.typed_object ||
           (definition_plan.same_module_count > 0) ||
-          typed_object_plan_count() > 0 ||
+          typed_object_plan_count(root) > 0 ||
           boxed_sum_abi_plan_count() > 0) {
         fprintf(f, "declare i64 @\"nyash.object.register_typed_layout_hi\"(i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.register_typed_layout_slot_iii\"(i64, i64, i64)\n");

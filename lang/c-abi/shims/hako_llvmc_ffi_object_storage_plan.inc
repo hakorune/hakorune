@@ -102,7 +102,7 @@
         if (!object_storage_plan_selected_alignment_result_ready()) return 0;
         if (!get_typed_object_binding(owner_reg, &bound_plan_index)) return 0;
         return owner_layout_id > 0 &&
-               typed_object_plan_type_id(bound_plan_index) == owner_layout_id;
+               typed_object_plan_type_id(root, bound_plan_index) == owner_layout_id;
       }
 
       auto size_t object_storage_plan_alignment_result_key_len(

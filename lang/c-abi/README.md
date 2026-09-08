@@ -119,9 +119,19 @@ Allocation configuration ownership
 
 Named allocation emission
 - `shims/hako_llvmc_ffi_named_allocation_select.inc` selects the existing physical
-  consumer once for the generic and same-module emitters. Walker and array-store
+  consumer for the generic and same-module emitters. Document root, walker and array-store
   choice are explicit inputs; typed-plan reads remain lazy after builtin/alias
   precedence. Materialization, register facts and diagnostics stay in emitters.
+- `typed_object_root_lookup.inc` is the shared explicit-root lookup for this
+  selector and existing layout readers. First matching plan wins; there is no
+  query-specific lookup or nested root capture. Compile/run
+  `tests/typed_object_root_lookup_test.c` with yyjson for duplicate-plan and
+  independent-document evidence. The selector test retains mocked lazy-read
+  counters; actual emitter comparison remains Named60.
+- Conditional selection states what an actual walker would consume. It does
+  not prove execution, admission or a bypass. Future retained observations are
+  separate from required frame-row coverage; optimizer matchers are not copied
+  into this lookup layer.
 - This extraction changes no language or public ABI contract. Prescan is still
   a separate observer; it does not provide allocation admission for the Map frame.
 - Focused reproduction after `bash tools/build_hako_llvmc_ffi.sh`:

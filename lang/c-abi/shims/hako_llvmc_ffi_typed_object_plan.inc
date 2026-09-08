@@ -4,47 +4,6 @@
        * The backend consumes MIR-owned layout facts only. It must not infer
        * user-box slots from names or clone VM InstanceBox behavior.
        */
-      auto yyjson_val* typed_object_plans_array(void) {
-        yyjson_val* plans = root ? yyjson_obj_get(root, "typed_object_plans") : NULL;
-        return (plans && yyjson_is_arr(plans)) ? plans : NULL;
-      }
-
-      auto yyjson_val* typed_object_plan_at_index(int plan_index) {
-        yyjson_val* plans = typed_object_plans_array();
-        if (!plans || plan_index < 0) return NULL;
-        return yyjson_arr_get(plans, (size_t)plan_index);
-      }
-
-      auto size_t typed_object_plan_count(void) {
-        yyjson_val* plans = typed_object_plans_array();
-        return plans ? yyjson_arr_size(plans) : 0;
-      }
-
-      auto int find_typed_object_plan_index(const char* box_name, int* out_plan_index) {
-        yyjson_val* plans = typed_object_plans_array();
-        size_t count = typed_object_plan_count();
-        if (!(box_name && plans)) return 0;
-        for (size_t i = 0; i < count; i++) {
-          yyjson_val* plan = yyjson_arr_get(plans, i);
-          const char* plan_box = plan ? read_str(plan, "box_name") : NULL;
-          if (plan_box && strcmp(plan_box, box_name) == 0) {
-            if (out_plan_index) *out_plan_index = (int)i;
-            return 1;
-          }
-        }
-        return 0;
-      }
-
-      auto long long typed_object_plan_type_id(int plan_index) {
-        yyjson_val* plan = typed_object_plan_at_index(plan_index);
-        return plan ? read_int(plan, "type_id") : 0;
-      }
-
-      auto long long typed_object_plan_field_count(int plan_index) {
-        yyjson_val* plan = typed_object_plan_at_index(plan_index);
-        return plan ? read_int(plan, "field_count") : 0;
-      }
-
       auto long long typed_object_storage_tag(const char* storage) {
         if (!storage) return 0;
         if (!strcmp(storage, "i64")) return 1;
@@ -114,7 +73,7 @@
           const char* field_name,
           long long* out_slot,
           const char** out_storage) {
-        yyjson_val* plan = typed_object_plan_at_index(plan_index);
+        yyjson_val* plan = typed_object_plan_at_index(root, plan_index);
         yyjson_val* fields = plan ? yyjson_obj_get(plan, "fields") : NULL;
         size_t count = (fields && yyjson_is_arr(fields)) ? yyjson_arr_size(fields) : 0;
         if (!(field_name && fields)) return 0;
@@ -146,8 +105,8 @@
       }
 
       auto int emit_typed_object_layout_registrations(FILE* f) {
-        yyjson_val* plans = typed_object_plans_array();
-        size_t count = typed_object_plan_count();
+        yyjson_val* plans = typed_object_plans_array(root);
+        size_t count = typed_object_plan_count(root);
         for (size_t pi = 0; pi < count; pi++) {
           yyjson_val* plan = yyjson_arr_get(plans, pi);
           yyjson_val* fields = plan ? yyjson_obj_get(plan, "fields") : NULL;
