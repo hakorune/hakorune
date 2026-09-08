@@ -475,8 +475,9 @@ Decision: the selected write will pass an explicit kind and 64-bit payload to
 one Map-specific runtime store, which materializes the value at the write.
 It will not register temporary scalar handles and then run the Any decoder.
 This local physical representation is not a whole-program tagged calling ABI.
-Numeric wire tags, export signature and status are still to be fixed with the
-complete input projection before implementation; this is not a shipped ABI.
+The [planned runtime ABI](../../../../reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1-accepted-design-not-implemented) fixes five named tags,
+OK0/InvalidContract2 and the length-aware String entry. Compiler input projection
+and formal-domain ABI remain gated; these exports are not implemented.
 
 | Proven representation | Runtime treatment at the write |
 | --- | --- |
@@ -495,8 +496,8 @@ outside the Map write lock. Preserve String/StringView borrow/materialization
 and non-String `clone_box()` behavior; unconditional Arc sharing changes nested
 Map semantics. InvalidContract must leave the Map unchanged. Existing fatal
 allocator/lock behavior is not a returned source Fault and needs no fabricated
-Array FaultFrame. Exact success/InvalidContract status handling remains part of
-the unopened compiler/runtime ABI slice.
+Array FaultFrame. The consumer must take its contract-failure terminal on any nonzero status,
+without treating reserved status1 as a source Fault.
 
 Length-aware String materialization is a mandatory dependency, for literal
 keys and selected String values alike. Current same-module globals/boxing,
@@ -506,7 +507,8 @@ existing C string-constant owner and LLVM byte emission, then use a length-aware
 UTF-8 runtime entry. That entry can reuse
 `exports/box_helpers.rs::string_literal_handle_from_text(&str)` and its existing
 content-keyed cache; no second cache or pointer-based identity is needed. The
-pointer/length validity and invalid UTF-8 failure contract must be explicit.
+reference fixes nonnull readable bytes, target-size range and invalid UTF-8
+return0; arbitrary pointer validity remains a caller precondition.
 Do not reject NUL or change literal-key acceptance to avoid this work.
 
 Copy/PHI/Select must retain the projected representation on the exact supplied
@@ -549,22 +551,61 @@ exact Rust Float bits directly and preserve them through Copy/PHI/Select; source
 Float admission is unchanged. This does not authorize Float arithmetic or claim
 that existing generic Float execution already has a sound unsupported terminal.
 
-`SelectedPublishedFormalValueDomain` is the remaining named authority question.
-The static view validates selected definition/key/arity and Integer return ABI,
-but definition formal preflight checks count and C emits uniform i64 parameters.
-Transport width and missing metadata cannot establish a formal's value domain.
-A Map demand crossing a function boundary needs exact selected actual/formal
-correspondence and a representation contract. If multiple actual kinds are
-admitted, tags must survive that ABI boundary too; local PHIs alone cannot fix
-it. No silent signature widening, by-name specialization or guessed Integer.
+`SelectedPublishedFormalValueDomain` is a real Map cutover obligation. The
+natural source counterexample (static reachability audit, not executed) is:
 
-Next action: resolve this formal-domain contract in the existing published
-owner, then fix the one input/wire/status mapping and producer treatment before
-implementation. Source premise, runtime storage feasibility and the concrete
-Float loss are settled evidence, not reasons for another broad census. Missing
-producer coverage remains CutoverBlockerOpen; unselected Call/control promotion
-is not required. No constant-only projection I0: the construction/write series
-has one cutover and the same six old edges to retire.
+```hako
+static box Helpers {
+  stash(x) {
+    local m = %{"v": x}
+    return 7
+  }
+}
+Helpers.stash(1)
+Helpers.stash(true)
+```
+
+The result solver records local `m` as KnownNonI64 but proves Return7 ExactI64
+with no required Integer arguments. `script_direct_static` and normal Script A
+retain this as ExactI64Empty. The actual caller
+`calls/script_direct_static_physical_bridge.rs` consumes that proof, lowers all
+actuals through `AssociatedMethodCallArgumentsV1::lower_all` and emits the
+canonical static Global. The definition's Outside route retains selected source
+transport into raw lowering and cataloged definition commit. This does not claim
+that today's Map C execution works; it proves that rejecting Bool as an
+unselected source family would be wrong.
+
+Formal identity/ordinal belongs to the declaration and parameter binding owner;
+actual kinds belong to their existing literal/operation producers. Canonical
+key + arity + ordinal supplies actual/formal correspondence. Unannotated formal
+is MirType::Unknown in `prepare_static_method_signature`; Integer return proof
+constrains only its required return arguments, not this Map operand. C's uniform
+i64 signature supplies width, not a value-kind authority.
+
+Decision: retain kind/payload across **Map-demanded formal positions**, using
+the existing published input/frame's physical projection and canonical call
+edges. Keep one definition/body; do not specialize by observed constants or add
+source annotations. Propagate demand through exact Copy/PHI/Select and caller
+actual/formal correspondence to a finite fixed point. Preserve both lanes at
+needed call boundaries, even when two current callers happen to use the same
+kind; a first-call or currently monomorphic inference is not a permanent ABI.
+Non-demanded formal positions retain their existing contract. A changed
+physical signature must be projected consistently at definition and every
+admitted caller, under an explicit compiler-input revision; the current v1 C
+row layout cannot be reused with silently changed field meanings.
+
+This selects the representation direction, not production permission. Next
+bounded closure is the ingress/consumer contract for those exact demanded
+positions: selected canonical callers, compatibility/external ingress, and
+non-Map uses of the same formal must each have a concrete disposition before
+signature switching. In particular, a kind/payload pair must not silently enter
+an old scalar-only consumer. Unknown incoming edges stay CutoverBlockerOpen;
+no by-name repair, clone-per-kind, blanket all-Call tagging, or guessed Integer.
+Then fix the one versioned compiler frame and both C walkers' consumption and
+retirement as the executable series. The [runtime v1 contract](../../../../reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1-accepted-design-not-implemented)
+is already fixed, with exports still unimplemented. Source premise and the
+concrete Float loss need no repeated broad census. No constant-only projection
+I0: the construction/write series retains its six-edge retirement finish line.
 
 Runtime acceptance includes scalar classes, Integer/live-handle collision,
 malformed Bool/Void, exact F64 bits, invalid handles/no mutation, retained String

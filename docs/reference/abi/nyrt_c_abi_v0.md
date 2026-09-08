@@ -111,6 +111,54 @@ before input issuance; selected host cutover remains separately gated. Local has
 Text/handle arguments are outside this bounded protocol. Source declarations
 remain unannotated and each definition has one unspecialized body.
 
+### Selected Map literal store v1 (accepted design, not implemented)
+
+Decision (2026-09-08): the selected Map literal consumer uses one explicit-kind
+runtime call, independent of the permissive legacy Any encoding:
+
+```c
+uint32_t nyash.map.literal_store_v1(
+    int64_t map, int64_t key, uint32_t kind, uint64_t payload);
+int64_t nyash.box.from_i8_string_const_len_v1(const uint8_t *bytes, uint64_t len);
+```
+
+The dotted names are linker export names, not C source identifiers. No shipped
+header/export or production capability is claimed by this design decision.
+
+Map kind constants are scoped to this protocol: `NYRT_MAP_LITERAL_I64=1`,
+`BOOL=2`, `F64=3`, `VOID=4`, `HANDLE=5` (each with the same prefix). Zero and
+unknown kinds reject. I64 retains its signed two's-complement bits; Bool accepts
+only0/1; F64 retains IEEE754 binary64 bits; Void accepts only0. Null is runtime
+Void. Handle requires a live registered value and preserves the existing Map
+String/StringView borrow/materialization and other-value clone policy. No
+numeric payload is tested against the handle registry to infer its kind.
+
+Map and key are borrowed live handles; key must be a StringBox. The call retains
+no borrowed input pointer. Validate and materialize key/value outside the Map
+write lock, then commit once through `MapBox::insert_key_str`, preserving current
+key normalization and duplicate replacement. No temporary scalar handle is
+registered. Status `NYRT_MAP_LITERAL_OK=0` means committed;
+`NYRT_MAP_LITERAL_INVALID_CONTRACT=2` means no insertion. Status1 is reserved and
+must not be interpreted as source Fault. Any nonzero status takes the selected
+consumer's contract-failure terminal, without retry or continuation. Existing
+fatal allocator/lock termination is outside returned-status guarantees; there
+is no added FaultFrame or all-OOM recovery promise.
+
+The length-aware String entry accepts a nonnull pointer to `len` readable bytes
+for the synchronous call, with `len <= isize::MAX` on the runtime target. Even
+an empty string uses a nonnull pointer. Null, an out-of-range length or invalid
+UTF-8 returns0; arbitrary dangling pointers cannot be validated by this ABI and
+violate caller memory preconditions. Embedded NUL is valid text. Successful
+conversion delegates to existing `string_literal_handle_from_text`, preserving
+its content-keyed cache/handle policy; no pointer-keyed or second cache. The
+consumer treats0 as a contract failure. Exact byte length must survive JSON,
+C constant storage and LLVM byte emission before this entry is called.
+
+Compiler input revision/layout and formal-domain propagation are still gated by
+the [Map projection owner](../../development/current/main/design/collection-literal-construction-ssot.md#published-operand-projection-inventory).
+Do not reinterpret the existing static C row layout or widen call signatures
+silently to implement this planned runtime contract.
+
 ### Selected lifecycle physical program v2
 
 Decision (2026-09-07): replace the untagged v1 document, retaining one parser

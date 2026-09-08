@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
 current_execution_cohort = "map_literal_selected_construction_d1"
-current_design_stop = "SelectedPublishedFormalValueDomain and final Map projection/wire contract remain open"
-current_blocker_token = "Map source premise and explicit-kind store feasibility closed. SelectedPublishedFormalValueDomain remains open: uniform i64 formals do not prove Integer; exact selected actual/formal representation must cross the ABI. Float prescan loses payload, so retain Rust bits directly. Finish producer/merge and length-aware String wire/status mapping before implementation. No raw-bit inference, source narrowing, unselected family promotion or repeated broad census."
+current_design_stop = "Map-demanded formal ingress/consumer closure and versioned compiler frame remain open"
+current_blocker_token = "Natural selected Static calls can supply Integer and Bool to the same Map-valued formal. Decision: preserve kind/payload at Map-demanded formal positions via exact canonical key/ordinal, one body, no specialization. Runtime store/String ABI fixed but unimplemented. Next close all demanded-formal ingress and non-Map consumers, then versioned compiler frame and both C walkers before code. No uniform-i64 inference or repeated broad census."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,8 +31,8 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Map source premise and explicit-kind runtime store feasibility closed.
-Formal-domain ABI, exact Float payload and length-aware String wire mapping remain.
+Map-demanded formal kind/payload direction and runtime v1 ABI fixed.
+Demanded-formal ingress/consumer closure and versioned compiler frame remain.
 """
 next_design_card = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
 next_execution_card = "none"
