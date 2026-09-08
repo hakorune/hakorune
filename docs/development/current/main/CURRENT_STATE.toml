@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "MAP-LITERAL-RUNTIME-ESCAPE-OWNERSHIP"
-current_blocker_token = "Private V2 original i1 PHIs now normalize after the complete group in both walkers; stable i64 inputs and existing i1 input Stops are retained. Next design: runtime-owned retention/reclaim coordination for Map-resident indexed SafeMutex objects, preserving identity, shared mutation, child lifetime and exact profile agreement. No production keep/promotion issuer or safe delete-set exists yet. TLS/direct escape, intrinsic allocator binding and selected boxed comparison remain CutoverBlockerOpen before capability and atomic public session/host/source cutover with V1 retirement."
+current_blocker_token = "Original PHI consumers are implemented. Runtime-first automatic Map retention is withdrawn: raw/Core Map entry paths issue neither Home destination transfer nor Dynamic carrier forwarding. Next: Map-slot destination/transfer matrix under existing OWN-FIELD-CONTAINER-DEST-D0, including failure commit, read, replacement, remove and parent end. No implicit share or guessed Home/carrier from tags. Then runtime storage coordination/profile agreement; TLS/direct escape, intrinsic binding and boxed comparison remain CutoverBlockerOpen before public/source cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -43,7 +43,8 @@ Copy/NamedAlias consumers preserve Map lanes and the demanded original producer.
 Phi/Select lanes join existing owners; stable original i64 references are implemented.
 Formal/expanded-function consumers share one index and private signatures.
 After-group original i1 PHI normalization is implemented. Runtime escape ownership
-is the next design boundary; intrinsic binding and boxed comparison remain open.
+requires the source Map-slot destination/transfer decision first; intrinsic binding
+and boxed comparison remain open.
 Actual session/host/Map cutover remains open.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"

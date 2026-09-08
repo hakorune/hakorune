@@ -1250,40 +1250,47 @@ unproved; the full Map series retains both obligations.
 
 ### Runtime escape ownership — next design boundary
 
-Decision (2026-09-09): design_stop for runtime-owned retention and reclaim
-coordination of the same Map-resident object; no Handle5 lookup widening yet.
-Source authority + canonical issuer: published representation identifies the
-value; the actual runtime storage owner must issue its retention/lifetime contract.
-The required production keep/promotion issuer is currently absent.
-Non-authority: C/Rust transport, Named TypedObject outcome, token sign, equal
-i64 width, test-only snapshots and an Arc wrapping an unretained token.
-Fail-fast boundary: retain current non-host Map demand rejection before artifact
-and runtime InvalidContract/no insertion until that owner exists.
-Smallest next slice: define indexed SafeMutex object identity, retention versus
-reclaim, nested-child ownership and exact runtime-profile agreement in the
-existing runtime owner. Other storage profiles remain included cutover blockers.
-Non-claims: implementation permission, TLS lifetime closure, public/source switch.
+Decision (2026-09-09): source Map-slot destination/transfer comes before runtime
+retention. The former runtime-first SafeMutex slice is withdrawn: automatic
+retain would invent ownership, and its assumed two-owner acceptance was too broad.
+Source authority + canonical issuer: existing ownership/carrier laws; Map slot
+destination/transfer issuer is missing in the raw/Core -> entry -> cleanup boundary.
+Non-authority: kind/payload, ValueId/child ordinal, allocation outcome, transport,
+token signs, host Arc/clone behavior and test-only snapshots.
+Fail-fast boundary: keep current unsupported demands before artifact and runtime
+InvalidContract/no insertion; no implicit share, guessed Home or carrier forwarding.
+Smallest next slice: the Map-slot dependency of existing
+[OWN-FIELD-CONTAINER-DEST-D0](../investigations/hakorune-home-ownership-task-2026-08-04.md#map-slot-dependency-of-the-selected-compiler-cutover).
+Non-claims: new receipt, runtime implementation permission, whole Home activation,
+scalar-only replacement completion, TLS closure or public/source switch.
 
-Read-only audit boundary: actual allocator -> storage owner -> Map Handle5
-intake/reclaim; includes indexed, direct-slot, direct Array and boxed Make.
-Excludes new source families and compiler semantic authority redesign.
-`crates/nyash_kernel/src/plugin/map_literal.rs` uses host_handles::get today.
-`crates/nyash_kernel/src/exports/typed_object_store_backend.rs` owns indexed
-Vec<Option<TypedSlotObject>> storage; reclaim detaches the object independently
-of any prospective host token wrapper. Numeric fields do not retain child Homes.
-Pinned/direct-slot storage is TLS; direct Array is likewise owned by
-`crates/nyash_kernel/src/plugin/array_direct_i64_buffer.rs`. Its test-only
-ArrayBox snapshot does not preserve shared mutation or object identity.
-C boxed Make uses the same typed-object allocation and inherits that obligation.
+Source audit covers raw/Core MapLiteral child issuance -> entry operands ->
+retained root/cleanup. Child identity/evaluation order is retained, but neither
+Home demand/transfer nor Dynamic carrier forwarding into a Map slot is issued.
+Passive Home vocabulary, declaration I64UnitTrivial ABI and numeric Array cleanup
+cannot substitute. Existing SelfContainedDynamicCarrier has its own exactly-once
+lifecycle and must not be collapsed into source Home. The linked existing task
+owns the Home/carrier/borrowed-handle destination matrix and its failure/read/
+replacement/remove/parent-end commitments; runtime tags cannot select among them.
 
-The next contract must specify one identity visible through original and Map
-access, which owner delays final payload destruction while either reference
-remains, how nested children survive, and how the actual session/runtime profile
-is checked. Merely excluding direct-slot does not prove SafeMutex.
-Acceptance after that design: mutations visible through both references, Map
-read after original release, final retention release, nested-child survival and
-profile mismatch rejection. No safe exclusive deletion set is known yet, so
-current escape Stops stay; do not invent a promotion adapter to fill the gap.
+Independent runtime audit covers actual allocator -> storage -> Map intake/reclaim.
+`crates/nyash_kernel/src/plugin/map_literal.rs` resolves host handles today.
+Indexed `typed_object_store_backend.rs` owns one Vec<Option<TypedSlotObject>>;
+reclaim detaches payload, so a host wrapper alone cannot keep it valid. Direct-slot
+and direct Array storage are TLS; snapshot helpers are test-only and lose identity.
+Boxed Make uses the same typed allocation. Numeric fields do not retain child Homes.
+Map value decode/visible reads clone unknown boxes; replacement/remove/clear can
+drop old values under the Map lock. Adding typed-wrapper retain or fini in Drop
+would therefore invent share/cleanup timing rather than consume a source contract.
+
+After destination meaning is sealed, reuse the indexed storage owner for the
+authorized Move/Shared/carrier operations, preserving a single actual payload.
+Do not choose Arc-for-all, a second storage table or a public Handle5 expansion.
+Actual profile agreement, child lifetime, shared mutation where authorized,
+finalizer thread/lock discipline and TLS/direct storage remain included cutover
+obligations. No safe exclusive deletion set exists before the source decision.
+Existing codec/kernel tests prove their bounded ABI behavior only, not this
+destination/ownership contract or full runtime dependency completion.
 
 ### Demanded-formal ingress and use closure
 

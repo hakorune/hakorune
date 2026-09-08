@@ -264,6 +264,50 @@ uninitialized/`null` locals separately.
 
 Field move-out remains parked unless this row names a separate exact witness.
 
+#### Map-slot dependency of the selected compiler cutover
+
+Decision (2026-09-09): open only the Map-slot destination/transfer design
+dependency of this existing row. Do not activate the whole Home migration or
+add a parallel Map ownership receipt/task. Source laws remain in
+`docs/reference/language/ownership.md`, `lifecycle.md` and
+`dynamic-invocation.md`; physical follow-up stays in the
+[Map construction owner](../design/collection-literal-construction-ssot.md#runtime-escape-ownership--next-design-boundary).
+
+Source audit boundary: raw/Core MapLiteral child issuance -> entry operands ->
+retained root/cleanup. This includes child identity, evaluation order, destination
+classification and Normal/Fault transfer; excludes a repository-wide Home census.
+Existing child ValueIds/ordinals, passive Home vocabulary, declaration-only
+I64UnitTrivial Home ABI and numeric Array cleanup do not issue Map slot ownership.
+Neither raw nor Core entry emission forwards the existing Dynamic carrier
+lifecycle into a Map slot. Runtime retain/clone cannot fill either missing issuer.
+
+The bounded design must name one source destination/transfer issuer and keep
+these cases distinct:
+- Trivial source value: classify from its source authority, never runtime bits.
+- Available Home: a permitted owning destination consumes that Home; transfer
+  removes the old cleanup responsibility rather than adding a second owner.
+- Explicit admitted Shared acquisition: only its source issuer adds an owner.
+- SelfContainedDynamicCarrier: a Map destination must forward the existing
+  carrier obligation exactly once; this is not automatically source Home Flow.
+- Ordinary borrowed handle: prove its supporting lifetime or a separately
+  authorized acquisition; insertion/visible read cannot silently mean share.
+- Unknown capability or destination: no default Trivial/Shared or guessed keep.
+
+Also seal key/child/write failure versus transfer commit, duplicate-key
+replacement, visible read, remove/clear and parent destruction. Specify who owns
+the old value after replacement and when cleanup runs outside the Map lock;
+do not place user fini into arbitrary clone_box/Drop or an unspecified thread.
+Select source meaning before choosing indexed/TLS representation.
+
+Acceptance must distinguish Home move, explicit Shared and carrier forwarding,
+not require simultaneous independent ownership for every stored object. Cover
+no double end, failed insertion leaving the candidate obligation valid, duplicate
+replacement, borrowed read limits, Map end, nested child lifetime and profile
+mismatch. SafeMutex storage coordination follows only once this matrix, actual
+issuer/consumer and an exclusive deletion set are closed. Current escape Stops,
+TLS/direct obligations and full populated/nested Map cutover remain open.
+
+
 ### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0`
 
 Decision: accepted by
