@@ -55,6 +55,11 @@ representation: an Integer and a String comparison cannot share an inferred
 consumer merely because both return Bool. Operation actions require their
 original producer; operand admission and both C consumers remain to be connected.
 CopyOwned demand traversal preserves the selected ownership capability Stop.
+`map_value_domains.rs` unions all exact caller/PHI/Select representations to a
+fixed point before selecting physical operations. Unknown leaves survive unions;
+seedless cycles become unresolved only after convergence. String remains distinct
+from other handles. This internal operation selection does not admit leaf
+producers or close compatibility/external ingress.
 This is the MIR/Core transport substrate; source and executable consumer cutover
 remain in progress. The [instruction reference](../../docs/reference/mir/INSTRUCTION_SET.md#map-literal-construction-substrate)
 records the boundary.

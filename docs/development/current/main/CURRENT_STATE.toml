@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = ""
-current_blocker_token = "Accepted three-step compiler series: MIR/Core + v2 frame contract, both C consumers, then source/host switch and v1/six-edge retirement. Step1 substrate, original-demand propagation and finite physical operation schema verified; exact producer/frame backing next. Literal issuers unchanged until consumers ready. Body is sole graph; exact Map representation and needed original lanes remain distinct. Missing mapping or changed non-Map inputs stops before artifact; no scalar-only shortcut or legacy retry."
+current_design_stop = "NamedAllocationPhysicalAdmissionMissing"
+current_blocker_token = "NamedAllocationPhysicalAdmissionMissing: Step1 domain closure and operation selection verified; Named producer binding cannot use TypedObjectPlan presence because existing C builtin/alias precedence may select another consumer. Resolve the sole physical allocation selection and both walker correspondence before leaf/frame implementation. No Rust copy of Named-spelling dispatch, blanket Named rejection, scalar-only cutover or legacy retry. Source/host switches remain closed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Map v2 frame and exact projection design accepted after C feasibility review.
-Three-step compiler series selected; MIR/Core, wire and borrowed index substrate verified.
-Step1 continues with exact producer admission and frame backing; original demand and operation schema are verified.
+Map domain closure and operation selection verified; source/host cutover remains closed.
+Next is the existing Named allocation physical-selection decision, not another value schema.
+Keep C allocation precedence and result ABI tied to one owner before binding the final frame.
 """
-next_design_card = "none"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

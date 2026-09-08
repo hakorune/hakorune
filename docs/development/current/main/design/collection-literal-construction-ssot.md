@@ -626,6 +626,35 @@ is MirType::Unknown in `prepare_static_method_signature`; Integer return proof
 constrains only its required return arguments, not this Map operand. C's uniform
 i64 signature supplies width, not a value-kind authority.
 
+Decision: the frame's borrowed index computes a finite physical representation
+closure before choosing Operation rows. Integer/Bool/F64/Void/String/Handle are
+distinct observations of issued producers; Unresolved is not the empty set.
+Copy, all PHI inputs, both Select values and every exact incoming actual union
+their observations. First solve to a fixed point, then mark still-empty cycles
+Unresolved and propagate again. A seeded PHI/Copy or recursive formal cycle is
+not rejected merely because its first visit had no observation. Select keeps
+both value arms even when its condition is currently constant; this pass does
+not choose control flow or specialize the formal ABI.
+
+Operation selection uses the internally completed map and requires its input
+domain to support every observed combination. Compare/Not's provisional Bool
+result is not input admission: all demanded operations are checked before the
+selection map returns. String and arbitrary Handle remain separate, and an
+unknown input cannot disappear beside a known Integer. This is physical
+validation of already issued operations, not source type inference or a new
+semantic proof. The existing internal-target/all-ingress cutover obligations
+still apply; exact-call inventory alone does not close external callers.
+
+`map_value_domains.rs` implements this bounded closure/operation selection.
+An empty operation map does not prove that all leaf producers are admitted.
+Named allocation, boxed-sum site/ABI binding and ownership capability retain
+their separate obligations. In particular, a Rust TypedObjectPlan match does
+not prove which C NewBox consumer wins: generic builtin arms precede typed
+plans, StringBox may alias arg0, and the same-module consumer has a different
+accepted subset. `NamedAllocationPhysicalAdmissionMissing` remains an open
+mapping; copying a Named-spelling classifier into Rust or rejecting all Named
+inputs to claim cutover is not an accepted resolution.
+
 Decision: retain kind/payload across **Map-demanded formal positions**, using
 the existing published input/frame's physical projection and canonical call
 edges. Keep one definition/body; do not specialize by observed constants or add
