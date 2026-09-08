@@ -66,3 +66,28 @@ LLVM Safepoints
 Controller & Metrics
 - The unified GcController implements GcHooks and aggregates metrics (safepoints/read/write/alloc).
 - CountingGc is a thin wrapper around GcController for compatibility.
+
+## Native reachability observation
+
+Decision: RcDiagnostic records one last-completed observation: NotRun,
+Complete with nodes/edges, or Incomplete with a finite reason. Map storage
+unavailability and module-root snapshot unavailability propagate through the
+actual trace/controller boundary; neither is an empty graph. Failed attempts
+replace old success and still count toward attempt/timing metrics. Concurrent
+trials publish in completion order; traversal is not a graph-wide atomic snapshot.
+
+MapBox owns native child projection, retaining `clone_box` semantics. It gathers
+children before invoking traversal callbacks outside its lock. This does not
+promise the old clone/callback interleaving, change Clone to share, or authorize
+owned Map entries. The module-root snapshot retains native clone behavior.
+Native panic and host termination are not translated into language Fault.
+
+Kernel JSON metrics keep numeric `trial_nodes`/`trial_edges` only when
+`trial_status` is `complete`. `not_run`, `incomplete` and `unavailable` have
+null counts. `trial_error` is null for complete/not_run, and otherwise identifies
+`map-storage-unavailable`, `module-roots-unavailable` or `controller-unavailable`.
+Text metrics also report status/reason. Logging remains controlled by existing
+metrics flags; an incomplete observation never emits a successful trial summary.
+
+This is native builtin reachability diagnostic evidence, not cycle reclamation,
+owned-value projection, JSON conversion or source/LLVM cutover evidence.

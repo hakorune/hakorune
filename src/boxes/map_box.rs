@@ -105,6 +105,9 @@
 
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox};
 use crate::boxes::map_key_domain::MapKeyDomain;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct MapTraceUnavailable;
 use crate::boxes::ArrayBox;
 use std::any::Any;
 use std::collections::HashMap;
@@ -360,6 +363,18 @@ impl MapBox {
         }
 
         Box::new(StringBox::new(&format!("{{{}}}", json_parts.join(","))))
+    }
+
+    /// Native diagnostic projection; keeps the existing child clone semantics.
+    /// Storage failure is not an empty child list. Owned intake remains gated.
+    pub(crate) fn native_trace_children(
+        &self,
+    ) -> Result<Vec<Arc<dyn NyashBox>>, MapTraceUnavailable> {
+        let entries = self.data.read().map_err(|_| MapTraceUnavailable)?;
+        Ok(entries
+            .values()
+            .map(|value| Arc::from(value.clone_box()))
+            .collect())
     }
 
     /// 内部データへのアクセス（JSONBox用）

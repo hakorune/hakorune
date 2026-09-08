@@ -669,7 +669,7 @@ missing/empty operations, capacity and one-time Drop. Pointer/corridor/diff
 checks pass; touched Rust max611. Runtime reference and native boxes README
 are synchronized. No C/OBJ/EXE or owned-intake evidence is claimed.
 
-**Accepted next implementation: native GC observation to metrics**
+**Implemented native GC observation to metrics**
 
 Change: replace GC raw Map access/skip and module-root empty-on-error with
 owner-projected native children and typed failure through actual RcDiagnostic
@@ -688,6 +688,33 @@ native boxes/kernel README and runtime reference. Sources stay below800.
 Stop: any need for owned publication, source family expansion, native clone
 semantic change or a new GC collection policy. JSON get_data and public
 read/clone/owned-end migration remain unfinished after this dependency.
+
+Validation: jobs4/locked/quick root lib filters `gc_controller`7,
+`modules_registry`1, `map_box`8 pass (`--test-threads=1` for env-sensitive
+controller tests); kernel `-p nyash_kernel --lib entry::gc_metrics_tests`1 passes.
+Logs `/tmp/hakorune-map-gc-{gc_controller,modules_registry,map_box}.log` and
+`/tmp/hakorune-map-gc-kernel-entry.log`. Pointer/corridor/diff checks pass;
+touched Rust max626. Native boxes/kernel README and runtime GC reference updated.
+The actual RcDiagnostic root snapshot sees a registered native Map, then a real
+poisoned Map replaces its previous successful result. A nested native Map test
+separates clone from share. Module-root evidence is local-registry real poison
+plus controller result replacement, not a production-global poisoning test.
+Kernel tests execute the formatter used by real JSON/text output, not an EXE.
+
+Next design boundary: close JSON's remaining raw Map observation with an actual
+fallible conversion/set terminal, and retain the public read/clone blockers
+before adding Owned to the entry enum. Root/public method inventory is finite:
+get/get_opt/scalar/values need checked projection; Clone/clone_box are infallible;
+share_box shares the table and is not a Clone replacement; key/count/identity
+observers do not need value publication; toJSON/set conversion need failure
+propagation; native mutation/terminal Drop cannot consume a fallible Owned end.
+Root surface catalog, native host, provider MapService and kernel bare-i64
+adapters remain actual consumers. Do not map unavailable to None/0/error String,
+copy owned payload, or treat a checked helper without its real caller as cutover.
+The existing one-table Native/Owned residence and entry-owned install order target
+is retained. JSON public set has no additional repo production caller proven by
+this audit; external Rust clients are excluded, so no caller-zero deletion claim.
+No new census of already-closed GC/opaque-outcome boundaries is needed.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

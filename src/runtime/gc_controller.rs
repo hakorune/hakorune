@@ -1,7 +1,10 @@
 //! Unified GC controller (skeleton)
 //! Implements GcHooks and centralizes mode selection and metrics.
+//! One last-completed observation retains native trace failure, never stale counts.
+//! Contract: docs/reference/runtime/gc.md, Native reachability observation.
 
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Mutex;
 
 use super::gc::{BarrierKind, GcHooks};
 use super::gc_mode::GcMode;
@@ -12,10 +15,18 @@ use std::collections::{HashSet, VecDeque};
 
 type DynBox = std::sync::Arc<dyn crate::box_trait::NyashBox>;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct ReachabilitySummary {
     nodes: u64,
     edges: u64,
+}
+
+/// Last completed diagnostic attempt, not a graph-wide concurrent snapshot.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TrialReachability {
+    NotRun,
+    Complete { nodes: u64, edges: u64 },
+    Incomplete(gc_trace::TraceUnavailable),
 }
 
 pub struct GcController {
@@ -28,9 +39,8 @@ pub struct GcController {
     sp_since_last: AtomicU64,
     bytes_since_last: AtomicU64,
     trigger_policy: GcTriggerPolicy,
-    // Diagnostics: last trial reachability counters
-    trial_nodes_last: AtomicU64,
-    trial_edges_last: AtomicU64,
+    // Whole last-completed result; never hold this mutex during tracing.
+    trial_last: Mutex<TrialReachability>,
     // Diagnostics: collection counters and last duration/flags
     collect_count_total: AtomicU64,
     collect_by_sp: AtomicU64,
@@ -51,8 +61,7 @@ impl GcController {
             sp_since_last: AtomicU64::new(0),
             bytes_since_last: AtomicU64::new(0),
             trigger_policy: GcTriggerPolicy::from_env(),
-            trial_nodes_last: AtomicU64::new(0),
-            trial_edges_last: AtomicU64::new(0),
+            trial_last: Mutex::new(TrialReachability::NotRun),
             collect_count_total: AtomicU64::new(0),
             collect_by_sp: AtomicU64::new(0),
             collect_by_alloc: AtomicU64::new(0),
@@ -141,14 +150,18 @@ impl GcController {
         self.bytes_since_last.store(0, Ordering::Relaxed);
     }
 
-    fn snapshot_roots(&self) -> Vec<DynBox> {
+    fn snapshot_roots(&self) -> Result<Vec<DynBox>, gc_trace::TraceUnavailable> {
         let mut roots = crate::runtime::host_handles::snapshot();
-        let mut mod_roots = crate::runtime::modules_registry::snapshot_boxes();
+        let mut mod_roots = crate::runtime::modules_registry::snapshot_boxes()
+            .map_err(|_| gc_trace::TraceUnavailable::ModuleRoots)?;
         roots.append(&mut mod_roots);
-        roots
+        Ok(roots)
     }
 
-    fn trace_reachability(&self, roots: Vec<DynBox>) -> ReachabilitySummary {
+    fn trace_reachability(
+        &self,
+        roots: Vec<DynBox>,
+    ) -> Result<ReachabilitySummary, gc_trace::TraceUnavailable> {
         let mut visited: HashSet<u64> = HashSet::new();
         let mut q: VecDeque<DynBox> = VecDeque::new();
         for root in roots {
@@ -167,16 +180,25 @@ impl GcController {
                     nodes += 1;
                     q.push_back(child);
                 }
-            });
+            })?;
         }
-        ReachabilitySummary { nodes, edges }
+        Ok(ReachabilitySummary { nodes, edges })
     }
 
-    fn record_reachability_summary(&self, summary: ReachabilitySummary) {
-        self.trial_nodes_last
-            .store(summary.nodes, Ordering::Relaxed);
-        self.trial_edges_last
-            .store(summary.edges, Ordering::Relaxed);
+    fn record_reachability(&self, result: Result<ReachabilitySummary, gc_trace::TraceUnavailable>) {
+        let observation = match result {
+            Ok(summary) => TrialReachability::Complete {
+                nodes: summary.nodes,
+                edges: summary.edges,
+            },
+            Err(reason) => TrialReachability::Incomplete(reason),
+        };
+        // Only a Copy enum is assigned under this lock; no user callback can
+        // leave a partly updated result. Poison recovery preserves that value.
+        *self
+            .trial_last
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) = observation;
     }
 
     fn maybe_log_trial_summary(&self, summary: ReachabilitySummary) {
@@ -201,10 +223,20 @@ impl GcController {
         match self.mode {
             GcMode::RcDiagnostic => {
                 let started = std::time::Instant::now();
-                let roots = self.snapshot_roots();
-                let summary = self.trace_reachability(roots);
-                self.record_reachability_summary(summary);
-                self.maybe_log_trial_summary(summary);
+                let result = self
+                    .snapshot_roots()
+                    .and_then(|roots| self.trace_reachability(roots));
+                self.record_reachability(result);
+                match result {
+                    Ok(summary) => self.maybe_log_trial_summary(summary),
+                    Err(reason) if crate::config::env::gc_metrics() => {
+                        get_global_ring0().log.info(&format!(
+                            "[GC] trial: incomplete reason={}",
+                            reason.reason()
+                        ));
+                    }
+                    Err(_) => {}
+                }
                 self.finalize_collection_metrics(started);
                 // Reason flags derive from current env thresholds vs last windows reaching triggers
                 // Note: we set flags in safepoint() where triggers were decided.
@@ -215,11 +247,11 @@ impl GcController {
 }
 
 impl GcController {
-    pub fn trial_reachability_last(&self) -> (u64, u64) {
-        (
-            self.trial_nodes_last.load(Ordering::Relaxed),
-            self.trial_edges_last.load(Ordering::Relaxed),
-        )
+    pub fn trial_reachability_last(&self) -> TrialReachability {
+        *self
+            .trial_last
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
     }
     pub fn collection_totals(&self) -> (u64, u64, u64) {
         (
@@ -235,6 +267,10 @@ impl GcController {
         self.trial_reason_last.load(Ordering::Relaxed)
     }
 }
+
+#[cfg(test)]
+#[path = "gc_controller_observation_tests.rs"]
+mod observation_tests;
 
 #[cfg(test)]
 mod tests {

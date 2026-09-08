@@ -253,8 +253,7 @@ fn run_entry(entry: fn() -> i64, project: fn(i64) -> i64) -> i32 {
         let (
             alloc_count,
             alloc_bytes,
-            trial_nodes,
-            trial_edges,
+            trial,
             collect_total,
             collect_sp,
             collect_alloc,
@@ -264,13 +263,13 @@ fn run_entry(entry: fn() -> i64, project: fn(i64) -> i64) -> i32 {
             any_gc.downcast_ref::<nyash_rust::runtime::gc_controller::GcController>()
         {
             let (ac, ab) = ctrl.alloc_totals();
-            let (tn, te) = ctrl.trial_reachability_last();
+            let trial = Some(ctrl.trial_reachability_last());
             let (ct, csp, calloc) = ctrl.collection_totals();
             let lms = ctrl.trial_duration_last_ms();
             let lrf = ctrl.trial_reason_last_bits();
-            (ac, ab, tn, te, ct, csp, calloc, lms, lrf)
+            (ac, ab, trial, ct, csp, calloc, lms, lrf)
         } else {
-            (0, 0, 0, 0, 0, 0, 0, 0, 0)
+            (0, 0, None, 0, 0, 0, 0, 0)
         };
         // Settings snapshot (env)
         let sp_interval =
@@ -278,16 +277,26 @@ fn run_entry(entry: fn() -> i64, project: fn(i64) -> i64) -> i32 {
         let alloc_thresh =
             nyash_rust::config::env::stage1::nyrt_gc_collect_alloc_bytes().unwrap_or(0);
         let auto_sp = nyash_rust::config::env::stage1::nyrt_llvm_auto_safepoint_enabled();
+        let trial = trial_metrics_json(trial);
         if want_json {
-            // Minimal JSON assembly to avoid extra deps in nyrt
-            println!(
-                "{{\"kind\":\"gc_metrics\",\"safepoints\":{},\"barrier_reads\":{},\"barrier_writes\":{},\"jit_handles\":{},\"alloc_count\":{},\"alloc_bytes\":{},\"trial_nodes\":{},\"trial_edges\":{},\"collections\":{},\"collect_by_sp\":{},\"collect_by_alloc\":{},\"last_collect_ms\":{},\"last_reason_bits\":{},\"sp_interval\":{},\"alloc_threshold\":{},\"auto_safepoint\":{},\"gc_mode\":\"{}\"}}",
-                sp, br, bw, handles, alloc_count, alloc_bytes, trial_nodes, trial_edges, collect_total, collect_sp, collect_alloc, last_ms, last_reason, sp_interval, alloc_thresh, if auto_sp {1} else {0}, gc_mode_s
-            );
+            println!("{}", serde_json::json!({
+                "kind": "gc_metrics", "safepoints": sp,
+                "barrier_reads": br, "barrier_writes": bw, "jit_handles": handles,
+                "alloc_count": alloc_count, "alloc_bytes": alloc_bytes,
+                "trial_nodes": trial["nodes"], "trial_edges": trial["edges"],
+                "trial_status": trial["status"], "trial_error": trial["error"],
+                "collections": collect_total, "collect_by_sp": collect_sp,
+                "collect_by_alloc": collect_alloc, "last_collect_ms": last_ms,
+                "last_reason_bits": last_reason, "sp_interval": sp_interval,
+                "alloc_threshold": alloc_thresh, "auto_safepoint": if auto_sp { 1 } else { 0 },
+                "gc_mode": gc_mode_s,
+            }));
         } else if want_text {
             eprintln!(
-                "[GC] metrics: safepoints={} read_barriers={} write_barriers={} jit_handles={} allocs={} bytes={} collections={} (sp={} alloc={}) last_ms={} mode={}",
-                sp, br, bw, handles, alloc_count, alloc_bytes, collect_total, collect_sp, collect_alloc, last_ms, gc_mode_s
+                "[GC] metrics: safepoints={} read_barriers={} write_barriers={} jit_handles={} allocs={} bytes={} collections={} (sp={} alloc={}) last_ms={} mode={} trial_status={} trial_error={}",
+                sp, br, bw, handles, alloc_count, alloc_bytes, collect_total, collect_sp,
+                collect_alloc, last_ms, gc_mode_s, trial["status"].as_str().unwrap(),
+                trial["error"].as_str().unwrap_or("none")
             );
         }
         // Threshold warning
@@ -305,3 +314,23 @@ fn run_entry(entry: fn() -> i64, project: fn(i64) -> i64) -> i32 {
     crate::observe::flush_trace();
     exit_code as i32
 }
+
+// This is the actual output projection used by both metrics sinks.
+fn trial_metrics_json(
+    observation: Option<nyash_rust::runtime::gc_controller::TrialReachability>,
+) -> serde_json::Value {
+    use nyash_rust::runtime::gc_controller::TrialReachability;
+    let (status, nodes, edges, error) = match observation {
+        Some(TrialReachability::Complete { nodes, edges }) =>
+            ("complete", Some(nodes), Some(edges), None),
+        Some(TrialReachability::Incomplete(reason)) =>
+            ("incomplete", None, None, Some(reason.reason())),
+        Some(TrialReachability::NotRun) => ("not_run", None, None, None),
+        None => ("unavailable", None, None, Some("controller-unavailable")),
+    };
+    serde_json::json!({ "status": status, "nodes": nodes, "edges": edges, "error": error })
+}
+
+#[cfg(test)]
+#[path = "entry_gc_metrics_tests.rs"]
+mod gc_metrics_tests;

@@ -1,5 +1,13 @@
 # Nyash Kernel
 
+## GC diagnostic output
+
+Entry metrics consume the controller's finite last-completed reachability
+observation. NonComplete results have null trial counts and explicit
+status/reason, including unavailable controller; they never reuse old successful
+counts. Text output also carries status/reason. See the
+[GC reference](../../docs/reference/runtime/gc.md#native-reachability-observation).
+
 ## Primitive Array append
 
 `array_compat::append_integer_raw` and the i64/Bool/F64 arms of

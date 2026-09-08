@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-current_execution_cohort = "map_literal_compiler_cutover_i0"
+work_mode = "design_stop"
+current_execution_row = "OWN-FIELD-CONTAINER-DEST-D0"
+current_execution_cohort = "own_field_container_dest_d0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Accepted native GC observer transition: owner-projected Map children and typed Map/module-root errors propagate through RcDiagnostic to kernel metrics. One last-completed finite observation replaces count atomics; nonComplete counts=null, no stale summary. Preserve native clone and trigger policy. Remove actual GC get_data/skip and module-root empty-on-error. JSON/public read/clone/owned entry/end, checked ABI and source execution remain open."
+current_blocker_token = "Native Map GC observer cutover reaches kernel metrics: root GC7/module1/Map8 and kernel entry1 pass; typed unavailable replaces silent Map/root skip and stale count summaries. Next close remaining JSON get_data access with a real fallible conversion/set terminal; reconcile public read/clone and one-table Native/Owned residence before intake. Existing clone semantics retained. Owned entry/end, checked ABI/lifecycle and source OBJ/EXE activation remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -49,8 +49,8 @@ in Completion and unconnected Map demand stops at common package install.
 Native Map insert/remove/clear now drop detached values outside locks; owned-slot
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
-next_design_card = "none"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_design_card = "OWN-FIELD-CONTAINER-DEST-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -39,15 +39,25 @@ pub fn snapshot_names_and_strings() -> Vec<(String, String)> {
     out
 }
 
-/// Snapshot all Box values as GC roots (Arc<dyn NyashBox>), best‑effort.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ModuleRootsUnavailable;
+
+/// Snapshot all Box values as GC roots, rejecting unavailable storage.
 /// Uses clone_box() to obtain owned copies and wraps them into Arc for traversal.
-pub fn snapshot_boxes() -> Vec<std::sync::Arc<dyn NyashBox>> {
-    let mut out = Vec::new();
-    if let Ok(mut map) = REGISTRY.lock() {
-        for (_k, v) in map.iter_mut() {
-            let arc: std::sync::Arc<dyn NyashBox> = std::sync::Arc::from(v.clone_box());
-            out.push(arc);
-        }
-    }
-    out
+pub fn snapshot_boxes() -> Result<Vec<std::sync::Arc<dyn NyashBox>>, ModuleRootsUnavailable> {
+    snapshot_box_values(&REGISTRY)
 }
+
+fn snapshot_box_values(
+    registry: &Mutex<HashMap<String, Box<dyn NyashBox>>>,
+) -> Result<Vec<std::sync::Arc<dyn NyashBox>>, ModuleRootsUnavailable> {
+    let map = registry.lock().map_err(|_| ModuleRootsUnavailable)?;
+    Ok(map
+        .values()
+        .map(|value| std::sync::Arc::from(value.clone_box()))
+        .collect())
+}
+
+#[cfg(test)]
+#[path = "modules_registry_snapshot_tests.rs"]
+mod snapshot_tests;

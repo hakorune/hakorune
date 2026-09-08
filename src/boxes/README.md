@@ -23,6 +23,12 @@ and [owned-slot target](../../docs/reference/language/ownership.md#intrinsic-map
 
 ## JSON observation
 
+GC uses `MapBox::native_trace_children` rather than accessing the raw table.
+The owner retains native child clone semantics and rejects storage failure;
+callbacks run after child projection and unlocking. The controller and kernel
+metrics preserve incomplete observation. JSON remains the separate raw-table
+observer. Neither path authorizes owned-entry intake.
+
 `JSONBox::set` converts native input into an owned JSON tree by borrowing values.
 Array/Map traversal does not clone or share stored children; fallback string
 conversion observes the stored object itself. The consumed top-level input is

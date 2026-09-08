@@ -1468,14 +1468,13 @@ A bare negative indexed handle with a forgotten borrow lifetime is neither.
 No existing checked Map read ABI/FaultFrame consumer closes this chain yet;
 a standalone try_get accessor does not authorize owned-slot intake.
 
-Root `get_data` has two direct observers: JSON conversion now borrows children;
-GC trace still clones them into Arc and skips poisoned locks. An unavailable owned
-value cannot become an empty/missing observation. Retire raw table access with
-checked observation, not just a closure wrapper that still clones or skips.
-Native JSON conversion borrows supported stored Box children to produce owned
-JSON; its Array/Map clone edges are removed, preserving top-level input disposal. This is an actual observation repair, not owned-native coverage.
-GC, raw table exposure, public Map read/clone and selected checked publication
-remain included blockers. Do not claim all observers migrated from JSON tests.
+GC now obtains native child projection from the Map owner and propagates
+storage/module-root errors through the controller to kernel metrics. JSON
+conversion remains the production get_data observer, borrowing children for an
+owned JSON result. Raw table exposure is not retired while that caller remains.
+Native GC keeps child clone semantics; neither that native projection nor JSON
+borrowing establishes owned-native coverage. Public read/clone, JSON failure
+publication and selected checked publication remain included intake blockers.
 
 ### Native Map diagnostic observer transition
 
