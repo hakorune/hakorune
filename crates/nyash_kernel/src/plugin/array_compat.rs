@@ -8,15 +8,7 @@ pub(super) fn append_integer_raw(handle: i64, value_i64: i64) -> i64 {
     if !valid_handle(handle) {
         return 0;
     }
-    with_array_box(handle, |arr| {
-        let idx = arr.len() as i64;
-        if arr.slot_store_i64_raw(idx, value_i64) {
-            idx + 1
-        } else {
-            0
-        }
-    })
-    .unwrap_or(0)
+    with_array_box(handle, |arr| arr.slot_append_i64_raw(value_i64)).unwrap_or(0)
 }
 
 #[inline(always)]

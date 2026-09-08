@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0"
-current_execution_cohort = "mir_array_atomic_primitive_append_i0"
-current_design_stop = "none; user accepted stable/fatal-OOM separation and worker-audited atomic primitive append mapping is closed; this turn is design/taskization only"
-current_blocker_token = "Next implementation: move existing i64/Bool/F64 mutation bodies to one state-locked operation shared by indexed store and append; append derives end index and returns committed length under that same lock. Replace four real kernel len/store/idx+1 sequences. Preserve Result errors, raw length/zero behavior and one Array state. Checked ABI, Script final input, C execution/OBJ/EXE remain ordered successors; fatal allocator OOM is separate per accepted policy."
+current_execution_row = "MIR-ARRAY-CHECKED-NATIVE-ABI-I0"
+current_execution_cohort = "mir_array_checked_native_abi_i0"
+current_design_stop = "none; atomic append is verified and worker-audited checked Array ABI visibility, tags, diagnostic IDs/details and Fault mapping are closed"
+current_blocker_token = "Implement existing claim/atomic append public runtime access and versioned checked Array exports under fault.rs. Seven tags, diagnostics200/201/202 and exact subtypes are fixed in the collection SSOT. Reuse FaultFrame and direct Array state; verify actual ABI, immutable errors and release. Script final input and C/OBJ/EXE remain successors; no fatal allocator recovery requirement."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-User accepted stable Rust with fatal allocator OOM separate from returned
-Fault. Worker audit selects atomic primitive append as the next real caller
-cutover; checked runtime ABI, Script final-input and C execution follow.
-Design/taskization is recorded; no code/build/toolchain change in this turn.
+Atomic primitive append is verified: four kernel sequences retired, Array52,
+hostStop7 and kernel12 pass. Kernel test-only diagnostic cfg gap repaired at
+7fffbd8a23. Worker-audited checked Array ABI is the next bounded runtime slice.
 """
-next_design_card = "MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0"
-next_execution_card = "MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0"
+next_design_card = "MIR-ARRAY-CHECKED-NATIVE-ABI-I0"
+next_execution_card = "MIR-ARRAY-CHECKED-NATIVE-ABI-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

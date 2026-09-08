@@ -144,12 +144,17 @@ Smoke checks:
 ### Primitive Array state-write outcomes
 
 The native Array state owner retains structured outcomes for i64, Bool and F64
-stores before the existing raw compatibility projection. Invalid index,
+stores and appends before the existing raw compatibility projection. Invalid index,
 unsupported storage and element-contract rejection are distinct internal errors;
 contract failures retain the existing runtime-type-mismatch,
 negative-to-unsigned or out-of-range reason. Returned validation failures do not
 change storage or length. Validation and mutation use the same Array state lock,
-so shared aliases observe the installed contract.
+so shared aliases observe the installed contract. Primitive append also determines
+the end position and returns the committed length under this lock; concurrent
+appends through shared aliases neither overwrite one another nor return duplicate
+positions. Indexed store and append reuse the same primitive mutation owner.
+This guarantee covers the raw integer append caller and the i64/Bool/F64 arms
+of generic kernel append; boxed/string and alternate storage routes are separate.
 
 Existing `slot_store_*_raw` booleans and kernel sentinel results keep their
 compatibility meaning. This internal Result boundary introduces no C ABI or

@@ -1,5 +1,5 @@
 use super::super::super::runtime_contract::ArrayPrimitiveWriteError;
-use super::super::super::{ArrayBox, ArrayStorage, ArrayTextCell};
+use super::super::super::{ArrayBox, ArrayStatePayload, ArrayStorage, ArrayTextCell};
 use crate::box_trait::{BoolBox, IntegerBox, NyashBox};
 use crate::boxes::FloatBox;
 
@@ -125,6 +125,32 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut state = self.items.state.write();
+        Self::store_i64_locked(&mut state, idx, value)
+    }
+
+    /// Append and return the committed length while holding the same state lock.
+    pub(crate) fn slot_append_i64_result(
+        &self,
+        value: i64,
+    ) -> Result<usize, ArrayPrimitiveWriteError> {
+        let mut state = self.items.state.write();
+        let idx = state.storage.len();
+        Self::store_i64_locked(&mut state, idx, value)?;
+        Ok(state.storage.len())
+    }
+
+    /// Kernel compatibility projection: committed length, or zero on rejection.
+    #[inline(always)]
+    pub fn slot_append_i64_raw(&self, value: i64) -> i64 {
+        self.slot_append_i64_result(value)
+            .map_or(0, |len| len as i64)
+    }
+
+    fn store_i64_locked(
+        state: &mut ArrayStatePayload,
+        idx: usize,
+        value: i64,
+    ) -> Result<(), ArrayPrimitiveWriteError> {
         if idx > state.storage.len() {
             return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }
@@ -189,6 +215,32 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut state = self.items.state.write();
+        Self::store_bool_locked(&mut state, idx, value)
+    }
+
+    /// Append and return the committed length while holding the same state lock.
+    pub(crate) fn slot_append_bool_result(
+        &self,
+        value: bool,
+    ) -> Result<usize, ArrayPrimitiveWriteError> {
+        let mut state = self.items.state.write();
+        let idx = state.storage.len();
+        Self::store_bool_locked(&mut state, idx, value)?;
+        Ok(state.storage.len())
+    }
+
+    /// Kernel compatibility projection: committed length, or zero on rejection.
+    #[inline(always)]
+    pub fn slot_append_bool_raw(&self, value: bool) -> i64 {
+        self.slot_append_bool_result(value)
+            .map_or(0, |len| len as i64)
+    }
+
+    fn store_bool_locked(
+        state: &mut ArrayStatePayload,
+        idx: usize,
+        value: bool,
+    ) -> Result<(), ArrayPrimitiveWriteError> {
         if idx > state.storage.len() {
             return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }
@@ -252,6 +304,32 @@ impl ArrayBox {
         }
         let idx = idx as usize;
         let mut state = self.items.state.write();
+        Self::store_f64_locked(&mut state, idx, value)
+    }
+
+    /// Append and return the committed length while holding the same state lock.
+    pub(crate) fn slot_append_f64_result(
+        &self,
+        value: f64,
+    ) -> Result<usize, ArrayPrimitiveWriteError> {
+        let mut state = self.items.state.write();
+        let idx = state.storage.len();
+        Self::store_f64_locked(&mut state, idx, value)?;
+        Ok(state.storage.len())
+    }
+
+    /// Kernel compatibility projection: committed length, or zero on rejection.
+    #[inline(always)]
+    pub fn slot_append_f64_raw(&self, value: f64) -> i64 {
+        self.slot_append_f64_result(value)
+            .map_or(0, |len| len as i64)
+    }
+
+    fn store_f64_locked(
+        state: &mut ArrayStatePayload,
+        idx: usize,
+        value: f64,
+    ) -> Result<(), ArrayPrimitiveWriteError> {
         if idx > state.storage.len() {
             return Err(ArrayPrimitiveWriteError::InvalidIndex);
         }

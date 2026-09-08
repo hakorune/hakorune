@@ -547,11 +547,8 @@ are closed. Git and the construction owner retain contracts and acceptance.
 
 #### MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0
 
-Landed at 278b519d1f: intrinsic Array identity retained; literal birth and
-second Script constructor publication/demand transport retired. Real Array
-empty/populated/nested/shadow EXE+OBJ30, declaration Unit, Pair and focused guards
-pass. The [construction owner](../design/collection-literal-construction-ssot.md)
-and Git retain full acceptance. Typed execution, Loop and R7 remain open.
+Closed at `278b519d1f`: intrinsic Array identity and single publication; Array/
+Pair EXE+OBJ30 green. [Owner SSOT](../design/collection-literal-construction-ssot.md) and Git retain the receipt.
 
 Known baseline debt reproduced at parent `95f400280d` with identical quick profile:
 `program_root_work_plan` parent6pass6fail, current6pass4fail; two retired second-demand
@@ -592,44 +589,47 @@ Their source and assertions are unchanged; no whole-lib green claim.
 
 #### MIR-SCRIPT-ARRAY-FINAL-ARTIFACT-HANDOFF-I0
 
-Landed at `05945284bb`: ScriptArray product moves through pipeline/view;
-selected drop/constructor mixing retired. Git and the
-[artifact owner](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice)
-retain evidence. The subsequent physical D0 is implemented by the row below.
+Closed at `05945284bb`: retained ScriptArray handoff; selected ownership/mixing
+edges retired. The [artifact owner](../design/collection-literal-construction-ssot.md#root-neutral-finalized-artifact-retention-slice) and Git retain evidence.
 
 #### MIR-SCRIPT-ARRAY-LIFECYCLE-PHYSICAL-LOWERING-I0
 
-Closed at `7be46e37e4`: source Recipe -> Invoke/frame/Fault and Return cleanup ->
-both finishing consumers -> pre-artifact typed Stop. Selected standalone
-emission/binding/direct Return retired. Focused41 plus Array/Pair EXE/OBJ and
-guards pass; source max644. Runtime/C execution remains open.
+Closed at `7be46e37e4`: Recipe -> Invoke/frame/cleanup/Return -> typed Stop;
+old standalone emission/binding/direct Return retired. Focused41 and Array/Pair
+EXE/OBJ pass; runtime/C successor remains open. Owner SSOT/Git retain evidence.
 
 #### MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0
 
-Closed: i64/Bool/F64 stores retain Result in one state owner; raw wrappers
-preserve bool behavior. Old bool mutation bodies/internal reason loss retired.
-Array51 + hostStop7, guards and quick build pass (peak8.88GiB); source max334.
-Owner README and runtime reference updated; checked ABI/C remains stopped.
+Closed at `4cc9f2b697`: Result store/raw bool projection; Array51/hostStop7 green.
 
 #### MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0
 
-Accepted by user: stable Rust, fatal allocator OOM separate from returned Fault.
-Mandatory fallible-Arc migration withdrawn; returned-Fault cleanup is unchanged.
-The [runtime-to-C order](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order)
-owns atomic append -> checked ABI -> one final input -> C/OBJ/EXE -> retirement.
+User accepted stable Rust/fatal-OOM separation; mandatory fallible Arc withdrawn.
+Returned-Fault cleanup remains required; [ordered tasks](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) own the successor series.
 
 #### MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0
 
-Decision: consolidate primitive store/append in one state transaction; repair concurrent append loss without new source acceptance.
-Source authority + canonical issuer: existing Array contract/Recipe; ArrayStateCell owns runtime validation and mutation.
-Non-authority: unlocked len observation, raw result decoding, duplicate mutation body or alternate handle-keyed state.
-Fail-fast boundary: Result rejection leaves state unchanged; typed C Stop remains until complete consumer cutover.
-Smallest next slice: shared private i64/Bool/F64 mutation bodies, atomic append and four real kernel primitive caller switches.
-Non-claims: behavior-neutrality under races, allocator recovery, checked ABI/C activation or arbitrary legacy alias parity.
-Delete-set: array_compat append_integer_raw and three array_slot_append_any primitive len/store/idx+1 sequences.
-Acceptance: Array state/contract regressions, all-three concurrent no-loss append,
-actual kernel return-length/zero callers, typed host Stop and existing guards.
-Update Array/kernel README and runtime reference; source<760, hard stop800.
+Closed: one locked primitive mutation owner serves store and atomic append;
+four kernel len/store/idx+1 sequences retired. Sequential outcomes preserved;
+concurrent append loss repaired. Array52, hostStop7, kernel caller2/Array10 pass;
+quick builds peak8.82/6.76GiB, guards green, changed source max412.
+Parent7832ba386a reproduces seven kernel lib-test cfg errors (checkpoint6,
+flush_trace1) with the same locked quick command/lockfile. `7fffbd8a23`
+repairs those test-only gaps; no baseline waiver remains for this build.
+Owner README/reference updated; checked ABI and typed C remain open.
+
+#### MIR-ARRAY-CHECKED-NATIVE-ABI-I0
+
+Decision: reuse existing claim/atomic append through a narrow public Array API and versioned checked exports.
+Source authority + canonical issuer: existing source contract/Recipe; ArrayStateCell validates runtime state, FaultFrame records returned failure.
+Non-authority: enum discriminant casts, generic handle/integer decoding, env slot stores, duplicate state or guessed diagnostic fallback.
+Fail-fast boundary: malformed ABI -> InvalidContract before mutation/record; contract rejection -> unchanged Array and recorded Fault.
+Smallest next slice: fault.rs child consumer, seven explicit tags and IDs200/201/202 with finite details/subtypes from the owning SSOT.
+Non-claims: allocator recovery, Script final input/C activation, OBJ/EXE proof or retirement of live generic callers.
+Acceptance: actual exports/payloads/tags/errors, immutable rejection, out-slot,
+first/suppressed/overflow Fault, native release once, C declarations and hostStop.
+This is a runtime dependency; selected caller retirement belongs to later C
+cutover. Update kernel/Array README and runtime reference; source<760/hard800.
 
 ## Source and ownership budget
 

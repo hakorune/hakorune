@@ -758,8 +758,35 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    decoder or source-name dispatch. Claim wire mapping is explicit:
    `1=i8, 2=i16, 3=i32, 4=i64, 5=u8, 6=u16, 7=u32`.
    Keep the map/reason constants in the ABI owner with independent Rust/C checks;
-   never cast source enum discriminants. Assign unused named diagnostic IDs and
-   a finite subtype/detail mapping before implementation; no fallback reason.
+   never cast source enum discriminants. The diagnostic mapping below is fixed
+   before implementation; no fallback reason.
+   **Worker-audited physical mapping:** publicly re-export the two existing
+   Array runtime error enums from `boxes::array`; expose existing claim and
+   primitive Result append methods without a second validation/store wrapper.
+   Keep the implementation module private to Array. The checked ABI lives as a
+   child of `exports/fault.rs`, reusing frame admission/recording and
+   `with_array_box_direct`. Nonnull pointers retain the existing caller promise
+   of valid aligned live storage, exclusive synchronous borrow and nonoverlapping
+   out-slot; header checks do not prove arbitrary pointer validity.
+
+   | Named diagnostic / ID | details[0] | details[1] |
+   | --- | --- | --- |
+   | ARRAY_CLAIM_CONFLICT / 200 | requested wire tag | 0 |
+   | ARRAY_EXISTING_ELEMENT_MISMATCH / 201 | checked i64 failing index | subtype |
+   | ARRAY_APPEND_ELEMENT_MISMATCH / 202 | subtype | 0 |
+
+   These IDs are unused in the inspected Fault diagnostic namespace (existing
+   object IDs100/101 are unchanged). Subtypes are exactly
+   `1=runtime-type-mismatch, 2=negative-to-unsigned, 3=out-of-range`.
+   Unknown internal reason or unrepresentable index is InvalidContract before
+   recording, never an invented generic Fault. Conflict details use the already
+   supplied requested tag; do not reread state to invent an existing-spec detail.
+   InvalidIndex/UnsupportedStorage from append likewise mean InvalidContract.
+   Success with an existing primary Fault remains Normal without clearing it;
+   returned failures use existing suppressed/overflow handling.
+   No old checked Array C caller exists to delete in this runtime dependency:
+   its actual consumers are these exports, and retirement remains task4/5.
+
    New validates entry pointers/frame before direct ArrayBox/Arc construction,
    registers with the existing host owner and writes out only after Normal
    publication. Under policy A this path need not invent a recoverable allocation
@@ -818,10 +845,12 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    Do not extend the claim to arbitrary later alias writes through alternate
    backends. Only real entry-to-terminal evidence closes this series.
 
-Only task1 is the next implementation slice; tasks2–4 must resolve their named
-physical mapping details at their entry without reopening source semantics.
-The user requested design/taskization in this turn, so no code, fixture, build,
-toolchain change or C activation is performed by this design update.
+Task1 is verified: the four kernel sequences now call atomic primitive append;
+Array52, hostStop7 and kernel caller2/existing Array10 pass. The exact receipt
+is in the rolling workstream card. Task2 is the next implementation slice;
+its worker-audited physical mapping above is closed. Tasks3–4 retain their named
+mapping work without reopening source semantics. Runtime availability does not
+activate C; full selected entry-to-terminal acceptance remains required.
 
 ### CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0
 

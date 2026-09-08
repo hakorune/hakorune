@@ -1,5 +1,20 @@
 # Nyash Kernel
 
+## Primitive Array append
+
+`array_compat::append_integer_raw` and the i64/Bool/F64 arms of
+`array_slot_append::array_slot_append_any` delegate to ArrayBox atomic append.
+The Array state owner determines the end position, validates and commits under
+one write lock, returning committed length or zero on rejection. Kernel callers
+do not pre-read length or compute a second result. Shared concurrent appends
+preserve each committed element and return distinct positions.
+
+This does not change generic value decoding or boxed/string/alternate storage
+routes, and does not activate the planned checked Array ABI or typed Script C
+consumer. The [runtime contract](../../docs/reference/runtime/runtime-data-dispatch.md#primitive-array-state-write-outcomes)
+owns the outcome and failure policy.
+
+
 **Minimal native/product runtime kernel for Nyash language - Plugin-First Architecture**
 
 Generated: 2025-09-24
