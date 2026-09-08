@@ -181,8 +181,17 @@ Array construction producers now preserve intrinsic identity and omit redundant
 literal birth markers. Selected Script additionally supports single-binding
 Array<T> literal initialization for the existing seven exact numeric element
 contracts, preserving the resolver-issued annotation and initializer relation.
-Its typed C execution remains unsupported. Nonliteral typed initialization and
+Selected C consumes the retained Script lifecycle through one explicit runtime
+session for OBJ/EXE (`--emit-exe-nyrt`, `libnyash_lifecycle_kernel.a`). Only exact
+input-covered contracts are admitted; generic module-only typed input remains
+unsupported. Nonliteral typed initialization and
 other annotation admission, Map cutover and Loop source admission remain open.
+Selected MIR/LLVM file preparation preserves `local` and its annotation in
+main and merged prelude text before source lineage is issued; compatibility
+normalization must not erase a declaration on this path. Selected normal source
+includes explicit using dependencies, not implicitly injected VM OperatorBox
+observers. Explicit static declarations keep their existing Script-prefix
+acceptance boundary.
 This decision does not change literal syntax.
 
 Array literals `[...]` and Map literals `%{...}` select the language's builtin

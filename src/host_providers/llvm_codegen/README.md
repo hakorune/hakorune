@@ -62,14 +62,27 @@ returns `capi not available (plugins feature disabled)` before loading or
 writing an artifact. This is compiler transport availability, not a claim that
 the generated program requires dynamically loaded runtime plugins.
 
+- Selected MIR/LLVM runners use `prepare_normal_source_with_imports`: main,
+  preludes and final parser input retain Local declarations and annotations.
+  Both discovery and merge resolve only explicit using dependencies; implicit
+  VM OperatorBox observation cannot add selected source declarations.
+  Compatibility/minimal preparation has a separate explicit caller entry.
 - `published_mir_object` consumes one borrowed final view for typed rows and
   CanonicalV1 body projection. Selected OBJ/EXE capability checks validate
   retained contracts without cloning, refreshing or repairing the module.
   Nonleading Phi, missing/stale contracts and mixed legacy/Extern ingress
   reject before C emission; explicit compatibility retains its separate owner.
-  Generic lifecycle OBJ admission remains fenced. The private session OBJ
+  Module-only typed lifecycle admission remains fenced. Real OBJ and EXE
+  callers pass the explicit `--emit-exe-nyrt` directory into one runtime session
+  selecting `libnyash_lifecycle_kernel.a`. CLI EXE uses `--backend mir --emit-exe`;
+  OBJ uses `--backend llvm` and `NYASH_LLVM_OBJ_OUT`. Both require the selected
+  runtime directory for lifecycle inputs. Retained Script admission uses its
+  completed input; the callable view route remains separate. The session OBJ
   entry issues one completed physical input, checks its retained exact numeric
-  obligations against the same borrowed module, then serializes that input for
+  obligations against the same borrowed module. Native Array additionally matches
+  every typed carrier to the retained root's exact claim id/value/spec, rejecting
+  extra contracts and nonselected functions. All other capability gates remain.
+  It then serializes that input for
   the V4 consumer. EXE delegates to this checked entry. Other published,
   ownership, storage and route checks remain mandatory; names do not establish
   input identity. V2 frames, companion generic lifecycle JSON, their Rust

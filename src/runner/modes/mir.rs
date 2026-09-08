@@ -14,7 +14,7 @@ impl NyashRunner {
         };
 
         let prepared =
-            match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+            match crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
                 self, filename, &code,
             ) {
                 Ok(prepared) => prepared,

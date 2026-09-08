@@ -45,17 +45,43 @@ pub(crate) fn prepare_source_with_imports(
     filename: &str,
     code: &str,
 ) -> Result<PreparedSourceWithImports, String> {
+    prepare_source_with_imports_impl(runner, filename, code, false)
+}
+
+/// Selected normal callers preserve declarations for the source-backed parser.
+/// Compatibility normalization is never used to repair this source.
+pub(crate) fn prepare_normal_source_with_imports(
+    runner: &NyashRunner,
+    filename: &str,
+    code: &str,
+) -> Result<PreparedSourceWithImports, String> {
+    prepare_source_with_imports_impl(runner, filename, code, true)
+}
+
+fn prepare_source_with_imports_impl(
+    runner: &NyashRunner,
+    filename: &str,
+    code: &str,
+    selected_normal: bool,
+) -> Result<PreparedSourceWithImports, String> {
     let mut imports = HashMap::new();
     let mut prepared = if crate::config::env::enable_using() {
-        match crate::runner::modes::common_util::resolve::resolve_prelude_paths_profiled(
-            runner, code, filename,
-        ) {
+        use crate::runner::modes::common_util::resolve;
+        let discover = if selected_normal {
+            resolve::resolve_normal_prelude_paths_profiled
+        } else {
+            resolve::resolve_prelude_paths_profiled
+        };
+        match discover(runner, code, filename) {
             Ok((_, prelude_paths)) => {
                 if !prelude_paths.is_empty() {
-                    let (merged, merged_imports) =
-                        crate::runner::modes::common_util::resolve::merge_prelude_text_with_imports(
-                            runner, code, filename,
-                        )?;
+                    use crate::runner::modes::common_util::resolve;
+                    let merge = if selected_normal {
+                        resolve::merge_normal_prelude_text_with_imports
+                    } else {
+                        resolve::merge_prelude_text_with_imports
+                    };
+                    let (merged, merged_imports) = merge(runner, code, filename)?;
                     imports = merged_imports;
                     merged
                 } else {
@@ -74,7 +100,11 @@ pub(crate) fn prepare_source_with_imports(
         code.to_string()
     };
 
-    prepared = normalize_source_for_parser(&prepared, filename);
+    prepared = if selected_normal {
+        crate::runner::modes::common_util::resolve::preexpand_at_local(&prepared)
+    } else {
+        normalize_source_for_parser(&prepared, filename)
+    };
 
     Ok(PreparedSourceWithImports {
         code: prepared,
@@ -99,3 +129,7 @@ mod tests {
         assert!(err.contains("using/prelude resolution"));
     }
 }
+
+#[cfg(test)]
+#[path = "source_hint_normal_tests.rs"]
+mod normal_tests;

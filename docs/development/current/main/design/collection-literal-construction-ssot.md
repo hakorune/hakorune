@@ -932,6 +932,18 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    | 4c. runner OBJ, shared host and capability owners | Thread the explicit selected runtime archive/session from `src/runner/product/llvm/mod.rs` into the same bound invocation used by EXE. Retire only selected Script route/host Stops and exact native input's rejection in `src/mir/backend_capability.rs`; its remaining typed-Array/write guards are part of this switch. Generic module-only and unselected-family Stops remain. |
    | 4d. existing source/host execution tests | Run the stated EXE and independently linked OBJ cohort; additionally observe emitted runtime calls in an execution harness to prove later children are skipped, prior effects retained, and releases/report/dispose occur exactly as supplied. Exit70 alone is insufficient. Preserve Pair and untyped execution. |
 
+   CLI preparation correction (accepted physical-owner audit): selected MIR/LLVM
+   source preparation preserves `local` and annotations through both prelude/main
+   merge and final normalization. The existing parser remains the sole Local
+   issuer. Explicit normal callers select this path; compatibility/minimal
+   callers retain their existing preparation. Delete the three selected stripping
+   edges; never select by Array spelling or change the fixture extension.
+   Full-chain follow-up Decision: normal discovery and merge rediscovery use
+   explicit using DFS only. VM observer OperatorBox auto-injection stays in the
+   compatibility resolver; file existence and NYASH_OPERATOR_BOX_ALL cannot add
+   selected source. Explicit operator imports/nested dependencies/aliases remain
+   real source; Transferred static declarations keep their Array prefix Stop.
+
    Native admission checks physical allocation identity through Copies and CFG
    edges: successful new introduces a live residence, claim precedes append,
    release consumes it, and terminals have none left. Merge states must agree;
@@ -942,10 +954,12 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    target equality, one parse, temporary-file lifetime and atomic publication;
    malformed input must leave an existing output untouched. These are acceptance
    requirements, not evidence that the Rust host switch has landed.
-   Task4a/b now implement this parser/admission/emission branch; the rolling
-   card records direct-driver source/object/runtime evidence. Task4c must still
-   switch the real session-bound OBJ/EXE callers; task4d repeats its acceptance
-   there, including final-result range and returned-allocation-Fault observation.
+   Task4a/b implement this parser/admission/emission branch. Task4c connects
+   retained Script OBJ/EXE through the explicit runtime session and replaces
+   only the global typed-Array Stop with exact all-carrier claim coverage.
+   Numeric/write and other capability checks retain their order and contracts.
+   The rolling card records host and CLI evidence. Task4d closes the remaining
+   final-result range and returned-allocation-Fault cleanup observations.
    Injected returned allocation Fault tests only the supplied branch; it does
    not claim recovery from native fatal allocator failure.
 

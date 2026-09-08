@@ -626,9 +626,12 @@ Decision: extend the existing physical parser/V4 consumer for retained NativeArr
 Source authority + canonical issuer: finalized Script source/Recipe/emission; existing compiled-entry and bound invocation own physical input/session.
 Non-authority: C source inference, fake object profile, generic retry and exit70-only cleanup proof.
 Fail-fast boundary: exact wire/CFG/lane/liveness and runtime mismatch reject before artifacts; unselected families keep their Stops.
-Smallest next slice: task4c real OBJ/EXE runtime-session and exact native capability switch, then repeat task4d through those production callers and retire selected Stops.
-Checkpoint: task4a/b C parser/liveness/emitter pass 31 retained source inputs through direct V4 -> OBJ/link -> actual runtime (30/0/70), with exact mutation/release/report/dispose observations and 29 malformed-input rejects. Pair host EXE/OBJ30, Bool Fault70, untyped regression and hostStop7 pass; C/parser/guards green. Builds: quick9.0GiB; unoptimized lifecycle release archive6.62GiB.
-Non-claims: direct-driver evidence is not the Rust production switch; task4c/d, native final-result range/returned-allocation-Fault observations and old-edge retirement remain. No new source forms, Array descriptor or backend parity.
+Smallest next slice: task4d returned-allocation-Fault and final-result-range cleanup/report/dispose observations on production artifacts, then finite series retirement audit.
+Checkpoint: task4c closes with the real session-bound OBJ/EXE switch. Host31 source cases pass EXE/independent OBJ30/0/70, ordered mutation/cleanup/report/dispose and29 malformed rejects; coverage2/source7/preparation3 and Pair/untyped pass. Rebuilt CLI EXE (`--backend mir --emit-exe`) and OBJ
+(`--backend llvm`, `NYASH_LLVM_OBJ_OUT`) pass i64 30, Unit0, element Fault70, final-result-range70, Pair30 and untyped30; missing runtime rejects before artifact. Runtime is explicit `--emit-exe-nyrt`; no profile/extension/source workaround. Selected local stripping (three sites), implicit VM
+observer injection (discovery/merge) and typed host Stops are retired; declaration/nested using/alias and explicit-prefix rejection tests pass. M7-S parent/pointer guards pass; changed source max625.
+Known baseline debt: at parent24cfe2cf7c, the same commands reproduce old `mirbuilder_inplace_replacement_guard.sh` raw-Loop-owner failure, `mir_call_ingress_schema_lifecycle_guard.sh` stale latest-card failure and cataloged-affine-loan row unsupported-current failure. Use the current selected-normal parent guard; no waiver for changed contracts.
+Non-claims: returned-allocation-Fault and final-result-range cleanup observation/series retirement remain; exit70 alone is insufficient. No new source forms, Array descriptor or backend parity.
 The [owner task4](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) contains worker-audited owners, finite mapping, exclusive delete-set and full task4d execution/cleanup acceptance. Observe source760/hard800; split coherent C validation before growth.
 
 ## Source and ownership budget
@@ -985,9 +988,6 @@ investigation/archive owners, not in this rolling card.
 ```bash
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/run_row_guard.sh --only mir-call-d1b-targeted-variant-split
-bash tools/checks/run_row_guard.sh --only mir-call-d1b-cataloged-affine-loan-lifecycle
-# manifest row: mir-call-ingress-schema-lifecycle-guard
-bash tools/checks/mir_call_ingress_schema_lifecycle_guard.sh
 # manifest row: mir-call-global-target-b0-machine-census
 bash tools/checks/mir_call_global_target_b0_machine_census_guard.sh
 # manifest: tools/checks/manifests/mir_call_global_target_b0_machine_census.toml

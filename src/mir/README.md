@@ -37,7 +37,10 @@ allocator and metadata refresh read both ordinary and Invoke writes/claims; Fres
 state traces an exact IntrinsicArrayNew Normal result. Script lowering issues one
 Recipe from complete source cutpoints before emission, moves Local/Return plans
 through existing inputs and retains them with physical observations. Source
-control emission and finishing cutover are still pending; typed C remains stopped.
+control emission is retained through the common physical input. Selected native
+C admission matches every typed carrier against that input's exact claims;
+module-only and outside-family routes keep their capability Stops. Numeric,
+ownership and write capability checks remain independent.
 
 - `analysis/`: analysis helpers and shared inspection utilities.
 - `builder/`: AST -> MIR construction. FlowPlanner / JoinIR glue are

@@ -42,7 +42,7 @@ impl NyashRunner {
 
         // Step 3: use the same source preparation contract as MIR emit mode.
         let prepared =
-            match crate::runner::modes::common_util::source_hint::prepare_source_with_imports(
+            match crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
                 self, filename, &code,
             ) {
                 Ok(prepared) => prepared,
@@ -112,7 +112,7 @@ impl NyashRunner {
                         return Err("selected Dynamic object emission is not a live Boundary artifact route; request --emit-exe".to_owned());
                     }
                     if crate::host_providers::llvm_codegen::try_compile_published_view_object(
-                        view, out_path,
+                        view, out_path, self.config.emit_exe_nyrt.as_deref(),
                     )? {
                         Ok(())
                     } else {

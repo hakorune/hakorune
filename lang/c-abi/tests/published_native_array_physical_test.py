@@ -60,7 +60,9 @@ wraps = ["nyash.array.checked_new_v1", "nyash.array.checked_claim_v1",
 exe = work / "native"
 for index, data in enumerate(inputs):
     compile_input(data, True)
-    checked(["cc", obj, ROOT / "lang/c-abi/tests/published_native_array_runtime_probe.c",
+    host_obj = work / f"{index}.host.o"
+    assert host_obj.is_file(), "production host object required"
+    checked(["cc", host_obj, ROOT / "lang/c-abi/tests/published_native_array_runtime_probe.c",
              archive, *["-Wl,--wrap=" + name for name in wraps],
              "-lpthread", "-ldl", "-lm", "-o", exe])
     result = subprocess.run([str(exe)], text=True, capture_output=True,
@@ -160,4 +162,4 @@ for bits in [-1, 2**64, "0", 1.25]:
     data = copy.deepcopy(inputs[29])
     next(row for row in instructions(data) if row["op"] == "const_f64_bits")["bits"] = bits
     compile_input(data, False)
-print("native C: 31 source inputs linked/executed with runtime observations, malformed wire/cleanup rejection, Float bit inputs")
+print("native C: 31 production host objects linked/executed with runtime observations, malformed wire/cleanup rejection, Float bit inputs")

@@ -8,11 +8,30 @@ use super::using::collect_using_and_strip;
 /// - Resolves nested preludes via DFS for the default text-merge route and the
 ///   optional AST compatibility route, then injects OperatorBox preludes when
 ///   available (stringify/compare/add).
-/// - All runners call this helper; do not fork resolution logic elsewhere.
+/// - Compatibility/VM callers retain observer injection; normal callers use the
+///   explicit-dependency wrapper below, sharing the same resolution logic.
 pub fn resolve_prelude_paths_profiled(
     runner: &NyashRunner,
     code: &str,
     filename: &str,
+) -> Result<(String, Vec<String>), String> {
+    resolve_prelude_paths(runner, code, filename, true)
+}
+
+/// Selected normal source consists only of user input and explicit dependencies.
+pub fn resolve_normal_prelude_paths_profiled(
+    runner: &NyashRunner,
+    code: &str,
+    filename: &str,
+) -> Result<(String, Vec<String>), String> {
+    resolve_prelude_paths(runner, code, filename, false)
+}
+
+fn resolve_prelude_paths(
+    runner: &NyashRunner,
+    code: &str,
+    filename: &str,
+    include_operator_observers: bool,
 ) -> Result<(String, Vec<String>), String> {
     // First pass: strip using from the main source and collect direct prelude paths
     let (cleaned, direct, _imports) = collect_using_and_strip(runner, code, filename)?;
@@ -28,6 +47,9 @@ pub fn resolve_prelude_paths_profiled(
 
     for p in direct.iter() {
         dfs(runner, p, &mut out, &mut seen)?;
+    }
+    if !include_operator_observers {
+        return Ok((cleaned, out));
     }
     // Operator Boxes prelude injection（観測“常時ON”のため）
     // stringify/compare/add は常に注入（存在時）。その他（bitwise等）は ALL 指定時のみ。

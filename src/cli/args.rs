@@ -147,7 +147,7 @@ pub fn build_command() -> Command {
                 ]),
         )
         .arg(Arg::new("emit-exe").long("emit-exe").value_name("FILE").help("Emit native executable via ny-llvmc and exit"))
-        .arg(Arg::new("emit-exe-nyrt").long("emit-exe-nyrt").value_name("DIR").help("Directory containing libnyash_kernel.a (used with --emit-exe). Hint: build via `cargo build -p nyash_kernel --release` (default output: target/release/libnyash_kernel.a)"))
+        .arg(Arg::new("emit-exe-nyrt").long("emit-exe-nyrt").value_name("DIR").help("Runtime directory for --emit-exe or selected lifecycle OBJ. Lifecycle uses libnyash_lifecycle_kernel.a; other EXE routes use libnyash_kernel.a."))
         .arg(Arg::new("emit-exe-libs").long("emit-exe-libs").value_name("FLAGS").help("Extra linker flags for ny-llvmc when emitting executable"))
         .arg(Arg::new("allocator-hook-dry-run").long("allocator-hook-dry-run").help("[Diagnostic] Validate explicit allocator hook plan/proof TOML without activating hooks").action(clap::ArgAction::SetTrue))
         .arg(Arg::new("allocator-hook-plan").long("allocator-hook-plan").value_name("FILE").help("[Diagnostic] Allocator hook plan TOML for --allocator-hook-dry-run"))

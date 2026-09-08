@@ -1,6 +1,6 @@
 use crate::runner::NyashRunner;
 
-use super::prelude::resolve_prelude_paths_profiled;
+use super::prelude::{resolve_normal_prelude_paths_profiled, resolve_prelude_paths_profiled};
 use super::using::collect_using_and_strip;
 
 struct TextMergePlan {
@@ -45,7 +45,7 @@ pub fn merge_prelude_text(
     source: &str,
     filename: &str,
 ) -> Result<String, String> {
-    Ok(plan_text_merge(runner, source, filename)?.merged)
+    Ok(plan_text_merge(runner, source, filename, false)?.merged)
 }
 
 /// Text-based prelude merge plus explicit imported static-box bindings.
@@ -59,7 +59,17 @@ pub fn merge_prelude_text_with_imports(
     source: &str,
     filename: &str,
 ) -> Result<(String, std::collections::HashMap<String, String>), String> {
-    let plan = plan_text_merge(runner, source, filename)?;
+    let plan = plan_text_merge(runner, source, filename, false)?;
+    Ok((plan.merged, plan.imports))
+}
+
+/// Selected normal source keeps Local declarations in every merged file.
+pub fn merge_normal_prelude_text_with_imports(
+    runner: &NyashRunner,
+    source: &str,
+    filename: &str,
+) -> Result<(String, std::collections::HashMap<String, String>), String> {
+    let plan = plan_text_merge(runner, source, filename, true)?;
     Ok((plan.merged, plan.imports))
 }
 
@@ -67,14 +77,19 @@ fn plan_text_merge(
     runner: &NyashRunner,
     source: &str,
     filename: &str,
+    selected_normal: bool,
 ) -> Result<TextMergePlan, String> {
     let trace = crate::config::env::resolve_trace();
 
     // First pass: collect and resolve prelude paths
     let (cleaned_main, _prelude_paths_direct, main_imports) =
         collect_using_and_strip(runner, source, filename)?;
-    let (_cleaned_ignore, prelude_paths_profiled) =
-        resolve_prelude_paths_profiled(runner, source, filename)?;
+    let discover = if selected_normal {
+        resolve_normal_prelude_paths_profiled
+    } else {
+        resolve_prelude_paths_profiled
+    };
+    let (_cleaned_ignore, prelude_paths_profiled) = discover(runner, source, filename)?;
     debug_assert_eq!(cleaned_main, _cleaned_ignore);
     // Expand nested preludes for text-merge too (DFS) so that any `using`
     // inside prelude files (e.g., runner_min -> lower_* boxes) are also
@@ -123,11 +138,10 @@ fn plan_text_merge(
         let (cleaned_raw, _nested, _nested_imports) =
             collect_using_and_strip(runner, &content, path)?;
         let mut cleaned = normalize_text_for_inline(&cleaned_raw);
-        // Hako-friendly normalize for preludes: always strip leading `local ` at line head
-        // when the prelude is a .hako (or looks like Hako code). This prevents top-level
-        // `local` from tripping the Nyash parser after text merge.
-        if path.ends_with(".hako")
-            || crate::runner::modes::common_util::hako::looks_like_hako_code(&cleaned)
+        // Legacy normalization only; selected normal source retains Local syntax.
+        if !selected_normal
+            && (path.ends_with(".hako")
+                || crate::runner::modes::common_util::hako::looks_like_hako_code(&cleaned))
         {
             cleaned = crate::runner::modes::common_util::hako::strip_local_decl(&cleaned);
         }
@@ -171,10 +185,10 @@ fn plan_text_merge(
 
     // Add main source (already cleaned of using lines) and normalize
     let mut cleaned_main_norm = normalize_text_for_inline(&cleaned_main);
-    // Hako-friendly normalize for main: always strip leading `local ` at line head
-    // when the merged main looks like Hako code (or file is .hako as a heuristic).
-    if filename.ends_with(".hako")
-        || crate::runner::modes::common_util::hako::looks_like_hako_code(&cleaned_main_norm)
+    // Legacy normalization only; caller selection controls source preservation.
+    if !selected_normal
+        && (filename.ends_with(".hako")
+            || crate::runner::modes::common_util::hako::looks_like_hako_code(&cleaned_main_norm))
     {
         cleaned_main_norm =
             crate::runner::modes::common_util::hako::strip_local_decl(&cleaned_main_norm);

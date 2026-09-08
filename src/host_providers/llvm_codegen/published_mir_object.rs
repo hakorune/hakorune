@@ -27,13 +27,28 @@ pub(crate) fn try_compile_published_static_method_object(
 ) -> Result<bool, String> {
     let view = PublishedMirBackendView::try_new(module)
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
-    try_compile_published_view_object(&view, obj_out)
+    try_compile_published_view_object(&view, obj_out, None)
 }
 
 pub(crate) fn try_compile_published_view_object(
     view: &PublishedMirBackendView<'_>,
     obj_out: &str,
+    nyrt_dir: Option<&str>,
 ) -> Result<bool, String> {
+    if !select_published_route(view)? {
+        return Ok(false);
+    }
+    let session = select_lifecycle_session(view, nyrt_dir)?;
+    compile_published_view_object(view, obj_out, session.as_ref())?;
+    Ok(true)
+}
+
+// Retained Script is admitted by its completed physical input below. The view's
+// callable route does not grant or deny this separately retained root cohort.
+fn select_published_route(view: &PublishedMirBackendView<'_>) -> Result<bool, String> {
+    if view.retained_script_array().is_some() {
+        return Ok(true);
+    }
     if view.has_lifecycle_instructions() {
         crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
             view.module(),
@@ -41,20 +56,26 @@ pub(crate) fn try_compile_published_view_object(
         )?;
     }
     match view.route() {
-        PublishedStaticMethodRouteV1::CanonicalTyped => {
-            crate::mir::backend_capability::enforce_published_backend_supported(
-                view,
-                "ny-llvmc-obj",
-            )?;
-            compile_published_view_object(view, obj_out, None)?;
-            Ok(true)
-        }
+        PublishedStaticMethodRouteV1::CanonicalTyped => Ok(true),
         PublishedStaticMethodRouteV1::ExplicitCompatibility => Ok(false),
         PublishedStaticMethodRouteV1::UnsupportedBeforeObject => Err(
-            "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer"
-                .to_owned(),
+            "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer".to_owned(),
         ),
     }
+}
+
+fn select_lifecycle_session(
+    view: &PublishedMirBackendView<'_>,
+    nyrt_dir: Option<&str>,
+) -> Result<Option<LifecycleRuntimeSessionV1>, String> {
+    if !view.has_lifecycle_instructions() {
+        return Ok(None);
+    }
+    let directory = nyrt_dir.ok_or(
+        "published lifecycle ingress requires an explicit runtime directory (--emit-exe-nyrt)",
+    )?;
+    LifecycleRuntimeSessionV1::select(PathBuf::from(directory).join("libnyash_lifecycle_kernel.a"))
+        .map(Some)
 }
 
 fn compile_published_view_object<'session>(
@@ -63,10 +84,12 @@ fn compile_published_view_object<'session>(
     lifecycle_session: Option<&'session LifecycleRuntimeSessionV1>,
 ) -> Result<Option<&'session Path>, String> {
     if view.has_lifecycle_instructions() {
-        crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
-            view.module(),
-            "ny-llvmc-obj",
-        )?;
+        if view.retained_script_array().is_none() {
+            crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
+                view.module(),
+                "ny-llvmc-obj",
+            )?;
+        }
         if lifecycle_session.is_none() {
             return Err(
                 "published lifecycle object ingress requires an explicit runtime session"
@@ -123,37 +146,14 @@ pub(crate) fn emit_published_view_exe(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<bool, String> {
-    if view.has_lifecycle_instructions() {
-        crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
-            view.module(),
-            "ny-llvmc-exe",
-        )?;
-    }
-    match view.route() {
-        PublishedStaticMethodRouteV1::CanonicalTyped => {
-            crate::mir::backend_capability::enforce_published_backend_supported(
-                view,
-                "ny-llvmc-exe",
-            )?;
-        }
-        PublishedStaticMethodRouteV1::ExplicitCompatibility => return Ok(false),
-        PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
-            return Err(
-                "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer"
-                    .to_owned(),
-            )
-        }
+    if !select_published_route(view)? {
+        return Ok(false);
     }
     let object_path = format!("{}.published-static-method.o", exe_out);
     let result = (|| {
-        let runtime_dir = nyrt_dir.ok_or("published EXE requires an explicit runtime directory")?;
-        let lifecycle_session = if !view.has_lifecycle_instructions() {
-            None
-        } else {
-            Some(LifecycleRuntimeSessionV1::select(
-                PathBuf::from(runtime_dir).join("libnyash_lifecycle_kernel.a"),
-            )?)
-        };
+        let runtime_dir = nyrt_dir
+            .ok_or("published EXE requires an explicit runtime directory (--emit-exe-nyrt)")?;
+        let lifecycle_session = select_lifecycle_session(view, Some(runtime_dir))?;
         let legacy_archive = PathBuf::from(runtime_dir).join("libnyash_kernel.a");
         let archive =
             compile_published_view_object(view, &object_path, lifecycle_session.as_ref())?

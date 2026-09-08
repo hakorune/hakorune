@@ -18,7 +18,9 @@ pub(crate) fn enforce_published_lifecycle_backend_supported(
     validate_published_ingress(view)?;
     crate::mir::ownership_backend_capability::enforce(view.module(), "ny-llvmc-obj")?;
     crate::mir::exact_numeric_backend_capability::enforce_lifecycle_input(view.module(), input)?;
-    enforce_remaining_backend_supported(view.module(), "ny-llvmc-obj")
+    enforce_before_typed_array_backend_supported(view.module(), "ny-llvmc-obj")?;
+    crate::mir::typed_array_backend_capability::enforce_lifecycle_input(view, input)?;
+    enforce_after_typed_array_backend_supported(view.module(), "ny-llvmc-obj")
 }
 
 fn validate_published_ingress(
@@ -62,10 +64,17 @@ fn enforce_refreshed_mir_backend_supported(
     crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module, backend,
     )?;
-    enforce_remaining_backend_supported(module, backend)
+    enforce_before_typed_array_backend_supported(module, backend)?;
+    crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
+        module, backend,
+    )?;
+    enforce_after_typed_array_backend_supported(module, backend)
 }
 
-fn enforce_remaining_backend_supported(module: &MirModule, backend: &str) -> Result<(), String> {
+fn enforce_before_typed_array_backend_supported(
+    module: &MirModule,
+    backend: &str,
+) -> Result<(), String> {
     crate::mir::array_record_backend_capability::enforce_array_record_backend_supported(
         module, backend,
     )?;
@@ -86,9 +95,13 @@ fn enforce_remaining_backend_supported(module: &MirModule, backend: &str) -> Res
     crate::mir::static_table_backend_capability::enforce_static_table_backend_supported(
         module, backend,
     )?;
-    crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
-        module, backend,
-    )?;
+    Ok(())
+}
+
+fn enforce_after_typed_array_backend_supported(
+    module: &MirModule,
+    backend: &str,
+) -> Result<(), String> {
     crate::mir::weak_field_backend_capability::enforce_weak_field_backend_supported(
         module, backend,
     )?;

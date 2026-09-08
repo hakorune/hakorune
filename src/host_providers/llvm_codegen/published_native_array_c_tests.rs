@@ -1,4 +1,5 @@
-//! Retained source -> C physical consumer evidence, not the host production switch.
+//! Retained source -> production host OBJ/EXE plus physical rejection evidence.
+use super::{emit_published_view_exe, try_compile_published_view_object};
 use crate::mir::{MirCompiler, NormalCompileRequestV1};
 use std::path::PathBuf;
 use std::process::Command;
@@ -54,6 +55,37 @@ fn retained_script_inputs_reach_native_c_and_reject_physical_mutations() {
                     ),
                     |view, verification| -> Result<(), String> {
                         assert!(verification.is_ok());
+                        let runtime = "target/lifecycle-kernel/release";
+                        let object = directory.join(format!("{index}.host.o"));
+                        assert!(try_compile_published_view_object(
+                            view,
+                            object.to_str().unwrap(),
+                            Some(runtime),
+                        )?);
+                        let direct = directory.join(format!("{index}.host-exe"));
+                        assert!(emit_published_view_exe(
+                            view,
+                            direct.to_str().unwrap(),
+                            Some(runtime),
+                            None,
+                        )?);
+                        let expected = if index >= 28 {
+                            70
+                        } else if index % 2 == 0 {
+                            30
+                        } else {
+                            0
+                        };
+                        let result = Command::new(direct)
+                            .env("NYASH_NYRT_SILENT_RESULT", "1")
+                            .env("HAKO_NYRT_PLUGIN_HOST", "off")
+                            .output()
+                            .unwrap();
+                        assert_eq!(
+                            result.status.code(),
+                            Some(expected),
+                            "case {index}: {result:?}"
+                        );
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         std::fs::write(
                             directory.join(format!("{index}.json")),

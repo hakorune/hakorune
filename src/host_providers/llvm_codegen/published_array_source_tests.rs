@@ -442,7 +442,7 @@ fn typed_array_real_source_requires_explicit_root_completion() {
 }
 
 #[test]
-fn selected_typed_array_published_stop_precedes_runtime_session_and_artifacts() {
+fn selected_typed_array_published_requires_runtime_before_artifacts() {
     use crate::runner::modes::common_util::normal_callable::{
         materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
     };
@@ -480,6 +480,7 @@ fn selected_typed_array_published_stop_precedes_runtime_session_and_artifacts() 
                                 let object_error = try_compile_published_view_object(
                                     view,
                                     directory.path().join("source.o").to_str().unwrap(),
+                                    None,
                                 )
                                 .unwrap_err();
                                 let exe_error = emit_published_view_exe(
@@ -491,7 +492,7 @@ fn selected_typed_array_published_stop_precedes_runtime_session_and_artifacts() 
                                 .unwrap_err();
                                 for error in [object_error, exe_error] {
                                     assert!(
-                                        error.contains("typed_array_contract_backend_unsupported"),
+                                        error.contains("requires an explicit runtime directory"),
                                         "{error}"
                                     );
                                 }
