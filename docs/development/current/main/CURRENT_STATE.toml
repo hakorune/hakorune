@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "New ledger progress BoxShape closed: initializer/local Options and checked bool replaced by private expression/Installed/Checked transitions; 16 focused tests pass. Next actual Map source emission/progress and local completion via existing callable child port/ledger, then mixed cleanup/finishing and C consumer. Preserve Installed-before-Checked, empty Map, unused aliases and prior Map on later-New Fault. Source install Stop remains until source/OBJ/EXE and old-edge cutover."
+current_blocker_token = "Map physical binding/local placement Decision closed by read-only worker audit. Next connect actual Map emitter + LocalCommit enum progress + existing initializer relations and shared Local Copy/ReuseInitializer selection together. Preserve exact unused-alias binding chain, Installed-before-Checked and batch preflight; no new Map registry/trait or path-derived declaration. Mixed cleanup/C and source OBJ/EXE cutover remain open; install Stop stays."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

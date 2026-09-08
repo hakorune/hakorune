@@ -977,6 +977,99 @@ through existing callable-local completion, preserving unused aliases and empty
 Map observation. No child AST re-lowering or new semantic receipt. Before this
 consumer binds to snapshot APIs, complete the bounded storage task below.
 
+**Map physical binding and local placement Decision (2026-09-09)**
+
+Decision: one local_commits enum and shared Local Copy/ReuseInitializer placement; no second Map registry, manager or proof layer.
+Source authority + canonical issuer: existing ResolvedInitializerRelationV1, lexical Variable relations and Completion-owned MapHomeFlow from observe_map.
+Non-authority: placement, physical progress, type names and ValueId equality do not issue source membership, transfer, replacement or Map escape.
+Fail-fast boundary: declaration/initializer/owner and completed Map result agree before local allocation/registration; reject without Copy retry. Common install Stop remains.
+Smallest next slice: actual Map emitter, enum progress and exact Local placement together, including empty Map and unused aliases; then mixed cleanup/C cutover.
+Non-claims: read-only design evidence, not execution; source OBJ/EXE, full lifecycle consumption and old-edge retirement remain open.
+
+Boundary: selected callable Local initializer/alias -> existing Local driver ->
+shared installed-Home lookup -> original/finished root validation. Includes empty
+and direct-prior-ordinary-Home Map, unused aliases, and prior Map on later New
+Fault. Excludes Script, fresh/nested entry acquisition, Map escape/read/field/Birth
+widening, and compatibility Local behavior. No source syntax or result ABI change.
+
+Retain the existing initializer relations in CallableSemanticLoweringState from
+input.function().expression_source().initializers(), checking their declaration
+statement/ordinal/binding against existing locals once. These are existing source
+rows retained for initializer correspondence, not a new binding authority; locals
+continues to own materialized declaration bindings. Never repair either table
+from the other after a mismatch. A private exact lookup returns the retained row.
+No MapHomeFlow declaration field is needed and no Body/Initializer path slicing
+may manufacture one. beginMap compares relation.binding to flow.destination,
+relation.initializer_site to flow.site, and the current declaration/owner. The
+Map physical row may retain that declaration locator but not keys/outer snapshots.
+
+Use LocalCommit::Ordinary(NewLocalCommitV1) / Map(MapLocalProgress) in the one
+existing local_commits table. Map source stays borrowed by exact table key from
+root_completion.cleanup.root_flow; reject absent/unavailable/duplicate flows.
+Map row owns only emission state/result/recorded physical associations and local
+progress. Shared installed_home serves claim preflight, prior-New preparation
+and root exit; it returns end operation and physical availability for either
+kind. Map Installed is sufficient before Checked. Field-read admission and Birth
+handoff remain explicitly Ordinary-only. is_empty, completion and artifact
+coverage must account for all Map rows and unconsumed Completion Map demand;
+zero ordinary claims cannot erase an empty Map root's obligation.
+
+Local placement uses the callable-specific lower_callable_local_v1 caller:
+pass a fallible private placement callback to the existing shared Local driver.
+Existing callers use Copy. Evaluate initializers with the existing child port,
+then preflight ALL placements before the existing from-values owner allocates
+or registers local destinations. That owner retains name/slot registration,
+metadata and CompletedLocalBinding issuance. ReuseInitializer takes the same
+ValueId with no allocation, Copy or LocalContractWrite; it is not post-emission
+Copy deletion. No RecursiveChildLoweringPort/RawStructuredChildScope/package
+adapter forwarding is needed. Ordinary distinct Copy checks stay unchanged.
+
+Reuse has only these source-backed cases:
+- Map initializer: exact retained initializer relation -> Complete Map flow ->
+  destination -> same row's expression-completed result.
+- Unused alias: exact declaration -> initializer Variable site -> lexical binding
+  -> current Map result. Existing read_variable must have consumed the exact site.
+  Alias chains use the same source binding chain, never a value-only shortcut.
+  Alias completion updates callable bindings only, not a new Home/progress row.
+Exact numeric or typed Array Local contracts cannot take opaque reuse; incompatible
+annotation rejects before materialization. Merely matching MapBox text or a
+physical ValueId is insufficient. Pending Map/foreign site also rejects.
+
+Physical emission consumes the same source order: Map New, then each PrepareKey,
+exact prior-local read, InstallIndexed and EndOutcome. Normal result kinds come
+from operations. Key/outcome consumers are immediate in this cohort. Allocation
+Fault cleans initial outer Homes; key/install Fault ends Map then precommit outer;
+detached-old end Fault ends Map then committed outer. Shared pending-Fault chains
+preserve first Fault. C disposal is part of operation completion before either
+successor; status2/unknown traps, not status1 cleanup. Do not transport opaque
+Map/key/outcome through generic Handle, ptrtoint or public MapBox.
+
+Ordered implementation and acceptance:
+1. Same slice: retained initializer relations + actual Map emitter/progress +
+   shared Local placement. Verify empty/populated Map initializer==local, opaque
+   Copy zero, unused alias/chain with one Map Home and consumed Variable sites;
+   reject foreign/same-spelling wrong binding/site, pending result, incompatible
+   annotation and arbitrary equal ValueId. Ordinary Local Copy stays. Placement
+   failure may follow initializer effects but must not partially register locals.
+2. Shared lookup/local batch/original validation: Map Installed-before-Checked,
+   later-New cleanup, duplicate install/result drift, unavailable/unconsumed Map,
+   and empty-Map-only root. No fake ordinary object/destruction fields for Map.
+3. Recorded mixed cleanup finishing and compiled-entry coordinates: extend the
+   existing Home end vocabulary to MapEnd, preserving graph/prefix/ingress and
+   actual normal-result associations. Share terminal dispatch at this edit while
+   retaining draft/finishing stages and failure precedence. No MIR reconstruction
+   of source origins or ordinary-only filtering that drops Map obligations.
+4. C parser/admission/emission and actual source OBJ/EXE acceptance, then remove
+   common install Stop and selected Named MapBox/birth/set edges in the cutover.
+   Replaced Map/unused-alias fresh local IDs and Copy are part of this delete-set;
+   generic/ordinary compatibility Copy remains. Earlier slices are dependencies,
+   never evidence that the series or R7 has closed.
+
+Worker audit verified the Local from-values owner currently allocates/copies
+unconditionally; there is no existing identity-preserving hook to activate.
+Existing initializer rows close the missing source locator, so no user language
+policy decision or new semantic issuer is required before this bounded work.
+
 **Map quality queue (2026-09-09, measured at 7cc63ab9ea)**
 
 Boundary: current Map physical-frame construction and the shared owners touched
