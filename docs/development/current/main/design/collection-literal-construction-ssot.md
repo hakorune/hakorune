@@ -823,6 +823,35 @@ physical mapping details at their entry without reopening source semantics.
 The user requested design/taskization in this turn, so no code, fixture, build,
 toolchain change or C activation is performed by this design update.
 
+### CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0
+
+Queued documentation-only closeout; not the current implementation row.
+Order: selected Array C/OBJ/EXE and old-edge retirement -> existing terminal
+relation enum cleanup -> this documentation reconciliation. Contract/reference
+updates required by each implementation slice still happen in that slice.
+The terminal cleanup remains owned by the existing
+[feedback queue](constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08);
+do not create a second terminal implementation task here.
+
+Owner/scope: current documentation owners of this collection SSOT,
+`constructor-lifecycle-llvm-lowering-ssot.md`, and `src/mir/builder/README.md`.
+Compare those three live documents against their final production callers,
+retained products and CURRENT_STATE; remove superseded pending-route/view-owner
+claims, completed-task future tense and repeated dated implementation narration.
+Keep one current capsule, responsibility/contract sections and ordered open work;
+Git retains detailed closed history. Do not copy the deleted history into another
+current document or create a new documentation authority.
+
+Acceptance boundary: the three named live documents plus their incoming links
+and required guard/pointer references. Preserve all live source authority,
+non-authority, failure/cleanup, ABI and retirement contracts; preserve unresolved
+blockers and classified baseline evidence. Completed claims need their exact
+receipt; pending claims need the current owner/terminal. Reconcile incoming
+anchors before deleting headings, check local links, run the existing pointer
+and corridor guards plus diff check. No source/test deletion or build is implied.
+`NORMAL-CALLABLE-SEMANTIC-README-R0` is already closed (current README393 lines);
+that completed cleanup is excluded from this task.
+
 ## Instance-prefix boundary repair
 
 Decision: consume the existing `InstanceBoxSemanticOwner` transfer in

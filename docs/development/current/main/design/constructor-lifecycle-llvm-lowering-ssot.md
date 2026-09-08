@@ -2536,14 +2536,15 @@ The later source convergence task below remains separate from this cutover.
 | 6-C. C physical responsibility cleanup | Existing V4 admission/emission/compile owners hide parser, LLVM emission and tool lifetime details at their boundary. | After caller-zero V2/V3 removal, remove obsolete shared state/helpers and private probes. Preserve physical/Fault/target/temp-file acceptance; no whole-directory move or include-count target. |
 | Later source convergence | Existing normal_callable_semantic_loan_port routes CanonicalTrivialRouteV1::Outside to lower_normal_cataloged_static_box_method_with_source_v1; source Facts/Recipe producer owns its eventual replacement. | Select one finite source family with an actual issuer and terminal, remove that family's raw-body edge, and prove source-to-Recipe plus rejection and selected execution. No blanket Outside rejection or second resolver. Until selected, this is outside the constructor cutover; reopen if that edge bypasses a selected constructor obligation. |
 | 6a. `PUBLISHED-BACKEND-VIEW-PLACEMENT-R0` | After the selected reader is stable and old wrapper callers are zero, move the one surviving `#[path]`-mounted static C transport implementation under its owning published-view module and remove the mount (V2 transport already retired). | One physical module tree, direct/manifest/aggregate/directory caller census zero for the old paths, and unchanged selected acceptance. This is placement only, not a second view authority. |
-| 6b. `NORMAL-CALLABLE-SEMANTIC-README-R0` | After constructor lifecycle closeout, condense dated journal material in the semantic package README into current authority, boundary and landed-evidence sections. | Preserve every live contract link and current decision; no semantic or production-edge change. |
+| 6b. `NORMAL-CALLABLE-SEMANTIC-README-R0` | Closed: semantic-package README condensed; see the [closeout receipt](#normal-callable-semantic-readme-r0-task-6b). | Live contracts/links preserved; do not reopen solely for the previous journal length. |
 | post-6. `C-LLVM-COMPILE-SESSION-INPROCESS-D0` | The parked in-process investigation above owns the C `system()` tool route. | It begins only after Steps 5–6; choice and equivalence acceptance above are required before deleting tool invocations. |
 
 No separate task is opened for a claimed generic JSON hot path: the audited
 reparse is the Step-4 physical-input construction above. The `#[path]` files
 are one implementation mounted from two module locations during migration, not
-two semantic issuers. The README and placement cleanups wait for their live
-consumer/contract to stabilize, so they cannot obscure constructor cutover.
+two semantic issuers. The semantic README cleanup is closed; remaining placement work follows its
+actual caller/contract prerequisites. Cross-series current-document reconciliation
+is queued once in [CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0](collection-literal-construction-ssot.md#constructor-array-current-docs-r0).
 
 ### Feedback reconciliation follow-ups (2026-09-08)
 
