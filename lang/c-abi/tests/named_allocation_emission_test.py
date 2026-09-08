@@ -120,15 +120,16 @@ def run_case(walker, target, args, dst, plan_kind, exact):
         reports.append(report)
 
 
-for walker in ("generic", "same-module"):
-    for target in ("DirectArrayI64", "ArrayBox", "MapBox", "FileBox", "StringBox", "User"):
-        for plan in ("missing", "invalid", "valid"):
-            run_case(walker, target, [1], 2, plan, False)
-    for target in ("DirectArrayI64", "ArrayBox", "MapBox"):
-        run_case(walker, target, [], 0, "invalid", True)
-        run_case(walker, target, [], 0, "missing", True)
-        run_case(walker, target, [], 2, "missing", True)
-    run_case(walker, "User", [], 0, "valid", False)
-    run_case(walker, "StringBox", [], 2, "missing", False)
-    run_case(walker, "StringBox", [1], 0, "invalid", False)
-print(json.dumps(reports, indent=2))
+if __name__ == "__main__":
+    for walker in ("generic", "same-module"):
+        for target in ("DirectArrayI64", "ArrayBox", "MapBox", "FileBox", "StringBox", "User"):
+            for plan in ("missing", "invalid", "valid"):
+                run_case(walker, target, [1], 2, plan, False)
+        for target in ("DirectArrayI64", "ArrayBox", "MapBox"):
+            run_case(walker, target, [], 0, "invalid", True)
+            run_case(walker, target, [], 0, "missing", True)
+            run_case(walker, target, [], 2, "missing", True)
+        run_case(walker, "User", [], 0, "valid", False)
+        run_case(walker, "StringBox", [], 2, "missing", False)
+        run_case(walker, "StringBox", [1], 0, "invalid", False)
+    print(json.dumps(reports, indent=2))

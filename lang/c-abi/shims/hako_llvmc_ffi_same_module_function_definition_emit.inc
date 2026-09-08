@@ -3,12 +3,12 @@
           const char* name) {
         if (!name ||
             !llvm_quoted_symbol_name_is_safe(name) ||
-            !same_module_function_symbol_will_be_defined(name) ||
+            !physical_definition_plan_contains(&definition_plan, 0, name) ||
             same_module_function_symbol_was_emitted(name)) {
           return 0;
         }
         if (module_function_is_numeric_i64_leaf(fn) &&
-            module_leaf_symbol_will_be_defined(name)) {
+            physical_definition_plan_contains(&definition_plan, 1, name)) {
           return 0;
         }
         return 1;
@@ -122,8 +122,8 @@
 
       auto int emit_same_module_function_definitions(FILE* f) {
         int emitted = 0;
-        for (size_t i = 0; i < planned_same_module_function_symbols_n; i++) {
-          const char* name = planned_same_module_function_symbols[i];
+        for (size_t i = 0; i < definition_plan.same_module_count; i++) {
+          const char* name = definition_plan.same_module[i];
           int rc = emit_planned_same_module_function_definition(
               f,
               name,

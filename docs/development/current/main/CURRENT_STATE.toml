@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = ""
-current_blocker_token = "Accepted BoxShape: extract existing planned leaf/same-module storage and metadata reader into one private C definition-plan owner; production membership and iteration consume it. Preserve capacities, duplicate/order/error behavior, leaf eligibility, emitted registries and Dynamic launch. No query export, session activation, prescan repair or Map source switch. Parse-once role/program/config session and alias-demand binding remain subsequent series obligations."
+current_design_stop = "StaticInvocationDocOwnershipMissing"
+current_blocker_token = "Physical definition-plan ownership is extracted and verified. Next: one read-only audit of parse-once static invocation lifecycle/ABI, doc-taking compile, explicit settings and host library lifetime. Reuse the existing program view and definition-plan owner. No query/session export, Rust role classifier, prescan repair or Map source switch before concrete accepted lifecycle/ABI binding. Alias-demand and remaining frame/C cutover obligations stay open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Preflight design selects a C-owned parse-once session, preserving real role owners.
-Next: extract the existing physical definition-plan storage/reader without behavior change.
-Session/frame/alias-demand connection and Map production retirement remain open.
+One physical definition-plan owner now feeds existing production consumers.
+Role/capacity, Named and selected Dynamic evidence preserve parent behavior.
+Next: parse-once C invocation lifecycle/ABI and host ownership design.
 """
-next_design_card = "none"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

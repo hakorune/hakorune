@@ -503,6 +503,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_extern_call_route_registry.inc"
       #include "hako_llvmc_ffi_constructor_call_route_metadata.inc"
       #include "hako_llvmc_ffi_generic_method_result_metadata.inc"
+      #include "hako_llvmc_ffi_physical_definition_plan.inc"
+      struct PhysicalDefinitionPlan definition_plan = {0};
       #include "hako_llvmc_ffi_module_leaf_function_emit.inc"
       #include "hako_llvmc_ffi_same_module_function_plan.inc"
       auto void emit_module_function_declarations(FILE* f) {

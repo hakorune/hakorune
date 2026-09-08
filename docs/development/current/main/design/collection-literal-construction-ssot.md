@@ -719,9 +719,9 @@ a claim that all preflight consumers are implemented:
 | `same_module_function_definition_emit.inc` | Same-module eligibility excludes an already emitted definition and a numeric body also planned as leaf; missing target/entry is skipped at its existing stage. |
 | `module_leaf_function_emit.inc` | Existing numeric-body validation and leaf membership determine leaf emission; leaf-only nonnumeric bodies do not become same-module automatically. |
 
-First executable BoxShape: move the existing planned leaf/same-module storage,
-metadata reader and membership operations into one private physical definition
-plan with explicit arguments. Production membership, iteration and declaration
+The existing planned leaf/same-module storage, metadata reader and membership
+operations now reside in `hako_llvmc_ffi_physical_definition_plan.inc`, one
+private physical definition plan with explicit arguments. Production membership, iteration and declaration
 consumers use that owner directly; no preflight-only duplicate planner. Keep
 separate leaf capacity256 and same-module capacity1024, registration order,
 deduplication, duplicate-row return count, partial progress on malformed input,
@@ -730,7 +730,7 @@ present in both sets: one exclusive role enum would change this contract.
 Emitted registries remain separate progress state. Numeric-body validation,
 eligibility/skip timing and Dynamic launch stay in their existing consumers.
 
-Exclusive delete-set: the independent planned arrays/counts and add/membership
+Retired in this extraction: the independent planned arrays/counts and add/membership
 implementations in `module_leaf_function_emit.inc` and
 `same_module_function_plan.inc`, plus direct array iteration in
 `same_module_function_definition_emit.inc`. Preserve overflow diagnostics

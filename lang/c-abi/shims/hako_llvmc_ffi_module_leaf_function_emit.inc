@@ -85,24 +85,6 @@
       }
       const char* emitted_module_leaf_symbols[256];
       size_t emitted_module_leaf_symbols_n = 0;
-      const char* planned_module_leaf_symbols[256];
-      size_t planned_module_leaf_symbols_n = 0;
-      auto int remember_planned_module_leaf_symbol(const char* name) {
-        if (!name) return 0;
-        for (size_t i = 0; i < planned_module_leaf_symbols_n; i++) {
-          if (!strcmp(planned_module_leaf_symbols[i], name)) return 1;
-        }
-        if (planned_module_leaf_symbols_n >= ARR_LEN(planned_module_leaf_symbols)) return 0;
-        planned_module_leaf_symbols[planned_module_leaf_symbols_n++] = name;
-        return 1;
-      }
-      auto int module_leaf_symbol_will_be_defined(const char* name) {
-        if (!name) return 0;
-        for (size_t i = 0; i < planned_module_leaf_symbols_n; i++) {
-          if (!strcmp(planned_module_leaf_symbols[i], name)) return 1;
-        }
-        return 0;
-      }
       auto int remember_emitted_module_leaf_symbol(const char* name) {
         if (!name) return 0;
         for (size_t i = 0; i < emitted_module_leaf_symbols_n; i++) {
@@ -224,7 +206,7 @@
         size_t inst_count = 0;
         int emitted_ret = 0;
         if (!module_function_is_numeric_i64_leaf(fn) ||
-            !module_leaf_symbol_will_be_defined(name) ||
+            !physical_definition_plan_contains(&definition_plan, 1, name) ||
             module_leaf_symbol_was_emitted(name)) {
           return 0;
         }

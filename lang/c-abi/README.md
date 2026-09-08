@@ -53,6 +53,19 @@ Intrinsic allocation transport
 - Consumer acceptance does not activate literal source producers; raw/typed/Core
   source cutover is separately gated by the construction design and source tests.
 
+Physical definition plan
+- `shims/hako_llvmc_ffi_physical_definition_plan.inc` owns planned leaf and
+  same-module memberships and their entry-metadata reader. Both memberships
+  may hold one symbol; actual body eligibility and emitted-state remain separate.
+  Existing declaration, membership and ordered definition consumers read this
+  owner. Capacity, duplicate count and partial-error behavior are unchanged.
+- Focused tests: compile/run `tests/physical_definition_plan_test.c` with yyjson;
+  run `python3 lang/c-abi/tests/physical_definition_emission_test.py` after the
+  selected C build. Its optional library path compares the same22 physical
+  role/metadata/capacity cases with the parent. Named allocation's60 cases and
+  the existing selected Dynamic provenance producer cover the adjacent emitters.
+  Synthetic physical cases do not establish source-family admission.
+
 Named allocation emission
 - `shims/hako_llvmc_ffi_named_allocation_select.inc` selects the existing physical
   consumer once for the generic and same-module emitters. Walker and array-store
