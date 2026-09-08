@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "C Map consumer checkpoint bb74fa8078 is pushed. Before source install cutover, close the existing-owner admission preflight: Complete Map/terminal products do not cover unrelated root New readiness or Map local annotation rejection before initializer emission. Keep common Stop; connect existing root claims and Local annotation owner without a new semantic receipt. See ownership source preflight Decision."
+current_blocker_token = "Existing-owner source preflight design is accepted after Local audit: reuse one annotation policy over retained root initializer/alias relations after Complete Map, terminal and same-owner New readiness checks. prepare_install returns package plus existing issue once. Implement preflight and source OBJ/EXE cutover; keep common Stop until that connection. C consumer bb74fa8078 verified; no Map source execution/R7 completion claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -49,8 +49,8 @@ in Completion and unconnected Map demand stops at common package install.
 Native Map insert/remove/clear now drop detached values outside locks; owned-slot
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
-next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

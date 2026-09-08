@@ -1207,8 +1207,27 @@ do not copy a new annotation classifier into the ledger or issue a parallel
 readiness receipt. Audit exact direct/alias callers before implementing this
 connection. Acceptance retains unsupported annotation/alias rejection before
 catalog/body mutation, unsupported New rejection, and existing valid aliases.
-After this bounded prerequisite, reuse the audited host source acceptance and
-remove the selected blanket Stop in the same source cutover series.
+Accepted connection after independent Local-owner audit (2026-09-09): extract
+map_local.rs annotation condition into one pure Local-owner function. Preflight
+borrows the same admitted root lowering input from the existing batch, checks
+its existing initializer relations, and follows exact variable Local bindings
+to a Complete Map site/destination. Apply the policy to the original Local or
+alias annotation; no names, AST classification, ValueId or saved alias index.
+Only walk after Complete flow/terminal/root claim readiness, so this traversal
+cannot re-admit rebind or unavailable ownership shapes. Keep numeric-first and
+typed-Array parser error precedence, including malformed annotations; do not
+broaden the rejected annotation vocabulary. The physical placement consumer
+retains value/progress checks and calls the same policy. No speed claim for
+this source-only traversal; existing lookup thinning remains queue11.
+
+prepare_install remains the sole precommit boundary. Return the unchanged
+package with the existing install issue on refusal, rather than re-running
+preflight in the outer caller to infer a reason. Tests cover direct/alias/alias
+chain rejection before catalog/body mutation, unsupported unrelated New,
+malformed annotation, distinct same-name bindings and unchanged non-Map Locals.
+No new semantic receipt or preflight cache is authorized. This closes the design
+question and opens the bounded existing-owner preflight implementation, followed
+by the audited source OBJ/EXE/old-edge cutover in the same series.
 
 **Selected C Map consumer Decision (2026-09-09, audited at 33c0c10c60)**
 
