@@ -120,7 +120,10 @@ app_link
 string_len_app
 *_app
 
-# Nekocode analysis files (大きなJSONファイル)
+# Local NekoCode tools/captures; usage policy stays in tracked docs.
+# Prefer external installs and /tmp captures; this is the optional in-repo home.
+/.nekocode/
+# Legacy NekoCode locations (retain exclusions during tool migration).
 .nekocode_sessions/
 analysis.json
 nekocode-temp/

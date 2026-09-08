@@ -44,7 +44,9 @@ The local router is intentionally compact. It keeps personality, the
 current-first read order, short big-picture/design-stop reminders, and links to
 owning SSOTs. Long structural rules, command tables, phase roadmaps, and
 historical toolchain notes are not copied back into `AGENTS.md`; they remain in
-the tracked documents named below.
+the tracked documents named below. In particular, the local router keeps only
+short family-selection and worker reminders, linking to the scheduler and worker
+contract here; it does not maintain a second copy of their full procedures.
 
 ## Decision
 
@@ -500,6 +502,72 @@ record before retrying so an OOM kill is not mistaken for a test failure:
 dmesg -T 2>/dev/null | rg -i 'oom|out of memory|killed process' | tail -40 || true
 journalctl -k -b 2>/dev/null | rg -i 'oom|out of memory|killed process' | tail -40 || true
 ```
+
+### Optional NekoCode investigation
+
+NekoCode is an optional Rust investigation assistant, not a required gate or
+semantic authority. Start with `rg`; at a natural edit boundary, use one function
+investigation when definitions/references/types/test candidates would otherwise
+require repeated searches. Continue the selected implementation independently;
+an unavailable tool must not become a compiler design blocker.
+
+The initial trial follows the [pinned handoff](https://github.com/moe-charm/nekocode-rust/blob/eff8d17da9ae88f6702b44a773ee7d724ce90342/docs/hakorune-nekocode-handoff.md).
+Use a verified CLI from that revision for the trial, retain its provenance and
+use the same binary/feature/backend settings throughout a comparison. Check CLI
+and rust-analyzer availability first; an installed wrapper or rustup proxy alone
+is not proof that either executable works. An existing backend can be selected
+with `NEKOCODE_RUST_ANALYZER_PATH`. Do not update the toolchain or spend a long
+session repairing the environment solely for this trial.
+
+Keep the checkout/binary outside the Hakorune workspace; if a local copy is
+needed, use the ignored `/.nekocode/` directory. Save packets, responses and notes
+outside the workspace. Never vendor the tool, commit captures, or add it as a
+Cargo dependency. Existing legacy `tools/nekocode-rust/` exclusions remain.
+Do not use checkout/reset/stash/clean, create unrelated edits, or change the
+implementation's commit boundaries for evaluation. Initial symbol investigation
+may start Cargo metadata and rust-analyzer and generate caches/lockfiles; observe
+the Cargo resource contract above, leave build scripts/proc macros disabled,
+and check `git status -sb` before and after.
+
+From the Cargo workspace root, replace the binary path and source position:
+
+```bash
+nekocode_eval_bin=/absolute/path/to/verified/nekocode
+nekocode_eval_dir=$(mktemp -d /tmp/hakorune-nekocode.XXXXXX)
+"$nekocode_eval_bin" context "$PWD" \
+  --at relative/path.rs:LINE:COLUMN \
+  --save-packet "$nekocode_eval_dir/before.packet.json" \
+  --output "$nekocode_eval_dir/before.response.json" \
+  --max-items 4 --budget 4000 --timeout-seconds 60
+```
+
+Positions are workspace-relative and 1-based. `--symbol NAME` may return several
+candidates; choose the actual declaration position. Read `status`, `queries`,
+`freshness` and `omissions` before interpreting results. Missing, timed-out,
+truncated or changed-during-observation results are not zero references. Retrieve
+needed evidence from the saved packet with `--packet PATH --item ITEM_ID`.
+
+Only if the normal implementation provides a suitable next boundary, capture
+`after.packet.json` under the same conditions and compare saved observations:
+
+```bash
+"$nekocode_eval_bin" context \
+  --packet "$nekocode_eval_dir/after.packet.json" \
+  --compare-packet "$nekocode_eval_dir/before.packet.json" --format summary
+```
+
+Saved comparison is backend-free; it describes observations at capture time.
+`removed` is not a safe-deletion proof; `not_comparable`/null is not zero. Requery
+before using stale packets as current evidence. Keep ordinary search, reviews
+and focused tests, particularly for feature-gated callers, exports, Rust/C edges
+and caller-zero retirement. Do not infer complete coverage across these boundaries
+from rust-analyzer output.
+
+Report only target/question, CLI revision/backend/conditions, useful/same/extra
+work/unavailable, concrete extra searches or misses, and unmeasured limits.
+One initial observation is sufficient when there is no natural before/after
+window. Unstable observation may be skipped; no repeated polling for a preferred
+result or new mandatory guard is justified.
 
 ### Active SSOT current capsule
 
