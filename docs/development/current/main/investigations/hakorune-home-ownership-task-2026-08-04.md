@@ -505,6 +505,64 @@ contract; no language meaning or public ABI changes. Source files remain below80
 This deletes a real repeated source lookup, but does not close Map transfer,
 phase emission, runtime intake or the full source/host cutover.
 
+**Accepted next implementation: source flow through the install Stop**
+
+Change: extend the existing source walk and Completion cleanup result for
+direct-local Map construction whose entries transfer prior direct ordinary-New
+Homes. Preserve ordered entries and duplicate-key replacement, empty Map
+construction, exact allocation/install/displaced-end Fault successors and the
+remaining terminal order. This is one candidate family in the full Map series;
+fresh children, nested Maps, Shared/carrier, other value families and Script
+remain included unfinished work, not a reduced cutover finish line.
+
+Source authority/issuer: the same lowering loan supplies initializer, Map and
+EntryValue membership. `PrefixLocalFlow` retains the exact acquisition site in
+its existing Home payload, not another site map. The scanner alone establishes
+Normal-before-use and Available/Consumed. A scoped callback taking exact New
+site and destination binding checks the existing candidate's construction and
+PlainI64NoHook destruction. It returns compatibility only; foreign/duplicate
+evidence rejects, unavailable descriptors return unsupported. It issues no
+availability, new receipt or package-owned type into resolved semantics.
+Ordinary observations still return Handles, never transfer evidence. After
+transfer, direct reuse and aliases rooted in the consumed binding cannot recover
+Home or a valid selected field-read/argument observation from that old local.
+
+Map outward-control membership uses exact initializer/destination, body shape,
+`exact_scope_containing`, body/function pairs and the region parent. Preserve
+New's existing membership checks. Attach the whole root flow once through
+`function_control_new_homes`; package co-seal retains it in Completion rather
+than saving another Map-only receipt or reconstructing cleanup from list diffs.
+
+Consumer/Stop: retain the successful source package, then reject its sealed Map
+lowering requirement at `prepare_install`, before catalog vacancy validation.
+Keep `Result<Prepared, Self>` and return that same package. The existing
+`with_normal_callable_install_once` maps this immutable requirement to a named
+`MapLifecycleConsumerMissing` install reason; it does not rescan source. Testing
+only that wrapper is insufficient: direct `prepare_install().commit()` callers
+must also be unable to obtain a prepared package. Prepared fields remain private.
+Do not put this backend-unconnected reason in source issuance or add a rich
+error product carrying Completion. Map requirement takes precedence over a
+catalog-occupied error for the same package.
+
+Acceptance: inspect actual package Completion for prior-Home transfer,
+precommit retention, committed replacement/old-end Fault, ordered Map/root
+cleanup and empty construction. Alias/reuse/foreign/fresh-child cases must not
+produce accepted transfer. Existing New/field/Birth positives and refusals stay
+covered. The normal root catalog lifecycle harness must reach `CatalogInstall`
+with the named reason, no catalog installed, no New/Map body allocation and no
+compat retry. Module preparation already precedes this boundary, so
+`current_module.is_none()` is not its acceptance condition. A failed direct
+prepare must return the same source package with its Completion intact.
+
+Retirement: replace the selected Map `PrefixNotCovered` fall-through with this
+source result and mandatory install Stop; consumed locals no longer survive in
+the committed cleanup/ordinary-observation state. Delete the Stop only with
+actual Map lifecycle lowering. Current `MapLiteralEntryWrite` discards results,
+the static-V2 body index recognizes plain NewBox/Write, and `InvokeOperation`
+has no Map variant: none can substitute for detached-old ownership or the
+accepted phase mapping. No source/LLVM/EXE or owned-slot-intake completion is
+claimed by the source package or the Stop test.
+
 Reuse `ordinary_new_admission/selected.rs::emit_root_home_exit_payload` for
 first-Fault/best-effort suffixes. Its current origins and validators force every
 binding through ordinary-New `local_commits` and `InvokeOperation::HomeRelease`.
