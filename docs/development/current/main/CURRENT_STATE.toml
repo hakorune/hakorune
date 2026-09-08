@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "CONSTRUCTOR-TERMINAL-RELATION-BOXSHAPE"
-current_execution_cohort = "constructor_terminal_relation_boxshape"
-current_design_stop = "none; terminal relation BoxShape implemented and independently reviewed; final locked tests and parent-baseline comparison verified"
-current_blocker_token = "Terminal relation BoxShape verified: source-to-final-source enum, derived root-result accessor, collision/storage/view synchronization deletion. Handoff5/control33 and Pair EXE/linked OBJ30 plus Bool Fault70 pass. Identical-lock parent b61aef93ec and current package116/2 and pipeline21/2 share four exact known baseline failures; no unclassified red. Parent/pointer guards pass; changed source max730, net Rust -32. Commit/push then CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0; storage-tag cleanup stays independent."
+current_execution_row = "CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0"
+current_execution_cohort = "constructor_array_current_docs_r0"
+current_design_stop = "none; documentation reconciliation verified, ready for commit/push"
+current_blocker_token = "Constructor/Array current-doc reconciliation verified against a1d86db262; live contracts, constructor Unit Stop, wider source obligations and classified baselines retained. Commit/push docs only. Next existing physical storage wire-tag BoxShape follow-up3, then the rolling backend/runtime order; no new source-family admission."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,11 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Terminal relation BoxShape verified; one retained relation replaces parallel
-storage/synchronization. Next current-document reconciliation; four parent
-baseline test failures remain explicitly owned, not whole-package green.
+Constructor/Array docs reconciled: current execution and Stop boundaries,
+retirement and baselines retained; local links and current guards pass.
 """
-next_design_card = "CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0"
-next_execution_card = "CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0"
+next_design_card = "CONSTRUCTOR-PHYSICAL-STORAGE-WIRE-TAG-BOXSHAPE"
+next_execution_card = "CONSTRUCTOR-PHYSICAL-STORAGE-WIRE-TAG-BOXSHAPE"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

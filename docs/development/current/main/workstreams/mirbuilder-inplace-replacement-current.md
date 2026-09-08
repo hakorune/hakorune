@@ -628,16 +628,18 @@ Known baseline debt at parent24cfe2cf7c: old inplace/raw-Loop, ingress-schema/st
 
 #### CONSTRUCTOR-TERMINAL-RELATION-BOXSHAPE
 
-Decision: accepted worker-audited mapping; execute existing [follow-up2](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08); one private terminal relation enum replaces parallel Options and derived result storage.
-Source authority + canonical issuer: existing ordinary-New source classification and Completion relation issuance; physical result projection stays at its existing boundary.
-Non-authority: enum shape, MIR return guessing, source-name lookup and backend/source reclassification.
-Fail-fast boundary: duplicate reservation, source/site drift, incomplete emission/field reads and unsupported families remain rejected; structural exclusion cannot replace progress checks.
-Closeout: enum from source scanner through Completion/co-seal/final source; derived result storage and view synchronization removed. Handoff5/control33 and real Pair EXE/OBJ30 plus Bool Fault70 pass; parent/pointer guards and diff check pass. New/Home forwarding extraction reduces function_control826->721; changed source max730, net Rust -32. Git owns the implementation detail.
-Non-claims: no new source family/public receipt, Array semantics, storage tag cleanup, backend parity or language change. Next remains `CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0`.
+Closed at `a1d86db262`: one terminal relation through source/Completion/ledger/final handoff; derived result storage/view synchronization retired. Handoff5/control33/Pair EXE+OBJ30 and Bool Fault70 pass; guards pass, source max730/net-32. No source widening; baseline inventory follows.
 Baseline comparison at parent `b61aef93ec`, identical Cargo.lock/profile quick: package filter `mir::normal_callable_semantic_package::` is116pass/2fail both before/after; pipeline filter `mir::compiler::normal_default_pipeline::tests::` is21pass/2fail both. Four reds are known baseline debt, not waived current failures; no whole-package green claim.
 Package failures: `ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression` (field+Bool retains1read, expected0) and `brand_catalog_tests::normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix` (same mixed suffix cleanup). Owner: `home_new_prefix::return_scalar`; reopen with scalar-source classification work, without widening terminal acceptance here.
 Pipeline failures: `published_consumer_runs_once_and_propagates_failure_without_retry` (expected callback failure absent) and `published_consumer_does_not_consume_explicit_compatibility` (`artifact-root-completion-unavailable`). Owner: normal-default callable/compatibility finalization and its test ingress; reopen when that ingress is selected, not by bypassing the artifact gate.
 
+
+#### CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0
+
+Change: reconciled the three existing owner documents against `a1d86db262`; Git owns retired migration narration.
+Contract: preserve constructor/Script distinctions, source/physical/ABI/cleanup/retirement rules, open blockers and classified baseline evidence; no source/test/build change.
+Done: constructor SSOT2594->440 lines, collection1155->400, builder README1269->1283. Incoming22/outgoing15 local links resolve (broken0); pointer/selected-normal corridor guards and diff check pass. No new execution evidence.
+Stop: ambiguous live authority or an unverified completion claim stays open; documentation cannot promote a source family. Next existing physical storage wire tag BoxShape (follow-up3).
 
 ## Source and ownership budget
 

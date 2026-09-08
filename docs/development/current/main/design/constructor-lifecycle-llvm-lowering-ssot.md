@@ -1,7 +1,6 @@
 ---
-Status: Active; selected Pair V4 cutover/old transport retirement verified; view ownership cleanup next
-Date: 2026-09-07
-Scope: selected constructor lifecycle from source-owned requirements to LLVM object and linked EXE.
+Status: Active contract; selected Pair execution and transport/owner retirement verified
+Scope: source-owned constructor requirements through final physical input, LLVM object and linked EXE.
 Related:
   - constructor-birth-new-lifecycle-ssot.md
   - mirbuilder-final-pipeline-ssot.md
@@ -10,20 +9,25 @@ Related:
 
 # Constructor lifecycle LLVM lowering
 
-Decision: D2 defines the missing producer contracts; absence of an existing issuer is not a permanent park.
-Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
-Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
-Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: existing backend/runtime task2 Global-required-row enforcement in the workstream; selected constructor cleanup is closed.
-Non-claims: new source acceptance, optimized multiple-Home coverage, complete view thinning, or complete MirBuilder retirement.
+## Current capsule
 
-This supersedes D1/D2 wording that treated missing existing issuers as a
-permanent execution park or treated all physical placement as source meaning.
-No second MirBuilder or new semantic `Verified*`/`Prepared*` receipt is needed.
+- **Current decision:** source owners issue meaning; existing emission/finalization binds it; one completed physical input and explicit runtime session feed V4.
+- **Current implementation status:** selected Pair executes through actual OBJ/EXE callers with default source materialization. V2/V3 pending transports, JSON reparse, view-owned handoff/profile and duplicate terminal storage are retired.
+- **Next ordered task:** the independently queued storage wire-tag BoxShape; broader backend/runtime work follows its workstream order.
+- **Production stop line:** constructor Unit remains `physical_abi.rs`'s `root-result-unavailable`. Local actuals, unsupported declarations/uses and unissued result families retain their own pre-artifact boundaries. Script Array Unit is a different admitted cohort.
+- **Retirement finish line:** the selected Pair transport/ownership series is closed; broader source coverage, compatibility migration and Call R7 are not complete.
+
+Current selection belongs to `CURRENT_STATE.toml` and the rolling workstream.
+The [lifecycle](../../../../reference/language/lifecycle.md) and
+[type](../../../../reference/language/types.md) references own language policy.
+This document owns durable lowering contracts and the remaining obligations. Git owns
+superseded D0/I0 negotiations, temporary build failures and resource logs.
+Missing implementation calls for a bounded issuer/consumer design; it does not
+justify permanent waiting, guessed defaults or a second MirBuilder.
 
 ## Responsibility and lifetime
 
-| Boundary | Sole responsibility | Existing owner to extend |
+| Boundary | Sole responsibility | Existing owner |
 | --- | --- | --- |
 | Source -> Facts/Recipe | Exact object, receiver/formals, expression requirements, stores, Home obligations and exit origins | `instance_constructor_semantic`, `instance_construction`, `ordinary_new_coseal`, terminal/read/Home source owners |
 | Recipe -> physical emission | Bind those requirements to emitted values and operations once | `ordinary_new_admission/selected`, `normal_callable_construction_state`, existing root/New completion ledger |
@@ -68,1747 +72,357 @@ temporaries require a named emitter rule; no catch-all temporary admission.
 Metadata may remain an observation for other consumers; deleting or changing
 it must not silently change selected lifecycle admission or lowering meaning.
 
-## Checked operation origins and diagnostic IDs
+## Source retention and consumption
 
-Source plans retain typed origins before emission:
+`issue_ordinary_new_claims_v1` co-seals the same AppMain parser identity,
+Completion, Home prefix, exact New arguments and terminal relation under one
+resolved-source loan. Identity is not reduced to a batch slot or physical root
+key. Physical root lookup follows the root captured by module creation; names,
+metadata and another pipeline's main-thunk product cannot restore membership.
+Entry receiver/parameter/capture demands keep `EntryDemandMissing`.
 
-| Operation | Origin |
-| --- | --- |
-| New allocation | exact owned New expression site |
-| Birth field store | constructor source identity plus resolved assignment site and canonical field |
-| HomeRelease | released Home binding plus the exact source exit/cutpoint obligation |
-| ReclaimUnpublished | exact construction identity plus its failed-construction cutpoint |
+A declaration object and an allocation instance are distinct. Birth retains
+its exact Box/Birth source, object, owner, receiver binding and canonical target.
+Every New retains its own site, checked Normal receiver and ordered actuals;
+deduplicating equal Birth definitions cannot deduplicate call actuals. Unequal
+relations for one definition, swapped receivers, foreign objects or missing
+actual membership reject before transport.
 
-Cleanup may have no explicit source statement; its origin is the already
-issued source exit obligation. Allocation site alone cannot stand in for all
-cleanup sites. Repeated physical cleanup edges may reference the same logical
-origin; identity does not imply one execution. Birth propagation records no
-new Fault and must not invent a diagnostic site.
+### Selected stores and arguments
 
-One module-publication encoding owner maps the complete ordered origin set to
-nonzero checked u64 IDs, retains the reverse relation, and fails on overflow.
-Order uses source declaration/site/operation-role relations, never MIR block
-order, names, hashes or fixture values. IDs identify origins within one
-published module; cross-build stability is not promised. This encoding cannot
-create or repair origins. The existing final handoff retains the dictionary
-and bindings; the serializer and C consumer only project/consume them.
-Record the exact cleanup-origin fields and their existing issuers before the
-source-retention task starts; a missing source exit relation stays a named
-design blocker, not an empty cleanup proof.
+The construction plan owns each exact assignment, canonical field, receiver
+source use and RHS. Selected stores accept the existing integer literal or
+resolved Birth-parameter RHS. Take consumes the receiver source site; emission
+consumes the parameter use through exact binding lookup and the existing source
+observer. No assignment-target/RHS AST replay remains on this branch.
+Missing/duplicate/foreign stores, unavailable construction and emitted
+base/value/block/literal drift reject before publication.
+
+The existing New argument walk retains ordered Integer, Bool or Local(binding)
+observations with exact owner/New/ordinal/child site. Bool payload comes from
+the resolver inventory. The package alone co-seals claim rows; source helpers
+never depend on package products. Selected emission consumes rows before raw
+child-demand creation and retains `(source row, emitted ValueId)` in the existing
+ledger. Finalization checks cardinality, literal definitions and Birth argument
+order. Generic raw children and compatibility loops retain their other callers.
+
+Local source validity does not prove executable scalar kind. `Trivial` merges
+Integer/Bool and is not initializer-to-return or initializer-to-actual authority.
+Local actuals remain physically unavailable; no MIR constant inference, handle
+lookup, first-caller specialization or anonymous i64 default may discharge them.
+
+### Formal declarations and physical binding
+
+The constructor semantic issuer retains each `BirthFormalContractV1`: exact
+ordinal/binding, declaration class and complete use sites. Declaration and use
+are different: storing into an i64 field does not declare an unannotated
+parameter i64. Do not borrow the direct-callable catalog from another session.
+Compiled-entry retains the complete contract and derives disposition on read.
+
+The selected physical cohort admits retained Unannotated formals with exact
+I64FieldStores or NoUse. Integer/Bool actual kinds come from issued source rows;
+checked emission supplies their payload values. One unspecialized Birth body
+receives kind/payload lanes, with receiver separately typed HANDLE. NoUse still
+evaluates and passes its actual. ExactI64, ExactText, unsupported declarations,
+uncovered/conflicting uses and Local actuals retain their named physical Stops.
+Those Stops are not new source type errors.
+
+At an exact i64 store, valid Integer reaches raw storage; valid Bool records
+FieldTypeMismatch reason103 and follows the issued FieldSet Fault edge without
+committing the failed slot. Unknown kind or invalid Bool payload is
+InvalidContract. Copy retains both tagged lanes; HANDLE never becomes scalar.
+The wire vocabulary and revision belong to the
+[ABI reference](../../../../reference/abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2),
+not this scheduling document.
+
+### Terminal relation and result boundary
+
+`home_new_prefix` issues one internal `TerminalRelationV1` at the existing
+four sites: direct two-field I64Add, bare Unit Return, Integer literal, or one
+initialized i64 FieldRead. The same relation travels through Completion and
+the ledger. Only not-yet-issued state uses Option; finalized source contains
+one nonoptional relation. Finalization derives the existing result projection;
+there is no separately stored root-result tag or view synchronization matrix.
+Backend category projection folds the three i64 families into I64, retaining
+Unit separately. It does not classify a new source expression.
+
+Keep exact owner/Return/value/Add/read sites, same-Completion agreement,
+Pending/Reserved/Emitted progression, duplicate reservation/emission checks and
+complete physical-read validation. Structural exclusivity replaces only the
+cross-family collision checks. Neither a conflicting production terminal nor
+a causal link to the historical Unit defect was established by that audit.
+
+Selected bare Return emits `Return(None)` after Home cleanup; it never passes
+through `emit_void` into `Return(Some(void))`. Source/final-MIR Unit support is
+real, but constructor physical input still rejects Unit before serialization.
+Retired V2 ROOT_UNIT validation is not executable evidence. The admitted Script
+Array I64/Unit path is owned by the
+[collection contract](collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order).
+
+## Source origins and physical diagnostics
+
+Source-owned New sites, constructor assignment/field sites, Home exit obligations
+and construction-fault Reclaim origins remain in the existing plans and emission
+progress. Cleanup need not have a source statement; its issued exit obligation
+is its origin. Allocation coordinates or a bare Birth branch cannot invent it.
+
+Eligible Birth reclaim retains exact New/constructor/owner/object identity.
+NoBirth has no such constructed-object reclaim; unavailable/override construction
+keeps its admission fence. Selected Birth-fault cleanup consumes the retained
+origin once. Missing, duplicate or drifted concrete Reclaim fails final validation.
+Home release preserves exact binding/exit and source order.
+
+After those source-to-physical bindings are checked, `PhysicalAbiInput` issues
+nonzero u64 **runtime diagnostic ordinals** in deterministic function/block/
+instruction order for each checked operation, plus a distinct required root
+`process_result_site`. These are physical diagnostics, not source IDs or a
+cross-build stable dictionary. C consumes supplied ordinals unchanged. Reject
+missing, duplicate, overflowing, colliding or non-operation site rows. Birth
+propagation and ObjectFieldGet do not invent checked-operation diagnostics.
+Earlier source-order diagnostic-encoding proposals are superseded by this
+implemented physical projection; source origins themselves remain source-owned.
+
+## Finishing and final ownership
+
+The existing root/New/Birth validators check complete retained bindings before
+and after finishing. Generic module clones cannot reconstruct a handoff.
+`FinalizedRootHandoffV1` is owned by the normal finalization invocation; the
+published view borrows it and the selected profile. Lifecycle activation/route
+mutation and owned lifecycle/Return coordinate Vecs have been removed. Presence
+is a boolean physical observation using the shared exact predicate, not admission.
+Ordinary Return alone is not lifecycle presence.
+
+Finalization still checks lifecycle-bearing namespaces, Return-only retained
+Birth signatures and direct Birth receiver/namespace/definition. Root exemption
+and mandatory numeric/type checks retain their scope and order. Admission holds
+borrowed functions instead of rebuilding them from stored coordinates. Static,
+free-function, Print and ordinary Array rows remain live view projections.
+
+For single-Home cleanup, existing `RootHomeExitProgress` retains the emitted
+graph, entry prefix and outside incoming boundary. Only a recorded Jump into a
+deleted empty internal sole-predecessor node without edge arguments may contract.
+Consume original nodes exactly once; compare full resulting terminators/prefixes
+and ingress. Reject cycles, bypass/new ingress, changed releases/frame/edges,
+prefix changes or extra instructions. Surviving targets retain their Jump.
+A temporary validated projection feeds artifact lifecycle coverage; there is no
+second persistent receipt or optimizer-validation skip.
+
+Multiple-Home constructor cleanup retains its existing exact-placement checks;
+optimized contraction coverage is not claimed. Script Array's separately
+validated multiple-residence behavior does not grant constructor parity.
+New/Birth obligations and whole-function artifact lifecycle coverage remain
+mandatory in addition to the graph-local check. Checked becomes FinishingChecked
+only after all required checks succeed; no mutable passes escape final commit.
 
 ## Runtime and target ABI
 
-FaultFrame placement belongs to the backend/runtime boundary. The initial
-selected target is explicitly x86_64 GNU/Linux LP64; this decision is not
-inferred from pinned-Text support. Other targets reject until separately
-admitted. Semantic Facts/Recipe carry no target triple or frame byte count.
+The selected lifecycle target is explicitly x86_64 GNU/Linux LP64. Runtime
+compilation owns the fixed-width Fault descriptor in `.nyash.runtime_abi.v1`;
+target Rust layout supplies size/alignment/offsets. The host reads the named
+archive section without executing target code, rejecting absent, duplicate,
+truncated, unsupported or inconsistent descriptors. Path/package version,
+sidecars, host sizeof and pinned-Text capability are not target proof.
 
-The runtime ABI owner defines one versioned layout profile, projected to its
-Rust representation, C header checks and backend layout validation. Avoid
-independent hand-written size tables. The selected compile invocation carries
-that profile and target selection through object emission and runtime-library
-selection. The selected target's LLVM layout verifies frame size, alignment
-and offsets before object emission. This requires target evidence, not an
-in-process LLVM API; embedding remains the post-cutover investigation below.
-No host `sizeof`, target default,
-environment mutation or borrowed pinned-Text capability supplies missing data.
-EXE and linked-OBJ acceptance must verify the linked runtime target/revision.
+One `LifecycleRuntimeSessionV1` binds the selected archive, target and entry
+record before serialization or artifact creation. The neutral C session checks
+LLVM target-data layout against the descriptor and target-compiled C header,
+and retains its machine/data/triple/layout through emission and publication.
+The module preamble and explicit llc target use that same session; generic
+ambient tool flags and late runtime-directory reselection do not select this lane.
+Resources and temporary files are released on every failure.
 
-Root allocates aligned storage and initializes once, executes body and cleanup,
-reports a pending Fault at the final entry, disposes once even if reporting
-fails, then returns under the final-entry status contract. Birth receives the
-same hidden pointer and neither allocates, initializes, reports nor disposes
-it. Normal=0 and Fault=1 follow the runtime ABI; InvalidContract=2 is a physical
-contract failure, never a source cleanup successor. The final-entry owner must
-name its process-status mapping before consumer activation; C cannot choose
-an arbitrary exit value for report failure or InvalidContract.
+Two explicit link artifacts share runtime core: `nyash_kernel` retains legacy
+entry behavior; `nyash_lifecycle_kernel` owns normalized-status main and its
+`.nyash.entry_abi.v1` record. Core rejects combined legacy-entry/lifecycle-core
+features. Generic wildcard builds exclude the lifecycle package; its explicit
+build uses `target/lifecycle-kernel`. Renaming a legacy archive does not satisfy
+entry ABI admission. EXE links the archive returned by its bound invocation;
+standalone OBJ must link an ABI-compatible runtime. Artifact selection is not
+source-result authority, and legacy runtime entry is not globally retired.
+
+### Entry outcomes and cleanup
+
+Root owns one aligned initialized FaultFrame, body and cleanup; Birth only
+borrows its hidden pointer. Root reports a pending Fault after cleanup and
+disposes once, including report failure. InvalidContract is not a source Fault
+successor and must not touch an untrusted frame; disposal is allowed only after
+successful root initialization. Both report failure and InvalidContract use the
+existing final status contract. C emits normalized `ny_main() -> i64`; kernel
+owns startup/flush and checked OS adaptation, not handle decoding of that result.
+
+Normal=0, Fault=1 and InvalidContract=2 are runtime operation statuses.
+Process policy is distinct: Unit0, Integer0..255 unchanged, range/unsupported
+result Fault70, final program Fault70. Out-of-range I64 records reason102 and
+`{actual_i64, 0}` at the supplied process-result site after Home cleanup.
+Bool remains Bool; its specified unsupported-process Fault is not an i64 cast
+or source rejection. Selected root Bool execution still needs an exact source
+relation and physical consumer. Policy authority remains
+[function exit and entry result](../../../../reference/language/function-exit-and-entry-result.md).
+
+## Direct input, V4 and retirement boundary
+
+`PublishedLifecyclePhysicalAbiInputV1` contains `CompiledEntryContractV1`, its
+referenced layouts, representations, sites and runtime requirements. Host
+`LifecycleInvocationInputV1` owns that completed input and borrows the selected
+session. The wrapper derives both C arguments from this bound owner. MIR does
+not depend on host modules; no sibling Array/constructor semantic product exists.
+
+JSON Value is built once and serialized once; the intermediate String/reparse
+and `program-parse` branch are gone. V4 parses the physical-v2 document once,
+validates the same document, admits its finite cohort, emits LLVM text and
+invokes explicitly targeted llc-18 for PIC object output. An independent parser
+entry remains validation-only. Parser success is never execution admission.
+
+Validate exact keys/revision, functions/definitions/uses, CFG/PHI predecessors
+and available edge operands, terminator-only Invoke, exact Normal result origin,
+representations, layouts, diagnostics and target/session. Reject unsupported
+siblings, HANDLE-as-scalar, unknown tags and unseeded/conflicting values before
+artifact exposure. Failures preserve existing output and clean temporary files.
+No source-name resolver, generic retry or C-supplied missing default is permitted.
+
+Selected host OBJ and EXE share `compile_published_view_object`, exact input
+borrow identity and capability checks. Each retained numeric obligation matches
+its exact FieldSet/value/field/layout once; diagnostic strings only check the
+canonical declaration's projection. Missing/duplicate/residual or foreign input
+rejects; no metadata clearing or `skip_numeric` flag is used.
+
+The selected old generic lifecycle JSON, Rust V2 frames/wrappers, C V2/V3 pending
+exports/delegation and exclusive probes were retired at `7c8041c075`. Shared
+physical-v2 parser, V4, target/session, runtime descriptors and generic/static
+call consumers remain. The sole surviving static C transport lives under
+`published_backend_view/c_transport.rs`; its external path mount is removed.
+Caller-zero C cleanup removed the unused `hako_physical_values_exist` helper,
+not live parser/SSA checks or the whole C implementation.
+
+Boundary for the closed retirement claim: selected host -> Rust transport/
+reexports -> C header/translation-unit/exports -> tracked direct/manifest/
+aggregate/directory build/test discovery. Excludes historical docs, external
+consumers, parked branches, generic compatibility and other source families.
+No blanket compiler/runtime legacy-zero or complete view-thinning claim follows.
+
+## Default derive and actual source ingress
+
+Default Equals/ToString are produced once by `macro/default_derive.rs` inside
+the existing normal parser open postpass, after cohort/delegate selection and
+before initial source co-seal. One captured macro policy reaches parser and
+transform; parser reads no macro environment. AST-only compatibility shares the
+pure generator through its explicit caller. Static exclusion, explicit-method
+precedence and ordered public fields are preserved.
+
+Generated origin binds Box identity, derive kind, placement and exact declaration/
+receiver/parameter coverage. Equals has one unannotated other binding; ToString
+has explicit empty coverage, never missing coverage or an invented source-member
+ordinal. Existing resolver, parameter, Completion and signature owners consume
+this origin. Complete method batches publish all methods, called or not.
+Original/generated drift and missing/extra/foreign coverage reject before commit.
+
+Final `finish_exact` remains exact and never regenerates defaults. Registered
+macros, test tails and unknown changes retain their rejection. Nonempty public-
+field derives still need source-owned dynamic field/Text-conversion relations
+and stop before raw repair; generic MacroOrImport is not newly admitted.
+Pair's plain fields are not public-field declarations. Its unchanged generated
+bodies and normal macro settings now reach actual CLI/host execution; the old
+macro-disabled-only checkpoint is superseded by `59e6c5c34b` and later host evidence.
 
 ## Finite inventory and acceptance boundary
 
-Boundary: selected source root and exact Birth declarations -> retained
-source plans -> emitted/finalized MIR -> final view -> selected C LLVM
-consumer -> object -> matching runtime link -> EXE terminal.
-Includes all selected formals, values, checked operations, normal/fault exits,
-unconsumed products and old selected re-entry. Excludes other call families,
-VM/WASM parity, generic-C concurrency migration and runtime hook registry.
+Closed bounded execution: selected Pair source -> retained root/Birth and exact
+actuals -> completed physical input -> bound runtime V4 -> OBJ/EXE terminal.
+The unchanged Pair returns30. Bool in either Birth argument yields Fault103/70;
+the failed slot is not stored, prior stores survive, reclaim precedes report,
+and dispose occurs once. Physical probes additionally cover range/report/
+InvalidContract, schema/site/session/tool failure and artifact atomicity.
+They do not grant new source families.
 
-Function inventory is the retained root plus retained canonical Birth keys.
-The existing parser vocabulary is Const(i64/string/Unit), Add, Copy, Phi,
-ObjectFieldGet, Birth Call, Invoke(NewBox/FieldSet/HomeRelease/Reclaim/Call),
-InvokeNormalResult, FaultFrameEnter, ReturnFault, Branch, Jump and Return.
-Parser acceptance is not execution admission. Classify every variant against
-the existing selected source domain; Branch/Jump are control, not source
-value classes. Branch condition and edge arguments still require completed
-value bindings; a missing condition representation rejects. They need no
-checked-operation diagnostic origin. Preserve accepted source forms and tests.
-Unsupported source-less parser forms reject explicitly; do not remove an
-accepted shape or alter the Pair source to make the inventory close.
-Inventory is not yet Exhausted: source retention, physical binding, target
-agreement and executed cutover remain `CutoverBlockerOpen` inside this boundary.
+Latest terminal BoxShape receipt is `a1d86db262`: exact handoff5/control33 and
+Pair EXE/linked OBJ/probes pass; source max730, net Rust-32. Array execution is
+separately closed at `feaaa5d5e8`/`b61aef93ec` in its own boundary. This prose
+reconciliation runs no builds or runtime tests and does not replace those receipts.
+
+The **broader source inventory is still open**: constructor Unit execution,
+Bool/local/alias/typed-integer/general-Add result relations, root formals/SSA,
+unsupported actual/formal classes, nonempty-public-field derives and required
+multiple-Home optimization coverage retain their obligations. The broader
+inventory retains these CutoverBlockerOpen obligations; none is silently
+resolved by Pair success or moved to another backend.
 
 ## Ordered tasks
 
-These are bounded steps in this existing family, not new receipt/guard lanes.
-Step 0 is landed. Each source-retention slice requires a named canonical
-issuer/consumer and a closed mapping before `fast`; unrelated missing rows
-remain explicit cutover blockers rather than stopping a closed slice. Follow
-the current issuance design below. Full cutover still requires all in-boundary
-`Partial` and `Missing` rows to be resolved.
+1. Existing physical storage wire-tag BoxShape in the follow-up queue below.
+2. Resume the [rolling backend/runtime order](../workstreams/mirbuilder-inplace-replacement-current.md#backendruntime-feedback-and-task-order-2026-09-06):
+   canonical/compatibility -> compile-call state/
+   options -> runtime-hook single storage -> runtime dependency reduction order.
+   Published Global-required-row and Extern Stop are already landed; do not
+   restart them from an old checkpoint. A demonstrated selected dependency
+   failure reopens its owner immediately.
+3. Broader source-result/actual families require their own existing issuer and
+   physical mapping: Bool, then local/alias, typed integer and general Add after
+   operand relations exist. No new family is authorized by this document cleanup.
 
-| Order | Owner, caller and terminal | Replacement and acceptance |
-| --- | --- | --- |
-| 0. Owner split (BoxShape, landed) | `instance_constructor_semantic.rs`, `brand_catalog_tests.rs`, `ordinary_new_local_commit.rs`; existing imports/tests and callers | Constructor tests now live in the child test module, the brand test tail is included without changing its logical paths, and root validation lives beside local-commit emission state. The parent files are respectively 539, 715 and 746 lines; all child files are below 760. No public API, test name/body, source contract or lifecycle route changed. |
-| 1. Source retention (BoxShape) | existing semantic package issuer -> construction/New/Home plans -> existing selected claim consumer | Retain formal/value requirements and typed operation origins at their existing issue points. Replace source relation loss before claim take and cleanup emission. Acceptance: unchanged Pair and existing renamed/alias/multiple-Home cases, exact unused formal and cleanup origins; foreign/missing/duplicate/source-unavailable negatives before emission. No disconnected source-only receipt. |
-| 2. Physical binding and final handoff (BoxShape) | selected root/Birth emission -> existing completion ledger -> final-view admission | Replace bare value/op binding loss with completed physical relations in the existing handoff. Positive exact source-to-final-view coverage; negative finishing drift, residual sibling, mixed/unseeded PHI, Unit result, wrong Normal result and metadata-independent verdict. Preserve one-way transfer and generic lifecycle fence. |
-| 3. Target/runtime agreement (BoxShape) | runtime ABI owner + selected compile invocation -> same-target lifecycle session | Replace implicit host-layout assumption with explicit target ABI agreement; no semantic target receipt. Target-compiled Rust/C checks, LLVM size/alignment/offset agreement, unsupported target/revision/runtime mismatch and absent session reject without artifact. All session resources released on failure. |
-| 4. Complete direct input (BoxShape) | final-view physical ABI -> existing JSON/parser -> one parsed consumer input | Project completed representations, origin IDs/dictionary and target ABI once; remove serialize-then-reparse and missing-input assumptions. Actual issued JSON positives, full variant/range/coverage/target negatives; parser-only success never claims LLVM execution. |
-| 5. LLVM + production cutover (BoxCount) | `published_mir_object.rs` lifecycle caller -> dedicated call-local consumer -> object/EXE | Emit the complete selected function/control/runtime ABI; switch the real host caller and delete its generic lifecycle JSON + V2 pending companion edge in the same series. Fixed source EXE30 and OBJ->linked EXE30, Fault ordering/cleanup, Normal-only out loads, frame lifetime and no partial artifact are mandatory. |
-| 6. Caller-zero retirement (Delete) | selected transport/proof owners -> required production acceptance | Audit direct, manifest, aggregate and directory discovery; delete unused V2 wrappers/pending helpers/private probes and the legacy proof route. Retain shared helpers only with named live callers. No selected old retry/re-entry remains. |
+### Post-cutover physical backend investigation
 
-### Step 4 prerequisite: `CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-D0`
+`C-LLVM-COMPILE-SESSION-INPROCESS-D0` remains parked. Current V4 emits textual
+LLVM and invokes tools; target-layout observation does not imply in-process
+code generation. Choose an embedded LLVM distribution or the retained tool
+owner only with target/toolchain/link evidence, a finite invocation inventory,
+object/diagnostic/temp-cleanup equivalence and explicit failure behavior.
+Delete command builders only after a selected equivalent successor exists.
+The separate Rust `ll_tool_driver.rs` seam is not retired by implication.
+No runtime-speed or concurrent-compile claim is made.
 
-Before Step 4 can expose one direct physical input, document and validate the
-existing absence encoding in
-`src/mir/function/published_backend_view_lifecycle_c_transport.rs`. The owner
-is that Rust C-frame projection and its paired C lifecycle parser; it does not
-issue source meaning. In scope are the source-ordinal absence on a receiver,
-the root's absent receiver/object fields, and absent operation/control fields.
-Each field must name whether `u32::MAX` means absent, and the parser must reject
-an impossible combination instead of treating it as an ordinary ordinal.
+### Feedback reconciliation queue (2026-09-07)
 
-Acceptance: a receiver has no source ordinal, source formals retain theirs,
-and malformed absent/present combinations reject before object emission. The
-exclusive cleanup set is only the anonymous raw sentinel literals in this
-frame, replaced by named shared Rust/C ABI constants where that does not alter
-the wire. It does not change receiver/source semantics, other `u32::MAX` uses,
-or enable LLVM execution.
+This stable entry now records dispositions rather than repeated task cards:
 
-**Decision (accepted):** `u32::MAX` is V2 wire absence only. The Rust schema
-and `hako_llvmc_ffi.h` jointly own its spelling; each V2 row kind declares
-required-present versus required-absent fields, and C rejects either inverse
-before its pending terminal. `nyrt_fault_v1.h` and Rust fault exports own
-structural FaultFrame vocabulary only; no target triple/session currently
-proves target layout equality. The smallest implementation is therefore
-sentinel/validator-only I0, leaving target layout and direct input gated.
-
-### `CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-I0`
-
-Replace only anonymous V2 absence literals with the named shared wire constant
-and make C validation exhaustive for formal, definition, operation, control
-and body-site presence combinations. Keep the ABI bytes and revision unchanged.
-Positive Pair V2 frames reach the existing pending terminal; malformed
-receiver/source-ordinal or required-present/absent fields reject before it and
-produce no artifact. No source meaning, FaultFrame target layout, JSON/input
-route, LLVM emission, kernel switch or EXE claim opens.
-
-**I0 landed:** Rust and C now share the named V2 absence wire constant. The C
-validator covers formals, operation kind/lane combinations and control
-presence combinations before root/body validation. The preartifact C test
-proves valid pending plus malformed receiver ordinal, NewBox object and Return
-origin rejection without an object. Wire layout/revision are unchanged.
-
-### `CONSTRUCTOR-LIFECYCLE-TARGET-FRAME-LAYOUT-D0`
-
-Step-3 design stop. Name the sole selected target/session issuer that proves
-Rust `NyrtFaultFrameV1`, C ABI and future LLVM placement agree on
-size/alignment/offsets for one target triple. The existing fault header and
-Rust exports provide structural vocabulary, not target proof. This D0 must
-select or explicitly reject an existing target session; it must not reuse the
-pinned-text session, infer layout from host defaults, emit C, or open direct
-physical input.
-
-**D0 result: NoSafeSlice.** The only existing triple/DataLayout/TargetMachine
-issuer is explicitly pinned-text-only. The selected lifecycle C ingress and
-archive link have no target/session input; structural Rust/C FaultFrame checks
-are not target proof. The next design stop is
-`CONSTRUCTOR-LIFECYCLE-TARGET-SESSION-ISSUER-D0`: identify one lifecycle
-invocation owner binding target triple, LLVM layout observation, FaultFrame ABI
-revision/size/alignment/offsets and exact kernel archive target/revision. It
-must not reuse PTFB or issue semantic meaning.
-
-### `CONSTRUCTOR-LIFECYCLE-TARGET-SESSION-ISSUER-D0`
-
-Decision: extend the selected host compile invocation as the sole physical
-session owner; runtime builds issue their own ABI description. Missing current
-implementation is an implementation dependency, not a reason for another
-issuer census. The already selected target remains x86_64 GNU/Linux LP64.
-Source authority + canonical issuer: source meaning stays in the existing
-semantic package/final handoff; kernel target compilation issues runtime ABI
-facts, and the lifecycle host invocation binds target, runtime and backend.
-Non-authority: archive pathname/package version alone, host sizeof, ambient
-llc defaults, source names, and pinned-text semantic admission.
-Fail-fast boundary: missing or conflicting runtime descriptor, selected target,
-ABI revision, LLVM layout or archive binding rejects before user-object output.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0` below.
-Non-claims: this decision does not prove layout equality, complete physical
-representation coverage, C execution, EXE30, or MirBuilder-wide retirement.
-
-The previous NoSafeSlice findings establish that the objects do not exist yet;
-they do not forbid designing them under the runtime/backend owners already
-named in Runtime and target ABI. No semantic receipt or second MirBuilder is
-needed. Pinned-text capability/census remains cohort-specific; low-level LLVM
-tool loading, target observation and resource disposal are ordinary reuse
-candidates when separated from that admission. In-process conversion remains
-parked: a call-local session may own explicit LLVM tool invocations.
-
-#### Ownership and lifetime
-
-| Owner | Product and consumption |
+| Finding | Current owner / disposition |
 | --- | --- |
-| Kernel target build (`exports/fault.rs`, `build.rs`, `include/nyrt_fault_v1.h`) | A versioned, target-compiled ABI descriptor embedded in the runtime archive. Rust layout constants derive sizes, alignments and offsets; Cargo TARGET supplies target identity. No hand-written duplicate byte-layout table. |
-| Host lifecycle invocation (`published_mir_object.rs`, `capi_transport.rs`) | Select target and runtime archive once before compilation. Read the descriptor without executing target code, retain archive identity for this invocation, and pass explicit backend options. EXE must not select a different archive after object generation. |
-| Dedicated C lifecycle consumer | Own one call-local backend session; verify LLVM target layout against runtime facts and target-compiled C header evidence. Use the same explicitly selected tools/target/options for validation and object emission; release resources on every failure. |
-| Selected OBJ/EXE linker | Consume an object ABI requirement and matching runtime descriptor. Standalone OBJ may link an ABI-compatible archive; byte identity is an invocation integrity check, not the definition of ABI compatibility. |
-
-The audited caller boundary is runner published OBJ/EXE requests → selected
-host lifecycle compile/link invocation. Includes module EXE calls in
-`src/runner/modes/common_util/exec.rs` (two call sites), its module OBJ call,
-view EXE in `src/runner/modes/mir.rs`, and view OBJ in
-`src/runner/product/llvm/mod.rs`: five runner call sites, converging on
-`compile_published_view_object` and then `compile_published_lifecycle_body_v2`.
-Excludes unrelated generic/compatibility link drivers and other backends; this
-inventory does not establish their caller-zero retirement. Task 2 threads one
-explicit session from those selected lifecycle requests, and replaces the
-lifecycle branch's late runtime-dir/env/default archive fallback.
-
-Descriptor encoding is fixed-width, versioned and independent of native C
-struct padding. It includes magic/length/revision, target identity, endian and
-pointer width, Fault ABI revision, and Diagnostic/Frame size, alignment and
-field offsets. Embed one retained, named descriptor in the target object/archive;
-extract it by its defined symbol/section, never by byte-pattern search. Reject
-missing, duplicate, truncated, unsupported or inconsistent descriptors. A
-sidecar may not become a second source of runtime ABI facts. The descriptor
-records implemented ABI only; it must not advertise the future normalized
-entry terminal before that terminal is implemented.
-
-#### Ordered implementation tasks
-
-| Order | Owner / bounded work | Acceptance and removed edge |
-| --- | --- | --- |
-| 1. Runtime ABI descriptor I0 | **Landed.** Kernel target build plus host archive descriptor reader issue and decode one target-derived descriptor; no executable route switch. | The actual built archive is read without running target code. Rust emits the 200-byte descriptor from `Diagnostic`/`FaultFrame`; C header assertions remain independent boundary evidence. Missing/duplicate/malformed/revision/inconsistent layout rejects are covered. This is task 2's dependency, not standalone codegen. |
-| 2. Lifecycle invocation/session I0 | Existing host object/EXE entry, C target options/session, selected link owner. Bind descriptor and target before compilation; preserve OBJ ABI requirements through link. | Source-selected invocation consumes task 1; explicit target/layout/archive mutations reject before user artifacts. Delete late EXE archive re-selection and ambient target selection on this lane. Prove LLVM layout with the same toolchain/target used for emission. |
-| 3. Complete direct input I0 | Existing physical ABI/JSON owner and dedicated parser. Co-seal the compiled-entry contract, layouts and session input; construct final JSON once. | Actual issued Pair input reaches the real C parser. Full opcode/operand/CFG/PHI/formal/cleanup/target mutation coverage; delete serialize/parse/serialize and name-only acceptance. Deferred actual representations and unsupported admitted siblings remain cutover blockers, not implicit i64. |
-| 4. Lifecycle execution and entry cutover | Dedicated C body emitter, host caller and kernel entry selected together. Implement allocation/Birth/field/Add/control and cleanup, plus normalized root status. | Unchanged Pair source exits 30 through direct EXE and independently linked OBJ. Inject normal/fault/report failures, check exactly-once cleanup and no output on compilation rejection. Delete selected pending/generic-body route and selected raw kernel result decoding in the same series. |
-| 5. Caller-zero retirement | Transport/entry owners. Remove obsolete wrappers and exclusive probes after all discovery paths are checked. | Direct/manifest/aggregate/directory callers of the selected old route are zero. Shared compatibility helpers retain named callers; broader source families and Call R7 obligations remain explicit. |
-
-Before task 4 activation, the existing runtime/final-entry owners must settle
-InvalidContract and reporting failure behavior. InvalidContract must not enter
-a source Fault successor or touch an untrusted frame; report failure on a valid
-frame still requires disposal. These are explicit unresolved terminal-policy
-items within task 4, not permissions to invent a numeric exit code in C. They
-do not block the runtime descriptor implementation.
-
-### `CONSTRUCTOR-LIFECYCLE-RUNTIME-ABI-DESCRIPTOR-I0`
-
-BoxShape: implement task 1 only. The source of every descriptor layout value is
-target-compiled Rust Fault ABI representation; C header checks are independent
-boundary evidence. A small host reader consumes the embedded descriptor of the
-specified archive. Keep producer/reader/tests in bounded children below 800
-lines and update runtime README plus the owning reference ABI page with the
-implementation. Test actual archive extraction and malformed/foreign inputs;
-no new guard family or semantic Verified/Prepared product. Task 2 must use this
-reader on the selected production invocation before the series is called a
-production replacement. Task 1 alone claims descriptor evidence only.
-
-Completion evidence: `crates/nyash_kernel/src/exports/fault.rs` retains exactly
-one target-compiled `.nyash.runtime_abi.v1` 200-byte record, while
-`runtime_abi_descriptor.rs` selects that named section from the specified
-archive and decodes its fixed wire layout. The focused reader tests reject
-nonzero target padding and inconsistent layout; the archive-required focused
-test reads `target/release/libnyash_kernel.a`. `readelf` confirms one section
-and `nyash_runtime_abi_descriptor_v1` symbol. This does not bind a descriptor
-to a selected lifecycle invocation, prove LLVM layout equality, or enable C
-lifecycle execution.
-
-### `CONSTRUCTOR-LIFECYCLE-INVOCATION-SESSION-I0`
-
-BoxShape: task 2 only. The existing lifecycle OBJ/EXE host invocation selects
-the target and exact runtime archive once, reads the descriptor before user
-object output, and passes one explicit target/session choice to the C consumer.
-The C consumer verifies that choice against LLVM layout using the same tools it
-will use for emission. Reject archive, descriptor, target, or layout mutations
-before an artifact; then delete this lifecycle branch's late
-`NYASH_EMIT_EXE_NYRT`/`target/release` re-selection. Do not implement C body
-execution, normalized entry status, process exits, or direct-input widening.
-
-Host binding checkpoint: lifecycle EXE now requires an explicit runtime
-directory, selects `libnyash_kernel.a` before temporary body transport/object
-work, and retains that exact archive path through `link_object_capi_v2`.
-Lifecycle OBJ ingress without an explicit session rejects before body transport.
-This deletes the lifecycle EXE branch's late environment/default archive
-re-selection. The remaining part of this same row is the neutral C LLVM
-resource helper and descriptor-to-target-layout verification; no target
-equality or lifecycle C execution is claimed by this checkpoint.
-
-C session checkpoint is complete: V3 receives only the host-decoded fixed
-descriptor row. Its neutral helper opens an LLVM 18 X86 TargetMachine, checks
-the selected triple and target-data pointer width, and independently compares
-every Fault Diagnostic/Frame field with the C header before returning the
-existing typed pending terminal. It constructs the matching Diagnostic and
-Frame LLVM structures and compares their target-data ABI size/alignment and
-declared member offsets with the descriptor. C `sizeof`/`offsetof` remains
-independent boundary evidence; it does not substitute for target-data evidence.
-The focused V3 ingress test proves an x86_64 LP64 session reaches pending and
-an i386 triple paired with the LP64 descriptor rejects as `llvm-layout` before
-body transport or object output. The helper owns and releases the library,
-machine, target-data, context and LLVM diagnostics on every outcome. This
-closes target/session agreement only; it neither imports PTFB semantics nor
-emits an object, activates direct physical input, executes a body or claims a
-process exit.
-
-### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
-
-This is the concrete Step 4 owner/caller row: final view physical program and
-ABI projection -> one C-parser input. Its successor constructs the final issued
-input once; it must not serialize a program String, parse it into a JSON Value,
-then serialize it again. The intermediate program-string path and its
-`program-parse` branch are the exclusive delete set, but only after the real
-selected consumer uses the successor. Acceptance is issued Pair input with
-exact function/order/layout plus malformed, range, coverage and target
-negatives. Parser-only success remains parser-only evidence; it does not claim
-an object, EXE, `llc` behavior or a C execution cutover.
-
-**I0 landed:** `physical_program_json.rs` constructs its program `Value` once,
-adds the issued ABI/layout fields in that same owner, then serializes the final
-input. The `program-parse` re-entry is deleted. The selected lifecycle object
-ingress writes this final input and invokes the exported C physical parser
-before it creates the legacy temporary body transport for the still-pending V3
-consumer. The focused source-issued Pair input reaches that parser; the
-dedicated C parser test rejects malformed definitions, values, CFG/PHI,
-operation, layout and profile rows. This is pre-artifact parser evidence only:
-V3 still returns `body-consumer-pending`, and no object, EXE or process-status
-claim is made.
-
-`CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-OWNER-SPLIT-I0` is landed (BoxShape): root
-Home progress/validation now lives in `ordinary_new_local_commit/root_home.rs`.
-The parent is 633 lines and the child is 125; public API, tests, behavior and
-test paths are unchanged. `CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-RETENTION-I0`
-now owns only the existing `RootHomeExitProgress` -> selected emitter handoff;
-it cannot widen source acceptance or touch Birth representation/Reclaim.
-
-Step 0 validation uses the existing semantic-package suite, identical test
-discovery before/after, source line counts and pointer guard. No new fixture,
-fallback, source shape or baseline change. If a test fails, classify it using
-the same command at the parent before calling it baseline debt.
-
-Step 0 is landed. The next row is a design stop: name the source authority and
-canonical issuer for each retained formal/value requirement and checked
-operation origin before an implementation slice is opened. It cannot use a
-physical value, final-MIR observation, metadata, or C-side default as a source
-substitute.
-
-## D0: source-requirement issuer census
-
-Historical design progression below records the premises of bounded landed
-slices. The current issuance design near the end supersedes blanket
-NoSafeSlice and source-rejection interpretations; do not rerun these censuses.
-
-Decision: source retention is `NoSafeSlice` for implementation. Existing
-source plans are the only candidates to extend; a second synchronized source
-table, a new semantic receipt, or an inferred physical type is not allowed.
-Source authority + canonical issuer: `ordinary_new_coseal` issues selected New
-claims, root terminal relations and field-read rows; `instance_construction`
-issues constructor store obligations; `birth_abi_handoff` issues Birth receiver
-and parameter lane relations plus Unit result; root completion issues the Home
-exit obligation.
-Non-authority: `FunctionMetadata.value_types`, builder `type_ctx`, final MIR
-values/blocks/instruction order, spans, Birth lane ordinal alone,
-`Phi.type_hint`, and JSON/C defaults.
-Fail-fast boundary: a source requirement without exactly one row below rejects
-before claim take and physical binding. `None`, unavailable source coverage,
-or a Pair-specific witness cannot fall through to inferred i64 or Unit.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-D1`, which
-names the issuer and selected claim-take consumer for missing source
-representation and per-operation-origin products.
-Non-claims: all-SSA binding, u64 diagnostic encoding, target/frame ABI,
-JSON/C lowering, Pair EXE/OBJ30, or retirement.
-
-Census boundary: selected App Main root plus retained canonical Birth keys ->
-installed semantic package port and claim take; includes selected New,
-FieldSet, HomeRelease, Reclaim, root terminal reads/result and Birth
-formals/result; excludes final-MIR bindings, synthetic compiler values,
-backend/runtime layout, other call families and VM/WASM.
-
-| Product | Existing issuer and exact consumer | State and next rule |
-| --- | --- | --- |
-| Root terminal result and reads | `ordinary_new_coseal` co-seals `TerminalI64AddReturnV1` with two exact field-read sites. The selected terminal emitter reserves, records and completes it. | **Present.** It proves the selected terminal i64 relation only; it does not type every root value. |
-| Root HomeRelease | Root completion issues ordered terminal homes and exact exit; `RootHomeExitProgress` retains that binding/exit with object and `ValueId`, and the selected root Home emitter records the exact `HomeRelease`. | **Present.** Final root validation checks ordered origins and the concrete release operation; this does not cover Reclaim or arbitrary root representation. |
-| Root formals and arbitrary root values | Selected root source/completion reaches raw callable lowering and final view. | **Missing / CutoverBlockerOpen.** Pair's zero-formal witness cannot narrow this domain. D1 must name their semantic-class issuer. |
-| New allocation | `OrdinaryNewAdmissionClaimV1` retains exact New site, object, destination, Home prefix and construction; the package port takes the same owned site. | **Present.** The allocation identity is source-issued; representation of its result is still missing. |
-| Birth formals and result | `BirthAbiHandoffV1` issues owner, receiver/parameter bindings and physical lane order with Unit result; claim take transfers it to root/Birth handoff. | **Partial.** Unit result is present through final handoff/C transport; receiver and a parameter's value representation require their own existing source-use relation. |
-| Birth FieldSet | `ConstructionPlanV1` retains each `ResolvedAssignmentSourceV1` with canonical field; selected construction/body lowering consumes it. | **Present source obligation; physical handoff missing.** D1 must not create a duplicate store issuer. |
-| ReclaimUnpublished | `ConstructionPlanV1` issues required outer-storage reclaim and constructor identity; the exact ordinary-New claim site co-seals it, `NewEmissionProgress` retains it, and selected Birth-fault cleanup records the operation. | **Present through selected finalization.** Final validation rejects source, presence, binding and operation drift; target/runtime lowering remains separate. |
-| Copy, PHI, frame, InvokeNormalResult, branch/edge values | No selected source requirement issuer exists; the builder creates or binds them. | **Missing as source products.** Later physical binding may admit them only through completed input relations or named emitter rules, never metadata inference. |
-
-The finite state vocabulary is `Present | Partial | Missing`. `Present` means
-one existing issuer and named consumer, not backend readiness. `Partial` and
-`Missing` are inside this census boundary and therefore
-`CutoverBlockerOpen`; they cannot be parked or repaired by C. D1 must decide
-one existing issuance owner per missing product, its exact claim-take consumer,
-its exclusive old information-loss edge, and its pre-emission negative. If one
-is absent, D1 remains `NoSafeSlice`.
-
-## D1: representation and cleanup-origin disposition
-
-Decision: retain only products with an existing source issuer. Root/Birth
-representation remains partially `NoIssuer`; it is not a prerequisite for the
-bounded Home-origin row, but it blocks any claim of complete source retention.
-
-| D0 product | Existing owner, consumer and loss edge | D1 disposition |
-| --- | --- | --- |
-| Root i64 terminal reads/result | `scan_new_home_flow` issues the exact literal/field/Add relation; selected terminal emission consumes it. Only this terminal relation crosses the claim. | **Existing issuer, bounded.** It cannot classify arbitrary root values. |
-| Root New arguments | The same walk observes exact New children and only recognizes source trivial literals; `CallerNewHomePrefixV1` drops their sites/classes before selected emission receives bare values. | **Existing issuer, later extension.** Retain site/class in the existing prefix/claim only when an accepted direct consumer is named. |
-| Root formals | The selected root Home walk rejects receiver/parameter declarations as `EntryDemandMissing`; no root formal relation reaches the retained handoff. | **NoIssuer.** Reject this source domain before claim take; zero-formal Pair is not a domain reduction. |
-| Birth receiver | `BirthAbiHandoffV1` owns binding/lane and `ConstructionPlanV1` owns the exact object, but they are not co-sealed after claim take. | **Existing issuers, later co-seal.** D1 does not infer object handle from lane. |
-| Birth parameters | Birth handoff owns bindings/lanes/Unit; constructor stores identify i64 use only for admitted parameter RHS. Unused or untyped formals have only `OpaqueHandle`. | **Partial.** Retain i64 use requirements separately from declaration contracts; missing execution support is unavailable, not a source rejection. See current task 1b. |
-| HomeRelease origin | Completion co-issues ordered terminal homes and exact exit; the prefix carries binding plus outward-fault site. `RootHomeExitProgress` retains each binding/exit with its existing object/value through selected emission. | **Landed.** The naked positional handoff is deleted. Final validation rejects origin count/order/exit or concrete `HomeRelease` operation drift. |
-| ReclaimUnpublished cutpoint | `ConstructionPlanV1` retains constructor identity and the construction-fault reclaim obligation; the exact claim site is co-sealed before `NewEmissionProgress` transfers it to selected cleanup. | **Landed.** Final validation rejects missing, duplicate or drifted Reclaim operation/binding; generated CFG position is non-authority. |
-
-`CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-RETENTION-I0` is landed. It has one
-authority (`RootHomeExitProgress`), one consumer (the selected root Home
-emitter), and deleted the bare `(CanonicalObjectIdV1, ValueId)` positional
-handoff. Acceptance covers ordered Pair `HomeRelease` emission with distinct
-retained origins and concrete operation drift, alongside the existing
-foreign/missing/duplicate Home, wrong-exit, reordered-row and unavailable
-root-cleanup negatives. It makes no representation or Reclaim claim.
-
-## Reclaim origin D0 decision
-
-Decision: retain the existing construction-fault Reclaim origin in
-`NewEmissionProgress`; do not issue another semantic receipt.
-
-Source authority + canonical issuer: `instance_construction::issue_construction_plan`
-issues the outer-storage reclaim obligation and its exact
-`(ConstructorSourceIdV1, FunctionOwnerIdV1)` identity; `ordinary_new_coseal`
-co-seals that plan with the exact `OrdinaryNewAdmissionClaimV1` owned New site.
-
-Non-authority: generated cleanup CFG/block placement, final MIR coordinates,
-`ValueId` layout, target/runtime ABI, C transport and a bare `Birth` branch.
-
-Fail-fast boundary: plan/claim object or constructor-identity mismatch rejects
-before emission; missing, duplicate or drifted concrete Reclaim rejects during
-existing final new-emission validation, before final observation/seal.
-
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-RETENTION-I0`.
-
-Non-claims: NoBirth allocation cleanup, Birth FieldSet cleanup, root Home,
-root/Birth value representation, target ABI, C activation and LLVM execution.
-
-Census boundary: eligible direct-local canonical-Birth `ConstructionPlanV1`
-construction-fault obligation co-sealed into one ordinary-New claim ->
-`NewLocalCommitV1` emission progress -> selected Birth-fault cleanup -> existing
-final new-emission validation; includes only selected direct-local Birth New;
-excludes NoBirth, unavailable/override construction, constructor-body FieldSet
-cleanup, generated CFG position, target/runtime/C.
-
-| Finite source/emission state | Authority and required action | Terminal / fallback |
-| --- | --- | --- |
-| Eligible canonical Birth plan | Existing plan and exact claim site issue/co-seal the reclaim origin; progress retains it once and selected cleanup consumes it once. | Emit exact Reclaim only on the Birth fault suffix; validate origin and operation. |
-| NoBirth | Existing claim has no constructor identity for a constructed object. | No reclaim origin; allocation-fault cleanup only. No fallback classification. |
-| Unavailable or override construction | Existing construction eligibility is unavailable. | Existing pre-artifact rejection; mint no origin. |
-| Missing or drifted plan/object/constructor relation | Existing plan/claim consistency check fails. | Typed pre-emission error; never infer from generated CFG or `Birth` alone. |
-| Missing, duplicate or drifted recorded Reclaim | Existing physical progress/final validation observes a mismatch. | Typed finalization error before observation/seal; no retry. |
-
-The exclusive old loss edge is `NewEmissionProgress::Prepared` and
-`begin_new_emission()`: they currently retain only prior Home operands. The
-selected emitter reconstructs `ReclaimUnpublished { object, value }` from
-`claim.constructor()==Birth`, losing the plan's source constructor identity and
-exact New-site-to-construction-fault relation. I0 replaces that internal bare
-reconstruction with one retained origin under the existing progress owner.
-Its acceptance is a two-Birth ordinary-New positive proving one distinct
-source origin per fault suffix and none on Normal, source negatives for
-NoBirth/unavailable/foreign/missing/duplicate relation, and final-MIR mutation
-negatives for object/value/block removal or duplication. It reuses existing
-construction-take evidence and does not add a fixture, fallback or guard.
-
-`CONSTRUCTOR-LIFECYCLE-RECLAIM-ORIGIN-RETENTION-I0` is landed. The existing
-progress owner retains the exact New site, constructor source/owner and object;
-selected Birth-fault cleanup records its concrete `ReclaimUnpublished` once.
-The prior bare `claim.constructor()==Birth` reconstruction is deleted. Focused
-evidence covers two distinct Birth claims and a mutated Reclaim value rejected
-as `reclaim-origin-operation-drift`. No target/runtime or C execution claim is
-made.
-
-## Root/Birth representation D2 decision
-
-Decision: retain only an already-issued source representation; a physical
-`ValueId`, `MirType`, lane ordinal, metadata or C `input_kind` cannot fill a
-missing source class.
-
-Source authority + canonical issuer: `instance_construction::issue_construction_plan`
-issues the accepted Birth FieldSet RHS relation; `scan_new_home_flow` issues
-root direct-New trivial arguments; `BirthAbiHandoffV1` and
-`ConstructionPlanV1` supply the two existing products for a receiver co-seal.
-
-Non-authority: `type_ctx`, final-MIR values, a Birth lane ordinal alone,
-metadata, generated CFG, target/runtime/C transport and Pair's zero-formal
-witness.
-
-Fail-fast boundary: an accepted source row without exact binding/class rejects
-before claim take; a selected emitter never defaults it to i64 or handle.
-
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-CONSUMER-D3`,
-which must name an AST-free selected consumer before a retained RHS can be
-implemented.
-
-Non-claims: root formals/arbitrary root SSA, unused or untyped Birth formals,
-New-result handles, target ABI/C execution, Pair EXE/OBJ30 or complete
-representation coverage.
-
-Census boundary: selected App Main root plus canonical Birth construction
-plans -> exact ordinary-New claim take -> selected construction/New consumers;
-includes root direct-New arguments, Birth receiver/formal/result and accepted
-FieldSet RHS; excludes source-less temporary/PHI/control values, other call
-families, final-MIR layout and target/runtime/C.
-
-| Row | Existing issuer -> consumer | D2 disposition |
-| --- | --- | --- |
-| Root terminal i64 reads/result | `ordinary_new_coseal` terminal relation -> selected terminal emitter | Present / landed; does not classify arbitrary root values. |
-| Root formals and arbitrary root values | root Home walk gives `EntryDemandMissing`; no representation relation | NoIssuer / NoSafeSlice. |
-| Root direct-New trivial arguments | `scan_new_home_flow` exact child classification -> `CallerNewHomePrefixV1` -> selected New emitter | Existing issuer, later bounded retention. |
-| New allocation identity/result | ordinary-New claim site/object/destination -> selected New emitter | Identity present; result handle partial and cannot be inferred from `MirType::Box`. |
-| Birth Unit result | `BirthAbiHandoffV1` Unit completion -> final handoff -> lifecycle transport | Present; no new representation row. |
-| Birth receiver handle | Birth receiver lane plus construction object -> claim take -> selected New emitter | Existing products, later co-seal only. |
-| Birth FieldSet literal/parameter RHS | construction plan exact RHS recognition -> selected construction-state consumer -> FieldSet emitter | Existing issuer and consumer / I0 selected. Retain the descriptor and delete the selected target/RHS raw replay together. |
-| Birth unused/untyped parameter | lane exists but source class/use relation does not | NoIssuer; never default to i64. |
-| Copy/PHI/frame/normal-result/control values | no source issuer | NoIssuer as source product; later physical owner only. |
-
-The D3 audit found one closed selected consumer route. It is recorded below;
-the prior raw replay is the old edge to delete in the same I0, rather than a
-fallback retained beside the new consumer.
-
-Root trivial-New arguments share the same raw-child re-lowering problem and
-are also NoSafeSlice until their consumer is named. The later Birth receiver
-co-seal remains separately auditable because selected emission already uses the
-allocation result as receiver, but it must prove a final validator before it is
-selected. None of these rows creates a representation for root formals,
-arbitrary values or unused/untyped Birth parameters.
-
-## D3: Birth FieldSet RHS consumer decision
-
-Decision: open `CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-CONSUMER-I0` as one
-BoxShape. Extend the existing `ConstructionPlanV1` store row; do not add a
-second source table, semantic receipt, child port, target ABI, or C path.
-
-Source authority + canonical issuer: `instance_construction::issue_construction_plan`
-already owns the parser-declaration loan, the exact resolved assignment/source
-sites, canonical field and accepted RHS relation. Its existing store row issues
-one private RHS descriptor: `LiteralI64(i64)` or
-`Parameter { site: SourceExprSiteV1, binding: BindingRefV1 }`. It also retains
-the FieldSet receiver's exact `SourceExprSiteV1` and `BindingRefV1`. These are
-the source-use relations that the selected consumer must consume; they are not
-new semantic products.
-
-Non-authority: assignment/field-access AST after issuance, variable names,
-binding/lane ordinals, `MirType`, emitted `ValueId`, raw child sources,
-metadata, target/runtime/C transport and generic assignment lowering.
-
-Fail-fast boundary: source issuance rejects every RHS other than the exact
-integer literal or a resolved local Birth parameter before plan installation.
-Installation/take rejects duplicate, missing or foreign stores. Take obtains
-the exact receiver value and consumes its retained source site through the
-existing `observe_variable_site`; emission does the same for a parameter RHS
-after `value_for_exact_binding(owner, binding)`. Completion therefore rejects
-an unconsumed, duplicate, foreign, or value-drifted source use before final
-publication. Emission rejects an unavailable selected state before `FieldSet`;
-it never re-enters raw AST lowering.
-
-Smallest next slice: retain that descriptor with the existing store, transfer it
-in `TakenConstructionStore`, and make `emit_construction_store` consume the
-taken store directly. Literal physicalization uses the existing named
-`emission::constant::emit_integer`; parameter physicalization uses the existing
-exact-binding primitive. The selected statement branch becomes
-`take -> emit -> Lowered(value)`, deleting only its assignment destructure,
-target-shape check, prepared target/RHS child sources, structured child scope,
-two `drive_legacy_expression_v1` calls and demand completion.
-
-Non-claims: generic child-port retirement, root trivial-New arguments, Birth
-receiver co-seal, source-shape widening, representation coverage for untyped
-parameters, target ABI/C activation, Pair EXE/OBJ30 and production cutover.
-
-Census boundary: the selected Birth assignment statement after exact
-construction-store take -> its unique selected construction emitter -> retained
-construction final validation. Includes literal and Birth-parameter RHS,
-receiver/field/value/block FieldSet bindings and the selected raw-replay edge.
-Excludes generic assignment consumers, other child-port callers, other
-constructor forms, final-view/LLVM/runtime/C and root New arguments.
-
-| Owner/caller/terminal | I0 change and exclusive delete-set | Acceptance |
-| --- | --- | --- |
-| `issue_construction_plan` -> `install_construction` -> `take_construction_store` -> `statement_surface` -> `emit_construction_store` -> `validate_bindings` | Store the exact receiver source use and RHS descriptor beside the existing resolved assignment and canonical field; carry the RHS in `TakenConstructionStore`; take consumes the receiver source use and emit consumes a parameter RHS source use. Emit the RHS and FieldSet from that taken product. Delete the selected branch's raw target/RHS descent only. `RawStructuredChildScopePortV1`, `RawInvocationChildPortV1` and generic helpers retain their other callers. | Ordinary-New Birth positives for literal and parameter stores, including reversed declaration/store order and zero unconsumed variable sites at finalization. Source negatives for unsupported RHS and non-parameter/wrong binding; physical negatives for foreign/missing/duplicate stores and unavailable/foreign binding; final-validation mutations for FieldSet base/value/block and literal-value drift. |
-
-`statement_surface` is the only direct `take_construction_store_v1` caller;
-the raw invocation/structured ports only forward it. The terminal already checks
-concrete `FieldSet` ownership, base/value/block and completion. I0 extends those
-checks with the retained descriptor relation as needed; no compatibility retry
-or AST re-read is permitted.
-
-The focused field-read command
-`mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`
-still fails with `left: 1`, `right: 0` at
-`ordinary_new_field_reads_tests.rs:124`; the identical parent-commit command
-reproduces it. It is known baseline debt and does not reopen this BoxShape row.
-
-## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-D4
-
-Decision: `NoSafeSlice`; do not retain or lower root direct-`New` arguments yet.
-
-Source authority + canonical issuer: `issue_ordinary_new_claims_v1` is the
-sole issuer of the selected direct-local `OrdinaryNewAdmissionClaimV1` under
-one resolver-batch loan. It retains owner/site, class, aggregate arity,
-destination/declaration, Home-prefix result, construction/object/destruction
-and Birth recipe. `scan_new_home_flow` only checks that each `CallArgument(i)`
-is trivial; `CallerNewHomePrefixV1` retains destination, prior Homes, fault
-continuation and covered statements, then the per-child identity/class is
-discarded.
-
-Non-authority: argument AST after selected claim take,
-`PreparedRawChildSourceV1`, argument names, raw source context, inferred MIR
-types, `ValueId`, target ABI and C transport.
-
-Fail-fast boundary: claim take presently checks site/class/aggregate arity and
-the final New terminal validates only lifecycle bindings/root completion. No
-consumer can prove individual argument source-use consumption. The selected
-route takes the claim and then loops over raw `Vec<ASTNode>` arguments through
-`drive_legacy_expression_v1`; deleting that loop would remove the only
-materialization path. `complete_exact_demands_v1` checks a child queue only and
-is not a semantic argument consumer. Therefore no exclusive delete-set exists.
-
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-ISSUER-D5`.
-Design the finite per-child relation as a co-sealed part of the existing claim,
-then name its sole consuming terminal before implementation.
-
-Non-claims: root formals/arbitrary root SSA, handles, nontrivial argument
-shapes, Birth receiver co-seal, target ABI/C activation, Pair EXE/OBJ30 and
-production cutover.
-
-Census boundary: selected App Main direct-local ordinary `New` candidates
-issued by `issue_ordinary_new_claims_v1` -> selected prepared New -> ordinary
-New admission -> raw child descent -> existing final New validation. Includes
-each finite `CallArgument(i)`; excludes field initializers, generic raw
-children, Core13/integer routes, non-App-Main/nonselected callables and
-target/runtime/C.
-
-## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-ISSUER-D5
-
-Decision: implementation-ready BoxShape. Co-seal ordered affine argument rows
-inside the existing `OrdinaryNewAdmissionClaimV1`; add neither an issuer nor a
-standalone receipt.
-
-Source authority + canonical issuer: the exact resolver-batch loan in
-`issue_ordinary_new_claims_v1` issues every selected direct-local New claim.
-Its existing child walk already owns exact `CallArgument(i)` source roles. The
-co-sealed row is `(owner, New site, ordinal, argument site, kind)`, where kind
-is `Integer(i64)`, `Bool(bool)`, or `LocalTrivial { binding }`. Ordinals are
-exactly `0..arity`, unique and owner/site-consistent. A Bool value is copied
-from the same resolved literal source expression at issuance; its generic
-literal category alone is insufficient.
-
-Non-authority: `CallerNewHomePrefixV1` as an argument issuer, raw AST/child
-scope, names, `MirType`, `ValueId`, physical ABI/C and a new semantic receipt.
-
-Fail-fast boundary: missing, duplicate, foreign, ordinal-drifted or nontrivial
-rows reject before child effects. `emit_integer`/`emit_bool` materialize literal
-rows; `observe_variable_site` consumes a trivial-local row with its exact
-binding/current value. The root New finalizer rejects residual rows,
-value/order/call-argument drift before publication.
-
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-I0`.
-Take the selected claim before raw child-demand creation; the existing selected
-New emitter consumes all rows and retains their emitted argument values for the
-existing root New finalizer.
-
-Non-claims: a general root SSA/argument representation, nontrivial arguments,
-Birth receiver co-seal, target ABI/C activation, Pair EXE/OBJ30 and production
-cutover.
-
-| Owner/caller/terminal | I0 change and exclusive delete-set | Acceptance |
-| --- | --- | --- |
-| `issue_ordinary_new_claims_v1` -> selected claim take -> selected ordinary-New emitter -> root New finalizer | Co-seal ordered argument rows in the existing claim; materialize/consume them at the selected emitter and validate exact emitted Call argument order/value. Delete the selected raw argument loop, selected `CallArgument` child-source creation/queue completion, and selected route's raw argument carriage. The unselected compatibility loop and generic child infrastructure remain. | Positive selected direct-New integer, bool and trivial-local argument cases; source negatives for nontrivial/missing/duplicate/foreign/ordinal drift; finalizer mutations for residual/value/order/call-argument drift; guard confirms selected path has no raw argument descent. |
-
-### I0 execution order (2026-09-07 acceptance audit)
-
-The selected claim take and raw-child deletion are landed, but I0 is not closed:
-the finalizer currently compares a retained `Vec<ValueId>` with the Birth Call.
-That catches a Call-only mutation, but cannot prove that literal values still
-denote their issued source rows.  Do not create a second semantic receipt or
-recover an argument from AST to close this gap.
-
-1. **Physical-row validation (BoxShape).** `NewEmissionProgress::Emitted` is
-   the sole owner of a non-semantic physical snapshot for each already-issued
-   row: source row plus emitted `ValueId`.  The selected emitter records it;
-   `validate_new_emissions` checks cardinality, owner/site/ordinal, Birth Call
-   order, and the matching `ConstValue::{Integer,Bool}` definition for literal
-   rows.  A local row is checked at consumption by
-   `value_for_exact_binding` plus `observe_variable_site`; the finalizer
-   preserves that emitted identity and Call order.  This replaces the bare
-   `Vec<ValueId>` snapshot.  It does not add a source fact, selector, ABI, or
-   C state.
-2. **Terminal evidence.** Add one selected App Main compile case with
-   `new Page(11, true, local_value)`.  Inspect its single Birth Call and prove
-   its arguments are, in order, the integer constant, bool constant, and the
-   exact current local `ValueId`; retain the existing source-complete/final
-   publication assertions.  Add compact finalizer mutations for residual,
-   literal value, order, and Call drift.
-3. **Boundary evidence and retirement guard.** Cover nontrivial, missing,
-   duplicate, foreign, and ordinal source-row rejection at their existing
-   issuer/consumer boundary.  Extend the existing
-   `mir_call_canonical_corridor_guard.sh`: the selected New branch prepares
-   before child-demand creation and has no raw argument descent; its
-   compatibility branch and generic child infrastructure are explicitly
-   outside this assertion.
-4. **I0 closeout.** Update the owning builder/package README only with the
-   issued-row -> physical-snapshot -> finalizer contract, run the focused
-   positive/negative/mutation tests and the reused guard, then update the
-   current-state summary.  Pair EXE/OBJ30, typed C ingress, and compatibility
-   retirement remain separate rows.
-
-I0 closed at `5e7fadb686`: selected direct-`New` now consumes the issued
-integer/bool/trivial-local rows without raw argument descent; the existing
-ledger retains only the physical row/`ValueId` snapshot and final validation
-rejects residual, literal, order, or Birth-Call drift. The focused source,
-consumer and mutation tests plus the canonical-corridor guard are green. This
-does not open root/Birth ABI handoff, C execution, Pair EXE/OBJ30, or selected
-compatibility retirement.
-
-## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-BOOL-SOURCE-FACT-D6
-
-Decision: return to design stop. `scan_new_home_flow` observes direct-New
-argument sites but exports no row; more importantly its resolver inventory has
-`ResolvedLiteralSourceV1::Bool` without the Bool payload. Recovering that value
-from raw AST would create a second source authority.
-
-Source authority + canonical issuer: the resolver source inventory must retain
-the Bool payload. `issue_ordinary_new_claims_v1` remains the only claim issuer;
-`scan_new_home_flow` is a helper that may export a neutral observation, never a
-package-row issuer.
-
-Non-authority: raw AST, `CallerNewHomePrefixV1`, builder child scope, MIR type,
-ValueId, ABI/C and a standalone semantic receipt.
-
-Fail-fast boundary: until the source inventory has exact Bool payload and the
-single walk can export integer/bool/trivial-local observations, I0 may not
-co-seal or consume rows.
-
-Smallest next slice: decide and audit the resolver-owned Bool payload change
-and a neutral source-walk callback/output that leaves nonselected callers
-unchanged.
-
-Non-claims: generic literal redesign, source-form widening, raw-AST fallback,
-root SSA, ABI/C, Pair EXE/OBJ30 or production cutover.
-
-## D7: neutral selected-New argument observation
-
-Decision: implementation-ready. `home_new_prefix` owns a neutral observation
-and remains below the package dependency boundary. Its inner source walk emits
-`SelectedNewArgumentObservationV1 { new_site, arguments }`; each child row is
-`(ordinal, site, Integer(i64)|Bool(bool)|Local(binding))`. Unsupported source
-is an explicit per-New unavailable result, separate from Home-prefix cleanup.
-
-Source authority + canonical issuer: the existing resolver source inventory
-and `scan_new_home_flow` are the only fact owner. A new inner walk returns the
-existing tuple plus an observation map; existing public wrappers discard that
-map. Package-only companion wrappers retain it under the same walk and
-`issue_ordinary_new_claims_v1` alone converts it into the existing claim row.
-
-Non-authority: package types in resolved semantics, raw AST, child scope,
-CallerNewHomePrefix, MIR type/ValueId, ABI/C and a standalone receipt.
-
-Fail-fast boundary: absent/foreign/duplicate/ordinal/arity drift rejects at
-claim co-seal. A nontrivial selected argument remains explicit source
-unavailable and reaches the existing pre-effect terminal; no raw retry.
-
-Smallest next slice: add the neutral model/wrappers and co-seal rows in the
-existing claim, with source-only mapping tests in new small test modules.
-
-Non-claims: completion-flow changes, a second source walk, new source forms,
-raw fallback, generic argument representation, ABI/C or Pair EXE/OBJ30.
-
-Step 1's exact source inventory and step 3's final-entry status connection are
-explicit remaining design obligations. Do not mislabel this roadmap as a
-completed all-SSA issuer. Steps 1–4 close contracts but do not independently
-claim production migration; step 5 must remove the selected old production
-edge. After step 6, follow the existing workstream order for canonical versus
-compatibility dispatch, compile-owned state and single runtime hook storage.
-
-## Root source handoff: accepted premise reset (2026-09-07)
-
-Decision: extend the existing ordinary-New issuer and ledger to retain the
-selected AppMain source obligation through final handoff (BoxShape). This
-supersedes the D0/D1 permanent `NoSafeSlice` conclusion at `27bc10f183`.
-Source authority + canonical issuer: `issue_ordinary_new_claims_v1` co-seals
-the validated AppMain identity with Completion and the existing exact terminal
-relation from one resolved source loan; no new semantic receipt is issued.
-Non-authority: generic main-thunk results from another pipeline, MIR signatures,
-metadata, physical key strings, empty parameter arrays, C defaults and fixtures.
-Fail-fast boundary: identity/site/Completion mismatch or unconsumed/drifted
-selected emission rejects before final handoff; absent coverage stays explicit
-physical-unavailable, independently of accepted source syntax.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-SOURCE-HANDOFF-I0`, below.
-Non-claims: arbitrary root results/formals, complete Birth representation,
-physical entry/status ABI, C execution, Pair EXE/OBJ30 or full cutover.
-
-### Why the previous stop was too broad
-
-An independent worker read the complete Home/terminal classifier and challenged
-its premise; the primary agent checked physical root creation/finalization.
-The canonical-core main-thunk relation is indeed outside this session. It is
-not a prerequisite for retaining the selected ordinary-New terminal relation.
-`TerminalI64AddReturnV1` already records source owner, Return, Add and two exact
-read sites. Requiring a generic full-result issuer first conflated broader
-coverage with this existing source obligation and contradicted this SSOT's
-source/physical/target split. The prior audit does not justify permanent park.
-
-Source membership is available before lowering: `issuer.rs` obtains AppMain
-parser identity from the catalog; `app_main_relation.rs` verifies its brand,
-identity, arity, owner and complete forest. The current ordinary-New call reduces
-that identity to a batch slot. Its one `with_lowering_input` loan already issues
-Completion, Home prefixes, terminal and argument observations together.
-Final sealing later reduces the terminal to `I64AddReturn { owner }`.
-These are the two concrete information-loss edges to replace.
-
-Physical root placement remains owned by `module_lifecycle`: it creates the
-root function, lowers into that function, inserts it and passes it to final
-validation. The key captured by `normal_default_root_catalog_post_install`
-is a physical lookup for that exact function, not source result authority.
-Backend entry layout, hidden frame and process-status mapping belong to the
-later physical/target tasks. Source Facts need no physical entry symbol.
-Erasing source bindings at the C wire is allowed after their exact physical
-mapping has been validated; C does not need a second semantic binding registry.
-
-### Finite source boundary and counterexamples
-
-Boundary: validated AppMain membership -> ordinary-New source loan -> existing
-Home/terminal classification -> selected terminal emission -> final handoff.
-Includes identity issue/drop/consume, entry demands, prefix locals/aliases/New,
-all terminal classifier arms, physical binding validation and residual siblings.
-Excludes Birth-body issuance, generic main-thunk flow and target/runtime ABI;
-these exclusions do not certify the surrounding lifecycle cutover as complete.
-
-| Existing source arm | Retention/coverage decision |
-| --- | --- |
-| Receiver, parameter or capture entry demand | Preserve `EntryDemandMissing`; empty MIR params cannot establish source eligibility. |
-| Local integer/bool/trivial binding, Home alias, direct New prefix | Preserve existing source observations and exactly-once consumption. |
-| Bare Return; integer/bool/trivial local; single initialized integer field | Preserve source acceptance. No exact two-read terminal product means physical coverage remains unavailable. |
-| Add of two direct initialized integer field reads | Retain the existing exact Return/Add/ordered-read relation; this is the selected I0 result. |
-| Recursive scalar Add | Preserve existing classification, but do not promote its coarse `Integer` arm into a generic result/type issuer. |
-| Unsupported prefix, uninitialized use, overrides, nontrivial argument, uncovered terminal | Preserve the existing unavailable cause; do not synthesize a relation or retry. |
-
-Counterexample: `return (pair.left + pair.right) + 1` may have scalar source
-coverage but does not issue the direct two-read terminal relation. Likewise
-`return true` must never acquire an i64 result merely because it is trivial.
-These are acceptance distinctions to exercise in existing source tests, not
-new implementation fixtures added during this design turn. Other accepted
-root-result arms remain in-boundary `CutoverBlockerOpen` for broader coverage.
-
-### CONSTRUCTOR-LIFECYCLE-ROOT-SOURCE-HANDOFF-I0
-
-One responsibility: retain the already-selected root source obligation through
-its existing production consumer and finalization. No classifier change.
-
-- Owner/caller: package `issuer.rs` -> `issue_ordinary_new_claims_v1`.
-  Pass the existing `CallableDeclarationIdentityV1` instead of only `Option<u32>`;
-  resolve its exact declaration in the same batch using identity equality and
-  the existing uniqueness/owner checks. Slot remains navigation, not authority.
-- Source storage: extend the existing `OrdinaryNewClaimLedgerV1`; retain root
-  identity with its existing Completion/terminal products from that loan.
-  Do not duplicate the terminal table, issue another semantic `Verified*` or
-  re-run the Home classifier. Catalog identity and source result stay distinct.
-- Consumer/terminal: `main_root::lower_app_main_root_body_v1` validates identity
-  before `register_new_root`/body descent; existing terminal emitter records
-  ordered read/Add/Return bindings. Existing finishing validation checks these
-  against the final root, then `seal_finalized_root_birth_handoff` retains the
-  exact source relation instead of projecting only its owner. The borrowed view
-  receives that relation together with the existing physical root binding.
-- Exclusive replacement set: slot-only AppMain handoff and owner-only terminal
-  projection on this route. Update existing view/V2 readers to project the
-  retained relation without reclassification. No new public endpoint; no C
-  activation. Physical map keys remain lookup fields, never semantic evidence.
-- Acceptance: existing Pair and renamed/alias/multiple-Home source cases reach
-  final handoff with the exact identity/Return/Add/read ordering. Missing,
-  foreign-compilation, foreign-identity, duplicate/residual and finishing
-  operand/site drift reject. Preserve non-Add source acceptance and its existing
-  physical-unavailable terminal; metadata changes cannot create admission.
-- Checks/docs: focused source, terminal/finalization and borrowed-view tests;
-  reused canonical-corridor and pointer guards; update builder/package README
-  and lifecycle reference in the same slice. No new guard family. Touched
-  parents are currently 663/666 lines for co-seal/local-commit: design a child
-  at 760 and stop before 800; never compress code to satisfy the limit.
-
-Landed at `482666ef07`: AppMain identity and exact terminal remain one ledger
-relation through final validation and the borrowed view. Alias and multiple-Home
-Pair cases prove exact source retention; several exact New sites retain one
-canonical Birth definition while their local emissions remain independently
-validated. Pair EXE/OBJ30 and C activation remain open.
-
-## Issuance design: replace the waiting premise
-
-Decision: extend existing source owners to retain missing relations; select the
-Birth declaration-object handoff as the next bounded BoxShape. The blanket
-`CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-ORIGIN-NOSAFE` at `5d77803efc`
-is superseded. Missing implementation is a design obligation, not a demand
-that an issuer appear externally before work may resume.
-Source authority + canonical issuer: the constructor semantic batch owns exact
-Box membership/object identity; its Birth row and `BirthAbiHandoffV1::issue`
-retain that relation. Root observations remain owned by the same Home scan.
-Non-authority: object names, MIR types, lane positions, optional metadata,
-caller literals as a declaration ABI, and C wire tags.
-Fail-fast boundary: inconsistent source identities reject before selected
-emission; final binding/membership drift rejects before transport/artifact.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0` below.
-Non-claims: completed formal/root-result coverage, new source restrictions,
-C execution, Pair EXE/OBJ30, or completion of the surrounding cutover inventory.
-
-### Premise audit and finite boundary
-
-Boundary: exact Box/Birth declaration plus selected AppMain source loan ->
-existing plans/claims -> final source handoff -> its physical projection.
-Includes source issue/drop/consume, repeated definition relations, per-New
-receivers, all current Home/terminal classifier arms and uncovered siblings.
-Excludes runtime allocation identity issuance, other callable families and
-target layout. This inventory identifies tasks; in-boundary blockers remain
-`CutoverBlockerOpen`, so it does not claim cutover closure or Exhausted coverage.
-
-`CanonicalObjectIdV1` denotes a declaration. An allocation instance is the
-exact New site plus its checked Normal result. Two `new Pair` sites share one
-declaration object, but cannot exchange their receiver values. Requiring a new
-semantic "handle class" before retaining this declaration relation was wrong;
-the backend owns the runtime representation of the source object relation.
-
-The complete current classifier distinguishes Home, Handle, Trivial and
-Uninitialized locals; terminal classification has Integer, OtherTrivial,
-IntegerField and direct two-field I64Add, with a coarse recursive Add arm.
-That coarse arm is not a proof of integer operands. Entry receiver/parameter/
-capture demands and unsupported prefixes remain explicitly unavailable.
-Transferred construction plans and per-New ledgers retain their one-way
-ownership; no cross-pipeline main-thunk product or opaque subtree may fill gaps.
-Counterexamples to preserve in implementation acceptance: two New sites of
-one declaration; an unavailable construction body; an unused untyped formal;
-`return true`; and `return (pair.left + pair.right) + 1`.
-
-### `CONSTRUCTOR-LIFECYCLE-BIRTH-OBJECT-HANDOFF-I0`
-
-- **Owner and change:** retain the object already selected by exact
-  `box_source.same_source_as` in `instance_constructor_semantic.rs` on its
-  existing semantic row. Move that lookup outside the construction-eligibility
-  branch. `BirthAbiHandoffV1::issue` copies it with source ID, owner, receiver
-  binding and target. This is immutable retention, not a new issuer/table.
-- **Consumer and deletion:** existing ordinary-New co-seal/take passes it to
-  local-commit finalization. Check object and eligible construction source/owner
-  agreement at issuance and finalization. Compare complete Birth relations
-  before deduplicating by key: equal repeats are one definition; unequal
-  repeats reject. The C-frame projection reads the retained object and checks
-  installed membership. Delete its `membership.get(key.owner())` derivation;
-  symbol resolution and independent module membership validation remain.
-- **Acceptance:** Pair, renamed Box, alias and repeated New reach the existing
-  final handoff and C-frame construction; receivers remain independently
-  validated. Foreign object/source/owner/receiver, unequal duplicate relations,
-  receiver swap and final membership drift reject. Unavailable construction
-  retains declaration identity and its existing unavailable behavior: it must
-  not become a new source error or gain artifact admission.
-- **Finish:** focused source/finalizer/view positives and negatives, reused
-  lane/pointer guards, package README and lifecycle reference receipt. No new
-  fixture or guard family. Co-seal/local-commit are 701/715 lines at design;
-  use their existing children for validation additions before 760, hard stop
-  at 800. No formal wire-tag change or C executable activation in this slice.
-
-Landed at `5472b0ab09`: the semantic row retains its exact declaration object;
-Birth handoff, final deduplication and C transport carry it. The transport now
-checks object membership against that retained relation instead of deriving its
-object from the Birth key owner. Focused Birth, alias/multiple-New final-handoff
-and C parser tests pass. This does not select a formal representation or execute
-the Birth C path.
-
-### `CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-DECLARATION-USE-D0`
-
-**Decision (accepted):** the exact parser Birth declaration, its resolver
-bindings, and the complete selected-body use inventory issue one
-`BirthFormalContractV1` per formal inside
-`issue_instance_constructor_semantic_batch_v1`.  The existing
-`VerifiedInstanceConstructorSemanticRowV1` is the canonical issuer/retainer;
-`BirthAbiHandoffV1` only carries that relation forward.  Do not borrow the
-generic `callable_parameter_contract` catalog: it is issued for a different
-direct-callable batch and resolver session, not constructor Birth.
-
-Each contract retains exact ordinal and binding, declaration class
-(`Unannotated`, `ExactI64`, `ExactText`, or explicit unsupported), and complete
-use coverage (`NoUse`, i64-field stores with exact sites, or general/conflicting
-use).  It also records a physical disposition.  A parameterized Birth is
-`DeferredActualBinding` until a later physical binding proves its actual
-representation; unsupported/tagged-or-checked cases remain explicit physical
-unavailability.  This contract neither makes an unannotated formal `i64` nor
-changes source acceptance.
-
-The selected construction-store consumer and later final lifecycle admission
-consume the same relation.  This I0's immediate consumer is the Birth ABI
-handoff, which validates and retains it without granting artifact admission.
-Declaration/binding/ordinal drift rejects at semantic issuance.  Opaque, text,
-unsupported, general/conflicting, and not-yet-bound actuals stop at the later
-physical admission boundary, preserving source validity and argument
-evaluation.  Caller literals, MIR types, value IDs and C input tags are
-non-authority.  The future exclusive deletion set is the C transport's
-positional `input_kind` defaults and its anonymous absent-ordinal sentinel;
-I0 below retains the contract only and does not alter those rows or enable C
-execution.
-
-### `CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-CONTRACT-I0`
-
-- **Bounded change:** add the child formal-contract model beneath the existing
-  constructor semantic owner; issue it from exact `param_decls`, resolver
-  bindings and the already selected construction-use inventory, then retain it
-  through `BirthAbiHandoffV1`.
-- **Authority / non-authority:** the constructor declaration loan is sole
-  authority.  Construction plans contribute use requirements but do not declare
-  a formal's class.  Actual New arguments, physical MIR values and C tags are
-  not classifiers.
-- **Consumers and terminal:** selected construction-store lowering owns exact
-  use sites; `BirthAbiHandoffV1::issue` verifies and retains the same contracts.
-  A later final lifecycle admission consumes the disposition before artifact.
-  No generic callable catalog, raw AST re-entry, C default, fallback, or caller
-  specialization may enter.
-- **Acceptance:** typed-unused, untyped-unused, untyped i64-field store,
-  repeated store, and differing actual values/classes retain source acceptance
-  and the exact relation; uncovered/general/conflicting or unbound cases retain
-  their explicit unavailable disposition for the later admission consumer.
-  Declaration spelling, binding, ordinal, foreign-row and relation-drift
-  mutations reject at issuance. Focused package/final-handoff positives and
-  negatives plus existing guards pass.
-- **Size / non-claims:** put the model in a child module; keep the parent below
-  760 lines (800 hard stop).  This I0 does not choose a runtime tagged ABI,
-  emit a C formal row, open source-to-EXE/OBJ execution, or delete the
-  positional C defaults.
-
-Landed in this implementation row: the child contract owner classifies only exact parser formal
-spelling and selected construction-store use sites. The constructor row and
-Birth handoff retain the same ordered relation; handoff rejects ordinal/binding
-drift. Focused typed, untyped, unused, repeated-store and uncovered-body tests
-pass. The later physical-binding consumer remains the sole owner of actual
-argument representation and admission.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D0`
-
-Finite audit boundary: selected AppMain source loan -> root-return dispatch ->
-selected root-home exit emitter -> final root handoff -> lifecycle view -> C
-schema ingress. It includes Unit/bare return and the existing direct-I64Add
-relation; it excludes value-bearing Unit/literal/local/field/Add arms, process
-status, artifact creation and executable behavior.
-
-`VerifiedFunctionCompletionV1` already retains the same-session declared result
-and exact exit site. `TerminalI64AddReturnV1` is the existing source relation
-for the direct two-field Add arm. Other source arms remain accepted but have no
-selected physical consumer and stay unavailable; they must not be reclassified
-from MIR types, `ValueId`, function signatures, C tags, or fixture values.
-
-Decision: split the finite terminal inventory by source authority. The next
-bounded row admits only `return <direct untyped Integer literal>` following
-selected New/Home cleanup. Its source authority is the same-session AppMain
-identity, Completion's exact explicit return site, and that return child's
-exact `ResolvedLiteralSourceV1::Integer(i64)` site. `scan_new_home_flow` is
-the canonical issuer; it co-seals one literal relation into the existing
-ordinary-New ledger. The selected root-return dispatcher is the physical
-consumer: it emits that issued integer once and then reuses root-home cleanup.
-The final handoff retains a distinct literal result relation and the existing
-V2 transport maps it to the already validated `ROOT_I64 / I64` physical pair.
-
-The exclusive selected old edge is the root `Return(Some(_))` raw value descent
-that follows the unsuccessful direct-Add probe. I0 deletes it only while the
-literal relation is reserved; it leaves generic and nonselected raw lowering
-untouched. `Bool`, local, field, recursive/general Add, typed integer,
-parameters, calls, process status, MIR constants/types/ValueIds and C tags are
-non-authority and remain unavailable in this row. Missing/foreign completion,
-return/value/literal-site drift, mixed terminal relations, or Const/Return
-physical drift reject before lifecycle publication.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-INTEGER-LITERAL-I0`
-
-Issue `TerminalIntegerLiteralReturnV1 { owner, return_site, value_site, value
-}` under the existing scanner/ledger; reserve it in the selected return
-consumer; emit one `Const(Integer(value))` and one cleanup-backed
-`Return(Some(value))`; retain it through final handoff and lifecycle view.
-The existing C schema is reused without revision. Acceptance is selected Pair
-`return 30` through C `body-consumer-pending` with no object, exact relation
-and physical mutation negatives, plus regressions proving Unit and direct
-I64Add stay on their existing paths. Typed integer, Bool, local, field and
-Add counterexamples must stop before effects. Keep the near-limit local-commit
-owner split before adding retention fields; no new semantic receipt, C schema,
-object or EXE claim opens.
-
-Landed: the scanner issues the exact literal site/value relation, selected physical lowering consumes it once without raw return-value descent, final handoff retains a distinct result arm, and V2 reuses the existing I64 pair. Focused literal, Unit and I64 regressions pass; no object is created.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D1`
-
-**Decision (accepted):** select only `return <one initialized i64 field>` of the
-selected New/Home receiver. The same `scan_new_home_flow` pass already asks
-`initialized_integer_field` for the canonical field and stages its exact
-receiver/Home/field relation through `ReturnScalar::IntegerField`; I0 retains
-that existing source product instead of deriving a field from raw AST, a name,
-MIR type, `ValueId`, or C input tag. The scanner is the canonical issuer.
-
-The selected consumer is the ordinary-New ledger's exact field-read emission,
-followed by the existing root-Home cleanup and final root handoff. It emits one
-`ObjectFieldGet` for the issued canonical field and one `Return(Some(value))`.
-The exclusive old edge is the selected `Return(Some(_))` fallback through
-`lower_raw_value_return_after_probe_v1`; I0 removes that descent only while the
-field relation is reserved. Generic/raw field reads keep their existing owner.
-
-Missing or foreign Completion/return/field/receiver/Home sites; a non-i64,
-weak, uninitialized, overridden, duplicate, or ambiguous field; relation
-duplication; missing/duplicate field read; or read/Return/final-handoff drift
-rejects before lifecycle publication. Bool, typed integer, local/alias,
-field-in-Add, recursive/general Add, parameter/capture, object/EXE and process
-status remain non-authority. Bool's current physical JSON representation is
-explicitly unavailable, and typed integers require a separate declared-type
-physical contract; neither may borrow this I64 field relation.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-I64-FIELD-RETURN-I0`
-
-Co-seal `TerminalI64FieldReturnV1 { owner, return_site, value_site, receiver,
-home, field }` into the existing ordinary-New ledger from the already staged
-canonical integer field read. Reserve it in the selected root-return dispatch,
-emit its exact `ObjectFieldGet`, then reuse root-Home cleanup and retain a
-distinct finalized I64-field result through the lifecycle view. Reuse the
-existing `ROOT_I64 / I64` C schema; no C schema or object/EXE activation opens.
-
-Acceptance is a selected Pair-style New with one initialized direct i64 field
-return reaching C `body-consumer-pending`, with one exact relation, one field
-read and one value-bearing Return. Negatives cover field class/initialization,
-receiver/Home/site drift, duplicate/missing relation/read, and final MIR
-read/Return drift. Unit, direct literal and direct I64Add regressions remain on
-their existing paths; Bool, typed integer, local/alias and every Add shape stop
-before effects. Split terminal retention/validation into children as needed:
-`ordinary_new_coseal.rs` and `ordinary_new_local_commit.rs` are near the 760
-line target. This I0 adds no semantic `Verified*`/`Prepared*` receipt, raw AST
-consumer, fallback, C schema revision, object or EXE claim.
-
-Landed: `scan_new_home_flow` now issues `TerminalI64FieldReturnV1` only for
-the exact initialized canonical i64 field. The selected terminal consumer
-emits one `ObjectFieldGet` without raw return-value descent, then reuses root
-Home cleanup. The final handoff retains `I64FieldReturn`, and the lifecycle C
-frame maps it to the existing `ROOT_I64 / I64` pending row. Focused positive,
-Bool negative, Unit, literal, and I64Add regressions pass. No object or EXE is
-created.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D2`
-
-Design stop. Choose exactly one remaining scalar terminal family only after a
-finite source/consumer census names its source authority, canonical issuer,
-exclusive raw descent, and pre-publication fail-fast boundary. Direct Bool,
-local/alias, typed integer, and recursive/general Add remain separate
-candidates; the I64-field relation and `ROOT_I64 / I64` C row are not an
-authority for any of them.
-
-**D2 census result:** no remaining scalar arm has a closed fast I0. The task
-order is Bool D0, then Bool I0 only if that decision admits it; local/alias
-D0; typed-integer D0; and general-Add D0 after its operand relations exist.
-Each later D0 is independent.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-BOOL-TERMINAL-D0`
-
-Decision needed before implementation. `scan_new_home_flow` currently collapses
-direct Bool and trivial-local returns into `OtherTrivial`, so it issues neither
-an exact Bool terminal relation nor a final root Bool result. The existing C
-frame admits only `ROOT_I64` and `ROOT_UNIT`; source-entry process projection
-currently classifies Bool as unsupported. D0 must choose one coherent contract:
-reject direct Bool before C ingress with a named final result/process outcome,
-or introduce a source-issued Bool terminal and a named final/C-frame/process
-representation. It must name the one canonical issuer and selected consumer,
-then delete only the reserved `Return(Some(_))` raw descent.
-
-Non-authority: `LocalValue::Trivial`, builder `type_ctx`, raw return lowering,
-VM-only result behavior, and the existing I64 C row. Local/alias needs an
-initializer-to-binding-to-return relation; typed integer needs declared-type
-authority; general Add needs exact operand relations. They remain outside Bool
-D0. Missing/foreign source and final relations, duplicate/absent terminal,
-result/process/C-frame drift, and an unselected raw descent must fail before
-effects. No Bool schema, object, or EXE claim opens in D0.
-
-**D0 result:** the only existing canonical process policy maps a Bool source
-result to `UnsupportedProcessResult { Bool }` with reserved Fault status 70.
-It is semantic-reference evidence only: its current consumer is Raw VM
-reference code, not the selected lifecycle C/EXE path. The selected lifecycle
-has neither a Bool final-result arm nor a root-result-to-process terminal;
-its C frame accepts only I64 and Unit. Therefore Bool I0 is unavailable, and
-the raw descent remains until a dedicated Bool relation is issued. In
-particular, no `i64` 0/1 conversion is permitted.
-
-### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-RESULT-CONTRACT-D0`
-
-Decision needed before any remaining scalar I0. Name one selected lifecycle
-final-entry owner which consumes a finalized root result and reaches a named
-process terminal. It must explicitly adopt or reject the existing canonical
-Bool unsupported-process Fault(70) policy, without making the Raw VM consumer
-the selected C authority. The finite boundary is source-issued root result →
-final handoff → C-frame admission or explicit pre-C rejection → linked EXE
-process terminal.
-
-The selected lifecycle presently ends at `body-consumer-pending`, while its
-C frame admits I64 and Unit only; the linked kernel has no root-result process
-projection. This is a NoSafeSlice for Bool implementation, not permission to
-invent a Bool C row or an i64 representation. Missing/foreign final result,
-ambiguous consumer, C-frame/process drift, or raw re-entry must stop before
-artifact effects. The bounded next D0 must either identify an existing owner
-and its exclusive old edge or park Bool explicitly; it opens no source
-relation, C schema, object, or EXE work.
-
-**D0 result:** the census is exhausted and finds no selected final-entry
-consumer. The lifecycle C ingress always terminates before object emission;
-the generic linker and kernel `ny_main() -> i64` entry are not consumers of a
-typed finalized root result. Raw VM reference is a semantic-policy consumer
-only. Bool therefore remains unavailable and this D0 cannot select an I0.
-
-### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-ABI-D1`
-
-Decide the sole compiled-entry result/status ABI authority and exactly one
-selected process-terminal consumer before reopening lifecycle Bool or C
-execution. The finite boundary is finalized root result/view → selected C
-body owner → object/link handoff → compiled entry/runtime terminal. The D1
-must identify the source of result kind, Fault reporting/status mapping,
-ownership of cleanup/disposal, and the old process edge to retire. Existing
-semantic-reference Bool→unsupported Fault(70) is policy evidence only; it
-cannot select a C ABI or runtime consumer.
-
-Non-authority: generic `ny_main() -> i64` normalization, raw VM reference,
-compatibility LLVM emitters, and I64/Unit frame rows. Missing selected owner,
-ambiguous ABI producer, untyped status conversion, or artifact process
-projection inferred from a linker symbol must remain a pre-effect failure.
-This D1 opens no Bool relation, C schema, object, EXE, or kernel-only change.
-
-**D1 result:** no existing candidate is selectable. The C lifecycle ingress is
-the selected reader but ends at `body-consumer-pending`; source-entry
-projection is Raw-VM-only; the normal-main thunk is a different source family;
-and generic linking consumes no typed result. The only actual terminal is
-kernel `ny_main() -> i64` normalization, which handle-decodes and casts to
-`i32`. It is explicitly non-authority. No executable delete-set exists.
-
-### `FINAL-ENTRY-RUNTIME-AGREEMENT-D0`
-
-**Decision (accepted):** the selected lifecycle C body compiler is the sole
-future typed compiled-entry owner. It consumes the physical contract issued
-from the final view, generates `ny_main() -> i64` only after root cleanup, and
-returns a normalized process status: Unit→0, in-range I64→that value, and a
-typed unsupported/out-of-range Fault→70. Kernel startup/flush and OS return
-remain in kernel, but kernel cannot decode a handle or decide root-result
-status. Host transport remains path/object/link transport only.
-
-Acceptance for a future I0 is source-issued typed root result → selected C
-body → object/link with an exact entry signature → runtime report/status
-projection and exactly-once disposal → EXE observation. Missing mapping,
-signature drift, ambiguous cleanup, a raw i64/handle/i32 decision, or a
-fallback process consumer rejects before effects. The future execution series
-deletes the kernel raw `ny_main` handle-decode/fallback/`i32` path; no
-kernel-only change opens before C body execution is selected.
-
-The decision does not overtake Step 2 physical binding. C has no complete
-function/result/formal input yet, so it still stops at `body-consumer-pending`.
-Target/runtime agreement is Step 3 and direct input is Step 4; neither may
-infer this missing contract.
-
-### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-PHYSICAL-BINDING-D1`
-
-Step-2 design stop. Bind already retained root result, ordered Birth formal
-dispositions, root/Birth function membership, and required normal/fault/cleanup
-obligations into one final-view physical compiled-entry function contract. The
-canonical issuer is existing final-view admission, co-sealing existing source
-and handoff products without reissuing source meaning; the named downstream
-consumer is the selected lifecycle C body compiler.
-
-The future delete-set is the final view's identity-only/root-result projection
-and C transport's positional formal/input-kind defaults. Missing, foreign,
-duplicate, unbound, deferred/unsupported actual, role/result/cleanup drift, or
-residual sibling rejects before artifact effects while source remains valid but
-physical-unavailable. Acceptance is selected Pair source → final handoff →
-one exact final-view function/result/formal contract. This D1 opens no C schema,
-object, EXE, kernel change, or Bool relation.
-
-**Decision (accepted):** after `prepare_external_commit`,
-`bind_finalized_root_handoff`, and lifecycle activation, final-view
-admission is the sole physical issuer. It co-seals only existing handoff and
-final-MIR products into a view-private `CompiledEntryContractV1`; no semantic
-receipt is created. The contract has canonical Root then Birth membership,
-exact root result, each Birth target/object and ordered lanes paired with the
-existing formal disposition, matching Birth-call actual lanes, and normal/fault
-cleanup coordinates. The C body compiler consumes this contract.
-
-### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-PHYSICAL-BINDING-I0`
-
-Replace the final-view identity-only root/result/Birth projections and C
-transport's raw `function.params` plus receiver/parameter-position defaults
-with the single physical contract. Bind `DeferredActualBinding` only to its
-exact final-MIR Birth-call operand; it remains a source disposition and never
-specializes from a literal. If no exact binding exists, reject
-physical-unavailable before C.
-
-Acceptance is selected Pair source → final handoff → exact Root/Birth contract
-→ existing C `body-consumer-pending`. Validate canonical membership, root
-result, each lane's ordinal/binding/disposition and paired actual, `HomeRelease`
-normal cleanup, `ReclaimUnpublished` fault cleanup, FaultFrame/ReturnFault
-coordinates. Foreign/duplicate/residual function, result/role drift,
-lane/call-actual/cleanup mismatch, or a missing/deferred unsupported binding
-rejects before C. No target/C schema/object/EXE/Bool claim opens.
-
-**I0 landed:** final-view admission issues the contract once. The V2 C frame
-now derives Birth definitions/formals, root ABI category, lifecycle operations,
-controls and New body-sites from its physical program, rather than
-`lifecycle_instructions` or raw `MirFunction::params`. It checks every Birth
-receiver/actual tuple and every `HomeRelease`, `ReclaimUnpublished`,
-`FaultFrameEnter` and `ReturnFault` coordinate against the contract before the
-existing C pending boundary. Scalar and CFG rows remain in the existing
-physical-program JSON companion; this typed frame does not recreate them.
-The transport was split into a 298-line owner and a 637-line projection child.
-Focused Pair field-return evidence reaches `body-consumer-pending`; this row
-still emits no object or executable.
-
-### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-D0`
-
-Decision (accepted): final-view admission's `CompiledEntryContractV1` and its
-physical ABI companion remain the sole issuers. A new lifecycle-only V4 C
-entry receives the existing selected target session and that companion's final
-JSON file. It parses once, invokes the existing physical `_doc` validator on
-that same `yyjson_doc`, and keeps the document only for one call-local Pair
-body emitter. The emitter owns its LLVM/module, temporary text/object and
-target resources; it never resolves source names or falls into generic JSON
-lowering. The current public parser continues to be validation-only and frees
-its document; V4 reuses the validator, never a borrowed parser result.
-
-The bounded cohort is root `root_i64` plus one `birth_unit` Pair body with its
-issued NewBox, Birth, FieldSet/Get, Add, normal/fault edges, HomeRelease and
-ReclaimUnpublished coordinates. Any other physical shape reaches the named
-pre-artifact `unsupported-cohort` terminal. C emits `ny_main() -> i64` only
-after root cleanup: normal Pair returns 30; source Fault reports then disposes
-the initialized root frame and returns 70; InvalidContract is neither a source
-Fault successor nor a report path, and disposes only a frame whose root init
-succeeded before returning 70. A report failure still disposes that valid frame
-and returns 70. Birth borrows the root frame and never initializes, reports or
-disposes it.
-
-The selected EXE host replaces its generic lifecycle body JSON/V3 call with V4
-in the same successful Pair series. The exclusive delete-set is that generic
-temporary body file, V3→V2 delegation, the lifecycle-only pending terminal and
-their private probes. The selected kernel entry simultaneously deletes raw
-handle decoding and uses only checked adaptation of C's normalized status to
-the OS return. `link_object_capi_v2` and the retained runtime archive remain
-live owners. No generic C body lowering, compatibility retry, ABI revision,
-Bool source result, plain lifecycle OBJ ingress, in-process LLVM change or
-general C backend claim opens.
-
-### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0`
-
-**Superseded before execution.** The accepted V4 cohort remains valid, but the
-physical input does not carry the `site: u64` required by every checked object
-runtime operation, and the generic text-tool helper does not apply the selected
-session target to its `llc` invocation. Neither gap may be filled by C defaults,
-coordinate packing, an unrelated checked-callout site table, or environment
-flags. Complete `CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-D1` and its
-bounded I0 first; then resume this task under the successor name below.
-
-### `CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-D1`
-
-Decision: the existing `PublishedLifecyclePhysicalAbiInputV1` is the sole
-physical issuer for two invocation products that the selected V4 consumer must
-receive, not infer.
-
-1. It scans the already-issued program in its deterministic function, sorted
-   block and instruction order, and issues one `u64` **runtime diagnostic site
-   ordinal** for each and only each checked operation: NewBox, FieldSet,
-   HomeRelease and ReclaimUnpublished. The ordinal is a physical diagnostic
-   identity, not a source site, `ValueId`, JSON position or checked-callout ID.
-   Its finite map retains operation kind plus exact physical coordinate, rejects
-   overflow, duplicate coordinate, missing required operation site and a site
-   attached to a non-checked operation, then serializes the issued ordinal on
-   the operation row. C consumes that wire value unchanged. This remains a
-   physical ABI projection; it issues no source meaning and creates no semantic
-   `Verified*`/`Prepared*` receipt.
-2. The lifecycle V4 call-local target session owns target observation through
-   artifact publication. It writes its already-validated triple and the data
-   layout observed from that same target machine into the emitted `.ll`, then
-   invokes `llc` with an explicit matching `-mtriple`. The selected V4 route
-   does not call `hako_llvmc_mem2reg_canonicalize_and_llc()` or consume
-   `NYASH_NY_LLVM_LLC_FLAGS`: those are generic ambient-tool policy, not this
-   invocation's authority. Failure to open the session, obtain its layout,
-   write/verify the matching module target, run the explicitly targeted tool,
-   or publish the object rejects before artifact exposure.
-
-Source authority + canonical issuer: final admission still owns source
-meaning; `PublishedLifecyclePhysicalAbiInputV1` alone projects its exact
-physical operations to runtime diagnostic ordinals; the lifecycle C target
-session alone observes and applies the target. Non-authority: C operation
-coordinates, raw `ValueId`, generic V2 rows, checked-callout IDs, source names,
-`NYASH_NY_LLVM_LLC_FLAGS`, default `llc` target and PTFB. Fail-fast boundary:
-any incomplete/ambiguous diagnostic map or session/layout/tool mismatch stops
-before V4 emission and has no V2/generic/compatibility retry.
-
-The finite inventory is Root plus one Birth Pair: NewBox, FieldSet,
-HomeRelease and Reclaim each have exactly one issued diagnostic ordinal;
-Birth call and ObjectFieldGet have none. It includes physical wire issuance and
-selected textual target application. It excludes source-diagnostic semantics,
-generic JSON, Bool, `--emit-obj` lifecycle admission, in-process LLVM and
-runtime hook work.
-
-**Ordering status:** direct physical input I0 owns one-pass ingress and the
-single call-local decoder. `CONSTRUCTOR-LIFECYCLE-PHYSICAL-PARSER-CLOSURE-I0`
-landed at `23824e64f7`: Invoke is terminator-only; every operand, Fault frame
-and edge payload is available at its use; PHI predecessors and edge values are
-exact; InvokeNormalResult is tied to its NewBox normal landing; Root/Birth
-returns, signed i64, exact tags and layout slots are checked. The valid C
-fixture and actual source-issued Pair both reach this same pre-artifact parser.
-It remains validation evidence only: it neither issues diagnostic sites nor
-applies a selected target session, so it cannot admit a V4 artifact.
-
-### `CONSTRUCTOR-LIFECYCLE-PHYSICAL-PARSER-CLOSURE-I0` — landed
-
-The existing lifecycle physical parser is the one call-local decoder and
-validator for the final ABI input. Its closeout deleted permissive relation
-checks and the invalid C positive while preserving the envelope, function,
-block, edge, Birth and frame contracts. The C build, dedicated positive and
-negative test, and source-issued Pair → C acceptance passed. It does not
-determine source meaning, add a public endpoint, infer wire types, or emit an
-object.
-
-### `CONSTRUCTOR-LIFECYCLE-C-BODY-INVOCATION-CONTRACT-I0` — landed at `15b4140944`
-
-The physical input owns the compiled-entry contract, accepts its I64 root,
-and issues five checked-operation diagnostic sites for Pair. Parser and
-source-issued Pair checks passed; Unit and malformed sites reject before C.
-Target observation and the preamble self-test emit no object and establish no
-llc execution or V2/V3 retirement. The active consumer row below owns the
-additional process-result site and actual object/EXE acceptance.
-
-### Lifecycle transport disposition
-
-The compiled-entry contract is the sole final product; direct physical JSON
-owns it and is V4's only program input. The committed host still uses generic
-JSON/V3 pending; its V4 switch is under verification. Delete generic lifecycle
-JSON, V3→V2 delegation and exclusive pending probes only after both host paths
-pass. Export retirement still requires caller-zero. View placement follows
-retirement; no second source authority is introduced.
-
-V4 retains its call-local LLVM machine/data/triple/layout through explicit
-llc-18 PIC emission and atomic object publication. Its actual `.ll` preamble is
-checked; generic tool flags do not select its target.
-
-### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1`
-
-Decision: implement the selected Pair V4 consumer under the existing final-entry
-policy. The physical-input issuer additionally reserves one required
-`process_result_site` after operation sites, in the same ordinal namespace.
-This is a root epilogue identity, not a MIR Invoke coordinate. The Fault ABI
-owner assigns named out-of-range reason 102 and details `{actual_i64, 0}`.
-This closes a missing physical mapping; it introduces no semantic receipt.
-C consumes this wire site and header reason after normal Home cleanup, then
-records/reports/disposes on out-of-range values. Recording InvalidContract is
-not a source Fault; report failure still disposes. No kernel silent-70 repair,
-C-invented site, or literal whitelist is permitted.
-
-Acceptance remains source Pair -> issued input -> V4 -> direct EXE30 and
-independently same-archive linked OBJ EXE30. Prove Birth/HomeRelease once,
-injected runtime Fault report/dispose once and exit70, plus I64 projection
-0/255 normal and -1/256/computed out-of-range with exact reason/site/value.
-Missing/colliding projection site, malformed body, session/layout mismatch or
-unsupported cohort reject before artifact. Retire selected V2/V3 pending edges
-after the connected executable paths pass; preserve unrelated legacy users.
-
-Verification checkpoint (2026-09-07): V4 C build, parser/session negatives,
-11 physical runtime executions and guards pass (`de9bd95e22`). Pair-shaped
-JSON links to the real lifecycle archive and exits 30; Fault/range probes
-verify cleanup/report/dispose. These are physical-protocol evidence only:
-the JSON drops an unresolved source formal obligation, as the host audit found.
-Low-memory CLI build succeeds at 6.47 GiB with `CARGO_BUILD_JOBS=1
-CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_OPT_LEVEL=0 cargo build --profile quick
---features plugins --bin hakorune`. The former 8 GiB limit stopped full lib-test;
-its new private-module import error was corrected, but execution is unverified.
-
-Decision: accept the bounded unresolved-formal Stop first; no representation promotion, V4 production claim or gate bypass.
-Source authority + canonical issuer: constructor declaration/use contracts, retained by the compiled-entry owner; source arguments never specialize formal declarations.
-Non-authority: raw i64 C parameters, first caller literals, backend-name whitelist, generated block IDs, or Dynamic-V2 optimizer metadata.
-Fail-fast boundary: all unresolved formal dispositions stop before physical input/JSON/artifact; numeric obligations cannot be cleared or silently ignored.
-Smallest next slice: consume retained formal dispositions at physical admission, keeping the existing compiled-entry diagnostic product inspectable.
-Non-claims: no checked/tagged representation, optimized lifecycle parity, source Pair EXE30, host OBJ30 or V2/V3 retirement yet.
-
-Census boundary: constructor formal issuance -> compiled-entry -> direct JSON ->
-V4 Birth field stores; includes the exact two Pair formals and their stores;
-excludes unrelated numeric families and other backends. Both formals are
-`UnavailableTaggedOrCheckedRepresentation`. `DeferredActualBinding` is also
-unresolved until an actual binding consumer proves it; no disposition currently
-means executable i64. V2 checks only presence, direct JSON drops disposition,
-and V4 classifies nonreceiver params as i64. Raw checked_field_set cannot
-recover Integer/Bool/handle identity. This is `CutoverBlockerOpen`, not parking.
-
-Ordered work within this series:
-1. **Stop the missing disposition consumer.** Existing physical-input owner
-   rejects missing/Unavailable/undischarged Deferred before JSON. Preserve
-   unannotated source contracts; add no permissive enum/receipt or C default.
-   Acceptance: unchanged Pair and unavailable/foreign/missing obligations reject
-   before artifact; compiled-entry still retains original declaration facts.
-   **Stop verified at `acc3a20f1f`:** physical admission rejects existing
-   unresolved dispositions before site/layout/JSON issuance, retaining the
-   compiled-entry for inspection. Dedicated `physical_program_json_tests.rs`
-   passes 3/3: unchanged Pair retains unavailable formals and cannot issue
-   input; Unit root and unsupported serializer vocabulary also reject.
-   Command: `CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0
-   CARGO_PROFILE_QUICK_OPT_LEVEL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=256 cargo test
-   --profile quick --lib --features plugins physical_program_json::tests --
-   --include-ignored`. User-approved temporary 12 GiB monitor observed 8.46 GiB;
-   prior CGU1 exceeded 12 GiB and stopped before tests. The user has since
-   approved 12 GiB as the normal monitored ceiling, with one Cargo job.
-   This closes the input Stop only; no host execution or formal promotion.
-2. **Retain actual identity, then bind kind/payload representation.**
-   Decision: one unspecialized unannotated Birth body receives value kind and
-   payload; Integer checking belongs to each exact i64 FieldSet, before the
-   existing raw-i64 store. Receiver stays separate. No boxing allocator or
-   Integer-handle getter that substitutes zero enters this trivial cohort.
-   `selected_new_arguments.rs` already issues Integer/Bool actual meaning;
-   `EmittedNewArgumentV1` retains source row + emitted ValueId and emission
-   validation checks the literal correspondence. The former final root handoff retained
-   deduplicated Birth definitions but dropped per-New actual relations.
-   **Retention slice (now verified):** retain the existing validated per-New relations in
-   `FinalizedRootHandoffV1` through its existing finalizer and compiled-entry
-   consumer. Match exact New membership, Birth target, binding and ordinal;
-   definition dedup must not dedup call actuals. Do not reclassify MIR constants
-   or add a second source receipt. Declaration dispositions remain unchanged
-   and the physical-input Stop remains until representation binding is complete.
-   Acceptance: distinct New sites keep distinct actuals, wrong/missing/foreign
-   source/value/ordinal correspondence rejects, and no executable input opens.
-
-   Finite source inventory: Integer and Bool have exact source/value relations.
-   Local(binding) has no initializer/value-kind authority: `Trivial` merges
-   Integer/Bool and its current emission validator proves no kind. Local remains
-   physically unavailable; this does not change its source validity. Text/handle
-   lie outside this selected argument issuer. Do not invent tags for them.
-   Retention implementation checkpoint: existing root-source handoff now owns
-   per-New site/destination/target/receiver plus checked argument snapshots.
-   RetainedUnavailable contributes no invented actual. Compiled-entry uses
-   exact target/receiver/ordered-args matching with owner/site/ordinal checks,
-   consumes each row once and rejects residue. Its call list and V2 observer
-   are now per-call: multiple calls can reference one deduplicated definition.
-   This deliberately changes internal contract/V2 acceptance; it adds no source
-   family or V4 execution permission. Existing two-New Local source remains
-   Local and reaches the unchanged formal physical Stop.
-   Typecheck including tests passes (7.12 GiB); read-only diff audit found no
-   identity/reclassification defect. The added test covers two-New retention,
-   order independence, duplicate retained row and missing row, not a direct
-   duplicate-Invoke mutation. Focused verification of ffa36b0823 now passes:
-   `compiled_entry_contract::tests` 1/1, plus the same binary's
-   `physical_program_json::tests` 3/3. One Cargo job, opt0/nonincremental,
-   CGU256 observed peak aggregate 8.54 GiB under the standing 12 GiB monitor.
-   Individual runs no longer require resource reapproval. Retention is verified;
-   the next boundary is design_stop for the wire/Fault contract below.
-   Subsequent ABI task fixes the lifecycle-private kind/payload wire and a named
-   field type-mismatch Fault reason/details in the runtime/reference owner.
-   Unknown kind or invalid Bool payload is InvalidContract, never source Fault.
-   Valid Bool at an i64 store is the specified type failure; reuse record_static,
-   exact FieldSet Fault successor, root reclaim, report and dispose. Do not reuse
-   object reasons 100/101 or process-result reason 102 for a different meaning.
-   Then compiled-entry binds each actual/formal/FieldSet obligation once and V4
-   consumes issued lanes, deleting positional I64 defaults. Prove unchanged
-   Pair EXE30/OBJ-link30, varying Integer values, Bool Fault70 with cleanup, and
-   malformed-kind/binding pre-artifact rejection before any execution claim.
-   **Exact formal contract retention (worker-audited, now verified).**
-   `instance_constructor_semantic/formal_contract.rs` maps both Unannotated
-   with I64FieldStores and ExactText to the same unavailable disposition.
-   `CompiledEntryFormalV1` formerly dropped declaration, binding and use
-   sites by storing only that disposition. Opening this bucket is forbidden.
-
-   Decision: replace disposition-only storage with the exact existing
-   `BirthFormalContractV1`; one source issuer, no new semantic receipt.
-   Source authority + canonical issuer: `issue_birth_formal_contracts` issues;
-   BirthAbiHandoff retains; compiled-entry copies the complete existing contract.
-   Non-authority: disposition, first caller, MIR type and parameter position.
-   Fail-fast boundary: current physical-input rejects are unchanged.
-   Smallest next slice: compiled-entry formal retention plus its V2 reader;
-   receiver has None, parameter has the exact cloned source contract, all
-   accessors borrow and disposition is derived, never stored twice.
-   Non-claims: kind/payload wire implementation, actual/formal discharge,
-   ExactText admission, Bool execution, host cutover or runtime ABI promotion.
-
-   This is BoxShape: remove the disposition-only field and its projection in
-   the real compiled-entry issuer; retain declarations/bindings/ordinals/use
-   sites with unchanged admission. No self-reference into the returned owned
-   program and no second source classification. Focused acceptance must use
-   existing source admission; do not widen a source family to test retention.
-   ExactText reachability is unproved and must not be forced through admission.
-   Acceptance: existing two-New Page full-contract equality against its retained
-   Birth ABI, receiver None and unchanged physical Stop (including Pair); reuse the source issuer's
-   ExactI64/Unannotated NoUse test sharing DeferredActualBinding. This covers
-   the lossy-disposition counterexample without a new source fixture or seam.
-
-   Implementation retains the full contract, derives disposition on read and
-   removes Copy/disposition-only storage; V2 borrows the same rows. Focused
-   compiled-entry 1/1, physical-input negatives 3/3 and existing source formal
-   issuer 2/2 pass with one Cargo job, opt0/nonincremental/CGU256 (peak 8.55 GiB).
-   Initial unresolved import was a current-change failure, fixed by reexporting
-   the existing type; the rerun passes. Pointer/corridor guards pass. The
-   physical Stop, source families and parked host draft are unchanged.
-
-   **Tagged wire implementation verified (worker-audited).**
-   Exact schema/keys and LLVM lanes are owned by the existing
-   [ABI reference](../../../../reference/abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2).
-   No second MirBuilder, semantic receipt, generic numeric whitelist or v1
-   compatibility parser is introduced. V2 input and C execution now consume
-   this mapping; generic host cutover remains separate.
-
-   Transition: replace v1 untagged physical input -> V4 single-i64 Birth ABI
-   with v2 explicit kind/payload input -> the same V4 consumer and Fault edges.
-   Responsibility: `physical_abi.rs` admits exact retained Unannotated formals
-   with I64FieldStores or NoUse and matches every call's ordered actuals once.
-   `selected_new_arguments` owns Integer/Bool kind; checked EmittedNewArgument
-   supplies the payload ValueId. Local, ExactI64, ExactText, explicit unsupported
-   declarations and uncovered uses keep named physical unavailability in this
-   bounded slice. NoUse still evaluates/passes its actual; it is not dropped.
-   Initial C function/object cohort remains root I64 + one Unit Birth + two i64
-   fields/two source arguments; schema shape alone cannot widen that cohort.
-
-   Existing construction emission maps exact source bindings to each FieldSet;
-   `RetainedConstructionValidation` checks final operations and is consumed by
-   `normal_default_root_final_validation::into_artifact_parts` before view
-   admission. Preserve that gate and generic-view fencing. Do not rebuild a
-   source-to-store relation in C. Serializer obtains call kind from retained
-   actuals, never MIR-constant inference. C checks physical representation and
-   SSA consistency, not source declarations; Copy keeps both tagged lanes.
-
-   Atomic delete-set: disposition-only retention is already removed. This slice
-   removes v1 schema/parser/export acceptance, numeric-array params/args decoder,
-   lv4_type's nonreceiver-I64 default, I64-only actual checks, single-lane Birth
-   definition/call emission and unchecked tagged payload-to-raw-store edge.
-   Preserve: exact target/session, receiver/HANDLE separation, whole FaultFrame
-   lifetime and existing selected preartifact failures. No host draft promotion,
-   optimizer skip or generic numeric metadata deletion is part of this slice.
-
-   Acceptance: extend existing parser/V4 protocol tests and unchanged source
-   Pair input issuance; Integer payload variants retain one Birth definition,
-   Bool actual at either store reports reason103 at that store's exact site,
-   with no failed-slot mutation and root reclaim before report/dispose. Add
-   parser negatives for v1, missing/duplicate/extra keys, numeric params/args,
-   receiver/param/dst collision, missing/unknown representation, bad arity,
-   unknown/mismatched kind, Bool non-boolean constant, undefined/undominated
-   payload, HANDLE-as-scalar and tagged Add/return. Invalid dynamic kind or Bool
-   payload follows InvalidContract, never a source Fault. Preserve existing
-   range/Fault/report-failure/session/output-atomicity tests. Source Local and
-   unresolved declaration cases remain pre-input negatives. Update owning Rust/C
-   READMEs and the reference in the same revision-coherent implementation.
-
-   Work as one bounded compiler/C schema-consumer series, with the actual
-   validator caller and V4 internal parser changed together. The v1 validator
-   currently has host, header/route, V4 and parser-test callers; retirement must
-   also check include/build and test discovery before claiming caller-zero.
-   Reuse focused tests and existing guards; no new pending consumer or guard.
-   Later selected-host capability must compare every retained numeric contract
-   against the completed input's exact FieldSet/ValueId/i64-layout coverage.
-   Metadata names may check integrity, not resolve meaning. Reject residuals
-   and leave generic OBJ capability unchanged; do not clear contracts. This
-   obligation remains in host task 4 after optimizer coordinate task 3.
-
-   Verified checkpoint: Rust physical JSON tests 5/5 (Integer source issuance,
-   both source Bool actual positions with identical Birth definition, annotation
-   Stop, Unit and vocabulary negatives), compiled-entry 1/1, physical program
-   1/1 and source formal issuer 2/2. One-job opt0/nonincremental/CGU256 peak
-   aggregate 8.70 GiB. The first Bool test exposed a missing physical-program
-   ConstBool whitelist arm (current-change failure); the corrected rerun passes.
-   Fresh C build/parser test pass. Existing V4 execution test consumes the three
-   unchanged Rust-issued JSON files: 16 runs cover Pair30, range, runtime Fault,
-   report failure, Bool103 at either store, tagged Copy and two InvalidContract
-   injections; 14 additional schema/type negatives preserve existing artifacts.
-   Dynamic invalid probes mutate temporary LLVM after admission, not source
-   fixtures or the production compiler. No failed Bool store calls raw storage;
-   reclaim precedes report/dispose. Session/site/tool-failure checks also pass.
-   The v1 validator has no remaining code/build/test callers in src, lang/c-abi
-   or tools; the fresh shared object exports only v2 validation and V4 compile.
-   Old v1 schema remains solely as explicit negative input. Both reusable
-   guards pass, touched source maximum 656 lines. Parser-only success remains
-   structural evidence; type/cohort rejection belongs to V4 admission.
-
-3. **Close optimizer observer mapping (verified).** The existing root ledger
-   validates finite single-Home cleanup contractions; one temporary physical
-   projection also feeds artifact lifecycle coverage. Default-optimized Pair and
-   both Bool actual positions now reach completed v2 input. The bounded contract
-   and classified verification below own this completed step; host capability is
-   the next boundary, not another optimizer skip or observation adapter.
-4. **Connect the selected capability and execute (accepted owner boundary).**
-   Existing `exact_numeric_backend_capability` owns comparison of retained runtime
-   checks with the completed physical input. `published_mir_object` issues that
-   input once, supplies it to the selected capability check, serializes it and
-   calls V4 within the same host scope. Input from another view/module must not
-   pass on matching names alone; verify physical borrow identity. Generic OBJ
-   capability and every nonnumeric published/storage/route check remain intact.
-
-   Consume each `DynamicIntegerRange` obligation once at its exact function,
-   block/index and stored ValueId; require an Invoke FieldSet, its canonical field
-   key and referenced I64 layout/declaration/slot. Metadata field/type strings
-   check that canonical declaration's diagnostic projection, never select it.
-   Source-issued Unannotated/I64FieldStores formals already retain the tagged
-   parameter identity required by V4. Do not specialize Birth by actual values.
-   Before admitting another value form, establish its already-issued value proof;
-   keep existing constant-store coverage and reject unknown/residual obligations.
-   No `skip_numeric` flag, generic OBJ whitelist or metadata clearing is allowed.
-
-   The private session OBJ entry must perform this check itself. EXE delegates
-   to that same entry; session-less generic OBJ stays rejected. Adapt parked
-   bdc7b0506e to v2 and default optimization: its private OBJ probe bypasses
-   capability and its generic EXE->OBJ gate is not a completed replacement.
-   Default source CLI EXE30, independent checked session OBJ/link30 and both
-   source Bool FieldTypeMismatch103/exit70 cleanup cases precede retirement.
-   Negatives cover mismatched value/site/field/layout/diagnostic projection,
-   duplicate/extra contract, foreign input and session/output atomicity.
-   Local, annotation and Unit Stops remain. Remove only caller-zero V2 JSON
-   profile/emitter, V2 Rust frame/rows/wrappers, C V2/V3 pending exports and private
-   probes. Retain/move shared storage profile, physical parser, target-session
-   core, descriptor and V4 runtime tests. If the finite value/caller inventory
-   cannot close these comparisons, stop here rather than expand capability.
-
-### Task 4 commit checkpoint (2026-09-07)
-
-The private session OBJ entry now issues one physical input, checks exact
-numeric coverage against its physical borrows, serializes the same input and
-calls V4. EXE delegates to this checked entry; generic OBJ remains unchanged.
-The old production V3 call and generic JSON/frame construction are removed
-from this caller. Unused V2 definitions/exports are still present.
-
-Parent-reproduced acceptance blocker: fresh CLI builds at c17ea4ca7c and
-910b92d99b both return exit 1 before the host callback with
-`ExactSourceChanged(RootPreservation(CompatibilityLoss))`. Do not use
-`NYASH_MACRO_DISABLE=1` to call default CLI acceptance green. The focused host
-test deliberately uses that setting and proves only its source-backed compiler
-callback -> checked session OBJ -> V4 -> linked execution boundary.
-
-```bash
-target/quick/hakorune --emit-exe /tmp/hako-host-cli-pair \
-  --emit-exe-nyrt target/lifecycle-kernel/release \
-  apps/typed-object-birth-min/main.hako
-```
-
-The parent CLI used the same source, cwd, runtime directory and command;
-quick/plugins parent build passed (peak aggregate 6.49 GiB). The macro
-transform's default-derive preflight rejects before expansion: Pair lacks the
-existing default Equals/ToString methods, whereas static Main is ineligible.
-This is existing generated-callable source coverage debt and remains a required
-CLI cutover blocker, even though V4 did not introduce it. Next is the generated
-default-derive preservation/issuance design below. Default CLI acceptance and
-source-host cleanup ordering evidence remain required before retirement.
-Task 4 and the whole constructor cutover remain open.
-
-Checkpoint verification: fresh quick/plugins library compilation succeeds
-(one job, opt0, nonincremental, CGU256; peak aggregate 8.78 GiB). The exact
-numeric contract/borrow and physical layout mutation tests each pass 1/1.
-The explicit host test `issued_pair_v4_direct_exe_and_linked_object_exit_30`
-passes 1/1 (14.20 s): direct EXE and separately compiled checked session OBJ/link
-each return 30 for Pair, 70 with primary reason103 for both Bool positions.
-It uses normal optimization and test-only macro disable. No new host cleanup
-probe was run. Canonical-corridor/pointer guards and diff whitespace check pass.
-The broad `lifecycle --include-ignored` selection executed 123 tests: 103 pass,
-20 fail in parallel, then 115 pass/8 fail serial. Parent **910b92d99b**, built
-with the identical copied Cargo.lock and quick/plugins options, reproduces the
-same eight failures: 114 pass/8 fail. Both comparison binaries ran from the
-main checkout with `lifecycle --include-ignored --test-threads=1`; the new
-numeric lifecycle test accounts for the one-test increase. These eight are
-**known baseline debt**, not new V4-host failures. The original parallel result
-is not a separate regression claim; environment-mutating tests require the
-serial comparison. Parent compilation peaked at 8.64 GiB aggregate.
-
-The first parent run from its temporary checkout also failed the runtime
-archive-selection test because that checkout lacks the built relative
-`target/lifecycle-kernel` archive. Repeating from the same main cwd restores
-that test and leaves exactly the eight failures below. This setup failure is
-not classified as product debt. The two earlier semantic-package
-Bool-expression baseline failures remain a separate filter/scope.
+| Unit incorrectly labeled RootI64 | Physical root role carries I64/Unit. Constructor Unit still rejects; retained Script Unit executes. |
+| Physical input bypasses compiled entry | Input contains the contract; bound invocation owns input/session together. |
+| Three competing transports / reparse | Selected V4 physical-v2 only; V2/V3 and generic lifecycle companion retired. Shared static-call transport remains live. |
+| View owns handoff/admission/profile | Finalization owns products/profile/admission; view borrows. Generic observation rows remain. |
+| External path mounts / unused C helper / semantic README diary | Closed by the existing placement/C/README rows; no repeated cleanup task. |
+| Selected-normal Outside raw source lowering | Still outside the bounded constructor cutover; existing Facts/Recipe owner must replace one finite family and its raw edge. Reopen if it bypasses a selected obligation. |
+| Global/options/hooks/crate dependency | Existing backend/runtime queue, not constructor reimplementation. |
+| LLVM tool subprocesses | Parked investigation above. |
+
+### Feedback reconciliation follow-ups (2026-09-08)
+
+1. **V4 feature repair** closed at `27a4e1ed78`: existing plugins cfg/stub pair
+   removes the unguarded loader/libloading reference. Parent `efbc22b14b` versus
+   repaired code, identical locked no-default-features check:13 errors ->11;
+   only V4 E0425/E0433 removed. Remaining nonplugins baseline belongs to
+   `plugin_loader_unified.rs` config/libraries/load_plugin_direct/ingest_box_specs,
+   resolve_method_id and method_returns_result, plus
+   `runtime/semantics.rs::PluginBoxV2::instance_id`. No whole-nonplugins green.
+2. **Terminal relation BoxShape** closed at `a1d86db262`; source-to-finalization
+   representation and preserved progress checks are specified above. No new
+   public receipt, source classifier or accepted family.
+3. **Physical storage wire tag BoxShape** remains next: existing Rust physical
+   ABI plus shared C header/parser/admission names the anonymous I64 storage1.
+   Keep wire value1, unknown-tag rejection and layout mutations; delete only
+   those repeated raw constants. No Bool/handle/storage redesign.
+
+## Classified baseline evidence
+
+At parent `b61aef93ec` and terminal closeout `a1d86db262`, identical lock/quick
+package filter has116pass/2fail and pipeline21pass/2fail. Exact current receipt
+and reopen owners remain in the rolling card; no whole-package green claim.
+The two source-classification tests are:
+
+- `brand_catalog_tests::normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix`: mixed field+Bool cleanup unexpectedly available.
+- `ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`: mixed field+Bool retains1read, expected0.
+
+The pipeline tests are `published_consumer_runs_once_and_propagates_failure_without_retry`
+and `published_consumer_does_not_consume_explicit_compatibility`; the latter
+reports `artifact-root-completion-unavailable`. Source classifier/read inventory
+and normal-default callable/compatibility finalization own the respective debts.
+No expectation was weakened and no ignored test was introduced for this cleanup.
+
+Older broad lifecycle evidence at parent `910b92d99b` was114pass/8fail versus
+115pass/8fail after one added test, same lock/settings/cwd and serial
+`lifecycle --include-ignored --test-threads=1`. The eight historical failures
+below were not rerun by this documentation task. They remain classified evidence,
+not claims that the latest whole suite has exactly eight failures:
 
 - `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::actual_string_helpers_general_result_row_reaches_its_first_loop_carrier`
 - `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::artifact_validation_rejects_exact_read_drift_and_birth_reentry`
@@ -1819,776 +433,8 @@ Bool-expression baseline failures remain a separate filter/scope.
 - `mir::builder::program_root_work_plan::tests::selected_nonplain_script_retains_constructor_source_for_full_runtime_lifecycle`
 - `runtime::weak_handles::tests::test_weak_handle_lifecycle`
 
-Read-only worker retirement inventory covers current V4 host -> Rust old
-transport/reexports -> C header/include/exports -> repo test/build/discovery;
-it excludes historical docs, parked branch and external ABI consumers. Delete
-only after the acceptance gate: old lifecycle frame/projection/schema modules,
-V2 wrappers, generic lifecycle JSON profile/emitter, C V2/body-V2 validators and
-V2/V3 route exports, plus their two exclusive C tests. Move shared
-`PublishedObjectStorageProfileV1` into the existing view lifecycle owner first.
-Keep physical-v2 parser, V4 consumer, runtime session core/descriptor and V4
-tests; remove only V3-exclusive session preamble helpers. Rewrite the three
-normal-pipeline frame tests to preserve source/compiled-entry invariants.
-Fresh caller/discovery and shared-object export checks are still required;
-this inventory is not retirement evidence.
 
-### Default derive: issue before the initial source co-seal
-
-Decision: preserve default Equals/ToString and issue them inside the existing
-open parser postpass transaction, after gate/delegate selection and before
-initial callable/source/root co-seal. Keep final `finish_exact` unchanged.
-Source authority + canonical issuer: parser Box/public-field identity plus the
-existing MacroEngine default-derive producer; parser generated-callable owner
-issues declaration/parameter coverage; existing semantic batch/collector consume.
-Non-authority: generator labels, names as identity, reparsing expansion,
-backend-derived parameter/result meaning, macro-disable and unused-method omission.
-Fail-fast boundary: missing/foreign generation or parameter coverage rejects
-before executable product publication. Nonempty public-field derive bodies need
-dynamic field/Text-conversion authority and must not fall into raw field repair.
-Smallest next slice: implement the accepted normal-only early generation transaction
-with one policy and generated declaration/parameter co-seal.
-Non-claims: source issuance or CLI activation from that extraction; all generated
-body shapes are canonical; general MacroBox/test-tail or derived instance-call C.
-
-**Boundary:** normal parse input -> open source postpass -> initial/final callable
-source -> complete semantic batch -> canonical collector. Includes default derive,
-all selection arms and source parameters; excludes general MacroBox/test-tail
-implementation and generated instance-call C admission. Missing generated coverage
-and nonempty field/conversion contracts are `CutoverBlockerOpen` within this series.
-
-The earlier late-augmentation proposal would require callable slots, constructor,
-ordinary Box and root observers to each consume an authorized AST delta. The open
-postpass already owns generated Delegate transactions and prefix/coverage checks
-(`source_seal/finalize.rs`, `generated_callable_anchor.rs`). Extend that owner
-before sealing instead. Do not relax whole-Program equality or mint a second
-completed-source authority. The mixed Pair/static Main source arm must participate;
-fixing only `OrdinaryTopLevelBox` would miss the real CLI caller.
-
-| Responsibility | Contract for the connection |
-| --- | --- |
-| Macro invocation policy | Capture enable/derive selection once at the normal parse boundary; pass explicit configuration to the open postpass. Parser reads no macro environment and invokes no MacroBox. AST-only compatibility keeps its explicit expansion caller and shares the same pure generator. |
-| Pure default producer | One selection and one body implementation. Nonstatic, selected derive, absent existing method. Preserve existing Equals/ToString selection behavior, explicit method precedence and ordered public fields. This syntax generator does not mint source identity or ABI. |
-| Open source transaction | Borrow the actual parser Box identity and selected public fields; append generated rows with exact placement and generated-origin coverage before initial callable co-seal. Keep original methods/constructor/root keys. Do not manufacture a source-member ordinal for an implicit derive. |
-| Generated source owner | Extend existing `GeneratedCallableOriginV1` lineage. Bind Box origin, finite derive kind, declaration/body, receiver and exact parameter coverage in one transaction. Equals owns one unannotated other binding; ToString owns explicit empty coverage. Generic MacroOrImport remains rejected. |
-| Semantic syntax/parameter issuer | Direct-method optional projection is not total parameter coverage. Consume the generated declaration authority explicitly; do not fabricate a direct Ordinary source row. Bind generated parameter ordinal to its resolver-issued binding before existing parameter/Completion/physical-signature issuance. |
-| Complete method batch | All instance methods, called or not, traverse exact declaration/loan checks and canonical duplicate-reject collection. Lifecycle physical input still projects only retained root/Birth; module admission remains mandatory. |
-| Final transform | Already-issued derives are not generated again. Keep `finish_exact`, registration/test-tail rejection and original source lineage. Generation policy and body production have one owner, not a late retry. |
-
-Downstream audit corrects an earlier assumption: generated `parameters=None`
-is not an ordinary parameter list. Parameter issuer skips it; Completion skips
-it; `physical_signature.rs` then rejects `MissingParameterContract`. ToString's
-zero parameters must be `Some(empty)` issued from generated origin, not absence.
-The existing unannotated other contract is `OpaqueHandle`, never same-Box or I64.
-
-| Generated body | Existing mapping / missing authority |
-| --- | --- |
-| Empty-field Equals | Const Bool -> Return exists. Supply generated receiver/parameter/Completion coverage first. |
-| Empty-field ToString | String literals -> ordinary Add -> Return exists, with String operand facts. No derive-specific LLVM path is needed. |
-| Public-field Equal/And | Compare/SC0 driver exists, but `other.field` has no canonical field relation. Existing raw dynamic FieldGet is not a canonical completion. |
-| Public-field Text/Add | Raw field read and mixed Add leave conversion/type/effect to backend coercion. Source-owned dynamic read and Text conversion are required before promotion. |
-
-Pair's plain `left:i64/right:i64` are not public-field declarations. Its bodies
-are `equals(__ny_other) { return true }` and
-`toString() { return "Pair(" + ")" }`; preserve them and the unchanged fixture.
-The selection matrix is neither/Equals/ToString/both, existing-method precedence,
-static/instance and empty/nonempty public fields. Do not narrow derive selection
-to make Pair pass. Unsupported semantic bodies must have a typed pre-effect Stop
-until their owner contracts exist; their eventual implementation remains required.
-
-**Finite implementation order (one series, no extra per-shape cards):**
-
-1. **Verified BoxShape prerequisite:** moved pure selection/body constructors from
-   `macro/engine.rs` into one shared macro owner. Keep current call order, config
-   reads, provenance, generated syntax and rejection behavior. The engine must
-   consume the moved owner; delete its old implementations. Existing macro derive
-   positives/static negatives and normal-transform rejection tests are the gate.
-   No parser/AST/source receipt or production switch in this step.
-   The shared owner is `src/macro/default_derive.rs`; both engine consumers use
-   it and the old implementations are deleted. Existing derive tests 3/3 and
-   normal-transform tests 7/7 pass with quick/plugins, one job, opt0,
-   nonincremental, CGU256; peak aggregate 8.68 GiB. Direct text comparison against
-   ca0945333b confirms unchanged selector and all syntax-construction bodies
-   apart from visibility. Touched source maximum 291 lines. Existing canonical
-   and pointer guards pass; no new test/guard or language/ABI contract added.
-2. Close the explicit normal-parse policy and generated-source transaction API,
-   then connect Box-origin/declaration/parameter coverage through initial co-seal
-   and the complete semantic batch. Preserve exact final transform. Acceptance:
-   both empty-field generated methods reach canonical publication; wrong parent,
-   generated body/slot/parameter and extra/missing rows reject; nonempty semantic
-   gaps stop before raw lowering. No arbitrary MacroOrImport acceptance.
-3. Prove unchanged default CLI EXE30 and checked OBJ/link30, both Bool103/70 and
-   host-origin cleanup ordering; then execute the recorded old transport deletion.
-   Source-only or macro-disabled success cannot close this step. Nonempty-field
-   dynamic read/Text conversion is a named follow-on semantic obligation, not a
-   reason to synthesize same-Box facts or let C decide coercion.
-
-**Accepted step 2 API (2026-09-07):** the MIR/LLVM common materialization
-function captures one normal macro policy. The new normal-only parser call
-borrows it; the transform consumes the same value. AST-only/metadata/explain
-postpass demands remain without early generation. Existing pre-seal classification
-(`OrdinaryTopLevelBox` or `compatibility_program_can_enter_initial_callable_lane`)
-selects eligible source candidates before generation. Record/interface compatibility
-retains its original single expansion using the same normal snapshot.
-
-The postpass checks original inventory/delegate coverage before appending any
-new default methods. It records generated parent Box identity, derive kind,
-placement and explicit parameter declarations with the existing generated anchor.
-There is no invented as-written member ordinal. Existing canonical row coverage
-must authorize every MacroOrImport-shaped AST projection; a generator label by
-itself remains insufficient. The same source transaction retains the expected
-inventory, so altered original/generated declarations reject at initial co-seal.
-Final root/ordinary-Box/callable equality is unchanged. Complete generated
-parameter projection is taken from that origin, and the existing resolver binding,
-parameter, Completion and physical signature owners consume it normally.
-
-The source-backed post-transform never runs default generation again. It rejects
-inconsistent early coverage, registered macros, test tails and unknown changes;
-macro-disabled normal input stays exact. Nonempty selected public-field derive
-stops with a named missing dynamic-read/Text-conversion contract before raw body
-lowering. This Stop preserves the selected unsupported boundary; it is not a
-claim that the eventual public-field implementation is complete. Source selection
-itself (including explicit methods/static boxes) must remain unchanged.
-
-Acceptance for this single source-family slice: ordinary and mixed Pair/Main
-source, both default methods, explicit method precedence, disabled policy,
-parse/transform setting drift, exact empty/one-parameter coverage, foreign parent,
-body/slot/parameter drift and missing/extra rows; AST-only/record behavior;
-registered/test-tail rejection; complete semantic batch and canonical publication.
-Then run the existing selected host and normal CLI acceptance. No extra semantic
-receipt, raw fallback, source fixture edits or nonselected backend parity.
-The worker API audit names the actual shared materialization caller and confirms
-that pre-seal cohort classification exists; no further inventory is required.
-
-**Source acceptance and default CLI evidence (2026-09-07):** generated origin
-arity and nested environment-lock defects were fixed at 59e6c5c34b after WIP
-fdfb79688f. The completed focused source filter now passes 12/12:
-`cargo test --locked --profile quick --lib --features plugins default_derive
--- --test-threads=1`. Coverage includes ordinary/mixed publication, exact one/zero
-parameters, wrong arity, body/parameter drift, missing/duplicate/foreign rows,
-wrong placement, unissued extra declaration, explicit method precedence/static
-omission, disabled settings, policy snapshot, AST-only behavior, record
-compatibility and the named public-field source stop. Existing transform tests
-pass 7/7 on the same binary, including composite/root test-tail rejection.
-One test overlaps the focused filter. The first added-test build had an ambiguous
-`.into()` in its tokenizer helper (current-change compile error); it was fixed
-and the fresh build/test above passed. Single-job opt0/nonincremental/CGU256,
-monitored aggregate peak 8.53 GiB. Touched source maximum 207 lines.
-
-A fresh `cargo build --locked --profile quick --bin hakorune --features plugins`
-with the same settings passed (aggregate peak 6.62 GiB). With default macro
-settings and the unchanged source:
-
-```bash
-target/quick/hakorune --emit-exe /tmp/hako-default-derive-pair \
-  --emit-exe-nyrt target/lifecycle-kernel/release \
-  apps/typed-object-birth-min/main.hako
-/tmp/hako-default-derive-pair
-```
-
-Compilation exits 0; generated EXE reports `Result: 30`, exit 30. Two temporary
-negative sources replace only constructor arguments with `(true, 20)` or
-`(10, false)`: both compile, then exit 70 with primary Fault103 at site3/site4.
-The checked-in application was not changed. A separate CLI process with
-`NYASH_MACRO_BOX_EXAMPLE=1` rejects with
-`ExactSourceChanged(RootPreservation(CompatibilityLoss))`, exit1, before creating
-its output artifact. This supplies registered-MacroBox rejection evidence
-without contaminating the library test process's global registry.
-
-**Normal host execution acceptance (2026-09-07):** the existing ignored
-`issued_pair_v4_direct_exe_and_linked_object_exit_30` test now consumes the
-actual common materialization caller with default macros and normal optimization.
-No dedicated parse path or macro-disable bypass remains in this host acceptance.
-The test passes for unchanged Pair and both Bool argument positions through
-EXE and independently emitted session OBJ/link. The same host OBJ is also linked
-with the existing C runtime probe and actual selected lifecycle archive:
-
-| Source | Exit | init/store/Home/reclaim/report/dispose | Ordering evidence |
-| --- | --- | --- | --- |
-| Pair(10,20) | 30 | 1/2/1/0/0/1 | Home complete before dispose; no report |
-| Pair(true,20) | 70 | 1/0/0/1/1/1 | Fault103 observes reclaim=1; dispose observes report=1 |
-| Pair(10,false) | 70 | 1/1/0/1/1/1 | Fault103 observes reclaim=1; dispose observes report=1 |
-
-The reused probe adds a disposal observation, without changing runtime status.
-Fresh command: `cargo test --locked --profile quick --lib --features plugins
-issued_pair_v4_direct_exe_and_linked_object_exit_30 -- --include-ignored
---test-threads=1`: 1/1 pass (three sources, each direct/linked/probe), 15.58s runtime.
-Single-job opt0/nonincremental/CGU256; aggregate peak 8.63 GiB. Existing
-`published_lifecycle_v4_execution_test.py` passed again with the three previously
-source-issued physical-v2 JSON files: 16 executions plus 14 tag/schema/type
-negatives and session/site/tool failure checks. Those physical mutation probes
-remain ABI evidence, not new source acceptance. Pointer/canonical guards and
-diff check pass; host/C READMEs describe the actual selected route.
-
-**Selected old transport retirement (2026-09-07):** after the host acceptance,
-removed Rust lifecycle frame/projection/schema, V2 compile wrappers and the unused
-Rust structural-parser wrapper; generic lifecycle JSON entry/profile and its
-instruction/terminator exceptions; C V2/body-V2 validators, V2/V3 pending exports,
-V3-only text-preamble probe, and the two exclusive V2 C tests. Shared storage
-profile and its finite test moved into the existing lifecycle owner. Three
-normal-pipeline tests now inspect completed input/source; Unit still rejects at
-`root-result-unavailable`, not an artificial test-generated pending token.
-
-Census boundary: current selected host -> Rust transport/reexports -> C header,
-translation-unit includes and exports -> tracked repository build/test discovery.
-Includes direct callers, aliases/reexports, manifests, aggregate scripts and
-test-directory discovery. Excludes historical documentation, parked branches,
-untracked developer binaries and external consumers. Within this finite boundary,
-old compile symbols/frame types/profile/helper names and deleted-path callers
-are zero; no retained sibling or fallback uses the retired payload. Deleted tests
-are absent from the discovery directory. Shared V4/parser/session owners remain.
-`nm -D --defined-only` on the rebuilt library confirms all three old compile
-exports absent and static V1/V4/physical-v2 validation exports present. This is
-selected transport retirement, not a claim of all compiler/runtime legacy zero.
-
-Validation after deletion: C build passes; fresh library build passes. The first
-Cargo filter `normal_default_pipeline_tests` matched zero and is not test evidence.
-The three migrated tests were then executed by full `--exact` names and pass.
-Published-view filter32 passes; host1 passes through all three sources and
-EXE/independent OBJ/probe; JSON emitter153 passes (one preexisting ignored).
-Existing C V4 execution16 plus schema14 and session/site/tool checks pass.
-Fresh quick CLI build and unchanged Pair source generate EXE exit30 against the
-rebuilt C library. Single-job opt0/nonincremental/CGU256; library peak8.59 GiB,
-CLI peak6.53 GiB. Guards/diff check pass, touched source max759. ABI reference,
-compiler/host/C READMEs are synchronized. No build/test remains running.
-
-### CONSTRUCTOR-LIFECYCLE-PUBLISHED-VIEW-OWNER-I0 (task 6-owner)
-
-BoxShape series: handoff borrowing25b3d2ad4c; finalization-owned admission/profile
-e620bbbf66; observation-row storage removal in this slice. The final invocation
-owns the semantic handoff and selected profile, and the view borrows them. Its
-activation API and lifecycle route mutation are gone. Generic structural route
-classification and static/free/print/array row storage remain unchanged.
-
-Both lifecycle/Return Vecs, collection/append edge and instruction-coordinate
-wrapper are removed. Pipeline1/host2/test1 presence consumers use the same exact
-lifecycle predicate as a boolean observation; ordinary Return is not lifecycle
-presence. Finalization validates borrowed functions in the existing phases:
-lifecycle-bearing namespaces, Return-only retained Birth namespaces, then direct
-Birth-call receiver/namespace/definition. Root exemption and return-only signature
-checks remain. The old `function-missing` branch is structurally unnecessary:
-validation now holds the function borrowed from the module instead of stored
-coordinates. Physical-program/compiled-entry/diagnostic coordinates are untouched.
-No new source receipt or capability, acceptance widening, forced physical-input
-issuance, fewer-total-scans claim or runtime-session change.
-
-Finite boundary: generic view scan -> finalization admission -> compiled-entry/
-physical program -> shared host. Includes the presence callers, namespace and
-Birth-call checks; excludes source issuance, optimizer, V4 parser, other backends.
-Read-only worker census was integrated before implementation. A normal-source
-handoff mutation test covers noncataloged/non-Birth lifecycle functions,
-Return-only retained Birth signature drift, and invalid direct Birth receiver
-inside both root and Birth. Mutated modules are admission witnesses only and
-never reach an artifact.
-
-Evidence: fresh lifecycle-admission mutation test1 and published-view32 pass.
-Normal-source host1 passes direct EXE/independent OBJ for Pair30 and Bool Fault70,
-plus the actual runtime cleanup probe (15.19s). Pipeline23 remains21 pass/2 with
-the exact existing diagnostics below. Single-job quick/plugins,
-opt0/nonincremental/CGU256, library peak8.66 GiB. Initial local predicate-visibility
-compile errors were corrected; the fresh build passes. Pointer/canonical guard
-and diff check pass; touched source max735. Retired type/Vec/API references are
-zero in tracked src/tools/lang/crates; compiled artifacts and historical docs
-are excluded. No new Cargo or C build is running. Baseline classification remains
-the two failures reproduced at7c8041c075 and unchanged at e620bbbf66:
-- `mir::compiler::normal_default_pipeline::tests::published_consumer_does_not_consume_explicit_compatibility`:
-  `ordinary-new/local-commit/artifact-root-completion-unavailable` before callback.
-- `mir::compiler::normal_default_pipeline::tests::published_consumer_runs_once_and_propagates_failure_without_retry`:
-  assertion requiring `selected-consumer-failed` fails before that callback result.
-No whole-suite green or complete MIRBuilder claim.
-
-### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CLEANUP-R0 (task 6-C)
-
-Caller-zero Delete: removed the declaration and body of
-`hako_physical_values_exist` from physical_v2.inc (12 source lines). Only these
-two references existed; no dedicated export/test/guard was removed. Live
-`hako_physical_values_available_at`, `hako_physical_has_value`, parser and
-V4/session/layout/tool/cleanup owners remain unchanged. The shims README now
-states the actual selected V4 source host and V2/V3 retirement, replacing stale
-pending/formal-unresolved and lifecycle-coordinate-storage claims.
-
-Census boundary: V4 export -> physical-v2 document validator -> V4 admission/
-emission -> llc -> object publication/cleanup. Includes direct src/tools/lang/
-crates/.github references and translation-unit/build/test discovery; excludes
-historical docs, external consumers and generic/static implementation retirement.
-The removed helper was static with no address/token-pasting caller; references
-in the included tracked code boundary are now zero. This is dead code deletion,
-not deletion of a running production edge or a claim that all C state is thin.
-
-Evidence: C shared-library build passes; existing physical parser preartifact
-positive/negative test exits0. Existing V4 test passes16 executions,14 tag/schema/
-type negatives, target/session/site/tool atomicity and temporary-file cleanup,
-using the three source-issued JSON inputs from the preceding view tests and the
-actual lifecycle archive. No Rust source or runtime ABI changed; no new test or
-guard. Physical parser file is616 lines. No whole-suite green claim.
-
-### PUBLISHED-BACKEND-VIEW-PLACEMENT-R0 (task 6a)
-
-Mechanical BoxShape: moved the sole surviving C transport implementation to
-`normal_default_pipeline/published_backend_view/c_transport.rs` and removed its
-external path mount. The lifecycle V2 transport had already been retired at
-7c8041c075. Logical module, `crate::mir::function` re-exports, ABI rows and
-CString/synchronous borrow ownership remain unchanged; implementation text after
-the module header is byte-identical to parent22fa8ce1c7. The header clarifies
-projection rather than source authority, and the compiler README names the one
-physical module tree.
-
-Existing delegated guard filesystem lookups now point to the actual view and
-transport. Historical card-text/allowlist literals remain unchanged: they inspect
-past contracts rather than open source files. Census boundary: live Rust module
-mount -> transport/re-exports -> host, plus src/tools/lang/crates/.github
-filesystem/build/manifest/directory references. Excludes historical docs and
-contract-text assertions, generated binaries and external consumers. Old transport
-filesystem path/mount has no live caller; no new wrapper, test or guard.
-Evidence: fresh published-view32 passes (0.58s; single-job quick/plugins,
-opt0/nonincremental/CGU256, peak8.63 GiB). Normal-source host1 passes direct EXE,
-independent OBJ and Pair/Bool Fault cleanup with the actual archive (15.27s).
-Canonical/pointer guards, Python AST parsing of the edited existing guard, and
-diff check pass. Touched production Rust source max734; the existing Python guard
-has only three path substitutions with no line growth. No new tests/guards,
-semantic or execution change, or whole-suite green claim.
-
-### NORMAL-CALLABLE-SEMANTIC-README-R0 (task 6b)
-
-Documentation closeout: semantic-package README condensed from639 to393 lines.
-The old introduction plus16 dated sections now have six responsibility sections.
-Contract-preservation audit boundary: parent8c5fe55166 README -> rewritten README;
-includes all source/install/loan/publication/non-authority and unsupported rules;
-excludes new implementation verification or production adoption claims.
-
-| Previous material | Current contract owner in README |
-| --- | --- |
-| Intro, BridgeReady, anchor reconciliation | Source and install ownership; constructor/root detail moved to its responsibility sections. |
-| Dynamic paragraphs; signature/header/result; S6C/effects/BlockExpr | Callable projections, including exact HRTB co-loans and downstream physical obligations. |
-| DeclaredInstance and FreeFunction | Callable projections, retaining NoSafeSlice and same-source key publication. |
-| Constructor semantic owner and Birth publication | Constructor source and Birth: identity, non-escape, formal/effect/Completion and checked-store constraints. |
-| Ordinary-New co-seal, terminal reads, final handoff | Ordinary objects/New and Root results/cleanup/finishing. |
-| Script transfer, constructor loan, canonical trivial | Script and callable consumers, including explicit Outside before effects. |
-
-Removed repeated progress/file-split narration. Superseded V2 pending/blanket
-Birth-backend-stop claims now point to current Pair V4 evidence; Unit still stops
-at physical_abi.rs, verified against its I64-only admission. Source retention is
-not backend permission. No semantic rule or accepted source shape changed.
-All17 added local owner/reference links resolve. No inbound repository section
-anchor links were found; old README had no Markdown links to drop. Pointer guard
-and diff check pass; no Cargo/build/test run for this prose-only change.
-
-The existing [backend/runtime task2](../workstreams/mirbuilder-inplace-replacement-current.md#backendruntime-feedback-and-task-order-2026-09-06)
-now owns the next accepted Global-required-row slice after a read-only worker
-issuer/caller/state audit. Non-Global absence remains its explicit next uncertainty;
-this closes neither all compatibility nor the broader MirBuilder goal.
-
-### Task 3: exact root cleanup contraction
-
-Classification: BoxCount, one physical acceptance family (single-Home cleanup
-Jump contraction); source acceptance is unchanged.
-
-Decision: accept the existing ledger's finite Jump-contraction check for the
-single-Home selected root; do not add an optimizer callback or remap registry.
-Source authority + canonical issuer: existing Completion terminal Homes and
-`OrdinaryNewClaimLedgerV1`; `selected::emit_root_home_exit_payload` binds their
-physical cleanup graph. Neither finishing nor the new check issues meaning.
-Non-authority: block numbers as source identity, global matching of a similar
-Invoke, metadata, and the current CFG used to reconstruct lost obligations.
-Fail-fast boundary: root finishing validation, before artifact handoff/commit.
-Smallest next slice: replace stale same-block cleanup checks with exact bounded
-contraction validation, shared by diagnostic and artifact finalization.
-Non-claims: host capability/cutover, multi-Home optimizer coverage, PHI/value
-substitution, or new source result acceptance.
-
-Audit boundary: emitted single-Home root cleanup bindings -> prefinish root
-validation -> default compiler finishing -> artifact lifecycle coverage.
-Includes entry prefix, all cleanup Jump/Invoke/Return/ReturnFault nodes, boundary
-incoming edges and both validator callers. Excludes New/Birth ledgers (their
-existing checks remain mandatory), generic CFG families and opt-in finish passes.
-Multiple-Home optimized cleanup remains a cutover blocker if required by selected
-acceptance; preserving its no-opt path does not close that coverage obligation.
-
-Change:
-  Reuse `RootHomeExitProgress::Emitted.bindings` as the original graph. At the
-  existing successful prefinish validation retain only entry ID, entry instruction
-  prefix and outside incoming edge coordinates (source block plus edge slot/kind).
-  Verify unique recorded nodes, exact terminators, empty non-entry prefixes and
-  no outside incoming to internal cleanup nodes by scanning the complete function.
-  Do not copy the whole function or keep another source obligation table.
-
-Contract:
-  The observed Pair graph contracts three edges, not just HomeRelease placement:
-  `10 -> 13(Invoke normal14/fault15)`, `14 -> 11(Return)`, and
-  `15 -> 12(ReturnFault)`. IDs are observations, never implementation constants.
-  For each surviving recorded node, follow its recorded Jump only when its target
-  disappeared from final MIR. Require no edge args, an internal non-entry target,
-  exactly that one incoming edge, empty target prefix and no cycle. Consume every
-  original node exactly once; compare the resulting full terminator and prefix
-  with final MIR. A surviving target requires the original Jump to remain.
-  Compare final outside incoming with the retained boundary; no bypass/new ingress,
-  prefix reorder, extra internal instruction, Invoke-edge rewrite or SSA repair.
-
-  The resulting physical binding projection must also feed the existing artifact
-  lifecycle inventory in `ordinary_new_local_commit.rs`. Fixing only
-  `root_home.rs` leaves `artifact-unowned-lifecycle-site` at the next consumer.
-  Consolidate the existing artifact/diagnostic finishing checks so the graph is
-  checked once, the temporary mapped bindings supply exact coverage, and
-  `Checked -> FinishingChecked` occurs only after every required check succeeds.
-  Keep source origins unchanged. Do not persist a sibling final receipt or use an
-  observation flag to bypass validation. Compiled-entry cleanup coordinates are
-  subsequently projected from that validated final program by their existing owner.
-
-| State | Owner / terminal behavior | Fallback |
-| --- | --- | --- |
-| No issued Home / existing unavailable | Existing source disposition remains unchanged; no new artifact eligibility | None added |
-| Single Home, unchanged graph | Existing ledger validates exact original graph and all other obligations | None |
-| Single Home, permitted contraction | Same ledger validates complete graph/boundary and supplies mapped physical bindings | None |
-| Multiple Homes | Existing exact-placement checks remain; contraction coverage not claimed | No permissive retry |
-| Missing/ambiguous graph, changed operation/edge/prefix/boundary | Typed contract rejection before handoff/artifact | None |
-
-Done:
-  Existing source Pair with normal optimization reaches compiled-entry and v2
-  physical input, with actual contraction asserted; unchanged-source no-opt and
-  both Bool actual positions retain their contracts. Mutation tests reject release
-  omission/duplication, receiver/frame substitution, Normal/Fault swap, changed
-  return, bypass/new incoming, prefix changes and extra internal instructions.
-  Exercise artifact coverage as well as diagnostic finalization; preserve existing
-  multiple-Home no-opt tests. Reuse pointer/M7-S guards, the existing source test
-  owners and owning README/reference; no new guard, fixture family or C schema.
-  Keep source files below 800 lines. Source-to-input is dependency evidence only;
-  the following host task still must prove EXE30 and independent OBJ/link30.
-
-Stop:
-  A needed transformation outside these exact rules returns to this same card;
-  do not skip optimization, clear numeric contracts or enable generic OBJ support.
-
-Read-only audit correction: current selected reads are `ObjectFieldGet`; CSE's
-observed duplicate-read arm handles `FieldGet`. The earlier same-field CSE concern
-is not evidence of a blocker in this selected vocabulary. The original design
-was read-only; implementation verification is recorded separately below.
-
-Task 3 verification (2026-09-07): source physical-input tests 6/6 include default
-and no-opt Pair, three actual contractions, both Bool actual positions and the
-separate diagnostic finishing caller. Compiled-entry 1/1 retains two-New/no-opt
-coverage. The package run is 116 passed / 2 known baseline failures, including
-four graph tests (original/partial/full contraction, 16 mutation cases, malformed
-capture and original-cycle rejection). Artifact inventory also rejects an extra
-ReturnFault and duplicate HomeRelease before allowing the unchanged function;
-failed checks cannot commit FinishingChecked. Whole-function extra lifecycle
-ownership belongs to artifact coverage, not the graph-local comparison alone.
-
-The unchanged source-issued optimized JSON drives the existing V4 C execution
-suite: 16 executions, including OBJ/link30 and both Bool103 cleanup paths, plus
-14 type/schema negatives and session/site/tool-failure preservation. Final Rust
-reruns reproduce the same three input SHA-256 hashes (Pair `e5f070c207aa7354`,
-Bool-first `c03851de300bb990`, Bool-second `bcb037b4f20d26f4`). This is physical
-consumer evidence, not a CLI/host cutover claim. One Cargo at a time,
-nonincremental opt0/CGU256/one job, monitored aggregate peak at most 8.72 GiB.
-Pointer/M7-S guards and diff checks pass; touched Rust maximum is 608 lines.
-The near-limit brand-catalog test owner was split at its existing New/Home
-completion responsibility (486 + 357 lines), preserving the source fixtures.
-
-Red classification:
-- Current-change failures: initial cycle-check wiring and test fixture ownership
-  errors were corrected; the final focused checks above pass.
-- Parent `df1829b772`, isolated checkout with byte-identical Cargo.lock, same
-  `cargo test --locked --profile quick --lib --features plugins
-  normal_callable_semantic_package:: -- --include-ignored` and resource settings:
-  110 passed / 4 failed. The first unlocked parent attempt was cancelled on lock
-  mismatch before tests; it is not baseline evidence.
-- Two parent failures were obsolete hand-built MIR records: the multi-Home
-  completion and unavailable-cleanup field-read tests omitted the retained Birth
-  call and literal/field terminal completion. They now use existing issued
-  contracts/record APIs with the original source unchanged and pass.
-- Two baseline failures remain: `brand_catalog_tests::
-  normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix`
-  rejects expected-unavailable `return first.left + true`, and
-  `ordinary_new_coseal::field_reads::tests::
-  terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`
-  observes one read for `return page.slot + true` where the test expects zero.
-  Parent and final run reproduce the same assertions. Owner: source terminal
-  classifier/read inventory (`resolved_semantics/home_new_prefix`), outside this
-  single-Home physical-equivalence change. Revisit when that source result family
-  or its artifact coverage is selected; do not weaken these assertions or count
-  the package as green. These baseline failures do not prove artifact acceptance.
-
-### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-D1`
-
-**Decision (accepted):** two explicit link artifacts share one runtime core.
-The default `nyash_kernel` archive retains legacy `main` and raw handle decoding.
-The selected `nyash_lifecycle_kernel` archive owns normalized-status `main` and
-calls V4 `ny_main` once through the core startup/flush owner. C emits no `main`.
-
-Source authority + canonical issuer: the issued compiled-entry contract and V4
-consumer own normalized status; the kernel launcher owns startup/flush and OS
-adaptation. Neither archive names nor host-handle lookup issue entry meaning.
-The boundary is package selection -> compiled archive -> host session -> native
-entry; source families and generic result-policy migration are excluded.
-
-Cargo feature merging is an explicit fail-fast boundary: the core rejects
-`legacy-entry + lifecycle-core`. The wildcard workspace's generic build callers
-(`tools/build_plugins_all.sh`, `.github/workflows/fast-smoke.yml`) exclude the
-lifecycle package; its explicit build uses `target/lifecycle-kernel`, preserving
-the legacy archive. A separate invocation alone is not the exclusivity proof.
-
-The lifecycle entry owner emits `.nyash.entry_abi.v1`; its exact 16-byte ABI is
-specified in `docs/reference/language/function-exit-and-entry-result.md`.
-`LifecycleRuntimeSessionV1::select` checks exactly one supported entry record
-and the runtime descriptor from the same archive. Renaming a legacy archive
-cannot supply this evidence. The host selects this archive only for lifecycle
-instructions and retains it through link; generic callers use the old archive.
-
-No V4 emission, raw-decode retirement, generic policy change or Pair execution
-is claimed by this artifact prerequisite. Executed evidence belongs in I0.
-
-### `CONSTRUCTOR-LIFECYCLE-KERNEL-ENTRY-ARTIFACT-SPLIT-I0`
-
-**Closed artifact boundary:** common startup/flush, explicit normalized launcher,
-exclusive Cargo features, isolated lifecycle archive and entry-ABI record are
-implemented. The lifecycle-only host branch requires the record and retains
-that archive through link; generic entry/result behavior remains legacy.
-
-Evidence: separate `cargo build -p nyash_kernel --release` and
-`cargo build -p nyash_lifecycle_kernel --release --target-dir target/lifecycle-kernel`
-passed with `CARGO_BUILD_JOBS=4`. The same isolated kernel build with default
-features plus `--features lifecycle-core` failed at the intended compile error.
-`crates/nyash_lifecycle_kernel/tests/launcher.py` against both release archives
-proved one `main` each and ten status/one-call cases. The five descriptor tests
-(including real archives and renamed-legacy rejection) passed via standalone
-`rustc --test src/host_providers/llvm_codegen/runtime_abi_descriptor.rs` and
-`--include-ignored`. Pointer guard, shell syntax and diff checks passed.
-README/reference own the executable commands and physical entry ABI.
-
-Next: existing `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-I0-R1`. Direct Pair EXE30,
-independently same-archive linked OBJ EXE30, exactly-once lifecycle cleanup/Fault
-report/dispose, and old transport retirement remain unproved. ABI-stub launcher
-execution is not source Pair or C body-consumer evidence.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
-
-**Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
-scan can co-seal an explicit bare-return site, but the selected root cleanup
-path does not preserve a value-free MIR return. `build_return_with_port_v1`
-selects root-home cleanup, calls `emit_void`, and
-`ordinary_new_admission::selected::emit_root_home_exit` unconditionally emits
-`Return { value: Some(void_value) }`. The published view and C transport
-truthfully project that value-bearing return; they do not erase it. Therefore
-`UnitReturn -> existing C pending` was not an executable I0 contract.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-PHYSICAL-D2`
-
-Decision: explicit bare `return` has one source-bound physical payload choice:
-`Unit`; the existing direct-I64Add relation remains `Value(ValueId)`. The
-canonical physical issuer is the selected root-return dispatch and its
-`emit_root_home_exit` consumer. It receives the already co-sealed Completion
-and exact return site, then emits the cleanup graph terminating in exactly one
-`MirInstruction::Return { value: None }`. This is a physical binding, not a new
-semantic receipt.
-
-Source authority + canonical issuer: the same-session AppMain identity,
-`VerifiedFunctionCompletionV1`, and exact explicit bare-return site; selected
-root-return dispatch converts that source relation once into the root-exit
-payload. Non-authority: `ConstValue::Void`, `ValueId`, MIR type/signature,
-frame/mode tags, C role strings and process status. C cannot infer Unit from a
-value-bearing return.
-
-Fail-fast boundary: missing/foreign completion or source site, implicit/value
-return, mixed I64Add/Unit relation, `Some(void)`/missing/duplicate value-free
-root return, or drift after finishing rejects before lifecycle publication.
-The old selected edge to delete is `Return(None) -> emit_void ->
-Return(Some(void))`; generic/nonselected void lowering is outside this delete
-set.
-
-Smallest next slice (`CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-PHYSICAL-I0`):
-make the selected root-exit payload explicit in the existing emitter lifetime,
-emit/validate the exact Unit terminator, retain `UnitReturn { owner }` through
-final handoff, and make the borrowed lifecycle view return its named
-`unit-c-role-unavailable` terminal. It must preserve I64Add byte-for-byte and
-must not call C. Positive evidence is selected New plus explicit bare return
-through final MIR and the named view terminal; negatives mutate the terminal to
-`Some(void)`, duplicate/remove it, or drift completion/site/owner. No
-fixture, fallback, ABI inference, object, executable or C claim opens.
-
-I0 landed in this series: source Unit relation, selected cleanup
-`Return(None)`, final-handoff retention, and the named `unit-c-role-unavailable`
-stop are covered by focused source, final-MIR, terminal-drift, I64 regression,
-and pipeline-negative tests. It makes no C call.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-D3`
-
-Decision: retain V2 layout and revision. The sole schema issuer is
-`PublishedLifecycleCFrameV2::populate`, mapping final-view
-`UnitReturn`/`I64AddReturn` once into the finite vocabulary:
-`BIRTH_UNIT=1`, `ROOT_I64=2`, `ROOT_UNIT=3`; `UNIT=0`, `I64=1`.
-`root_unit` is exactly `(ROOT_UNIT, UNIT, arity=0, receiver/object=UINT32_MAX,
-flags=1)` with one same-function `Return(None)` control
-`(kind=4, operand=UINT32_MAX, mode=0)`. Existing I64 stays `(ROOT_I64, I64)`
-and mode 1. C validates this issued row/control relation; it never selects from
-names, JSON spelling, `Return(Some(void))`, missing result rows or status.
-
-### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-C-SCHEMA-I0`
-
-The I0 deletes the Rust Unit rejection and I64-only root-frame match, adds this
-finite C validator before body-site checks, and reaches only
-`body-consumer-pending`. It leaves physical-program projection, object/EXE,
-ABI revision/layout, codegen, status and compatibility untouched. Positive
-Pair Unit/I64 cases reach pending with no object; role/result, return-mode,
-operand, root-count and body-site mutations reject before pending. Keep the
-745-line transport below its limit by adding a small schema child.
-
-Landed in this implementation row: Rust issues `ROOT_UNIT / UNIT` from the
-retained final result, the C header shares the finite vocabulary, and the C
-validator requires its exact value-free return control before the pending
-consumer. The existing I64 pair remains `ROOT_I64 / I64`; focused Rust and C
-preartifact tests cover both pairs and malformed row/control rejection. No
-object is created.
-
-
-### Following tasks and unresolved decisions
-
-| Order within existing Steps 1–4 | Issuer / consumer / deleted loss edge / acceptance |
-| --- | --- |
-| 1a. Birth object handoff | The bounded I0 above; does not wait for all formal classes. |
-| 1b. Formal declaration/use agreement | `CONSTRUCTOR-LIFECYCLE-BIRTH-FORMAL-CONTRACT-I0` issues and retains the exact declaration/use relation in the constructor's existing source loan. It never imports another-session catalog. A later physical-binding row, not I0, consumes `DeferredActualBinding` and deletes positional parameter-kind defaults. Acceptance includes typed-unused, untyped-unused, repeated uses and differing actual classes across New sites. |
-| 1c. Root scalar and terminal retention | Admit one finite source relation at a time from the existing Home scan; each row names its issuer, exact selected consumer, raw edge deletion and fail-fast boundary. Unit, direct literal and direct i64 field are independently selected rows; Bool, typed integer, local/alias and Add stay separate until their source and physical contracts close. Keep logical Facts separate from any Recipe keys. |
-| 2. Complete physical binding | Existing emission/finalization owns source-to-value bindings and named synthetic frame/Copy/PHI/Normal-result rules. Seed formals, verify all definition/use/edge relations, remove lost bare projections, and hand off once. Missing coverage remains an artifact blocker; no type inference from metadata. |
-| 3. Entry/runtime agreement | Use the existing source-result/process policy linked below; implement checked target/frame agreement and exact cleanup/report/dispose behavior. Runtime InvalidContract/report-failure behavior must be named separately before emission. |
-| 4–6. Direct input, execution, retirement | Sentinel contract precedes one complete direct parser input and JSON reparse deletion. Then switch the actual host to the dedicated physical consumer; require unchanged EXE30 and OBJ-linked EXE30 plus Fault/cleanup evidence and delete selected old edges. Parser-only success never closes this gate. |
-
-Formal declaration and use are different: storing a parameter into an i64 field
-requires an integer check or an existing exact proof; it does not declare the
-parameter i64. Unannotated declarations remain unconstrained at source (the
-general parameter contract currently projects `OpaqueHandle`). No first-caller
-literal specialization or silent i64 default is allowed. Task 1b must choose a
-supported tagged/checked physical boundary or explicit execution-unavailable
-disposition, preserving source validity and evaluation obligations for unused
-arguments. A missing backend capability is never itself a source type error.
-See [types](../../../../reference/language/types.md) and
-[lifecycle](../../../../reference/language/lifecycle.md).
-
-The root exit policy already exists in
-[function exit and entry result](../../../../reference/language/function-exit-and-entry-result.md):
-Unit maps to status 0, Integer 0..255 to its value, out-of-range Integer and
-Bool process results to their specified Fault, final program Fault to status
-70. Source Bool remains Bool; its process-result Fault is not source rejection.
-The physical entry transports the source result and cannot invent conversions.
-HomeRelease/Reclaim and selected store-use retention are already landed; do
-not reopen those closed censuses. Broader result/formal coverage remains an
-explicit obligation and is not discarded to obtain a smaller Pair-only goal.
-
-### Remaining order
-
-After this I0, resume the existing Ordered tasks in this document. Complete
-remaining source representations/origins (including Birth receiver/formal
-classes and uncovered result arms), then physical binding and final handoff,
-then explicit target/runtime entry and status agreement. Project that complete
-input into the direct parser before implementing the selected LLVM consumer.
-The direct parser remains a validation ingress; V4 additionally emits and
-executes physical protocol inputs. At the earlier audit checkpoint the host used the V3/V2
-pending companion; the current retirement receipt above supersedes that status.
-The historical V4 draft remains on codex/lifecycle-v4-host-draft. Current source
-host execution is proved separately above; parser-only evidence remains insufficient.
-
-The LLVM series switches that actual host edge and removes its selected old
-route, with unchanged Pair EXE30 and OBJ-linked EXE30 plus Fault/frame/cleanup
-acceptance. Caller-zero retirement follows within the same series. Only then
-resume canonical/compatibility separation, compile-call state and runtime-hook
-single storage. No new second MirBuilder or cross-session main-thunk adapter.
-
-### Post-cutover physical backend investigation
-
-`C-LLVM-COMPILE-SESSION-INPROCESS-D0` is parked after Steps 5 and 6. The C
-selected compile terminal currently writes textual LLVM and invokes external
-tools (`opt` and `llc`) through `system()`. This is compile-time physical work,
-not runtime hot-path dispatch. Before changing it, choose the sole execution
-owner between an embedded LLVM API/static distribution and the retained tool
-driver, with target/toolchain/link-distribution evidence.
-
-Acceptance is a finite tool-invocation census, an explicit selected C-path
-choice, object/diagnostic/temp-cleanup equivalence, and named failure behavior.
-Only a chosen successor may delete the C command builders and canonical temp
-`.ll` route. `ll_tool_driver.rs` is a separate Rust seam and is not deleted by
-implication. This task does not claim runtime speed, concurrent compilation,
-or automatic LLVM embedding.
-
-### Feedback reconciliation queue (2026-09-07)
-
-The 4237b20d feedback was reconciled against committed c8e32fdeb4 and the
-separate V4 host draft (bdc7b0506e, codex/lifecycle-v4-host-draft). Boundary: selected finalized constructor
-handoff -> physical input -> selected host/C consumer -> OBJ/linked EXE;
-includes root kind, formal obligations, retained actuals and cleanup; excludes
-other source families, generic compatibility and whole-builder size census.
-No new build/runtime evidence was collected for this read-only reconciliation.
-
-| Finding | Current evidence / disposition | Existing task and completion condition |
-| --- | --- | --- |
-| Unit represented as RootI64 | The Script final-input task replaces unconditional RootI64 with a root role carrying the normalized I64/Unit result. Callable Unit remains rejected before serialization; Script Unit input is distinct and its C execution remains stopped. | Result/role agreement and missing/drifted-input tests belong to the [Array final-input task](collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order); do not reopen the retired V2 frame or equate input issuance with Unit execution. |
-| Sibling final input | PhysicalAbiInput now owns CompiledEntryContract; the sibling-product gap is closed. Exact Unannotated Integer/Bool binding is implemented; unsupported declarations/Local still stop pre-JSON, and per-New actual retention is verified. | Existing R1 task 2 closes kind/payload and FieldSet type-failure binding, then deletes positional I64 defaults. Keep one contract issuer and call-local runtime session; moving source decisions into the session is forbidden. |
-| Three transport paths | Historical audit finding, now retired: selected host uses one completed input and V4; frame/generic JSON/V2/V3 paths are deleted. See the current receipt above. | Existing R1 tasks 3–4: close optimizer mapping, prove real host EXE30 and independent same-session OBJ/link30 plus Fault/cleanup, then delete selected generic JSON/V2 rows/V3 delegation, duplicate pre-parser call and caller-zero exclusive probes. Shared parser/session/runtime validation survives. |
-| View owns and activates | Finalization owns handoff/admission/profile; view borrows them and observes lifecycle presence. Lifecycle/Return vectors and activation mutation are retired. Shared generic cohort vectors remain physical view data. | Post-cutover view responsibility task below; do not count file moves as closing it. |
-
-Order remains: representation/Fault contract -> exact physical binding ->
-optimizer observer mapping -> real host execution -> old transport retirement
--> view/C boundary cleanup. Unit widening is not a prerequisite to proving
-Pair I64, but its role mismatch must close before Unit direct admission.
-The later source convergence task below remains separate from this cutover.
-
-| Order / task | Owner and bounded change | Gate and acceptance |
-| --- | --- | --- |
-| 4-pre. `CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-D0` | Step 4's existing Rust/C physical ABI owner names each absent source ordinal currently encoded as `u32::MAX`, replaces only anonymous literals in that frame, and rejects impossible presence combinations. | Wire bytes stay unchanged; Rust/C boundary cases prove absent versus ordinal semantics. It cannot issue receiver/source meaning or permit LLVM execution. |
-| 4. `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0` | Single Value construction and final serialization are landed in `physical_program_json.rs`; intermediate String reparse is removed. PhysicalAbiInput contains the compiled-entry contract. | Construction is not an open reparse task. Unresolved source formals stop before this serializer; historical parser/physical-input success does not close formal execution or host cutover. |
-| 6-owner. Published-view responsibility cleanup | Existing finalized invocation/handoff owns completed products; PublishedMirBackendView borrows them; backend invocation owns target/profile and admission. Real callers are normal finalization and shared OBJ/EXE host. | After host cutover, move rather than duplicate ownership; remove view-owned retained product storage and bind/activate mutation. Preserve missing/foreign/stale rejection and same-borrow EXE/OBJ acceptance. No module-to-source reconstruction. |
-| 6-C. C physical responsibility cleanup | Existing V4 admission/emission/compile owners hide parser, LLVM emission and tool lifetime details at their boundary. | After caller-zero V2/V3 removal, remove obsolete shared state/helpers and private probes. Preserve physical/Fault/target/temp-file acceptance; no whole-directory move or include-count target. |
-| Later source convergence | Existing normal_callable_semantic_loan_port routes CanonicalTrivialRouteV1::Outside to lower_normal_cataloged_static_box_method_with_source_v1; source Facts/Recipe producer owns its eventual replacement. | Select one finite source family with an actual issuer and terminal, remove that family's raw-body edge, and prove source-to-Recipe plus rejection and selected execution. No blanket Outside rejection or second resolver. Until selected, this is outside the constructor cutover; reopen if that edge bypasses a selected constructor obligation. |
-| 6a. `PUBLISHED-BACKEND-VIEW-PLACEMENT-R0` | After the selected reader is stable and old wrapper callers are zero, move the one surviving `#[path]`-mounted static C transport implementation under its owning published-view module and remove the mount (V2 transport already retired). | One physical module tree, direct/manifest/aggregate/directory caller census zero for the old paths, and unchanged selected acceptance. This is placement only, not a second view authority. |
-| 6b. `NORMAL-CALLABLE-SEMANTIC-README-R0` | Closed: semantic-package README condensed; see the [closeout receipt](#normal-callable-semantic-readme-r0-task-6b). | Live contracts/links preserved; do not reopen solely for the previous journal length. |
-| post-6. `C-LLVM-COMPILE-SESSION-INPROCESS-D0` | The parked in-process investigation above owns the C `system()` tool route. | It begins only after Steps 5–6; choice and equivalence acceptance above are required before deleting tool invocations. |
-
-No separate task is opened for a claimed generic JSON hot path: the audited
-reparse is the Step-4 physical-input construction above. The `#[path]` files
-are one implementation mounted from two module locations during migration, not
-two semantic issuers. The semantic README cleanup is closed; remaining placement work follows its
-actual caller/contract prerequisites. Cross-series current-document reconciliation
-is queued once in [CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0](collection-literal-construction-ssot.md#constructor-array-current-docs-r0).
-
-### Feedback reconciliation follow-ups (2026-09-08)
-
-Read-only worker audit at `2e427577a1`. Boundary: source terminal issuance ->
-ordinary-New ledger -> finalized handoff -> compiled entry; and V4 feature/wire
-entry. Includes all four terminal alternatives; excludes current Array source
-work and other source families. No build or runtime evidence was collected.
-
-1. **V4 feature boundary repair**, implemented with the existing cfg/stub pair.
-   Previously `capi_transport.rs::compile_published_lifecycle_physical_v4` lacked
-   the plugins cfg required by its loader and optional libloading. The module and
-   production caller in `published_mir_object.rs` are unconditional; absence of
-   runtime calls cannot prevent Rust name-resolution failure. The sibling
-   cfg/stub convention now removes the unconditional plugin-only reference
-   edge and preserves the stable unavailable error. Plugins library build and
-   real Pair EXE/OBJ30 plus Bool Fault70 pass; no backend capability is added.
-   Before/after evidence at parent `efbc22b14b`: identical
-   `cargo check --locked --profile quick --lib --no-default-features` reports
-   13 errors before and 11 after; the only removed diagnostics are V4 E0425
-   (load_ffi_library) and E0433 (libloading). Nonplugins-wide success is not
-   claimed. Remaining known baseline debt: plugin_loader_unified.rs config
-   assignment/libraries and load_plugin_direct/ingest_box_specs (151/154/163/169),
-   resolve_method_id (201/256), method_returns_result (330); runtime/semantics.rs
-   PluginBoxV2::instance_id (59/74/105/126). These exact diagnostics match before
-   and after. Runtime plugin-loader/stub owner must close them when nonplugins
-   runtime support is selected; they do not authorize a fake loader or handle.
-2. **Terminal relation BoxShape**, verified under existing source/emission and
-   finalization owners. One internal `TerminalRelationV1` starts at the four
-   existing `home_new_prefix` issuance sites and travels through Completion and
-   the ledger; finalized source retains a nonoptional relation. The finalization
-   owner derives the existing root-result accessor, with no stored second tag.
-   Parallel tuples/storage, cross-family exclusion/collision checks and view
-   synchronization are deleted; duplicate reservation, source/site agreement,
-   Completion, emitted field reads and existing local/Bool/general Add boundaries remain.
-   The former inconsistent checks did not prove a conflicting production terminal
-   or a causal link to the historical Unit defect. Gates: existing four terminal
-   families/rejections, retained handoff and selected Pair EXE/linked OBJ30.
-   The active rolling card owns verification; no public receipt/source widening.
-3. **Physical storage wire tag BoxShape**, existing Rust physical ABI and shared
-   C header/parser/admission owner. Name the I64 storage tag now written as1 in
-   physical_abi.rs, physical-v2 parser and V4 admission; delete those anonymous
-   constants. Keep wire value1, unknown-tag rejection and layout mutation tests.
-   No Bool/handle widening or runtime storage redesign.
-
-These are ordered independent repairs, not evidence that Array or the whole
-MirBuilder cutover is complete. Feature repair precedes physical C activation;
-terminal/storage cleanup must not grow another source classifier or ABI product.
+The earlier missing relative runtime archive in a temporary checkout was a
+setup failure, excluded after same-cwd replay. Earlier obsolete synthetic
+multi-Home/field-read records were repaired in the cleanup-contraction series;
+they do not license weakening current source, finishing or runtime checks.

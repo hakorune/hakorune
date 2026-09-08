@@ -24,13 +24,22 @@ Pointers:
 旧 JoinIR merge/remap は `cfg(test)` の reference surface であり、production
 の ValueId lifecycle collection は `mir_value_id_inventory.rs` が所有する。
 
-Construction target migration: MIR/Core allocation distinguishes `Named(String)`
-from `IntrinsicArray`. The selected view/frame/C consumer supports the intrinsic
-variant; raw/typed-local/Core Array allocation implementations preserve intrinsic
-identity. Source-backed numeric Array<T> literal locals preserve their exact initializer
-relation and reach the existing typed backend Stop. Loop source admission and
-typed C execution remain open, so this does not close the wider source cutover. Name-only JSON remains Named. Remaps preserve identity, Core13 preserves
-intrinsic allocation, and unsupported consumers do not retry provider lookup.
+Construction identity: MIR/Core allocation distinguishes `Named(String)` from
+`IntrinsicArray`; raw/typed-local/Core literal owners preserve that identity.
+Name-only JSON remains Named, remaps/Core13 preserve intrinsic allocation, and
+unsupported consumers never retry provider lookup. Selected retained Script
+numeric Array LocalInit now executes through the checked native ABI and shared
+V4 OBJ/EXE path. Module-only/unselected typed families and materialized Script
+Loop retain their boundaries; this is not the wider source cutover's completion.
+
+Constructor lifecycle: exact source/receiver/argument/terminal relations survive
+emission and finalization. The normal invocation owns the completed handoff;
+view borrows it and the profile. One compiled-entry physical input and explicit
+runtime session feed V4. Selected Pair EXE/linked OBJ returns30; constructor
+Unit still stops before physical serialization, while selected Script Array
+Unit executes. Current contracts and remaining obligations belong to the
+[constructor owner](../../../docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md)
+and collection owner above; closed migration details belong to Git.
 
 ## Active replacement law
 
@@ -315,9 +324,9 @@ The parser-issued `ConstructorSourceIdV1` carried by the installed normal
 callable semantic package is the sole source identity for selected-normal
 instance constructors. `VerifiedInstanceConstructorPhysicalSourceCohortV1`
 validates the final Program Box ordinal/name/key against those package rows
-before physical work is prepared. Immediate work and the Script-runtime
-duplicate demand both carry that same opaque source ID; each demand still
-creates its own physical admission. Sorted constructor-map keys and
+before physical work is prepared. Immediate declaration work carries that
+opaque source ID into its one physical admission. Script runtime declarations carry no duplicate constructor
+demand or ticket; they retain Unit completion. Sorted constructor-map keys and
 `(statement, box, key)` coordinates are placement checks only, and the legacy
 `CompilationContext::is_brand_declared` consumer remains intentionally
 unchanged until the later constructor-consumer cutover.
@@ -354,8 +363,9 @@ not re-lower assignment target or RHS AST. Unavailable construction retains its 
 it is not a retry after selected emission. The state validates actual emitted
 bindings/frame role before preparation and after finalization, rejects extra Invoke/frame/Fault-return sites, and forbids Unit construction result carriers. The existing completed-root owner also owns artifact-only source eligibility and module-wide coverage in `normal_default_root_final_validation.rs`; diagnostic success is not permission. Exact App Main source entry selects RootOwned, not direct-call presence.
 Numeric checks use the existing refresh owner and published field definition,
-not receiver-origin/name recovery. Runtime cleanup and typed-C execution remain
-fenced until the lifecycle card's end-to-end requirements are met.
+not receiver-origin/name recovery. Selected Pair cleanup and typed-C execution
+are verified through actual OBJ/EXE callers; unsupported source/formal/result
+families retain their own pre-artifact fences.
 
 ### Raw ordinary-`New` source claim consumer (D2c)
 
@@ -376,8 +386,10 @@ emitter consumes and materializes those rows without raw argument descent, then
 records the non-semantic `(source row, emitted ValueId)` snapshot in the
 existing claim. The root finalizer checks that snapshot against literal
 definitions and the ordered Birth Call arguments. It rejects residual rows or
-physical value/order/Call drift; it does not reclassify source expressions or
-open ABI/C execution.
+physical value/order/Call drift; it does not reclassify source expressions.
+The selected physical consumer admits Integer/Bool actuals for its retained
+formal contract; Local actuals still stop. Source argument retention alone
+does not authorize a physical representation.
 
 ### RawCompatibility child terminal I1 (2026-08-27)
 
@@ -911,13 +923,15 @@ checking every lifecycle site and terminator against retained source bindings.
 Both finishing consumers accept DCE index shifts without skipping validation;
 Home Copies remain live through cleanup. Artifact coverage includes only the
 source-selected Script root after this dedicated validation succeeds.
-The published view remains UnsupportedBeforeObject and the host typed Array
-Stop precedes object profile/session/artifacts. Checked native runtime ABI is
-implemented. FinalizedScriptArray lends its existing result Recipe, claim specs
-and exact write/definition snapshots to the common physical-input owner after
-root correspondence validation. This borrow issues no new source meaning and
-opens no C route; selected C execution remains the successor in the collection
-construction SSOT.
+FinalizedScriptArray lends its existing result Recipe, claim specs and exact
+write/definition snapshots to the common compiled-entry physical input after
+root correspondence validation. One bound input/runtime session reaches V4
+from both actual OBJ/EXE callers; the selected typed host Stop and C pending
+restriction are retired. Shared module-only/unselected-family fences remain.
+The native checked runtime uses the sole ArrayStateCell contract/storage owner;
+I64/Unit roots, seven numeric specs, primitive children and returned-Fault cleanup
+have bounded execution evidence in the collection owner. This does not admit
+arbitrary alias mutations, implicit completion, nested Arrays or Script Loop.
 Transparent, transferred, and diagnostic root entries are explicit boundaries
 and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
 transports this continuation together with the existing lowering projection and
