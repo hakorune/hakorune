@@ -845,11 +845,42 @@ from captured settings. Common is the only reader of these three settings.
 The touched1104-line generic method file is split at existing function boundaries
 into dispatch, direct Array and String slot-store includes, each below800.
 
-Next design boundary: before an opaque session ABI, fix how query observes late
-plan errors/partial progress without moving their rejection stage, how exact-site
-unavailable/bypassed differs from invalid, and how host body/library/session
-lifetime binds original MIR alias demand to one compile. An independent query
-export without this complete caller/deletion mapping is not an executable slice.
+Session decision: retained observations and compile progress are different.
+The same document/config/program/definition intent is owned by the invocation;
+query must not become another classifier. Early observation retains errors for
+the original consumer stage, without global activation or object output.
+
+Confirmed counterexamples keep exact-site query CutoverBlockerOpen:
+- `indexof_text_state_residence` performs object emission; the pure core bypasses
+  generic compilation only on actual success. Metadata match is a candidate,
+  not proof of Bypassed. Failure can continue through generic emission.
+- `same_module_typed_field_rmw_emit` reset-batch matching writes skip indices
+  incrementally; a later invalid index can return0 with earlier skip state kept.
+  A query-side clean validator would change behavior, including Named-site skips.
+- Numeric-leaf eligibility borrows lexical block state; active-walk region skips
+  depend on available/ready/emitted progress. Reuse those owners rather than
+  assigning prospective roles from names or plan membership alone.
+This is a confirmed owner inventory, not an Exhausted claim for every matcher.
+Selected/Bypassed/Unavailable/Invalid need distinct evidence; Unavailable cannot
+be a permanent substitute for completing required Map sites.
+
+Implemented BoxShape: diagnostic side effects are removed from the existing
+`PhysicalDefinitionPlan` reader/add operations. Retain read result and minimal
+borrowed same-module overflow detail in that same plan. The sole production
+consumer remains generic prescan at its original position, notifying overflow
+first and generic plan failure second through the existing first-error owner.
+Read position, partial membership, duplicate count and both capacities stay put.
+Exclusive delete-set: reader/add -> compile lexical diagnostic dependency.
+No new semantic receipt, query export, pattern/skip repair or source switch.
+Acceptance: owner test without a diagnostic callback, missing/null/malformed and
+partial input, leaf/same capacity difference, parent diagnostics/role22/Named60,
+pattern success before malformed plan, document lifetime and Dynamic comparison.
+Verification: owner unit test has no diagnostic callback; role22 (including
+capacity diagnostics) and Named60 match parent behavior. C build, published
+rows/corridor and document ASan8 pass, including the early pattern return with
+a malformed later plan. Dynamic LLVM/origins/machine code/relocations match.
+Next, exact-site role/skip/host binding remains design work; do not mark the
+full session contract executable from this local change.
 
 Bind the same borrowed core, existing program view and
 physical definition plan to the eventual opaque session. Open takes immutable
@@ -861,6 +892,36 @@ before Rust unloads the retained library, including early planner error/drop.
 Rust's MIR frame planner receives exact-site dispositions only; it never loads
 C or infers a role from a function spelling. The current fixed
 `hako_llvm_in.json` transport is not retained in the eventual selected session.
+
+Host binding inventory: `published_mir_object.rs::compile_published_view_object`
+is the sole static production caller of
+`capi_transport::compile_published_static_method_v1`; OBJ and EXE already share
+that private branch. The lifecycle V4 branch is outside this static cutover.
+Replace the static frame-first/file-write/call/file-remove sequence together,
+including its plugins-disabled stub, only when the complete frame/C consumer
+is ready. Other compatibility file consumers keep their existing owner.
+
+The host-private scoped invocation retains serialized bytes, loaded Library,
+resolved function pointers and opaque handle through query, MIR planning and
+compile. Close the handle on planner error and normal/error compile exits before
+Library destruction; no query pointer escapes that scope. Keep C error-buffer
+ownership explicit. The MIR planner sees copied exact-site physical observations
+bound to the original borrowed view, never `libloading` or a C-to-Rust callback.
+Byte serialization uses `emit_published_view_body` from that same view; it is not
+a replacement MIR or a fresh source resolver.
+
+The static capability path currently calls whole-module exact-numeric validation
+before frame construction (`backend_capability.rs`). Its eventual Map-aware
+acceptance must consume the actual completed static frame for covered values,
+while retaining compatibility-ingress, ownership and all unrelated checks.
+V4's input-aware numeric boundary is a pattern, not permission to skip static
+validation or select a different backend spelling.
+
+Original-lane binding must also change `map_original_demand`'s default
+`instruction.used_values()` handling for admitted Named aliases: otherwise a
+Map-only Float alias forces a legacy lane through the NewBox argument. Bind the
+selected operand from original MIR simultaneously in demand, domain and original
+use propagation. These are CutoverBlockerOpen, not optional post-cutover cleanup.
 
 Settings that affect allocation/related method consumption must share a captured
 value through query and emission; changing only the two Named reads does not

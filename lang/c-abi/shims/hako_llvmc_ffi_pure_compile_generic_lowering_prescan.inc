@@ -600,7 +600,13 @@
         }
       }
 
-      if (read_physical_definition_plan(&definition_plan, program.entry.fn) < 0) {
+      read_physical_definition_plan(&definition_plan, program.entry.fn);
+      if (definition_plan.read_result < 0) {
+        if (definition_plan.same_module_overflow) {
+          note_pure_unsupported_shape_detail(
+              -1, 0, "module_function", "same_module_function_registry_full",
+              NULL, NULL, definition_plan.same_module_overflow, NULL);
+        }
         note_pure_unsupported_shape(
             -1,
             0,

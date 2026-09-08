@@ -5,6 +5,8 @@ struct PhysicalDefinitionPlan {
   size_t leaf_count;
   const char* same_module[1024];
   size_t same_module_count;
+  int read_result;
+  const char* same_module_overflow; /* Borrowed from the same document. */
 };
 
 auto int physical_definition_plan_contains(
@@ -25,11 +27,7 @@ auto int physical_definition_plan_add(
   size_t* count = leaf ? &plan->leaf_count : &plan->same_module_count;
   size_t capacity = leaf ? ARR_LEN(plan->leaf) : ARR_LEN(plan->same_module);
   if (*count >= capacity) {
-    if (!leaf) {
-      note_pure_unsupported_shape_detail(
-          -1, 0, "module_function", "same_module_function_registry_full",
-          NULL, NULL, name, NULL);
-    }
+    if (!leaf && !plan->same_module_overflow) plan->same_module_overflow = name;
     return 0;
   }
   symbols[(*count)++] = name;
@@ -42,25 +40,27 @@ auto int read_physical_definition_plan(
   yyjson_val* rows =
       metadata ? yyjson_obj_get(metadata, "same_module_function_definitions") : NULL;
   int planned = 0;
+  plan->read_result = 0;
+  plan->same_module_overflow = NULL;
   if (!rows || yyjson_is_null(rows)) return 0;
-  if (!yyjson_is_arr(rows)) return -1;
+  if (!yyjson_is_arr(rows)) return plan->read_result = -1;
   for (size_t i = 0; i < yyjson_arr_size(rows); i++) {
     yyjson_val* row = yyjson_arr_get(rows, i);
     const char* target_symbol = row ? read_str(row, "target_symbol") : NULL;
     const char* definition_kind = row ? read_str(row, "definition_kind") : NULL;
-    if (!(target_symbol && definition_kind)) return -1;
-    if (!llvm_quoted_symbol_name_is_safe(target_symbol)) return -1;
+    if (!(target_symbol && definition_kind)) return plan->read_result = -1;
+    if (!llvm_quoted_symbol_name_is_safe(target_symbol)) return plan->read_result = -1;
     if (!strcmp(definition_kind, "leaf_i64_function")) {
-      if (!physical_definition_plan_add(plan, 1, target_symbol)) return -1;
+      if (!physical_definition_plan_add(plan, 1, target_symbol)) return plan->read_result = -1;
       planned++;
       continue;
     }
     if (!strcmp(definition_kind, "same_module_function")) {
-      if (!physical_definition_plan_add(plan, 0, target_symbol)) return -1;
+      if (!physical_definition_plan_add(plan, 0, target_symbol)) return plan->read_result = -1;
       planned++;
       continue;
     }
-    return -1;
+    return plan->read_result = -1;
   }
-  return planned;
+  return plan->read_result = planned;
 }

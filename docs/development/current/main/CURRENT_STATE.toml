@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "MAP-ALLOCATION-SESSION-BINDING"
-current_blocker_token = "Document/config ownership is verified. Next design closes opaque session binding: late plan error/partial-progress observation without early rejection; exact-site unavailable/bypassed/invalid outcomes; host body/library/session lifetime plus original MIR alias demand. Require real caller switch and delete-set before ABI implementation; no standalone query export or Map source switch."
+current_blocker_token = "Document/config ownership and deferred plan diagnostics are verified. Full exact-site query still needs actual pattern/region/skip ownership: pattern output failure can continue generic, invalid reset-batch can retain partial skips. Bind those outcomes plus original MIR host/alias/capability lifetime without a duplicate classifier. No standalone query ABI or Map source switch."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,9 +31,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Document/config ownership is verified; settings mutation16 and parent behavior pass.
-Touched generic method source is split below800 without changing include order.
-Next is opaque session binding design; Map compiler cutover remains open.
+Definition observation no longer calls the lexical diagnostic owner.
+Parent role/Named/Dynamic behavior and document lifetime remain verified.
+Exact-site session query/host binding stays at the named design boundary.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card = "none"

@@ -59,6 +59,11 @@ Physical definition plan
   may hold one symbol; actual body eligibility and emitted-state remain separate.
   Existing declaration, membership and ordered definition consumers read this
   owner. Capacity, duplicate count and partial-error behavior are unchanged.
+  The reader now retains its result and borrowed overflow detail without
+  invoking the compile diagnostic owner. The sole generic prescan consumer
+  reports that detail before the existing generic plan error, at the same late
+  stage. First-error precedence and early pattern success are unchanged.
+  The owner unit test deliberately provides no diagnostic callback.
 - Focused tests: compile/run `tests/physical_definition_plan_test.c` with yyjson;
   run `python3 lang/c-abi/tests/physical_definition_emission_test.py` after the
   selected C build. Its optional library path compares the same22 physical
