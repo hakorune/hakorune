@@ -53,10 +53,11 @@ Intrinsic allocation transport
 - Consumer acceptance does not activate literal source producers; raw/typed/Core
   source cutover is separately gated by the construction design and source tests.
 
-Map literal planned runtime boundary
-- The [accepted v1 design](../../docs/reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1-accepted-design-not-implemented)
+Map literal runtime boundary
+- The [v1 runtime contract](../../docs/reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1)
   fixes explicit value kinds, OK/InvalidContract and length-aware String input.
-  Exports and compiler consumers are not implemented. Existing static C rows
+  Kernel exports are implemented and tested; compiler consumers remain pending.
+  Existing static C rows
   cannot be silently reinterpreted; formal-domain and input projection remain
   gated by the Map owner. Legacy Any Map entrypoints keep their current contract.
 

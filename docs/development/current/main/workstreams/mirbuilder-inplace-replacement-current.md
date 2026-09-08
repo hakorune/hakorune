@@ -631,14 +631,14 @@ At `dee0d91fd3`, two read-only audits plus parent source/host checks confirmed t
 Boundary: published static view/frame -> entry and same-module C walkers -> typed/compatibility terminal; includes Method/Call-Constructor/Named/intrinsic allocation. Excludes closed Global/Extern inventories, V4, general source census and other backends. Rowless Method and Named allocation retain compatibility; explicit intrinsic Array row absence rejects. Call-Constructor/Math keeps its prior disposition.
 Map literal remains CutoverBlockerOpen: raw and Core emit Named(MapBox)+birth; canonical set has no legacy-only write plan, so allocation-only extension cannot prove populated Map execution. The [Map owner task](../design/collection-literal-construction-ssot.md#map-literal-selected-construction-design) contains exact issuers, physical gap, inventory, deletion and acceptance. No Exhausted/R7 claim.
 
-#### MAP-LITERAL-SELECTED-CONSTRUCTION-D1 — active design
+#### MAP-LITERAL-SELECTED-CONSTRUCTION-D1 — compiler projection next
 
-Decision: retain IntrinsicMap plus result-free `MapLiteralEntryWrite { receiver, key, value }` in existing MIR/Core; two worker audits close this choice, not execution permission.
-Source authority + canonical issuer: existing literal/key/MapEntryValue child owners. Private published input/frame owns exact physical operand projection before lossy JSON, using validated definition/ABI products.
-Non-authority: legacy plans, body Bool-as-i64, T_I64/absent origin and runtime handle lookup cannot supply value kind. No new semantic receipt or scalar-only source narrowing.
-Fail-fast boundary: missing allocation/write/representation products before artifact, without fallback.
-Smallest next work: close demanded-value consumer domains and versioned frame in the [Map owner](../design/collection-literal-construction-ssot.md#demanded-formal-ingress-and-use-closure). Expanded functions use internal physical symbols and exact typed caller remap; stale compatibility targets/old external aliases cannot enter. Arithmetic/Print/Array/field/call/ownership uses need their own admitted contract. No source/ingress recensus; code stays unchanged until mapping closes.
-Non-claims: no empty-Map/constant-only I0 or full Map/Recipe/lifecycle/R7 claim. Static evidence: Bool JSON loses kind; Any Map store can reinterpret raw integers as handles; Null/Void are one runtime Void per language SSOT, not Integer0.
+Decision: runtime v1 dependency is implemented; next close the private compiler projection with [original non-Map input preservation](../design/collection-literal-construction-ssot.md#projection-preservation-and-runtime-first-task-order), not blanket tagged consumer expansion.
+Source authority + canonical issuer: existing literal/child and canonical key/ordinal owners; runtime accepts explicit tags without issuing source facts.
+Non-authority: old generic i64/origin guesses, runtime test success and incidental external linkage cannot authorize compiler/source cutover.
+Fail-fast boundary: missing exact projection, changed non-Map inputs or old-ABI ingress to expanded definitions block publication; no fallback.
+Smallest next work: fix the versioned private frame for exact Map payloads, Copy/PHI/Select and demanded formal forwarding, internal definition/typed caller mapping, then implement both C walkers and source switch. Keep Float exact payload separate from a lossy legacy register.
+Non-claims: runtime ABI8 + String2 + shared codec38 + legacy Map11 tests pass on jobs4 locked quick kernel; no source/C fixture, Map OBJ/EXE or six-edge retirement. Runtime compiler consumers remain pending. Pointer/corridor/link/diff checks and read-only runtime review complete the dependency evidence.
 
 ## Source and ownership budget
 

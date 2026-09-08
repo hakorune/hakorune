@@ -76,6 +76,28 @@ pub extern "C" fn nyash_box_from_i8_string_const(ptr: *const i8) -> i64 {
     string_literal_handle_from_text(s)
 }
 
+/// Intern exactly `len` UTF-8 bytes, including embedded NUL; invalid input returns0.
+///
+/// # Safety
+/// A nonnull pointer with an in-range length must address that many readable
+/// bytes within one valid allocation, without concurrent mutation, for this
+/// synchronous call. No input pointer is retained.
+#[export_name = "nyash.box.from_i8_string_const_len_v1"]
+pub unsafe extern "C" fn nyash_box_from_i8_string_const_len_v1(
+    bytes: *const u8,
+    len: u64,
+) -> i64 {
+    if bytes.is_null() || len > isize::MAX as u64 {
+        return 0;
+    }
+    // SAFETY: the caller guarantees the readable span; size was checked above.
+    let bytes = unsafe { std::slice::from_raw_parts(bytes, len as usize) };
+    let Ok(text) = std::str::from_utf8(bytes) else {
+        return 0;
+    };
+    string_literal_handle_from_text(text)
+}
+
 // box.from_i64(val) -> handle
 // Helper: build an IntegerBox and return a handle
 #[export_name = "nyash.box.from_i64"]
@@ -107,3 +129,7 @@ pub extern "C" fn nyash_box_from_f64(val: f64) -> i64 {
     nyash_rust::runtime::global_hooks::gc_alloc(8);
     handles::to_handle_arc(arc) as i64
 }
+
+#[cfg(test)]
+#[path = "box_helpers_tests.rs"]
+mod tests;

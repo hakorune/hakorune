@@ -111,7 +111,7 @@ before input issuance; selected host cutover remains separately gated. Local has
 Text/handle arguments are outside this bounded protocol. Source declarations
 remain unannotated and each definition has one unspecialized body.
 
-### Selected Map literal store v1 (accepted design, not implemented)
+### Selected Map literal store v1
 
 Decision (2026-09-08): the selected Map literal consumer uses one explicit-kind
 runtime call, independent of the permissive legacy Any encoding:
@@ -122,8 +122,10 @@ uint32_t nyash.map.literal_store_v1(
 int64_t nyash.box.from_i8_string_const_len_v1(const uint8_t *bytes, uint64_t len);
 ```
 
-The dotted names are linker export names, not C source identifiers. No shipped
-header/export or production capability is claimed by this design decision.
+The dotted names are linker export names, not C source identifiers. Kernel
+exports are implemented in `plugin/map_literal.rs` and `exports/box_helpers.rs`.
+Compiler/source consumers remain unimplemented. Dedicated tests call both export
+names through C ABI declarations; runtime evidence is not Map OBJ/EXE evidence.
 
 Map kind constants are scoped to this protocol: `NYRT_MAP_LITERAL_I64=1`,
 `BOOL=2`, `F64=3`, `VOID=4`, `HANDLE=5` (each with the same prefix). Zero and
@@ -145,7 +147,8 @@ fatal allocator/lock termination is outside returned-status guarantees; there
 is no added FaultFrame or all-OOM recovery promise.
 
 The length-aware String entry accepts a nonnull pointer to `len` readable bytes
-for the synchronous call, with `len <= isize::MAX` on the runtime target. Even
+within one valid allocation, without concurrent mutation during the synchronous
+call, with `len <= isize::MAX` on the runtime target. Even
 an empty string uses a nonnull pointer. Null, an out-of-range length or invalid
 UTF-8 returns0; arbitrary dangling pointers cannot be validated by this ABI and
 violate caller memory preconditions. Embedded NUL is valid text. Successful

@@ -43,6 +43,13 @@ language-level collection or string route semantics into this module.
   `map_slot_load.rs`, `map_slot_store.rs`, `map_slot_mutate.rs`,
   `map_probe.rs`.
 - `map_aliases.rs` owns the canonical map ABI alias surface.
+- `map_literal.rs` implements the [explicit-kind literal store](../../../../docs/reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1).
+  It validates live Map/String handles and explicit payload kinds before one
+  insertion. Shared `value_codec` live-object decoding preserves legacy clone
+  behavior; selected invalid handles never fall back to Integer. No temporary
+  scalar handle is registered. The length-aware literal helper in
+  `exports/box_helpers.rs` reuses the existing String cache, preserving NUL.
+  These runtime exports do not activate compiler/source Map consumers.
 
 `RuntimeData` is a dispatch boundary only. It must not absorb Array or
 Map route semantics.

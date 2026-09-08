@@ -475,9 +475,9 @@ Decision: the selected write will pass an explicit kind and 64-bit payload to
 one Map-specific runtime store, which materializes the value at the write.
 It will not register temporary scalar handles and then run the Any decoder.
 This local physical representation is not a whole-program tagged calling ABI.
-The [planned runtime ABI](../../../../reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1-accepted-design-not-implemented) fixes five named tags,
+The [planned runtime ABI](../../../../reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1) fixes five named tags,
 OK0/InvalidContract2 and the length-aware String entry. Compiler input projection
-and formal-domain ABI remain gated; these exports are not implemented.
+and formal-domain ABI remain gated; the runtime exports are implemented.
 
 | Proven representation | Runtime treatment at the write |
 | --- | --- |
@@ -629,32 +629,52 @@ publication. The audit proves the current exposure, not absence of every
 possible promised export contract; the new consumer must not claim a general
 external language ABI from incidental old linkage.
 
-The remaining consumer question is also concrete. The same-module dispatcher
-in `same_module_typed_field_rmw_emit.inc` can send the same formal into the
-following consumers. This is a use-class inventory for demanded values, not an
-Exhausted claim over all MIR instructions; any other reachable use is open.
+### Projection preservation and runtime-first task order
 
-| Use class | Obligation |
-| --- | --- |
-| Map write, Copy, PHI, Select, exact call forwarding | Keep both lanes on supplied SSA edges and the planned Map store ABI. |
-| Integer arithmetic, comparison, unary, branch, Return | Consume a proved admitted input domain; old T_I64 width/default is insufficient. Return-I64 proof alone does not prove arbitrary body arithmetic. |
-| Print | Existing `mir_call_shell::emit_global_mir_call` chooses String handle versus printf-i64 by origin. A mixed-kind demanded formal cannot inherit this classifier as proof. |
-| Array write, field read/write, runtime/Method call, typeop/boxed-sum projection | Require the particular existing consumer ABI; do not leak tagged payload into Any/handle/i64 decoding. |
-| KeepAlive/ReleaseStrong or another use | Preserve the existing ownership contract; no new scalar handle or blanket no-op justification. |
+Premise correction: requiring every non-Map consumer to gain tagged semantics
+before implementing Map is too broad. Preserve its existing operands and
+physical dispatch. Only a consumer whose input is changed by this projection,
+or whose output supplies the Map demand, is a cutover dependency. Existing
+non-Map behavior is not thereby proved correct. Keep separately named static
+findings distinct from test-reproduced baseline debt.
 
-Concrete evidence: `same_module_function_emit_binop` formats i64 operands after
-String-origin checks; the Array write macro uses `is_plain_i64_value`; Print
-falls back to printf-i64. Retaining a tag in parallel does not validate those
-uses. Their treatment remains CutoverBlockerOpen until an admitted domain or
-an explicit supported tagged consumer is named. Do not manufacture source type
-proof from runtime bits, metadata or the new Map operation.
+The unannotated `stash(x) { local m = %{"v": x}; print(x); return 7 }`
+counterexample is not direct-static ExactI64: Print has no result-proof statement
+arm and produces UnsupportedStatementKind/ResultUnavailable. An explicit i64
+return annotation bypasses that body proof, so that different case cannot be
+excluded by this argument. Neither case has been executed in this audit.
 
-Next bounded work is this demanded-value consumer mapping plus final versioned
-compiler frame, not another source or ingress census. Frame v1 remains live and
-unchanged until the replacement's paired caller/definition consumers and
-retirement are ready. The [runtime v1 contract](../../../../reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1-accepted-design-not-implemented)
-is fixed but unimplemented. No constant-only projection I0 or old-ABI wrapper:
-the construction/write series keeps its six-edge retirement finish line.
+Map projection must not overwrite the existing register with a differently
+interpreted payload. I64/Bool/Handle/Void may share a physical lane only when
+identity of the payload is established. Float's exact Map bits require a
+separate physical projection from the currently lossy generic register; merely
+sharing64-bit width is invalid. Copy/PHI/Select and demanded formal forwarding
+must preserve these projections on the same exact edges, with no reevaluation.
+This is physical representation of one SSA value, not another semantic issuer.
+Print/origin, generic integer arithmetic and Any Array decoding remain named
+static findings outside this change only while their original input and dispatch
+are unchanged. A changed input is CutoverBlockerOpen, not a baseline waiver.
+
+Decision: implement the already closed runtime v1 contract first as a bounded
+contract dependency of the same Map cutover series. It has an exact input,
+existing storage/clone/cache owners and an observable runtime terminal; it does
+not depend on solving the compiler frame. This deliberately replaces the prior
+blanket prohibition on all code until the compiler mapping closes. Source/MIR,
+compiler frame, production route and fixtures for source capability stay closed.
+Runtime tests prove that ABI only, never Map source/OBJ/EXE or retirement.
+
+Ordered work:
+1. `MAP-LITERAL-RUNTIME-CONTRACT-I0` is implemented: explicit-kind store, shared
+   live Map decode branch and length-aware String entry. Eight Map ABI tests
+   (including export-name composition and StringView lifetime), two String tests,
+   38 codec and11 legacy Map tests pass under the jobs4 locked quick kernel target.
+   Scalar paths allocate boxes directly without registering handles; this is
+   code-inspection evidence, not a global allocation counter or performance claim.
+2. Complete the private compiler frame/projection with the preservation rule
+   above and exact caller/internal-definition mapping. Then implement both C
+   walkers and the source/MIR/Core production switch in the same series.
+3. Natural populated/nested/mixed-formal Map-only OBJ/EXE and the six old-edge
+   deletion close the series. Runtime completion alone cannot advance this line.
 
 Runtime acceptance includes scalar classes, Integer/live-handle collision,
 malformed Bool/Void, exact F64 bits, invalid handles/no mutation, retained String

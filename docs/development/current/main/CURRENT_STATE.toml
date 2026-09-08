@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
 current_execution_cohort = "map_literal_selected_construction_d1"
-current_design_stop = "Map-demanded value consumer mapping and versioned compiler frame remain open"
-current_blocker_token = "Map-demanded formals retain kind/payload. New expanded definitions use internal physical symbols with exact typed caller remap; old external linkage/alwaysinline and legacy-instruction rejection do not close ingress. Runtime ABI fixed. Remaining: non-Map demanded-value consumer domains (arithmetic/Print/Array/field/call/ownership) and versioned frame; old i64/origin/Any consumers cannot silently read tagged payload. No source/ingress recensus or implementation before mapping closes."
+current_design_stop = "Versioned private Map compiler frame and exact projection remain open"
+current_blocker_token = "Runtime Map v1 store and length-aware String exports implemented/tested. Next close versioned private Map compiler projection: exact payloads before lossy JSON, Copy/PHI/Select and demanded canonical formal forwarding, internal target/caller mapping. Preserve non-Map original operands/dispatch; no blanket tagged consumer rewrite. Float exact bits cannot overwrite lossy legacy registers. Source/C cutover and six-edge retirement remain pending."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,8 +31,8 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Expanded Map callable internal-linkage and ingress treatment fixed.
-Demanded-value consumer domains and versioned compiler frame remain.
+Runtime v1 dependency implemented with focused ABI/legacy evidence.
+Next is private compiler frame and exact projection preserving non-Map inputs.
 """
 next_design_card = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
 next_execution_card = "none"

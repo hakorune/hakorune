@@ -85,6 +85,20 @@ pub(crate) fn decode_array_fast_value(arg: i64) -> ArrayFastDecodedValue {
     )
 }
 
+/// Shared Map policy for an already validated live object, without Any fallback.
+#[inline(always)]
+pub(crate) fn map_value_from_live_object(
+    obj: &std::sync::Arc<dyn NyashBox>,
+    handle: i64,
+) -> Box<dyn NyashBox> {
+    if obj.as_any().downcast_ref::<StringBox>().is_some()
+        || obj.as_any().downcast_ref::<crate::exports::string_view::StringViewBox>().is_some()
+    {
+        return maybe_borrow_string_handle(obj.clone(), handle);
+    }
+    obj.clone_box()
+}
+
 #[inline(always)]
 pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Box<dyn NyashBox> {
     let _demand = profile.demand();
@@ -112,15 +126,7 @@ pub(crate) fn any_arg_to_box_with_profile(arg: i64, profile: CodecProfile) -> Bo
                     let Some(obj) = obj else {
                         return int_arg_to_box(arg);
                     };
-                    if obj.as_any().downcast_ref::<StringBox>().is_some()
-                        || obj
-                            .as_any()
-                            .downcast_ref::<crate::exports::string_view::StringViewBox>()
-                            .is_some()
-                    {
-                        return maybe_borrow_string_handle(obj.clone(), arg);
-                    }
-                    obj.clone_box()
+                    map_value_from_live_object(obj, arg)
                 },
             );
         }

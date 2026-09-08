@@ -16,6 +16,7 @@ pub(crate) use borrowed_handle::SourceLifetimeKeep;
 #[cfg(test)]
 pub(crate) use decode::any_arg_to_box;
 pub(crate) use decode::int_arg_to_box;
+pub(crate) use decode::map_value_from_live_object;
 pub(crate) use decode::{
     any_arg_to_box_with_profile, any_arg_to_index, decode_array_fast_value,
     owned_string_from_handle, ArrayFastDecodedValue, CodecProfile,

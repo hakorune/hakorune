@@ -1,4 +1,5 @@
 pub use super::map_aliases::*;
+pub use super::map_literal::nyash_map_literal_store_v1;
 
 #[cfg(test)]
 mod tests {
