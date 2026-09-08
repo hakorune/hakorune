@@ -1327,8 +1327,8 @@ close; no second payload table, implicit share or numeric-Array substitution.
 
 Decision: source PlainI64NoHook compatibility does not make an indexed object a
 host Handle5. Keep the actual payload in the existing typed-object indexed store;
-the existing Map entry owner receives its authorized end responsibility in a
-distinct owned residence. Preserve storage profile, stable storage identity,
+the common Map storage owner receives its authorized end responsibility in a
+distinct owned residence through the checked intrinsic facade described below. Preserve storage profile, stable storage identity,
 exact type and admitted end evidence. No second payload table, field snapshot,
 uniform Arc promotion or cloneable pseudo-Home wrapper.
 
@@ -1365,8 +1365,9 @@ Either outcome of explicit end consumes that attempt; never retry the old value.
 TLS is unsupported before residence creation/mutation until confinement is
 proved. SafeMutex permanent indices need no new ABA generation. The interface
 alone does not authorize owned slots: existing get/get_opt/values/Clone use
-clone/share, toJSON and get_data expose observers (JSON conversion and gc_trace).
-These callers must gain an explicit supported projection or reject; owned values
+clone/share and toJSON exposes values. JSON/GC now use scoped owner access;
+get_data is removed. Native facade publication must exclude Owned structurally;
+checked consumers need supported projection or explicit refusal. Owned values
 cannot silently become missing keys, ordinary Boxes or cloned payloads. Remove,
 clear and terminal end must detach responsibilities and end outside locks.
 Current Send+Sync NyashBox and its mandatory clone/share methods are not a
@@ -1399,6 +1400,63 @@ source transfer is never reconstructed from physical progress. End-to-end
 acceptance includes native end once, no old-local double end, duplicate-key
 replacement, pre/postcommit Fault, Map/root cleanup, drift and profile/thread
 mismatch. This accepted design is not runtime activation or source execution.
+
+### Map publication premise reset: native facade and checked intrinsic facade
+
+Decision (c4a1889a19 audit): replace the premise that the public NyashBox MapBox
+can acquire non-Clone Owned entries after local read-signature migrations.
+Preserve the native facade's copied-table Clone contract. The Owned-capable
+intrinsic facade does not implement NyashBox or Clone and cannot be published
+through native host handles. Both facades use one common storage implementation;
+each Map owns one payload table. No shadow payload table, clone-to-share change,
+omitted entry, panic wrapper or ordinary Box standing in for an Owned obligation.
+The native facade is permanently Native-only: checking a flag once at publication
+and allowing Owned promotion after a native alias escapes does not suffice.
+This changes physical exposure, not source Map key/transfer/end semantics.
+
+Counterexample: allocate a public MapBox, retain a native alias, then install an
+Owned entry and invoke Clone/clone_box/clone_arc through that alias. Copied-table
+cloning requires duplicating the non-Clone obligation. None of those methods can
+return an error. Read Result patches cannot remove this contradiction. A broad
+NyashBox clone-capability migration could address it but is not selected here.
+
+Audit boundary: native Map read/clone entries -> root surface/native host/service/
+kernel terminals. Includes public get/get_opt/scalar/values, mandatory clone
+methods and the listed consumers below. Excludes JSON/GC internals, unrelated
+source families, other backends and external Rust clients. This targeted audit
+is not an Exhausted claim about the full Map cutover.
+
+| Existing consumer | Observed terminal / required disposition |
+| --- | --- |
+| Map surface catalog / interpreter method handler | Result reaches VMError; current surface errors only cover arity |
+| native host slot203 | independent i32 status; Some(error) terminates, None would enable fallback |
+| MapService / ring1 provider / adapter | Option; current missing-key String is observable native behavior |
+| kernel slot_load / scalar / compatibility / runtime-data aliases | bare i64, missing/nonscalar can already be0; no separate failure channel |
+| MapBox Clone / NyashBox clone_box / clone_arc | infallible copied-table contract; Owned exposure is incompatible |
+
+The selected resolution is enforced exclusion of the checked facade from those
+native entries, not a claim that their error contracts have already migrated.
+Existing native success/missing behavior remains its own contract. Checked
+source borrow or Dynamic publication still needs its own authorized lifetime or
+self-contained carrier; this facade split grants neither.
+
+Smallest next design boundary: name the checked intrinsic Map identity and its
+allocation/lifetime/publication consumer. Current `exports/birth.rs` immediately
+registers Arc<dyn NyashBox> via `nyash.map.birth_h`; the new facade cannot reuse
+that publication merely behind a private wrapper. Audit the actual Map allocation
+Normal result, retained physical representation, install target, root cleanup,
+required runtime descriptor/session and C caller before choosing storage form.
+Do not infer an indexed registry, host token, opaque stack address or semantic
+receipt from the facade name. Root owns common storage; kernel supplies the
+existing indexed child-residence end implementation, with no reverse dependency.
+
+Ordered acceptance: checked allocation -> exact Owned install -> checked
+observation/refusal -> detached-old and reverse-install terminal end. Also prove
+native publication and legacy-reader ingress cannot acquire the checked facade,
+including aliases. Retirement target is selected intrinsic allocation/publication
+through birth_h, followed by the existing old set/install Stop retirement; native
+compatibility remains Native-only. No source activation, general Dynamic escape,
+ABI implementation or full Map cutover is claimed by this Decision.
 
 ### Detached install outcome physical contract
 
@@ -1444,8 +1502,9 @@ disposes Consumed. Recursive or repeated executions must not share a live slot.
 The current C universal LV4_HANDLE classification/i64 load must be replaced by
 operation-derived projection for this result, not reused as a token encoding.
 
-Implementation order: real Map teardown/storage/end primitives and explicit
-native/owned observer behavior; target descriptor plus checked opaque ABI;
+Implementation order: checked Map identity/lifetime and permanent native facade
+exclusion; common Map storage/end primitives and checked observer behavior;
+target descriptor plus checked opaque ABI;
 existing lifecycle emission/validation and root cleanup; then source activation
 and selected old-set/MapLiteralEntryWrite/install-Stop retirement. These remain
 one Map series. Native teardown tests prove only their current native boundary;
@@ -1453,7 +1512,10 @@ no schema-only change or test behind install Stop proves public cutover.
 
 ### Checked Map reads and native observers
 
-Missing consumer: `MapOwnedReadProjectionConsumerMissing`. Kernel
+Missing consumer: `MapOwnedReadProjectionConsumerMissing`. The checked facade
+Decision above excludes the following native path until an explicit checked
+publication contract exists; migrating its signatures alone is not the next
+Owned-intake slice. Kernel
 `map_slot_load_str_with` currently gets a visible clone, then
 `encode_runtime_value_carrier` publishes scalar/host handle through
 MixedI64OrHandle. `map_aliases` load_hi/hh, `map_compat` get_h/get_hh and

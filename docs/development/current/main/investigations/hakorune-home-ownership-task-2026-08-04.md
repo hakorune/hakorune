@@ -636,9 +636,10 @@ V1 is fixed-size and must be revised with its readers, never padded silently.
 Order within the existing Map series:
 1. Native remove/clear lock-held teardown is removed at the existing Map owner;
    focused Map tests8 pass, including reentry/once-only Drop/capacity retention.
-2. Put native/owned residence in the actual Map entry owner, preserving one
-   payload table, ordered end and explicit observer/read/clone behavior. Keep
-   owned public intake gated; root imports no kernel FaultFrame or registry.
+2. Close the checked intrinsic Map identity/allocation/lifetime contract below,
+   then use the common storage owner through Native-only public and non-NyashBox
+   checked facades. Preserve one table per Map and ordered end. Root imports no
+   kernel FaultFrame or registry; no Owned promotion of a native-visible Map.
 3. Implement target descriptor and checked install/outcome/end primitives,
    then connect existing lifecycle Invoke, projection and root cleanup consumers.
    Tests must exercise real storage/end; schema-only acceptance is insufficient.
@@ -726,13 +727,37 @@ on success and non-object refusal. No Rust get_data callers remain in src/crates
 Pointer/corridor/diff checks pass; touched Rust max634. Native boxes README and
 runtime reference describe the Result boundary and explicit Rust API change.
 
-Next design boundary: public Map read/clone and one-table Native/Owned residence
-and end, before owned intake. Reuse the existing finite consumer inventory;
-no new unchecked adapter or source activation is authorized by this checkpoint.
-Public Map get/get_opt/scalar/values, Clone/clone_box, toJSON, owned end and
-kernel checked publication remain the subsequent Native/Owned intake blockers.
-Root surface catalog, native host, MapService and kernel bare-i64 adapters remain
-actual Map consumers; do not map their unavailable values to None/0/error String.
+**Accepted premise reset: checked intrinsic Map publication**
+
+Decision: the [native/checked facade boundary](../design/collection-literal-construction-ssot.md#map-publication-premise-reset-native-facade-and-checked-intrinsic-facade)
+replaces Owned admission into public NyashBox MapBox. An independent read-only
+worker confirmed infallible Clone/clone_box/clone_arc cannot preserve copied-table
+semantics for non-Clone Owned entries. Native host Result/status capabilities do
+not solve this. A retained native alias is the decisive counterexample.
+
+Source authority + canonical issuer: existing exact Map source flow and lifecycle
+law issue allocation/transfer/end meaning; common storage remains the sole payload
+owner. Checked physical identity issuance is not yet fixed.
+Non-authority: native host handles, legacy bare-i64 reads, VM error capability,
+public Clone and helper-only Result tests cannot admit Owned values.
+Fail-fast boundary: keep common MapLifecycleConsumerMissing and runtime escape
+Stops; no checked facade may enter NyashBox or native host publication.
+Smallest next slice: audit and decide checked Map allocation identity/lifetime
+from actual allocation Normal projection through install and root end, including
+runtime descriptor/session and C representation. No new runtime registry or
+caller-owned pointer is selected without that mapping. Then implement the common
+storage plus checked facade and actual consumer as the existing Map series.
+Non-claims: native read API migration, Owned intake, ABI/LLVM implementation,
+Dynamic escape, OBJ/EXE and complete Map retirement remain unproven.
+
+Deletion target: selected intrinsic Map allocation/publication through
+nyash.map.birth_h. Acceptance must execute checked allocation/install/observation
+or explicit refusal/ordered end and prove native alias/publication/legacy-read
+exclusion. The complete source switch still removes old set/MapLiteralEntryWrite
+and common install Stop. This supersedes repeated native get/values Result-only
+slices as a proposed solution to Owned intake; it does not undo the landed native
+JSON/GC correctness repairs. Read-only audit and pointer guard only this step;
+no code, build or new fixture was used to infer a missing identity authority.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 
@@ -742,8 +767,8 @@ indexed-store identity; Map Handle5 accepts a positive host handle and clones
 its NyashBox. PlainI64NoHook proves end semantics, not interoperability. Keep
 `named-non-host-handle` and boxed-object escape Stops until the actual Map entry
 can accept and discharge that exact obligation. The root-defined non-Clone residence/kernel SafeMutex end interface is now
-accepted; TLS remains unsupported. Close actual read/clone/end consumers before
-production owned-slot intake. Source/Completion and physical consumer work can
+accepted; TLS remains unsupported. The checked facade must close identity,
+read/end and native-publication exclusion before production owned-slot intake. Source/Completion and physical consumer work can
 proceed toward that gate; source-only accepted rows with a pending physical
 consumer do not count as cutover. A no-read source is not an observer exclusion:
 `nyash.map.birth_h` registers MapBox in host handles, whose snapshot is traced by
