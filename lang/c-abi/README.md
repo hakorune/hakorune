@@ -92,6 +92,9 @@ Lifecycle invocation ownership
   range I64 returns record reason102 after Home cleanup. Runtime frame/descriptor
   revisions remain unchanged. The selected session host has source-backed
   EXE/independent OBJ acceptance; generic session-less OBJ stays rejected.
+- Physical field storage uses `HAKO_LLVMC_LIFECYCLE_STORAGE_I64=1` in the
+  shared header, parser and V4 admission, mirrored by Rust physical input.
+  This tag does not classify source values; unknown storage tags still reject.
 - Focused reproduction: build with `bash tools/build_hako_llvmc_ffi.sh`; run the
   existing physical parser preartifact C test and `published_lifecycle_v4_execution_test.py`
   with the three JSON paths captured by the Rust physical_program_json tests

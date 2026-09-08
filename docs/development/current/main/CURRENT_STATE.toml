@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0"
-current_execution_cohort = "constructor_array_current_docs_r0"
-current_design_stop = "none; documentation reconciliation verified, ready for commit/push"
-current_blocker_token = "Constructor/Array current-doc reconciliation verified against a1d86db262; live contracts, constructor Unit Stop, wider source obligations and classified baselines retained. Commit/push docs only. Next existing physical storage wire-tag BoxShape follow-up3, then the rolling backend/runtime order; no new source-family admission."
+current_execution_row = "CONSTRUCTOR-PHYSICAL-STORAGE-WIRE-TAG-BOXSHAPE"
+current_execution_cohort = "constructor_physical_storage_wire_tag_boxshape"
+current_design_stop = "none; storage wire-tag BoxShape verified for commit/push"
+current_blocker_token = "Storage wire-tag naming verified: Rust physical9, C parser with storage0/2 rejection and V4 Pair30/Fault70/negative artifact checks pass. Commit/push this BoxShape. Next audit residual canonical/compatibility obligations under the existing backend/runtime order before selecting a production edge; no automatic family widening."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,11 +31,11 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Constructor/Array docs reconciled: current execution and Stop boundaries,
-retirement and baselines retained; local links and current guards pass.
+Physical I64 storage wire-tag naming only: retain value1 and exact rejection
+contract across Rust serialization and C parser/admission.
 """
-next_design_card = "CONSTRUCTOR-PHYSICAL-STORAGE-WIRE-TAG-BOXSHAPE"
-next_execution_card = "CONSTRUCTOR-PHYSICAL-STORAGE-WIRE-TAG-BOXSHAPE"
+next_design_card = "MIR-CALL-PUBLISHED-CANONICAL-COMPATIBILITY-RESIDUAL-D0"
+next_execution_card = "MIR-CALL-PUBLISHED-CANONICAL-COMPATIBILITY-RESIDUAL-D0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

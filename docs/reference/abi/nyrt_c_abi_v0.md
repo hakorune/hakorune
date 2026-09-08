@@ -132,6 +132,11 @@ with payload representation; malformed/unknown keys, values, references,
 dominance, arity, target or kind disagreement reject before LLVM/artifact.
 Other root/layout/operation/edge keys keep their existing closed contracts.
 
+Object field `storage_kind` remains the unsigned wire value1 for I64, named
+`HAKO_LLVMC_LIFECYCLE_STORAGE_I64` in Rust physical input and the shared C
+header. It is independent of Birth actual kind and source type. Unknown storage
+tags reject before artifact output; no value, layout or ABI revision changes.
+
 MIR keeps receiver + N logical parameters. LLVM projects these once into
 `ptr frame, i64 receiver, (i32 kind, i64 payload) x N`; existing physical_ordinal
 remains the MIR parameter index. Birth formal has TAGGED representation, root

@@ -178,7 +178,7 @@ static int lv4_admit(yyjson_val* root, hako_lv4_input* out, char** error) {
   out->result_site = yyjson_get_uint(yyjson_obj_get(root, "process_result_site"));
   for (size_t i = 0; i < 2; i++) {
     yyjson_val* field = yyjson_arr_get(fields, i);
-    if (lv4_u(field, "storage_kind") != 1 || lv4_u(field, "runtime_slot") >= 2) goto unsupported;
+    if (lv4_u(field, "storage_kind") != HAKO_LLVMC_LIFECYCLE_STORAGE_I64 || lv4_u(field, "runtime_slot") >= 2) goto unsupported;
     out->field_ordinals[lv4_u(field, "runtime_slot")] = lv4_u(field, "declaration_ordinal");
   }
   for (size_t fi = 0; fi < 2; fi++) {

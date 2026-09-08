@@ -9,7 +9,7 @@ Scope: intrinsic literal identity, retained Script numeric Array lifecycle and s
 
 - **Current decision:** preserve Named versus IntrinsicArray identity, one source lifecycle/Recipe and one runtime storage/contract owner.
 - **Current implementation status:** raw/typed-local/Core literals preserve intrinsic identity; selected retained Script Arrays execute through the checked native ABI and bound V4 OBJ/EXE path. Literal birth and selected duplicate/preparation/projection/Stop edges are retired.
-- **Next ordered task:** the existing storage wire-tag BoxShape and backend/runtime queue; wider source families remain explicitly open.
+- **Next ordered task:** the existing canonical/compatibility and backend/runtime queue; wider source families remain explicitly open.
 - **Production stop line:** exact retained Script LocalInit/claim coverage and a compatible explicit runtime session are required. Module-only/unselected typed families and Script Loop keep their Stops.
 - **Retirement finish line:** the admitted numeric Script execution series is closed; Map/Main/named/compatibility callers remain live. Wider Array and Call R7 completion are not claimed.
 
@@ -395,6 +395,6 @@ retained products and CURRENT_STATE; verify incoming anchors, outgoing local
 links, pointer/corridor guards and diff check. No source/test deletion or build.
 
 The terminal enum row is closed at `a1d86db262`; semantic-package README cleanup
-was already closed and is excluded. Next is existing physical storage wire-tag
-BoxShape in the [constructor follow-up queue](constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08),
-then the rolling backend/runtime order. No second implementation task is added.
+was already closed and is excluded. Physical storage wire-tag naming is also
+closed in the [constructor follow-up queue](constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
+Next is the rolling backend/runtime order; no second implementation task is added.

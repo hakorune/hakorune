@@ -96,6 +96,8 @@ int main(void) {
   rejects_replace(valid, "\"kind\":1,\"value\":4", "\"kind\":1,\"kind\":1,\"value\":4", "function-body");
   rejects_replace(valid, "\"kind\":1,\"value\":4", "\"kind\":1,\"value\":999", "function-body");
   rejects_replace(valid, "\"op\":\"const_i64\",\"dst\":1,\"value\":30", "\"op\":\"const_bool\",\"dst\":1,\"value\":1", "function-body");
+  rejects_replace(valid, "\"storage_kind\":1", "\"storage_kind\":0", "abi-layout");
+  rejects_replace(valid, "\"storage_kind\":1", "\"storage_kind\":2", "abi-layout");
   remove(path);
   return 0;
 }

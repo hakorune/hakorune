@@ -634,12 +634,14 @@ Package failures: `ordinary_new_coseal::field_reads::tests::terminal_read_rows_r
 Pipeline failures: `published_consumer_runs_once_and_propagates_failure_without_retry` (expected callback failure absent) and `published_consumer_does_not_consume_explicit_compatibility` (`artifact-root-completion-unavailable`). Owner: normal-default callable/compatibility finalization and its test ingress; reopen when that ingress is selected, not by bypassing the artifact gate.
 
 
-#### CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0
+Docs reconciliation closed at `980c99ff2c`: constructor2594->440, collection1155->400 lines; README synchronized, links/guards pass. Contracts, open families and baseline evidence retained.
 
-Change: reconciled the three existing owner documents against `a1d86db262`; Git owns retired migration narration.
-Contract: preserve constructor/Script distinctions, source/physical/ABI/cleanup/retirement rules, open blockers and classified baseline evidence; no source/test/build change.
-Done: constructor SSOT2594->440 lines, collection1155->400, builder README1269->1283. Incoming22/outgoing15 local links resolve (broken0); pointer/selected-normal corridor guards and diff check pass. No new execution evidence.
-Stop: ambiguous live authority or an unverified completion claim stays open; documentation cannot promote a source family. Next existing physical storage wire tag BoxShape (follow-up3).
+#### CONSTRUCTOR-PHYSICAL-STORAGE-WIRE-TAG-BOXSHAPE
+
+Change: name the existing I64 storage wire1 in Rust physical input and shared C header/parser/admission; delete three anonymous production literals.
+Contract: existing layout issuer/serializer and C boundary retain exact value1, unknown-tag/layout rejection and physical ownership; no new storage/source acceptance.
+Done: Rust physical projection/layout9 pass; C build/parser pass including storage0/2 rejection; V4 linked Pair30, Bool Fault70, cleanup/status and14 malformed artifact-preservation cases pass. Parent/pointer guards green; ABI reference/README updated; touched source max676. No whole-lib claim.
+Stop: any representation or accepted-input change is outside this BoxShape. Next resume the existing backend/runtime task order.
 
 ## Source and ownership budget
 

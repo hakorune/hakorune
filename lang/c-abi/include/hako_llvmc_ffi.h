@@ -44,6 +44,9 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
 #define HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT 1u
 #define HAKO_LLVMC_PUBLISHED_ROW_FLAG_INDEX_PRESENT 2u
 
+/* Physical-program.v2 field storage tag, independent of source value kind. */
+#define HAKO_LLVMC_LIFECYCLE_STORAGE_I64 1u
+
 /* Invocation-owned physical target facts decoded from the selected runtime
  * archive. This is not MIR/source authority and is consumed by V4. */
 typedef struct hako_llvmc_lifecycle_target_session_v1 {

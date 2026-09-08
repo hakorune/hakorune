@@ -13,7 +13,7 @@ Related:
 
 - **Current decision:** source owners issue meaning; existing emission/finalization binds it; one completed physical input and explicit runtime session feed V4.
 - **Current implementation status:** selected Pair executes through actual OBJ/EXE callers with default source materialization. V2/V3 pending transports, JSON reparse, view-owned handoff/profile and duplicate terminal storage are retired.
-- **Next ordered task:** the independently queued storage wire-tag BoxShape; broader backend/runtime work follows its workstream order.
+- **Next ordered task:** resume canonical/compatibility separation in the existing backend/runtime order; storage wire-tag naming is complete.
 - **Production stop line:** constructor Unit remains `physical_abi.rs`'s `root-result-unavailable`. Local actuals, unsupported declarations/uses and unissued result families retain their own pre-artifact boundaries. Script Array Unit is a different admitted cohort.
 - **Retirement finish line:** the selected Pair transport/ownership series is closed; broader source coverage, compatibility migration and Call R7 are not complete.
 
@@ -348,14 +348,13 @@ resolved by Pair success or moved to another backend.
 
 ## Ordered tasks
 
-1. Existing physical storage wire-tag BoxShape in the follow-up queue below.
-2. Resume the [rolling backend/runtime order](../workstreams/mirbuilder-inplace-replacement-current.md#backendruntime-feedback-and-task-order-2026-09-06):
+1. Resume the [rolling backend/runtime order](../workstreams/mirbuilder-inplace-replacement-current.md#backendruntime-feedback-and-task-order-2026-09-06):
    canonical/compatibility -> compile-call state/
    options -> runtime-hook single storage -> runtime dependency reduction order.
    Published Global-required-row and Extern Stop are already landed; do not
    restart them from an old checkpoint. A demonstrated selected dependency
    failure reopens its owner immediately.
-3. Broader source-result/actual families require their own existing issuer and
+2. Broader source-result/actual families require their own existing issuer and
    physical mapping: Bool, then local/alias, typed integer and general Add after
    operand relations exist. No new family is authorized by this document cleanup.
 
@@ -397,10 +396,11 @@ This stable entry now records dispositions rather than repeated task cards:
 2. **Terminal relation BoxShape** closed at `a1d86db262`; source-to-finalization
    representation and preserved progress checks are specified above. No new
    public receipt, source classifier or accepted family.
-3. **Physical storage wire tag BoxShape** remains next: existing Rust physical
-   ABI plus shared C header/parser/admission names the anonymous I64 storage1.
-   Keep wire value1, unknown-tag rejection and layout mutations; delete only
-   those repeated raw constants. No Bool/handle/storage redesign.
+3. **Physical storage wire tag BoxShape** is implemented: Rust physical ABI
+   and the shared C header/parser/admission name I64 storage1 with
+   `HAKO_LLVMC_LIFECYCLE_STORAGE_I64`. Three anonymous production literals are
+   retired; wire value1, unknown-tag rejection and layout checks remain.
+   No Bool/handle/storage redesign; current verification lives in the rolling card.
 
 ## Classified baseline evidence
 

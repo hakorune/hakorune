@@ -15,6 +15,9 @@ use super::{
     CompiledEntryRootResultV1, PublishedMirBackendView,
 };
 
+/// Physical-program.v2 field storage tag; mirrored by the C ABI header.
+const HAKO_LLVMC_LIFECYCLE_STORAGE_I64: u32 = 1;
+
 /// Runtime diagnostic operation kinds admitted by the selected lifecycle ABI.
 /// These are physical runtime calls, never source-level diagnostic sites.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -268,7 +271,7 @@ impl<'module> PublishedMirBackendView<'module> {
                         object_id,
                         declaration_ordinal: ordinal as u32,
                         runtime_slot: field.slot,
-                        storage_kind: 1,
+                        storage_kind: HAKO_LLVMC_LIFECYCLE_STORAGE_I64,
                     })
                 })
                 .collect::<Result<Vec<_>, String>>()?;
