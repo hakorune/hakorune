@@ -40,10 +40,11 @@ is the total count and may exceed the eight stored diagnostic slots.
 The runtime placement caller must end acquired Maps and detached outcomes;
 ordinary Rust Drop does not perform source finalization. `require_disposable`
 checks Map state before destruction. The opaque ABI must enforce this protocol
-and reject Ready-outcome disposal; it is not implemented by these Rust helpers.
+and reject Ready-outcome disposal; kernel opaque wrappers now enforce it.
 Native projection of a present owned entry explicitly refuses, distinct from a
-missing key. Source read/escape authority, descriptor/C connection and source
-cutover remain open. See the
+missing key. MapKeyDomain has fallible native text preparation for the key-before-child ABI;
+its canonical numeric classifier allocates no temporary String. Source read/escape
+authority and C Map operation emission/source cutover remain open. See the
 [checked storage contract](../../docs/reference/runtime/runtime-data-dispatch.md#checked-map-storage-and-indexed-residence).
 
 ## JSON observation

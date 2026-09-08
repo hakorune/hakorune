@@ -10,7 +10,7 @@ use super::Opts;
 use crate::mir::function::PublishedStaticMethodCallCRowV1;
 
 #[repr(C)]
-struct LifecycleTargetSessionCRowV1 {
+struct LifecycleTargetSessionCRowV2 {
     revision: u32,
     target_triple: *const std::os::raw::c_char,
     endian: u32,
@@ -26,6 +26,15 @@ struct LifecycleTargetSessionCRowV1 {
     frame_align: u32,
     frame_primary_offset: u32,
     frame_suppressed_offset: u32,
+    map_size: u32,
+    map_align: u32,
+    map_revision: u32,
+    key_size: u32,
+    key_align: u32,
+    key_revision: u32,
+    outcome_size: u32,
+    outcome_align: u32,
+    outcome_revision: u32,
 }
 
 #[cfg(feature = "plugins")]
@@ -263,8 +272,8 @@ pub(super) fn compile_published_lifecycle_physical_v4(
     let d = input.session().descriptor();
     let triple =
         CString::new(d.target_triple.as_str()).map_err(|_| "invalid lifecycle target triple")?;
-    let row = LifecycleTargetSessionCRowV1 {
-        revision: 1,
+    let row = LifecycleTargetSessionCRowV2 {
+        revision: 2,
         target_triple: triple.as_ptr(),
         endian: d.endian,
         pointer_width: d.pointer_width,
@@ -279,6 +288,15 @@ pub(super) fn compile_published_lifecycle_physical_v4(
         frame_align: d.frame_align,
         frame_primary_offset: d.frame_primary_offset,
         frame_suppressed_offset: d.frame_suppressed_offset,
+        map_size: d.map_size,
+        map_align: d.map_align,
+        map_revision: d.map_revision,
+        key_size: d.key_size,
+        key_align: d.key_align,
+        key_revision: d.key_revision,
+        outcome_size: d.outcome_size,
+        outcome_align: d.outcome_align,
+        outcome_revision: d.outcome_revision,
     };
     let json_in = transport_io::prepare_backend_input_json_file(&input.serialize()?)?;
     transport_io::ensure_backend_output_parent(obj_out);
@@ -286,7 +304,7 @@ pub(super) fn compile_published_lifecycle_physical_v4(
         let lib = load_ffi_library()?;
         type CompileFn = unsafe extern "C" fn(
             *const c_char,
-            *const LifecycleTargetSessionCRowV1,
+            *const LifecycleTargetSessionCRowV2,
             *const c_char,
             *mut *mut c_char,
         ) -> c_int;

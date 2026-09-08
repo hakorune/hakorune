@@ -3,6 +3,16 @@
 This directory contains the C LLVM backend and ABI/compatibility shims.
 The backend performs physical lowering; it does not issue source meaning.
 
+## Opaque Map target session
+
+The lifecycle target validator consumes session revision2 and checks Map/key/
+outcome revision, nonzero size and power-of-two aligned geometry. The production
+V4 emitter receives that same session; Map operation emission is still pending.
+`lifecycle_opaque_session_test.c` uses an extracted actual descriptor to exercise
+this owner. The generic V4 driver's opaque geometry is fixture-only, not a claim
+about runtime Map layout. `checked_map_runtime_abi_test.c` links the real runtime
+archive and calls the opaque C ABI directly; neither test proves source cutover.
+
 ## Responsibility Boundary
 
 - Intrinsic Array allocation uses the existing frame's kind8 exact-site row and

@@ -123,6 +123,24 @@ uint32_t nyrt_array_checked_append_bool_v1(void *, uint64_t, int64_t, uint32_t)
     __asm__("nyash.array.checked_append_bool_v1");
 uint32_t nyrt_array_checked_append_f64_v1(void *, uint64_t, int64_t, double)
     __asm__("nyash.array.checked_append_f64_v1");
+/* Checked Map ABI: opaque region sizes/alignment come only from descriptor V2.
+ * All regions are initialized, aligned, nonoverlapping and synchronous. Init
+ * requires fresh unique bytes, not a live value. Key UTF-8 prepare precedes child
+ * evaluation; a null byte pointer is permitted only at length zero. Ready key
+ * may be cancelled by dispose. Live Map/Ready outcome disposal rejects.
+ * End callbacks retain no mutable ABI borrows; outcomes consume before end.
+ * Native key cancellation never issues source Home/finalization semantics. */
+uint32_t nyrt_map_storage_init_v1(void *) __asm__("nyash.map.storage_init_v1");
+uint32_t nyrt_map_checked_new_v1(void *, uint32_t, uint64_t, void *) __asm__("nyash.map.checked_new_v1");
+uint32_t nyrt_map_key_init_v1(void *) __asm__("nyash.map.key_init_v1");
+uint32_t nyrt_map_key_prepare_utf8_v1(void *, uint64_t, void *, const uint8_t *, size_t) __asm__("nyash.map.key_prepare_utf8_v1");
+uint32_t nyrt_map_key_dispose_v1(void *) __asm__("nyash.map.key_dispose_v1");
+uint32_t nyrt_map_outcome_init_v1(void *) __asm__("nyash.map.outcome_init_v1");
+uint32_t nyrt_map_checked_install_indexed_v1(void *, uint32_t, uint64_t, void *, void *, int64_t, int64_t, void *) __asm__("nyash.map.checked_install_indexed_v1");
+uint32_t nyrt_map_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.map.outcome_end_v1");
+uint32_t nyrt_map_outcome_dispose_v1(void *) __asm__("nyash.map.outcome_dispose_v1");
+uint32_t nyrt_map_checked_end_v1(void *, uint64_t, void *) __asm__("nyash.map.checked_end_v1");
+uint32_t nyrt_map_storage_dispose_v1(void *) __asm__("nyash.map.storage_dispose_v1");
 #ifdef __cplusplus
 }
 #endif

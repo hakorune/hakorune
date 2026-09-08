@@ -11,3 +11,8 @@ Diagnostics helpers (Fail‑Fast):
 
 Compatibility:
 - `include/hako_hostbridge.h` may remain as a thin shim that includes `hako_aot.h` for AOT declarations during transition.
+
+Lifecycle target sessions in `hako_llvmc_ffi.h` use revision2 and carry the
+Map/key/outcome opaque layout triples from the selected runtime descriptor V2.
+Revision1 rejects before extended-field access. Opaque runtime functions are
+declared in root `include/nyrt_fault_v1.h`; no C struct guesses their Rust layout.

@@ -327,7 +327,7 @@ Terminal end marks Ending, moves all entries out, and releases the lock before
 end callbacks. End-buffer capacity is prepared at install, so sorting/draining
 needs no end-time allocation. End attempts run in reverse live-install order;
 failures retain first plus eight suppressed facts and a total suppressed count.
-The eventual FaultFrame consumer must bound indexing by stored capacity. Returned
+The FaultFrame consumer bounds indexing by stored capacity. Returned
 failures do not skip later entries, and the Map reaches Ended on either result.
 Poisoned storage rejects normal operations; terminal end recovers the valid
 storage and records unavailability while attempting cleanup. Native panic or
@@ -344,13 +344,13 @@ A present owned entry has no authorized native Box projection and returns
 ProjectionUnavailable; a missing key returns None. Native keys/clone/iteration
 semantics remain unchanged. CheckedMap and its detached outcomes require explicit
 end by the placement caller. Map destruction is legal only Unissued/Ended;
-opaque detached storage will reject disposal before consumption. Rust Drop is
-not a fallback source finalizer. Opaque layout/ABI, descriptor/session, selected C
+opaque detached storage rejects disposal before consumption. Rust Drop is
+not a fallback source finalizer. Opaque ABI and descriptor/session are now implemented. Selected C Map operation
 emission, mixed-origin root cleanup and source-to-EXE activation remain unfinished.
 
-## Checked Map opaque ABI contract (accepted, not implemented)
+## Checked Map opaque ABI contract
 
-The next runtime ABI uses three caller-owned opaque regions: Map, prepared key
+The runtime ABI uses three caller-owned opaque regions: Map, prepared key
 and detached outcome. All belong to one invocation's physical storage owner;
 none is a source Home token or native host handle. The target archive issues all
 three size/alignment/contract-revision triples in the same descriptor revision.
@@ -369,7 +369,7 @@ Keep the existing Fault ABI/status values: Normal0, Fault1, InvalidContract2.
 | outcome dispose | only Unissued/Consumed; Ready is rejected unchanged |
 | Map storage dispose | only Unissued/Ended; Live/Ending is rejected unchanged |
 
-Export spellings to implement are `nyash.map.storage_init_v1`,
+Implemented export spellings are `nyash.map.storage_init_v1`,
 `nyash.map.checked_new_v1`, `nyash.map.key_init_v1`,
 `nyash.map.key_prepare_utf8_v1`, `nyash.map.key_dispose_v1`,
 `nyash.map.outcome_init_v1`, `nyash.map.checked_install_indexed_v1`,
@@ -379,7 +379,8 @@ Export spellings to implement are `nyash.map.storage_init_v1`,
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain
 owner. No strlen, String-handle/cache lookup or post-child conversion is allowed.
-Returned allocation failure records reason100 and leaves Empty; malformed UTF-8
+A null bytes pointer is allowed at zero length (empty key); other regions must
+be non-null. Returned allocation failure records reason100 and leaves Empty; malformed UTF-8
 or pointer/length contract returns InvalidContract without installing a key.
 Allocator fatal termination is not represented as a returned source Fault.
 Child Fault cancels the Ready key with key dispose; this is native cleanup and
@@ -419,10 +420,11 @@ Ready overwrite, end rejects Unissued/double consumption, and dispose rejects
 live obligations at runtime. Disposed storage has no live Rust value; a second
 call needs a new valid initialized lifetime, not a fabricated header.
 
-Descriptor/transport cutover replaces the 200-byte runtime descriptor revision
-and its ELF section/export/decoder, carries all three opaque layouts through the
-Rust C row and versioned C session, and rejects older revisions before reading
-extended fields. Required-symbol checks, driver initialization, launcher symbol
-assertions and actual C allocation placement migrate together. Existing native
+Descriptor/transport uses the 236-byte V2 record/ELF section/export, carries all
+three opaque layout triples through the Rust C row and C session revision2, and
+rejects older revisions before extended-field reads. Required symbols, driver
+initialization and launcher symbol assertion are updated. Actual C Map allocation/
+projection and mixed cleanup remain to be implemented; no unused region is
+allocated just to claim consumption of a layout field. Existing native
 birth_h compatibility is separate; the selected source install Stop remains
 until checked Invoke/projection and all mixed-origin cleanup consumers execute.

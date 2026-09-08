@@ -7,13 +7,13 @@ use crate::mir::PublishedLifecycleRuntimeRequirementsV1;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-const MAGIC: &[u8; 8] = b"NYRTABI1";
-const RECORD_SIZE: usize = 200;
+const MAGIC: &[u8; 8] = b"NYRTABI2";
+const RECORD_SIZE: usize = 236;
 const TARGET_CAPACITY: usize = 128;
-const SECTION_NAME: &str = ".nyash.runtime_abi.v1";
+const SECTION_NAME: &str = ".nyash.runtime_abi.v2";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub(crate) struct RuntimeAbiDescriptorV1 {
+pub(crate) struct RuntimeAbiDescriptorV2 {
     pub(crate) target_triple: String,
     pub(crate) endian: u32,
     pub(crate) pointer_width: u32,
@@ -28,6 +28,15 @@ pub(crate) struct RuntimeAbiDescriptorV1 {
     pub(crate) frame_align: u32,
     pub(crate) frame_primary_offset: u32,
     pub(crate) frame_suppressed_offset: u32,
+    pub(crate) map_size: u32,
+    pub(crate) map_align: u32,
+    pub(crate) map_revision: u32,
+    pub(crate) key_size: u32,
+    pub(crate) key_align: u32,
+    pub(crate) key_revision: u32,
+    pub(crate) outcome_size: u32,
+    pub(crate) outcome_align: u32,
+    pub(crate) outcome_revision: u32,
 }
 
 /// One selected runtime archive plus its target-compiled ABI facts.  This is
@@ -35,13 +44,14 @@ pub(crate) struct RuntimeAbiDescriptorV1 {
 #[derive(Clone, Debug)]
 pub(crate) struct LifecycleRuntimeSessionV1 {
     runtime_archive: PathBuf,
-    descriptor: RuntimeAbiDescriptorV1,
+    descriptor: RuntimeAbiDescriptorV2,
 }
 
 impl LifecycleRuntimeSessionV1 {
     pub(crate) fn select(runtime_archive: PathBuf) -> Result<Self, String> {
         let descriptor = read_runtime_abi_descriptor(&runtime_archive)?;
         require_lifecycle_entry_abi(&runtime_archive)?;
+        require_checked_map_symbols(&runtime_archive)?;
         if descriptor.target_triple != "x86_64-unknown-linux-gnu" {
             return Err(format!(
                 "lifecycle runtime archive {} targets unsupported {}",
@@ -95,10 +105,14 @@ impl LifecycleRuntimeSessionV1 {
     pub(crate) fn runtime_archive(&self) -> &Path {
         &self.runtime_archive
     }
-    pub(crate) fn descriptor(&self) -> &RuntimeAbiDescriptorV1 {
+    pub(crate) fn descriptor(&self) -> &RuntimeAbiDescriptorV2 {
         &self.descriptor
     }
 }
+
+#[path = "runtime_map_symbols.rs"]
+mod map_symbols;
+use map_symbols::require_checked_map_symbols;
 
 const NATIVE_ARRAY_SYMBOLS: [&str; 6] = [
     "nyash.array.checked_new_v1",
@@ -172,7 +186,7 @@ fn require_native_array_symbol_inventory(text: &str) -> Result<(), String> {
 /// name, never by a byte-pattern scan.
 pub(crate) fn read_runtime_abi_descriptor(
     archive: &Path,
-) -> Result<RuntimeAbiDescriptorV1, String> {
+) -> Result<RuntimeAbiDescriptorV2, String> {
     let members = archive_members(archive)?;
     let mut found = Vec::new();
     for member in members {
@@ -354,14 +368,14 @@ fn section_header(
     ))
 }
 
-fn decode_descriptor(bytes: &[u8]) -> Result<RuntimeAbiDescriptorV1, String> {
+fn decode_descriptor(bytes: &[u8]) -> Result<RuntimeAbiDescriptorV2, String> {
     if bytes.len() != RECORD_SIZE {
         return Err("runtime ABI descriptor has unexpected length".to_owned());
     }
     if &bytes[..8] != MAGIC {
         return Err("runtime ABI descriptor has invalid magic".to_owned());
     }
-    if u32_at(bytes, 8)? != RECORD_SIZE as u32 || u32_at(bytes, 12)? != 1 {
+    if u32_at(bytes, 8)? != RECORD_SIZE as u32 || u32_at(bytes, 12)? != 2 {
         return Err("runtime ABI descriptor has unsupported revision".to_owned());
     }
     let target_len = u32_at(bytes, 16)? as usize;
@@ -377,7 +391,7 @@ fn decode_descriptor(bytes: &[u8]) -> Result<RuntimeAbiDescriptorV1, String> {
     {
         return Err("runtime ABI descriptor target padding is nonzero".to_owned());
     }
-    let descriptor = RuntimeAbiDescriptorV1 {
+    let descriptor = RuntimeAbiDescriptorV2 {
         target_triple: target,
         endian: u32_at(bytes, 20)?,
         pointer_width: u32_at(bytes, 24)?,
@@ -392,6 +406,15 @@ fn decode_descriptor(bytes: &[u8]) -> Result<RuntimeAbiDescriptorV1, String> {
         frame_align: u32_at(bytes, 60)?,
         frame_primary_offset: u32_at(bytes, 64)?,
         frame_suppressed_offset: u32_at(bytes, 68)?,
+        map_size: u32_at(bytes, 200)?,
+        map_align: u32_at(bytes, 204)?,
+        map_revision: u32_at(bytes, 208)?,
+        key_size: u32_at(bytes, 212)?,
+        key_align: u32_at(bytes, 216)?,
+        key_revision: u32_at(bytes, 220)?,
+        outcome_size: u32_at(bytes, 224)?,
+        outcome_align: u32_at(bytes, 228)?,
+        outcome_revision: u32_at(bytes, 232)?,
     };
     if descriptor.endian != 1
         || !matches!(descriptor.pointer_width, 4 | 8)
@@ -408,6 +431,15 @@ fn decode_descriptor(bytes: &[u8]) -> Result<RuntimeAbiDescriptorV1, String> {
         || descriptor.frame_suppressed_offset >= descriptor.frame_size
     {
         return Err("runtime ABI descriptor has inconsistent layout values".to_owned());
+    }
+    for (size, align, revision) in [
+        (descriptor.map_size, descriptor.map_align, descriptor.map_revision),
+        (descriptor.key_size, descriptor.key_align, descriptor.key_revision),
+        (descriptor.outcome_size, descriptor.outcome_align, descriptor.outcome_revision),
+    ] {
+        if size == 0 || !align.is_power_of_two() || size % align != 0 || revision != 1 {
+            return Err("runtime ABI descriptor has inconsistent opaque layout".into());
+        }
     }
     Ok(descriptor)
 }

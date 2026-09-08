@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Checked Map runtime dependency is green. Opaque ABI audit adds prepared-key region: prepare UTF-8 before child; cancel on child Fault; preflight InvalidContract preserves Ready; install consumes before its attempt. Next implement Map/key/outcome wrappers and one descriptor/session/symbol revision, then C projection/mixed cleanup. Fault merges after callbacks; no live ABI borrows across end. Source install Stop remains until cutover."
+current_blocker_token = "Opaque Map/key/outcome ABI and descriptor V2/session2 implemented; 31 focused Rust tests, actual archive/symbol checks, C runtime harness and 10 session rejections pass. Next operation-derived MIR/key/Map/outcome projection and mixed-origin cleanup, then C emission using the session layouts. Preserve unused aliases without new Home and prior Maps on later New Fault. Source install Stop remains until source/OBJ/EXE cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

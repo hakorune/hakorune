@@ -5,7 +5,7 @@ fn descriptor_bytes() -> Vec<u8> {
     bytes[..8].copy_from_slice(MAGIC);
     for (offset, value) in [
         (8, RECORD_SIZE as u32),
-        (12, 1),
+        (12, 2),
         (16, 14),
         (20, 1),
         (24, 8),
@@ -20,6 +20,15 @@ fn descriptor_bytes() -> Vec<u8> {
         (60, 8),
         (64, 16),
         (68, 64),
+        (200, 32),
+        (204, 8),
+        (208, 1),
+        (212, 32),
+        (216, 8),
+        (220, 1),
+        (224, 32),
+        (228, 8),
+        (232, 1),
     ] {
         bytes[offset..offset + 4].copy_from_slice(&value.to_le_bytes());
     }
@@ -44,11 +53,12 @@ fn rejects_layout_mismatch_before_session_use() {
 }
 
 #[test]
-#[ignore = "requires cargo build -p nyash_kernel --release first"]
+#[ignore = "requires cargo build --locked --profile quick -p nyash_kernel first"]
 fn reads_descriptor_from_actual_runtime_archive() {
-    let descriptor = read_runtime_abi_descriptor(Path::new("target/release/libnyash_kernel.a"))
+    let descriptor = read_runtime_abi_descriptor(Path::new("target/quick/libnyash_kernel.a"))
         .expect("target-compiled runtime archive descriptor");
     assert!(!descriptor.target_triple.is_empty());
+    require_checked_map_symbols(Path::new("target/quick/libnyash_kernel.a")).unwrap();
 }
 
 #[test]
@@ -382,4 +392,19 @@ fn assert_script_input_binding(archive: &Path, available: bool) {
                 .unwrap();
         }
     });
+}
+
+#[test]
+fn rejects_each_bad_opaque_layout_and_old_revision() {
+    for base in [200, 212, 224] {
+        for (offset, value) in [(base, 0u32), (base + 4, 3), (base + 8, 0)] {
+            let mut bytes = descriptor_bytes();
+            bytes[offset..offset+4].copy_from_slice(&value.to_le_bytes());
+            assert!(decode_descriptor(&bytes).unwrap_err().contains("opaque"));
+        }
+    }
+    let mut bytes = descriptor_bytes();
+    bytes[12..16].copy_from_slice(&1u32.to_le_bytes());
+    assert!(decode_descriptor(&bytes).unwrap_err().contains("revision"));
+    assert!(decode_descriptor(&bytes[..200]).is_err());
 }

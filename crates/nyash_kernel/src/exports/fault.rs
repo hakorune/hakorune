@@ -9,13 +9,16 @@ mod checked_object;
 #[path = "fault_checked_array.rs"]
 mod checked_array;
 
+#[path = "fault_checked_map.rs"]
+pub(super) mod checked_map;
+
 mod runtime_abi_target {
     include!(concat!(env!("OUT_DIR"), "/runtime_abi_target.rs"));
 }
 
 const ABI_VERSION: u32 = 1;
 const SUPPRESSED_CAPACITY: usize = 8;
-const RUNTIME_ABI_DESCRIPTOR_SIZE: usize = 200;
+const RUNTIME_ABI_DESCRIPTOR_SIZE: usize = 236;
 const RUNTIME_ABI_TARGET_CAPACITY: usize = 128;
 
 const fn put_u32_le(
@@ -34,9 +37,9 @@ const fn runtime_abi_descriptor() -> [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] {
     assert!(target.len() < RUNTIME_ABI_TARGET_CAPACITY);
     let mut bytes = [0; RUNTIME_ABI_DESCRIPTOR_SIZE];
     bytes[0] = b'N'; bytes[1] = b'Y'; bytes[2] = b'R'; bytes[3] = b'T';
-    bytes[4] = b'A'; bytes[5] = b'B'; bytes[6] = b'I'; bytes[7] = b'1';
+    bytes[4] = b'A'; bytes[5] = b'B'; bytes[6] = b'I'; bytes[7] = b'2';
     bytes = put_u32_le(bytes, 8, RUNTIME_ABI_DESCRIPTOR_SIZE as u32);
-    bytes = put_u32_le(bytes, 12, 1);
+    bytes = put_u32_le(bytes, 12, 2);
     bytes = put_u32_le(bytes, 16, target.len() as u32);
     bytes = put_u32_le(bytes, 20, 1);
     bytes = put_u32_le(bytes, 24, std::mem::size_of::<*const ()>() as u32);
@@ -56,6 +59,15 @@ const fn runtime_abi_descriptor() -> [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] {
         bytes[72 + index] = target[index];
         index += 1;
     }
+    bytes = put_u32_le(bytes, 200, std::mem::size_of::<checked_map::MapStorage>() as u32);
+    bytes = put_u32_le(bytes, 204, std::mem::align_of::<checked_map::MapStorage>() as u32);
+    bytes = put_u32_le(bytes, 208, 1);
+    bytes = put_u32_le(bytes, 212, std::mem::size_of::<checked_map::KeyStorage>() as u32);
+    bytes = put_u32_le(bytes, 216, std::mem::align_of::<checked_map::KeyStorage>() as u32);
+    bytes = put_u32_le(bytes, 220, 1);
+    bytes = put_u32_le(bytes, 224, std::mem::size_of::<checked_map::OutcomeStorage>() as u32);
+    bytes = put_u32_le(bytes, 228, std::mem::align_of::<checked_map::OutcomeStorage>() as u32);
+    bytes = put_u32_le(bytes, 232, 1);
     bytes
 }
 
@@ -63,9 +75,9 @@ const fn runtime_abi_descriptor() -> [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] {
 /// The host selects this ELF section by name; C headers are only independent
 /// layout checks and never issue a competing descriptor.
 #[used]
-#[link_section = ".nyash.runtime_abi.v1"]
-#[export_name = "nyash_runtime_abi_descriptor_v1"]
-pub static RUNTIME_ABI_DESCRIPTOR_V1: [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] = runtime_abi_descriptor();
+#[link_section = ".nyash.runtime_abi.v2"]
+#[export_name = "nyash_runtime_abi_descriptor_v2"]
+pub static RUNTIME_ABI_DESCRIPTOR_V2: [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] = runtime_abi_descriptor();
 
 #[repr(u32)]
 #[derive(Debug, PartialEq, Eq)]

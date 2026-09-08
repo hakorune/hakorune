@@ -35,7 +35,7 @@ static int lv4_llc(const char* input, const char* output, const hako_lts_session
 
 __attribute__((visibility("default")))
 int hako_llvmc_compile_published_lifecycle_physical_v4(
-    const char* json_in, const hako_llvmc_lifecycle_target_session_v1* abi,
+    const char* json_in, const hako_llvmc_lifecycle_target_session_v2* abi,
     const char* obj_out, char** error) {
 #if defined(_WIN32)
   return set_err_owned(error, "[freeze:contract][published-lifecycle-v4/platform]");

@@ -116,6 +116,12 @@ impl CheckedMap {
         Ok(())
     }
 
+    /// Inspect lifetime even after poison; mutation still reports unavailable.
+    pub fn require_live(&self) -> Result<(), CheckedMapError> {
+        let state = self.state.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        if state.phase == Phase::Live { Ok(()) } else { Err(CheckedMapError::InvalidState) }
+    }
+
     /// The key is already prepared. Failure returns the untouched candidate.
     pub fn install(
         &self,

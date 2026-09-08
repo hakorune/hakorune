@@ -18,7 +18,7 @@ def symbols(path):
 names = symbols(archive)
 assert names.count("main") == 1, "lifecycle archive must define exactly one main"
 assert names.count("nyash_lifecycle_entry_abi_v1") == 1
-assert names.count("nyash_runtime_abi_descriptor_v1") == 1
+assert names.count("nyash_runtime_abi_descriptor_v2") == 1
 print("lifecycle archive: one main, one entry ABI, one runtime ABI")
 cases = [(archive, value, status, status) for value, status in
          [(0, 0), (30, 30), (255, 255), (-1, 70), (256, 70)]]

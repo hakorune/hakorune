@@ -44,7 +44,7 @@ static void hako_lts_close(hako_lts_session* session) {
 }
 
 static int hako_lts_fault_layout_matches(
-    void* data, const hako_llvmc_lifecycle_target_session_v1* in,
+    void* data, const hako_llvmc_lifecycle_target_session_v2* in,
     hako_lts_make_context_fn make_context, hako_lts_dispose_context_fn dispose_context,
     hako_lts_int_type_fn int32_type, hako_lts_int_type_fn int64_type,
     hako_lts_pointer_type_fn pointer_type, hako_lts_array_type_fn array_type,
@@ -84,7 +84,7 @@ done:
 }
 
 static int hako_lts_open(
-    const hako_llvmc_lifecycle_target_session_v1* in, hako_lts_session* out, char** err_out) {
+    const hako_llvmc_lifecycle_target_session_v2* in, hako_lts_session* out, char** err_out) {
   if (!out) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/output]");
   memset(out, 0, sizeof(*out));
 #if defined(_WIN32)
@@ -115,7 +115,7 @@ static int hako_lts_open(
   hako_lts_element_offset_fn element_offset;
   hako_lts_init_fn init_info, init_target, init_mc, init_printer;
   int rc = -1;
-  if (!in || in->revision != 1u || !in->target_triple || !in->target_triple[0])
+  if (!in || in->revision != 2u || !in->target_triple || !in->target_triple[0])
     return set_err_owned(err_out, "[freeze:contract][lifecycle-session/input]");
   if (in->endian != 1u || in->fault_abi_version != NYRT_FAULT_ABI_VERSION_V1 ||
       in->status_abi_version != 1u || in->pointer_width != sizeof(void*) ||
@@ -128,6 +128,15 @@ static int hako_lts_open(
       in->frame_primary_offset != offsetof(NyrtFaultFrameV1, primary) ||
       in->frame_suppressed_offset != offsetof(NyrtFaultFrameV1, suppressed))
     return set_err_owned(err_out, "[freeze:contract][lifecycle-session/runtime-abi]");
+  if (in->map_revision != 1u || !in->map_size || !in->map_align ||
+      (in->map_align & (in->map_align - 1u)) || in->map_size % in->map_align)
+    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/opaque-map]");
+  if (in->key_revision != 1u || !in->key_size || !in->key_align ||
+      (in->key_align & (in->key_align - 1u)) || in->key_size % in->key_align)
+    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/opaque-key]");
+  if (in->outcome_revision != 1u || !in->outcome_size || !in->outcome_align ||
+      (in->outcome_align & (in->outcome_align - 1u)) || in->outcome_size % in->outcome_align)
+    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/opaque-outcome]");
   lib = dlopen("libLLVM-18.so", RTLD_LAZY | RTLD_LOCAL);
   if (!lib) lib = dlopen("libLLVM.so.18", RTLD_LAZY | RTLD_LOCAL);
   if (!lib) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/llvm-unavailable]");

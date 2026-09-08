@@ -9,9 +9,10 @@ payload intact; consuming end invokes existing indexed reclaim once. TLS and
 unsupported profiles refuse before residence creation. The process-wide store
 provides the residence's static lifetime.
 
-This is a Rust runtime dependency, with no new ABI export or host publication.
-Caller-owned Map/outcome layout, descriptor/session, FaultFrame integration and
-compiler activation follow in the same Map series. The prepare caller must have
+The eleven checked Map exports are implemented in `fault_checked_map.rs`;
+`include/nyrt_fault_v1.h` declares them. Map/key/outcome regions use target-issued
+opaque layouts and explicit consumption/disposal. Frame recording happens after
+end callbacks. Host publication and compiler activation remain excluded. The prepare caller must have
 source transfer/end authorization; physical identity validation cannot issue it.
 See the [runtime contract](../../docs/reference/runtime/runtime-data-dispatch.md#checked-map-storage-and-indexed-residence).
 
@@ -87,11 +88,13 @@ layout descriptor from the same selected archive before object emission.
 
 ### Target-compiled ABI descriptor
 
-`libnyash_kernel.a` retains exactly one `.nyash.runtime_abi.v1` ELF section.
-Its fixed 200-byte little-endian record is emitted while compiling this target,
+`libnyash_kernel.a` retains exactly one `.nyash.runtime_abi.v2` ELF section.
+Its fixed 236-byte little-endian record is emitted while compiling this target,
 not inferred by the host. It records the Cargo target triple, pointer width,
 Fault/status ABI revisions, and the Fault Diagnostic/Frame sizes, alignments,
-and field offsets. A host reader must select this named section from the exact
+and field offsets, followed by Map/key/outcome size/alignment/revision triples.
+The descriptor export is `nyash_runtime_abi_descriptor_v2`; Fault/status ABI
+remain revision1. A host reader must select this named section from the exact
 archive and reject missing, duplicate, truncated, unsupported, or inconsistent
 records before lifecycle object emission. Archive reading alone does not prove
 that this ABI matches the selected LLVM session; that equality belongs to the

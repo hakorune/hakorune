@@ -109,14 +109,17 @@ typedef struct hako_llvmc_published_static_frame_v2 {
 
 /* Invocation-owned physical target facts decoded from the selected runtime
  * archive. This is not MIR/source authority and is consumed by V4. */
-typedef struct hako_llvmc_lifecycle_target_session_v1 {
+typedef struct hako_llvmc_lifecycle_target_session_v2 {
   uint32_t revision;
   const char* target_triple;
   uint32_t endian, pointer_width, fault_abi_version, status_abi_version;
   uint32_t diagnostic_size, diagnostic_align, diagnostic_site_offset;
   uint32_t diagnostic_details_offset, diagnostic_message_offset;
   uint32_t frame_size, frame_align, frame_primary_offset, frame_suppressed_offset;
-} hako_llvmc_lifecycle_target_session_v1;
+  uint32_t map_size, map_align, map_revision;
+  uint32_t key_size, key_align, key_revision;
+  uint32_t outcome_size, outcome_align, outcome_revision;
+} hako_llvmc_lifecycle_target_session_v2;
 
 // Compile a module whose selected published call sites are described by the
 // typed rows.  json_in remains a physical body transport for this bounded
@@ -134,7 +137,7 @@ int hako_llvmc_compile_published_static_method_v1(
 /* Selected physical Pair consumer; accepts only physical-program.v2.
  * Borrows input/session for one synchronous invocation; publishes obj_out only after llc succeeds. No compatibility retry. */
 int hako_llvmc_compile_published_lifecycle_physical_v4(
-    const char* json_in, const hako_llvmc_lifecycle_target_session_v1* session,
+    const char* json_in, const hako_llvmc_lifecycle_target_session_v2* session,
     const char* obj_out, char** err_out);
 
 /* Structural/SSA validation only; V4 separately checks types and cohort. */

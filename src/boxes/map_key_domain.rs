@@ -16,6 +16,17 @@ impl MapKeyDomain {
         }
     }
 
+    /// Checked native preparation; completes allocation before child evaluation.
+    pub fn try_from_text(text: &str) -> Result<Self, std::collections::TryReserveError> {
+        if let Some(value) = parse_canonical_i64_text(text) {
+            return Ok(Self::CanonicalI64(value));
+        }
+        let mut owned = String::new();
+        owned.try_reserve_exact(text.len())?;
+        owned.push_str(text);
+        Ok(Self::Text(owned))
+    }
+
     pub fn public_text(&self) -> String {
         match self {
             Self::CanonicalI64(value) => value.to_string(),
@@ -25,8 +36,11 @@ impl MapKeyDomain {
 }
 
 fn parse_canonical_i64_text(text: &str) -> Option<i64> {
-    let value = text.parse::<i64>().ok()?;
-    (value.to_string() == text).then_some(value)
+    if text == "0" { return Some(0); }
+    let digits = text.strip_prefix('-').unwrap_or(text).as_bytes();
+    if !matches!(digits.first(), Some(b'1'..=b'9'))
+        || !digits.iter().all(u8::is_ascii_digit) { return None; }
+    text.parse::<i64>().ok()
 }
 
 #[cfg(test)]

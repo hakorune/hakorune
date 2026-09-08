@@ -819,7 +819,7 @@ cutover with selected old-edge deletion. The source install Stop remains.
 
 Read-only worker confirmed a missing native temporary in the wire inventory:
 MapKeyDomain preparation allocates/owns text, and old C length-aware String handles
-do not transfer that residence. The [opaque ABI contract](../../../../reference/runtime/runtime-data-dispatch.md#checked-map-opaque-abi-contract-accepted-not-implemented)
+do not transfer that residence. The [opaque ABI contract](../../../../reference/runtime/runtime-data-dispatch.md#checked-map-opaque-abi-contract)
 now fixes Map/key/outcome states, key-before-child order, install consumption,
 status/Fault publication, callback borrows and disposal. No new semantic issuer
 or source shape is needed. Map/outcome-only layout revision is superseded by one
@@ -835,6 +835,41 @@ Fault and success. Preflight InvalidContract preserves Ready; every post-move
 returned result leaves Consumed. Raw init freshness stays an unsafe compiler
 lifetime obligation, not a runtime read of uninitialized storage. No stale native
 String-key handle/cache path may serve the checked consumer.
+
+**Opaque runtime ABI and target descriptor checkpoint**
+
+Implemented eleven Map/key/outcome C exports with native preparation before child,
+preflight state preservation, consumed key/outcome states and disposal rejection.
+Short frame validation ends before callbacks; returned end diagnostics merge into
+the existing primary/suppressed frame afterward. Indexed preparation now preserves
+storage-unavailable versus missing identity instead of flattening the two errors.
+Root canonical numeric key classification no longer formats an intermediate String.
+
+The one descriptor is V2, 236 bytes; old section/export/decoder names are retired.
+Rust archive/session/symbol checks, C row/revision/geometry and launcher assertion
+are updated together. The actual x86_64 archive reports Map104/align8, key40/align8,
+outcome40/align8, each contract1. These are observed target facts, not new constants
+for consumers. The C emitter receives the extended session but does not yet emit
+Map operations or allocate unused regions. Source install Stop remains unchanged.
+
+Validation: serial jobs4/locked/quick kernel `fault::checked_map`5 and
+`map_identity_tests`1; root `runtime_abi_descriptor`8 (two ignored),
+`map_key_domain`3 and `map_box`13 pass. Build `-p nyash_kernel` succeeds; explicitly
+running the ignored actual-archive descriptor test adds1 pass and checks all11
+symbols. Logs `/tmp/hakorune-map-opaque-{abi,poison,descriptor,keys,map,archive,actual-descriptor}.log`.
+The poison case uses an isolated real store. C build passes; actual C runtime
+harness passes native-key/indexed install/end/disposal; production C session owner
+accepts the actual extracted descriptor and rejects10 malformed sessions.
+C test files are `checked_map_runtime_abi_test.c` and `lifecycle_opaque_session_test.c`.
+The latter stops at target admission, not object emission. Launcher assertion was
+updated, but the full launcher suite was not rerun. Max touched source703;
+pointer/corridor/diff guards pass. No source Map OBJ/EXE or R7 completion claim.
+
+Next execution: connect source Map flow to operation-derived MIR/key/Map/outcome
+physical projection and every mixed-origin cleanup suffix, then selected C Map
+emission using the existing session layouts. Preserve unused aliases without a
+new Home; later New Fault must release earlier Maps. Validate both retained and
+optimized graphs before source switch and selected old-edge/install-Stop deletion.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

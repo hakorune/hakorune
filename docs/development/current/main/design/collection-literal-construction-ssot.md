@@ -1560,7 +1560,7 @@ does not admit additional source/native candidate families.
 
 ### Prepared key lifetime at the opaque ABI boundary
 
-The [accepted opaque ABI](../../../../reference/runtime/runtime-data-dispatch.md#checked-map-opaque-abi-contract-accepted-not-implemented)
+The [accepted opaque ABI](../../../../reference/runtime/runtime-data-dispatch.md#checked-map-opaque-abi-contract)
 includes temporary key storage in the same descriptor revision as Map/outcome.
 This closes a physical mapping gap: MapKeyDomain owns String storage, while the
 old C String-handle key path does not transfer that native key residence.

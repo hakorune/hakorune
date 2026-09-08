@@ -329,7 +329,8 @@ pub(super) fn validate_checked_indexed_identity(
     with_objects(|objects| {
         let object = objects.get(handle_to_index(handle)?)?.as_ref()?;
         (object.type_id == type_id).then_some(())
-    }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
+    }).ok_or(CheckedStorageError::AllocationOrStorageUnavailable)?
+        .ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
 
 /// Store under the same identity/profile checks as the exact read.
@@ -696,3 +697,7 @@ mod indexed_storage_tests {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "typed_object_map_identity_tests.rs"]
+mod map_identity_tests;

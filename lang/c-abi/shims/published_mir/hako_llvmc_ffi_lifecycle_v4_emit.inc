@@ -1,6 +1,6 @@
 /* LLVM text emission from the admitted physical graph. No generic dispatcher. */
 static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
-    const hako_llvmc_lifecycle_target_session_v1* session, size_t fi) {
+    const hako_llvmc_lifecycle_target_session_v2* session, size_t fi) {
   yyjson_val* fn = yyjson_arr_get(in->functions, fi);
   yyjson_val* blocks = hako_physical_blocks(fn);
   yyjson_val* params = yyjson_obj_get(fn, "params");
@@ -181,7 +181,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
 }
 
 static int lv4_emit(FILE* f, const hako_lv4_input* in,
-    const hako_llvmc_lifecycle_target_session_v1* abi, const hako_lts_session* session) {
+    const hako_llvmc_lifecycle_target_session_v2* abi, const hako_lts_session* session) {
   fprintf(f, "target triple = \"%s\"\ntarget datalayout = \"%s\"\n", session->triple, session->data_layout);
   fprintf(f,
       "declare i32 @\"nyash.fault.frame_init_v1\"(ptr)\n"
