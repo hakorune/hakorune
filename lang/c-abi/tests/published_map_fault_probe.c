@@ -66,8 +66,41 @@ uint32_t wrap_end(void* frame, uint64_t site, void* map) {
   return !result && is_mode("end-fault") ? fault(frame, site) : result;
 }
 
+#ifdef HAKO_MAP_SOURCE_PROBE
+static unsigned outer_ends, reports;
+extern uint32_t real_home(void*, uint32_t, uint64_t, int64_t, int64_t)
+    __asm__("__real_nyash.object.home_release_plain_i64_v1");
+uint32_t wrap_home(void*, uint32_t, uint64_t, int64_t, int64_t)
+    __asm__("__wrap_nyash.object.home_release_plain_i64_v1");
+uint32_t wrap_home(void* frame, uint32_t profile, uint64_t site, int64_t value, int64_t type) {
+  outer_ends++;
+  return real_home(frame, profile, site, value, type);
+}
+extern int32_t real_report(const void*) __asm__("__real_nyash.fault.report_final_v1");
+int32_t wrap_report(const void*) __asm__("__wrap_nyash.fault.report_final_v1");
+int32_t wrap_report(const void* frame) {
+  reports++;
+  printf("REPORT %u OUTER %u MAP %u KEY %u OUTCOME %u\n",
+      ((const NyrtFaultFrameV1*)frame)->primary.reason, outer_ends,
+      map_dispose, key_dispose, outcome_dispose);
+  return real_report(frame);
+}
+extern uint32_t real_frame_dispose(void*) __asm__("__real_nyash.fault.frame_dispose_v1");
+uint32_t wrap_frame_dispose(void*) __asm__("__wrap_nyash.fault.frame_dispose_v1");
+uint32_t wrap_frame_dispose(void* frame) {
+  printf("FRAME OUTER %u REPORTS %u MAP %u KEY %u OUTCOME %u\n",
+      outer_ends, reports, map_dispose, key_dispose, outcome_dispose);
+  return real_frame_dispose(frame);
+}
+#endif
+
 extern int64_t ny_main(void);
+#ifdef HAKO_MAP_SOURCE_PROBE
+int probe_main(int argc, char** argv) __asm__("__wrap_main");
+int probe_main(int argc, char** argv) {
+#else
 int main(int argc, char** argv) {
+#endif
   struct rlimit limit = {0, 0}; setrlimit(RLIMIT_CORE, &limit);
   mode = argc == 2 ? argv[1] : "normal";
   int64_t result = ny_main();

@@ -282,3 +282,17 @@ fn map_install_rejects_annotated_aliases_and_unready_root_new() {
     assert!(package.prepare_install(&mut context).is_err());
     assert!(context.callable_declaration_catalog_vacant());
 }
+
+#[test]
+fn map_annotation_preflight_preserves_malformed_diagnostic() {
+    let package = issue(&source("local m: Array<bogus> = %{} return 30")).unwrap();
+    let mut context = CompilationContext::new();
+    let error = match package.prepare_install(&mut context) {
+        Err((_, error)) => error,
+        Ok(_) => panic!("malformed annotation accepted"),
+    };
+    let super::install::NormalCallableSemanticPackageInstallIssueV1::MapLocalAnnotation(message) = error
+    else { panic!("Local annotation owner must report malformed annotation"); };
+    assert!(message.contains("bogus"), "{message}");
+    assert!(context.callable_declaration_catalog_vacant());
+}

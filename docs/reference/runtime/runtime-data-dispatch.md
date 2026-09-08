@@ -432,8 +432,10 @@ call needs a new valid initialized lifetime, not a fabricated header.
 Descriptor/transport uses the 236-byte V2 record/ELF section/export, carries all
 three opaque layout triples through the Rust C row and C session revision2, and
 rejects older revisions before extended-field reads. Required symbols, driver
-initialization and launcher symbol assertion are updated. Actual C Map allocation/
-projection and mixed cleanup remain to be implemented; no unused region is
-allocated just to claim consumption of a layout field. Existing native
-birth_h compatibility is separate; the selected source install Stop remains
-until checked Invoke/projection and all mixed-origin cleanup consumers execute.
+initialization and launcher symbol assertion are updated. Selected C allocation,
+opaque projections and mixed cleanup consume these layouts; actual callable
+source cases reach direct EXE and linked OBJ. No unused region is allocated
+just to claim consumption of a layout field. Existing native birth_h
+compatibility is separate. Common install selects only proved source readiness;
+unsupported source and Local annotations retain pre-effect rejection. Selected
+source execution is not a claim of whole-Map compatibility retirement.

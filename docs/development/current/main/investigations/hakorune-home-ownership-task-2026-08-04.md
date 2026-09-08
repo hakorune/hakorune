@@ -1180,6 +1180,53 @@ tests::mir::mir_corebox_router_unified::map. Actual/expected values match across
 parent and current runs. Logs `/tmp/hakorune-map-finished-parent.log` and
 `/tmp/hakorune-map-finished-focused.log`; this is no whole-library green claim.
 
+**Source-object Fault checkpoint (2026-09-09)**
+
+The same actual13 source/26 EXE executions now include source-object probes on
+both duplicate-key bodies (NoBirth and empty Birth). Six completion modes each
+cover normal, Map allocation Fault, key prepare Fault, install identity Fault,
+outcome-end Fault and Map-end Fault. Runtime operations execute before observation;
+Fault injections respect their existing postconditions. Expected outer Home ends
+are0/2/2/2/1/0. Map/key/outcome disposal is complete before report, and report
+precedes frame disposal; normal reports zero times. Install identity failure is
+reason101, while injected storage/end failures use100. This is12 source-object
+completion observations, not just synthetic physical JSON evidence.
+
+The initial probe link found the archive's strong main in the same linked code;
+observation-only --wrap=main resolves that conflict without changing production
+entry/archive or allowing duplicate definitions. Final host test passes in67.88s.
+Malformed Array<bogus> retains the existing Local diagnostic before installation;
+map_home_flow_tests now9/9. Logs `/tmp/hakorune-map-source-{fault,annotation}.log`.
+The bounded retirement census below identifies no selected Named retry. Remaining
+closeout is distinct-binding/non-Map annotation acceptance and reconciliation of
+that finite cohort with the next active retirement row. No all-Map/R7 claim.
+
+**Selected Map retirement census (2026-09-09, read-only at 6a99587934)**
+
+This census covers admitted Complete callable AppMain direct-local Map -> scoped
+callable child -> semantic Map emitter -> published physical input -> V4.
+Includes source routing, failed-consumer retry and physical publication. Excludes
+Script, nested/fresh candidates, compatibility, normalizer-owned other cohorts
+and non-selected backends. This is not an all-Map/R7 census.
+
+The exact scoped child and package adapter both return to
+RawInvocationChildPortV1::lower_expression. Its callable Map arm directly returns
+lower_callable_map_v1 -> selected/map::emit; failure cannot fall into raw dispatch.
+The emitter consumes Completion, not entry AST. Published host lifecycle dispatch
+returns V4's result directly, without a Named retry. The former selected route
+through collection_literals Named MapBox New/birth/set is no longer entered.
+No whole Stop-exclusive test remains to delete: annotation refusal replaced the
+blanket test, while unavailable prefix/implicit exit tests retain live contracts.
+
+Boundary-outside retained edges: raw_expression_dispatch/mod.rs ->
+collection_literals.rs remains the one raw Map caller; normalizer/helpers_value/
+lower.rs retains its own Named MapBox sequence. Their owners are respectively
+raw expression lowering and normalizer value lowering. They are non-authorities
+for this selected lifecycle cohort. Reopen when those source cohorts are selected
+for lifecycle migration, or a scoped callable Map caller bypasses the direct arm.
+Their raw parity/child-failure tests remain needed and are not exclusive deletions
+of this cutover. Stale blanket-Stop/C-unimplemented prose is removed in owner docs.
+
 **Source Map execution checkpoint (2026-09-09)**
 
 The selected source cohort now passes common install through the existing
@@ -1603,10 +1650,10 @@ Runtime opaque ABI validation does not close this compiler queue.
    both stages, source checks and artifact-only coverage remain. The duplicated
    dispatch list is deleted without adding a semantic receipt.
 
-Next: selected C physical input/emission, then source OBJ/EXE and old-edge
-cutover. Callable dependency emission, Local placement, mixed finishing and
-shared terminal dispatch have their bounded evidence above; source install is
-still stopped. Source snapshot storage and New ledger progress are closed.
+Next selection is owned by CURRENT_STATE.toml and the active workstream.
+Callable dependency emission, Local placement, mixed finishing, source host
+execution and source-object Fault observations have bounded evidence above.
+Source snapshot storage and New ledger progress are closed.
 The LocalSSA split is queued before that owner grows; static Call state follows its existing lane
 selection and does not block unrelated Map work. Corrected counts and these
 registrations are not evidence that outstanding source changes have landed.

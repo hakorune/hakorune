@@ -309,7 +309,8 @@ before destination registration; ordinary and Array paths retain default Copy.
 Map-specific operations remain concrete; common local installation and Home lookup
 do not require a second collection ledger. A future collection shares a state
 machine only after its ownership and failure contract is shown to match.
-The common Map install Stop remains until C and source artifact cutover.
+Common install now selects the proved cohort with existing root readiness and
+Local annotation preflight; unsupported source still rejects before body effects.
 Ordered scalar actual rows retain consumed identity and emitted ValueId; finishing
 checks cardinality/order, literal Integer/Bool definitions and Birth argument
 order. A trivial local is checked at exact binding consumption. This snapshot

@@ -82,6 +82,10 @@ archive and calls the opaque C ABI directly; neither test proves source cutover.
   disposal, invalid-status traps and pre-artifact lifetime rejection. These are
   C consumer tests, not source publication or Map cutover acceptance. Indexed
   Unit roots remain unsupported; NativeArray retains its separate admission.
+  Actual source artifacts are checked by the ignored Rust test
+  `issued_map_source_direct_exe_and_linked_object_exit_30`. Its Map probe wraps
+  the entry only in the observation link, preserving the production archive;
+  it records outer Home ends and report/frame-dispose order after native cleanup.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.
 - Active typed-object EXE lowering consumes `typed_object_plans` and

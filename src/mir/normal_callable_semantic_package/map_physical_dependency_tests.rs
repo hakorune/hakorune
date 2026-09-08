@@ -1,4 +1,4 @@
-//! Actual callable Local lowering from one source issuance, below the install Stop.
+//! Local/finishing dependency checks; full source artifact proof lives in host tests.
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
