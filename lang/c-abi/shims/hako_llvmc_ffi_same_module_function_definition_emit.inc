@@ -1,13 +1,15 @@
       auto int same_module_function_definition_is_eligible(
           yyjson_val* fn,
           const char* name) {
+        int expanded = hako_static_v2_expanded_find(&invocation->static_v2, fn) >= 0;
         if (!name ||
             !llvm_quoted_symbol_name_is_safe(name) ||
-            !physical_definition_plan_contains(definition_plan, 0, name) ||
+            (!physical_definition_plan_contains(definition_plan, 0, name) &&
+             !(expanded && physical_definition_plan_contains(definition_plan, 1, name))) ||
             same_module_function_symbol_was_emitted(name)) {
           return 0;
         }
-        if (module_function_is_numeric_i64_leaf(fn) &&
+        if (!expanded && module_function_is_numeric_i64_leaf(fn) &&
             physical_definition_plan_contains(definition_plan, 1, name)) {
           return 0;
         }
@@ -129,6 +131,13 @@
               name,
               &emitted);
           if (rc < 0) return -1;
+        }
+        if (invocation->static_v2.frame) {
+          for (size_t ei = 0; ei < invocation->static_v2.frame->expanded_function_count; ei++) {
+            const char* name = invocation->static_v2.frame->expanded_functions[ei].function_name;
+            int rc = emit_planned_same_module_function_definition(f, name, &emitted);
+            if (rc < 0) return -1;
+          }
         }
         reset_string_concat_tracking_state();
         return emitted;

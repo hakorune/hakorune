@@ -309,6 +309,7 @@
           long long bid,
           size_t ii,
           yyjson_val* ins) {
+        if (!static_v2_check_expanded_ingress(bid, ii, ins)) return 0;
         const char* op = read_str(ins, "op");
         if (!op) return 0;
         int map_site = hako_static_v2_map_find(&invocation->static_v2, fn0, ins);

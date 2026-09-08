@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Private V2 Original host-backed allocation/typed Call/scalar-String boxed consumers are implemented. Copy/NamedAlias/Phi/Select now forward both Map lanes. Next: Formal and shared expanded-function ingress. Original PHI predecessor references/width normalization remain open (future boxed aliases/Select and incompatible widths stop). Typed/direct object escape, intrinsic allocator session binding and selected boxed comparison remain CutoverBlockerOpen; then capability and atomic public session/host/source cutover with V1 retirement. No source cutover claim."
+current_blocker_token = "Private V2 Formal/expanded definitions and incoming calls now share one index, with cross-call domain/demand closure and internal linkage. Next: original PHI stable predecessor references/width normalization (future boxed aliases/Select and incompatible widths still stop). Typed/direct object escape, intrinsic allocator session binding and selected boxed comparison remain CutoverBlockerOpen; then input-aware capability and atomic public session/host/source cutover with V1 retirement. No source cutover claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -41,8 +41,9 @@ Private Original allocation/Call/boxed projection consumers join exact/operation
 Boxed tails/Bool aliases and String concat projection/declaration ownership are corrected.
 Copy/NamedAlias consumers preserve Map lanes and the demanded original producer.
 Phi/Select lanes join existing owners; original PHI references/width normalization remain open.
-Formal/expanded-function consumers are next; object escape, intrinsic physical
-binding and selected boxed comparison remain blockers before public cutover.
+Formal/expanded-function consumers share one index and private signatures.
+Original PHI normalization is next; object escape, intrinsic physical binding
+and selected boxed comparison remain blockers before public cutover.
 Actual session/host/Map cutover remains open.
 """
 next_design_card = "none"

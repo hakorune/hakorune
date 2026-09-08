@@ -7,6 +7,8 @@
       #include "hako_llvmc_ffi_static_data_emit.inc"
       #include "hako_llvmc_ffi_generic_method_lowering.inc"
       auto int static_v2_consume_original(yyjson_val* ins);
+      auto int emit_static_v2_expanded_call(
+          const hako_llvmc_published_static_method_call_v1* row, yyjson_val* args, long long dst);
       #include "hako_llvmc_ffi_mir_call_dispatch.inc"
       auto int note_global_call_lowering_plan_unsupported_shape(
           long long bid,
@@ -494,6 +496,7 @@
       }
       #include "hako_llvmc_ffi_pure_compile_boxed_sum_emit.inc"
       #include "hako_llvmc_ffi_static_v2_emit.inc"
+      #include "hako_llvmc_ffi_static_v2_function_emit.inc"
       #include "hako_llvmc_ffi_same_module_function_emit.inc"
       if (hako_llvmc_emit_static_data_globals_for_root(f, root) < 0) {
         note_pure_unsupported_shape(

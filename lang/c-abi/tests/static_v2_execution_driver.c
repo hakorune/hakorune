@@ -19,6 +19,10 @@ int main(int argc, char** argv) {
   yyjson_val* calls_json = yyjson_obj_get(root, "calls");
   yyjson_val* maps_json = yyjson_obj_get(root, "maps");
   yyjson_val* values_json = yyjson_obj_get(root, "values");
+  yyjson_val* expanded_json = yyjson_obj_get(root, "expanded");
+  size_t ne = yyjson_arr_size(expanded_json);
+  hako_llvmc_expanded_function_v2* expanded = ne ? calloc(ne, sizeof(*expanded)) : NULL;
+  assert(!ne || expanded);
   size_t nc = yyjson_arr_size(calls_json), nm = yyjson_arr_size(maps_json), nv = yyjson_arr_size(values_json);
   hako_llvmc_published_static_method_call_v1* calls = nc ? calloc(nc, sizeof(*calls)) : NULL;
   hako_llvmc_map_operation_v2* maps = nm ? calloc(nm, sizeof(*maps)) : NULL;
@@ -51,8 +55,12 @@ int main(int argc, char** argv) {
         fixture_u32(row, "encoding"), fixture_u32(row, "flags"), fixture_u32(row, "ordinal"),
         fixture_u32(row, "operation"), yyjson_get_uint(yyjson_obj_get(row, "payload"))};
   }
+  for (size_t i = 0; i < ne; i++) {
+    yyjson_val* row = yyjson_arr_get(expanded_json, i);
+    expanded[i] = (hako_llvmc_expanded_function_v2){fixture_str(row, "function"), fixture_str(row, "target")};
+  }
   hako_llvmc_published_static_frame_v2 frame = {
-      HAKO_LLVMC_STATIC_FRAME_REVISION, sizeof(frame), calls, nc, maps, nm, values, nv, NULL, 0};
+      HAKO_LLVMC_STATIC_FRAME_REVISION, sizeof(frame), calls, nc, maps, nm, values, nv, expanded, ne};
   if (yyjson_obj_get(root, "revision")) frame.revision = fixture_u32(root, "revision");
   if (yyjson_obj_get(root, "byte_size")) frame.byte_size = fixture_u32(root, "byte_size");
   if (yyjson_obj_get(root, "value_count")) frame.value_count = yyjson_get_uint(yyjson_obj_get(root, "value_count"));
@@ -65,7 +73,7 @@ int main(int argc, char** argv) {
   free(error);
   hako_llvmc_invocation_destroy(&invocation);
   yyjson_doc_free(fixture);
-  free(calls); free(maps); free(values);
+  free(calls); free(maps); free(values); free(expanded);
   printf("rc=%d\n", rc);
   return rc == 0 ? 0 : 1;
 }

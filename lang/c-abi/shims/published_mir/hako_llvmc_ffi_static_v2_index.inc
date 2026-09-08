@@ -9,15 +9,26 @@ struct HakoStaticV2ValueSite {
   yyjson_val *function, *instruction;
   unsigned char used;
 };
+struct HakoStaticV2ExpandedSite {
+  yyjson_val* function;
+  unsigned char used;
+};
+struct HakoStaticV2CallSite {
+  yyjson_val *function, *instruction, *target;
+};
 struct HakoStaticV2Index {
   const hako_llvmc_published_static_frame_v2* frame;
   struct HakoStaticV2MapSite* maps;
   struct HakoStaticV2ValueSite* values;
+  struct HakoStaticV2ExpandedSite* expanded;
+  struct HakoStaticV2CallSite* calls;
 };
 
 static void hako_static_v2_clear(struct HakoStaticV2Index* index) {
   free(index->maps);
   free(index->values);
+  free(index->expanded);
+  free(index->calls);
   *index = (struct HakoStaticV2Index){0};
 }
 
@@ -138,6 +149,7 @@ static int hako_static_v2_exact_valid(
   }
 }
 
+#include "hako_llvmc_ffi_static_v2_function_index.inc"
 #include "hako_llvmc_ffi_static_v2_values.inc"
 
 /* Physical use check for Map-only exact constants. Unknown instruction forms
@@ -204,14 +216,14 @@ static int hako_static_v2_bind(
       !V2_PAIR(frame->expanded_functions, frame->expanded_function_count, *frame->expanded_functions))
     return set_err_owned(error, "[freeze:contract][static-v2/table-pair]");
   #undef V2_PAIR
-  if (frame->expanded_function_count)
-    return set_err_owned(error, "[freeze:contract][static-v2/expanded-consumer-unsupported]");
   index->maps = frame->map_operation_count ? calloc(frame->map_operation_count, sizeof(*index->maps)) : NULL;
   index->values = frame->value_count ? calloc(frame->value_count, sizeof(*index->values)) : NULL;
   const char* reason = "[freeze:contract][static-v2/storage]";
   if ((frame->map_operation_count && !index->maps) || (frame->value_count && !index->values)) goto invalid;
   index->frame = frame;
   yyjson_val* functions = yyjson_obj_get(yyjson_doc_get_root(document), "functions");
+  reason = "[freeze:contract][static-v2/function-index]";
+  if (!hako_static_v2_bind_functions(index, functions)) goto invalid;
   reason = "[freeze:contract][static-v2/map-site]";
   for (size_t i = 0; i < frame->map_operation_count; i++) {
     const hako_llvmc_map_operation_v2* row = &frame->map_operations[i];
@@ -235,12 +247,10 @@ static int hako_static_v2_bind(
     const hako_llvmc_value_projection_v2* row = &frame->values[i];
     yyjson_val* fn = hako_static_v2_function(functions, row->function_name);
     yyjson_val* ins = hako_static_v2_definition(fn, row->value_id);
-    if (row->action == HAKO_LLVMC_MAP_ACTION_FORMAL) {
-      reason = "[freeze:contract][static-v2/value-consumer-unsupported]";
-      goto invalid;
-    }
-    if (!fn || !ins) goto invalid;
-    int valid = row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS
+    int formal = row->action == HAKO_LLVMC_MAP_ACTION_FORMAL;
+    if (!fn || (!formal && !ins)) goto invalid;
+    int valid = formal ? hako_static_v2_formal_valid(index, row, fn)
+        : row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS
         ? hako_static_v2_exact_valid(row, ins) : hako_static_v2_nonexact_valid(row, ins);
     if (valid < 0) { reason = "[freeze:contract][static-v2/original-consumer-unsupported]"; goto invalid; }
     if (!valid) goto invalid;
@@ -266,6 +276,14 @@ static int hako_static_v2_bind(
     }
     for (size_t j = 0; j < i; j++) if (index->values[j].function == fn && frame->values[j].value_id == row->value_id) goto invalid;
     index->values[i] = (struct HakoStaticV2ValueSite){fn, ins, 0};
+  }
+  reason = "[freeze:contract][static-v2/expanded-formals]";
+  for (size_t ei = 0; ei < frame->expanded_function_count; ei++) {
+    size_t formals = 0;
+    for (size_t vi = 0; vi < frame->value_count; vi++)
+      if (index->values[vi].function == index->expanded[ei].function &&
+          frame->values[vi].action == HAKO_LLVMC_MAP_ACTION_FORMAL) formals++;
+    if (!formals) goto invalid;
   }
   reason = "[freeze:contract][static-v2/body-coverage]";
   for (size_t fi = 0; fi < yyjson_arr_size(functions); fi++) {
@@ -297,7 +315,8 @@ static int hako_static_v2_bind(
             if (frame->values[consumer].action != HAKO_LLVMC_MAP_ACTION_SELECT ||
                 !hako_static_v2_u32(yyjson_obj_get(ins, "cond"), &condition) || condition != row->value_id) continue;
           }
-          if (hako_static_v2_original_use(ins, row->value_id) != 0) goto invalid;
+          int call_use = hako_static_v2_expanded_original_use(index, fn, ins, row->value_id);
+          if ((call_use >= 0 ? call_use : hako_static_v2_original_use(ins, row->value_id)) != 0) goto invalid;
         }
       }
     }
@@ -314,6 +333,8 @@ invalid:
 
 static int hako_static_v2_finish(const struct HakoStaticV2Index* index, char** error) {
   if (!index->frame) return 0;
+  for (size_t i = 0; i < index->frame->expanded_function_count; i++)
+    if (!index->expanded[i].used) return set_err_owned(error, "[freeze:contract][static-v2/expanded-row-not-consumed]");
   for (size_t i = 0; i < index->frame->map_operation_count; i++)
     if (!index->maps[i].used) return set_err_owned(error, "[freeze:contract][static-v2/map-row-not-consumed]");
   for (size_t i = 0; i < index->frame->value_count; i++)

@@ -32,6 +32,8 @@
                get_scan_origin(base) == ORG_STRING;
       }
 
+      #include "hako_llvmc_ffi_static_v2_ingress.inc"
+
       // Pre-scan: consts + phis + needed method decls
       struct MirCallNeedFlags needs;
       memset(&needs, 0, sizeof(needs));
@@ -45,6 +47,7 @@
         size_t ilen = block.instruction_count;
         for (size_t ii=0; ii<ilen; ii++) {
           yyjson_val* ins = yyjson_arr_get(insts, ii);
+          if (!static_v2_check_expanded_ingress(bid, ii, ins)) goto GEN_ABORT;
           const char* op = read_str(ins, "op"); if (!op) continue;
           if (strcmp(op, "const")==0) {
             long long dst = read_int(ins, "dst");

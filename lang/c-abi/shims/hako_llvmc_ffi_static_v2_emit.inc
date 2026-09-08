@@ -93,7 +93,7 @@
         int vi = hako_static_v2_value_find(index, fn0, value);
         if (vi < 0) return 0;
         const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
-        if (hako_static_v2_is_transfer(row->action) || row->action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE) {
+        if ((hako_static_v2_is_transfer(row->action) || row->action == HAKO_LLVMC_MAP_ACTION_FORMAL) || row->action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE) {
           snprintf(output, size, "%%map_payload_%u", value);
         } else if (row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS) {
           snprintf(output, size, "%llu", (unsigned long long)row->payload);
@@ -111,7 +111,7 @@
         int vi = hako_static_v2_value_find(&invocation->static_v2, fn0, value);
         if (vi < 0) return 0;
         const hako_llvmc_value_projection_v2* row = &invocation->static_v2.frame->values[vi];
-        if (hako_static_v2_is_transfer(row->action)) snprintf(output, size, "%%map_kind_%u", value);
+        if ((hako_static_v2_is_transfer(row->action) || row->action == HAKO_LLVMC_MAP_ACTION_FORMAL)) snprintf(output, size, "%%map_kind_%u", value);
         else snprintf(output, size, "%u", row->value_kind);
         return 1;
       }

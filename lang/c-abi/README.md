@@ -199,16 +199,21 @@ Integer comparison bypasses dynamic kind dispatch; Bool payload normalization
 preserves existing i1 producers. String concat uses proved payloads directly.
 Operation input closure checks demanded rows against the retained body. Direct
 array/typed-store tokens cannot escape as host handles; boxed Make/general handle
-escape, selected boxed Unit comparison, Formal and expanded functions
-remain explicit unsupported. Public V2 and the host/source cutover stay closed. Both typed Static/Free
+escape and selected boxed Unit comparison remain explicit unsupported. Public V2 and the host/source cutover stay closed. Both typed Static/Free
 callers share `emit_published_i64_call` for argument output and result consumption;
-the expanded-function index will extend that owner and the existing signature owner.
+one invocation-owned expanded index now supplies that owner and the existing
+signature owner. Demanded Formal parameters receive kind/payload and only when
+needed an original i64 lane. Exact incoming calls participate in the same demand
+and domain closure, including recursion and mixed caller kinds. Expanded targets
+use internal linkage and bypass old numeric-leaf emission; original definition
+plan membership is retained. First-match old-ABI ingress, internal/entry symbol
+collisions and root Formal expansion reject before artifact publication.
 
 Copy/NamedAlias forward both Map lanes through the shared formatter. Map-only
 transfers omit the old producer; original-required transfers retain it and consume
 the row after success. NamedAlias requires the retained walker outcome, never a
 StringBox name exception. Missing/cyclic source rows and original-demand gaps
-reject. CopyOwned and Formal remain explicit unsupported.
+reject. CopyOwned remains explicit unsupported.
 
 Phi/Select emit kind and payload lanes in the existing PHI/condition owners.
 Seeded loops are supported; unresolved inputs and incompatible whole operand

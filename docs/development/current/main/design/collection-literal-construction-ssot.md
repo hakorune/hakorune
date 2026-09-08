@@ -1392,9 +1392,9 @@ corridor/pointer guards pass; Named60/definition22 observations match the parent
 No Rust source changed in this consumer slice. The fixture reader remains test-only;
 source/host cutover stays open, including escape and expanded signature obligations.
 
-Next: finish Phi/Select/Formal consumers and the shared expanded-function index,
-signatures and old-ABI ingress rejection. In parallel with that finite dependency
-order, keep physical escape ownership and intrinsic allocator session observation
+Next: close original PHI predecessor references/width normalization after the
+private Phi/Select/Formal and expanded-index consumers. Keep physical escape
+ownership and intrinsic allocator session observation
 as CutoverBlockerOpen; admitting the already-proved host domains does not close
 all Original producers. The selected boxed Unit comparison owner currently Stops
 before emission (`static_v2_boxed_compare_consumer_pending`); its internal splits
@@ -1417,8 +1417,8 @@ or wrong Named outcome rejects before artifact; CopyOwned keeps its unsupported
 physical owner rather than discarding an ownership operation.
 Implemented: Copy/NamedAlias forward both lanes; flags0 bypasses the old producer,
 flags1 keeps it and consumes the row only after actual success.
-Smallest next slice: Formal/expanded ingress through one definition/call index.
-Non-claims: original PHI reference/width coverage, Formal, object escape and
+Smallest next slice: original PHI reference/width normalization in its existing owner.
+Non-claims: original PHI reference/width coverage, object escape and
 public/source cutover remain open; implemented transfer lanes do not close them.
 
 Read-only worker audit at05e6169bda found two Phi integration constraints: the
@@ -1613,7 +1613,21 @@ Consolidation verification: Original67 passes, including four Static/Free,
 generic/same-module ordered-argument and Copy-alias kernel readbacks. C build,
 corridor/pointer guards pass; Named60/definition22 remain parent-identical.
 Two independent selected argument/output loops are replaced by one helper;
-Formal/expanded admission and execution are not yet implemented.
+Formal/expanded admission and execution now join the same invocation index.
+The private consumer binds body params/exact incoming calls, converges cross-call
+reachability/domains/original demand, emits internal signatures and normalized
+actual lanes, and excludes old numeric-leaf emission. Entry/alias collisions are
+checked against the existing program selection, not document names alone.
+Worker implementation audits found that missing check; it is fixed and covered
+by default/custom entry collision witnesses. Normal/ASan each pass396 full cases
+with175 kernel readbacks, eight status traps and the non-host domain probe.
+Final coverage adds duplicate/formal-wire/unplanned-definition and StaticMethod
+witnesses; final focused85 cases pass in each build (28 kernel readbacks each). Existing
+Named60/definition22 match parent; C build and corridor/pointer guards pass.
+The former unimplemented-Formal diagnostic assertion is replaced by rejection of
+Formal attached to an instruction: it is now a supported action with a required
+parameter identity, not an unsupported action. No public/source cutover or
+original PHI normalization claim.
 
 ### Projection preservation and runtime-first task order
 

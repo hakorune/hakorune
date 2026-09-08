@@ -188,7 +188,7 @@ payload and operation fields are zero; operands come from the exact retained bod
 NamedAlias requires the captured selected walker's AliasOperandZero outcome.
 With original-required clear the old producer is omitted; with it set the
 existing producer and its original input demand remain mandatory. CopyOwned is
-not erased by this rule. Formal and public cutover remain unimplemented.
+not erased by this rule. Public cutover remains unimplemented.
 
 Private V2 Phi/Select now forward the two Map lanes from the retained body.
 Their non-flag wire fields are zero. Phi inputs must be unique by predecessor
@@ -201,7 +201,7 @@ widths; future boxed aliases or Select widths reject before artifact publication
 Predecessor normalization/stable original references remain cutover blockers.
 This does not change runtime tags or activate the public static compiler V2.
 
-### Map-demanded callable linkage (accepted design, not implemented)
+### Map-demanded callable linkage (private consumer implemented)
 
 Decision (2026-09-08): the new selected Map consumer's expanded same-module
 formal ABI is compiler-private. Its physical projection assigns one internal
@@ -213,8 +213,19 @@ set. The new target must not retain an externally callable old-name alias or
 an adapter that guesses kinds from old raw arguments. Any separately admitted
 export ABI must be accounted for explicitly before switching that definition.
 Compatibility plan/direct-symbol ingress to the changed target rejects before
-emission. This planned compiler ABI does not change the two canonical
-runtime/plugin ABIs or the still-live static compiler transport v1.
+emission unless a valid exact typed Static/Free row at that site actually shadows
+that old plan. The first matching plan's physical symbol is checked; source names
+are not re-resolved. Internal targets also must not collide with the selected
+entry symbol or its emitted alias.
+
+A Formal row binds the exact body parameter ordinal. Definition and caller use
+one invocation index: each demanded formal receives `i32 kind, i64 payload`, then
+an original `i64` lane only if its original-required flag is set. Unprojected
+parameters keep the existing ABI. Original Bool normalization occurs before the
+call, independently from Map payload. All exact incoming actuals participate in
+reachability/domain validation; no first-caller specialization is permitted.
+Actual signature emission consumes Formal/expanded rows. This private compiler
+ABI does not change runtime/plugin ABIs or the live static compiler transport v1.
 
 ### Selected lifecycle physical program v2
 

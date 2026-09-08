@@ -17,6 +17,8 @@
           const hako_llvmc_published_static_method_call_v1* row,
           yyjson_val* args,
           long long dst) {
+        int expanded = emit_static_v2_expanded_call(row, args, dst);
+        if (expanded) return expanded > 0 && static_v2_consume_original(ins) ? 1 : -1;
         char physical_args[1024];
         physical_args[0] = '\0';
         for (size_t ai = 0; ai < (size_t)row->arity; ai++) {

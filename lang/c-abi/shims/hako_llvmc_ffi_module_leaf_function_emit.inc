@@ -205,7 +205,8 @@
         size_t argc = generic_pure_function_param_count(fn);
         size_t inst_count = 0;
         int emitted_ret = 0;
-        if (!module_function_is_numeric_i64_leaf(fn) ||
+        if (hako_static_v2_expanded_find(&invocation->static_v2, fn) >= 0 ||
+            !module_function_is_numeric_i64_leaf(fn) ||
             !physical_definition_plan_contains(definition_plan, 1, name) ||
             module_leaf_symbol_was_emitted(name)) {
           return 0;

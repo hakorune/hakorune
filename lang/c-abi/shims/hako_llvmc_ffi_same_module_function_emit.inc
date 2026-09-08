@@ -590,6 +590,14 @@
         for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
           yyjson_val* param = yyjson_arr_get(params, pi);
           long long reg = param ? (long long)yyjson_get_sint(param) : 0;
+          int vi = hako_static_v2_value_find(&invocation->static_v2, fn0, (uint32_t)reg);
+          if (vi >= 0 && invocation->static_v2.frame->values[vi].action == HAKO_LLVMC_MAP_ACTION_FORMAL) {
+            if (invocation->static_v2.frame->values[vi].flags) {
+              same_module_function_publish_reg_metadata(reg);
+              set_type(reg, T_I64);
+            }
+            continue;
+          }
           if (!same_module_function_publish_reg_metadata(reg)) {
             set_type(reg, T_I64);
           }
@@ -615,6 +623,8 @@
           FILE* f,
           yyjson_val* fn,
           const char* name) {
+        int expanded = emit_static_v2_expanded_signature(fn);
+        if (expanded) return expanded > 0;
         yyjson_val* params = yyjson_obj_get(fn, "params");
         size_t argc = params && yyjson_is_arr(params) ? yyjson_arr_size(params) : 0;
         fprintf(f, "define i64 @\"%s\"(", name);
