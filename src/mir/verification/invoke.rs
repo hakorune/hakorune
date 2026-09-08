@@ -2,7 +2,10 @@
 //! Runtime admission remains closed until the common Fault ABI consumer lands.
 
 use super::{cfg, dom, ssa, utils};
-use crate::mir::instruction::InvokeOperation;
+use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
+
+#[path = "invoke_map.rs"]
+mod map;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 
@@ -26,14 +29,16 @@ pub(super) fn check_module(module: &crate::mir::MirModule) -> Result<(), Vec<Ver
                 }
                 if let MirInstruction::Invoke { operation, .. } = instruction {
                     match operation {
-                        InvokeOperation::NewBox { object }
+                        InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. })
+                        | InvokeOperation::NewBox { object }
                         | InvokeOperation::HomeRelease { object, .. }
                         | InvokeOperation::ReclaimUnpublished { object, .. }
                             if module.canonical_object_definition(*object).is_none() =>
                         {
                             errors.push(error(*id, "object-definition-missing"));
                         }
-                        InvokeOperation::HomeRelease { object, .. }
+                        InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. })
+                        | InvokeOperation::HomeRelease { object, .. }
                             if !module.canonical_object_definition(*object).is_some_and(|definition|
                                 definition.destruction_disposition()
                                     == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook) =>
@@ -115,25 +120,15 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
             if *normal_landing == function.entry_block || normal_landing == id {
                 errors.push(error(*id, "normal-landing-before-invocation"));
             }
-            let value_result = match operation {
-                InvokeOperation::NewBox { .. } | InvokeOperation::IntrinsicArrayNew => true,
-                InvokeOperation::FieldSet { .. }
-                | InvokeOperation::ArrayStateContractClaim { .. }
-                | InvokeOperation::ArrayElementWrite { .. }
-                | InvokeOperation::HomeRelease { .. }
-                | InvokeOperation::ReclaimUnpublished { .. } => false,
-                InvokeOperation::Call(call) => {
-                    if call.dst.is_some() {
-                        errors.push(error(*id, "embedded-call-destination"));
-                    }
-                    // Birth's source contract is Unit. Other result ABI families
-                    // require their canonical definition relation before opening.
-                    if !matches!(call.callee, Callee::BirthConstructor { .. }) {
-                        errors.push(error(*id, "call-result-contract-not-connected"));
-                    }
-                    false
+            if let InvokeOperation::Call(call) = operation {
+                if call.dst.is_some() {
+                    errors.push(error(*id, "embedded-call-destination"));
                 }
-            };
+                if !matches!(call.callee, Callee::BirthConstructor { .. }) {
+                    errors.push(error(*id, "call-result-contract-not-connected"));
+                }
+            }
+            let value_result = operation.normal_result_kind().is_some();
             let projections = function
                 .blocks
                 .values()
@@ -177,6 +172,9 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
         dom::check_dominance_with_policy(function, &definitions, &dominators, false)
     {
         errors.append(&mut found);
+    }
+    if let Err(reason) = map::check(function) {
+        errors.push(error(function.entry_block, reason));
     }
     if errors.is_empty() {
         Ok(())
@@ -268,3 +266,7 @@ mod tests;
 #[cfg(test)]
 #[path = "invoke_array_tests.rs"]
 mod array_tests;
+
+#[cfg(test)]
+#[path = "invoke_map_tests.rs"]
+mod map_tests;

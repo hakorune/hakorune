@@ -32,6 +32,15 @@ alternate representation. Storage profile and its finite validation live in
 `published_backend_view/lifecycle.rs`; they issue no source meaning.
 This retention does not bind Local to i64 or widen formal acceptance.
 
+### Opaque Map lifecycle transport dependency
+
+The ordinary lifecycle serializer projects issued Map Invoke operations and
+referenced canonical object layouts. Normal Map/key/outcome roles come from
+those operations, not source names or generic Handle classification. This wire
+vocabulary alone does not activate a C consumer: source Map progress, C parser/
+emission and artifact acceptance remain open behind the common install Stop.
+See the MIR instruction reference for the bounded temporary/lifetime contract.
+
 ### Static Map projection dependency
 
 The existing `published_backend_view/MapBodyIndex` binds copied conditional C

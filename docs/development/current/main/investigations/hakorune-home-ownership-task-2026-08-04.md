@@ -949,6 +949,34 @@ Next: actual Map Invoke/key/outcome emission progress and operation-derived
 projection at the now-shared ledger/cleanup consumers. Ordinary lookup alone does
 not establish a Map physical binding; keep the common source install Stop.
 
+**Map Invoke dependency checkpoint (2026-09-09)**
+
+MIR now carries Map New/PrepareKey/InstallIndexed/EndOutcome/End operations;
+Normal result roles derive from the operation (Map/key/outcome, never Handle).
+The finite verifier rejects opaque escape, temporary misuse, missing/double end
+and inconsistent live-Map joins. It uses iterative traversal for the acyclic
+cohort. Key/outcome projections immediately feed install/end: accepted entries
+read already-acquired direct locals, so no fallible child evaluation intervenes.
+Fresh/nested child cancellation is not admitted by this dependency. Native
+post-operation disposal precedes either successor; invalid-contract status traps
+rather than selecting source Fault cleanup. MIR reference owns these rules.
+
+Validation: cargo check --locked --profile quick --lib passes; serial jobs4
+quick lib filters verification::invoke (12 pass) and physical_program_json
+(7 pass). Logs: /tmp/hakorune-map-invoke-{check,tests,transport}.log.
+JSON projects the operation vocabulary and referenced object layouts. C parser/
+emission, source Map progress/binding and source-to-OBJ/EXE remain unconnected;
+no C build or runtime execution is claimed. Common install Stop remains.
+
+Next source entry is RawInvocationChildPortV1::lower_expression, before raw
+fallback, using its exact source site and existing callable ledger/state.
+Consume MapHomeFlow from the same co-sealed Completion exactly once. Existing
+state.read_variable(entry.site().node()) must record each variable consumption;
+compare the retained binding/acquisition with installed Home progress. Return
+through existing callable-local completion, preserving unused aliases and empty
+Map observation. No child AST re-lowering or new semantic receipt. Before this
+consumer binds to snapshot APIs, complete the bounded storage task below.
+
 **Map quality queue (2026-09-09, measured at 7cc63ab9ea)**
 
 Boundary: current Map physical-frame construction and the shared owners touched
@@ -998,10 +1026,39 @@ Runtime opaque ABI validation does not close this compiler queue.
    If the old set path is edited before retirement, correct its physical mask
    with a focused check then; do not introduce a second source effect authority.
 
-The next implementation is Map opcode/cleanup cutover using the accepted
-operation-derived projection and mixed-origin cleanup contract. The SSA split is explicitly queued before that owner grows; it does not
-block unrelated Map runtime work. These tasks remain open; corrected counts are
-not evidence that their source changes have landed.
+6. Map source snapshot BoxShape, before the new emitter depends on its API:
+   owner resolved_semantics/home_map_flow.rs::observe_map currently retains
+   precommit_outer/committed_outer/live_before/live_after per entry. For n prior
+   Homes transferred into n distinct entries, these retain 2n² elements plus
+   allocation_fault's n. No elapsed-time or peak-memory measurement is claimed.
+   Direct snapshot accessor consumers are map_home_flow_tests only; production
+   home_new_prefix consumes entry bindings and remaining Normal state, while
+   Completion retains the flow and common install checks Map presence.
+   Keep the same source issuer: one initial outer order plus exact entry transfer
+   and displaced relations. Expose required cleanup through owner-side borrowed
+   iteration/projection; backend must not reclassify keys, replacement or Home
+   ownership. Replacing Box with Arc alone does not remove changing snapshots.
+   Delete all four per-entry arrays and full-list collect/clone construction.
+   Acceptance preserves a→A,b→B,a→C (displaced A; final C,B), precommit versus
+   committed Fault order, allocation/key/install/displaced-end cases, alias and
+   duplicate-binding rejection, prior Maps and later-New cleanup suffixes.
+   Fresh/nested child refusal remains; do not claim newly supported child Fault.
+   Show retained structure proportional to initial outer+entries. Expanded MIR
+   cleanup code size and total compile complexity are separate measurements.
+7. Static Call invocation state is already task3 in lang/c-abi/README.md; keep
+   that owner rather than creating a duplicate task. Reconfirmed Rust transport
+   environment save/change/restore and C published-call static rows/count/used.
+   The two route forward-link helpers mutate HAKO_AOT_USE_FFI via the common
+   set_env_value helper; include them in the existing ingress inventory. Owner:
+   capi_transport plus C published-call/route consumers. Acceptance remains
+   overlapping distinct rows/options, failure cleanup and unchanged environment,
+   followed by deletion of globals/mutation. No race or serialization proof.
+
+Next: source snapshot BoxShape, then Map emission progress/cleanup cutover using
+operation-derived projections and the mixed-origin contract. The LocalSSA split
+is queued before that owner grows; static Call state follows its existing lane
+selection and does not block unrelated Map work. Corrected counts and these
+registrations are not evidence that outstanding source changes have landed.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

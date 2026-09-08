@@ -323,3 +323,13 @@ Candidate future crates:
 Prep rule:
 
 - do not split until each subtree README names its public surface and rejected boundaries
+
+### Opaque Map Invoke verification
+
+`instruction/invoke_map.rs` owns physical Map operation/result kinds.
+`verification/invoke_map.rs` checks the direct-local cohort's opaque operand
+roles, immediate single-use key/outcome consumers and pathwise Map end. The
+shared Invoke verifier still owns Normal-only SSA and exact object definitions.
+These checks never issue source Home availability or activate the C consumer.
+The contract is in `docs/reference/mir/INSTRUCTION_SET.md`; source publication
+must also consume the existing Completion and retained emission progress.

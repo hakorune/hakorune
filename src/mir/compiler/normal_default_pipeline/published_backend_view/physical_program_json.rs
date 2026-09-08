@@ -280,6 +280,20 @@ fn encode_invoke(
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
     Ok(match operation {
+        InvokeOperation::Map(operation) => {
+            use crate::mir::instruction::MapInvokeOperation as Map;
+            let encoded = match operation {
+                Map::New => json!({"kind": "map_new"}),
+                Map::PrepareKey { utf8 } => json!({"kind": "map_prepare_key", "utf8": utf8}),
+                Map::InstallIndexed { map, key, object, value: stored } => json!({
+                    "kind": "map_install_indexed", "map": value(map), "key": value(key),
+                    "object_id": object.declaration_index(), "value": value(stored),
+                }),
+                Map::EndOutcome { outcome } => json!({"kind": "map_end_outcome", "outcome": value(outcome)}),
+                Map::End { map } => json!({"kind": "map_end", "map": value(map)}),
+            };
+            with_site(encoded, required_site(diagnostic_site, abi_input.is_some())?)?
+        }
         InvokeOperation::IntrinsicArrayNew => {
             require_native_input(abi_input)?;
             with_site(

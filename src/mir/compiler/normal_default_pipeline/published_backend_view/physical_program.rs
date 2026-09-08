@@ -342,7 +342,8 @@ fn validate_instruction(instruction: &MirInstruction, script: bool) -> Result<()
             | MirInstruction::Phi { .. }
             | MirInstruction::ObjectFieldGet { .. }
             | MirInstruction::Invoke {
-                operation: InvokeOperation::NewBox { .. }
+                operation: InvokeOperation::Map(_)
+                    | InvokeOperation::NewBox { .. }
                     | InvokeOperation::FieldSet { .. }
                     | InvokeOperation::HomeRelease { .. }
                     | InvokeOperation::ReclaimUnpublished { .. }

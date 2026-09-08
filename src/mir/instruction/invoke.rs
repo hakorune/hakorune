@@ -4,6 +4,10 @@
 use crate::mir::definitions::MirCall;
 use crate::mir::{Effect, EffectMask, ValueId};
 
+#[path = "invoke_map.rs"]
+mod map;
+pub use map::{MapInvokeOperation, InvokeNormalResultKind};
+
 impl crate::mir::MirInstruction {
     /// Identifies physical sites needing retained lifecycle validation.
     /// Presence is an obligation, never source eligibility or permission.
@@ -37,6 +41,8 @@ pub enum InvokeOperation {
     },
     /// Intrinsic Array allocation; one value exists only on Normal.
     IntrinsicArrayNew,
+    /// Checked non-host Map lifecycle; source obligations come from Completion.
+    Map(MapInvokeOperation),
     /// Adopt the source-issued numeric state contract; Unit on Normal.
     ArrayStateContractClaim { contract_id: String, array: ValueId },
     /// Checked mutation; Unit on Normal and no mutation on Fault.
@@ -67,8 +73,19 @@ pub enum InvokeOperation {
 }
 
 impl InvokeOperation {
+    pub fn normal_result_kind(&self) -> Option<InvokeNormalResultKind> {
+        match self {
+            Self::NewBox { .. } | Self::IntrinsicArrayNew => Some(InvokeNormalResultKind::Handle),
+            Self::Map(operation) => operation.normal_result_kind(),
+            Self::Call(_) | Self::FieldSet { .. } | Self::ArrayStateContractClaim { .. }
+            | Self::ArrayElementWrite { .. } | Self::HomeRelease { .. }
+            | Self::ReclaimUnpublished { .. } => None,
+        }
+    }
+
     pub fn effects(&self) -> EffectMask {
         match self {
+            Self::Map(operation) => operation.effects(),
             Self::Call(call) => call.effects.add(Effect::Control),
             Self::NewBox { .. } | Self::IntrinsicArrayNew => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldSet { .. }
@@ -83,6 +100,7 @@ impl InvokeOperation {
 
     pub fn used_values(&self) -> Vec<ValueId> {
         match self {
+            Self::Map(operation) => operation.used_values(),
             Self::Call(call) => {
                 let mut values = Vec::new();
                 call.callee
@@ -112,6 +130,7 @@ impl InvokeOperation {
 
     pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
         match self {
+            Self::Map(operation) => operation.rewrite_values(rewrite),
             Self::Call(call) => {
                 call.callee.rewrite_value_operands(|value| rewrite(value));
                 for value in &mut call.args {

@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 
 use super::compiled_entry_contract::CompiledEntryFormalKindV1;
 use crate::mir::function::{ObjectDestructionDispositionV1, TypedObjectFieldStorage};
-use crate::mir::instruction::InvokeOperation;
+use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
 use crate::mir::MirInstruction;
 
 use super::{
@@ -23,6 +23,11 @@ const HAKO_LLVMC_LIFECYCLE_STORAGE_I64: u32 = 1;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     NewBox,
+    MapNew,
+    MapPrepareKey,
+    MapInstall,
+    MapEndOutcome,
+    MapEnd,
     ArrayNew,
     ArrayClaim,
     ArrayWrite,
@@ -37,6 +42,13 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             return None;
         };
         match operation {
+            InvokeOperation::Map(operation) => Some(match operation {
+                MapInvokeOperation::New => Self::MapNew,
+                MapInvokeOperation::PrepareKey { .. } => Self::MapPrepareKey,
+                MapInvokeOperation::InstallIndexed { .. } => Self::MapInstall,
+                MapInvokeOperation::EndOutcome { .. } => Self::MapEndOutcome,
+                MapInvokeOperation::End { .. } => Self::MapEnd,
+            }),
             InvokeOperation::NewBox { .. } => Some(Self::NewBox),
             InvokeOperation::FieldSet { .. } => Some(Self::FieldSet),
             InvokeOperation::HomeRelease { .. } => Some(Self::HomeRelease),
@@ -351,7 +363,8 @@ fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTre
                         ids.insert(field.object().declaration_index());
                     }
                     MirInstruction::Invoke { operation, .. } => match operation {
-                        InvokeOperation::NewBox { object }
+                        InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. })
+                        | InvokeOperation::NewBox { object }
                         | InvokeOperation::HomeRelease { object, .. }
                         | InvokeOperation::ReclaimUnpublished { object, .. } => {
                             ids.insert(object.declaration_index());
@@ -359,7 +372,7 @@ fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTre
                         InvokeOperation::FieldSet { field, .. } => {
                             ids.insert(field.object().declaration_index());
                         }
-                        InvokeOperation::Call(_) => {}
+                        InvokeOperation::Call(_) | InvokeOperation::Map(_) => {}
                         InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::ArrayStateContractClaim { .. }
                         | InvokeOperation::ArrayElementWrite { .. } => {}

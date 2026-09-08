@@ -81,13 +81,44 @@ The physical vocabulary, structural verifier and metadata readers include these
 operations. This does not authorize runtime, JSON/C or unselected backend execution. Implementation order and physical reader
 inventory: [collection construction SSOT](../../development/current/main/design/collection-literal-construction-ssot.md#script-array-physical-lifecycle-mapping).
 
+### Opaque Map lifecycle (physical contract)
+
+Decision: `InvokeOperation::Map` groups New, PrepareKey(exact UTF-8),
+InstallIndexed(exact object identity and Map/key/value operands), EndOutcome and
+End. Normal result kind is derived once from the operation: Map, MapKey,
+MapOutcome or no result for end. These are opaque physical references, never
+source types or native host handles. The indexed type ID comes from the referenced
+object layout, not from a name lookup or a second runtime payload registry.
+
+For the existing direct-local cohort, entry values refer to already-acquired
+ordinary Homes. Key's exclusive Normal landing projects it directly into install;
+outcome's exclusive Normal landing projects it directly into end, even for NoOld.
+Each temporary has exactly that one use; no Copy/Phi/Call/return/storage escape.
+Map references may only serve install/end and must be ended on every acquired
+path; live state must agree at joins and cycles are outside this cohort. Normal
+projection/SSA checks and module object/destruction checks remain required.
+This does not admit fresh/nested child evaluation or its key-cancellation edges.
+
+The backend owns native init/disposal around each operation. Status0/1 follow
+Normal/Fault: failed New/PrepareKey dispose unacquired storage; install consumes
+and disposes key on both outcomes, and disposes Unissued outcome on Fault.
+EndOutcome/End dispose after callbacks return on either outcome. Status2/unknown,
+or failed native init/dispose, traps; do not guess ownership from InvalidContract.
+An existing primary Fault does not change a successful end's returned status.
+The full runtime ABI additionally supports explicit key cancellation; compiler
+support for a child-Fault edge must use that contract before widening this cohort.
+
+These MIR checks and JSON projection do not activate source or C consumers.
+Completion/progress, mixed cleanup, selected C emission and source-to-artifact
+cutover remain separate required connections in the active Map series.
+
 ### Normal/Fault control (implementation in progress)
 
 Decision: `Invoke` is a terminator wrapping existing `MirCall` operands
 (embedded `dst=None`), exact NewBox allocation identity, or exact FieldSet operands, with an explicit internal
 Fault-frame operand and distinct Normal/Fault successors. It defines no value.
 `InvokeNormalResult { invoke_block, dst }` is the only result definition, first
-after PHIs in the exclusive Normal landing. Allocation has one handle result;
+after PHIs in the exclusive Normal landing. Ordinary/Array allocation has one handle result;
 Unit Birth, FieldSet, HomeRelease and ReclaimUnpublished have none.
 HomeRelease carries an exact object ID and a completed Home value; its definition
 must admit destruction. ReclaimUnpublished carries the exact object ID and only

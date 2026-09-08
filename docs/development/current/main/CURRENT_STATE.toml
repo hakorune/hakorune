@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Installed-Home lookup and end-operation issuance consolidated across claim/prior/root consumers; 8 focused tests pass and parent graph fixture debt is repaired. Next actual Map Invoke/key/outcome emission progress and operation-derived projection at these shared consumers. No Map physical binding issued yet. Preserve empty-Map observation, unused aliases and prior Maps on later New Fault; source install Stop remains until source/OBJ/EXE and old-edge cutover."
+current_blocker_token = "Map Invoke roles/lifetime checks and JSON projection implemented; check plus 12 Invoke/7 JSON tests pass. Before actual source emitter, thin per-entry Map source snapshots to initial order plus issued deltas; then bind exact source progress and mixed cleanup. No Map physical binding or C execution yet; source install Stop remains until source/OBJ/EXE and old-edge cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
