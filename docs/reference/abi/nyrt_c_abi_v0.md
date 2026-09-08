@@ -202,8 +202,11 @@ flags1 producers normalize their actual original value with add/zext; constants
 use the original constant owner, Formal/i64 PHI use their original SSA directly.
 Map payloads never issue original values. Existing SSA values/types and PHI group
 ordering remain intact. Compatible i1 PHIs retain their path; pending aliases or
-width mismatches reject even for nonmapped destinations. Selected i1 PHI to i64
-projection remains a cutover blocker requiring after-group normalization.
+width mismatches reject even for nonmapped destinations. Both walkers emit
+selected i1 PHI original projections after the complete PHI group and before
+non-PHI work. Shared i64 inputs consume those fixed references, including future
+backedges; original i1 SSA and its consumers remain unchanged. Missing emission
+or unsupported actual width rejects; no projection may split a PHI group.
 This does not change runtime tags or activate the public static compiler V2.
 
 ### Map-demanded callable linkage (private consumer implemented)

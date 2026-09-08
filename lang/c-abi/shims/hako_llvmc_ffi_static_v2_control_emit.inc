@@ -14,13 +14,13 @@
           long long bits;
           if (!has_const(value, &bits)) return -1;
           snprintf(out, size, "%lld", bits);
-        } else if (row->action == HAKO_LLVMC_MAP_ACTION_FORMAL ||
-                   row->action == HAKO_LLVMC_MAP_ACTION_PHI) {
-          if (get_type(value) != T_I64) {
-            note_pure_unsupported_shape(0, 0, "phi", "static_v2_phi_original_i1_pending", NULL);
-            return -1;
-          }
+        } else if (row->action == HAKO_LLVMC_MAP_ACTION_FORMAL) {
+          if (get_type(value) != T_I64) return -1;
           snprintf(out, size, "%%r%lld", value);
+        } else if (row->action == HAKO_LLVMC_MAP_ACTION_PHI) {
+          int type = get_type(value);
+          if (type != T_I64 && type != T_I1) return -1;
+          snprintf(out, size, type == T_I1 ? "%%map_original_%lld" : "%%r%lld", value);
         } else {
           snprintf(out, size, "%%map_original_%lld", value);
         }
@@ -149,4 +149,31 @@
               lane ? "payload" : "kind", dst, condition, type, refs[0], type, refs[1]);
         }
         return static_v2_consume_value(ins);
+      }
+
+
+      /* Both walkers call once after the complete PHI group. These projections
+       * must never split original, Map-lane or variant-tag PHIs. */
+      auto int emit_static_v2_phi_originals(long long block_id) {
+        const struct HakoStaticV2Index* index = &invocation->static_v2;
+        if (!index->frame) return 1;
+        for (int pi = 0; pi < phi_n; pi++) {
+          if (phis[pi].bid != block_id) continue;
+          for (int ri = 0; ri < phis[pi].rec_n; ri++) {
+            long long dst = phis[pi].recs[ri].dst;
+            int vi = hako_static_v2_value_find(index, fn0, (uint32_t)dst);
+            if (vi < 0) continue;
+            const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
+            if (!row->flags) continue;
+            int type = get_type(dst);
+            if (row->action != HAKO_LLVMC_MAP_ACTION_PHI || !index->values[vi].used ||
+                (type != T_I1 && type != T_I64)) {
+              note_pure_unsupported_shape(block_id, 0, "phi", "static_v2_phi_original_emission", NULL);
+              return 0;
+            }
+            if (type == T_I1)
+              EMIT("  %%map_original_%lld = zext i1 %%r%lld to i64\n", dst, dst);
+          }
+        }
+        return 1;
       }

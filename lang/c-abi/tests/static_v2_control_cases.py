@@ -216,11 +216,46 @@ def run_control_cases(compile_case, witness, const, root, kernel, env, no_core):
         cfn['blocks'][3]['instructions'] = [const(4, 30), const(5, 99),
             dict(op='select', dst=6, cond=3, then_val=4, else_val=5), dict(op='ret', value=6)]
         execute(label+'-compatible-i1', compatible, compatible_frame, 1, 1, writes=3)
-        pending = copy.deepcopy(compatible)
-        pending['functions'][-1]['blocks'][3]['instructions'].insert(0,
-            dict(op='phi', dst=24, dst_type='i64', incoming=[[3, 1]]))
-        compile_case(label+'-i1-to-i64-pending', pending, compatible_frame,
-            'static_v2_phi_original_i1_pending')
+        for selected in (False, True):
+            for copied in (False, True):
+                projected, projected_frame = copy.deepcopy(compatible), copy.deepcopy(compatible_frame)
+                pfn = projected['functions'][-1]
+                if copied:
+                    pfn['blocks'][1]['instructions'].insert(-1, dict(op='copy', dst=28, src=3))
+                pfn['blocks'][3]['instructions'] = [
+                    dict(op='phi', dst=24, dst_type='i64', incoming=[[28 if copied else 3, 1]]),
+                    dict(op='phi', dst=25, dst_type='i64', incoming=[[3, 1]]),
+                    const(4, 29), dict(op='binop', dst=26, lhs=24, rhs=4, operation='+'),
+                    dict(op='ret', value=26)]
+                if selected:
+                    if copied: projected_frame['values'].append(row(fn, 28, 3, flags=1))
+                    projected_frame['values'].append(row(fn, 24, 4, flags=1))
+                    pfn['blocks'][3]['instructions'].insert(2,
+                        dict(op='map_literal_entry_write', receiver=1, key=2, value=24))
+                    projected_frame['maps'].append(dict(function=fn['name'], block=3, instruction=2, kind=2))
+                text = execute(label+f'-i1-to-i64-{selected}-{copied}',
+                    projected, projected_frame, 1, 1, writes=4 if selected else 3)
+                assert text.index('%r20 = phi') < text.index('%map_original_3 = zext i1 %r3 to i64')
+                assert '%r3 = phi i1' in text
+
+        backedge, backedge_frame = copy.deepcopy(compatible), copy.deepcopy(compatible_frame)
+        bfn = backedge['functions'][-1]
+        bfn['blocks'][1]['instructions'].insert(2,
+            dict(op='phi', dst=24, dst_type='i64', incoming=[[10, 0], [30, 2]]))
+        bfn['blocks'][2]['instructions'].insert(0,
+            dict(op='phi', dst=30, dst_type='i1', incoming=[[3, 1]]))
+        backedge_frame['maps'][1]['instruction'] += 1
+        backedge_frame['maps'][2]['instruction'] += 1
+        backedge_frame['values'].extend([row(fn, 24, 4, flags=1), row(fn, 30, 4, flags=1)])
+        bfn['blocks'][3]['instructions'] = [
+            dict(op='map_literal_entry_write', receiver=1, key=2, value=24),
+            const(4, 29), const(5, 99), dict(op='binop', dst=26, lhs=24, rhs=4, operation='+'),
+            dict(op='select', dst=6, cond=3, then_val=26, else_val=5), dict(op='ret', value=6)]
+        backedge_frame['maps'].append(dict(function=fn['name'], block=3, instruction=0, kind=2))
+        text = execute(label+'-i1-phi-backedge', backedge, backedge_frame, 1, 1, writes=4)
+        assert '[ %map_original_30,' in text
+        assert text.index('%r30 = phi i1') < text.index('%map_original_30 = zext i1 %r30 to i64')
+
         incompatible = copy.deepcopy(compatible)
         incompatible['functions'][-1]['blocks'][0]['instructions'][2] = const(10, 30)
         incompatible_frame = copy.deepcopy(compatible_frame)

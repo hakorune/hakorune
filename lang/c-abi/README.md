@@ -223,9 +223,11 @@ references issued by successful flags1 producers, including original-only Copy
 chains. Original values/types stay unchanged; producer-side add/zext handles
 boxed aliases and future Select widths without recovering originals from Map
 payloads. Compatible i1 PHIs retain their existing path; pending aliases/widths
-reject for mapped and nonmapped destinations. An i1 PHI used as an i64 input
-still rejects until after-group normalization is implemented. Select shares one
-normalized condition with both Map lanes. No normalization enters a PHI group.
+reject for mapped and nonmapped destinations. Each walker normalizes emitted
+selected i1 originals after the complete PHI group; shared i64 inputs use those
+fixed references, including backedges. Original i1 values remain available.
+Select shares one normalized condition with both Map lanes. No normalization
+enters a PHI group.
 
 String constants keep byte length in their existing record/global/owned storage;
 V2 materializes length-aware handles at the instruction and traps on zero.

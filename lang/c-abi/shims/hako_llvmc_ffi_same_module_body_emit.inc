@@ -632,6 +632,7 @@
                   phis[pi].recs[ri].in_n)) return 0;
             }
           }
+          if (!emit_static_v2_phi_originals(block.id)) return 0;
           unsigned char skip_inst[block.instruction_count ? block.instruction_count : 1];
           struct SameModuleArraySlotDirectOpPlan array_direct_plan;
           struct SameModuleResultCapsuleResetBatchPlan result_capsule_reset_batch_plan;

@@ -1,10 +1,10 @@
-date = "2026-09-08"
+date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = ""
-current_blocker_token = "Private V2 original producers now issue stable i64 references consumed by shared mapped/nonmapped PHIs, including Copy chains; i1 pending/width checks are shared. Next: accepted after-whole-group normalization for emitted selected i1 PHIs, preserving original values/types and input Stops. Typed/direct object escape, intrinsic allocator session binding and selected boxed comparison remain CutoverBlockerOpen; then input-aware capability and atomic public session/host/source cutover with V1 retirement. No source cutover claim."
+current_design_stop = "MAP-LITERAL-RUNTIME-ESCAPE-OWNERSHIP"
+current_blocker_token = "Private V2 original i1 PHIs now normalize after the complete group in both walkers; stable i64 inputs and existing i1 input Stops are retained. Next design: runtime-owned retention/reclaim coordination for Map-resident indexed SafeMutex objects, preserving identity, shared mutation, child lifetime and exact profile agreement. No production keep/promotion issuer or safe delete-set exists yet. TLS/direct escape, intrinsic allocator binding and selected boxed comparison remain CutoverBlockerOpen before capability and atomic public session/host/source cutover with V1 retirement."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -42,12 +42,12 @@ Boxed tails/Bool aliases and String concat projection/declaration ownership are 
 Copy/NamedAlias consumers preserve Map lanes and the demanded original producer.
 Phi/Select lanes join existing owners; stable original i64 references are implemented.
 Formal/expanded-function consumers share one index and private signatures.
-After-group original i1 PHI normalization is next; object escape, intrinsic physical binding
-and selected boxed comparison remain blockers before public cutover.
+After-group original i1 PHI normalization is implemented. Runtime escape ownership
+is the next design boundary; intrinsic binding and boxed comparison remain open.
 Actual session/host/Map cutover remains open.
 """
-next_design_card = "none"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
