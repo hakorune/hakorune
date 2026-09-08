@@ -136,6 +136,11 @@ enclosing fields. Birth definition handoff retains that same declaration
 identity with its exact Birth source relation; it does not reconstruct the
 declaration by name in a backend transport. This identity transport does not
 prove field/native cleanup.
+The selected compiler validates New descriptors in candidate source order before
+terminal field-read checks, which borrow the same descriptors. With multiple
+invalid candidates, earlier field-driven diagnostic priority is not preserved.
+Unavailable construction/destruction profiles remain explicit retained results;
+they are not lookup failures or proof of empty cleanup.
 The first construction-plan profile separately admits empty no-Birth objects
 and straight-line Birth bodies that initialize every explicit i64 field through
 verified own-field stores. Successful allocation creates an outer-storage reclaim

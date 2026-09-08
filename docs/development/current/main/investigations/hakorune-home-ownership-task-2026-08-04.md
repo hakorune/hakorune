@@ -396,10 +396,11 @@ its numeric Array lifecycle is not an ordinary-New/Map acquisition issuer.
 This is not an all-root coverage claim or a new narrower cutover finish line.
 
 Static counterexample: `local node = new Pair(10,20); local m =
-%{"x" => node}; return 30`. In `ordinary_new_coseal.rs`, candidates precede
-source scanning. The scanner saves node's prefix before Map makes terminal
-cleanup unavailable. Completion retains that unavailable result; the co-seal
-still issues the New descriptor but discards terminal relation/field rows.
+%{"x" => node}; return 30`. In `ordinary_new_coseal.rs`, candidates now retain
+construction/destruction/Birth descriptors before source scanning. The scanner
+saves node's prefix before Map makes terminal cleanup unavailable. Completion
+retains that unavailable result; the co-seal moves the existing New descriptor
+into its claim but discards terminal relation/field rows.
 A New after the Map likewise retains its descriptor with unavailable prefix.
 Thus there is no descriptor-issuance cycle to solve by a second registry or
 by weakening terminal checks. No execution of this example is claimed.
@@ -477,13 +478,13 @@ these control relations attach once; package co-seals existing descriptors,
 and root progress consumes the selected end operation. Neither a Map-only
 sibling receipt nor a binding-list diff is an implementation of this mapping.
 
-**Accepted first implementation: candidate descriptor ownership**
+**Candidate descriptor ownership: implemented connection**
 
-Change: in `ordinary_new_coseal`, replace the existing candidate tuple with a
+Change: `ordinary_new_coseal` replaces the existing candidate tuple with a
 private candidate that owns existing construction/destruction/Birth descriptors
 before the source walk. It issues no availability or Map compatibility. The
-existing field callback borrows that candidate; delete its repeated
-`construction_for` lookup and tuple reclassification. Final claims and Birth
+existing field callback borrows that candidate; its repeated `construction_for`
+lookup and tuple reclassification are removed. Final claims and Birth
 handoffs receive the same products by move, once, after the source scan.
 
 Validation order becomes candidate source order. Supported success remains
@@ -497,9 +498,10 @@ Keep `ConstructionEligibilityV1::Err` and destruction `Unavailable` as retained
 descriptors, distinct from failed lookup. Preserve overrides, builtin exclusion,
 selected membership, no-Birth arity, and Birth target/completion/effect checks.
 No candidate is inserted into the physical claim ledger before final co-seal.
-Reuse existing ordinary-New/field/constructor rejection tests and add only
-missing descriptor-retention/order evidence. Update module README in the same
-change; no language meaning or public ABI changes. Source files remain below800.
+Existing ordinary-New/field/constructor rejection tests cover the consumers;
+package tests additionally cover unavailable-descriptor retention and candidate
+source-order rejection. The module README owns this internal loan/transfer
+contract; no language meaning or public ABI changes. Source files remain below800.
 This deletes a real repeated source lookup, but does not close Map transfer,
 phase emission, runtime intake or the full source/host cutover.
 

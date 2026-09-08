@@ -56,6 +56,9 @@ mod local_commit;
 mod terminal_access;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
+#[path = "ordinary_new_candidate.rs"]
+mod candidate;
+use candidate::OrdinaryNewCandidate;
 
 pub(crate) use local_commit::{
     FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
@@ -435,18 +438,21 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     {
                         return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site });
                     }
-                    candidates.push((site, class.clone().into_boxed_str(), arguments.len(),
-                        initializer.binding(), initializer.declaration_site().clone(),
-                        !field_initializers.is_empty()));
+                    if let Some(candidate) = OrdinaryNewCandidate::resolve(
+                        batch, instance_constructors, site, class.clone().into_boxed_str(),
+                        arguments.len(), initializer.binding(), initializer.declaration_site().clone(),
+                        !field_initializers.is_empty(),
+                    )? {
+                        candidates.push(candidate);
+                    }
                 }
-                let selected: BTreeMap<_, _> = candidates.iter().filter(|(_, class, _, _, _, _)|
-                    matches!(batch.ordinary_box_coverage().row_for(class.as_ref()), Ok(Some(_))))
-                    .map(|(site, _, _, binding, _, _)| (site.clone(), *binding)).collect();
+                let selected: BTreeMap<_, _> = candidates.iter()
+                    .map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
                 let (home_prefixes, argument_observations) = if is_app_main && !selected.is_empty() {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
-                            batch, instance_constructors, &candidates, &selected, home, name)?;
+                            instance_constructors, &candidates, home, name)?;
                         let Some(field) = field else { return Ok(false); };
                         if staged_reads.insert(site.clone(), field_reads::FieldRead {
                             receiver_site: receiver_site.clone(), receiver, home, field,
@@ -496,7 +502,11 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 Ok((candidates, home_prefixes, argument_observations))
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-        for (site, class, arity, destination, declaration, has_overrides) in candidates {
+        for candidate in candidates {
+            let OrdinaryNewCandidate {
+                site, box_source, class, arity, destination, declaration,
+                construction, object, destruction, constructor, birth_handoff,
+            } = candidate;
             let argument_rows = argument_observations
                 .remove(&site)
                 .map(convert_selected_new_arguments)
@@ -505,128 +515,6 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                         new_site: site.clone(),
                     })
                 });
-            let Some(box_source) = batch
-                .ordinary_box_coverage()
-                .row_for(class.as_ref())
-                .map_err(|_| OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageDuplicate {
-                    site: site.clone(),
-                    class: class.clone(),
-                })?
-            else {
-                // Builtin/plugin constructors retain their existing
-                // compatibility owner.  They are deliberately outside the
-                // source-backed ordinary-Box claim ledger; only an unknown
-                // user Box is a coverage error here.
-                if crate::box_trait::is_builtin_box(class.as_ref()) {
-                    continue;
-                }
-                return Err(OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing { site, class });
-            };
-            let (object, destruction) =
-                instance_constructors
-                    .destruction_for(box_source)
-                    .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-                        site: site.clone(),
-                        class: class.clone(),
-                        error,
-                    })?;
-            let construction = if has_overrides {
-                Err(ConstructionUnavailableV1::OverrideUnsupported)
-            } else {
-                instance_constructors
-                    .construction_for(box_source, arity)
-                    .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-                        site: site.clone(),
-                        class: class.clone(),
-                        error,
-                    })?
-                    .clone()
-            };
-            if matches!(&construction, Ok(plan) if plan.object() != object) {
-                return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
-                    site,
-                    class,
-                    arity,
-                });
-            }
-            let constructor =
-                match instance_constructors
-                    .birth_for(box_source, arity)
-                    .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-                        site: site.clone(),
-                        class: class.clone(),
-                        error,
-                    })? {
-                    Some(row) => {
-                        if row.box_name() != class.as_ref()
-                            || usize::try_from(row.source_arity()).ok() != Some(arity)
-                        {
-                            return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
-                                site,
-                                class,
-                                arity,
-                            });
-                        }
-                        let abi = InstanceConstructorAbiV1::issue(arity).map_err(|error| {
-                            OrdinaryNewCoSealIssueV1::ConstructorAbi {
-                                site: site.clone(),
-                                class: class.clone(),
-                                error,
-                            }
-                        })?;
-                        let target = row
-                            .published_birth_key()
-                            .filter(|key| {
-                                key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor
-                                    && key.owner() == row.box_name()
-                                    && key.arity() == row.source_arity()
-                            })
-                            .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthTargetInvalid {
-                                site: site.clone(),
-                                class: class.clone(),
-                                arity,
-                            })?
-                            .clone();
-                        row.birth_completion()
-                            .filter(|completion| {
-                                row.forest().roots() == [completion.owner()]
-                                    && !completion.returns_value()
-                            })
-                            .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthCompletionNotUnit {
-                                site: site.clone(),
-                                class: class.clone(),
-                            })?;
-                        let effect = row
-                            .birth_effect()
-                            .filter(|effect| {
-                                *effect == DeclaredInstanceCallSemanticEffectV1::OpaqueObservable
-                            })
-                            .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthEffectUnsupported {
-                                site: site.clone(),
-                                class: class.clone(),
-                            })?;
-                        let birth_abi = BirthAbiHandoffV1::issue(row, target.clone(), abi)
-                            .map_err(|_| OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
-                                site: site.clone(),
-                                class: class.clone(),
-                                arity,
-                            })?;
-                        if birth_abi_handoffs.insert(site.clone(), birth_abi).is_some() {
-                            return Err(OrdinaryNewCoSealIssueV1::DuplicateSite {
-                                site: site.clone(),
-                            });
-                        }
-                        OrdinaryNewConstructorDispositionV1::Birth(
-                            VerifiedOrdinaryNewBirthRecipeV1 {
-                                source_id: row.source_id().clone(),
-                                target,
-                                effect,
-                                abi,
-                            },
-                        )
-                    }
-                    None => no_birth_constructor_disposition(&site, &class, arity)?,
-                };
             if claims
                 .iter()
                 .any(|claim: &OrdinaryNewAdmissionClaimV1| claim.site == site)
@@ -636,9 +524,14 @@ pub(crate) fn issue_ordinary_new_claims_v1(
             let home_prefix = home_prefixes.remove(&site).ok_or_else(|| {
                 OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() }
             })?;
+            if let Some(handoff) = birth_handoff {
+                if birth_abi_handoffs.insert(site.clone(), handoff).is_some() {
+                    return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
+                }
+            }
             claims.push(OrdinaryNewAdmissionClaimV1 {
                 site: site.clone(),
-                box_source: box_source.clone(),
+                box_source,
                 class,
                 arity,
                 constructor,

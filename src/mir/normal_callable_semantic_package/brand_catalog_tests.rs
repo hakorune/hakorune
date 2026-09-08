@@ -70,6 +70,40 @@ fn ordinary_new_claims_match_exact_local_initializers_without_effect_discovery()
 }
 
 #[test]
+fn ordinary_new_retains_unavailable_descriptors_through_candidate_co_seal() {
+    let package = issue_with_brand_catalog(
+        "box Page { value } static box Main { main() { local page = new Page() return 0 } }",
+    ).expect("unavailable construction is retained, not a failed lookup");
+    let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
+    assert_eq!(rows.len(), 1);
+    let claim = rows.values().next().unwrap();
+    assert!(claim.construction().is_err());
+    assert_eq!(claim.destruction(), crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
+        crate::mir::function::ObjectDestructionUnavailableV1::FieldType,
+    ));
+    assert_eq!(package.instance_constructors.destruction_for(claim.box_source()).unwrap(),
+        (claim.object(), claim.destruction()));
+}
+
+#[test]
+fn ordinary_new_descriptor_errors_follow_candidate_source_order() {
+    for (first, second) in [("First", "Second"), ("Second", "First")] {
+        let source = format!(
+            "box First {{}} box Second {{}} static box Main {{ main() {{
+             local a = new {first}(1) local b = new {second}(2) return 0 }} }}"
+        );
+        match issue_with_brand_catalog(&source) {
+            Err(super::NormalCallableSemanticPackageIssueV1::OrdinaryNew {
+                _error: super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BirthConstructorMissing {
+                    class, arity, ..
+                },
+            }) => { assert_eq!(class.as_ref(), first); assert_eq!(arity, 1); }
+            other => panic!("expected first candidate's missing Birth: {other:?}"),
+        }
+    }
+}
+
+#[test]
 fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     use super::instance_construction::ConstructionUnavailableV1;
     let source = "box Page { value: i64\nbirth(value) { me.value = value } }

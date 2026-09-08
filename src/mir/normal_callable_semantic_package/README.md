@@ -237,6 +237,15 @@ The definition issuer separately owns bounded destruction disposition, independe
 of construction/runtime layout. Claims copy ID/disposition before transfer;
 post-transfer lookup cannot reissue them or prove empty cleanup.
 
+The private [New candidate](ordinary_new_candidate.rs) collects these existing
+descriptors in candidate source order before the caller source walk. Field-read
+validation borrows the same construction plan and exact Box source; it no longer
+looks up construction again. Unavailable construction/destruction stays explicit,
+including overrides. Successful co-seal moves descriptors and Birth handoffs
+into claims/ledger once. Multiple invalid candidates reject in candidate order;
+the previous field-driven diagnostic priority is not retained. Candidate presence
+does not issue source availability, Map transfer or physical progress.
+
 The AST-free take-once definition payload uses existing field declarations.
 After installed-context validation, the port moves it to the normal collector
 before bodies. Duplicate transfer rejects. Package completion and source-backed

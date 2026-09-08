@@ -3,57 +3,33 @@
 use super::*;
 
 pub(super) fn initialized_integer_field(
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    candidates: &[(
-        OwnedExprSiteV1,
-        Box<str>,
-        usize,
-        BindingRefV1,
-        SourceBindingSiteV1,
-        bool,
-    )],
-    selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
+    candidates: &[OrdinaryNewCandidate],
     home: BindingRefV1,
     field: &str,
 ) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
     let mut matching = candidates
         .iter()
-        .filter(|(site, _, _, binding, _, _)| *binding == home && selected.contains_key(site));
-    let Some((site, class, arity, _, _, overrides)) = matching.next() else {
+        .filter(|candidate| candidate.destination == home);
+    let Some(candidate) = matching.next() else {
         return Ok(None);
     };
     if matching.next().is_some() {
-        return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() });
+        return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch {
+            site: candidate.site.clone(),
+        });
     }
-    if *overrides {
+    // Unavailable construction (including overrides) remains a retained descriptor.
+    let Ok(plan) = &candidate.construction else {
         return Ok(None);
-    }
-    let source = batch
-        .ordinary_box_coverage()
-        .row_for(class.as_ref())
-        .map_err(|_| OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageDuplicate {
-            site: site.clone(),
-            class: class.clone(),
-        })?
-        .ok_or_else(|| OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing {
-            site: site.clone(),
-            class: class.clone(),
-        })?;
+    };
     let lookup_error = |error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-        site: site.clone(),
-        class: class.clone(),
+        site: candidate.site.clone(),
+        class: candidate.class.clone(),
         error,
     };
-    // A declared type alone does not prove initialization on New's Normal edge.
-    let Ok(plan) = constructors
-        .construction_for(source, *arity)
-        .map_err(lookup_error)?
-    else {
-        return Ok(None);
-    };
     constructors
-        .with_source_object_definition(source, |object, definition| {
+        .with_source_object_definition(&candidate.box_source, |object, definition| {
             if plan.object() != object {
                 return Err(lookup_error(
                     InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch,
