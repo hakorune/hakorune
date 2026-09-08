@@ -1052,10 +1052,49 @@ passes28 tests, including four new binding witnesses with renamed targets,
 exact NaN bits, nested aliases, PHI/Select/formal cycles and mixed old uses.
 Initial new PHI fixture omitted mandatory `type_hint`; corrected before the
 passing run. No baseline waiver or source acceptance change.
-Next: bind the actual C query and host lifetime to this existing consumer. The
-query/readiness/wire-state design above is accepted; select one integrated
-implementation boundary with its compile consumer, avoiding an isolated public
-query. Full frame/C emission/capability and atomic production switch remain open.
+### Internal query integration — accepted next dependency
+
+Read-only C/host audit atde2113241d confirms static V2 is currently schema-only:
+no C validator/emitter consumes `hako_llvmc_published_static_frame_v2`; lifecycle
+physical_v2 is unrelated. Rust has no complete FrameHeader builder/production
+caller. Full frame/C consumption is therefore mandatory before public session
+cutover, but not before private query-to-planner dependency evidence.
+
+Freeze the remaining order: private query plus real MIR binding/same-invocation
+compile evidence -> complete V2 frame/leaf/expanded-function/capability and both
+C consumers -> atomic public session/host/source switch and V1 retirement.
+Do not repeat readiness/definition/optimizer census or add a new helper-only
+production milestone between these steps.
+
+Next implementation owner is `HakoLlvmcInvocation`. Add private query using its
+existing Named outcomes and the accepted one-time program observation state;
+project unique wire coordinates and the finite query outcomes above. Core
+consumes the cached program at its old stage; definition reading stays late.
+The existing typed rows begin/finish/end lifecycle is shared with an internal
+retained-invocation compile path. Keep V1 public gates/rows validation/file-read
+order intact; do not copy gates, bypass them with a test-only direct-core compile,
+reparse after query, or retry a failed retained compile through the file wrapper.
+
+One test-only subprocess driver may include the actual private C implementation:
+keep the invocation alive, send query observations to a Rust test, then await
+compile/cancel after binding through the actual `MapBodyIndex` API. No new
+shared-library query export is needed. Non-Map physical witnesses exercise the
+shared rows lifecycle and real object emission; Map witnesses cancel after
+planner validation and never enter V1 compile. Planner failure/cancel destroys
+the same owner. Retire this temporary driver/protocol when public V2 host tests
+cover the connection; it is not a second runtime or compiler authority.
+
+Exclusive delete-set: duplicate program observation across query/compile,
+typed rows lifecycle's mandatory pathname compile coupling, and hand-supplied
+observations as the only MIR binding evidence. V1 public export/file transport
+remain until final cutover and are not counted as deleted in this dependency.
+Acceptance: actual query -> Rust binding, parse/selector/program read once,
+query leaves globals inactive, real compile activates/finishes/clears rows,
+Generic versus SameModule/Dynamic identity, duplicate/unaddressable sites,
+required/unrequested bad outcomes, query storage error, planner cancel and
+compile failure/success cleanup, existing duplicate/residual/failure ordering.
+Reuse Named60/role22/lifetime16/settings16 and focused MIR tests as affected;
+no new mandatory guard or public ABI, no Map OBJ/EXE or source claim.
 
 Bind the same borrowed core, existing program view and
 physical definition plan to the eventual opaque session. Open takes immutable
@@ -1178,8 +1217,11 @@ retain body JSON as the sole operand/CFG graph. The existing published frame
 owner reads finalized MIR before lossy JSON and owns all buffers until C returns.
 No second MIR, projection-register namespace, source receipt or independently
 issued call graph is added. The planned compile export is
-`hako_llvmc_compile_published_static_method_v2(json_path, frame, obj_out, err_out)`.
-The frame carries revision/byte size and pointer/count pairs for four tables:
+`hako_llvmc_compile_published_static_method_v2(session, frame, obj_out, err_out)`.
+This consumes the same retained invocation used by query, not a pathname that
+would reparse the body. Public open/query/compile/close and the host switch land
+together only after the full V2 consumer; the former json_path proposal is
+superseded. The frame carries revision/byte size and pointer/count pairs for four tables:
 
 | Table | Payload and identity |
 | --- | --- |
@@ -1189,8 +1231,8 @@ The frame carries revision/byte size and pointer/count pairs for four tables:
 | Expanded functions | Canonical definition's logical physical name and one internal LLVM target. Formal order comes from body params and Formal value rows; no duplicate formal list. |
 
 Value action is a tagged finite payload: ExactBits(tag,u64),
-OriginalValue(tag,encoding), Copy, Phi, Select, Formal(source ordinal), or
-Operation(selected physical consumer). Operation has one finite wire field;
+OriginalValue(tag,encoding), Copy, NamedAliasOperandZero, Phi, Select,
+Formal(source ordinal), or Operation(selected physical consumer). Operation has one finite wire field;
 non-Operation rows keep it zero. Its result kind/encoding are fixed by the
 selection, not independently chosen by the caller.
 Encoding is existing i64 bits or Bool i1 zero-extension only. ExactBits tags use
