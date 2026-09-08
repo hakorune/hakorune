@@ -1182,6 +1182,45 @@ parent and current runs. Logs `/tmp/hakorune-map-finished-parent.log` and
 
 **Selected C Map consumer Decision (2026-09-09, audited at 33c0c10c60)**
 
+C consumer verification checkpoint (2026-09-09; not source cutover): C build,
+existing Pair execution suite and standalone physical parser test pass. The
+new `published_map_physical_execution_test.py target/quick/libnyash_kernel.a`
+uses that archive's actual V2 descriptor: six synthetic physical programs and
+a reversed-block-order input and two live Maps with later ordinary allocations
+link and return30. Six normal/Fault completion
+paths check Map/key/outcome init/dispose counts; status2/unknown trap. Thirteen
+malformed inputs preserve the existing object, including missing/double Map end
+reaching the indexed admission rejection rather than a schema error. Read-only
+worker audit found no concrete lifetime acceptance hole in the inspected index,
+flow and emission. Transferred markers are conservative reuse exclusions, not
+an inventory of surviving runtime entries. Indexed Unit roots remain unsupported.
+Parser definition/dominance scans still precede the consumer index; queue13 is
+not closed. NativeArray regression passes: the ignored retained Script host
+test runs 39 source cases, returned-allocation Fault probes and malformed-input
+checks. Source publication/OBJ/EXE and old-edge retirement remain open. Logs:
+`/tmp/hakorune-map-c-{build,pair,execution}.log`.
+The first NativeArray host regression stopped before C because the local
+`target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a` lacks the V2
+descriptor section. This is an observed stale-artifact prerequisite, not a
+passing regression or a classified source baseline. After rebuilding that
+selected runtime, `retained_script_inputs_reach_native_c_and_reject_physical_mutations`
+with `--ignored --test-threads=1` passed (1 test, 209.95s). Logs
+`/tmp/hakorune-map-lifecycle-runtime-build.log` and
+`/tmp/hakorune-map-native-regression.log`. Pointer/corridor guards pass; changed
+C source maximum721 lines. No Rust source or source acceptance changed.
+
+Next source integration audit: common install.rs prepare_install owns the
+blanket Map Stop; select only the already-proved Complete cohort and retain
+effect-before rejection for unsupported source, prefix and terminal coverage.
+Use the existing published host OBJ/EXE test pattern, not the dependency lowerer
+as production evidence. A box-free `%{}` with return30 must carry the legitimate
+empty definition publication: instance_constructor_semantic issues Some([]),
+program_root_lowering transfers it and the collector publishes it. Verify this
+through actual source before changing the physical input's definition contract.
+Keep the existing Birth/no-Birth, alias, later New, two-Map and duplicate-key
+bodies; prove direct EXE/linked OBJ30 and no selected Named MapBox New/birth/set.
+Unit source execution remains outside this indexed I64 cutover.
+
 Decision: replace the existing indexed V4 scalar Pair protocol with exact-origin physical lifetime validation and matching emission; no new semantic receipt.
 Source authority + canonical issuer: existing Completion/local-commit finalization and CompiledEntryContract; physical program supplies exact operations, values, targets and layouts.
 Non-authority: C roles, storage liveness, absent Birth calls and zero-field layouts cannot issue NoBirth, completed Home or destruction permission.
@@ -1292,11 +1331,22 @@ Additional thinning queue (verified against 61076eb17b and current code, 2026-09
 keep finishing -> selected C -> source OBJ/EXE -> old-edge retirement as the
 completion order. These rows do not authorize source-family widening or replace
 cutover with optimization work.
-Status: all five rows below are queued, not implemented or speed-measured.
+Status (rechecked 2026-09-09 at 18b5afc072 plus the working tree): rows10–12
+and14 remain queued. Row13 has C consumer implementation: invocation-owned
+function/block/value/layout lookups, memoized physical kinds and one Copy type
+query. Parser definition scans, dominance walks and the unused dominance `seen`
+allocation remain. This is not row13 acceptance or a measured speed improvement.
 At a natural Local edit, prefer row11 then row14; row10 follows finishing,
 row13 belongs to the C consumer, and row12 to runtime-session integration.
 Deletion targets are the repeated work named in each row, not the independent
 source/ownership/trust-boundary checks. No new guard family is required.
+Repeated feedback maps to these existing rows; do not open sibling task cards.
+For row10, finishing is now closed, but cleanup sharing still needs its own
+multi-ingress correspondence proof; do not mix it into the pending C cutover.
+The immediate order remains the selected C consumer and source cutover. Take
+row11 then row14 at a natural Local edit, row12 at session integration, and the
+remaining row13 scans only with their owning validator. No whole-queue closure
+or arbitrary-order linear cleanup bound is claimed.
 
 10. Map emitter cleanup sharing: selected/map.rs separately emits each pre/post
     failure chain; post(i) equals pre(i+1) for the same issued ownership state,

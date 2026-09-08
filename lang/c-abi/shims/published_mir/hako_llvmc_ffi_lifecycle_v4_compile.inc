@@ -92,6 +92,7 @@ done:
   if (ll) { if (ll_owned) unlink(ll); free(ll); }
   if (object) { if (object_owned) unlink(object); free(object); }
   hako_lts_close(&session);
+  lv4_index_close(&input);
   if (doc) yyjson_doc_free(doc);
   if (rc != 0 && failure) {
     char message[128];

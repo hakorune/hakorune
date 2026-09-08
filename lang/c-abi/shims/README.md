@@ -72,6 +72,14 @@ archive and calls the opaque C ABI directly; neither test proves source cutover.
   including actual Home/reclaim/report/dispose observations. Generic sessionless
   lifecycle OBJ remains rejected.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
+- Indexed Map physical-consumer verification uses
+  `python3 lang/c-abi/tests/published_map_physical_execution_test.py RUNTIME_ARCHIVE`
+  after the C build. The explicit archive must export the V2 runtime descriptor;
+  the driver reads its actual Map/key/outcome storage geometry. Synthetic physical
+  inputs cover empty/duplicate/NUL keys, reversed block order, checked Fault
+  disposal, invalid-status traps and pre-artifact lifetime rejection. These are
+  C consumer tests, not source publication or Map cutover acceptance. Indexed
+  Unit roots remain unsupported; NativeArray retains its separate admission.
 - `.inc` files may perform backend-local operand normalization and variant selection only after MIR has already decided legality.
 - `.inc` files must not become semantic planners for publication defer, provenance, StableView legality, or read-side alias continuation.
 - Active typed-object EXE lowering consumes `typed_object_plans` and

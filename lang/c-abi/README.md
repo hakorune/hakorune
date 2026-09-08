@@ -261,6 +261,15 @@ Lifecycle invocation ownership
   replaces v1; it checks structure/SSA, then V4 checks type and cohort coverage.
   Parser success alone does not prove executable input. Receiver is explicit,
   Birth formals use kind/payload lanes, and Bool constants keep their own kind.
+- Indexed V4 admission and emission share one invocation-owned function/block/
+  value/layout index. The earlier fixed Pair function/layout counts are removed;
+  supplied Birth targets and exact object layouts select physical calls. Map,
+  prepared key and detached outcome use descriptor-sized opaque regions with
+  exact-origin consumption checks, including Fault joins and complete cleanup.
+  Live allocation never issues source Home or NoBirth authority. Parser SSA and
+  dominance checks remain separate; this is not a claim that all scans are gone.
+  The Map physical test command and source-cutover limits are in
+  [the shim README](shims/README.md). Indexed Unit roots remain unsupported.
 - NativeArray uses the same parser/V4 consumer with an explicit ABI1 requirement,
   one root and no object profile/layout. Its finite admission validates live
   allocation identities through Copies/CFG, claim-before-append, exact primitive

@@ -345,8 +345,10 @@ ProjectionUnavailable; a missing key returns None. Native keys/clone/iteration
 semantics remain unchanged. CheckedMap and its detached outcomes require explicit
 end by the placement caller. Map destruction is legal only Unissued/Ended;
 opaque detached storage rejects disposal before consumption. Rust Drop is
-not a fallback source finalizer. Opaque ABI and descriptor/session are now implemented. Selected C Map operation
-emission, mixed-origin root cleanup and source-to-EXE activation remain unfinished.
+not a fallback source finalizer. Opaque ABI and descriptor/session are implemented.
+Selected C Map emission uses the existing V4 physical input and exact-origin
+storage validation. Mixed-origin finishing and physical-consumer execution do
+not by themselves establish source-to-EXE activation; that cutover remains open.
 
 ## Checked Map opaque ABI contract
 

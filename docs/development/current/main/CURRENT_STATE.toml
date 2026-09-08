@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Mixed lifecycle finishing is closed. Selected C Map consumer design is accepted in the ownership task: replace Pair scalar state and fixed layouts/functions with invocation-owned physical index, exact-origin storage lifetime and matching opaque emission. Source constructor authority stays in Rust. Next implement that C consumer with runtime-linked tests, then source OBJ/EXE and old-edge cutover. Common Map install Stop remains; no C/source execution or R7 completion claim."
+current_blocker_token = "Mixed lifecycle finishing and selected C physical Map consumer are implemented and verified, including runtime-linked Map tests and NativeArray host regression. Next connect the proved source cohort through common install to source OBJ/EXE and retire its old edges. Common Map install Stop remains. Source Home/Birth authority stays in Rust; no Map source execution or R7 completion claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
