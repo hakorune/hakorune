@@ -626,8 +626,9 @@ Decision: extend the existing physical parser/V4 consumer for retained NativeArr
 Source authority + canonical issuer: finalized Script source/Recipe/emission; existing compiled-entry and bound invocation own physical input/session.
 Non-authority: C source inference, fake object profile, generic retry and exit70-only cleanup proof.
 Fail-fast boundary: exact wire/CFG/lane/liveness and runtime mismatch reject before artifacts; unselected families keep their Stops.
-Smallest next slice: owner task4a NativeArray parser/admission, then 4b emitter and 4c real runner/capability switch in the same bounded cutover series.
-Non-claims: task3 input proof is not C execution; no new source forms, Array descriptor or nonselected backend parity.
+Smallest next slice: task4c real OBJ/EXE runtime-session and exact native capability switch, then repeat task4d through those production callers and retire selected Stops.
+Checkpoint: task4a/b C parser/liveness/emitter pass 31 retained source inputs through direct V4 -> OBJ/link -> actual runtime (30/0/70), with exact mutation/release/report/dispose observations and 29 malformed-input rejects. Pair host EXE/OBJ30, Bool Fault70, untyped regression and hostStop7 pass; C/parser/guards green. Builds: quick9.0GiB; unoptimized lifecycle release archive6.62GiB.
+Non-claims: direct-driver evidence is not the Rust production switch; task4c/d, native final-result range/returned-allocation-Fault observations and old-edge retirement remain. No new source forms, Array descriptor or backend parity.
 The [owner task4](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) contains worker-audited owners, finite mapping, exclusive delete-set and full task4d execution/cleanup acceptance. Observe source760/hard800; split coherent C validation before growth.
 
 ## Source and ownership budget

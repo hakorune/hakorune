@@ -21,7 +21,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     yyjson_val* block = yyjson_arr_get(blocks, bi);
     yyjson_val* rows = yyjson_obj_get(block, "instructions");
     yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
-    if (op && lv4_is(op, "kind", "new_box"))
+    if (op && (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")))
       fprintf(f, "  %%new%u = alloca i64, align 8\n", lv4_u(block, "id"));
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
@@ -62,9 +62,17 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(ins, "op", "const_bool")) {
         fprintf(f, "  %%v%u = add i64 0, %u\n", dst,
             yyjson_get_bool(yyjson_obj_get(ins, "value")) ? 1u : 0u);
+      } else if (lv4_is(ins, "op", "const_f64_bits")) {
+        fprintf(f, "  %%v%u = bitcast i64 %llu to double\n", dst,
+            (unsigned long long)yyjson_get_uint(yyjson_obj_get(ins, "bits")));
+      } else if (lv4_is(ins, "op", "array_residence_release")) {
+        fprintf(f, "  call void @nyrt_handle_release_h(i64 %%v%u)\n", lv4_u(ins, "value"));
       } else if (lv4_is(ins, "op", "copy")) {
         uint32_t src = lv4_u(ins, "src");
-        fprintf(f, "  %%v%u = add i64 0, %%v%u\n", dst, src);
+        if (lv4_type(fn, src, lv4_value_budget(fn)) == LV4_F64)
+          fprintf(f, "  %%copy_bits%u = bitcast double %%v%u to i64\n"
+              "  %%v%u = bitcast i64 %%copy_bits%u to double\n", dst, src, dst, dst);
+        else fprintf(f, "  %%v%u = add i64 0, %%v%u\n", dst, src);
         if (lv4_type(fn, src, lv4_value_budget(fn)) == LV4_TAGGED)
           fprintf(f, "  %%k%u = add i32 0, %%k%u\n", dst, src);
       } else if (lv4_is(ins, "op", "add")) {
@@ -88,7 +96,13 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  br label %%fault\n");
     } else if (lv4_is(term, "op", "return")) {
       if (birth) fprintf(f, "  ret i32 0\n");
-      else {
+      else if (lv4_is(fn, "role", "root_unit")) {
+        fprintf(f,
+            "  %%disposed%u = call i32 @\"nyash.fault.frame_dispose_v1\"(ptr %%frame)\n"
+            "  %%dispose_ok%u = icmp eq i32 %%disposed%u, 0\n"
+            "  %%result%u = select i1 %%dispose_ok%u, i64 0, i64 70\n"
+            "  ret i64 %%result%u\n", b, b, b, b, b, b);
+      } else {
         uint32_t value = lv4_u(term, "value");
         fprintf(f,
             "  %%range_ok%u = icmp ule i64 %%v%u, 255\n"
@@ -117,8 +131,23 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             b,value,b,b,b,b,b,NYRT_FAULT_REASON_FIELD_TYPE_MISMATCH_V1,site,
             b,lv4_u(term,"fault"),b);
       }
+      if (lv4_is(op, "kind", "array_append") && lv4_is(op, "representation", "bool"))
+        fprintf(f, "  %%bool%u = trunc i64 %%v%u to i32\n", b, lv4_u(op, "value"));
       fprintf(f, "  %%status%u = call i32 ", b);
-      if (lv4_is(op, "kind", "birth_call")) {
+      if (lv4_is(op, "kind", "array_new")) {
+        fprintf(f, "@\"nyash.array.checked_new_v1\"(ptr %%frame, i64 %llu, ptr %%new%u)\n", site, b);
+      } else if (lv4_is(op, "kind", "array_claim")) {
+        fprintf(f, "@\"nyash.array.checked_claim_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i32 %u)\n",
+            site, lv4_u(op, "array"), lv4_u(op, "element_tag"));
+      } else if (lv4_is(op, "kind", "array_append")) {
+        const char* repr = yyjson_get_str(yyjson_obj_get(op, "representation"));
+        const char* lane = lv4_is(op, "representation", "f64") ? "double" :
+            lv4_is(op, "representation", "bool") ? "i32" : "i64";
+        int boolean = lv4_is(op, "representation", "bool");
+        fprintf(f, "@\"nyash.array.checked_append_%s_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, %s %%%s%u)\n",
+            repr, site, lv4_u(op, "array"), lane, boolean ? "bool" : "v",
+            boolean ? b : lv4_u(op, "value"));
+      } else if (lv4_is(op, "kind", "birth_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
         fprintf(f, "@hako_lifecycle_birth_1(ptr %%frame, i64 %%v%u", lv4_u(call, "receiver"));
@@ -155,11 +184,22 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
     const hako_llvmc_lifecycle_target_session_v1* abi, const hako_lts_session* session) {
   fprintf(f, "target triple = \"%s\"\ntarget datalayout = \"%s\"\n", session->triple, session->data_layout);
   fprintf(f,
-      "@hako_lifecycle_layout = private constant [2 x i32] [i32 1, i32 1]\n"
       "declare i32 @\"nyash.fault.frame_init_v1\"(ptr)\n"
       "declare i32 @\"nyash.fault.record_static_v1\"(ptr, i32, i64, i64, i64)\n"
       "declare i32 @\"nyash.fault.frame_dispose_v1\"(ptr)\n"
-      "declare i32 @\"nyash.fault.report_final_v1\"(ptr)\n"
+      "declare i32 @\"nyash.fault.report_final_v1\"(ptr)\n");
+  if (in->native) {
+    fprintf(f,
+        "declare i32 @\"nyash.array.checked_new_v1\"(ptr, i64, ptr)\n"
+        "declare i32 @\"nyash.array.checked_claim_v1\"(ptr, i64, i64, i32)\n"
+        "declare i32 @\"nyash.array.checked_append_i64_v1\"(ptr, i64, i64, i64)\n"
+        "declare i32 @\"nyash.array.checked_append_bool_v1\"(ptr, i64, i64, i32)\n"
+        "declare i32 @\"nyash.array.checked_append_f64_v1\"(ptr, i64, i64, double)\n"
+        "declare void @nyrt_handle_release_h(i64)\n");
+    return lv4_emit_function(f, in, abi, 0);
+  }
+  fprintf(f,
+      "@hako_lifecycle_layout = private constant [2 x i32] [i32 1, i32 1]\n"
       "declare i32 @\"nyash.object.checked_new_v1\"(ptr, i32, i64, i64, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_field_set_v1\"(ptr, i32, i64, i64, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.checked_field_get_i64_v1\"(i32, i64, i64, i64, ptr)\n"

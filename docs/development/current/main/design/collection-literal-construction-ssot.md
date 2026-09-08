@@ -941,7 +941,13 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    a distinct terminal, not a source cleanup successor. Existing V4 compile owns
    target equality, one parse, temporary-file lifetime and atomic publication;
    malformed input must leave an existing output untouched. These are acceptance
-   requirements, not evidence that C execution has landed.
+   requirements, not evidence that the Rust host switch has landed.
+   Task4a/b now implement this parser/admission/emission branch; the rolling
+   card records direct-driver source/object/runtime evidence. Task4c must still
+   switch the real session-bound OBJ/EXE callers; task4d repeats its acceptance
+   there, including final-result range and returned-allocation-Fault observation.
+   Injected returned allocation Fault tests only the supplied branch; it does
+   not claim recovery from native fatal allocator failure.
 
 5. **Series retirement/closeout:** enumerate real selected callers, remove the
    obsolete selected projection/dispatch/Stop edges and their dedicated assets,

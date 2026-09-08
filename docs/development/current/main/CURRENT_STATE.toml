@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-SCRIPT-ARRAY-C-EXECUTION-I0"
 current_execution_cohort = "mir_script_array_c_execution_i0"
 current_design_stop = "none; worker-audited NativeArray physical parser/admission, emitter, real OBJ/EXE session and capability switch mapping is closed"
-current_blocker_token = "Script final input/session is verified: input3, physical9, binding6, Birth1, artifact2, hostStop7; actual Pair EXE/linked OBJ30 and untyped regression pass. Continue owner task4a native parser/admission, then emission and actual OBJ/EXE caller/capability switch. Preserve supplied CFG, primitive bits and cleanup; full seven-spec source execution/Fault observation plus selected old-edge retirement closes this series."
+current_blocker_token = "C parser/liveness/emitter checkpoint verified: 31 retained Script inputs -> direct V4 OBJ/link -> actual runtime30/0/70, cleanup observations and29 malformed rejects; Pair/untyped regressions and hostStop7 pass. Next task4c threads the selected runtime session through real runner OBJ/EXE and switches exact native capability/Stop edges; then repeat full task4d through production callers, including final-result range and returned-allocation-Fault observations, and retire selected old edges. Direct-driver evidence is not host cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,9 +31,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Script final-input task verified: one retained compiled-entry/input/runtime binding,
-I64/Unit, primitive bits and native cleanup; Pair and untyped execution preserved.
-Next: existing C parser/V4 consumer and real OBJ/EXE switch; typed C remains stopped.
+Native C parser/liveness/emitter verified via31 source inputs, real runtime
+mutation/cleanup observations and29 malformed rejects. Pair/untyped preserved.
+Next: task4c actual OBJ/EXE session/capability switch; typed host remains stopped.
 """
 next_design_card = "MIR-SCRIPT-ARRAY-C-EXECUTION-I0"
 next_execution_card = "MIR-SCRIPT-ARRAY-C-EXECUTION-I0"

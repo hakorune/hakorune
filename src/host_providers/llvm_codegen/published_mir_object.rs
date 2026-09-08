@@ -177,3 +177,7 @@ mod tests;
 #[cfg(test)]
 #[path = "published_array_source_tests.rs"]
 mod array_source_tests;
+
+#[cfg(all(test, feature = "plugins"))]
+#[path = "published_native_array_c_tests.rs"]
+mod native_array_c_tests;

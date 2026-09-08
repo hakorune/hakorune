@@ -2,11 +2,12 @@
 typedef struct {
   yyjson_val *root, *functions, *layout;
   uint32_t profile, object_id, field_ordinals[2];
+  int native;
   int64_t type_id;
   uint64_t result_site;
 } hako_lv4_input;
 
-enum { LV4_BAD, LV4_I64, LV4_HANDLE, LV4_FRAME, LV4_UNIT, LV4_TEXT, LV4_BOOL, LV4_TAGGED };
+enum { LV4_BAD, LV4_I64, LV4_HANDLE, LV4_FRAME, LV4_UNIT, LV4_TEXT, LV4_BOOL, LV4_F64, LV4_TAGGED };
 
 static uint32_t lv4_u(yyjson_val* object, const char* key) {
   return (uint32_t)yyjson_get_uint(yyjson_obj_get(object, key));
@@ -42,6 +43,7 @@ static int lv4_type(yyjson_val* fn, uint32_t value, size_t budget) {
   if (lv4_is(def, "op", "const_i64") || lv4_is(def, "op", "add") ||
       lv4_is(def, "op", "object_field_get")) return LV4_I64;
   if (lv4_is(def, "op", "const_bool")) return LV4_BOOL;
+  if (lv4_is(def, "op", "const_f64_bits")) return LV4_F64;
   if (lv4_is(def, "op", "invoke_normal_result")) return LV4_HANDLE;
   if (lv4_is(def, "op", "fault_frame_enter")) return LV4_FRAME;
   if (lv4_is(def, "op", "const_unit")) return LV4_UNIT;
@@ -62,6 +64,8 @@ static size_t lv4_value_budget(yyjson_val* fn) {
     count += yyjson_arr_size(yyjson_obj_get(yyjson_arr_get(blocks, bi), "instructions"));
   return count;
 }
+
+#include "hako_llvmc_ffi_lifecycle_v4_native_admission.inc"
 
 /* Root states: start=0, unpublished=1, Home=2, normal-clean=3,
  * Fault-clean=4, Fault-unpublished=5. Birth states: written-slot bits / Fault=8.
@@ -158,6 +162,12 @@ static int lv4_flow(const hako_lv4_input* in, yyjson_val* fn, int birth,
 static int lv4_admit(yyjson_val* root, hako_lv4_input* out, char** error) {
   yyjson_val *layouts = yyjson_obj_get(root, "layouts"), *fields;
   out->root = root; out->functions = yyjson_obj_get(root, "functions");
+  out->native = yyjson_obj_get(root, "runtime_requirements") != NULL;
+  out->result_site = yyjson_get_uint(yyjson_obj_get(root, "process_result_site"));
+  if (out->native) {
+    if (!lv4_native_admit(out)) goto unsupported;
+    return 0;
+  }
   if (yyjson_arr_size(out->functions) != 2 || yyjson_arr_size(layouts) != 1) goto unsupported;
   out->layout = yyjson_arr_get(layouts, 0);
   fields = yyjson_obj_get(out->layout, "fields");

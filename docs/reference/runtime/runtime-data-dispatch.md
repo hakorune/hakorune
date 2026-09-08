@@ -234,7 +234,13 @@ their native requirement carries ABI version1, seven explicit claim tags and
 distinct i64/Bool/f64 append representations. Float transport preserves u64 bits.
 No object layout/profile is synthesized. Issued cleanup/Normal/Fault coordinates
 remain physical input, not runtime inference. Input issuance and symbol-backed
-binding do not activate selected Script C execution.
+binding do not activate selected Script host execution. The C V4 consumer now
+lowers native checked calls directly with the declared i64/i32/double lanes,
+uses the supplied Normal/Fault targets and releases supplied residences before
+report/dispose. Root Unit uses no value lane and returns0 after successful
+dispose; root I64 keeps the existing0..255/range-Fault policy. C validates live
+identity/claim/operand consistency without selecting source cleanup. The actual
+Rust OBJ/EXE production switch remains a separate acceptance obligation.
 
 ### Selected native Array failure policy
 
