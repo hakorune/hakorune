@@ -477,6 +477,11 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
             rewrite_value_use(value, from, to);
             rewrite_value_use(ptr, from, to);
         }
+        MirInstruction::MapLiteralEntryWrite { receiver, key, value } => {
+            rewrite_value_use(receiver, from, to);
+            rewrite_value_use(key, from, to);
+            rewrite_value_use(value, from, to);
+        }
         MirInstruction::ArrayElementWrite {
             receiver,
             index,

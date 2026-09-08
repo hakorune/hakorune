@@ -327,6 +327,10 @@ pub enum MirInstruction {
     /// `store %value -> %ptr`
     Store { value: ValueId, ptr: ValueId },
 
+    /// Ordered literal Map insertion; key is a String value and result is discarded.
+    /// Value representation is projected by the selected physical owner.
+    MapLiteralEntryWrite { receiver: ValueId, key: ValueId, value: ValueId },
+
     /// Canonical Array mutation boundary. Typed element contracts are separate.
     ArrayElementWrite {
         site_id: ArrayWriteSiteId,

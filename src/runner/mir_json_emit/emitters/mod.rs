@@ -302,6 +302,17 @@ fn emit_instruction(
         I::PinnedTextResidenceFinish { residence } => {
             Ok(basic::emit_pinned_text_residence_finish(residence))
         }
+        I::MapLiteralEntryWrite { receiver, key, value } => Ok(serde_json::json!({
+            "op": "map_literal_entry_write", "receiver": receiver.as_u32(),
+            "key": key.as_u32(), "value": value.as_u32()
+        })),
+        I::NewBox { dst, target: crate::mir::ConstructionTarget::IntrinsicMap, args } => {
+            if !args.is_empty() {
+                return Err("[freeze:contract][intrinsic-map/constructor-args]".into());
+            }
+            Ok(serde_json::json!({"op": "newbox", "target": {"kind": "intrinsic_map"},
+                "dst": dst.as_u32(), "args": []}))
+        }
         I::ArrayElementWrite {
             site_id,
             dst,

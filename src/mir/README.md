@@ -42,6 +42,16 @@ C admission matches every typed carrier against that input's exact claims;
 module-only and outside-family routes keep their capability Stops. Numeric,
 ownership and write capability checks remain independent.
 
+Map literal construction adds `IntrinsicMap` allocation and result-free
+`MapLiteralEntryWrite` with exact receiver/key/value uses and mutation/IO effects.
+The v2 planner borrows SSA definitions and exact canonical call/ordinal relations
+through `compiler/normal_default_pipeline/published_backend_view/map_body_index.rs`.
+Its dependency closure retains all incoming actuals and does not admit leaf
+operations or infer value kinds from signature spelling.
+This is the MIR/Core transport substrate; source and executable consumer cutover
+remain in progress. The [instruction reference](../../docs/reference/mir/INSTRUCTION_SET.md#map-literal-construction-substrate)
+records the boundary.
+
 - `analysis/`: analysis helpers and shared inspection utilities.
 - `builder/`: AST -> MIR construction. FlowPlanner / JoinIR glue are
   physically under builder today but conceptually separate from builder core.

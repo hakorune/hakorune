@@ -636,3 +636,32 @@ fn mixed_same_module_instance_takes_unsupported_precedence() {
     );
     assert_eq!(view.static_method_calls().len(), 1);
 }
+
+#[test]
+fn intrinsic_map_substrate_stops_before_v1_object_without_compatibility() {
+    for with_write in [false, true] {
+        let mut module = intrinsic_array_module();
+        let block = module.functions.get_mut("main").unwrap()
+            .blocks.get_mut(&BasicBlockId::new(0)).unwrap();
+        block.instructions[0] = if with_write {
+            MirInstruction::MapLiteralEntryWrite {
+                receiver: ValueId::new(3), key: ValueId::new(4), value: ValueId::new(5),
+            }
+        } else {
+            MirInstruction::NewBox {
+                dst: ValueId::new(0),
+                target: crate::mir::ConstructionTarget::IntrinsicMap,
+                args: vec![],
+            }
+        };
+        let view = PublishedMirBackendView::try_new(&module).unwrap();
+        assert_eq!(view.route(), PublishedStaticMethodRouteV1::UnsupportedBeforeObject);
+        let output = tempfile::tempdir().unwrap();
+        let object = output.path().join("map.o");
+        let result = crate::host_providers::llvm_codegen::try_compile_published_static_method_object(
+            &module, object.to_str().unwrap(),
+        );
+        assert!(result.is_err());
+        assert_eq!(std::fs::read_dir(output.path()).unwrap().count(), 0);
+    }
+}

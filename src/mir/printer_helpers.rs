@@ -493,6 +493,12 @@ pub fn format_instruction(
             format!("{} phi {}", format_dst(dst, types), inputs_str)
         }
 
+        MirInstruction::MapLiteralEntryWrite { receiver, key, value } => {
+            format!("map_literal_entry_write {}[{}] = {}", receiver, key, value)
+        }
+        MirInstruction::NewBox { dst, target: crate::mir::ConstructionTarget::IntrinsicMap, args } => {
+            format!("{} new intrinsic_map({:?})", format_dst(dst, types), args)
+        }
         MirInstruction::NewBox {
             dst,
             target: crate::mir::ConstructionTarget::IntrinsicArray,

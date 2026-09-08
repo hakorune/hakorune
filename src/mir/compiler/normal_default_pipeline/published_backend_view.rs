@@ -20,6 +20,8 @@ pub(crate) use row_refs::{
 };
 
 mod c_transport;
+mod c_transport_v2;
+mod map_body_index;
 mod compiled_entry_contract;
 mod lifecycle;
 mod physical_abi;
@@ -220,6 +222,17 @@ impl<'module> PublishedMirBackendView<'module> {
                             })?,
                             dst: *dst,
                         });
+                        continue;
+                    }
+                    // Map's v2 frame/consumers must be connected before this
+                    // substrate can cross the existing v1 production ingress.
+                    if matches!(instruction,
+                        MirInstruction::MapLiteralEntryWrite { .. }
+                        | MirInstruction::NewBox {
+                            target: crate::mir::ConstructionTarget::IntrinsicMap, ..
+                        })
+                    {
+                        has_non_lifecycle_unsupported = true;
                         continue;
                     }
                     if is_lifecycle_instruction(instruction) {

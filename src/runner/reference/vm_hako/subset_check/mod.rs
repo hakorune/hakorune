@@ -263,6 +263,9 @@ pub(super) fn check_vm_hako_subset_value(root: &Value) -> Result<(), (String, u3
                 }
                 "ret" => {}
                 "newbox" => {
+                    if inst.get("target").is_some() {
+                        return Err((func_name.clone(), bb, "newbox(intrinsic-target-unsupported)".into()));
+                    }
                     let box_type = inst.get("type").and_then(|v| v.as_str()).unwrap_or("");
                     if box_type != "ArrayBox"
                         && box_type != "MapBox"

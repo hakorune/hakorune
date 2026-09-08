@@ -633,12 +633,13 @@ Map literal remains CutoverBlockerOpen: raw and Core emit Named(MapBox)+birth; c
 
 #### MAP-LITERAL-COMPILER-CUTOVER-I0 — active implementation series
 
-Decision: implement the accepted [v2 frame](../design/collection-literal-construction-ssot.md#versioned-compiler-frame-decision) in three steps: MIR/Core plus frame contract; both C consumers; atomic source/host switch with v1 and six literal-edge retirement. Step1 is next; literal issuers stay unchanged until consumers are ready.
+Decision: implement the accepted [v2 frame](../design/collection-literal-construction-ssot.md#versioned-compiler-frame-decision) in three steps: MIR/Core plus frame contract; both C consumers; atomic source/host switch with v1 and six literal-edge retirement. Step1 is in progress; literal issuers stay unchanged until consumers are ready.
 Source authority + canonical issuer: existing literal/child and canonical key/ordinal owners. Existing published frame owns pre-JSON representation and ABI projection; body remains the sole operand/CFG graph. No new semantic receipt or second instruction graph.
 Non-authority: old generic i64/origin, runtime tests and incidental linkage cannot supply kinds, target identity or source acceptance.
 Fail-fast boundary: missing/malformed/dangling projection, changed original inputs, stale compatibility ingress or residual rows reject before artifact. OriginalValue itself demands an original producer; Map-only Float gets no fabricated legacy lane.
 Smallest next slice: add IntrinsicMap/result-free MapLiteralEntryWrite and explicit reader/writer/observer treatments with private frame actions and focused verifier/transport tests. Step2 covers both prepasses/emitters, PHI/status tail labels, formal/leaf/context handling and malformed C input; step3 proves natural Map-only OBJ/EXE, mixed Integer/Bool formal, NUL/Float values and six-edge deletion.
 Use jobs4 locked quick focused Rust, selected C build/proofs when changed, existing pointer/corridor guards; sources stay below800.
+Substrate checkpoint: MIR/Core/readers, v2 wire/actions and borrowed SSA/canonical-call index are implemented. Map filters8, v1 pre-artifact Stop1, alias barrier1, vocabulary/schema20 and index/dependency3 pass; pointer/corridor guards and docs links pass. Next: exact producer admission, original-demand propagation and frame backing. Complete reader inventory/malformed-frame tests remain Step1 work; source/host switch stays closed.
 Non-claims: runtime dependency is complete (ABI8, String2, codec38, legacy Map11). No compiler/source cutover has landed yet. Neither local transport tests nor design review prove Map OBJ/EXE or R7. No blanket non-Map tagged rewrite, private-symbol wrapper or retained production v1 fallback.
 
 ## Source and ownership budget

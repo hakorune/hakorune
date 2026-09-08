@@ -66,7 +66,8 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         | MirInstruction::FaultFrameEnter { .. }
         | MirInstruction::ReturnFault { .. } => inst.used_values(),
         MirInstruction::Const { .. } | MirInstruction::Safepoint => Vec::new(),
-        MirInstruction::ArrayElementWrite {
+        MirInstruction::MapLiteralEntryWrite { receiver, key, value } => vec![*receiver, *key, *value],
+            MirInstruction::ArrayElementWrite {
             receiver,
             index,
             value,

@@ -170,7 +170,8 @@ fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSe
                 }
             }
         }
-        CoreEffectPlan::FieldSet { .. } | CoreEffectPlan::ExitIf { .. } => {}
+        CoreEffectPlan::MapLiteralEntryWrite { .. }
+        | CoreEffectPlan::FieldSet { .. } | CoreEffectPlan::ExitIf { .. } => {}
     }
 }
 

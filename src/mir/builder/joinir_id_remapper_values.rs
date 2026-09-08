@@ -27,6 +27,7 @@ impl JoinIrIdRemapper {
             Load { dst, ptr } => vec![*dst, *ptr],
             StaticDataLoad { dst, index, .. } => vec![*dst, *index],
             Store { value, ptr } => vec![*value, *ptr],
+            MapLiteralEntryWrite { receiver, key, value } => vec![*receiver, *key, *value],
             ArrayElementWrite {
                 dst,
                 receiver,

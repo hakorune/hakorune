@@ -49,6 +49,9 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
         source: CoreCallSourceV1,
     },
 
+    /// Literal Map insertion with no method lookup or result value.
+    MapLiteralEntryWrite { receiver: ValueId, key: ValueId, value: ValueId },
+
     /// New box allocation
     NewBox {
         dst: ValueId,

@@ -68,6 +68,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
                 values.extend(fields.iter().copied());
                 values
             }
+            MapLiteralEntryWrite { receiver, key, value } => vec![*receiver, *key, *value],
             ArrayElementWrite {
                 receiver,
                 index,

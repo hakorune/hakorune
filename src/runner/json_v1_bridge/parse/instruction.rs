@@ -69,6 +69,9 @@ pub(super) fn apply_v1_instruction(
             *max_value_id = (*max_value_id).max(value + 1);
         }
         "newbox" => {
+            if inst.get("target").is_some() {
+                return Err("[freeze:contract][json-v1/intrinsic-construction-unsupported]".into());
+            }
             let dst = require_u64(inst, "dst", "newbox dst")? as u32;
             let box_type = inst
                 .get("type")

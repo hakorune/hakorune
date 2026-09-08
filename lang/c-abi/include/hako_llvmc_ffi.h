@@ -30,6 +30,55 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
   uint32_t flags;
 } hako_llvmc_published_static_method_call_v1;
 
+/* Static v2 frame schema. The v1 production entry remains selected until
+ * both v2 consumers are ready; this declaration is not execution capability.
+ * All pointers borrow caller-owned buffers for one synchronous invocation. */
+#define HAKO_LLVMC_STATIC_FRAME_REVISION 2u
+#define HAKO_LLVMC_MAP_OP_ALLOCATE 1u
+#define HAKO_LLVMC_MAP_OP_WRITE 2u
+#define HAKO_LLVMC_MAP_VALUE_I64 1u
+#define HAKO_LLVMC_MAP_VALUE_BOOL 2u
+#define HAKO_LLVMC_MAP_VALUE_F64 3u
+#define HAKO_LLVMC_MAP_VALUE_VOID 4u
+#define HAKO_LLVMC_MAP_VALUE_HANDLE 5u
+#define HAKO_LLVMC_MAP_ACTION_EXACT_BITS 1u
+#define HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE 2u
+#define HAKO_LLVMC_MAP_ACTION_COPY 3u
+#define HAKO_LLVMC_MAP_ACTION_PHI 4u
+#define HAKO_LLVMC_MAP_ACTION_SELECT 5u
+#define HAKO_LLVMC_MAP_ACTION_FORMAL 6u
+#define HAKO_LLVMC_MAP_ENCODING_I64_BITS 1u
+#define HAKO_LLVMC_MAP_ENCODING_BOOL_I1_ZEXT 2u
+#define HAKO_LLVMC_MAP_ORIGINAL_REQUIRED 1u
+
+typedef struct hako_llvmc_map_operation_v2 {
+  const char* function_name;
+  uint32_t block_id, instruction_index, kind, reserved;
+} hako_llvmc_map_operation_v2;
+
+typedef struct hako_llvmc_value_projection_v2 {
+  const char* function_name;
+  uint32_t value_id, action, value_kind, encoding, flags, source_ordinal;
+  uint64_t payload;
+} hako_llvmc_value_projection_v2;
+
+typedef struct hako_llvmc_expanded_function_v2 {
+  const char* function_name;
+  const char* internal_target;
+} hako_llvmc_expanded_function_v2;
+
+typedef struct hako_llvmc_published_static_frame_v2 {
+  uint32_t revision, byte_size;
+  const hako_llvmc_published_static_method_call_v1* calls;
+  uint64_t call_count;
+  const hako_llvmc_map_operation_v2* map_operations;
+  uint64_t map_operation_count;
+  const hako_llvmc_value_projection_v2* values;
+  uint64_t value_count;
+  const hako_llvmc_expanded_function_v2* expanded_functions;
+  uint64_t expanded_function_count;
+} hako_llvmc_published_static_frame_v2;
+
 // Physical transport discriminators.  These values are not semantic target
 // authority; they select the already-published row consumer only.
 #define HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD 1u

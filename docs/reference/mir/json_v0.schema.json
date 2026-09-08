@@ -125,6 +125,7 @@
           "enum": [
             "barrier",
             "array_element_write",
+            "map_literal_entry_write",
             "array_state_contract_claim",
             "binop",
             "boxcall",

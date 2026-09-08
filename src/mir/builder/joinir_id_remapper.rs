@@ -158,6 +158,11 @@ impl JoinIrIdRemapper {
                 value: remap(*value),
                 ptr: remap(*ptr),
             },
+            MapLiteralEntryWrite { receiver, key, value } => MapLiteralEntryWrite {
+                receiver: remap(*receiver),
+                key: remap(*key),
+                value: remap(*value),
+            },
             ArrayElementWrite {
                 site_id,
                 dst,

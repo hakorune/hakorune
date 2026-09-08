@@ -198,6 +198,12 @@ impl FirstSeenIdRemapper {
             values.iter().map(|value| ids.value(*value)).collect()
         };
         match effect {
+            NormalizedEffectV1::MapLiteralEntryWrite { receiver, key, value } =>
+                NormalizedEffectV1::MapLiteralEntryWrite {
+                    receiver: self.value(*receiver),
+                    key: self.value(*key),
+                    value: self.value(*value),
+                },
             NormalizedEffectV1::MethodCall {
                 dst,
                 object,

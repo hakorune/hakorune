@@ -27,14 +27,27 @@ Primary implementation pointers:
 注意: Debug/Safepointはビルドモードでの降格用メタ命令であり、コア命令数には数えない。
 注意: KeepAlive/ReleaseStrong は lifecycle conformance のための命令（weak/hidden-root 対策）であり、Core-14/15 の最小コア数には数えない（ただし backend が実行する “実命令” である）。
 
+## Map literal construction substrate
+
+`NewBox { target: IntrinsicMap, args: [] }` allocates a literal Map without
+name-based constructor resolution. `MapLiteralEntryWrite { receiver, key, value }`
+has three ordered uses, no result, and conservative mutation plus IO effects.
+The key is a String value; exact value representation belongs to the selected
+physical frame owner, not the generic i64 register encoding.
+
+The compiler cutover is in progress: MIR/Core and JSON transport do not grant
+VM or selected-C execution. Literal source issuers retain their existing path
+until the v2 frame and both C consumers are ready. See the
+[collection construction design](../../development/current/main/design/collection-literal-construction-ssot.md#versioned-compiler-frame-decision).
+
 ## SSOT Ledger (machine-readable)
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=57
+DOC_SYNC_MIR_KEPT_COUNT=58
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=73
+DOC_SYNC_MIR_VOCABULARY_COUNT=74
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -211,9 +224,9 @@ Transition Note
 - VariantTag
 - VariantProject
 
-## Current Kept Vocabulary（48）
+## Current Kept Vocabulary（58）
 
-This is the current executable kept vocabulary from
+This is the current kept vocabulary (backend admission is separate) from
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.
 It is the right inventory to consult when implementation, JSON emit, or backend
 allowlists are being updated.
@@ -225,6 +238,7 @@ allowlists are being updated.
 - CopyOwned
 - DestroyOwned
 - ArrayElementWrite
+- MapLiteralEntryWrite
 - LocalContractWrite
 - RecordFieldContractCheck
 - RecordValuePublish

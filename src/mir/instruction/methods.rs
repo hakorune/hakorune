@@ -69,6 +69,8 @@ impl MirInstruction {
             | MirInstruction::RecordFieldContractCheck { .. }
             | MirInstruction::RecordValuePublish { .. } => EffectMask::CONTROL,
 
+            MirInstruction::MapLiteralEntryWrite { .. } => EffectMask::MUT.add(crate::mir::Effect::Io),
+
             // Memory operations
             MirInstruction::Load { .. }
             | MirInstruction::StaticDataLoad { .. }
@@ -188,7 +190,8 @@ impl MirInstruction {
             MirInstruction::MemOp { dst, .. } => *dst,
             MirInstruction::PinnedTextOp { dst, .. } => Some(*dst),
 
-            MirInstruction::Store { .. }
+            MirInstruction::MapLiteralEntryWrite { .. }
+            | MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
             | MirInstruction::WeakFieldWrite { .. }
             | MirInstruction::Branch { .. }
@@ -308,6 +311,8 @@ impl MirInstruction {
                 values.extend(arguments.iter().copied());
                 values
             }
+
+            MirInstruction::MapLiteralEntryWrite { receiver, key, value } => vec![*receiver, *key, *value],
 
             MirInstruction::ArrayStateContractClaim { array, .. } => vec![*array],
 

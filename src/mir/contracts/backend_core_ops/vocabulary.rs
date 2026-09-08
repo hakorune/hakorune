@@ -16,6 +16,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::FieldSet { .. } => "FieldSet",
         MirInstruction::WeakFieldWrite { .. } => "WeakFieldWrite",
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
+        MirInstruction::MapLiteralEntryWrite { .. } => "MapLiteralEntryWrite",
         MirInstruction::ArrayElementWrite { .. } => "ArrayElementWrite",
         MirInstruction::ArrayStateContractClaim { .. } => "ArrayStateContractClaim",
         MirInstruction::VariantMake { .. } => "VariantMake",
@@ -76,6 +77,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "ReturnFault",
     "FaultFrameEnter",
     "Await",
+    "MapLiteralEntryWrite",
     "ArrayElementWrite",
     "ArrayStateContractClaim",
     "Barrier",
@@ -162,6 +164,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::FaultFrameEnter { .. }
         | MirInstruction::ReturnFault { .. } => InstructionDietCohort::Kept,
         MirInstruction::Await { .. }
+        | MirInstruction::MapLiteralEntryWrite { .. }
         | MirInstruction::ArrayElementWrite { .. }
         | MirInstruction::ArrayStateContractClaim { .. }
         | MirInstruction::Barrier { .. }

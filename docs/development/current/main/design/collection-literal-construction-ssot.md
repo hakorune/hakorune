@@ -548,6 +548,18 @@ Exhausted claim over every MIR instruction or an implementation authorization.
 | Boxed sum | Existing valid ABI plan and emitted boxed handle only. |
 | Compatibility/mixed return or another reachable producer | Needs its own already admitted exact ABI or an authorized terminal; neither origin absence nor legacy success proves representation. |
 
+Physical owner reuse for the planner: Named allocation needs the existing selected
+allocation plan (`typed_object_plans` plus its validation and C allocation
+consumer), not Named spelling alone. Compare/Not require exact operand domains
+that match the existing operation consumer; generic i64 truthiness is not input
+admission. String Add needs exact String producers and concat ABI, not a generic
+Handle tag. Boxed sums use `build_function_boxed_sum_site_plan_map` and the
+matching emitted VariantMake site, not `ValueRepresentationFact` alone.
+No general Named-allocation or Compare/Not input-admission API was established
+by the bounded physical-owner audit. These mappings must remain explicit in
+Step1; the borrowed `map_body_index` dependency closure does not admit leaves
+or supply their missing physical contracts.
+
 The Float issue is concrete: generic prescan registers every non-String Const
 using `yyjson_get_sint` and `publish_plain_i64_value`; generic dispatch skips
 non-i64 non-String constants. Same-module prepass does not admit Float. Adding

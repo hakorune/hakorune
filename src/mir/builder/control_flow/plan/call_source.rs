@@ -80,6 +80,7 @@ fn visit_effect<'a>(effect: &'a CoreEffectPlan, visitor: &mut impl FnMut(&'a Cor
         CoreEffectPlan::NewBox { .. }
         | CoreEffectPlan::VariantMake { .. }
         | CoreEffectPlan::FieldGet { .. }
+        | CoreEffectPlan::MapLiteralEntryWrite { .. }
         | CoreEffectPlan::FieldSet { .. }
         | CoreEffectPlan::BinOp { .. }
         | CoreEffectPlan::Compare { .. }

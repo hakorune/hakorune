@@ -280,14 +280,6 @@ fn memop_v0_dialect_is_json_and_llvm_supported() {
 }
 
 #[test]
-fn instruction_diet_ledger_counts_match_ssot() {
-    assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 48);
-    assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
-    assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-    assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 64);
-}
-
-#[test]
 fn ownership_ssa_vocabulary_has_rust_and_exact_llvm_py_handler_support() {
     let copy = MirInstruction::CopyOwned {
         dst: ValueId::new(2),

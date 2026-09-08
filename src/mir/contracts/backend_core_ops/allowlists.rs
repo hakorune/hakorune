@@ -40,6 +40,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
         MirInstruction::Copy { .. }
             | MirInstruction::CopyOwned { .. }
             | MirInstruction::DestroyOwned { .. }
+            | MirInstruction::MapLiteralEntryWrite { .. }
             | MirInstruction::ArrayElementWrite { .. }
             | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::LocalContractWrite { .. }
@@ -158,6 +159,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::Compare { .. } => &["compare"],
         MirInstruction::StaticDataLoad { .. } => &["static_data_load"],
         MirInstruction::ArrayElementWrite { .. } => &["array_element_write"],
+        MirInstruction::MapLiteralEntryWrite { .. } => &[],
         MirInstruction::ArrayStateContractClaim { .. } => &[],
         MirInstruction::FieldGet { .. } => &["field_get"],
         MirInstruction::ObjectFieldGet { .. } => &[],
@@ -260,6 +262,7 @@ pub const LLVM_SUPPORTED_JSON_OPS: &[&str] = &[
 /// MIR JSON operations retained for typed transport but deliberately rejected
 /// by LLVM/backend lowering until their capability owner is implemented.
 pub const MIR_JSON_TRANSPORT_ONLY_OPS: &[&str] = &[
+    "map_literal_entry_write",
     "array_state_contract_claim",
     "array_element_write",
     "local_contract_write",

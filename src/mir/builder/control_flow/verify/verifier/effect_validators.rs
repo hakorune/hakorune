@@ -22,6 +22,19 @@ pub(super) fn verify_effect(
     loop_depth: usize,
 ) -> Result<(), String> {
     match effect {
+        CoreEffectPlan::MapLiteralEntryWrite { receiver, key, value } => {
+            for (id, role) in [(*receiver, "MapLiteralEntryWrite.receiver"),
+                (*key, "MapLiteralEntryWrite.key"), (*value, "MapLiteralEntryWrite.value")] {
+                primitives::verify_value_id_basic(id, depth, role)?;
+            }
+        }
+        CoreEffectPlan::NewBox { dst, target: crate::mir::ConstructionTarget::IntrinsicMap, args } => {
+            primitives::verify_value_id_basic(*dst, depth, "NewBox.dst")?;
+            if !args.is_empty() {
+                return Err(primitives::err("V6", "intrinsic_map_args", "IntrinsicMap constructor args must be empty"));
+            }
+        }
+
         CoreEffectPlan::MethodCall {
             dst,
             object,
