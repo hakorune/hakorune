@@ -282,8 +282,9 @@ tags/Arc/clone, declaration-only I64UnitTrivial ABI and matching owner numbers.
 Fail-fast boundary: reject missing/foreign source relation, unsupported candidate
 or stale obligation before effects/artifact; retain existing escape Stops until
 actual source/physical consumers close. No implicit share or carrier-to-Home cast.
-Smallest next slice: root-owned candidate/obligation product and actual source
-consumer against the fixed private API below; no further transfer-policy census.
+Smallest next slice: close the intrinsic Map construction/end responsibility
+and exact obligation-preserving slot compatibility before issuing candidate flow.
+The one-entry transfer law is fixed; do not repeat that policy census.
 Non-claims: source Map execution, runtime retention, general Home Flow, full
 key/residence/cleanup matrix or public cutover.
 
@@ -324,6 +325,24 @@ resolved batch/parameter contracts; do not add CFG/Completion ownership to that
 package. Each root joins its own evidence before Recipe; independent products
 cannot be paired later through equal owner keys.
 
+
+The existing common source is `VerifiedResolvedOwnerCoreV1` in
+`resolved_semantics/product.rs`; Function, Script and forest products already
+lend it. Literal/variable observations can borrow this core directly. No new
+root trait, adapter, registry or separate core-only extraction task is needed.
+When the real flow consumer is connected, remove its unnecessary
+ResolvedFunctionLoweringInput retention as part of that same change.
+
+Map membership additionally requires the root's body shape, which is not owned
+by the common core. Callable entry uses
+`VerifiedResolvedCallableSemanticBatchV1::with_declaration_semantics` and its
+existing `VerifiedResolvedCallableSemanticRowRefV1`: one row retains the verified
+function/forest and same-issuance body-shape sidecar. The plain
+`with_lowering_input` loan currently supplies no body shape and is not this Map
+input. Script instead lends core and inline body shape from the same
+`VerifiedResolvedScriptV1` at its pre-effect seal. Do not accept caller-supplied
+core/shape tuples merely because their owner numbers match.
+
 The following names describe private source-flow responsibilities, not current
 callable APIs or new public receipts:
 
@@ -341,6 +360,33 @@ insufficient. Preparation must not become permanent transfer permission: if an
 intervening effect changes the referenced obligation, the candidate is stale.
 General rebinding/CFG joins stay unsupported until their source flow proves the
 condition; no unowned generation counter or runtime lookup fills that gap.
+
+**Construction and compatibility prerequisite**
+
+A selected ordinary-New claim retains exact acquisition identity, destination,
+constructor/construction eligibility and object/destruction evidence. Prefix
+membership proves Normal local placement, not Map destination compatibility.
+The slot must accept the *same concrete obligation and end contract*; neither
+`prior_homes contains binding` nor CanonicalObjectId alone proves that transfer.
+Do not require a new generic Unique/Shared classifier solely for moving an
+already-admitted obligation, and do not accept unknown obligations under that
+exception. Shared acquisition/representation remains separately gated.
+
+Two source contracts must close before the candidate issuer implementation:
+
+1. Intrinsic Map construction responsibility: acquisition on allocation Normal,
+   key preparation residence, acquired child obligations and already-installed
+   entries on incomplete-construction Fault, plus completed Map/root end.
+   Numeric Array's native structural-destruction contract is not Map authority.
+2. Slot compatibility: borrow the exact acquisition/end evidence together with
+   direct binding availability and exact Map destination; preserve that evidence
+   through local-to-slot commit and later slot cleanup. Runtime clone, host
+   handles or wrapper retention cannot substitute for it.
+
+The Map construction owner named above owns the first contract and its required
+key/end ordering; this destination task owns the second and the source-flow
+co-seal. Keep the already-fixed candidate API and root join points. Do not add
+empty receipt factories while either required contract is missing.
 
 **Transaction and acceptance**
 
@@ -360,7 +406,8 @@ carrier publication; and postcommit cleanup Fault preserving new ownership.
 These are target cases, not claims that those programs compile today. Existing
 Map deletion returns Bool, not an ownership-returning value.
 
-Ordered closure after source issuance: co-seal these transitions at the root;
+Ordered closure: Map construction/end contract, exact slot compatibility and
+source issuance, then co-seal these transitions at the root;
 add consuming physical transaction; connect runtime storage/cleanup; switch
 source/host and retire the old edges with OBJ/EXE evidence. `InvokeOperation`
 currently has no Map install/detached-old result. Array write and FieldSet promise

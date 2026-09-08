@@ -1260,8 +1260,8 @@ Non-authority: kind/payload, ValueId/child ordinal, allocation outcome, transpor
 token signs, host Arc/clone behavior and test-only snapshots.
 Fail-fast boundary: keep current unsupported demands before artifact and runtime
 InvalidContract/no insertion; no implicit share, guessed Home or carrier forwarding.
-Smallest next slice: design the single-entry source -> transfer commit ->
-replacement cleanup -> Normal/Fault mapping, including duplicate keys, in
+Smallest next slice: close intrinsic Map construction/end responsibility, then
+co-seal exact obligation-preserving compatibility under the fixed one-entry law in
 [OWN-FIELD-CONTAINER-DEST-D0](../investigations/hakorune-home-ownership-task-2026-08-04.md#map-slot-dependency-of-the-selected-compiler-cutover).
 Existing resolver session owns source sites; semantic-package issuance/co-seal
 must join candidate/destination and pre/post-commit cleanup states before Recipe.
@@ -1296,6 +1296,24 @@ finalizer thread/lock discipline and TLS/direct storage remain included cutover
 obligations. No safe exclusive deletion set exists before the source decision.
 Existing codec/kernel tests prove their bounded ABI behavior only, not this
 destination/ownership contract or full runtime dependency completion.
+
+### Map construction prerequisite for owned-slot transfer
+
+Decision: before the source candidate/commit issuer is implemented, this owner
+must close intrinsic Map acquisition and end responsibility, including key
+preparation residence, acquired child cleanup and already-installed entries on
+incomplete-construction Fault. The numeric Array end contract is not a substitute.
+The existing [Map destination task](../investigations/hakorune-home-ownership-task-2026-08-04.md#map-slot-dependency-of-the-selected-compiler-cutover)
+then co-seals exact slot compatibility with the original acquisition/end evidence.
+A prior Home list identifies local availability but cannot authorize a new
+storage destination. Move the same admitted responsibility; do not invent share,
+reclassify it from runtime tags or require a new generic root adapter.
+
+This is the next source contract to close, not a new receipt or runtime
+implementation permission. The common resolved core and existing callable-row/
+Script-product loans already provide source access; their body-shape co-seal must
+be retained. Single-entry commit and failure laws are fixed in the reference;
+key residence and Map construction/root end remain included unresolved work.
 
 ### Map source-shape preservation decision
 
