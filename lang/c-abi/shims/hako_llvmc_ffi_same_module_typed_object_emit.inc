@@ -12,7 +12,7 @@
       };
 
       auto int same_module_function_direct_slot_nativedirect_backend_enabled(void) {
-        return (allocation_config.runtime_flags &
+        return (allocation_config->runtime_flags &
                 HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_SLOT_EXACT) != 0;
       }
 

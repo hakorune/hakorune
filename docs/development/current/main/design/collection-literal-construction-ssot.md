@@ -949,6 +949,34 @@ a malformed later plan. Dynamic LLVM/origins/machine code/relocations match.
 Next, exact-site role/skip/host binding remains design work; do not mark the
 full session contract executable from this local change.
 
+Implemented BoxShape (read-only C worker and Rust host audit): consolidate
+existing document/config/Named outcomes/program/definition storage into one
+private invocation, initialized in its final stable address. Outcomes borrows
+its config; never copy or return the initialized owner by value. The wrapper
+and direct-core config test transfer document ownership to it and destroy it
+once (outcomes before document). Core borrows it; no independent program/plan
+copies remain. Mutable function/cursor/selection/lowering state stays local.
+Program and plan readers run once at their existing ordered positions, with
+unchanged diagnostics and pattern precedence. No readiness flags or external
+query exist yet; zeroed unread storage is never published as an empty success.
+Delete split wrapper ownership/cleanup, separate core product storage and
+separate document/outcome arguments. Acceptance: both callers, lifetime16,
+settings16, Named60/role22, Dynamic comparison, C build, published rows/corridor;
+no source/public ABI change. Rust audit confirms the sole static host caller,
+plugins stub and existing frame-first capability order; those switch only with
+the complete session/frame/C consumer. This slice consolidates the production
+owner chain, not a query-only sibling.
+Verification: shared plan unit, C build, Named60/role22 exact parent comparison,
+settings16, ASan lifetime16 and published rows/corridor pass. Dynamic LLVM,
+origins, machine code and relocations match. Production program/plan readers
+still have one call each in their original ordered core sections. Reader and
+symbol predicate are shared file-scope implementations, not nested copies.
+Next bounded design question: when the real frame asks for conditional Named
+outcomes, bind query readiness and unique wire coordinates to this same
+invocation/program identity without hoisting existing compile diagnostics or
+inventing optimizer coverage. Resolve the actual MIR consumer/demand/domain/
+original-lane connection before exposing a public query-only product.
+
 Bind the same borrowed core, existing program view and
 physical definition plan to the eventual opaque session. Open takes immutable
 JSON bytes+length, leaves its output handle null on error and activates no

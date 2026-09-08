@@ -3,12 +3,12 @@
           const char* name) {
         if (!name ||
             !llvm_quoted_symbol_name_is_safe(name) ||
-            !physical_definition_plan_contains(&definition_plan, 0, name) ||
+            !physical_definition_plan_contains(definition_plan, 0, name) ||
             same_module_function_symbol_was_emitted(name)) {
           return 0;
         }
         if (module_function_is_numeric_i64_leaf(fn) &&
-            physical_definition_plan_contains(&definition_plan, 1, name)) {
+            physical_definition_plan_contains(definition_plan, 1, name)) {
           return 0;
         }
         return 1;
@@ -40,7 +40,7 @@
         out->fn = NULL;
         out->fn_index = 0;
         fn = same_module_function_find_with_index(name, &fn_index);
-        if (!fn || fn == program.entry.fn) return 0;
+        if (!fn || fn == program->entry.fn) return 0;
         out->fn = fn;
         out->fn_index = fn_index;
         return 1;
@@ -122,8 +122,8 @@
 
       auto int emit_same_module_function_definitions(FILE* f) {
         int emitted = 0;
-        for (size_t i = 0; i < definition_plan.same_module_count; i++) {
-          const char* name = definition_plan.same_module[i];
+        for (size_t i = 0; i < definition_plan->same_module_count; i++) {
+          const char* name = definition_plan->same_module[i];
           int rc = emit_planned_same_module_function_definition(
               f,
               name,

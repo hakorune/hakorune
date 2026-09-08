@@ -563,7 +563,7 @@
       }
       HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
 
-      if (program.selected_dynamic &&
+      if (program->selected_dynamic &&
           HAKO_LLVMC_C1_LOWERED_LLVM_EVIDENCE_V1(llpath, err_out) != 0) {
         remove(llpath);
         free_owned_str_consts();

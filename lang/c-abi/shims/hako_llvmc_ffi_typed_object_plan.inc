@@ -53,7 +53,7 @@
       }
 
       auto int typed_object_exact_slot_helper_enabled(void) {
-        return allocation_config.exact_slot_helper;
+        return allocation_config->exact_slot_helper;
       }
 
       auto int typed_object_storage_is_exact_slot_i64(const char* storage) {

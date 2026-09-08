@@ -7,7 +7,7 @@
       }
 
       auto int hako_llvmc_direct_array_i64_exact_enabled(void) {
-        return (allocation_config.runtime_flags &
+        return (allocation_config->runtime_flags &
                 HAKO_LLVMC_RUNTIME_MODE_REQUIRES_DIRECT_ARRAY_I64_EXACT) != 0;
       }
 

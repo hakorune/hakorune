@@ -71,9 +71,16 @@ Physical definition plan
   the existing selected Dynamic provenance producer cover the adjacent emitters.
   Synthetic physical cases do not establish source-family admission.
 
-Pure-first document ownership
-- `compile_json_compat_pure` owns one parsed document and frees it after the
-  borrowed core returns. Validator, pinned census, route readers and generic
+Pure-first invocation ownership
+- `compile_json_compat_pure` transfers its parsed document into the private
+  `HakoLlvmcInvocation`, alongside captured config, Named outcomes, program view
+  and definition plan. The wrapper and direct-core config test initialize it at
+  its final address; do not copy it because outcomes borrows its config.
+  Core borrows these products, without independent program/plan/config copies.
+  Program and plan readers stay at their original positions; mutable function
+  cursors remain local. No readiness or public query state is implied.
+- One invocation destroy releases outcomes before the document after core return.
+  Validator, pinned census, route readers and generic
   emitters borrow that document; they do not free it. The standalone file
   validator keeps its public ABI and uses the same private validator.
 - Validation order and late definition-plan reading are preserved, including

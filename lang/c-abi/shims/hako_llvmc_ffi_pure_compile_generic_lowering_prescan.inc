@@ -600,12 +600,12 @@
         }
       }
 
-      read_physical_definition_plan(&definition_plan, program.entry.fn);
-      if (definition_plan.read_result < 0) {
-        if (definition_plan.same_module_overflow) {
+      read_physical_definition_plan(definition_plan, program->entry.fn);
+      if (definition_plan->read_result < 0) {
+        if (definition_plan->same_module_overflow) {
           note_pure_unsupported_shape_detail(
               -1, 0, "module_function", "same_module_function_registry_full",
-              NULL, NULL, definition_plan.same_module_overflow, NULL);
+              NULL, NULL, definition_plan->same_module_overflow, NULL);
         }
         note_pure_unsupported_shape(
             -1,
@@ -621,52 +621,52 @@
       }
       #include "hako_llvmc_ffi_pure_compile_ir_open.inc"
       emit_module_function_declarations(f);
-      if (needs.map_birth || (definition_plan.same_module_count > 0))
+      if (needs.map_birth || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
-      if (needs.map_set || (definition_plan.same_module_count > 0))
+      if (needs.map_set || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.slot_store_hih\"(i64, i64, i64)\n");
-      if (needs.map_set || (definition_plan.same_module_count > 0))
+      if (needs.map_set || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.slot_store_hhh\"(i64, i64, i64)\n");
-      if (needs.map_get || (definition_plan.same_module_count > 0))
+      if (needs.map_get || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.slot_load_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.map_get || (definition_plan.same_module_count > 0))
+      if (needs.map_get || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.map_get || (definition_plan.same_module_count > 0))
+      if (needs.map_get || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.scalar_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.map_has || (definition_plan.same_module_count > 0))
+      if (needs.map_has || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.probe_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.map_has || (definition_plan.same_module_count > 0))
+      if (needs.map_has || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.probe_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.map_delete || (definition_plan.same_module_count > 0))
+      if (needs.map_delete || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.delete_hh\"(i64, i64)\n");
-      if (needs.map_size || (definition_plan.same_module_count > 0))
+      if (needs.map_size || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.entry_count_i64\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.map_keys || (definition_plan.same_module_count > 0))
+      if (needs.map_keys || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.map.keys_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.get_hh\"(i64, i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.set_hhh\"(i64, i64, i64)\n");
-      if (needs.runtime_data_has || (definition_plan.same_module_count > 0))
+      if (needs.runtime_data_has || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.runtime_data.has_hh\"(i64, i64)\n");
       fprintf(f, "declare i64 @\"nyash.runtime_data.push_hh\"(i64, i64)\n");
-      hako_llvmc_emit_direct_exact_runtime_mode_declare(f, allocation_config.runtime_flags);
+      hako_llvmc_emit_direct_exact_runtime_mode_declare(f, allocation_config->runtime_flags);
       fprintf(f, "declare ptr @llvm.stacksave()\n");
       fprintf(f, "declare void @llvm.stackrestore(ptr)\n");
-      if (needs.arr_birth || (definition_plan.same_module_count > 0))
+      if (needs.arr_birth || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.birth_h\"()\n");
-      if (needs.arr_birth || (definition_plan.same_module_count > 0))
+      if (needs.arr_birth || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.direct_i64.birth_h\"()\n");
-      if (needs.arr_push || (definition_plan.same_module_count > 0))
+      if (needs.arr_push || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.slot_append_hh\"(i64, i64)\n");
-      if (needs.arr_len || (definition_plan.same_module_count > 0))
+      if (needs.arr_len || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.slot_len_h\"(i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_has)   fprintf(f, "declare i64 @\"nyash.array.has_hh\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.arr_set || (definition_plan.same_module_count > 0))
+      if (needs.arr_set || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.slot_store_hih\"(i64, i64, i64)\n");
-      if (needs.arr_set || (definition_plan.same_module_count > 0))
+      if (needs.arr_set || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
-      if (needs.arr_set || (definition_plan.same_module_count > 0))
+      if (needs.arr_set || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
-      if (needs.arr_set || (definition_plan.same_module_count > 0))
+      if (needs.arr_set || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.slot_insert_hih\"(i64, i64, i64)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
         fprintf(f, "declare i64 @\"nyash.array.kernel_slot_store_hi\"(i64, i64, ptr)\n");
@@ -710,12 +710,12 @@
       if (needs.arr_get || needs.arr_string_indexof || needs.string_len) fprintf(f, "declare i64 @\"nyash.array.string_len_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_get || needs.arr_string_indexof) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hih\"(i64, i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
       if (needs.arr_string_indexof_const_utf8) fprintf(f, "declare i64 @\"nyash.array.string_indexof_hisi\"(i64, i64, ptr, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if (needs.arr_slot_load || (definition_plan.same_module_count > 0))
+      if (needs.arr_slot_load || (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)%s\n", HAKO_LLVM_READONLY_ATTRS);
-      if ((definition_plan.same_module_count > 0))
+      if ((definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.array.slot_load_store_i64_hihi\"(i64, i64, i64, i64)\n");
       if (needs.typed_object ||
-          (definition_plan.same_module_count > 0) ||
+          (definition_plan->same_module_count > 0) ||
           typed_object_plan_count(root) > 0 ||
           boxed_sum_abi_plan_count() > 0) {
         fprintf(f, "declare i64 @\"nyash.object.register_typed_layout_hi\"(i64, i64)\n");
@@ -741,7 +741,7 @@
         hako_llvmc_emit_llvm_trap_declaration_once(f, &llvm_trap_decl_emitted);
       }
       #include "hako_llvmc_ffi_pure_compile_generic_declarations_emit.inc"
-      if (program.selected_dynamic) {
+      if (program->selected_dynamic) {
         hako_llvmc_c1_emit_declarations(
             f, fn_metadata, &llvm_trap_decl_emitted);
       }

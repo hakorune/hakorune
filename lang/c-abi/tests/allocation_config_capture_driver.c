@@ -34,11 +34,10 @@ int main(int argc, char** argv) {
   char* error = NULL;
   yyjson_doc* doc = hako_json_v1_read_owned_file(argv[1], &error);
   assert(doc);
-  struct NamedAllocationOutcomes outcomes;
-  named_allocation_outcomes_init(&outcomes, yyjson_doc_get_root(doc), &config);
-  int rc = compile_doc_compat_pure(doc, argv[1], argv[2], &error, &outcomes);
-  named_allocation_outcomes_destroy(&outcomes);
-  yyjson_doc_free(doc);
+  struct HakoLlvmcInvocation invocation;
+  hako_llvmc_invocation_init(&invocation, doc, config);
+  int rc = compile_doc_compat_pure(&invocation, argv[1], argv[2], &error);
+  hako_llvmc_invocation_destroy(&invocation);
   if (error) fprintf(stderr, "%s\n", error);
   free(error);
   printf("%d %d %d\n", rc, config.runtime_flags, config.exact_slot_helper);

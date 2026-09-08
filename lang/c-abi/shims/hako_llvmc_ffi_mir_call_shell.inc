@@ -194,11 +194,11 @@
           return module_leaf_symbol_was_emitted(view->target_symbol);
         }
         if (lowering_plan_global_call_view_uses_generic_i64_or_leaf_definition(view)) {
-          return physical_definition_plan_contains(&definition_plan, 0, view->target_symbol) ||
+          return physical_definition_plan_contains(definition_plan, 0, view->target_symbol) ||
                  module_leaf_symbol_was_emitted(view->target_symbol);
         }
         if (lowering_plan_global_call_view_requires_same_module_function_definition(view)) {
-          return physical_definition_plan_contains(&definition_plan, 0, view->target_symbol);
+          return physical_definition_plan_contains(definition_plan, 0, view->target_symbol);
         }
         return 0;
       }
@@ -315,7 +315,7 @@
       auto int user_box_method_definition_target_is_ready(
           const struct LoweringPlanUserBoxMethodView* view) {
         return lowering_plan_user_box_method_view_requires_same_module_function_definition(view) &&
-               physical_definition_plan_contains(&definition_plan, 0, view->target_symbol);
+               physical_definition_plan_contains(definition_plan, 0, view->target_symbol);
       }
 
       auto const char* lowering_plan_user_box_method_view_emit_trace_consumer(

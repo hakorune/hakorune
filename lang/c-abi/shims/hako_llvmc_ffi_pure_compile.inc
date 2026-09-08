@@ -175,11 +175,14 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
 
 #include "hako_llvmc_ffi_pure_unsupported_shape_diagnostic.inc"
 
+#include "hako_llvmc_ffi_invocation.inc"
+
 /* Borrowed core: json_in survives only for explicit legacy downstream routes. */
-static int compile_doc_compat_pure(yyjson_doc* document, const char* json_in,
-                                 const char* obj_out, char** err_out,
-                                 const struct NamedAllocationOutcomes* named_outcomes) {
-  const struct HakoLlvmcAllocationConfig allocation_config = *named_outcomes->config;
+static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
+                                 const char* json_in, const char* obj_out, char** err_out) {
+  yyjson_doc* document = invocation->document;
+  const struct NamedAllocationOutcomes* named_outcomes = &invocation->outcomes;
+  const struct HakoLlvmcAllocationConfig* allocation_config = &invocation->config;
   // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
   // then fall back to a few pattern lowers, and finally to AOT helper.
   yyjson_val* document_root = yyjson_doc_get_root(document);
@@ -270,11 +273,11 @@ static int compile_doc_compat_pure(yyjson_doc* document, const char* json_in,
     // Supported ops: const/compare/branch/jump/ret/phi, mir_call (Array/Map minimal, Global print)
     do {
       yyjson_val* root = document_root;
-      hako_llvmc_generic_pure_program_view program;
+      hako_llvmc_generic_pure_program_view* program = &invocation->program;
       struct HakoPtfSelectedCandidateView ptfc_candidate;
       struct HakoPtfSelectedLlvmDraft ptfc_draft;
       int ptfc_selected = 0;
-      if (!hako_llvmc_read_generic_pure_program_view(root, &program)) {
+      if (!hako_llvmc_read_generic_pure_program_view(root, program)) {
         if (hako_llvmc_route_trace_enabled()) {
           hako_llvmc_emit_route_trace(
               "generic_pure_program_view",
@@ -284,7 +287,7 @@ static int compile_doc_compat_pure(yyjson_doc* document, const char* json_in,
         }
         break;
       }
-      hako_llvmc_generic_pure_function_view* active_function = &program.entry;
+      hako_llvmc_generic_pure_function_view* active_function = &program->entry;
       yyjson_val* fn0 = active_function->fn;
       yyjson_val* fn_metadata = active_function->metadata;
       yyjson_val* ptfc_metadata = fn_metadata
@@ -297,7 +300,7 @@ static int compile_doc_compat_pure(yyjson_doc* document, const char* json_in,
       memset(&ptfc_draft, 0, sizeof(ptfc_draft));
       if (ptfb_contract_bound && ptfc_metadata) {
         if (hako_llvmc_ptfc_preflight_selected_candidate(
-                &program, &ptfc_candidate, err_out) != 0) {
+                program, &ptfc_candidate, err_out) != 0) {
           return -1;
         }
         ptfc_selected = 1;
@@ -308,12 +311,12 @@ static int compile_doc_compat_pure(yyjson_doc* document, const char* json_in,
             err_out,
             "pinned Text selected frame/carrier metadata is missing");
       }
-      if (program.selected_dynamic) {
+      if (program->selected_dynamic) {
         /* The selected helper's function name is canonical; never emit a launch alias. */
         selection.symbol = NULL;
       }
       if (!hako_llvmc_c1_prepare_predecessor_projection_v1(
-              fn0, fn_metadata, program.selected_dynamic,
+              fn0, fn_metadata, program->selected_dynamic,
               &c1_predecessor_projection)) {
         return set_err_owned(
             err_out,
@@ -403,15 +406,6 @@ static int compile_doc_compat_pure(yyjson_doc* document, const char* json_in,
       auto struct BlockPhi* ensure_phi_block(long long bid){ for (int i=0;i<phi_n;i++){ if (phis[i].bid==bid) return &phis[i]; } if (phi_n<ARR_LEN(phis)){ phis[phi_n].bid=bid; phis[phi_n].rec_n=0; return &phis[phi_n++]; } note_generic_capacity_overflow("generic_phi_block_inventory_full"); return NULL; }
       auto long long read_int(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? (long long)yyjson_get_sint(v) : 0; }
       auto const char* read_str(yyjson_val* obj, const char* key){ yyjson_val* v= yyjson_obj_get(obj,key); return v? yyjson_get_str(v) : NULL; }
-      auto int llvm_quoted_symbol_name_is_safe(const char* name) {
-        const unsigned char* p = (const unsigned char*)name;
-        if (!name || !name[0]) return 0;
-        while (*p) {
-          if (*p < 0x20 || *p == '"' || *p == '\\') return 0;
-          p++;
-        }
-        return 1;
-      }
       auto size_t generic_pure_function_param_count(yyjson_val* fn) {
         yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
         return (params && yyjson_is_arr(params)) ? yyjson_arr_size(params) : 0;
@@ -471,8 +465,7 @@ static int compile_doc_compat_pure(yyjson_doc* document, const char* json_in,
       #include "hako_llvmc_ffi_extern_call_route_registry.inc"
       #include "hako_llvmc_ffi_constructor_call_route_metadata.inc"
       #include "hako_llvmc_ffi_generic_method_result_metadata.inc"
-      #include "hako_llvmc_ffi_physical_definition_plan.inc"
-      struct PhysicalDefinitionPlan definition_plan = {0};
+      struct PhysicalDefinitionPlan* definition_plan = &invocation->definitions;
       #include "hako_llvmc_ffi_module_leaf_function_emit.inc"
       #include "hako_llvmc_ffi_same_module_function_plan.inc"
       auto void emit_module_function_declarations(FILE* f) {
@@ -555,12 +548,10 @@ static int compile_doc_compat_pure(yyjson_doc* document, const char* json_in,
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out) {
   yyjson_doc* document = hako_json_v1_read_owned_file(json_in, err_out);
   if (!document) return -1;
-  const struct HakoLlvmcAllocationConfig config = hako_llvmc_capture_allocation_config();
-  struct NamedAllocationOutcomes outcomes;
-  named_allocation_outcomes_init(&outcomes, yyjson_doc_get_root(document), &config);
-  int rc = compile_doc_compat_pure(document, json_in, obj_out, err_out, &outcomes);
-  named_allocation_outcomes_destroy(&outcomes);
-  yyjson_doc_free(document);
+  struct HakoLlvmcInvocation invocation;
+  hako_llvmc_invocation_init(&invocation, document, hako_llvmc_capture_allocation_config());
+  int rc = compile_doc_compat_pure(&invocation, json_in, obj_out, err_out);
+  hako_llvmc_invocation_destroy(&invocation);
   return rc;
 }
 

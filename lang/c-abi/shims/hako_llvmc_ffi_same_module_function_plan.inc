@@ -66,8 +66,8 @@
           const char* name,
           size_t* out_index) {
         if (!name) return NULL;
-        for (size_t fi = 0; fi < program.function_count; fi++) {
-          yyjson_val* fn = yyjson_arr_get(program.functions, fi);
+        for (size_t fi = 0; fi < program->function_count; fi++) {
+          yyjson_val* fn = yyjson_arr_get(program->functions, fi);
           const char* fn_name = fn ? read_str(fn, "name") : NULL;
           if (fn_name && !strcmp(fn_name, name)) {
             if (out_index) *out_index = fi;

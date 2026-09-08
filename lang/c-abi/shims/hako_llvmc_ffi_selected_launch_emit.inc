@@ -6,9 +6,9 @@
  * emit the runtime's canonical `ny_main` symbol.  No selected metadata is
  * copied, no stub is invented, and no launch arguments are synthesized.
  */
-if (program.selected_dynamic) {
+if (program->selected_dynamic) {
   struct SameModuleFunctionContextSnapshot* launch_snapshot;
-  hako_llvmc_generic_pure_function_view launch_function = program.launch;
+  hako_llvmc_generic_pure_function_view launch_function = program->launch;
   int launch_rc;
 
   if (!(launch_function.fn && launch_function.blocks)) {

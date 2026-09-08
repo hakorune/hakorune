@@ -1,20 +1,13 @@
-/* Exercise the private plan storage and reader. Names in this test are safe;
- * symbol syntax validation is an unchanged dependency, not tested here. */
+/* Exercise the shared private plan storage, reader and symbol predicate. */
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "yyjson.h"
 #define ARR_LEN(a) (sizeof(a) / sizeof((a)[0]))
 
-int main(void) {
-  auto const char* read_str(yyjson_val* value, const char* key) {
-    return yyjson_get_str(yyjson_obj_get(value, key));
-  }
-  auto int llvm_quoted_symbol_name_is_safe(const char* name) {
-    assert(name && !strchr(name, '"') && !strchr(name, '\n'));
-    return 1;
-  }
 #include "../shims/hako_llvmc_ffi_physical_definition_plan.inc"
+
+int main(void) {
   struct PhysicalDefinitionPlan plan = {0};
   auto int read(const char* json) {
     yyjson_doc* doc = yyjson_read(json, strlen(json), 0);

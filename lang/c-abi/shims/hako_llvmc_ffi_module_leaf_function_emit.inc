@@ -206,7 +206,7 @@
         size_t inst_count = 0;
         int emitted_ret = 0;
         if (!module_function_is_numeric_i64_leaf(fn) ||
-            !physical_definition_plan_contains(&definition_plan, 1, name) ||
+            !physical_definition_plan_contains(definition_plan, 1, name) ||
             module_leaf_symbol_was_emitted(name)) {
           return 0;
         }
@@ -313,8 +313,8 @@
       }
       auto int emit_module_function_leaf_definitions(FILE* f) {
         int emitted = 0;
-        for (size_t i = 0; i < program.function_count; i++) {
-          yyjson_val* fn = yyjson_arr_get(program.functions, i);
+        for (size_t i = 0; i < program->function_count; i++) {
+          yyjson_val* fn = yyjson_arr_get(program->functions, i);
           if (!fn || fn == fn0) continue;
           int rc = emit_numeric_i64_leaf_function_definition(f, fn);
           if (rc < 0) return -1;

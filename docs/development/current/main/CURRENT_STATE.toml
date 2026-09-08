@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "MAP-LITERAL-COMPILER-CUTOVER-I0 invocation/session binding"
-current_blocker_token = "Private retained Named outcomes are implemented and verified. Next: read-only invocation/session premise audit across existing program/definition owners, conditional walker selection, host/frame consumer and lifetime. Accept one bounded slice; no query-only sibling, optimizer coverage inference or Map source switch."
+current_design_stop = "MAP-LITERAL-COMPILER-CUTOVER-I0 query-to-frame binding"
+current_blocker_token = "Private invocation consolidation is implemented and verified. Next: query-to-frame binding design for readiness/unique wire coordinates and actual MIR demand/domain/original-lane consumer. Preserve ordered compile diagnostics; no query-only sibling, optimizer coverage inference or Map source switch."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,8 +32,8 @@ latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
 Conditional representation is separated from execution coverage.
-Retained Named outcomes are implemented; both emitters use immutable lookup.
-Next is invocation/session binding design; full session/Map cutover remains open.
+Private invocation owns existing document/config/outcomes/program/definition products.
+Next is query-to-frame binding design; full session/Map cutover remains open.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card = "none"
