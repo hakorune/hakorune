@@ -69,6 +69,15 @@ def run_original_cases(compile_case, witness, const, root, kernel, env, no_core)
             bad = copy.deepcopy(frame); bad['calls'].pop()
             compile_case(f'original-{nested}-missing-call-{call_kind}', body, bad, 'value-action')
 
+            # Preserve source order and a Copy alias through the shared caller.
+            fn['blocks'][0]['instructions'][2:2] = [const(5, 50), const(6, 20), dict(op='copy', dst=7, src=5)]
+            call['mir_call']['args'] = [7, 6]
+            frame['calls'][-1].update(instruction=5, arity=2)
+            frame['maps'][-1]['instruction'] += 3
+            body['functions'][-1].update(params=[10, 11], blocks=[dict(id=0, instructions=[
+                dict(op='binop', dst=12, lhs=10, rhs=11, operation='-'), dict(op='ret', value=12)])])
+            execute(f'original-{nested}-call-{call_kind}-ordered-arguments', body, frame, 1)
+
         for runtime in (False, True):
             for mode in ('tag', 'i64', 'bool', 'string', 'unit'):
                 storage = 'handle' if mode == 'string' else 'i64'

@@ -29,23 +29,7 @@
           if (typed_shape_rc > 0 &&
               (typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
                typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION)) {
-            uint32_t typed_arity = typed_row->arity;
-            const char* typed_symbol = typed_row->target_symbol;
-            {
-              char typed_args[1024];
-              typed_args[0] = '\0';
-              for (size_t ai = 0; ai < (size_t)typed_arity; ai++) {
-                long long arg_reg = 0;
-                same_module_function_read_arg_reg(args, ai, &arg_reg);
-                append_i64_arg_ref(
-                    typed_args,
-                    sizeof(typed_args),
-                    arg_reg,
-                    typed_args[0] == '\0');
-              }
-              same_module_function_emit_i64_call(dst, typed_symbol, typed_args);
-              return static_v2_consume_original(ins) ? 1 : -1;
-            }
+            return emit_published_i64_call(ins, typed_row, args, dst);
           }
         }
         rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);

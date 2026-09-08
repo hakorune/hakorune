@@ -1562,6 +1562,59 @@ retired with all selected host callers at cutover; do not leave a Map v2 route
 beside an independently selected static v1 route or add a fallback adapter.
 Lifecycle V4 and explicit generic compatibility remain separate existing owners.
 
+### Formal / expanded consumer implementation boundary
+
+Decision: one invocation index binds expanded definitions and exact incoming calls;
+its ordered body params plus Formal rows select both signature and actual lanes.
+Source authority + canonical issuer: existing published call/definition relations
+and Rust MapBodyIndex demand closure; no new source or semantic issuer.
+Non-authority: C names identify physical targets only; prepass, JSON callee names,
+first caller and transport observations cannot select a formal's value kind.
+Fail-fast boundary: malformed/incomplete correspondence, old-ABI ingress, internal
+symbol intrusion or missing original representation rejects before publication.
+Smallest next slice: consolidate exact Static/Free output in both walkers, then
+connect the shared expanded index to admission, closure, signature and call output.
+Non-claims: public V2/source cutover, object escape and original PHI normalization
+remain separate open acceptance requirements.
+
+Read-only audit at f242a2320a fixed the physical insertion points and task order:
+
+1. `mir_call_dispatch.inc::emit_published_i64_call` becomes the single selected
+   Static/Free argument/output/consumption owner for both walkers. Preserve the
+   existing original-i64 behavior during this consolidation.
+2. Extend `HakoStaticV2Index`, not a sibling signature/operand table. Bind Formal
+   by exact body param ordinal; bind each incoming actual through its selected
+   call site. Closure follows these cross-function edges for reachability,
+   original demand and whole domains, including recursive components. Formal
+   has no literal domain seed. Body coverage exempts only those actual lanes
+   whose exact demanded Formal has original-required clear.
+3. The existing same-module signature/prepass emits internal targets, two Map
+   lanes and only demanded original lanes. Record Formal consumption on actual
+   entry emission. Exclude expanded identities before numeric-leaf eligibility;
+   enumerate expanded leaf-only members from the existing plan's leaf/same-module
+   union without rewriting plan intent. Keep emitted progress at logical identity.
+4. Both typed callers use the same index and original Call.args; results keep the
+   existing i64 contract. Reject expansion of the entry selected by program owner.
+   Check actual first-match lowering_plan physical targets (global/user-box
+   target_symbol, extern symbol and generic-method runtime symbol), not arbitrary
+   JSON strings/source_symbol. Only a valid exact typed row at that same site may
+   shadow old ingress; it must actually select the new call. Preserve metadata
+   validation/prescan and the existing no-op forward declaration policy.
+
+Acceptance includes both walkers, ordered/aliased actuals, leaf-only definitions,
+recursive forwarding, multiple callers with different kinds, flags0 Float,
+flags1 original use, valid/forged typed shadow, nonshadow old ingress, internal
+symbol collisions/intrusion and root Formal refusal with previous artifact intact.
+Do not close this row with signature output alone: old signature, numeric-leaf
+re-entry, independent old argument loops and unconditional param-i64 handling
+must disappear for expanded definitions together.
+
+Consolidation verification: Original67 passes, including four Static/Free,
+generic/same-module ordered-argument and Copy-alias kernel readbacks. C build,
+corridor/pointer guards pass; Named60/definition22 remain parent-identical.
+Two independent selected argument/output loops are replaced by one helper;
+Formal/expanded admission and execution are not yet implemented.
+
 ### Projection preservation and runtime-first task order
 
 Premise correction: requiring every non-Map consumer to gain tagged semantics

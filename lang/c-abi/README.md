@@ -200,7 +200,9 @@ preserves existing i1 producers. String concat uses proved payloads directly.
 Operation input closure checks demanded rows against the retained body. Direct
 array/typed-store tokens cannot escape as host handles; boxed Make/general handle
 escape, selected boxed Unit comparison, Formal and expanded functions
-remain explicit unsupported. Public V2 and the host/source cutover stay closed.
+remain explicit unsupported. Public V2 and the host/source cutover stay closed. Both typed Static/Free
+callers share `emit_published_i64_call` for argument output and result consumption;
+the expanded-function index will extend that owner and the existing signature owner.
 
 Copy/NamedAlias forward both Map lanes through the shared formatter. Map-only
 transfers omit the old producer; original-required transfers retain it and consume

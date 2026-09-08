@@ -10,6 +10,30 @@
         return 1;
       }
 
+      /* Both walkers consume the same exact selected call. Physical argument
+       * projection belongs here; dispatch only selects the published row. */
+      auto int emit_published_i64_call(
+          yyjson_val* ins,
+          const hako_llvmc_published_static_method_call_v1* row,
+          yyjson_val* args,
+          long long dst) {
+        char physical_args[1024];
+        physical_args[0] = '\0';
+        for (size_t ai = 0; ai < (size_t)row->arity; ai++) {
+          long long arg_reg = 0;
+          hako_llvmc_mir_call_arg_reg_at(args, ai, &arg_reg);
+          append_i64_arg_ref(physical_args, sizeof(physical_args), arg_reg,
+                             physical_args[0] == '\0');
+        }
+        if (dst) {
+          EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n", dst, row->target_symbol, physical_args);
+          set_type(dst, T_I64);
+        } else {
+          EMIT("  call i64 @\"%s\"(%s)\n", row->target_symbol, physical_args);
+        }
+        return static_v2_consume_original(ins) ? 1 : -1;
+      }
+
       auto void hako_llvmc_normalize_generic_method_logical_args(
           yyjson_val* entry,
           yyjson_val* args,
@@ -195,8 +219,6 @@
           if (typed_shape_rc > 0 &&
               (typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
                typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION)) {
-            uint32_t typed_arity = typed_row->arity;
-            const char* typed_symbol = typed_row->target_symbol;
             hako_llvmc_emit_route_trace(
                 "published_call", "consume",
                 typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION
@@ -205,27 +227,7 @@
                 typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION
                     ? "kind=3"
                     : "kind=1");
-            char typed_args[1024];
-            typed_args[0] = '\0';
-            for (size_t ai = 0; ai < (size_t)typed_arity; ai++) {
-              long long arg_reg = 0;
-              hako_llvmc_mir_call_arg_reg_at(args, ai, &arg_reg);
-              append_i64_arg_ref(
-                  typed_args,
-                  sizeof(typed_args),
-                  arg_reg,
-                  typed_args[0] == '\0');
-            }
-            if (dst) {
-              EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n",
-                   dst,
-                   typed_symbol,
-                   typed_args);
-              set_type(dst, T_I64);
-            } else {
-              EMIT("  call i64 @\"%s\"(%s)\n", typed_symbol, typed_args);
-            }
-            return static_v2_consume_original(yyjson_arr_get(insts, ii)) ? 1 : -1;
+            return emit_published_i64_call(yyjson_arr_get(insts, ii), typed_row, args, dst);
           }
         }
         if (hako_llvmc_route_trace_enabled() && generic_call_trace_budget > 0) {
