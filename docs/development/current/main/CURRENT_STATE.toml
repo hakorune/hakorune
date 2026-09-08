@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Callable lowering loan now preserves same-row body shape; batch29/package119/Completion33 and low-level absent-shape1 pass. Next connect retained New construction/end evidence and exact Map entries to source install/Fault successors and existing Completion/physical end consumers. NewSite-to-Binding alone lacks obligation evidence; terminal binding lists alone lack pre/postcommit Fault state. Read/observer migration gates owned-slot intake, not source/physical development. Intake and public cutover remain disabled."
+current_blocker_token = "Accepted candidate-descriptor ownership step: resolve existing New construction/destruction/Birth products in candidate source order before the source walk; field callback borrows the same candidate, removing repeated construction lookup. Preserve unavailable descriptors and move claims/handoffs once. Multi-error rejection priority may change; no supported admission widening. Completion must later retain exact Map phase successors, not only terminal bindings. Map transfer/intake/public cutover remain closed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -49,8 +49,8 @@ co-seal is the next design, with wider destination/runtime obligations still ope
 Native Map insertion now drops replaced values outside its lock; owned-slot
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
-next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

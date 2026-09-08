@@ -1387,9 +1387,12 @@ native Box out of the lock before Drop. It removes a real lock-held teardown
 edge without accepting owned residence; reentrant teardown must see the committed
 replacement once. Remove/clear and source finalization are not covered by it.
 
-Completion/root cleanup reuses the existing ordered binding list and suffix
-builder, selecting ordinary-object versus intrinsic-Map end at the existing
-progress owner. Install Normal and detached-old cleanup are distinct operations;
+Completion cleanup retains one source flow result with terminal order and exact
+Map operation successors; its existing binding-list API is only a projection.
+The [Map destination task](../investigations/hakorune-home-ownership-task-2026-08-04.md#map-slot-dependency-of-the-selected-compiler-cutover)
+owns the finite operation mapping and candidate-descriptor implementation order.
+Root cleanup reuses the suffix builder, selecting ordinary-object versus
+intrinsic-Map end at the existing progress owner. Install Normal and detached-old cleanup are distinct operations;
 source transfer is never reconstructed from physical progress. End-to-end
 acceptance includes native end once, no old-local double end, duplicate-key
 replacement, pre/postcommit Fault, Map/root cleanup, drift and profile/thread

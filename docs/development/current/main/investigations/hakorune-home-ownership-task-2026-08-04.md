@@ -447,11 +447,61 @@ postcommit Fault cleanup; do not remove the old local from every successor.
 
 **Completion and physical consumer Decision**
 
-`ResolvedCleanupObligationsV1::terminal_homes` can remain the ordered root
-binding list: transferred children leave that successor's list, and the Map
-binding remains. Do not delete the original `local_commits` acquisition/Birth
+`ResolvedCleanupObligationsV1` owns one source flow result containing terminal
+order and exact Map operation successors. `function_control_new_homes` currently
+attaches only `explicit_empty().with_terminal_homes(homes)`; replace that lossy
+attachment, not the Completion owner. `terminal_homes()` may remain a projection
+of this result, with no second stored terminal list. Transferred children leave
+the committed successor's list and the Map binding remains. Do not delete the
+original `local_commits` acquisition/Birth
 validation evidence. Do not flatten Map children back into ordinary local end
 rows. Map runtime entry order and root lexical order are different authorities.
+
+The source walk issues the following finite operation mapping, with exact Map
+site, EntryValue where applicable, and source scope/outward target. No physical
+block identity or phase number supplies meaning:
+
+| Source operation | Normal responsibility | Fault responsibility |
+| --- | --- | --- |
+| Map allocation | Empty construction Map acquired | Outer locals; no Map acquired |
+| Key/child evaluation and install before commit | Candidate retains its exact prior owner until install | Acquired active evaluation, construction Map, outer locals; never clean an unacquired child |
+| Entry install | Candidate transferred once; detached old value separate | Uncommitted candidate remains with prior owner |
+| Detached old end | Committed Map, next entry | Same committed Map; old end attempt consumed; no candidate revival |
+| Construction completion | Same Map obligation reaches destination | Cleanup follows the actual preceding fallible operation |
+| Root terminal | Remaining locals and each Map's own live-slot end plan | Existing first-Fault/best-effort suffix |
+
+`NewFaultContinuationV1` must retain its direct-local-New membership check.
+Map control issuance reuses exact scope/target validation in the control owner,
+with Map membership established from the same body shape. The source flow and
+these control relations attach once; package co-seals existing descriptors,
+and root progress consumes the selected end operation. Neither a Map-only
+sibling receipt nor a binding-list diff is an implementation of this mapping.
+
+**Accepted first implementation: candidate descriptor ownership**
+
+Change: in `ordinary_new_coseal`, replace the existing candidate tuple with a
+private candidate that owns existing construction/destruction/Birth descriptors
+before the source walk. It issues no availability or Map compatibility. The
+existing field callback borrows that candidate; delete its repeated
+`construction_for` lookup and tuple reclassification. Final claims and Birth
+handoffs receive the same products by move, once, after the source scan.
+
+Validation order becomes candidate source order. Supported success remains
+unchanged; multiple-invalid-candidate rejection priority is not claimed
+byte-for-byte stable. Previously a field callback could report
+`ConstructorLookup(ParentSourceMismatch)` before the general
+`ConstructorRelationMismatch`, or inspect a later candidate before an earlier
+Birth error. Do not preserve this duplication as a second validation authority.
+
+Keep `ConstructionEligibilityV1::Err` and destruction `Unavailable` as retained
+descriptors, distinct from failed lookup. Preserve overrides, builtin exclusion,
+selected membership, no-Birth arity, and Birth target/completion/effect checks.
+No candidate is inserted into the physical claim ledger before final co-seal.
+Reuse existing ordinary-New/field/constructor rejection tests and add only
+missing descriptor-retention/order evidence. Update module README in the same
+change; no language meaning or public ABI changes. Source files remain below800.
+This deletes a real repeated source lookup, but does not close Map transfer,
+phase emission, runtime intake or the full source/host cutover.
 
 Reuse `ordinary_new_admission/selected.rs::emit_root_home_exit_payload` for
 first-Fault/best-effort suffixes. Its current origins and validators force every
