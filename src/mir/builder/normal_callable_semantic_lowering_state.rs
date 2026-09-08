@@ -31,6 +31,9 @@ mod fault;
 ///
 /// Semantic identity remains owned by `VerifiedResolvedFunctionV1`; this state
 /// only projects that identity onto the `ValueId`s allocated by existing Lower.
+#[path = "normal_callable_semantic_lowering_state/map_local.rs"]
+mod map_local;
+
 #[derive(Debug)]
 pub(super) struct CallableSemanticLoweringState {
     fault_frame: Option<crate::mir::builder::function_fault_frame::FunctionFaultFrameV1>,
@@ -39,6 +42,8 @@ pub(super) struct CallableSemanticLoweringState {
     receiver: Option<BindingRefV1>,
     parameters: Box<[BindingRefV1]>,
     locals: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
+    initializers: BTreeMap<crate::mir::resolved_semantics::SourceBindingSiteV1,
+        crate::mir::resolved_semantics::ResolvedInitializerRelationV1>,
     variables: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     assignments: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     explicit_extern_calls: BTreeMap<SourceNodeSiteV1, Box<str>>,
@@ -214,7 +219,9 @@ impl CallableSemanticLoweringState {
             }
         }
 
+        let initializers = map_local::retain_initializers(input, &locals)?;
         Ok(Self {
+            initializers,
             owner: owner_id,
             receiver,
             parameters,

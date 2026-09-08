@@ -294,8 +294,17 @@ Claim preflight, prior-New cleanup preparation and root exit share the same
 installed-Home lookup, with missing and duplicate bindings rejected. The ledger
 supplies the physical end operation directly; Builder no longer reconstructs it
 from an object/value tuple. Root origins keep binding/exit plus that operation,
-and validation compares it to the emitted Invoke. Map progress is not issued by
-this ordinary-Home consolidation; the common Map install Stop remains required.
+and validation compares it to the emitted Invoke.
+The same table uses private LocalCommitV1::Ordinary / Map entries. Map progress
+retains one opaque result through ExpressionCompleted, Installed and Checked;
+Completion alone owns its source order and transfers. Callable local placement
+borrows retained initializer and lexical Variable relations to reuse that result,
+including unused alias chains. The shared Local driver preflights every placement
+before destination registration; ordinary and Array paths retain default Copy.
+Map-specific operations remain concrete; common local installation and Home lookup
+do not require a second collection ledger. A future collection shares a state
+machine only after its ownership and failure contract is shown to match.
+The common Map install Stop remains until C and source artifact cutover.
 Ordered scalar actual rows retain consumed identity and emitted ValueId; finishing
 checks cardinality/order, literal Integer/Bool definitions and Birth argument
 order. A trivial local is checked at exact binding consumption. This snapshot
@@ -378,7 +387,8 @@ frame, Normal/Fault successors, Return/ReturnFault, prefix and ingress stay exac
 Diagnostic/artifact finishing share the check and temporary mapped bindings before
 FinishingChecked. N source-bound origins require the existing emitter's N clean
 releases plus N-1 pending-Fault releases. No source obligation or optimizer skip
-is added. This does not yet admit Map end operations or Map failure suffixes.
+is added. Map End is represented in recorded root cleanup; optimized Map failure
+suffixes and compiled-entry consumption remain cutover obligations.
 
 Birth capture moves construction state/Fault frame through payload session and
 exact collector draft. Source scope becomes Transferred, not absent; second take

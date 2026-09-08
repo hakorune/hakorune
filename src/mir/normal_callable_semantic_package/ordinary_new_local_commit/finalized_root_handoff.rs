@@ -73,11 +73,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_commits
             .borrow()
             .iter()
-            .filter(|(_, row)| row.binding.owner() == owner)
+            .filter(|(_, row)| row.binding().owner() == owner)
         {
             if !row.is_complete() {
                 return Err(freeze("artifact-local-commit-incomplete"));
             }
+            let Some(row) = row.ordinary() else { continue; };
             let Some(key) = &row.birth_target else {
                 if row.birth_abi.is_some() {
                     return Err(freeze("artifact-birth-abi-without-target"));

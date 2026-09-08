@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Map physical binding/local placement Decision closed by read-only worker audit. Next connect actual Map emitter + LocalCommit enum progress + existing initializer relations and shared Local Copy/ReuseInitializer selection together. Preserve exact unused-alias binding chain, Installed-before-Checked and batch preflight; no new Map registry/trait or path-derived declaration. Mixed cleanup/C and source OBJ/EXE cutover remain open; install Stop stays."
+current_blocker_token = "Map emitter, common LocalCommit progress and exact Copy/ReuseInitializer placement connected below install Stop. Same-source empty/populated/unused-alias/later-New MIR dependency cases pass strict verification and original root validation, including result-drift rejection. Next close placement rejection/batch matrix, mixed cleanup finishing/compiled-entry coordinates and shared terminal dispatch; then C and source OBJ/EXE cutover. No production install or R7 completion claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

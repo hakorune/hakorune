@@ -140,7 +140,7 @@ pub(crate) enum OrdinaryNewClaimTakeErrorV1 {
 pub(crate) struct OrdinaryNewClaimLedgerV1 {
     claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>>,
     ordinary_box_names: Box<[Box<str>]>,
-    local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::NewLocalCommitV1>>,
+    local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::LocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
     root_exit: RefCell<local_commit::RootHomeExitProgress>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
@@ -255,7 +255,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         commits.insert(
             site.clone(),
-            local_commit::NewLocalCommitV1::pending(
+            local_commit::LocalCommitV1::Ordinary(local_commit::NewLocalCommitV1::pending(
                 claim.destination,
                 claim.declaration.clone(),
                 claim.home_prefix.clone(),
@@ -266,7 +266,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 birth_target,
                 birth_abi,
                 claim.argument_rows.clone(),
-            ),
+            )),
         );
         Ok(Some(
             claims

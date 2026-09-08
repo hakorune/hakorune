@@ -144,7 +144,16 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let rows = self.local_commits.borrow();
         let mut expected = Vec::new();
-        for row in rows.values().filter(|row| row.binding.owner() == owner) {
+        for row in rows.values().filter(|row| row.binding().owner() == owner) {
+            if let LocalCommitV1::Map(row) = row {
+                for (block, instruction) in row.checked_bindings()? {
+                    if instruction.requires_lifecycle_validation() && !expected.contains(&(*block, instruction)) {
+                        expected.push((*block, instruction));
+                    }
+                }
+                continue;
+            }
+            let row = row.ordinary().expect("ordinary branch");
             let NewEmissionProgress::Emitted {
                 bindings,
                 progress: EmittedLocalProgress::Checked { .. },

@@ -73,6 +73,9 @@ pub(in crate::mir::builder) fn preflight_exact_numeric_local_initializers(
     Ok(())
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum LocalValuePlacement { Copy, ReuseInitializer }
+
 /// Build local variable declaration from already-evaluated initializer values.
 ///
 /// This is the shared shell used by ordinary lowering and fastmem lowering.
@@ -120,6 +123,7 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
         declared_type_names,
         preclaimed_arrays,
         None,
+        &[],
     )
 }
 
@@ -135,7 +139,21 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
         )>,
     >,
     mut receipt_values: Option<&mut Vec<ValueId>>,
+    placements: &[LocalValuePlacement],
 ) -> Result<ValueId, String> {
+    if !placements.is_empty() && placements.len() != variables.len() {
+        return Err("[freeze:contract][local-placement/count]".into());
+    }
+    for (index, placement) in placements.iter().enumerate() {
+        if *placement == LocalValuePlacement::ReuseInitializer {
+            let annotation = declared_type_names.get(index).and_then(|name| name.as_deref());
+            if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(annotation)
+                || annotation.map(crate::typed_array_contract_spec::parse_annotation).transpose()?.flatten().is_some()
+                || initial_values.get(index).is_none() {
+                return Err("[freeze:contract][local-placement/opaque-contract]".into());
+            }
+        }
+    }
     let mut last_value = None;
     for (index, var_name) in variables.iter().enumerate() {
         let Some(init_val) = initial_values.get(index).copied() else {
@@ -145,7 +163,8 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
             ));
         };
 
-        let var_id = builder.next_value_id();
+        let reuse = placements.get(index) == Some(&LocalValuePlacement::ReuseInitializer);
+        let var_id = if reuse { init_val } else { builder.next_value_id() };
 
         if crate::config::env::builder_loopform_debug() {
             crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(
@@ -168,7 +187,9 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
             .transpose()?
             .flatten()
             .is_some();
-        if exact_contract {
+        if reuse {
+            // The exact caller supplied physical identity; no Copy or contract write.
+        } else if exact_contract {
             let function = builder
                 .function_state
                 .current_function
@@ -285,6 +306,7 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
         )>,
     >,
     receipt_values: &mut Vec<ValueId>,
+    placements: &[LocalValuePlacement],
 ) -> Result<ValueId, String> {
     build_local_statement_from_values_with_types_and_preclaims_with_receipt(
         builder,
@@ -293,6 +315,7 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
         declared_type_names,
         preclaimed_arrays,
         Some(receipt_values),
+        placements,
     )
 }
 
@@ -353,6 +376,7 @@ pub(in crate::mir::builder) fn build_outbox_statement_with_receipt_v1(
         Vec::new(),
         Vec::new(),
         Some(&mut binding_values),
+        &[],
     )?;
 
     if let Some(function) = builder.function_state.current_function.as_mut() {

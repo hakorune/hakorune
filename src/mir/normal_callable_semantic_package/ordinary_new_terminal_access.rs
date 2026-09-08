@@ -5,6 +5,7 @@ use crate::mir::resolved_semantics::SourceNodeSiteV1;
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn is_empty(&self) -> bool {
         self.claims.borrow().is_empty()
+            && self.map_demands_consumed()
             && self
                 .local_commits
                 .borrow()

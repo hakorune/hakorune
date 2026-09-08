@@ -65,7 +65,7 @@ mod local_flow;
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_map_flow.rs"]
 mod map_flow;
-pub(crate) use map_flow::RootHomeFlow;
+pub(crate) use map_flow::{RootHomeFlow, MapHomeFlow, MapHomeEntry};
 
 pub(crate) fn issue_new_home_prefixes_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,

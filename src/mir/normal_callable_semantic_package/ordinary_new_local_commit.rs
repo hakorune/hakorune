@@ -100,6 +100,14 @@ pub(super) struct NewLocalCommitV1 {
     emission: NewEmissionProgress,
 }
 
+#[path = "ordinary_new_local_commit/map.rs"]
+mod map;
+use map::MapLocalProgress;
+
+#[path = "ordinary_new_local_commit/local_entry.rs"]
+mod local_entry;
+pub(super) use local_entry::LocalCommitV1;
+
 /// Exact source relation retained after its matching physical root passed
 /// final validation. This is transport only: it cannot select an entry ABI or
 /// recreate source membership from a physical key.
@@ -232,9 +240,9 @@ pub(super) enum HomeLookupError {
 }
 
 pub(super) fn installed_home(
-    rows: &std::collections::BTreeMap<OwnedExprSiteV1, NewLocalCommitV1>,
+    rows: &std::collections::BTreeMap<OwnedExprSiteV1, LocalCommitV1>,
     binding: BindingRefV1,
-) -> Result<&NewLocalCommitV1, HomeLookupError> {
+) -> Result<&LocalCommitV1, HomeLookupError> {
     let mut candidates = rows.values().filter(|row| row.installs(binding));
     let row = candidates.next().ok_or(HomeLookupError::Missing)?;
     if candidates.next().is_some() {
@@ -278,7 +286,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let rows = self.local_commits.borrow();
         let mut selected = rows
             .values()
-            .filter(|row| row.binding.owner() == owner)
+            .filter(|row| row.binding().owner() == owner)
             .peekable();
         if selected.peek().is_none() {
             return NoSelectedLocalNew;
@@ -292,10 +300,8 @@ impl OrdinaryNewClaimLedgerV1 {
             return Unavailable(TerminalHomesUnavailable);
         }
         if selected.any(|row| {
-            matches!(
-                row.emission,
-                NewEmissionProgress::RetainedUnavailable { .. }
-            )
+            row.ordinary().is_some_and(|row| matches!(row.emission,
+                NewEmissionProgress::RetainedUnavailable { .. }))
         }) {
             return Unavailable(NewEmissionUnavailable);
         }
@@ -324,7 +330,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
-            .get(claim.site())
+            .get(claim.site()).and_then(LocalCommitV1::ordinary)
             .ok_or_else(|| freeze("prepare-without-take"))?;
         if !matches!(row.emission, NewEmissionProgress::Unprepared)
             || row.object != claim.object()
@@ -367,13 +373,12 @@ impl OrdinaryNewClaimLedgerV1 {
                         HomeLookupError::Missing => freeze("prior-home-not-installed"),
                         HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
                     })?;
-                    available &=
-                        prior.destruction == super::ObjectDestructionDispositionV1::PlainI64NoHook;
+                    available &= prior.end_available();
                     operands.push(prior.end_operation());
                 }
             }
         }
-        rows.get_mut(claim.site()).expect("checked row").emission = if available {
+        rows.get_mut(claim.site()).and_then(LocalCommitV1::ordinary_mut).expect("checked ordinary row").emission = if available {
             NewEmissionProgress::Prepared { operands, reclaim }
         } else {
             NewEmissionProgress::RetainedUnavailable {
@@ -389,7 +394,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(Vec<InvokeOperation>, Option<ReclaimUnpublishedOriginV1>), String> {
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
-            .get_mut(site)
+            .get_mut(site).and_then(LocalCommitV1::ordinary_mut)
             .ok_or_else(|| freeze("emit-without-take"))?;
         if !matches!(row.emission, NewEmissionProgress::Prepared { .. }) {
             return Err(freeze("emit-without-prepare-or-duplicate"));
@@ -414,7 +419,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
-            .get_mut(site)
+            .get_mut(site).and_then(LocalCommitV1::ordinary_mut)
             .ok_or_else(|| freeze("record-without-take"))?;
         if !matches!(row.emission, NewEmissionProgress::Emitting) || bindings.is_empty() {
             return Err(freeze("record-without-emission-or-duplicate"));
@@ -458,9 +463,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_commits
             .borrow_mut()
             .values_mut()
-            .filter(|row| row.binding.owner() == owner)
+            .filter(|row| row.binding().owner() == owner)
         {
-            row.emission.mark_checked();
+            match row {
+                LocalCommitV1::Ordinary(row) => row.emission.mark_checked(),
+                LocalCommitV1::Map(row) => row.mark_checked(),
+            }
         }
         Ok(())
     }
@@ -481,7 +489,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
-            .get_mut(site)
+            .get_mut(site).and_then(LocalCommitV1::ordinary_mut)
             .ok_or_else(|| freeze("expression-without-target-take"))?;
         if row.box_source.name() != class {
             return Err(freeze("expression-parent-mismatch"));
@@ -518,17 +526,19 @@ impl OrdinaryNewClaimLedgerV1 {
             .iter()
             .filter(|(_, row)| row.at_statement(owner, statement))
         {
-            let SourceBindingSiteV1::Local { ordinal, .. } = &row.declaration else {
+            let SourceBindingSiteV1::Local { ordinal, .. } = row.declaration() else {
                 unreachable!("at_statement requires Local");
             };
             let (_, _, initializer, local) = completed
                 .iter()
-                .find(|(binding, index, _, _)| *binding == row.binding && index == ordinal)
+                .find(|(binding, index, _, _)| *binding == row.binding() && index == ordinal)
                 .ok_or_else(|| freeze("local-binding-or-ordinal-mismatch"))?;
-            if row.emission.local().is_some() {
+            if row.local().is_some() {
                 return Err(freeze("duplicate-local-installation"));
             }
-            if row.emission.completed_initializer() != Some(*initializer) || initializer == local {
+            if row.initializer() != Some(*initializer)
+                || (matches!(row, LocalCommitV1::Ordinary(_)) && initializer == local)
+                || (matches!(row, LocalCommitV1::Map(_)) && initializer != local) {
                 return Err(freeze("local-initializer-mismatch"));
             }
             commits.push((site.clone(), *local));
@@ -536,7 +546,6 @@ impl OrdinaryNewClaimLedgerV1 {
         for (site, local) in commits {
             rows.get_mut(&site)
                 .expect("validated row remains present")
-                .emission
                 .install(local);
         }
         Ok(())

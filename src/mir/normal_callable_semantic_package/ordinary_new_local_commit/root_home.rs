@@ -101,9 +101,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 HomeLookupError::Missing => freeze("root-home-not-installed"),
                 HomeLookupError::Duplicate => freeze("duplicate-root-home"),
             })?;
-            available &= row.destruction
-                == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
-                && matches!(row.emission, NewEmissionProgress::Emitted { .. });
+            available &= row.end_available();
             origins.push(RootHomeReleaseOriginV1 {
                 binding: *binding,
                 exit: exit.clone(),

@@ -101,3 +101,6 @@ pub(crate) use s6c_effects::VerifiedS6CPhysicalFunctionEffectsV1;
 
 #[cfg(test)]
 mod map_home_flow_tests;
+
+#[cfg(test)]
+mod map_physical_dependency_tests;

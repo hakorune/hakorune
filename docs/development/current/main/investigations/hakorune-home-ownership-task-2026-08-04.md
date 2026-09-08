@@ -1070,6 +1070,34 @@ unconditionally; there is no existing identity-preserving hook to activate.
 Existing initializer rows close the missing source locator, so no user language
 policy decision or new semantic issuer is required before this bounded work.
 
+Map Local/MIR dependency checkpoint (2026-09-09):
+actual Map emission now joins the common LocalCommit table, retained exact
+initializer relations and shared Copy/ReuseInitializer driver. The same source
+input drives empty Map, populated Map, unused alias chain and later New through
+the actual callable port; all four cases pass strict MIR and original-root
+validation, with result-projection mutation rejected and opaque Copy absent.
+New coseal11, emission2, two-New1, prefix-order1, Pair finishing1 and Map source6
+pass (23 tests including the four-case dependency test). Commands use jobs4,
+locked quick library filters; logs are /tmp/hakorune-map-connect-ordinary.log,
+-emission.log, -regression-{0,1,2,3}.log and
+/tmp/hakorune-map-physical-dependency.log. Pointer/corridor and diff checks pass;
+changed source maximum713. Initial extraction/import and test helper privacy
+compile errors were current-change failures, fixed before these successful runs.
+Next: placement foreign/pending/annotation/batch rejection matrix, optimized
+mixed failure suffixes and compiled-entry coordinates, shared terminal dispatch,
+then selected C/source artifacts and old-edge retirement. This checkpoint does
+not close the implementation series or lift MapLifecycleConsumerMissing.
+
+Dependency validation entry (read-only worker audit, 2026-09-09):
+issue one branded package, select its actual AppMain identity and matching batch
+slot, and borrow the body from that slot's same-source input. A cfg(test)-only
+helper under the existing callable loan port may run the real source scope,
+Local child port, frame selection and ledger completion. It does not construct
+an installed package, reparse source, or change prepare_install. This proves
+callable-to-MIR dependencies only; installed production and C/OBJ/EXE remain
+separate acceptance. Include empty/populated Map, unused alias chain and later
+New, with opaque Copy rejection and source/physical drift checks.
+
 **Map quality queue (2026-09-09, measured at 7cc63ab9ea)**
 
 Boundary: current Map physical-frame construction and the shared owners touched

@@ -4,7 +4,7 @@
 //! materialization remain outside this authority.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::stmts::{drive_local_statement_with_receipt_v1, RawLegacyLocalInputV1};
+use crate::mir::builder::stmts::{drive_local_statement_with_placement_v1, RawLegacyLocalInputV1};
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::{MirBuilder, ValueId};
 
@@ -72,13 +72,18 @@ impl RawInvocationChildPortV1<'_, '_> {
             .clone()
             .expect("callable local lowering requires its scoped ledger");
         let site = self.current_callable_site_v1("local-site")?;
-        let completed = drive_local_statement_with_receipt_v1(
+        let claims_for_placement = self.ordinary_new_claim_ledger.clone();
+        let completed = drive_local_statement_with_placement_v1(
             builder,
             self,
             RawLegacyLocalInputV1::with_initializer_observer(
                 input,
                 self.local_initializer_observation_sink(),
             ),
+            |ordinal, value| match &claims_for_placement {
+                Some(claims) => ledger.borrow().local_placement(&site, ordinal, value, claims),
+                None => Ok(crate::mir::builder::stmts::variable_stmt::LocalValuePlacement::Copy),
+            },
         )?;
         ledger
             .borrow_mut()
@@ -87,6 +92,18 @@ impl RawInvocationChildPortV1<'_, '_> {
             ledger.borrow().record_completed_ordinary_new_local(&site, &completed, claims)?;
         }
         Ok(completed.result())
+    }
+
+    pub(super) fn lower_callable_map_v1(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
+        let state = self.callable_ledger.clone().ok_or_else(|| freeze("map-no-state"))?;
+        let claims = self.ordinary_new_claim_ledger.clone().ok_or_else(|| freeze("map-no-claims"))?;
+        let site = self.current_callable_site_v1("map-site")?;
+        let mut state = state.borrow_mut();
+        let relation = state.map_initializer(&site)?;
+        let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(state.owner(),
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site));
+        crate::mir::builder::ordinary_new_admission::selected::map::emit(
+            builder, &mut state, &claims, &owned, &relation)
     }
 
     pub(super) fn read_callable_variable_v1(&self) -> Result<ValueId, String> {

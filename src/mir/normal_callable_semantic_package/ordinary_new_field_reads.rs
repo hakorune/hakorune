@@ -50,7 +50,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_commits
             .borrow()
             .values()
-            .any(|local| local.installs(row.home))
+            .any(|local| local.installs_ordinary(row.home))
         {
             return Err(fault("home-not-installed"));
         }

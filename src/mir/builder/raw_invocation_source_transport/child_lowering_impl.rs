@@ -177,6 +177,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         {
             return self.lower_callable_binding_rebind_v1(builder, input);
         }
+        if self.callable_ledger.is_some() && matches!(input, ASTNode::MapLiteral { .. }) {
+            return self.lower_callable_map_v1(builder);
+        }
         if self.callable_ledger.is_some() && matches!(input, ASTNode::Variable { .. }) {
             return self.read_callable_variable_v1();
         }

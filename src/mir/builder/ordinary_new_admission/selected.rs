@@ -1,4 +1,6 @@
 //! Physical consumption of one prepared exact New claim, never a target issuer.
+#[path = "selected/map.rs"]
+pub(in crate::mir::builder) mod map;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
@@ -24,28 +26,7 @@ pub(in crate::mir::builder) fn emit(
     let class = claim.class().to_owned();
     let frame = state.borrow_fault_frame(builder)?;
     let result = builder.next_value_id();
-    let frame_binding = {
-        let function = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .ok_or_else(|| freeze("no-function"))?;
-        state.validate_fault_frame(function)?;
-        let entry = function
-            .blocks
-            .get(&function.entry_block)
-            .ok_or_else(|| freeze("no-entry"))?;
-        let mut definitions = entry.all_instructions().filter(|instruction|
-            matches!(instruction, MirInstruction::FaultFrameEnter { dst, .. } if *dst == frame));
-        let definition = definitions
-            .next()
-            .ok_or_else(|| freeze("frame-definition-missing"))?
-            .clone();
-        if definitions.next().is_some() {
-            return Err(freeze("frame-definition-duplicate"));
-        }
-        (function.entry_block, definition)
-    };
+    let frame_binding = fault_frame_binding(builder, state, frame)?;
     let mut bindings = vec![frame_binding];
     let outward = builder.next_block_id();
     append_block(
@@ -511,4 +492,31 @@ fn append_block(
 
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/emission/{reason}]")
+}
+
+fn fault_frame_binding(
+    builder: &MirBuilder,
+    state: &CallableSemanticLoweringState,
+    frame: ValueId,
+) -> Result<(BasicBlockId, MirInstruction), String> {
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| freeze("no-function"))?;
+    state.validate_fault_frame(function)?;
+    let entry = function
+        .blocks
+        .get(&function.entry_block)
+        .ok_or_else(|| freeze("no-entry"))?;
+    let mut definitions = entry.all_instructions().filter(|instruction|
+        matches!(instruction, MirInstruction::FaultFrameEnter { dst, .. } if *dst == frame));
+    let definition = definitions
+        .next()
+        .ok_or_else(|| freeze("frame-definition-missing"))?
+        .clone();
+    if definitions.next().is_some() {
+        return Err(freeze("frame-definition-duplicate"));
+    }
+    Ok((function.entry_block, definition))
 }

@@ -98,6 +98,11 @@ Map references may only serve install/end and must be ended on every acquired
 path; live state must agree at joins and cycles are outside this cohort. Normal
 projection/SSA checks and module object/destruction checks remain required.
 This does not admit fresh/nested child evaluation or its key-cancellation edges.
+Local placement may bind the same opaque result without emitting a Copy.
+The caller must consume the existing exact initializer/binding relation; unused
+aliases follow the lexical binding chain and create no additional Home. Physical
+ValueId equality alone cannot authorize reuse. Ordinary local Copy and typed
+Array placement contracts are unchanged.
 
 The backend owns native init/disposal around each operation. Status0/1 follow
 Normal/Fault: failed New/PrepareKey dispose unacquired storage; install consumes

@@ -694,3 +694,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         )
     }
 }
+
+#[cfg(test)]
+#[path = "normal_callable_semantic_loan_port/map_dependency_tests.rs"]
+mod map_dependency_tests;

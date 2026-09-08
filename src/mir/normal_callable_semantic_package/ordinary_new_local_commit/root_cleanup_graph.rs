@@ -238,7 +238,8 @@ fn edges(terminal: &MirInstruction) -> Result<Vec<(usize, BasicBlockId)>, String
             edge_args: None,
         } => Ok(vec![(0, *target)]),
         MirInstruction::Invoke {
-            operation: InvokeOperation::HomeRelease { .. },
+            operation: InvokeOperation::HomeRelease { .. }
+                | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { .. }),
             normal_landing,
             fault_landing,
             ..
