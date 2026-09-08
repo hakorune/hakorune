@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Private V2 Formal/expanded definitions and incoming calls now share one index, with cross-call domain/demand closure and internal linkage. Next: original PHI stable predecessor references/width normalization (future boxed aliases/Select and incompatible widths still stop). Typed/direct object escape, intrinsic allocator session binding and selected boxed comparison remain CutoverBlockerOpen; then input-aware capability and atomic public session/host/source cutover with V1 retirement. No source cutover claim."
+current_blocker_token = "Private V2 Formal/expanded definitions and incoming calls now share one index, with cross-call domain/demand closure and internal linkage. Next: producer-owned stable original i64 references consumed by shared mapped/nonmapped i64 PHIs. Preserve old values/types and i1 success paths; pending i1 projections remain open. Typed/direct object escape, intrinsic allocator session binding and selected boxed comparison remain CutoverBlockerOpen; then input-aware capability and atomic public session/host/source cutover with V1 retirement. No source cutover claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

@@ -1465,6 +1465,57 @@ C build, ASan Original63 including both-walker backedges, definition22 parent
 comparison and pointer/corridor guards pass. This is editing headroom only,
 not PHI/Select consumer completion or a new physical owner.
 
+### Original PHI stable-reference decision
+
+Decision: preserve existing original values/types/aliases; publish a stable
+normalized i64 reference from the actual flags1 producer for shared i64 PHI inputs.
+Source authority + canonical issuer: unchanged published V2/body relations;
+existing original producer/type/alias owner issues this physical reference.
+Non-authority: Map payload, future mutable alias/type caches and wire Bool kind
+alone cannot issue the original value or its width.
+Fail-fast boundary: unavailable original width/reference rejects before artifact;
+pending i1 projection remains CutoverBlockerOpen, not a fallback to guessed bits.
+Smallest next slice: producer normalization plus shared mapped/nonmapped i64 PHI
+input consumption; preserve existing original rDst/type and actual PHI group.
+Non-claims: i1 normalization, non-host escape, boxed comparison and public cutover.
+
+Accepted after read-only worker audit at270643e311. This scope covers
+`flags1 mapped original producer -> shared i64 PHI input -> old arithmetic/return`;
+includes downstream nonmapped i64 PHIs and backedges. It excludes new source
+admission and unresolved i1 projections, which remain named cutover blockers.
+The existing selected-PHI-only checks missed the downstream nonmapped observer;
+do not claim closure by promoting only the three existing selected Stop fixtures.
+
+| Existing producer | Stable original i64 reference |
+| --- | --- |
+| Exact Const | Read the existing original constant owner, never Map payload. |
+| Original String/allocation/Call/boxed Tag or Project | After actual success and alias resolution, normalize the original with add/zext. |
+| Operation | Normalize the actual emitted result with add/zext. |
+| Copy/NamedAlias | After original producer success, normalize its original reference. |
+| Select | Keep actual rDst and its chosen i1/i64 width; normalize after emission. |
+| Formal | flags1 already owns an i64 rParam; refer to it directly. |
+| Selected i64 PHI | Refer directly to its actual rDst PHI; no extra PHI or in-group add. |
+
+Use the shared `emit_phi` input formatter for mapped and nonmapped i64 PHIs;
+retain the existing predecessor labels and group ordering. Do not globally
+change an old PHI or Select destination to i64. Keep the existing compatible i1
+path and explicit Stops for pending aliases/widths. A selected i1 PHI used as an
+i64 input needs normalization after the entire PHI group; that is the remaining
+i1 placement obligation, not permission to insert zext between PHIs.
+
+Delete the future boxed/Select pending checks and speculative width/alias chase
+only for i64 edges closed by the new physical reference. Do not delete the i1
+failure boundary. No new semantic receipt, operand graph, public ABI or guard.
+
+Acceptance reuses control cases in both walkers: future boxed I64 aliases,
+future Select, Bool/I64 i64 joins, Copy chains, backedges and downstream nonmapped
+i64 PHIs. Also use original PHI results in old arithmetic/return to make exit30
+depend on the original value; Map readback plus an unrelated constant return is
+insufficient. Preserve compatible i1 positives and pending/incompatible i1 Stops.
+The existing runtime probe expects one kind per execution: mixed-kind loop
+witnesses can observe only the final write while still executing the original
+merge. This is test arrangement, not permission to prune domain alternatives.
+
 ### Versioned compiler frame decision
 
 Decision: replace the selected static ingress with one v2 synchronous frame;
