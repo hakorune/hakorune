@@ -92,7 +92,9 @@ impl JSONBox {
         let key_str = key.to_string_box().value;
         let mut value = self.value.write().unwrap();
 
-        let json_value = nyash_box_to_json_value(new_value);
+        let json_value = nyash_box_to_json_value(new_value.as_ref());
+        // Preserve the input disposal point; recursive observation owns no Boxes.
+        drop(new_value);
 
         if let Some(obj) = value.as_object_mut() {
             obj.insert(key_str, json_value);
@@ -235,8 +237,9 @@ fn json_value_to_nyash_box(value: &Value) -> Box<dyn NyashBox> {
     }
 }
 
-/// NyashBox を JSON Value に変換
-fn nyash_box_to_json_value(value: Box<dyn NyashBox>) -> Value {
+/// Observe the stored value without cloning collection children. The returned
+/// JSON tree owns its data; no collection borrow escapes this conversion.
+fn nyash_box_to_json_value(value: &dyn NyashBox) -> Value {
     if value
         .as_any()
         .downcast_ref::<crate::boxes::null_box::NullBox>()
@@ -260,7 +263,7 @@ fn nyash_box_to_json_value(value: Box<dyn NyashBox>) -> Value {
         let arr: Vec<Value> = array_box.with_items_read(|items| {
             items
                 .iter()
-                .map(|item| nyash_box_to_json_value(item.clone_box()))
+                .map(|item| nyash_box_to_json_value(item.as_ref()))
                 .collect()
         });
         Value::Array(arr)
@@ -269,7 +272,7 @@ fn nyash_box_to_json_value(value: Box<dyn NyashBox>) -> Value {
         let map = data.read().unwrap();
         let mut obj = serde_json::Map::new();
         for (key, val) in map.iter() {
-            obj.insert(key.public_text(), nyash_box_to_json_value(val.clone_box()));
+            obj.insert(key.public_text(), nyash_box_to_json_value(val.as_ref()));
         }
         Value::Object(obj)
     } else {
@@ -277,3 +280,6 @@ fn nyash_box_to_json_value(value: Box<dyn NyashBox>) -> Value {
         Value::String(value.to_string_box().value)
     }
 }
+
+#[cfg(test)]
+mod observation_tests;

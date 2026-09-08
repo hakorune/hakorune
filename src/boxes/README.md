@@ -16,3 +16,13 @@ Remove/clear and visible read/clone have separate migration work; this fix does
 not certify all Map teardown paths. See the
 [runtime contract](../../docs/reference/runtime/runtime-data-dispatch.md#map-replacement-native-teardown)
 and [owned-slot target](../../docs/reference/language/ownership.md#intrinsic-map-slot-destination-target).
+
+## JSON observation
+
+`JSONBox::set` converts native input into an owned JSON tree by borrowing values.
+Array/Map traversal does not clone or share stored children; fallback string
+conversion observes the stored object itself. The consumed top-level input is
+still disposed at the old conversion boundary. Output owns its strings/nodes.
+This does not change collection locking, cycle handling, or authorize projection
+of future owned native Map residences. See the
+[runtime observation contract](../../docs/reference/runtime/runtime-data-dispatch.md#native-json-observation).

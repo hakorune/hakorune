@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Map insertion lock-held Drop is removed and Map tests6 pass. Root non-Clone residence/kernel SafeMutex end interface is accepted; TLS remains unsupported before mutation. Next close explicit owned-residence read/clone/delete/clear/end consumers before intake, then source Normal/transfer flow and root cleanup. Existing APIs cannot hide owned values as missing or clone/share them. No public Map cutover; source/physical/final handoff remain open."
+current_blocker_token = "Native JSON observation now borrows Array/Map children, removing two clone edges. JSON tests444 pass; four failures match parent a3ee23938d exactly and are baseline debt. Next close MapOwnedReadProjectionConsumerMissing: checked missing/projection-error separation through a real selected consumer, distinct from source borrow and Dynamic carrier publication. GC/raw observer and clone/delete/clear/end migration remain open; owned-slot intake and public cutover stay disabled."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

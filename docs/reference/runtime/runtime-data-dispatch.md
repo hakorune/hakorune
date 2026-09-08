@@ -279,3 +279,16 @@ This closes the insertion helper's lock-held native Drop edge only. It does not
 activate source Home transfer, user finalization, ordered Map end, or certify
 remove/clear/read/clone. Those remain governed by the
 [Map lifecycle target](../language/lifecycle.md#intrinsic-map-construction-and-end).
+
+## Native JSON observation
+
+`JSONBox::set` observes native Array/Map children by borrow and constructs an
+independent JSON Value. It does not invoke child `clone_box` or `share_box` for
+serialization. Existing scalar/key conversion remains unchanged; other boxed
+values use the stored object's string conversion, not a clone's potentially
+different value or side effects. The consumed top-level input is disposed at
+the same conversion boundary as before.
+
+This is a native observer contract, not source Home acquisition or a checked
+projection for indexed owned Map slots. Existing destination/read locking,
+cycle/re-entry behavior, and unsupported owned residence remain separate work.

@@ -506,6 +506,12 @@ consumer mapping must close before implementation is authorized.
 
 **Landed prerequisites / evidence**
 
+- Native JSON observation: Array/Map child clone edges removed; stored-child/clone-zero/independent-result tests pass. Command `CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib json`: current444 pass/4 fail/2 ignored, isolated parent `a3ee23938d`442/4/2; same four failure bodies. Logs `/tmp/hakorune-json-observation-tests.log` and `/tmp/hakorune-json-observation-parent-tests.log` (temporary). Parent used the same locked dependencies and shared target, serial Cargo; temporary worktree removed.
+  Baseline debt (no waiver):
+  `runner::json_artifact::program_json_v0_loader::tests::typed_program_v0_import_compile_uses_published_program_pipeline`;
+  `runner::mir_json_emit::tests::hmi_t0_fixtures::ownership_transport_matches_checked_in_hmi_t0_fixture`;
+  `runner::mir_json_emit::tests::hmi_t0_fixtures::scalar_suite_matches_checked_in_hmi_t0_fixture`;
+  `stage1::program_json_v0::tests::records_and_metadata::metadata_and_annotations::source_to_program_json_v0_transports_local_type_annotation_metadata`.
 - Native Map replacement: displaced Drop runs after unlock; Map6 verifies reentry/commit/once and existing key behavior. Pointer/corridor pass; source max597. No owned-slot or remove/clear completion claim.
 
 - `aa4222541c`: ordered Map keys and exact EntryValue structure, explicit Script call Stop.

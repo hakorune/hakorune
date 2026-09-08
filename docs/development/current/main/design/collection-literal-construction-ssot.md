@@ -1385,6 +1385,32 @@ acceptance includes native end once, no old-local double end, duplicate-key
 replacement, pre/postcommit Fault, Map/root cleanup, drift and profile/thread
 mismatch. This accepted design is not runtime activation or source execution.
 
+### Checked Map reads and native observers
+
+Missing consumer: `MapOwnedReadProjectionConsumerMissing`. Kernel
+`map_slot_load_str_with` currently gets a visible clone, then
+`encode_runtime_value_carrier` publishes scalar/host handle through
+MixedI64OrHandle. `map_aliases` load_hi/hh, `map_compat` get_h/get_hh and
+`map_runtime_data_get_any_key` expose bare i64; missing/invalid paths already
+collapse to zero. Owned projection unavailability must not join that value.
+
+The checked projection must preserve `Result<Option<...>, ...>` through the
+actual selected status/out consumer, writing output only on success. Source
+borrow uses a scope-bound consumer and keeps the slot obligation in place;
+Dynamic publication requires an existing self-contained carrier authority.
+A bare negative indexed handle with a forgotten borrow lifetime is neither.
+No existing checked Map read ABI/FaultFrame consumer closes this chain yet;
+a standalone try_get accessor does not authorize owned-slot intake.
+
+Root `get_data` has two direct observers: JSON conversion now borrows children;
+GC trace still clones them into Arc and skips poisoned locks. An unavailable owned
+value cannot become an empty/missing observation. Retire raw table access with
+checked observation, not just a closure wrapper that still clones or skips.
+Native JSON conversion borrows supported stored Box children to produce owned
+JSON; its Array/Map clone edges are removed, preserving top-level input disposal. This is an actual observation repair, not owned-native coverage.
+GC, raw table exposure, public Map read/clone and selected checked publication
+remain included blockers. Do not claim all observers migrated from JSON tests.
+
 ### Map source-shape preservation decision
 
 Decision: retain ordered Map keys and exact EntryValue source relations in the
