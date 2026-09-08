@@ -715,7 +715,7 @@ a claim that all preflight consumers are implemented:
 | --- | --- |
 | `pure_compile.inc::hako_llvmc_read_generic_pure_program_view` | Ordinary entry selection; selected Dynamic identity selects the helper as generic entry. |
 | `selected_launch_emit.inc` | Dynamic launch explicitly uses the same-module pipeline as `ny_main`, independent of ordinary definition-plan membership. |
-| `same_module_function_plan.inc` | Read definition rows from entry metadata only, preserving registered order and both planned sets. |
+| `physical_definition_plan.inc` | Production caller supplies entry metadata; retain registered order and both planned sets. |
 | `same_module_function_definition_emit.inc` | Same-module eligibility excludes an already emitted definition and a numeric body also planned as leaf; missing target/entry is skipped at its existing stage. |
 | `module_leaf_function_emit.inc` | Existing numeric-body validation and leaf membership determine leaf emission; leaf-only nonnumeric bodies do not become same-module automatically. |
 
@@ -741,14 +741,71 @@ proofs; parent comparison for both-set numeric/non-numeric bodies, duplicate and
 missing targets, invalid/null metadata, capacities and Dynamic helper/launch.
 Do not replace actual role coverage with a guessed role supplied by a test.
 
-Then bind the extracted plan and existing program view to the parse-once
-session, and connect compilation to a doc-taking internal consumer. Session
-close precedes library unload on success, error and early Rust return; compile
-is single-use. The selected array-store choice is captured once and consumed
-by preflight and both emitters. No stale filename, ambient setting reread,
-independent function-name classifier or compile-error compatibility retry.
-This session step still requires its concrete lifecycle/ABI acceptance before
-exports or production activation; the first BoxShape does not close it.
+Next executable BoxShape: make the selected pure-first document boundary
+single-owned before adding an opaque session ABI. The existing file wrapper
+parses once, calls a borrowed `compile_doc_compat_pure` core, then frees once
+on every return. Reuse one private borrowed validator implementation from the
+existing file validator ABI and compile core; do not add a public validator
+export merely to share code. Pinned census and exact-seed readers borrow the
+same root, as do rune logging, Dynamic signature/C1 and generic compilation.
+
+Preserve the current order: route/path/output gates -> validator -> pinned
+census -> rune log -> exact-seed reader -> Dynamic signature/C1 -> generic
+program/emission. Program-view selection stays in its existing stage; the
+physical definition plan is still read in generic prescan after the earlier
+indexof pattern opportunity. Do not eagerly validate that plan at document
+creation. Missing or malformed JSON retains the existing file error wording.
+No new semantic receipt, source admission, query export or ownership flag in
+individual emitters belongs in this extraction.
+
+This census covers selected published pure-first file ingress -> all compile
+returns; includes validator/census/route readers and the generic include graph;
+excludes downstream legacy exact-seed dispatch/replay and other ABI entrypoints.
+The latter retain a pathname and may reopen it; selected typed rows already
+reject those paths. A generic-only doc-taking extraction would not establish
+parse-once for the selected boundary and is not the selected next slice.
+
+Exclusive delete-set: repeated document reads/ownership in validator, pinned
+census, rune logging, exact-seed reader, Dynamic signature and generic body;
+all71 textual `yyjson_doc_free(d)` sites in the audited compile include graph.
+The finite include inventory (common `hako_llvmc_ffi_` prefix, `.inc` suffix) is:
+`pure_compile`, `pure_compile_generic_lowering`,
+`pure_compile_generic_lowering_prescan`, `pure_compile_ir_open`,
+`pure_compile_generic_newbox_emit`, `pure_compile_generic_lowering_op_dispatch`,
+`pure_compile_generic_lowering_op_dispatch_calls`,
+`pure_compile_generic_active_walk`, `pure_compile_variant_dispatch`,
+`pinned_text_selected_dispatch`, `pinned_text_provenance_block_dispatch`,
+`selected_launch_emit`, `selected_dynamic_entry_header`.
+The signature/census/exact-seed documents and validator's document are additional
+owners to retire; the source count is an audit observation, not a new guard quota.
+
+All included consumers borrow the wrapper's document. Pattern success, early
+error, normal return, GEN_ABORT and GEN_END return to that wrapper before its
+one free. Retain FILE, owned string, PTFB session and PTFC draft/bytes cleanup;
+do not combine their pre-existing cleanup differences with document ownership.
+Acceptance: selected C build/published/corridor proofs; Named60, role22 and
+Dynamic parent comparison; instrument parse/free ownership on normal success,
+malformed JSON/schema, exact-seed and Dynamic rejection, generic abort and
+pattern success. Prove one successful parse/one free and no internal document
+free, including rejection paths. Use available memory checking for lifetime
+failures; an early preflight rejection alone cannot validate emitter cleanup.
+
+After that extraction, bind the same borrowed core, existing program view and
+physical definition plan to the eventual opaque session. Open takes immutable
+JSON bytes+length, leaves its output handle null on error and activates no
+global rows. Query borrows session-owned observations. Compile consumes the
+session once on success or failure; it activates rows/context only for the
+execution and clears them on all exits. Close frees document/owned observations
+before Rust unloads the retained library, including early planner error/drop.
+Rust's MIR frame planner receives exact-site dispositions only; it never loads
+C or infers a role from a function spelling. The current fixed
+`hako_llvm_in.json` transport is not retained in the eventual selected session.
+
+Settings that affect allocation/related method consumption must share a captured
+value through query and emission; changing only the two Named reads does not
+freeze all compile configuration. Existing global rows, other ambient settings
+and temporary LLVM names remain explicit concurrency debt. This design does
+not advertise parallel compile or hold active globals while Rust plans.
 
 Query the retained program's Named sites once, returning exact-site consumer or
 explicit unavailable/invalid outcome. Do not invent a role for an un-emitted or
