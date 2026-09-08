@@ -1540,6 +1540,24 @@ runtime dependency of the same series, not source cutover. Then wire opaque ABI/
 descriptor, existing Invoke/projection/mixed cleanup consumers, and finally switch
 source while deleting selected birth_h/set/MapLiteralEntryWrite/install-Stop edges.
 
+Runtime dependency implementation: native MapBox and CheckedMap now store their
+payloads in common MapTable. Type parameters permanently exclude canonical
+residences from Native MapBox. Checked install reserves table and empty end-buffer
+capacity before commit. End moves rather than copies entries into that buffer and
+sorts descending unique install order without allocation. The kernel's private
+SafeMutex residence validates exact identity/type; rejection leaves the payload
+with its prior owner and consuming end uses existing indexed reclaim.
+
+CheckedMap/DetachedMapEntry do not implement Clone or NyashBox. Their explicit
+end protocol is a placement-caller obligation; Rust Drop does not run source
+finalization. Map require_disposable checks Unissued/Ended. Opaque ABI disposal
+still must enforce this and reject Ready detached outcomes; no raw ABI is added
+by the Rust dependency. Physical end reports retain first/eight suppressed facts
+plus total suppressed count, which may exceed stored capacity. Native projection
+of present owned entries explicitly refuses while missing remains None. The
+initial checked payload is the source-authorized indexed residence only; this
+does not admit additional source/native candidate families.
+
 ### Detached install outcome physical contract
 
 Decision: use caller-owned opaque result storage for the committed install

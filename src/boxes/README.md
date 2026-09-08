@@ -21,6 +21,31 @@ open. See the
 [runtime contract](../../docs/reference/runtime/runtime-data-dispatch.md#map-replacement-native-teardown)
 and [owned-slot target](../../docs/reference/language/ownership.md#intrinsic-map-slot-destination-target).
 
+## Checked Map storage
+
+`map_box_table.rs` owns the common key/payload table. Native MapBox stores only
+NyashBox values; `map_box_checked.rs` has a separate non-NyashBox, non-Clone
+facade for source-authorized canonical residences. No native-visible Map can
+be promoted to contain those residences. Each facade has one payload table.
+
+Checked install reserves capacity before commit and returns the original
+candidate on refusal. Replacement returns a detached outcome that must be ended,
+including the no-old case. Terminal end rejects new admission before callbacks,
+then consumes live entries in reverse successful-install order outside locks.
+An empty end buffer reserves capacity during install, holds no duplicate payload,
+and receives the drained entries at end so teardown can sort without allocation.
+Finite first/suppressed failures preserve best-effort cleanup; suppressed_count
+is the total count and may exceed the eight stored diagnostic slots.
+
+The runtime placement caller must end acquired Maps and detached outcomes;
+ordinary Rust Drop does not perform source finalization. `require_disposable`
+checks Map state before destruction. The opaque ABI must enforce this protocol
+and reject Ready-outcome disposal; it is not implemented by these Rust helpers.
+Native projection of a present owned entry explicitly refuses, distinct from a
+missing key. Source read/escape authority, descriptor/C connection and source
+cutover remain open. See the
+[checked storage contract](../../docs/reference/runtime/runtime-data-dispatch.md#checked-map-storage-and-indexed-residence).
+
 ## JSON observation
 
 GC uses `MapBox::native_trace_children` rather than accessing the raw table.

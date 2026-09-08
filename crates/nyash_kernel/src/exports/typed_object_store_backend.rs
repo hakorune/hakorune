@@ -320,6 +320,18 @@ pub(super) fn get_checked_indexed(
     }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
 
+/// Validate residence identity without cloning or taking the indexed payload.
+/// The caller must separately supply the source transfer/end authorization.
+pub(super) fn validate_checked_indexed_identity(
+    expected: TypedObjectStoreBackend, handle: i64, type_id: i64,
+) -> Result<(), CheckedStorageError> {
+    check_indexed_profile(expected)?;
+    with_objects(|objects| {
+        let object = objects.get(handle_to_index(handle)?)?.as_ref()?;
+        (object.type_id == type_id).then_some(())
+    }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
+}
+
 /// Store under the same identity/profile checks as the exact read.
 pub(super) fn set_checked_indexed(
     expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize, value: i64,

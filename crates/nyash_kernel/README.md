@@ -1,5 +1,20 @@
 # Nyash Kernel
 
+## Checked Map residence dependency
+
+`exports/checked_map_residence.rs` privately prepares a SafeMutex indexed-object
+residence after exact profile/type/identity validation. It does not clone or move
+the indexed payload. Rejected-install wrapper disposal leaves the prior owner's
+payload intact; consuming end invokes existing indexed reclaim once. TLS and
+unsupported profiles refuse before residence creation. The process-wide store
+provides the residence's static lifetime.
+
+This is a Rust runtime dependency, with no new ABI export or host publication.
+Caller-owned Map/outcome layout, descriptor/session, FaultFrame integration and
+compiler activation follow in the same Map series. The prepare caller must have
+source transfer/end authorization; physical identity validation cannot issue it.
+See the [runtime contract](../../docs/reference/runtime/runtime-data-dispatch.md#checked-map-storage-and-indexed-residence).
+
 ## GC diagnostic output
 
 Entry metrics consume the controller's finite last-completed reachability

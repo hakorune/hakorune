@@ -2,7 +2,7 @@
 use super::*;
 use std::sync::{Mutex, Weak};
 
-type Entries = RwLock<HashMap<MapKeyDomain, Box<dyn NyashBox>>>;
+type Entries = RwLock<MapTable<Box<dyn NyashBox>>>;
 type Observations = Arc<Mutex<Vec<(bool, Option<i64>, usize)>>>;
 
 #[derive(Debug)]

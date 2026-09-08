@@ -110,20 +110,24 @@ use crate::boxes::map_key_domain::MapKeyDomain;
 pub(crate) struct MapStorageUnavailable;
 use crate::boxes::ArrayBox;
 use std::any::Any;
-use std::collections::HashMap;
+#[path = "map_box_table.rs"]
+mod table;
+#[path = "map_box_checked.rs"]
+pub mod checked;
+use table::MapTable;
 use std::fmt::{Debug, Display};
 use std::sync::{Arc, RwLock}; // Arc追加
 
 /// キーバリューストアを表すBox
 pub struct MapBox {
-    data: Arc<RwLock<HashMap<MapKeyDomain, Box<dyn NyashBox>>>>, // Arc追加
+    data: Arc<RwLock<MapTable<Box<dyn NyashBox>>>>, // Arc追加
     base: BoxBase,
 }
 
 impl MapBox {
     pub fn new() -> Self {
         Self {
-            data: Arc::new(RwLock::new(HashMap::new())), // Arc::new追加
+            data: Arc::new(RwLock::new(MapTable::new())), // Arc::new追加
             base: BoxBase::new(),
         }
     }
@@ -392,7 +396,7 @@ impl Clone for MapBox {
     fn clone(&self) -> Self {
         // Keep nested identity boxes shared to avoid recursive graph cloning.
         let data_guard = self.data.read().unwrap();
-        let cloned_data: HashMap<MapKeyDomain, Box<dyn NyashBox>> = data_guard
+        let cloned_data: MapTable<Box<dyn NyashBox>> = data_guard
             .iter()
             .map(|(k, v)| (k.clone(), Self::clone_for_visible_read(v.as_ref())))
             .collect();

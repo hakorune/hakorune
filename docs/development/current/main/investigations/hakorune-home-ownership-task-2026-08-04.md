@@ -737,13 +737,14 @@ not solve this. A retained native alias is the decisive counterexample.
 
 Source authority + canonical issuer: existing exact Map source flow and lifecycle
 law issue allocation/transfer/end meaning; common storage remains the sole payload
-owner. Checked physical identity issuance is not yet fixed.
+owner. The physical decision below fixes checked placement; source-to-ABI
+reference publication remains to be implemented.
 Non-authority: native host handles, legacy bare-i64 reads, VM error capability,
 public Clone and helper-only Result tests cannot admit Owned values.
 Fail-fast boundary: keep common MapLifecycleConsumerMissing and runtime escape
 Stops; no checked facade may enter NyashBox or native host publication.
-Smallest next slice: implement common actual Map storage plus the checked
-non-NyashBox lifecycle facade and real SafeMutex indexed-residence end under the
+Runtime dependency: common Map storage, the checked non-NyashBox lifecycle
+facade and real SafeMutex indexed-residence end implement the
 [accepted physical lifetime](../design/collection-literal-construction-ssot.md#checked-intrinsic-map-physical-lifetime-decision).
 Non-claims: Owned source intake, ABI/LLVM execution, Dynamic escape, OBJ/EXE and
 complete Map retirement remain unproven. Existing common install Stop stays.
@@ -783,8 +784,36 @@ source switch. Native compatibility export remains Native-only. Acceptance of
 the full series covers empty/multiple Maps/unused aliases/Map-before-New across
 source to EXE, plus all allocation/install/end Fault paths. This supersedes
 repeated get/values Result-only slices as a proposed Owned-intake solution.
-This Decision is read-only audit evidence; no new source fixture, ABI or code is
-claimed implemented. The native JSON/GC correctness repairs remain landed.
+The preceding Decision came from read-only audit. The runtime implementation
+checkpoint below is separate evidence; no source/ABI/C activation follows from it.
+
+**Runtime storage/residence checkpoint**
+
+Implemented common MapTable, Native-only native facade, checked non-NyashBox
+facade and private SafeMutex indexed residence. Table/end-buffer reservation is
+precommit; no payload is duplicated. Root tests cover same-candidate refusal,
+order exhaustion, missing versus unavailable projection, reverse end, old-end
+failure, first/suppressed reports, real lock poison and end-time reentry refusal.
+Trait ambiguity checks compile only while checked Map has neither Clone nor
+NyashBox and the detached outcome has no Clone. No source fixture was widened.
+
+Validation: serial `CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib`
+filters `map_box`13, `boxes::json::observation_tests`5, `gc_controller`7 pass;
+`-p nyash_kernel --lib checked_map_residence`2 passes. All use `--test-threads=1`.
+Logs `/tmp/hakorune-checked-map-{map,json,gc,kernel}.log`. Kernel tests use actual
+SafeMutex indexed storage: profile/type refusal and failed precommit retain the
+payload; successful displacement/end invalidates it once. Stale old-end failure
+does not undo new ownership. Root callback tests prove reverse order/reentry;
+those callbacks are physical probes, not source Home or user-fini execution.
+Pointer/corridor/diff checks pass; touched sources max698. Boxes/kernel README
+and runtime reference updated. No new ABI export, C build or EXE claim.
+
+Next: implement opaque Map and detached-outcome lifetime wrappers plus the target
+ABI descriptor revision/session/required-symbol consumers, using the accepted
+placement states. Disposal must reject live Map or Ready outcome; no mutable
+Map/outcome/FaultFrame borrow spans callbacks. Only then connect the existing
+operation-derived C projection and mixed-origin cleanup, and execute source
+cutover with selected old-edge deletion. The source install Stop remains.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

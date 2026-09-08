@@ -308,3 +308,42 @@ with its distinct native child-clone semantics. This is not source Home
 acquisition or a checked projection for indexed owned Map slots. Collection
 traversal locking, cycles, native panics and unsupported owned residences remain
 separate concerns.
+
+## Checked Map storage and indexed residence
+
+The checked intrinsic facade is not NyashBox and cannot be cloned or put in native
+host handles. It and native MapBox use the common MapTable implementation, with
+one payload table per Map. Native MapBox remains permanently Native-only.
+The initial checked runtime residence is an authorized SafeMutex indexed object;
+this implementation does not add source candidate families or Dynamic carriers.
+
+Checked storage starts Unissued; acquisition changes it to Live once. Install
+accepts an already prepared canonical key and validates phase/order/capacity
+before membership changes. Failure returns the same candidate for prior-owner
+cleanup. Successful install gives the new entry the latest order and returns
+its detached predecessor without ending it. No-old is also a consumed outcome.
+
+Terminal end marks Ending, moves all entries out, and releases the lock before
+end callbacks. End-buffer capacity is prepared at install, so sorting/draining
+needs no end-time allocation. End attempts run in reverse live-install order;
+failures retain first plus eight suppressed facts and a total suppressed count.
+The eventual FaultFrame consumer must bound indexing by stored capacity. Returned
+failures do not skip later entries, and the Map reaches Ended on either result.
+Poisoned storage rejects normal operations; terminal end recovers the valid
+storage and records unavailability while attempting cleanup. Native panic or
+allocator abort recovery is not supplied by this returned-error contract.
+
+The kernel residence validates SafeMutex/profile, exact indexed identity and type
+without taking the payload. Preparation does not issue a Home or transfer it.
+Dropping a rejected wrapper does not reclaim the prior owner's payload; consuming
+end uses the existing exact indexed reclaim. Profile mismatch, storage failure
+and invalid identity are finite physical error facts. No kernel dependency enters
+root, and no registration callback or second payload registry is introduced.
+
+A present owned entry has no authorized native Box projection and returns
+ProjectionUnavailable; a missing key returns None. Native keys/clone/iteration
+semantics remain unchanged. CheckedMap and its detached outcomes require explicit
+end by the placement caller. Map destruction is legal only Unissued/Ended;
+opaque detached storage will reject disposal before consumption. Rust Drop is
+not a fallback source finalizer. Opaque layout/ABI, descriptor/session, selected C
+emission, mixed-origin root cleanup and source-to-EXE activation remain unfinished.
