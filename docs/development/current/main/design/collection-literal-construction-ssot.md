@@ -1440,8 +1440,8 @@ Existing native success/missing behavior remains its own contract. Checked
 source borrow or Dynamic publication still needs its own authorized lifetime or
 self-contained carrier; this facade split grants neither.
 
-Smallest next design boundary: name the checked intrinsic Map identity and its
-allocation/lifetime/publication consumer. Current `exports/birth.rs` immediately
+The identity/lifetime question is resolved by the following physical decision;
+its consumers remain to be implemented. Current `exports/birth.rs` immediately
 registers Arc<dyn NyashBox> via `nyash.map.birth_h`; the new facade cannot reuse
 that publication merely behind a private wrapper. Audit the actual Map allocation
 Normal result, retained physical representation, install target, root cleanup,
@@ -1457,6 +1457,88 @@ including aliases. Retirement target is selected intrinsic allocation/publicatio
 through birth_h, followed by the existing old set/install Stop retirement; native
 compatibility remains Native-only. No source activation, general Dynamic escape,
 ABI implementation or full Map cutover is claimed by this Decision.
+
+### Checked intrinsic Map physical lifetime decision
+
+Decision: the selected direct-local cohort uses caller-owned opaque Map storage,
+with one stable allocation-site region per function invocation. The runtime
+archive descriptor issues size/alignment/revision; the existing invocation owner
+checks them and C allocates the region. No host handle, runtime identity registry,
+extra heap identity wrapper or pointer-to-i64 transport is introduced. This is a
+new physical placement decision, not an already implemented semantic issuer.
+
+Source authority remains home_new_prefix/home_map_flow from the same lowering
+input, retained by ordinary_new_coseal in Completion. Existing Map flow identifies
+allocation Normal/Fault, destination, entry transfer, displaced old and terminal
+live order. Existing common install Stop remains until the full consumer exists.
+The allocation Invoke owns acquisition; its Normal-only InvokeNormalResult
+projects a distinct non-host Map reference to the region. Preallocated bytes do
+not imply acquisition. CanonicalObjectId, MirType::Box and old origin tags do not
+issue the reference. Install/checked observation/end are its only physical uses.
+
+| Opaque region state | Legal operation / outcome |
+| --- | --- |
+| Fresh bytes | initialize native bookkeeping -> Unissued |
+| Unissued | checked allocation Fault stays Unissued; Normal -> Live |
+| Live | validated install transfers only on Normal; old outcome is separately consumed |
+| Live | terminal end first marks Ending, then detaches/ends live entries outside locks |
+| Ending | reject admission/re-entry; attempt remaining cleanup while retaining first Fault |
+| Ended | no live obligations; native storage may be disposed |
+| Unissued | native storage may be disposed without source Map end |
+
+Either terminal-end outcome consumes the live Map responsibility and reaches
+Ended after best-effort suffix cleanup. Host panic/abort recovery remains outside
+this contract. Fresh/aligned/unique initialized storage and no concurrent dispose
+are unsafe caller obligations; a header cannot validate arbitrary pointers.
+No reinit, byte-copy or abandonment of Live/Ending storage. Recursive invocations
+have distinct regions; a repeated site requires a new ended lifetime, never a
+second acquisition over a live one. The initial cohort issues no loop lifetime.
+Map and detached-outcome layouts travel in one explicit descriptor revision with
+required symbols, readers, session checks and C consumers; no V1 padding reuse.
+
+Complete source flow does not mean alias-zero. home_prefix_local_flow observes
+Map as Handle and an unused `local alias = map` can retain the original binding.
+Such an exact alias introduces no new residence or cleanup; preserve its existing
+binding projection without fabricating a clone. Actual read/escape needs its own
+authority. Reject generic Copy/host carrier/Call/return/slot-store escapes of the
+physical reference; do not reject an otherwise Complete unused source alias just
+because an overbroad physical rule assumed there were no aliases.
+
+Cleanup must cover every acquisition origin: root terminal, Map allocation Fault,
+entry precommit Fault, postcommit old-end Fault, and a later ordinary New's
+allocation/Birth Fault. That New's prior_homes already contains earlier Maps.
+Use one ordinary-object/Map end origin at the existing suffix/progress owner;
+selected.rs prior cleanup and root cleanup must not independently reinterpret
+bindings. Extend root_cleanup_graph's HomeRelease-only/one-release assumptions
+for exact mixed origins and validate both published and retained optimized graph.
+A root-only Map end implementation does not cover this cohort.
+
+Current C lifecycle admission assigns LV4_HANDLE to every Normal projection and
+emission loads i64. Replace both with operation-derived Map pointer projection;
+existing per-function frame/result storage is the placement owner. Do not route
+the reference through ORG_MAP_BIRTH, generic kind/payload or ptrtoint. Static V2
+and generic NewBox intrinsic allocation callers switch together when selected;
+legacy native birth_h export remains available only to native compatibility.
+
+Acceptance spans empty/multiple Maps, Map followed by ordinary New, and unused
+local alias through source/Completion/MIR/retained optimized graph/OBJ/EXE.
+Exercise allocation Fault, precommit failure, a:=A/b:=B/a:=C replacement, old-end
+Fault with committed C then B cleanup, first-Fault retention and native end once.
+Reject Normal-before-use inversion, foreign projection, missing/double end,
+live reinit, native publication/escape and profile/thread mismatch. Native-only
+Map cloning and key/iteration behavior remain unchanged. No general Map return,
+parameter/capture forwarding, Dynamic escape or loop support is issued here.
+
+Implementation starts with the common actual Map storage owner and checked
+non-NyashBox lifecycle facade, including real SafeMutex indexed-residence end.
+Keep the native facade statically Native-only. Verify precommit candidate return,
+commit/detach, reverse successful-install end, refusal after Ending, and no locks
+or live mutable ABI borrows across child end. Data-structure choices must support
+these transitions without allocation/hook/fallible work between commit and output;
+end must attempt every remaining obligation after a returned Fault. This is the
+runtime dependency of the same series, not source cutover. Then wire opaque ABI/
+descriptor, existing Invoke/projection/mixed cleanup consumers, and finally switch
+source while deleting selected birth_h/set/MapLiteralEntryWrite/install-Stop edges.
 
 ### Detached install outcome physical contract
 

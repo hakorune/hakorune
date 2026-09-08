@@ -742,22 +742,49 @@ Non-authority: native host handles, legacy bare-i64 reads, VM error capability,
 public Clone and helper-only Result tests cannot admit Owned values.
 Fail-fast boundary: keep common MapLifecycleConsumerMissing and runtime escape
 Stops; no checked facade may enter NyashBox or native host publication.
-Smallest next slice: audit and decide checked Map allocation identity/lifetime
-from actual allocation Normal projection through install and root end, including
-runtime descriptor/session and C representation. No new runtime registry or
-caller-owned pointer is selected without that mapping. Then implement the common
-storage plus checked facade and actual consumer as the existing Map series.
-Non-claims: native read API migration, Owned intake, ABI/LLVM implementation,
-Dynamic escape, OBJ/EXE and complete Map retirement remain unproven.
+Smallest next slice: implement common actual Map storage plus the checked
+non-NyashBox lifecycle facade and real SafeMutex indexed-residence end under the
+[accepted physical lifetime](../design/collection-literal-construction-ssot.md#checked-intrinsic-map-physical-lifetime-decision).
+Non-claims: Owned source intake, ABI/LLVM execution, Dynamic escape, OBJ/EXE and
+complete Map retirement remain unproven. Existing common install Stop stays.
+
+**Accepted checked identity and runtime implementation boundary**
+
+Change: one actual common storage implementation, Native-only public facade,
+checked non-Clone facade; caller-owned opaque Map region with Normal-only physical
+reference. Runtime owns layout and lifetime transitions; source Map flow owns
+acquisition/transfer/end meaning. The descriptor and C connection are subsequent
+steps of this same series, not permission to expose a host handle meanwhile.
+Contract: native key/clone/iteration semantics retained. Checked install validates
+and reserves before mutation, returns candidate unchanged on failure, commits
+before detaching old, and ends outside locks. Terminal end marks Ending before
+callbacks, ends reverse live-install order and retains first Fault while trying
+the suffix. SafeMutex exact indexed payload remains the real child residence;
+TLS and unknown profiles reject before admission. No second payload table.
+Done: actual native Map regression tests plus checked storage/residence tests
+cover real indexed invalidation once, duplicate replacement, precommit retention,
+old-end failure after commit, reverse C/B cleanup, Ending re-entry refusal and
+native publication exclusion. Focused root/kernel gates, existing pointer and
+corridor guards, owner README/runtime reference; every source below800.
+Stop: needing a new source family, dynamic carrier, broad NyashBox clone change,
+implicit share, second registry or a fabricated physical-to-semantic authority.
+Runtime local evidence does not retire the source install Stop.
+
+Independent source/MIR/C audit confirmed the placement mapping and corrected two
+scope assumptions: unused aliases can be Complete and acquire no new residence;
+Map followed by New requires Map end in that New's prior-home Fault suffix.
+Mixed-origin cleanup and retained optimized-graph validation are mandatory in the
+consumer step, not root-terminal-only follow-ups. Current C's universal HANDLE/
+i64 projection and intrinsic birth_h paths must change at cutover.
 
 Deletion target: selected intrinsic Map allocation/publication through
-nyash.map.birth_h. Acceptance must execute checked allocation/install/observation
-or explicit refusal/ordered end and prove native alias/publication/legacy-read
-exclusion. The complete source switch still removes old set/MapLiteralEntryWrite
-and common install Stop. This supersedes repeated native get/values Result-only
-slices as a proposed solution to Owned intake; it does not undo the landed native
-JSON/GC correctness repairs. Read-only audit and pointer guard only this step;
-no code, build or new fixture was used to infer a missing identity authority.
+nyash.map.birth_h, old set/MapLiteralEntryWrite and common install Stop at actual
+source switch. Native compatibility export remains Native-only. Acceptance of
+the full series covers empty/multiple Maps/unused aliases/Map-before-New across
+source to EXE, plus all allocation/install/end Fault paths. This supersedes
+repeated get/values Result-only slices as a proposed Owned-intake solution.
+This Decision is read-only audit evidence; no new source fixture, ABI or code is
+claimed implemented. The native JSON/GC correctness repairs remain landed.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

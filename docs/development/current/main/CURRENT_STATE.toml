@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "OWN-FIELD-CONTAINER-DEST-D0"
+work_mode = "fast"
+current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Accepted Map publication premise reset: infallible NyashBox Clone cannot carry non-Clone Owned entries. Preserve Native-only public facade; checked intrinsic facade is non-NyashBox with common storage and one table per Map. Next decide checked allocation identity/lifetime through actual Normal projection, install/root end and descriptor/C consumer; birth_h native publication is the retirement target. No Owned intake or source activation."
+current_blocker_token = "Accepted caller-owned opaque checked Map lifetime. Next implement common actual storage and Native-only public/non-NyashBox checked facades with real SafeMutex indexed residence end. Preserve precommit candidate, commit/detach and reverse end outside locks. Descriptor/ABI and mixed-origin cleanup consumers follow; unused aliases add no residence, later New Fault must end prior Maps. Keep source install Stop until full cutover; no host publication or Dynamic escape."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -49,8 +49,8 @@ in Completion and unconnected Map demand stops at common package install.
 Native Map insert/remove/clear now drop detached values outside locks; owned-slot
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
-next_design_card = "OWN-FIELD-CONTAINER-DEST-D0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
