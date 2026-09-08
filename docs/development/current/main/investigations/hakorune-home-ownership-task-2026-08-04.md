@@ -282,8 +282,8 @@ tags/Arc/clone, declaration-only I64UnitTrivial ABI and matching owner numbers.
 Fail-fast boundary: reject missing/foreign source relation, unsupported candidate
 or stale obligation before effects/artifact; retain existing escape Stops until
 actual source/physical consumers close. No implicit share or carrier-to-Home cast.
-Smallest next slice: connect exact Normal acquisition and Map transfer flow
-to the root Completion/Recipe cleanup consumer; descriptor compatibility is closed.
+Smallest next slice: close the Map-owned indexed-residence interface and
+profile/thread identity, then connect source flow and the existing root cleanup owner.
 The one-entry transfer law is fixed; do not repeat that policy census.
 Non-claims: source Map execution, runtime retention, general Home Flow, full
 key/residence/cleanup matrix or public cutover.
@@ -425,6 +425,47 @@ state table added to the physical claim ledger. Before code, fix the actual
 Completion/Recipe consumer for the changed cleanup state, including Map end;
 a source-only Compatible receipt or green prefix test does not close that seam.
 Do not repeat the closed descriptor compatibility or root-loan census.
+
+**Completion and physical consumer Decision**
+
+`ResolvedCleanupObligationsV1::terminal_homes` can remain the ordered root
+binding list: transferred children leave that successor's list, and the Map
+binding remains. Do not delete the original `local_commits` acquisition/Birth
+validation evidence. Do not flatten Map children back into ordinary local end
+rows. Map runtime entry order and root lexical order are different authorities.
+
+Reuse `ordinary_new_admission/selected.rs::emit_root_home_exit_payload` for
+first-Fault/best-effort suffixes. Its current origins and validators force every
+binding through ordinary-New `local_commits` and `InvokeOperation::HomeRelease`.
+The existing root progress owner must instead consume a finite ordinary-object
+end / intrinsic-Map end operation, with the same operation retained for graph
+validation. No parallel Map root cleanup ledger. `root_cleanup_graph` currently
+projects optimized graphs only for one origin; multi-origin coverage must be
+explicitly verified or remain unavailable, never inferred from reachability.
+
+Install and old cleanup are separate fallible operations: install Fault means
+uncommitted; install Normal supplies committed state and detached-old/no-old
+result; detached-old end Fault keeps the commit. FieldSet/ArrayElementWrite Unit
+results cannot encode this. Map allocation and Map builtin end need their own
+physical operations; no fabricated CanonicalObjectId or generic Call hides them.
+`NewFaultContinuationV1` is source-checked direct-local New only, so a Map Fault
+needs its own exact source scope/target relation from the control owner.
+
+The final handoff must retain checked Map source/end evidence; Map is not an
+unverified NoBirth case. Whole-root Map forwarding also needs an outgoing Home
+and cleanup-Fault contract, not the current scalar return-value slot. These are
+included cutover blockers, not permission to open unsupported Home returns.
+
+**Physical residence prerequisite (source compatibility is not storage compatibility)**
+
+The [Map construction owner](../design/collection-literal-construction-ssot.md#map-owned-canonical-object-residence)
+owns the storage Decision. Current checked object allocation returns a negative
+indexed-store identity; Map Handle5 accepts a positive host handle and clones
+its NyashBox. PlainI64NoHook proves end semantics, not interoperability. Keep
+`named-non-host-handle` and boxed-object escape Stops until the actual Map entry
+can accept and discharge that exact obligation. Fix the cross-crate residence
+interface and profile/thread identity before authorizing source transfer code;
+do not merely add more accepted source rows with a pending physical consumer.
 
 **Transaction and acceptance**
 

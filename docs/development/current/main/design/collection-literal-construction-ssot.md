@@ -1323,6 +1323,52 @@ cleanup after a:=A/b:=B/a:=C, old cleanup Fault and ending-state re-entry refusa
 Keep runtime escape Stops until source, physical and actual runtime consumers
 close; no second payload table, implicit share or numeric-Array substitution.
 
+### Map-owned canonical object residence
+
+Decision: source PlainI64NoHook compatibility does not make an indexed object a
+host Handle5. Keep the actual payload in the existing typed-object indexed store;
+the existing Map entry owner receives its authorized end responsibility in a
+distinct owned residence. Preserve storage profile, stable storage identity,
+exact type and admitted end evidence. No second payload table, field snapshot,
+uniform Arc promotion or cloneable pseudo-Home wrapper.
+
+Observed chain: selected `lifecycle_v4_emit.inc` calls
+`nyash.object.checked_new_v1`; `exports/typed_object_store_backend.rs` allocates
+`Vec<Option<TypedSlotObject>>` and returns `-(index+1)`. `static_v2_emit.inc`
+currently calls `nyash.map.literal_store_v1`; its Handle5 path requires a live
+positive host handle and clones through `map_value_from_live_object` into
+`MapBox.data: HashMap<MapKeyDomain, Box<dyn NyashBox>>`. The actual projection
+refusal is `map-frame/named-non-host-handle` for TypedObject/DirectArray, with a
+separate boxed-object escape refusal. Neither Stop may be erased by retagging.
+
+Missing physical owner: `MapOwnedCanonicalObjectResidenceMissing`. Required
+path is same indexed payload -> Map entry responsibility -> explicit detach ->
+existing indexed reclaim. `take_indexed` removes an Option once with exact type
+checking; slots never shift or reuse indices. SafeMutex has a process-wide store;
+SingleThreadExact uses thread-local storage, so profile/index/type alone is not
+cross-thread identity. Preserve origin-thread affinity or reject the unsupported
+transfer before mutation; SafeMutex evidence is not TLS evidence.
+
+MapBox is in the root crate while indexed storage is in nyash_kernel, which
+already depends on root. The residence interface must respect that dependency
+direction. No root-to-kernel dependency or global callback registry is authorized.
+The concrete interface and end-result carrier remain the next bounded design.
+Root BoxCore is Send+Sync and NyashBox requires clone_box/share_box; neither
+provides a nonduplicating responsibility with explicit end. Text-only host leases
+are not a typed-object interface. SafeMutex needs no new ABA generation under
+its permanent-index contract; TLS needs confinement beyond the current enum-only
+profile check. Audit the Map read/clone/
+delete/clear/end callers together with intake; changing insertion alone cannot
+establish sole ownership. Child end remains outside the Map lock.
+
+Completion/root cleanup reuses the existing ordered binding list and suffix
+builder, selecting ordinary-object versus intrinsic-Map end at the existing
+progress owner. Install Normal and detached-old cleanup are distinct operations;
+source transfer is never reconstructed from physical progress. End-to-end
+acceptance includes native end once, no old-local double end, duplicate-key
+replacement, pre/postcommit Fault, Map/root cleanup, drift and profile/thread
+mismatch. This accepted design is not runtime activation or source execution.
+
 ### Map source-shape preservation decision
 
 Decision: retain ordered Map keys and exact EntryValue source relations in the
