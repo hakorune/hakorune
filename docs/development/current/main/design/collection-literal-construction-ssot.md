@@ -446,29 +446,131 @@ found no existing general exact-value owner usable for the full Map domain:
   Integer. Passing raw scalar bits (including0/1) would permit handle collision
   or type loss. Its1/0 result reports applied/not-applied, not lifecycle Fault.
 
-| Value domain | Required projection and physical treatment |
+### Selected source premise and runtime treatment
+
+Boundary of the completed source premise audit: MapLiteral child -> selected
+Script source seal/current raw and Core child lowering -> published route.
+Includes every ScriptLexicalCore expression gate; excludes runtime projection,
+transferred child execution and unselected backends. This is not full cutover
+Exhausted evidence. The complete gate in `shadow/traversal_profile.rs` admits
+Literal/Variable, Unary/Binary/Await/Check/GroupedAssignment, Array/Map/Record/
+EnumMatch, plus Script-only Lambda/MethodCall/FromCall. BlockExpr requires its
+recursive pure predicate (Literal, Unary, Binary, Await, Check, BlockExpr), with
+optional Print around a pure prelude expression. All other arms decline;
+`is_catalog_brand_expression` is the separate existing catalog-brand exception.
+Gate acceptance still requires lexical/schema/continuation and child-owner
+admission. Transparent/Transferred/Diagnostic rows are not Resolved body rows.
+
+Ordinary FunctionCall/Call/If reach existing source `ObservationDeferred` before
+MIR effects. A direct Map value MethodCall has no MapEntryValue parent body-shape
+relation and therefore reaches continuation `MissingParent`, wrapped as source
+`IntegrityInvalid`. The natural counterexample is
+`local text = "abc"; local map = %{"n": text.length()}`. This is a static code
+conclusion, not an executed fixture. Core value-if's separate pure-branch checks
+and then-side type are not a generic mixed-result ABI authority. Thus preserving
+Map's child port does not require promoting these unselected families. Float
+has no source Stop: do not invent one to dismiss its physical dependency.
+
+Decision: the selected write will pass an explicit kind and 64-bit payload to
+one Map-specific runtime store, which materializes the value at the write.
+It will not register temporary scalar handles and then run the Any decoder.
+This local physical representation is not a whole-program tagged calling ABI.
+Numeric wire tags, export signature and status are still to be fixed with the
+complete input projection before implementation; this is not a shipped ABI.
+
+| Proven representation | Runtime treatment at the write |
 | --- | --- |
-| Integer | Exact definition or validated integer operation/result ABI; box with existing `nyash.box.from_i64`, never pass raw integer into Any codec. |
-| Bool | Exact Rust Bool/comparison/validated ABI, preserved before JSON; normalize its physical lane and use `nyash.box.from_bool`. Integer0/1 is not Bool. |
-| Float | Exact f64 definition/ABI and bit-preserving transport; `nyash.box.from_f64` exists, but generic C float production is incomplete. A runtime symbol alone does not close it. |
-| Handle, any concrete box class | Proved allocation or validated handle ABI; retain handle. Unknown class is not unknown representation and must not be reboxed as Integer. |
-| Boxed sum | Validated ABI-plan plus emitted boxed handle; local unboxed variants are different. |
-| Void including Null | Language [Null/Void contract](../../../../reference/language/types.md#null-vs-void-ssot) makes both runtime Void. Materialize a real Void value;0 decodes as Integer0. No Void boxing export exists in inspected `box_helpers.rs`; close this runtime representation dependency. |
-| Mixed raw integer-or-handle ABI | No inference from bits or handle lookup. Requires a tagged/boxed producer ABI or an existing authorized terminal; not generic Any proof. |
+| I64 | Bit-preserving payload -> IntegerBox; a live handle with the same numeric bits is irrelevant. |
+| Bool | Require exactly0/1, then BoolBox; Integer0/1 remains I64. |
+| F64 | Preserve all64 bits -> FloatBox via `f64::from_bits`, including negative zero and NaN payload. |
+| Handle | Require a live handle, then the existing MapValueBorrowString live-object branch; missing handle is InvalidContract, never Integer. |
+| Boxed sum | Only an already validated boxed-handle ABI qualifies as Handle; unboxed variants require their own producer contract. |
+| Void including Null | Require canonical zero payload and materialize VoidBox. Both are runtime Void under the language contract, distinct from Integer0. |
 
-Copy/PHI/Select preserve proven representation. Same representation, including
-different concrete handle classes, may merge. Integer/Bool, raw integer/handle
-and Unit/value joins need an explicit common boxed representation at predecessor
-edges or an existing tagged ABI. Cycles require a seeded fixed-point or validated
-ABI contract; unvisited or unresolved is never integer. Operation spelling alone
-also cannot prove a polymorphic operator's result; consume its validated ABI.
+The runtime owner is `plugin/map_slot_store.rs` plus the existing live-object
+branch of `value_codec/decode.rs`; extract that branch for compatibility reuse
+without calling the permissive Any decoder from the selected store. Validate
+map, strict String key and value before `MapBox::insert_key_str`. Decode/clone
+outside the Map write lock. Preserve String/StringView borrow/materialization
+and non-String `clone_box()` behavior; unconditional Arc sharing changes nested
+Map semantics. InvalidContract must leave the Map unchanged. Existing fatal
+allocator/lock behavior is not a returned source Fault and needs no fabricated
+Array FaultFrame. Exact success/InvalidContract status handling remains part of
+the unopened compiler/runtime ABI slice.
 
-Smallest next work within this same D1: close the private published operand
-projection's finite producer/ABI/merge table and the Float, Void and mixed-result
-physical dependencies above. Name the actual output consumer and any existing
-pre-effect terminal for each category. No fresh residual-Method census or
-constant-only projection I0. The construction/write series remains one eventual
-cutover, not a set of independently complete literal variants.
+Length-aware String materialization is a mandatory dependency, for literal
+keys and selected String values alike. Current same-module globals/boxing,
+const hoisting and string-const helpers use `strlen`, so fixing only the store
+would still truncate embedded NUL. Retain exact JSON byte length through the
+existing C string-constant owner and LLVM byte emission, then use a length-aware
+UTF-8 runtime entry. That entry can reuse
+`exports/box_helpers.rs::string_literal_handle_from_text(&str)` and its existing
+content-keyed cache; no second cache or pointer-based identity is needed. The
+pointer/length validity and invalid UTF-8 failure contract must be explicit.
+Do not reject NUL or change literal-key acceptance to avoid this work.
+
+Copy/PHI/Select must retain the projected representation on the exact supplied
+SSA edges. Prefer private tag/payload lanes over boxing on predecessor edges:
+boxing early would move allocation before the Map/key/child evaluation sequence.
+Mixed representations need those explicit lanes or an existing validated ABI;
+raw-bit tests, absent origins and unseeded cycles are not evidence. Polymorphic
+operation names alone do not establish their result ABI.
+
+### Published operand projection inventory
+
+Boundary: Map value operand -> reachable published SSA producer and selected
+call ABI -> tag/payload consumed by C. Includes the producer categories below;
+excludes source type inference, compatibility method re-resolution, V4 and
+nonselected backend expansion. This is a finite audited inventory, not an
+Exhausted claim over every MIR instruction or an implementation authorization.
+
+| Producer | Projection or remaining contract |
+| --- | --- |
+| Scalar/String/Null/Void Const | Exact Rust ConstValue before JSON; Float payload is `to_bits()`, String uses exact byte length. |
+| Intrinsic allocation | Construction target plus admitted allocation ABI yields Handle. |
+| Named allocation | Only the selected physical allocation/typed-object plan proves Handle; retain `unsupported_newbox_type` for unsupported allocation. |
+| Copy/CopyOwned | Retain the source projection through alias rewriting. |
+| PHI/Select | Retain all exact incoming values/edges or condition/arms, selecting both lanes; no unknown-to-known default. |
+| Integer Add/Sub/Mul/Div/Mod | Require exact integer operands and the admitted integer opcode contract. |
+| String Add | Require an admitted String operation's handle-return contract, not origin heuristics alone. |
+| Compare/logical Not | Bool result only after input operation validity is established; normalize payload to0/1. |
+| Other unary/binary | Preserve admitted consumer contracts and `unsupported_unop_kind` / `unsupported_binop_kind`; never use the generic integer path for Float arithmetic. |
+| Selected Static/Free call result | Exact canonical key/definition and existing checked Integer return ABI only; not generic Call or unknown signatures. |
+| Print | No value result. |
+| Function formal | CutoverBlockerOpen: `SelectedPublishedFormalValueDomain`, below. |
+| Boxed sum | Existing valid ABI plan and emitted boxed handle only. |
+| Compatibility/mixed return or another reachable producer | Needs its own already admitted exact ABI or an authorized terminal; neither origin absence nor legacy success proves representation. |
+
+The Float issue is concrete: generic prescan registers every non-String Const
+using `yyjson_get_sint` and `publish_plain_i64_value`; generic dispatch skips
+non-i64 non-String constants. Same-module prepass does not admit Float. Adding
+an F64 tag to that existing register is wrong. The private projection must emit
+exact Rust Float bits directly and preserve them through Copy/PHI/Select; source
+Float admission is unchanged. This does not authorize Float arithmetic or claim
+that existing generic Float execution already has a sound unsupported terminal.
+
+`SelectedPublishedFormalValueDomain` is the remaining named authority question.
+The static view validates selected definition/key/arity and Integer return ABI,
+but definition formal preflight checks count and C emits uniform i64 parameters.
+Transport width and missing metadata cannot establish a formal's value domain.
+A Map demand crossing a function boundary needs exact selected actual/formal
+correspondence and a representation contract. If multiple actual kinds are
+admitted, tags must survive that ABI boundary too; local PHIs alone cannot fix
+it. No silent signature widening, by-name specialization or guessed Integer.
+
+Next action: resolve this formal-domain contract in the existing published
+owner, then fix the one input/wire/status mapping and producer treatment before
+implementation. Source premise, runtime storage feasibility and the concrete
+Float loss are settled evidence, not reasons for another broad census. Missing
+producer coverage remains CutoverBlockerOpen; unselected Call/control promotion
+is not required. No constant-only projection I0: the construction/write series
+has one cutover and the same six old edges to retire.
+
+Runtime acceptance includes scalar classes, Integer/live-handle collision,
+malformed Bool/Void, exact F64 bits, invalid handles/no mutation, retained String
+lifetime, nested clone behavior, duplicate keys, canonical numeric key versus
+noncanonical text, and empty/UTF-8/NUL keys and String values. Compiler acceptance
+must prove evaluation order and no temporary scalar handle registration.
 
 Fail-fast boundary: missing intrinsic allocation/write/representation products
 reject before artifact, without Named recovery or legacy retry. Map-only real

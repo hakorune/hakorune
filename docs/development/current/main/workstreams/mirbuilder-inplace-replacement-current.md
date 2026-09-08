@@ -637,7 +637,7 @@ Decision: retain IntrinsicMap plus result-free `MapLiteralEntryWrite { receiver,
 Source authority + canonical issuer: existing literal/key/MapEntryValue child owners. Private published input/frame owns exact physical operand projection before lossy JSON, using validated definition/ABI products.
 Non-authority: legacy plans, body Bool-as-i64, T_I64/absent origin and runtime handle lookup cannot supply value kind. No new semantic receipt or scalar-only source narrowing.
 Fail-fast boundary: missing allocation/write/representation products before artifact, without fallback.
-Smallest next work: close the finite value producer/ABI/merge table plus Float, Void and mixed-result physical dependencies in the [Map owner](../design/collection-literal-construction-ssot.md#physical-representation-obligation--implementation-still-closed). No repeated residual census; source code stays unchanged until mapping closes.
+Smallest next work: resolve `SelectedPublishedFormalValueDomain`, then the final projection/wire contract in the [Map owner](../design/collection-literal-construction-ssot.md#published-operand-projection-inventory). Uniform i64 formals do not prove Integer; Float prescan loses payload. Source premise/runtime feasibility are closed; exact Float bits and length-aware String are mandatory. No repeated broad census or unselected-family promotion; code stays unchanged until mapping closes.
 Non-claims: no empty-Map/constant-only I0 or full Map/Recipe/lifecycle/R7 claim. Static evidence: Bool JSON loses kind; Any Map store can reinterpret raw integers as handles; Null/Void are one runtime Void per language SSOT, not Integer0.
 
 ## Source and ownership budget

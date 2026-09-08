@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
 current_execution_cohort = "map_literal_selected_construction_d1"
-current_design_stop = "Map physical operand representation and complete producer ABI/merge mapping remain open"
-current_blocker_token = "Map operation choice accepted: IntrinsicMap plus result-free MapLiteralEntryWrite. Full D1 remains open: private published input/frame must preserve exact value representation before Bool-as-i64 JSON; close finite definition/validated-ABI/Copy-PHI-Select table and Float/Void/mixed-result dependencies. Any codec cannot classify raw bits, unknown handle is not integer, Null/Void is runtime Void. No constant-only source narrowing or implementation until mapping closes."
+current_design_stop = "SelectedPublishedFormalValueDomain and final Map projection/wire contract remain open"
+current_blocker_token = "Map source premise and explicit-kind store feasibility closed. SelectedPublishedFormalValueDomain remains open: uniform i64 formals do not prove Integer; exact selected actual/formal representation must cross the ABI. Float prescan loses payload, so retain Rust bits directly. Finish producer/merge and length-aware String wire/status mapping before implementation. No raw-bit inference, source narrowing, unselected family promotion or repeated broad census."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,8 +31,8 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Map write operation decided; exact physical operand projection is required
-before lossy JSON. Float/Void/mixed ABI and merge dependencies remain open.
+Map source premise and explicit-kind runtime store feasibility closed.
+Formal-domain ABI, exact Float payload and length-aware String wire mapping remain.
 """
 next_design_card = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
 next_execution_card = "none"
