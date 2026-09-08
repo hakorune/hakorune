@@ -401,21 +401,80 @@ of Task2 or a reason to delete generic Method compatibility.
   Generic-entry size and same-module length also have different admission.
   Runtime symbols and retained type observations do not issue a canonical plan.
 
-### One bounded next task: MAP-LITERAL-SELECTED-CONSTRUCTION-D1
+### MAP-LITERAL-SELECTED-CONSTRUCTION-D1: retained operation decision
 
-Source authority + issuer: existing literal source/child owners retain intrinsic
-construction and each ordered entry's write meaning before physical emission.
-Non-authority: box-name strings, legacy plan inference, C no-op birth, destination
-completion and unrelated Print cannot supply missing canonical authority.
-Fail-fast: an explicit intrinsic site missing its required allocation/write
-product rejects before artifact; no Named recovery or legacy retry.
-Smallest next slice: close construction **and populated-entry write** mapping
-through existing publication/selected consumers, with a natural Map-only
-OBJ/EXE terminal, before selecting implementation. Decide the retained write
-representation and physical key/value contract; do not merely make legacy
-planners accept canonical MIR and infer source meaning again.
-Non-claims: general Map method/read/size expansion, new typed-Map contracts,
-Map Fault/Home lifecycle, portable Recipe completion, VM/WASM parity or R7 closure.
+Decision: add `IntrinsicMap` to the existing construction target and one
+`MapLiteralEntryWrite { receiver, key, value }` to existing MIR/Core operation
+enums when this series is executable. The write has no result, kind/producer
+flag, optional receipt or second source-site table. Both literal producers
+currently discard set's result. Canonical call vocabulary has no existing
+intrinsic Map put target; a named Method or runtime Extern is not a replacement.
+
+Source authority + issuer: the existing raw/normal Script literal owner and Core
+Map arm retain construction, key String and exact MapEntryValue child. Keep
+allocation -> key Const -> child evaluation -> write for every entry. Preserve
+all existing child acceptance; no Integer/Bool-only source classifier.
+Core copies this explicit operation into MIR. This remains an identity/write
+cutover through current AST-bearing lowering, not portable Recipe completion.
+
+Non-authority: box names, Call schema, legacy plans, destination completion and
+unrelated Print cannot issue intrinsic semantics. The operation's fixed effect
+must conservatively cover current raw MUT and Core Io ordering; do not add a
+mutable effect field or weaken it to gain optimization.
+
+Physical authority: the existing published input/frame owner must check and
+project exact operand representation **before** the shared lossy JSON emitter.
+Use private physical data, validated definition/ABI products and exact site/SSA
+identity; no new semantic Verified/Prepared receipt. C consumes that projection,
+validates the physical contract and performs boxing; it cannot classify source
+expressions, default an unknown value to i64 or search handles to infer a kind.
+
+### Physical representation obligation — implementation still closed
+
+The read-only D1 audit at `ca2dba4724` closes the operation choice above, but
+found no existing general exact-value owner usable for the full Map domain:
+
+- `runner/mir_json_emit/emitters/basic.rs` emits Rust Bool as i64(0/1), and
+  Null/Void as void(0). C body-only reconstruction cannot recover Bool.
+- `same_module_value_metadata` and `pure_value_type_metadata` collapse unknown
+  handle classes and Void to T_I64. Missing origin is not integer proof.
+- `ValueRepresentationFact` contains only BoxedSumHandle. Its refresh is not
+  a general scalar/handle authority. Native Array's exact Const projection is
+  limited to retained Script Array; Dynamic's ledger belongs to another session.
+- `nyash.map.slot_store_hhh` / `map_slot_store_str_any` use
+  MapValueBorrowString: live handles decode as values, otherwise bits become
+  Integer. Passing raw scalar bits (including0/1) would permit handle collision
+  or type loss. Its1/0 result reports applied/not-applied, not lifecycle Fault.
+
+| Value domain | Required projection and physical treatment |
+| --- | --- |
+| Integer | Exact definition or validated integer operation/result ABI; box with existing `nyash.box.from_i64`, never pass raw integer into Any codec. |
+| Bool | Exact Rust Bool/comparison/validated ABI, preserved before JSON; normalize its physical lane and use `nyash.box.from_bool`. Integer0/1 is not Bool. |
+| Float | Exact f64 definition/ABI and bit-preserving transport; `nyash.box.from_f64` exists, but generic C float production is incomplete. A runtime symbol alone does not close it. |
+| Handle, any concrete box class | Proved allocation or validated handle ABI; retain handle. Unknown class is not unknown representation and must not be reboxed as Integer. |
+| Boxed sum | Validated ABI-plan plus emitted boxed handle; local unboxed variants are different. |
+| Void including Null | Language [Null/Void contract](../../../../reference/language/types.md#null-vs-void-ssot) makes both runtime Void. Materialize a real Void value;0 decodes as Integer0. No Void boxing export exists in inspected `box_helpers.rs`; close this runtime representation dependency. |
+| Mixed raw integer-or-handle ABI | No inference from bits or handle lookup. Requires a tagged/boxed producer ABI or an existing authorized terminal; not generic Any proof. |
+
+Copy/PHI/Select preserve proven representation. Same representation, including
+different concrete handle classes, may merge. Integer/Bool, raw integer/handle
+and Unit/value joins need an explicit common boxed representation at predecessor
+edges or an existing tagged ABI. Cycles require a seeded fixed-point or validated
+ABI contract; unvisited or unresolved is never integer. Operation spelling alone
+also cannot prove a polymorphic operator's result; consume its validated ABI.
+
+Smallest next work within this same D1: close the private published operand
+projection's finite producer/ABI/merge table and the Float, Void and mixed-result
+physical dependencies above. Name the actual output consumer and any existing
+pre-effect terminal for each category. No fresh residual-Method census or
+constant-only projection I0. The construction/write series remains one eventual
+cutover, not a set of independently complete literal variants.
+
+Fail-fast boundary: missing intrinsic allocation/write/representation products
+reject before artifact, without Named recovery or legacy retry. Map-only real
+OBJ/EXE acceptance is required; empty Map cannot stand in for populated values.
+Non-claims: this design review changes no source/code/runtime behavior, adds no
+Map lifecycle receipt and proves neither full Map execution nor R7 completion.
 
 Finite design inventory: source raw/normal Script/Core issuers; existing target
 product and Core verifier/lowerer; clone/remap/Core13; JSON emit/import and printer;
@@ -424,11 +483,11 @@ method/map/typed-object origin observers; explicit named-new/Main callers; and
 nonselected backend terminals. Classify wildcard observers explicitly: compiler
 exhaustiveness alone cannot prove no intrinsic-to-named reclassification.
 This inventory is open until those owner treatments and acceptance are fixed;
-the two read-only audits are not an Exhausted/implementation-permission claim.
+source/C audits are not an Exhausted/implementation-permission claim.
 
 Retirement set for the eventual series: both Map literal Named allocations and
-both literal birth emissions, plus the selected canonical write's old dependency
-when its successor is proven. Keep shared birth helper (`decls.rs` still calls it
+both literal birth emissions and both named literal set emissions when the
+explicit write consumer is proven. Keep shared birth helper (`decls.rs` still calls it
 for named argv Array), named New/provider behavior and live generic C routines.
 Acceptance must cover natural empty/populated/nested Map-only source, named
 shadow noninterference, key/duplicate/evaluation order, undefined-child boundary,

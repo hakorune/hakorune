@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-PUBLISHED-CANONICAL-COMPATIBILITY-RESIDUAL-D0"
-current_execution_cohort = "mir_call_published_canonical_compatibility_residual_d0"
-current_design_stop = "Residual audit decision closed; Map construction/write mapping remains the next design task"
-current_blocker_token = "Residual audit closed: runtime Method/Named compatibility remains intentional; no blanket Stop. Existing Map literal Named+birth edge is open, and canonical Map set lacks the legacy-only C plan. Commit/push read-only audit and exact Map D1 task; next close construction plus entry-write source/product/physical mapping and Map-only OBJ/EXE acceptance before implementation. No enum-only or dummy-Print cutover."
+work_mode = "design_stop"
+current_execution_row = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
+current_execution_cohort = "map_literal_selected_construction_d1"
+current_design_stop = "Map physical operand representation and complete producer ABI/merge mapping remain open"
+current_blocker_token = "Map operation choice accepted: IntrinsicMap plus result-free MapLiteralEntryWrite. Full D1 remains open: private published input/frame must preserve exact value representation before Bool-as-i64 JSON; close finite definition/validated-ABI/Copy-PHI-Select table and Float/Void/mixed-result dependencies. Any codec cannot classify raw bits, unknown handle is not integer, Null/Void is runtime Void. No constant-only source narrowing or implementation until mapping closes."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,11 +31,11 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Residual audit selects the existing Map construction/write design obligation;
-accepted compatibility remains, and populated Map execution is not yet proven.
+Map write operation decided; exact physical operand projection is required
+before lossy JSON. Float/Void/mixed ABI and merge dependencies remain open.
 """
 next_design_card = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
-next_execution_card = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

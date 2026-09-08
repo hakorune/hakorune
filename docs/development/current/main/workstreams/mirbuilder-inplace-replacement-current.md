@@ -631,14 +631,14 @@ At `dee0d91fd3`, two read-only audits plus parent source/host checks confirmed t
 Boundary: published static view/frame -> entry and same-module C walkers -> typed/compatibility terminal; includes Method/Call-Constructor/Named/intrinsic allocation. Excludes closed Global/Extern inventories, V4, general source census and other backends. Rowless Method and Named allocation retain compatibility; explicit intrinsic Array row absence rejects. Call-Constructor/Math keeps its prior disposition.
 Map literal remains CutoverBlockerOpen: raw and Core emit Named(MapBox)+birth; canonical set has no legacy-only write plan, so allocation-only extension cannot prove populated Map execution. The [Map owner task](../design/collection-literal-construction-ssot.md#map-literal-selected-construction-design) contains exact issuers, physical gap, inventory, deletion and acceptance. No Exhausted/R7 claim.
 
-#### MAP-LITERAL-SELECTED-CONSTRUCTION-D1 — next
+#### MAP-LITERAL-SELECTED-CONSTRUCTION-D1 — active design
 
-Decision: close the existing Map construction plus ordered write mapping before implementation; reuse existing owners and intrinsic literal policy.
-Source authority + canonical issuer: literal/child source owners; D1 must retain construction and each key/value/write relation through the selected consumer.
-Non-authority: Call schema, legacy plan/name lookup, C birth no-op and dummy Print selection.
-Fail-fast boundary: missing intrinsic allocation/write products before artifact, without compatibility recovery.
-Smallest next slice: bind Map-only natural OBJ/EXE acceptance to one complete source/product/physical mapping; preserve named New and retire both literal birth edges in the series.
-Non-claims: no disconnected enum-only I0, Map lifecycle/typed-map/general-method widening or full canonical/compatibility completion. Compile-call state follows the retained order unless a demonstrated shared-state failure reopens it.
+Decision: retain IntrinsicMap plus result-free `MapLiteralEntryWrite { receiver, key, value }` in existing MIR/Core; two worker audits close this choice, not execution permission.
+Source authority + canonical issuer: existing literal/key/MapEntryValue child owners. Private published input/frame owns exact physical operand projection before lossy JSON, using validated definition/ABI products.
+Non-authority: legacy plans, body Bool-as-i64, T_I64/absent origin and runtime handle lookup cannot supply value kind. No new semantic receipt or scalar-only source narrowing.
+Fail-fast boundary: missing allocation/write/representation products before artifact, without fallback.
+Smallest next work: close the finite value producer/ABI/merge table plus Float, Void and mixed-result physical dependencies in the [Map owner](../design/collection-literal-construction-ssot.md#physical-representation-obligation--implementation-still-closed). No repeated residual census; source code stays unchanged until mapping closes.
+Non-claims: no empty-Map/constant-only I0 or full Map/Recipe/lifecycle/R7 claim. Static evidence: Bool JSON loses kind; Any Map store can reinterpret raw integers as handles; Null/Void are one runtime Void per language SSOT, not Integer0.
 
 ## Source and ownership budget
 
