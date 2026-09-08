@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Opaque Map/key/outcome ABI and descriptor V2/session2 implemented; 31 focused Rust tests, actual archive/symbol checks, C runtime harness and 10 session rejections pass. Next operation-derived MIR/key/Map/outcome projection and mixed-origin cleanup, then C emission using the session layouts. Preserve unused aliases without new Home and prior Maps on later New Fault. Source install Stop remains until source/OBJ/EXE cutover."
+current_blocker_token = "Opaque ABI landed at 7cc63ab9ea. Before Map opcode growth: behavior-neutral flow rewrite-owner split, then one bound-frame demand/domain/original analysis; ownership task Map quality queue owns acceptance and SSA/effect follow-ups. Resume operation-derived MIR and mixed-origin cleanup, then C emission. Source install Stop remains until source/OBJ/EXE and old-edge cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

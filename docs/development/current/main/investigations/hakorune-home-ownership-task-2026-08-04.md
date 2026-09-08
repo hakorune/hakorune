@@ -871,6 +871,56 @@ emission using the existing session layouts. Preserve unused aliases without a
 new Home; later New Fault must release earlier Maps. Validate both retained and
 optimized graphs before source switch and selected old-edge/install-Stop deletion.
 
+**Map quality queue (2026-09-09, measured at 7cc63ab9ea)**
+
+Boundary: current Map physical-frame construction and the shared owners touched
+by its MIR opcode cutover; includes derived-analysis reuse, effect consumers and
+source budgets, excludes a repository-wide thinning or performance claim.
+Runtime opaque ABI validation does not close this compiler queue.
+
+1. Correct the rolling source budget now: remove the absent raw invocation
+   transport and replace historical counts with measured live paths. Confirmed
+   local.rs774, flow.rs759, instruction.rs744 and raw dispatch754. This repairs
+   current documentation, not the outstanding source splits.
+2. Before Map opcode extension, extract value-use rewriting and its tests from
+   simplify_cfg/flow.rs; the existing flow owner keeps CFG/PHI decisions. Done:
+   old helper body removed, private owner wiring, focused rewrite/CFG tests and
+   corridor guard; no instruction semantics or new accepted form in this split.
+3. Before extending the Map frame, compute demand/domains/actions/original once
+   in its existing private physical planner, after with_named_allocations binds
+   the index. This is not source Facts: graph and Named observations are inputs.
+   c_transport_v2.rs:267-268 and map_projection.rs:91-125 currently cause five
+   map_value_demands calls, two domain computations and two original computations
+   per successful frame; do not call this five fixed-point computations.
+   Retain the analysis only for that bound graph/frame; never reuse across
+   optimization or another Named observation. Remove duplicate computation and
+   temporary results; retain coverage refusal for arbitrary action inputs unless
+   their construction becomes private and complete. Done: existing domain,
+   original-demand and frame tests preserve recursive formals, Phi/Copy seeds,
+   Bool refusal, missing Named observation and partial-action/frame rejection.
+   No new semantic receipt, process-global cache or per-row guard.
+4. Split local.rs's 618-line materialize_local_v1 by existing ordered phases
+   before extending it. Preserve cache, forwarding, failure-policy and emission
+   order; one materialization owner, no second Facts classification. Done:
+   both parent/child below760, focused checked/legacy materialization tests and
+   reusable guard; classify any red against the parent before widening scope.
+   Instruction/raw-dispatch remain deletion/delegation-only until a bounded
+   split creates room. Merely moving the entire large function is insufficient.
+5. At the planned source/write cutover, retire raw Map set (MUT) and normalizer
+   set (PURE+Io) in favor of the selected write contract (MUT+Io). The normalizer
+   mask at helpers_value/lower.rs:603 is inconsistent, but effect.rs:is_pure
+   returns false for Io; DCE elimination, CSE and memory-effect consumers retain
+   it as effectful. No mutation erasure/reordering was established by this audit.
+   Done: selected old edges absent and mutation retained through optimization.
+   If the old set path is edited before retirement, correct its physical mask
+   with a focused check then; do not introduce a second source effect authority.
+
+The next bounded implementation is the flow rewrite-owner split (BoxShape),
+then the bound-frame analysis consolidation (BoxShape), then Map opcode/cleanup
+cutover. The SSA split is explicitly queued before that owner grows; it does not
+block unrelated Map runtime work. These tasks remain open; corrected counts are
+not evidence that their source changes have landed.
+
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 
 The [Map construction owner](../design/collection-literal-construction-ssot.md#map-owned-canonical-object-residence)
