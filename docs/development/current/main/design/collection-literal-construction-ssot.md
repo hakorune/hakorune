@@ -9,7 +9,7 @@ Scope: intrinsic literal identity, retained Script numeric Array lifecycle and s
 
 - **Current decision:** preserve Named versus IntrinsicArray identity, one source lifecycle/Recipe and one runtime storage/contract owner.
 - **Current implementation status:** raw/typed-local/Core literals preserve intrinsic identity; selected retained Script Arrays execute through the checked native ABI and bound V4 OBJ/EXE path. Literal birth and selected duplicate/preparation/projection/Stop edges are retired.
-- **Next ordered task:** the existing canonical/compatibility and backend/runtime queue; wider source families remain explicitly open.
+- **Next ordered task:** close the Map literal selected-construction mapping below before the remaining canonical/compatibility and backend/runtime queue.
 - **Production stop line:** exact retained Script LocalInit/claim coverage and a compatible explicit runtime session are required. Module-only/unselected typed families and Script Loop keep their Stops.
 - **Retirement finish line:** the admitted numeric Script execution series is closed; Map/Main/named/compatibility callers remain live. Wider Array and Call R7 completion are not claimed.
 
@@ -23,7 +23,9 @@ Current scheduling is selected only by `CURRENT_STATE.toml` and the rolling card
 Use one construction-target enum, conceptually Named(String) | IntrinsicArray,
 in existing MirInstruction::NewBox and CoreEffectPlan::NewBox. Replace the
 box_type field; do not retain a parallel string/optional receipt/side table.
-No new allocation opcode or speculative IntrinsicMap variant is needed now.
+The selected Array series added no allocation opcode. Map identity is accepted
+by the language contract, but its product/consumer cutover remains the bounded
+design obligation below; do not add a disconnected IntrinsicMap variant.
 Allocation destination, arguments, effect handling and remapping remain with their
 existing owners. IntrinsicArray has zero constructor arguments.
 
@@ -373,6 +375,75 @@ Existing entry/nested prepasses peek; entry/nested allocation emitters take once
 frame is not a retired lifecycle V2 frame and remains required. Physical layout
 selection is subordinate to its contract, not a source identity issuer.
 
+## Map literal selected-construction design
+
+Decision: resume the Map follow-up already ordered at `83d7553ceb` after Array.
+The residual published audit at `dee0d91fd3` found two concrete literal issuers:
+`builder/collection_literals.rs::build_map_literal_with_port_v1` and the Map arm
+of `control_flow/plan/normalizer/helpers_value/lower.rs`. Both still emit
+Named(MapBox) allocation and birth. This is CutoverBlockerOpen, not completion
+of Task2 or a reason to delete generic Method compatibility.
+
+### Closed source and physical facts
+
+- MapLiteral itself selects builtin Map. Raw/normal Script already has exact
+  `MapEntryValue(index)` child-demand/consume through its existing scoped port.
+  Keys are ordered String data, not arbitrary key expressions. Preserve
+  allocate -> key Const -> value once -> set, duplicate keys and iteration policy.
+- Core retains the same child paths and copies `NewBox.target` into MIR. Its
+  normalizer is AST-bearing legacy Core, not an AST-free portable Recipe.
+- Both C walkers can allocate with `nyash.map.birth_h` and establish
+  `ORG_MAP_BIRTH`. An explicit Map allocation row can select the published
+  route by itself; empty Map must not require dummy Print or another call.
+- This is insufficient for populated Map: its canonical `Call(Method set)`
+  has no matching `generic_method_route_plan/write_routes.rs` plan, whose
+  match currently requires LegacyCallV0. C Map set/get depend on those plans.
+  Generic-entry size and same-module length also have different admission.
+  Runtime symbols and retained type observations do not issue a canonical plan.
+
+### One bounded next task: MAP-LITERAL-SELECTED-CONSTRUCTION-D1
+
+Source authority + issuer: existing literal source/child owners retain intrinsic
+construction and each ordered entry's write meaning before physical emission.
+Non-authority: box-name strings, legacy plan inference, C no-op birth, destination
+completion and unrelated Print cannot supply missing canonical authority.
+Fail-fast: an explicit intrinsic site missing its required allocation/write
+product rejects before artifact; no Named recovery or legacy retry.
+Smallest next slice: close construction **and populated-entry write** mapping
+through existing publication/selected consumers, with a natural Map-only
+OBJ/EXE terminal, before selecting implementation. Decide the retained write
+representation and physical key/value contract; do not merely make legacy
+planners accept canonical MIR and infer source meaning again.
+Non-claims: general Map method/read/size expansion, new typed-Map contracts,
+Map Fault/Home lifecycle, portable Recipe completion, VM/WASM parity or R7 closure.
+
+Finite design inventory: source raw/normal Script/Core issuers; existing target
+product and Core verifier/lowerer; clone/remap/Core13; JSON emit/import and printer;
+published view/frame/exact-site C allocation/write consumers; target-sensitive
+method/map/typed-object origin observers; explicit named-new/Main callers; and
+nonselected backend terminals. Classify wildcard observers explicitly: compiler
+exhaustiveness alone cannot prove no intrinsic-to-named reclassification.
+This inventory is open until those owner treatments and acceptance are fixed;
+the two read-only audits are not an Exhausted/implementation-permission claim.
+
+Retirement set for the eventual series: both Map literal Named allocations and
+both literal birth emissions, plus the selected canonical write's old dependency
+when its successor is proven. Keep shared birth helper (`decls.rs` still calls it
+for named argv Array), named New/provider behavior and live generic C routines.
+Acceptance must cover natural empty/populated/nested Map-only source, named
+shadow noninterference, key/duplicate/evaluation order, undefined-child boundary,
+explicit named New, missing/malformed/duplicate/residual rows and actual OBJ/EXE.
+Earlier MIR parity tests remain dependency evidence only. A supported source
+must not be replaced by an easier fixture to hide an earlier terminal.
+
+Map AST-free lifecycle is a separate open obligation: body shape currently
+retains Map as Other; shadow traversal records value paths but not Array-style
+cardinality/key/entry relations, and Script final handoff seals Array only.
+Do not borrow Array claim/Home/Fault proof. Absence of this lifecycle issuer alone
+also does not prove generic Map artifact execution impossible: the static path
+can select mixed modules. The concrete write-plan gap above blocks declaring the
+whole proposed Map construction cutover executable today.
+
 ## Remaining source obligations
 
 The original wider source cutover still requires materialized Script Loop,
@@ -397,4 +468,5 @@ links, pointer/corridor guards and diff check. No source/test deletion or build.
 The terminal enum row is closed at `a1d86db262`; semantic-package README cleanup
 was already closed and is excluded. Physical storage wire-tag naming is also
 closed in the [constructor follow-up queue](constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
-Next is the rolling backend/runtime order; no second implementation task is added.
+Next is the existing Map construction obligation above, then the rolling
+backend/runtime order; no second implementation task is added.

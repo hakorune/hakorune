@@ -605,20 +605,7 @@ Closed at `4cc9f2b697`: Result store/raw bool projection; Array51/hostStop7 gree
 User accepted stable Rust/fatal-OOM separation; mandatory fallible Arc withdrawn.
 Returned-Fault cleanup remains required; [ordered tasks](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) own the successor series.
 
-#### MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0
-
-Closed at `23757dfeb1`: four kernel sequences retired; Array52/hostStop7/kernel12
-green. Parent7832ba386a kernel test cfg errors were repaired at `7fffbd8a23`;
-no build waiver remains. Owner reference/Git retain exact evidence.
-
-#### MIR-ARRAY-CHECKED-NATIVE-ABI-I0
-
-Closed at `32ed589930`: checked native Array ABI; ABI8/Fault9/kernelArray12/
-rootArray52/hostStop7 green. Runtime reference/collection SSOT own exact errors
-and evidence; C activation remains open.
-
-Task3 `MIR-SCRIPT-ARRAY-FINAL-INPUT-I0` verified: retained Script -> compiled entry -> same physical input/session; I64/Unit, seven specs, primitive bits and cleanup. Source constructors stay private; typed C Stop remains.
-Evidence: Script input3, physical9 (including signed-zero/NaN wire bits), binding6, Birth actual1, artifact2, hostStop7; actual Pair EXE/linked OBJ30 and untyped Array EXE/OBJ pass. Quick build peak8.97GiB; prior four compile errors and Float refusal regression repaired. No whole-lib/C Script execution claim.
+Array dependencies closed: atomic append `23757dfeb1`, checked native ABI `32ed589930`, final input/session `c14cc1e140`; collection owner/Git retain focused evidence. Parent kernel cfg failure repaired at `7fffbd8a23`. Final C execution below supersedes their earlier typed Stops.
 
 #### MIR-SCRIPT-ARRAY-C-EXECUTION-I0 — closed
 
@@ -636,12 +623,22 @@ Pipeline failures: `published_consumer_runs_once_and_propagates_failure_without_
 
 Docs reconciliation closed at `980c99ff2c`: constructor2594->440, collection1155->400 lines; README synchronized, links/guards pass. Contracts, open families and baseline evidence retained.
 
-#### CONSTRUCTOR-PHYSICAL-STORAGE-WIRE-TAG-BOXSHAPE
+Storage wire-tag BoxShape closed at `dee0d91fd3`: value1 retained; Rust physical9, C parser storage0/2 rejection, V4 Pair30/Fault70 and14 malformed cases pass; source max676, guards pass.
 
-Change: name the existing I64 storage wire1 in Rust physical input and shared C header/parser/admission; delete three anonymous production literals.
-Contract: existing layout issuer/serializer and C boundary retain exact value1, unknown-tag/layout rejection and physical ownership; no new storage/source acceptance.
-Done: Rust physical projection/layout9 pass; C build/parser pass including storage0/2 rejection; V4 linked Pair30, Bool Fault70, cleanup/status and14 malformed artifact-preservation cases pass. Parent/pointer guards green; ABI reference/README updated; touched source max676. No whole-lib claim.
-Stop: any representation or accepted-input change is outside this BoxShape. Next resume the existing backend/runtime task order.
+#### MIR-CALL-PUBLISHED-CANONICAL-COMPATIBILITY-RESIDUAL-D0 — decision closed
+
+At `dee0d91fd3`, two read-only audits plus parent source/host checks confirmed the next existing Map obligation; no code/build/runtime evidence was produced. No blanket Method/Constructor Stop or legacy-plan promotion is authorized.
+Boundary: published static view/frame -> entry and same-module C walkers -> typed/compatibility terminal; includes Method/Call-Constructor/Named/intrinsic allocation. Excludes closed Global/Extern inventories, V4, general source census and other backends. Rowless Method and Named allocation retain compatibility; explicit intrinsic Array row absence rejects. Call-Constructor/Math keeps its prior disposition.
+Map literal remains CutoverBlockerOpen: raw and Core emit Named(MapBox)+birth; canonical set has no legacy-only write plan, so allocation-only extension cannot prove populated Map execution. The [Map owner task](../design/collection-literal-construction-ssot.md#map-literal-selected-construction-design) contains exact issuers, physical gap, inventory, deletion and acceptance. No Exhausted/R7 claim.
+
+#### MAP-LITERAL-SELECTED-CONSTRUCTION-D1 — next
+
+Decision: close the existing Map construction plus ordered write mapping before implementation; reuse existing owners and intrinsic literal policy.
+Source authority + canonical issuer: literal/child source owners; D1 must retain construction and each key/value/write relation through the selected consumer.
+Non-authority: Call schema, legacy plan/name lookup, C birth no-op and dummy Print selection.
+Fail-fast boundary: missing intrinsic allocation/write products before artifact, without compatibility recovery.
+Smallest next slice: bind Map-only natural OBJ/EXE acceptance to one complete source/product/physical mapping; preserve named New and retire both literal birth edges in the series.
+Non-claims: no disconnected enum-only I0, Map lifecycle/typed-map/general-method widening or full canonical/compatibility completion. Compile-call state follows the retained order unless a demonstrated shared-state failure reopens it.
 
 ## Source and ownership budget
 

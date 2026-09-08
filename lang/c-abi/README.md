@@ -126,7 +126,12 @@ published Global absence now rejects at shared peek before legacy classification
 All canonical Global targets (Print/FreeFunction/StaticBoxMethod) already have
 Rust-issued rows; same-module prepass/emitter and entry dispatch share that check.
 Published Extern now rejects with or without a row, matching Rust host rejection. Generic
-Extern remains separate; Method/Constructor per-site disposition is unresolved. The constructor V4
+Extern remains separate. Rowless runtime Method helpers retain explicit
+compatibility; Call-carried Constructor/Math has no newly admitted canonical
+issuer. Map literal construction/write remains an open intrinsic cutover in the
+[collection owner](../../docs/development/current/main/design/collection-literal-construction-ssot.md#map-literal-selected-construction-design).
+Its canonical set lacks the legacy-only plan consumed by C; allocation alone
+does not prove populated Map execution. The constructor V4
 execution/retirement receipt above supersedes the old lifecycle-pending review.
 
 Ordered tasks are owned by the current

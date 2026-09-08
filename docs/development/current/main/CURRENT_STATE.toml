@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "CONSTRUCTOR-PHYSICAL-STORAGE-WIRE-TAG-BOXSHAPE"
-current_execution_cohort = "constructor_physical_storage_wire_tag_boxshape"
-current_design_stop = "none; storage wire-tag BoxShape verified for commit/push"
-current_blocker_token = "Storage wire-tag naming verified: Rust physical9, C parser with storage0/2 rejection and V4 Pair30/Fault70/negative artifact checks pass. Commit/push this BoxShape. Next audit residual canonical/compatibility obligations under the existing backend/runtime order before selecting a production edge; no automatic family widening."
+current_execution_row = "MIR-CALL-PUBLISHED-CANONICAL-COMPATIBILITY-RESIDUAL-D0"
+current_execution_cohort = "mir_call_published_canonical_compatibility_residual_d0"
+current_design_stop = "Residual audit decision closed; Map construction/write mapping remains the next design task"
+current_blocker_token = "Residual audit closed: runtime Method/Named compatibility remains intentional; no blanket Stop. Existing Map literal Named+birth edge is open, and canonical Map set lacks the legacy-only C plan. Commit/push read-only audit and exact Map D1 task; next close construction plus entry-write source/product/physical mapping and Map-only OBJ/EXE acceptance before implementation. No enum-only or dummy-Print cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,11 +31,11 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Physical I64 storage wire-tag naming only: retain value1 and exact rejection
-contract across Rust serialization and C parser/admission.
+Residual audit selects the existing Map construction/write design obligation;
+accepted compatibility remains, and populated Map execution is not yet proven.
 """
-next_design_card = "MIR-CALL-PUBLISHED-CANONICAL-COMPATIBILITY-RESIDUAL-D0"
-next_execution_card = "MIR-CALL-PUBLISHED-CANONICAL-COMPATIBILITY-RESIDUAL-D0"
+next_design_card = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
+next_execution_card = "MAP-LITERAL-SELECTED-CONSTRUCTION-D1"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

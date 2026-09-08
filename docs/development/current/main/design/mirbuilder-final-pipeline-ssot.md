@@ -26,9 +26,9 @@ Related:
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** canonical Call and explicit legacy ingress
   are separated; current work is the finite source acceptance reconciliation.
-- **Latest bounded work:** the lifecycle V2 no-artifact ingress awaits the
-  worker-reviewed Stop/Delete task and source-to-body handoff. Pair EXE30/linked
-  OBJ30 and selected legacy retirement remain open.
+- **Next ordered task:** the active workstream selects remaining source and
+  published-boundary cutovers. Constructor/Array execution and retirement
+  evidence belongs to their owner SSOTs; no lifecycle V2 waiting state is implied.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
