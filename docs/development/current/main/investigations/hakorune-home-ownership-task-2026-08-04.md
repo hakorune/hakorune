@@ -266,214 +266,125 @@ Field move-out remains parked unless this row names a separate exact witness.
 
 #### Map-slot dependency of the selected compiler cutover
 
-Decision (2026-09-09): open only the Map-slot destination/transfer design
-dependency of this existing row. Do not activate the whole Home migration or
-add a parallel Map ownership receipt/task. Source laws remain in
-`docs/reference/language/ownership.md`, `lifecycle.md` and
-`dynamic-invocation.md`; physical follow-up stays in the
-[Map construction owner](../design/collection-literal-construction-ssot.md#runtime-escape-ownership--next-design-boundary).
+Decision: an intrinsic Map value slot owns its admitted value obligation.
+Observe candidates without consumption and describe both install successors in
+one source issuance. Successful install transfers once; detached-old cleanup
+Fault never restores the candidate's previous owner. The
+[intrinsic Map slot target](../../../../reference/language/ownership.md#intrinsic-map-slot-destination-target)
+owns the language law; the
+[Map construction owner](../design/collection-literal-construction-ssot.md#runtime-escape-ownership--next-design-boundary)
+owns physical/runtime follow-up. Other Home destination families remain parked.
+Source authority + canonical issuer: existing resolver source identity and
+candidate capability/obligation owners, joined at the matching root's pre-effect
+semantic issuance. Map candidate/commit issuance is still missing.
+Non-authority: ordinary Handle support, literal syntax alone, MIR i64, runtime
+tags/Arc/clone, declaration-only I64UnitTrivial ABI and matching owner numbers.
+Fail-fast boundary: reject missing/foreign source relation, unsupported candidate
+or stale obligation before effects/artifact; retain existing escape Stops until
+actual source/physical consumers close. No implicit share or carrier-to-Home cast.
+Smallest next slice: root-owned candidate/obligation product and actual source
+consumer against the fixed private API below; no further transfer-policy census.
+Non-claims: source Map execution, runtime retention, general Home Flow, full
+key/residence/cleanup matrix or public cutover.
 
-Source audit boundary: raw/Core MapLiteral child issuance -> entry operands ->
-retained root/cleanup. This includes child identity, evaluation order, destination
-classification and Normal/Fault transfer; excludes a repository-wide Home census.
-Existing child ValueIds/ordinals, passive Home vocabulary, declaration-only
-I64UnitTrivial Home ABI and numeric Array cleanup do not issue Map slot ownership.
-Neither raw nor Core entry emission forwards the existing Dynamic carrier
-lifecycle into a Map slot. Runtime retain/clone cannot fill either missing issuer.
+Boundary of this design: exact resolved Map child -> candidate evidence -> root
+co-seal -> selected raw/Core write -> detached cleanup result. Includes Script
+and callable roots, all candidate categories below, duplicate keys and
+pre/post-commit failure. Excludes general CFG Home joins and other containers.
+It is not an Exhausted census of the full Map cutover; included open dependencies
+are listed below and cannot be replaced by scalar-only completion.
 
-The [intrinsic Map slot destination target](../../../../reference/language/ownership.md#intrinsic-map-slot-destination-target)
-is now accepted: owned slots consume compatible existing Home/carrier
-obligations; they do not acquire ownership from an ordinary borrow or runtime tag.
-Its one-entry transaction preserves pre-commit candidate ownership and post-commit
-new-slot ownership even if ending the replaced value Faults. Delete retains its
-Bool API; exact borrowed reads and Dynamic self-contained results stay distinct.
+**Existing evidence and missing source obligations**
 
-Smallest next design: bind one Map expression and ordered MapEntryValue source
-site to entry evaluation -> transfer commit -> replaced-obligation cleanup ->
-Normal/Fault continuation, including duplicate keys. Assign source membership/
-destination sites to existing FunctionSemanticResolverSessionV1; assign the
-candidate relation, destination demand and both cleanup states to existing
-semantic-package issuance/co-seal. Recipe and raw/Core/physical writers consume
-this decision and cannot issue it. These are target assignments, not claims that
-those owners already issue a Map transfer product.
+| Candidate | Reusable evidence / required boundary |
+| --- | --- |
+| Trivial | `callable_parameter_contract/issuer.rs` binds explicit i64 to its exact parameter; `home_prefix_local_flow.rs` observes bounded prefix Integer/Bool/TrivialLocal. Neither independently issues a general Map child. |
+| Direct available Home | `home_new_prefix::issue_new_home_prefixes_v1` proves selected Normal local installation/unwind. Map still needs exact availability and removal of the prior cleanup responsibility at commit. |
+| Fresh acquisition | The exact producer Normal must issue an evaluation-owned obligation. Before acquisition Normal there is no child obligation. Do not treat a prior local as evaluation-owned. |
+| Existing Shared / explicit share result | Passive Home vocabulary is not an admitted producer. Consume separately issued compatible obligations only; missing acquisition remains unsupported. |
+| SelfContainedDynamicCarrier | `dynamic_invocation_contract/catalog.rs` supplies the exact target envelope. A specific Normal result needs Live/Forwarded flow; the two-call LoopBodyLocal lifecycle is not a Map input. |
+| Ordinary borrow | Exact binding/parameter contract provides borrow evidence only. Alias support cannot recover a root Home for transfer. |
+| Unknown/composite | Unsupported until its source capability owner issues evidence; no type/tag/default repair. |
 
-Before implementation, close the exact existing owner/API mapping and
-source capability/carrier requirements. No new public receipt or independent
-registry. Generic clear/parent-end ordering, key residence, borrow invalidation,
-Dynamic read publication, cycles and runtime profile remain included open work;
-the single-entry slice cannot claim the full destination matrix exhausted.
-Acceptance distinguishes Home move, admitted Shared transfer and carrier forward:
-no double end, unchanged candidate on pre-commit failure, committed owner retained
-on old-cleanup Fault, duplicate replacement and Bool deletion. Subsequent runtime
-coordination must consume those source decisions; keep current escape Stops
-until real issuer/consumer and the exclusive deletion set are closed.
+Reuse `OWN-HOME-FLOW0-S0` for source availability instead of duplicating the
+prefix classifier. Stored Home state and ordinary Handle observation remain
+separate. `node=Owns(A)` and `alias=Borrows(A)` both read as handles, but only
+exact binding `node` can supply A to an owning demand. This inventory does not
+authorize placeholder variants or independent public proof factories for absent
+Shared/carrier producers.
 
+**Root ownership and private API**
 
-##### Map candidate and commit owner mapping
+Script uses `NormalScriptPreEffectSourceObservationIssuerV1::issue` under its
+checked parser loan, then `VerifiedScriptSemanticSourceV1::seal_ast_with_forest`;
+retain the joined state through `ScriptSemanticSourcePreEffectPartsV1` across
+install. The callable package precedes this Script forest, so its ordinary-New
+ledger cannot own Script state. Callable roots use the existing package issuer's
+resolved batch/parameter contracts; do not add CFG/Completion ownership to that
+package. Each root joins its own evidence before Recipe; independent products
+cannot be paired later through equal owner keys.
 
-Decision: reuse `OWN-HOME-FLOW0-S0` for source availability; do not grow a
-Map-specific copy of `home_new_prefix::LocalValue`. Candidate capability and
-availability are separate: a Trivial proof needs no Home, while an owning value
-needs an exact available obligation. The source flow owner belongs beside the
-existing resolver Home issuers; the package joins its output and cannot invent
-availability. This assigns the missing responsibility, not implementation
-permission for a generic Home verifier or a new public receipt.
+The following names describe private source-flow responsibilities, not current
+callable APIs or new public receipts:
 
-Audit boundary: exact resolved Map child -> candidate evidence -> root co-seal
--> selected raw/Core write -> detached cleanup result. Includes Script and
-callable root placement, all seven candidate categories below and pre/post-commit
-failure; excludes general CFG Home joins, other containers and runtime execution
-proof. The source-shape prerequisite landed at `aa4222541c`.
+| Operation | Required input and successor |
+| --- | --- |
+| `observe_candidate` | Exact child site and current source flow; borrow existing evidence, consume nothing. |
+| `commit_install` | Same candidate, exact Map parent/EntryValue and successful-install successor; remove the prior obligation once, install slot ownership and expose detached-old responsibility. |
+| `precommit_failure` | Exact Fault continuation; preserve prior local/evaluation/carrier ownership until its prescribed cleanup. |
+| `finish_displaced_cleanup` | Already-committed successor and cleanup Normal/Fault; retain new-slot ownership and consumed/forwarded predecessor state. |
 
-| Candidate | Existing evidence to consume | Missing Map input / refusal |
-| --- | --- | --- |
-| Trivial | `callable_parameter_contract/issuer.rs::issue_callable_parameter_contract_v1` binds declared i64 to its exact parameter; `home_new_prefix.rs::value_class` classifies its bounded source prefix | Neither is a general Map-child issuer; share source classification instead of copying its private enum. |
-| Available Home | `home_new_prefix.rs::issue_new_home_prefixes_v1` records Normal local installation and unwind | Issue exact availability and removal of the old cleanup obligation at commit. A prefix Home list alone is insufficient. |
-| Existing Shared Home | Passive `home_relation.rs` vocabulary | No admitted producer in this audited boundary; preserve unsupported until a real producer exists. |
-| Explicit share result | Existing source acquisition law | Acquisition issuer remains separate and absent; Map insertion cannot create it. |
-| SelfContainedDynamicCarrier | `dynamic_invocation_contract/catalog.rs` supplies the exact target envelope | Bind an individual Normal result and its exactly-once forward; the fixed two-call LoopBodyLocal lifecycle is not a Map input. |
-| Ordinary borrow | Exact binding/parameter contract; prefix aliases classify as Handle | Reject owning transfer without a separate acquisition; never recover a root Home from alias provenance. |
-| Unknown/composite | No general capability proof in this boundary | Preserve unsupported; no syntax/tag/i64-width default. |
+These describe both semantic successors together, not a compile-time prediction
+of runtime success. Use FunctionOwnerIdV1, OwnedExprSiteV1, BindingRefV1 and verified
+Map parent/EntryValue identities. Ordinal, name or supporting object identity is
+insufficient. Preparation must not become permanent transfer permission: if an
+intervening effect changes the referenced obligation, the candidate is stale.
+General rebinding/CFG joins stay unsupported until their source flow proves the
+condition; no unowned generation counter or runtime lookup fills that gap.
 
-Root join points are concrete. For Script, use
-`NormalScriptPreEffectSourceObservationIssuerV1::issue` under its checked parser
-loan, then `VerifiedScriptSemanticSourceV1::seal_ast_with_forest`; retain the
-joined source state through `ScriptSemanticSourcePreEffectPartsV1` across install.
-The callable package exists before this Script forest, so its ordinary-New ledger
-cannot own Script state. For callable roots, the existing package issuer owns the
-resolved batch and parameter contracts. Each root joins its own source facts;
-matching owner numbers after independent issuance is not a valid co-seal.
+**Transaction and acceptance**
 
-The entry transaction must retain these distinct states before physical IDs:
+Precommit failure transfers nothing, but cleanup is origin-specific: an existing
+local keeps its obligation until ordinary root cleanup; an acquired fresh child
+is cleaned by evaluation; a Live carrier follows its exact producer continuation.
+Map allocation responsibility is separate from each child. At install Normal the
+prior owner relinquishes once. Replacement installs the new slot before ending
+the detached old obligation outside the storage lock. Old cleanup Fault does not
+roll back installation or resurrect the old candidate owner.
 
-| Terminal | Candidate responsibility | Slot / detached-old responsibility |
-| --- | --- | --- |
-| Evaluation or preparation Fault | Any already-created candidate remains with evaluation cleanup; no nonexistent Normal value is consumed | Old slot unchanged. |
-| Installation Fault before commit | Evaluation owner retains the candidate | Old slot unchanged; no detached-old obligation. |
-| Successful commit, empty slot | Candidate obligation transferred once | New slot owns it; no old cleanup. |
-| Successful commit, replacement | Candidate obligation transferred once | New slot owns it; detached old obligation goes to cleanup. |
-| Old cleanup Normal or Fault | Candidate never returns to evaluation owner | New slot remains installed; discharge old once, preserve first Fault and continue required cleanup. |
+Required acceptance covers direct-owner transfer and alias refusal; duplicate
+use of the same Home (second use rejected even for equal keys); two independent
+fresh acquisitions at an equal key (distinct obligations); acquisition-before/
+after and install-before/after Fault; stale/foreign candidate refusal; Normal-only
+carrier publication; and postcommit cleanup Fault preserving new ownership.
+These are target cases, not claims that those programs compile today. Existing
+Map deletion returns Bool, not an ownership-returning value.
 
-Equal keys do not merge source entry identities: each entry evaluates separately,
-and later entries observe the prior committed state. Key residence and Map end
-still need their own included obligations before whole cutover.
+Ordered closure after source issuance: co-seal these transitions at the root;
+add consuming physical transaction; connect runtime storage/cleanup; switch
+source/host and retire the old edges with OBJ/EXE evidence. `InvokeOperation`
+currently has no Map install/detached-old result. Array write and FieldSet promise
+no mutation on Fault and cannot represent postcommit cleanup Fault. Raw
+`collection_literals::build_map_literal_with_port_v1` and Core
+`helpers_value/lower.rs` still emit generic set. Runtime
+`nyash_map_literal_store_v1`/`MapBox::insert_key_str` return no detached obligation;
+a status change alone cannot issue source transfer.
 
-Ordered dependency closure inside the existing Map series:
+Included open work: candidate capability/availability, key residence, incomplete
+Map/root cleanup, multi-slot end order, borrow invalidation, Dynamic read
+publication, cycles/self-insertion, representation compatibility and runtime
+profile/finalizer affinity. Do not bypass these with a scalar-only cutover.
+No additional user policy is needed for the one-entry law; actual producer and
+consumer mapping must close before implementation is authorized.
 
-1. Close the Map-scoped `OWN-HOME-FLOW0-S0` source issuer/API: exact root/site,
-   source capability evidence, available obligation and post-transfer state.
-   No standalone all-Unknown receipt or scalar-only completion. Acceptance must
-   distinguish borrowed aliases, foreign roots, repeated consume and Normal-only
-   carrier production. This is the next design, before new code.
-2. Co-seal that input and exact EntryValue destination with the transaction table
-   at the root join above; verify all duplicate-key and Fault transitions before
-   Recipe generation. Do not place CFG/Completion ownership in the callable
-   package, whose existing contract explicitly excludes it.
-3. Add the consuming physical transaction only after its semantic mapping closes.
-   Current `InvokeOperation` has no Map install/detached-old result; Array write
-   and FieldSet promise no mutation on Fault and cannot represent post-commit
-   cleanup Fault. Raw `collection_literals::build_map_literal_with_port_v1` and
-   Core `helpers_value/lower.rs` currently emit generic `set`. Their replacement
-   and exclusive tests belong to the same production cutover series.
-4. Connect runtime storage with detached cleanup outside its lock, then close
-   source/OBJ/EXE and the remaining destination matrix. Current
-   `nyash_map_literal_store_v1` status and `MapBox::insert_key_str` return no
-   detached obligation; changing their status alone cannot issue source transfer.
+**Landed prerequisites / evidence**
 
-This closes owner placement and dependency order, not candidate issuance or
-execution. Do not repeat this bounded absence audit to select a runtime-only
-retention workaround; the next unresolved decision is the source flow API.
+- `aa4222541c`: ordered Map keys and exact EntryValue structure, explicit Script call Stop.
+- `a3ee41cfeb`: prefix stored state separated from ordinary observation; duplicate classifiers removed.
+- `9f190cba9a`: unsupported OtherTrivial-to-integer Add edge removed; package119 and pointer/corridor pass, changed source max628. Both earlier field+Bool baseline failures are closed, with expectations preserved; 12 rejected-expression cases retain no terminal/field rows.
 
-
-##### Accepted source-flow prerequisite BoxShape
-
-Decision: extract the existing prefix local environment behind one private API;
-separate stored Home/Handle/Trivial/Uninitialized from ordinary expression results
-Integer/Bool/TrivialLocal/Handle. This is behavior-preserving, not Map admission.
-Source authority + canonical issuer: the existing `scan_new_home_flow` source
-walk, with `ResolvedFunctionLoweringInputV1` bound once to its local environment.
-Non-authority: ordinary Handle support never grants ownership transfer; no new
-public receipt, Shared/carrier/Consumed state or destination API.
-Fail-fast boundary: preserve current None/unavailable behavior for missing,
-uninitialized, non-local and unsupported expressions; preserve error accumulation.
-Smallest next slice: migrate initializer, selected argument, terminal Trivial and
-field receiver observations to this API and remove both old classifiers/raw local
-map accesses. Keep terminal Integer's early arm and cleanup order in the scanner.
-Non-claims: Map candidate issuance, generic Home Flow, transfer, runtime cutover.
-
-The independent equivalence audit covered all four stored states plus missing
-binding, and Integer/Bool/Local/other inputs. Exact literal values and local
-binding survive the selected-argument projection; alias installation accepts only
-ordinary observations and therefore cannot install a Home. Selected Normal Home
-installation remains at the existing scanner point, even after accumulated errors.
-Acceptance uses the existing prefix-order, unknown-prefix, selected-argument and
-field-alias suites plus an alias-chain source case; owning README/reference and
-pointer/corridor guards close the slice.
-
-
-Implementation checkpoint: `home_prefix_local_flow.rs` now owns the private
-stored state and ordinary observation; both old classifiers and direct local
-map access are removed from the scanner. The Integer terminal arm and Normal
-installation/error/cleanup order are unchanged. Changed sources are at most
-617 lines. Alias-chain field access reaches the existing supporting Home.
-
-Verification classification: current and clean parent `5ccd2302ce` both report
-15 passed / 1 failed for `mir::normal_callable_semantic_package::brand_catalog_tests::`
-and 1 passed / 1 failed for
-`mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::`.
-Commands use `CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib FILTER`;
-the isolated parent shares the target cache and the same ignored Cargo.lock
-(SHA256 `24b148fd057103161445d0fe96cc4d47fa9aa2a43b04fc3c6ed9b78dd5473c70`).
-Historical baseline debt, retained unchanged in that BoxShape and repaired by
-the subsequent integer-evidence Stop below:
-
-- `mir::normal_callable_semantic_package::brand_catalog_tests::normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix`: `return first.left + true` unexpectedly retains cleanup availability on both revisions.
-- `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`: `return page.slot + true` retains one read instead of zero on both revisions. The new two-alias case executes successfully before this existing failure.
-
-These failures exposed terminal-classification debt in
-`home_new_prefix::return_scalar`, not valid mixed Add execution. The following
-Stop closes those failures without weakening expectations; coarse Integer still
-does not imply general Add execution or Map ownership. Whole-library green is
-not claimed.
-Pointer/corridor guards and diff check pass. Source destination-demand/commit
-issuance remains the next Map design after this completed prerequisite.
-
-
-##### Accepted terminal integer-evidence Stop
-
-Decision: repair the observed source correctness debt before extending this
-owner for Map demand. Add may combine only Integer, IntegerField or I64Add
-observations. OtherTrivial is not integer evidence; standalone handling remains
-unchanged. Exact field-pair I64Add issuance precedes recursive integer folding.
-Source authority + canonical issuer: `home_new_prefix::return_scalar`, borrowing
-exact literal/field source evidence and the existing prefix ordinary observation.
-Non-authority: Trivial alone, physical i64, Bool payload and a local's unretained
-initializer kind do not prove integer operands.
-Fail-fast boundary: `ReturnValueNotCovered` in source Completion; package co-seal
-must retain neither terminal relation nor staged field rows for rejected Add.
-Smallest next slice: delete `(Some(_), Some(_)) -> Integer`, require integer
-proof on both sides, exercise package-level rejection and existing positive tests.
-Non-claims: general Add/local-result execution, Map transfer, new capability ABI.
-
-Boundary: source terminal classification -> Completion cleanup verdict -> retained
-ordinary-New terminal/read rows -> existing artifact eligibility. Includes all
-four ReturnScalar arms, both operand orders and nested expressions; excludes new
-initializer-kind issuance and other language families. Integer locals currently
-share the coarse Trivial state with Bool locals and remain unsupported in this
-Add proof; no runtime classification or source repair is allowed. Existing
-package staging already discards rows unless terminal cleanup is available, so
-no second rollback owner is needed. This is a deliberate Stop change, separate
-from the preceding behavior-preserving extraction.
-
-Implementation checkpoint: the unconstrained present/present Add edge is removed.
-`CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib
-'mir::normal_callable_semantic_package::'` passes 119/119. Both historical failures
-above are green. The new package test covers 12 rejected source expressions and
-checks `ReturnValueNotCovered`, absent terminal relation and empty retained field
-rows together; existing exact field-pair, integer-only nested Add and standalone
-result cases pass. Pointer/corridor guards and diff check pass; changed sources
-max628. This closes the named source correctness debt. Map destination demand,
-commit-aware availability, runtime and full source cutover remain open.
+These prove their bounded source responsibilities only. Historical parent
+comparisons and implementation briefs are in Git, not additional active steps.
 
 
 ### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0`

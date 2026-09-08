@@ -245,12 +245,29 @@ It also does not establish a second borrowed-slot Map family.
 
 For one entry, preserve allocation/key/child evaluation order from
 `block-expressions-and-map-literals.md`. Before successful installation the
-candidate obligation remains with its evaluation owner and the old slot remains
-unchanged. Preparation/validation/write failure before commit transfers nothing.
+candidate obligation remains with its existing owner and the old slot remains
+unchanged. A direct owning local keeps its Home until commit; a fresh child
+acquisition is owned by child evaluation only after its Normal result. Failure
+before acquisition creates no child obligation. Preparation/validation/write
+failure before commit transfers nothing; cleanup follows the actual prior owner,
+not a common candidate cleanup list.
 Successful installation changes the owner exactly once. For an equal key, install
 the new slot before ending the detached old obligation, as already required by
 `lifecycle.md`. Subsequent cleanup Fault cannot undo installation or restore the
 candidate to the caller. Preserve first Fault and attempt remaining cleanup.
+
+An owning-slot candidate may consume the exact referenced owning binding; an
+ordinary alias cannot supply its supporting root's Home. Candidate observation
+is nonconsuming. Successful installation must use the same still-available
+obligation in the source successor; observing it earlier is not permanent transfer
+permission. This is a static source-flow requirement, not runtime name lookup.
+
+Each duplicate-key entry is a separate transaction. Using the same direct Home
+in two entries consumes it at the first successful installation and rejects the
+second use, even when the keys are equal. Two separately authorized fresh child
+acquisitions instead produce distinct obligations: the second installation owns
+the new value before the first value's detached obligation is ended. None of
+these rules activates an otherwise unsupported child acquisition or source shape.
 
 The semantic sequence distinguishes pre-commit write failure from post-commit
 old-value cleanup failure. A single undifferentiated failure implying
