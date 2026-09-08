@@ -1314,9 +1314,9 @@ Home list or physical Pending/Emitted state is not that proof. Existing
 callable-row/Script-product loans supply same-issuance core and body shape;
 no generic root adapter or standalone core extraction is needed.
 
-Runtime follow-up must replace clone-based insertion and lock-held old-value
-drop with the authorized transfer/detach/end transaction in the existing storage
-owner. Current HashMap storage carries no successful-install order; keys/values
+Runtime follow-up must replace clone-based insertion with the authorized
+transfer/detach/end transaction in the existing storage owner, preserving the
+native outside-lock teardown boundary. Current HashMap storage carries no successful-install order; keys/values
 sort by public key text. Neither behavior proves the new end contract. Required
 acceptance includes allocation/preinstall Fault, duplicate replacement, C-then-B
 cleanup after a:=A/b:=B/a:=C, old cleanup Fault and ending-state re-entry refusal.
@@ -1382,10 +1382,12 @@ nonreachability alternative must account for this real native entry as well as
 public read/clone surfaces. Send+Sync does not itself require cloning entries;
 silently changing Map Clone into share would still change its existing contract.
 
-The immediate production repair is narrower: `insert_key_str` moves the old
-native Box out of the lock before Drop. It removes a real lock-held teardown
-edge without accepting owned residence; reentrant teardown must see the committed
-replacement once. Remove/clear and source finalization are not covered by it.
+Native mutation teardown now detaches before dropping outside the lock in
+`insert_key_str`, `remove_key_str` and `clear_entries`. Clear drains while
+preserving table capacity. Map focused tests8 cover reentry, committed visibility,
+once-only native Drop and existing key/ordering behavior. This removes the three
+shared native mutation lock-held teardown edges; owned residence, ordered source
+finalization and terminal Map Drop are not established by that evidence.
 
 Completion cleanup retains one source flow result with terminal order and exact
 Map operation successors; its existing binding-list API is only a projection.

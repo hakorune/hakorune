@@ -288,7 +288,13 @@ impl MapBox {
     /// Raw remove helper for substrate/plugin routes.
     pub fn remove_key_str(&self, key: &str) -> bool {
         let key = MapKeyDomain::from_text(key);
-        self.data.write().unwrap().remove(&key).is_some()
+        let removed = {
+            let mut entries = self.data.write().unwrap();
+            entries.remove(&key)
+        };
+        let existed = removed.is_some();
+        drop(removed);
+        existed
     }
 
     /// Raw insert helper for substrate/plugin routes.
@@ -305,7 +311,15 @@ impl MapBox {
 
     /// Raw clear helper for substrate/plugin routes.
     pub fn clear_entries(&self) {
-        self.data.write().unwrap().clear();
+        let removed = {
+            let mut entries = self.data.write().unwrap();
+            // Drain keeps the Map's capacity and commits empty before any
+            // callback-capable value teardown. Keys have native-only Drop.
+            let mut removed = Vec::with_capacity(entries.len());
+            removed.extend(entries.drain().map(|(_, value)| value));
+            removed
+        };
+        drop(removed);
     }
 
     /// サイズを取得

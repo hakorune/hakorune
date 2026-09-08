@@ -634,8 +634,8 @@ can support this contract; current C handle classification cannot. Descriptor
 V1 is fixed-size and must be revised with its readers, never padded silently.
 
 Order within the existing Map series:
-1. Remove the remaining native remove/clear lock-held teardown at the existing
-   Map owner; this is a concrete dependency repair with current callers.
+1. Native remove/clear lock-held teardown is removed at the existing Map owner;
+   focused Map tests8 pass, including reentry/once-only Drop/capacity retention.
 2. Put native/owned residence in the actual Map entry owner, preserving one
    payload table, ordered end and explicit observer/read/clone behavior. Keep
    owned public intake gated; root imports no kernel FaultFrame or registry.
@@ -646,7 +646,7 @@ Order within the existing Map series:
    source OBJ/EXE, then delete matching raw set/MapLiteralEntryWrite and common
    install Stop. Do not claim production caller-zero before that switch.
 
-**Accepted next implementation: native Map teardown dependency**
+**Implemented native Map teardown dependency**
 
 Change: `MapBox::remove_key_str` and `clear_entries` detach under their existing
 write lock and drop detached native values after unlocking. BoxShape: no new
@@ -661,6 +661,24 @@ existing pointer/corridor guards and `src/boxes/README.md` receipt.
 Stop: any need for source widening, owned intake or different failure policy.
 The ordered physical execution work above remains unfinished after this repair;
 this dependency does not replace the full Map cutover finish line.
+
+Validation: `CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib map_box`
+passes8; log `/tmp/hakorune-map-native-teardown-tests.log`. The two new reentry
+probes use the real storage lock and verify committed removal/empty state,
+missing/empty operations, capacity and one-time Drop. Pointer/corridor/diff
+checks pass; touched Rust max611. Runtime reference and native boxes README
+are synchronized. No C/OBJ/EXE or owned-intake evidence is claimed.
+
+Next design boundary: unify native/owned residence in the existing Map entry
+owner and close its read/clone/JSON/GC/remove/end contract. The bounded inventory
+starts at MapBox entry storage and ends at its real public/kernel observers and
+end consumers; source issuance and already-accepted detached ABI are not a new
+census. Decide explicit supported projection versus checked refusal for owned
+values without collapsing unavailable into missing. Keep one payload table,
+root-to-kernel dependency direction and first-Fault/outside-lock end discipline.
+Do not implement an owned variant while raw Box-table exposure or clone-only
+observers can silently consume it. The checked ABI/lifecycle/source activation
+steps above follow this real residence/consumer mapping.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

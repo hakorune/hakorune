@@ -275,9 +275,15 @@ unlocking. Teardown may re-enter and observe the committed replacement. A
 missing-key insert drops no displaced value. Key equality and insertion return
 behavior are unchanged.
 
-This closes the insertion helper's lock-held native Drop edge only. It does not
-activate source Home transfer, user finalization, ordered Map end, or certify
-remove/clear/read/clone. Those remain governed by the
+Decision: `remove_key_str` and `clear_entries` use the same lock boundary:
+detach under lock, then drop after unlock. Remove retains its presence Bool;
+clear retains table capacity and commits an empty table before any child Drop.
+Reentrant mutation after that commit is a later operation and is not drained
+again by the outer clear. Missing removal and empty clear drop no values.
+
+This closes native Drop under the shared insertion/removal/clear locks. It does
+not activate source Home transfer, user finalization, ordered Map end, or certify
+read/clone. Those remain governed by the
 [Map lifecycle target](../language/lifecycle.md#intrinsic-map-construction-and-end).
 
 ## Native JSON observation

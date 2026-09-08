@@ -1,9 +1,9 @@
-//! Regression: a displaced value may re-enter its Map during native Drop.
+//! Regression: native teardown may re-enter the committed Map without a lock.
 use super::*;
 use std::sync::{Mutex, Weak};
 
 type Entries = RwLock<HashMap<MapKeyDomain, Box<dyn NyashBox>>>;
-type Observations = Arc<Mutex<Vec<(bool, Option<i64>)>>>;
+type Observations = Arc<Mutex<Vec<(bool, Option<i64>, usize)>>>;
 
 #[derive(Debug)]
 struct ReenterOnDrop {
@@ -23,11 +23,11 @@ impl Drop for ReenterOnDrop {
                         .get(&MapKeyDomain::from_text("target"))
                         .and_then(|value| value.as_any().downcast_ref::<IntegerBox>())
                         .map(|value| value.value);
-                    (true, installed)
+                    (true, installed, guard.len())
                 }
-                Err(_) => (false, None),
+                Err(_) => (false, None, 0),
             })
-            .unwrap_or((false, None));
+            .unwrap_or((false, None, 0));
         self.observations.lock().unwrap().push(observation);
     }
 }
@@ -85,7 +85,7 @@ fn replacement_drop_can_reenter_and_observes_committed_value_once() {
     );
 
     map.insert_key_str("target".into(), Box::new(IntegerBox::new(42)));
-    assert_eq!(*observations.lock().unwrap(), vec![(true, Some(42))]);
+    assert_eq!(*observations.lock().unwrap(), vec![(true, Some(42), 2)]);
     assert_eq!(map.get_scalar_i64_key_str("other"), Some(7));
     drop(map);
     assert_eq!(
@@ -93,4 +93,51 @@ fn replacement_drop_can_reenter_and_observes_committed_value_once() {
         1,
         "displaced value ended once"
     );
+}
+
+#[test]
+fn remove_drop_reenters_after_removal_once_and_preserves_other_entries() {
+    let map = MapBox::new();
+    let observations = Arc::new(Mutex::new(Vec::new()));
+    map.insert_key_str(
+        "target".into(),
+        Box::new(ReenterOnDrop {
+            base: BoxBase::new(),
+            entries: Arc::downgrade(&map.data),
+            observations: observations.clone(),
+        }),
+    );
+    map.insert_key_str("other".into(), Box::new(IntegerBox::new(7)));
+    assert!(!map.remove_key_str("missing"));
+    assert!(observations.lock().unwrap().is_empty());
+    assert!(map.remove_key_str("target"));
+    assert_eq!(*observations.lock().unwrap(), vec![(true, None, 1)]);
+    assert_eq!(map.get_scalar_i64_key_str("other"), Some(7));
+    assert!(!map.remove_key_str("target"));
+    drop(map);
+    assert_eq!(observations.lock().unwrap().len(), 1);
+}
+
+#[test]
+fn clear_drop_reenters_empty_map_once_and_preserves_capacity() {
+    let map = MapBox::new();
+    let observations = Arc::new(Mutex::new(Vec::new()));
+    for key in ["target", "other"] {
+        map.insert_key_str(
+            key.into(),
+            Box::new(ReenterOnDrop {
+                base: BoxBase::new(),
+                entries: Arc::downgrade(&map.data),
+                observations: observations.clone(),
+            }),
+        );
+    }
+    let capacity = map.data.read().unwrap().capacity();
+    map.clear_entries();
+    assert_eq!(*observations.lock().unwrap(), vec![(true, None, 0); 2]);
+    assert_eq!(map.data.read().unwrap().capacity(), capacity);
+    assert_eq!(map.entry_count_i64(), 0);
+    map.clear_entries();
+    drop(map);
+    assert_eq!(observations.lock().unwrap().len(), 2);
 }
