@@ -701,20 +701,26 @@ separates clone from share. Module-root evidence is local-registry real poison
 plus controller result replacement, not a production-global poisoning test.
 Kernel tests execute the formatter used by real JSON/text output, not an EXE.
 
-Next design boundary: close JSON's remaining raw Map observation with an actual
-fallible conversion/set terminal, and retain the public read/clone blockers
-before adding Owned to the entry enum. Root/public method inventory is finite:
-get/get_opt/scalar/values need checked projection; Clone/clone_box are infallible;
-share_box shares the table and is not a Clone replacement; key/count/identity
-observers do not need value publication; toJSON/set conversion need failure
-propagation; native mutation/terminal Drop cannot consume a fallible Owned end.
-Root surface catalog, native host, provider MapService and kernel bare-i64
-adapters remain actual consumers. Do not map unavailable to None/0/error String,
-copy owned payload, or treat a checked helper without its real caller as cutover.
-The existing one-table Native/Owned residence and entry-owned install order target
-is retained. JSON public set has no additional repo production caller proven by
-this audit; external Rust clients are excluded, so no caller-zero deletion claim.
-No new census of already-closed GC/opaque-outcome boundaries is needed.
+**Accepted next implementation: native JSON Result terminal**
+
+Change: existing JSONBox::set returns Result; Map owner lends native entries,
+conversion propagates nested errors, and get_data is removed after JSON/GC tests
+use private owner poisoning. Delete the non-object Error String arm.
+Contract: [native JSON Result](../design/collection-literal-construction-ssot.md#native-json-observation-result-terminal)
+defines the finite errors and explicit Rust API signature change. Borrowed
+children are not cloned; input disposal precedes destination locking/commit.
+No source dispatch, owned variant or replacement panic wrapper.
+Done: focused JSON observation, Map and GC tests; actual set Err retains the
+destination for nested Map failure, distinguishes invalid destination, and
+reentrant top-input Drop sees an unlocked destination. Pointer/corridor/diff
+checks, native boxes README and runtime reference. No broad JSON filter with
+known unrelated baseline debt is required by this native boundary.
+Stop: need for new source dispatch, owned projection or altered native
+Array/fallback/clone semantics. External Rust client compatibility is not proven.
+Public Map get/get_opt/scalar/values, Clone/clone_box, toJSON, owned end and
+kernel checked publication remain the subsequent Native/Owned intake blockers.
+Root surface catalog, native host, MapService and kernel bare-i64 adapters remain
+actual Map consumers; do not map their unavailable values to None/0/error String.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

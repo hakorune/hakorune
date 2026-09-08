@@ -1522,6 +1522,45 @@ fallible set/conversion terminal is connected. Owned Native/Owned entry design,
 public fallible read/clone, ordered end, checked ABI and source activation all
 remain included later steps, not completed by this native observation repair.
 
+### Native JSON observation Result terminal
+
+Decision: change the existing public Rust JSONBox::set directly to
+Result<Box<dyn NyashBox>, JsonSetError>. Preserve its successful `ok` Box;
+replace non-object Error String and source/destination lock failure with finite
+SourceMapUnavailable, DestinationUnavailable and DestinationNotObject errors.
+This is an explicit Rust signature change, without a legacy panic wrapper or
+second checked setter. It does not add a source-language dispatch.
+
+The selected boundary is Map storage -> native borrowed conversion -> public
+JSONBox::set. Existing root set callers are direct observation tests; builtin
+factory, optional Json method table, native host and kernel/plugin inspection
+found no root JSON set dispatch. Historical archived dispatch is not active.
+External Rust clients and plugin JSON implementations are excluded; do not
+claim compiler activation or external caller-zero compatibility.
+
+MapBox lends native key/value iteration within its lock and reports storage
+failure without exposing HashMap or RwLock. JSON's recursive conversion returns
+Result and propagates nested Map errors; it still borrows rather than cloning
+children. GC reuses owner access while retaining its distinct native clone
+projection. Remove get_data after these actual callers move; poisoning tests
+stay in a cfg(test) owner module, not a production raw-storage escape.
+
+Evaluate key and convert the input, then dispose the top-level native input
+before taking the destination write lock. This preserves disposal-before-commit
+and lets input observation/Drop re-enter the destination without that lock.
+Validate destination storage and object kind, then commit the owned JSON value.
+Err performs no direct destination write; arbitrary input callback side effects
+are not rolled back. Inputs are consumed once on both outcomes. Keep existing
+Array observation and fallback stringify behavior; this does not turn native
+panic, host allocation termination or cyclic traversal into language Fault.
+
+The one-row deletion set is raw Map table exposure plus its JSON caller,
+infallible native conversion and non-object Error String. Acceptance exercises
+public set success/failure, nested Map errors with destination retention,
+non-object/destination refusal, no child cloning and input Drop outside the
+write lock. Owned entry projection and fallible public Map read/clone/end remain
+subsequent intake blockers; this native Result does not invent those authorities.
+
 ### Map source-shape preservation decision
 
 Decision: retain ordered Map keys and exact EntryValue source relations in the
