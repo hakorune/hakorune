@@ -59,58 +59,9 @@ impl CallerNewHomePrefixV1 {
     }
 }
 
-#[derive(Clone, Copy)]
-enum LocalValue {
-    Home(BindingRefV1),
-    Handle(BindingRefV1),
-    Trivial,
-    Uninitialized,
-}
-
-fn value_class(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    site: &SourceExprSiteV1,
-    locals: &BTreeMap<BindingRefV1, LocalValue>,
-) -> Option<LocalValue> {
-    if matches!(
-        input.function().expression_source().literal(site),
-        Some(ResolvedLiteralSourceV1::Integer(_) | ResolvedLiteralSourceV1::Bool(_))
-    ) {
-        return Some(LocalValue::Trivial);
-    }
-    let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(site)? else {
-        return None;
-    };
-    match locals.get(&binding)? {
-        LocalValue::Home(root) | LocalValue::Handle(root) => Some(LocalValue::Handle(*root)),
-        LocalValue::Trivial => Some(LocalValue::Trivial),
-        LocalValue::Uninitialized => None,
-    }
-}
-
-/// Exact source classification for the selected direct-New argument profile.
-/// The scanner owns this decision; package code must consume its observation
-/// instead of replaying source syntax.
-fn selected_new_argument_kind(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    site: &SourceExprSiteV1,
-    locals: &BTreeMap<BindingRefV1, LocalValue>,
-) -> Option<SelectedNewArgumentKindV1> {
-    match input.function().expression_source().literal(site) {
-        Some(ResolvedLiteralSourceV1::Integer(value)) => {
-            return Some(SelectedNewArgumentKindV1::Integer(*value));
-        }
-        Some(ResolvedLiteralSourceV1::Bool(value)) => {
-            return Some(SelectedNewArgumentKindV1::Bool(*value));
-        }
-        _ => {}
-    }
-    let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(site)? else {
-        return None;
-    };
-    matches!(locals.get(&binding), Some(LocalValue::Trivial))
-        .then_some(SelectedNewArgumentKindV1::Local { binding })
-}
+#[path = "home_prefix_local_flow.rs"]
+mod local_flow;
+use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 
 pub(crate) fn issue_new_home_prefixes_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -274,12 +225,12 @@ enum ReturnScalar {
 }
 
 // This classifier is terminal-only: argument and prefix-local eligibility
-// still belongs to value_class. Field authority is borrowed from the exact
+// still belongs to the local-flow observation. Field authority is borrowed from the exact
 // selected New's source definition, never from runtime layout or MIR types.
 fn return_scalar<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
-    locals: &BTreeMap<BindingRefV1, LocalValue>,
+    locals: &PrefixLocalFlow<'_>,
     field_is_integer: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -294,7 +245,7 @@ fn return_scalar<E>(
     ) {
         return Ok(Some(ReturnScalar::Integer));
     }
-    if matches!(value_class(input, site, locals), Some(LocalValue::Trivial)) {
+    if locals.observe(site).is_some_and(|value| value.is_trivial()) {
         return Ok(Some(ReturnScalar::OtherTrivial));
     }
     let Ok(expr) = input
@@ -311,7 +262,7 @@ fn return_scalar<E>(
             else {
                 return Ok(None);
             };
-            let Some(LocalValue::Handle(home)) = value_class(input, receiver.site(), locals) else {
+            let Some(OrdinaryObservation::Handle(home)) = locals.observe(receiver.site()) else {
                 return Ok(None);
             };
             let Some(ResolvedLexicalRefV1::Local(binding)) =
@@ -426,7 +377,7 @@ pub(crate) fn scan_new_home_flow<E>(
             argument_observations,
         ));
     };
-    let mut locals = BTreeMap::new();
+    let mut locals = PrefixLocalFlow::new(input);
     let mut homes = Vec::new();
     let mut covered_statements = Vec::new();
     for index in 0..body.statements().len() {
@@ -546,7 +497,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
             }
             let Some(site) = relation.initializer_site() else {
-                locals.insert(binding, LocalValue::Uninitialized);
+                locals.install_uninitialized(binding);
                 continue;
             };
             let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
@@ -570,7 +521,7 @@ pub(crate) fn scan_new_home_flow<E>(
                                 let argument = input.source().child_expr_from_expr(
                                     &new, ExprChildRoleV1::CallArgument(ordinal),
                                 ).map_err(|_| SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: owned.clone() })?;
-                                let kind = selected_new_argument_kind(input, argument.site(), &locals).ok_or_else(|| {
+                                let kind = locals.observe(argument.site()).and_then(OrdinaryObservation::into_selected_argument).ok_or_else(|| {
                                     SelectedNewArgumentUnavailableV1::ArgumentNotTrivial { new_site: owned.clone(), site: argument.site().clone() }
                                 })?;
                                 Ok(SelectedNewArgumentV1::new(ordinal, argument.site().clone(), kind))
@@ -596,12 +547,12 @@ pub(crate) fn scan_new_home_flow<E>(
                                         // Handle arguments require the selected parameter's
                                         // source demand, not merely a physical borrow ABI.
                                         Ok(arg)
-                                            if selected_new_argument_kind(
-                                                input,
-                                                arg.site(),
-                                                &locals,
-                                            )
-                                            .is_some() => {}
+                                            if locals
+                                                .observe(arg.site())
+                                                .and_then(
+                                                    OrdinaryObservation::into_selected_argument,
+                                                )
+                                                .is_some() => {}
                                         Ok(arg) => {
                                             unavailable.get_or_insert_with(|| {
                                                 HomePrefixUnavailableV1::ArgumentNotCovered(
@@ -640,9 +591,9 @@ pub(crate) fn scan_new_home_flow<E>(
                 results.insert(owned, result);
                 // This is the Normal successor only, after exact local commit.
                 homes.push(binding);
-                locals.insert(binding, LocalValue::Home(binding));
-            } else if let Some(class) = value_class(input, site, &locals) {
-                locals.insert(binding, class);
+                locals.install_selected_normal_home(binding);
+            } else if let Some(class) = locals.observe(site) {
+                locals.install_observed(binding, class);
             } else {
                 unavailable.get_or_insert_with(|| {
                     HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())

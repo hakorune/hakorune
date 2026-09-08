@@ -385,6 +385,59 @@ execution. Do not repeat this bounded absence audit to select a runtime-only
 retention workaround; the next unresolved decision is the source flow API.
 
 
+##### Accepted source-flow prerequisite BoxShape
+
+Decision: extract the existing prefix local environment behind one private API;
+separate stored Home/Handle/Trivial/Uninitialized from ordinary expression results
+Integer/Bool/TrivialLocal/Handle. This is behavior-preserving, not Map admission.
+Source authority + canonical issuer: the existing `scan_new_home_flow` source
+walk, with `ResolvedFunctionLoweringInputV1` bound once to its local environment.
+Non-authority: ordinary Handle support never grants ownership transfer; no new
+public receipt, Shared/carrier/Consumed state or destination API.
+Fail-fast boundary: preserve current None/unavailable behavior for missing,
+uninitialized, non-local and unsupported expressions; preserve error accumulation.
+Smallest next slice: migrate initializer, selected argument, terminal Trivial and
+field receiver observations to this API and remove both old classifiers/raw local
+map accesses. Keep terminal Integer's early arm and cleanup order in the scanner.
+Non-claims: Map candidate issuance, generic Home Flow, transfer, runtime cutover.
+
+The independent equivalence audit covered all four stored states plus missing
+binding, and Integer/Bool/Local/other inputs. Exact literal values and local
+binding survive the selected-argument projection; alias installation accepts only
+ordinary observations and therefore cannot install a Home. Selected Normal Home
+installation remains at the existing scanner point, even after accumulated errors.
+Acceptance uses the existing prefix-order, unknown-prefix, selected-argument and
+field-alias suites plus an alias-chain source case; owning README/reference and
+pointer/corridor guards close the slice.
+
+
+Implementation checkpoint: `home_prefix_local_flow.rs` now owns the private
+stored state and ordinary observation; both old classifiers and direct local
+map access are removed from the scanner. The Integer terminal arm and Normal
+installation/error/cleanup order are unchanged. Changed sources are at most
+617 lines. Alias-chain field access reaches the existing supporting Home.
+
+Verification classification: current and clean parent `5ccd2302ce` both report
+15 passed / 1 failed for `mir::normal_callable_semantic_package::brand_catalog_tests::`
+and 1 passed / 1 failed for
+`mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::`.
+Commands use `CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib FILTER`;
+the isolated parent shares the target cache and the same ignored Cargo.lock
+(SHA256 `24b148fd057103161445d0fe96cc4d47fa9aa2a43b04fc3c6ed9b78dd5473c70`).
+Known baseline debt, not waived or repaired in this BoxShape:
+
+- `mir::normal_callable_semantic_package::brand_catalog_tests::normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix`: `return first.left + true` unexpectedly retains cleanup availability on both revisions.
+- `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`: `return page.slot + true` retains one read instead of zero on both revisions. The new two-alias case executes successfully before this existing failure.
+
+These are open terminal-classification debt in `home_new_prefix::return_scalar`,
+not proof of valid mixed Add execution. Reconcile source scalar evidence and
+whole-expression acceptance before widening this terminal family; do not weaken
+the tests or infer Map ownership from its coarse Integer fallback. Current-change
+failures: zero observed in these suites; whole-library green is not claimed.
+Pointer/corridor guards and diff check pass. Source destination-demand/commit
+issuance remains the next Map design after this completed prerequisite.
+
+
 ### `OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0`
 
 Decision: accepted by

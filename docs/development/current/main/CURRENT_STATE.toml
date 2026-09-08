@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Map source-shape preservation landed at aa4222541c. Owner placement and pre/post-commit state table are fixed in OWN-FIELD-CONTAINER-DEST-D0: close the Map-scoped OWN-HOME-FLOW0-S0 source candidate capability/availability API next, then root co-seal, physical transaction and runtime cutover. Script uses its own pre-effect forest seal, not the ordinary-New ledger. Existing prefix/parameter/carrier proofs are bounded; no Map move issuer, implicit share or scalar-only completion is authorized."
+current_blocker_token = "Prefix local-flow BoxShape is implemented: stored Home is separate from ordinary Handle observation; one classifier feeds existing consumers, with no new Map transfer API. Next under OWN-FIELD-CONTAINER-DEST-D0: exact destination demand and commit-aware availability at the source root. Parent 5ccd2302ce reproduces both field+Bool terminal test failures; details remain open in the existing task. No implicit share/carrier adoption or public Map cutover is authorized."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

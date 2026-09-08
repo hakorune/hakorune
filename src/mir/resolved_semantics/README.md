@@ -27,6 +27,13 @@ own the destination semantics and remaining co-seal work.
 
 ## Ordinary-New caller-prefix facts
 
+`home_prefix_local_flow` owns the prefix's private local-state table and one
+ordinary-expression observation. Stored Home state is distinct from a read's
+Handle result; alias initialization cannot install a Home. Integer/Bool values
+and exact Trivial local bindings survive the selected-argument projection.
+The source scanner still owns traversal, Normal installation and cleanup order.
+This does not issue Map transfer, Shared acquisition or Dynamic carrier adoption.
+
 `home_new_prefix` owns the bounded ordinary-New caller-prefix facts, from one
 resolved source loan and exact selected initializer bindings. It walks source
 statement order, keeps aliases separate from new Homes, and records prior

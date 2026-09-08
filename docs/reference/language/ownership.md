@@ -121,7 +121,10 @@ print(a.value) // 10
 
 `b` does not add an owner or perform RC bookkeeping. Handles are mutable and
 non-exclusive; the optimizer must assume that `a` and `b` can alias. A handle
-cannot escape beyond the Home that supports it.
+cannot escape beyond the Home that supports it. The selected constructor-prefix
+implementation keeps owning local state separate from ordinary expression
+observations: both direct Home reads and alias-chain reads yield only handles.
+This structural separation does not activate Map transfer or general Home Flow.
 
 Dynamic invocation does not change this rule based on a runtime tag. Its
 receiver and arguments are borrowed without escape for the exact invocation,

@@ -169,6 +169,11 @@ fn terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression() {
     for (suffix, expected, alias) in [
         ("return page.slot + page.slot", 2, false),
         ("local alias = page return alias.slot", 1, true),
+        (
+            "local alias = page local copy = alias return copy.slot",
+            1,
+            true,
+        ),
         ("return page.slot + true", 0, false),
     ] {
         let source = format!(
