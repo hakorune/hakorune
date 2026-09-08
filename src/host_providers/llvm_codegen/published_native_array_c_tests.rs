@@ -34,6 +34,14 @@ fn retained_script_inputs_reach_native_c_and_reject_physical_mutations() {
                 true,
             ));
         }
+        for result in [0i64, 255, 256, i64::MAX] {
+            for optimize in [false, true] {
+                cases.push((
+                    format!("local a: Array<i64> = [10, 20]\nlocal alias = a\nlocal b: Array<u8> = []\nreturn {result}"),
+                    optimize,
+                ));
+            }
+        }
         for (index, (source, optimize)) in cases.iter().enumerate() {
             let parsed =
                 crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
@@ -69,7 +77,9 @@ fn retained_script_inputs_reach_native_c_and_reject_physical_mutations() {
                             Some(runtime),
                             None,
                         )?);
-                        let expected = if index >= 28 {
+                        let expected = if index >= 31 {
+                            [0, 255, 70, 70][(index - 31) / 2]
+                        } else if index >= 28 {
                             70
                         } else if index % 2 == 0 {
                             30

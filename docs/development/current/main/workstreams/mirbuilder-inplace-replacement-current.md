@@ -622,17 +622,17 @@ Evidence: Script input3, physical9 (including signed-zero/NaN wire bits), bindin
 
 #### MIR-SCRIPT-ARRAY-C-EXECUTION-I0
 
-Decision: extend the existing physical parser/V4 consumer for retained NativeArray, then switch the actual selected OBJ/EXE callers.
-Source authority + canonical issuer: finalized Script source/Recipe/emission; existing compiled-entry and bound invocation own physical input/session.
-Non-authority: C source inference, fake object profile, generic retry and exit70-only cleanup proof.
-Fail-fast boundary: exact wire/CFG/lane/liveness and runtime mismatch reject before artifacts; unselected families keep their Stops.
-Smallest next slice: task4d returned-allocation-Fault and final-result-range cleanup/report/dispose observations on production artifacts, then finite series retirement audit.
-Checkpoint: task4c closes with the real session-bound OBJ/EXE switch. Host31 source cases pass EXE/independent OBJ30/0/70, ordered mutation/cleanup/report/dispose and29 malformed rejects; coverage2/source7/preparation3 and Pair/untyped pass. Rebuilt CLI EXE (`--backend mir --emit-exe`) and OBJ
-(`--backend llvm`, `NYASH_LLVM_OBJ_OUT`) pass i64 30, Unit0, element Fault70, final-result-range70, Pair30 and untyped30; missing runtime rejects before artifact. Runtime is explicit `--emit-exe-nyrt`; no profile/extension/source workaround. Selected local stripping (three sites), implicit VM
-observer injection (discovery/merge) and typed host Stops are retired; declaration/nested using/alias and explicit-prefix rejection tests pass. M7-S parent/pointer guards pass; changed source max625.
-Known baseline debt: at parent24cfe2cf7c, the same commands reproduce old `mirbuilder_inplace_replacement_guard.sh` raw-Loop-owner failure, `mir_call_ingress_schema_lifecycle_guard.sh` stale latest-card failure and cataloged-affine-loan row unsupported-current failure. Use the current selected-normal parent guard; no waiver for changed contracts.
-Non-claims: returned-allocation-Fault and final-result-range cleanup observation/series retirement remain; exit70 alone is insufficient. No new source forms, Array descriptor or backend parity.
-The [owner task4](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) contains worker-audited owners, finite mapping, exclusive delete-set and full task4d execution/cleanup acceptance. Observe source760/hard800; split coherent C validation before growth.
+Closeout: selected retained Script Array execution and retirement are verified. Current selected-normal parent/pointer guards and diff check pass; changed source maximum189 lines.
+Authority: finalized Script source/Recipe/emission -> compiled-entry physical input -> explicit bound runtime session -> V4 OBJ/EXE. C consumes supplied identity/control/cleanup; it cannot infer source meaning or retry generic dispatch.
+Evidence: task4c `feaaa5d5e8` switches real OBJ/EXE and preparation. Task4d's ignored host test passes (356.12s): 39 source cases execute host EXE and independently linked production OBJ, 8 injected returned-allocation Fault probes check exact skipped operations and cleanup/report/dispose, and 29 malformed inputs reject without replacing artifacts.
+Final-result cases0/255/256/i64::MAX run optimized and unoptimized; range Fault102 reports after both releases, then disposes once. Allocation failure at attempt1/2 covers I64/Unit roots with both optimizer settings; no claim/append or release targets the failed allocation, prior effects survive, and exit70 follows report/dispose.
+Prior task4c evidence remains: coverage2/source7/preparation3, Pair EXE/OBJ30/Bool Fault70 and untyped regressions; rebuilt CLI EXE/OBJ/link succeeds for i64, Unit and both Fault families. Missing runtime rejects before artifacts. This test-only closeout changes no production ABI.
+Census boundary: selected normal preparation -> retained Script handoff -> compiled-entry input -> explicit runtime OBJ/EXE -> NativeArray V4 terminal. Includes both real artifact callers; excludes arbitrary alias writes, other source families, module-only ingress, VM/compatibility and fatal allocator recovery.
+Retirement inventory: selected Local stripping (prelude/main/final normalization), implicit VM observer injection (discovery/merge), Script handoff loss, callable-only projection, typed host Stop and native C pending restriction are retired in this series. Same bound invocation owns runtime selection; no selected retry remains.
+Worker read-only audit found no additional selected blocker or caller-zero exclusive asset. Shared generic append/dispatch, compatibility preparation, Pair branches and module-only/unselected Stops retain callers; they are not deletion targets. Inventory Exhausted; open/reopened blocker0 within the stated boundary.
+Known baseline debt: at parent24cfe2cf7c, old inplace/raw-Loop, ingress-schema/stale-card and cataloged-affine-loan/unsupported-row guards reproduce their failures. Current selected-normal parent/pointer guards remain required; no waiver for changed contracts.
+Next: existing terminal relation BoxShape in [follow-up2](../design/constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08), then `CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0`. First audit current terminal issue/consume owners; no source-family widening or new public receipt.
+Non-claims: no fatal OOM recovery, arbitrary typed Array execution, other backend parity, whole-lib green or MirBuilder completion. Full owner contract: [accepted task order](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order).
 
 ## Source and ownership budget
 

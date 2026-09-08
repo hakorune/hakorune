@@ -9,9 +9,9 @@ Scope: Array literal construction-target preservation; selected LLVM C consumer
 
 - Decision: preserve named versus intrinsic construction in the existing allocation products.
 - Implementation: raw/typed-local/Core Array producers preserve IntrinsicArray; literal birth edges and duplicate Script runtime publication are retired.
-- Next: atomic primitive append, checked native ABI, then Script final-input/C cutover under the accepted stable native failure policy. Primitive write Results are retained. Script handoff/frame/Invoke/cleanup/finishing are implemented; typed C remains stopped.
-- Production stop: numeric typed Array literal locals reach the existing typed C capability Stop. Excluded typed source shapes and Loop retain Deferred.
-- Retirement: Array literal birth callers/effects are removed; Map/Main remain. Wider Array execution is not complete.
+- Next: terminal relation BoxShape, then current-document reconciliation. Selected retained Script Arrays now execute through the checked native ABI and shared final-input/V4 OBJ/EXE route.
+- Production boundary: only retained Script inputs with exact all-carrier claim coverage and an explicit compatible runtime session pass the selected native gate. Module-only and excluded source families retain their existing Stops.
+- Retirement: literal birth edges and selected Script preparation/projection/host/C restrictions are retired. Shared Map/Main and compatibility callers remain; wider Array execution is not complete.
 
 The [language contract](../../../../reference/language/block-expressions-and-map-literals.md#4-collection-literal-construction-identity)
 owns intrinsic literal semantics and named provider compatibility. This document
@@ -895,7 +895,7 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    categories; it checks exact bindings/order and rejects spec/value/frame/edge/
    Return/cleanup drift and residual operations. Bound-input tests reject wrong
    descriptors/requirements and every missing Array symbol before temporary JSON
-   or output creation, while preserving Pair and the actual typed host Stop.
+   or output creation, while preserving Pair and the then-unselected typed host Stop (replaced for exact retained inputs by task4).
    Full EXE/linked OBJ and returned-Fault execution remain task4, not input proof.
 
    **Task3 implementation:** the existing final input now borrows retained Script
@@ -958,7 +958,7 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    retained Script OBJ/EXE through the explicit runtime session and replaces
    only the global typed-Array Stop with exact all-carrier claim coverage.
    Numeric/write and other capability checks retain their order and contracts.
-   The rolling card records host and CLI evidence. Task4d closes the remaining
+   The rolling card records completed host/CLI evidence and task4d
    final-result range and returned-allocation-Fault cleanup observations.
    Injected returned allocation Fault tests only the supplied branch; it does
    not claim recovery from native fatal allocator failure.
@@ -974,8 +974,9 @@ Task1 is verified: the four kernel sequences now call atomic primitive append;
 Array52, hostStop7 and kernel caller2/existing Array10 pass. The exact receipt
 is in the rolling workstream card. Task2 is verified as a runtime dependency.
 Task3 implements the physical-owner closure above; its verification receipt
-is in the rolling card. Task4 owns selected emission/cutover work. Runtime availability does not
-activate C; full selected entry-to-terminal acceptance remains required.
+is in the rolling card. Task4/5 now close selected emission/cutover and finite retirement with real
+entry-to-terminal evidence recorded in the rolling card. Runtime symbol
+availability alone still does not authorize another cohort.
 
 ### CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0
 

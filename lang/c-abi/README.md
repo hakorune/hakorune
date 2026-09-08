@@ -73,14 +73,17 @@ Lifecycle invocation ownership
   Fault merges compare live identities; claim capability is unusable there.
   LLVM emission preserves Float bits, narrows proved Bool only at its i32 ABI,
   and disposes Unit roots before exit0. Source/Recipe still owns cleanup order.
-  Rust's selected typed Script host Stop remains until the actual OBJ/EXE
-  session/capability switch; direct consumer evidence does not close that switch.
+  Rust's real OBJ/EXE callers bind the explicit runtime session and admit exact
+  retained Script carrier/claim coverage; generic and unselected Stops remain.
 - Native consumer reproduction: after rebuilding C and the lifecycle archive,
   run the ignored Rust test `retained_script_inputs_reach_native_c_and_reject_physical_mutations`.
   It supplies real retained Script JSON to `published_native_array_physical_test.py`;
-  the existing V4 driver compiles it and the native runtime probe observes actual
-  mutation/release/report/dispose calls. Physical mutations grant no new source
-  acceptance. Keep the Pair physical and host execution regressions.
+  the V4 driver checks physical mutations while the runtime probe links actual
+  production host objects and observes mutation/release/report/dispose calls.
+  It covers final-result range Fault after cleanup and test-injected returned
+  allocation Fault at the first/second allocation, including skipped successors.
+  Injection proves generated Fault control, not recovery from fatal OOM. Physical
+  mutations grant no source acceptance; keep Pair and untyped regressions.
 - Birth validates all kind/payload pairs, including unused arguments. Integer
   reaches the raw i64 store; valid Bool records FieldTypeMismatch (103) at the
   existing FieldSet site and follows its Fault edge. Invalid kind/payload is

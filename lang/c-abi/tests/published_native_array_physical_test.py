@@ -10,7 +10,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[3]
 work = Path(sys.argv[1])
 inputs = [json.loads(path.read_text()) for path in sorted(work.glob("*.json"), key=lambda p: int(p.stem))]
-assert len(inputs) == 31
+assert len(inputs) == 39
 
 
 def checked(args):
@@ -67,17 +67,41 @@ for index, data in enumerate(inputs):
              "-lpthread", "-ldl", "-lm", "-o", exe])
     result = subprocess.run([str(exe)], text=True, capture_output=True,
                             env=dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off"))
-    expected = (0 if data["functions"][0]["role"] == "root_unit" else 30) if index < 28 else 70
+    expected = ((0 if data["functions"][0]["role"] == "root_unit" else 30)
+                if index < 28 else 70 if index < 31 else [0, 255, 70, 70][(index - 31) // 2])
     assert result.returncode == expected, (index, result)
     lines = result.stdout.splitlines()
-    if index < 28:
+    if index < 28 or index in range(31, 35):
         assert lines[-3:] == ["RELEASE 2 0 0", "RELEASE 1 2 10", "DISPOSE 2 2 2 0"], lines
         assert not any(line.startswith("FAULT ") for line in lines)
-    else:
+    elif index < 31:
         kind = ["bool", "f64", "i64"][index - 28]
         subtype = 3 if kind == "i64" else 1
         assert lines[-5:] == [f"APPEND 2 {kind} 1 0 0", "RELEASE 2 0 0", "RELEASE 1 1 7",
                               f"FAULT 202 {subtype} 0", "DISPOSE 2 2 2 1"], lines
+
+    else:
+        actual = [256, 2**63-1][(index - 35) // 2]
+        assert lines[-4:] == ["RELEASE 2 0 0", "RELEASE 1 2 10",
+                              f"FAULT 102 {actual} 0", "DISPOSE 2 2 2 1"], lines
+
+# Use untouched production objects for optimized/unoptimized I64 and Unit roots.
+for index in range(4):
+    for failed_attempt in [1, 2]:
+        checked(["cc", work / f"{index}.host.o",
+                 ROOT / "lang/c-abi/tests/published_native_array_runtime_probe.c",
+                 f"-DTEST_FAIL_NEW_AT={failed_attempt}", archive,
+                 *["-Wl,--wrap=" + name for name in wraps],
+                 "-lpthread", "-ldl", "-lm", "-o", exe])
+        result = subprocess.run([str(exe)], text=True, capture_output=True,
+                                env=dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off"))
+        assert result.returncode == 70, (index, failed_attempt, result)
+        prefix = [] if failed_attempt == 1 else [
+            "NEW 1 0", "CLAIM 1 1 0", "APPEND 1 i64 0 0 1", "APPEND 1 i64 0 1 2"]
+        cleanup = [] if failed_attempt == 1 else ["RELEASE 1 2 10"]
+        counts = "0 0 0" if failed_attempt == 1 else "1 2 1"
+        assert result.stdout.splitlines() == prefix + [f"NEW_FAULT {failed_attempt}"] + cleanup + [
+            f"FAULT 9001 {failed_attempt} 0", f"DISPOSE {counts} 1"], result
 
 base = inputs[2]  # optimized I64, with aliases and two residences
 mutations = []
@@ -162,4 +186,4 @@ for bits in [-1, 2**64, "0", 1.25]:
     data = copy.deepcopy(inputs[29])
     next(row for row in instructions(data) if row["op"] == "const_f64_bits")["bits"] = bits
     compile_input(data, False)
-print("native C: 31 production host objects linked/executed with runtime observations, malformed wire/cleanup rejection, Float bit inputs")
+print("native C: 39 production host objects; 8 returned-allocation Fault probes; ordered runtime observations, malformed wire/cleanup rejection, Float bit inputs")

@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-SCRIPT-ARRAY-C-EXECUTION-I0"
 current_execution_cohort = "mir_script_array_c_execution_i0"
-current_design_stop = "none; task4c selected-normal preparation and real OBJ/EXE session/capability switch verified; next task4d observes returned-allocation Fault and final-result range cleanup"
-current_blocker_token = "Task4c verified: host31 EXE/independent OBJ30/0/70 with cleanup and29 rejects; coverage2/source7/preparation3 and Pair/untyped regressions pass. Rebuilt real CLI EXE and OBJ/link pass i64 30, Unit0, element Fault70, final-result range70, Pair30, untyped30; missing runtime rejects before artifacts. Selected local stripping, implicit VM observer prelude injection and typed host Stops are retired. Next task4d: returned-allocation-Fault and final-result-range cleanup/report/dispose observations, then series retirement audit. Exit70 alone is not remaining cleanup proof."
+current_design_stop = "none; selected Script Array execution and finite retirement verified; commit/push checkpoint precedes terminal relation BoxShape owner audit"
+current_blocker_token = "Array task4d/task5 verified: host39 EXE/independent OBJ, eight injected returned-allocation Fault probes, final-result range cleanup/report/dispose and29 malformed rejects. Finite selected-path retirement audit finds no remaining blocker; shared compatibility edges remain live. Closeout commit/push, then existing terminal relation BoxShape follow-up2 and CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0. No fatal OOM or whole-MirBuilder completion claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,11 +31,10 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Task4c real CLI OBJ/EXE and exact native capability switch verified; selected
-source preserves declarations and excludes implicit VM observer injection.
-Next task4d allocation-Fault/final-result-range cleanup observations and retirement.
+Selected Script Array execution/retirement verified: host39, allocation Fault8,
+range cleanup and malformed29. Closeout checkpoint, then terminal relation BoxShape.
 """
-next_design_card = "MIR-SCRIPT-ARRAY-C-EXECUTION-I0"
+next_design_card = "Terminal relation BoxShape (constructor-lifecycle-llvm-lowering follow-up2)"
 next_execution_card = "MIR-SCRIPT-ARRAY-C-EXECUTION-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

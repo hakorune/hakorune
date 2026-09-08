@@ -1,4 +1,5 @@
-/* Observe generated calls against the actual runtime; never replace mutations. */
+/* Observe actual runtime mutations. Optional test-only returned allocation Fault
+ * exercises generated control; it does not simulate recovery from fatal OOM. */
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -6,6 +7,10 @@
 
 static int64_t handles[16];
 static unsigned created, released, appends, reports;
+#ifdef TEST_FAIL_NEW_AT
+static unsigned new_attempts;
+#define TEST_INJECTED_NEW_FAULT 9001u
+#endif
 int64_t nyash_array_length_h(int64_t);
 int64_t nyash_array_get_h(int64_t, int64_t);
 static unsigned identity(int64_t handle) {
@@ -15,6 +20,17 @@ static unsigned identity(int64_t handle) {
 uint32_t real_new(void*, uint64_t, int64_t*) __asm__("__real_nyash.array.checked_new_v1");
 uint32_t wrap_new(void*, uint64_t, int64_t*) __asm__("__wrap_nyash.array.checked_new_v1");
 uint32_t wrap_new(void* frame, uint64_t site, int64_t* out) {
+#ifdef TEST_FAIL_NEW_AT
+  if (++new_attempts == TEST_FAIL_NEW_AT) {
+    assert(out != NULL);
+    /* Do not write the Normal-only out-slot or create a handle. */
+    uint32_t status = nyrt_fault_record_static_v1(
+        frame, TEST_INJECTED_NEW_FAULT, site, new_attempts, 0);
+    assert(status == NYRT_FAULT_FAULT_V1);
+    printf("NEW_FAULT %u\n", new_attempts);
+    return status;
+  }
+#endif
   uint32_t status = real_new(frame, site, out);
   if (!status) { assert(created < 16); handles[created++] = *out; }
   printf("NEW %u %u\n", created, status);
