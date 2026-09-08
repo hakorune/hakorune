@@ -1425,10 +1425,30 @@ same-module flags0 prepass currently skips Phi registration, and existing PhiRec
 silently truncates inputs at16. The next Phi consumer must register map-only PHIs
 and reject overflow or remove truncation in that owner. Emit both lanes within
 the existing PHI group, with existing predecessor labels; never insert zext there.
-Original mixed-width PHIs need predecessor normalization or explicit unsupported.
+Original-required Phi validates actual incoming widths through the existing type
+owner before emission; incompatible i1/i64 inputs reject until predecessor
+normalization exists. Bool kind alone cannot establish width: a boxed local alias
+can retain i1 while the Project records I64. Select may retain its existing
+normalization and must share one normalized condition for both Map lanes.
+
+Admission uses finite transient physical domains over the same row/body graph.
+Keep String distinct from other Handle; Copy/NamedAlias forward domains, Phi
+unions every incoming edge, and Select unions both arms without constant pruning.
+Seed from validated producers only; Operation outputs require supplied inputs.
+After convergence mark still-empty domains Unresolved and propagate again, so
+one seeded merge cannot hide a seedless arm. Each selected Operation requires
+its inputs' whole domain to match. Reachability, physical domain validation and
+actual-emission ledgers stay separate; no new semantic issuer or operand graph.
 Expanded signatures/calls reuse one index; expanded leaf-only members must join
 the same-module emission traversal without changing original definition intent.
 Forward LLVM definitions need no separate declarations in the existing backend.
+
+Preparation at parent998103b469: the 758-line generic prepass's PHI block is
+lexically extracted to `hako_llvmc_ffi_pure_compile_generic_phi_prescan.inc`;
+expansion matches the parent byte-for-byte (prepass676, extracted block84).
+C build, ASan Original63 including both-walker backedges, definition22 parent
+comparison and pointer/corridor guards pass. This is editing headroom only,
+not PHI/Select consumer completion or a new physical owner.
 
 ### Versioned compiler frame decision
 
