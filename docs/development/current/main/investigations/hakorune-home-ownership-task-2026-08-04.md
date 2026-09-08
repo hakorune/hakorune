@@ -890,19 +890,20 @@ Runtime opaque ABI validation does not close this compiler queue.
    simplify_cfg -- --test-threads=1`, /tmp/hakorune-flow-owner-split.log).
    Corridor guard follows the new code/test owners and passes; no new guard,
    accepted form or instruction contract. Module README updated.
-3. Before extending the Map frame, compute demand/domains/actions/original once
-   in its existing private physical planner, after with_named_allocations binds
-   the index. This is not source Facts: graph and Named observations are inputs.
-   c_transport_v2.rs:267-268 and map_projection.rs:91-125 currently cause five
-   map_value_demands calls, two domain computations and two original computations
-   per successful frame; do not call this five fixed-point computations.
-   Retain the analysis only for that bound graph/frame; never reuse across
-   optimization or another Named observation. Remove duplicate computation and
-   temporary results; retain coverage refusal for arbitrary action inputs unless
-   their construction becomes private and complete. Done: existing domain,
-   original-demand and frame tests preserve recursive formals, Phi/Copy seeds,
-   Bool refusal, missing Named observation and partial-action/frame rejection.
-   No new semantic receipt, process-global cache or per-row guard.
+3. Bound-frame analysis consolidation completed. After Named binding,
+   map_frame_projection computes demand once, domain closure/operation selection
+   once and original demand once, returning actions plus original demand to the
+   frame. Coverage, unresolved and original-Float refusals are preserved. Domain
+   selection still receives no provisional external domain map. Prior inspection
+   entrypoints are test-only; no cross-graph/global cache or semantic receipt.
+   Validation: `CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib
+   published_backend_view::map_ -- --test-threads=1`:27 pass,1 ignored (actual C
+   query requires its dedicated instrumented driver); includes recursive/mixed
+   formals, seeded Phi/Copy, missing Named and partial frame/action refusals.
+   Log /tmp/hakorune-map-frame-analysis.log; corridor/diff checks pass, touched
+   source max355. Compiler README updated. No elapsed-time speedup or source/C
+   cutover claim. The previous five demand/two domain/two original computations
+   are removed from the production frame path; tests may inspect them separately.
 4. Split local.rs's 618-line materialize_local_v1 by existing ordered phases
    before extending it. Preserve cache, forwarding, failure-policy and emission
    order; one materialization owner, no second Facts classification. Done:
@@ -919,8 +920,8 @@ Runtime opaque ABI validation does not close this compiler queue.
    If the old set path is edited before retirement, correct its physical mask
    with a focused check then; do not introduce a second source effect authority.
 
-The next bounded implementation is bound-frame analysis consolidation
-(BoxShape), then Map opcode/cleanup cutover. The SSA split is explicitly queued before that owner grows; it does not
+The next implementation is Map opcode/cleanup cutover using the accepted
+operation-derived projection and mixed-origin cleanup contract. The SSA split is explicitly queued before that owner grows; it does not
 block unrelated Map runtime work. These tasks remain open; corrected counts are
 not evidence that their source changes have landed.
 

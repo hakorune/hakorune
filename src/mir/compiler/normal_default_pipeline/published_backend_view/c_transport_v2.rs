@@ -264,8 +264,7 @@ impl PublishedStaticMethodCFrameV2 {
         use std::ffi::CString;
 
         let index = MapBodyIndex::from_view(view)?.with_named_allocations(observations)?;
-        let actions = index.map_projection_actions()?;
-        let original = index.original_value_demands(&actions)?;
+        let (actions, original) = index.map_frame_projection()?;
         let expanded: BTreeSet<_> = actions
             .iter()
             .filter_map(|(key, action)| {

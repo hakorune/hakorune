@@ -23,10 +23,17 @@ pub(super) enum ValueDomain {
 type Domains<'m> = BTreeMap<ValueKey<'m>, BTreeSet<ValueDomain>>;
 
 impl<'m> MapBodyIndex<'m> {
+    #[cfg(test)]
     pub(super) fn map_value_domains(&self) -> Result<Domains<'m>, String> {
-        let mut domains: Domains<'m> = self
-            .map_value_demands()?
-            .into_iter()
+        self.domains_for_demands(&self.map_value_demands()?)
+    }
+
+    fn domains_for_demands(
+        &self,
+        demands: &BTreeSet<ValueKey<'m>>,
+    ) -> Result<Domains<'m>, String> {
+        let mut domains: Domains<'m> = demands
+            .iter().copied()
             .map(|key| (key, BTreeSet::new()))
             .collect();
         self.close_domains(&mut domains)?;
@@ -134,10 +141,19 @@ impl<'m> MapBodyIndex<'m> {
 
     /// Selection cannot be called with a provisional or caller-supplied domain map.
     /// This does not validate unrelated leaf producers or close external ingress.
+    #[cfg(test)]
     pub(super) fn map_physical_operations(
         &self,
     ) -> Result<BTreeMap<ValueKey<'m>, PhysicalOperation>, String> {
-        let domains = self.map_value_domains()?;
+        Ok(self.map_domains_and_operations(&self.map_value_demands()?)?.1)
+    }
+
+    // Only this owner supplies the fully closed domains to operation selection.
+    pub(super) fn map_domains_and_operations(
+        &self,
+        demands: &BTreeSet<ValueKey<'m>>,
+    ) -> Result<(Domains<'m>, BTreeMap<ValueKey<'m>, PhysicalOperation>), String> {
+        let domains = self.domains_for_demands(demands)?;
         let mut selected = BTreeMap::new();
         for &key in domains.keys() {
             if let Producer::Instruction { instruction, .. } = self.producer(key)? {
@@ -151,7 +167,7 @@ impl<'m> MapBodyIndex<'m> {
                 }
             }
         }
-        Ok(selected)
+        Ok((domains, selected))
     }
 
     fn map_physical_operation(

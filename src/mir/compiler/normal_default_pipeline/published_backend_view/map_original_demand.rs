@@ -9,12 +9,20 @@ use super::map_body_index::{MapBodyIndex, Producer, ValueKey};
 use crate::mir::{ConstructionTarget, MirInstruction};
 
 impl<'m> MapBodyIndex<'m> {
+    #[cfg(test)]
     pub(super) fn original_value_demands(
         &self,
         actions: &BTreeMap<ValueKey<'m>, ProjectionAction>,
     ) -> Result<BTreeSet<ValueKey<'m>>, String> {
-        let map = self.map_value_demands()?;
-        if map != actions.keys().copied().collect() {
+        self.original_demands_for_map(&self.map_value_demands()?, actions)
+    }
+
+    pub(super) fn original_demands_for_map(
+        &self,
+        map: &BTreeSet<ValueKey<'m>>,
+        actions: &BTreeMap<ValueKey<'m>, ProjectionAction>,
+    ) -> Result<BTreeSet<ValueKey<'m>>, String> {
+        if *map != actions.keys().copied().collect() {
             return Err("[freeze:contract][map-frame/projection-coverage-mismatch]".into());
         }
         let mut pending = VecDeque::new();

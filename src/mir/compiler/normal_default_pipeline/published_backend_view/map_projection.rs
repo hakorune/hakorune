@@ -1,6 +1,6 @@
 //! One physical leaf mapping for domain closure and complete projection actions.
 //! Existing exact site plans supply boxed ABI; this never infers source types.
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::c_transport_v2::ProjectionAction as Action;
 use super::map_body_index::{MapBodyIndex, Producer, ValueKey};
@@ -87,10 +87,19 @@ impl<'m> MapBodyIndex<'m> {
 
     /// Complete demanded action map, never a caller-supplied subset. C admission
     /// and execution still must consume each original/materialized producer.
+    #[cfg(test)]
     pub(super) fn map_projection_actions(&self) -> Result<BTreeMap<ValueKey<'m>, Action>, String> {
-        let operations = self.map_physical_operations()?;
+        Ok(self.map_frame_projection()?.0)
+    }
+
+    /// One analysis for this bound index; no reuse across Named bindings or graphs.
+    pub(super) fn map_frame_projection(
+        &self,
+    ) -> Result<(BTreeMap<ValueKey<'m>, Action>, BTreeSet<ValueKey<'m>>), String> {
+        let demands = self.map_value_demands()?;
+        let (domains, operations) = self.map_domains_and_operations(&demands)?;
         let mut actions = BTreeMap::new();
-        for key in self.map_value_demands()? {
+        for &key in &demands {
             let action = if let Some((_, action)) = self.map_leaf_projection(key)? {
                 action
             } else {
@@ -115,14 +124,13 @@ impl<'m> MapBodyIndex<'m> {
         }
         // A representation cycle with no physical seed cannot gain tags by
         // carrying Formal/Phi rows. Mixed domains remain valid for transport.
-        if self
-            .map_value_domains()?
+        if domains
             .values()
             .any(|set| set.contains(&Domain::Unresolved))
         {
             return Err("[freeze:contract][map-frame/value-domain-unresolved]".into());
         }
-        let original = self.original_value_demands(&actions)?;
+        let original = self.original_demands_for_map(&demands, &actions)?;
         for (key, action) in &actions {
             if matches!(action, Action::ExactF64(_)) && original.contains(key) {
                 return Err(format!(
@@ -132,6 +140,6 @@ impl<'m> MapBodyIndex<'m> {
                 ));
             }
         }
-        Ok(actions)
+        Ok((actions, original))
     }
 }

@@ -56,6 +56,11 @@ reject. This does not prove materialization or expanded ABI consumption in C.
 `PublishedStaticMethodCFrameV2` owns calls, Map operations, value rows, expanded
 function rows and string backing. Its constructor consumes the completed action
 map and original-use closure; Formal rows and body params determine expansion.
+After Named observations bind the index, `map_frame_projection` computes demand,
+closed domains/operation selection and original demand once for that frame.
+Action coverage, unresolved-domain and original-Float rejection share those
+results. Domain selection accepts no provisional domain map. Results are local
+to the bound graph; test-only inspection helpers are not production planners.
 Calls retain canonical logical targets; one fourth-table entry names each private
 physical target, with collisions avoided. Header pointers survive owner moves.
 C admission/expanded emission, public host wiring and Map cutover remain open.
