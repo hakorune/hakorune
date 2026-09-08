@@ -150,7 +150,8 @@ Named allocation emission
   document driver also checks table destruction before document release. Its
   eight injected OOM cases cover first/growth failure, earlier schema/pattern
   outcomes, and both actual Named dispatchers; an optional Dynamic input brings
-  the total to16 cases. Same-module dispatch is boolean: lookup failure returns0.
+  the total to16 Named/document cases. Six empty-V2 call-activity cases bring
+  the suite to22. Same-module dispatch is boolean: lookup failure returns0.
 - Private `hako_llvmc_ffi_named_query.inc` projects unique function/block/ordinal
   coordinates from the same invocation. Program observation is cached once;
   unavailable program/storage and unaddressable/unobserved sites remain distinct.
@@ -167,6 +168,12 @@ Named allocation emission
   while Map/planner rejection cancels. Retire this driver/protocol when public
   V2 host tests cover the connection. These are dependency witnesses, not source
   admission or Map object/executable evidence.
+- Published-call activity is explicit in the existing row owner. V1 requires
+  nonempty rows; private V2 allows NULL/0 without enabling legacy Global/Extern,
+  exact-seed routes or failure retry. `published_rows_preartifact_test.c` covers
+  empty/invalid pairs and failed nested activation preserving the ledger.
+  These are call-activity tests, not a complete V2 frame/Map consumer. The storage
+  remains global and does not provide concurrent compilation safety.
 - This extraction changes no language or public ABI contract. Prescan is still
   a separate observer; it does not provide allocation admission for the Map frame.
 - Focused reproduction after `bash tools/build_hako_llvmc_ffi.sh`:

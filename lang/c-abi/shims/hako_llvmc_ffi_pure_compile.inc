@@ -229,7 +229,7 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
       return -1;
     }
     if (exact_seed_route > 0) {
-      if (hako_llvmc_published_static_method_rows) {
+      if (hako_llvmc_published_call_rows_active()) {
         return set_err_owned(err_out,
             "[freeze:contract][published-mir-static-method] exact-seed route forbidden for typed rows");
       }

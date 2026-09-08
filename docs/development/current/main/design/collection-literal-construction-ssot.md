@@ -1306,6 +1306,40 @@ argument formatting/signature/leaf/export-alias edges; planner tests cannot clai
 these deletions. Read-only worker audit at9063d4008a found no missing semantic
 issuer; this is the remaining physical consumer implementation.
 
+### Selected call activity and V2 publication boundary
+
+The existing published-call owner now stores explicit Inactive/V1/V2 activity
+alongside borrowed rows and the consumption ledger. V1 still rejects an empty
+table; private V2 accepts exactly NULL/0 or a valid nonempty table. Failed nested
+activation preserves the existing binding/ledger. Selected Global/Extern absence,
+exact-seed rejection, object selection and no-compatibility-retry use activity;
+row lookup and take still use the actual table. No dummy row supplies activity.
+This remains process-global storage, not a concurrent compile guarantee.
+
+Verified dependency at parent dd8e54cfd2: C build, row-owner tests, ASan document
+lifetime22 (including six empty-V2 cases), Named60 and definition22 identical to
+parent observations, query17 and actual Rust/C integration1. The empty-V2 driver
+exercises non-Map bodies through the real core; it does not validate a full frame
+or prove Map execution. Public V1 admission and public Map stop remain intact.
+
+Read-only worker audit fixes the next private V2 compile owner sequence:
+validate/bind the frame and one expanded index, activate the existing call owner,
+compile to unpublished staging, finish both call and V2 ledgers, then publish.
+Generic lowering already checks calls before object emission; add V2 coverage at
+that point. The earlier indexof pattern writes an object and returns before it,
+so the outer V2 owner must check both ledgers on every successful core return.
+Residual rejection must remove staging and preserve any existing final object.
+Every exit clears frame/call activity. This staging/consumer implementation is
+still open; an outer error alone does not prove no artifact was published.
+
+Both actual walkers consume one frame-wide ledger using current function/site;
+function-context save/restore must not copy it. Query and prescan never consume
+rows, and optimizer skips cannot be counted as consumption. Next acceptance
+includes Map-only call_count0, actual allocation/write/ExactBits value observation,
+both walkers, early-pattern residual, generic abort, duplicate take and cleanup.
+Unimplemented projection actions reject explicitly. Full expanded definition and
+remaining action consumers precede public session/host/source cutover.
+
 ### Versioned compiler frame decision
 
 Decision: replace the selected static ingress with one v2 synchronous frame;

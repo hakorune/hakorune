@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Owned V2 four-table frame and expanded target/Formal rows are verified. Next: shared C frame/expanded index and both consumers, including typed-site shadowing versus old-ABI ingress rejection, then input-aware capability and atomic public session/host/source cutover with V1 retirement. JSON callee names cannot reissue selected target identity; no Map-through-V1."
+current_blocker_token = "Owned V2 frame and explicit empty-V2 call activity are verified. Next: shared C frame/expanded index and both consumers, including typed-site shadowing versus old-ABI ingress rejection, then input-aware capability and atomic public session/host/source cutover with V1 retirement. JSON callee names cannot reissue selected target identity; no Map-through-V1."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

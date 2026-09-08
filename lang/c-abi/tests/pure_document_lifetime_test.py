@@ -36,6 +36,28 @@ cases.append(("exact-seed-reject", json.dumps(invalid), -1, 1, "typed", "exact-s
 invalid = copy.deepcopy(body)
 invalid["functions"][1]["metadata"]["dynamic_v2_aot_call_admission_v2"] = {}
 cases.append(("dynamic-reject", json.dumps(invalid), -1, 1, "typed", "selected Dynamic entry requires"))
+# Empty call rows still select the typed consumer. No Map capability is claimed.
+empty = {"functions": [copy.deepcopy(body["functions"][1])]}
+empty["functions"][0]["name"] = "main"
+cases.extend([
+    ("empty-v2-success", json.dumps(empty), 0, 1, "selected-empty-v2", None),
+    ("empty-v2-json", "{", -1, 0, "selected-empty-v2", "json read error:"),
+    ("empty-v2-schema", '{"schema_version":42}', -1, 1, "selected-empty-v2", "invalid schema_version"),
+])
+for label, metadata, instructions, error in (
+    ("global", {}, [const, {"op": "mir_call", "mir_call": {
+        "callee": {"type": "Global", "name": "print"}, "args": [1]}}, ret], None),
+    ("extern", {}, [const, {"op": "mir_call", "mir_call": {
+        "callee": {"type": "Extern", "name": "nyash.console.log"}, "args": [1]}}, ret],
+     "published_extern_not_allowed"),
+    ("seed", {"exact_seed_backend_route": dict(
+        tag="array_string_store_micro", source_route="array_string_store_micro_seed_route",
+        proof="kilo_micro_array_string_store_8block")}, [const, ret], "exact-seed route forbidden"),
+):
+    value = copy.deepcopy(empty)
+    value["functions"][0]["metadata"] = metadata
+    value["functions"][0]["blocks"][0]["instructions"] = instructions
+    cases.append(("empty-v2-" + label, json.dumps(value), -1, 1, "selected-empty-v2", error))
 # Existing metadata-selected pattern return, before definition-plan validation.
 # Deliberately malformed later plan proves that its validation was not hoisted.
 pattern = copy.deepcopy(body)

@@ -574,7 +574,7 @@
       if (ptfb_contract_bound) {
         rc = hako_llvmc_ptfb_session_emit_object(
             &ptfb_session, llpath, obj_out, err_out);
-      } else if (hako_llvmc_published_static_method_rows) {
+      } else if (hako_llvmc_published_call_rows_active()) {
         /* Selected typed rows use one emitter, not the legacy optional
          * TargetMachine probe followed by an error-triggered retry. */
         rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
@@ -582,7 +582,7 @@
         #include "hako_llvmc_ffi_pure_compile_legacy_capi_emit.inc"
       }
 
-      if (!ptfb_contract_bound && !hako_llvmc_published_static_method_rows && rc != 0) {
+      if (!ptfb_contract_bound && !hako_llvmc_published_call_rows_active() && rc != 0) {
         rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
       }
       remove(llpath);

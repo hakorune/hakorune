@@ -22,6 +22,46 @@ static int set_err_owned(char **out, const char *message) {
 }
 #include "../shims/published_mir/hako_llvmc_ffi_published_static_method.inc"
 
+static void test_selected_call_activity(void) {
+  char *error = NULL;
+  assert(!hako_llvmc_published_call_rows_active());
+  assert(hako_llvmc_published_static_method_rows_begin(NULL, 0, &error) != 0);
+  assert(error && !hako_llvmc_published_call_rows_active());
+  free(error); error = NULL;
+  hako_llvmc_published_static_method_call_v1 row = {0};
+  row.function_name = "owner";
+  row.target_symbol = "target";
+  row.kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION;
+  for (int malformed = 0; malformed < 2; malformed++) {
+    assert(hako_llvmc_published_call_rows_begin_v2(
+        malformed ? &row : NULL, malformed ? 0 : 1, &error) != 0);
+    assert(error && !hako_llvmc_published_call_rows_active());
+    free(error); error = NULL;
+  }
+  assert(hako_llvmc_published_call_rows_begin_v2(NULL, 0, &error) == 0);
+  assert(hako_llvmc_published_call_rows_active());
+  assert(!hako_llvmc_published_static_method_peek_row_for_site("owner", 0, 0));
+  const char *types[] = {"Global", "Extern"};
+  for (size_t i = 0; i < 2; i++) {
+    assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
+        "owner", 0, 0, types[i], -1, NULL, NULL) == -1);
+  }
+  assert(hako_llvmc_published_static_method_rows_finish(&error) == 0);
+  hako_llvmc_published_static_method_rows_end();
+  assert(!hako_llvmc_published_call_rows_active());
+  assert(hako_llvmc_published_call_rows_begin_v2(&row, 1, &error) == 0);
+  assert(hako_llvmc_published_static_method_take_row_v1(&row) == 1);
+  /* Failed nested activation preserves both the binding and consumed ledger. */
+  assert(hako_llvmc_published_static_method_rows_begin(&row, 1, &error) != 0);
+  assert(error && strstr(error, "rows already active"));
+  free(error); error = NULL;
+  assert(hako_llvmc_published_call_rows.rows == &row);
+  assert(hako_llvmc_published_static_method_take_row_v1(&row) == -1);
+  assert(hako_llvmc_published_static_method_rows_finish(&error) == 0);
+  hako_llvmc_published_static_method_rows_end();
+  assert(!hako_llvmc_published_call_rows_active());
+}
+
 static void test_prepass_peek_and_emitter_take(void) {
   hako_llvmc_published_static_method_call_v1 row = {0};
   row.function_name = "renamed_physical_function";
@@ -330,6 +370,7 @@ static void test_intrinsic_array_allocation_rows(void) {
 }
 
 int main(int argc, char **argv) {
+  test_selected_call_activity();
   test_intrinsic_array_allocation_rows();
   test_prepass_peek_and_emitter_take();
   test_array_row_rejects_second_take();

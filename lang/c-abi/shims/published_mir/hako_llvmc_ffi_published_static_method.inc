@@ -8,10 +8,19 @@
  * selected call, ArrayElementWrite and intrinsic allocation physical consumers.
  */
 
-static const hako_llvmc_published_static_method_call_v1*
-    hako_llvmc_published_static_method_rows = NULL;
-static size_t hako_llvmc_published_static_method_row_count = 0;
-static unsigned char hako_llvmc_published_static_method_row_used[1024];
+enum HakoPublishedCallMode {
+  HAKO_PUBLISHED_CALL_INACTIVE, HAKO_PUBLISHED_CALL_V1, HAKO_PUBLISHED_CALL_V2
+};
+static struct {
+  enum HakoPublishedCallMode mode;
+  const hako_llvmc_published_static_method_call_v1* rows;
+  size_t count;
+  unsigned char used[1024];
+} hako_llvmc_published_call_rows;
+
+static int hako_llvmc_published_call_rows_active(void) {
+  return hako_llvmc_published_call_rows.mode != HAKO_PUBLISHED_CALL_INACTIVE;
+}
 
 static int hako_llvmc_published_static_method_symbol_safe(const char* value) {
   const unsigned char* p = (const unsigned char*)value;
@@ -23,17 +32,21 @@ static int hako_llvmc_published_static_method_symbol_safe(const char* value) {
   return 1;
 }
 
-static int hako_llvmc_published_static_method_rows_begin(
+static int hako_llvmc_published_call_rows_begin(
+    enum HakoPublishedCallMode mode,
     const hako_llvmc_published_static_method_call_v1* rows,
     size_t row_count,
     char** err_out) {
-  if (!(rows && row_count > 0 && row_count <= 1024)) {
+  if (hako_llvmc_published_call_rows_active())
+    return set_err_owned(err_out, "[freeze:contract][published-mir-static-method] rows already active");
+  if (!((rows && row_count > 0 && row_count <= 1024) ||
+        (mode == HAKO_PUBLISHED_CALL_V2 && !rows && row_count == 0))) {
     return set_err_owned(
         err_out,
         "[freeze:contract][published-mir-static-method] empty or oversized typed row set");
   }
-  memset(hako_llvmc_published_static_method_row_used, 0,
-         sizeof(hako_llvmc_published_static_method_row_used));
+  memset(hako_llvmc_published_call_rows.used, 0,
+         sizeof(hako_llvmc_published_call_rows.used));
   for (size_t i = 0; i < row_count; i++) {
     const hako_llvmc_published_static_method_call_v1* row = &rows[i];
     int valid_kind =
@@ -72,16 +85,25 @@ static int hako_llvmc_published_static_method_rows_begin(
       }
     }
   }
-  hako_llvmc_published_static_method_rows = rows;
-  hako_llvmc_published_static_method_row_count = row_count;
+  hako_llvmc_published_call_rows.rows = rows;
+  hako_llvmc_published_call_rows.count = row_count;
+  hako_llvmc_published_call_rows.mode = mode;
   return 0;
 }
 
+static int hako_llvmc_published_static_method_rows_begin(
+    const hako_llvmc_published_static_method_call_v1* rows, size_t count, char** err_out) {
+  return hako_llvmc_published_call_rows_begin(HAKO_PUBLISHED_CALL_V1, rows, count, err_out);
+}
+
+/* Private V2 call-table activation; no dummy row and no public V2 capability. */
+static int hako_llvmc_published_call_rows_begin_v2(
+    const hako_llvmc_published_static_method_call_v1* rows, size_t count, char** err_out) {
+  return hako_llvmc_published_call_rows_begin(HAKO_PUBLISHED_CALL_V2, rows, count, err_out);
+}
+
 static void hako_llvmc_published_static_method_rows_end(void) {
-  hako_llvmc_published_static_method_rows = NULL;
-  hako_llvmc_published_static_method_row_count = 0;
-  memset(hako_llvmc_published_static_method_row_used, 0,
-         sizeof(hako_llvmc_published_static_method_row_used));
+  memset(&hako_llvmc_published_call_rows, 0, sizeof(hako_llvmc_published_call_rows));
 }
 
 static const hako_llvmc_published_static_method_call_v1*
@@ -89,13 +111,13 @@ static const hako_llvmc_published_static_method_call_v1*
     const char* function_name,
     long long block_id,
     size_t instruction_index) {
-  if (!hako_llvmc_published_static_method_rows || !function_name || block_id < 0 ||
+  if (!hako_llvmc_published_call_rows.rows || !function_name || block_id < 0 ||
       (unsigned long long)block_id > UINT32_MAX || instruction_index > UINT32_MAX) {
     return NULL;
   }
-  for (size_t i = 0; i < hako_llvmc_published_static_method_row_count; i++) {
+  for (size_t i = 0; i < hako_llvmc_published_call_rows.count; i++) {
     const hako_llvmc_published_static_method_call_v1* row =
-        &hako_llvmc_published_static_method_rows[i];
+        &hako_llvmc_published_call_rows.rows[i];
     if (row->block_id != (uint32_t)block_id ||
         row->instruction_index != (uint32_t)instruction_index ||
         strcmp(row->function_name, function_name) != 0) {
@@ -117,10 +139,10 @@ enum hako_llvmc_published_static_method_shape_status_v1 {
  * (absent would permit a caller to enter generic compatibility handling). */
 static int hako_llvmc_published_static_method_take_row_v1(
     const hako_llvmc_published_static_method_call_v1* row) {
-  size_t index = (size_t)(row - hako_llvmc_published_static_method_rows);
-  if (hako_llvmc_published_static_method_row_used[index])
+  size_t index = (size_t)(row - hako_llvmc_published_call_rows.rows);
+  if (hako_llvmc_published_call_rows.used[index])
     return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
-  hako_llvmc_published_static_method_row_used[index] = 1;
+  hako_llvmc_published_call_rows.used[index] = 1;
   return HAKO_LLVMC_PUBLISHED_ROW_READY;
 }
 
@@ -158,7 +180,7 @@ static int hako_llvmc_published_static_method_peek_i64_global_row_v1(
     /* Published Global targets require rows; published Extern is rejected
      * by Rust host admission. Neither absence permits legacy dispatch.
      * Other shapes and explicit generic ingress keep their existing rules. */
-    if (hako_llvmc_published_static_method_rows && call_type &&
+    if (hako_llvmc_published_call_rows_active() && call_type &&
         (!strcmp(call_type, "Global") || !strcmp(call_type, "Extern")))
       return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
     return HAKO_LLVMC_PUBLISHED_ROW_ABSENT;
@@ -392,8 +414,8 @@ static int hako_llvmc_published_static_method_take_array_write_row_v1(
   } while (0)
 
 static int hako_llvmc_published_static_method_rows_finish(char** err_out) {
-  for (size_t i = 0; i < hako_llvmc_published_static_method_row_count; i++) {
-    if (!hako_llvmc_published_static_method_row_used[i]) {
+  for (size_t i = 0; i < hako_llvmc_published_call_rows.count; i++) {
+    if (!hako_llvmc_published_call_rows.used[i]) {
       return set_err_owned(
           err_out,
           "[freeze:contract][published-mir-static-method] typed row was not consumed");
