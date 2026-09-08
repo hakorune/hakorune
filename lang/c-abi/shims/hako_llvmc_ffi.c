@@ -30,6 +30,7 @@
 #include "hako_llvmc_ffi_common.inc"
 #include "hako_llvmc_ffi_typed_object_root_lookup.inc"
 #include "hako_llvmc_ffi_named_allocation_select.inc"
+#include "hako_llvmc_ffi_named_allocation_outcomes.inc"
 #include "hako_json_v1_borrowed.inc"
 #include "published_mir/hako_llvmc_ffi_published_static_method.inc"
 #include "published_mir/hako_llvmc_ffi_lifecycle_target_session_v1.inc"

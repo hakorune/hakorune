@@ -129,9 +129,21 @@ Named allocation emission
   independent-document evidence. The selector test retains mocked lazy-read
   counters; actual emitter comparison remains Named60.
 - Conditional selection states what an actual walker would consume. It does
-  not prove execution, admission or a bypass. Future retained observations are
+  not prove execution, admission or a bypass. Retained observations are
   separate from required frame-row coverage; optimizer matchers are not copied
   into this lookup layer.
+- `named_allocation_outcomes.inc` scans the owned document once and retains both
+  walker conditions by function/instruction identity. Both actual emitters use
+  indexed immutable lookup; neither reselects or marks frame rows used. All
+  target-member instructions remain with the intrinsic consumer, before lookup.
+  Invalid/unsupported outcomes and incomplete storage fail only on actual demand.
+  The wrapper frees this storage before the document, including early returns.
+- Compile/run `tests/named_allocation_outcomes_test.c` with yyjson for identity,
+  repeated reads, target exclusion and deferred allocation failure. The ASan
+  document driver also checks table destruction before document release. Its
+  eight injected OOM cases cover first/growth failure, earlier schema/pattern
+  outcomes, and both actual Named dispatchers; an optional Dynamic input brings
+  the total to16 cases. Same-module dispatch is boolean: lookup failure returns0.
 - This extraction changes no language or public ABI contract. Prescan is still
   a separate observer; it does not provide allocation admission for the Map frame.
 - Focused reproduction after `bash tools/build_hako_llvmc_ffi.sh`:

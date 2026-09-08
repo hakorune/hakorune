@@ -23,10 +23,16 @@
             yyjson_val* nb0 = nb_args && yyjson_is_arr(nb_args)
                 ? yyjson_arr_get_first(nb_args) : NULL;
             long long arg0 = nb0 ? (long long)yyjson_get_sint(nb0) : 0;
-            enum NamedAllocationConsumer consumer = select_named_allocation_consumer(
-                root,
-                NAMED_ALLOCATION_GENERIC, tname, dst, arg0,
-                hako_llvmc_direct_array_i64_exact_enabled(), &typed_new_plan);
+            const struct NamedAllocationOutcome* outcome = named_allocation_outcomes_find(
+                named_outcomes, fn0, ins, NAMED_ALLOCATION_GENERIC);
+            if (!outcome) {
+              note_pure_unsupported_shape(bid, ii, op,
+                  named_outcomes->storage_failed ? "named_outcome_storage_failed"
+                                                  : "named_outcome_missing", tname);
+              goto GEN_ABORT;
+            }
+            enum NamedAllocationConsumer consumer = outcome->consumer;
+            if (consumer == NAMED_ALLOCATION_TYPED_OBJECT) typed_new_plan = outcome->plan;
             if (consumer == NAMED_ALLOCATION_DIRECT_ARRAY) {
               if (dst) {
                 EMIT("  %%r%lld = call i64 @\"nyash.array.direct_i64.birth_h\"()\n", dst);

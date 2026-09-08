@@ -891,8 +891,45 @@ walkers' String difference, settings16 and C build. No public query/session ABI
 or Map source switch in this extraction. C build, selector lazy negatives,
 actual duplicate-plan/document-isolation test, Named60/role22 parent comparison,
 settings16, published rows and corridor pass. All changed sources stay below800.
-Next design binds retained conditional outcomes to actual dispatch and required
-frame consumption; no new whole-skip census is a prerequisite.
+Implemented BoxShape: a private Named outcome owner borrows the same document
+root and captured config. One scan records both finite walker conditions for
+Named NewBox sites. Internal identity is function-pointer/instruction-pointer;
+walker chooses its retained result. Use indexed lookup rather than repeatedly
+scanning all rows. Names/coordinates are not private identity; eventual wire
+uniqueness remains separately checked. No strings/operand graph are copied.
+
+Named means `op=newbox` with no `target` member at all: null/malformed/unknown
+intrinsic targets stay outside this owner. Existing intrinsic take remains before
+lookup. InvalidPlan/Unsupported are retained, not compile-level early errors.
+Array shape errors stay with existing validation. Checked allocation overflow/OOM
+marks the table incomplete; actual Named lookup reports storage failure without
+selector retry. Earlier schema failure/pattern success retains its old outcome.
+A future query requiring completeness can report its own storage error.
+
+The file wrapper initializes the owner and destroys storage before freeing the
+document on every return. The direct borrowed-core config test follows the same
+lifetime. No frees are distributed into emitters. Actual generic/same-module
+NewBox consumers use lookup; delete both direct selector calls. Immutable reads
+can repeat and do not set typed-row used bits or imply successful admission.
+
+Acceptance: Named60/selector negatives/settings16/Dynamic comparison; repeated
+lookup without reselection; duplicate names/block IDs remain separate by identity;
+all target-member cases excluded; unreachable bad observations preserve failure
+order; injected storage failure preserves schema/pattern outcomes but fails an
+actual Named lookup; storage is destroyed before document on all paths. Preserve
+existing duplicate-take/residual row checks. This is private production binding,
+not public session/query ABI, Map frame/source switch or optimizer coverage.
+Verification: C build, selector/outcome unit tests, Named60/role22 parent
+comparison, settings16, published rows/corridor and ASan lifetime16 pass.
+Dynamic LLVM/origins/machine code/relocations match. Fault injection caught the
+new same-module lookup error returning-1 to a boolean caller; it now returns0
+and both walkers reject without an object. Storage growth failure also releases
+partial rows before the document. Both actual direct selector edges are deleted.
+Next design: bind the existing program/definition owners and retained outcomes
+into one private invocation before exposing session/query. Audit issue/lifetime,
+conditional walker selection and actual host/frame consumer together; no
+query-only sibling, optimizer coverage inference or source switch is authorized.
+
 
 Implemented BoxShape: diagnostic side effects are removed from the existing
 `PhysicalDefinitionPlan` reader/add operations. Retain read result and minimal

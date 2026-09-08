@@ -53,19 +53,55 @@ pattern["functions"][0]["metadata"] = {
             "result_use": "found_predicate", "backend_action": "literal_membership_predicate",
             "candidate_outcomes": [{"literal": "line-seed", "outcome": "found"},
                                    {"literal": "none-seed", "outcome": "not_found"}]}}}
+# A bad unrequested Named outcome must not override the earlier pattern success.
+pattern["functions"][0]["blocks"][0]["instructions"].insert(2, {
+    "op": "newbox", "dst": 2, "type": "Unsupported", "args": []})
 cases.append(("pattern-success", json.dumps(pattern), 0, 1, "generic", None))
 if len(sys.argv) > 2:
     cases.append(("source-dynamic", Path(sys.argv[2]).read_text(), 0, 1, "generic", None))
+# Deferred storage failure: early schema/pattern terminals win, actual demand fails.
+oom_cases = []
+for fail_at, count in ((1, 1), (2, 17)):
+    for label, base, expected, mode, error in (
+        ("schema", body, -1, "typed", "invalid schema_version"),
+        ("pattern", pattern, 0, "generic", None),
+        ("generic-demand", body, -1, "typed", "named_outcome_storage_failed"),
+        ("same-module-demand", body, -1, "typed", "named_outcome_storage_failed"),
+    ):
+        value = copy.deepcopy(base)
+        if label == "schema":
+            value["schema_version"] = 42
+        index = 0
+        if label == "same-module-demand":
+            # The anchor can be replaced by the existing constant-call pattern.
+            # A separate registered definition reaches the actual same-module walker.
+            value["functions"][0]["metadata"]["same_module_function_definitions"].append(
+                {"target_symbol": "nested", "definition_kind": "same_module_function"})
+            nested = copy.deepcopy(body["functions"][1])
+            nested["name"] = "nested"
+            value["functions"].append(nested)
+            index = 2
+        value["functions"][index]["blocks"][0]["instructions"][2:2] = [
+            {"op": "newbox", "dst": 2 + i, "type": "MapBox", "args": []}
+            for i in range(count)]
+        # Place the same-module demand before its ret.
+        if index:
+            instructions = value["functions"][index]["blocks"][0]["instructions"]
+            instructions.append(instructions.pop(1))
+        oom_cases.append((f"oom-{fail_at}-{label}", json.dumps(value), expected, 1,
+                          mode, error, fail_at))
 # Document counters cover its leaks; ASan covers invalid access/double frees.
 # LLVM/global allocations are outside this narrow document ownership assertion.
 env = dict(os.environ, ASAN_OPTIONS="detect_leaks=0", HAKO_BACKEND_COMPILE_RECIPE="pure-first")
 with tempfile.TemporaryDirectory(prefix="hakorune-document-test-") as directory:
     work = Path(directory)
-    for label, text, rc, parsed, mode, error in cases:
+    for label, text, rc, parsed, mode, error, fail_at in (
+            [(*case, 0) for case in cases] + oom_cases):
         source, output = work / (label + ".json"), work / (label + ".o")
         source.write_text(text)
         result = subprocess.run([sys.argv[1], str(source), str(output), mode],
-                                text=True, capture_output=True, env=env)
+                                text=True, capture_output=True, env=dict(
+                                    env, TEST_NAMED_REALLOC_FAIL_AT=str(fail_at)))
         assert result.returncode == 0, (label, result.stdout, result.stderr)
         assert result.stdout.strip() == f"rc={rc} reads=1 parsed={parsed} freed={parsed}", result
         if error:

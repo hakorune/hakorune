@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "MAP-ALLOCATION-SESSION-BINDING"
-current_blocker_token = "Explicit-root Named selector/typed-plan lookup is verified in both real emitters. Next design binds retained conditional outcomes to actual dispatch and required frame coverage, with one document/config lifetime and no reclassification. Query does not prove reachability/Bypassed; whole-skip preflight is not required. No standalone public query ABI or Map source switch."
+current_design_stop = "MAP-LITERAL-COMPILER-CUTOVER-I0 invocation/session binding"
+current_blocker_token = "Private retained Named outcomes are implemented and verified. Next: read-only invocation/session premise audit across existing program/definition owners, conditional walker selection, host/frame consumer and lifetime. Accept one bounded slice; no query-only sibling, optimizer coverage inference or Map source switch."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,8 +32,8 @@ latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
 Conditional representation is separated from execution coverage.
-Explicit-root Named selector/plan lookup is implemented and verified.
-Next is retained outcome consumption; full session/Map cutover remains open.
+Retained Named outcomes are implemented; both emitters use immutable lookup.
+Next is invocation/session binding design; full session/Map cutover remains open.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card = "none"

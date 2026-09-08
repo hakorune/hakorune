@@ -69,10 +69,16 @@
 
         const char* tname = read_str(ins, "type");
         struct GenericPureTypedObjectNewPlanView plan;
-        enum NamedAllocationConsumer consumer = select_named_allocation_consumer(
-                root,
-            NAMED_ALLOCATION_SAME_MODULE, tname, dst, 0,
-            hako_llvmc_direct_array_i64_exact_enabled(), &plan);
+        const struct NamedAllocationOutcome* outcome = named_allocation_outcomes_find(
+            named_outcomes, fn0, ins, NAMED_ALLOCATION_SAME_MODULE);
+        if (!outcome) {
+          note_pure_unsupported_shape(bid, ii, "newbox",
+              named_outcomes->storage_failed ? "named_outcome_storage_failed"
+                                              : "named_outcome_missing", tname);
+          return 0;
+        }
+        enum NamedAllocationConsumer consumer = outcome->consumer;
+        if (consumer == NAMED_ALLOCATION_TYPED_OBJECT) plan = outcome->plan;
         if (consumer == NAMED_ALLOCATION_DIRECT_ARRAY || consumer == NAMED_ALLOCATION_ARRAY) {
           same_module_function_emit_i64_birth_call(
               dst,

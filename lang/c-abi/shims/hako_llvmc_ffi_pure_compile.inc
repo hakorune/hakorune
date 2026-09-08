@@ -178,7 +178,8 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
 /* Borrowed core: json_in survives only for explicit legacy downstream routes. */
 static int compile_doc_compat_pure(yyjson_doc* document, const char* json_in,
                                  const char* obj_out, char** err_out,
-                                 const struct HakoLlvmcAllocationConfig allocation_config) {
+                                 const struct NamedAllocationOutcomes* named_outcomes) {
+  const struct HakoLlvmcAllocationConfig allocation_config = *named_outcomes->config;
   // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
   // then fall back to a few pattern lowers, and finally to AOT helper.
   yyjson_val* document_root = yyjson_doc_get_root(document);
@@ -555,7 +556,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   yyjson_doc* document = hako_json_v1_read_owned_file(json_in, err_out);
   if (!document) return -1;
   const struct HakoLlvmcAllocationConfig config = hako_llvmc_capture_allocation_config();
-  int rc = compile_doc_compat_pure(document, json_in, obj_out, err_out, config);
+  struct NamedAllocationOutcomes outcomes;
+  named_allocation_outcomes_init(&outcomes, yyjson_doc_get_root(document), &config);
+  int rc = compile_doc_compat_pure(document, json_in, obj_out, err_out, &outcomes);
+  named_allocation_outcomes_destroy(&outcomes);
   yyjson_doc_free(document);
   return rc;
 }
