@@ -1308,8 +1308,9 @@ Fault. Child cleanup runs outside storage locks, with first-Fault preservation.
 This closes the source policy, not its compiler/runtime implementation.
 
 The [Map destination task](../investigations/hakorune-home-ownership-task-2026-08-04.md#map-slot-dependency-of-the-selected-compiler-cutover)
-next co-seals exact slot compatibility with the original acquisition/end evidence.
-A prior Home list is availability, not destination compatibility. Existing
+accepts exact PlainI64NoHook construction/destruction evidence for unchanged
+Home transfer; it next connects Normal/transfer flow to root cleanup. A prior
+Home list or physical Pending/Emitted state is not that proof. Existing
 callable-row/Script-product loans supply same-issuance core and body shape;
 no generic root adapter or standalone core extraction is needed.
 

@@ -282,8 +282,8 @@ tags/Arc/clone, declaration-only I64UnitTrivial ABI and matching owner numbers.
 Fail-fast boundary: reject missing/foreign source relation, unsupported candidate
 or stale obligation before effects/artifact; retain existing escape Stops until
 actual source/physical consumers close. No implicit share or carrier-to-Home cast.
-Smallest next slice: map exact obligation-preserving slot compatibility and
-candidate flow against the accepted intrinsic Map construction/end contract.
+Smallest next slice: connect exact Normal acquisition and Map transfer flow
+to the root Completion/Recipe cleanup consumer; descriptor compatibility is closed.
 The one-entry transfer law is fixed; do not repeat that policy census.
 Non-claims: source Map execution, runtime retention, general Home Flow, full
 key/residence/cleanup matrix or public cutover.
@@ -363,31 +363,68 @@ condition; no unowned generation counter or runtime lookup fills that gap.
 
 **Construction and compatibility prerequisite**
 
-A selected ordinary-New claim retains exact acquisition identity, destination,
-constructor/construction eligibility and object/destruction evidence. Prefix
-membership proves Normal local placement, not Map destination compatibility.
-The slot must accept the *same concrete obligation and end contract*; neither
-`prior_homes contains binding` nor CanonicalObjectId alone proves that transfer.
-Do not require a new generic Unique/Shared classifier solely for moving an
-already-admitted obligation, and do not accept unknown obligations under that
-exception. Shared acquisition/representation remains separately gated.
+Accepted compatibility: an ordinary-New Home whose exact source declaration
+issues `ObjectDestructionDispositionV1::PlainI64NoHook` may move into the
+intrinsic Map slot with its existing outer-storage end obligation unchanged.
+It is still a Home, not Trivial. `ConstructionEligibilityV1::Ok(plan)` must
+refer to the same branded object definition. This bounded profile needs neither
+a generic Unique/Shared classifier nor a new MapCompatibleHome receipt.
+Other acquisition/destruction profiles keep their existing unavailable boundary.
 
-Source prerequisites before candidate issuer implementation:
+The source authority is `instance_constructor_semantic/object_definition.rs`,
+which checks the whole declaration, including field and member restrictions.
+`destruction_for` and `construction_for` lend that source-backed evidence;
+`OrdinaryNewAdmissionClaimV1` retains exact Box source, New site, declaration,
+destination, construction and destruction. Preserve this combination at the
+root co-seal; object ID, class text and `prior_homes contains binding` alone are
+not compatibility. The language end law is
+[Map construction/end](../../../../reference/language/lifecycle.md#intrinsic-map-construction-and-end).
 
-1. Accepted: [Map construction/end law](../../../../reference/language/lifecycle.md#intrinsic-map-construction-and-end).
-   Allocation Normal, native key residence, same-responsibility completion and
-   reverse successful live-install end order are fixed. Compiler/runtime
-   implementation remains required; numeric Array is not Map authority.
-2. Slot compatibility: borrow the exact acquisition/end evidence together with
-   direct binding availability and exact Map destination; preserve that evidence
-   through local-to-slot commit and later slot cleanup. Runtime clone, host
-   handles or wrapper retention cannot substitute for it.
+Source availability must come from the exact acquisition/local-install Normal
+successor. `try_take` creates `NewLocalCommitV1::Pending` before emission;
+neither claim presence, a local_commits row nor try_take success issues an
+available Home. Physical Pending/Emitted state is a consumer check, never the
+source issuer. Existing aliases retain only ordinary Handle support.
 
-The lifecycle reference owns the first law; the Map construction owner owns its
-physical/runtime mapping. This destination task owns slot compatibility and the
-source-flow co-seal. Keep the fixed candidate API and root join points. Next
-identify how the existing exact acquisition/end evidence reaches that co-seal;
-do not replace missing evidence with empty receipt factories.
+**Next source-flow connection and actual coverage**
+
+Boundary: selected callable/App Main source loan -> ordinary-New candidate
+and descriptor retention -> root source flow -> Completion cleanup. Script is
+still included in full Map cutover but has a different pre-effect root owner;
+its numeric Array lifecycle is not an ordinary-New/Map acquisition issuer.
+This is not an all-root coverage claim or a new narrower cutover finish line.
+
+Static counterexample: `local node = new Pair(10,20); local m =
+%{"x" => node}; return 30`. In `ordinary_new_coseal.rs`, candidates precede
+source scanning. The scanner saves node's prefix before Map makes terminal
+cleanup unavailable. Completion retains that unavailable result; the co-seal
+still issues the New descriptor but discards terminal relation/field rows.
+A New after the Map likewise retains its descriptor with unavailable prefix.
+Thus there is no descriptor-issuance cycle to solve by a second registry or
+by weakening terminal checks. No execution of this example is claimed.
+
+Next implementation contract must connect the existing source-flow owner
+(`home_prefix_local_flow` / `scan_new_home_flow`, under OWN-HOME-FLOW0-S0)
+to these retained descriptors and the same-issuance Map EntryValue relation.
+Close the whole selected root transition, not an accessor-only extraction:
+
+| Source successor | Responsibility state consumed by cleanup |
+| --- | --- |
+| New acquisition before Normal | No newly acquired child responsibility. |
+| New and local install Normal | Exact direct binding owns the original obligation. |
+| Map allocation Normal, before entry commit | Map construction owns empty/previous slots; direct local still owns candidate. |
+| Entry install Normal | Same obligation belongs to exact Map entry; remove local cleanup once. |
+| Detached-old cleanup Fault | New slot stays committed; continue with committed Map cleanup state. |
+| Map construction Normal | Same Map responsibility reaches destination; no new Home. |
+| Root return/Fault | End only remaining locals plus Map live slots under their own ordered plans. |
+
+The source owner must describe both Normal/Fault successors before Recipe;
+physical progress cannot reconstruct the missing state. Keep descriptor source
+issuance and root flow co-sealed in the existing package owner, with no Map
+state table added to the physical claim ledger. Before code, fix the actual
+Completion/Recipe consumer for the changed cleanup state, including Map end;
+a source-only Compatible receipt or green prefix test does not close that seam.
+Do not repeat the closed descriptor compatibility or root-loan census.
 
 **Transaction and acceptance**
 
@@ -407,8 +444,8 @@ carrier publication; and postcommit cleanup Fault preserving new ownership.
 These are target cases, not claims that those programs compile today. Existing
 Map deletion returns Bool, not an ownership-returning value.
 
-Ordered closure: accepted Map construction/end law -> exact slot compatibility
-and source issuance -> co-seal these transitions at the root;
+Ordered closure: accepted Map end law and plain-object compatibility -> source
+Normal/transfer flow and root Completion/Recipe cleanup co-seal;
 add consuming physical transaction; connect runtime storage/cleanup; switch
 source/host and retire the old edges with OBJ/EXE evidence. `InvokeOperation`
 currently has no Map install/detached-old result. Array write and FieldSet promise
