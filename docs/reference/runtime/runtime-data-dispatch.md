@@ -347,3 +347,82 @@ end by the placement caller. Map destruction is legal only Unissued/Ended;
 opaque detached storage will reject disposal before consumption. Rust Drop is
 not a fallback source finalizer. Opaque layout/ABI, descriptor/session, selected C
 emission, mixed-origin root cleanup and source-to-EXE activation remain unfinished.
+
+## Checked Map opaque ABI contract (accepted, not implemented)
+
+The next runtime ABI uses three caller-owned opaque regions: Map, prepared key
+and detached outcome. All belong to one invocation's physical storage owner;
+none is a source Home token or native host handle. The target archive issues all
+three size/alignment/contract-revision triples in the same descriptor revision.
+Keep the existing Fault ABI/status values: Normal0, Fault1, InvalidContract2.
+
+| Entry family | State / result contract |
+| --- | --- |
+| Map storage init | fresh unique aligned bytes -> Unissued native bookkeeping |
+| checked Map new | validate frame and SafeMutex profile; Normal -> Live; Fault stays Unissued |
+| key init | fresh native storage -> Empty |
+| key prepare UTF-8 | bytes plus length; Empty -> Ready native MapKeyDomain before child evaluation |
+| checked indexed install | validate frame/Map/profile/Ready key/Unissued outcome and nonoverlap before consumption; move key, prepare indexed residence and install |
+| detached end | move Ready payload and mark Consumed before child end; ReadyNoOld also consumes |
+| Map end | require Live; consume through Ending to Ended with first-Fault/best-effort cleanup |
+| key dispose | cancel Ready natively, or release Empty/Consumed bookkeeping |
+| outcome dispose | only Unissued/Consumed; Ready is rejected unchanged |
+| Map storage dispose | only Unissued/Ended; Live/Ending is rejected unchanged |
+
+Export spellings to implement are `nyash.map.storage_init_v1`,
+`nyash.map.checked_new_v1`, `nyash.map.key_init_v1`,
+`nyash.map.key_prepare_utf8_v1`, `nyash.map.key_dispose_v1`,
+`nyash.map.outcome_init_v1`, `nyash.map.checked_install_indexed_v1`,
+`nyash.map.outcome_end_v1`, `nyash.map.outcome_dispose_v1`,
+`nyash.map.checked_end_v1` and `nyash.map.storage_dispose_v1`.
+
+Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
+canonical i64 versus noncanonical numeric text through the existing MapKeyDomain
+owner. No strlen, String-handle/cache lookup or post-child conversion is allowed.
+Returned allocation failure records reason100 and leaves Empty; malformed UTF-8
+or pointer/length contract returns InvalidContract without installing a key.
+Allocator fatal termination is not represented as a returned source Fault.
+Child Fault cancels the Ready key with key dispose; this is native cleanup and
+must not synthesize a source String Home or finalizer.
+
+Install preflight contract rejection leaves Map/key/outcome unchanged. It checks
+profile/lifecycle and storage contracts before moving the Ready key. After that
+move the key is Consumed on both Normal and returned Fault. Exact indexed
+residence preparation is then part of the attempt: unavailable/dead identity or
+returned storage failure records the existing physical diagnostic (reason100 for
+storage/capacity, reason101 for identity), never transfers the candidate and
+leaves the outcome Unissued. Root install failure likewise drops only the native
+key/wrapper, leaving the prior source owner responsible for its indexed payload.
+Normal transfers to Map and publishes ReadyNoOld/ReadyOwned before returning.
+A new candidate wrapper is prepared before commit; no allocation, hook or fallible
+operation is allowed between membership commit and outcome publication.
+
+Unknown/profile mismatch, invalid lifecycle, malformed/null/overlapping region
+arguments and incorrect key/outcome state are preflight InvalidContract. Order
+capacity exhaustion is a returned capacity Fault after key consumption. These
+status rules do not weaken the unsafe valid-pointer contract. No ordinary Box
+or missing-value zero is a checked Map projection.
+
+Frame validation uses a short shared borrow. Do not retain mutable Map/outcome/
+FaultFrame borrows or locks across any callback-capable end. Consume the detached
+outcome first, run end, then reborrow the frame and record the returned physical
+failure. Map end records its finite report only after callbacks. Previously
+recorded primary Fault remains primary. Merge the actual stored diagnostics and
+mark omission for additional failures without inventing a diagnostic or indexing
+beyond eight slots. End consumes its obligation even when it reports a Fault;
+there is no retry or rollback after committed install.
+
+Init requires fresh unique storage and may not read uninitialized bytes to detect
+prior use. Compiler lifetime validation must reject live reinitialization/copy;
+this is not a promise that runtime init detects arbitrary misuse. Prepare rejects
+Ready overwrite, end rejects Unissued/double consumption, and dispose rejects
+live obligations at runtime. Disposed storage has no live Rust value; a second
+call needs a new valid initialized lifetime, not a fabricated header.
+
+Descriptor/transport cutover replaces the 200-byte runtime descriptor revision
+and its ELF section/export/decoder, carries all three opaque layouts through the
+Rust C row and versioned C session, and rejects older revisions before reading
+extended fields. Required-symbol checks, driver initialization, launcher symbol
+assertions and actual C allocation placement migrate together. Existing native
+birth_h compatibility is separate; the selected source install Stop remains
+until checked Invoke/projection and all mixed-origin cleanup consumers execute.

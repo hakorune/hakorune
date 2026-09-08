@@ -808,12 +808,33 @@ those callbacks are physical probes, not source Home or user-fini execution.
 Pointer/corridor/diff checks pass; touched sources max698. Boxes/kernel README
 and runtime reference updated. No new ABI export, C build or EXE claim.
 
-Next: implement opaque Map and detached-outcome lifetime wrappers plus the target
-ABI descriptor revision/session/required-symbol consumers, using the accepted
+Next: implement opaque Map, prepared-key and detached-outcome lifetime wrappers
+plus the target descriptor/session/required-symbol revision, using the accepted
 placement states. Disposal must reject live Map or Ready outcome; no mutable
 Map/outcome/FaultFrame borrow spans callbacks. Only then connect the existing
 operation-derived C projection and mixed-origin cleanup, and execute source
 cutover with selected old-edge deletion. The source install Stop remains.
+
+**Opaque ABI key/order audit**
+
+Read-only worker confirmed a missing native temporary in the wire inventory:
+MapKeyDomain preparation allocates/owns text, and old C length-aware String handles
+do not transfer that residence. The [opaque ABI contract](../../../../reference/runtime/runtime-data-dispatch.md#checked-map-opaque-abi-contract-accepted-not-implemented)
+now fixes Map/key/outcome states, key-before-child order, install consumption,
+status/Fault publication, callback borrows and disposal. No new semantic issuer
+or source shape is needed. Map/outcome-only layout revision is superseded by one
+revision carrying all three opaque layouts; no ABI implementation landed yet.
+
+Concrete implementation order within the same row: runtime placement wrappers
+and real key/child/install/end cases; target descriptor issuer+archive decoder+
+session C row+validator+required symbols/driver; actual C placement/projection and
+mixed-origin cleanup; selected source switch and exclusive old-edge deletion.
+The worker inventory includes launcher descriptor-symbol assertion, which must
+move with section/export renaming. Key cleanup executes on child Fault, install
+Fault and success. Preflight InvalidContract preserves Ready; every post-move
+returned result leaves Consumed. Raw init freshness stays an unsafe compiler
+lifetime obligation, not a runtime read of uninitialized storage. No stale native
+String-key handle/cache path may serve the checked consumer.
 
 **Physical residence prerequisite (source compatibility is not storage compatibility)**
 

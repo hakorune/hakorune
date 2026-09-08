@@ -1558,6 +1558,38 @@ of present owned entries explicitly refuses while missing remains None. The
 initial checked payload is the source-authorized indexed residence only; this
 does not admit additional source/native candidate families.
 
+### Prepared key lifetime at the opaque ABI boundary
+
+The [accepted opaque ABI](../../../../reference/runtime/runtime-data-dispatch.md#checked-map-opaque-abi-contract-accepted-not-implemented)
+includes temporary key storage in the same descriptor revision as Map/outcome.
+This closes a physical mapping gap: MapKeyDomain owns String storage, while the
+old C String-handle key path does not transfer that native key residence.
+Preparing inside install would move possible allocation failure after child
+evaluation, contrary to lifecycle.md's existing order. Source authority remains
+the ordered key/entry relation; runtime issues native key storage, not a semantic
+Prepared receipt. The function invocation owns its temporary region.
+
+Prepare exact UTF-8/length before child; child Fault cancels Ready key natively.
+Install validates region/profile/state contracts first, then consumes the key
+before indexed preparation/attempt. Normal and returned Fault after consumption
+both leave Consumed; preflight InvalidContract leaves Ready. Key dispose supports
+Ready cancellation and Empty/Consumed release. Map has no hidden pending-key
+field, String handle/cache repair, registry or synthetic String Home.
+
+Finite consumer inventory: fault.rs target descriptor issuer; host
+runtime_abi_descriptor.rs archive decoder/session/required symbols; capi_transport
+C row/projection; hako_llvmc_ffi.h session layout; lifecycle_target_session validator;
+lifecycle_v4_emit allocation placement; descriptor tests, published_lifecycle_v4
+C driver and nyash_lifecycle_kernel launcher symbol assertion. Revise all opaque
+layouts together. Runtime Rust Map green is not evidence for these wire consumers.
+
+Key acceptance adds child-Fault cancellation, install-Fault native release,
+length/NUL/UTF-8/numeric-domain preservation, Ready overwrite/double consume and
+region nonoverlap. Compiler validation owns live-reinit rejection; fresh-storage
+init must not inspect uninitialized bytes to guess whether misuse occurred.
+Exact runtime status/Fault merge/disposal contracts are in the reference above.
+No source fixture, ABI symbol or descriptor revision is implemented by this audit.
+
 ### Detached install outcome physical contract
 
 Decision: use caller-owned opaque result storage for the committed install

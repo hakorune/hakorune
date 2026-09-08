@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Checked Map runtime dependency implemented: common table, Native-only/public versus non-NyashBox checked facade, precommit candidate retention and ordered end outside locks. Root Map13/JSON5/GC7 and real indexed kernel2 pass. Next opaque Map/outcome ABI plus descriptor/session/symbol revision, then operation-derived C projection and mixed cleanup. Disposal must reject live Map/Ready outcome; source install Stop remains until cutover."
+current_blocker_token = "Checked Map runtime dependency is green. Opaque ABI audit adds prepared-key region: prepare UTF-8 before child; cancel on child Fault; preflight InvalidContract preserves Ready; install consumes before its attempt. Next implement Map/key/outcome wrappers and one descriptor/session/symbol revision, then C projection/mixed cleanup. Fault merges after callbacks; no live ABI borrows across end. Source install Stop remains until cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
