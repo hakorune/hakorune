@@ -211,6 +211,68 @@ This is the source target contract. The compiler's finite source issuance and
 runtime activation are tracked in the
 [construction workstream design](../../development/current/main/design/collection-literal-construction-ssot.md).
 
+### Intrinsic Map slot destination target
+
+Decision (2026-09-09): an intrinsic Map literal's value slot is an owning
+destination. This is an accepted source target, not current producer/backend
+coverage or activation of general Home/share syntax. The literal expression
+and its ordered entry source sites select the destination; runtime payload
+tags and current MapBox clone behavior do not select ownership meaning.
+
+| Source-authorized candidate | Successful slot installation |
+| --- | --- |
+| Trivial value | Store the value; create no child Home. |
+| Available Home compatible with the destination | Transfer that Home once; remove the old cleanup responsibility. |
+| Existing admitted Shared Home | Transfer that Home once; do not acquire another owner. |
+| Explicit admitted share result | Transfer its separately issued Home; insertion itself never performs share. |
+| SelfContainedDynamicCarrier | Forward its existing exactly-once carrier obligation into the slot; do not reclassify it as a source Home. |
+| Ordinary borrowed handle | Not an owning-slot input without a separately authorized acquisition/transfer. |
+| Unknown capability or unavailable source relation | Unsupported; no default Trivial, Shared or carrier classification. |
+
+This matrix preserves the existing source capability and carrier authorities.
+A fresh acquisition can supply its existing obligation; an alias cannot supply
+the Home of its supporting root by guessing provenance. This decision does not
+implement the missing composite capability, explicit share or Map source issuer.
+It also does not establish a second borrowed-slot Map family.
+
+For one entry, preserve allocation/key/child evaluation order from
+`block-expressions-and-map-literals.md`. Before successful installation the
+candidate obligation remains with its evaluation owner and the old slot remains
+unchanged. Preparation/validation/write failure before commit transfers nothing.
+Successful installation changes the owner exactly once. For an equal key, install
+the new slot before ending the detached old obligation, as already required by
+`lifecycle.md`. Subsequent cleanup Fault cannot undo installation or restore the
+candidate to the caller. Preserve first Fault and attempt remaining cleanup.
+
+The semantic sequence distinguishes pre-commit write failure from post-commit
+old-value cleanup failure. A single undifferentiated failure implying
+“argument unconsumed” cannot represent both. Recipe/cleanup planning must carry
+the committed owner state into the latter Fault path; a status number alone
+cannot issue it.
+
+Existing Map key equality, duplicate-key replacement and iteration semantics
+remain unchanged. MapBox deletion keeps its existing Bool result: detach the
+entry and discharge its obligation rather than introducing an ownership-returning
+remove API. OrderedMapBox has a separate API and supplies no authority here.
+Ending a detached obligation is scheduled outside storage locks by the physical
+cleanup owner; arbitrary host clone/Drop or last-thread destruction is not the
+source finalization policy.
+
+A source-authorized exact slot read may borrow only while its support remains
+valid. Such a read is not automatically admitted, and cannot be used beyond
+replacement/delete/Map end without a separate lifetime proof. It must not become
+a borrowed Dynamic result: `dynamic-invocation.md` requires a self-contained
+normal carrier. Independent owner acquisition on a read likewise needs an
+existing explicit authority, not an implicit retain.
+
+Still open within the full Map cutover: source capability/destination issuance,
+Home/carrier commit and cleanup co-seal, key residence ownership, multi-slot
+clear/parent-end ordering, slot-borrow invalidation, Dynamic read publication,
+self-reference/cycles, exact runtime profile and finalizer affinity. No runtime
+escape refusal is retired merely by accepting this destination target.
+The next design is the single-entry source/commit/cleanup mapping, including
+duplicate keys, under existing `OWN-FIELD-CONTAINER-DEST-D0`.
+
 ## 3. Accepted HomeV1 syntax target; production 0
 
 The durable semantics and bounded contextual spellings are accepted. They are

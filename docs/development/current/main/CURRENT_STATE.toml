@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "MAP-LITERAL-RUNTIME-ESCAPE-OWNERSHIP"
-current_blocker_token = "Original PHI consumers are implemented. Runtime-first automatic Map retention is withdrawn: raw/Core Map entry paths issue neither Home destination transfer nor Dynamic carrier forwarding. Next: Map-slot destination/transfer matrix under existing OWN-FIELD-CONTAINER-DEST-D0, including failure commit, read, replacement, remove and parent end. No implicit share or guessed Home/carrier from tags. Then runtime storage coordination/profile agreement; TLS/direct escape, intrinsic binding and boxed comparison remain CutoverBlockerOpen before public/source cutover."
+current_blocker_token = "Map owned-slot source target is accepted: transfer compatible Home or existing self-contained carrier once, no implicit share, preserve committed new-slot ownership on replaced-value cleanup Fault and Bool deletion API. Next design under OWN-FIELD-CONTAINER-DEST-D0: exact single-entry source/destination -> commit -> cleanup -> Normal/Fault mapping at existing resolver session and semantic-package co-seal. Executable Map transfer issuer remains absent; key residence, multi-slot end order, borrow/Dynamic reads, cycles and runtime escape/profile obligations remain open. No public/source cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -43,8 +43,8 @@ Copy/NamedAlias consumers preserve Map lanes and the demanded original producer.
 Phi/Select lanes join existing owners; stable original i64 references are implemented.
 Formal/expanded-function consumers share one index and private signatures.
 After-group original i1 PHI normalization is implemented. Runtime escape ownership
-requires the source Map-slot destination/transfer decision first; intrinsic binding
-and boxed comparison remain open.
+follows the accepted owned-slot target; single-entry semantic issuance/commit
+co-seal is the next design, with wider destination/runtime obligations still open.
 Actual session/host/Map cutover remains open.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"

@@ -1251,16 +1251,21 @@ unproved; the full Map series retains both obligations.
 ### Runtime escape ownership — next design boundary
 
 Decision (2026-09-09): source Map-slot destination/transfer comes before runtime
-retention. The former runtime-first SafeMutex slice is withdrawn: automatic
-retain would invent ownership, and its assumed two-owner acceptance was too broad.
+retention. The [owned-slot target](../../../../reference/language/ownership.md#intrinsic-map-slot-destination-target)
+is accepted: transfer existing compatible Home/carrier obligations, never invent
+share from insertion. Runtime-first SafeMutex retention remains withdrawn.
 Source authority + canonical issuer: existing ownership/carrier laws; Map slot
 destination/transfer issuer is missing in the raw/Core -> entry -> cleanup boundary.
 Non-authority: kind/payload, ValueId/child ordinal, allocation outcome, transport,
 token signs, host Arc/clone behavior and test-only snapshots.
 Fail-fast boundary: keep current unsupported demands before artifact and runtime
 InvalidContract/no insertion; no implicit share, guessed Home or carrier forwarding.
-Smallest next slice: the Map-slot dependency of existing
+Smallest next slice: design the single-entry source -> transfer commit ->
+replacement cleanup -> Normal/Fault mapping, including duplicate keys, in
 [OWN-FIELD-CONTAINER-DEST-D0](../investigations/hakorune-home-ownership-task-2026-08-04.md#map-slot-dependency-of-the-selected-compiler-cutover).
+Existing resolver session owns source sites; semantic-package issuance/co-seal
+must join candidate/destination and pre/post-commit cleanup states before Recipe.
+Those are design assignments, not existing executable Map issuers.
 Non-claims: new receipt, runtime implementation permission, whole Home activation,
 scalar-only replacement completion, TLS closure or public/source switch.
 
