@@ -169,6 +169,22 @@ impl OrdinaryNewClaimLedgerV1 {
             .and_then(|completion| completion.cleanup().root_flow())
             .is_some_and(|flow| !flow.maps().is_empty())
     }
+    pub(super) fn map_install_owner(&self) -> Result<Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>, ()> {
+        if !self.requires_map_lifecycle_consumer() { return Ok(None); }
+        let completion = self.root_completion.as_ref().and_then(|c| c.as_ref().ok()).ok_or(())?;
+        let flow = completion.cleanup().root_flow().ok_or(())?;
+        if self.app_main_identity.is_none()
+            || flow.maps().iter().any(|m| m.complete().is_none())
+            || !matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
+            || !matches!(self.terminal_relation, Some(TerminalRelationV1::IntegerLiteral(_)
+                | TerminalRelationV1::I64Add(_) | TerminalRelationV1::I64Field(_)))
+            || self.claims.borrow().values().filter(|c| c.site.owner() == completion.owner())
+                .any(|c| c.construction.is_err()
+                    || c.destruction != ObjectDestructionDispositionV1::PlainI64NoHook
+                    || c.home_prefix.is_err() || c.argument_rows.is_err())
+        { return Err(()); }
+        Ok(Some(completion.owner()))
+    }
     #[cfg(test)]
     pub(super) fn root_completion_for_test(
         &self,

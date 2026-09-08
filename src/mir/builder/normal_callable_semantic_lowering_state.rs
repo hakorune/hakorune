@@ -33,6 +33,7 @@ mod fault;
 /// only projects that identity onto the `ValueId`s allocated by existing Lower.
 #[path = "normal_callable_semantic_lowering_state/map_local.rs"]
 mod map_local;
+pub(in crate::mir) use map_local::validate_map_local_annotation;
 
 #[derive(Debug)]
 pub(super) struct CallableSemanticLoweringState {

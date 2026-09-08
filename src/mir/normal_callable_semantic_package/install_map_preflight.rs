@@ -1,0 +1,86 @@
+//! Precommit use of existing root and Local products; no semantic issuance.
+use super::*;
+use crate::mir::resolved_semantics::{BindingOriginV1, ResolvedLexicalRefV1, SourceBindingSiteV1};
+
+impl VerifiedNormalCallableSemanticPackageV1 {
+    pub(super) fn preflight_map_install(
+        &self,
+    ) -> Result<(), NormalCallableSemanticPackageInstallIssueV1> {
+        use NormalCallableSemanticPackageInstallIssueV1 as Issue;
+        let Some(owner) = self
+            .ordinary_new_claim_ledger
+            .map_install_owner()
+            .map_err(|()| Issue::MapLifecycleConsumerMissing)?
+        else {
+            return Ok(());
+        };
+        let mut declarations = self.batch.declarations().filter(|d| d.owner() == owner);
+        let declaration = declarations
+            .next()
+            .ok_or(Issue::MapLifecycleConsumerMissing)?;
+        if declarations.next().is_some() {
+            return Err(Issue::MapLifecycleConsumerMissing);
+        }
+        self.batch
+            .with_lowering_input(declaration.batch_slot(), |input| {
+                let function = input.function();
+                for original in function.expression_source().initializers() {
+                    if !matches!(
+                        original.declaration_site(),
+                        SourceBindingSiteV1::Local { .. }
+                    ) {
+                        continue;
+                    }
+                    let mut current = original;
+                    let mut seen = BTreeSet::new();
+                    loop {
+                        if !seen.insert(current.binding()) {
+                            return Err(Issue::MapLifecycleConsumerMissing);
+                        }
+                        let Some(site) = current.initializer_site() else {
+                            break;
+                        };
+                        let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                            owner,
+                            site.clone(),
+                        );
+                        if self.ordinary_new_claim_ledger.has_map_source(&owned) {
+                            let map = self
+                                .ordinary_new_claim_ledger
+                                .map_flow(&owned)
+                                .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
+                            if map.destination() != current.binding() {
+                                return Err(Issue::MapLifecycleConsumerMissing);
+                            }
+                            crate::mir::builder::validate_map_local_annotation(
+                                original.declared_type_name(),
+                            )
+                            .map_err(|error| Issue::MapLocalAnnotation(error.into()))?;
+                            break;
+                        }
+                        let Some(ResolvedLexicalRefV1::Local(binding)) =
+                            function.variable_ref(site)
+                        else {
+                            break;
+                        };
+                        let Some(record) = function.binding(binding) else {
+                            return Err(Issue::MapLifecycleConsumerMissing);
+                        };
+                        let BindingOriginV1::Source(declaration) = record.origin() else {
+                            break;
+                        };
+                        let Some(next) = function.expression_source().initializer(declaration)
+                        else {
+                            break;
+                        };
+                        if next.binding() != binding {
+                            return Err(Issue::MapLifecycleConsumerMissing);
+                        }
+                        current = next;
+                    }
+                }
+                Ok(())
+            })
+            .map_err(|_| Issue::BatchLoan)?
+    }
+}

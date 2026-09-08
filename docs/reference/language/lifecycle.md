@@ -343,11 +343,14 @@ an accepted source target. The selected callable source walk now retains empty
 direct-local Maps and entries transferring prior direct ordinary-New Homes,
 including precommit versus committed Fault cleanup and duplicate-key order.
 Aliases and consumed locals do not supply new transfer evidence. Other candidate
-families and runtime cutover remain open. For roots with verified Completion,
-complete or unavailable direct-local Map observations stop at package install
-with `MapLifecycleConsumerMissing`, before catalog/body effects; source retention
-does not enable Map LLVM execution. Nested-statement Maps and Script are outside
-this bounded source walk.
+families and source/runtime cutover remain open. Package install selects only
+Complete Map flows with an issued I64 terminal and ready same-root ordinary New
+claims. Unavailable coverage rejects with `MapLifecycleConsumerMissing` before
+catalog/body effects. Numeric/typed-Array Local annotations on Maps or their
+unused aliases use the existing Local policy before initializer emission and
+reject with `MapLocalAnnotation`; no new annotation vocabulary is introduced.
+This preflight is not source-to-EXE evidence. Nested-statement Maps, indexed Unit
+execution and Script remain outside this bounded selection.
 
 Allocation Normal acquires one empty Map construction responsibility. Before
 that Normal, including allocation Fault, there is no Map responsibility to end.

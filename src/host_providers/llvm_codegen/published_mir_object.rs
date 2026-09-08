@@ -181,3 +181,7 @@ mod array_source_tests;
 #[cfg(all(test, feature = "plugins"))]
 #[path = "published_native_array_c_tests.rs"]
 mod native_array_c_tests;
+
+#[cfg(all(test, feature = "plugins"))]
+#[path = "published_map_source_tests.rs"]
+mod map_source_tests;

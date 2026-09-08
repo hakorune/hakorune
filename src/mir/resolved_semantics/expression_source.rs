@@ -209,6 +209,10 @@ impl ResolvedExpressionSourceInventoryV1 {
         self.unaries.get(site)
     }
 
+    pub(crate) fn initializer(&self, declaration: &SourceBindingSiteV1) -> Option<&ResolvedInitializerRelationV1> {
+        self.initializers.get(declaration)
+    }
+
     pub(crate) fn initializers(&self) -> impl Iterator<Item = &ResolvedInitializerRelationV1> {
         self.initializers.values()
     }

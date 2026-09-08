@@ -182,7 +182,9 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
         if (projections != 1) return 0;
       }
     }
-    if (!entry || frames != 1) return 0;
+    /* Root initializes its frame. A Birth with no frame uses may omit the
+       borrowed-frame projection; SSA validation still rejects undefined uses. */
+    if (!entry || frames > 1 || (!fi && frames != 1)) return 0;
     uint16_t* saved = calloc(count * count, sizeof(*saved));
     if (!saved) return 0;
     int valid = lv4_indexed_flow(in, fi, entry->ordinal, initial, 0, saved, faults, active);

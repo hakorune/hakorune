@@ -95,10 +95,10 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
 }
 
 #[test]
-fn map_install_stop_returns_same_source_product_and_keeps_catalog_vacant() {
+fn map_annotation_refusal_returns_same_source_product_and_keeps_catalog_vacant() {
     for body in [
-        "local m = %{} return 30",
-        "local a = new Page() local m = %{\"a\" => a} return 30",
+        "local m: i64 = %{} return 30",
+        "local a = new Page() local m: i64 = %{\"a\" => a} return 30",
     ] {
         let package = issue(&source(body)).unwrap();
         let site = package
@@ -112,8 +112,11 @@ fn map_install_stop_returns_same_source_product_and_keeps_catalog_vacant() {
             .clone();
         let mut context = CompilationContext::new();
         let returned = match package.prepare_install(&mut context) {
-            Err(package) => package,
-            Ok(_) => panic!("Map source is not permission to install an unconnected consumer"),
+            Err((package, issue)) => {
+                assert!(matches!(issue, super::install::NormalCallableSemanticPackageInstallIssueV1::MapLocalAnnotation(_)));
+                package
+            },
+            Ok(_) => panic!("Map annotation must reject before install"),
         };
         assert!(context.callable_declaration_catalog_vacant());
         let flow = returned
@@ -248,4 +251,34 @@ fn map_delta_preserves_untransferred_homes_and_later_new_fault_order() {
         })
         .expect("later New source prefix");
     assert_eq!(later.home_prefix().unwrap().prior_homes(), &terminal[1..]);
+}
+
+#[test]
+fn map_install_accepts_complete_unannotated_root_and_aliases() {
+    for body in ["local m = %{} return 30", "local m = %{} local alias = m local again = alias return 30",
+        "local a = new Page() local m = %{\"a\" => a} return 30"] {
+        let package = issue(&source(body)).unwrap();
+        let mut context = CompilationContext::new();
+        package.prepare_install(&mut context).expect("ready source Map cohort");
+        assert!(context.callable_declaration_catalog_vacant(), "preflight does not commit");
+    }
+}
+
+#[test]
+fn map_install_rejects_annotated_aliases_and_unready_root_new() {
+    for body in [
+        "local m: Array<i64> = %{} return 30",
+        "local m = %{} local alias: i64 = m return 30",
+        "local m = %{} local alias = m local again: Array<i64> = alias return 30",
+        "local m = %{} return",
+    ] {
+        let package = issue(&source(body)).unwrap();
+        let mut context = CompilationContext::new();
+        assert!(package.prepare_install(&mut context).is_err(), "{body}");
+        assert!(context.callable_declaration_catalog_vacant());
+    }
+    let package = issue("box Bad { value } static box Main { main() { local m = %{} local bad = new Bad() return 30 } }").unwrap();
+    let mut context = CompilationContext::new();
+    assert!(package.prepare_install(&mut context).is_err());
+    assert!(context.callable_declaration_catalog_vacant());
 }

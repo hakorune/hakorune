@@ -1,6 +1,8 @@
 //! Consuming source-backed catalog installation and scoped selected loans.
 
 mod lowering_port;
+#[path = "install_map_preflight.rs"]
+mod map_preflight;
 #[path = "selected_input.rs"]
 mod selected_input;
 mod signature_loan;
@@ -42,10 +44,11 @@ use super::{
 
 pub(crate) use signature_loan::ResolvedCallablePhysicalSignatureLoanV1;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     ForeignCatalog,
     MapLifecycleConsumerMissing,
+    MapLocalAnnotation(Box<str>),
     SelectedKeyUnavailable,
     DuplicateSelectedKey,
     IncompleteSelectedCoverage,
@@ -342,13 +345,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     > {
         let prepared = self
             .prepare_install(context)
-            .map_err(|package| {
-                if package.ordinary_new_claim_ledger.requires_map_lifecycle_consumer() {
-                    NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
-                } else {
-                    NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied
-                }
-            })?;
+            .map_err(|(_, issue)| issue)?;
         let installed = prepared.commit();
         Ok(consumer.seal(installed, BuilderInstallTokenV1::issue()))
     }
@@ -356,11 +353,13 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     pub(crate) fn prepare_install<'context>(
         self,
         context: &'context mut CompilationContext,
-    ) -> Result<PreparedNormalCallableSemanticPackageInstallV1<'context>, Self> {
-        if self.ordinary_new_claim_ledger.requires_map_lifecycle_consumer()
-            || !context.callable_declaration_catalog_vacant()
-        {
-            return Err(self);
+    ) -> Result<PreparedNormalCallableSemanticPackageInstallV1<'context>,
+        (Self, NormalCallableSemanticPackageInstallIssueV1)> {
+        if let Err(issue) = self.preflight_map_install() {
+            return Err((self, issue));
+        }
+        if !context.callable_declaration_catalog_vacant() {
+            return Err((self, NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied));
         }
         Ok(PreparedNormalCallableSemanticPackageInstallV1 {
             context,

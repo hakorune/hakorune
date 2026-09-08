@@ -63,16 +63,7 @@ impl CallableSemanticLoweringState {
             false
         };
         if reuse {
-            let annotation = relation.declared_type_name();
-            if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(annotation)
-                || annotation
-                    .map(crate::typed_array_contract_spec::parse_annotation)
-                    .transpose()?
-                    .flatten()
-                    .is_some()
-            {
-                return Err(freeze("placement-map-annotation"));
-            }
+            validate_map_local_annotation(relation.declared_type_name())?;
             Ok(LocalValuePlacement::ReuseInitializer)
         } else {
             Ok(LocalValuePlacement::Copy)
@@ -147,4 +138,15 @@ pub(super) fn retain_initializers(
         }
     }
     Ok(result)
+}
+
+/// Shared Local annotation policy for source preflight and physical placement.
+pub(in crate::mir) fn validate_map_local_annotation(annotation: Option<&str>) -> Result<(), String> {
+    if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(annotation)
+        || annotation.map(crate::typed_array_contract_spec::parse_annotation)
+            .transpose()?.flatten().is_some()
+    {
+        return Err(freeze("placement-map-annotation"));
+    }
+    Ok(())
 }

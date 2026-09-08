@@ -58,6 +58,8 @@ archive and calls the opaque C ABI directly; neither test proves source cutover.
   kind/payload lanes and are checked before the Birth body. Valid Bool used by an
   i64 FieldSet records reason103 on the existing Fault edge; invalid kind/payload
   is InvalidContract. Tagged Copy preserves both lanes.
+  Empty Birth may omit an unused borrowed-frame projection; root still owns
+  exactly one frame entry and SSA rejects any undefined frame use.
 - V4 retains the selected LLVM18 target session through preamble/layout checking,
   explicit llc-18 PIC emission and atomic same-directory object publication.
   Failure cleans temporary artifacts; no generic flags or compatibility retry.

@@ -1180,6 +1180,34 @@ tests::mir::mir_corebox_router_unified::map. Actual/expected values match across
 parent and current runs. Logs `/tmp/hakorune-map-finished-parent.log` and
 `/tmp/hakorune-map-finished-focused.log`; this is no whole-library green claim.
 
+**Source Map execution checkpoint (2026-09-09)**
+
+The selected source cohort now passes common install through the existing
+Completion/root-claim/Local annotation preflight. The blanket selected Map Stop
+is replaced; unavailable cohort and annotated Map/alias refusal remain before
+catalog/body mutation. Existing initializer storage supplies declaration-key
+lookup through a borrowing getter, without a second index. prepare_install
+returns the original package plus its existing issue; no repeated classifier.
+
+The actual published host test covers13 sources: box-free empty Map and six
+bodies under NoBirth/empty-Birth definitions. Direct EXE and independently linked
+OBJ return30 for every case (26 executions), including unused alias chains,
+later New, two live Maps and duplicate-key transfer. Empty input carries the
+legitimate empty definition/layout product. The first run found a C-only frame
+assumption: empty Birth has no borrowed-frame projection when it has no frame
+uses. Admission now permits zero or one projection for Birth, while root still
+requires one and SSA rejects undefined uses. No source schema or Fault ABI change.
+The rerun passes; Pair C execution regression also passes.
+
+Final focused checks: map_home_flow_tests8 and pre-effect root rejection1 pass;
+pointer/corridor guards and diff whitespace checks pass. Changed source max753.
+Logs `/tmp/hakorune-map-{source-execution,preflight-tests,preflight-root,source-pair-regression}.log`.
+Remaining series acceptance: actual source-object Fault/cleanup observations,
+finite selected old-edge retirement evidence, malformed annotation and distinct
+binding refusal coverage, then full selected cutover closeout. Physical synthetic
+Fault tests already pass, but do not substitute them for source-object evidence.
+No whole-library or R7 completion claim.
+
 **Source install preflight Decision (2026-09-09, audited at bb74fa8078)**
 
 Decision: retain the common Map Stop until existing-owner source preflight is closed; Map Complete alone is insufficient.
