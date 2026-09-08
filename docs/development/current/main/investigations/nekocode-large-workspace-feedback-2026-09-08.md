@@ -1,7 +1,57 @@
-# NekoCode 3a5d176 / Hakorune 実workspaceフィードバック
+# NekoCode / Hakorune 実workspaceフィードバック
 
 Date: 2026-09-08  
 Status: 観測記録・ツール担当への改善依頼。compilerの実装許可や必須gateではない。
+
+## 修正版 4d7326f の再試行
+
+判定：この実workspaceでも連続調査の再利用に成功。必要な参照調査に任意利用できる。
+初回起動の約128秒は残るため、同一CLIセッション内で複数シンボルを調べる用途に向く。
+以下は一度の同一セッション観測であり、恒常的な性能保証ではない。
+
+対象Hakoruneは `678e44f868`、開始・終了とも作業ツリーclean。
+Yドライブの `nekocode-runtime/symlink-input-scope-v1` をworkspace外の
+`/tmp/hakorune-nekocode-symlink-input-scope-v1` へコピーして使用。
+manifest source_commit=`4d7326fd892ab732c2ad0d7e9620565eb3fbf80b`、
+manifest SHA256=`bba5847348dba5b0e4e27bab5bf7e3e5114c5bf3387756f6001eb7d06c86db61`。
+配布チェックサム6件、CLI 1.2.0と実backend 1.89.0の起動を確認。
+GitHubとの独立照合はしていない。下記旧版と同じ位置・設定・順序で2件実行した。
+
+|対象|秒|backend_reused|acquisition|retained|
+|---|---:|---|---|---|
+|try_compile_published_view_object|128.462|false|fresh_backend|true|
+|emit_published_view_exe|0.478|true|reused|true|
+
+初回reasonsは `no_cached_backend` のみ、2件目は空。
+両方retention_reasonsは空、status=completed、backend health=ok、quiescent=true。
+全4scan（各requestのbaseline/current）は5155入力・40333 entries・38255550 bytes、
+complete=true、issuesなし・省略0。verification=match、matched=5155、変更/消失/
+読取不能/未観測/新規/リンク変更はいずれも0。freshness=source_stable。
+
+全scanの `link_scope` は verified=1 / excluded=4 / unverified=0、例の省略0：
+
+|リンク|分類|参照先|
+|---|---|---|
+|.venv/lib64|verified_directory|lib（workspace内の実体を検証）|
+|.venv/bin/python|outside_input_file_scope|python3 → /usr/bin/python3.12|
+|.venv/bin/python3.12|outside_input_file_scope|python3 → /usr/bin/python3.12|
+|.venv/bin/python3|outside_input_file_scope|/usr/bin/python3 → /usr/bin/python3.12|
+|plugins/nyash-aot-plugin/libnyash_aot_plugin.so|outside_generated_output_scope|../../target/release/libnyash_aot_plugin.so（欠落した生成物）|
+
+元の5リンクは変更していない。追加の未確認リンクなし。
+semantic referencesは5件/6件、未確認text candidatesは1件/3件。
+既知のassert!内caller候補も保存packetに保持されている。
+backend_synchronizationは依然unverifiedで、参照網羅やcaller-zeroの証明にはしない。
+外部依存・設定・生成入力・環境は、このsource freshness保証の範囲外。
+
+Hakoruneのソース・依存選択・toolchainは試行中変更なし、前後status一致。
+session終了値0、終了後nekocode/rust-analyzer/cargo/rustcプロセスなし。
+生response/packet、provenance、評価JSON、5リンク観測は
+`/tmp/hakorune-nekocode-symlink-observation/` に一時保存（永続性保証なし）。
+今回の再利用拒否は解消したので差し戻し不要。MCP単発起動の改善や初回時間の短縮は
+今回検証していない。通常のrgと併用し、必要な連続調査で使う。
+
+## 旧版 3a5d176 の観測
 
 判定：参照調査には使えるが、このworkspaceでは高速な連続調査を再現できず。再利用条件の改善を担当へ返したい。
 
