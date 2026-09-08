@@ -124,8 +124,11 @@ int64_t nyash.box.from_i8_string_const_len_v1(const uint8_t *bytes, uint64_t len
 
 The dotted names are linker export names, not C source identifiers. Kernel
 exports are implemented in `plugin/map_literal.rs` and `exports/box_helpers.rs`.
-Private V2 compiler consumers now execute allocation/ExactBits writes through
-both C walkers, with linked-kernel readback and nonzero-status trap evidence.
+Private V2 compiler consumers execute allocation, ExactBits, selected physical
+operations and direct String/Map OriginalHandle writes through both C walkers,
+with linked-kernel readback and nonzero-status trap evidence. Bool operation
+results are widened at their producer; Integer comparison uses its selected
+physical operation without runtime kind inference.
 String keys retain their byte length and zero handles trap at materialization.
 The complete projection/formal consumer and public host/source switch remain
 open; the physical fixture proof does not establish source-to-EXE cutover.

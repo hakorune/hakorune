@@ -13,6 +13,7 @@ extern int64_t map_get(int64_t, int64_t) __asm__("nyash.map.get_hh");
 extern int64_t map_size(int64_t) __asm__("nyash.map.size_h");
 extern int64_t float_bits(int64_t) __asm__("nyash.float.get_bits_h");
 extern int64_t is_type(int64_t, const char*) __asm__("nyash.any.is_type_h");
+extern int64_t string_eq(int64_t, int64_t) __asm__("nyash.string.eq_hh");
 extern int64_t real_string(const unsigned char*, uint64_t)
     __asm__("__real_nyash.box.from_i8_string_const_len_v1");
 int64_t checked_string(const unsigned char*, uint64_t)
@@ -26,7 +27,8 @@ uint32_t observed_store(int64_t, int64_t, uint32_t, uint64_t)
     __asm__("__wrap_nyash.map.literal_store_v1");
 uint32_t observed_store(int64_t map, int64_t key, uint32_t kind, uint64_t payload) {
   assert(kind == strtoul(getenv("EXPECT_KIND"), NULL, 0));
-  assert(payload == strtoull(getenv("EXPECT_BITS"), NULL, 0));
+  if (kind == 5) assert(is_type((int64_t)payload, getenv("EXPECT_HANDLE_TYPE")));
+  else assert(payload == strtoull(getenv("EXPECT_BITS"), NULL, 0));
   assert(!getenv("FORCE_STRING_ZERO"));
   observed_map = map;
   writes++;
@@ -51,7 +53,14 @@ int main(void) {
   if (strtoul(getenv("EXPECT_KIND"), NULL, 0) == 3)
     assert((uint64_t)float_bits(result) == expected);
   else if (strtoul(getenv("EXPECT_KIND"), NULL, 0) == 4) assert(is_type(result, "VoidBox"));
-  else assert((uint64_t)result == expected);
+  else if (strtoul(getenv("EXPECT_KIND"), NULL, 0) == 5) {
+    const char* type = getenv("EXPECT_HANDLE_TYPE");
+    assert(is_type(result, type));
+    if (!strcmp(type, "StringBox")) {
+      const char* text = getenv("EXPECT_TEXT");
+      assert(string_eq(result, string_handle((const unsigned char*)text, strlen(text))));
+    } else assert(!strcmp(type, "MapBox") && map_size(result) == 0);
+  } else assert((uint64_t)result == expected);
   puts("kernel-readback-ok");
   return 0;
 }

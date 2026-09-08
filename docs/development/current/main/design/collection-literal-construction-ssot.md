@@ -1331,13 +1331,19 @@ using original function/instruction identity; function-context snapshots never
 copy that ledger. Query/prescan only observe. The expanded-function table remains
 explicitly unsupported until its shared index/signature/ingress consumer lands.
 
-Both actual walkers now emit intrinsic Map allocation and ExactBits writes to
-`nyash.map.literal_store_v1`. Exact bits retain Integer/Bool/F64/Void; the body
-remains the operand/CFG authority. Unimplemented value actions reject with
-`value-consumer-unsupported`; malformed/unknown actions reject separately. This
-bounded consumer checks direct write demand and original-use compatibility;
-it does not silently interpret missing or extra value rows. Formal/transfer and
-OriginalValue/Operation actions remain the next consumers, not inferred support.
+Both actual walkers emit intrinsic Map allocation and writes to
+`nyash.map.literal_store_v1`. ExactBits retain Integer/Bool/F64/Void. The shared
+consumer also handles all seven selected Operation discriminators and direct
+String/intrinsic-Map OriginalHandle. Operations use the retained body's operands,
+with separate temporary reachability bits and the actual-emission ledger. Missing,
+extra, wrong-kind or original-unavailable input rows reject; no operand graph is
+copied. Integer comparisons bypass dynamic kind dispatch. Bool results keep i1
+for old consumers and immediately issue an i64 side payload. String operations
+use the existing direct helpers or existing constant folding, without a deferred
+zero placeholder. Folded String and direct allocation consume their value rows
+only at successful emission. Remaining Original producers reject as
+`original-consumer-unsupported`; transfer/formal actions still reject as
+`value-consumer-unsupported`. These rejections remain compiler cutover blockers.
 
 Map success is i32 status0; all nonzero statuses trap without continuation or
 source Fault. String constants retain byte length in the existing StringConst
@@ -1354,22 +1360,37 @@ wrapper or operand graph is added. Arbitrary String specialization/optimizer/C1
 combinations are not proved by this bounded consumer; input-aware capability
 must close changed-consumer coverage before public activation.
 
-Verification at parent da871db069: `static_v2_execution_test.py` exercises real
-private C compilation (49 cases), links the current kernel archive for30
-readbacks and checks8 injected traps. C build, Named60/definition22 parent
-equality, ASan lifetime22, query17/live Rust1, settings16, rows and guards pass;
-Dynamic provenance/machine/relocations match the parent. Coverage
-includes both walkers, I64/Bool/NaN payload/Void, empty/UTF-8/middle/trailing-NUL
-keys, Copy and concat, Map/checked-field backedges in both orders, status1/2/7 and
-String-zero traps. Malformed/missing/duplicate/undemanded rows, incompatible
-original use, generic abort and early-pattern residual preserve prior output.
-The fixture frame reader is test-only; this is physical execution evidence, not
-a Rust host/source cutover or public V2 acceptance. The independent read-only
-review found no bounded lifetime/publication/tail mismatch.
+Verification at parent bd81c298fc: `static_v2_execution_test.py` passes99
+private compile cases in normal and ASan builds, with68 linked-kernel readbacks
+and8 injected traps per run. All seven Operation rows execute in both walkers,
+including mixed Bool widths, direct Integer comparison, String comparison/constant
+concat and String/Map Handle values. Nonfolded String inputs remain dependent on
+their unimplemented original producers; this does not prove general String
+specialization coverage. Missing/wrong-kind/original-unavailable operation inputs
+and malformed result fields reject before output. Earlier ExactBits, byte-length,
+status and backedge cases still pass. C build and guards pass; Named60 and
+definition22 outputs match parent observations. The fixture reader remains
+test-only. Independent read-only review found no confirmed defect in this
+bounded value consumer; source/host cutover remains open.
 
-Next: complete remaining projection consumers and the single expanded-function
-index, signatures and ingress rejection; then input-aware capability and atomic
-public session/host/source switch with V1 and six literal-edge retirement.
+Next: join the remaining OriginalValue producers at their actual success sites:
+Named uses retained allocating outcomes (not alias), intrinsic Array uses its
+selected allocator, canonical Call uses typed Static/Free emission, and boxed
+Make/Tag/Project require a positive shared-emitter result. A zero/no-op result
+cannot consume a demanded row. The formatter must preserve Tag constants and
+Project copy aliases; a Bool Project alias may point to i1 despite its own I64
+record and needs producer-local normalization.
+
+Worker audit at bd81c298fc identified boxed runtime Tag/Project tail bookkeeping
+that records `exact_status_continue` while printing different continuation names.
+Before those OriginalValue rows execute, reconcile actual and future-predecessor
+labels in the existing tail owner, including local alias/constant cases. A common
+V2-only continuation after a demanded boxed producer is one bounded physical
+option; do not predict runtime-only splits by opcode or duplicate its selector.
+These are static findings, not test-reproduced baseline debt or admitted support.
+Then finish transfer/formal consumers, the single expanded-function index,
+signatures and ingress rejection, input-aware capability and atomic public
+session/host/source switch with V1 and six literal-edge retirement.
 
 ### Versioned compiler frame decision
 

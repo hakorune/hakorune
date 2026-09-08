@@ -144,6 +144,82 @@ with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-") as directory:
             env=dict(ENV, EXPECT_KIND="1", EXPECT_BITS="30", EXPECT_WRITES="4", EXPECT_KEY_HEX="6b"))
         assert run.returncode == 0, run
 
+    # Each selected operation executes in both walkers. Operands carry the
+    # planner's complete rows; Bool operation payloads are widened at producers.
+    for nested in (False, True):
+        cases = []
+        def leaf(value, kind=1):
+            return dict(action=1, kind=kind, payload=value, flags=1)
+        def original():
+            return dict(action=2, kind=5, encoding=1, flags=1)
+        def operation(number):
+            return dict(action=7, operation=number, flags=1,
+                kind=1 if number == 1 else 5 if number == 5 else 2,
+                encoding=1 if number in (1, 5) else 2)
+        for symbol, left, right, result in (("+", 12, 18, 30), ("-", 42, 12, 30),
+                ("*", 5, 6, 30), ("/", 91, 3, 30), ("%", 93, 31, 0)):
+            cases.append((f"binary-{symbol}", [const(5, left), const(6, right),
+                dict(op="binop", dst=3, lhs=5, rhs=6, operation=symbol)],
+                {5: leaf(left), 6: leaf(right), 3: operation(1)}, 1, result, None))
+        for symbol, result in (("<", 1), ("<=", 1), ("==", 0), ("!=", 1), (">=", 0), (">", 0)):
+            cases.append((f"integer-compare-{symbol}", [const(5, 12), const(6, 30),
+                dict(op="compare", dst=3, lhs=5, rhs=6, operation=symbol)],
+                {5: leaf(12), 6: leaf(30), 3: operation(2)}, 2, result, None))
+        cases.append(("mixed-bool-width", [const(5, 0), const(6, 1),
+            dict(op="unop", dst=7, src=5, operation="not"),
+            dict(op="compare", dst=3, lhs=7, rhs=6, operation="==")],
+            {5: leaf(0, 2), 6: leaf(1, 2), 7: operation(7), 3: operation(3)}, 2, 1, None))
+        cases.append(("integer-not", [const(5, 42), dict(op="unop", dst=3, src=5, operation="Not")],
+            {5: leaf(42), 3: operation(6)}, 2, 0, None))
+        string_type = dict(kind="handle", box_type="StringBox")
+        for symbol, result in (("<", 1), ("==", 0), (">", 0)):
+            cases.append((f"string-compare-{symbol}", [const(5, "cat", string_type), const(6, "dog", string_type),
+                dict(op="compare", dst=3, lhs=5, rhs=6, operation=symbol)],
+                {5: original(), 6: original(), 3: operation(4)}, 2, result, None))
+        cases.append(("string-value", [const(3, "cat", string_type)], {3: original()}, 5, 0, "StringBox"))
+        cases.append(("string-concat", [const(5, "cat", string_type), const(6, "dog", string_type),
+            dict(op="binop", dst=3, lhs=5, rhs=6, operation="+")],
+            {5: original(), 6: original(), 3: operation(5)}, 5, 0, "StringBox"))
+        cases.append(("map-value", [dict(op="newbox", dst=3, target=dict(kind="intrinsic_map"), args=[])],
+            {3: original()}, 5, 0, "MapBox"))
+        for number, (name, instructions, rows, kind, bits, handle_type) in enumerate(cases):
+            body, frame = witness(nested)
+            function = body["functions"][-1]
+            body_instructions = function["blocks"][0]["instructions"]
+            body_instructions[2:3] = instructions
+            frame["values"] = [dict(function=function["name"], value=value, **row) for value, row in rows.items()]
+            frame["maps"] = [dict(function=function["name"], block=0, instruction=i, kind=1 if ins["op"] == "newbox" else 2)
+                for i, ins in enumerate(body_instructions) if ins["op"] in ("newbox", "map_literal_entry_write")]
+            obj, ir = compile_case(f"operation-{nested}-{number}-{name.replace('/', 'div')}", body, frame)
+            if "integer-compare" in name:
+                assert "dyn_lhs_is_str" not in ir.read_text()
+            if "bool" in name or "compare" in name or "not" in name:
+                assert "%map_payload_3 = zext i1 %r3 to i64" in ir.read_text()
+            executable = obj.with_suffix(".exe")
+            link = subprocess.run(["cc", "-no-pie", str(obj), str(ROOT / "lang/c-abi/tests/static_v2_runtime_probe.c"), KERNEL,
+                "-Wl,--wrap=nyash.map.literal_store_v1", "-Wl,--wrap=nyash.box.from_i8_string_const_len_v1", "-ldl", "-lpthread", "-lm", "-o", str(executable)], capture_output=True)
+            assert link.returncode == 0, link.stderr
+            env = dict(ENV, EXPECT_KIND=str(kind), EXPECT_BITS=str(bits), EXPECT_WRITES="1", EXPECT_KEY_HEX="6b",
+                EXPECT_HANDLE_TYPE=handle_type or "", EXPECT_TEXT="catdog" if name == "string-concat" else "cat")
+            run = subprocess.run([str(executable)], text=True, capture_output=True, preexec_fn=no_core, env=env)
+            assert run.returncode == 0 and "kernel-readback-ok" in run.stdout, (name, nested, run)
+            if name == "mixed-bool-width":
+                for mutation, change in (
+                    ("missing-input", lambda f: f["values"].pop(0)),
+                    ("wrong-input-kind", lambda f: f["values"][0].update(kind=1)),
+                    ("missing-original", lambda f: f["values"][0].update(flags=0)),
+                ):
+                    bad = copy.deepcopy(frame); change(bad)
+                    diagnostic = "body-coverage" if mutation == "missing-original" else "value-reference-closure"
+                    compile_case(f"operation-{nested}-{mutation}", body, bad, diagnostic)
+                for mutation, change in (
+                    ("wrong-result-kind", lambda f: f["values"][-1].update(kind=1)),
+                    ("wrong-encoding", lambda f: f["values"][-1].update(encoding=1)),
+                    ("wrong-opcode", lambda f: f["values"][-1].update(operation=1)),
+                ):
+                    bad = copy.deepcopy(frame); change(bad)
+                    compile_case(f"operation-{nested}-{mutation}", body, bad, "value-action")
+
     body, frame = witness()
     body["functions"][0]["metadata"] = {"array_text_state_residence_route": {
         "observer_kind": "indexof", "residence": "loop_local_pointer_array", "result_repr": "scalar_i64",
@@ -168,12 +244,12 @@ with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-") as directory:
         ("duplicate-value", lambda b, f: f["values"].append(f["values"][0]), "static-v2/value-action"),
         ("bool-payload", lambda b, f: f["values"][0].update(kind=2, payload=30), "static-v2/value-action"),
         ("unknown-action", lambda b, f: f["values"][0].update(action=42), "static-v2/value-action"),
-        ("unimplemented-action", lambda b, f: f["values"][0].update(action=2), "static-v2/value-consumer-unsupported"),
+        ("unimplemented-action", lambda b, f: f["values"][0].update(action=3), "static-v2/value-consumer-unsupported"),
         ("unknown-kind", lambda b, f: f["values"][0].update(kind=42), "static-v2/value-action"),
         ("reserved", lambda b, f: f["values"][0].update(operation=1), "static-v2/value-action"),
         ("original-use", lambda b, f: b["functions"][0]["blocks"][0]["instructions"][-1].update(value=3), "static-v2/body-coverage"),
         ("unknown-use", lambda b, f: b["functions"][0]["blocks"][0]["instructions"].insert(4, dict(op="unsupported")), "static-v2/body-coverage"),
-        ("undemanded", lambda b, f: f["values"].append(dict(function="main", value=4, action=1, kind=1, payload=30, flags=1)), "static-v2/undemanded-value-row"),
+        ("undemanded", lambda b, f: f["values"].append(dict(function="main", value=4, action=1, kind=1, payload=30, flags=1)), "static-v2/value-reference-closure"),
         ("generic-abort", lambda b, f: (f["values"][0].update(flags=1), b["functions"][0]["blocks"][0]["instructions"].insert(4, dict(op="unsupported"))), "unsupported"),
     ):
         b, f = copy.deepcopy(body), copy.deepcopy(frame)

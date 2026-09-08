@@ -138,6 +138,8 @@ static int hako_static_v2_exact_valid(
   }
 }
 
+#include "hako_llvmc_ffi_static_v2_values.inc"
+
 /* Physical use check for Map-only exact constants. Unknown instruction forms
  * remain unsupported until their operand consumer joins V2; no broad numeric
  * scan of metadata or recursive JSON interpretation is used. */
@@ -232,12 +234,16 @@ static int hako_static_v2_bind(
     const hako_llvmc_value_projection_v2* row = &frame->values[i];
     yyjson_val* fn = hako_static_v2_function(functions, row->function_name);
     yyjson_val* ins = hako_static_v2_definition(fn, row->value_id);
-    if (row->action >= HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE &&
-        row->action <= HAKO_LLVMC_MAP_ACTION_NAMED_ALIAS_OPERAND_ZERO) {
+    if ((row->action >= HAKO_LLVMC_MAP_ACTION_COPY && row->action <= HAKO_LLVMC_MAP_ACTION_FORMAL) ||
+        row->action == HAKO_LLVMC_MAP_ACTION_NAMED_ALIAS_OPERAND_ZERO) {
       reason = "[freeze:contract][static-v2/value-consumer-unsupported]";
       goto invalid;
     }
-    if (!fn || !ins || !hako_static_v2_exact_valid(row, ins)) goto invalid;
+    if (!fn || !ins) goto invalid;
+    int valid = row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS
+        ? hako_static_v2_exact_valid(row, ins) : hako_static_v2_nonexact_valid(row, ins);
+    if (valid < 0) { reason = "[freeze:contract][static-v2/original-consumer-unsupported]"; goto invalid; }
+    if (!valid) goto invalid;
     for (size_t j = 0; j < i; j++) if (index->values[j].function == fn && frame->values[j].value_id == row->value_id) goto invalid;
     index->values[i] = (struct HakoStaticV2ValueSite){fn, ins, 0};
   }
@@ -267,18 +273,9 @@ static int hako_static_v2_bind(
       }
     }
   }
-  /* ExactBits rows in this consumer are demanded directly by Map writes. */
-  reason = "[freeze:contract][static-v2/undemanded-value-row]";
-  for (size_t vi = 0; vi < frame->value_count; vi++) {
-    int demanded = 0;
-    for (size_t mi = 0; mi < frame->map_operation_count; mi++) {
-      uint32_t value;
-      if (frame->map_operations[mi].kind == HAKO_LLVMC_MAP_OP_WRITE &&
-          index->maps[mi].function == index->values[vi].function &&
-          hako_static_v2_u32(yyjson_obj_get(index->maps[mi].instruction, "value"), &value) &&
-          value == frame->values[vi].value_id) demanded = 1;
-    }
-    if (!demanded) goto invalid;
+  if (!hako_static_v2_value_closure(index)) {
+    reason = "[freeze:contract][static-v2/value-reference-closure]";
+    goto invalid;
   }
   return 0;
 invalid:

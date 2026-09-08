@@ -192,10 +192,13 @@ The unpublished static v2 value projection separates result kind from finite
 physical operation selection (integer/Bool/String comparison, String concat,
 integer binary and integer/Bool Not). Body opcode and operands remain the sole
 instruction graph. Private retained V2 compilation now binds an invocation-owned
-index, runs both walkers for Map allocation/ExactBits write, and publishes staged
-output only after both ledgers finish. Remaining value actions and expanded
-functions reject explicitly; public V2 is still closed. Full selection consumers,
-including direct integer Eq/Ne, precede the host/source cutover.
+index and publishes staged output only after both ledgers finish. Both walkers
+consume ExactBits, selected integer/Bool/String operations and direct String/Map
+OriginalHandle producers. Integer comparison bypasses dynamic kind dispatch;
+Bool payload zext occurs immediately after its producer. Operation input closure
+checks every demanded row against the retained body. Other Original producers,
+transfer/formal actions and expanded functions remain explicit unsupported;
+public V2 and the host/source cutover are still closed.
 
 String constants keep byte length in their existing record/global/owned storage;
 V2 materializes length-aware handles at the instruction and traps on zero.
@@ -210,7 +213,7 @@ readback and injects returned statuses to verify traps. Its JSON frame reader is
 only a fixture, not a new production transport or source acceptance proof.
 - The [v1 runtime contract](../../docs/reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1)
   fixes explicit value kinds, OK/InvalidContract and length-aware String input.
-  Kernel exports and private ExactBits consumers are tested; the complete
+  Kernel exports and the bounded private value consumers are tested; the complete
   compiler/host/source cutover remains pending.
   Existing static C rows
   cannot be silently reinterpreted; formal-domain and input projection remain

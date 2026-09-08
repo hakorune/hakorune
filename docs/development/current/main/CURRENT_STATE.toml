@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Private V2 Map allocation/ExactBits consumers execute in both walkers with kernel readback and staged publication. Next: remaining value consumers and shared expanded-function index/signatures/ingress rejection, then input-aware capability and atomic public session/host/source cutover with V1 retirement. No source cutover or Map-through-V1 claim."
+current_blocker_token = "Private V2 exact/operation and direct String/Map value consumers execute in both walkers. Next: remaining Original producers at actual success sites (including boxed tail/Bool alias correction), transfer/formal consumers and shared expanded-function ingress; then capability and atomic public session/host/source cutover with V1 retirement. No source cutover claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -37,8 +37,9 @@ Named binding closes demand/domain/original-lane handling in the MIR planner.
 Private query now binds actual C outcomes and retains input across compile/cancel.
 Complete demanded projection actions now reuse one leaf/domain mapping.
 Owned V2 rows now retain backing and expanded target/Formal correspondence.
-Private C allocation/ExactBits and staged publication are verified.
-Next is remaining value/expanded-function consumption before public host/source cutover.
+Private C exact/operation/direct String/Map value consumption and staged publication are verified.
+Remaining Original producer success sites and boxed tail/alias corrections precede
+transfer/formal/expanded-function consumption and public host/source cutover.
 Actual session/host/Map cutover remains open.
 """
 next_design_card = "none"
