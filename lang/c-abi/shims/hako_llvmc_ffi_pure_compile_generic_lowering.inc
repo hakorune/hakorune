@@ -370,19 +370,33 @@
         snprintf(buf, buf_len, "%%bb%lld", pred);
         return buf;
       }
+      auto int static_v2_validate_i1_phi(long long block_id, long long dst,
+                                         struct Incoming* in, int in_n);
+      auto int static_v2_original_i64(long long value, char* out, size_t size);
       auto long long static_v2_phi_original_source(long long value);
       auto int emit_static_v2_phi(long long block_id, long long dst, struct Incoming* in, int in_n);
       auto int emit_phi(long long block_id, long long dst, struct Incoming* in, int in_n){
         int selected = emit_static_v2_phi(block_id, dst, in, in_n);
         if (selected != 0) return selected > 0;
         int phi_ty = get_type(dst);
+        if (phi_ty == T_I1 && static_v2_validate_i1_phi(block_id, dst, in, in_n) < 0) return 0;
         struct GenericPureVariantBinding variant_binding;
         int variant_phi = get_variant_binding(dst, &variant_binding) &&
             variant_binding.tag_reg == dst &&
             variant_binding.has_payload;
         EMIT("  %%r%lld = phi %s ", dst, phi_ty == T_I1 ? "i1" : "i64");
         for (int i=0;i<in_n;i++){
-          char pred_label[128];
+          char pred_label[128], original[64];
+          if (phi_ty != T_I1) {
+            int mapped = static_v2_original_i64(in[i].val_reg, original, sizeof(original));
+            if (mapped < 0) return 0;
+            if (mapped > 0) {
+              EMIT("[ %s, %s ]%s", original,
+                  phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)),
+                  (i + 1 < in_n) ? ", " : "");
+              continue;
+            }
+          }
           long long cv;
           long long val_reg = resolve_copy_source_reg(static_v2_phi_original_source(in[i].val_reg));
           int hc=has_const(val_reg,&cv);

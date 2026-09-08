@@ -196,9 +196,14 @@ and fit the existing owner capacity; both lanes use its actual predecessor tail.
 Select shares the existing normalized condition and keeps its original demand.
 Finite physical domain closure includes every PHI input and both Select arms;
 unresolved cycles and mixed operation domains reject without branch pruning.
-Original-required PHIs require stable incoming references and matching physical
-widths; future boxed aliases or Select widths reject before artifact publication.
-Predecessor normalization/stable original references remain cutover blockers.
+Decision (2026-09-08): shared mapped/nonmapped i64 PHIs consume producer-owned
+stable original references, including original-only Copy chains. Successful
+flags1 producers normalize their actual original value with add/zext; constants
+use the original constant owner, Formal/i64 PHI use their original SSA directly.
+Map payloads never issue original values. Existing SSA values/types and PHI group
+ordering remain intact. Compatible i1 PHIs retain their path; pending aliases or
+width mismatches reject even for nonmapped destinations. Selected i1 PHI to i64
+projection remains a cutover blocker requiring after-group normalization.
 This does not change runtime tags or activate the public static compiler V2.
 
 ### Map-demanded callable linkage (private consumer implemented)

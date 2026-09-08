@@ -137,7 +137,48 @@ def run_control_cases(compile_case, witness, const, root, kernel, env, no_core):
         assert '[ %map_payload_11, %exact_status_continue_2_2 ]' in text
         for value in boxed_frame['values']: value['flags'] = 1
         boxed_fn['blocks'][1]['instructions'][0]['dst_type'] = 'i64'
-        compile_case(label+'-future-original-alias-stop', boxed, boxed_frame, 'static_v2_phi_original_alias_pending')
+        boxed_fn['blocks'][3]['instructions'] = [dict(op='ret', value=3)]
+        text = execute(label+'-future-original-alias', boxed, boxed_frame, 1, 30, writes=3)
+        assert '[ %map_original_11,' in text
+        downstream, downstream_frame = copy.deepcopy(boxed), copy.deepcopy(boxed_frame)
+        downstream_fn = downstream['functions'][-1]
+        downstream_fn['blocks'][3]['instructions'] = [
+            dict(op='phi', dst=24, dst_type='i64', incoming=[[27, 1]]),
+            const(25, 0), dict(op='binop', dst=26, lhs=24, rhs=25, operation='+'),
+            dict(op='ret', value=26)]
+        downstream_fn['blocks'][1]['instructions'].insert(2,
+            dict(op='phi', dst=27, dst_type='i64', incoming=[[10, 0], [11, 2]]))
+        downstream_frame['maps'][1]['instruction'] += 1
+        execute(label+'-nonmapped-original-phi', downstream, downstream_frame, 1, 30, writes=3)
+        for mapped in (False, True):
+            chained, chained_frame = copy.deepcopy(downstream), copy.deepcopy(downstream_frame)
+            cfn = chained['functions'][-1]
+            cfn['blocks'][2]['instructions'][1:1] = [
+                dict(op='copy', dst=28, src=11), dict(op='copy', dst=29, src=28)]
+            cfn['blocks'][1]['instructions'][2]['incoming'][1][0] = 29
+            chained_frame['maps'][-1]['instruction'] += 2
+            if mapped:
+                chained_frame['values'].extend([row(fn, 28, 3, flags=1), row(fn, 29, 3, flags=1)])
+                cfn['blocks'][2]['instructions'][4]['value'] = 29
+            execute(label+f'-original-copy-chain-{mapped}', chained, chained_frame, 1, 30, writes=3)
+            pending = copy.deepcopy(chained)
+            pending_frame = copy.deepcopy(chained_frame)
+            pending['functions'][-1]['blocks'][0]['instructions'][2] = const(10, 1)
+            pending_frame['values'][0]['payload'] = 1
+            pending['functions'][-1]['blocks'][1]['instructions'][2]['dst_type'] = 'i1'
+            compile_case(label+f'-i1-copy-chain-pending-{mapped}', pending, pending_frame,
+                'static_v2_phi_original_alias_pending' if mapped else 'static_v2_phi_original_width')
+
+
+        for selected in (False, True):
+            pending, pending_frame = copy.deepcopy(downstream), copy.deepcopy(downstream_frame)
+            pfn = pending['functions'][-1]
+            pfn['blocks'][1]['instructions'][0 if selected else 2]['dst_type'] = 'i1'
+            pfn['blocks'][0]['instructions'][2] = const(10, 1)
+            pending_frame['values'][0]['payload'] = 1
+            compile_case(label+f'-i1-alias-pending-{selected}', pending, pending_frame,
+                'static_v2_phi_original_alias_pending')
+
 
         width, width_frame = copy.deepcopy(body), copy.deepcopy(frame)
         width_fn = width['functions'][-1]
@@ -146,7 +187,14 @@ def run_control_cases(compile_case, witness, const, root, kernel, env, no_core):
         for value in width_frame['values']: value['flags'] = 1
         width_frame['values'][-1].update(action=7, operation=6, kind=2, encoding=2)
         width_frame['values'].append(row(fn, 15, 1, kind=1, payload=0, flags=1))
-        compile_case(label+'-original-width-stop', width, width_frame, 'static_v2_phi_original_width')
+        width_fn['blocks'][1]['instructions'].pop(2)
+        width_frame['maps'].pop(1)
+        width_fn['blocks'][3]['instructions'] = [const(4, 29),
+            dict(op='binop', dst=23, lhs=3, rhs=4, operation='+'), dict(op='ret', value=23)]
+        width_fn['blocks'][3]['instructions'].insert(0,
+            dict(op='map_literal_entry_write', receiver=1, key=2, value=3))
+        width_frame['maps'].append(dict(function=fn['name'], block=3, instruction=0, kind=2))
+        execute(label+'-original-width-normalized', width, width_frame, 2, 1, writes=2)
 
         arithmetic, arithmetic_frame = copy.deepcopy(body), copy.deepcopy(frame)
         afn = arithmetic['functions'][-1]
@@ -158,6 +206,28 @@ def run_control_cases(compile_case, witness, const, root, kernel, env, no_core):
         arithmetic_frame['values'][-1].update(action=7, operation=1, kind=1, encoding=1)
         arithmetic_frame['values'].append(row(fn, 16, 1, kind=1, payload=1, flags=1))
         execute(label+'-seeded-operation', arithmetic, arithmetic_frame, 1, 31)
+
+        compatible, compatible_frame = copy.deepcopy(body), copy.deepcopy(frame)
+        cfn = compatible['functions'][-1]
+        cfn['blocks'][0]['instructions'][2] = const(10, 1)
+        cfn['blocks'][1]['instructions'][0]['dst_type'] = 'i1'
+        for value in compatible_frame['values']: value['flags'] = 1
+        compatible_frame['values'][0]['payload'] = 1
+        cfn['blocks'][3]['instructions'] = [const(4, 30), const(5, 99),
+            dict(op='select', dst=6, cond=3, then_val=4, else_val=5), dict(op='ret', value=6)]
+        execute(label+'-compatible-i1', compatible, compatible_frame, 1, 1, writes=3)
+        pending = copy.deepcopy(compatible)
+        pending['functions'][-1]['blocks'][3]['instructions'].insert(0,
+            dict(op='phi', dst=24, dst_type='i64', incoming=[[3, 1]]))
+        compile_case(label+'-i1-to-i64-pending', pending, compatible_frame,
+            'static_v2_phi_original_i1_pending')
+        incompatible = copy.deepcopy(compatible)
+        incompatible['functions'][-1]['blocks'][0]['instructions'][2] = const(10, 30)
+        incompatible_frame = copy.deepcopy(compatible_frame)
+        incompatible_frame['values'][0]['payload'] = 30
+        compile_case(label+'-i1-constant-width', incompatible, incompatible_frame,
+            'static_v2_phi_original_width')
+
 
         # The boxed Bool projection aliases an i1 producer, despite i64 storage.
         select_body, select_frame = witness(nested)
@@ -186,4 +256,11 @@ def run_control_cases(compile_case, witness, const, root, kernel, env, no_core):
         future_frame['maps'][-1]['instruction'] += 1
         future_frame['values'][-1] = row(future_fn, 11, 5, flags=1)
         future_frame['values'].append(row(future_fn, 19, 2, kind=2, encoding=1, flags=1))
-        compile_case(label+'-future-select-width-stop', future, future_frame, 'static_v2_phi_original_select_pending')
+        future_fn['blocks'][1]['instructions'].pop(2)
+        future_frame['maps'].pop(1)
+        future_fn['blocks'][3]['instructions'] = [const(4, 29),
+            dict(op='binop', dst=23, lhs=3, rhs=4, operation='+'), dict(op='ret', value=23)]
+        future_fn['blocks'][3]['instructions'].insert(0,
+            dict(op='map_literal_entry_write', receiver=1, key=2, value=3))
+        future_frame['maps'].append(dict(function=fn['name'], block=3, instruction=0, kind=2))
+        execute(label+'-future-select-normalized', future, future_frame, 2, 1, writes=2)

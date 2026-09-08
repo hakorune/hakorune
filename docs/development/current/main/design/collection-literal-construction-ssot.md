@@ -1817,3 +1817,43 @@ was already closed and is excluded. Physical storage wire-tag naming is also
 closed in the [constructor follow-up queue](constructor-lifecycle-llvm-lowering-ssot.md#feedback-reconciliation-follow-ups-2026-09-08).
 Next is the existing Map construction obligation above, then the rolling
 backend/runtime order; no second implementation task is added.
+
+Original-i64 implementation checkpoint: normal/ASan426 cases each, focused
+control98, selected C build and existing pointer/corridor guards pass.
+Named60/definition22 remain parent-equal. Both walkers prove original exit30
+through boxed/Select/Operation/Copy and nonmapped PHIs; compatible i1 still runs.
+The new original-only Copy i1 counterexample exposed prepass alias collapse to
+constant30 without a remaining Map row. Shared V2 i1 constant-range validation
+now rejects it before LLVM; mapped pending aliases retain their named Stop.
+This was a current-change failure, fixed without baseline waiver or weakened
+acceptance. Source max646. Public cutover and selected i1 projection stay open.
+
+### Original i1 PHI after-group decision
+
+Decision: normalize an emitted selected flags1 i1 PHI only after its entire
+existing PHI group; shared i64 inputs use that fixed original reference.
+Source authority + canonical issuer: unchanged V2/body relation; existing PHI
+prepass/refinement and actual emitter own width and SSA. Group-end owns placement.
+Non-authority: Map kind/payload, alias guesses and a second CFG cannot issue width.
+Fail-fast boundary: missing emission or unsupported actual width rejects; future
+boxed/Select inputs into i1 PHIs retain their existing pending/width Stops.
+Smallest next slice: one shared group-end normalizer and the two existing walker
+calls, then PHI-only i1 reference selection in the shared i64 formatter.
+Non-claims: public cutover, typed/direct escape, intrinsic binding, boxed comparison.
+
+Read-only worker audit identifies the generic active walk's complete PHI loop
+and the same-module body emitter's complete PHI loop as the two actual callers.
+Emit before entry runtime/layout work or skip-plan/body work respectively.
+Iterate the existing block PHI inventory; after successful flags1 Map PHI emission,
+T_I1 emits `%map_original_dst = zext i1 %rDst to i64`. Keep original SSA/type,
+Map lanes and predecessor labels unchanged. Add no branch, graph or receipt.
+Shared reference formatting uses this fixed name for PHI/T_I1 and existing rDst
+for PHI/T_I64. Formal retains its separate i64 contract. Unknown width rejects.
+Delete only the selected-i1-PHI-to-i64 pending Stop after both consumers land;
+do not remove the i1 input pending checks or move normalization inside a PHI group.
+
+Acceptance in both walkers: selected i1 -> selected/nonmapped i64 PHI, Copy
+chains, forward/backedges, multiple PHIs in a block, and original arithmetic
+feeding exit30. Retain original i1 consumers and incompatible/pending rejection.
+Current implementation still stops this projection; this decision selects the
+next slice after the original-i64 checkpoint, not an execution-completion claim.

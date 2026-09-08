@@ -1,3 +1,32 @@
+      /* A forward/backedge reference is fixed independently of alias cache
+       * mutation. Only actual producers define map_original registers. */
+      auto int static_v2_original_i64(long long value, char* out, size_t size) {
+        const struct HakoStaticV2Index* index = &invocation->static_v2;
+        int vi = hako_static_v2_value_find(index, fn0, (uint32_t)value);
+        if (vi < 0) {
+          value = resolve_copy_source_reg(value);
+          vi = hako_static_v2_value_find(index, fn0, (uint32_t)value);
+        }
+        if (vi < 0) return 0;
+        const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
+        if (!row->flags) return -1;
+        if (row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS) {
+          long long bits;
+          if (!has_const(value, &bits)) return -1;
+          snprintf(out, size, "%lld", bits);
+        } else if (row->action == HAKO_LLVMC_MAP_ACTION_FORMAL ||
+                   row->action == HAKO_LLVMC_MAP_ACTION_PHI) {
+          if (get_type(value) != T_I64) {
+            note_pure_unsupported_shape(0, 0, "phi", "static_v2_phi_original_i1_pending", NULL);
+            return -1;
+          }
+          snprintf(out, size, "%%r%lld", value);
+        } else {
+          snprintf(out, size, "%%map_original_%lld", value);
+        }
+        return 1;
+      }
+
       auto long long static_v2_phi_original_source(long long value) {
         const struct HakoStaticV2Index* index = &invocation->static_v2;
         int vi = hako_static_v2_value_find(index, fn0, (uint32_t)value);
@@ -12,22 +41,17 @@
         return value;
       }
 
-      /* Called only in the existing PHI group; all side values have fixed names
-       * at their producer, including aliases on not-yet-emitted backedges. */
-      auto int emit_static_v2_phi(long long block_id, long long dst, struct Incoming* in, int in_n) {
-        int vi = hako_static_v2_value_find(&invocation->static_v2, fn0, (uint32_t)dst);
-        if (vi < 0) return 0;
-        const hako_llvmc_value_projection_v2* row = &invocation->static_v2.frame->values[vi];
-        if (row->action != HAKO_LLVMC_MAP_ACTION_PHI) return -1;
-        yyjson_val* ins = invocation->static_v2.values[vi].instruction;
-        yyjson_val* source_inputs = hako_static_v2_phi_inputs(ins);
-        if (yyjson_arr_size(source_inputs) != (size_t)in_n) return -1;
+      auto int static_v2_validate_i1_phi(long long block_id, long long dst,
+                                         struct Incoming* in, int in_n) {
+        if (!invocation->static_v2.frame) return 1;
         for (int i = 0; i < in_n; i++) {
-          uint32_t value, pred;
-          if (!hako_static_v2_phi_input(yyjson_arr_get(source_inputs, (size_t)i), &value, &pred) ||
-              in[i].val_reg != value || in[i].pred != pred) return -1;
-          if (row->flags) {
-            long long bits, original = static_v2_phi_original_source(value);
+          long long value = in[i].val_reg;
+          long long mapped = resolve_copy_source_reg(value);
+          long long constant_bits;
+          int direct = hako_static_v2_value_find(&invocation->static_v2, fn0, (uint32_t)value);
+          if (direct >= 0 || has_const(mapped, &constant_bits) ||
+              hako_static_v2_value_find(&invocation->static_v2, fn0, (uint32_t)mapped) >= 0) {
+            long long bits, original = static_v2_phi_original_source(direct >= 0 ? value : mapped);
             long long base = resolve_copy_source_reg(original);
             int source_site = hako_static_v2_value_find(&invocation->static_v2, fn0, (uint32_t)original);
             if (source_site >= 0 && !invocation->static_v2.values[source_site].used) {
@@ -61,6 +85,24 @@
               return -1;
             }
           }
+        }
+        return 1;
+      }
+
+      /* Called only in the existing PHI group; all side values have fixed names
+       * at their producer, including aliases on not-yet-emitted backedges. */
+      auto int emit_static_v2_phi(long long block_id, long long dst, struct Incoming* in, int in_n) {
+        int vi = hako_static_v2_value_find(&invocation->static_v2, fn0, (uint32_t)dst);
+        if (vi < 0) return 0;
+        const hako_llvmc_value_projection_v2* row = &invocation->static_v2.frame->values[vi];
+        if (row->action != HAKO_LLVMC_MAP_ACTION_PHI) return -1;
+        yyjson_val* ins = invocation->static_v2.values[vi].instruction;
+        yyjson_val* source_inputs = hako_static_v2_phi_inputs(ins);
+        if (yyjson_arr_size(source_inputs) != (size_t)in_n) return -1;
+        for (int i = 0; i < in_n; i++) {
+          uint32_t value, pred;
+          if (!hako_static_v2_phi_input(yyjson_arr_get(source_inputs, (size_t)i), &value, &pred) ||
+              in[i].val_reg != value || in[i].pred != pred) return -1;
         }
         for (int lane = 0; lane < 2; lane++) {
           EMIT("  %%map_%s_%lld = phi %s ", lane ? "payload" : "kind", dst, lane ? "i64" : "i32");

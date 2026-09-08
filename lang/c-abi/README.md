@@ -218,11 +218,14 @@ reject. CopyOwned remains explicit unsupported.
 Phi/Select emit kind and payload lanes in the existing PHI/condition owners.
 Seeded loops are supported; unresolved inputs and incompatible whole operand
 domains reject (String remains distinct from other Handle). PHI overflow rejects
-before truncation. Original-required PHIs reject incompatible widths and future
-boxed aliases/Select widths until the existing original-value owner can provide
-stable predecessor references. These remain cutover blockers, not completed
-coverage. Select resolves actual alias widths and shares one normalized condition
-with both Map lanes. Original payload side names remain stable across backedges.
+before truncation. Shared mapped/nonmapped i64 PHIs consume stable original
+references issued by successful flags1 producers, including original-only Copy
+chains. Original values/types stay unchanged; producer-side add/zext handles
+boxed aliases and future Select widths without recovering originals from Map
+payloads. Compatible i1 PHIs retain their existing path; pending aliases/widths
+reject for mapped and nonmapped destinations. An i1 PHI used as an i64 input
+still rejects until after-group normalization is implemented. Select shares one
+normalized condition with both Map lanes. No normalization enters a PHI group.
 
 String constants keep byte length in their existing record/global/owned storage;
 V2 materializes length-aware handles at the instruction and traps on zero.

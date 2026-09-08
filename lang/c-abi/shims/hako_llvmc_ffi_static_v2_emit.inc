@@ -13,6 +13,23 @@
           if (has_const(base, &bits)) EMIT("  %%map_payload_%u = add i64 %lld, 0\n", dst, bits);
           else EMIT("  %%map_payload_%u = add i64 %%r%lld, 0\n", dst, base);
         }
+        /* Original SSA stays owned by its successful producer. Map bits are
+         * never an original-value substitute, even when both are i64. */
+        if (row->flags && row->action != HAKO_LLVMC_MAP_ACTION_EXACT_BITS &&
+            row->action != HAKO_LLVMC_MAP_ACTION_PHI &&
+            row->action != HAKO_LLVMC_MAP_ACTION_FORMAL) {
+          long long bits, base = resolve_copy_source_reg(dst);
+          if (has_const(base, &bits))
+            EMIT("  %%map_original_%u = add i64 %lld, 0\n", dst, bits);
+          else if (get_type(base) == T_I1)
+            EMIT("  %%map_original_%u = zext i1 %%r%lld to i64\n", dst, base);
+          else if (get_type(base) == T_I64)
+            EMIT("  %%map_original_%u = add i64 %%r%lld, 0\n", dst, base);
+          else {
+            note_pure_unsupported_shape(0, 0, "original", "static_v2_original_width", NULL);
+            return 0;
+          }
+        }
         index->values[vi].used = 1;
         return 1;
       }
