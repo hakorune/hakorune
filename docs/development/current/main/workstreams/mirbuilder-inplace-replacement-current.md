@@ -542,8 +542,7 @@ Accepted [construction design](../design/collection-literal-construction-ssot.md
 
 #### Collection allocation checkpoints
 
-Named target separation (44c10a5cec) and intrinsic Array consumer (9b5ef392cc)
-are closed. Git and the construction owner retain contracts and acceptance.
+Closed: named target44c10a5cec/intrinsic Array9b5ef392cc; owner SSOT/Git retain evidence.
 
 #### MIR-SCRIPT-INSTANCE-RUNTIME-COMPLETION-I0
 
@@ -573,8 +572,7 @@ Nonplugins errors13->11 are not whole-build green. Git and the
 
 #### MIR-SCRIPT-ARRAY-ROOT-TERMINAL-COSEAL-I0
 
-Landed at 87a689b013: exact Return scope/Home co-seal and Local progress.
-Git owns gates and corrected source-region mismatch; typed C/Loop remain open.
+Closed at87a689b013: Return/Home co-seal and Local progress; owner SSOT/Git retain evidence.
 
 #### MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0
 
@@ -609,27 +607,29 @@ Returned-Fault cleanup remains required; [ordered tasks](../design/collection-li
 
 #### MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0
 
-Closed: one locked primitive mutation owner serves store and atomic append;
-four kernel len/store/idx+1 sequences retired. Sequential outcomes preserved;
-concurrent append loss repaired. Array52, hostStop7, kernel caller2/Array10 pass;
-quick builds peak8.82/6.76GiB, guards green, changed source max412.
-Parent7832ba386a reproduces seven kernel lib-test cfg errors (checkpoint6,
-flush_trace1) with the same locked quick command/lockfile. `7fffbd8a23`
-repairs those test-only gaps; no baseline waiver remains for this build.
-Owner README/reference updated; checked ABI and typed C remain open.
+Closed at `23757dfeb1`: four kernel sequences retired; Array52/hostStop7/kernel12
+green. Parent7832ba386a kernel test cfg errors were repaired at `7fffbd8a23`;
+no build waiver remains. Owner reference/Git retain exact evidence.
 
 #### MIR-ARRAY-CHECKED-NATIVE-ABI-I0
 
-Decision: reuse existing claim/atomic append through a narrow public Array API and versioned checked exports.
-Source authority + canonical issuer: existing source contract/Recipe; ArrayStateCell validates runtime state, FaultFrame records returned failure.
-Non-authority: enum discriminant casts, generic handle/integer decoding, env slot stores, duplicate state or guessed diagnostic fallback.
-Fail-fast boundary: malformed ABI -> InvalidContract before mutation/record; contract rejection -> unchanged Array and recorded Fault.
-Smallest next slice: fault.rs child consumer, seven explicit tags and IDs200/201/202 with finite details/subtypes from the owning SSOT.
-Non-claims: allocator recovery, Script final input/C activation, OBJ/EXE proof or retirement of live generic callers.
-Acceptance: actual exports/payloads/tags/errors, immutable rejection, out-slot,
-first/suppressed/overflow Fault, native release once, C declarations and hostStop.
-This is a runtime dependency; selected caller retirement belongs to later C
-cutover. Update kernel/Array README and runtime reference; source<760/hard800.
+Closed: existing root state + FaultFrame serve versioned new/claim/append exports.
+ABI8 (C header included), Fault9/kernelArray12, rootArray52/hostStop7 and guards
+pass; quick peaks6.75/8.86GiB, source max403. No C activation or allocator recovery.
+Claim InlineRecord remains existing mismatch Fault; append UnsupportedStorage is
+InvalidContract. Runtime reference and collection SSOT own the exact mapping.
+
+#### MIR-SCRIPT-ARRAY-FINAL-INPUT-I0
+
+Decision: extend the existing compiled-entry/physical product with retained Script projections and one host-bound runtime invocation.
+Source authority + canonical issuer: FinalizedScriptArray source/Recipe/emission; existing compiled-entry issuer consumes borrowed evidence.
+Non-authority: MIR-derived source repair, fake Birth/profile0, sibling JSON or independent input/session arguments.
+Fail-fast boundary: exact-binding drift and runtime requirement/session mismatch reject before serialization/artifacts; typed C Stop remains.
+Smallest next slice: NativeArray requirements, exact I64/Unit and primitive/cleanup projections, one bound invocation using existing serializer.
+Non-claims: C emission, selected OBJ/EXE activation, new source family or Array descriptor.
+The [owner SSOT](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) fixes finite operations, exact defined symbols, caller/delete-set and acceptance.
+Keep callable Pair checks; verify real Script inputs/mutations, missing-symbol
+binding and host Stop. Every changed source<760/hard800; docs update with code.
 
 ## Source and ownership budget
 

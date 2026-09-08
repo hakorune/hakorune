@@ -10,10 +10,24 @@ do not pre-read length or compute a second result. Shared concurrent appends
 preserve each committed element and return distinct positions.
 
 This does not change generic value decoding or boxed/string/alternate storage
-routes, and does not activate the planned checked Array ABI or typed Script C
-consumer. The [runtime contract](../../docs/reference/runtime/runtime-data-dispatch.md#primitive-array-state-write-outcomes)
+routes, and does not activate the typed Script C consumer. The [runtime contract](../../docs/reference/runtime/runtime-data-dispatch.md#primitive-array-state-write-outcomes)
 owns the outcome and failure policy.
 
+
+### Checked native Array ABI
+
+`exports/fault_checked_array.rs` exports `nyash.array.checked_new_v1`,
+`checked_claim_v1` and `checked_append_{i64,bool,f64}_v1`.
+The existing Array claim/atomic append owns validation and state; the existing
+FaultFrame owns diagnostics. Direct Array access avoids generic value decoding,
+env-selected storage and name-based allocation. New publishes a nonzero handle
+only on Normal. Native void handle release remains the residence owner.
+
+[The runtime reference](../../docs/reference/runtime/runtime-data-dispatch.md#checked-native-array-abi-v1)
+defines exact tags, payload lanes, reason/details and Normal/Fault/InvalidContract.
+[The C header](../../include/nyrt_fault_v1.h) declares the same physical contract.
+These exports are runtime dependency evidence; Script final input and selected
+C/OBJ/EXE integration remain separate tasks.
 
 **Minimal native/product runtime kernel for Nyash language - Plugin-First Architecture**
 

@@ -782,6 +782,11 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    recording, never an invented generic Fault. Conflict details use the already
    supplied requested tag; do not reread state to invent an existing-spec detail.
    InvalidIndex/UnsupportedStorage from append likewise mean InvalidContract.
+   Claim keeps its existing adoption error semantics: noninteger storage,
+   including InlineRecord, returns ExistingElementMismatch(index0,type mismatch)
+   and maps to Fault201/[0,1]. Only primitive append's UnsupportedStorage maps
+   to InvalidContract. The earlier blanket storage wording was too broad; no
+   new enum variant, VM behavior change or unlocked storage precheck is needed.
    Success with an existing primary Fault remains Normal without clearing it;
    returned failures use existing suppressed/overflow handling.
    No old checked Array C caller exists to delete in this runtime dependency:
@@ -799,8 +804,15 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    | --- | --- |
    | Successful allocation, claim/idempotent claim or append | Normal; allocation alone writes out; existing primary Fault unchanged |
    | Claim conflict, existing-element mismatch, append type/range rejection | Record allocation-free named diagnostic; Fault; first Fault retained; rejected state unchanged |
-   | Invalid/non-Array handle in this source-proven intrinsic ABI; malformed frame/out contract, unknown spec, Bool outside0/1, unsupported storage | InvalidContract before mutation, no source-Fault recovery or fallback |
+   | Invalid/non-Array handle in this source-proven intrinsic ABI; malformed frame/out contract, unknown spec, Bool outside0/1, primitive append UnsupportedStorage | InvalidContract before mutation, no source-Fault recovery or fallback |
    | Fatal allocator failure or OS kill | No returned-result/cleanup guarantee under the accepted policy |
+
+   **Verified runtime dependency:** public root claim/Result append and checked
+   exports now reuse their existing owners. Linked exported-symbol tests8
+   (including independent C-header compilation), existing Fault9/kernel Array12,
+   root Array52 and hostStop7 pass. New returns only Normal or InvalidContract;
+   no allocator-Fault simulation or C activation claim. The runtime reference
+   owns the implemented ABI; native Array final-input/session binding follows.
 
    Acceptance includes all mappings, exact seven tags, Bool/F64 distinction,
    claim adoption/idempotence/conflict, immutable rejection, nonzero-success
@@ -821,6 +833,70 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    projection restriction in the same series; no sibling Array JSON pipeline or
    MIR/source-name reconstruction. Validate all existing selected Script forms,
    foreign/missing handoff and drift; input acceptance does not activate C.
+
+   **Accepted physical-owner closure (read-only worker audit):**
+   FinalizedScriptArray already owns source, emission bindings, entry, frame and
+   exact Return Recipe. Expose borrowed projections from that owner; constructor
+   remains private and its existing root/control validators remain authoritative.
+   Branch the existing physical-program/compiled-entry issuer on retained root
+   cohort. Script has no Birth rows; callable Birth/formal/actual checks remain
+   in their callable branch. Retained snapshots establish correspondence; MIR
+   supplies finished coordinates/body only.
+
+   | Retained operation/result | Physical projection |
+   | --- | --- |
+   | RootOwned FaultFrameEnter | Exact frame and coordinate |
+   | IntrinsicArrayNew + InvokeNormalResult | Supplied Normal/Fault edges; handle only on Normal |
+   | ArrayStateContractClaim | Retained spec through explicit seven-tag mapping |
+   | Integer/Bool/Float definitions + LiteralAppend write | Exact operand/source binding; i64 / u32 0/1 / u64 Float bits |
+   | Local/borrowed alias | Existing bindings and permitted surviving Copy; no added residence |
+   | ArrayResidenceRelease / ReturnFault | Issued native cleanup order and frame |
+   | Integer Return / bare Return | Existing I64 / Unit category, normalized once |
+
+   Allocation Fault cleans prior homes; claim/write Fault first cleans incomplete
+   residence, then prior homes. Normal Return uses supplied home order. C may
+   not rediscover these relationships. Float bits, signed zero and NaN payloads
+   must survive this transport. No Bool/Float root Return or unrelated callable
+   opcode is admitted through this Script branch.
+
+   PhysicalAbiInput retains pure NativeArray versus typed-object requirements.
+   NativeArray has no object profile/layout requirement; callable Pair retains
+   its existing required profile/layout checks and unchanged wire behavior.
+   An invocation-owned completed input contains this issued physical product
+   and borrows the selected LifecycleRuntimeSession. Its private constructor
+   validates requirement/session agreement before serialization/artifact creation;
+   MIR never depends on host modules. This is one physical ownership binding,
+   not another semantic receipt or duplicate source result.
+
+   In the existing host CAPI wrapper, replace independent json-path/session Rust
+   arguments with that bound input plus output path. The wrapper owns one closed
+   serialization and temporary-input lifetime and derives both physical C
+   arguments from the bound owner. Preserve the C V4 signature; ownership repair
+   alone needs no C ABI revision. EXE links the archive from this same session.
+   Lifecycle OBJ must receive an explicit runtime session at its selected caller
+   cutover; current missing-session/typed Stop edges are not evidence of OBJ
+   execution and stay closed until task4 acceptance.
+
+   Existing target/Fault/entry descriptors remain sufficient. NativeArray adds
+   exact defined-external-symbol availability for the five versioned
+   `nyash.array.checked_{new,claim,append_i64,append_bool,append_f64}_v1`
+   exports and `nyrt_handle_release_h`. Require each exact definition, rejecting
+   absent, undefined-only or ambiguous symbols. The existing runtime archive
+   inspection owner gains one private `nm` inventory helper with stable explicit
+   output/options and checked status; no second archive reader or Array descriptor.
+   This proves availability only; ABI behavior is established by task2 tests.
+   Pair requirements do not demand Array symbols.
+
+   Exclusive restrictions replaced: callable-only retained result/Birth access,
+   unconditional I64/object profile/definitions, missing Array diagnostics/native
+   cleanup/Float encoding, and independent host invocation inputs. Shared callable
+   branches stay live. Acceptance traverses real retained Script callbacks for
+   seven specs, empty/multiple Arrays/aliases, three child kinds and both Return
+   categories; it checks exact bindings/order and rejects spec/value/frame/edge/
+   Return/cleanup drift and residual operations. Bound-input tests reject wrong
+   descriptors/requirements and every missing Array symbol before temporary JSON
+   or output creation, while preserving Pair and the actual typed host Stop.
+   Full EXE/linked OBJ and returned-Fault execution remain task4, not input proof.
 
 4. **`MIR-SCRIPT-ARRAY-C-EXECUTION-I0`: complete selected consumer and switch.**
    Extend the dedicated physical C consumer for the issued Script root cohort;
@@ -847,9 +923,9 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
 
 Task1 is verified: the four kernel sequences now call atomic primitive append;
 Array52, hostStop7 and kernel caller2/existing Array10 pass. The exact receipt
-is in the rolling workstream card. Task2 is the next implementation slice;
-its worker-audited physical mapping above is closed. Tasks3–4 retain their named
-mapping work without reopening source semantics. Runtime availability does not
+is in the rolling workstream card. Task2 is verified as a runtime dependency.
+Task3 is the next implementation slice with the physical-owner closure above;
+task4 retains its selected emission/cutover work. Runtime availability does not
 activate C; full selected entry-to-terminal acceptance remains required.
 
 ### CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0

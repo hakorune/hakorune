@@ -19,6 +19,7 @@ mod inline_record_plan_probe;
 mod inline_record_probe;
 mod ops;
 pub(crate) mod runtime_contract;
+pub use runtime_contract::{ArrayPrimitiveWriteError, TypedArrayRuntimeContractError};
 mod storage;
 mod surface_catalog;
 #[cfg(test)]

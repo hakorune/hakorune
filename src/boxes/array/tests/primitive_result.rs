@@ -118,6 +118,18 @@ fn primitive_bounds_and_storage_rejections_preserve_state() {
         _ => panic!("expected record storage"),
     };
     assert_eq!(
+        record.claim_element_contract(ArrayElementContractSpec {
+            element: ExactArrayElementType::I64,
+        }),
+        Err(
+            crate::boxes::array::TypedArrayRuntimeContractError::ExistingElementMismatch {
+                index: 0,
+                reason: "runtime-type-mismatch",
+            }
+        )
+    );
+    assert_eq!(record.active_element_contract(), None);
+    assert_eq!(
         record.slot_append_i64_result(3),
         Err(Error::UnsupportedStorage)
     );

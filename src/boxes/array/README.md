@@ -17,13 +17,20 @@ storage conversion retain their existing behavior. Dedicated append determines t
 end position, validates, writes and returns the committed length under that lock;
 concurrent shared aliases cannot overwrite another append's committed element.
 
-The public `slot_store_*_raw` boolean methods delegate to these crate-visible
+The public `slot_store_*_raw` boolean methods delegate to crate-visible indexed
 Result methods; `slot_append_*_raw` projects the committed length or zero.
+The existing claim and primitive Result append methods plus their two error
+enums are the public runtime surface used by checked kernel exports. The
+implementation module remains crate-private; no second mutation wrapper or
+compiler receipt is introduced.
 Compatibility projection alone discards the error. Boxed/text
 and read-modify-write operations retain their own existing owners; this slice
-adds neither a second mutation implementation nor checked kernel exports.
+adds no second mutation implementation.
 
 Returned validation rejection leaves storage and length unchanged. Allocation
-failure in Arc/Box/Vec or registry growth is not a returned error contract yet.
+failure in Arc/Box/Vec or registry growth follows the selected native fatal-OOM
+policy, separately from returned contract errors. Claim adoption of noninteger
+storage (including InlineRecord) retains ExistingElementMismatch; primitive
+append's UnsupportedStorage is a distinct mutation capability error.
 The checked runtime/C prerequisites remain in the
 [collection construction SSOT](../../../docs/development/current/main/design/collection-literal-construction-ssot.md#checked-array-runtime-premise-audit-and-task-order).

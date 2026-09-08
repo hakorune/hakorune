@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-ARRAY-CHECKED-NATIVE-ABI-I0"
-current_execution_cohort = "mir_array_checked_native_abi_i0"
-current_design_stop = "none; atomic append is verified and worker-audited checked Array ABI visibility, tags, diagnostic IDs/details and Fault mapping are closed"
-current_blocker_token = "Implement existing claim/atomic append public runtime access and versioned checked Array exports under fault.rs. Seven tags, diagnostics200/201/202 and exact subtypes are fixed in the collection SSOT. Reuse FaultFrame and direct Array state; verify actual ABI, immutable errors and release. Script final input and C/OBJ/EXE remain successors; no fatal allocator recovery requirement."
+current_execution_row = "MIR-SCRIPT-ARRAY-FINAL-INPUT-I0"
+current_execution_cohort = "mir_script_array_final_input_i0"
+current_design_stop = "none; checked native Array ABI is verified and worker-audited retained Script projection plus invocation-owned physical input/session binding is closed"
+current_blocker_token = "Extend existing compiled-entry/physical input using retained ScriptArray bindings and NativeArray requirements; normalize I64/Unit once, encode exact primitive operands and supplied cleanup. Bind issued input/runtime session once in host before serialization; require six exact defined Array/release symbols. Preserve callable Pair and typed C Stop; C emission/OBJ/EXE remain successor."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Atomic primitive append is verified: four kernel sequences retired, Array52,
-hostStop7 and kernel12 pass. Kernel test-only diagnostic cfg gap repaired at
-7fffbd8a23. Worker-audited checked Array ABI is the next bounded runtime slice.
+Checked native Array ABI verified: exported symbols8, Fault9/kernelArray12,
+rootArray52/hostStop7 and guards pass. Next is retained Script physical input
+and one invocation-owned runtime binding; selected C execution remains stopped.
 """
-next_design_card = "MIR-ARRAY-CHECKED-NATIVE-ABI-I0"
-next_execution_card = "MIR-ARRAY-CHECKED-NATIVE-ABI-I0"
+next_design_card = "MIR-SCRIPT-ARRAY-FINAL-INPUT-I0"
+next_execution_card = "MIR-SCRIPT-ARRAY-FINAL-INPUT-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -159,7 +159,57 @@ of generic kernel append; boxed/string and alternate storage routes are separate
 Existing `slot_store_*_raw` booleans and kernel sentinel results keep their
 compatibility meaning. This internal Result boundary introduces no C ABI or
 source acceptance. It does not promise allocation-failure recovery; typed Script
-C execution remains stopped pending the checked runtime and physical consumer.
+C execution remains stopped pending its final input and physical consumer.
+
+### Checked native Array ABI v1
+
+The `nyash.array.checked_*` exports consume the existing Array state operations,
+with caller-owned FaultFrame storage. They do not determine source annotations,
+select an alternate storage backend or decode generic integer/handle carriers.
+
+| Export (under `nyash.array.`) | Arguments after frame pointer | Result |
+| --- | --- | --- |
+| `checked_new_v1` | u64 site, i64* out | New native Array handle written only on Normal |
+| `checked_claim_v1` | u64 site, i64 handle, u32 tag | Install/adopt the supplied element contract |
+| `checked_append_i64_v1` | u64 site, i64 handle, i64 value | Integer append; even a value equal to a handle stays integer |
+| `checked_append_bool_v1` | u64 site, i64 handle, u32 value | Exactly 0/1 Bool append |
+| `checked_append_f64_v1` | u64 site, i64 handle, double value | F64 append with bit-preserving payload transport |
+
+All return u32 Normal=0/Fault=1/InvalidContract=2. Explicit element tags are
+`1=i8, 2=i16, 3=i32, 4=i64, 5=u8, 6=u16, 7=u32`; source enum discriminants
+are not wire values. Null/malformed frame, null allocation out, unknown tag,
+Bool outside0/1, invalid/non-Array handle and primitive append UnsupportedStorage
+are InvalidContract, without recording a source Fault. A live nonnull frame
+must be aligned, exclusively borrowed and initialized until disposal; output
+storage must be writable and nonoverlapping. Header checks cannot validate
+arbitrary foreign pointers.
+
+Returned claim/write rejections leave Array storage, length and installed
+contract unchanged. Success remains Normal when the frame already retains a
+Fault. Only returned Fault records diagnostics; existing first/suppressed/overflow
+behavior and final-owner reporting/disposal apply.
+
+| Diagnostic reason | details[0] | details[1] |
+| --- | --- | --- |
+| ARRAY_CLAIM_CONFLICT=200 | requested wire tag | 0 |
+| ARRAY_EXISTING_ELEMENT_MISMATCH=201 | checked i64 existing index | subtype |
+| ARRAY_APPEND_ELEMENT_MISMATCH=202 | subtype | 0 |
+
+Subtypes are `1=runtime-type-mismatch, 2=negative-to-unsigned, 3=out-of-range`.
+Unknown internal reasons or an unrepresentable index are InvalidContract before
+recording, without a generic fallback diagnostic. Claim's noninteger-storage
+adoption error, including InlineRecord, remains ExistingElementMismatch
+(index0,type mismatch) and maps to Fault201/[0,1]. This differs from primitive
+append's UnsupportedStorage capability error; no storage precheck/reclassification
+is performed by the kernel.
+
+New constructs ArrayBox/Arc and publishes through the existing host registry.
+An unrepresentable/nonpositive internal handle is withdrawn before out publication
+and yields InvalidContract. Fatal allocator termination and OS kill are outside
+returned-Fault recovery under the policy below. Native residence cleanup uses
+the existing void `nyrt_handle_release_h` exactly once; there is no new release
+status or Array-specific registry. These exports alone do not activate the
+selected Script C backend.
 
 ### Selected native Array failure policy
 

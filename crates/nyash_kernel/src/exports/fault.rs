@@ -6,6 +6,9 @@ use std::ptr;
 #[path = "fault_checked_object.rs"]
 mod checked_object;
 
+#[path = "fault_checked_array.rs"]
+mod checked_array;
+
 mod runtime_abi_target {
     include!(concat!(env!("OUT_DIR"), "/runtime_abi_target.rs"));
 }

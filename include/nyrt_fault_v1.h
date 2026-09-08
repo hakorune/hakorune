@@ -10,6 +10,23 @@
 /* Exact FieldSet type failure; details = { expected kind, actual kind }. */
 #define NYRT_FAULT_REASON_FIELD_TYPE_MISMATCH_V1 103u
 
+/* Checked Array element tags; source enum discriminants are not this ABI. */
+#define NYRT_ARRAY_ELEMENT_I8_V1 1u
+#define NYRT_ARRAY_ELEMENT_I16_V1 2u
+#define NYRT_ARRAY_ELEMENT_I32_V1 3u
+#define NYRT_ARRAY_ELEMENT_I64_V1 4u
+#define NYRT_ARRAY_ELEMENT_U8_V1 5u
+#define NYRT_ARRAY_ELEMENT_U16_V1 6u
+#define NYRT_ARRAY_ELEMENT_U32_V1 7u
+/* details: conflict={requested tag,0}; adoption={index,subtype};
+ * append={subtype,0}. */
+#define NYRT_FAULT_REASON_ARRAY_CLAIM_CONFLICT_V1 200u
+#define NYRT_FAULT_REASON_ARRAY_EXISTING_ELEMENT_MISMATCH_V1 201u
+#define NYRT_FAULT_REASON_ARRAY_APPEND_ELEMENT_MISMATCH_V1 202u
+#define NYRT_ARRAY_TYPE_MISMATCH_V1 1
+#define NYRT_ARRAY_NEGATIVE_TO_UNSIGNED_V1 2
+#define NYRT_ARRAY_OUT_OF_RANGE_V1 3
+
 /* Internal synchronous ABI. Fields are runtime-owned, never copied/mutated by
  * generated code. Storage must be fresh, aligned and uniquely owned at init;
  * after init it remains live until dispose, including through borrowed calls.
@@ -89,6 +106,23 @@ uint32_t nyrt_object_reclaim_unpublished_v1(void *, uint32_t, uint64_t, int64_t,
     int64_t) __asm__("nyash.object.reclaim_unpublished_v1");
 uint32_t nyrt_object_home_release_plain_i64_v1(void *, uint32_t, uint64_t, int64_t,
     int64_t) __asm__("nyash.object.home_release_plain_i64_v1");
+/* Native Array only: same live aligned exclusive frame/nonoverlapping pointer
+ * contract as above. New writes its out-slot only on Normal. Bool is exactly
+ * uint32 0/1; F64 is double, I64 is never a handle-or-integer carrier.
+ * Returned contract failures record Fault and preserve Array state. Malformed
+ * frame/tag/Bool/handle yields InvalidContract without mutation or recording.
+ * Success does not clear a previous Fault. Fatal allocator failure/OS kill
+ * has no returned-result or cleanup guarantee. Release uses nyrt_handle_release_h. */
+uint32_t nyrt_array_checked_new_v1(void *, uint64_t, int64_t *)
+    __asm__("nyash.array.checked_new_v1");
+uint32_t nyrt_array_checked_claim_v1(void *, uint64_t, int64_t, uint32_t)
+    __asm__("nyash.array.checked_claim_v1");
+uint32_t nyrt_array_checked_append_i64_v1(void *, uint64_t, int64_t, int64_t)
+    __asm__("nyash.array.checked_append_i64_v1");
+uint32_t nyrt_array_checked_append_bool_v1(void *, uint64_t, int64_t, uint32_t)
+    __asm__("nyash.array.checked_append_bool_v1");
+uint32_t nyrt_array_checked_append_f64_v1(void *, uint64_t, int64_t, double)
+    __asm__("nyash.array.checked_append_f64_v1");
 #ifdef __cplusplus
 }
 #endif

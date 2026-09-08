@@ -129,10 +129,7 @@ impl ArrayBox {
     }
 
     /// Append and return the committed length while holding the same state lock.
-    pub(crate) fn slot_append_i64_result(
-        &self,
-        value: i64,
-    ) -> Result<usize, ArrayPrimitiveWriteError> {
+    pub fn slot_append_i64_result(&self, value: i64) -> Result<usize, ArrayPrimitiveWriteError> {
         let mut state = self.items.state.write();
         let idx = state.storage.len();
         Self::store_i64_locked(&mut state, idx, value)?;
@@ -219,10 +216,7 @@ impl ArrayBox {
     }
 
     /// Append and return the committed length while holding the same state lock.
-    pub(crate) fn slot_append_bool_result(
-        &self,
-        value: bool,
-    ) -> Result<usize, ArrayPrimitiveWriteError> {
+    pub fn slot_append_bool_result(&self, value: bool) -> Result<usize, ArrayPrimitiveWriteError> {
         let mut state = self.items.state.write();
         let idx = state.storage.len();
         Self::store_bool_locked(&mut state, idx, value)?;
@@ -308,10 +302,7 @@ impl ArrayBox {
     }
 
     /// Append and return the committed length while holding the same state lock.
-    pub(crate) fn slot_append_f64_result(
-        &self,
-        value: f64,
-    ) -> Result<usize, ArrayPrimitiveWriteError> {
+    pub fn slot_append_f64_result(&self, value: f64) -> Result<usize, ArrayPrimitiveWriteError> {
         let mut state = self.items.state.write();
         let idx = state.storage.len();
         Self::store_f64_locked(&mut state, idx, value)?;

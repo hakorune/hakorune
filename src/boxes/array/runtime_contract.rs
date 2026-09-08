@@ -5,20 +5,21 @@ use crate::typed_array_contract_spec::ArrayElementContractSpec;
 /// Physical primitive-write rejection, retained before compatibility bool projection.
 /// Allocation failure is not represented by the current storage substrate.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum ArrayPrimitiveWriteError {
+pub enum ArrayPrimitiveWriteError {
     InvalidIndex,
     UnsupportedStorage,
     ElementContract { reason: &'static str },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum TypedArrayRuntimeContractError {
+pub enum TypedArrayRuntimeContractError {
     StateConflict,
     ExistingElementMismatch { index: usize, reason: &'static str },
 }
 
 impl ArrayBox {
-    pub(crate) fn claim_element_contract(
+    /// Runtime claim/adoption: validates the existing contents before installation.
+    pub fn claim_element_contract(
         &self,
         requested: ArrayElementContractSpec,
     ) -> Result<(), TypedArrayRuntimeContractError> {
