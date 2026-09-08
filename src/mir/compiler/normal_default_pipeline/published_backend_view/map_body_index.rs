@@ -14,7 +14,10 @@ pub(super) type Site<'m> = (&'m str, u32, u32);
 #[derive(Debug, Clone, Copy)]
 pub(super) enum Producer<'m> {
     Formal(u32),
-    Instruction(&'m MirInstruction),
+    Instruction {
+        site: Site<'m>,
+        instruction: &'m MirInstruction,
+    },
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -62,7 +65,11 @@ impl<'m> MapBodyIndex<'m> {
                     let site = (name.as_str(), block_id.as_u32(), ordinal);
                     index.instructions.insert(site, instruction);
                     if let Some(dst) = instruction.dst_value() {
-                        index.insert_value(name, dst, Producer::Instruction(instruction))?;
+                        index.insert_value(
+                            name,
+                            dst,
+                            Producer::Instruction { site, instruction },
+                        )?;
                     }
                     match instruction {
                         MirInstruction::NewBox {
@@ -155,7 +162,7 @@ impl<'m> MapBodyIndex<'m> {
                 Producer::Formal(ordinal) => {
                     pending.extend(self.incoming_actuals(key.0, ordinal)?);
                 }
-                Producer::Instruction(instruction) => match instruction {
+                Producer::Instruction { instruction, .. } => match instruction {
                     MirInstruction::Copy { src, .. } | MirInstruction::CopyOwned { src, .. } => {
                         local.push(*src);
                     }

@@ -47,7 +47,9 @@ Map literal construction adds `IntrinsicMap` allocation and result-free
 The v2 planner borrows SSA definitions and exact canonical call/ordinal relations
 through `compiler/normal_default_pipeline/published_backend_view/map_body_index.rs`.
 Its dependency closure retains all incoming actuals and does not admit leaf
-operations or infer value kinds from signature spelling.
+operations or infer value kinds from signature spelling. Original-lane demand is
+propagated separately over that same index; a used call result never forces all
+actuals onto old lanes, and each original-needed formal reaches every exact caller.
 This is the MIR/Core transport substrate; source and executable consumer cutover
 remain in progress. The [instruction reference](../../docs/reference/mir/INSTRUCTION_SET.md#map-literal-construction-substrate)
 records the boundary.

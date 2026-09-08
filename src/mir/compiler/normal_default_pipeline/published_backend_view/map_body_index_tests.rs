@@ -64,7 +64,10 @@ fn map_literal_index_borrows_the_exact_instruction_and_operation_site() {
         index.map_operations[&("main", 0, 0)],
         MapOperationKind::Allocate
     );
-    let Producer::Instruction(inst) = index.producer(("main", ValueId::new(8))).unwrap() else {
+    let Producer::Instruction {
+        instruction: inst, ..
+    } = index.producer(("main", ValueId::new(8))).unwrap()
+    else {
         panic!("constant is not a formal")
     };
     assert!(std::ptr::eq(

@@ -87,6 +87,23 @@ pub(super) struct ValueProjectionRow {
 }
 
 impl ProjectionAction {
+    pub(super) fn requires_original_producer(self) -> bool {
+        match self {
+            Self::OriginalI64
+            | Self::OriginalBoolI64
+            | Self::OriginalBoolI1
+            | Self::OriginalHandle => true,
+            Self::ExactI64(_)
+            | Self::ExactBool(_)
+            | Self::ExactF64(_)
+            | Self::ExactVoid
+            | Self::Copy
+            | Self::Phi
+            | Self::Select
+            | Self::Formal(_) => false,
+        }
+    }
+
     pub(super) fn row(
         self,
         function_name: *const c_char,
@@ -99,7 +116,11 @@ impl ProjectionAction {
             action: 0,
             value_kind: 0,
             encoding: 0,
-            flags: if original_required { ORIGINAL_REQUIRED } else { 0 },
+            flags: if original_required || self.requires_original_producer() {
+                ORIGINAL_REQUIRED
+            } else {
+                0
+            },
             source_ordinal: 0,
             payload: 0,
         };
@@ -127,8 +148,6 @@ impl ProjectionAction {
             row.action = ActionKind::OriginalValue as u32;
             row.value_kind = kind as u32;
             row.encoding = encoding as u32;
-            // OriginalValue itself is an original-consumer demand.
-            row.flags |= ORIGINAL_REQUIRED;
             return row;
         }
         row.action = match self {

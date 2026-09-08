@@ -22,6 +22,7 @@ pub(crate) use row_refs::{
 mod c_transport;
 mod c_transport_v2;
 mod map_body_index;
+mod map_original_demand;
 mod compiled_entry_contract;
 mod lifecycle;
 mod physical_abi;
