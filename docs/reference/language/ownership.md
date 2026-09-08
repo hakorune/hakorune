@@ -202,7 +202,10 @@ residence, then the caller's already-established lexical/local obligations under
 do not execute later elements or roll back completed external effects. After
 Local commit, its Home instead belongs to the normal scope-exit release set.
 Failed native wrapping/registration retains acquisition responsibility until
-cleanup; an untracked native release contract cannot be admitted.
+cleanup; an untracked native release contract cannot be admitted. The selected
+native Array distinction between returned Fault and fatal allocator termination
+is fixed by the [runtime failure policy](../runtime/runtime-data-dispatch.md#selected-native-array-failure-policy);
+the cleanup law does not imply universal host-OOM recovery.
 
 This is the source target contract. The compiler's finite source issuance and
 runtime activation are tracked in the

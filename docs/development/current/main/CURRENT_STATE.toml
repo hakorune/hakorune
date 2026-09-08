@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0"
-current_execution_cohort = "mir_array_fallible_shared_ownership_d0"
-current_design_stop = "Awaiting native failure policy A/B: stable with allocator fatal termination separate, or stronger selected Array allocation-failure-to-Fault guarantee."
-current_blocker_token = "Policy/history audit found mandatory fallible Arc taskization stronger than prior source cleanup law. User selection pending: recommend stable native fatal OOM distinct from returned checked Fault; alternative adds selected Array allocator recovery and substrate/toolchain work. No runtime/C/toolchain change until explicit Decision and runtime reference reconciliation. Do not repeat completed allocation census."
+work_mode = "fast"
+current_execution_row = "MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0"
+current_execution_cohort = "mir_array_atomic_primitive_append_i0"
+current_design_stop = "none; user accepted stable/fatal-OOM separation and worker-audited atomic primitive append mapping is closed; this turn is design/taskization only"
+current_blocker_token = "Next implementation: move existing i64/Bool/F64 mutation bodies to one state-locked operation shared by indexed store and append; append derives end index and returns committed length under that same lock. Replace four real kernel len/store/idx+1 sequences. Preserve Result errors, raw length/zero behavior and one Array state. Checked ABI, Script final input, C execution/OBJ/EXE remain ordered successors; fatal allocator OOM is separate per accepted policy."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,13 +31,13 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Primitive Result slice is verified. Shared-ownership D0 premise is corrected:
-returned Fault cleanup does not imply universal allocator-OOM recovery.
-A/B native failure policy is awaiting user selection; stable/fatal separation
-is recommended. Code, toolchain and typed C remain unchanged.
+User accepted stable Rust with fatal allocator OOM separate from returned
+Fault. Worker audit selects atomic primitive append as the next real caller
+cutover; checked runtime ABI, Script final-input and C execution follow.
+Design/taskization is recorded; no code/build/toolchain change in this turn.
 """
-next_design_card = "MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0"
-next_execution_card = "none"
+next_design_card = "MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0"
+next_execution_card = "MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

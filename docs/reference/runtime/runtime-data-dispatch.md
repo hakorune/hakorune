@@ -155,3 +155,28 @@ Existing `slot_store_*_raw` booleans and kernel sentinel results keep their
 compatibility meaning. This internal Result boundary introduces no C ABI or
 source acceptance. It does not promise allocation-failure recovery; typed Script
 C execution remains stopped pending the checked runtime and physical consumer.
+
+### Selected native Array failure policy
+
+Decision: accepted by the user on 2026-09-08. Keep stable Rust and the existing
+std Arc, Array state and host registry. Distinguish returned operation failures
+from fatal host termination; allocator-OOM-to-Fault recovery is not a requirement
+of the selected Array runtime contract.
+
+A returned checked contract/resource failure follows the source-issued Fault
+successor, preserves the first Fault and executes the prescribed cleanup.
+Acquired native resources remain owned until successful wrapping/registration
+and publication; any returned failure before that transfer must retain cleanup
+responsibility. A successful output is published only on Normal. Malformed ABI
+inputs remain explicit InvalidContract, never zero-success or compatibility retry.
+
+Rust allocator fatal failure and OS kill are separate process outcomes. They provide no guarantee of language cleanup, final report,
+disposal or exit70, and must not be counted as successful Fault propagation.
+This policy does not permit converting a returned failure into an abort to avoid
+cleanup, or turning an abort into a fabricated Fault result.
+
+Each checked entry must document which failures it returns and which underlying
+allocations retain host-fatal behavior. Test returned failures and their cleanup
+through real operation paths; do not require a destructive host-OOM test as a
+language-Fault witness. Stronger allocator recovery needs a separate Decision.
+This policy alone does not activate the selected Array C consumer.

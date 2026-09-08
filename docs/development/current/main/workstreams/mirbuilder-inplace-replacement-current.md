@@ -581,9 +581,8 @@ Git owns gates and corrected source-region mismatch; typed C/Loop remain open.
 
 #### MIR-SCRIPT-ARRAY-ROOT-VALIDATION-HANDOFF-I0
 
-Landed at c1ab5fd057: exact source/emission bindings survive both finishing
-consumers and actual optimizer on/off. Git and the construction owner retain
-mutation/source/execution evidence. Typed C remains stopped.
+Landed at c1ab5fd057: exact bindings survive both finishing consumers/optimizer.
+Git and the construction owner retain evidence; typed C remains stopped.
 Known baseline debt reproduced at parent87a689b013, identical locked quick build
 and `normal_default_root_catalog_lifecycle_tests::artifact_validation_` filter:
 parent/c991da509a2pass2fail. Exact failing tests are
@@ -605,12 +604,6 @@ both finishing consumers -> pre-artifact typed Stop. Selected standalone
 emission/binding/direct Return retired. Focused41 plus Array/Pair EXE/OBJ and
 guards pass; source max644. Runtime/C execution remains open.
 
-#### MIR-SCRIPT-ARRAY-CHECKED-RUNTIME-ABI-D0
-
-Accepted [runtime premise audit and order](../design/collection-literal-construction-ssot.md#checked-array-runtime-premise-audit-and-task-order).
-Two read-only audits distinguish returned state errors from infallible allocation.
-Existing Fault owner is reusable; checked-runtime/C promotion remains closed.
-
 #### MIR-ARRAY-PRIMITIVE-RESULT-PRESERVATION-I0
 
 Closed: i64/Bool/F64 stores retain Result in one state owner; raw wrappers
@@ -620,14 +613,23 @@ Owner README and runtime reference updated; checked ABI/C remains stopped.
 
 #### MIR-ARRAY-FALLIBLE-SHARED-OWNERSHIP-D0
 
-Decision: awaiting user selection of native allocation-failure policy; recommend stable with fatal allocator OOM separate from returned Fault.
-Source authority + canonical issuer: existing Script Recipe owns returned-Fault cleanup; it does not issue universal allocator recovery.
-Non-authority: recent mandatory-Arc queue, catch_unwind, allocator preflight, guessed Arc layout or a second state/registry.
-Fail-fast boundary: no runtime/C or toolchain change until the native failure policy is explicit.
-Smallest next slice: accept A/B in the [policy consultation](../design/collection-literal-construction-ssot.md#native-failure-policy-consultation), update runtime reference and reconcile the conditional queue.
-Non-claims: selected Array allocator-OOM recovery, process-wide recovery or C activation.
-The policy/history follow-up corrected an unsupported strengthening in taskization;
-no source guarantee is silently removed. User question pending; do not repeat audits.
+Accepted by user: stable Rust, fatal allocator OOM separate from returned Fault.
+Mandatory fallible-Arc migration withdrawn; returned-Fault cleanup is unchanged.
+The [runtime-to-C order](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order)
+owns atomic append -> checked ABI -> one final input -> C/OBJ/EXE -> retirement.
+
+#### MIR-ARRAY-ATOMIC-PRIMITIVE-APPEND-I0
+
+Decision: consolidate primitive store/append in one state transaction; repair concurrent append loss without new source acceptance.
+Source authority + canonical issuer: existing Array contract/Recipe; ArrayStateCell owns runtime validation and mutation.
+Non-authority: unlocked len observation, raw result decoding, duplicate mutation body or alternate handle-keyed state.
+Fail-fast boundary: Result rejection leaves state unchanged; typed C Stop remains until complete consumer cutover.
+Smallest next slice: shared private i64/Bool/F64 mutation bodies, atomic append and four real kernel primitive caller switches.
+Non-claims: behavior-neutrality under races, allocator recovery, checked ABI/C activation or arbitrary legacy alias parity.
+Delete-set: array_compat append_integer_raw and three array_slot_append_any primitive len/store/idx+1 sequences.
+Acceptance: Array state/contract regressions, all-three concurrent no-loss append,
+actual kernel return-length/zero callers, typed host Stop and existing guards.
+Update Array/kernel README and runtime reference; source<760, hard stop800.
 
 ## Source and ownership budget
 
