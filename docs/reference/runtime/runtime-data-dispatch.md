@@ -356,6 +356,13 @@ none is a source Home token or native host handle. The target archive issues all
 three size/alignment/contract-revision triples in the same descriptor revision.
 Keep the existing Fault ABI/status values: Normal0, Fault1, InvalidContract2.
 
+The compiler C consumer tracks exact physical storage liveness and consumption.
+Successful indexed allocation does not itself establish source Home completion
+or NoBirth. Source-required constructor calls and destruction permission remain
+the published Rust caller's responsibility; neither absent calls nor empty
+layouts establish those facts at the C boundary. This does not waive C input
+checks for roles, identities, SSA, transfer, cleanup or temporary consumption.
+
 | Entry family | State / result contract |
 | --- | --- |
 | Map storage init | fresh unique aligned bytes -> Unissued native bookkeeping |

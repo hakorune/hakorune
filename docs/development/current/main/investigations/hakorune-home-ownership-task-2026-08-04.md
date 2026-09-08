@@ -1180,6 +1180,92 @@ tests::mir::mir_corebox_router_unified::map. Actual/expected values match across
 parent and current runs. Logs `/tmp/hakorune-map-finished-parent.log` and
 `/tmp/hakorune-map-finished-focused.log`; this is no whole-library green claim.
 
+**Selected C Map consumer Decision (2026-09-09, audited at 33c0c10c60)**
+
+Decision: replace the existing indexed V4 scalar Pair protocol with exact-origin physical lifetime validation and matching emission; no new semantic receipt.
+Source authority + canonical issuer: existing Completion/local-commit finalization and CompiledEntryContract; physical program supplies exact operations, values, targets and layouts.
+Non-authority: C roles, storage liveness, absent Birth calls and zero-field layouts cannot issue NoBirth, completed Home or destruction permission.
+Fail-fast boundary: malformed physical input, role/origin/consumption/join drift and unsupported layout reject before temporary LLVM/object output; runtime InvalidContract/unknown status traps without Fault retry.
+Smallest next slice: one selected C consumer cutover, covering parser/index/admission/emission together and actual runtime-linked execution; preserve the common source install Stop until source acceptance.
+Non-claims: this is a read-only accepted design; C execution, source OBJ/EXE and R7 are not completed by this Decision or parser-only tests.
+
+Boundary: final physical JSON + existing target session -> indexed V4 C consumer
+-> atomic OBJ publication. Includes the five Map operations, ordinary indexed
+storage, Birth calls and mixed cleanup needed by the accepted source cohort.
+Excludes source classification, native Array widening, legacy/static dispatch,
+Map read/escape, fresh/nested child evaluation and runtime API redesign.
+
+Two disjoint worker audits confirmed runtime mapping and C lifetime requirements.
+The existing C parser excludes Map operation kinds and site census, constrains
+Normal projections to new_box/array_new, requires >=2 indexed functions and
+nonempty layouts. V4 then fixes two functions, one two-field layout, Birth target1
+and arity2; all Normal results become Handle/load-i64. These are the concrete
+replacement targets, not general source limitations. Empty Map requires a root
+with no Birth and no referenced object layout; zero-field Page remains valid.
+The Rust physical input must not demand object definitions when its referenced
+object set is empty; nonempty sets still require exact issued definitions.
+
+Existing hako_lv4_input owns one document-lifetime index for functions/blocks,
+SSA producers, object/layout slots and operation-derived result roles. Parser,
+admission and emitter consume it; no global cache or second operand graph.
+Map/key/outcome Normal results are opaque storage pointers, not i64 out slots.
+Ordinary Copy resolves the same indexed allocation origin; opaque Copy/Phi/Call/
+return remain forbidden. SSA/dominance and unique Normal landing/projection
+checks remain. Shared index construction also addresses queue13's repeated
+lookups; separate structure/SSA/ABI checks are not deleted.
+
+Physical state is per allocation origin: indexed storage Absent/Live/Transferred/
+Consumed, Map Absent/Live/Ended, key/outcome Absent/Ready/Consumed, plus pending
+Fault. New Normal establishes LiveStorage, never source Home. Supplied Birth
+calls validate receiver origin/layout, arguments, target and field accesses;
+source-required Birth presence stays with Rust finalization. C cannot prove a
+deleted source-required Birth from this JSON and must not claim it does.
+This follows the existing checked object ABI's published-caller permission
+contract; no absent-call heuristic or new NoBirth transport authority is added.
+
+Install Normal transfers its candidate; returned Fault preserves candidate
+liveness. Both consume key; only Normal produces Ready outcome. End operations
+consume on either returned status and preserve a previously pending Fault.
+Cleanup Invokes remain valid on pending-Fault paths; acquisition/install do not.
+Exact states agree at joins, the bounded graph is acyclic, and terminals retain
+no caller-owned live storage or Ready temporary. Transferred storage is owned
+by its Map, whose end remains required. Do not reuse native Array's blanket
+Fault-path Invoke rejection for mixed cleanup.
+
+| MIR operation | Existing runtime operation completion | Normal result |
+| --- | --- | --- |
+| Map New | storage_init -> checked_new; Fault disposes Unissued storage | Map pointer |
+| PrepareKey | key_init -> key_prepare_utf8; Fault disposes Empty key | key pointer |
+| InstallIndexed | outcome_init -> checked_install_indexed; dispose consumed key on Normal/Fault, Unissued outcome on Fault | outcome pointer |
+| EndOutcome | outcome_end -> outcome_dispose on Normal/Fault | none |
+| End | checked_end -> storage_dispose on Normal/Fault | none |
+
+Use descriptor V2/session2 size/align and per-storage contract1, not measured
+104/40-byte constants. Each acyclic operation initializes fresh nonoverlapping
+storage; stack lifetime does not substitute for dispose. All init/dispose statuses
+must be0. Checked status0/1 dispatch occurs only after required disposal;
+status2/unknown does not assume consumed key or inspect unknown region state.
+Key bytes use exact UTF-8 length including embedded NUL, never strlen/host handles.
+Indexed candidate is the sole i64 handle; type_id comes from its exact layout.
+
+Ordered implementation within the existing Map series:
+1. Replace indexed parser/admission/emission together: operation roles, index,
+   lifetime states, arbitrary supplied Birth ordinals/layout slots, zero-Birth/
+   zero-layout cases and opaque runtime calls. Remove scalar lv4_flow, fixed
+   hako_lifecycle_birth_1/2-field declarations and universal result load together.
+   Keep one V4 entry, target session and atomic publication. Split real C owner
+   responsibilities before760/800; no parallel Map compiler or pending-only API.
+2. Existing physical execution harness plus source-issued Map dependency input:
+   empty/populated/duplicate-key/unused-alias/multiple-Home/later-New cases,
+   injected Prepare/Install/End faults, disposal counts and invalid-status trap.
+   Malformed role/origin/site/layout, double/missing consumption, Fault projection
+   and join drift must preserve any preexisting output artifact. Preserve Pair
+   and native Array execution; parser green alone is dependency evidence.
+3. Connect actual source publication/host OBJ and linked EXE, observe result and
+   cleanup, then delete the common Map install Stop and selected old literal
+   Named MapBox/birth/set edges atomically. No public source acceptance from
+   test-only dependency issuance. This is the existing row's finish line.
+
 Post-cutover Map performance task — ParkedSealed (2026-09-09):
 owner is the existing MapTable/checked install and selected backend/runtime,
 under perf-owner-first-optimization-ssot.md. Current code confirms a shared
