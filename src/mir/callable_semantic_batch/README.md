@@ -18,6 +18,11 @@ The issuer traverses the complete final-anchor declaration loan, calls
 projection, and only then publishes the non-Clone batch. Callers may borrow an
 exact `ResolvedFunctionLoweringInputV1` inside a scoped callback; they cannot
 move out syntax, the parameter catalog, a forest, or a projection.
+The lowering loan also borrows the same row's resolver-issued body shape,
+including ordered Map EntryValue relations. The batch issuer has already
+checked its owner/body root; lending it does not issue Map ownership or cleanup
+semantics. Do not pair a separate shape loan by an owner number or reconstruct
+the shape downstream. Low-level input constructors may still omit a shape.
 
 Parameter syntax is an exact partial projection onto private batch slots. The
 loan preserves optional declared-type spelling as borrowed source syntax; it

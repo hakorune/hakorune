@@ -1371,6 +1371,16 @@ cannot silently become missing keys, ordinary Boxes or cloned payloads. Remove,
 clear and terminal end must detach responsibilities and end outside locks.
 Current Send+Sync NyashBox and its mandatory clone/share methods are not a
 substitute. Source/Fault/end consumer migration remains required before intake.
+Read/observer migration is an intake prerequisite, not a reason to defer source
+flow, Completion or physical lowering implementation. Keep that work in the same
+construction/end series and retain the escape Stops until the full gate closes.
+Even a source with no Map reads does not prove observer isolation: `birth.rs`
+registers MapBox in host handles; `gc_controller.rs` snapshots those handles and
+calls `gc_trace::trace_children` under `RcDiagnostic`. That mode observes
+reachability only; it does not reclaim cycles and `Off` does not trace. Any
+nonreachability alternative must account for this real native entry as well as
+public read/clone surfaces. Send+Sync does not itself require cloning entries;
+silently changing Map Clone into share would still change its existing contract.
 
 The immediate production repair is narrower: `insert_key_str` moves the old
 native Box out of the lock before Drop. It removes a real lock-held teardown

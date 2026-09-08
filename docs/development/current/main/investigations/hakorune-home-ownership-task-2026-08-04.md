@@ -282,8 +282,9 @@ tags/Arc/clone, declaration-only I64UnitTrivial ABI and matching owner numbers.
 Fail-fast boundary: reject missing/foreign source relation, unsupported candidate
 or stale obligation before effects/artifact; retain existing escape Stops until
 actual source/physical consumers close. No implicit share or carrier-to-Home cast.
-Smallest next slice: map explicit owned-residence read/clone/delete/clear/end
-consumers before source flow/intake activation; insertion lock repair is verified.
+Smallest next slice: connect same-issuance Map source flow to Completion and
+its install/Fault/end consumers. Read/clone/observer migration gates owned-slot
+intake, not this source/physical implementation work; insertion repair is verified.
 The one-entry transfer law is fixed; do not repeat that policy census.
 Non-claims: source Map execution, runtime retention, general Home Flow, full
 key/residence/cleanup matrix or public cutover.
@@ -403,7 +404,17 @@ A New after the Map likewise retains its descriptor with unavailable prefix.
 Thus there is no descriptor-issuance cycle to solve by a second registry or
 by weakening terminal checks. No execution of this example is claimed.
 
-Next implementation contract must connect the existing source-flow owner
+The existing `with_lowering_input_and_method_source` now borrows body shape
+from the same semantic row as forest/projection, inside the same parser loan.
+`with_body_shape` preserves the existing product; no second loan is paired by
+owner number. This removes information loss, not Map admission or raw lowering.
+The Option-reader audit covers current callable-loan consumers: Completion and
+ordinary-New do not yet read it; constructor issuance already attaches its own
+shape, and generic-G0's shape-dependent callers are test paths. S6C reads the
+separate typed declaration row. New consumers must not infer admission from
+shape presence alone.
+
+The next implementation contract must connect the existing source-flow owner
 (`home_prefix_local_flow` / `scan_new_home_flow`, under OWN-HOME-FLOW0-S0)
 to these retained descriptors and the same-issuance Map EntryValue relation.
 Close the whole selected root transition, not an accessor-only extraction:
@@ -425,6 +436,14 @@ state table added to the physical claim ledger. Before code, fix the actual
 Completion/Recipe consumer for the changed cleanup state, including Map end;
 a source-only Compatible receipt or green prefix test does not close that seam.
 Do not repeat the closed descriptor compatibility or root-loan census.
+
+Ordered remaining work in this same series: lend retained New construction/end
+evidence into that source walk (its current NewSite-to-Binding input is not such
+evidence); issue install Normal/Fault and displaced-end continuations through
+the existing control owner; consume them in Completion/root end and physical
+operations. Then close native residence/read/observer/end before enabling intake
+and the source/host switch. A binding list alone cannot represent precommit and
+postcommit Fault cleanup; do not remove the old local from every successor.
 
 **Completion and physical consumer Decision**
 
@@ -464,9 +483,16 @@ indexed-store identity; Map Handle5 accepts a positive host handle and clones
 its NyashBox. PlainI64NoHook proves end semantics, not interoperability. Keep
 `named-non-host-handle` and boxed-object escape Stops until the actual Map entry
 can accept and discharge that exact obligation. The root-defined non-Clone residence/kernel SafeMutex end interface is now
-accepted; TLS remains unsupported. Close actual read/clone/end consumers
-before authorizing source transfer code;
-do not merely add more accepted source rows with a pending physical consumer.
+accepted; TLS remains unsupported. Close actual read/clone/end consumers before
+production owned-slot intake. Source/Completion and physical consumer work can
+proceed toward that gate; source-only accepted rows with a pending physical
+consumer do not count as cutover. A no-read source is not an observer exclusion:
+`nyash.map.birth_h` registers MapBox in host handles, whose snapshot is traced by
+`GcController::run_trial_collection` in `RcDiagnostic` mode. This is diagnostic
+reachability, not cycle reclamation, and is inactive in `Off` mode. Public native
+access and this trace must be supported or actually proven unreachable before
+intake. Non-Clone residence can coexist with an Arc-backed Send+Sync Map wrapper;
+the real conflict is value-cloning public operations, not those marker traits.
 
 **Transaction and acceptance**
 

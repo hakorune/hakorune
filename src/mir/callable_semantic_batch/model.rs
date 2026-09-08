@@ -246,6 +246,9 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                 if input.owner() != semantic.owner {
                     return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
                 }
+                // The batch issuer sealed this shape with the same forest/projection.
+                // Preserve that source product inside the existing parser loan.
+                let input = input.with_body_shape(&semantic.body_shape);
                 Ok(callback(input, semantic.method_source_observation.clone()))
             })
             .map_err(

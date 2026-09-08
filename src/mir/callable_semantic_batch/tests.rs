@@ -104,6 +104,33 @@ fn lowering_input_borrows_the_same_forest_owner_and_parameter_binding() {
 }
 
 #[test]
+fn lowering_loan_preserves_exact_row_shape_and_map_entry_relations() {
+    let batch = batch(
+        "static box Api {\n\
+         first(value) { local m = %{\"dup\" => value, \"dup\" => 2} return 30 }\n\
+         second() { return 7 } }",
+    );
+    batch.with_declaration_semantics(|view| {
+        for (slot, row) in view.declarations().iter().enumerate() {
+            batch.with_lowering_input(slot as u32, |input| {
+                let shape = input.body_shape().expect("batch-owned shape survives loan");
+                assert!(std::ptr::eq(shape, row.body_shape()));
+                assert_eq!(shape.owner(), input.owner());
+                assert_eq!(shape.body_root(), row.body_shape().body_root());
+                assert!(!std::ptr::eq(shape, view.declarations()[1 - slot].body_shape()));
+                let entries = shape.relations().iter().filter_map(|relation| {
+                    match relation.role() {
+                        SourcePathSegmentV1::EntryValue(ordinal) => Some(*ordinal),
+                        _ => None,
+                    }
+                }).collect::<Vec<_>>();
+                assert_eq!(entries, if slot == 0 { vec![0, 1] } else { vec![] });
+            }).expect("same-row lowering loan");
+        }
+    }).expect("declaration loan");
+}
+
+#[test]
 fn typed_parameter_spelling_survives_resolved_batch_loan() {
     let batch = batch("static box Api { run(value, pos: i64, end: i64, tail) { return value } }");
     batch

@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Native JSON observation now borrows Array/Map children, removing two clone edges. JSON tests444 pass; four failures match parent a3ee23938d exactly and are baseline debt. Next close MapOwnedReadProjectionConsumerMissing: checked missing/projection-error separation through a real selected consumer, distinct from source borrow and Dynamic carrier publication. GC/raw observer and clone/delete/clear/end migration remain open; owned-slot intake and public cutover stay disabled."
+current_blocker_token = "Callable lowering loan now preserves same-row body shape; batch29/package119/Completion33 and low-level absent-shape1 pass. Next connect retained New construction/end evidence and exact Map entries to source install/Fault successors and existing Completion/physical end consumers. NewSite-to-Binding alone lacks obligation evidence; terminal binding lists alone lack pre/postcommit Fault state. Read/observer migration gates owned-slot intake, not source/physical development. Intake and public cutover remain disabled."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
