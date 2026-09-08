@@ -5,6 +5,7 @@
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 use super::c_transport_v2::MapOperationKind;
+use super::map_named_allocations::NamedAllocationConsumer;
 use super::PublishedMirBackendView;
 use crate::mir::{ConstructionTarget, MirFunction, MirInstruction, ValueId};
 
@@ -31,6 +32,7 @@ pub(super) struct MapBodyIndex<'m> {
     pub values: BTreeMap<ValueKey<'m>, Producer<'m>>,
     pub instructions: BTreeMap<Site<'m>, &'m MirInstruction>,
     pub calls: BTreeMap<Site<'m>, ExactCall<'m>>,
+    pub(super) named_allocations: BTreeMap<Site<'m>, NamedAllocationConsumer>,
     pub map_operations: BTreeMap<Site<'m>, MapOperationKind>,
 }
 
@@ -46,6 +48,7 @@ impl<'m> MapBodyIndex<'m> {
             instructions: BTreeMap::new(),
             calls: BTreeMap::new(),
             map_operations: BTreeMap::new(),
+            named_allocations: BTreeMap::new(),
         };
         for (name, function) in &view.module.functions {
             if name.contains('\0') {
@@ -162,7 +165,7 @@ impl<'m> MapBodyIndex<'m> {
                 Producer::Formal(ordinal) => {
                     pending.extend(self.incoming_actuals(key.0, ordinal)?);
                 }
-                Producer::Instruction { instruction, .. } => match instruction {
+                Producer::Instruction { site, instruction } => match instruction {
                     MirInstruction::Copy { src, .. } | MirInstruction::CopyOwned { src, .. } => {
                         local.push(*src);
                     }
@@ -179,7 +182,15 @@ impl<'m> MapBodyIndex<'m> {
                         local.extend([*lhs, *rhs]);
                     }
                     MirInstruction::UnaryOp { operand, .. } => local.push(*operand),
-                    // Constants, allocation and call results are leaves here;
+                    MirInstruction::NewBox {
+                        target: ConstructionTarget::Named(_),
+                        ..
+                    } => {
+                        if let Some(source) = self.named_alias_operand(site)? {
+                            local.push(source);
+                        }
+                    }
+                    // Constants, allocating consumers and call results are leaves here;
                     // unknown operations are also left for explicit admission.
                     _ => {}
                 },

@@ -124,7 +124,7 @@ fn map_literal_domain_provisional_bool_does_not_admit_bad_inputs() {
 }
 
 #[test]
-fn map_literal_domain_unknown_named_allocation_survives_select_union() {
+fn map_literal_domain_missing_named_observation_rejects_select_union() {
     let mut body = function("main", 0);
     constant(&mut body, 6, ConstValue::Bool(true));
     constant(&mut body, 7, ConstValue::Integer(1));
@@ -158,10 +158,10 @@ fn map_literal_domain_unknown_named_allocation_survives_select_union() {
     let module = module(body);
     let view = PublishedMirBackendView::try_new(&module).unwrap();
     let index = MapBodyIndex::from_view(&view).unwrap();
-    assert_eq!(
-        index.map_value_domains().unwrap()[&("main", ValueId::new(9))],
-        BTreeSet::from([ValueDomain::I64, ValueDomain::Unresolved])
-    );
+    assert!(index
+        .map_value_domains()
+        .unwrap_err()
+        .contains("named-not-observed"));
     assert!(index.map_physical_operations().is_err());
 }
 

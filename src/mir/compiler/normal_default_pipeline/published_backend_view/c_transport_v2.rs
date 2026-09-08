@@ -47,6 +47,7 @@ enum ActionKind {
     Select = 5,
     Formal = 6,
     Operation = 7,
+    NamedAliasOperandZero = 8,
 }
 
 /// Selected physical consumer, not a source type or another operand graph.
@@ -101,6 +102,7 @@ pub(super) enum ProjectionAction {
     Select,
     Formal(u32),
     Operation(PhysicalOperation),
+    NamedAliasOperandZero,
 }
 
 #[repr(C)]
@@ -132,7 +134,8 @@ impl ProjectionAction {
             | Self::Copy
             | Self::Phi
             | Self::Select
-            | Self::Formal(_) => false,
+            | Self::Formal(_)
+            | Self::NamedAliasOperandZero => false,
         }
     }
 
@@ -193,6 +196,7 @@ impl ProjectionAction {
         }
         row.action = match self {
             Self::Copy => ActionKind::Copy,
+            Self::NamedAliasOperandZero => ActionKind::NamedAliasOperandZero,
             Self::Phi => ActionKind::Phi,
             Self::Select => ActionKind::Select,
             Self::Formal(ordinal) => {

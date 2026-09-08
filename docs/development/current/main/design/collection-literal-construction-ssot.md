@@ -1004,7 +1004,7 @@ Ordered implementation inside the existing V2 series:
 
 1. Connect copied physical Named observations to the existing `MapBodyIndex`
    and planner, changing demand/domain/original-lane closure together. This is
-   the next bounded implementation; source issuers, host and public ABI stay put.
+   implemented planner dependency; source issuers, host and public ABI stay put.
 2. Connect the same invocation's query, unique coordinates and program cache to
    the actual host/frame consumer. Retain bytes/Library/handle across planning,
    close before Library unload on every path, and compile those same observations.
@@ -1013,7 +1013,7 @@ Ordered implementation inside the existing V2 series:
    static host/source once. Delete V1 host/stub/frame/file transport and the six
    literal edges at the series cutover; no V1 Map fallback.
 
-Next implementation contract:
+Implemented Named-binding contract:
 - Owner/issuer: existing C Named selector issues physical consumer observations;
   existing published-frame/MapBodyIndex owner binds copied outcomes to the exact
   original MIR site. No new semantic Verified/Prepared wrapper or name classifier.
@@ -1041,6 +1041,21 @@ Next implementation contract:
   are not production query, source-to-OBJ/EXE, Map cutover or R7 evidence. Next
   checkpoint must identify actual host/query wiring still open, not invent a
   standalone backend capability or mark all Named sites admitted.
+
+Verification: `MapBodyIndex::with_named_allocations` now validates exact Named
+sites and duplicate/alias operands and consumes the index on binding failure.
+Demanded missing/InvalidPlan/Unsupported fail; unrequested invalid observations
+are retained without granting coverage. Demand/domain/original propagation all
+use that bound outcome. `NamedAliasOperandZero` is V2 action8 in Rust/C vocabulary,
+separate from Copy; original MIR still owns the operand. Focused `map_literal_`
+passes28 tests, including four new binding witnesses with renamed targets,
+exact NaN bits, nested aliases, PHI/Select/formal cycles and mixed old uses.
+Initial new PHI fixture omitted mandatory `type_hint`; corrected before the
+passing run. No baseline waiver or source acceptance change.
+Next: bind the actual C query and host lifetime to this existing consumer. The
+query/readiness/wire-state design above is accepted; select one integrated
+implementation boundary with its compile consumer, avoiding an isolated public
+query. Full frame/C emission/capability and atomic production switch remain open.
 
 Bind the same borrowed core, existing program view and
 physical definition plan to the eventual opaque session. Open takes immutable

@@ -97,6 +97,13 @@ impl<'m> MapBodyIndex<'m> {
                     target: ConstructionTarget::IntrinsicMap | ConstructionTarget::IntrinsicArray,
                     ..
                 } => one(Handle),
+                MirInstruction::NewBox {
+                    target: ConstructionTarget::Named(_),
+                    ..
+                } => match self.named_alias_operand(site)? {
+                    Some(source) => local(source),
+                    None => one(Handle),
+                },
                 MirInstruction::Copy { src, .. } => local(*src),
                 MirInstruction::Phi { inputs, .. } => {
                     if inputs.is_empty() {
@@ -128,9 +135,7 @@ impl<'m> MapBodyIndex<'m> {
                         .collect()
                 }
                 MirInstruction::Call(_) if self.calls.contains_key(&site) => one(I64),
-                // Named allocation needs actual selected allocation admission,
-                // not a matching typed plan or a builtin-looking name. Boxed sums
-                // need exact site/ABI binding. CopyOwned keeps its capability Stop.
+                // Boxed sums need exact site/ABI binding. CopyOwned keeps its capability Stop.
                 _ => one(Unresolved),
             },
         })

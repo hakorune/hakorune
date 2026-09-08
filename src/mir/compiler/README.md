@@ -32,6 +32,20 @@ alternate representation. Storage profile and its finite validation live in
 `published_backend_view/lifecycle.rs`; they issue no source meaning.
 This retention does not bind Local to i64 or widen formal acceptance.
 
+### Static Map projection dependency
+
+The existing `published_backend_view/MapBodyIndex` binds copied conditional C
+Named observations to original instruction sites. Binding never classifies a
+name: allocating outcomes provide Handle, AliasOperand0 follows original args[0]
+through demand/domain/original-lane closure. Missing or invalid demanded bindings
+reject; unrequested unsupported observations grant no admission. The V2
+Named-alias action is distinct from Copy and contains no second operand graph.
+Map-only Float aliases keep their exact payload without forcing an old lane;
+original consumers still propagate their operand demand. These are private
+planner contracts; actual C query/host wiring, complete frame and Map production
+cutover remain open. Focused witnesses use `cargo test --profile quick --lib
+map_literal_`; synthetic outcomes are not source-to-artifact evidence.
+
 ### Final published artifact consumption
 
 The normal finalization invocation owns the finished module and finalized

@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 use super::c_transport_v2::ProjectionAction;
 use super::map_body_index::{MapBodyIndex, Producer, ValueKey};
-use crate::mir::MirInstruction;
+use crate::mir::{ConstructionTarget, MirInstruction};
 
 impl<'m> MapBodyIndex<'m> {
     pub(super) fn original_value_demands(
@@ -40,6 +40,15 @@ impl<'m> MapBodyIndex<'m> {
                 MirInstruction::Select { dst, cond, .. } if map.contains(&(site.0, *dst)) => {
                     pending.push_back((site.0, *cond));
                 }
+                MirInstruction::NewBox {
+                    dst,
+                    target: ConstructionTarget::Named(_),
+                    ..
+                } if map.contains(&(site.0, *dst)) => {
+                    if self.named_alias_operand(*site)?.is_none() {
+                        pending.extend(instruction.used_values().into_iter().map(|v| (site.0, v)));
+                    }
+                }
                 MirInstruction::CopyOwned { dst, src } => {
                     // Keep the ownership operation and its original result.
                     // Its physical admission remains independently required.
@@ -65,7 +74,22 @@ impl<'m> MapBodyIndex<'m> {
                 Producer::Instruction { site, instruction } => {
                     // Exact-call actuals are decided by the same formal map
                     // above. A used result does not require unused old lanes.
-                    if !self.calls.contains_key(&site) {
+                    if map.contains(&key)
+                        && matches!(
+                            instruction,
+                            MirInstruction::NewBox {
+                                target: ConstructionTarget::Named(_),
+                                ..
+                            }
+                        )
+                    {
+                        if let Some(source) = self.named_alias_operand(site)? {
+                            pending.push_back((key.0, source));
+                        } else {
+                            pending
+                                .extend(instruction.used_values().into_iter().map(|v| (key.0, v)));
+                        }
+                    } else if !self.calls.contains_key(&site) {
                         pending.extend(instruction.used_values().into_iter().map(|v| (key.0, v)));
                     }
                 }

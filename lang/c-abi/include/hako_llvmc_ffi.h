@@ -48,6 +48,8 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
 #define HAKO_LLVMC_MAP_ACTION_SELECT 5u
 #define HAKO_LLVMC_MAP_ACTION_FORMAL 6u
 #define HAKO_LLVMC_MAP_ACTION_OPERATION 7u
+/* Named NewBox alias of original operand0; not the Copy opcode. */
+#define HAKO_LLVMC_MAP_ACTION_NAMED_ALIAS_OPERAND_ZERO 8u
 /* Validated physical consumer; body still owns opcode and operands. */
 #define HAKO_LLVMC_MAP_PHYSICAL_I64_BINARY 1u
 #define HAKO_LLVMC_MAP_PHYSICAL_I64_COMPARE 2u
