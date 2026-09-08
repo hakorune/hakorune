@@ -626,10 +626,9 @@ Fail-fast boundary: exact-binding drift and runtime requirement/session mismatch
 Smallest next slice: NativeArray requirements, exact I64/Unit and primitive/cleanup projections, one bound invocation using existing serializer.
 Non-claims: C emission, selected OBJ/EXE activation, new source family or Array descriptor.
 The [owner SSOT](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) fixes finite operations, exact defined symbols, caller/delete-set and acceptance.
-Host checkpoint: one bound input now owns CAPI JSON/session and EXE archive;
-independent arguments retired. Binding6/physical8/hostStop7 and real Pair EXE/
-linked OBJ30 pass; quick8.88GiB, guards green. Script projection/encoding and its
-input acceptance remain the next work in this same task; source<760/hard800.
+Host checkpoint `c14cc1e140`: bound input/session and EXE archive; Binding6/physical8/hostStop7 and actual Pair EXE/linked OBJ30 pass. Script input acceptance remains open.
+Current-change failure (uncommitted Script projection): quick/plugins lib-test build reports E0432 for `script_physical_input_tests::published_request` and three E0061 calls in `compiled_entry_contract_tests.rs` (missing result argument).
+Next: repair test integration and rerun input/binding acceptance; no Script green claim. Owner task4 now includes audited parser/emitter, real OBJ session/capability switch and observable cleanup acceptance; C execution remains unimplemented.
 
 ## Source and ownership budget
 

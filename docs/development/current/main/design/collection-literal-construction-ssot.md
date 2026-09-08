@@ -928,6 +928,27 @@ Open mappings below are CutoverBlockerOpen, not completed or parked evidence.
    ABI evidence; do not invent an unsupported source fixture for it. Test malformed input and
    missing/wrong runtime ABI before output; preserve Pair and untyped regressions.
 
+   Physical-owner audit fixes this task's implementation order (no new source
+   issuer or separate transport):
+
+   | Order / existing owner | Bounded change and deletion / acceptance |
+   | --- | --- |
+   | 4a. physical-v2 parser and V4 admission | Add the validated NativeArray branch beside the retained Pair branch: ABI1, one I64/Unit root, no object layouts/profile/Births; exact keys, tags1..7, operand lanes, diagnostic sites, frame and Normal-result origin. Remove the selected native input's object-only admission restriction. Split coherent validation before the source size limit. |
+   | 4b. V4 emitter | Consume supplied Array new/claim/append, Normal/Fault edges and native releases. Preserve F64 bits using bitcast and Copy without arithmetic; Bool remains a distinct lane and narrows only at its checked ABI. Unit has no value operand and exits0 after dispose; I64 retains range/Fault policy. No source reclassification or invented cleanup. |
+   | 4c. runner OBJ, shared host and capability owners | Thread the explicit selected runtime archive/session from `src/runner/product/llvm/mod.rs` into the same bound invocation used by EXE. Retire only selected Script route/host Stops and exact native input's rejection in `src/mir/backend_capability.rs`; its remaining typed-Array/write guards are part of this switch. Generic module-only and unselected-family Stops remain. |
+   | 4d. existing source/host execution tests | Run the stated EXE and independently linked OBJ cohort; additionally observe emitted runtime calls in an execution harness to prove later children are skipped, prior effects retained, and releases/report/dispose occur exactly as supplied. Exit70 alone is insufficient. Preserve Pair and untyped execution. |
+
+   Native admission checks physical allocation identity through Copies and CFG
+   edges: successful new introduces a live residence, claim precedes append,
+   release consumes it, and terminals have none left. Merge states must agree;
+   reject double release, use-after-release, release on allocation-Fault,
+   wrong-handle aliases and residual operations. This validates issued control,
+   never creates a successor or chooses source Home order. InvalidContract stays
+   a distinct terminal, not a source cleanup successor. Existing V4 compile owns
+   target equality, one parse, temporary-file lifetime and atomic publication;
+   malformed input must leave an existing output untouched. These are acceptance
+   requirements, not evidence that C execution has landed.
+
 5. **Series retirement/closeout:** enumerate real selected callers, remove the
    obsolete selected projection/dispatch/Stop edges and their dedicated assets,
    and verify runtime/profile agreement for every admitted path. Shared legacy
