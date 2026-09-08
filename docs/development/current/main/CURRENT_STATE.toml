@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Opaque ABI landed at 7cc63ab9ea; flow split at 03904c8976. Bound-frame analysis now computes demand/domain/original once (27 tests pass, dedicated C query ignored). Next operation-derived MIR/key/Map/outcome projection and mixed-origin cleanup, then C emission. Preserve unused aliases and prior Maps on later New Fault. Ownership task owns SSA/effect follow-ups; source install Stop remains until source/OBJ/EXE and old-edge cutover."
+current_blocker_token = "Nonempty root cleanup graph projection verified (5 graph tests plus Pair finishing). Next finite bound ordinary/Map origin and emission progress at claim preflight, later-New failure and root cleanup; ownership task mixed-cleanup audit names full consumers. Then Map/key/outcome MIR and C projection. Preserve unused aliases, empty-Map observation and prior Maps on later New Fault. Source install Stop remains until source/OBJ/EXE and old-edge cutover."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

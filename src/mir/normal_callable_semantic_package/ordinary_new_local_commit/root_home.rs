@@ -191,7 +191,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if origins.len() != expected_homes.len() {
                     return Err(freeze("root-exit-origin-count"));
                 }
-                let mapped = if finishing && origins.len() == 1 {
+                let mapped = if finishing && !origins.is_empty() {
                     Some(
                         boundary
                             .as_ref()
@@ -287,12 +287,12 @@ impl OrdinaryNewClaimLedgerV1 {
             boundary,
         } = &mut *exit
         {
-            if origins.len() == 1 {
+            if !origins.is_empty() {
                 if boundary.is_some() {
                     return Err(freeze("duplicate-root-cleanup-capture"));
                 }
                 *boundary = Some(super::root_cleanup_graph::RootCleanupBoundary::capture(
-                    function, bindings,
+                    function, bindings, origins.len(),
                 )?);
             }
         }

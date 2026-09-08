@@ -1,4 +1,4 @@
-//! Bounded physical comparison of the existing single-Home cleanup bindings.
+//! Bounded physical comparison of the existing recorded Home cleanup bindings.
 //! This owns no source obligations and never searches MIR for a replacement
 //! release. Only a recorded Jump to a deleted, sole-predecessor node may fold.
 
@@ -15,14 +15,22 @@ type Incoming = BTreeMap<(BasicBlockId, usize), (Discriminant<MirInstruction>, O
 /// Non-entry cleanup prefixes are checked empty, rather than copied.
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct RootCleanupBoundary {
+    release_count: usize,
     entry: BasicBlockId,
     prefix: Vec<MirInstruction>,
     incoming: Incoming,
 }
 
 impl RootCleanupBoundary {
-    pub(super) fn capture(function: &MirFunction, bindings: &Bindings) -> Result<Self, String> {
-        let nodes = recorded_nodes(bindings)?;
+    pub(super) fn capture(
+        function: &MirFunction,
+        bindings: &Bindings,
+        home_count: usize,
+    ) -> Result<Self, String> {
+        // The emitter has N clean releases and N-1 pending-Fault releases.
+        let release_count = home_count.checked_mul(2).and_then(|n| n.checked_sub(1))
+            .ok_or_else(|| fault("home-count"))?;
+        let nodes = recorded_nodes(bindings, release_count)?;
         // The emitter records its final entry Jump after the cleanup nodes.
         let (entry, terminal) = bindings.last().ok_or_else(|| fault("empty"))?;
         if !matches!(
@@ -68,6 +76,7 @@ impl RootCleanupBoundary {
             return Err(fault("missing-entry-incoming"));
         }
         Ok(Self {
+            release_count,
             entry: *entry,
             prefix: function.blocks[entry].instructions.clone(),
             incoming,
@@ -79,7 +88,7 @@ impl RootCleanupBoundary {
         function: &MirFunction,
         bindings: &Bindings,
     ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
-        let nodes = recorded_nodes(bindings)?;
+        let nodes = recorded_nodes(bindings, self.release_count)?;
         if !function.blocks.contains_key(&self.entry) {
             return Err(fault("entry-removed"));
         }
@@ -178,7 +187,7 @@ fn require_acyclic(nodes: &BTreeMap<BasicBlockId, &MirInstruction>) -> Result<()
     Ok(())
 }
 
-fn recorded_nodes(bindings: &Bindings) -> Result<BTreeMap<BasicBlockId, &MirInstruction>, String> {
+fn recorded_nodes(bindings: &Bindings, release_count: usize) -> Result<BTreeMap<BasicBlockId, &MirInstruction>, String> {
     let mut nodes = BTreeMap::new();
     let mut releases = 0;
     for (id, terminal) in bindings {
@@ -188,7 +197,7 @@ fn recorded_nodes(bindings: &Bindings) -> Result<BTreeMap<BasicBlockId, &MirInst
         edges(terminal)?;
         releases += usize::from(matches!(terminal, MirInstruction::Invoke { .. }));
     }
-    if releases != 1 {
+    if releases != release_count {
         return Err(fault("release-count"));
     }
     Ok(nodes)

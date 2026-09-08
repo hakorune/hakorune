@@ -358,13 +358,14 @@ rejected, terminal Homes, New emission or root exit), or source-complete. Residu
 foreign and drifted bindings are errors. A mutable MirFunction observation is not
 backend admission, and Birth has its own validator. The invocation retains the
 same root ledger/key through finishing and rechecks New/frame/local/exit before
-external commit. For single Home, [root-home state](ordinary_new_local_commit/root_home.rs)
+external commit. For nonempty terminal Homes, [root-home state](ordinary_new_local_commit/root_home.rs)
 retains prefinish cleanup entry prefix/incoming boundary: only Jump contraction
 into a deleted empty sole-predecessor internal node is allowed. Release operands,
 frame, Normal/Fault successors, Return/ReturnFault, prefix and ingress stay exact.
 Diagnostic/artifact finishing share the check and temporary mapped bindings before
-FinishingChecked. No source obligation or optimizer skip is added; multiple-Home
-roots keep exact-placement checks without an optimized-coverage claim.
+FinishingChecked. N source-bound origins require the existing emitter's N clean
+releases plus N-1 pending-Fault releases. No source obligation or optimizer skip
+is added. This does not yet admit Map end operations or Map failure suffixes.
 
 Birth capture moves construction state/Fault frame through payload session and
 exact collector draft. Source scope becomes Transferred, not absent; second take

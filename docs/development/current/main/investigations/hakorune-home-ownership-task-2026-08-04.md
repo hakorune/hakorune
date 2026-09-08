@@ -576,9 +576,9 @@ first-Fault/best-effort suffixes. Its current origins and validators force every
 binding through ordinary-New `local_commits` and `InvokeOperation::HomeRelease`.
 The existing root progress owner must instead consume a finite ordinary-object
 end / intrinsic-Map end operation, with the same operation retained for graph
-validation. No parallel Map root cleanup ledger. `root_cleanup_graph` currently
-projects optimized graphs only for one origin; multi-origin coverage must be
-explicitly verified or remain unavailable, never inferred from reachability.
+validation. No parallel Map root cleanup ledger. The physical cleanup checkpoint
+below removes the single-origin projection restriction for recorded HomeRelease
+graphs; Map origins and their failure suffixes still need explicit coverage.
 
 Install and old cleanup are separate fallible operations: install Fault means
 uncommitted; install Normal supplies committed state and detached-old/no-old
@@ -870,6 +870,55 @@ physical projection and every mixed-origin cleanup suffix, then selected C Map
 emission using the existing session layouts. Preserve unused aliases without a
 new Home; later New Fault must release earlier Maps. Validate both retained and
 optimized graphs before source switch and selected old-edge/install-Stop deletion.
+
+**Mixed cleanup connection audit (2026-09-09)**
+
+Decision: existing source flow is sufficient for the direct-local cohort; bind
+ordinary/Map Home origins once in the current Completion ledger. No new source
+issuer, semantic receipt, object-ID stand-in or parallel Map cleanup ledger.
+Boundary: Completion -> claim preflight -> emission progress -> original/finished
+validation -> compiled-entry cleanup coordinates; includes root and later-New/
+Map-failure suffixes, excludes Script/general Map escape and native compatibility.
+
+Read-only worker identified required consumers previously implicit in the queue:
+ordinary_new_coseal::try_take rejects prior Maps before selected.rs; prepare/begin
+New emission flattens prior origins to object/value pairs; root_home is ordinary
+only; emission_validation pins later-New failure bindings to original blocks;
+root_validation coverage omits Map operations; finalized_root_observation treats
+an empty ordinary local_commits table as NoSelectedLocalNew (empty Map root must
+participate); compiled_entry_contract::issue_cleanup_coordinates omits Map cleanup.
+Use the same finite bound-origin lookup at claim, preparation and root exit.
+Finishing must account for every recorded suffix, not just terminal cleanup.
+
+Physical consumer audit: Invoke currently has no Map/key/outcome operation;
+normal projection is a boolean value/no-value distinction in Rust. C parser
+restricts projections to new_box/array_new; admission calls all such values HANDLE
+and emission loads i64. Add operation-derived Map/key/outcome roles with exact
+Invoke correspondence at these existing owners. Do not transport opaque pointers
+through generic handles or ptrtoint. Key prepare precedes child; cancellation and
+disposal are physical temporaries, with no synthetic source Home. Map install
+Normal must project the detached result directly into its matching end; reject
+escape/missing/double end in both original and retained graph.
+
+Ordered connection: remove the existing single-Home root projection restriction;
+then finite bound-origin/progress with Map operations and all failure suffixes;
+then physical transport/C emission and source switch with exclusive old edges
+removed. Preserve prior Map on later-New Fault, unused alias Home count, empty
+Map root observation, precommit versus committed cleanup and first-Fault order.
+Schema/parser tests alone cannot close this cutover series.
+
+Physical cleanup checkpoint: root capture/finishing now consumes every nonempty
+recorded Home origin list. It requires 2N-1 release Invokes from the existing
+emitter, instead of a universal one-release limit; DAG, external ingress, prefix,
+full Invoke tuple and sole-predecessor contraction checks remain. Source origin
+correspondence still belongs to root_home, not graph reachability. Five focused
+root_cleanup_graph tests pass, including two-Home clean/pending-Fault contraction
+and Fault-to-clean drift rejection; existing source-backed Pair diagnostic
+finishing test also passes. Commands use jobs4/locked/quick/--lib and serial tests;
+logs /tmp/hakorune-multi-home-{graph,finishing}.log. Initial two test callsites
+missed the new count argument; corrected before successful rerun. Corridor/diff
+guards pass; touched source max326. No Map-specific end vocabulary, later-New
+suffix finishing or multi-Home source-to-EXE completion is claimed.
 
 **Map quality queue (2026-09-09, measured at 7cc63ab9ea)**
 
