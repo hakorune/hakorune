@@ -511,13 +511,14 @@ investigation when definitions/references/types/test candidates would otherwise
 require repeated searches. Continue the selected implementation independently;
 an unavailable tool must not become a compiler design blocker.
 
-The initial trial follows the [pinned handoff](https://github.com/moe-charm/nekocode-rust/blob/eff8d17da9ae88f6702b44a773ee7d724ce90342/docs/hakorune-nekocode-handoff.md).
-Use a verified CLI from that revision for the trial, retain its provenance and
-use the same binary/feature/backend settings throughout a comparison. Check CLI
-and rust-analyzer availability first; an installed wrapper or rustup proxy alone
-is not proof that either executable works. An existing backend can be selected
-with `NEKOCODE_RUST_ANALYZER_PATH`. Do not update the toolchain or spend a long
-session repairing the environment solely for this trial.
+Use a verified distribution and record its manifest source commit/checksum;
+the displayed CLI version alone does not distinguish revisions. The tested
+symlink-aware distribution and workspace evidence are recorded in the
+[NekoCode feedback](../investigations/nekocode-large-workspace-feedback-2026-09-08.md).
+Keep binary/feature/backend settings fixed throughout a comparison. Verify CLI
+and the actual rust-analyzer executable first; a rustup proxy alone is insufficient.
+Set `NEKOCODE_BINARY_PATH` and `NEKOCODE_RUST_ANALYZER_PATH` to the distribution's
+executables. Do not update the toolchain solely for this investigation.
 
 Keep the checkout/binary outside the Hakorune workspace; if a local copy is
 needed, use the ignored `/.nekocode/` directory. Save packets, responses and notes
@@ -529,17 +530,28 @@ may start Cargo metadata and rust-analyzer and generate caches/lockfiles; observ
 the Cargo resource contract above, leave build scripts/proc macros disabled,
 and check `git status -sb` before and after.
 
-From the Cargo workspace root, replace the binary path and source position:
+For this large workspace, run useful symbol investigations in one CLI session:
 
 ```bash
-nekocode_eval_bin=/absolute/path/to/verified/nekocode
+nekocode_eval_bin="$NEKOCODE_BINARY_PATH"
 nekocode_eval_dir=$(mktemp -d /tmp/hakorune-nekocode.XXXXXX)
-"$nekocode_eval_bin" context "$PWD" \
-  --at relative/path.rs:LINE:COLUMN \
-  --save-packet "$nekocode_eval_dir/before.packet.json" \
-  --output "$nekocode_eval_dir/before.response.json" \
-  --max-items 4 --budget 4000 --timeout-seconds 60
+"$nekocode_eval_bin" context "$PWD" --session
 ```
+
+Send one JSON line, read its response, then send the next useful symbol request.
+Replace the position and packet path with actual values (JSON does not expand
+shell variables):
+
+```json
+{"at":"relative/path.rs:LINE:COLUMN","scan_profile":"large","timeout_seconds":300,"text_candidates":true,"budget":16000,"save_packet":"/tmp/ACTUAL_EVAL_DIR/before.packet.json"}
+```
+
+Close stdin after use and confirm the session/backend exits. MCP is one-shot;
+do not assume it shares the CLI backend. Record elapsed time, `backend_reused`,
+reuse/retention reasons, scan completeness, verification, and each baseline/current
+`freshness.scans.*.link_scope`. Preserve workspace links; never remove them or
+force reuse to make an unverified scan pass. Source freshness and backend reuse
+do not prove backend synchronization or complete semantic references.
 
 Positions are workspace-relative and 1-based. `--symbol NAME` may return several
 candidates; choose the actual declaration position. Read `status`, `queries`,

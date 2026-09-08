@@ -109,7 +109,8 @@ Changes to the ignored root `AGENTS.md` router are policy-level changes, not
 per-card mirror work. When the router is reorganized, update
 `agent-current-entry-contract-ssot.md` in the same slice and keep the local
 file limited to short routing rules; durable procedure and design prose stays
-in its owning tracked document.
+in its owning tracked document. Optional tool command changes update that owner;
+measured versions/timings stay in the existing investigation record.
 
 ### Practical mode check
 

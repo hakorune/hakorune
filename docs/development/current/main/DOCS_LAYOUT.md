@@ -33,6 +33,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - do not embed historical command tables or fixed phase roadmaps; keep only compact pointers to tracked archive/reference docs
   - tracked contract:
     `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
+  - optional tool procedures belong in that tracked contract; measured tool feedback
+    belongs in `investigations/`, not the local router
 - `CURRENT_TASK.md`
   - root restart anchor
   - thin entry that points to `CURRENT_STATE.toml`
