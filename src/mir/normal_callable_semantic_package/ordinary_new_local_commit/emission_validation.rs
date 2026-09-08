@@ -8,6 +8,15 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
+        self.validate_new_emissions_projected(owner, function, None)
+    }
+
+    pub(super) fn validate_new_emissions_projected(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
         for (site, row) in self
             .local_commits
             .borrow()
@@ -15,7 +24,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter(|(_, row)| row.binding().owner() == owner)
         {
             let Some(row) = row.ordinary() else {
-                self.validate_map_emission(site, function)?;
+                self.validate_map_emission(site, function, projection)?;
                 continue;
             };
             match &row.emission {
@@ -124,11 +133,12 @@ impl OrdinaryNewClaimLedgerV1 {
                                     "reclaim-origin-duplicate"
                                 }));
                             }
-                            if !function.blocks.get(&emitted.block).is_some_and(|block| {
-                                block
-                                    .all_instructions()
-                                    .any(|actual| actual == &emitted.instruction)
-                            }) {
+                            if !super::physical_boundary::check_binding(
+                                function,
+                                projection,
+                                emitted.block,
+                                &emitted.instruction,
+                            )? {
                                 return Err(freeze("reclaim-origin-binding-drift"));
                             }
                         }
@@ -157,9 +167,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("argument-call-drift"));
                     }
                     for (block, expected) in bindings {
-                        if !function.blocks.get(block).is_some_and(|block| {
-                            block.all_instructions().any(|actual| actual == expected)
-                        }) {
+                        if !super::physical_boundary::check_binding(
+                            function, projection, *block, expected,
+                        )? {
                             return Err(freeze("emission-binding-drift"));
                         }
                     }

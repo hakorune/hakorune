@@ -1134,6 +1134,139 @@ changed frame/operands/order, omitted/duplicate cleanup, external reentry and
 arbitrary instruction relocation. Share terminal dispatch without changing the
 draft/finishing stages or their failure precedence. Source install Stop remains.
 
+Finishing premise correction (2026-09-09, worker reviewed): the binding-only
+new_completion fixture omitted two prefix terminators. Completing those Jump
+connections preserves its original diagnostic assertions; the test now passes.
+Production finalization already terminates its root before this validation.
+Actual optimized Pair additionally removes three unreferenced Const instructions
+from the New prefix. The physical comparison permits only omission of original
+unrecorded Const with a unique dst definition and zero original uses; finished
+uses of that dst reject. Retained instructions remain exact and ordered. No
+name-based metadata exception, general pure-instruction filter, liveness fixpoint,
+source reissuance or arbitrary rewrite is authorized. This replaces the overly
+strict complete-prefix assumption without weakening recorded lifecycle bindings.
+The dedicated negative set includes recorded/used/duplicate-dst Const omission,
+new use, rewrite, reorder and insertion. Full compiler verification is required;
+direct simplify_cfg-only Map evidence cannot close this checkpoint alone.
+
+Mixed finishing checkpoint (2026-09-09): original New/Map/root bindings now share
+one local-commit physical boundary and temporary finished mapping. Removed the
+separate root projection state/algorithm, original-block artifact rereads and
+duplicated draft/finishing dispatch list (quality row9). Source checks and their
+diagnostic order remain intact. Map End/EndOutcome are included in the existing
+compiled-entry cleanup coordinate issuer; the coordinate-only test does not
+claim full Map compiled-entry admission.
+Focused tests pass33: physical boundary1, root graph5, Map dependency2 (six source
+bodies x Birth/no-Birth x optimize/no-opt =24 cases), cleanup coordinates1,
+coseal11, emission2, unavailable field1, completion/order1, per-New actuals1,
+physical JSON/full compiler7 and direct field return1. The full compiler group
+includes optimized Pair, tagged Bool actuals, Unit rejection and exact annotation
+rejection. Commands use jobs4 locked quick library filters, one Cargo at a time;
+logs `/tmp/hakorune-map-final-*.log`. The earlier 0-test compiled-entry filter was
+discarded and both real test names were run successfully. No selected C changes
+or EXE result claim; next is selected C input/emission then source OBJ/EXE and
+old-edge cutover. The common Map install Stop remains.
+
+Known baseline debt from the broad `map_` filter: with
+`CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib map_ -- --test-threads=1`,
+parent 61076eb17b reports 217 passed / 4 failed / 1 ignored and the finishing
+worktree reports 218 / 4 / 1. Both runs have the same four assertion failures:
+`refresh_module_global_call_routes_accepts_map_handle_child_field_get_string_body`,
+`refresh_module_global_call_routes_rejects_arbitrary_unknown_map_return_as_box_type_inspector`,
+`map_value_get_missing_key_stays_unknown_after_typed_write`, and
+`map_value_get_mixed_value_results_stay_unknown`.
+The first two belong to mir::global_call_route_plan::tests; the last two to
+tests::mir::mir_corebox_router_unified::map. Actual/expected values match across
+parent and current runs. Logs `/tmp/hakorune-map-finished-parent.log` and
+`/tmp/hakorune-map-finished-focused.log`; this is no whole-library green claim.
+
+Post-cutover Map performance task — ParkedSealed (2026-09-09):
+owner is the existing MapTable/checked install and selected backend/runtime,
+under perf-owner-first-optimization-ssot.md. Current code confirms a shared
+MapTable<V>, distinct native-copy/checked-transfer contracts, and checked install
+contains_key followed by reservation and insert. This is a candidate duplicate
+lookup, not measured cost or permission to alter failure order.
+Reopen only after selected source Map OBJ/EXE cutover and a bounded profile plus
+generated-code inspection identifies this path as hot. Compare operations with
+the same resolved target, ownership, alias/escape and known key/count information;
+literal syntax alone is neither a speed guarantee nor equivalence to named
+new MapBox(), whose provider contract remains distinct.
+Ordered tasks: measure lookup/key conversion/handle/lock/call costs; choose one
+demonstrated duplicate operation for removal; then evaluate inlining/link-time
+visibility or capacity/batch specialization only if measured costs justify it.
+Preserve allocation/key/child/install/displaced-end/Fault order and precommit
+candidate retention; reserve failure cannot be moved across effects by assumption.
+Counterexamples include duplicate keys with faulting old-end and effectful child
+evaluation. No new syntax/MapManager/semantic receipt, no unmeasured speed claim,
+and no implication that static target resolution removes a machine-code call.
+Non-authority: syntax spelling, fixed-HEAD review and table sharing do not prove
+equivalent semantics, inlining or runtime speed.
+
+Additional thinning queue (verified against 61076eb17b and current code, 2026-09-09):
+keep finishing -> selected C -> source OBJ/EXE -> old-edge retirement as the
+completion order. These rows do not authorize source-family widening or replace
+cutover with optimization work.
+Status: all five rows below are queued, not implemented or speed-measured.
+At a natural Local edit, prefer row11 then row14; row10 follows finishing,
+row13 belongs to the C consumer, and row12 to runtime-session integration.
+Deletion targets are the repeated work named in each row, not the independent
+source/ownership/trust-boundary checks. No new guard family is required.
+
+10. Map emitter cleanup sharing: selected/map.rs separately emits each pre/post
+    failure chain; post(i) equals pre(i+1) for the same issued ownership state,
+    frame and outward target. For n distinct prior Homes transferred once,
+    allocation plus these chains emit n*n+n HomeRelease operations, excluding
+    preceding New emission and Map End; each cleanup operation adds three blocks.
+    Owner: existing selected emitter and local-commit physical correspondence.
+    First share adjacent identical entries, then evaluate shared tails using
+    source-issued operations. Preserve disposal, first Fault and all ingress
+    states; do not infer ownership from CFG or claim arbitrary-order linearity.
+    Acceptance: exact operation/block counts, duplicate-key/failure order,
+    multi-predecessor joins and actual simplify_cfg + artifact validation.
+    Handle at the same owner's next boundary after current finishing closes.
+
+11. Exact Local initializer lookup: map_local.rs retains declaration-keyed
+    BTreeMap rows but local_placement scans values by binding per local.
+    Use get with the current exact statement/ordinal declaration locator, then
+    verify its BindingRef. SourceStmtSiteV1::from_node is only a lookup-key
+    projection of the existing statement, never source membership issuance or
+    AST-path reconstruction. Keep insertion uniqueness and foreign/ordinal
+    refusal; no second index or ledger. Alias-chain lookup is separately
+    measured, not implicitly claimed fixed by this one change.
+    Acceptance: existing placement/source tests and wrong locator/binding tests.
+    This is a bounded Local BoxShape at the next natural Local edit.
+
+12. Runtime archive I/O sharing: LifecycleRuntimeSessionV1::select calls Fault
+    descriptor and entry ABI readers, both traversing/extracting every archive
+    member. Checked Map symbol validation invokes nm; NativeArray requirements
+    invoke it again. Share one session-local member read and symbol inventory,
+    while retaining distinct descriptor/entry/symbol validators and malformed/
+    missing/duplicate rejection. No process-global cache or RuntimeManager.
+    Acceptance: actual archive plus malformed/duplicate/missing inputs, observed
+    ar/nm invocation counts and unchanged required-symbol checks. Queue with
+    selected runtime/session integration, before treating inspection as cheap.
+
+13. Selected C physical lookup sharing: physical_v2 value_def_block scans rows;
+    dominance revisits blocks; lv4 Copy calls lv4_type twice. Build/retain only
+    invocation/function-owned definition/block lookups and verified physical
+    representations. Preserve separate structure, SSA/dominance and ABI checks,
+    duplicate/cycle/range rejection, and disposal on error. No semantic reissuer.
+    The dominance seen allocation is confirmed unused except allocation checks
+    and frees; remove that independently when this function is touched.
+    Acceptance: existing negative physical-input and emitter tests, allocation
+    failure cleanup, and measured lookup/scan counts. Align with C consumer
+    edits; no new global state or general optimizer project.
+
+14. Local metadata/forwarder thinning: variable_stmt calls propagate_record_local_value
+    after propagate already performs it. Remove the duplicate clone/registration.
+    build_local_statement_from_values is a real raw-root entry; its with_types
+    intermediary has no independent Builder caller in the inspected owner.
+    Recheck the full private caller chain before deleting forwarding-only nodes;
+    retain completed-local correspondence and contract preflight.
+    Acceptance: record metadata survives once, ordinary/typed Array/local tests,
+    reuse and failed-batch registration unchanged. Pair with row11 only as one
+    Local responsibility refactor; otherwise keep separate from semantic changes.
+
 **Map quality queue (2026-09-09, measured at 7cc63ab9ea)**
 
 Boundary: current Map physical-frame construction and the shared owners touched
@@ -1251,24 +1384,17 @@ Runtime opaque ABI validation does not close this compiler queue.
    that owner and reran successfully without widening production visibility.
    Pointer/corridor/diff guards pass, source max566. Module README updated;
    ownership reference meaning is unchanged. No new accepted shape/C execution.
-9. Terminal validation dispatch BoxShape in ordinary_new_local_commit/
-   root_validation.rs: draft and finishing duplicate Unit/Add/literal/field
-   calls. Use the existing TerminalRelationV1 in private shared dispatch while
-   retaining BOTH validation stages. Unit currently precedes root cleanup and
-   field checks; scalar checks follow them. Preserve that failure precedence
-   (or explicitly design a changed diagnostic contract), root-state transitions,
-   cleanup capture/projection and artifact-only coverage. Do not skip unrelated
-   field validation or treat enum selection as final-MIR evidence. Acceptance:
-   all four result kinds at draft and finishing, mutated retained MIR rejection,
-   duplicate/order/artifact rejection; delete the duplicated dispatch list.
-   Schedule at the next root-validation edit after ledger consolidation; this
-   maintenance task alone does not block the Map source emitter.
+9. Terminal validation dispatch BoxShape is closed by the mixed finishing
+   checkpoint above: one private validation order serves draft and finishing.
+   Unit still precedes cleanup/field checks and scalar checks follow them;
+   both stages, source checks and artifact-only coverage remain. The duplicated
+   dispatch list is deleted without adding a semantic receipt.
 
-Next: actual Map source emission/progress and local completion through the
-existing callable child port and ledger, then mixed-origin cleanup/finishing and
-C consumption. Source snapshot storage and New ledger progress are closed.
-Share terminal dispatch when root validation is touched, preserving both stages. The LocalSSA split
-is queued before that owner grows; static Call state follows its existing lane
+Next: selected C physical input/emission, then source OBJ/EXE and old-edge
+cutover. Callable dependency emission, Local placement, mixed finishing and
+shared terminal dispatch have their bounded evidence above; source install is
+still stopped. Source snapshot storage and New ledger progress are closed.
+The LocalSSA split is queued before that owner grows; static Call state follows its existing lane
 selection and does not block unrelated Map work. Corrected counts and these
 registrations are not evidence that outstanding source changes have landed.
 

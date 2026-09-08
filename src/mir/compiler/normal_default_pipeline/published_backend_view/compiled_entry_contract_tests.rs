@@ -51,3 +51,98 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
         }).unwrap();
     });
 }
+
+#[test]
+fn map_cleanup_coordinates_follow_physical_block_contraction() {
+    // Coordinate projection only; this graph does not claim lifecycle admission.
+    use crate::mir::instruction::MapInvokeOperation as Map;
+    use crate::mir::{
+        BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction,
+        MirModule, MirType,
+    };
+    for optimize in [false, true] {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "coordinates".into(),
+                params: vec![],
+                return_type: MirType::Integer,
+                effects: EffectMask::CONTROL,
+            },
+            BasicBlockId(0),
+        );
+        let mut entry = BasicBlock::new(BasicBlockId(0));
+        entry.instructions.push(MirInstruction::Const {
+            dst: ValueId(1),
+            value: ConstValue::Integer(30),
+        });
+        entry.set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(1),
+            edge_args: None,
+        });
+        function.blocks.insert(entry.id, entry);
+        for (id, operation, next) in [
+            (1, Map::End { map: ValueId(2) }, 2),
+            (
+                2,
+                Map::EndOutcome {
+                    outcome: ValueId(3),
+                },
+                3,
+            ),
+        ] {
+            let mut block = BasicBlock::new(BasicBlockId(id));
+            block.set_terminator(MirInstruction::Invoke {
+                operation: InvokeOperation::Map(operation),
+                fault_frame: ValueId(0),
+                normal_landing: BasicBlockId(next),
+                fault_landing: BasicBlockId(next),
+            });
+            function.blocks.insert(block.id, block);
+        }
+        let mut tail = BasicBlock::new(BasicBlockId(3));
+        tail.set_terminator(MirInstruction::Return {
+            value: Some(ValueId(1)),
+        });
+        function.blocks.insert(tail.id, tail);
+        let mut module = MirModule::new("coordinates".into());
+        module.functions.insert("coordinates".into(), function);
+        if optimize {
+            assert!(crate::mir::passes::simplify_cfg::simplify(&mut module) > 0);
+        }
+        let function = &module.functions["coordinates"];
+        let physical = super::super::physical_program::issue_function(
+            function,
+            PublishedLifecyclePhysicalFunctionRoleV1::Root {
+                result: CompiledEntryRootResultV1::I64,
+            },
+            false,
+        )
+        .unwrap();
+        let rows = issue_cleanup_coordinates(&[physical]).unwrap();
+        assert_eq!(rows.len(), 2);
+        for row in rows {
+            let block = &function.blocks[&BasicBlockId(row.block_id)];
+            let instruction = block
+                .all_instructions()
+                .nth(row.instruction_index as usize)
+                .unwrap();
+            assert!(matches!(
+                (row.kind, instruction),
+                (
+                    CompiledEntryCleanupKindV1::MapEnd,
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::Map(Map::End { .. }),
+                        ..
+                    }
+                ) | (
+                    CompiledEntryCleanupKindV1::MapEndOutcome,
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::Map(Map::EndOutcome { .. }),
+                        ..
+                    }
+                )
+            ));
+        }
+        assert_eq!(function.blocks.contains_key(&BasicBlockId(1)), !optimize);
+    }
+}

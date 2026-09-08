@@ -14,21 +14,33 @@ impl OrdinaryNewClaimLedgerV1 {
         let owner = match *state {
             RootNewValidation::Unregistered => return Ok(RootOrdinaryNewObservation::NotIssued),
             RootNewValidation::Pending(owner) => owner,
-            RootNewValidation::Checked(_) | RootNewValidation::FinishingChecked => {
+            RootNewValidation::Checked(..) | RootNewValidation::FinishingChecked => {
                 return Err(freeze("duplicate-root-validation"));
             }
         };
-        self.validate_new_emissions(owner, function)?;
+        self.validate_root_body(owner, function, None)?;
+        let observation = self.finalized_root_observation(owner);
+        self.validate_root_cleanup_shape(function)?;
+        let bindings = self.lifecycle_bindings(owner)?;
+        let boundary = super::physical_boundary::PhysicalBoundary::capture(function, &bindings)?;
+        *state = RootNewValidation::Checked(owner, boundary);
+        Ok(observation)
+    }
+
+    fn validate_root_body(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        self.validate_new_emissions_projected(owner, function, projection)?;
         self.validate_terminal_unit_return(owner, function)?;
-        self.validate_root_home_exit(function, false)?;
+        self.validate_root_home_exit(function, projection)?;
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_i64_add_return(owner, function)?;
         self.validate_terminal_integer_literal_return(owner, function)?;
         self.validate_terminal_i64_field_return(owner, function)?;
-        let observation = self.finalized_root_observation(owner);
-        self.capture_root_cleanup_boundary(function)?;
-        *state = RootNewValidation::Checked(owner);
-        Ok(observation)
+        Ok(())
     }
 
     /// Recheck the same retained source obligations after compiler finishing.
@@ -50,24 +62,21 @@ impl OrdinaryNewClaimLedgerV1 {
 
     fn validate_finished_root(&self, function: &MirFunction, artifact: bool) -> Result<(), String> {
         let mut state = self.root_validation.borrow_mut();
-        if artifact && !matches!(*state, RootNewValidation::Checked(_)) {
+        if artifact && !matches!(*state, RootNewValidation::Checked(..)) {
             return Err(freeze("artifact-root-not-checked"));
         }
-        let owner = match *state {
+        let (owner, boundary) = match &*state {
             RootNewValidation::Unregistered => return Ok(()),
-            RootNewValidation::Checked(owner) => owner,
+            RootNewValidation::Checked(owner, boundary) => (*owner, boundary),
             RootNewValidation::Pending(_) => return Err(freeze("root-before-draft-validation")),
             RootNewValidation::FinishingChecked => {
                 return Err(freeze("duplicate-finishing-validation"));
             }
         };
-        self.validate_new_emissions(owner, function)?;
-        self.validate_terminal_unit_return(owner, function)?;
-        let cleanup = self.validate_root_home_exit(function, true)?;
-        self.validate_field_reads(owner, function)?;
-        self.validate_terminal_i64_add_return(owner, function)?;
-        self.validate_terminal_integer_literal_return(owner, function)?;
-        self.validate_terminal_i64_field_return(owner, function)?;
+        let bindings = self.lifecycle_bindings(owner)?;
+        let mut projection = boundary.project(function)?;
+        self.validate_root_body(owner, function, Some(&projection))?;
+        boundary.validate_complete(function, &mut projection, &bindings)?;
         if artifact
             && self.finalized_root_observation(owner)
                 != RootOrdinaryNewObservation::SourceCompleteAtFinalization
@@ -78,7 +87,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("root-observation-drift"));
         }
         if artifact {
-            self.validate_artifact_lifecycle_coverage(owner, function, &cleanup)?;
+            self.validate_artifact_lifecycle_coverage(owner, function, projection.recorded())?;
         }
         *state = RootNewValidation::FinishingChecked;
         Ok(())
@@ -142,34 +151,16 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         cleanup: &[(BasicBlockId, MirInstruction)],
     ) -> Result<(), String> {
-        let rows = self.local_commits.borrow();
-        let mut expected = Vec::new();
-        for row in rows.values().filter(|row| row.binding().owner() == owner) {
-            if let LocalCommitV1::Map(row) = row {
-                for (block, instruction) in row.checked_bindings()? {
-                    if instruction.requires_lifecycle_validation() && !expected.contains(&(*block, instruction)) {
-                        expected.push((*block, instruction));
-                    }
-                }
-                continue;
-            }
-            let row = row.ordinary().expect("ordinary branch");
-            let NewEmissionProgress::Emitted {
-                bindings,
-                progress: EmittedLocalProgress::Checked { .. },
-                ..
-            } = &row.emission
-            else {
-                return Err(freeze("artifact-emission-unchecked"));
-            };
-            for (block, instruction) in bindings {
-                if instruction.requires_lifecycle_validation()
-                    && !expected.contains(&(*block, instruction))
-                {
-                    expected.push((*block, instruction));
-                }
-            }
+        if self
+            .local_commits
+            .borrow()
+            .values()
+            .filter(|row| row.binding().owner() == owner)
+            .any(|row| !row.is_complete())
+        {
+            return Err(freeze("artifact-emission-unchecked"));
         }
+        let mut expected = Vec::new();
         for (block, instruction) in cleanup {
             if instruction.requires_lifecycle_validation()
                 && !expected.contains(&(*block, instruction))
@@ -193,5 +184,34 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("artifact-lifecycle-residual"));
         }
         Ok(())
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    fn lifecycle_bindings(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let mut result = Vec::new();
+        for row in self
+            .local_commits
+            .borrow()
+            .values()
+            .filter(|r| r.binding().owner() == owner)
+        {
+            let bindings = match row {
+                LocalCommitV1::Map(map) => map.checked_bindings()?,
+                LocalCommitV1::Ordinary(row) => match &row.emission {
+                    NewEmissionProgress::Emitted { bindings, .. } => bindings.as_slice(),
+                    NewEmissionProgress::RetainedUnavailable { .. } => continue,
+                    _ => return Err(freeze("emission-residual")),
+                },
+            };
+            result.extend_from_slice(bindings);
+        }
+        if let RootHomeExitProgress::Emitted { bindings, .. } = &*self.root_exit.borrow() {
+            result.extend_from_slice(bindings);
+        }
+        Ok(result)
     }
 }

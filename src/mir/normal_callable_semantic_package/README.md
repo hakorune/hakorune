@@ -380,15 +380,23 @@ rejected, terminal Homes, New emission or root exit), or source-complete. Residu
 foreign and drifted bindings are errors. A mutable MirFunction observation is not
 backend admission, and Birth has its own validator. The invocation retains the
 same root ledger/key through finishing and rechecks New/frame/local/exit before
-external commit. For nonempty terminal Homes, [root-home state](ordinary_new_local_commit/root_home.rs)
-retains prefinish cleanup entry prefix/incoming boundary: only Jump contraction
-into a deleted empty sole-predecessor internal node is allowed. Release operands,
-frame, Normal/Fault successors, Return/ReturnFault, prefix and ingress stay exact.
-Diagnostic/artifact finishing share the check and temporary mapped bindings before
-FinishingChecked. N source-bound origins require the existing emitter's N clean
-releases plus N-1 pending-Fault releases. No source obligation or optimizer skip
-is added. Map End is represented in recorded root cleanup; optimized Map failure
-suffixes and compiled-entry consumption remain cutover obligations.
+external commit. The Checked root state owns one
+[physical boundary](ordinary_new_local_commit/physical_boundary.rs) for recorded
+New, Map and root blocks. It preserves instruction order and external ingress,
+permitting only recorded Jump contraction into a deleted sole-predecessor block.
+Unrecorded Const with one definition and no original use may be omitted by DCE;
+new uses, rewriting, insertion or reordering remain rejected. This is no general
+pure-instruction exemption. Full sequence validation follows the existing source
+consumers and precedes artifact coverage and FinishingChecked.
+Moved InvokeNormalResult origins use the same block mapping. Operands, frame,
+Normal/Fault slots and acyclicity remain exact; no CFG search reconstructs a
+source obligation. Both finishing validation and artifact coverage consume one
+temporary projected binding set, rather than rereading original block positions.
+The root-specific N clean / N-1 pending-Fault release count is still checked at
+draft capture. Unit/cleanup/field/scalar validation order is shared privately
+across draft and finishing, with both stages retained. Compiled-entry coordinates
+include Map End and EndOutcome; these physical checks do not activate C execution
+or remove the common source install Stop.
 
 Birth capture moves construction state/Fault frame through payload session and
 exact collector draft. Source scope becomes Transferred, not absent; second take

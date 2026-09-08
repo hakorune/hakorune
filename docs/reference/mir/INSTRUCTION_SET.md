@@ -113,6 +113,15 @@ An existing primary Fault does not change a successful end's returned status.
 The full runtime ABI additionally supports explicit key cancellation; compiler
 support for a child-Fault edge must use that contract before widening this cohort.
 
+Finishing may concatenate recorded instruction sequences only across an original
+Jump to a deleted sole-predecessor block. The lifecycle owner uses one physical
+correspondence for validation, InvokeNormalResult origins and artifact coverage;
+Normal/Fault identity and external ingress remain fixed. Compiled-entry cleanup
+coordinates include End and EndOutcome at their final physical positions.
+The comparison permits DCE omission of unrecorded Const only when their original
+definition is unique and unused and no finished use appears; recorded operations
+and all remaining instruction order stay exact.
+
 These MIR checks and JSON projection do not activate source or C consumers.
 Completion/progress, mixed cleanup, selected C emission and source-to-artifact
 cutover remain separate required connections in the active Map series.

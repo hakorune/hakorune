@@ -11,147 +11,89 @@ use std::mem::{discriminant, Discriminant};
 type Bindings = [(BasicBlockId, MirInstruction)];
 type Incoming = BTreeMap<(BasicBlockId, usize), (Discriminant<MirInstruction>, Option<EdgeArgs>)>;
 
-/// Physical context missing from the emitter's existing terminator bindings.
-/// Non-entry cleanup prefixes are checked empty, rather than copied.
-#[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) struct RootCleanupBoundary {
-    release_count: usize,
-    entry: BasicBlockId,
-    prefix: Vec<MirInstruction>,
-    incoming: Incoming,
+/// Root-specific source-origin count and graph-shape validation.
+pub(super) fn validate_original(
+    function: &MirFunction,
+    bindings: &Bindings,
+    home_count: usize,
+) -> Result<(), String> {
+    // The emitter has N clean releases and N-1 pending-Fault releases.
+    let release_count = home_count
+        .checked_mul(2)
+        .and_then(|n| n.checked_sub(1))
+        .ok_or_else(|| fault("home-count"))?;
+    let nodes = recorded_nodes(bindings, release_count)?;
+    // The emitter records its final entry Jump after the cleanup nodes.
+    let (entry, terminal) = bindings.last().ok_or_else(|| fault("empty"))?;
+    if !matches!(
+        terminal,
+        MirInstruction::Jump {
+            edge_args: None,
+            ..
+        }
+    ) || *entry == function.entry_block
+    {
+        return Err(fault("entry"));
+    }
+    let mut reached = BTreeSet::new();
+    let mut pending = vec![*entry];
+    while let Some(id) = pending.pop() {
+        if !reached.insert(id) {
+            continue;
+        }
+        let terminal = nodes.get(&id).ok_or_else(|| fault("outward-edge"))?;
+        pending.extend(edges(terminal)?.into_iter().map(|(_, target)| target));
+    }
+    if reached.len() != nodes.len() {
+        return Err(fault("unreachable-node"));
+    }
+    require_acyclic(&nodes)?;
+    for (id, terminal) in &nodes {
+        let block = function
+            .blocks
+            .get(id)
+            .ok_or_else(|| fault("missing-node"))?;
+        if block.terminator.as_ref() != Some(*terminal)
+            || (*id != *entry && !block.instructions.is_empty())
+            || block
+                .instructions
+                .iter()
+                .any(|i| matches!(i, MirInstruction::Phi { .. }))
+        {
+            return Err(fault("original-node"));
+        }
+    }
+    let incoming = boundary_incoming(function, &reached, *entry)?;
+    if incoming.is_empty() {
+        return Err(fault("missing-entry-incoming"));
+    }
+    Ok(())
 }
 
+#[cfg(test)]
+#[derive(Debug)]
+struct RootCleanupBoundary(super::physical_boundary::PhysicalBoundary);
+#[cfg(test)]
 impl RootCleanupBoundary {
-    pub(super) fn capture(
+    fn capture(
         function: &MirFunction,
         bindings: &Bindings,
         home_count: usize,
     ) -> Result<Self, String> {
-        // The emitter has N clean releases and N-1 pending-Fault releases.
-        let release_count = home_count.checked_mul(2).and_then(|n| n.checked_sub(1))
-            .ok_or_else(|| fault("home-count"))?;
-        let nodes = recorded_nodes(bindings, release_count)?;
-        // The emitter records its final entry Jump after the cleanup nodes.
-        let (entry, terminal) = bindings.last().ok_or_else(|| fault("empty"))?;
-        if !matches!(
-            terminal,
-            MirInstruction::Jump {
-                edge_args: None,
-                ..
-            }
-        ) || *entry == function.entry_block
-        {
-            return Err(fault("entry"));
-        }
-        let mut reached = BTreeSet::new();
-        let mut pending = vec![*entry];
-        while let Some(id) = pending.pop() {
-            if !reached.insert(id) {
-                continue;
-            }
-            let terminal = nodes.get(&id).ok_or_else(|| fault("outward-edge"))?;
-            pending.extend(edges(terminal)?.into_iter().map(|(_, target)| target));
-        }
-        if reached.len() != nodes.len() {
-            return Err(fault("unreachable-node"));
-        }
-        require_acyclic(&nodes)?;
-        for (id, terminal) in &nodes {
-            let block = function
-                .blocks
-                .get(id)
-                .ok_or_else(|| fault("missing-node"))?;
-            if block.terminator.as_ref() != Some(*terminal)
-                || (*id != *entry && !block.instructions.is_empty())
-                || block
-                    .instructions
-                    .iter()
-                    .any(|i| matches!(i, MirInstruction::Phi { .. }))
-            {
-                return Err(fault("original-node"));
-            }
-        }
-        let incoming = boundary_incoming(function, &reached, *entry)?;
-        if incoming.is_empty() {
-            return Err(fault("missing-entry-incoming"));
-        }
-        Ok(Self {
-            release_count,
-            entry: *entry,
-            prefix: function.blocks[entry].instructions.clone(),
-            incoming,
-        })
+        validate_original(function, bindings, home_count)?;
+        Ok(Self(super::physical_boundary::PhysicalBoundary::capture(
+            function, bindings,
+        )?))
     }
-
-    pub(super) fn project(
+    fn project(
         &self,
         function: &MirFunction,
         bindings: &Bindings,
     ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
-        let nodes = recorded_nodes(bindings, self.release_count)?;
-        if !function.blocks.contains_key(&self.entry) {
-            return Err(fault("entry-removed"));
-        }
-        let mut predecessors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
-        for (id, terminal) in &nodes {
-            for (_, target) in edges(terminal)? {
-                predecessors.entry(target).or_default().push(*id);
-            }
-        }
-        let mut consumed = BTreeSet::new();
-        let mut surviving = BTreeSet::new();
-        let mut projected = Vec::new();
-        for (id, original) in &nodes {
-            let Some(actual) = function.blocks.get(id) else {
-                continue;
-            };
-            surviving.insert(*id);
-            let mut cursor = *id;
-            let mut terminal = *original;
-            loop {
-                if !consumed.insert(cursor) {
-                    return Err(fault("duplicate-or-cycle"));
-                }
-                let MirInstruction::Jump {
-                    target,
-                    edge_args: None,
-                } = terminal
-                else {
-                    break;
-                };
-                if function.blocks.contains_key(target) {
-                    break;
-                }
-                if *target == self.entry
-                    || predecessors.get(target).map(Vec::as_slice) != Some(&[cursor][..])
-                {
-                    return Err(fault("contraction-predecessor"));
-                }
-                terminal = nodes
-                    .get(target)
-                    .copied()
-                    .ok_or_else(|| fault("foreign-target"))?;
-                cursor = *target;
-            }
-            let expected_prefix = if *id == self.entry {
-                self.prefix.as_slice()
-            } else {
-                &[]
-            };
-            if actual.instructions != expected_prefix
-                || actual.terminator.as_ref() != Some(terminal)
-            {
-                return Err(fault("finished-node"));
-            }
-            projected.push((*id, terminal.clone()));
-        }
-        if consumed.len() != nodes.len() {
-            return Err(fault("residual-node"));
-        }
-        if boundary_incoming(function, &surviving, self.entry)? != self.incoming {
-            return Err(fault("incoming-drift"));
-        }
-        Ok(projected)
+        let mut projection = self.0.project(function)?;
+        self.0
+            .validate_complete(function, &mut projection, bindings)?;
+        projection.bindings(bindings)
     }
 }
 
@@ -187,7 +129,10 @@ fn require_acyclic(nodes: &BTreeMap<BasicBlockId, &MirInstruction>) -> Result<()
     Ok(())
 }
 
-fn recorded_nodes(bindings: &Bindings, release_count: usize) -> Result<BTreeMap<BasicBlockId, &MirInstruction>, String> {
+fn recorded_nodes(
+    bindings: &Bindings,
+    release_count: usize,
+) -> Result<BTreeMap<BasicBlockId, &MirInstruction>, String> {
     let mut nodes = BTreeMap::new();
     let mut releases = 0;
     for (id, terminal) in bindings {
@@ -238,7 +183,8 @@ fn edges(terminal: &MirInstruction) -> Result<Vec<(usize, BasicBlockId)>, String
             edge_args: None,
         } => Ok(vec![(0, *target)]),
         MirInstruction::Invoke {
-            operation: InvokeOperation::HomeRelease { .. }
+            operation:
+                InvokeOperation::HomeRelease { .. }
                 | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { .. }),
             normal_landing,
             fault_landing,
@@ -256,3 +202,12 @@ fn fault(reason: &str) -> String {
 #[cfg(test)]
 #[path = "root_cleanup_graph_tests.rs"]
 mod tests;
+
+pub(super) fn validate_projected_ingress(
+    function: &MirFunction,
+    bindings: &Bindings,
+    entry: BasicBlockId,
+) -> Result<(), String> {
+    let nodes = bindings.iter().map(|(id, _)| *id).collect();
+    boundary_incoming(function, &nodes, entry).map(drop)
+}

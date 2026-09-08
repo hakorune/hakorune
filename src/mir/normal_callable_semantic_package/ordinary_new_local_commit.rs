@@ -27,7 +27,7 @@ use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 pub(super) enum RootNewValidation {
     Unregistered,
     Pending(FunctionOwnerIdV1),
-    Checked(FunctionOwnerIdV1),
+    Checked(FunctionOwnerIdV1, physical_boundary::PhysicalBoundary),
     FinishingChecked,
 }
 
@@ -573,3 +573,6 @@ pub(super) use root_home::RootHomeExitProgress;
 
 #[path = "ordinary_new_local_commit/finalized_root_handoff.rs"]
 mod finalized_root_handoff;
+
+#[path = "ordinary_new_local_commit/physical_boundary.rs"]
+mod physical_boundary;

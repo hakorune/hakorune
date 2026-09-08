@@ -6,13 +6,19 @@ use crate::mir::{MirBuilder, MirInstruction};
 
 #[test]
 fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
-    for body in [
+    for definition in ["box Page {}", "box Page { birth() {} }"] {
+        for (body, optimize) in [
         "local m = %{} return 30",
         "local m = %{} local alias = m local again = alias return 30",
         "local a = new Page() local m = %{\"a\" => a} return 30",
         "local m = %{} local a = new Page() return 30",
-    ] {
-        let source = format!("box Page {{}} static box Main {{ main() {{ {body} }} }}");
+        "local m = %{} local n = %{} return 30",
+        "local a = new Page() local b = new Page() local m = %{\"a\" => a, \"a\" => b} return 30",
+    ]
+    .into_iter()
+    .flat_map(|body| [(body, false), (body, true)])
+    {
+        let source = format!("{definition} static box Main {{ main() {{ {body} }} }}");
         let package = issue(&source).unwrap();
         let main = package
             .declaration_catalog()
@@ -55,12 +61,16 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
                 }
             }
         }
-        assert_eq!(maps.len(), 1, "{body}");
+        assert_eq!(
+            maps.len(),
+            if body.contains("local n") { 2 } else { 1 },
+            "{body}"
+        );
         assert!(package.ordinary_new_claim_ledger.map_demands_consumed());
         crate::mir::verification::MirVerifier::new_strict()
             .verify_function(&function)
             .unwrap_or_else(|e| panic!("{body}: {e:?}"));
-        package
+        let observation = package
             .ordinary_new_claim_ledger
             .validate_finalized_new_root(&function)
             .unwrap_or_else(|e| panic!("{body}: root validation: {e}"));
@@ -93,6 +103,39 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
                 .any(|i| matches!(i, MirInstruction::Copy { src, .. } if maps.contains(src))),
             "{body}"
         );
+        let mut module = crate::mir::MirModule::new("map-finishing".into());
+        let mut function = function;
+        function
+            .install_root_ordinary_new_observation(observation)
+            .unwrap();
+        module.functions.insert("Main.main/0".into(), function);
+        if optimize {
+            assert!(crate::mir::passes::simplify_cfg::simplify(&mut module) > 0);
+        }
+        let finished = &module.functions["Main.main/0"];
+        crate::mir::verification::MirVerifier::new_strict()
+            .verify_function(finished)
+            .unwrap_or_else(|e| panic!("{body}, optimize={optimize}: {e:?}"));
+        let mut drifted_finished = finished.clone();
+        let mut changed_edge = false;
+        for block in drifted_finished.blocks.values_mut() {
+            if let Some(MirInstruction::Invoke {
+                operation: InvokeOperation::Map(MapInvokeOperation::New),
+                normal_landing, fault_landing, ..
+            }) = &mut block.terminator {
+                std::mem::swap(normal_landing, fault_landing);
+                changed_edge = true;
+                break;
+            }
+        }
+        assert!(changed_edge);
+        assert!(package.ordinary_new_claim_ledger
+            .validate_artifact_after_compiler_finishing(&drifted_finished).is_err());
+        package
+            .ordinary_new_claim_ledger
+            .validate_artifact_after_compiler_finishing(finished)
+            .unwrap_or_else(|e| panic!("{body}, optimize={optimize}: {e}"));
+    }
     }
 }
 

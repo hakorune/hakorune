@@ -99,6 +99,8 @@ pub(crate) enum CompiledEntryCleanupKindV1 {
     FaultFrameEnter,
     ReturnFault,
     ArrayResidenceRelease,
+    MapEnd,
+    MapEndOutcome,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -434,6 +436,20 @@ fn issue_cleanup_coordinates(
                         operation: InvokeOperation::ReclaimUnpublished { .. },
                         ..
                     } => CompiledEntryCleanupKindV1::ReclaimUnpublished,
+                    MirInstruction::Invoke {
+                        operation:
+                            InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End {
+                                ..
+                            }),
+                        ..
+                    } => CompiledEntryCleanupKindV1::MapEnd,
+                    MirInstruction::Invoke {
+                        operation:
+                            InvokeOperation::Map(
+                                crate::mir::instruction::MapInvokeOperation::EndOutcome { .. },
+                            ),
+                        ..
+                    } => CompiledEntryCleanupKindV1::MapEndOutcome,
                     MirInstruction::FaultFrameEnter { .. } => {
                         CompiledEntryCleanupKindV1::FaultFrameEnter
                     }

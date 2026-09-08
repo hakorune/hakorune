@@ -5,7 +5,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{MapHomeEntry, MapHomeFlow}
 use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
 
 #[derive(Debug)]
-pub(super) struct MapLocalProgress {
+pub(in crate::mir::normal_callable_semantic_package) struct MapLocalProgress {
     pub(super) binding: BindingRefV1,
     pub(super) declaration: SourceBindingSiteV1,
     progress: MapProgress,
@@ -238,6 +238,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         site: &OwnedExprSiteV1,
         function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
         let flow = self.map_flow(site)?;
         let rows = self.local_commits.borrow();
@@ -288,11 +289,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         for (id, expected) in bindings {
-            if !function
-                .blocks
-                .get(id)
-                .is_some_and(|block| block.all_instructions().any(|i| i == expected))
-            {
+            if !super::physical_boundary::check_binding(function, projection, *id, expected)? {
                 return Err(freeze("map-emission-binding-drift"));
             }
         }

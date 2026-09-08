@@ -242,7 +242,7 @@ impl<'module> PublishedMirBackendView<'module> {
     }
 }
 
-fn issue_function<'module>(
+pub(super) fn issue_function<'module>(
     function: &'module MirFunction,
     role: PublishedLifecyclePhysicalFunctionRoleV1,
     script: bool,

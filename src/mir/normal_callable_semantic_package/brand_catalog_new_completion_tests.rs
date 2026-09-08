@@ -102,6 +102,14 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             dst: local,
             src: initializer,
         });
+        // Finishing captures complete block sequences. Connect each prefix to
+        // the next Birth; the last prefix receives the root cleanup Jump below.
+        if index + 1 < sites.len() {
+            block.set_terminator(crate::mir::MirInstruction::Jump {
+                target: crate::mir::BasicBlockId(201 + index as u32),
+                edge_args: None,
+            });
+        }
         physical.add_block(block);
         let reclaim_block = crate::mir::BasicBlockId::new(100 + index as u32);
         let reclaim_instruction = crate::mir::MirInstruction::Invoke {
