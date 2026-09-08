@@ -8,12 +8,17 @@
               goto GEN_ABORT;
             }
             if (intrinsic > 0) {
+              if (static_v2_original_demanded(ins) && hako_llvmc_direct_array_i64_exact_enabled()) {
+                note_pure_unsupported_shape(bid, ii, op, "static_v2_non_host_handle", NULL);
+                goto GEN_ABORT;
+              }
               const char* symbol = hako_llvmc_direct_array_i64_exact_enabled()
                   ? "nyash.array.direct_i64.birth_h" : "nyash.array.birth_h";
               EMIT("  %%r%lld = call i64 @\"%s\"()\n", dst, symbol);
               set_type(dst, T_I64);
               set_origin(dst, ORG_ARRAY_BIRTH);
               set_scan_origin(dst, ORG_ARRAY_BIRTH);
+              if (!static_v2_consume_original(ins)) goto GEN_ABORT;
               continue;
             }
 
@@ -32,6 +37,11 @@
               goto GEN_ABORT;
             }
             enum NamedAllocationConsumer consumer = outcome->consumer;
+            if (static_v2_original_demanded(ins) &&
+                (consumer == NAMED_ALLOCATION_DIRECT_ARRAY || consumer == NAMED_ALLOCATION_TYPED_OBJECT)) {
+              note_pure_unsupported_shape(bid, ii, op, "static_v2_non_host_handle", NULL);
+              goto GEN_ABORT;
+            }
             if (consumer == NAMED_ALLOCATION_TYPED_OBJECT) typed_new_plan = outcome->plan;
             if (consumer == NAMED_ALLOCATION_DIRECT_ARRAY) {
               if (dst) {
@@ -42,6 +52,7 @@
               } else {
                 EMIT("  call i64 @\"nyash.array.direct_i64.birth_h\"()\n");
               }
+              if (!static_v2_consume_original(ins)) goto GEN_ABORT;
               continue;
             }
             if (consumer == NAMED_ALLOCATION_ARRAY) {
@@ -54,6 +65,7 @@
               } else {
                 EMIT("  call i64 @\"%s\"()\n", birth_symbol);
               }
+              if (!static_v2_consume_original(ins)) goto GEN_ABORT;
               continue;
             }
             if (consumer == NAMED_ALLOCATION_MAP) {
@@ -65,6 +77,7 @@
               } else {
                 EMIT("  call i64 @\"nyash.map.birth_h\"()\n");
               }
+              if (!static_v2_consume_original(ins)) goto GEN_ABORT;
               continue;
             }
             if (consumer == NAMED_ALLOCATION_FILE) {
@@ -76,9 +89,15 @@
               } else {
                 EMIT("  call i64 @\"nyash.env.box.new\"(ptr getelementptr inbounds ([8 x i8], ptr @.hako_type_FileBox, i64 0, i64 0))\n");
               }
+              if (!static_v2_consume_original(ins)) goto GEN_ABORT;
               continue;
             }
             if (consumer == NAMED_ALLOCATION_ALIAS_OPERAND_ZERO) {
+              int vi = hako_static_v2_value_find(&invocation->static_v2, fn0, (uint32_t)dst);
+              if (vi >= 0 && invocation->static_v2.frame->values[vi].action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE) {
+                note_pure_unsupported_shape(bid, ii, op, "static_v2_alias_is_not_allocation", NULL);
+                goto GEN_ABORT;
+              }
               if (should_skip_hoisted_string_const_box(arg0) &&
                   !string_const_box_was_emitted(arg0) &&
                   !emit_materialized_string_const_box_result(f, arg0)) {
@@ -94,6 +113,7 @@
               set_type(dst, T_I64);
               set_origin(dst, ORG_STRING);
               set_scan_origin(dst, ORG_STRING);
+              if (!static_v2_consume_original(ins)) goto GEN_ABORT;
               continue;
             }
             if (consumer == NAMED_ALLOCATION_TYPED_OBJECT) {
@@ -104,6 +124,7 @@
               generic_pure_publish_typed_object_plan_index(
                   dst,
                   typed_new_plan.typed_plan_index);
+              if (!static_v2_consume_original(ins)) goto GEN_ABORT;
               continue;
             }
             if (consumer == NAMED_ALLOCATION_INVALID_PLAN) {

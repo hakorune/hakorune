@@ -32,6 +32,12 @@ int main(int argc, char** argv) {
     calls[i].target_symbol = fixture_str(row, "target");
     calls[i].kind = fixture_u32(row, "kind");
     calls[i].arity = fixture_u32(row, "arity");
+    calls[i].site_id = fixture_u32(row, "site_id");
+    calls[i].receiver = fixture_u32(row, "receiver");
+    calls[i].index = fixture_u32(row, "index");
+    calls[i].value = fixture_u32(row, "value");
+    calls[i].dst = fixture_u32(row, "dst");
+    calls[i].flags = fixture_u32(row, "flags");
   }
   for (size_t i = 0; i < nm; i++) {
     yyjson_val* row = yyjson_arr_get(maps_json, i);

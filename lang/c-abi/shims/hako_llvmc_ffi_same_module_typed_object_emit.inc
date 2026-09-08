@@ -60,6 +60,10 @@
             fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins);
         if (intrinsic < 0) return -1;
         if (intrinsic > 0) {
+          if (static_v2_original_demanded(ins) && hako_llvmc_direct_array_i64_exact_enabled()) {
+            note_pure_unsupported_shape(bid, ii, "newbox", "static_v2_non_host_handle", NULL);
+            return 0;
+          }
           const char* symbol = hako_llvmc_direct_array_i64_exact_enabled()
               ? "nyash.array.direct_i64.birth_h" : "nyash.array.birth_h";
           EMIT("  %%r%lld = call i64 @\"%s\"()\n", dst, symbol);
@@ -78,6 +82,11 @@
           return 0;
         }
         enum NamedAllocationConsumer consumer = outcome->consumer;
+        if (static_v2_original_demanded(ins) &&
+            (consumer == NAMED_ALLOCATION_DIRECT_ARRAY || consumer == NAMED_ALLOCATION_TYPED_OBJECT)) {
+          note_pure_unsupported_shape(bid, ii, "newbox", "static_v2_non_host_handle", NULL);
+          return 0;
+        }
         if (consumer == NAMED_ALLOCATION_TYPED_OBJECT) plan = outcome->plan;
         if (consumer == NAMED_ALLOCATION_DIRECT_ARRAY || consumer == NAMED_ALLOCATION_ARRAY) {
           same_module_function_emit_i64_birth_call(

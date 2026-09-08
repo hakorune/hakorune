@@ -225,7 +225,7 @@
             } else {
               EMIT("  call i64 @\"%s\"(%s)\n", typed_symbol, typed_args);
             }
-            return 1;
+            return static_v2_consume_original(yyjson_arr_get(insts, ii)) ? 1 : -1;
           }
         }
         if (hako_llvmc_route_trace_enabled() && generic_call_trace_budget > 0) {

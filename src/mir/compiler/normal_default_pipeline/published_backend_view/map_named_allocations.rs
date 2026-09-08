@@ -91,6 +91,12 @@ impl<'m> MapBodyIndex<'m> {
         else {
             return Err("[freeze:contract][map-frame/named-producer-mismatch]".into());
         };
+        if matches!(
+            self.named_allocations.get(&site),
+            Some(NamedAllocationConsumer::DirectArray | NamedAllocationConsumer::TypedObject)
+        ) {
+            return Err(reject("non-host-handle", site));
+        }
         Ok(if self.named_alias_operand(site)?.is_some() {
             ProjectionAction::NamedAliasOperandZero
         } else {

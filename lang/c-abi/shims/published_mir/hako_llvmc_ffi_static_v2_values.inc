@@ -50,6 +50,32 @@ static int hako_static_v2_nonexact_valid(
           hako_static_v2_text(yyjson_obj_get(type, "box_type"), "StringBox") &&
           yyjson_is_str(yyjson_obj_get(value, "value"));
     }
+    if (hako_static_v2_text(yyjson_obj_get(ins, "op"), "newbox")) {
+      yyjson_val* type = yyjson_obj_get(ins, "type");
+      return row->value_kind == HAKO_LLVMC_MAP_VALUE_HANDLE &&
+          ((yyjson_is_str(type) && yyjson_get_len(type)) ||
+           hako_static_v2_text(yyjson_obj_get(yyjson_obj_get(ins, "target"), "kind"), "intrinsic_array"));
+    }
+    if (hako_static_v2_text(yyjson_obj_get(ins, "op"), "mir_call"))
+      return row->value_kind == HAKO_LLVMC_MAP_VALUE_I64;
+    uint32_t plan;
+    if (hako_static_v2_text(yyjson_obj_get(ins, "op"), "variant_make") ||
+        hako_static_v2_text(yyjson_obj_get(ins, "op"), "variant_tag") ||
+        hako_static_v2_text(yyjson_obj_get(ins, "op"), "variant_project")) {
+      if (!hako_static_v2_u32(yyjson_obj_get(ins, "boxed_sum_abi_plan_id"), &plan)) return 0;
+      if (hako_static_v2_text(yyjson_obj_get(ins, "op"), "variant_make"))
+        return row->value_kind == HAKO_LLVMC_MAP_VALUE_HANDLE ? -1 : 0;
+      if (hako_static_v2_text(yyjson_obj_get(ins, "op"), "variant_tag"))
+        return row->value_kind == HAKO_LLVMC_MAP_VALUE_I64;
+      yyjson_val* storage = yyjson_obj_get(ins, "boxed_sum_payload_storage");
+      yyjson_val* type = yyjson_obj_get(ins, "payload_type");
+      if (row->value_kind == HAKO_LLVMC_MAP_VALUE_HANDLE) {
+        if (!hako_static_v2_text(storage, "handle")) return 0;
+        return hako_static_v2_text(type, "String") ? 1 : -1;
+      }
+      return hako_static_v2_text(storage, "i64") &&
+          hako_static_v2_text(type, row->value_kind == HAKO_LLVMC_MAP_VALUE_BOOL ? "Bool" : "Integer");
+    }
     return -1;
   }
   if (row->action != HAKO_LLVMC_MAP_ACTION_OPERATION) return 0;
@@ -121,11 +147,13 @@ static int hako_static_v2_value_closure(const struct HakoStaticV2Index* index) {
           expected = HAKO_LLVMC_MAP_VALUE_BOOL;
         if (parent->operation == HAKO_LLVMC_MAP_PHYSICAL_STRING_COMPARE || parent->operation == HAKO_LLVMC_MAP_PHYSICAL_STRING_CONCAT) {
           expected = HAKO_LLVMC_MAP_VALUE_HANDLE;
-          /* Current String inputs are exact String constants or selected concat;
+          /* String inputs retain constant, exact String projection or concat identity;
            * another Handle producer cannot stand in for a String consumer. */
           if (!(input->action == HAKO_LLVMC_MAP_ACTION_OPERATION && input->operation == HAKO_LLVMC_MAP_PHYSICAL_STRING_CONCAT) &&
               !(input->action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE &&
-                hako_static_v2_text(yyjson_obj_get(index->values[child].instruction, "op"), "const"))) goto done;
+                (hako_static_v2_text(yyjson_obj_get(index->values[child].instruction, "op"), "const") ||
+                 (hako_static_v2_text(yyjson_obj_get(index->values[child].instruction, "op"), "variant_project") &&
+                  hako_static_v2_text(yyjson_obj_get(index->values[child].instruction, "payload_type"), "String"))))) goto done;
         }
         if (input->value_kind != expected) goto done;
         if (!reached[child]) { reached[child] = 1; changed = 1; }

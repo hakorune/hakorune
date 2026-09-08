@@ -124,6 +124,8 @@
                bid,
                ii,
                payload_const);
+        } else if (invocation->static_v2.frame && get_type(payload_base) == T_I1) {
+          EMIT("  %%boxed_sum_i64_payload_%lld_%zu = zext i1 %%r%lld to i64\n", bid, ii, payload_base);
         } else {
           EMIT("  %%boxed_sum_i64_payload_%lld_%zu = add i64 %%r%lld, 0\n",
                bid,
@@ -482,7 +484,8 @@
           int unavailable_is_error) {
         struct GenericPureVariantBinding binding;
         memset(&binding, 0, sizeof(binding));
-        if (!get_variant_binding(value, &binding) || !binding.has_payload) {
+        if (!get_variant_binding(value, &binding) || !binding.has_payload ||
+            (invocation->static_v2.frame && binding.tag_reg)) {
           int boxed_emit = 0;
           if (!payload_storage) {
             note_pure_unsupported_shape(
@@ -625,6 +628,10 @@
         }
         if (!(has_lhs_plan || has_rhs_plan)) {
           return 0;
+        }
+        if (invocation->static_v2.frame) {
+          note_pure_unsupported_shape(bid, ii, op, "static_v2_boxed_compare_consumer_pending", NULL);
+          return -1;
         }
         int plan_index = has_lhs_plan ? lhs_plan_index : rhs_plan_index;
         if ((has_lhs_plan && lhs_plan_index != plan_index) ||

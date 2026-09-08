@@ -244,6 +244,26 @@ static int hako_static_v2_bind(
         ? hako_static_v2_exact_valid(row, ins) : hako_static_v2_nonexact_valid(row, ins);
     if (valid < 0) { reason = "[freeze:contract][static-v2/original-consumer-unsupported]"; goto invalid; }
     if (!valid) goto invalid;
+    if (row->action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE &&
+        hako_static_v2_text(yyjson_obj_get(ins, "op"), "mir_call")) {
+      yyjson_val* call = yyjson_obj_get(ins, "mir_call");
+      if (!hako_static_v2_text(yyjson_obj_get(yyjson_obj_get(call, "callee"), "type"), "Global")) goto invalid;
+      size_t matches = 0;
+      for (size_t ci = 0; ci < frame->call_count; ci++) {
+        const hako_llvmc_published_static_method_call_v1* selected = &frame->calls[ci];
+        if (!hako_static_v2_text(yyjson_obj_get(fn, "name"), selected->function_name) ||
+            hako_static_v2_instruction(fn, selected->block_id, selected->instruction_index) != ins) continue;
+        yyjson_val* target = hako_static_v2_function(functions, selected->target_symbol);
+        yyjson_val* args = yyjson_obj_get(call, "args");
+        yyjson_val* params = yyjson_obj_get(target, "params");
+        if ((selected->kind != HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD &&
+             selected->kind != HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION) ||
+            !target || !yyjson_is_arr(args) || !yyjson_is_arr(params) ||
+            yyjson_arr_size(args) != selected->arity || yyjson_arr_size(params) != selected->arity) goto invalid;
+        matches++;
+      }
+      if (matches != 1) goto invalid;
+    }
     for (size_t j = 0; j < i; j++) if (index->values[j].function == fn && frame->values[j].value_id == row->value_id) goto invalid;
     index->values[i] = (struct HakoStaticV2ValueSite){fn, ins, 0};
   }

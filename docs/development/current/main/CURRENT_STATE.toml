@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = ""
-current_blocker_token = "Private V2 exact/operation and direct String/Map value consumers execute in both walkers. Next: remaining Original producers at actual success sites (including boxed tail/Bool alias correction), transfer/formal consumers and shared expanded-function ingress; then capability and atomic public session/host/source cutover with V1 retirement. No source cutover claim."
+current_blocker_token = "Private V2 Original host-backed allocation/typed Call/scalar-String boxed consumers are implemented. Next: transfer/formal and shared expanded-function ingress. Typed/direct object escape, intrinsic allocator session binding and selected boxed comparison remain CutoverBlockerOpen; then capability and atomic public session/host/source cutover with V1 retirement. No source cutover claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -35,11 +35,12 @@ Conditional representation is separated from execution coverage.
 Private invocation owns existing document/config/outcomes/program/definition products.
 Named binding closes demand/domain/original-lane handling in the MIR planner.
 Private query now binds actual C outcomes and retains input across compile/cancel.
-Complete demanded projection actions now reuse one leaf/domain mapping.
+Demanded projection actions reuse one mapping with explicit non-host escape refusal.
 Owned V2 rows now retain backing and expanded target/Formal correspondence.
-Private C exact/operation/direct String/Map value consumption and staged publication are verified.
-Remaining Original producer success sites and boxed tail/alias corrections precede
-transfer/formal/expanded-function consumption and public host/source cutover.
+Private Original allocation/Call/boxed projection consumers join exact/operation emission.
+Boxed tails/Bool aliases and String concat projection/declaration ownership are corrected.
+Transfer/formal/expanded-function consumers are next; object escape, intrinsic physical
+binding and selected boxed comparison remain blockers before public cutover.
 Actual session/host/Map cutover remains open.
 """
 next_design_card = "none"

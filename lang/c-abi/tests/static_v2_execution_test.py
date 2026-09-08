@@ -45,13 +45,13 @@ def no_core():
 
 with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-") as directory:
     work = Path(directory)
-    def compile_case(label, body, frame, expected_error=None):
+    def compile_case(label, body, frame, expected_error=None, settings=None):
         source, rows, obj, ir = (work / (label + suffix) for suffix in (".json", ".frame.json", ".o", ".ll"))
         source.write_text(json.dumps(body)); rows.write_text(json.dumps(frame))
         if expected_error:
             obj.write_bytes(b"previous-artifact")
         result = subprocess.run([DRIVER, str(source), str(rows), str(obj)],
-            text=True, capture_output=True, env=dict(ENV, NYASH_LLVM_DUMP_IR=str(ir)))
+            text=True, capture_output=True, env=dict(ENV, **(settings or {}), NYASH_LLVM_DUMP_IR=str(ir)))
         assert result.returncode == (1 if expected_error else 0), (label, result.stdout, result.stderr)
         if expected_error:
             assert expected_error in result.stderr, (label, result.stderr)
@@ -61,6 +61,11 @@ with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-") as directory:
         assert not list(work.glob(label + ".o.v2-*")), label
         print(label, "ok")
         return obj, ir
+
+    if sys.argv[3:] == ["--original-only"]:
+        from static_v2_original_cases import run_original_cases
+        run_original_cases(compile_case, witness, const, ROOT, KERNEL, ENV, no_core)
+        sys.exit(0)
 
     for nested in (False, True):
         for kind, bits in ((1, 30), (2, 1), (3, 0x7ff8000000000042), (4, 0)):
@@ -219,6 +224,9 @@ with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-") as directory:
                 ):
                     bad = copy.deepcopy(frame); change(bad)
                     compile_case(f"operation-{nested}-{mutation}", body, bad, "value-action")
+
+    from static_v2_original_cases import run_original_cases
+    run_original_cases(compile_case, witness, const, ROOT, KERNEL, ENV, no_core)
 
     body, frame = witness()
     body["functions"][0]["metadata"] = {"array_text_state_residence_route": {

@@ -43,7 +43,7 @@ impl<'m> MapBodyIndex<'m> {
                 Some((Domain::I64, Action::OriginalI64))
             }
             MirInstruction::VariantMake { .. } if self.boxed_sum_sites.contains_key(&site) => {
-                Some((Domain::Handle, Action::OriginalHandle))
+                return Err("[freeze:contract][map-frame/boxed-object-escape-unavailable]".into());
             }
             MirInstruction::VariantTag { .. } if self.boxed_sum_sites.contains_key(&site) => {
                 Some((Domain::I64, Action::OriginalI64))
@@ -72,7 +72,12 @@ impl<'m> MapBodyIndex<'m> {
                             | MirType::WeakRef,
                         ),
                         Some(Storage::Handle),
-                    ) => Some((Domain::Handle, Action::OriginalHandle)),
+                    ) => {
+                        return Err(
+                            "[freeze:contract][map-frame/boxed-payload-representation-unavailable]"
+                                .into(),
+                        )
+                    }
                     _ => None,
                 }
             }

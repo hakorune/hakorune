@@ -36,7 +36,8 @@ This retention does not bind Local to i64 or widen formal acceptance.
 
 The existing `published_backend_view/MapBodyIndex` binds copied conditional C
 Named observations to original instruction sites. Binding never classifies a
-name: allocating outcomes provide Handle, AliasOperand0 follows original args[0]
+name: host-backed outcomes provide Handle; DirectArray/TypedObject escape
+rejects. AliasOperand0 follows original args[0]
 through demand/domain/original-lane closure. Missing or invalid demanded bindings
 reject; unrequested unsupported observations grant no admission. The V2
 Named-alias action is distinct from Copy and contains no second operand graph.
@@ -48,7 +49,8 @@ retain one invocation across planning and compile/cancel; its build/run procedur
 is in `lang/c-abi/README.md`. Retire the bridge with public V2 host tests.
 The shared `map_projection` leaf mapping now supplies both value domains and
 complete actions, including exact boxed-sum site plans. Bool projection uses its
-actual i64 storage; unit VariantMake remains an allocated Handle. Missing ABI,
+actual i64 storage. Typed VariantMake allocation is not a registered host handle;
+its Map escape and general boxed payload escape remain explicit unsupported. Missing ABI,
 unseeded representation cycles and Map-demanded Float requiring an old lane
 reject. This does not prove materialization or expanded ABI consumption in C.
 `PublishedStaticMethodCFrameV2` owns calls, Map operations, value rows, expanded

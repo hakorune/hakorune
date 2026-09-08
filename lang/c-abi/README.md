@@ -193,17 +193,20 @@ physical operation selection (integer/Bool/String comparison, String concat,
 integer binary and integer/Bool Not). Body opcode and operands remain the sole
 instruction graph. Private retained V2 compilation now binds an invocation-owned
 index and publishes staged output only after both ledgers finish. Both walkers
-consume ExactBits, selected integer/Bool/String operations and direct String/Map
-OriginalHandle producers. Integer comparison bypasses dynamic kind dispatch;
-Bool payload zext occurs immediately after its producer. Operation input closure
-checks every demanded row against the retained body. Other Original producers,
-transfer/formal actions and expanded functions remain explicit unsupported;
+consume ExactBits, selected integer/Bool/String operations, host-backed allocation,
+canonical Static/Free Call results and boxed Tag/Integer/Bool/String projections.
+Integer comparison bypasses dynamic kind dispatch; Bool payload normalization
+preserves existing i1 producers. String concat uses proved payloads directly.
+Operation input closure checks demanded rows against the retained body. Direct
+array/typed-store tokens cannot escape as host handles; boxed Make/general handle
+escape, selected boxed Unit comparison, transfer/formal and expanded functions
+remain explicit unsupported;
 public V2 and the host/source cutover are still closed.
 
 String constants keep byte length in their existing record/global/owned storage;
 V2 materializes length-aware handles at the instruction and traps on zero.
-Map write checks i32 status0 and traps otherwise. Both use the existing checked
-status tail/PHI owner. V1 retains its prior String projection.
+Map write checks i32 status0 and traps otherwise. String/Map and boxed continuations use the existing
+checked status tail/PHI owner, including nondemanded boxed sites and backedges. V1 retains its prior String projection.
 
 For the private physical execution proof, build `tests/static_v2_execution_driver.c`
 with the same whole-C/yyjson sources as the document driver and ASan. Run

@@ -97,6 +97,16 @@
       if (needs.stage1_emit_mir_from_program_json ||
           (definition_plan->same_module_count > 0))
         fprintf(f, "declare i64 @\"nyash.stage1.emit_mir_from_program_json_v0_h\"(i64)\n");
+      /* Selected operations own their declaration needs; old origin metadata
+       * need not recognize runtime String projections. Observation only. */
+      if (invocation->static_v2.frame) {
+        const hako_llvmc_published_static_frame_v2* frame = invocation->static_v2.frame;
+        for (size_t vi = 0; vi < frame->value_count; vi++) {
+          const hako_llvmc_value_projection_v2* row = &frame->values[vi];
+          if (row->action == HAKO_LLVMC_MAP_ACTION_OPERATION &&
+              row->operation == HAKO_LLVMC_MAP_PHYSICAL_STRING_CONCAT) needs.string_concat = 1;
+        }
+      }
       if (needs.string_concat || needs.string_substring || needs.arr_get ||
           needs.map_set ||
           needs.arr_string_indexof || (definition_plan->same_module_count > 0)) {

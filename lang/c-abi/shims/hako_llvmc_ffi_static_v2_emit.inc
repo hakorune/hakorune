@@ -10,6 +10,76 @@
         index->values[vi].used = 1;
         return 1;
       }
+      auto int static_v2_original_demanded(yyjson_val* ins) {
+        uint32_t dst;
+        if (!hako_static_v2_u32(yyjson_obj_get(ins, "dst"), &dst)) return 0;
+        int vi = hako_static_v2_value_find(&invocation->static_v2, fn0, dst);
+        return vi >= 0 && invocation->static_v2.frame->values[vi].action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE;
+      }
+      auto int static_v2_consume_original(yyjson_val* ins) {
+        struct HakoStaticV2Index* index = &invocation->static_v2;
+        uint32_t dst;
+        if (!hako_static_v2_u32(yyjson_obj_get(ins, "dst"), &dst)) return 1;
+        int vi = hako_static_v2_value_find(index, fn0, dst);
+        if (vi < 0 || index->frame->values[vi].action != HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE) return 1;
+        const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
+        if (row->value_kind == HAKO_LLVMC_MAP_VALUE_BOOL) {
+          long long bits, base = resolve_copy_source_reg(dst);
+          if (has_const(base, &bits)) {
+            if (bits != 0 && bits != 1) return 0;
+            EMIT("  %%map_payload_%u = add i64 %lld, 0\n", dst, bits);
+          } else if (get_type(base) == T_I1) {
+            EMIT("  %%map_payload_%u = zext i1 %%r%lld to i64\n", dst, base);
+          } else {
+            EMIT("  %%map_payload_%u = add i64 %%r%lld, 0\n", dst, base);
+          }
+        }
+        return static_v2_consume_value(ins);
+      }
+      auto int static_v2_validate_boxed(yyjson_val* ins) {
+        if (!invocation->static_v2.frame) return 1;
+        yyjson_val* site = yyjson_obj_get(ins, "boxed_sum_abi_plan_id");
+        if (!site) return 1; /* Non-demanded compatibility sites retain their Stop/no-op. */
+        uint32_t id;
+        if (!hako_static_v2_u32(site, &id) || id > INT_MAX) return 0;
+        yyjson_val* plan = boxed_sum_abi_plan_at_index((int)id);
+        uint32_t plan_id;
+        if (!plan || !hako_static_v2_u32(yyjson_obj_get(plan, "plan_id"), &plan_id) || plan_id != id ||
+            !hako_static_v2_text(yyjson_obj_get(plan, "version"), "boxed_runtime_v2") ||
+            !hako_static_v2_text(yyjson_obj_get(plan, "enum_name"), read_str(ins, "enum")) ||
+            !hako_static_v2_text(yyjson_obj_get(plan, "tag_storage"), "i64")) return 0;
+        const char* op = read_str(ins, "op");
+        uint32_t tag = 0;
+        if (strcmp(op, "variant_tag")) {
+          if (!hako_static_v2_u32(yyjson_obj_get(ins, "tag"), &tag)) return 0;
+          yyjson_val* variant = yyjson_arr_get(yyjson_obj_get(plan, "variants"), tag);
+          uint32_t variant_tag;
+          if (!variant || !hako_static_v2_u32(yyjson_obj_get(variant, "tag"), &variant_tag) || variant_tag != tag ||
+              !hako_static_v2_text(yyjson_obj_get(variant, "payload_storage"), read_str(ins, "boxed_sum_payload_storage"))) return 0;
+        }
+        if (strcmp(op, "variant_make")) {
+          struct GenericPureVariantBinding binding;
+          memset(&binding, 0, sizeof(binding));
+          if (get_variant_binding(read_int(ins, "value"), &binding) &&
+              (binding.boxed_sum_plan_index != (int)id ||
+               (!strcmp(op, "variant_project") && !binding.tag_reg && binding.tag_const != tag))) return 0;
+        }
+        return 1;
+      }
+      auto int static_v2_finish_boxed(yyjson_val* ins, long long bid, size_t ii, int emitted) {
+        if (!invocation->static_v2.frame) return emitted;
+        uint32_t dst;
+        int vi = hako_static_v2_u32(yyjson_obj_get(ins, "dst"), &dst)
+            ? hako_static_v2_value_find(&invocation->static_v2, fn0, dst) : -1;
+        if (emitted < 0 || (vi >= 0 && emitted == 0)) return -1;
+        if (emitted > 0 && !static_v2_consume_original(ins)) return -1;
+        /* One predictable tail after local aliases/constants and runtime reads,
+         * including boxed sites without a Map value demand in this block. */
+        EMIT("  br label %%exact_status_continue_%lld_%zu\n", bid, ii);
+        EMIT("exact_status_continue_%lld_%zu:\n", bid, ii);
+        note_exact_status_continue_label(bid, ii);
+        return emitted;
+      }
       auto int static_v2_payload(uint32_t value, char* output, size_t size) {
         struct HakoStaticV2Index* index = &invocation->static_v2;
         int vi = hako_static_v2_value_find(index, fn0, value);
@@ -17,7 +87,8 @@
         const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
         if (row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS) {
           snprintf(output, size, "%llu", (unsigned long long)row->payload);
-        } else if (row->encoding == HAKO_LLVMC_MAP_ENCODING_BOOL_I1_ZEXT) {
+        } else if ((row->encoding == HAKO_LLVMC_MAP_ENCODING_BOOL_I1_ZEXT ||
+                    (row->action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE && row->value_kind == HAKO_LLVMC_MAP_VALUE_BOOL))) {
           snprintf(output, size, "%%map_payload_%u", value);
         } else {
           long long bits, base = resolve_copy_source_reg(value);
@@ -52,7 +123,9 @@
             emit_string_compare(dst, hako_static_v2_predicate(op), inputs[0], inputs[1]);
             break;
           case HAKO_LLVMC_MAP_PHYSICAL_STRING_CONCAT:
-            emit_string_concat_hh_call(f, dst, inputs[0], inputs[1]);
+            EMIT("  %%r%u = call i64 @\"nyash.string.concat_hh\"(i64 %s, i64 %s)\n", dst, refs[0], refs[1]);
+            finalize_string_concat_result(dst);
+            remember_string_concat_pair(dst, inputs[0], inputs[1]);
             break;
           default: return 0;
         }

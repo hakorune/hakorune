@@ -12,8 +12,13 @@
                 yyjson_get_bool(has_payload_value);
             int boxed_plan_index = -1;
             boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
+            if (!static_v2_validate_boxed(ins)) {
+              note_pure_unsupported_shape(bid, ii, op, "static_v2_boxed_site", NULL);
+              goto GEN_ABORT;
+            }
             int boxed_emit = emit_boxed_sum_variant_make_lowering(
                 bid, ii, op, dst, tag, payload, has_payload, enum_name, payload_storage, boxed_plan_index);
+            boxed_emit = static_v2_finish_boxed(ins, bid, ii, boxed_emit);
             if (boxed_emit < 0) {
               goto GEN_ABORT;
             }
@@ -28,6 +33,10 @@
             const char* enum_name = read_str(ins, "enum");
             int boxed_plan_index = -1;
             boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
+            if (!static_v2_validate_boxed(ins)) {
+              note_pure_unsupported_shape(bid, ii, op, "static_v2_boxed_site", NULL);
+              goto GEN_ABORT;
+            }
             int boxed_emit = emit_boxed_sum_variant_tag_lowering(
                 bid,
                 ii,
@@ -38,6 +47,7 @@
                 boxed_plan_index,
                 "local_variant_tag_binding_missing",
                 1);
+            boxed_emit = static_v2_finish_boxed(ins, bid, ii, boxed_emit);
             if (boxed_emit < 0) {
               goto GEN_ABORT;
             }
@@ -54,6 +64,10 @@
             const char* payload_storage = read_str(ins, "boxed_sum_payload_storage");
             int boxed_plan_index = -1;
             boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
+            if (!static_v2_validate_boxed(ins)) {
+              note_pure_unsupported_shape(bid, ii, op, "static_v2_boxed_site", NULL);
+              goto GEN_ABORT;
+            }
             int boxed_emit = emit_boxed_sum_variant_project_lowering(
                 bid,
                 ii,
@@ -66,6 +80,7 @@
                 boxed_plan_index,
                 "local_variant_project_binding_missing",
                 1);
+            boxed_emit = static_v2_finish_boxed(ins, bid, ii, boxed_emit);
             if (boxed_emit < 0) {
               goto GEN_ABORT;
             }

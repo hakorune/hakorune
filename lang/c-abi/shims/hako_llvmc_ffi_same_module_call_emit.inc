@@ -44,7 +44,7 @@
                     typed_args[0] == '\0');
               }
               same_module_function_emit_i64_call(dst, typed_symbol, typed_args);
-              return 1;
+              return static_v2_consume_original(ins) ? 1 : -1;
             }
           }
         }

@@ -6,6 +6,7 @@
       #include "hako_llvmc_ffi_emit_seam.inc"
       #include "hako_llvmc_ffi_static_data_emit.inc"
       #include "hako_llvmc_ffi_generic_method_lowering.inc"
+      auto int static_v2_consume_original(yyjson_val* ins);
       #include "hako_llvmc_ffi_mir_call_dispatch.inc"
       auto int note_global_call_lowering_plan_unsupported_shape(
           long long bid,
@@ -287,6 +288,11 @@
                 last_exact_status_ii = ii;
                 continue;
               }
+            }
+            if (invocation->static_v2.frame && op && (!strcmp(op, "variant_make") ||
+                !strcmp(op, "variant_tag") || !strcmp(op, "variant_project"))) {
+              last_exact_status_ii = ii;
+              continue;
             }
             int map_site = hako_static_v2_map_find(&invocation->static_v2, fn0, ins);
             if (map_site >= 0 && invocation->static_v2.frame->map_operations[map_site].kind == HAKO_LLVMC_MAP_OP_WRITE) {

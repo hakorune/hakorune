@@ -247,6 +247,20 @@ fn map_literal_named_allocating_outcomes_ignore_spelling_and_unused_errors() {
             index.map_value_demands().unwrap(),
             BTreeSet::from([("main", ValueId::new(8))])
         );
+        if matches!(
+            consumer,
+            NamedAllocationConsumer::DirectArray | NamedAllocationConsumer::TypedObject
+        ) {
+            assert!(index
+                .named_projection_action(("main", ValueId::new(8)))
+                .unwrap_err()
+                .contains("non-host-handle"));
+            assert!(index
+                .map_projection_actions()
+                .unwrap_err()
+                .contains("non-host-handle"));
+            continue;
+        }
         assert_eq!(
             index.map_value_domains().unwrap()[&("main", ValueId::new(8))],
             BTreeSet::from([ValueDomain::Handle])

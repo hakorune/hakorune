@@ -135,6 +135,19 @@ fn map_literal_boxed_actions_and_domains_share_exact_site_storage() {
             let view = PublishedMirBackendView::try_new(&module).unwrap();
             let index = MapBodyIndex::from_view(&view).unwrap();
             let key = ("main", ValueId::new(value));
+            if value == 8 || (value == 10 && matches!(ty, MirType::Box(_))) {
+                assert!(
+                    index
+                        .map_projection_actions()
+                        .unwrap_err()
+                        .contains("escape-unavailable")
+                        || index
+                            .map_projection_actions()
+                            .unwrap_err()
+                            .contains("representation-unavailable")
+                );
+                continue;
+            }
             assert_eq!(
                 index.map_value_domains().unwrap()[&key],
                 BTreeSet::from([domain])
@@ -147,10 +160,11 @@ fn map_literal_boxed_actions_and_domains_share_exact_site_storage() {
     let module = boxed(MirType::Void, 8, true);
     let view = PublishedMirBackendView::try_new(&module).unwrap();
     let index = MapBodyIndex::from_view(&view).unwrap();
-    assert_eq!(
-        index.map_projection_actions().unwrap()[&("main", ValueId::new(8))],
-        ProjectionAction::OriginalHandle
-    ); // Unit construction still allocates.
+    assert!(index
+        .map_projection_actions()
+        .unwrap_err()
+        .contains("boxed-object-escape-unavailable"));
+    // Unit construction allocates in the typed store, not the host-handle owner.
 }
 
 #[test]

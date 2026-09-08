@@ -1017,14 +1017,16 @@ Implemented Named-binding contract:
 - Owner/issuer: existing C Named selector issues physical consumer observations;
   existing published-frame/MapBodyIndex owner binds copied outcomes to the exact
   original MIR site. No new semantic Verified/Prepared wrapper or name classifier.
-- Bound allocating outcomes provide Handle; AliasOperand0 follows that exact
+- Bound host-backed Array/Map/File outcomes provide Handle; DirectArray and
+  TypedObject outcomes reject demanded projection until their escape owner exists.
+  AliasOperand0 follows that exact
   Named NewBox's original `args[0]`, never a copied operand graph. Missing/wrong
   site, duplicate binding, missing alias operand and required Invalid/Unsupported
   reject; observations for intrinsic allocation cannot grant Named admission.
 - Alias dependencies join the existing finite fixed point, including aliases
   discovered through another alias, PHI/Select and canonical actual/formal edges.
-  Alias domain comes from its operand; Handle domain comes from the observed
-  allocating consumer. Preserve Unresolved for all other unproved producers.
+  Alias domain comes from its operand; Handle domain requires the observed
+  host-backed consumer. Preserve Unresolved for all other unproved producers.
 - Add an explicit Named-alias physical action to the existing V2 vocabulary;
   ordinary Copy is not a NewBox opcode. Map-only Float retains exact bits without
   manufacturing an old lane. If an original consumer needs the alias result,
@@ -1175,7 +1177,7 @@ explicit unavailable/invalid outcome. Do not invent a role for an un-emitted or
 bypassed body, or reject a whole program merely because discovery visits an
 unrequested unsupported site. Rust binds relevant outcomes to the original
 `MapBodyIndex` instructions before domain/leaf admission. Handle follows the
-selected allocating consumer; AliasOperand(0) follows the original MIR operand,
+selected host-backed consumer; AliasOperand(0) follows the original MIR operand,
 including exact Float bits. `map_body_index.rs` now follows bound alias operands
 in demand, domain and original-lane propagation together, without manufacturing
 an old Float lane or copying an operand graph. A new demanded alias input uses
@@ -1202,39 +1204,49 @@ physical signature must be projected consistently at definition and every
 admitted caller, under an explicit compiler-input revision; the current v1 C
 row layout cannot be reused with silently changed field meanings.
 
-### Complete demanded projection mapping — verified implementation
+### Complete demanded projection mapping — physical escape boundary
 
-Change: complete the existing MapBodyIndex action map for every demanded producer;
-replace duplicated/coarse leaf domain handling with the same finite mapping.
-Contract: original ConstValue, checked canonical calls, bound Named outcomes and
-existing `build_function_boxed_sum_site_plan_map` own the physical evidence.
-VariantMake is Handle even for unit payload; VariantTag is I64; Project requires
-exact storage/type agreement (Bool uses OriginalBoolI64, never BoolI1). Graph and
-operation actions reuse original MIR and the existing fixed-point solver. No
-new semantic receipt or alternate graph. Only demanded leaves are admitted.
-Done: constants, graph/formal, checked calls, bound Named and exact boxed sites
-produce a complete action map consumed by original-use closure and then frame
-rows. Missing/ambiguous boxed plans, unsupported producers, Float project and
-Map-demanded Float with original-use demand reject. Tests retain String/Handle
-and Bool encoding distinctions and unit Make allocation. Reuse focused Map tests.
-Stop: no MIR-type/coarse representation repair of missing ABI, no old Float lane
-fabrication, no CopyOwned-to-Copy conversion. This mapping does not prove String
-NUL materialization, boxed C execution, expanded ingress or production cutover;
-those remain in the full frame/C consumer step. Worker leaf audit at a695ff2638
-and parent owner reads agree; existing view Integer return gates close Call mapping.
+The existing `map_projection` owner supplies one domain/action mapping from
+original constants, canonical Integer-result calls and exact site plans. Bound
+Named Array/Map/File outcomes use the registered host-handle representation;
+DirectArray and TypedObject outcomes reject when demanded. VariantTag is I64;
+Project of Integer/Bool/String retains its exact storage/type agreement. Unit or
+payload VariantMake results and general Box/Array/Future/Weak payload escape have
+no proved Map representation yet and reject. Local construction needed only to
+produce a scalar/String projection is not itself a Map value demand.
 
-Verification: `map_projection.rs` supplies one leaf domain/action mapping and a
-complete demanded action map. Boxed site binding calls the existing plan owner
-once per indexed function, retaining exact sites without another layout resolver.
-Focused Map33 passes, including five new projection tests: exact constants/NaN/
-NUL retention, original Float rejection, boxed Bool i64 versus Handle/String,
-unit Make, missing/ambiguous/wrong storage, unsupported payloads, unrequested
-bad sites, canonical Integer-result gate, demanded formals and seeded/unseeded
-cycles plus CopyOwned refusal. The live C-query compile/cancel test also passes;
-corridor and pointer guards are green. Initial new VariantProject fixture lacked
-its required variant field; corrected before passing, with no baseline waiver.
-Next is owned V2 frame rows and expanded definition/caller lanes, followed by
-both C consumers and input-aware capability, then public session/host cutover.
+This supersedes the earlier allocating-outcome/VariantMake => OriginalHandle
+premise. Kernel execution at parent9b2931a42c found valid direct-array and typed
+object tokens rejected by literal_store kind5 (status2, no insertion), while a
+registered String handle succeeds. Legacy collection tests that round-trip raw
+bits as IntegerBox do not prove object category or lifetime.
+
+| Physical representation | Existing owner | Current Map disposition |
+| --- | --- | --- |
+| Registered host handle | host_handles / Arc-owned NyashBox | Handle5 |
+| Typed negative index | reclaimable typed-object store | CutoverBlockerOpen |
+| Direct-slot typed pointer | configured TLS typed-object store | CutoverBlockerOpen |
+| Direct-array tagged pointer | TLS direct-array buffer | CutoverBlockerOpen |
+
+Decision: keep Handle5's existing meaning. Reject incompatible demands before
+artifact rather than changing allocation selection or guessing kind from bits.
+C checks the actual captured consumer for Named and intrinsic Array. Rust has
+exact Named outcomes, but intrinsic configuration/representation still needs
+same-session binding before public activation. These are included blockers, not
+parked families or a smaller replacement completion target.
+
+The runtime owner must issue any escape keep/promotion with explicit identity,
+shared mutation, reclamation, lifetime and thread-transfer contracts. NyashBox
+requires Send+Sync; raw TLS indices/pointers cannot establish those guarantees.
+The direct-slot materialized-view helper is test-only and is not a production
+bridge. No new token wrapper or semantic receipt is authorized by equal i64 width.
+
+Transfer/formal lowering may proceed independently over the admitted domain,
+preserving every explicit unsupported result. Before full public cutover, close
+these physical representations and the required source/Map readback acceptance.
+Focused `map_literal_` Rust tests verify the corrected refusal and retained
+scalar/String/alias/call mapping. Source cutover and general object escape remain
+unproved; the full Map series retains both obligations.
 
 ### Demanded-formal ingress and use closure
 
@@ -1333,17 +1345,23 @@ explicitly unsupported until its shared index/signature/ingress consumer lands.
 
 Both actual walkers emit intrinsic Map allocation and writes to
 `nyash.map.literal_store_v1`. ExactBits retain Integer/Bool/F64/Void. The shared
-consumer also handles all seven selected Operation discriminators and direct
-String/intrinsic-Map OriginalHandle. Operations use the retained body's operands,
-with separate temporary reachability bits and the actual-emission ledger. Missing,
-extra, wrong-kind or original-unavailable input rows reject; no operand graph is
-copied. Integer comparisons bypass dynamic kind dispatch. Bool results keep i1
-for old consumers and immediately issue an i64 side payload. String operations
-use the existing direct helpers or existing constant folding, without a deferred
-zero placeholder. Folded String and direct allocation consume their value rows
-only at successful emission. Remaining Original producers reject as
-`original-consumer-unsupported`; transfer/formal actions still reject as
-`value-consumer-unsupported`. These rejections remain compiler cutover blockers.
+consumer handles all seven selected Operation discriminators, direct String/Map,
+host-backed Named/Intrinsic Array allocations, canonical Static/Free Call results,
+and boxed Tag/Integer/Bool/String projections. Operations use retained body operands;
+reachability and actual-emission ledgers remain separate. Missing, extra or
+wrong-kind inputs reject. Original rows are consumed only after successful emission.
+Typed-store and direct-array tokens are not host handles: demanded allocations,
+boxed Make escape and unproved general handle projections remain explicit Stops
+under the physical escape boundary above. Transfer/formal actions still reject as
+`value-consumer-unsupported`; all these gaps remain compiler cutover blockers.
+
+Integer comparisons bypass dynamic kind dispatch. Bool results preserve i1 for
+old consumers and issue an i64 side payload at the producer. Local boxed aliases
+and constants use the existing value owner; Bool payloads normalize i1 at Make
+and Project consumption. String concat consumes already-proved String payloads
+directly, then uses existing result publication; accepted operation rows also
+supply declaration requirements in the existing declaration owner. It never reclassifies a
+projected String from old origin metadata. Constant folding remains in the existing owner.
 
 Map success is i32 status0; all nonzero statuses trap without continuation or
 source Fault. String constants retain byte length in the existing StringConst
@@ -1353,44 +1371,37 @@ hoisting stays on the V1 path. The existing globals/owned storage remain sole
 owners. V1 retains its historical length/runtime projection. Map writes now count
 as uses in the existing literal observer, so a live key is not eliminated.
 
-String/Map continuations use the existing exact-status labels and PHI predecessor
-owner. Preplanning scans command order together with checked field stores,
+String/Map/boxed continuations use the existing exact-status labels and PHI
+predecessor owner. Every successful V2 boxed dispatch, including nondemanded sites,
+has a common continuation. Preplanning scans the same sites with checked field stores,
 including not-yet-emitted backedges. No second tail table, literal pool, runtime
 wrapper or operand graph is added. Arbitrary String specialization/optimizer/C1
 combinations are not proved by this bounded consumer; input-aware capability
 must close changed-consumer coverage before public activation.
 
-Verification at parent bd81c298fc: `static_v2_execution_test.py` passes99
-private compile cases in normal and ASan builds, with68 linked-kernel readbacks
-and8 injected traps per run. All seven Operation rows execute in both walkers,
-including mixed Bool widths, direct Integer comparison, String comparison/constant
-concat and String/Map Handle values. Nonfolded String inputs remain dependent on
-their unimplemented original producers; this does not prove general String
-specialization coverage. Missing/wrong-kind/original-unavailable operation inputs
-and malformed result fields reject before output. Earlier ExactBits, byte-length,
-status and backedge cases still pass. C build and guards pass; Named60 and
-definition22 outputs match parent observations. The fixture reader remains
-test-only. Independent read-only review found no confirmed defect in this
-bounded value consumer; source/host cutover remains open.
+Verification on the Original consumer change (parent9b2931a42c): normal/ASan
+`static_v2_execution_test.py` each pass162 private compile cases, including104
+linked-kernel readbacks, eight injected traps and one direct runtime domain probe.
+Both entry and same-module walkers cover canonical Call identity, host-backed
+allocations, scalar/String boxed local/runtime projections and nondemanded boxed
+backedge tails. Two runtime String projections reproduce and then close the old
+declaration gap; `catdog`/`catcat` readbacks verify direct concat operands. Invalid
+boxed plans and non-host allocations reject without replacing an earlier artifact.
+Rust `map_literal_` tests pass36 with one ignored. C library build/corridor guard
+pass; Named60 and definition22 observations match the parent. The fixture reader remains test-only; source/host
+cutover stays open, including physical escape and expanded signature obligations.
 
-Next: join the remaining OriginalValue producers at their actual success sites:
-Named uses retained allocating outcomes (not alias), intrinsic Array uses its
-selected allocator, canonical Call uses typed Static/Free emission, and boxed
-Make/Tag/Project require a positive shared-emitter result. A zero/no-op result
-cannot consume a demanded row. The formatter must preserve Tag constants and
-Project copy aliases; a Bool Project alias may point to i1 despite its own I64
-record and needs producer-local normalization.
-
-Worker audit at bd81c298fc identified boxed runtime Tag/Project tail bookkeeping
-that records `exact_status_continue` while printing different continuation names.
-Before those OriginalValue rows execute, reconcile actual and future-predecessor
-labels in the existing tail owner, including local alias/constant cases. A common
-V2-only continuation after a demanded boxed producer is one bounded physical
-option; do not predict runtime-only splits by opcode or duplicate its selector.
-These are static findings, not test-reproduced baseline debt or admitted support.
-Then finish transfer/formal consumers, the single expanded-function index,
-signatures and ingress rejection, input-aware capability and atomic public
-session/host/source switch with V1 and six literal-edge retirement.
+Next: finish transfer/formal consumers and the shared expanded-function index,
+signatures and old-ABI ingress rejection. In parallel with that finite dependency
+order, keep physical escape ownership and intrinsic allocator session observation
+as CutoverBlockerOpen; admitting the already-proved host domains does not close
+all Original producers. The selected boxed Unit comparison owner currently Stops
+before emission (`static_v2_boxed_compare_consumer_pending`); its internal splits
+need the existing PHI tail contract before activation. Generic legacy comparison
+can use an earlier dynamic dispatcher, so this Stop is not a universal comparison
+guarantee. Input-aware capability must account for actual selected consumers.
+Then complete capability and atomic public session/host/source switch with V1
+and six literal-edge retirement. No public V2/source cutover claim.
 
 ### Versioned compiler frame decision
 

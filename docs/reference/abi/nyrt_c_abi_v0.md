@@ -140,6 +140,10 @@ only0/1; F64 retains IEEE754 binary64 bits; Void accepts only0. Null is runtime
 Void. Handle requires a live registered value and preserves the existing Map
 String/StringView borrow/materialization and other-value clone policy. No
 numeric payload is tested against the handle registry to infer its kind.
+Typed-store indices/direct-slot pointers and direct-array pointers are not
+Handle5 values. Their object identity, lifetime and thread-transfer escape
+contract remains a compiler cutover blocker; scalar bit round-tripping through
+legacy collection storage is not a boxed-object representation proof.
 
 Map and key are borrowed live handles; key must be a StringBox. The call retains
 no borrowed input pointer. Validate and materialize key/value outside the Map

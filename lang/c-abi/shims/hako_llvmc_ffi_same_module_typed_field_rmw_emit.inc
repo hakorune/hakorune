@@ -386,8 +386,14 @@
               yyjson_get_bool(has_payload_value);
           int boxed_plan_index = -1;
           boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
+          if (!static_v2_validate_boxed(ins)) {
+            note_pure_unsupported_shape(bid, ii, op, "static_v2_boxed_site", NULL);
+            return 0;
+          }
           int boxed_emit = emit_boxed_sum_variant_make_lowering(
               bid, ii, op, dst, tag, payload, has_payload, enum_name, payload_storage, boxed_plan_index);
+          boxed_emit = static_v2_finish_boxed(ins, bid, ii, boxed_emit);
+          if (invocation->static_v2.frame && boxed_emit < 0) return 0;
           if (boxed_emit != 0) return boxed_emit > 0;
           return 1;
         }
@@ -397,6 +403,10 @@
           const char* enum_name = read_str(ins, "enum");
           int boxed_plan_index = -1;
           boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
+          if (!static_v2_validate_boxed(ins)) {
+            note_pure_unsupported_shape(bid, ii, op, "static_v2_boxed_site", NULL);
+            return 0;
+          }
           int boxed_emit = emit_boxed_sum_variant_tag_lowering(
               bid,
               ii,
@@ -407,6 +417,8 @@
               boxed_plan_index,
               "boxed_sum_abi_variant_tag_emit_unavailable",
               0);
+          boxed_emit = static_v2_finish_boxed(ins, bid, ii, boxed_emit);
+          if (invocation->static_v2.frame && boxed_emit < 0) return 0;
           if (boxed_emit != 0) return boxed_emit > 0 ? 1 : -1;
           return 0;
         }
@@ -418,6 +430,10 @@
           const char* payload_storage = read_str(ins, "boxed_sum_payload_storage");
           int boxed_plan_index = -1;
           boxed_sum_abi_plan_index_from_site(ins, &boxed_plan_index);
+          if (!static_v2_validate_boxed(ins)) {
+            note_pure_unsupported_shape(bid, ii, op, "static_v2_boxed_site", NULL);
+            return 0;
+          }
           int boxed_emit = emit_boxed_sum_variant_project_lowering(
               bid,
               ii,
@@ -430,11 +446,15 @@
               boxed_plan_index,
               NULL,
               0);
+          boxed_emit = static_v2_finish_boxed(ins, bid, ii, boxed_emit);
+          if (invocation->static_v2.frame && boxed_emit < 0) return 0;
           if (boxed_emit != 0) return boxed_emit > 0 ? 1 : -1;
           return 0;
         }
         if (!strcmp(op, "newbox")) {
-          return same_module_function_emit_newbox(bid, ii, ins);
+          int result = same_module_function_emit_newbox(bid, ii, ins);
+          if (result > 0 && !static_v2_consume_original(ins)) return 0;
+          return invocation->static_v2.frame ? result > 0 : result;
         }
         if (!strcmp(op, "array_element_write")) {
           const char* active_function_name = fn0 ? read_str(fn0, "name") : NULL;
@@ -485,7 +505,8 @@
           return same_module_function_emit_ret_instruction(bid, ins);
         }
         if (!strcmp(op, "mir_call") || !strcmp(op, "call") || !strcmp(op, "boxcall")) {
-          return same_module_function_emit_call_instruction(f, bid, ii, ins);
+          int result = same_module_function_emit_call_instruction(f, bid, ii, ins);
+          return invocation->static_v2.frame ? result > 0 : result;
         }
         if (!strcmp(op, "externcall")) {
           return same_module_function_emit_externcall_instruction(
