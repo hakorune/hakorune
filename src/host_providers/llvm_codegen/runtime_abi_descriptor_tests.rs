@@ -129,3 +129,186 @@ fn selects_actual_lifecycle_archive_and_rejects_renamed_legacy() {
     std::fs::remove_file(renamed).unwrap();
     assert!(result.unwrap_err().contains("entry ABI record"));
 }
+
+#[test]
+fn native_array_inventory_requires_exact_single_external_function_definitions() {
+    let valid: Vec<_> = NATIVE_ARRAY_SYMBOLS
+        .iter()
+        .map(|name| format!("{name} T 0 1"))
+        .collect();
+    assert!(require_native_array_symbol_inventory(&valid.join("\n")).is_ok());
+    for index in 0..NATIVE_ARRAY_SYMBOLS.len() {
+        let mut rows = valid.clone();
+        rows.remove(index);
+        assert!(require_native_array_symbol_inventory(&rows.join("\n")).is_err());
+        for row in [
+            format!("{} U", NATIVE_ARRAY_SYMBOLS[index]),
+            format!("{} D 0 8", NATIVE_ARRAY_SYMBOLS[index]),
+            format!("{} t 0 1", NATIVE_ARRAY_SYMBOLS[index]),
+            format!("{}_extra T 0 1", NATIVE_ARRAY_SYMBOLS[index]),
+        ] {
+            let mut rows = valid.clone();
+            rows[index] = row;
+            assert!(require_native_array_symbol_inventory(&rows.join("\n")).is_err());
+        }
+    }
+    let mut duplicate = valid.clone();
+    duplicate.push(valid[0].clone());
+    assert!(require_native_array_symbol_inventory(&duplicate.join("\n")).is_err());
+}
+
+#[test]
+fn native_array_availability_reads_defined_symbols_from_actual_archives() {
+    let directory =
+        std::env::temp_dir().join(format!("nyash-array-symbols-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    struct Cleanup(PathBuf);
+    impl Drop for Cleanup {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+    let _cleanup = Cleanup(directory.clone());
+    let mut objects = Vec::new();
+    for (index, name) in NATIVE_ARRAY_SYMBOLS.iter().enumerate() {
+        let source = directory.join(format!("{index}.c"));
+        let object = source.with_extension("o");
+        std::fs::write(
+            &source,
+            format!(
+                "void function_{index}(void) __asm__(\"{name}\"); void function_{index}(void) {{}}"
+            ),
+        )
+        .unwrap();
+        assert!(Command::new("cc")
+            .arg("-c")
+            .arg(&source)
+            .arg("-o")
+            .arg(&object)
+            .status()
+            .unwrap()
+            .success());
+        objects.push(object);
+    }
+    for missing in 0..=NATIVE_ARRAY_SYMBOLS.len() {
+        let archive = directory.join(format!("missing-{missing}.a"));
+        assert!(Command::new("ar")
+            .arg("crs")
+            .arg(&archive)
+            .args(
+                objects
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(index, path)| (index != missing).then_some(path))
+            )
+            .status()
+            .unwrap()
+            .success());
+        let result = require_native_array_symbols(&archive);
+        assert_eq!(
+            result.is_ok(),
+            missing == NATIVE_ARRAY_SYMBOLS.len(),
+            "{result:?}"
+        );
+    }
+    let source = directory.join("undefined.c");
+    let object = source.with_extension("o");
+    std::fs::write(
+        &source,
+        format!(
+            "extern void absent(void) __asm__(\"{}\"); void reference(void) {{ absent(); }}",
+            NATIVE_ARRAY_SYMBOLS[0]
+        ),
+    )
+    .unwrap();
+    assert!(Command::new("cc")
+        .arg("-c")
+        .arg(&source)
+        .arg("-o")
+        .arg(&object)
+        .status()
+        .unwrap()
+        .success());
+    let archive = directory.join("undefined.a");
+    assert!(Command::new("ar")
+        .arg("crs")
+        .arg(&archive)
+        .arg(&object)
+        .args(&objects[1..])
+        .status()
+        .unwrap()
+        .success());
+    assert!(require_native_array_symbols(&archive).is_err());
+    // Different archive members with the same required definition are ambiguous.
+    let duplicate = directory.join("duplicate.o");
+    std::fs::copy(&objects[0], &duplicate).unwrap();
+    let archive = directory.join("duplicate.a");
+    assert!(Command::new("ar")
+        .arg("crs")
+        .arg(&archive)
+        .args(&objects)
+        .arg(&duplicate)
+        .status()
+        .unwrap()
+        .success());
+    assert!(require_native_array_symbols(&archive).is_err());
+    assert!(require_native_array_symbols(&directory.join("absent.a")).is_err());
+}
+
+#[test]
+fn bound_pair_input_checks_runtime_before_serialization_and_ignores_array_symbols() {
+    use super::super::lifecycle_invocation::LifecycleInvocationInputV1;
+    use crate::mir::{MirCompiler, NormalCompileRequestV1};
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+            include_str!("../../../apps/typed-object-birth-min/main.hako"),
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+        else {
+            panic!("source must be retained")
+        };
+        let result = MirCompiler::with_options(true).compile_normal_with_published(
+            NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()),
+            |view, _| -> Result<(), String> {
+                let physical = view.issue_lifecycle_physical_abi_input()?;
+                let mut descriptor = decode_descriptor(&descriptor_bytes())?;
+                descriptor.target_triple = "x86_64-unknown-linux-gnu".into();
+                // A selected session fixture: binding typed objects must not inspect Array symbols.
+                let session = LifecycleRuntimeSessionV1 {
+                    runtime_archive: PathBuf::from("fixture-without-array-symbols.a"),
+                    descriptor,
+                };
+                let expected = crate::mir::emit_lifecycle_physical_abi_json(&physical)?;
+                let bound = LifecycleInvocationInputV1::bind(physical.clone(), &session)?;
+                assert_eq!(bound.serialize()?, expected);
+                assert_eq!(bound.runtime_archive(), session.runtime_archive());
+                for index in 0..5 {
+                    let mut bad = session.clone();
+                    match index {
+                        0 => bad.descriptor.target_triple = "other".into(),
+                        1 => bad.descriptor.pointer_width = 4,
+                        2 => bad.descriptor.fault_abi_version = 2,
+                        3 => bad.descriptor.frame_size += 8,
+                        _ => bad.descriptor.diagnostic_details_offset = 8,
+                    }
+                    assert!(LifecycleInvocationInputV1::bind(physical.clone(), &bad).is_err());
+                }
+                assert!(session
+                    .require_input(PublishedLifecycleRuntimeRequirementsV1::NativeArray, 1)
+                    .is_err());
+                assert!(session
+                    .require_input(
+                        PublishedLifecycleRuntimeRequirementsV1::TypedObject { storage_profile: 0 },
+                        1
+                    )
+                    .is_err());
+                Err("bound-pair-input-verified".into())
+            },
+        );
+        assert!(matches!(result, Err(error) if error.contains("bound-pair-input-verified")));
+    });
+}

@@ -36,7 +36,7 @@ pub(crate) use compiled_entry_contract::{
     CompiledEntryCleanupKindV1, CompiledEntryContractV1, CompiledEntryFormalKindV1,
     CompiledEntryRootResultV1,
 };
-pub(in crate::mir) use physical_abi::PublishedLifecyclePhysicalAbiInputV1;
+pub(crate) use physical_abi::{PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1};
 pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 pub(crate) use physical_program_json::emit_lifecycle_physical_abi_json;
 

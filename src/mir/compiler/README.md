@@ -18,7 +18,12 @@ Per-New actuals travel inside the existing root-source handoff. Compiled-entry
 matches each physical Birth call to exactly one retained target/receiver/ordered
 argument row and exhausts the rows. Birth definitions remain deduplicated; call
 rows do not. The final physical input owns this compiled-entry contract and
-referenced layouts. The retired V2 frame/companion JSON observer is not an
+referenced layouts. Runtime requirements distinguish typed-object profile from
+native Array dependency; only the callable typed-object projection is currently
+issued. The host binds this product to its selected runtime session before
+serialization; MIR has no host-module dependency. Retained Script projection is
+the remaining final-input task.
+The retired V2 frame/companion JSON observer is not an
 alternate representation. Storage profile and its finite validation live in
 `published_backend_view/lifecycle.rs`; they issue no source meaning.
 This retention does not bind Local to i64 or widen formal acceptance.

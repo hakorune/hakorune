@@ -211,6 +211,27 @@ the existing void `nyrt_handle_release_h` exactly once; there is no new release
 status or Array-specific registry. These exports alone do not activate the
 selected Script C backend.
 
+### Lifecycle physical input and runtime session binding
+
+The host invocation owns one issued physical input and borrows one selected
+runtime session. Binding checks the selected target/Fault/status layout and
+physical requirements before temporary JSON or output creation. The C wrapper
+serializes that input once, supplies its session's target row and releases the
+temporary input after success or error. The EXE linker receives the archive
+from the same bound input; independent JSON/session Rust arguments are retired.
+
+NativeArray requirements additionally demand exactly one defined external
+function for each of the five versioned checked Array entries above and
+`nyrt_handle_release_h`. The runtime archive inspection owner reads an explicit
+`nm` symbol inventory; absent, undefined-only, local/data and ambiguous definitions
+are rejected. A name prefix or string in object data is not availability proof.
+This check establishes physical ABI availability, not source admission or
+implementation correctness. Typed-object requirements preserve their own
+profile/layout contract and do not demand Array symbols. The existing runtime
+and entry descriptors remain authoritative; no additional Array descriptor is
+introduced. Script physical projection and selected C execution remain separate
+completion requirements.
+
 ### Selected native Array failure policy
 
 Decision: accepted by the user on 2026-09-08. Keep stable Rust and the existing

@@ -6,6 +6,7 @@
 
 use std::path::{Path, PathBuf};
 
+#[cfg(test)]
 use crate::mir::emit_lifecycle_physical_abi_json;
 use crate::mir::function::{
     PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodRouteV1,
@@ -13,7 +14,7 @@ use crate::mir::function::{
 use crate::mir::MirModule;
 
 use super::{
-    boundary_default_object_opts, capi_transport,
+    boundary_default_object_opts, capi_transport, lifecycle_invocation::LifecycleInvocationInputV1,
     runtime_abi_descriptor::LifecycleRuntimeSessionV1, transport_io,
 };
 
@@ -56,11 +57,11 @@ pub(crate) fn try_compile_published_view_object(
     }
 }
 
-fn compile_published_view_object(
+fn compile_published_view_object<'session>(
     view: &PublishedMirBackendView<'_>,
     obj_out: &str,
-    lifecycle_session: Option<&LifecycleRuntimeSessionV1>,
-) -> Result<(), String> {
+    lifecycle_session: Option<&'session LifecycleRuntimeSessionV1>,
+) -> Result<Option<&'session Path>, String> {
     if view.has_lifecycle_instructions() {
         crate::mir::typed_array_backend_capability::enforce_typed_array_backend_supported(
             view.module(),
@@ -76,18 +77,12 @@ fn compile_published_view_object(
         crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(
             view, &input,
         )?;
-        let physical_json_path = transport_io::prepare_backend_input_json_file(
-            &emit_lifecycle_physical_abi_json(&input)?,
-        )?;
-        let output = PathBuf::from(obj_out);
-        transport_io::ensure_backend_output_parent(&output);
-        let result = capi_transport::compile_published_lifecycle_physical_v4(
-            &physical_json_path,
+        let input = LifecycleInvocationInputV1::bind(
+            input,
             lifecycle_session.expect("checked lifecycle session"),
-            &output,
-        );
-        transport_io::remove_backend_temp_file(&physical_json_path);
-        return result;
+        )?;
+        capi_transport::compile_published_lifecycle_physical_v4(&input, Path::new(obj_out))?;
+        return Ok(Some(input.runtime_archive()));
     }
     crate::mir::backend_capability::enforce_published_backend_supported(view, "ny-llvmc-obj")?;
     let frame = PublishedStaticMethodCFrameV1::from_view(view)
@@ -105,7 +100,7 @@ fn compile_published_view_object(
         &opts,
     );
     transport_io::remove_backend_temp_file(&mir_json_path);
-    result
+    result.map(|()| None)
 }
 
 /// Emit and link one canonical published-call module. `false` means the
@@ -159,15 +154,14 @@ pub(crate) fn emit_published_view_exe(
                 PathBuf::from(runtime_dir).join("libnyash_lifecycle_kernel.a"),
             )?)
         };
-        let archive = lifecycle_session.as_ref().map_or_else(
-            || PathBuf::from(runtime_dir).join("libnyash_kernel.a"),
-            |session| session.runtime_archive().to_path_buf(),
-        );
-        compile_published_view_object(view, &object_path, lifecycle_session.as_ref())?;
+        let legacy_archive = PathBuf::from(runtime_dir).join("libnyash_kernel.a");
+        let archive =
+            compile_published_view_object(view, &object_path, lifecycle_session.as_ref())?
+                .unwrap_or(&legacy_archive);
         super::link_object_capi_v2(
             Path::new(&object_path),
             Path::new(exe_out),
-            &archive,
+            archive,
             extra_libs,
         )?;
         Ok(true)

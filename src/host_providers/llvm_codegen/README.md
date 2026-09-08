@@ -26,8 +26,17 @@ Thin Rust bridge for backend object emission.
 - `runtime_abi_descriptor.rs`
   - reads the target-compiled Fault/status ABI descriptor from the selected
     `libnyash_kernel.a` ELF member section
-  - validates fixed-width wire structure only; target/session equality remains
-    with the lifecycle invocation owner
+  - validates fixed-width wire structure, target/layout agreement and requirements
+    when the lifecycle invocation binds its issued input
+  - NativeArray requires six exact defined external function symbols from the
+    selected archive; undefined/local/data/prefix matches and duplicates reject.
+    Typed-object Pair does not require Array symbols.
+- `lifecycle_invocation.rs`
+  - owns the issued physical input and borrows the selected runtime session once
+  - binding precedes serialization or artifact creation; source meaning remains
+    with the retained compiler product
+  - CAPI derives JSON and target row from this bound input, owns temporary JSON
+    lifetime, and returns the same archive to the EXE linker
 - `transport_paths.rs`
   - temp-path path resolution helpers only
 - `transport_io.rs`

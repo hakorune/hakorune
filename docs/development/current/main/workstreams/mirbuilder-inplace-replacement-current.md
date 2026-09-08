@@ -613,11 +613,9 @@ no build waiver remains. Owner reference/Git retain exact evidence.
 
 #### MIR-ARRAY-CHECKED-NATIVE-ABI-I0
 
-Closed: existing root state + FaultFrame serve versioned new/claim/append exports.
-ABI8 (C header included), Fault9/kernelArray12, rootArray52/hostStop7 and guards
-pass; quick peaks6.75/8.86GiB, source max403. No C activation or allocator recovery.
-Claim InlineRecord remains existing mismatch Fault; append UnsupportedStorage is
-InvalidContract. Runtime reference and collection SSOT own the exact mapping.
+Closed at `32ed589930`: checked native Array ABI; ABI8/Fault9/kernelArray12/
+rootArray52/hostStop7 green. Runtime reference/collection SSOT own exact errors
+and evidence; C activation remains open.
 
 #### MIR-SCRIPT-ARRAY-FINAL-INPUT-I0
 
@@ -628,8 +626,10 @@ Fail-fast boundary: exact-binding drift and runtime requirement/session mismatch
 Smallest next slice: NativeArray requirements, exact I64/Unit and primitive/cleanup projections, one bound invocation using existing serializer.
 Non-claims: C emission, selected OBJ/EXE activation, new source family or Array descriptor.
 The [owner SSOT](../design/collection-literal-construction-ssot.md#accepted-runtime-to-c-task-order) fixes finite operations, exact defined symbols, caller/delete-set and acceptance.
-Keep callable Pair checks; verify real Script inputs/mutations, missing-symbol
-binding and host Stop. Every changed source<760/hard800; docs update with code.
+Host checkpoint: one bound input now owns CAPI JSON/session and EXE archive;
+independent arguments retired. Binding6/physical8/hostStop7 and real Pair EXE/
+linked OBJ30 pass; quick8.88GiB, guards green. Script projection/encoding and its
+input acceptance remain the next work in this same task; source<760/hard800.
 
 ## Source and ownership budget
 

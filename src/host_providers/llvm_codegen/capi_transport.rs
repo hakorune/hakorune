@@ -2,8 +2,8 @@ use std::ffi::{CStr, CString};
 use std::path::{Path, PathBuf};
 
 use super::defaults;
+use super::lifecycle_invocation::LifecycleInvocationInputV1;
 use super::normalize;
-use super::runtime_abi_descriptor::LifecycleRuntimeSessionV1;
 use super::transport_io;
 use super::transport_paths;
 use super::Opts;
@@ -253,15 +253,14 @@ pub(super) fn compile_published_static_method_v1(
 
 #[cfg(feature = "plugins")]
 pub(super) fn compile_published_lifecycle_physical_v4(
-    json_in: &Path,
-    session: &LifecycleRuntimeSessionV1,
+    input: &LifecycleInvocationInputV1<'_, '_>,
     obj_out: &Path,
 ) -> Result<(), String> {
     use std::os::raw::{c_char, c_int, c_void};
     extern "C" {
         fn free(ptr: *mut c_void);
     }
-    let d = session.descriptor();
+    let d = input.session().descriptor();
     let triple =
         CString::new(d.target_triple.as_str()).map_err(|_| "invalid lifecycle target triple")?;
     let row = LifecycleTargetSessionCRowV1 {
@@ -281,7 +280,9 @@ pub(super) fn compile_published_lifecycle_physical_v4(
         frame_primary_offset: d.frame_primary_offset,
         frame_suppressed_offset: d.frame_suppressed_offset,
     };
-    unsafe {
+    let json_in = transport_io::prepare_backend_input_json_file(&input.serialize()?)?;
+    transport_io::ensure_backend_output_parent(obj_out);
+    let result = (|| unsafe {
         let lib = load_ffi_library()?;
         type CompileFn = unsafe extern "C" fn(
             *const c_char,
@@ -297,13 +298,7 @@ pub(super) fn compile_published_lifecycle_physical_v4(
         let output =
             CString::new(obj_out.to_string_lossy().as_bytes()).map_err(|_| "invalid out path")?;
         let mut error: *mut c_char = std::ptr::null_mut();
-        if func(
-            input.as_ptr(),
-            &row,
-            output.as_ptr(),
-            &mut error,
-        ) != 0
-        {
+        if func(input.as_ptr(), &row, output.as_ptr(), &mut error) != 0 {
             let message = if error.is_null() {
                 "published lifecycle V4 compile failed".into()
             } else {
@@ -315,7 +310,9 @@ pub(super) fn compile_published_lifecycle_physical_v4(
             return Err(message);
         }
         transport_io::ensure_backend_artifact_written(obj_out, "object")
-    }
+    })();
+    transport_io::remove_backend_temp_file(&json_in);
+    result
 }
 
 pub(super) fn compile_via_capi_keep(
@@ -342,8 +339,7 @@ pub(super) fn compile_via_capi_keep(
 
 #[cfg(not(feature = "plugins"))]
 pub(super) fn compile_published_lifecycle_physical_v4(
-    _json_in: &Path,
-    _session: &LifecycleRuntimeSessionV1,
+    _input: &LifecycleInvocationInputV1<'_, '_>,
     _obj_out: &Path,
 ) -> Result<(), String> {
     Err("capi not available (plugins feature disabled)".into())

@@ -3,6 +3,7 @@
 //! This module owns only extraction and structural validation.  Target/session
 //! equality is deliberately deferred to the lifecycle invocation owner.
 
+use crate::mir::PublishedLifecycleRuntimeRequirementsV1;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -54,12 +55,116 @@ impl LifecycleRuntimeSessionV1 {
         })
     }
 
+    pub(super) fn require_input(
+        &self,
+        requirements: PublishedLifecycleRuntimeRequirementsV1,
+        fault_abi_version: u32,
+    ) -> Result<(), String> {
+        if self.descriptor.target_triple != "x86_64-unknown-linux-gnu"
+            || self.descriptor.pointer_width != 8
+            || self.descriptor.endian != 1
+            || self.descriptor.fault_abi_version != fault_abi_version
+            || self.descriptor.status_abi_version != 1
+            || [
+                self.descriptor.diagnostic_size,
+                self.descriptor.diagnostic_align,
+                self.descriptor.diagnostic_site_offset,
+                self.descriptor.diagnostic_details_offset,
+                self.descriptor.diagnostic_message_offset,
+                self.descriptor.frame_size,
+                self.descriptor.frame_align,
+                self.descriptor.frame_primary_offset,
+                self.descriptor.frame_suppressed_offset,
+            ] != [48, 8, 8, 16, 32, 448, 8, 16, 64]
+        {
+            return Err("lifecycle input/runtime session mismatch".into());
+        }
+        match requirements {
+            PublishedLifecycleRuntimeRequirementsV1::TypedObject {
+                storage_profile: 1 | 2,
+            } => Ok(()),
+            PublishedLifecycleRuntimeRequirementsV1::TypedObject { .. } => {
+                Err("lifecycle input has unsupported object storage profile".into())
+            }
+            PublishedLifecycleRuntimeRequirementsV1::NativeArray => {
+                require_native_array_symbols(&self.runtime_archive)
+            }
+        }
+    }
+
     pub(crate) fn runtime_archive(&self) -> &Path {
         &self.runtime_archive
     }
     pub(crate) fn descriptor(&self) -> &RuntimeAbiDescriptorV1 {
         &self.descriptor
     }
+}
+
+const NATIVE_ARRAY_SYMBOLS: [&str; 6] = [
+    "nyash.array.checked_new_v1",
+    "nyash.array.checked_claim_v1",
+    "nyash.array.checked_append_i64_v1",
+    "nyash.array.checked_append_bool_v1",
+    "nyash.array.checked_append_f64_v1",
+    "nyrt_handle_release_h",
+];
+
+fn require_native_array_symbols(archive: &Path) -> Result<(), String> {
+    let output = Command::new("nm")
+        .args([
+            "--extern-only",
+            "--defined-only",
+            "--format=posix",
+            "--no-demangle",
+        ])
+        .arg(archive)
+        .output()
+        .map_err(|error| format!("cannot inspect native Array runtime symbols: {error}"))?;
+    if !output.status.success() {
+        return Err(format!(
+            "native Array runtime symbol inventory failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    let text = std::str::from_utf8(&output.stdout)
+        .map_err(|_| "native Array runtime symbol inventory is not UTF-8")?;
+    require_native_array_symbol_inventory(text)
+}
+
+fn require_native_array_symbol_inventory(text: &str) -> Result<(), String> {
+    let mut counts = [0usize; NATIVE_ARRAY_SYMBOLS.len()];
+    for line in text.lines() {
+        let line = line.trim();
+        if line.is_empty() || line.ends_with("]:") {
+            continue;
+        }
+        let fields: Vec<_> = line.split_whitespace().collect();
+        if fields.len() < 2 {
+            return Err("malformed native Array symbol inventory".into());
+        }
+        let Some(index) = NATIVE_ARRAY_SYMBOLS
+            .iter()
+            .position(|symbol| *symbol == fields[0])
+        else {
+            continue;
+        };
+        // Undefined, local or data symbols cannot provide an exported function.
+        if !matches!(fields[1], "T" | "W") || fields.len() < 3 {
+            return Err(format!(
+                "native Array runtime symbol is not a function definition: {}",
+                fields[0]
+            ));
+        }
+        counts[index] += 1;
+    }
+    for (symbol, count) in NATIVE_ARRAY_SYMBOLS.iter().zip(counts) {
+        if count != 1 {
+            return Err(format!(
+                "native Array runtime requires one definition of {symbol}; found {count}"
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// Read the one retained descriptor from a selected runtime archive.  `ar` is

@@ -89,6 +89,13 @@ impl PublishedLifecyclePhysicalObjectLayoutV1 {
     pub(crate) fn fields(&self) -> &[PublishedLifecyclePhysicalFieldLayoutV1] { &self.fields }
 }
 
+/// Physical runtime dependency of the retained root cohort.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PublishedLifecycleRuntimeRequirementsV1 {
+    TypedObject { storage_profile: u32 },
+    NativeArray,
+}
+
 /// One C-consumer input whose parts were issued by the same final view.
 #[derive(Debug, Clone)]
 pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
@@ -97,7 +104,7 @@ pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
     diagnostic_sites: Box<[PublishedLifecycleOperationDiagnosticSiteV1]>,
     process_result_site: u64,
     fault_abi_version: u32,
-    storage_profile: u32,
+    runtime_requirements: PublishedLifecycleRuntimeRequirementsV1,
 }
 
 impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
@@ -117,7 +124,15 @@ impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
     }
     pub(crate) const fn process_result_site(&self) -> u64 { self.process_result_site }
     pub(crate) const fn fault_abi_version(&self) -> u32 { self.fault_abi_version }
-    pub(crate) const fn storage_profile(&self) -> u32 { self.storage_profile }
+    pub(crate) const fn runtime_requirements(&self) -> PublishedLifecycleRuntimeRequirementsV1 {
+        self.runtime_requirements
+    }
+    pub(crate) const fn storage_profile(&self) -> Option<u32> {
+        match self.runtime_requirements {
+            PublishedLifecycleRuntimeRequirementsV1::TypedObject { storage_profile } => Some(storage_profile),
+            PublishedLifecycleRuntimeRequirementsV1::NativeArray => None,
+        }
+    }
 }
 
 impl<'module> PublishedMirBackendView<'module> {
@@ -187,7 +202,7 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(PublishedLifecyclePhysicalAbiInputV1 {
             entry, layouts: layouts.into_boxed_slice(),
             diagnostic_sites: diagnostic_sites.into_boxed_slice(), process_result_site, fault_abi_version: 1,
-            storage_profile,
+            runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::TypedObject { storage_profile },
         })
     }
 }

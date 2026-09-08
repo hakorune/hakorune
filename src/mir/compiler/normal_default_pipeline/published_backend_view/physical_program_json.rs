@@ -89,7 +89,7 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
     let object = root.as_object_mut().ok_or_else(|| fault("program-root"))?;
     object.insert("process_result_site".into(), json!(input.process_result_site()));
     object.insert("fault_abi_version".into(), json!(input.fault_abi_version()));
-    object.insert("storage_profile".into(), json!(input.storage_profile()));
+    object.insert("storage_profile".into(), json!(input.storage_profile().ok_or_else(|| fault("native-array-projection-pending"))?));
     object.insert("layouts".into(), Value::Array(input.layouts().iter().map(|layout| json!({
         "object_id": layout.object_id(),
         "runtime_type_id": layout.runtime_type_id(),
