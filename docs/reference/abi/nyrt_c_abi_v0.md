@@ -159,6 +159,21 @@ the [Map projection owner](../../development/current/main/design/collection-lite
 Do not reinterpret the existing static C row layout or widen call signatures
 silently to implement this planned runtime contract.
 
+### Map-demanded callable linkage (accepted design, not implemented)
+
+Decision (2026-09-08): the new selected Map consumer's expanded same-module
+formal ABI is compiler-private. Its physical projection assigns one internal
+LLVM function symbol per demanded canonical definition and projects every exact
+selected call through that same mapping. Semantic definition keys, logical
+arity and the public zero-argument root entry remain unchanged. Neither the
+external linkage of the old emitter nor `alwaysinline` proves a closed caller
+set. The new target must not retain an externally callable old-name alias or
+an adapter that guesses kinds from old raw arguments. Any separately admitted
+export ABI must be accounted for explicitly before switching that definition.
+Compatibility plan/direct-symbol ingress to the changed target rejects before
+emission. This planned compiler ABI does not change the two canonical
+runtime/plugin ABIs or the still-live static compiler transport v1.
+
 ### Selected lifecycle physical program v2
 
 Decision (2026-09-07): replace the untagged v1 document, retaining one parser

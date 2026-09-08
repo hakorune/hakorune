@@ -594,18 +594,67 @@ physical signature must be projected consistently at definition and every
 admitted caller, under an explicit compiler-input revision; the current v1 C
 row layout cannot be reused with silently changed field meanings.
 
-This selects the representation direction, not production permission. Next
-bounded closure is the ingress/consumer contract for those exact demanded
-positions: selected canonical callers, compatibility/external ingress, and
-non-Map uses of the same formal must each have a concrete disposition before
-signature switching. In particular, a kind/payload pair must not silently enter
-an old scalar-only consumer. Unknown incoming edges stay CutoverBlockerOpen;
-no by-name repair, clone-per-kind, blanket all-Call tagging, or guessed Integer.
-Then fix the one versioned compiler frame and both C walkers' consumption and
-retirement as the executable series. The [runtime v1 contract](../../../../reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1-accepted-design-not-implemented)
-is already fixed, with exports still unimplemented. Source premise and the
-concrete Float loss need no repeated broad census. No constant-only projection
-I0: the construction/write series retains its six-edge retirement finish line.
+### Demanded-formal ingress and use closure
+
+Decision: definitions gaining Map-demanded lanes use one **internal physical
+symbol**, selected by the existing canonical key/definition relation. Keep
+semantic MIR names and logical arity unchanged. The same existing physical
+projection owns the internal target, expanded formal positions and each typed
+call site's lanes. Public root entry remains zero-argument with its current
+ABI. This is a planned new Map consumer boundary, not permission to internalize
+unrelated static/free functions or remove an independently specified export ABI.
+
+The ingress audit covers demanded selected definitions -> typed/compatibility
+calls -> generated entry/OBJ linkage. It excludes source-family admission and
+runtime decoding. Current code does not prove a closed caller set:
+`same_module_function_emit.inc` and `module_leaf_function_emit.inc` emit external
+`define i64`; `alwaysinline` is not internal linkage. The shared Method emitter
+can call a retained user-box plan's `target_symbol`. Its usual producer is
+LegacyCallV0-only, but rejecting legacy instructions alone does not reject all
+stale compatibility plan targets. A bare symbol rename is insufficient.
+
+| Ingress | Required disposition in the new projection |
+| --- | --- |
+| Typed Static/Free, recursive or nested | Exact key/site plus matching logical ordinal -> internal target and expanded lanes together. |
+| Rowless Global, LegacyCallV0, Call(Extern), Call(Value) | Preserve their existing published rejection/unsupported boundaries; do not synthesize tags. |
+| Shared Method/user-box/global/direct-symbol plan | Reject a reference to the changed definition before LLVM; never pass old argument formatting to the internal target. |
+| Ordinary generated entry | Preserve zero-argument entry; a demanded formal cannot use this ingress. |
+| External OBJ call | The new expanded target is internal, with no old-name guessed-tag wrapper. Any separately admitted external export requires its own explicit ABI and blocks this switch until accounted for. |
+| Old leaf emission | Every expanded definition, including a recursive component, must use the expanded emitter; it cannot fall through the old external leaf definition. |
+
+Acceptance must inspect LLVM linkage and OBJ symbols as well as executing
+recursive/nested exact calls. Missing/wrong lane maps, retained compatibility
+plans, duplicate physical targets and old exported aliases reject before object
+publication. The audit proves the current exposure, not absence of every
+possible promised export contract; the new consumer must not claim a general
+external language ABI from incidental old linkage.
+
+The remaining consumer question is also concrete. The same-module dispatcher
+in `same_module_typed_field_rmw_emit.inc` can send the same formal into the
+following consumers. This is a use-class inventory for demanded values, not an
+Exhausted claim over all MIR instructions; any other reachable use is open.
+
+| Use class | Obligation |
+| --- | --- |
+| Map write, Copy, PHI, Select, exact call forwarding | Keep both lanes on supplied SSA edges and the planned Map store ABI. |
+| Integer arithmetic, comparison, unary, branch, Return | Consume a proved admitted input domain; old T_I64 width/default is insufficient. Return-I64 proof alone does not prove arbitrary body arithmetic. |
+| Print | Existing `mir_call_shell::emit_global_mir_call` chooses String handle versus printf-i64 by origin. A mixed-kind demanded formal cannot inherit this classifier as proof. |
+| Array write, field read/write, runtime/Method call, typeop/boxed-sum projection | Require the particular existing consumer ABI; do not leak tagged payload into Any/handle/i64 decoding. |
+| KeepAlive/ReleaseStrong or another use | Preserve the existing ownership contract; no new scalar handle or blanket no-op justification. |
+
+Concrete evidence: `same_module_function_emit_binop` formats i64 operands after
+String-origin checks; the Array write macro uses `is_plain_i64_value`; Print
+falls back to printf-i64. Retaining a tag in parallel does not validate those
+uses. Their treatment remains CutoverBlockerOpen until an admitted domain or
+an explicit supported tagged consumer is named. Do not manufacture source type
+proof from runtime bits, metadata or the new Map operation.
+
+Next bounded work is this demanded-value consumer mapping plus final versioned
+compiler frame, not another source or ingress census. Frame v1 remains live and
+unchanged until the replacement's paired caller/definition consumers and
+retirement are ready. The [runtime v1 contract](../../../../reference/abi/nyrt_c_abi_v0.md#selected-map-literal-store-v1-accepted-design-not-implemented)
+is fixed but unimplemented. No constant-only projection I0 or old-ABI wrapper:
+the construction/write series keeps its six-edge retirement finish line.
 
 Runtime acceptance includes scalar classes, Integer/live-handle collision,
 malformed Bool/Void, exact F64 bits, invalid handles/no mutation, retained String
