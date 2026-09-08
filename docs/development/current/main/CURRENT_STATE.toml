@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "MAP-LITERAL-COMPILER-CUTOVER-I0 query-to-frame binding"
-current_blocker_token = "Private invocation consolidation is implemented and verified. Next: query-to-frame binding design for readiness/unique wire coordinates and actual MIR demand/domain/original-lane consumer. Preserve ordered compile diagnostics; no query-only sibling, optimizer coverage inference or Map source switch."
+current_design_stop = ""
+current_blocker_token = "Accepted Named observation binding in existing MIR planner: exact copied C outcome -> demand/domain/original-lane closure together, explicit Alias(0) projection, no name inference or fabricated old Float lane. Missing/duplicate/required invalid bindings reject. This is a V2 planner dependency; actual query/host/C/source cutover remains open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,10 +33,11 @@ latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace
 latest_card_summary = """
 Conditional representation is separated from execution coverage.
 Private invocation owns existing document/config/outcomes/program/definition products.
-Next is query-to-frame binding design; full session/Map cutover remains open.
+Query-to-frame design is accepted; next is Named binding in the existing MIR planner.
+Actual session/host/Map cutover remains open.
 """
-next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -971,11 +971,76 @@ settings16, ASan lifetime16 and published rows/corridor pass. Dynamic LLVM,
 origins, machine code and relocations match. Production program/plan readers
 still have one call each in their original ordered core sections. Reader and
 symbol predicate are shared file-scope implementations, not nested copies.
-Next bounded design question: when the real frame asks for conditional Named
-outcomes, bind query readiness and unique wire coordinates to this same
-invocation/program identity without hoisting existing compile diagnostics or
-inventing optimizer coverage. Resolve the actual MIR consumer/demand/domain/
-original-lane connection before exposing a public query-only product.
+### Query-to-frame binding decision
+
+C worker audit at79c919352e and Rust consumer audit close the conditional role
+question. For a Named site, `function == program.entry.fn` selects its retained
+Generic condition; every other potentially Named-emitting function selects
+SameModule. This is conditional representation only. Numeric leaf cannot consume
+NewBox; definition eligibility, actual emission and optimizer coverage remain
+with their current owners. Do not reopen definition readiness or whole-skip
+census as prerequisites for this query.
+
+The existing program reader is an effect-free observation. When an actual query
+caller is connected, cache exactly `Unobserved / Available / Unavailable` in the
+same invocation. Query may observe it once; compile consumes the same result at
+its current program stage, retaining all earlier schema/pinned/exact-seed/Dynamic
+gates and the old trace/break. Definition plan still reads at current prescan.
+Do not add this state before its real query caller or interpret unread data as
+an empty valid program.
+
+Internal function/instruction pointer identity remains authoritative. Copied
+wire coordinates require complete string-length/NUL/duplicate-function checks,
+integer/u32 block IDs and function-local uniqueness, u32 instruction ordinals,
+and no two internal identities projecting to one site. Unaddressable observations
+must not alias another site or globally reorder an unrelated compile terminal.
+Query binding outcomes are finite: `Bound(consumer, typed-plan projection)`,
+`ProgramUnavailable`, `Unaddressable`, `StorageFailed`, `NotObserved`.
+InvalidPlan/Unsupported remain Bound consumer outcomes, not overall discovery
+failure. A required binding failure rejects without selector retry; unrequested
+observations never imply admission, execution, bypass or row consumption.
+
+Ordered implementation inside the existing V2 series:
+
+1. Connect copied physical Named observations to the existing `MapBodyIndex`
+   and planner, changing demand/domain/original-lane closure together. This is
+   the next bounded implementation; source issuers, host and public ABI stay put.
+2. Connect the same invocation's query, unique coordinates and program cache to
+   the actual host/frame consumer. Retain bytes/Library/handle across planning,
+   close before Library unload on every path, and compile those same observations.
+   Do not export an isolated query or keep a query-only alternative authority.
+3. Finish the V2 frame/C consumers and input-aware capability, then switch the
+   static host/source once. Delete V1 host/stub/frame/file transport and the six
+   literal edges at the series cutover; no V1 Map fallback.
+
+Next implementation contract:
+- Owner/issuer: existing C Named selector issues physical consumer observations;
+  existing published-frame/MapBodyIndex owner binds copied outcomes to the exact
+  original MIR site. No new semantic Verified/Prepared wrapper or name classifier.
+- Bound allocating outcomes provide Handle; AliasOperand0 follows that exact
+  Named NewBox's original `args[0]`, never a copied operand graph. Missing/wrong
+  site, duplicate binding, missing alias operand and required Invalid/Unsupported
+  reject; observations for intrinsic allocation cannot grant Named admission.
+- Alias dependencies join the existing finite fixed point, including aliases
+  discovered through another alias, PHI/Select and canonical actual/formal edges.
+  Alias domain comes from its operand; Handle domain comes from the observed
+  allocating consumer. Preserve Unresolved for all other unproved producers.
+- Add an explicit Named-alias physical action to the existing V2 vocabulary;
+  ordinary Copy is not a NewBox opcode. Map-only Float retains exact bits without
+  manufacturing an old lane. If an original consumer needs the alias result,
+  propagate its old operand demand through the same original MIR relation.
+- Exclusive delete-set: demanded Named allocation's unconditional demand-leaf,
+  unresolved-domain and default all-args original-demand treatment. Non-Map
+  consumers and non-admitted producer boundaries keep their existing contracts.
+- Acceptance: renamed Named targets cannot change an observed disposition;
+  Handle versus Alias(0), exact Float bits, nested alias/PHI/Select/formal closure,
+  Map-only versus mixed original-use demand, malformed/missing/duplicate bindings,
+  required Invalid/Unsupported and unrequested failures. Reuse existing body-index,
+  domain, original-demand and V2 row tests; run the selected focused Rust gate.
+- This step is frame-planner dependency implementation. Synthetic observations
+  are not production query, source-to-OBJ/EXE, Map cutover or R7 evidence. Next
+  checkpoint must identify actual host/query wiring still open, not invent a
+  standalone backend capability or mark all Named sites admitted.
 
 Bind the same borrowed core, existing program view and
 physical definition plan to the eventual opaque session. Open takes immutable
