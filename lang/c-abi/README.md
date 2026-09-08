@@ -53,6 +53,23 @@ Intrinsic allocation transport
 - Consumer acceptance does not activate literal source producers; raw/typed/Core
   source cutover is separately gated by the construction design and source tests.
 
+Named allocation emission
+- `shims/hako_llvmc_ffi_named_allocation_select.inc` selects the existing physical
+  consumer once for the generic and same-module emitters. Walker and array-store
+  choice are explicit inputs; typed-plan reads remain lazy after builtin/alias
+  precedence. Materialization, register facts and diagnostics stay in emitters.
+- This extraction changes no language or public ABI contract. Prescan is still
+  a separate observer; it does not provide allocation admission for the Map frame.
+- Focused reproduction after `bash tools/build_hako_llvmc_ffi.sh`:
+  `cc -Wall -Wextra lang/c-abi/tests/named_allocation_select_test.c -o /tmp/hako-named-select`
+  then `/tmp/hako-named-select` and
+  `python3 lang/c-abi/tests/named_allocation_emission_test.py`.
+  The latter accepts an optional parent library path for the same 60 physical
+  cases. It checks emitted symbols, alias execution and rejection before object;
+  its machine-code/relocation digests exclude temporary object path headers.
+  Whole-program layout/prepass rejection is dependency evidence, not proof that
+  an unreachable emitter branch ran. No source-family or Map cutover claim.
+
 Map literal runtime boundary
 
 The unpublished static v2 value projection separates result kind from finite

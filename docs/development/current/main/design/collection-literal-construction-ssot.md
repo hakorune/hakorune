@@ -655,11 +655,11 @@ accepted subset. `NamedAllocationPhysicalAdmissionMissing` remains an open
 mapping; copying a Named-spelling classifier into Rust or rejecting all Named
 inputs to claim cutover is not an accepted resolution.
 
-### Named allocation emission selection — accepted next BoxShape
+### Named allocation emission selection — shared physical owner
 
-Decision: retain allocation selection in its existing C physical owner. Extract
-the two actual Named emitters' priority decision into one side-effect-free
-selector, consuming the active walker, target/dst/arg0, array-store choice and
+Decision: retain allocation selection in its existing C physical owner. The
+two actual Named emitters use one side-effect-free selector in
+`hako_llvmc_ffi_named_allocation_select.inc`, consuming the active walker, target/dst/arg0, array-store choice and
 existing borrowed typed-plan facts. It performs no getenv, source/provider
 lookup, register publication, materialization or emission. Preserve lazy typed
 plan validation: a builtin or successful alias must not be rejected by an
@@ -680,7 +680,7 @@ binding, C query exports and Map production switch.
 | StringBox without successful alias | Preserve generic typed-plan fallback; same-module retains its existing own selection. |
 | Remaining Named + typed plan | Only reached after the prior arms; preserve plan identity, type_id/field_count checks, and consumer-specific invalid/missing terminal. |
 
-Exclusive delete-set: duplicated Named priority/selection branches in
+Retired within this extraction: duplicated Named priority/selection branches in
 `hako_llvmc_ffi_pure_compile_generic_newbox_emit.inc` and
 `hako_llvmc_ffi_same_module_typed_object_emit.inc`. Acceptance: full selected-C
 build plus focused selector/emitter evidence for both walkers, all above arms,

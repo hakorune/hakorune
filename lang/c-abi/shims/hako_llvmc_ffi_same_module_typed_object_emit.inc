@@ -68,43 +68,28 @@
         }
 
         const char* tname = read_str(ins, "type");
-        int typed_plan_index = -1;
-        if (tname && !strcmp(tname, "DirectArrayI64")) {
+        struct GenericPureTypedObjectNewPlanView plan;
+        enum NamedAllocationConsumer consumer = select_named_allocation_consumer(
+            NAMED_ALLOCATION_SAME_MODULE, tname, dst, 0,
+            hako_llvmc_direct_array_i64_exact_enabled(), &plan);
+        if (consumer == NAMED_ALLOCATION_DIRECT_ARRAY || consumer == NAMED_ALLOCATION_ARRAY) {
           same_module_function_emit_i64_birth_call(
               dst,
-              "nyash.array.direct_i64.birth_h",
+              consumer == NAMED_ALLOCATION_DIRECT_ARRAY
+                  ? "nyash.array.direct_i64.birth_h" : "nyash.array.birth_h",
               ORG_ARRAY_BIRTH);
           return 1;
         }
-        if (tname && !strcmp(tname, "ArrayBox")) {
-          const char* array_store = getenv("HAKO_ARRAY_SLOT_STORE");
-          same_module_function_emit_i64_birth_call(
-              dst,
-              array_store && !strcmp(array_store, "direct_array_i64_exact")
-                  ? "nyash.array.direct_i64.birth_h"
-                  : "nyash.array.birth_h",
-              ORG_ARRAY_BIRTH);
+        if (consumer == NAMED_ALLOCATION_MAP) {
+          same_module_function_emit_i64_birth_call(dst, "nyash.map.birth_h", ORG_MAP_BIRTH);
           return 1;
         }
-        if (tname && !strcmp(tname, "MapBox")) {
-          same_module_function_emit_i64_birth_call(
-              dst,
-              "nyash.map.birth_h",
-              ORG_MAP_BIRTH);
+        if (consumer == NAMED_ALLOCATION_TYPED_OBJECT) {
+          EMIT("  %%r%lld = call i64 @\"nyash.object.new_typed_hi\"(i64 %lld, i64 %lld)\n",
+               dst, plan.type_id, plan.field_count);
+          same_module_function_publish_i64_origin(dst, ORG_TYPED_OBJECT);
+          set_typed_object_binding(dst, plan.typed_plan_index);
           return 1;
-        }
-        if (tname && find_typed_object_plan_index(tname, &typed_plan_index)) {
-          long long type_id = typed_object_plan_type_id(typed_plan_index);
-          long long field_count = typed_object_plan_field_count(typed_plan_index);
-          if (dst && type_id > 0 && field_count >= 0) {
-            EMIT("  %%r%lld = call i64 @\"nyash.object.new_typed_hi\"(i64 %lld, i64 %lld)\n",
-                 dst,
-                 type_id,
-                 field_count);
-            same_module_function_publish_i64_origin(dst, ORG_TYPED_OBJECT);
-            set_typed_object_binding(dst, typed_plan_index);
-            return 1;
-          }
         }
         return 0;
       }

@@ -1,10 +1,10 @@
 date = "2026-09-08"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = ""
-current_blocker_token = "Accepted bounded BoxShape: extract the two existing C Named emitter selections into one physical selector, preserving walker-specific precedence, alias conditions, lazy typed-plan validation and terminals. No prescan repair, Rust classifier, query export or Map source switch. NamedAllocationPhysicalAdmissionMissing remains a series dependency; future preflight also needs C-owned entry-role/program/config binding before Rust leaf/frame admission."
+current_design_stop = "AllocationPreflightEntryRoleBindingMissing"
+current_blocker_token = "C Named emitter selection is shared and verified. Next: bind actual C function role, immutable program and array setting across borrowed allocation preflight/compile before Rust leaf/frame admission. Audit existing program-view/function planning with one read-only worker; no query export, Rust Named classifier, prescan repair or Map source switch before accepted Decision. NamedAllocationPhysicalAdmissionMissing remains a series dependency."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,12 +31,12 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card_summary = """
-Named allocation design accepts a bounded C emitter-selection BoxShape.
-Next: one selector for both actual emitters; preserve precedence and terminals.
-Prescan reconciliation, query role binding and Rust leaf/frame admission stay open.
+C Named allocation selection is shared by both actual emitters.
+Sixty physical cases match the parent; source/Map cutover remains open.
+Next: C-owned preflight role/program/config binding design.
 """
-next_design_card = "none"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
