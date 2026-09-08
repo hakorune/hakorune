@@ -234,8 +234,7 @@ static int hako_static_v2_bind(
     const hako_llvmc_value_projection_v2* row = &frame->values[i];
     yyjson_val* fn = hako_static_v2_function(functions, row->function_name);
     yyjson_val* ins = hako_static_v2_definition(fn, row->value_id);
-    if ((row->action >= HAKO_LLVMC_MAP_ACTION_COPY && row->action <= HAKO_LLVMC_MAP_ACTION_FORMAL) ||
-        row->action == HAKO_LLVMC_MAP_ACTION_NAMED_ALIAS_OPERAND_ZERO) {
+    if ((row->action >= HAKO_LLVMC_MAP_ACTION_PHI && row->action <= HAKO_LLVMC_MAP_ACTION_FORMAL)) {
       reason = "[freeze:contract][static-v2/value-consumer-unsupported]";
       goto invalid;
     }
@@ -288,6 +287,11 @@ static int hako_static_v2_bind(
         for (size_t vi = 0; vi < frame->value_count; vi++) {
           const hako_llvmc_value_projection_v2* row = &frame->values[vi];
           if (index->values[vi].function != fn || row->flags) continue;
+          uint32_t consumer_dst;
+          int consumer = hako_static_v2_u32(yyjson_obj_get(ins, "dst"), &consumer_dst)
+              ? hako_static_v2_value_find(index, fn, consumer_dst) : -1;
+          if (consumer >= 0 && hako_static_v2_is_copy(frame->values[consumer].action) &&
+              !frame->values[consumer].flags) continue;
           if (hako_static_v2_original_use(ins, row->value_id) != 0) goto invalid;
         }
       }

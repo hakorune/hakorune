@@ -345,6 +345,7 @@
               }
               generic_pure_publish_reg_metadata(dst);
             }
+            if (!static_v2_consume_original(ins)) goto GEN_ABORT;
             continue;
           }
           if (strcmp(op, "unop")==0) {

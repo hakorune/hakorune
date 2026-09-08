@@ -359,18 +359,10 @@
               ins);
         }
         if (!strcmp(op, "copy")) {
-          if (same_module_function_should_forward_selected_receiver_copy(
-                  ins,
-                  ii,
-                  insts,
-                  ilen)) {
-            return same_module_function_emit_selected_receiver_forwarding_copy(
-                read_int(ins, "dst"),
-                read_int(ins, "src"));
-          }
-          return same_module_function_emit_copy(
-              read_int(ins, "dst"),
-              read_int(ins, "src"));
+          int result = same_module_function_should_forward_selected_receiver_copy(ins, ii, insts, ilen)
+              ? same_module_function_emit_selected_receiver_forwarding_copy(read_int(ins, "dst"), read_int(ins, "src"))
+              : same_module_function_emit_copy(read_int(ins, "dst"), read_int(ins, "src"));
+          return result > 0 && static_v2_consume_original(ins);
         }
         if (!strcmp(op, "variant_make")) {
           long long dst = read_int(ins, "dst");

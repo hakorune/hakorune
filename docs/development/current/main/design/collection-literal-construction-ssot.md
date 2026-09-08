@@ -1379,19 +1379,20 @@ wrapper or operand graph is added. Arbitrary String specialization/optimizer/C1
 combinations are not proved by this bounded consumer; input-aware capability
 must close changed-consumer coverage before public activation.
 
-Verification on the Original consumer change (parent9b2931a42c): normal/ASan
-`static_v2_execution_test.py` each pass162 private compile cases, including104
-linked-kernel readbacks, eight injected traps and one direct runtime domain probe.
-Both entry and same-module walkers cover canonical Call identity, host-backed
-allocations, scalar/String boxed local/runtime projections and nondemanded boxed
-backedge tails. Two runtime String projections reproduce and then close the old
-declaration gap; `catdog`/`catcat` readbacks verify direct concat operands. Invalid
-boxed plans and non-host allocations reject without replacing an earlier artifact.
-Rust `map_literal_` tests pass36 with one ignored. C library build/corridor guard
-pass; Named60 and definition22 observations match the parent. The fixture reader remains test-only; source/host
-cutover stays open, including physical escape and expanded signature obligations.
+Verification on the Copy/NamedAlias consumer change (parent05e6169bda): normal
+and ASan C drivers each pass239 private compile cases, including125 linked-kernel
+readbacks, eight injected traps and one runtime domain probe. Copy chains preserve
+Integer/Bool/F64/Void/Handle lanes, NaN payload bits and original-required values.
+Integer/String operations consume copied operands; i1 Bool results retain their
+producer normalization. Generic NamedAlias follows its retained outcome, while
+same-module and changed Named outcomes reject. Missing/cyclic sources, illegal
+fields, original-demand gaps and CopyOwned reject before replacing an artifact.
+Earlier Original/Operation/status/boxed-tail tests remain green. C library and
+corridor/pointer guards pass; Named60/definition22 observations match the parent.
+No Rust source changed in this consumer slice. The fixture reader remains test-only;
+source/host cutover stays open, including escape and expanded signature obligations.
 
-Next: finish transfer/formal consumers and the shared expanded-function index,
+Next: finish Phi/Select/Formal consumers and the shared expanded-function index,
 signatures and old-ABI ingress rejection. In parallel with that finite dependency
 order, keep physical escape ownership and intrinsic allocator session observation
 as CutoverBlockerOpen; admitting the already-proved host domains does not close
@@ -1402,6 +1403,32 @@ can use an earlier dynamic dispatcher, so this Stop is not a universal compariso
 guarantee. Input-aware capability must account for actual selected consumers.
 Then complete capability and atomic public session/host/source switch with V1
 and six literal-edge retirement. No public V2/source cutover claim.
+
+### Transfer consumer implementation order
+
+Decision: Copy/NamedAlias join a shared kind/payload formatter first; Phi/Select
+then join the existing PHI/condition owners, followed by Formal/expanded ingress.
+Source authority + canonical issuer: existing V2 projection and retained body SSA;
+NamedAlias additionally requires the exact captured walker outcome AliasOperandZero.
+Non-authority: StringBox spelling, mutable alias discovery and old i64 width do
+not issue representation. Transfer destinations use fixed physical side names.
+Fail-fast boundary: missing source row, invalid fields, original-demand mismatch
+or wrong Named outcome rejects before artifact; CopyOwned keeps its unsupported
+physical owner rather than discarding an ownership operation.
+Implemented: Copy/NamedAlias forward both lanes; flags0 bypasses the old producer,
+flags1 keeps it and consumes the row only after actual success.
+Smallest next slice: Phi/Select within existing PHI/condition owners.
+Non-claims: no Phi/Select/Formal, object escape or public/source cutover closure.
+
+Read-only worker audit at05e6169bda found two Phi integration constraints: the
+same-module flags0 prepass currently skips Phi registration, and existing PhiRec
+silently truncates inputs at16. The next Phi consumer must register map-only PHIs
+and reject overflow or remove truncation in that owner. Emit both lanes within
+the existing PHI group, with existing predecessor labels; never insert zext there.
+Original mixed-width PHIs need predecessor normalization or explicit unsupported.
+Expanded signatures/calls reuse one index; expanded leaf-only members must join
+the same-module emission traversal without changing original definition intent.
+Forward LLVM definitions need no separate declarations in the existing backend.
 
 ### Versioned compiler frame decision
 

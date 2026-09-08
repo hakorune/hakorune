@@ -21,7 +21,9 @@
         uint32_t dst;
         if (!hako_static_v2_u32(yyjson_obj_get(ins, "dst"), &dst)) return 1;
         int vi = hako_static_v2_value_find(index, fn0, dst);
-        if (vi < 0 || index->frame->values[vi].action != HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE) return 1;
+        if (vi < 0) return 1;
+        if (hako_static_v2_is_copy(index->frame->values[vi].action)) return static_v2_consume_value(ins);
+        if (index->frame->values[vi].action != HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE) return 1;
         const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
         if (row->value_kind == HAKO_LLVMC_MAP_VALUE_BOOL) {
           long long bits, base = resolve_copy_source_reg(dst);
@@ -85,7 +87,9 @@
         int vi = hako_static_v2_value_find(index, fn0, value);
         if (vi < 0) return 0;
         const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
-        if (row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS) {
+        if (hako_static_v2_is_copy(row->action)) {
+          snprintf(output, size, "%%map_payload_%u", value);
+        } else if (row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS) {
           snprintf(output, size, "%llu", (unsigned long long)row->payload);
         } else if ((row->encoding == HAKO_LLVMC_MAP_ENCODING_BOOL_I1_ZEXT ||
                     (row->action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE && row->value_kind == HAKO_LLVMC_MAP_VALUE_BOOL))) {
@@ -97,10 +101,37 @@
         }
         return 1;
       }
+      auto int static_v2_kind(uint32_t value, char* output, size_t size) {
+        int vi = hako_static_v2_value_find(&invocation->static_v2, fn0, value);
+        if (vi < 0) return 0;
+        const hako_llvmc_value_projection_v2* row = &invocation->static_v2.frame->values[vi];
+        if (hako_static_v2_is_copy(row->action)) snprintf(output, size, "%%map_kind_%u", value);
+        else snprintf(output, size, "%u", row->value_kind);
+        return 1;
+      }
+      auto int emit_static_v2_copy(yyjson_val* ins, const hako_llvmc_value_projection_v2* row) {
+        if (row->action == HAKO_LLVMC_MAP_ACTION_NAMED_ALIAS_OPERAND_ZERO) {
+          enum NamedAllocationWalker walker = fn0 == program->entry.fn
+              ? NAMED_ALLOCATION_GENERIC : NAMED_ALLOCATION_SAME_MODULE;
+          const struct NamedAllocationOutcome* outcome = named_allocation_outcomes_find(named_outcomes, fn0, ins, walker);
+          if (!outcome || outcome->consumer != NAMED_ALLOCATION_ALIAS_OPERAND_ZERO) {
+            note_pure_unsupported_shape(-1, 0, "newbox", "static_v2_named_alias_mismatch", NULL);
+            return -1;
+          }
+        }
+        uint32_t source;
+        char kind[64], payload[64];
+        if (!hako_static_v2_copy_source(row, ins, &source) ||
+            !static_v2_kind(source, kind, sizeof(kind)) || !static_v2_payload(source, payload, sizeof(payload))) return -1;
+        EMIT("  %%map_kind_%u = add i32 %s, 0\n", row->value_id, kind);
+        EMIT("  %%map_payload_%u = add i64 %s, 0\n", row->value_id, payload);
+        if (row->flags) return 0; /* Existing original producer consumes after success. */
+        return static_v2_consume_value(ins) ? 1 : -1;
+      }
       auto int emit_static_v2_operation(yyjson_val* ins, const hako_llvmc_value_projection_v2* row) {
         uint32_t inputs[2], dst = row->value_id;
         char refs[2][64];
-        int count = hako_static_v2_operation_inputs(row, ins, inputs);
+        int count = hako_static_v2_value_inputs(row, ins, inputs);
         if (count < 1) return 0;
         for (int i = 0; i < count; i++) if (!static_v2_payload(inputs[i], refs[i], sizeof(refs[i]))) return 0;
         const char* op = hako_static_v2_operation(ins);
@@ -158,6 +189,7 @@
           int vi = hako_static_v2_value_find(index, fn0, dst);
           if (vi >= 0) {
             const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
+            if (hako_static_v2_is_copy(row->action)) return emit_static_v2_copy(ins, row);
             if (row->action == HAKO_LLVMC_MAP_ACTION_OPERATION)
               return emit_static_v2_operation(ins, row) ? 1 : -1;
             if (row->action == HAKO_LLVMC_MAP_ACTION_EXACT_BITS) {
@@ -185,17 +217,16 @@
             !hako_static_v2_u32(yyjson_obj_get(ins, "value"), &value)) return -1;
         int vi = hako_static_v2_value_find(index, fn0, value);
         if (vi < 0) return -1;
-        const hako_llvmc_value_projection_v2* projection = &index->frame->values[vi];
-        char refs[2][64], payload[64];
-        if (!static_v2_payload(value, payload, sizeof(payload))) return -1;
+        char refs[2][64], payload[64], kind[64];
+        if (!static_v2_payload(value, payload, sizeof(payload)) || !static_v2_kind(value, kind, sizeof(kind))) return -1;
         uint32_t regs[2] = {receiver, key};
         for (size_t i = 0; i < 2; i++) {
           long long bits = 0, base = resolve_copy_source_reg(regs[i]);
           if (has_const(base, &bits)) snprintf(refs[i], sizeof(refs[i]), "%lld", bits);
           else snprintf(refs[i], sizeof(refs[i]), "%%r%lld", base);
         }
-        EMIT("  %%map_status_%lld_%zu = call i32 @\"nyash.map.literal_store_v1\"(i64 %s, i64 %s, i32 %u, i64 %s)\n",
-             bid, ii, refs[0], refs[1], projection->value_kind,
+        EMIT("  %%map_status_%lld_%zu = call i32 @\"nyash.map.literal_store_v1\"(i64 %s, i64 %s, i32 %s, i64 %s)\n",
+             bid, ii, refs[0], refs[1], kind,
              payload);
         EMIT("  %%map_ok_%lld_%zu = icmp eq i32 %%map_status_%lld_%zu, 0\n", bid, ii, bid, ii);
         EMIT("  br i1 %%map_ok_%lld_%zu, label %%exact_status_continue_%lld_%zu, label %%map_contract_%lld_%zu\n",

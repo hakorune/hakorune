@@ -182,6 +182,14 @@ instruction without inferring a String subtype from an arbitrary Handle.
 This schema declaration is not producer admission or executable C support, and
 does not change runtime Map tags or activate static compiler v2.
 
+Decision (2026-09-08): private V2 Copy/NamedAlias transfers forward Map kind and
+payload independently of the optional original lane. Their wire kind, encoding,
+payload and operation fields are zero; operands come from the exact retained body.
+NamedAlias requires the captured selected walker's AliasOperandZero outcome.
+With original-required clear the old producer is omitted; with it set the
+existing producer and its original input demand remain mandatory. CopyOwned is
+not erased by this rule. Phi/Select/Formal and public cutover remain unimplemented.
+
 ### Map-demanded callable linkage (accepted design, not implemented)
 
 Decision (2026-09-08): the new selected Map consumer's expanded same-module

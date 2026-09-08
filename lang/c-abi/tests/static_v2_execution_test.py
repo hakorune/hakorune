@@ -62,10 +62,18 @@ with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-") as directory:
         print(label, "ok")
         return obj, ir
 
+    if sys.argv[3:] == ["--copy-only"]:
+        from static_v2_copy_cases import run_copy_cases
+        run_copy_cases(compile_case, witness, const, ROOT, KERNEL, ENV, no_core)
+        sys.exit(0)
+
     if sys.argv[3:] == ["--original-only"]:
         from static_v2_original_cases import run_original_cases
         run_original_cases(compile_case, witness, const, ROOT, KERNEL, ENV, no_core)
         sys.exit(0)
+
+    from static_v2_copy_cases import run_copy_cases
+    run_copy_cases(compile_case, witness, const, ROOT, KERNEL, ENV, no_core)
 
     for nested in (False, True):
         for kind, bits in ((1, 30), (2, 1), (3, 0x7ff8000000000042), (4, 0)):
@@ -252,7 +260,7 @@ with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-") as directory:
         ("duplicate-value", lambda b, f: f["values"].append(f["values"][0]), "static-v2/value-action"),
         ("bool-payload", lambda b, f: f["values"][0].update(kind=2, payload=30), "static-v2/value-action"),
         ("unknown-action", lambda b, f: f["values"][0].update(action=42), "static-v2/value-action"),
-        ("unimplemented-action", lambda b, f: f["values"][0].update(action=3), "static-v2/value-consumer-unsupported"),
+        ("unimplemented-action", lambda b, f: f["values"][0].update(action=4), "static-v2/value-consumer-unsupported"),
         ("unknown-kind", lambda b, f: f["values"][0].update(kind=42), "static-v2/value-action"),
         ("reserved", lambda b, f: f["values"][0].update(operation=1), "static-v2/value-action"),
         ("original-use", lambda b, f: b["functions"][0]["blocks"][0]["instructions"][-1].update(value=3), "static-v2/body-coverage"),

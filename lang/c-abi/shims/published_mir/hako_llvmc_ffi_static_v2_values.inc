@@ -33,9 +33,44 @@ static int hako_static_v2_operand(yyjson_val* ins, const char* field,
   return hako_static_v2_u32(input ? input : yyjson_obj_get(ins, alias), value);
 }
 
+static int hako_static_v2_is_copy(uint32_t action) {
+  return action == HAKO_LLVMC_MAP_ACTION_COPY || action == HAKO_LLVMC_MAP_ACTION_NAMED_ALIAS_OPERAND_ZERO;
+}
+
+static int hako_static_v2_copy_source(
+    const hako_llvmc_value_projection_v2* row, yyjson_val* ins, uint32_t* source) {
+  yyjson_val* value = row->action == HAKO_LLVMC_MAP_ACTION_COPY
+      ? yyjson_obj_get(ins, "src") : yyjson_arr_get(yyjson_obj_get(ins, "args"), 0);
+  return hako_static_v2_u32(value, source);
+}
+
+/* Only identity-preserving edges; no kind is guessed from a register. */
+static int hako_static_v2_copy_leaf(const struct HakoStaticV2Index* index, int vi) {
+  for (size_t depth = 0; vi >= 0 && depth < index->frame->value_count; depth++) {
+    const hako_llvmc_value_projection_v2* row = &index->frame->values[vi];
+    if (!hako_static_v2_is_copy(row->action)) return vi;
+    uint32_t source;
+    if (!hako_static_v2_copy_source(row, index->values[vi].instruction, &source)) return -1;
+    vi = hako_static_v2_value_find(index, index->values[vi].function, source);
+  }
+  return -1;
+}
+
 /* -1 is a known producer whose actual emission has not joined the ledger yet. */
 static int hako_static_v2_nonexact_valid(
     const hako_llvmc_value_projection_v2* row, yyjson_val* ins) {
+  if (hako_static_v2_is_copy(row->action)) {
+    uint32_t source;
+    if (row->value_kind || row->encoding || row->payload || row->source_ordinal || row->operation ||
+        (row->flags & ~HAKO_LLVMC_MAP_ORIGINAL_REQUIRED) || !hako_static_v2_copy_source(row, ins, &source)) return 0;
+    if (row->action == HAKO_LLVMC_MAP_ACTION_COPY) {
+      if (hako_static_v2_text(yyjson_obj_get(ins, "op"), "copy_owned")) return -1;
+      return hako_static_v2_text(yyjson_obj_get(ins, "op"), "copy");
+    }
+    yyjson_val* type = yyjson_obj_get(ins, "type");
+    return hako_static_v2_text(yyjson_obj_get(ins, "op"), "newbox") &&
+        yyjson_is_str(type) && yyjson_get_len(type) && !yyjson_obj_get(ins, "target");
+  }
   if (row->flags != HAKO_LLVMC_MAP_ORIGINAL_REQUIRED || row->payload || row->source_ordinal) return 0;
   if (row->action == HAKO_LLVMC_MAP_ACTION_ORIGINAL_VALUE) {
     if (row->operation || row->encoding != HAKO_LLVMC_MAP_ENCODING_I64_BITS ||
@@ -106,8 +141,10 @@ static int hako_static_v2_nonexact_valid(
   return valid && row->value_kind == kind && row->encoding == encoding;
 }
 
-static int hako_static_v2_operation_inputs(
+static int hako_static_v2_value_inputs(
     const hako_llvmc_value_projection_v2* row, yyjson_val* ins, uint32_t inputs[2]) {
+  if (hako_static_v2_is_copy(row->action))
+    return hako_static_v2_copy_source(row, ins, &inputs[0]) ? 1 : -1;
   if (row->action != HAKO_LLVMC_MAP_ACTION_OPERATION) return 0;
   if (row->operation == HAKO_LLVMC_MAP_PHYSICAL_I64_NOT || row->operation == HAKO_LLVMC_MAP_PHYSICAL_BOOL_NOT)
     return hako_static_v2_operand(ins, "src", "operand", &inputs[0]) ? 1 : -1;
@@ -135,11 +172,16 @@ static int hako_static_v2_value_closure(const struct HakoStaticV2Index* index) {
     for (size_t vi = 0; vi < n; vi++) {
       if (!reached[vi]) continue;
       uint32_t inputs[2];
-      int count = hako_static_v2_operation_inputs(&index->frame->values[vi], index->values[vi].instruction, inputs);
+      int count = hako_static_v2_value_inputs(&index->frame->values[vi], index->values[vi].instruction, inputs);
       if (count < 0) goto done;
       for (int i = 0; i < count; i++) {
         int child = hako_static_v2_value_find(index, index->values[vi].function, inputs[i]);
-        if (child < 0 || !(index->frame->values[child].flags & HAKO_LLVMC_MAP_ORIGINAL_REQUIRED)) goto done;
+        if (child < 0 || (index->frame->values[vi].flags && !index->frame->values[child].flags)) goto done;
+        if (!reached[child]) { reached[child] = 1; changed = 1; }
+        int leaf = hako_static_v2_copy_leaf(index, child);
+        if (leaf < 0) goto done;
+        if (hako_static_v2_is_copy(index->frame->values[vi].action)) continue;
+        child = leaf;
         const hako_llvmc_value_projection_v2* parent = &index->frame->values[vi];
         const hako_llvmc_value_projection_v2* input = &index->frame->values[child];
         uint32_t expected = HAKO_LLVMC_MAP_VALUE_I64;
@@ -156,7 +198,6 @@ static int hako_static_v2_value_closure(const struct HakoStaticV2Index* index) {
                   hako_static_v2_text(yyjson_obj_get(index->values[child].instruction, "payload_type"), "String"))))) goto done;
         }
         if (input->value_kind != expected) goto done;
-        if (!reached[child]) { reached[child] = 1; changed = 1; }
       }
     }
   } while (changed);
