@@ -507,6 +507,11 @@ fn issued_three_distinct_map_call_owners_direct_exe_and_linked_object_exit_30() 
                         .map_err(|e| e.to_string())?;
                     assert_eq!(output.status.code(), Some(30), "{exe:?}: {output:?}");
                 }
+                assert_three_owner_fault_cleanup(
+                    &object,
+                    session.runtime_archive(),
+                    &dir,
+                )?;
                 Ok(())
             },
         );
@@ -595,6 +600,89 @@ fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path, value_
         if reports != 0 {
             let reason = if mode == "install-fault" || mode == "value-install-fault" { 101 } else { 100 };
             let report = format!("REPORT {reason} OUTER {outer} MAP 1 KEY {keys} OUTCOME {outcomes}\n");
+            assert!(stdout.contains(&report), "{mode}: {stdout}");
+            assert!(stdout.find(&report).unwrap() < stdout.find(&frame).unwrap());
+        }
+    }
+    Ok(())
+}
+
+fn assert_three_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -> Result<(), String> {
+    let exe = dir.join("fault-probe-three-owners");
+    let mut command = Command::new("cc");
+    command
+        .arg("-Wl,--wrap=main")
+        .arg("-DHAKO_MAP_SOURCE_PROBE")
+        .arg("-DHAKO_MAP_THREE_OWNER_PROBE")
+        .arg("lang/c-abi/tests/published_map_fault_probe.c")
+        .arg(object)
+        .arg(archive)
+        .arg("-Wl,--wrap=nyash.map.checked_install_value_v1");
+    for name in [
+        "storage_init",
+        "storage_dispose",
+        "key_init",
+        "key_dispose",
+        "outcome_init",
+        "outcome_dispose",
+        "checked_new",
+        "key_prepare_utf8",
+        "checked_install_indexed",
+        "outcome_end",
+        "checked_end",
+    ] {
+        command.arg(format!("-Wl,--wrap=nyash.map.{name}_v1"));
+    }
+    for name in [
+        "object.home_release_plain_i64",
+        "fault.report_final",
+        "fault.frame_dispose",
+    ] {
+        command.arg(format!("-Wl,--wrap=nyash.{name}_v1"));
+    }
+    let linked = command
+        .args(["-lpthread", "-ldl", "-lm", "-o"])
+        .arg(&exe)
+        .output()
+        .map_err(|e| e.to_string())?;
+    assert!(
+        linked.status.success(),
+        "{}",
+        String::from_utf8_lossy(&linked.stderr)
+    );
+    let cases = [
+        ("normal", 30, 4, 4, 4, 0, 0, "10 20 1 30"),
+        ("value-install-fault-1", 70, 1, 1, 1, 0, 101, "10"),
+        ("value-install-fault-2", 70, 2, 2, 2, 0, 101, "10 20"),
+        ("value-install-fault-4", 70, 4, 4, 4, 0, 101, "10 20 1 30"),
+        ("value-outcome-fault-2", 70, 2, 2, 2, 0, 100, "10 20"),
+        ("value-outcome-fault-4", 70, 4, 4, 4, 0, 100, "10 20 1 30"),
+    ];
+    for (mode, expected, maps, keys, outcomes, outer, reason, values) in cases {
+        let result = Command::new(&exe)
+            .arg(mode)
+            .env("NYASH_NYRT_SILENT_RESULT", "1")
+            .env("HAKO_NYRT_PLUGIN_HOST", "off")
+            .output()
+            .map_err(|e| e.to_string())?;
+        assert_eq!(result.status.code(), Some(expected), "{mode}: {:?}", result);
+        let stdout = String::from_utf8_lossy(&result.stdout);
+        let reports = u32::from(expected != 30);
+        let frame = format!(
+            "FRAME OUTER {outer} REPORTS {reports} MAP {maps} KEY {keys} OUTCOME {outcomes}\n"
+        );
+        assert!(stdout.contains(&frame), "{mode}: {stdout}");
+        assert!(stdout.contains(&format!("VALUES {values}\n")), "{mode}: {stdout}");
+        assert!(
+            stdout.ends_with(&format!(
+                "{expected} {maps} {maps} {keys} {keys} {outcomes} {outcomes}\n"
+            )),
+            "{mode}: {stdout}"
+        );
+        if reports != 0 {
+            let report = format!(
+                "REPORT {reason} OUTER {outer} MAP {maps} KEY {keys} OUTCOME {outcomes}\n"
+            );
             assert!(stdout.contains(&report), "{mode}: {stdout}");
             assert!(stdout.find(&report).unwrap() < stdout.find(&frame).unwrap());
         }
