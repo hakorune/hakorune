@@ -1527,6 +1527,46 @@ Non-claims: this row does not change contract vocabulary, alter call membership,
 open child-method physical support, change C emission, or claim OBJ/EXE
 acceptance.
 
+PHI convergence I0 landed at `14a8f88c6a`. The existing contract issuer now
+uses one sorted block-id order for observation, propagation, and return scans,
+and returns the existing unavailable result when the 32-pass budget is still
+changing instead of consuming partial state. The insertion-order and
+over-budget PHI tests passed `3/3`; the existing scalar PHI route test passed
+`1/1`; `cargo check -p nyash-rust` passed. The broader global-call route suite
+still contains known baseline failures (139 passed, 6 failed); one blocker
+failure was reproduced unchanged on parent `8090c8c9f0`, so that suite is not
+used as a green claim for this row.
+
+##### MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0
+
+Decision: design stop before any C or transport change. Select one existing
+production physical caller and one measured hot owner, then compare the
+invocation-local definition/block index and validated value facts used by V2
+structural checks, dominance checks, and V4 emission. Share only those facts
+within the synchronous invocation after a before/after measurement; preserve
+each trust-boundary check and all fail-fast behavior. A global cache or compile
+concurrency claim is outside this row.
+
+Source authority + canonical issuer: the existing selected physical caller,
+its `PublishedLifecyclePhysicalAbiInputV1`, and the existing C V2/V4 invocation
+state. Consumer: the current physical validation/emission functions in one
+invocation. No new semantic receipt or route is issued.
+
+Non-authority: process-global state, cross-invocation caches, C-side source
+meaning, HashMap order, backend defaults, generic JSON, and unmeasured
+intuition about hot paths.
+
+Fail-fast boundary: missing production caller/profile, mismatched index facts,
+stale validated values, or any before/after result that cannot preserve the
+existing V2/V4 rejection and artifact behavior keeps this row at design stop.
+
+Smallest next slice: record a baseline for one selected caller with separate
+scan counts/timings, name the exact duplicated index owner, and decide whether
+an invocation-local shared view can be introduced without changing checks.
+
+Non-claims: no global cache, compile parallelism, whole-backend speedup, new
+physical schema, C fallback, or OBJ/EXE behavior change is authorized.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root

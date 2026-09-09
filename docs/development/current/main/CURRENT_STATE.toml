@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-PHI-CONVERGENCE-I0"
-current_execution_cohort = "root_method_terminal_probe_phi_convergence_i0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0"
+current_execution_cohort = "mirbuilder_physical_c_invocation_index_reuse_d0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Terminal-probe PHI convergence I0: infer the existing same-module helper contract through one sorted block-id order, and reject an iteration-budget exhaustion before return routing instead of consuming partial state. Preserve the bounded alias walk, mixed-contract rejection, and all existing route membership; do not add a receipt, budget, fallback, or backend support."
+current_blocker_token = "C invocation-index reuse D0: before changing the physical consumer, select one existing production caller and one measured hot owner, capture separate V2/V4 scan timings and counts, then design invocation-local sharing of validated definition/block/value facts. Do not add a global cache, weaken trust-boundary checks, or claim a speedup without before/after evidence."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -40,11 +40,13 @@ root-only Unit boundary landed at a37eba6cc4. Additive field-read retention
 for child I64Field/I64Add rows landed at 29f9c3ee3d. I0 now fixes deterministic
 ordinary-call collection landed at a078c00699 with sorted block-id traversal,
 reversed-insertion coverage, and the physical-program 3-test suite green. PHI
-convergence is the next bounded row. Untyped storage,
+convergence landed at 14a8f88c6a with sorted contract scans and a no-partial-
+state budget stop; the focused PHI tests and cargo check passed. The next
+bounded row is a design-only measurement for C invocation-index reuse. Untyped storage,
 child physical shapes, and whole-Map/R7 remain parked.
 """
-next_design_card = "none"
-next_execution_card = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-PHI-CONVERGENCE-I0"
+next_design_card = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0"
+next_execution_card = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
