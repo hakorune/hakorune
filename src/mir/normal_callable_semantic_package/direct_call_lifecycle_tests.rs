@@ -2,6 +2,9 @@
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use super::direct_call_loan::AppMainDirectCallLoanErrorV1;
 
+#[path = "direct_call_physical_tests.rs"]
+mod physical;
+
 #[test]
 fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {
     for prefix in ["", "local page = new Page()"] {

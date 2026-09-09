@@ -622,6 +622,9 @@ where
             &builder.function_state,
             crate::mir::builder::control_flow::cleanup::CleanupExitKindV1::Return,
         )?;
+        if let Some(value) = port.emit_terminal_i64_call_exit(builder)? {
+            return Ok(value);
+        }
         if let Some(value) = port.emit_terminal_i64_add_return(builder)? {
             return port.emit_root_home_exit(builder, value);
         }

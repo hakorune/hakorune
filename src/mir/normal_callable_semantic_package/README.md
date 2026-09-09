@@ -373,6 +373,16 @@ installed-Home lookup, with missing and duplicate bindings rejected. The ledger
 supplies the physical end operation directly; Builder no longer reconstructs it
 from an object/value tuple. Root origins keep binding/exit plus that operation,
 and validation compares it to the emitted Invoke.
+
+For the selected terminal I64 Call, the return port takes the exact affine row
+through the ledger's original Completion/call-site relation before raw argument
+descent. Literal operands come from that relation. `RootHomeExitProgress` retains
+the same row, physical arguments, Invoke, Normal projection and frame alongside
+the one Home-origin list. Its Call entry validates both exact ingress slots and
+full pending cleanup; Plain keeps the existing one-entry suffix contract.
+The same physical boundary captures both sets and validates compiler finishing.
+This caller consumer does not authorize ordinary Map package installation or
+the ordinary compiled-entry/LLVM role; those remain explicit Stops.
 The same table uses private LocalCommitV1::Ordinary / Map entries. Map progress
 retains one opaque result through ExpressionCompleted, Installed and Checked;
 Completion alone owns its source order and transfers. Callable local placement

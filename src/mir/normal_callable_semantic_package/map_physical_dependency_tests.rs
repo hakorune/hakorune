@@ -43,6 +43,7 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
                     main.parser_identity(),
                     identity.method_source_observation().cloned(),
                     std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                    None,
                 )
             })
             .unwrap()

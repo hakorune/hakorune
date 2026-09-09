@@ -29,12 +29,25 @@ pub(crate) struct AppMainDirectCallDispositionRowV1 {
 }
 
 #[derive(Debug)]
-enum AppMainCallExecutionV1 { Scalar, Lifecycle }
+enum AppMainCallExecutionV1 {
+    Scalar,
+    Lifecycle,
+}
 
 #[path = "direct_call_lifecycle.rs"]
 mod lifecycle;
 
 impl AppMainDirectCallDispositionRowV1 {
+    pub(crate) fn lifecycle_emission(
+        &self,
+    ) -> Result<&VerifiedCanonicalDirectCallEmissionV1, AppMainDirectCallLoanErrorV1> {
+        match self.execution {
+            AppMainCallExecutionV1::Lifecycle => Ok(&self.emission),
+            AppMainCallExecutionV1::Scalar => {
+                Err(AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch)
+            }
+        }
+    }
     pub(crate) fn new(
         argument_sites: Box<[SourceExprSiteV1]>,
         emission: VerifiedCanonicalDirectCallEmissionV1,
@@ -50,10 +63,14 @@ impl AppMainDirectCallDispositionRowV1 {
         &self.argument_sites
     }
 
-    pub(crate) fn into_scalar_emission(self) -> Result<VerifiedCanonicalDirectCallEmissionV1, AppMainDirectCallLoanErrorV1> {
+    pub(crate) fn into_scalar_emission(
+        self,
+    ) -> Result<VerifiedCanonicalDirectCallEmissionV1, AppMainDirectCallLoanErrorV1> {
         match self.execution {
             AppMainCallExecutionV1::Scalar => Ok(self.emission),
-            AppMainCallExecutionV1::Lifecycle => Err(AppMainDirectCallLoanErrorV1::LifecycleConsumerMissing),
+            AppMainCallExecutionV1::Lifecycle => {
+                Err(AppMainDirectCallLoanErrorV1::LifecycleConsumerMissing)
+            }
         }
     }
 }
@@ -73,6 +90,28 @@ pub(crate) struct AppMainDirectCallDispositionLoanV1 {
 }
 
 impl AppMainDirectCallDispositionLoanV1 {
+    /// Take only the exact Call attached to this ledger's original Completion.
+    pub(crate) fn take_terminal_lifecycle(
+        &mut self,
+        ledger: &super::OrdinaryNewClaimLedgerV1,
+        owner: FunctionOwnerIdV1,
+        return_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> Result<Option<AppMainDirectCallDispositionRowV1>, AppMainDirectCallLoanErrorV1> {
+        let Some((completion, terminal)) = ledger.call_source_completion() else {
+            return Ok(None);
+        };
+        if owner != self.owner
+            || completion.owner() != owner
+            || terminal.owner() != owner
+            || terminal.return_site().node() != return_site
+            || completion.explicit_site() != Some(terminal.return_site())
+        {
+            return Err(AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch);
+        }
+        let row = self.take_once(owner, terminal.call_site().clone())?;
+        row.lifecycle_emission()?;
+        Ok(Some(row))
+    }
     pub(crate) fn from_rows(
         owner: FunctionOwnerIdV1,
         rows: impl IntoIterator<Item = (SourceExprSiteV1, AppMainDirectCallDispositionRowV1)>,

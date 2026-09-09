@@ -209,8 +209,9 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             result.extend_from_slice(bindings);
         }
-        if let RootHomeExitProgress::Emitted { bindings, .. } = &*self.root_exit.borrow() {
+        if let RootHomeExitProgress::Emitted { bindings, entry, .. } = &*self.root_exit.borrow() {
             result.extend_from_slice(bindings);
+            entry.append_bindings(&mut result);
         }
         Ok(result)
     }

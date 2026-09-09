@@ -2,6 +2,8 @@
 use crate::mir::instruction::InvokeCallResultKind;
 #[path = "selected/map.rs"]
 pub(in crate::mir::builder) mod map;
+#[path = "selected/terminal_call.rs"]
+pub(in crate::mir::builder) mod terminal_call;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
@@ -109,7 +111,10 @@ pub(in crate::mir::builder) fn emit(
         };
         let after_birth = builder.next_block_id();
         let birth = MirInstruction::Invoke {
-            operation: InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
+            operation: InvokeOperation::Call {
+                call,
+                result: InvokeCallResultKind::Unit,
+            },
             fault_frame: frame,
             normal_landing: after_birth,
             fault_landing: birth_fault,
@@ -265,7 +270,7 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
     ledger: &OrdinaryNewClaimLedgerV1,
     value: ValueId,
 ) -> Result<ValueId, String> {
-    emit_root_home_exit_payload(builder, state, ledger, Some(value), value)
+    emit_root_home_exit_payload(builder, state, ledger, Some(value), value, None)
 }
 
 pub(in crate::mir::builder) fn emit_root_home_unit_exit(
@@ -274,7 +279,7 @@ pub(in crate::mir::builder) fn emit_root_home_unit_exit(
     ledger: &OrdinaryNewClaimLedgerV1,
 ) -> Result<ValueId, String> {
     let statement_result = crate::mir::builder::emission::constant::emit_void(builder)?;
-    emit_root_home_exit_payload(builder, state, ledger, None, statement_result)
+    emit_root_home_exit_payload(builder, state, ledger, None, statement_result, None)
 }
 
 fn emit_root_home_exit_payload(
@@ -283,6 +288,7 @@ fn emit_root_home_exit_payload(
     ledger: &OrdinaryNewClaimLedgerV1,
     return_value: Option<ValueId>,
     statement_result: ValueId,
+    call: Option<terminal_call::Emission>,
 ) -> Result<ValueId, String> {
     let operations = ledger.begin_root_home_exit()?;
     let frame = state.borrow_fault_frame(builder)?;
@@ -322,10 +328,33 @@ fn emit_root_home_exit_payload(
             .cloned()
             .ok_or_else(|| freeze("root-home-release-binding-missing"))?;
         origins.push((origin, block, instruction));
-        if index + 1 < count {
+        if call.is_some() || index + 1 < count {
             fault = cleanup_step(builder, frame, operation, fault, fault, &mut bindings)?;
         }
         clean = next_clean;
+    }
+    origins.reverse();
+    if let Some(call) = call {
+        let (invoke, projection) = terminal_call::emit_ingress(
+            builder,
+            frame,
+            statement_result,
+            clean,
+            fault,
+            call.call,
+            &mut bindings,
+        )?;
+        let frame_binding = fault_frame_binding(builder, state, frame)?;
+        ledger.record_root_call_exit(
+            call.row,
+            call.arguments,
+            invoke,
+            projection,
+            frame_binding,
+            origins,
+            bindings,
+        )?;
+        return Ok(statement_result);
     }
     let origin = builder
         .function_state
@@ -337,7 +366,6 @@ fn emit_root_home_exit_payload(
     };
     builder.emit_instruction(jump.clone())?;
     bindings.push((origin, jump));
-    origins.reverse();
     ledger.record_root_home_exit(origins, bindings)?;
     Ok(statement_result)
 }

@@ -15,6 +15,19 @@ pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
     Emitted {
         origins: Vec<RootHomeReleaseEmissionV1>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
+        entry: RootHomeExitEntry,
+    },
+}
+
+#[derive(Debug)]
+pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitEntry {
+    Plain,
+    Call {
+        row: crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        arguments: Vec<(BasicBlockId, MirInstruction)>,
+        invoke: (BasicBlockId, MirInstruction),
+        projection: (BasicBlockId, MirInstruction),
+        frame: (BasicBlockId, MirInstruction),
     },
 }
 
@@ -132,6 +145,15 @@ impl OrdinaryNewClaimLedgerV1 {
         origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
+        self.record_root_home_exit_with_entry(origins, bindings, RootHomeExitEntry::Plain)
+    }
+
+    fn record_root_home_exit_with_entry(
+        &self,
+        origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+        entry: RootHomeExitEntry,
+    ) -> Result<(), String> {
         let mut progress = self.root_exit.borrow_mut();
         if !matches!(*progress, RootHomeExitProgress::Emitting) || bindings.is_empty() {
             return Err(freeze("root-exit-record-without-emission"));
@@ -144,7 +166,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 instruction,
             })
             .collect();
-        *progress = RootHomeExitProgress::Emitted { origins, bindings };
+        *progress = RootHomeExitProgress::Emitted {
+            origins,
+            bindings,
+            entry,
+        };
         Ok(())
     }
 
@@ -167,7 +193,12 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         match &*self.root_exit.borrow() {
             RootHomeExitProgress::Unavailable => Ok(Vec::new()),
-            RootHomeExitProgress::Emitted { origins, bindings } => {
+            RootHomeExitProgress::Emitted {
+                origins,
+                bindings,
+                entry,
+            } => {
+                self.validate_call_entry(function, projection, entry, bindings)?;
                 if origins.len() != expected_homes.len() {
                     return Err(freeze("root-exit-origin-count"));
                 }
@@ -177,7 +208,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("root-cleanup-graph/residual-node"));
                 }
                 let mapped = projection.map(|p| p.bindings(bindings)).transpose()?;
-                if let (Some(projection), Some(mapped)) = (projection, mapped.as_ref()) {
+                if let (RootHomeExitEntry::Plain, Some(projection), Some(mapped)) =
+                    (entry, projection, mapped.as_ref())
+                {
                     if let Some((entry, _)) = bindings.last() {
                         super::root_cleanup_graph::validate_projected_ingress(
                             function,
@@ -252,11 +285,34 @@ impl OrdinaryNewClaimLedgerV1 {
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn validate_root_cleanup_shape(&self, function: &MirFunction) -> Result<(), String> {
-        if let RootHomeExitProgress::Emitted { origins, bindings } = &*self.root_exit.borrow() {
-            if !origins.is_empty() {
-                super::root_cleanup_graph::validate_original(function, bindings, origins.len())?;
+        if let RootHomeExitProgress::Emitted {
+            origins,
+            bindings,
+            entry,
+        } = &*self.root_exit.borrow()
+        {
+            match entry {
+                RootHomeExitEntry::Plain if !origins.is_empty() => {
+                    super::root_cleanup_graph::validate_original(function, bindings, origins.len())?
+                }
+                RootHomeExitEntry::Call {
+                    invoke, projection, ..
+                } => super::root_cleanup_graph::call::validate_original(
+                    function,
+                    bindings,
+                    invoke,
+                    projection,
+                    &origins
+                        .iter()
+                        .map(|row| row.origin.operation())
+                        .collect::<Vec<_>>(),
+                )?,
+                _ => {}
             }
         }
         Ok(())
     }
 }
+
+#[path = "root_call_entry.rs"]
+mod call_entry;

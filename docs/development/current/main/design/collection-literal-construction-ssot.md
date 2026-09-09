@@ -3045,12 +3045,15 @@ pointer/corridor guards pass. This closes representation only: source Call
 emission/progress and actual binding drift checks remain the next dependency;
 no ordinary execution or runtime test was claimed.
 
-Next source-consumer binding must consume the SAME affine Lifecycle row plus
-original root ledger Completion/terminal relation, and record target/arguments/
-result/frame/cleanup with existing ledger progress. NormalResult physical
-support alone must not remove the ordinary package install Stop. Actual target,
-argument, projection and cleanup drift checks belong to that consumer, followed
-by retained callee role/formal/result/cleanup validation and selected ordinary ABI.
+The source consumer now takes the SAME affine Lifecycle row through the original
+root ledger Completion/terminal relation, before raw argument descent. Its
+literal operands come from that relation. Existing root exit progress retains
+the row plus physical arguments/Invoke/projection/frame, and verifies target,
+operand, result, frame and cleanup drift through the existing physical boundary.
+Missing selected Call loan rejects; it does not continue to the scalar path.
+NormalResult support and this caller consumer do not remove the ordinary package
+install Stop. Next is retained callee role/formal/result/cleanup consumption and
+selected ordinary ABI; no second Completion, Map manager or root-default frame.
 
 Canonical projection now borrows the existing emission through
 `materialize_call(dst, args)`; the scalar materializer delegates to this same
@@ -3089,11 +3092,68 @@ external ingress; no relaxation of sole-predecessor Jump contraction. Required
 consumer tests cover N=0/1/2, swapped ingress, skipped/reordered Home, foreign
 incoming, pending-to-clean, Fault projection, frame drift and Jump contraction.
 
+Caller implementation uses the same cleanup builder for Plain and Call. Plain
+keeps N clean/N-1 pending nodes; Call adds the first pending Home and records
+two named landing blocks, including when N=0. Physical ordering validation
+compares both chains with the one retained origins list. The existing source
+dependency harness now accepts the real affine loan; it neither installs the
+ordinary package nor bypasses its Stop. Actual-source coverage includes zero,
+one and two prior Homes with/without simplify_cfg, affine exhaustion, strict
+MIR verification, finishing, swapped/missing Call paths, frame/argument/dst
+drift, third incoming, Fault-side projection and Fault-to-normal corruption.
+Read-only worker review found no concrete cleanup-boundary contradiction; its
+report is not execution evidence. The next ordinary callee/ABI work must still
+close direct EXE/linked OBJ and injected Fault acceptance below.
+Validation: semantic package156 and Invoke16 pass, including the six source/finishing
+combinations and eight drift cases per combination. Existing pointer/corridor
+guards pass; changed Rust sources stay below760 (maximum676). Initial compile
+errors were module visibility/path and Builder type-state field references,
+corrected before acceptance; the new private-interface warning was also fixed.
+Additional Home cases reject skipped, changed and reordered pending Homes and
+pending-to-clean re-entry. No C build, ordinary package install or runtime proof was
+claimed. Logs: `/tmp/hakorune-terminal-call-final.log` and
+`/tmp/hakorune-terminal-call-invoke.log`. Both use jobs4 locked quick lib tests
+with one test thread and the corresponding package/Invoke filter.
+
 Use existing RootOwned/Borrowed frame state and ordinary callable validation;
 NewFaultContinuation remains New-specific. Normal alone projects result; Fault
 runs callee cleanup before caller cleanup, borrowed frames cannot be disposed,
 and root alone reports/disposes. Direct EXE and linked OBJ exit30 plus injected
 Fault evidence retire ordinary install/artifact Stops in the same series.
+
+#### Ordinary callee ledger placement: next bounded connection
+
+Decision: place the original ordinary Map Completion/terminal in a per-callable instance of the existing ledger, retained by its existing result row; do not copy it.
+Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row's accessors borrow that same Completion.
+Non-authority: AppMain's ledger, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
+Fail-fast boundary: preserve ordinary install/artifact Stops until selected scope, local/cleanup validation and ordinary ABI are connected; unavailable/foreign rows reject.
+Smallest next slice: BoxShape inside result-row retention, creating its existing ledger before handing out Completion borrows; delete the sibling direct Completion/terminal storage for that row.
+Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or install/EXE claim from retention alone.
+
+Read-only physical-owner audit found `preflight_map_install`, `map_flow`,
+`has_map_source`, `map_demands_consumed` and `map_install_owner` observing only
+the AppMain ledger/root Completion. `with_callable_source_scope` passes that
+same Rc ledger to each child. The ordinary source product already lives in
+the result cohort; selected Map emission already uses callable Fault-frame
+state, whose ordinary role is Borrowed. The issue is placement/selection, not
+a missing source Completion issuer.
+
+After the retention slice, select the exact owner's ledger at
+`with_selected_lowering_input` and lend it through the existing source scope.
+Retire the ordinary-Map-to-AppMain-ledger inquiry edge in that connection, not
+by deleting the install Stop wholesale. Keep original root behavior and
+Borrowed callee frame distinct. Existing completed/finalized result retention
+must also retain that ledger's emission/finishing state. If ordinary New claims
+are needed, move the same exact-owner claims from the existing inventory;
+do not clone them or broaden the initial Map/formal/literal consumer implicitly.
+
+Retention acceptance: result/header and ledger borrow the same original
+Completion with matching owner/terminal; root and foreign-site isolation,
+existing result/S6C/Dynamic tests and completed/finalized lifetime checks remain
+valid. Subsequent consumer acceptance requires I64 formals feeding Map install,
+literal30 after cleanup, Map Fault cleanup using the Borrowed frame, no callee
+report/dispose, and draft/finishing validation of the same obligations. Selected
+artifact/EXE evidence is still required by the enclosing series.
 
 ### Checked Map Value storage/install ABI: accepted next slice
 

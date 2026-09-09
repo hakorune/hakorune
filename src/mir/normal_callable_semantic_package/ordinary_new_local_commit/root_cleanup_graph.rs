@@ -11,6 +11,9 @@ use std::mem::{discriminant, Discriminant};
 type Bindings = [(BasicBlockId, MirInstruction)];
 type Incoming = BTreeMap<(BasicBlockId, usize), (Discriminant<MirInstruction>, Option<EdgeArgs>)>;
 
+#[path = "root_call_cleanup_graph.rs"]
+pub(super) mod call;
+
 /// Root-specific source-origin count and graph-shape validation.
 pub(super) fn validate_original(
     function: &MirFunction,

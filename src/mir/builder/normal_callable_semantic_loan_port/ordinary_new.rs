@@ -13,6 +13,13 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         self.check_new_ledger_identity()?;
         self.inner.prepare_root_home_exit(builder)
     }
+    fn emit_terminal_i64_call_exit(
+        &mut self,
+        builder: &mut MirBuilder,
+    ) -> Result<Option<ValueId>, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.emit_terminal_i64_call_exit(builder)
+    }
     fn emit_terminal_i64_add_return(
         &mut self,
         builder: &mut MirBuilder,

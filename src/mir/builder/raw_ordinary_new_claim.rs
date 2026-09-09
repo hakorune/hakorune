@@ -2,6 +2,12 @@
 use crate::mir::builder::fields::PreparedRawFieldReadV1;
 
 pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
+    fn emit_terminal_i64_call_exit(
+        &mut self,
+        _builder: &mut crate::mir::MirBuilder,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        Ok(None)
+    }
     fn prepare_terminal_field_read(
         &mut self,
         _object: crate::ast::ASTNode,
@@ -100,6 +106,44 @@ impl RawOrdinaryNewClaimPortV1 for super::RawLegacyChildLoweringPortV1 {
 }
 
 impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
+    fn emit_terminal_i64_call_exit(
+        &mut self,
+        builder: &mut crate::mir::MirBuilder,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
+            return Ok(None);
+        };
+        if ledger.terminal_call_arguments().is_none() {
+            return Ok(None);
+        }
+        let owner = self
+            .callable_owner_v1()
+            .ok_or("[freeze:contract][terminal-call/owner-missing]")?;
+        let site = self
+            .current_source_site_v1()
+            .ok_or("[freeze:contract][terminal-call/site-missing]")?;
+        let loan = self
+            .direct_call_loan
+            .as_deref_mut()
+            .ok_or("[freeze:contract][terminal-call/loan-missing]")?;
+        let Some(row) = loan
+            .take_terminal_lifecycle(ledger, owner, &site)
+            .map_err(|error| format!("[freeze:contract][terminal-call/{error:?}]"))?
+        else {
+            return Ok(None);
+        };
+        let state = self
+            .callable_ledger
+            .as_ref()
+            .ok_or("[freeze:contract][terminal-call/state-missing]")?;
+        crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit(
+            builder,
+            &mut state.borrow_mut(),
+            ledger,
+            row,
+        )
+        .map(Some)
+    }
     fn prepare_terminal_field_read(
         &mut self,
         object: crate::ast::ASTNode,
