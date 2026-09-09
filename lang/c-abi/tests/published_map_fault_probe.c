@@ -72,7 +72,7 @@ uint32_t wrap_value(void* frame, uint32_t profile, uint64_t site, void* map,
 }
 #endif
 
-#if defined(HAKO_MAP_THREE_OWNER_PROBE) || defined(HAKO_MAP_FOUR_OWNER_PROBE)
+#if defined(HAKO_MAP_THREE_OWNER_PROBE) || defined(HAKO_MAP_FOUR_OWNER_PROBE) || defined(HAKO_MAP_FIVE_OWNER_PROBE)
 static unsigned ordinal_mode(const char* prefix) {
   size_t length = strlen(prefix);
   char* end = NULL;
@@ -123,6 +123,26 @@ uint32_t wrap_four_value(void* frame, uint32_t profile, uint64_t site, void* map
 }
 #endif
 
+#ifdef HAKO_MAP_FIVE_OWNER_PROBE
+static unsigned five_value_installs;
+static int64_t five_value_sequence[8];
+static unsigned five_outcome_fault_fired;
+
+extern uint32_t real_five_value(void*, uint32_t, uint64_t, void*, void*, uint32_t, int64_t, void*)
+    __asm__("__real_nyash.map.checked_install_value_v1");
+uint32_t wrap_five_value(void*, uint32_t, uint64_t, void*, void*, uint32_t, int64_t, void*)
+    __asm__("__wrap_nyash.map.checked_install_value_v1");
+uint32_t wrap_five_value(void* frame, uint32_t profile, uint64_t site, void* map,
+    void* key, uint32_t kind, int64_t value, void* out) {
+  unsigned ordinal = ++five_value_installs;
+  if (ordinal > 8 || kind != NYRT_MAP_VALUE_I64) abort();
+  five_value_sequence[ordinal - 1] = value;
+  if (ordinal_mode("value-install-fault-") == ordinal)
+    return real_install(frame, profile, site, map, key, INT64_MAX, 900, out);
+  return real_five_value(frame, profile, site, map, key, kind, value, out);
+}
+#endif
+
 extern uint32_t real_outcome_end(void*, uint64_t, void*) __asm__("__real_nyash.map.outcome_end_v1");
 uint32_t wrap_outcome_end(void*, uint64_t, void*) __asm__("__wrap_nyash.map.outcome_end_v1");
 uint32_t wrap_outcome_end(void* frame, uint64_t site, void* out) {
@@ -141,6 +161,13 @@ uint32_t wrap_outcome_end(void* frame, uint64_t site, void* out) {
   if (!result && !four_outcome_fault_fired &&
       ordinal_mode("value-outcome-fault-") == four_value_installs) {
     four_outcome_fault_fired = 1;
+    return fault(frame, site);
+  }
+#endif
+#ifdef HAKO_MAP_FIVE_OWNER_PROBE
+  if (!result && !five_outcome_fault_fired &&
+      ordinal_mode("value-outcome-fault-") == five_value_installs) {
+    five_outcome_fault_fired = 1;
     return fault(frame, site);
   }
 #endif
@@ -178,12 +205,14 @@ uint32_t wrap_frame_dispose(void*) __asm__("__wrap_nyash.fault.frame_dispose_v1"
 uint32_t wrap_frame_dispose(void* frame) {
   printf("FRAME OUTER %u REPORTS %u MAP %u KEY %u OUTCOME %u\n",
       outer_ends, reports, map_dispose, key_dispose, outcome_dispose);
-#if defined(HAKO_MAP_THREE_OWNER_PROBE) || defined(HAKO_MAP_FOUR_OWNER_PROBE)
+#if defined(HAKO_MAP_THREE_OWNER_PROBE) || defined(HAKO_MAP_FOUR_OWNER_PROBE) || defined(HAKO_MAP_FIVE_OWNER_PROBE)
   printf("VALUES");
 #ifdef HAKO_MAP_THREE_OWNER_PROBE
   for (unsigned i = 0; i < three_value_installs; i++) printf(" %lld", (long long)three_value_sequence[i]);
-#else
+#elif defined(HAKO_MAP_FOUR_OWNER_PROBE)
   for (unsigned i = 0; i < four_value_installs; i++) printf(" %lld", (long long)four_value_sequence[i]);
+#else
+  for (unsigned i = 0; i < five_value_installs; i++) printf(" %lld", (long long)five_value_sequence[i]);
 #endif
   printf("\n");
 #endif

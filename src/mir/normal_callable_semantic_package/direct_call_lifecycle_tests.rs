@@ -221,22 +221,8 @@ fn four_distinct_map_call_owners_share_three_source_ordered_local_bindings() {
 }
 
 #[test]
-fn fifth_repeated_or_distinct_map_call_stays_outside_four_owner_slice() {
-    for source in [
-        r#"static box Main {
-            main() {
-                local first = helper(10)
-                local second = middle(20)
-                local third = later(1)
-                local repeated = helper(11)
-                local root_map = %{"root" => 1}
-                return other(30)
-            }
-            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
-            middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
-            later(value: i64): i64 { local m = %{"later" => value} return 30 }
-            other(value: i64): i64 { local m = %{"other" => value} return 30 }
-        }"#,
+fn five_distinct_map_call_owners_share_four_source_ordered_local_bindings() {
+    let package = issue(
         r#"static box Main {
             main() {
                 local first = helper(10)
@@ -250,6 +236,61 @@ fn fifth_repeated_or_distinct_map_call_stays_outside_four_owner_slice() {
             middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
             later(value: i64): i64 { local m = %{"later" => value} return 30 }
             extra(value: i64): i64 { local m = %{"extra" => value} return 30 }
+            other(value: i64): i64 { local m = %{"other" => value} return 30 }
+        }"#,
+    )
+    .expect("five distinct ordinary Map owners");
+    let targets = package
+        .app_main_direct_call_loan
+        .as_ref()
+        .expect("AppMain direct-call loan")
+        .map_target_owners(&package.batch)
+        .expect("bounded target owner set");
+    assert_eq!(targets.len(), 5);
+    let completion = package
+        .ordinary_new_claim_ledger
+        .call_source_completion()
+        .expect("terminal Call relation")
+        .0;
+    assert_eq!(completion.cleanup().root_flow().unwrap().local_calls().len(), 4);
+    let mut context = crate::mir::builder::CompilationContext::new();
+    assert!(package.prepare_install(&mut context).is_ok());
+}
+
+#[test]
+fn sixth_repeated_or_distinct_map_call_stays_outside_five_owner_slice() {
+    for source in [
+        r#"static box Main {
+            main() {
+                local first = helper(10)
+                local second = middle(20)
+                local third = later(1)
+                local fourth = extra(2)
+                local repeated = helper(11)
+                local root_map = %{"root" => 1}
+                return other(30)
+            }
+            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
+            middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
+            later(value: i64): i64 { local m = %{"later" => value} return 30 }
+            extra(value: i64): i64 { local m = %{"extra" => value} return 30 }
+            other(value: i64): i64 { local m = %{"other" => value} return 30 }
+        }"#,
+        r#"static box Main {
+            main() {
+                local first = helper(10)
+                local second = middle(20)
+                local third = later(1)
+                local fourth = extra(2)
+                local fifth = fifth_owner(3)
+                local root_map = %{"root" => 1}
+                return other(30)
+            }
+            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
+            middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
+            later(value: i64): i64 { local m = %{"later" => value} return 30 }
+            extra(value: i64): i64 { local m = %{"extra" => value} return 30 }
+            fifth_owner(value: i64): i64 { local m = %{"fifth" => value} return 30 }
             other(value: i64): i64 { local m = %{"other" => value} return 30 }
         }"#,
     ] {

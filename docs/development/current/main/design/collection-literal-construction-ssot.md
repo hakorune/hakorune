@@ -3193,7 +3193,16 @@ Non-authority: owner count alone, declaration count, MIR Call count, physical fu
 Fail-fast boundary: sixth distinct or repeated owner, uncalled owner, local Call with prior Homes, nested/conditional/recursive Call, New/Home, field return, unknown actual, and native escape reject before install.
 Caller/consumer: `map_target_owners` -> `preflight_map_install` -> `selected/terminal_call::emit_local` -> existing source-ordered groups/finishing -> compiled-entry Call collection -> existing C ordinary consumer.
 Exclusive delete-set: only `owners.len() > 4` becomes `> 5`, and the existing local-count case adds `targets.len()==5 => expected_local_calls==4`; retain four-owner and all lower regressions/negatives.
-Acceptance: semantic positive/negative coverage for five owners, direct EXE and linked OBJ exit30, Fault-prefix probes A/B/C/D/E with required cleanup, sixth distinct/repeated rejection, group duplicate/foreign/order/omission rejection, and four-owner regression. No field/New/Home/unknown or whole-Map/R7 claim.
+Acceptance: semantic positive/negative coverage for five owners, direct EXE and linked OBJ exit30, Fault-prefix probes A/B/C/D/E with required cleanup, sixth distinct/repeated rejection, group duplicate/foreign/order/omission rejection, and four-owner regression. Passed; no field/New/Home/unknown or whole-Map/R7 claim.
+
+### Ordinary-child New/Home lifetime: design stop D0
+
+Decision: audit one exact ordinary Map callee that owns `new Page()`, installs a scalar Value Map entry, and returns literal30. Do not widen field return, Home transfer, or unknown actuals in this stop.
+Source authority + canonical issuer: existing constructor semantic batch and `OrdinaryNewAdmissionClaimV1`, the callee owner's original Completion/RootHomeFlow, and `direct_call_lifecycle::co_seal_lifecycle` for exact target, i64 formal, and literal result.
+Non-authority: ledger existence, MIR `NewBox`, Map owner membership, or a Borrowed frame cannot grant ordinary New execution.
+Fail-fast boundary: keep ordinary New/Home stopped until one existing claim travels once through New emission, Birth/unfinished recovery, root-exit, PhysicalBoundary, compiled-entry, and final cleanup with owner identity intact.
+Smallest next slice: census the real claim issuer, consumer, transfer points, and exclusive old Stop edge; record normal, Birth Fault, and cleanup Fault order before selecting an I0.
+Non-claims: no new receipt/schema, no guessed cleanup, no ordinary New/Home production switch, no field/unknown/general Map/R7 closure.
 
 Superseded design-stop brief (2026-09-09): at design entry the source issuer
 emitted only a terminal `TerminalI64CallReturnV1`, and the existing affine loan

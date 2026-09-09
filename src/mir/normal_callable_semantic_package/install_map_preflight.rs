@@ -35,6 +35,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             let expected_local_calls = match targets.len() {
                 3 => Some(2),
                 4 => Some(3),
+                5 => Some(4),
                 _ => None,
             };
             if expected_local_calls.is_some_and(|expected| {

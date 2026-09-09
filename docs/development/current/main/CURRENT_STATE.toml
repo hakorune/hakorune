@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MAP-LITERAL-FIVE-ORDINARY-OWNER-COVERAGE-I0"
-current_execution_cohort = "map_literal_five_ordinary_owner_coverage_i0"
-current_design_stop = "none"
-current_blocker_token = "The ordinary-child Value-only artifact recheck is closed: the one source main-to-helper Call row and root+child direct/linked exit30 both pass. The selected five-owner I0 admits exactly four source-local Calls A/B/C/D plus terminal Call E through the existing owner index and binding groups; six/repeated owners, prior-Homes, nested/conditional/recursive, New/Home, field, and unknown values stay fail-fast."
+work_mode = "design_stop"
+current_execution_row = "MAP-LITERAL-ORDINARY-NEW-HOME-LIFETIME-D0"
+current_execution_cohort = "map_literal_ordinary_new_home_lifetime_d0"
+current_design_stop = "MAP-LITERAL-ORDINARY-NEW-HOME-LIFETIME-D0 (collection-literal-construction-ssot.md)"
+current_blocker_token = "The five-owner I0 is closed with semantic 15/15, direct/linked exit30, and A-E Fault-prefix/cleanup evidence. The next design stop must determine whether one exact ordinary Map callee can carry its own New/Home lifetime through existing constructor claims, Birth emission, root-exit, PhysicalBoundary, and final cleanup; keep ordinary New/Home, field, and unknown values fail-fast until that owner/consumer chain is explicit."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -54,10 +54,10 @@ The single-terminal-only production edge is retired through explicit CallReturn
 and ordinary Call-site collection. Two-owner admission and direct/linked exit30
 are closed. The three-owner I0 changes only source-ordered local binding
 retention plus bounded owner admission; the explicit fourth-Call and grouped
-mutation guards, natural Pair exit30, and Fault-order prefix probes pass; the four-owner D0 is accepted and its source-admission guard passes semantic 14/14. Four-owner direct/linked exit30 and per-prefix Fault/cleanup probes pass. The ordinary-child Value-only artifact recheck now passes with one source Call row and root+child Pair exit30; the next bounded row is five-owner coverage.
+mutation guards, natural Pair exit30, and Fault-order prefix probes pass; the four-owner D0 is accepted and its source-admission guard passes semantic 14/14. Four-owner direct/linked exit30 and per-prefix Fault/cleanup probes pass. The ordinary-child Value-only artifact recheck passes with one source Call row and root+child Pair exit30. Five-owner source admission, direct/linked exit30, and A-E Fault-prefix/cleanup probes pass; the next boundary is the ordinary New/Home lifetime design stop.
 """
-next_design_card = "none (worker-audited bounded MAP-LITERAL-FIVE-ORDINARY-OWNER-COVERAGE-D0)"
-next_execution_card = "MAP-LITERAL-FIVE-ORDINARY-OWNER-COVERAGE-I0"
+next_design_card = "MAP-LITERAL-ORDINARY-NEW-HOME-LIFETIME-D0"
+next_execution_card = "none (awaiting ordinary New/Home lifetime D0 acceptance)"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -76,5 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change.",
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
-  "2026-09-09: selected Map physical consumer and ordinary_i64 Pair evidence are closed (direct/linked exit30, bool/range Fault103, cleanup probe, root+child and two-owner cases). The single-terminal edge is retired through CallReturn and ordinary Call-site collection. Three-owner I0 now owns source-ordered binding groups plus explicit fourth-Call, grouped mutation, and Fault-order prefix guards; natural direct/linked exit30 passes. Fourth-owner source admission passes semantic 14/14, and the four-owner direct/linked exit30 plus per-prefix Fault/cleanup probes now pass. The ordinary-child Value-only recheck corrected one stale Call-row expectation and passes direct/linked exit30, including root+child regression. The next bounded row is five-owner coverage; no whole-Map/R7 claim.",
+  "2026-09-09: selected Map physical consumer and ordinary_i64 Pair evidence are closed (direct/linked exit30, bool/range Fault103, cleanup probe, root+child and two-owner cases). The single-terminal edge is retired through CallReturn and ordinary Call-site collection. Three-owner I0 now owns source-ordered binding groups plus explicit fourth-Call, grouped mutation, and Fault-order prefix guards; natural direct/linked exit30 passes. Fourth-owner source admission passes semantic 14/14, and the four-owner direct/linked exit30 plus per-prefix Fault/cleanup probes now pass. The ordinary-child Value-only recheck corrected one stale Call-row expectation and passes direct/linked exit30, including root+child regression. Five-owner source admission passes semantic 15/15, direct/linked exit30, and A-E Fault-prefix/cleanup probes. Ordinary New/Home lifetime is the next design stop; no whole-Map/R7 claim.",
 ]
