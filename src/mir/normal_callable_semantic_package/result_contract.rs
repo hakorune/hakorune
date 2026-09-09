@@ -13,6 +13,7 @@ use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::completion_seed::VerifiedCallableCompletionSeedV1;
@@ -36,6 +37,7 @@ pub(super) struct VerifiedCallableResultContractRowV1 {
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: VerifiedFunctionCompletionV1,
+    terminal_relation: Option<TerminalRelationV1>,
 }
 
 #[derive(Clone, Copy)]
@@ -45,6 +47,7 @@ pub(crate) struct CallableResultContractRefV1<'a> {
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: &'a VerifiedFunctionCompletionV1,
+    terminal_relation: Option<&'a TerminalRelationV1>,
 }
 
 impl VerifiedCallableResultContractCohortV1 {
@@ -88,6 +91,7 @@ impl VerifiedCallableResultContractRowV1 {
             self.role,
             self.result,
             &self.completion,
+            self.terminal_relation.as_ref(),
         )
     }
 }
@@ -99,6 +103,7 @@ impl<'a> CallableResultContractRefV1<'a> {
         role: SelectedCallableConsumptionRoleV1,
         result: Option<ExactTrivialScalarAbiV1>,
         completion: &'a VerifiedFunctionCompletionV1,
+        terminal_relation: Option<&'a TerminalRelationV1>,
     ) -> Self {
         Self {
             owner,
@@ -106,6 +111,7 @@ impl<'a> CallableResultContractRefV1<'a> {
             role,
             result,
             completion,
+            terminal_relation,
         }
     }
 
@@ -130,6 +136,11 @@ impl<'a> CallableResultContractRefV1<'a> {
         self.completion.function_exit_contract().declared_result()
     }
 
+    /// Absence does not infer Unit, an ABI kind, or empty cleanup.
+    pub(crate) const fn terminal_relation(&self) -> Option<&'a TerminalRelationV1> {
+        self.terminal_relation
+    }
+
     /// Borrow the issued product; callers must not infer missing obligations
     /// from a partial summary or absent Home analysis.
     pub(crate) const fn completion(&self) -> &'a VerifiedFunctionCompletionV1 {
@@ -142,7 +153,8 @@ pub(super) fn issue_callable_result_contract_cohort_v1(
 ) -> Result<VerifiedCallableResultContractCohortV1, CallableResultContractIssueV1> {
     let mut rows = Vec::with_capacity(seeds.len());
     for seed in seeds {
-        let (batch_slot, owner, identity, role, result, completion) = seed.into_parts();
+        let (batch_slot, owner, identity, role, result, completion, terminal_relation) =
+            seed.into_parts();
         if rows
             .iter()
             .any(|row: &VerifiedCallableResultContractRowV1| row.batch_slot == batch_slot)
@@ -163,6 +175,7 @@ pub(super) fn issue_callable_result_contract_cohort_v1(
             role,
             result,
             completion,
+            terminal_relation,
         });
     }
     rows.sort_by_key(|row| row.batch_slot);

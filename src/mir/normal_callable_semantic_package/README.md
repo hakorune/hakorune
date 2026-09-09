@@ -120,7 +120,11 @@ Birth's checked kind/payload representation is a separate physical contract.
 [Result retention](result_contract.rs) moves the remaining Completion seeds,
 after the exclusive S6C child takes its seed, into one private non-Clone cohort.
 Cataloged rows retain their original `DeclaredFunctionResultContractV1` and
-`VerifiedFunctionCompletionV1`, including Unannotated and Void. The
+`VerifiedFunctionCompletionV1`, including Unannotated and Void. The original
+optional TerminalRelation from the ordinary Home walk moves beside Completion;
+its borrowed view never reclassifies the source return. Absence is not Unit or
+empty cleanup. AppMain keeps its own root relation; Dynamic lends no ordinary
+terminal, and S6C rejects an unexpected relation instead of dropping it. The
 [sparse header](physical_header.rs) borrows this product; it does not verify,
 clone, infer or reissue a result. Only rows with complete formal contracts and
 an explicit currently supported scalar result annotation (`i64`) project a

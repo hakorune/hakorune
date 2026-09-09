@@ -10,6 +10,7 @@ use crate::mir::resolved_control_flow::{
     DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::model::OwnedCallableParameterContractDeclarationV1;
@@ -26,15 +27,12 @@ pub(super) struct VerifiedCallableCompletionSeedV1 {
     role: crate::mir::builder::SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: VerifiedFunctionCompletionV1,
+    terminal_relation: Option<TerminalRelationV1>,
 }
 
 impl VerifiedCallableCompletionSeedV1 {
     pub(super) const fn batch_slot(&self) -> u32 {
         self.batch_slot
-    }
-
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
     }
 
     pub(super) fn identity(&self) -> &CallableDeclarationIdentityV1 {
@@ -49,10 +47,6 @@ impl VerifiedCallableCompletionSeedV1 {
         self.result
     }
 
-    pub(super) fn take_completion(self) -> VerifiedFunctionCompletionV1 {
-        self.completion
-    }
-
     pub(super) fn into_parts(
         self,
     ) -> (
@@ -62,6 +56,7 @@ impl VerifiedCallableCompletionSeedV1 {
         crate::mir::builder::SelectedCallableConsumptionRoleV1,
         Option<ExactTrivialScalarAbiV1>,
         VerifiedFunctionCompletionV1,
+        Option<TerminalRelationV1>,
     ) {
         (
             self.batch_slot,
@@ -70,6 +65,7 @@ impl VerifiedCallableCompletionSeedV1 {
             self.role,
             self.result,
             self.completion,
+            self.terminal_relation,
         )
     }
 }
@@ -161,6 +157,7 @@ impl VerifiedCallableCompletionSeedCohortV1 {
         declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
         selected: &VerifiedSelectedCallableBatchMapV1,
         completion: VerifiedFunctionCompletionV1,
+        terminal_relation: Option<TerminalRelationV1>,
     ) -> Result<(), CallablePhysicalHeaderIssueV1> {
         let batch_slot = declaration.batch_slot();
         let result = validate_result(&completion, declaration.owner(), batch_slot)?;
@@ -174,6 +171,7 @@ impl VerifiedCallableCompletionSeedCohortV1 {
             role,
             result,
             completion,
+            terminal_relation,
         });
         Ok(())
     }

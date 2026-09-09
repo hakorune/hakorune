@@ -654,6 +654,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
                         role,
                         *result,
                         authority.completion(),
+                        None,
                     );
                     let header = CallablePhysicalHeaderRefV1::from_result_contract(contract);
                     lend(Some(contract), header)

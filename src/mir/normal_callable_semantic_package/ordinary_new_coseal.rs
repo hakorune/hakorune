@@ -498,7 +498,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                             super::physical_header::CallablePhysicalHeaderIssueV1::Completion {
                                 _batch_slot: batch_slot, _issue: issue,
                             }))?;
-                    seeds.push_completion(declaration, selected, completion)
+                    seeds.push_completion(declaration, selected, completion, None)
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 }
                 let new_sites: BTreeMap<_, _> = candidates.iter()
@@ -528,7 +528,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                             }
                             Ok(candidate.construction.is_ok() && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
                         })? {
-                        Ok((completion, prefixes, terminal_relation, observations)) => {
+                        Ok((completion, prefixes, mut terminal_relation, observations)) => {
                             if is_app_main && matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
                                 if let Some(TerminalRelationV1::I64Add(result)) = &terminal_relation {
                                     if result.owner() != input.owner()
@@ -554,12 +554,12 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                                     }
                                 }
                                 root_field_reads = staged_reads;
-                                root_terminal_relation = terminal_relation;
+                                root_terminal_relation = terminal_relation.take();
                             }
                             if is_app_main {
                                 root_completion = Some(Ok(completion));
                             } else {
-                                seeds.push_completion(declaration, selected, completion)
+                                seeds.push_completion(declaration, selected, completion, terminal_relation)
                                     .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                             }
                             (prefixes, observations)

@@ -2812,7 +2812,7 @@ canonical_direct_call emits scalar Call. Neither issues normal/Fault cleanup.
 The Home return classifier has Integer/OtherTrivial/IntegerField/I64Add and
 uncovered expressions; Call remains uncovered. NewFaultContinuation requires
 a direct-local New and cannot stand in for Call. Ordinary Completion stays in
-result_contract, while ordinary_new_coseal currently drops its terminal relation.
+result_contract, while ordinary_new_coseal now retains its terminal relation through seed/result.
 Extend these existing owners and finalized_root_handoff; no sibling graph.
 
 | Source disposition | Selected behavior |
@@ -2838,6 +2838,30 @@ duplicate, missing or wrong-ordinal bindings. Package149/control33 pass; ordinar
 Map install still stops. Changed source maximum700. The selected Call co-seal
 is next; do not repeat the closed source/physical census or activate scalar retry.
 
+Ordinary terminal retention is the first required co-seal edit. The existing
+Completion seed/result row moves the source walk's optional TerminalRelation;
+its existing Ref borrows it. AppMain still moves its relation only to its root
+ledger; plain ordinary and Dynamic retain no inferred terminal. S6C consumes
+all seed parts and refuses an unexpected terminal instead of silently dropping
+it through take_completion. Delete that lossy accessor. Source classification,
+Completion ownership, annotation contracts and runtime admission do not change.
+Acceptance uses ordinary literal/site/owner, unavailable terminal absence,
+Dynamic original-pointer/no-owned-row and existing S6C exclusive-consumption
+checks. This is BoxShape, not a new Call or cleanup authority.
+
+AppMain target validation must remain at its current early point before
+parameter/Dynamic/Completion failures. Bind lifecycle correspondence after the
+existing callee products are available; do not move early validation wholesale.
+The existing AppMain Home walk also needs selection for a terminal Call without
+local New/Map; ordinary callee presence alone cannot manufacture caller cleanup.
+Retention checkpoint: ordinary TerminalRelation now moves through seed/result,
+including the natural AppMain -> helper(30) Map callee; unavailable flow retains
+None. Dynamic borrows its original Completion with no ordinary terminal, and
+S6C consumes complete seed parts with explicit unexpected-terminal refusal.
+The lossy take_completion and its unused owner getter are removed. Package150
+passes with existing S6C/Dynamic coverage; changed source maximum700. No ordinary
+Call/ABI/EXE activation. Next is source Call co-seal, not another retention layer.
+
 Then co-seal the exact terminal Call normal/result/Fault relation in the existing
 AppMain disposition and source Completion walk; retain ordinary terminal relation
 in its existing result owner. Recipe alone issues logical continuation keys;
@@ -2849,11 +2873,13 @@ callee-Fault -> callee cleanup -> caller cleanup -> one root report evidence.
 Source success or Stop arrival cannot close that execution acceptance.
 
 Ordered ordinary execution frontier (read-only physical audit at e77b7ab57b):
-1. Close exact caller Invoke normal/result/Fault issuance. It is not yet proven:
-   builder Invoke Call currently emits Birth only. Existing ordinary scalar Call
-   cannot be relabeled retrospectively. Until the source/execution-envelope
-   issuer and existing finalized retaining owner are named, this family remains
-   NoSafeSlice; do not create placeholder physical/semantic products.
+1. Implement the source co-seal selected above: existing AppMain affine row and
+   Completion/Home walk retain exact Call normal/result/Fault correspondence.
+   Early target validation remains first; bind lifecycle after callee contracts
+   exist and scan the terminal-Call root even without local New/Map. Builder
+   Invoke Call currently emits Birth only; do not relabel ordinary scalar MIR
+   or fabricate a placeholder physical/semantic product. Unconnected execution
+   remains stopped.
 2. Retain exact ordinary membership, formal/result and cleanup correspondence
    through existing finalized/compiled-entry owners once step1 is closed.
    Existing catalog keys and result/header contracts are available; the header

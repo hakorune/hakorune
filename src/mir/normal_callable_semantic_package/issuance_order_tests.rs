@@ -94,6 +94,7 @@ fn dynamic_lends_its_original_completion_without_owned_result_row() {
             panic!("same Dynamic owner");
         };
         program.with_canonical_session_authority(|authority| {
+            assert!(input.result_contract().unwrap().terminal_relation().is_none());
             assert!(std::ptr::eq(
                 input.result_contract().unwrap().completion(),
                 authority.completion()

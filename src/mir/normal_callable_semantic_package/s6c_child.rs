@@ -69,6 +69,7 @@ pub(in crate::mir) enum S6CSemanticChildIssueV1 {
         _error: S6CPhysicalFunctionEffectsRejectV1,
     },
     MissingCompletionSeed,
+    UnexpectedTerminalRelation,
     DuplicateCandidate,
     ResultMismatch,
 }
@@ -281,10 +282,11 @@ fn issue_s6c_child_for_row(
             let seed = seeds
                 .take_main_child_seed(map_row)
                 .ok_or(S6CSemanticChildIssueV1::MissingCompletionSeed)?;
-            let owner = seed.owner();
-            let identity = seed.identity().clone();
-            let role = seed.role();
-            let batch_slot = seed.batch_slot();
+            let (batch_slot, owner, identity, role, _, completion, terminal_relation) =
+                seed.into_parts();
+            if terminal_relation.is_some() {
+                return Err(S6CSemanticChildIssueV1::UnexpectedTerminalRelation);
+            }
             let coseal = row
                 .with_source_ledger(|ledger| {
                     let calls =
@@ -292,7 +294,7 @@ fn issue_s6c_child_for_row(
                             .map_err(|error| S6CSemanticChildIssueV1::CallRelation {
                                 _error: error,
                             })?;
-                    issue_s6c_exit_tail_source_coseal_v1(&ledger, calls, seed.take_completion())
+                    issue_s6c_exit_tail_source_coseal_v1(&ledger, calls, completion)
                         .map_err(|error| S6CSemanticChildIssueV1::ExitTail { _error: error })
                 })
                 .map_err(|issue| S6CSemanticChildIssueV1::TypedSource {

@@ -66,6 +66,9 @@ The selected ordinary-New implementation retains its admitted terminal source
 relation in one finite internal enum and derives the final result projection
 from it. This removes duplicate compiler storage; it neither admits additional
 source expressions nor replaces Completion and physical-progress validation.
+For ordinary Map-bearing declarations, the same issued terminal relation now
+survives beside Completion in the existing result owner. Its absence supplies
+no default result or cleanup proof and does not authorize callable execution.
 
 ## Canonical Unit Provenance
 

@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "MAP-ORDINARY-CALL-COSEAL"
-current_blocker_token = "Source issuer audit closed: extend existing AppMain affine direct-call disposition and Completion walk for terminal Cataloged call with Integer literal arguments to exact I64 formals/result and supported Map callee. Parameter kind loss fixed; package149/control33 pass. Next co-seal caller normal/Fault/result and retain ordinary terminal relation before physical activation. Existing scalar edge is exclusive series delete-set; ordinary Map remains stopped. No repeated census or synthetic New continuation."
+current_design_stop = "none"
+current_blocker_token = "Ordinary terminal retention implemented through existing seed/result; package150 and guard pass. Next implement accepted source Call co-seal in AppMain affine disposition plus Completion/Home walk: terminal Cataloged call, literal I64 args, exact I64 formals/result and supported Map callee. Preserve early target error order; bind lifecycle after callee contracts exist; root Call needs its own Home walk. Scalar edge and ordinary install Stop remain series delete-set; no ABI activation or new retention wrapper."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -50,7 +50,7 @@ Native Map insert/remove/clear now drop detached values outside locks; owned-slo
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-next_execution_card = "none"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

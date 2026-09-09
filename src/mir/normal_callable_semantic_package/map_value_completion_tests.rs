@@ -1,7 +1,9 @@
 //! Source capability retention never grants ordinary callable runtime admission.
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use crate::mir::builder::CompilationContext;
-use crate::mir::resolved_semantics::home_new_prefix::{MapValueSource, SourceScalarKind};
+use crate::mir::resolved_semantics::home_new_prefix::{
+    MapValueSource, SourceScalarKind, TerminalRelationV1,
+};
 
 fn assert_install_stop(package: super::VerifiedNormalCallableSemanticPackageV1) {
     let mut context = CompilationContext::new();
@@ -49,6 +51,14 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
     assert_eq!(map.allocation_fault().count(), 0);
     assert_eq!(map.outer_after_installs(2).unwrap().count(), 0);
     assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
+    let Some(TerminalRelationV1::IntegerLiteral(terminal)) =
+        contract.terminal_relation()
+    else {
+        panic!("ordinary source terminal retained with Completion");
+    };
+    assert_eq!(terminal.value(), 30);
+    assert_eq!(terminal.owner(), completion.owner());
+    assert_eq!(Some(terminal.return_site()), completion.explicit_site());
     assert!(
         !package.ordinary_new_claim_ledger.has_map_source(map.site()),
         "ordinary Completion is not duplicated in the root ledger"
@@ -103,6 +113,7 @@ fn borrowed_formals_are_allowed_unused_but_do_not_issue_map_ownership() {
             assert!(std::ptr::eq(header.completion(), contract.completion()));
             if !complete {
                 assert!(header.completion().cleanup().terminal_homes().unwrap().is_err());
+                assert!(contract.terminal_relation().is_none());
             }
             assert_install_stop(package);
         }
@@ -149,6 +160,30 @@ fn root_known_value_enters_progress_without_becoming_a_home() {
         assert!(error.contains("map-value-consumer-missing"));
 
     }
+}
+
+#[test]
+fn app_main_call_keeps_ordinary_map_callee_terminal_before_install_stop() {
+    let package = issue(
+        "static box Main {
+        main() { return helper(30) }
+        helper(value: i64): i64 { local m = %{\"v\" => value} return 30 }
+    }",
+    )
+    .unwrap();
+    assert!(package.has_app_main_direct_call_loan());
+    let rows: Vec<_> = package.result_contracts.rows().collect();
+    assert_eq!(rows.len(), 1, "AppMain does not acquire an ordinary seed");
+    let contract = rows[0].borrow();
+    let Some(TerminalRelationV1::IntegerLiteral(terminal)) =
+        contract.terminal_relation()
+    else {
+        panic!("callee exact terminal retained");
+    };
+    assert_eq!(terminal.value(), 30);
+    assert_eq!(terminal.owner(), contract.owner());
+    assert_eq!(Some(terminal.return_site()), contract.completion().explicit_site());
+    assert_install_stop(package);
 }
 
 #[test]
