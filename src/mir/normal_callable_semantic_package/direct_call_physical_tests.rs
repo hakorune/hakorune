@@ -5,6 +5,36 @@ use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
 use crate::mir::{MirBuilder, MirInstruction, MirModule, ValueId};
 
 #[test]
+fn terminal_call_probe_is_scoped_to_its_source_owner() {
+    let package = issue(
+        "box Page {} static box Main {
+            main() { return helper(30, 5) }
+            helper(value: i64, other: i64): i64 {
+                local m = %{\"v\" => value}
+                return 30
+            }
+        }",
+    )
+    .unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let root_owner = ledger.root_completion_for_test().owner();
+    let child_owner = package
+        .batch()
+        .declarations()
+        .find(|row| row.owner() != root_owner)
+        .expect("ordinary child completion")
+        .owner();
+
+    assert!(ledger.terminal_call_arguments().is_some());
+    assert!(ledger
+        .terminal_call_arguments_for_owner(root_owner)
+        .is_some());
+    assert!(ledger
+        .terminal_call_arguments_for_owner(child_owner)
+        .is_none());
+}
+
+#[test]
 fn source_terminal_call_preserves_both_cleanup_paths_through_finishing() {
     for prefix in [
         "",

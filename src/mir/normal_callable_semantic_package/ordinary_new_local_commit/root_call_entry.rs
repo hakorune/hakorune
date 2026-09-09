@@ -11,6 +11,22 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|(_, terminal)| terminal.arguments())
     }
 
+    /// Borrow the root-owned terminal Call only when the selected lowering
+    /// owner is that same source owner. Child completions may retain their
+    /// own terminal relations while the root Call is still present; exposing
+    /// the root arguments to those children would make the physical Call
+    /// probe reject an otherwise valid child return.
+    pub(crate) fn terminal_call_arguments_for_owner(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Option<&[i64]> {
+        self.call_source_completion()
+            .filter(|(completion, terminal)| {
+                completion.owner() == owner && terminal.owner() == owner
+            })
+            .map(|(_, terminal)| terminal.arguments())
+    }
+
     pub(crate) fn record_root_call_exit(
         &self,
         owner: FunctionOwnerIdV1,

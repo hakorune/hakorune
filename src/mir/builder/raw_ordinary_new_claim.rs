@@ -113,12 +113,12 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
             return Ok(None);
         };
-        if ledger.terminal_call_arguments().is_none() {
-            return Ok(None);
-        }
         let owner = self
             .callable_owner_v1()
             .ok_or("[freeze:contract][terminal-call/owner-missing]")?;
+        if ledger.terminal_call_arguments_for_owner(owner).is_none() {
+            return Ok(None);
+        }
         let site = self
             .current_source_site_v1()
             .ok_or("[freeze:contract][terminal-call/site-missing]")?;

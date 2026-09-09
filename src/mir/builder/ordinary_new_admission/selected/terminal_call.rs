@@ -28,7 +28,7 @@ pub(in crate::mir::builder) fn emit(
     let mut arguments = Vec::new();
     let mut values = Vec::new();
     for literal in ledger
-        .terminal_call_arguments()
+        .terminal_call_arguments_for_owner(owner)
         .ok_or_else(|| freeze("call-source-missing"))?
     {
         let value = crate::mir::builder::emission::constant::emit_integer(builder, *literal)?;

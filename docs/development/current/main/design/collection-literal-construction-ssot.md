@@ -3175,8 +3175,10 @@ evidence close this bounded ordinary ABI series. S6C consumes its exclusive seed
 `Rc::try_unwrap`; a shared seed rejects instead of cloning. `map_install_owner`
 still rejects any non-AppMain Map when an AppMain Map is present, so owner
 lookup cannot grant ordinary Map ownership. The semantic package is green at
-156/156, including the mixed-owner negative case; selected Map install/value
-execution and wider owner coverage remain open.
+161/161, including the mixed-owner negative case; selected Map install/value
+execution and wider owner coverage remain open. The terminal Call probe is
+owner-scoped as a prerequisite: a root Call is visible only to its root owner,
+so a child terminal return cannot be rejected by the root Call's source row.
 
 Retention acceptance: result/header and ledger borrow the same original
 Completion with matching owner/terminal; root and foreign-site isolation,
