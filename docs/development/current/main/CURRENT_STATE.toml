@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-THREE-ORDINARY-OWNER-COVERAGE-I0"
 current_execution_cohort = "map_literal_three_ordinary_owner_coverage_i0"
 current_design_stop = "none"
-current_blocker_token = "The three-owner I0 implementation now retains site-tagged local binding groups in source order and rejects a fourth repeated-target Call by requiring exactly two local Calls when three distinct Map owners are admitted. Direct/linked three-owner exit30 and the fourth-Call negative pass. Dedicated group mutation negatives (duplicate, foreign, swapped, omitted) and three-owner Fault-order evidence remain before closeout. New/Home, field, unknown values, native escape, fourth distinct owner, and whole Map/R7 remain fail-fast."
+current_blocker_token = "The three-owner I0 implementation now retains site-tagged local binding groups in source order and rejects a fourth repeated-target Call by requiring exactly two local Calls when three distinct Map owners are admitted. Direct/linked three-owner exit30, the fourth-Call negative, and grouped duplicate/foreign/swapped/omitted negatives pass. Three-owner Fault-order evidence remains before closeout. New/Home, field, unknown values, native escape, fourth distinct owner, and whole Map/R7 remain fail-fast."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -53,8 +53,8 @@ I64 Call terminators, and passes the selected direct/linked artifact Pair exit30
 The single-terminal-only production edge is retired through explicit CallReturn
 and ordinary Call-site collection. Two-owner admission and direct/linked exit30
 are closed. The three-owner I0 now changes only source-ordered local binding
-retention plus bounded owner admission; the explicit fourth-Call guard passes,
-natural Pair exit30 is closed, and grouped mutation/Fault evidence remains.
+retention plus bounded owner admission; the explicit fourth-Call and grouped
+mutation guards pass, natural Pair exit30 is closed, and Fault evidence remains.
 """
 next_design_card = "none (accepted MAP-LITERAL-THREE-ORDINARY-OWNER-COVERAGE-D0)"
 next_execution_card = "MAP-LITERAL-THREE-ORDINARY-OWNER-COVERAGE-I0"
@@ -76,5 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change.",
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
-  "2026-09-09: selected Map physical consumer and ordinary_i64 Pair evidence are closed (direct/linked exit30, bool/range Fault103, cleanup probe, root+child and two-owner cases). The single-terminal edge is retired through CallReturn and ordinary Call-site collection. Three-owner I0 now owns source-ordered binding groups plus an explicit fourth-Call guard; natural direct/linked exit30 passes, while grouped mutation/Fault evidence remains. No whole-Map/R7 claim.",
+  "2026-09-09: selected Map physical consumer and ordinary_i64 Pair evidence are closed (direct/linked exit30, bool/range Fault103, cleanup probe, root+child and two-owner cases). The single-terminal edge is retired through CallReturn and ordinary Call-site collection. Three-owner I0 now owns source-ordered binding groups plus explicit fourth-Call and grouped mutation guards; natural direct/linked exit30 passes, while three-owner Fault-order evidence remains. No whole-Map/R7 claim.",
 ]
