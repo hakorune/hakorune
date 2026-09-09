@@ -1308,6 +1308,13 @@ index is free-static-only, and `VerifiedCanonicalDirectCallEmissionV1` requires
 its verified callable header. Therefore D1 remains `NoSafeSlice` for code until
 an existing source-backed instance target/header projection is identified or a
 package-private physical projection is explicitly designed with its own owner.
+The existing root terminal Call shape is also scalar-direct-only:
+`TerminalI64CallReturnV1` retains literal arguments without a receiver, while
+`RootHomeExitEntry::Call` validates a direct emission with no receiver lane.
+`Pair.sum()` needs the selected instance key plus its receiver `ValueId` and
+physical receiver lane. It must therefore reuse an existing instance-call
+projection or receive a separately designed package-private root-call physical
+projection; it cannot be squeezed into the direct scalar row.
 
 Non-claims: this design does not authorize code, fixture, production switch,
 OBJ/EXE acceptance, or any other MethodCall family.
