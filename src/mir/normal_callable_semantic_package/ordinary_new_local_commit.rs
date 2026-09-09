@@ -126,7 +126,6 @@ pub(super) use local_entry::LocalCommitV1;
 /// recreate source membership from a physical key.
 #[derive(Debug)]
 pub(crate) struct FinalizedRootSourceHandoffV1 {
-    birth_actuals: Box<[FinalizedBirthActualsV1]>,
     app_main_identity: CallableDeclarationIdentityV1,
     terminal: TerminalRelationV1,
     // Existing physical Call payload, moved from the owner-indexed ledger at
@@ -166,10 +165,6 @@ impl FinalizedRootSourceHandoffV1 {
                 FinalizedRootResultAbiV1::I64FieldReturn { owner: row.owner() }
             }
         })
-    }
-
-    pub(crate) fn birth_actuals(&self) -> &[FinalizedBirthActualsV1] {
-        &self.birth_actuals
     }
 
     pub(crate) fn app_main_identity(&self) -> &CallableDeclarationIdentityV1 {

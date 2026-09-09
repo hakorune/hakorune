@@ -7,7 +7,9 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         root_key: String,
         construction_keys: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
-        callables: Option<crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1>,
+        callables: Option<
+            crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
+        >,
     ) -> Result<FinalizedRootHandoffV1, String> {
         match *self.root_validation.borrow() {
             RootNewValidation::FinishingChecked => {}
@@ -81,18 +83,17 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.terminal_relation.is_none() && call_entry.is_some() {
             return Err(freeze("artifact-call-root-source-missing"));
         }
-        let mut root_source = self
+        let root_source = self
             .terminal_relation
             .as_ref()
             .map(|terminal| {
                 Ok::<_, String>(FinalizedRootSourceHandoffV1 {
-                    birth_actuals: Box::new([]),
                     app_main_identity: self
                         .app_main_identity
                         .as_ref()
                         .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
                         .clone(),
-                        terminal: terminal.clone(),
+                    terminal: terminal.clone(),
                     call_entry,
                     call_cleanup,
                 })
@@ -101,16 +102,13 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut keys = BTreeSet::new();
         let mut births = Vec::new();
         let mut actuals = Vec::new();
-        for (site, row) in self
-            .local_commits
-            .borrow()
-            .iter()
-            .filter(|(_, row)| row.binding().owner() == owner)
-        {
+        for (site, row) in self.local_commits.borrow().iter() {
             if !row.is_complete() {
                 return Err(freeze("artifact-local-commit-incomplete"));
             }
-            let Some(row) = row.ordinary() else { continue; };
+            let Some(row) = row.ordinary() else {
+                continue;
+            };
             let Some(key) = &row.birth_target else {
                 if row.birth_abi.is_some() {
                     return Err(freeze("artifact-birth-abi-without-target"));
@@ -122,8 +120,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 .birth_abi
                 .as_ref()
                 .ok_or_else(|| freeze("artifact-birth-abi-missing"))?;
-            if relation.target() != &key || relation.owner() == owner {
+            if relation.target() != &key || relation.owner() == site.owner() {
                 return Err(freeze("artifact-birth-abi-drift"));
+            }
+            if row.binding.owner() != site.owner() {
+                return Err(freeze("artifact-birth-owner-drift"));
             }
             if relation.object() != row.object {
                 return Err(freeze("artifact-birth-object-drift"));
@@ -156,22 +157,23 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("artifact-birth-abi-duplicate-drift"));
             }
         }
-        if let Some(source) = root_source.as_mut() {
-            source.birth_actuals = actuals.into_boxed_slice();
-        } else if !actuals.is_empty() {
+        if root_source.is_none() && !actuals.is_empty() {
             return Err(freeze("artifact-actual-root-source-missing"));
         }
+        let birth_actuals = actuals.into_boxed_slice();
         Ok(if births.is_empty() {
             FinalizedRootHandoffV1::NoBirth {
                 callables,
                 root_key,
                 root_source,
+                birth_actuals,
             }
         } else {
             FinalizedRootHandoffV1::Births {
                 callables,
                 root_key,
                 root_source,
+                birth_actuals,
                 keys: keys.into_iter().collect(),
                 births: births.into_boxed_slice(),
             }

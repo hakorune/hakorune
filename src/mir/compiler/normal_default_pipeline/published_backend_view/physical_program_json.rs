@@ -39,7 +39,7 @@ fn emit_lifecycle_physical_program_value(
                         .map(|row| -> Result<Value, String> { Ok(json!({
                             "index": row.index(),
                             "instruction": encode_instruction(
-                                row.instruction(), &births,
+                                row.instruction(), &births, function_ordinal,
                                 diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), row.instruction())?,
                                 abi_input,
                                 &ordinary,
@@ -52,7 +52,7 @@ fn emit_lifecycle_physical_program_value(
                         "terminator": {
                             "index": block.terminator().index(),
                             "instruction": encode_instruction(
-                                block.terminator().instruction(), &births,
+                                block.terminator().instruction(), &births, function_ordinal,
                                 diagnostic_site(
                                     abi_input, function_ordinal, block.id().0,
                                     block.terminator().index(), block.terminator().instruction(),
@@ -181,6 +181,7 @@ fn encode_edge_args(args: &EdgeArgs) -> Value {
 fn encode_instruction(
     instruction: &MirInstruction,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+    caller_function_index: u32,
     diagnostic_site: Option<u64>,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
     ordinary: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
@@ -232,7 +233,7 @@ fn encode_instruction(
             fault_landing,
         } => json!({
             "op": "invoke", "operation": encode_invoke(
-                operation, births, ordinary, diagnostic_site, abi_input,
+                operation, births, ordinary, caller_function_index, diagnostic_site, abi_input,
             )?,
             "fault_frame": value(fault_frame), "normal": normal_landing.0, "fault": fault_landing.0,
         }),
@@ -268,7 +269,7 @@ fn encode_instruction(
             json!({ "op": "return", "value": result.map(|value| value.0) })
         }
         MirInstruction::Call(call) => {
-            json!({ "op": "birth_call", "call": encode_birth_call(call, births, abi_input)? })
+            json!({ "op": "birth_call", "call": encode_birth_call(call, births, caller_function_index, abi_input)? })
         }
         _ => return Err(fault("instruction-unsupported")),
     })
@@ -299,6 +300,7 @@ fn encode_invoke(
     operation: &InvokeOperation,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
     ordinary: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+    caller_function_index: u32,
     diagnostic_site: Option<u64>,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
@@ -404,7 +406,7 @@ fn encode_invoke(
             if diagnostic_site.is_some() {
                 return Err(fault("site-on-birth-call"));
             }
-            json!({ "kind": "birth_call", "call": encode_birth_call(call, births, abi_input)? })
+            json!({ "kind": "birth_call", "call": encode_birth_call(call, births, caller_function_index, abi_input)? })
         }
         InvokeOperation::Call {
             call,
@@ -496,6 +498,7 @@ fn with_site(mut operation: Value, site: Option<u64>) -> Result<Value, String> {
 fn encode_birth_call(
     call: &crate::mir::definitions::MirCall,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+    caller_function_index: u32,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
     let Callee::BirthConstructor { key, receiver } = &call.callee else {
@@ -506,7 +509,8 @@ fn encode_birth_call(
         .ok_or_else(|| fault("birth-target-foreign"))?;
     let input = abi_input.ok_or_else(|| fault("birth-input-missing"))?;
     let mut matches = input.entry().birth_calls().iter().filter(|issued| {
-        issued.function_index() == *target
+        issued.caller_function_index() == caller_function_index
+            && issued.function_index() == *target
             && issued.receiver() == *receiver
             && issued.arguments().eq(call.args.iter().copied())
     });

@@ -12,6 +12,9 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::{Callee, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "compiled_entry_contract/birth_calls.rs"]
+mod birth_calls;
+
 use super::{
     physical_program::{
         PublishedLifecyclePhysicalFunctionRoleV1, PublishedLifecyclePhysicalProgramV1,
@@ -72,6 +75,7 @@ pub(crate) struct CompiledEntryBirthV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CompiledEntryBirthCallV1 {
+    caller_function_index: u32,
     function_index: u32,
     actual: FinalizedBirthActualsV1,
 }
@@ -92,6 +96,9 @@ impl CompiledEntryOrdinaryCallV1 {
 }
 
 impl CompiledEntryBirthCallV1 {
+    pub(crate) const fn caller_function_index(&self) -> u32 {
+        self.caller_function_index
+    }
     pub(crate) const fn function_index(&self) -> u32 {
         self.function_index
     }
@@ -223,8 +230,7 @@ impl<'module> PublishedMirBackendView<'module> {
             let [root, tail @ ..] = program.functions() else {
                 return Err(fault("compiled-entry-root-missing"));
             };
-            let PublishedLifecyclePhysicalFunctionRoleV1::Root { result } = root.role()
-            else {
+            let PublishedLifecyclePhysicalFunctionRoleV1::Root { result } = root.role() else {
                 return Err(fault("compiled-entry-root-role"));
             };
             let root_ordinary_calls = root
@@ -356,16 +362,11 @@ impl<'module> PublishedMirBackendView<'module> {
             let birth_calls = if program.is_native_array() {
                 Vec::new()
             } else {
-                let source = program
+                let actuals = program
                     .handoff()
-                    .root_source()
+                    .birth_actuals()
                     .ok_or_else(|| fault("compiled-entry-actual-source-missing"))?;
-                issue_birth_calls_for_owner(
-                    root,
-                    &birth_functions,
-                    source.birth_actuals(),
-                    source.owner(),
-                )?
+                issue_birth_calls_for_program(&program, &birth_functions, actuals)?
             };
             let cleanup = issue_cleanup_coordinates(program.functions())?;
             (
@@ -426,6 +427,19 @@ impl<'module> PublishedMirBackendView<'module> {
 }
 
 fn issue_birth_calls_for_owner(
+    root: &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
+    births: &[(
+        u32,
+        &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
+    )],
+    actuals: &[FinalizedBirthActualsV1],
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
+    issue_birth_calls_for_owner_at(0, root, births, actuals, owner)
+}
+
+fn issue_birth_calls_for_owner_at(
+    caller_function_index: u32,
     root: &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
     births: &[(
         u32,
@@ -508,6 +522,7 @@ fn issue_birth_calls_for_owner(
             }
             referenced[index] = true;
             calls.push(CompiledEntryBirthCallV1 {
+                caller_function_index,
                 function_index: births[index].0,
                 actual: actuals[*actual_index].clone(),
             });
@@ -517,6 +532,17 @@ fn issue_birth_calls_for_owner(
         return Err(fault("compiled-entry-call-missing"));
     }
     Ok(calls)
+}
+
+fn issue_birth_calls_for_program(
+    program: &super::physical_program::PublishedLifecyclePhysicalProgramV1<'_>,
+    births: &[(
+        u32,
+        &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
+    )],
+    actuals: &[FinalizedBirthActualsV1],
+) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
+    birth_calls::issue_birth_calls_for_program(program, births, actuals)
 }
 
 fn issue_birth_calls(

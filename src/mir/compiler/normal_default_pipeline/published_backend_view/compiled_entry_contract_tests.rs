@@ -24,7 +24,7 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
             let contract = view.issue_lifecycle_compiled_entry_contract()?;
             assert_eq!(contract.births().len(), 1);
             assert_eq!(contract.birth_calls().len(), 2);
-            let actuals = view.retained_root_source().unwrap().birth_actuals();
+            let actuals = view.retained_birth_actuals().unwrap();
             assert_eq!(actuals.len(), 2);
             assert_ne!(actuals[0].site(), actuals[1].site());
             assert_ne!(actuals[0].receiver(), actuals[1].receiver());
@@ -55,6 +55,42 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
             assert!(view.issue_lifecycle_physical_abi_input().unwrap_err().contains("actual-kind-unavailable"));
             Ok::<(), String>(())
         }).unwrap();
+    });
+}
+
+#[test]
+fn child_birth_actual_is_retained_and_attributed_to_child_function() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "box Page { birth() { } } static box Main { main() { return helper(7) } helper(value: i64): i64 { local page = new Page() local m = %{\"v\" => page} return 30 } }";
+        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+            text,
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+        else {
+            panic!("source identity lost")
+        };
+        let request =
+            NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default());
+        MirCompiler::with_options(false)
+            .compile_normal_with_published(request, |view, verification| {
+                assert!(verification.is_ok(), "{verification:?}");
+                let contract = view.issue_lifecycle_compiled_entry_contract()?;
+                assert_eq!(contract.births().len(), 1);
+                assert_eq!(contract.birth_calls().len(), 1);
+                assert_eq!(contract.birth_calls()[0].caller_function_index(), 1);
+                assert_eq!(contract.birth_calls()[0].function_index(), 2);
+                assert_eq!(view.retained_birth_actuals().unwrap().len(), 1);
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let json = crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                assert!(json.contains("\"role\":\"ordinary_i64\""));
+                assert!(json.contains("\"kind\":\"birth_call\""));
+                Ok::<(), String>(())
+            })
+            .unwrap();
     });
 }
 

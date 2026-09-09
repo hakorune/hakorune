@@ -121,6 +121,14 @@ impl<'module> PublishedMirBackendView<'module> {
             .and_then(|handoff| handoff.root_source())
     }
 
+    pub(crate) fn retained_birth_actuals(
+        &self,
+    ) -> Option<&'module [crate::mir::normal_callable_semantic_package::FinalizedBirthActualsV1]>
+    {
+        self.retained_handoff
+            .and_then(|handoff| handoff.birth_actuals())
+    }
+
     /// Diagnostic/physical borrow only; cloning this module does not carry
     /// lifecycle admission through the generic constructor.
     pub(crate) fn module(&self) -> &'module crate::mir::MirModule {

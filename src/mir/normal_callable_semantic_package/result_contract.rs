@@ -8,6 +8,7 @@
 //! owner.
 
 use crate::mir::builder::SelectedCallableConsumptionRoleV1;
+use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 #[cfg(test)]
 use crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1;
@@ -15,6 +16,7 @@ use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::parser::CallableDeclarationIdentityV1;
+use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::rc::Rc;
 
 use super::completion_seed::VerifiedCallableCompletionSeedV1;
@@ -230,6 +232,19 @@ impl VerifiedCallableResultContractCohortV1 {
     ) -> Option<CallableResultContractRefV1<'_>> {
         let (selected, _) = self.completed_context.as_ref()?;
         self.row(selected.batch_slot(key)?).map(|row| row.borrow())
+    }
+
+    /// Resolve an already-selected catalog key to its invocation-local owner.
+    /// This is a correspondence lookup for physical caller attribution; it
+    /// does not issue or reconstruct a source key.
+    pub(crate) fn owner_for_canonical_key(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+    ) -> Option<FunctionOwnerIdV1> {
+        let (selected, _) = self.completed_context.as_ref()?;
+        let selected_key = SelectedNormalCallableKeyV1::Cataloged(key.clone());
+        let batch_slot = selected.batch_slot(&selected_key)?;
+        self.row(batch_slot).map(|row| row.owner())
     }
 }
 

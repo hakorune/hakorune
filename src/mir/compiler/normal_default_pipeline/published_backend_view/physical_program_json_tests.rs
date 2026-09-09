@@ -82,7 +82,7 @@ fn serializer_rejects_nonissued_instruction_vocabulary() {
         value: ConstValue::Float(1.0),
     };
     assert!(matches!(
-        encode_instruction(&instruction, &BTreeMap::new(), None, None, &BTreeMap::new()),
+        encode_instruction(&instruction, &BTreeMap::new(), 0, None, None, &BTreeMap::new()),
         Err(error) if error.contains("instruction-unsupported"),
     ));
 }
@@ -240,6 +240,7 @@ fn native_float_wire_preserves_signed_zero_and_nan_payload_bits() {
                         let encoded = encode_instruction(
                             &instruction,
                             &BTreeMap::new(),
+                            0,
                             None,
                             Some(&input),
                             &BTreeMap::new(),
@@ -268,7 +269,7 @@ fn map_value_wire_kind_is_explicit_and_has_no_object_identity() {
             kind,
         });
         let encoded =
-            encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), Some(42), None).unwrap();
+            encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None).unwrap();
         assert_eq!(
             encoded,
             json!({"kind": "map_install_value", "map": 1,
