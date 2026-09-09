@@ -73,6 +73,13 @@ collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
   explicit llc-18 PIC emission and atomic same-directory object publication.
   Failure cleans temporary artifacts; no generic flags or compatibility retry.
   Shared parser, target/session, layout and runtime descriptors remain live.
+- The bounded child New/Birth I0 now admits one selected `ordinary_i64` caller:
+  the invocation-owned index binds its exact New object/layout to the Birth
+  receiver, then accepts normal `HomeRelease` or fault `ReclaimUnpublished`.
+  Root-only assumptions were removed only for these five checks (the four
+  operation gates plus the root-only receiver scan); multiple Birth callers,
+  foreign receivers, duplicate/omitted cleanup and other child shapes still
+  reject before emission.
 - After `bash tools/build_hako_llvmc_ffi.sh`, run the existing physical parser
   preartifact test and `published_lifecycle_v4_execution_test.py` with the three
   source-issued inputs documented in [the C ABI README](../README.md).
@@ -82,6 +89,10 @@ collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
   proves unchanged Pair EXE/independent linked OBJ exit30 and Bool Fault70/103,
   including actual Home/reclaim/report/dispose observations. Generic sessionless
   lifecycle OBJ remains rejected.
+- The source-backed child New/Birth/Map path is covered by the ignored focused
+  Rust test `issued_ordinary_child_new_birth_map_direct_exe_and_linked_object_exit_30`;
+  it checks both direct EXE and independently linked OBJ exit30. This is one
+  selected child consumer proof, not whole-Map or R7 completion.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - Indexed Map physical-consumer verification uses
   `python3 lang/c-abi/tests/published_map_physical_execution_test.py RUNTIME_ARCHIVE`

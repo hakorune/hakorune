@@ -96,8 +96,7 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||
         lv4_is(op, "kind", "map_prepare_key")) {
-      if ((fi && !ordinary) || (fi && lv4_is(op, "kind", "new_box")) ||
-          faulted || state[bi]) return 0;
+      if ((fi && !ordinary) || faulted || state[bi]) return 0;
       if (lv4_is(op, "kind", "new_box") && !lv4_layout(in, lv4_u(op, "object_id"))) return 0;
       if (hako_physical_map_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) &&
           in->profile != LV4_INDEXED_SAFE_MUTEX) return 0;
@@ -106,7 +105,8 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
       yyjson_val* call = yyjson_obj_get(op, "call");
       yyjson_val* args = yyjson_obj_get(call, "args");
       uint32_t target = lv4_u(call, "target");
-      if (fi || faulted || !target || target >= in->index_count ||
+      if ((fi && !ordinary) || faulted || !target || target >= in->index_count ||
+          !lv4_is(in->index[target].function, "role", "birth_unit") ||
           !lv4_indexed_live(fn, lv4_u(call, "receiver"), LV4_HANDLE, state,
               in->index[target].receiver_object, 1)) return 0;
       for (size_t i = 0; i < yyjson_arr_size(args); i++) {
@@ -122,7 +122,7 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
               lv4_u(op, "object_id"), 1)) return 0;
     } else if (lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "reclaim_unpublished")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
-      if (fi || !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
+      if ((fi && !ordinary) || !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1) || value->origin < 0) return 0;
       normal[value->origin] = state[value->origin] = 0;
     } else if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value")) {
@@ -170,21 +170,27 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
 
 static int lv4_indexed_admit(hako_lv4_input* in) {
   if (!lv4_index_open(in)) return 0;
-  /* Transported Call target binds each borrowed receiver to an exact layout. */
-  yyjson_val* root_blocks = hako_physical_blocks(in->index[0].function);
-  for (size_t bi = 0; bi < yyjson_arr_size(root_blocks); bi++) {
-    yyjson_val* op = yyjson_obj_get(lv4_term(yyjson_arr_get(root_blocks, bi)), "operation");
-    if (!lv4_is(op, "kind", "birth_call")) continue;
-    yyjson_val* call = yyjson_obj_get(op, "call");
-    uint32_t target = lv4_u(call, "target");
-    hako_lv4_value* receiver = lv4_index_value(&in->index[0], lv4_u(call, "receiver"));
-    if (!target || target >= in->index_count || !receiver || receiver->kind != LV4_HANDLE ||
-        receiver->origin < 0) return 0;
-    hako_lv4_function_index* birth = &in->index[target];
-    if (birth->receiver_object_set && birth->receiver_object != receiver->object_id) return 0;
-    birth->receiver_object = receiver->object_id; birth->receiver_object_set = 1;
-    for (size_t vi = 0; vi < birth->value_count; vi++)
-      if (birth->values[vi].origin == -2) birth->values[vi].object_id = receiver->object_id;
+  /* Every selected caller binds each borrowed receiver to an exact layout. */
+  for (size_t fi = 0; fi < in->index_count; fi++) {
+    hako_lv4_function_index* caller = &in->index[fi];
+    int ordinary = lv4_is(caller->function, "role", "ordinary_i64");
+    yyjson_val* blocks = hako_physical_blocks(caller->function);
+    for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
+      yyjson_val* op = yyjson_obj_get(lv4_term(yyjson_arr_get(blocks, bi)), "operation");
+      if (!lv4_is(op, "kind", "birth_call")) continue;
+      if (fi && !ordinary) return 0;
+      yyjson_val* call = yyjson_obj_get(op, "call");
+      uint32_t target = lv4_u(call, "target");
+      hako_lv4_value* receiver = lv4_index_value(caller, lv4_u(call, "receiver"));
+      if (!target || target >= in->index_count ||
+          !lv4_is(in->index[target].function, "role", "birth_unit") ||
+          !receiver || receiver->kind != LV4_HANDLE || receiver->origin < 0) return 0;
+      hako_lv4_function_index* birth = &in->index[target];
+      if (birth->receiver_object_set) return 0;
+      birth->receiver_object = receiver->object_id; birth->receiver_object_set = 1;
+      for (size_t vi = 0; vi < birth->value_count; vi++)
+        if (birth->values[vi].origin == -2) birth->values[vi].object_id = receiver->object_id;
+    }
   }
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* fn = &in->index[fi];
