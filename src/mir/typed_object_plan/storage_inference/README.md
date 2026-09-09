@@ -15,8 +15,11 @@ This directory keeps TypedObjectPlan storage inference split by responsibility.
 
 Refresh returns errors through compiler/Raw postprocess/backend boundaries.
 Preparation is whole-module: no layout or projection is installed on failure.
-The initial canonical field subset is exact numeric; weak/unresolved fields and
-unsupported declaration structure stay explicitly unavailable, never MIR-inferred.
+The initial canonical field subset is explicit exact numeric (`i64` is the
+current live scalar). `IntegerBox` is not a canonical i64 alias, and
+weak/unresolved fields stay explicitly unavailable, never MIR-inferred. The
+fixed-point value analysis belongs to the legacy compatibility planner only;
+it cannot issue canonical storage for source-backed definitions.
 This does not activate Birth, Home release or construction cleanup.
 
 TypedObjectPlan remains MIR-owned physical layout data for backends. C shims should

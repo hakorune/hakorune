@@ -335,7 +335,8 @@ typed-object route. It is derived from `user_box_decls` /
 Current accepted shape:
 
 - non-weak user box fields
-- declared i64 storage only: `IntegerBox`, `Integer`, or `i64`
+- explicitly declared exact numeric storage; the current live scalar subset is
+  `i64`
 - runtime slot object layout
 - allocation plus slot `field_set` / `field_get`
 
@@ -361,14 +362,14 @@ Example:
         {
           "name": "left",
           "slot": 0,
-          "declared_type": "IntegerBox",
+          "declared_type": "i64",
           "storage": "i64",
           "weak": false
         },
         {
           "name": "right",
           "slot": 1,
-          "declared_type": "IntegerBox",
+          "declared_type": "i64",
           "storage": "i64",
           "weak": false
         }
@@ -381,6 +382,13 @@ Example:
 Contract:
 
 - MIR owns slot assignment and type ids.
+- `IntegerBox` is an object identity, not a canonical i64 field alias. Existing
+  source annotations using that historical spelling require explicit migration
+  to `i64`; the legacy compatibility planner may retain its old projection but
+  cannot authorize the canonical layout.
+- An untyped field name is source membership only. The canonical route rejects
+  it before layout/package transfer; MIR write observations are compatibility
+  inference, not a source storage authority.
 - The backend reads `typed_object_plans[]`; it must not infer slots from raw
   declarations or app-specific names.
 - The runtime owns opaque typed-object allocation and field storage helpers.

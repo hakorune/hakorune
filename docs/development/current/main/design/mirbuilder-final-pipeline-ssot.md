@@ -1017,25 +1017,53 @@ suite is `6/6` green, including an AST-level weak-field mutation because the
 default parser grammar intentionally rejects the legacy weak spelling. This
 slice does not claim typed storage, C execution, or source-to-EXE acceptance.
 
-##### `MIRBUILDER-TYPED-OBJECT-STORAGE-CONTRACT-D0`
+##### `MIRBUILDER-TYPED-OBJECT-STORAGE-CONTRACT-D0` (accepted)
 
-Decision: design-stop the remaining typed-object acceptance split until the
-source storage contract is explicit. `IntegerBox` is an object identity in the
-language type SSOT, while the historical metadata planner still treats it as
-an inline i64 candidate; legacy untyped `init_fields` now have source membership
-but still lack a canonical storage type. No compatibility inference or layout
-widening is permitted in this row.
+Decision: the canonical typed-object EXE route accepts explicit exact numeric
+field declarations, with `i64` as the current live scalar contract. `IntegerBox`
+is an object identity in the language type SSOT and is not an i64 alias; existing
+typed-object source using that historical spelling must migrate explicitly to
+`i64`. Legacy `init { ... }` names remain source membership with no declared
+storage type and are unavailable to the canonical layout until a separate
+dynamic/opaque slot contract is accepted.
 
 Source authority + canonical issuer: the language type/reference contract and
-`ASTNode::BoxDeclaration` as consumed by the existing object-definition issuer;
-the exact representation decision must be accepted here before a new physical
-product is issued. Non-authority: old metadata planners, MIR observations,
-layout inference, RawCompatibility, and C consumers. Fail-fast boundary: reject
-unresolved `IntegerBox` or untyped storage before layout/package transfer rather
-than silently treating it as i64. Smallest next slice: audit the two existing
-type contracts and write one accepted mapping (or an explicit source migration)
-with focused positive/negative cases. Non-claims: `FaultFrameEnter`, method
-Birth, whole-suite recovery, and final MirBuilder completion.
+`ASTNode::BoxDeclaration` consumed by the existing object-definition issuer.
+Non-authority: old metadata planners, `MirType`/MIR observation, layout
+inference, RawCompatibility, and C consumers. Fail-fast boundary: unresolved
+`IntegerBox` and untyped storage stop before canonical layout/package transfer;
+they must not be silently treated as i64 or inferred from writes. The accepted
+legacy inference remains compatibility-only. Non-claims: dynamic slots,
+`FaultFrameEnter`, method Birth, whole-suite recovery, and final MirBuilder
+completion.
+
+##### `MIRBUILDER-TYPED-OBJECT-SOURCE-MIGRATION-I0`
+
+Decision: migrate the two existing canonical typed-object smoke sources that
+declare `IntegerBox` fields (`typed-object-newbox-min` and
+`typed-object-method-min`) to explicit `i64`, preserving field order, Birth
+evaluation order, and expected exit values. Do not change the untyped
+`init_fields` fixtures in this slice; they remain the separate dynamic-storage
+design row below.
+
+Source authority + canonical issuer: the checked-in `.hako` source fixture and
+the existing `object_definition::issue` path. Non-authority: compatibility
+planner aliases, MIR storage observations, and test-only source rewrites at
+lowering time. Fail-fast boundary: the migrated source must produce the same
+canonical declaration and typed layout without a compatibility retry. Smallest
+slice: source/comment migration plus focused parser/layout and the two existing
+EXE smoke callers. Exclusive old edge: the two `IntegerBox` spellings in these
+canonical fixtures. Non-claims: untyped fields, dynamic/opaque slots, C
+`FaultFrameEnter`, and method Birth beyond the reclassification exposed by the
+focused smoke run.
+
+##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
+
+The source issuer preserves `init_fields` membership, but canonical layout must
+continue to reject missing storage type. A future row must choose either source
+annotations/migration or an explicit dynamic/opaque slot and tagged runtime ABI;
+MIR observation, constant-caller heuristics, and receiver-name inference cannot
+be promoted into this authority.
 
 Handoff after Loop retirement and repository convergence is owned by
 `selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`:

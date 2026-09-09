@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-TYPED-OBJECT-STORAGE-CONTRACT-D0"
-current_execution_cohort = "acceptance_source_reconciliation_d0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-TYPED-OBJECT-SOURCE-MIGRATION-I0"
+current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Design stop: init_fields canonical projection landed at f4b387de48 with focused issuer tests 6/6. Before the next typed-object acceptance slice, reconcile IntegerBox vocabulary and legacy untyped storage with the language type SSOT and existing object-definition issuer. Do not infer storage from MIR/layout, widen compatibility vocabulary, touch C FaultFrameEnter, or alter RawCompatibility."
+current_blocker_token = "Accepted storage contract: canonical typed-object EXE requires explicit exact numeric storage with i64 as the live scalar; IntegerBox requires explicit source migration and untyped init_fields remain unavailable to canonical layout. This slice migrates only the two canonical IntegerBox smoke fixtures; do not infer storage from MIR/layout, widen compatibility vocabulary, touch C FaultFrameEnter, or alter RawCompatibility."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -37,11 +37,12 @@ acceptance remains open (current 1/11 versus pinned parent 6/11); current-only
 reds split into IntegerBox vocabulary, init_fields projection, C FaultFrameEnter,
 and dependent method Birth. Init_fields projection is now closed at f4b387de48
 with issuer-focused tests 6/6. The next bounded work is design-stop D0 for the
-IntegerBox/untyped-storage contract; it must not infer storage or change
-RawCompatibility.
+IntegerBox/untyped-storage contract is accepted. The next fast slice migrates
+the two canonical IntegerBox fixtures; untyped storage, C FaultFrameEnter, and
+method Birth remain separate.
 """
-next_design_card = "MIRBUILDER-TYPED-OBJECT-STORAGE-CONTRACT-D0"
-next_execution_card = "none (design stop: accept the storage contract before implementation)"
+next_design_card = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
+next_execution_card = "MIRBUILDER-TYPED-OBJECT-SOURCE-MIGRATION-I0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
