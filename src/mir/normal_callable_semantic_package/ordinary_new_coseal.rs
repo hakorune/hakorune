@@ -8,7 +8,7 @@
 use super::instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 use crate::mir::function::ObjectDestructionDispositionV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
-use std::{cell::RefCell, collections::BTreeMap, rc::Rc};
+use std::{cell::{Cell, RefCell}, collections::BTreeMap, rc::Rc};
 
 pub(crate) use self::birth_abi_handoff::{BirthAbiHandoffV1, BirthResultAbiV1};
 use super::instance_constructor_semantic::{
@@ -70,11 +70,20 @@ mod local_commit;
 mod terminal_access;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
+#[path = "ordinary_new_root_instance_call.rs"]
+mod root_instance_call;
 use candidate::OrdinaryNewCandidate;
 
 pub(crate) use local_commit::{
     FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
 };
+pub(crate) use root_instance_call::RootInstanceCallDispositionRowV1;
+
+#[derive(Debug)]
+pub(crate) enum RootCallDispositionV1 {
+    Direct(super::direct_call_loan::AppMainDirectCallDispositionRowV1),
+    Instance(RootInstanceCallDispositionRowV1),
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
@@ -168,6 +177,13 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
             )>,
         >,
     >,
+    root_instance_calls: RefCell<
+        BTreeMap<
+            OwnedExprSiteV1,
+            root_instance_call::RootInstanceCallDispositionSlotV1,
+        >,
+    >,
+    root_instance_call_expected: Cell<bool>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
     terminal_relation: Option<TerminalRelationV1>,
@@ -247,6 +263,8 @@ impl OrdinaryNewClaimLedgerV1 {
             child_physical_validation: RefCell::new(BTreeMap::new()),
             root_exits: RefCell::new(BTreeMap::new()),
             root_local_call_bindings: RefCell::new(BTreeMap::new()),
+            root_instance_calls: RefCell::new(BTreeMap::new()),
+            root_instance_call_expected: Cell::new(false),
             field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             terminal_relation: None,
@@ -574,8 +592,23 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                                 return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() });
                             }
                             Ok(candidate.construction.is_ok() && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
-                        }, &mut |site| Ok(is_app_main && app_main_calls.is_some_and(|loan|
-                            loan.is_map_i64_call(batch, parameter_contracts, input, site))))? {
+                        }, &mut |site| {
+                            let direct = app_main_calls.is_some_and(|loan| {
+                                loan.is_map_i64_call(batch, parameter_contracts, input, site)
+                            });
+                            let instance = is_app_main
+                                && input.function().method_calls().any(|(call_site, call)| {
+                                    call_site == site.site()
+                                        && call.arguments().is_empty()
+                                        && matches!(
+                                            call.receiver(),
+                                            crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
+                                                crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_)
+                                            )
+                                        )
+                                });
+                            Ok(is_app_main && (direct || instance))
+                        })? {
                         Ok((completion, prefixes, mut terminal_relation, observations)) => {
                             if is_app_main {
                                 if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {

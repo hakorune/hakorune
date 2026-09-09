@@ -128,6 +128,7 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
                 use hakorune_mir_defs::{
                     CanonicalGlobalTargetV1 as Global,
                     CanonicalSameModuleGlobalTargetV1 as SameModule,
+                    SameModuleCallableNamespaceV1,
                 };
                 let valid = match (&call.callee, result) {
                     (Callee::BirthConstructor { .. }, ResultKind::Unit) => true,
@@ -139,6 +140,11 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
                     ) => target
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
+                    (
+                        Callee::SameModuleInstance { key, .. },
+                        ResultKind::I64,
+                    ) => key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                        && key.arity() as usize == call.args.len(),
                     _ => false,
                 };
                 if !valid {

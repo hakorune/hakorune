@@ -1,4 +1,36 @@
 #[test]
+fn root_instance_call_uses_selected_result_contract() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { left: i64 right: i64
+        birth(left, right) { me.left = left me.right = right }
+        sum(): i64 { return me.left + me.right } }
+        static box Main { main() {
+        local pair = new Pair(10, 20)
+        return pair.sum() } }",
+    )
+    .expect("annotated instance result must be source-admitted");
+    let ledger = &package.ordinary_new_claim_ledger;
+    assert!(ledger.root_instance_call_expected());
+    assert!(!ledger.root_instance_call_is_empty());
+}
+
+#[test]
+fn root_instance_call_without_result_contract_stays_unavailable() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { left: i64 right: i64
+        birth(left, right) { me.left = left me.right = right }
+        sum() { return me.left + me.right } }
+        static box Main { main() {
+        local pair = new Pair(10, 20)
+        return pair.sum() } }",
+    )
+    .expect("missing result contract is an unavailable source shape");
+    let ledger = &package.ordinary_new_claim_ledger;
+    assert!(ledger.root_instance_call_expected());
+    assert!(ledger.root_instance_call_is_empty());
+}
+
+#[test]
 fn pair_i64_add_return_is_issued_from_completion_and_existing_field_reads() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Pair { left: i64 right: i64

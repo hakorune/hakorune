@@ -116,16 +116,44 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         let owner = self
             .callable_owner_v1()
             .ok_or("[freeze:contract][terminal-call/owner-missing]")?;
-        if ledger.terminal_call_arguments_for_owner(owner).is_none() {
-            return Ok(None);
-        }
         let site = self
             .current_source_site_v1()
             .ok_or("[freeze:contract][terminal-call/site-missing]")?;
-        let loan = self
-            .direct_call_loan
-            .as_deref_mut()
-            .ok_or("[freeze:contract][terminal-call/loan-missing]")?;
+        if let Some(row) = ledger
+            .take_root_instance_call_for_return(owner, &site)
+            .map_err(|error| format!("[freeze:contract][terminal-call/{error}]"))?
+        {
+            let state = self
+                .callable_ledger
+                .as_ref()
+                .ok_or("[freeze:contract][terminal-call/state-missing]")?;
+            let receiver = state
+                .borrow_mut()
+                .take_exact_lexical_value(owner, row.receiver_site().node(), row.receiver_binding())
+                .map_err(|error| error.to_string())?;
+            return crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_instance(
+                builder,
+                &mut state.borrow_mut(),
+                ledger,
+                owner,
+                row,
+                receiver,
+            )
+            .map(Some);
+        }
+        if ledger.root_instance_call_expected() {
+            return Err("[freeze:contract][ordinary-new/local-commit/artifact-source-unavailable]"
+                .to_owned());
+        }
+        if ledger.terminal_call_arguments_for_owner(owner).is_none() {
+            return Ok(None);
+        }
+        let Some(loan) = self.direct_call_loan.as_deref_mut() else {
+            // A source terminal Call without the exact direct or instance
+            // disposition remains unavailable; do not coerce it into the
+            // direct-call loan or synthesize a target.
+            return Ok(None);
+        };
         let Some(row) = loan
             .take_terminal_lifecycle(ledger, owner, &site)
             .map_err(|error| format!("[freeze:contract][terminal-call/{error:?}]"))?

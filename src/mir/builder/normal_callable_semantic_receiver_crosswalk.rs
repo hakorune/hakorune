@@ -133,6 +133,47 @@ impl CallableSemanticLoweringState {
         }
         Ok(value)
     }
+
+    /// Consume one exact lexical source read without requiring the callable's
+    /// entry receiver slot.  Static roots use this for a local object receiver;
+    /// instance bodies continue to use `take_exact_receiver_value` above.
+    pub(in crate::mir::builder) fn take_exact_lexical_value(
+        &mut self,
+        expected_owner: FunctionOwnerIdV1,
+        source_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        expected_binding: BindingRefV1,
+    ) -> Result<ValueId, ExactReceiverValueErrorV1> {
+        if self.owner != expected_owner || expected_binding.owner() != self.owner {
+            return Err(ExactReceiverValueErrorV1::OwnerMismatch);
+        }
+        let Some(binding) = self.variables.get(source_site).copied() else {
+            return Err(ExactReceiverValueErrorV1::ReceiverSiteUnavailable);
+        };
+        if binding != expected_binding {
+            return Err(ExactReceiverValueErrorV1::SiteBindingMismatch);
+        }
+        if self.consumed_variables.contains(source_site) {
+            return Err(ExactReceiverValueErrorV1::AlreadyTaken);
+        }
+        let value = self
+            .value_for_exact_binding(expected_owner, expected_binding)
+            .map_err(|error| match error {
+                ExactBindingValueErrorV1::EntryNotInstalled => {
+                    ExactReceiverValueErrorV1::EntryNotInstalled
+                }
+                ExactBindingValueErrorV1::ValueUnavailable => {
+                    ExactReceiverValueErrorV1::ValueUnavailable
+                }
+                ExactBindingValueErrorV1::OwnerMismatch => ExactReceiverValueErrorV1::OwnerMismatch,
+                ExactBindingValueErrorV1::ForeignBinding => {
+                    ExactReceiverValueErrorV1::ReceiverBindingMismatch
+                }
+            })?;
+        if !self.consumed_variables.insert(source_site.clone()) {
+            return Err(ExactReceiverValueErrorV1::AlreadyTaken);
+        }
+        Ok(value)
+    }
 }
 
 #[cfg(test)]

@@ -24,7 +24,7 @@ pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
 pub(crate) enum RootHomeExitEntry {
     Plain,
     Call {
-        row: crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        row: crate::mir::normal_callable_semantic_package::RootCallDispositionV1,
         local_bindings: Vec<(
             OwnedExprSiteV1,
             Vec<(BasicBlockId, MirInstruction)>,

@@ -2,7 +2,7 @@
 //! Physical observations do not issue a target, result or cleanup obligation.
 use super::*;
 use crate::mir::instruction::InvokeCallResultKind;
-use crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1;
+use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
 use crate::mir::ConstValue;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -92,7 +92,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn record_root_call_exit(
         &self,
         owner: FunctionOwnerIdV1,
-        row: AppMainDirectCallDispositionRowV1,
+        row: RootCallDispositionV1,
         arguments: Vec<(BasicBlockId, MirInstruction)>,
         invoke: (BasicBlockId, MirInstruction),
         projection: (BasicBlockId, MirInstruction),
@@ -100,8 +100,13 @@ impl OrdinaryNewClaimLedgerV1 {
         origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        row.lifecycle_emission()
-            .map_err(|_| freeze("call-source-mismatch"))?;
+        if matches!(&row, RootCallDispositionV1::Direct(_)) {
+            if let RootCallDispositionV1::Direct(direct) = &row {
+                direct
+                    .lifecycle_emission()
+                    .map_err(|_| freeze("call-source-mismatch"))?;
+            }
+        }
         let mut pending = self.root_local_call_bindings.borrow_mut();
         let pending_groups = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
         self.validate_local_call_binding_groups(owner, pending_groups)?;
@@ -255,10 +260,21 @@ impl OrdinaryNewClaimLedgerV1 {
             frame,
         } = entry
         else {
-            return Err(freeze("call-entry-missing"));
+            return if self.root_instance_call_expected() {
+                // The source method is known, but its target result contract
+                // is unavailable. Preserve the existing artifact stop rather
+                // than manufacturing a direct-call entry.
+                Ok(())
+            } else {
+                Err(freeze("call-entry-missing"))
+            };
+        };
+        let row_argument_count = match row {
+            RootCallDispositionV1::Direct(row) => row.argument_sites().len(),
+            RootCallDispositionV1::Instance(row) => row.argument_sites().len(),
         };
         if arguments.len() != terminal.arguments().len()
-            || row.argument_sites().len() != arguments.len()
+            || row_argument_count != arguments.len()
         {
             return Err(freeze("call-argument-count"));
         }
@@ -272,11 +288,47 @@ impl OrdinaryNewClaimLedgerV1 {
                 _ => return Err(freeze("call-argument-drift")),
             }
         }
-        let expected = row
-            .lifecycle_emission()
-            .map_err(|_| freeze("call-source-mismatch"))?
-            .materialize_call(None, values)
-            .map_err(|_| freeze("call-projection-failed"))?;
+        let expected = match row {
+            RootCallDispositionV1::Direct(row) => row
+                .lifecycle_emission()
+                .map_err(|_| freeze("call-source-mismatch"))?
+                .materialize_call(None, values)
+                .map_err(|_| freeze("call-projection-failed"))?,
+            RootCallDispositionV1::Instance(row) => {
+                if !values.is_empty() || row.argument_sites().iter().next().is_some() {
+                    return Err(freeze("instance-call-arguments"));
+                }
+                let MirInstruction::Invoke {
+                    operation:
+                        InvokeOperation::Call {
+                            call,
+                            result: InvokeCallResultKind::I64,
+                        },
+                    ..
+                } = &invoke.1
+                else {
+                    return Err(freeze("instance-call-shape"));
+                };
+                if *call
+                    != crate::mir::definitions::MirCall::new(
+                        None,
+                        crate::mir::definitions::Callee::SameModuleInstance {
+                            key: row.target().clone(),
+                            receiver: match &call.callee {
+                                crate::mir::definitions::Callee::SameModuleInstance {
+                                    receiver, ..
+                                } => *receiver,
+                                _ => return Err(freeze("instance-call-target")),
+                            },
+                        },
+                        Vec::new(),
+                    )
+                {
+                    return Err(freeze("instance-call-target"));
+                }
+                call.clone()
+            }
+        };
         if !matches!(&invoke.1, MirInstruction::Invoke {
             operation: InvokeOperation::Call { call, result: InvokeCallResultKind::I64 }, ..
         } if *call == expected)
@@ -335,7 +387,7 @@ impl OrdinaryNewClaimLedgerV1 {
 impl RootHomeExitEntry {
     pub(crate) fn call_row(
         &self,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1>
+    ) -> Option<&crate::mir::normal_callable_semantic_package::RootCallDispositionV1>
     {
         match self {
             Self::Call { row, .. } => Some(row),

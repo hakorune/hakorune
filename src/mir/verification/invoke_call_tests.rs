@@ -55,6 +55,35 @@ fn i64_call_has_one_normal_projection_and_shared_operand_rewrite() {
 }
 
 #[test]
+fn same_module_instance_i64_call_uses_receiver_and_source_arity_contract() {
+    let mut function = call_function();
+    let MirInstruction::Invoke {
+        operation:
+            InvokeOperation::Call {
+                call,
+                result: ResultKind::I64,
+            },
+        ..
+    } = function
+        .blocks
+        .get_mut(&BasicBlockId::new(1))
+        .unwrap()
+        .terminator
+        .as_mut()
+        .unwrap()
+    else {
+        unreachable!()
+    };
+    call.callee = Callee::SameModuleInstance {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+            "Worker", "run", 1,
+        ),
+        receiver: ValueId::new(1),
+    };
+    MirVerifier::new().verify_function(&function).unwrap();
+}
+
+#[test]
 fn i64_call_rejects_role_arity_destination_and_projection_drift() {
     for mutation in 0..7 {
         let mut function = call_function();

@@ -14,7 +14,7 @@ box Pair {
     me.right = right
   }
 
-  sum() {
+  sum(): i64 {
     return me.left + me.right
   }
 }

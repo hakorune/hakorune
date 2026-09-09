@@ -2,11 +2,13 @@
 //! The affine row stays owned by root exit progress after emission.
 use super::*;
 use crate::mir::definitions::MirCall;
-use crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1;
+use crate::mir::normal_callable_semantic_package::{
+    AppMainDirectCallDispositionRowV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
+};
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
 pub(super) struct Emission {
-    pub(super) row: AppMainDirectCallDispositionRowV1,
+    pub(super) row: RootCallDispositionV1,
     pub(super) arguments: Vec<(BasicBlockId, MirInstruction)>,
     pub(super) call: MirCall,
 }
@@ -58,8 +60,45 @@ pub(in crate::mir::builder) fn emit(
         Some(value),
         value,
         Some(Emission {
-            row,
+            row: RootCallDispositionV1::Direct(row),
             arguments,
+            call,
+        }),
+    )
+}
+
+pub(in crate::mir::builder) fn emit_instance(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    row: RootInstanceCallDispositionRowV1,
+    receiver: ValueId,
+) -> Result<ValueId, String> {
+    let call = MirCall::new(
+        None,
+        crate::mir::definitions::Callee::SameModuleInstance {
+            key: row.target().clone(),
+            receiver,
+        },
+        Vec::new(),
+    );
+    let value = builder.next_value_id();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(value, MirType::Integer);
+    emit_root_home_exit_payload(
+        builder,
+        state,
+        ledger,
+        owner,
+        Some(value),
+        value,
+        Some(Emission {
+            row: RootCallDispositionV1::Instance(row),
+            arguments: Vec::new(),
             call,
         }),
     )

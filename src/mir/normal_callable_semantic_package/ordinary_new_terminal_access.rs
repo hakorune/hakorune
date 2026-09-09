@@ -163,6 +163,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 })
                 .all(|(owner, _)| self.terminal_integer_literal_values.borrow().contains_key(owner))
             && self.terminal_i64_field_return_complete()
+            && self.root_instance_call_is_empty()
     }
 
     pub(crate) fn terminal_i64_add_return(&self) -> Option<&TerminalI64AddReturnV1> {

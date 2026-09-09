@@ -419,6 +419,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     AppMainDirectCall {
         _error: AppMainDirectCallDispositionIssueV1,
     },
+    RootInstanceCall {
+        _error: String,
+    },
     AppMainRoot {
         _error: app_main_relation::AppMainRootRelationIssueV1,
     },
@@ -709,6 +712,27 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         &parameter_contracts,
     )
     .map_err(|error| NormalCallableSemanticPackageIssueV1::PhysicalSignature { _error: error })?;
+    let app_main_batch_slot = app_main_identity.as_ref().and_then(|identity| {
+        batch
+            .declarations()
+            .find(|declaration| declaration.identity().same_as(identity))
+            .map(|declaration| declaration.batch_slot())
+    });
+    if let Some(root_batch_slot) = app_main_batch_slot {
+        batch
+            .with_lowering_input(root_batch_slot, |input| {
+                ordinary_new_claim_ledger.issue_root_instance_call_dispositions(
+                    input,
+                    &selected,
+                    &result_contracts,
+                    &physical_signature,
+                )
+            })
+            .map_err(|error| NormalCallableSemanticPackageIssueV1::BatchLoan { _error: error })?
+            .map_err(|error| NormalCallableSemanticPackageIssueV1::RootInstanceCall {
+                _error: error,
+            })?;
+    }
     let declared_instance_call_locators = issue_declared_instance_call_package_locator_v1(
         &batch,
         &selected,

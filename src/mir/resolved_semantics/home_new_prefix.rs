@@ -474,6 +474,16 @@ pub(crate) fn scan_new_home_flow<E>(
                                         _ => None,
                                     }
                                 }).collect::<Option<Vec<_>>>());
+                            let arguments = arguments.or_else(|| {
+                                input.function().method_calls()
+                                    .find(|(site, _)| *site == value.site())
+                                    .and_then(|(_, row)| row.arguments().iter().map(|argument| {
+                                        match input.function().expression_source().literal(argument.site()) {
+                                            Some(ResolvedLiteralSourceV1::Integer(value)) => Some(*value),
+                                            _ => None,
+                                        }
+                                    }).collect::<Option<Vec<_>>>())
+                            });
                             if let Some(arguments) = arguments {
                                 terminal_relation = Some(TerminalRelationV1::Call(TerminalI64CallReturnV1 {
                                     owner: input.owner(), return_site: statement.site().clone(),
