@@ -353,7 +353,9 @@ kind and an existing i64 payload lane, never an object identity. Bool remains
 Value leaves scalar availability unchanged; both install operations consume Key
 on returned Normal/Fault, and only Normal publishes an Outcome. Missing/wrong
 kind and opaque payload misuse reject before artifact. Mixed-origin finishing and physical-consumer execution do
-not by themselves establish source-to-EXE activation; that cutover remains open.
+not by themselves establish source-to-EXE activation. AppMain known scalar/Home
+construction has separate source artifact acceptance; ordinary callable cleanup
+and frame/result ABI connection remain open.
 
 ## Checked Map opaque ABI contract
 

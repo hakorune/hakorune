@@ -1,6 +1,7 @@
 //! Source-issued Map flow consumption; no AST descent or key/ownership decisions.
 use super::*;
-use crate::mir::instruction::MapInvokeOperation as Map;
+use crate::mir::instruction::{MapInvokeOperation as Map, MapValueKind};
+use crate::mir::resolved_semantics::home_new_prefix::{MapValueSource, SourceScalarKind};
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, ResolvedInitializerRelationV1};
 
 pub(in crate::mir::builder) fn emit(
@@ -44,6 +45,53 @@ pub(in crate::mir::builder) fn emit(
             outward,
             &mut bindings,
         )?;
+        // Only pure scalar materialization or an exact bound read is allowed here.
+        // Keep the prepared Key normal block exclusive to its install.
+        let (value, scalar_kind) = match entry.value_source() {
+            Some(source) => {
+                let kind = match source.scalar_kind() {
+                    Some(SourceScalarKind::Integer) => MapValueKind::I64,
+                    Some(SourceScalarKind::Bool) => MapValueKind::Bool,
+                    None => return Err(freeze("map-value-consumer-missing")),
+                };
+                let value = match source {
+                    MapValueSource::Integer(n) => {
+                        let dst =
+                            crate::mir::builder::emission::constant::emit_integer(builder, *n)?;
+                        record_literal(
+                            builder,
+                            dst,
+                            crate::mir::ConstValue::Integer(*n),
+                            &mut bindings,
+                        )?;
+                        dst
+                    }
+                    MapValueSource::Bool(b) => {
+                        let dst = crate::mir::builder::emission::constant::emit_bool(builder, *b)?;
+                        record_literal(
+                            builder,
+                            dst,
+                            crate::mir::ConstValue::Bool(*b),
+                            &mut bindings,
+                        )?;
+                        dst
+                    }
+                    MapValueSource::Local { binding, .. } => {
+                        let value = state.read_variable(entry.site().node())?;
+                        if state
+                            .value_for_exact_binding(site.owner(), *binding)
+                            .map_err(|_| freeze("map-scalar-binding"))?
+                            != value
+                        {
+                            return Err(freeze("map-scalar-binding-drift"));
+                        }
+                        value
+                    }
+                };
+                (value, Some(kind))
+            }
+            None => (state.read_variable(entry.site().node())?, None),
+        };
         let key = invoke(
             builder,
             frame,
@@ -54,23 +102,22 @@ pub(in crate::mir::builder) fn emit(
             &mut bindings,
         )?
         .expect("key prepare produces an opaque result");
-        // The bounded cohort reads an already-acquired local: no intervening MIR
-        // child evaluation, no new Home and no key cancellation edge required.
-        let value = state.read_variable(entry.site().node())?;
-        let object = ledger.map_candidate_object(entry, value)?;
-        let outcome = invoke(
-            builder,
-            frame,
-            Map::InstallIndexed {
+        let operation = match scalar_kind {
+            Some(kind) => Map::InstallValue {
                 map: result,
                 key,
-                object,
                 value,
+                kind,
             },
-            precommit,
-            &mut bindings,
-        )?
-        .expect("install produces its detached outcome");
+            None => Map::InstallIndexed {
+                map: result,
+                key,
+                value,
+                object: ledger.map_candidate_object(entry, value)?,
+            },
+        };
+        let outcome = invoke(builder, frame, operation, precommit, &mut bindings)?
+            .expect("install produces its detached outcome");
         let committed = map_fault(
             builder,
             ledger,
@@ -91,6 +138,20 @@ pub(in crate::mir::builder) fn emit(
     }
     ledger.record_map_emission(site, result, bindings)?;
     Ok(result)
+}
+
+fn record_literal(
+    builder: &MirBuilder,
+    dst: ValueId,
+    value: crate::mir::ConstValue,
+    bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+) -> Result<(), String> {
+    let block = builder
+        .function_state
+        .current_block
+        .ok_or_else(|| freeze("no-block"))?;
+    bindings.push((block, MirInstruction::Const { dst, value }));
+    Ok(())
 }
 
 fn map_fault(

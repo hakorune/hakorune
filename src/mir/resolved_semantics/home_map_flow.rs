@@ -136,6 +136,16 @@ pub(crate) enum MapValueSource {
     },
 }
 
+impl MapValueSource {
+    pub(crate) fn scalar_kind(&self) -> Option<SourceScalarKind> {
+        match self {
+            Self::Integer(_) => Some(SourceScalarKind::Integer),
+            Self::Bool(_) => Some(SourceScalarKind::Bool),
+            Self::Local { kind, .. } => *kind,
+        }
+    }
+}
+
 impl MapHomeEntry {
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
         &self.site

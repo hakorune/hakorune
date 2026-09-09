@@ -29,7 +29,8 @@ Map Completion retains exact Integer/Bool literal payloads and scalar kinds from
 literal-derived local/alias bindings in its existing source flow. Trivial formal
 capability alone leaves the scalar kind unknown. No MIR type or ABI default fills
 that gap, and an unavailable prefix cannot lend stale local evidence. Physical
-Value admission remains a separate consumer connection.
+AppMain Value admission consumes known kinds in the selected consumer; unknown
+formal representation and ordinary callable execution remain separate obligations.
 
 ## Ordinary-New caller-prefix facts
 

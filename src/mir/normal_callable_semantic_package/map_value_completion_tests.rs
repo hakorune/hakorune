@@ -77,7 +77,7 @@ fn borrowed_formals_are_allowed_unused_but_do_not_issue_map_ownership() {
 }
 
 #[test]
-fn root_value_source_is_complete_but_private_emission_stops_before_progress() {
+fn root_known_value_enters_progress_without_becoming_a_home() {
     for body in [
         "local m = %{\"v\" => 30} return 30",
         "local value = true local m = %{\"v\" => value} return 30",
@@ -107,17 +107,14 @@ fn root_value_source_is_complete_but_private_emission_stops_before_progress() {
                     .clone()
             })
             .unwrap();
-        for _ in 0..2 {
-            let error = ledger
-                .begin_map_emission(map.site(), &relation)
-                .unwrap_err();
-            assert!(error.contains("map-value-consumer-missing"), "{error}");
-        }
+        ledger.begin_map_emission(map.site(), &relation).unwrap();
+        assert!(ledger.begin_map_emission(map.site(), &relation).unwrap_err()
+            .contains("map-duplicate-emission"));
         let error = ledger
             .map_candidate_object(&map.entries()[0], crate::mir::ValueId::new(0))
             .unwrap_err();
         assert!(error.contains("map-value-consumer-missing"));
-        assert_install_stop(package);
+
     }
 }
 
@@ -222,7 +219,7 @@ fn mixed_value_replacement_keeps_home_transfer_positions() {
     );
     assert_eq!(map.outer_after_installs(3).unwrap().count(), 0);
     assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
-    assert_install_stop(package);
+    assert!(package.prepare_install(&mut CompilationContext::new()).is_ok());
 }
 
 #[test]
@@ -265,7 +262,7 @@ fn map_scalar_literals_and_aliases_retain_exact_source_evidence() {
             .entries()
             .iter()
             .all(|entry| entry.transfer_home().is_none()));
-        assert_install_stop(package);
+        assert!(package.prepare_install(&mut CompilationContext::new()).is_ok());
     }
 }
 

@@ -1,7 +1,9 @@
 //! Physical Map progress in the existing local ledger; Completion owns meaning.
 use super::*;
 use crate::mir::instruction::MapInvokeOperation as Map;
-use crate::mir::resolved_semantics::home_new_prefix::{MapHomeEntry, MapHomeFlow};
+use crate::mir::resolved_semantics::home_new_prefix::{
+    MapHomeEntry, MapHomeFlow, MapValueSource, SourceScalarKind,
+};
 use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
 
 #[derive(Debug)]
@@ -153,8 +155,12 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         for entry in flow.entries() {
-            let (acquisition, binding) = entry.transfer_home()
-                .ok_or_else(|| freeze("map-value-consumer-missing"))?;
+            let Some((acquisition, binding)) = entry.transfer_home() else {
+                if entry.value_source().and_then(|v| v.scalar_kind()).is_none() {
+                    return Err(freeze("map-value-consumer-missing"));
+                }
+                continue;
+            };
             let row = rows
                 .get(acquisition)
                 .and_then(LocalCommitV1::ordinary)
@@ -179,7 +185,8 @@ impl OrdinaryNewClaimLedgerV1 {
         entry: &MapHomeEntry,
         value: ValueId,
     ) -> Result<CanonicalObjectIdV1, String> {
-        let (acquisition, binding) = entry.transfer_home()
+        let (acquisition, binding) = entry
+            .transfer_home()
             .ok_or_else(|| freeze("map-value-consumer-missing"))?;
         let rows = self.local_commits.borrow();
         let row = rows
@@ -276,20 +283,53 @@ impl OrdinaryNewClaimLedgerV1 {
             .filter_map(|(_, i)| match i {
                 MirInstruction::Invoke {
                     operation:
-                        InvokeOperation::Map(Map::InstallIndexed {
-                            map, object, value, ..
-                        }),
+                        InvokeOperation::Map(
+                            op @ (Map::InstallIndexed { .. } | Map::InstallValue { .. }),
+                        ),
                     ..
-                } => Some((*map, *object, *value)),
+                } => Some(op),
                 _ => None,
             })
             .collect();
         if installs.len() != flow.entries().len() {
             return Err(freeze("map-install-count"));
         }
-        for (entry, (map, object, value)) in flow.entries().iter().zip(installs) {
-            if map != *result || self.map_candidate_object(entry, value)? != object {
-                return Err(freeze("map-install-source-drift"));
+        for (entry, op) in flow.entries().iter().zip(installs) {
+            match op {
+                Map::InstallIndexed {
+                    map, object, value, ..
+                } if *map == *result && self.map_candidate_object(entry, *value)? == *object => {}
+                Map::InstallValue {
+                    map, value, kind, ..
+                } if *map == *result => {
+                    use crate::mir::instruction::MapValueKind;
+                    let source = entry
+                        .value_source()
+                        .ok_or_else(|| freeze("map-install-family"))?;
+                    let expected = match source.scalar_kind() {
+                        Some(SourceScalarKind::Integer) => MapValueKind::I64,
+                        Some(SourceScalarKind::Bool) => MapValueKind::Bool,
+                        None => return Err(freeze("map-value-consumer-missing")),
+                    };
+                    if *kind != expected {
+                        return Err(freeze("map-value-kind-drift"));
+                    }
+                    let literal = match source {
+                        MapValueSource::Integer(n) => Some(crate::mir::ConstValue::Integer(*n)),
+                        MapValueSource::Bool(b) => Some(crate::mir::ConstValue::Bool(*b)),
+                        MapValueSource::Local { .. } => None,
+                    };
+                    if let Some(literal) = literal {
+                        if !bindings.iter().any(|(_, i)| {
+                            matches!(i,
+                            MirInstruction::Const { dst, value: actual }
+                            if dst == value && *actual == literal)
+                        }) {
+                            return Err(freeze("map-literal-value-drift"));
+                        }
+                    }
+                }
+                _ => return Err(freeze("map-install-source-drift")),
             }
         }
         for (id, expected) in bindings {

@@ -843,6 +843,13 @@ unissued declaration-root Map sites before lowering. Mixed-formal owning
 capability and transferred lambda inventory remain open; generic clone behavior
 cannot issue that permission.
 
+Selected AppMain Map construction consumes source-issued Integer/Bool literals
+and exact known-kind locals before each PrepareKey, retaining the immediate
+Key-to-install protocol. Scalar Const instructions join the existing bindings;
+finishing checks install family, kind and literal correspondence. Home candidates
+continue through Indexed identity validation. Unknown kinds and ordinary callable
+cleanup/Fault ABI remain refused; see the collection-literal construction SSOT.
+
 ## Top-Level Map
 
 - `crates/hakorune_mir_builder/src/core_context.rs`: ID 生成器と最小の共通コア状態。

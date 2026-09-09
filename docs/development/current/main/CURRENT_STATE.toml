@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "none"
-current_blocker_token = "MIR/physical/C InstallValue implemented and verified: explicit I64/Bool i64 lanes, shared opaque protocol, actual OBJ/EXE30, 26 negative inputs; Rust13+1+1 and guards pass. Next source connection per collection SSOT step3. Unknown scalar/source install Stop and ordinary Fault/frame/result/actual Completion cleanup remain; five broad map_ reds are parent-confirmed baseline."
+current_design_stop = "MAP-ORDINARY-COMPLETION-ABI"
+current_blocker_token = "AppMain known Map Value source cutover verified: package148 and 16 source direct EXE/linked OBJ exit30, mixed Value Fault cleanup, dedicated runtime rebuilt. Next audit ordinary callable actual Completion borrowing and frame/result ABI before its Stop removal. Unknown scalar, Script and transferred-lambda restrictions remain; crossed-scopes-only summary cannot prove cleanup-free."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -50,7 +50,7 @@ Native Map insert/remove/clear now drop detached values outside locks; owned-slo
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

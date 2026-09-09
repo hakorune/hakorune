@@ -53,6 +53,7 @@ uint32_t wrap_install(void* frame, uint32_t profile, uint64_t site, void* map,
 }
 
 #ifdef HAKO_MAP_VALUE_PROBE
+static unsigned value_installs;
 extern uint32_t real_value(void*, uint32_t, uint64_t, void*, void*, uint32_t, int64_t, void*)
     __asm__("__real_nyash.map.checked_install_value_v1");
 uint32_t wrap_value(void*, uint32_t, uint64_t, void*, void*, uint32_t, int64_t, void*)
@@ -60,12 +61,12 @@ uint32_t wrap_value(void*, uint32_t, uint64_t, void*, void*, uint32_t, int64_t, 
 uint32_t wrap_value(void* frame, uint32_t profile, uint64_t site, void* map,
     void* key, uint32_t kind, int64_t value, void* out) {
   /* The Value proof supplies true followed by integer30, each through Copies. */
-  static unsigned installs;
-  if ((!installs && (kind != NYRT_MAP_VALUE_BOOL || value != 1)) ||
-      (installs && (kind != NYRT_MAP_VALUE_I64 || value != 30))) abort();
-  installs++;
+
+  if ((!value_installs && (kind != NYRT_MAP_VALUE_BOOL || value != 1)) ||
+      (value_installs && (kind != NYRT_MAP_VALUE_I64 || value != 30))) abort();
+  value_installs++;
   /* Exercise the shared real attempt-Fault transition; no fake opaque mutation. */
-  if (is_mode("install-fault"))
+  if (is_mode("install-fault") || is_mode("value-install-fault"))
     return real_install(frame, profile, site, map, key, INT64_MAX, 900, out);
   return real_value(frame, profile, site, map, key, kind, value, out);
 }
@@ -75,6 +76,9 @@ extern uint32_t real_outcome_end(void*, uint64_t, void*) __asm__("__real_nyash.m
 uint32_t wrap_outcome_end(void*, uint64_t, void*) __asm__("__wrap_nyash.map.outcome_end_v1");
 uint32_t wrap_outcome_end(void* frame, uint64_t site, void* out) {
   uint32_t result = real_outcome_end(frame, site, out);
+#ifdef HAKO_MAP_VALUE_PROBE
+  if (!result && is_mode("value-outcome-fault") && value_installs == 1) return fault(frame, site);
+#endif
   return !result && is_mode("outcome-fault") ? fault(frame, site) : result;
 }
 

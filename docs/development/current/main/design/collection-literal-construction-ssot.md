@@ -2900,6 +2900,27 @@ Ordered implementation within the existing Map series:
    mandatory before removing its Stop; finish the existing natural caller/callee
    source-to-OBJ/EXE series and retire the exclusive old edge.
 
+AppMain Value source implementation: both preflight predicates now admit only
+retained known scalar evidence alongside prior Home transfers. The emitter
+records pure literal Consts in the existing bindings before each PrepareKey,
+checks exact local site/binding correspondence, and keeps map_candidate_object
+Home-only. Finishing checks both install families, scalar kind, literal binding
+and recorded instructions before/after optimization. Unknown representation and
+ordinary callee permission remain rejected. The extended semantic package passes
+148/148, including kind/value/family/literal drift mutations after finishing.
+Actual source acceptance: issued_map_source_direct_exe_and_linked_object_exit_30
+passes with the rebuilt dedicated lifecycle release archive: 16 source cases,
+each direct EXE and independent linked OBJ exit30. The mixed Value/Home probe
+covers value-install Fault and post-Value-outcome Fault, checking remaining outer
+Home ends, Key/Outcome/Map disposal and report-before-frame-dispose. Existing
+Home-only probes remain; the shared C physical proof and its 26 negative inputs
+also pass. Changed source maximum700; pointer/corridor guards and diff check pass.
+The source/property suite validates generated and optimized bodies. This retires
+representable AppMain Value's pre-install and begin-emission Stop edges, without
+promoting ordinary callee, unknown scalar, Script or transferred-lambda contracts.
+Next is step4's ordinary Completion/frame/result audit; no implementation mapping
+for that separate boundary is inferred from AppMain or synthetic C execution.
+
 AppMain source connection audit at c40220153a: the next bounded cutover replaces
 both transfer-only admission checks (ordinary_new_coseal::map_install_owner and
 ordinary_new_local_commit/map::begin_map_emission) for Integer/Bool and exact

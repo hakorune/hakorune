@@ -9,6 +9,10 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
     for definition in ["box Page {}", "box Page { birth() {} }"] {
         for (body, optimize) in [
         "local m = %{} return 30",
+        "local m = %{\"a\" => 30, \"b\" => true, \"c\" => false} return 30",
+        "local value = true local alias = value local m = %{\"a\" => alias, \"b\" => alias} return 30",
+        "local a = new Page() local m = %{\"a\" => a, \"a\" => 30} return 30",
+        "local a = new Page() local m = %{\"a\" => false, \"a\" => a} return 30",
         "local m = %{} local alias = m local again = alias return 30",
         "local a = new Page() local m = %{\"a\" => a} return 30",
         "local m = %{} local a = new Page() return 30",
@@ -74,6 +78,26 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
             .ordinary_new_claim_ledger
             .validate_finalized_new_root(&function)
             .unwrap_or_else(|e| panic!("{body}: root validation: {e}"));
+        for mutation in 0..2 {
+            let mut drifted_value = function.clone();
+            let mut changed = false;
+            for block in drifted_value.blocks.values_mut() {
+                if let Some(MirInstruction::Invoke {
+                    operation: InvokeOperation::Map(MapInvokeOperation::InstallValue { kind, value, .. }), ..
+                }) = &mut block.terminator {
+                    if mutation == 0 {
+                        *kind = match kind {
+                            crate::mir::instruction::MapValueKind::I64 => crate::mir::instruction::MapValueKind::Bool,
+                            crate::mir::instruction::MapValueKind::Bool => crate::mir::instruction::MapValueKind::I64,
+                        };
+                    } else { *value = maps[0]; }
+                    changed = true;
+                    break;
+                }
+            }
+            if changed { assert!(package.ordinary_new_claim_ledger
+                .validate_new_emissions(declaration.owner(), &drifted_value).is_err()); }
+        }
         let mut drifted = function.clone();
         let mut changed = false;
         for block in drifted.blocks.values_mut() {
@@ -116,6 +140,50 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
         crate::mir::verification::MirVerifier::new_strict()
             .verify_function(finished)
             .unwrap_or_else(|e| panic!("{body}, optimize={optimize}: {e:?}"));
+        for mutation in 0..3 {
+            let mut drifted = finished.clone();
+            let mut changed = false;
+            for block in drifted.blocks.values_mut() {
+                if let Some(MirInstruction::Invoke { operation: InvokeOperation::Map(op), .. }) = &mut block.terminator {
+                    if let MapInvokeOperation::InstallValue { map, key, value, kind } = *op {
+                        *op = match mutation {
+                            0 => MapInvokeOperation::InstallValue { map, key, value,
+                                kind: match kind {
+                                    crate::mir::instruction::MapValueKind::I64 => crate::mir::instruction::MapValueKind::Bool,
+                                    crate::mir::instruction::MapValueKind::Bool => crate::mir::instruction::MapValueKind::I64,
+                                } },
+                            1 => MapInvokeOperation::InstallValue { map, key, value: map, kind },
+                            _ => MapInvokeOperation::InstallIndexed { map, key, value,
+                                object: hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap() },
+                        };
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+            if changed { assert!(package.ordinary_new_claim_ledger
+                .validate_artifact_after_compiler_finishing(&drifted).is_err()); }
+        }
+        if body.starts_with("local m = %{\"a\" => 30") {
+            let scalar = finished.blocks.values().flat_map(|b| b.all_instructions())
+                .find_map(|i| match i {
+                    MirInstruction::Invoke { operation: InvokeOperation::Map(
+                        MapInvokeOperation::InstallValue { value, .. }), .. } => Some(*value),
+                    _ => None,
+                }).unwrap();
+            let mut drifted = finished.clone();
+            let mut changed = false;
+            for block in drifted.blocks.values_mut() {
+                for i in &mut block.instructions {
+                    if let MirInstruction::Const { dst, value } = i {
+                        if *dst == scalar { *value = crate::mir::ConstValue::Integer(99); changed = true; }
+                    }
+                }
+            }
+            assert!(changed);
+            assert!(package.ordinary_new_claim_ledger
+                .validate_artifact_after_compiler_finishing(&drifted).is_err());
+        }
         let mut drifted_finished = finished.clone();
         let mut changed_edge = false;
         for block in drifted_finished.blocks.values_mut() {

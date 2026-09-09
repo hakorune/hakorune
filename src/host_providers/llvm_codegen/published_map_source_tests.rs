@@ -21,6 +21,14 @@ fn issued_map_source_direct_exe_and_linked_object_exit_30() {
                 sources.push(format!("{definition} static box Main {{ main() {{ {body} }} }}"));
             }
         }
+        let first_value_case = sources.len();
+        for body in [
+            "local m = %{\"a\" => 30, \"b\" => true, \"c\" => false} return 30",
+            "local x = true local alias = x local n = 30 local m = %{\"a\" => alias, \"b\" => alias, \"n\" => n} return 30",
+            "local a = new Page() local b = new Page() local m = %{\"a\" => a, \"a\" => true, \"a\" => b, \"a\" => 30} return 30",
+        ] {
+            sources.push(format!("box Page {{}} static box Main {{ main() {{ {body} }} }}"));
+        }
         for (case, source) in sources.into_iter().enumerate() {
             use crate::runner::modes::common_util::normal_callable::{
                 materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
@@ -95,7 +103,10 @@ fn issued_map_source_direct_exe_and_linked_object_exit_30() {
                         }
                         // Duplicate-key source under both NoBirth and empty Birth.
                         if case == 6 || case == 12 {
-                            assert_source_fault_cleanup(&object, session.runtime_archive(), &dir)?;
+                            assert_source_fault_cleanup(&object, session.runtime_archive(), &dir, false)?;
+                        }
+                        if case == first_value_case + 2 {
+                            assert_source_fault_cleanup(&object, session.runtime_archive(), &dir, true)?;
                         }
                         Ok(())
                     },
@@ -106,7 +117,7 @@ fn issued_map_source_direct_exe_and_linked_object_exit_30() {
     });
 }
 
-fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -> Result<(), String> {
+fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path, value_mixed: bool) -> Result<(), String> {
     let exe = dir.join("fault-probe");
     let mut command = Command::new("cc");
     command
@@ -115,6 +126,10 @@ fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -> Res
         .arg("lang/c-abi/tests/published_map_fault_probe.c")
         .arg(object)
         .arg(archive);
+    if value_mixed {
+        command.arg("-DHAKO_MAP_VALUE_PROBE")
+            .arg("-Wl,--wrap=nyash.map.checked_install_value_v1");
+    }
     for name in [
         "storage_init",
         "storage_dispose",
@@ -147,14 +162,14 @@ fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -> Res
         "{}",
         String::from_utf8_lossy(&linked.stderr)
     );
-    for (mode, keys, outcomes, outer) in [
-        ("normal", 2, 2, 0),
-        ("new-fault", 0, 0, 2),
-        ("prepare-fault", 1, 0, 2),
-        ("install-fault", 1, 1, 2),
-        ("outcome-fault", 1, 1, 1),
-        ("end-fault", 2, 2, 0),
-    ] {
+    let mut modes = vec![
+        ("normal", if value_mixed { 4 } else { 2 }, if value_mixed { 4 } else { 2 }, 0),
+        ("new-fault", 0, 0, 2), ("prepare-fault", 1, 0, 2),
+        ("install-fault", 1, 1, 2), ("outcome-fault", 1, 1, 1),
+        ("end-fault", if value_mixed { 4 } else { 2 }, if value_mixed { 4 } else { 2 }, 0),
+    ];
+    if value_mixed { modes.extend([("value-install-fault", 2, 2, 1), ("value-outcome-fault", 2, 2, 1)]); }
+    for (mode, keys, outcomes, outer) in modes {
         let result = Command::new(&exe)
             .arg(mode)
             .env("NYASH_NYRT_SILENT_RESULT", "1")
@@ -180,7 +195,7 @@ fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -> Res
             "{mode}: {stdout}"
         );
         if reports != 0 {
-            let reason = if mode == "install-fault" { 101 } else { 100 };
+            let reason = if mode == "install-fault" || mode == "value-install-fault" { 101 } else { 100 };
             let report = format!("REPORT {reason} OUTER {outer} MAP 1 KEY {keys} OUTCOME {outcomes}\n");
             assert!(stdout.contains(&report), "{mode}: {stdout}");
             assert!(stdout.find(&report).unwrap() < stdout.find(&frame).unwrap());

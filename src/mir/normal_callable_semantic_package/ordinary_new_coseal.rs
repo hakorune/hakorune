@@ -175,7 +175,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let flow = completion.cleanup().root_flow().ok_or(())?;
         if self.app_main_identity.is_none()
             || flow.maps().iter().any(|m| m.complete().is_none_or(|map|
-                map.entries().iter().any(|entry| entry.transfer_home().is_none())))
+                map.entries().iter().any(|entry| entry.transfer_home().is_none()
+                    && entry.value_source().and_then(|v| v.scalar_kind()).is_none())))
             || !matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
             || !matches!(self.terminal_relation, Some(TerminalRelationV1::IntegerLiteral(_)
                 | TerminalRelationV1::I64Add(_) | TerminalRelationV1::I64Field(_)))
