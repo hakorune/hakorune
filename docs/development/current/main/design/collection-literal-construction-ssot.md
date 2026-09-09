@@ -3163,17 +3163,17 @@ Delete-set: the same-owner-only insertion/replacement path, flat binding storage
 Acceptance target: natural three-owner source with distinct actuals reaches direct EXE and linked OBJ exit30, while per-owner Fault probes show later calls are skipped and owner/site/duplicate/finishing drift rejects before artifact. The repeated-target fourth-Call negative, grouped duplicate/order/foreign/omission mutation tests, and three-owner Fault-order observation are closed. Fourth-owner coverage remains a separate design stop.
 Non-claims: no fourth owner, general local-Call cleanup, root-before-first-Call Map support, new receipt/schema, native Map read/clone, all-owner support or whole-Map/R7 closure.
 
-#### Four-owner local binding frontier: design stop
+#### Four-owner local binding frontier: accepted I0
 
-Decision: evaluate one bounded cohort of three source-local Calls A/B/C followed by terminal Call D for four distinct ordinary Map owners. Keep source order `A → B → C → optional root Map → D`; do not widen the root-before-first-Call rule.
+Decision: implement one bounded cohort of three source-local Calls A/B/C followed by terminal Call D for four distinct ordinary Map owners. Keep source order `A → B → C → optional root Map → D`; do not widen the root-before-first-Call rule.
 Source authority + canonical issuer: the existing resolver exact target/site observations, affine AppMain loan, `RootHomeFlow.local_calls` plus terminal relation, and per-owner Completion/result co-seal. No new semantic issuer or receipt is proposed.
 Non-authority: owner count, declaration count, MIR Call count, physical function arrays, binding-group count, or Map-name recognition cannot issue admission.
 Fail-fast boundary: every local Call must have empty prior Homes; fifth or repeated-target Call, fifth distinct owner, uncalled owner, nested/conditional/recursive Call, New/Home, field, unknown value, and native escape reject before install.
-Smallest next slice: confirm the existing `map_target_owners`/`preflight_map_install` and source-ordered binding groups can express four targets with exactly three local Calls, then decide whether the existing physical Call collection and cleanup consumer cover the cohort. No implementation or production switch is authorized in this D0.
+Smallest next slice: extend `map_target_owners` to the bounded four-owner set and require exactly three local Calls in `preflight_map_install`; reuse the existing source-ordered binding groups and physical Call collection.
 Caller and owner: `direct_call_lifecycle::co_seal_lifecycle`, `install_map_preflight`, and `selected/terminal_call::emit_local` remain the callers; Completion, owner index, and existing physical boundary remain owners.
 Exclusive delete-set: only the three-owner cap and its `local_i64_call_count == 2` admission edge may be replaced by a bounded four-owner/count-three case. Keep the three-owner guard, prior-home rejection, group mutation checks, cleanup builder, and all unsupported Stops.
 Acceptance: a four-target source reaches direct EXE and linked OBJ exit30; Fault at A/B/C/D proves only the reached prefix and required cleanup; fifth repeated-target and fifth-distinct-owner negatives reject; root-before-first-Call, group duplicate/foreign/swapped/omitted, finishing drift, and 0/1/2-local regressions remain negative/green as appropriate.
-Non-claims: no general local-Call cleanup, new receipt/schema, Map manager, all-owner support, native Map read/clone, or whole-Map/R7 completion. This row must return to fast only after the source-to-physical acceptance boundary is closed.
+Non-claims: no general local-Call cleanup, new receipt/schema, Map manager, all-owner support, native Map read/clone, or whole-Map/R7 completion. This I0 does not widen the root-before-first-Call or unsupported-shape boundary.
 
 Superseded design-stop brief (2026-09-09): at design entry the source issuer
 emitted only a terminal `TerminalI64CallReturnV1`, and the existing affine loan

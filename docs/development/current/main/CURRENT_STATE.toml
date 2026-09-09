@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MAP-LITERAL-FOUR-ORDINARY-OWNER-COVERAGE-D0"
-current_execution_cohort = "map_literal_four_ordinary_owner_coverage_d0"
-current_design_stop = "MAP-LITERAL-FOUR-ORDINARY-OWNER-COVERAGE-D0 (collection-literal-construction-ssot.md)"
-current_blocker_token = "The three-owner I0 is closed: source-ordered binding groups, the repeated-target fourth-Call rejection, grouped mutation negatives, direct/linked exit30, and Fault-order prefix probes pass. The next design stop evaluates exactly three local Calls plus terminal Call D for four distinct ordinary Map owners, with no code or production switch until the source/cleanup/physical acceptance boundary is accepted. Fifth Call, New/Home, field, unknown, native escape, and whole Map/R7 remain fail-fast."
+work_mode = "fast"
+current_execution_row = "MAP-LITERAL-FOUR-ORDINARY-OWNER-COVERAGE-I0"
+current_execution_cohort = "map_literal_four_ordinary_owner_coverage_i0"
+current_design_stop = "none"
+current_blocker_token = "Implement exactly three source-local Calls A/B/C followed by terminal Call D for four distinct ordinary Map owners, reusing source-ordered binding groups, existing Completion/owner index and physical Call collection. Extend only the owner cap and local-call cohort guard; fifth/repeated/unsupported shapes remain fail-fast. Acceptance is semantic negatives plus direct/linked exit30 and per-prefix Fault evidence."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -54,10 +54,10 @@ The single-terminal-only production edge is retired through explicit CallReturn
 and ordinary Call-site collection. Two-owner admission and direct/linked exit30
 are closed. The three-owner I0 changes only source-ordered local binding
 retention plus bounded owner admission; the explicit fourth-Call and grouped
-mutation guards, natural Pair exit30, and Fault-order prefix probes pass; the four-owner D0 is design-stop only; no implementation permission is implied.
+mutation guards, natural Pair exit30, and Fault-order prefix probes pass; the four-owner D0 is accepted as the next bounded implementation slice.
 """
-next_design_card = "MAP-LITERAL-FOUR-ORDINARY-OWNER-COVERAGE-D0"
-next_execution_card = "none (awaiting fourth-owner D0 acceptance)"
+next_design_card = "none (accepted MAP-LITERAL-FOUR-ORDINARY-OWNER-COVERAGE-D0)"
+next_execution_card = "MAP-LITERAL-FOUR-ORDINARY-OWNER-COVERAGE-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -76,5 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change.",
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
-  "2026-09-09: selected Map physical consumer and ordinary_i64 Pair evidence are closed (direct/linked exit30, bool/range Fault103, cleanup probe, root+child and two-owner cases). The single-terminal edge is retired through CallReturn and ordinary Call-site collection. Three-owner I0 now owns source-ordered binding groups plus explicit fourth-Call, grouped mutation, and Fault-order prefix guards; natural direct/linked exit30 passes. The ordinary-child Value-only artifact red (actual1/expected2) reproduces on parent 1a876c3fba and current and stays outside this I0. Fourth-owner coverage is now a separate design stop; no whole-Map/R7 claim.",
+  "2026-09-09: selected Map physical consumer and ordinary_i64 Pair evidence are closed (direct/linked exit30, bool/range Fault103, cleanup probe, root+child and two-owner cases). The single-terminal edge is retired through CallReturn and ordinary Call-site collection. Three-owner I0 now owns source-ordered binding groups plus explicit fourth-Call, grouped mutation, and Fault-order prefix guards; natural direct/linked exit30 passes. The ordinary-child Value-only artifact red (actual1/expected2) reproduces on parent 1a876c3fba and current and stays outside this I0. Fourth-owner D0 is accepted for the next bounded implementation slice; no whole-Map/R7 claim.",
 ]
