@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "OWN-FIELD-CONTAINER-DEST-D0"
-current_blocker_token = "Bounded callable Map verified; Local queues11/14 closed (lookup2/parity6/source13/EXE26/completion12). Next existing V2 static-host same-invocation query/frame/compile connection. Preserve generic copy/boxed Map contract, not checked V4 Home transfer. Config binding and unsupported escape coverage remain explicit blockers before public switch. Raw/Script/Core/static-host/V1/six-edge retirement remains open; no R7 claim."
+current_blocker_token = "Bounded callable Map verified; Local queues11/14 closed (lookup2/parity6/source13/EXE26/completion12). Next existing V2 static-host same-invocation query/frame/compile connection. Preserve generic copy/boxed Map contract, not checked V4 Home transfer. Allocation config binding and V2 stage error order are accepted; implement complete session/host/source cutover with dedicated V1 proof migration. Unsupported demanded escapes remain refusals; no parallel-compile claim. Raw/Script/Core/static-host/V1/six-edge retirement remains open; no R7 claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

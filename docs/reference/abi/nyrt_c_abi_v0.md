@@ -417,3 +417,36 @@ Rule:
 
 - Defining TypeBox plugin dispatch wire protocol (belongs to TypeBox ABI v2).
 - Defining GC algorithm details (only lifecycle boundary contracts are fixed here).
+
+### Selected static compiler V2 retained invocation (accepted, not yet public)
+
+Decision (2026-09-09): the compiler boundary retains one parsed document across
+open, exact-coordinate Named query, frame planning, compile and close. This is
+compiler ABI ownership, not a change to runtime Map copy/clone or checked Home
+transfer. Public activation remains part of the atomic host/source cutover.
+
+Open checks API arguments, rejects ambient harness replay, parses the input,
+and initializes the existing HakoLlvmcInvocation at its final address. The
+existing allocation config capture runs once: runtime flags and exact-slot
+helper are retained by value. The initialized invocation cannot move because
+Named outcomes borrow its config. Query returns the existing finite observation
+status; it does not activate rows or run schema/definition/core validation.
+
+Compile checks invocation/output and replay again, then uses the existing order:
+V2 frame bind, call-row activation, staging, core validation/emission, residual
+checks, artifact publication. Core retains its schema/pinned/exact-seed/Dynamic/
+generic ordering. Compile does not reparse, recapture allocation configuration,
+reselect observed Named consumers or retry through V1. Close frees the same
+invocation after success, error or cancellation, before the host unloads C.
+
+Error precedence is stage-specific: invalid JSON syntax fails at open, before
+any later frame exists. A syntactically valid but schema-invalid document may
+be retained; compile frame/row errors then precede core schema errors. V1's
+row-before-file-parse precedence is not promised for this new ABI. Query's
+ProgramUnavailable/StorageFailed observations remain distinct from schema errors.
+
+Acceptance includes dual-invalid replay/JSON, JSON/future-row, schema/frame and
+schema/valid-frame cases, with no object publication, no active rows after
+compile, and one document destruction. Existing non-allocation ambient settings
+and process-global call-row storage remain separate concurrency obligations;
+this contract does not claim all settings frozen or parallel compile safety.

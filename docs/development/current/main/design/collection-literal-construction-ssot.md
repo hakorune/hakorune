@@ -2402,6 +2402,38 @@ Non-claims: current callable checked source13/EXE26/completion12 does not prove
 this generic source cutover. Acceptance remains both C walkers, unchanged natural
 scalar/nested/mixed-formal OBJ/EXE, failure/cancel closure and invalid-row refusal.
 
+Implementation binding is accepted after the independent configuration and
+error-order audit at `0ae4f899af`. Reuse capture_allocation_config's two fields;
+no Rust environment classifier or semantic receipt. Initialize the C invocation
+at its final address, keep query rows inactive, and close before Library unload.
+The compiler V2 stage-specific precedence is fixed in
+[the ABI reference](../../../../reference/abi/nyrt_c_abi_v0.md#selected-static-compiler-v2-retained-invocation-accepted-not-yet-public).
+Allocation settings are closed; full ambient configuration/global-row concurrency
+is not. Existing non-host demanded projections still reject without fallback.
+
+Finite replacement boundary: selected Rust static object/EXE host -> C published
+V1 ingress -> compile core; includes host/stub/export and their dedicated proof
+callers, excludes explicit generic compatibility ingress and lifecycle V4.
+`published_mir_object.rs` is the production caller of the two feature branches
+in `capi_transport.rs`. V1 C proof callers are published_rows_preartifact_test.c,
+pure_document_lifetime_driver.c and named_allocation_emission_test.py; migrate
+their row/error/lifetime coverage rather than retaining V1 solely for tests.
+Retire the private Named query subprocess bridge when the real retained host
+test covers query/frame/compile/cancel. Do not delete the shared call-row schema,
+existing frame backing or generic pure-first core just because their names say V1.
+
+One implementation series must connect complete open/query/compile/close and
+feature-disabled behavior, expose the existing frame planner through its owner,
+update input-aware capability/body export, switch both literal issuers and all
+selected hosts, then remove the named six literal and V1 ingress edges. Do not
+publish an isolated query API as a completed milestone. Acceptance includes
+existing Static/Free/Array rows and both walkers alongside natural scalar/nested/
+mixed-formal Map OBJ/EXE, same-session config mutation, dual-invalid error order,
+planner cancel and error teardown. Preserve unchanged natural inputs.
+Source budgets at this checkpoint: capi_transport519, host187, view647, C route531,
+header149, collection_literals563, Core lower736. The Core owner is near760;
+replace its Map arm in place and design a responsibility split before growth.
+
 ## Remaining source obligations
 
 The original wider source cutover still requires materialized Script Loop,
