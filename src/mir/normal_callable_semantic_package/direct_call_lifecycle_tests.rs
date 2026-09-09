@@ -1,6 +1,8 @@
 //! Natural-source correspondence and the selected scalar-edge Stop.
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use super::direct_call_loan::AppMainDirectCallLoanErrorV1;
+use crate::mir::builder::SelectedNormalCallableKeyV1;
+use crate::mir::MirBuilder;
 
 #[path = "direct_call_physical_tests.rs"]
 mod physical;
@@ -96,6 +98,78 @@ fn local_map_call_and_terminal_map_call_share_the_root_source_owner() {
         .lifecycle_emission()
         .is_ok());
     loan.finish_empty().expect("all lifecycle rows consumed");
+}
+
+#[test]
+fn distinct_map_call_owners_share_the_existing_install_preflight() {
+    let package = issue(
+        r#"static box Main {
+            main() {
+                local first = helper(10)
+                local root_map = %{"root" => 1}
+                return other(20)
+            }
+            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
+            other(value: i64): i64 { local m = %{"second" => value} return 30 }
+        }"#,
+    )
+    .expect("two distinct ordinary Map owners");
+    let targets = package
+        .app_main_direct_call_loan
+        .as_ref()
+        .expect("AppMain direct-call loan")
+        .map_target_owners(&package.batch)
+        .expect("bounded target owner set");
+    assert_eq!(targets.len(), 2);
+    let mut context = crate::mir::builder::CompilationContext::new();
+    assert!(package.prepare_install(&mut context).is_ok());
+}
+
+#[test]
+fn root_map_before_first_call_keeps_prior_homes_rejection() {
+    let mut package = issue(
+        r#"static box Main {
+            main() {
+                local root_map = %{"root" => 1}
+                local first = helper(10)
+                return other(20)
+            }
+            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
+            other(value: i64): i64 { local m = %{"second" => value} return 30 }
+        }"#,
+    )
+    .expect("source relation remains available for physical rejection");
+    let mut loan = package
+        .app_main_direct_call_loan
+        .take()
+        .expect("AppMain direct-call loan");
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .expect("source-backed Main");
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .expect("Main declaration");
+    let mut builder = MirBuilder::new();
+    let result = package
+        .batch()
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                Some(&mut loan),
+            )
+        })
+        .expect("lowering input");
+    assert!(matches!(
+        result,
+        Err(error) if error.contains("local-call-prior-homes-unsupported")
+    ));
 }
 
 #[test]

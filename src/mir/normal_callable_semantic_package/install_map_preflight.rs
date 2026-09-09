@@ -29,13 +29,14 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         }
         let root_owner = self.ordinary_new_claim_ledger.root_owner();
         if let Some(loan) = self.app_main_direct_call_loan.as_ref() {
-            let target = loan
-                .single_map_target_owner(&self.batch)
+            let targets = loan
+                .map_target_owners(&self.batch)
                 .ok_or(Issue::MapLifecycleConsumerMissing)?;
-            if !owners.contains(&target)
-                || owners
-                    .iter()
-                    .any(|owner| *owner != loan.owner() && *owner != target)
+            if targets.iter().any(|target| *target == loan.owner())
+                || targets.iter().any(|target| !owners.contains(target))
+                || owners.iter().any(|owner| {
+                    Some(*owner) != root_owner && !targets.iter().any(|target| target == owner)
+                })
             {
                 return Err(Issue::MapLifecycleConsumerMissing);
             }

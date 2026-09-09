@@ -3138,14 +3138,17 @@ now also reaches the selected physical consumer and direct/linked exit30; the
 next selected boundary is wider Map owner coverage. No generic Call fallback or
 whole Map/R7 claim is made.
 
-#### Ordinary callee ledger placement: bounded connection closed
+#### Ordinary callee ledger placement: two-owner scalar Map connection
 
-Decision: design the two-exact-owner scalar Map slice; no implementation permission until the owner and cleanup relation is closed.
-Source authority + canonical issuer: the same resolver session issues exact Call target/site facts; existing affine loan, Completion/root-flow co-seal and owner index remain canonical.
+Decision: admit the root plus two distinct exact ordinary Map owners through the existing owner index and install preflight; source, owner and cleanup design is closed.
+Source authority + canonical issuer: the same resolver session issues exact Call target/site facts; the existing affine loan, Completion/root-flow co-seal and owner index remain canonical.
 Non-authority: declaration existence, Map detection, MIR shape, physical function count, or an owner count cannot issue admission.
-Fail-fast boundary: root plus two exact called ordinary owners only; third/nested/conditional/recursive Calls, uncalled owners, New/Home, field, unknown values and native escape reject before install.
-Smallest next slice: accept the owner-set and cleanup matrix, then replace `single_map_target_owner` and the one-child install preflight only.
-Non-claims: no new source issuer, receipt/schema, Call shape, Map manager, all-owner support, native Map read/clone, ordinary New generalization or whole-Map/R7 claim.
+Fail-fast boundary: A/B are the two called ordinary owners with scalar Value-only Map entries. Third/nested/conditional/recursive Calls, uncalled owners, New/Home, field, unknown values and native escape reject before install.
+Accepted order: `local a = first(10); optional root Map; return second(20)`. A root Map before the first Call remains rejected by `terminal_call::emit_local` when `prior_homes` is non-empty.
+Cleanup matrix: A Fault cleans A and skips the root Map/B; root Map Fault cleans the root Map and skips B; B Fault cleans B then the root Fault suffix; B Normal ends B then the root Map and returns the result; cleanup Fault never publishes success.
+Implementation task order: (1) `map_target_owners` now projects a bounded distinct-owner set from co-sealed Call rows; (2) the existing preflight compares `map_install_owners` against root plus that set; (3) natural distinct-A/B direct EXE and linked OBJ Pair evidence plus owner/site/Fault negatives close the I0.
+Delete-set: the single-target projection and one-child comparison only. Keep Completion lookup, owner-indexed cleanup, `prior_homes` rejection, existing cleanup builder and all unsupported family Stops.
+Non-claims: no new source issuer, receipt/schema, Call shape, Map manager, general local-Call cleanup, all-owner support, native Map read/clone, ordinary New generalization or whole-Map/R7 claim.
 
 Superseded design-stop brief (2026-09-09): at design entry the source issuer
 emitted only a terminal `TerminalI64CallReturnV1`, and the existing affine loan
@@ -3175,7 +3178,7 @@ consumer implicitly.
 
 Implementation checkpoint: the seed/result row now retains one `Rc` Completion,
 the ordinary ledger indexes remaining rows by `FunctionOwnerIdV1` after S6C,
-and Map lookup uses that owner. Selected ordinary child draft capture also
+and Map lookup uses those owners. Selected ordinary child draft capture also
 retains one `PhysicalBoundary` and artifact finishing rechecks the same
 function/boundary before adding its symbol to coverage. The root's existing
 Call row and projected cleanup bindings are rebound after finishing and moved
@@ -3185,12 +3188,12 @@ and the role-based C schema/admission/index/emitter consumes it. Direct EXE and
 linked OBJ Pair exit30, Bool/range exit70 with Fault103, and cleanup-probe
 evidence close this bounded ordinary ABI series. S6C consumes its exclusive seed with
 `Rc::try_unwrap`; a shared seed rejects instead of cloning. The Map install-owner
-selection admits only the root and the exact direct-call target, so owner lookup
-cannot grant an uncalled or extra ordinary Map ownership. The semantic package is green at
-161/161, including the ordinary-child Value-only admission, root-plus-child
-mixed-owner admission, and uncalled-owner negative case; the selected mixed-owner
-physical Map install/value path and scoped parameter/return capability checks now
-pass direct and linked exit30. Wider owner coverage remains open.
+selection now admits only the root and the exact distinct direct-call target set,
+so owner lookup cannot grant an uncalled or extra ordinary Map ownership. Focused
+semantic coverage includes ordinary-child Value-only admission, two-owner
+mixed-owner admission, uncalled-owner rejection, and prior_homes rejection; the
+selected two-owner physical Map install/value path and scoped parameter/return
+capability checks pass direct and linked exit30. Wider owner coverage remains open.
 The terminal Call probe is
 owner-scoped as a prerequisite: a root Call is visible only to its root owner,
 so a child terminal return cannot be rejected by the root Call's source row.
