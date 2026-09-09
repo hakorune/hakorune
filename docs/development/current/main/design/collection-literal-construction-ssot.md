@@ -2926,48 +2926,78 @@ disposal and role-mislabel rejection. Keep AppMain source/Fault acceptance.
 
 ### Ordinary Call finalization and continuation frontier
 
-Decision: design_stop after source checkpoint 11aff90193. Read-only physical
-owner audit covers installed package -> scoped lowering -> completed lifecycle
--> finalized handoff -> compiled-entry; excludes source reclassification and
-nonselected backends. No repeated root/Birth census is required.
+Decision: accepted bounded retention, after source checkpoint 11aff90193 and
+read-only owner review at cdb45a8ec8. Boundary: installed package -> scoped
+lowering -> completed lifecycle -> finalized handoff -> compiled-entry. Source
+reclassification and nonselected backends are excluded.
 
-Source authority + canonical issuer: existing affine Call correspondence,
-original caller/callee Completion, selected membership and formal/result owners.
-The issuer consuming these into Call Normal/Fault continuation remains unnamed.
-Non-authority: scalar MIR, physical header, Borrowed frame defaults and a green
-retention test cannot issue that continuation or authorize ordinary execution.
-Fail-fast boundary: preserve ordinary install, artifact and non-Birth Invoke
-rejections until the corresponding consumer contract is closed.
-Smallest next slice: name the existing Recipe/continuation issuer and its exact
-Normal-only i64 / Fault-cleanup mapping, then move existing completed products
-through the scoped finish boundary without widening execution.
-Non-claims: no ordinary ABI/LLVM activation, new semantic receipt, or EXE proof.
+Source authority + canonical issuer: `scan_new_home_flow` issues direct terminal
+Call/site/literal values and reverse live Homes; the existing Completion verifier
+retains target_function and cleanup. `co_seal_lifecycle` binds that same relation
+to the affine target/formal/result row. No Call continuation issuer is missing
+for this bounded literal-only terminal shape.
+Non-authority: scalar MIR, physical header, Borrowed defaults and a retention
+test do not authorize ordinary execution. Loop/If JoinSig contracts are specific
+to those constructs; requiring Loop JoinSig here was an incorrect premise.
+Fail-fast boundary: preserve ordinary install/artifact and non-Birth Invoke
+rejections during retention; execution changes only with their consumer slice.
+Smallest next slice: consuming scope finish coupled to successful package
+completion, moving existing rows into completed/finalized owners.
+Non-claims: no ordinary ABI/LLVM activation, semantic wrapper or EXE proof.
 
-Concrete lifetime seam: `normal_default_root_catalog_lifecycle.rs` drops its
-local installed package after scoped lowering returns module/root validation/
-construction. The package still owns ordinary `result_contracts`, `selected`
-and `parameter_contracts`; child lowering only borrows them (`install.rs`).
-A consuming finish on `BuilderPrivateCallableLoweringScopeV1`, after all loans
-end, should move the existing required rows into
-`CompletedNormalDefaultRootCatalogLifecycleV1` and then `FinalizedRootHandoffV1`.
-Do not retain the whole source-bearing package, clone Completion, or add a
-sibling graph. View and compiled-entry borrow the completed owner's products.
+Change: `normal_default_root_catalog_lifecycle.rs` currently drops its installed
+package after lowering returns module/root validation/construction. Move the
+required existing `result_contracts`, `selected`, `parameter_contracts` through
+`BuilderPrivateCallableLoweringScopeV1` into
+`CompletedNormalDefaultRootCatalogLifecycleV1`, then `FinalizedRootHandoffV1`.
+This removes their package-end drop edge; it does not remove execution Stops.
 
-The bounded retention task deletes the package-end drop of required ordinary
-products. Acceptance: original Completion moves with exact membership/formals/
-result; foreign correspondence and double consumption reject; root and callee
-remain distinct; missing cleanup never becomes empty. Both installation and
-artifact execution remain stopped. This is not the final execution deletion.
+Contract: consume only after all loans end and existing
+`NormalCallableSemanticPackagePortV1::complete` succeeds. Scope
+`lowering_started` proves opening, not successful completion. Couple finish to
+that existing all-selected/locator/object-definition consumption boundary and
+successful outer lowering; failed or dropped ports cannot finalize. Use scope
+physical progress, not a new semantic completion receipt. Move original
+non-Clone Completion and its same-package membership/formals; no whole package
+retention (AST/capabilities), source re-resolution, cloned Completion or sibling
+graph. View/compiled-entry borrow from the existing final owner. Keep root,
+ordinary, Dynamic and S6C ownership distinct; do not manufacture absent rows.
 
-Before implementation of Invoke: `instruction/invoke.rs::normal_result_kind`
-currently gives Call no normal result, and `verification/invoke.rs` rejects
-non-Birth Call. `NewFaultContinuationV1` requires direct-local New and cannot
-issue Call continuations. Reuse the existing RootOwned/Borrowed frame owner,
-but explicitly map the source-authorized Call's two exits in the existing
-Recipe owner before changing these verifiers. Ordinary validation must consume
-its own callable lowering state, not relabel it Birth. Execution acceptance
-remains Normal-only result, callee-before-caller cleanup on Fault, no borrowed
-frame disposal, root-only report/dispose, direct EXE and linked OBJ exit30.
+Done: focused real scope/finished-owner tests show same original Completion
+and exact key/formal/result correspondence survive; missing/foreign rows,
+unfinished/failed port and repeated finish cannot publish a completed product.
+Retain diagnostic and artifact consumer distinctions, with ordinary execution
+still stopped. Use existing package/bridge/finalization tests and corridor guard;
+no C build is required for retention alone. Sources remain below800.
+Stop: if moving the existing products requires reconstructing meaning, retaining
+AST or bypassing port completion, return to this owner decision before coding.
+
+Accepted next dependency: existing selected emitter and ledger realize the
+source-connected Call using the same root ledger's Completion/terminal borrow
+and the moved affine row. Lifecycle remains a tag; do not accept an arbitrary
+Completion parameter or copy target/scope/cleanup into another receipt.
+
+```text
+Invoke with shared Fault frame
+  Normal -> I64 result projection -> clean cleanup -> Return(value)
+  Fault  -> full pending cleanup -> ReturnFault(frame)
+```
+
+Literal-only arguments acquire no temporary Home; both exits consume the same
+source-issued Home order, with different pending result/Fault. This does not
+extend to nonliteral/nested Call, early return or catch/defer. Existing
+`emit_root_home_exit_payload` builds a remaining suffix for Fault during cleanup;
+Call Fault needs a pending entry BEFORE the first Home. Extend that existing
+cleanup builder, never reuse its partial suffix as the full pending entry.
+
+`instruction/invoke.rs::normal_result_kind` currently gives Call no result;
+`verification/invoke.rs` rejects non-Birth. The later consumer slice changes
+these only for source-connected ordinary calls, preserving actual Birth checks.
+Use existing RootOwned/Borrowed frame state and ordinary callable validation;
+NewFaultContinuation remains New-specific. Normal alone projects result; Fault
+runs callee cleanup before caller cleanup, borrowed frames cannot be disposed,
+and root alone reports/disposes. Direct EXE and linked OBJ exit30 plus injected
+Fault evidence retire the ordinary install/artifact Stops in the same series.
 
 ### Checked Map Value storage/install ABI: accepted next slice
 
