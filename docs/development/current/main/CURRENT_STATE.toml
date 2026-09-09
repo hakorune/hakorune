@@ -57,7 +57,7 @@ retention plus bounded owner admission; the explicit fourth-Call and grouped
 mutation guards, natural Pair exit30, and Fault-order prefix probes pass; the four-owner D0 is accepted and its source-admission guard passes semantic 14/14. Four-owner direct/linked exit30 and per-prefix Fault/cleanup probes pass. The ordinary-child Value-only artifact recheck passes with one source Call row and root+child Pair exit30. Five-owner source admission, direct/linked exit30, and A-E Fault-prefix/cleanup probes pass. The New/Home D0 audit found child Birth actual retention and compiled-entry consumption are still root-only; the next design slice is the existing final-owner handoff, with C child gates stopped.
 """
 next_design_card = "MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-HANDOFF-D0"
-next_execution_card = "none (awaiting ordinary New/Home lifetime D0 acceptance)"
+next_execution_card = "none (awaiting ordinary New/Home child Birth handoff D0 acceptance)"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
