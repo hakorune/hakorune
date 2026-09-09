@@ -31,7 +31,7 @@ pub(super) fn issue(
         private_fields: _,
         methods,
         constructors,
-        init_fields: _,
+        init_fields,
         weak_fields,
         span: _,
     } = declaration
@@ -49,6 +49,36 @@ pub(super) fn issue(
         || u32::try_from(field_decls.len()).is_err()
     {
         return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
+    }
+    // Keep the source declaration as the only issuer. `CompilationContext`
+    // applies the same order/dedup rule when it normalizes `fields` plus the
+    // legacy `init_fields` list; mirror that projection here before the
+    // definition crosses the package boundary.
+    let mut projected_fields: Vec<UserBoxFieldDecl> = field_decls
+        .iter()
+        .map(|field| UserBoxFieldDecl {
+            name: field.name.clone(),
+            declared_type_name: field.declared_type_name.clone(),
+            is_weak: field.is_weak,
+        })
+        .collect();
+    for field_name in init_fields {
+        if projected_fields
+            .iter()
+            .any(|field| field.name == *field_name)
+        {
+            continue;
+        }
+        projected_fields.push(UserBoxFieldDecl {
+            name: field_name.clone(),
+            declared_type_name: None,
+            is_weak: weak_fields.iter().any(|weak| weak == field_name),
+        });
+    }
+    for field in &mut projected_fields {
+        if weak_fields.iter().any(|weak| weak == &field.name) {
+            field.is_weak = true;
+        }
     }
     // Unsupported declarations retain their identity and source fields. Never
     // interpret a zero-local-field inherited object as a plain empty object.
@@ -76,9 +106,9 @@ pub(super) fn issue(
     // is added to the AST. Method bodies do not issue destruction obligations.
     let destruction = if let Err(reason) = declaration_shape {
         Destruction::Unavailable(DestructionUnavailable::Declaration(reason))
-    } else if !weak_fields.is_empty() || field_decls.iter().any(|field| field.is_weak) {
+    } else if projected_fields.iter().any(|field| field.is_weak) {
         Destruction::Unavailable(DestructionUnavailable::WeakField)
-    } else if field_decls
+    } else if projected_fields
         .iter()
         .any(|field| field.declared_type_name.as_deref() != Some("i64"))
     {
@@ -102,15 +132,7 @@ pub(super) fn issue(
     };
     Ok(CanonicalObjectDefinitionV1::from_source_declaration(
         name.as_str().into(),
-        field_decls
-            .iter()
-            .map(|field| UserBoxFieldDecl {
-                name: field.name.clone(),
-                declared_type_name: field.declared_type_name.clone(),
-                is_weak: field.is_weak,
-            })
-            .collect::<Vec<_>>()
-            .into_boxed_slice(),
+        projected_fields.into_boxed_slice(),
         declaration_shape,
         destruction,
     ))
@@ -182,6 +204,46 @@ mod tests {
                 definition.fields()
             );
         }
+    }
+
+    #[test]
+    fn legacy_init_fields_project_after_explicit_fields_once_in_source_order() {
+        let definition = issue(&declaration(
+            "box Holder { explicit: i64\ninit { count, items, explicit, count } }",
+        ))
+        .unwrap();
+        let fields = definition.fields();
+        assert_eq!(
+            fields
+                .iter()
+                .map(|field| field.name.as_str())
+                .collect::<Vec<_>>(),
+            ["explicit", "count", "items"]
+        );
+        assert_eq!(fields[0].declared_type_name.as_deref(), Some("i64"));
+        assert!(fields[1].declared_type_name.is_none());
+        assert!(fields[2].declared_type_name.is_none());
+        assert_eq!(definition.local_fields_for_layout(), Ok(fields));
+        assert_eq!(
+            definition.destruction_disposition(),
+            Destruction::Unavailable(DestructionUnavailable::FieldType)
+        );
+    }
+
+    #[test]
+    fn legacy_init_weak_field_is_projected_as_weak_before_destruction_classification() {
+        let mut node = declaration("box Holder { init { handle } }");
+        let ASTNode::BoxDeclaration { weak_fields, .. } = &mut node else {
+            unreachable!()
+        };
+        weak_fields.push("handle".into());
+        let definition = issue(&node).unwrap();
+        assert_eq!(definition.fields().len(), 1);
+        assert!(definition.fields()[0].is_weak);
+        assert_eq!(
+            definition.destruction_disposition(),
+            Destruction::Unavailable(DestructionUnavailable::WeakField)
+        );
     }
 
     #[test]
