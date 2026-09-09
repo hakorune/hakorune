@@ -549,33 +549,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             .collect::<Vec<_>>()
             .into_boxed_slice()
     };
-    let completion_seeds =
-        issue_callable_completion_seed_cohort_v1(&batch, &selected, &parameter_contracts).map_err(
-            |error| NormalCallableSemanticPackageIssueV1::PhysicalHeader { _error: error },
-        )?;
-    let mut completion_seeds = completion_seeds;
-    let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::S6CChild { _error: error })?;
-    let s6c_storage_header = match s6c_child.as_ref() {
-        None => None,
-        Some(child) => {
-            let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
-                selected.key_for_batch_slot(child.batch_slot())
-            else {
-                return Err(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader);
-            };
-            let declaration = catalog
-                .catalog()
-                .declaration(key)
-                .ok_or(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader)?;
-            Some(VerifiedS6CStorageHeaderProjectionV1::from_catalog_declaration(declaration))
-        }
-    };
-    let result_contracts = issue_callable_result_contract_cohort_v1(completion_seeds.into_rows())
-        .map_err(|error| {
-        NormalCallableSemanticPackageIssueV1::ResultContract { _error: error }
-    })?;
-    let physical_header = issue_callable_physical_header_from_result_contract_v1(&result_contracts);
     let mut candidate = None;
     for declaration in batch.declarations() {
         // The resolved batch row is the sole declaration-mode authority.  The
@@ -696,6 +669,33 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => Some(*batch_slot),
         NormalCallableDynamicProjectionV1::ValidUnselected => None,
     };
+    let completion_seeds =
+        issue_callable_completion_seed_cohort_v1(&batch, &selected, &parameter_contracts).map_err(
+            |error| NormalCallableSemanticPackageIssueV1::PhysicalHeader { _error: error },
+        )?;
+    let mut completion_seeds = completion_seeds;
+    let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::S6CChild { _error: error })?;
+    let s6c_storage_header = match s6c_child.as_ref() {
+        None => None,
+        Some(child) => {
+            let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
+                selected.key_for_batch_slot(child.batch_slot())
+            else {
+                return Err(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader);
+            };
+            let declaration = catalog
+                .catalog()
+                .declaration(key)
+                .ok_or(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader)?;
+            Some(VerifiedS6CStorageHeaderProjectionV1::from_catalog_declaration(declaration))
+        }
+    };
+    let result_contracts = issue_callable_result_contract_cohort_v1(completion_seeds.into_rows())
+        .map_err(|error| {
+        NormalCallableSemanticPackageIssueV1::ResultContract { _error: error }
+    })?;
+    let physical_header = issue_callable_physical_header_from_result_contract_v1(&result_contracts);
     let ordinary_new_claim_ledger = issue_ordinary_new_claims_v1(
         &batch,
         &selected,

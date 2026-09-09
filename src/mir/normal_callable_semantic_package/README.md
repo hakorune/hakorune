@@ -1,5 +1,13 @@
 # Normal Callable Semantic Package
 
+Selected package issuance settles Dynamic source/Recipe/exit ownership before
+ordinary Completion seeds, S6C take and result-contract publication. Parameter
+contracts and constructor authority are already available. On jointly invalid
+input, Dynamic failure wins; there is no deferred error or ordinary retry.
+This order alone does not merge Dynamic and ordinary Completion products or
+activate unissued Map source families.
+
+
 This module owns one pre-Builder semantic package for a final parser callable
 source batch. It co-seals products from their source owners in that batch;
 physical ABI, CFG/PHI, runtime exit chronology, dispatch and backend admission are not

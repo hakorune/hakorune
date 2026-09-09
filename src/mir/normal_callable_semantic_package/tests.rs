@@ -747,3 +747,6 @@ fn install_rejects_occupied_catalog_and_port_rejects_incomplete_coverage() {
         Err(NormalCallableSemanticPackageInstallIssueV1::IncompleteSelectedCoverage)
     ));
 }
+
+#[path = "issuance_order_tests.rs"]
+mod issuance_order;

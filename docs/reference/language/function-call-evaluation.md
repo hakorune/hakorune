@@ -201,3 +201,12 @@ Migration must not silently relabel a behavior change as BoxShape. It requires:
 
 Script activation remains a separate bounded BoxCount after the exact resolver
 target and callable header/result relation are available to Script admission.
+
+## Selected package diagnostic order
+
+Within selected callable package issuance, parameter/declaration validation
+precedes Dynamic owner selection. Dynamic source/Recipe/exit selection then
+precedes ordinary Completion/S6C publication. If both latter stages are invalid,
+the Dynamic error is reported first and the package is not installed. A failed
+Dynamic candidate never retries as an ordinary callable. This compiler ordering
+does not change runtime argument evaluation or grant an owning-slot capability.

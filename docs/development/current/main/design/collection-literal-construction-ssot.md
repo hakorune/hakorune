@@ -2557,10 +2557,40 @@ source/consumer chain is complete. No extra semantic program, MapManager or
 physical-kind authority. No new Home-transfer syntax, Bool/Float formal contract
 or general lambda capability is implicitly authorized.
 
-Current mode stays design_stop. The next bounded design action is task1's exact
-entry/per-callable Completion mapping against task2/3 physical requirements;
-implementation is not authorized by this dependency order alone. Read-only worker
-source/physical audit establishes the named gaps; it ran no build or fixtures.
+Concrete ownership decision: non-AppMain Completion stays in the existing
+completion_seed -> result_contract -> installed callable loan path. AppMain is
+not in that selected seed cohort and retains its distinct root owner. Do not
+move or duplicate it mechanically. Entry representation separates proven value
+storage from acquisition/binding transfer; no sentinel Home for Trivial.
+Ordinary callee uses the existing borrowed Fault frame, exact physical arguments
+and normal-only out-result (none for proven Unit). Cleanup precedes publishing
+the result. Fault returns the same frame; root alone reports/disposes/checks
+process result. Extend the existing V4 role/program/contract; never encode an
+ordinary callee as Birth or infer Unit from absent result annotation.
+
+Decision: resolve Dynamic ownership before ordinary Completion/S6C issuance.
+Source authority + canonical issuer: existing Dynamic source/Recipe/exit co-seal;
+only its successful selected slot controls subsequent ordinary Home exclusion.
+Non-authority: candidate presence and a failed Dynamic attempt never choose an
+ordinary fallback. Parameter and constructor authorities remain unchanged.
+Fail-fast boundary: Dynamic errors precede Completion/S6C errors on jointly
+invalid input; package issuance returns without install. This is an explicit
+diagnostic-order change, not a behavior-preserving BoxShape claim.
+Ordering prerequisite implemented: complete Dynamic selection now precedes
+seed / S6C / result cohort, with products and downstream inputs preserved.
+Package139 tests pass, including individual refusals and combined first error,
+Dynamic selection/exclusion, S6C exclusive take and Map preflight. Log:
+`/tmp/hakorune-map-issuance-order.log`. Issuer remains742 lines; no runtime change.
+Non-claims: this prerequisite does not make seed Home-aware or delete every
+Completion verification. Dynamic admission has its own Completion; its later
+ordinary seed/physical-header consumers require separate disposition before any
+single-verification claim. No new source family, runtime or Map activation.
+
+After that ordering prerequisite, connect the existing candidate/Home-aware
+verifier to the sole ordinary seed issuance with declaration capability input.
+Dynamic exclusion and S6C exclusive take must be preserved, while AppMain keeps
+its separate root owner. Co-seal and physical mapping remain prerequisites for
+production promotion; no deferred-error storage or second Dynamic classifier.
 
 ## Remaining source obligations
 

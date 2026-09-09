@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "MAP-OWNING-ENTRY-CALLABLE-COMPLETION"
-current_blocker_token = "Lambda-to-selected-C boundary ParkedSealed by existing body-backed closure export/physical Stops; reopen before body consumer activation. Next existing Map row: exact entry capability + per-callable Completion co-seal design. Present Map entries/runtime are indexed Home only, V4 functions Root/Birth only, ExactTrivial formal I64 only. Close source, storage and ordinary-callee Fault/cleanup mapping before promotion; no generic clone fallback or scalar-only completion claim."
+current_blocker_token = "Dynamic ownership now precedes ordinary Completion/S6C issuance; package139 including joint-error priority passes. Next same Map row: connect existing Map/Home verifier and declaration capability to ordinary completion_seed/result_contract, preserving separate AppMain owner and S6C take. Dispose Dynamic-slot secondary seed consumers before single-verification claim. Checked storage and V4 ordinary-callee Fault/cleanup remain required; no generic clone fallback or Map completion claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
