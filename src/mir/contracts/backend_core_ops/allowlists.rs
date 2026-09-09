@@ -77,6 +77,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::FutureSet { .. }
             | MirInstruction::Await { .. }
             | MirInstruction::Phi { .. }
+            | MirInstruction::FaultFrameEnter { .. }
             | MirInstruction::PinnedTextOp { .. }
     )
 }

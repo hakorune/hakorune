@@ -388,6 +388,14 @@ fn emit_instruction(
         I::CopyOwned { dst, src } => Ok(weak::emit_copy_owned(*dst, *src)),
         I::DestroyOwned { value } => Ok(weak::emit_destroy_owned(*value)),
         I::ReleaseStrong { values } => Ok(weak::emit_release_strong(values)),
+        I::FaultFrameEnter { dst, mode } => Ok(serde_json::json!({
+            "op": "fault_frame_enter",
+            "dst": dst.as_u32(),
+            "mode": match mode {
+                crate::mir::instruction::FaultFrameMode::RootOwned => "root_owned",
+                crate::mir::instruction::FaultFrameMode::Borrowed => "borrowed",
+            },
+        })),
         _ => unreachable!("pre-checked by backend_core_ops allowlist"),
     }
 }
