@@ -25,7 +25,10 @@ and [owned-slot target](../../docs/reference/language/ownership.md#intrinsic-map
 
 `map_box_table.rs` owns the common key/payload table. Native MapBox stores only
 NyashBox values; `map_box_checked.rs` has a separate non-NyashBox, non-Clone
-facade for source-authorized canonical residences. No native-visible Map can
+facade for source-authorized values and canonical residences. CheckedMapPayload
+stores I64/Bool inline or a non-Clone Residence; Trivial values allocate no
+residence wrapper and have no child end obligation. Failure and detached outcomes
+retain the same payload enum. No native-visible Map can
 be promoted to contain those residences. Each facade has one payload table.
 
 Checked install reserves capacity before commit and returns the original

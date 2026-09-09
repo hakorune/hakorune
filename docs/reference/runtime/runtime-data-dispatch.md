@@ -372,6 +372,7 @@ checks for roles, identities, SSA, transfer, cleanup or temporary consumption.
 | key init | fresh native storage -> Empty |
 | key prepare UTF-8 | bytes plus length; Empty -> Ready native MapKeyDomain before child evaluation |
 | checked indexed install | validate frame/Map/profile/Ready key/Unissued outcome and nonoverlap before consumption; move key, prepare indexed residence and install |
+| checked value install | validate kind and Bool bits before key consumption, then the same install state machine; I64/Bool occupy inline payloads, never indexed identities |
 | detached end | move Ready payload and mark Consumed before child end; ReadyNoOld also consumes |
 | Map end | require Live; consume through Ending to Ended with first-Fault/best-effort cleanup |
 | key dispose | cancel Ready natively, or release Empty/Consumed bookkeeping |
@@ -382,8 +383,19 @@ Implemented export spellings are `nyash.map.storage_init_v1`,
 `nyash.map.checked_new_v1`, `nyash.map.key_init_v1`,
 `nyash.map.key_prepare_utf8_v1`, `nyash.map.key_dispose_v1`,
 `nyash.map.outcome_init_v1`, `nyash.map.checked_install_indexed_v1`,
+`nyash.map.checked_install_value_v1`,
 `nyash.map.outcome_end_v1`, `nyash.map.outcome_dispose_v1`,
 `nyash.map.checked_end_v1` and `nyash.map.storage_dispose_v1`.
+
+The value entry uses `(frame, profile:u32, site:u64, map, key, kind:u32,
+payload:i64, outcome)->u32`; pointer regions keep the same opaque contract.
+`NYRT_MAP_VALUE_I64=1` accepts the full signed i64 range;
+`NYRT_MAP_VALUE_BOOL=2` accepts only0/1. Other kinds/bits return InvalidContract
+without consuming Key or publishing Outcome. No Handle/String/Float inference.
+Storage retains I64/Bool inline alongside Residence in one non-Clone payload
+sum; rejection returns the exact payload, and detached/end attempts invoke real
+Home end only for Residence. Native projection of present Values still refuses.
+The value export does not by itself activate source or C consumer coverage.
 
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain

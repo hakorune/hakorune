@@ -137,6 +137,10 @@ uint32_t nyrt_map_key_prepare_utf8_v1(void *, uint64_t, void *, const uint8_t *,
 uint32_t nyrt_map_key_dispose_v1(void *) __asm__("nyash.map.key_dispose_v1");
 uint32_t nyrt_map_outcome_init_v1(void *) __asm__("nyash.map.outcome_init_v1");
 uint32_t nyrt_map_checked_install_indexed_v1(void *, uint32_t, uint64_t, void *, void *, int64_t, int64_t, void *) __asm__("nyash.map.checked_install_indexed_v1");
+/* Checked Map value kinds. Bool payload is exactly 0 or 1; neither kind is a handle. */
+#define NYRT_MAP_VALUE_I64 1u
+#define NYRT_MAP_VALUE_BOOL 2u
+uint32_t nyrt_map_checked_install_value_v1(void *, uint32_t, uint64_t, void *, void *, uint32_t, int64_t, void *) __asm__("nyash.map.checked_install_value_v1");
 uint32_t nyrt_map_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.map.outcome_end_v1");
 uint32_t nyrt_map_outcome_dispose_v1(void *) __asm__("nyash.map.outcome_dispose_v1");
 uint32_t nyrt_map_checked_end_v1(void *, uint64_t, void *) __asm__("nyash.map.checked_end_v1");

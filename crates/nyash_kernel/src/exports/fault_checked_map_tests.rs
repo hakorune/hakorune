@@ -191,3 +191,123 @@ fn descriptor_contains_target_compiled_opaque_layouts() {
         assert_eq!(word(offset + 8), 1);
     }
 }
+
+unsafe extern "C" {
+    #[link_name = "nyash.map.checked_install_value_v1"]
+    fn value_export(
+        frame: *mut c_void,
+        profile: u32,
+        site: u64,
+        map: *mut c_void,
+        key: *mut c_void,
+        kind: u32,
+        payload: i64,
+        outcome: *mut c_void,
+    ) -> u32;
+}
+
+#[test]
+fn value_abi_rejects_bad_bits_before_key_consumption_and_preserves_real_home() {
+    let (mut f, mut m, mut k, mut o) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+    );
+    unsafe {
+        let (f, m, k, o) = (f.ptr(), m.ptr(), k.ptr(), o.ptr());
+        assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        let a = child();
+        assert_eq!(install(f, 1, 2, m, k, a, 919, o), 0);
+        assert_eq!(outcome_end(f, 3, o), 0);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        for (kind, bits) in [(0, 0), (3, 0), (MAP_VALUE_BOOL, 2), (MAP_VALUE_BOOL, -1)] {
+            assert_eq!(value_export(f, 1, 4, m, k, kind, bits, o), 2);
+            assert!(live(a));
+            assert!(matches!(
+                *admit::<Mutex<KeyState>>(k, KEY_TAG)
+                    .unwrap()
+                    .lock()
+                    .unwrap(),
+                KeyState::Ready(_)
+            ));
+            assert!(matches!(
+                *admit::<Mutex<OutcomeState>>(o, OUT_TAG)
+                    .unwrap()
+                    .lock()
+                    .unwrap(),
+                OutcomeState::Unissued
+            ));
+        }
+        assert_eq!(value_export(f, 1, 4, m, k, MAP_VALUE_I64, 30, o), 0);
+        assert_eq!(outcome_dispose(o), 2);
+        assert!(live(a));
+        // Invalidate only this physical identity to exercise old-end Fault.
+        reclaim_checked_indexed(TypedObjectStoreBackend::SafeMutex, a, 919).unwrap();
+        assert_eq!(outcome_end(f, 5, o), 1);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        assert_eq!(map_end(f, 6, m), 0); // installed Value needs no indexed reclaim
+        assert_eq!(map_end(f, 6, m), 2);
+        assert_eq!(map_dispose(m), 0);
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
+
+#[test]
+fn value_abi_mixed_replacement_never_treats_integer_bits_as_a_handle() {
+    let (mut f, mut m, mut k, mut o) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+    );
+    unsafe {
+        let (f, m, k, o) = (f.ptr(), m.ptr(), k.ptr(), o.ptr());
+        assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        let caller_owned = child();
+        for (kind, value) in [
+            (MAP_VALUE_I64, i64::MIN),
+            (MAP_VALUE_I64, i64::MAX),
+            (MAP_VALUE_BOOL, 0),
+            (MAP_VALUE_BOOL, 1),
+            (MAP_VALUE_I64, caller_owned),
+        ] {
+            prepare(f, k, b"a");
+            assert_eq!(outcome_init(o), 0);
+            assert_eq!(value_export(f, 1, 2, m, k, kind, value, o), 0);
+            assert_eq!(outcome_end(f, 3, o), 0);
+            assert_eq!(outcome_dispose(o), 0);
+            assert_eq!(key_dispose(k), 0);
+            assert!(live(caller_owned));
+        }
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        let transferred = child();
+        assert_eq!(install(f, 1, 4, m, k, transferred, 919, o), 0);
+        assert_eq!(outcome_end(f, 5, o), 0); // old integer bits are not a Home
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        assert!(live(caller_owned) && live(transferred));
+        assert!(matches!(
+            admit::<CheckedMap>(m, MAP_TAG)
+                .unwrap()
+                .observe_native(&MapKeyDomain::from_text("a")),
+            Err(CheckedMapError::ProjectionUnavailable)
+        ));
+        assert_eq!(map_end(f, 6, m), 0);
+        assert!(!live(transferred) && live(caller_owned));
+        assert_eq!(map_dispose(m), 0);
+        reclaim_checked_indexed(TypedObjectStoreBackend::SafeMutex, caller_owned, 919).unwrap();
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}

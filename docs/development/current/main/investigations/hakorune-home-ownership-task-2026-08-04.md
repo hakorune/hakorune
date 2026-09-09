@@ -1554,6 +1554,14 @@ row13 at physical-validator work. None requires reopening closed rows11/14.
     Acceptance: existing negative physical-input and emitter tests, allocation
     failure cleanup, and measured lookup/scan counts. Align with C consumer
     edits; no new global state or general optimizer project.
+    Feedback recheck at269b4b829b: emit's lv4_input_type callers still eagerly
+    compute lv4_value_budget for Copy/NamedAlias/FieldSet. The indexed branch
+    ignores that argument; native calls lv4_type with it, so it is not globally
+    unused. Remove the indexed eager scans and retain/share the native recursion
+    bound at its existing invocation/function owner. Do not equate index adoption
+    with removal of physical_v2 definition/dominance scans or drop native cycle
+    protection. Reopen this queued work at the next selected C consumer edit;
+    acceptance distinguishes native versus indexed scan counts and refusals.
 
 14. Closed: Local metadata/forwarder thinning. Removed the second record
     clone/registration after common propagate and the sole with_types forwarder.

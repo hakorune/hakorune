@@ -7,7 +7,7 @@ use crate::exports::{
     typed_object_store_backend::{self as store, CheckedStorageError, TypedObjectStoreBackend},
 };
 use nyash_rust::boxes::{
-    map_box::checked::{CheckedMap, CheckedMapError, MapEndError, MapEndReport},
+    map_box::checked::{CheckedMap, CheckedMapError, CheckedMapPayload, MapEndError, MapEndReport},
     map_key_domain::MapKeyDomain,
 };
 use std::{ffi::c_void, mem::size_of, sync::Mutex};
@@ -161,6 +161,50 @@ pub unsafe extern "C" fn install(
     type_id: i64,
     out_ptr: *mut c_void,
 ) -> u32 {
+    unsafe {
+        install_candidate(frame, profile, site, map_ptr, key_ptr, out_ptr, || {
+            checked_map_residence::prepare(TypedObjectStoreBackend::SafeMutex, handle, type_id)
+        })
+    }
+}
+
+// Checked Map value ABI kinds, not object storage tags or source capabilities.
+const MAP_VALUE_I64: u32 = 1;
+const MAP_VALUE_BOOL: u32 = 2;
+#[export_name = "nyash.map.checked_install_value_v1"]
+pub unsafe extern "C" fn install_value(
+    frame: *mut c_void,
+    profile: u32,
+    site: u64,
+    map_ptr: *mut c_void,
+    key_ptr: *mut c_void,
+    kind: u32,
+    payload: i64,
+    out_ptr: *mut c_void,
+) -> u32 {
+    let value = match (kind, payload) {
+        (MAP_VALUE_I64, value) => CheckedMapPayload::I64(value),
+        (MAP_VALUE_BOOL, 0 | 1) => CheckedMapPayload::Bool(payload == 1),
+        _ => return Status::InvalidContract as u32,
+    };
+    unsafe {
+        install_candidate(frame, profile, site, map_ptr, key_ptr, out_ptr, || {
+            Ok(value)
+        })
+    }
+}
+
+// Preflight precedes key consumption; candidate preparation follows it. Both
+// exports use this one commit/outcome protocol, preserving Indexed fault order.
+unsafe fn install_candidate(
+    frame: *mut c_void,
+    profile: u32,
+    site: u64,
+    map_ptr: *mut c_void,
+    key_ptr: *mut c_void,
+    out_ptr: *mut c_void,
+    prepare: impl FnOnce() -> Result<CheckedMapPayload, CheckedStorageError>,
+) -> u32 {
     if !separate(&[
         (frame as usize, size_of::<FaultFrame>()),
         (map_ptr as usize, size_of::<MapStorage>()),
@@ -207,18 +251,17 @@ pub unsafe extern "C" fn install(
             _ => unreachable!(),
         }
     };
-    let candidate =
-        match checked_map_residence::prepare(TypedObjectStoreBackend::SafeMutex, handle, type_id) {
-            Ok(value) => value,
-            Err(error) => {
-                drop(outcome);
-                let reason = match error {
-                    CheckedStorageError::AllocationOrStorageUnavailable => 100,
-                    _ => 101,
-                };
-                return unsafe { failed(frame, site, reason) };
-            }
-        };
+    let candidate = match prepare() {
+        Ok(value) => value,
+        Err(error) => {
+            drop(outcome);
+            let reason = match error {
+                CheckedStorageError::AllocationOrStorageUnavailable => 100,
+                _ => 101,
+            };
+            return unsafe { failed(frame, site, reason) };
+        }
+    };
     match map.install(key, candidate) {
         Ok(old) => {
             *outcome = OutcomeState::Ready(old);

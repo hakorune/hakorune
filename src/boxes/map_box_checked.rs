@@ -1,5 +1,5 @@
 //! Non-NyashBox Map lifecycle storage. No Clone, host publication or value carrier.
-//! Callers supply source-authorized residences; this owner never issues a Home.
+//! Callers supply source-authorized payloads; this owner never issues a Home.
 //! ABI placement/disposal and compiler activation are separate consumers.
 use super::table::MapTable;
 use crate::boxes::map_key_domain::MapKeyDomain;
@@ -17,6 +17,22 @@ pub trait CanonicalMapResidence: Send + Sync {
     fn end(self: Box<Self>) -> Result<(), MapEndError>;
 }
 
+/// One slot payload. Trivial values carry no child-Home obligation and need
+/// no allocation. Residences remain non-Clone and are ended exactly once.
+pub enum CheckedMapPayload {
+    I64(i64),
+    Bool(bool),
+    Residence(Box<dyn CanonicalMapResidence>),
+}
+impl CheckedMapPayload {
+    fn end(self) -> Result<(), MapEndError> {
+        match self {
+            Self::I64(_) | Self::Bool(_) => Ok(()),
+            Self::Residence(value) => value.end(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CheckedMapError {
     InvalidState,
@@ -29,13 +45,13 @@ pub enum CheckedMapError {
 #[must_use = "a rejected candidate still belongs to its prior owner"]
 pub struct MapInstallFailure {
     pub error: CheckedMapError,
-    pub candidate: Box<dyn CanonicalMapResidence>,
+    pub candidate: CheckedMapPayload,
 }
 
 #[must_use = "consume the detached outcome even when no old entry existed"]
 /// Caller must consume this outcome; dropping it is not semantic end. The
 /// eventual opaque ABI rejects disposal while its detached outcome is Ready.
-pub struct DetachedMapEntry(Option<Box<dyn CanonicalMapResidence>>);
+pub struct DetachedMapEntry(Option<CheckedMapPayload>);
 impl DetachedMapEntry {
     pub fn end(self) -> Result<(), MapEndError> {
         match self.0 {
@@ -74,7 +90,7 @@ enum Phase {
 }
 struct Entry {
     order: u64,
-    residence: Box<dyn CanonicalMapResidence>,
+    payload: CheckedMapPayload,
 }
 struct State {
     phase: Phase,
@@ -118,15 +134,22 @@ impl CheckedMap {
 
     /// Inspect lifetime even after poison; mutation still reports unavailable.
     pub fn require_live(&self) -> Result<(), CheckedMapError> {
-        let state = self.state.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
-        if state.phase == Phase::Live { Ok(()) } else { Err(CheckedMapError::InvalidState) }
+        let state = self
+            .state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if state.phase == Phase::Live {
+            Ok(())
+        } else {
+            Err(CheckedMapError::InvalidState)
+        }
     }
 
     /// The key is already prepared. Failure returns the untouched candidate.
     pub fn install(
         &self,
         key: MapKeyDomain,
-        candidate: Box<dyn CanonicalMapResidence>,
+        candidate: CheckedMapPayload,
     ) -> Result<DetachedMapEntry, MapInstallFailure> {
         let mut state = match self.state.lock() {
             Ok(state) => state,
@@ -169,12 +192,12 @@ impl CheckedMap {
         // the commit through returned outcome publication.
         let entry = Entry {
             order: state.next_order,
-            residence: candidate,
+            payload: candidate,
         };
         let old = state.entries.insert(key, entry);
         state.next_order = next;
         drop(state);
-        Ok(DetachedMapEntry(old.map(|entry| entry.residence)))
+        Ok(DetachedMapEntry(old.map(|entry| entry.payload)))
     }
 
     /// No self-contained native projection of an Owned residence is authorized.
@@ -216,7 +239,7 @@ impl CheckedMap {
         // Unstable sort allocates no scratch storage; orders are unique.
         entries.sort_unstable_by(|a, b| b.order.cmp(&a.order));
         for entry in entries {
-            if let Err(error) = entry.residence.end() {
+            if let Err(error) = entry.payload.end() {
                 report.record(error);
             }
         }

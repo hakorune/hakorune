@@ -2742,7 +2742,32 @@ ledger lookup for that selected callable without cloning Completion. Coordinate
 Map local progress/finishing and value-capable runtime/ordinary Fault ABI before
 removing install refusal. Source Complete alone is not physical admission.
 
+Mandatory connection blocker (feedback verified at269b4b829b): result_contract's
+completion_cleanup_is_empty currently reads only crossed_scopes; physical_header
+forwards it and the APrime validator consumes it. Map root_flow obligations can
+coexist with empty crossed_scopes. Keep the existing ordinary Map install Stop;
+no execution bypass was demonstrated by this static check. Before connecting
+ordinary callable cleanup, borrow the actual Completion obligations and replace
+or accurately narrow this summary. Absent/unavailable Home analysis must not
+become a proof of no cleanup. Preserve Dynamic/APrime's explicit existing
+contract. Acceptance covers nonempty Map terminal obligations with empty scopes,
+unavailable flow, truly obligation-free admitted input and the actual consumer's
+refusal/cleanup path. Do not add a second cleanup ledger or cached boolean.
+
 ### Checked Map Value storage/install ABI: accepted next slice
+
+Runtime slice completed: inline I64/Bool/Residence payload, exact rejected
+candidate/detached ownership and shared Indexed/value install helper are in place.
+The new value export and C header use named I64/Bool kinds; no scalar residence
+wrapper or native projection was added. Storage7 and kernel checked_map9 pass;
+the updated quick runtime archive passes the existing host descriptor read test
+(explicit --ignored, 1 test) and contains exactly one value-install T symbol.
+C header syntax and existing corridor/diff checks pass; changed source max376.
+Logs: `/tmp/hakorune-map-inline-{storage,kernel,archive,descriptor}.log`.
+Commands use jobs4 locked quick; kernel test/build selects -p nyash_kernel --lib.
+Next selected boundary is MIR/physical/C value-install consumption with explicit
+representation proof. Ordinary callable cleanup/frame/result connection and the
+cleanup-summary blocker above remain open. Runtime green is not Map EXE evidence.
 
 Decision: extend the sole CheckedMap payload owner with I64, Bool and Residence
 variants. Keep one MapTable and the existing install/end algorithm. Reject the

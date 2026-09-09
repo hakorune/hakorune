@@ -26,13 +26,13 @@ impl CanonicalMapResidence for Probe {
                 let rejected = map
                     .install(
                         MapKeyDomain::from_text("late"),
-                        Box::new(Probe {
+                        CheckedMapPayload::Residence(Box::new(Probe {
                             id: 999,
                             map: Weak::new(),
                             events: self.events.clone(),
                             failure: None,
                             ending: false,
-                        }),
+                        })),
                     )
                     .err()
                     .expect("reentry must refuse install");
@@ -51,16 +51,16 @@ fn candidate(
     id: u32,
     ending: bool,
     failure: Option<MapEndError>,
-) -> Box<dyn CanonicalMapResidence> {
-    Box::new(Probe {
+) -> CheckedMapPayload {
+    CheckedMapPayload::Residence(Box::new(Probe {
         id,
         map: Arc::downgrade(map),
         events: events.clone(),
         failure,
         ending,
-    })
+    }))
 }
-fn install(map: &CheckedMap, key: &str, value: Box<dyn CanonicalMapResidence>) -> DetachedMapEntry {
+fn install(map: &CheckedMap, key: &str, value: CheckedMapPayload) -> DetachedMapEntry {
     match map.install(MapKeyDomain::from_text(key), value) {
         Ok(old) => old,
         Err(error) => panic!("unexpected install refusal: {:?}", error.error),
@@ -117,15 +117,12 @@ fn precommit_refusal_returns_the_same_candidate_and_keeps_live_entry() {
     let map = Arc::new(CheckedMap::unissued());
     let events = Arc::new(Mutex::new(Vec::new()));
     let value = candidate(&map, &events, 1, true, None);
-    let address = value.as_ref() as *const dyn CanonicalMapResidence as *const ();
+    let address = residence_address(&value);
     let failed = map
         .install(MapKeyDomain::from_text("a"), value)
         .err()
         .unwrap();
-    assert_eq!(
-        failed.candidate.as_ref() as *const dyn CanonicalMapResidence as *const (),
-        address
-    );
+    assert_eq!(residence_address(&failed.candidate), address);
     assert_eq!(failed.error, CheckedMapError::InvalidState);
     map.acquire().unwrap();
     install(&map, "a", failed.candidate).end().unwrap();
@@ -161,13 +158,13 @@ fn poisoned_storage_refuses_install_but_still_ends_all_entries() {
     install(
         &map,
         "a",
-        Box::new(Probe {
+        CheckedMapPayload::Residence(Box::new(Probe {
             id: 1,
             map: Weak::new(),
             events: events.clone(),
             failure: None,
             ending: true,
-        }),
+        })),
     )
     .end()
     .unwrap();
@@ -223,4 +220,85 @@ fn checked_facade_cannot_be_cloned_or_published_as_nyash_box() {
     not_impl!(CheckedMap, Clone);
     not_impl!(CheckedMap, crate::box_trait::NyashBox);
     not_impl!(DetachedMapEntry, Clone);
+}
+
+fn residence_address(value: &CheckedMapPayload) -> *const () {
+    match value {
+        CheckedMapPayload::Residence(value) => {
+            value.as_ref() as *const dyn CanonicalMapResidence as *const ()
+        }
+        _ => panic!("expected the same residence"),
+    }
+}
+
+#[test]
+fn inline_values_preserve_payload_on_rejection_and_detachment() {
+    for value in [
+        CheckedMapPayload::I64(i64::MIN),
+        CheckedMapPayload::I64(i64::MAX),
+        CheckedMapPayload::Bool(false),
+        CheckedMapPayload::Bool(true),
+    ] {
+        let map = CheckedMap::unissued();
+        let failed = map
+            .install(MapKeyDomain::from_text("a"), value)
+            .err()
+            .unwrap();
+        assert_eq!(failed.error, CheckedMapError::InvalidState);
+        let expected = match &failed.candidate {
+            CheckedMapPayload::I64(value) => (false, *value),
+            CheckedMapPayload::Bool(value) => (true, i64::from(*value)),
+            _ => panic!("value must not become a residence"),
+        };
+        map.acquire().unwrap();
+        install(&map, "a", failed.candidate).end().unwrap();
+        let old = install(&map, "a", CheckedMapPayload::I64(7));
+        match old.0.as_ref().unwrap() {
+            CheckedMapPayload::I64(value) => assert_eq!((false, *value), expected),
+            CheckedMapPayload::Bool(value) => assert_eq!((true, i64::from(*value)), expected),
+            _ => panic!("detached payload changed"),
+        }
+        old.end().unwrap();
+        assert!(matches!(
+            map.observe_native(&MapKeyDomain::from_text("a")),
+            Err(CheckedMapError::ProjectionUnavailable)
+        ));
+        assert_eq!(map.end().unwrap(), MapEndReport::default());
+        map.require_disposable().unwrap();
+    }
+}
+
+#[test]
+fn value_replacement_after_failed_residence_end_keeps_new_slot_and_other_homes() {
+    let map = Arc::new(CheckedMap::unissued());
+    let events = Arc::new(Mutex::new(Vec::new()));
+    map.acquire().unwrap();
+    install(&map, "a", CheckedMapPayload::Bool(true))
+        .end()
+        .unwrap();
+    install(
+        &map,
+        "a",
+        candidate(&map, &events, 1, false, Some(MapEndError::InvalidIdentity)),
+    )
+    .end()
+    .unwrap();
+    install(&map, "b", candidate(&map, &events, 2, true, None))
+        .end()
+        .unwrap();
+    let old = install(&map, "a", CheckedMapPayload::I64(30));
+    assert_eq!(old.end(), Err(MapEndError::InvalidIdentity));
+    assert!(matches!(
+        map.state
+            .lock()
+            .unwrap()
+            .entries
+            .get(&MapKeyDomain::from_text("a"))
+            .unwrap()
+            .payload,
+        CheckedMapPayload::I64(30)
+    ));
+    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    assert_eq!(*events.lock().unwrap(), [1, 2]);
+    map.require_disposable().unwrap();
 }

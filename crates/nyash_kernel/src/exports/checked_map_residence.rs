@@ -5,7 +5,7 @@ use super::typed_object_store_backend::{
     reclaim_checked_indexed, validate_checked_indexed_identity, CheckedStorageError,
     TypedObjectStoreBackend,
 };
-use nyash_rust::boxes::map_box::checked::{CanonicalMapResidence, MapEndError};
+use nyash_rust::boxes::map_box::checked::{CanonicalMapResidence, CheckedMapPayload, MapEndError};
 
 struct IndexedResidence {
     handle: i64,
@@ -18,12 +18,15 @@ pub(super) fn prepare(
     profile: TypedObjectStoreBackend,
     handle: i64,
     type_id: i64,
-) -> Result<Box<dyn CanonicalMapResidence>, CheckedStorageError> {
+) -> Result<CheckedMapPayload, CheckedStorageError> {
     if profile != TypedObjectStoreBackend::SafeMutex {
         return Err(CheckedStorageError::ProfileMismatch);
     }
     validate_checked_indexed_identity(profile, handle, type_id)?;
-    Ok(Box::new(IndexedResidence { handle, type_id }))
+    Ok(CheckedMapPayload::Residence(Box::new(IndexedResidence {
+        handle,
+        type_id,
+    })))
 }
 
 impl CanonicalMapResidence for IndexedResidence {

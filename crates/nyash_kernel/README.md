@@ -9,11 +9,16 @@ payload intact; consuming end invokes existing indexed reclaim once. TLS and
 unsupported profiles refuse before residence creation. The process-wide store
 provides the residence's static lifetime.
 
-The eleven checked Map exports are implemented in `fault_checked_map.rs`;
+The checked Map exports are implemented in `fault_checked_map.rs`;
 `include/nyrt_fault_v1.h` declares them. Map/key/outcome regions use target-issued
 opaque layouts and explicit consumption/disposal. Frame recording happens after
 end callbacks. Host publication and compiler activation remain excluded. The prepare caller must have
 source transfer/end authorization; physical identity validation cannot issue it.
+The value-install entry accepts named I64/Bool kinds and stores them inline in
+the same CheckedMap payload owner. Invalid kind/Bool bits reject before Key
+consumption. Indexed and value exports share one install state machine; Indexed
+preparation remains after Key consumption. Present Value entries still have no
+native projection, and compiler activation remains a separate obligation.
 See the [runtime contract](../../docs/reference/runtime/runtime-data-dispatch.md#checked-map-storage-and-indexed-residence).
 
 ## GC diagnostic output
