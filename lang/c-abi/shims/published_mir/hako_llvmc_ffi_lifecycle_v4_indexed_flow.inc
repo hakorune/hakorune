@@ -10,7 +10,7 @@ static int lv4_indexed_live(hako_lv4_function_index* fn, uint32_t id, int kind,
 }
 
 static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
-    yyjson_val* block, const uint16_t* state, int faulted, int birth) {
+    yyjson_val* block, uint16_t* state, int faulted, int birth) {
   yyjson_val* rows = yyjson_obj_get(block, "instructions");
   for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
     yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
@@ -44,6 +44,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           lv4_u(op, "key") != value->id)) return 0;
       if (value->kind == LV4_OUTCOME && (!lv4_is(op, "kind", "map_end_outcome") ||
           lv4_u(op, "outcome") != value->id)) return 0;
+      /* Ordinary calls produce a scalar result, not a live storage lease. */
+      if (value->kind == LV4_I64) state[value->origin] = 0;
     } else return 0;
   }
   return 1;

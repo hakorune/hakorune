@@ -18,7 +18,18 @@ pub(crate) fn enforce_published_lifecycle_backend_supported(
     validate_published_ingress(view)?;
     crate::mir::ownership_backend_capability::enforce(view.module(), "ny-llvmc-obj")?;
     crate::mir::exact_numeric_backend_capability::enforce_lifecycle_input(view.module(), input)?;
-    enforce_before_typed_array_backend_supported(view.module(), "ny-llvmc-obj")?;
+    enforce_before_typed_array_backend_supported_without_parameter_entry_or_return_exit(
+        view.module(),
+        "ny-llvmc-obj",
+    )?;
+    crate::mir::return_exit_backend_capability::enforce_lifecycle_return_exit_backend_supported(
+        view.module(),
+        input,
+    )?;
+    crate::mir::parameter_entry_backend_capability::enforce_lifecycle_parameter_entry_backend_supported(
+        view.module(),
+        input,
+    )?;
     crate::mir::typed_array_backend_capability::enforce_lifecycle_input(view, input)?;
     enforce_after_typed_array_backend_supported(view.module(), "ny-llvmc-obj")
 }
@@ -75,13 +86,22 @@ fn enforce_before_typed_array_backend_supported(
     module: &MirModule,
     backend: &str,
 ) -> Result<(), String> {
-    crate::mir::array_record_backend_capability::enforce_array_record_backend_supported(
+    enforce_before_typed_array_backend_supported_without_parameter_entry_or_return_exit(
+        module, backend,
+    )?;
+    crate::mir::return_exit_backend_capability::enforce_return_exit_backend_supported(
         module, backend,
     )?;
     crate::mir::parameter_entry_backend_capability::enforce_parameter_entry_backend_supported(
         module, backend,
-    )?;
-    crate::mir::return_exit_backend_capability::enforce_return_exit_backend_supported(
+    )
+}
+
+fn enforce_before_typed_array_backend_supported_without_parameter_entry_or_return_exit(
+    module: &MirModule,
+    backend: &str,
+) -> Result<(), String> {
+    crate::mir::array_record_backend_capability::enforce_array_record_backend_supported(
         module, backend,
     )?;
     crate::mir::canonical_direct_static_call_backend_capability::enforce(module, backend)?;

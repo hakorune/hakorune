@@ -93,6 +93,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         int kind = lv4_input_type(in, fn, dst);
         const char* storage = kind == LV4_MAP ? "map" : kind == LV4_KEY ? "key" : kind == LV4_OUTCOME ? "outcome" : NULL;
         if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
+        else if (kind == LV4_I64 && lv4_is(fn, "role", "root_i64"))
+          fprintf(f, "  %%v%u = load i64, ptr %%ordinary_out, align 8\n", dst);
         else fprintf(f, "  %%v%u = load i64, ptr %%new%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
       } else if (lv4_is(ins, "op", "object_field_get")) {
         fprintf(f,

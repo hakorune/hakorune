@@ -343,6 +343,13 @@ impl<'module> PublishedMirBackendView<'module> {
             }
         }
 
+        // Intrinsic Map rows are consumed by the same final lifecycle program
+        // and C V4 walker as Invoke/Field rows.  Keep them on that route even
+        // when a source shape contains no other lifecycle instruction; sending
+        // the module through generic V2 would re-enter the broad backend gate
+        // before the selected physical Map consumer can validate it.
+        has_lifecycle_instructions |= has_intrinsic_maps;
+
         if has_non_lifecycle_unsupported || has_lifecycle_instructions {
             return Ok(Self {
                 module,

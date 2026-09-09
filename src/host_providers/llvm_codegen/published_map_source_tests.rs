@@ -117,6 +117,89 @@ fn issued_map_source_direct_exe_and_linked_object_exit_30() {
     });
 }
 
+#[test]
+#[ignore = "requires selected C FFI, LLVM18 and lifecycle runtime"]
+fn issued_ordinary_child_map_value_direct_exe_and_linked_object_exit_30() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        use crate::runner::modes::common_util::normal_callable::{
+            materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
+        };
+        let source = r#"static box Main {
+            main() { return helper(30) }
+            helper(value: i64): i64 { local m = %{"x" => value} return 30 }
+        }"#;
+        let NormalCallableMaterializationOutcomeV1::SourceBacked(source) =
+            materialize_normal_callable_program_v1(
+                source.to_owned(),
+                crate::parser::ParserBuildConfig::default(),
+            )
+            .unwrap()
+        else {
+            panic!("source-backed input required");
+        };
+        let request = NormalCompileRequestV1::for_mir_mode_callable_source(
+            source,
+            None,
+            std::collections::HashMap::new(),
+        );
+        let dir = std::env::temp_dir().join(format!(
+            "hako-ordinary-child-map-source-{}",
+            std::process::id()
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        let result = MirCompiler::with_options(true).compile_normal_with_published(
+            request,
+            |view, verification| -> Result<(), String> {
+                assert!(verification.is_ok(), "{verification:?}");
+                assert!(view.has_lifecycle_instructions());
+                assert_eq!(view.route(), PublishedStaticMethodRouteV1::CanonicalTyped);
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let json = emit_lifecycle_physical_abi_json(&input)?;
+                assert!(json.contains("ordinary_i64"));
+                assert!(json.contains("map_install_value"));
+                let runtime = Path::new("target/lifecycle-kernel/release");
+                let direct = dir.join("direct");
+                assert!(emit_published_view_exe(
+                    view,
+                    direct.to_str().unwrap(),
+                    runtime.to_str(),
+                    None,
+                )
+                .map_err(|error| format!("direct: {error}"))?);
+                let session = LifecycleRuntimeSessionV1::select(
+                    runtime.join("libnyash_lifecycle_kernel.a"),
+                )?;
+                let object = dir.join("ordinary-child-map.o");
+                compile_published_view_object(
+                    view,
+                    object.to_str().unwrap(),
+                    Some(&session),
+                )
+                .map_err(|error| format!("object: {error}"))?;
+                let linked = dir.join("linked");
+                super::super::link_object_capi_v2(
+                    &object,
+                    &linked,
+                    session.runtime_archive(),
+                    None,
+                )?;
+                for exe in [direct, linked] {
+                    let output = Command::new(&exe)
+                        .env("NYASH_NYRT_SILENT_RESULT", "1")
+                        .env("HAKO_NYRT_PLUGIN_HOST", "off")
+                        .output()
+                        .map_err(|e| e.to_string())?;
+                    assert_eq!(output.status.code(), Some(30), "{exe:?}: {output:?}");
+                }
+                Ok(())
+            },
+        );
+        std::fs::remove_dir_all(&dir).unwrap();
+        result.unwrap();
+    });
+}
+
 fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path, value_mixed: bool) -> Result<(), String> {
     let exe = dir.join("fault-probe");
     let mut command = Command::new("cc");

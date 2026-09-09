@@ -3132,8 +3132,9 @@ physical validator, indexed admission and emitter consume those roles without
 name lookup or receiver repair. The ignored Pair/Bool/range direct-EXE and
 linked-OBJ test passes exit30/70 as expected; the cleanup probe confirms one
 report/dispose path and Fault103 ordering. This closes the bounded ordinary ABI
-consumer. The next selected boundary is Map install/value execution and owner
-coverage; no generic Call fallback or whole Map/R7 claim is made.
+consumer. One ordinary child scalar-Map owner now also reaches the selected
+physical consumer and direct/linked exit30; the next selected boundary is wider
+Map owner coverage. No generic Call fallback or whole Map/R7 claim is made.
 
 #### Ordinary callee ledger placement: bounded connection closed
 
@@ -3141,7 +3142,7 @@ Decision: retain the original ordinary Map Completion/terminal in the existing l
 Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row and owner index share the same `Rc` Completion.
 Non-authority: AppMain's root-only admission checks, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
 Fail-fast boundary: admit only one ordinary child Map owner with scalar Value-only entries and completed terminal cleanup; unavailable/foreign rows, unknown values, New/Home transfer, and mixed AppMain/ordinary Map ownership reject before physical admission.
-Smallest next slice: connect that bounded ordinary child Map contract to the existing physical path after the parameter-entry backend capability is available; do not widen ownership or value families in this slice.
+Smallest next slice: widen ordinary child Map owner coverage after the selected scalar Value-only physical path is stable; do not widen ownership or value families in this slice.
 Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or whole-Map/R7 claim.
 
 Read-only physical-owner audit found `preflight_map_install`, `map_flow`,
@@ -3176,19 +3177,21 @@ evidence close this bounded ordinary ABI series. S6C consumes its exclusive seed
 still rejects any non-AppMain Map when an AppMain Map is present, so owner
 lookup cannot grant ordinary Map ownership. The semantic package is green at
 161/161, including the ordinary-child Value-only admission and mixed-owner negative case;
-selected physical Map install/value execution remains behind the existing
-parameter-entry backend capability, and wider owner coverage remains open. The terminal Call probe is
+the selected ordinary-child physical Map install/value path and scoped parameter/return
+capability checks now pass direct and linked exit30. Wider owner coverage remains open.
+The terminal Call probe is
 owner-scoped as a prerequisite: a root Call is visible only to its root owner,
 so a child terminal return cannot be rejected by the root Call's source row.
 
 Retention acceptance: result/header and ledger borrow the same original
 Completion with matching owner/terminal; root and foreign-site isolation,
 existing result/S6C/Dynamic tests and completed/finalized lifetime checks remain
-valid. Subsequent consumer acceptance requires the existing typed-formal backend gate
-to be closed, then I64 formals feeding Map install, literal30 after cleanup,
-Map Fault cleanup using the Borrowed frame, no callee report/dispose, and
-draft/finishing validation of the same obligations. Selected artifact/EXE
-evidence is still required by the enclosing series.
+valid. The selected consumer closes the scoped typed-formal capability, with I64
+formals feeding Map install, literal30 after cleanup, Map Fault cleanup using the
+Borrowed frame, no callee report/dispose, and draft/finishing validation of the
+same obligations. Wider consumers must retain those obligations and add their
+own physical evidence; selected artifact/EXE evidence is required by the
+enclosing series.
 
 ### Checked Map Value storage/install ABI: accepted next slice
 
