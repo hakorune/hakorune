@@ -1452,6 +1452,40 @@ and root-before-child tests for field and add reads.
 Non-claims: this row does not open terminal Add progress, C emission, OBJ/EXE,
 new collection storage, or the PHI convergence task.
 
+Field-read accumulator I0 landed at `29f9c3ee3d`. AppMain and child staged
+reads now merge additively through the existing owner/site ledger; child
+`I64Field` and `I64Add` rows survive either declaration order; duplicate and
+foreign-owner rows reject before publication. `cargo check -p nyash-rust`,
+the declaration-order pair test, and the 13-case terminal-result suite passed.
+The next bounded row fixes deterministic ordinary-call collection; terminal
+Add progress and physical child-method consumption remain closed.
+
+##### MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-CALL-ORDER-I0
+
+Decision: accept one bounded `BoxShape` implementation for deterministic
+ordinary-call collection. The existing `MirFunction.blocks` membership and
+`issue_function_with_module()` sorted block order remain the authority; this
+row only makes call enumeration use that same order.
+
+Source authority + canonical issuer: the already-published MIR function and
+the existing `ordinary_callable_key()` validation. Collect block ids, sort
+them, then walk each block's existing instruction order before issuing the
+ordinary-call list.
+
+Non-authority: HashMap iteration order, symbol names, C/backend numbering,
+MIR type guesses, new physical IDs, resolver re-entry, and compatibility
+fallback.
+
+Fail-fast boundary: missing block membership and ordinary destination/callee
+drift reject before physical function numbering; valid calls retain their
+existing key, arity, receiver, and signature checks.
+
+Smallest next slice: replace the unordered block traversal, add a two-block
+reversed-insertion test, and run the existing physical-program tests.
+
+Non-claims: this row does not open child-method physical support, alter call
+membership, change C emission, or address PHI convergence.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root
