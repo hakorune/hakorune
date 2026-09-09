@@ -324,27 +324,31 @@ impl<'module> PublishedMirBackendView<'module> {
 
 fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<MirCall>, String> {
     let mut calls = Vec::new();
-    for instruction in function
-        .blocks
-        .values()
-        .flat_map(|block| block.all_instructions())
-    {
-        let MirInstruction::Invoke {
-            operation:
-                InvokeOperation::Call {
-                    call,
-                    result: InvokeCallResultKind::I64,
-                },
-            ..
-        } = instruction
-        else {
-            continue;
-        };
-        ordinary_callable_key(&call.callee)?;
-        if call.dst.is_some() {
-            return Err(fault("ordinary-destination"));
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort();
+    for block_id in block_ids {
+        let block = function
+            .blocks
+            .get(&block_id)
+            .ok_or_else(|| fault("function-block-membership"))?;
+        for instruction in block.all_instructions() {
+            let MirInstruction::Invoke {
+                operation:
+                    InvokeOperation::Call {
+                        call,
+                        result: InvokeCallResultKind::I64,
+                    },
+                ..
+            } = instruction
+            else {
+                continue;
+            };
+            ordinary_callable_key(&call.callee)?;
+            if call.dst.is_some() {
+                return Err(fault("ordinary-destination"));
+            }
+            calls.push(call.clone());
         }
-        calls.push(call.clone());
     }
     Ok(calls)
 }
@@ -779,3 +783,7 @@ mod tests {
 #[cfg(test)]
 #[path = "physical_program_call_tests.rs"]
 mod call_result_tests;
+
+#[cfg(test)]
+#[path = "physical_program_order_tests.rs"]
+mod order_tests;
