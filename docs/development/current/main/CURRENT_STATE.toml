@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-I0"
-current_execution_cohort = "root_method_terminal_probe_family_i0"
+current_execution_row = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-FIELD-READ-ACCUMULATOR-I0"
+current_execution_cohort = "root_method_terminal_probe_field_read_accumulator_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Terminal-probe-family I0: replace add/literal/field cross-owner scans with owner-index access, explicitly preserve the root-only Unit boundary, and add the root/child same-relative-site matrix. Keep child I64Add field-read rows available; do not widen terminal progress, add a receipt, or open physical backend support."
+current_blocker_token = "Terminal-probe field-read accumulator I0: merge AppMain and child staged reads additively by owner/site, retain child I64Field and I64Add rows independent of declaration order, and reject duplicate/foreign/missing reads before publication. Do not widen terminal progress, add a receipt, or open physical backend support."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -35,13 +35,14 @@ Map/Birth cohorts and method Rust I0 are closed with their recorded direct or
 linked evidence. Physical receiver-lane I0 closes at 82c512e614: typed FieldGet
 uses the existing route, C V2/V4 admission and emission pass, and Pair.sum()
 reaches linked exit 30. The terminal-probe D0 is accepted as an existing-owner
-BoxShape refactor; I0 now starts with owner-local add/literal/field probes and
-the explicit root-only Unit boundary. Child field-read retention, owner-scoped
-root expected-state, and fail-fast PHI convergence follow in order; untyped
-storage, child shapes, and whole-Map/R7 remain parked.
+BoxShape refactor; owner-local add/literal/field probes and the explicit
+root-only Unit boundary landed at a37eba6cc4. I0 now starts with additive
+field-read retention for child I64Field/I64Add rows; owner-scoped root
+expected-state is closed, while PHI convergence follows later. Untyped
+storage, child physical shapes, and whole-Map/R7 remain parked.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-I0"
+next_execution_card = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-FIELD-READ-ACCUMULATOR-I0"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

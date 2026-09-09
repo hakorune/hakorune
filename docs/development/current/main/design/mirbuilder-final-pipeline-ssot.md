@@ -1417,6 +1417,41 @@ progress product or physical backend in this row.
 Non-claims: this row does not add child-method physical support, a new
 semantic receipt, a new route, a new terminal kind, or OBJ/EXE acceptance.
 
+Owner-scope I0 landed at `a37eba6cc4`. The add/literal/field probes now use
+owner-indexed relations; foreign relative-site scans were removed; Unit keeps
+its explicit root-only boundary; and `root_instance_call_expected` is scoped by
+owner. `cargo check -p nyash-rust`, the child literal/field focused tests,
+the missing-result-contract child-owner test, and the terminal-result suite
+passed. Child I64Add field-read accumulation and physical terminal consumption
+remain open in the next bounded row.
+
+##### MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-FIELD-READ-ACCUMULATOR-I0
+
+Decision: accept one bounded `BoxShape` implementation for additive field-read
+retention. The existing `field_reads` ledger and `TerminalRelationV1` remain
+the sole authority; this row only fixes merge ownership and declaration-order
+independence.
+
+Source authority + canonical issuer: existing `scan_new_home_flow()` relation
+rows and `retain_child_terminal_relation()` staging. The accumulator merges
+AppMain and child staged reads by branded owner/site, with duplicate detection
+at the existing ledger boundary.
+
+Non-authority: source-node position without owner, terminal kind guessed from
+MIR, declaration order, Map metadata, C/backend validation, new receipts, and
+any physical child-method support.
+
+Fail-fast boundary: duplicate, foreign-owner, or missing field-read rows reject
+before Completion/publication; child `I64Field` and `I64Add` rows must both
+survive regardless of whether AppMain is processed first.
+
+Smallest next slice: replace the AppMain overwrite and the I64Field-only child
+extension with one existing-owner additive merge, then add child-before-root
+and root-before-child tests for field and add reads.
+
+Non-claims: this row does not open terminal Add progress, C emission, OBJ/EXE,
+new collection storage, or the PHI convergence task.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root
