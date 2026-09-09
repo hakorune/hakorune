@@ -32,6 +32,18 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             let targets = loan
                 .map_target_owners(&self.batch)
                 .ok_or(Issue::MapLifecycleConsumerMissing)?;
+            if targets.len() == 3
+                && self
+                    .ordinary_new_claim_ledger
+                    .root_owner()
+                    .and_then(|owner| {
+                        self.ordinary_new_claim_ledger
+                            .local_i64_call_count_for_owner(owner)
+                    })
+                    != Some(2)
+            {
+                return Err(Issue::MapLifecycleConsumerMissing);
+            }
             if targets.iter().any(|target| *target == loan.owner())
                 || targets.iter().any(|target| !owners.contains(target))
                 || owners.iter().any(|owner| {

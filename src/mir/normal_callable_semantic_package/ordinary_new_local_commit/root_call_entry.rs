@@ -9,14 +9,64 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn record_root_local_call_bindings(
         &self,
         owner: FunctionOwnerIdV1,
+        site: OwnedExprSiteV1,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
         if bindings.is_empty() {
             return Err(freeze("local-call-bindings-empty"));
         }
+        if site.owner() != owner {
+            return Err(freeze("local-call-binding-owner-drift"));
+        }
+        let expected = self.expected_local_call_sites(owner)?;
         let mut rows = self.root_local_call_bindings.borrow_mut();
-        if rows.insert(owner, bindings).is_some() {
+        let groups = rows.entry(owner).or_default();
+        if groups.iter().any(|(recorded, _)| recorded == &site) {
             return Err(freeze("duplicate-local-call-bindings"));
+        }
+        if groups.len() >= expected.len() {
+            return Err(freeze("local-call-bindings-overflow"));
+        }
+        if expected.get(groups.len()) != Some(&site) {
+            return Err(freeze("local-call-binding-site-order"));
+        }
+        groups.push((site, bindings));
+        Ok(())
+    }
+
+    fn expected_local_call_sites(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<OwnedExprSiteV1>, String> {
+        let completion = self
+            .completion_for_owner(owner)
+            .ok_or_else(|| freeze("local-call-source-missing"))?;
+        let flow = completion
+            .cleanup()
+            .root_flow()
+            .ok_or_else(|| freeze("local-call-source-missing"))?;
+        Ok(flow
+            .local_calls()
+            .iter()
+            .map(|call| call.site().clone())
+            .collect())
+    }
+
+    fn validate_local_call_binding_groups(
+        &self,
+        owner: FunctionOwnerIdV1,
+        groups: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
+    ) -> Result<(), String> {
+        let expected = self.expected_local_call_sites(owner)?;
+        if groups.len() != expected.len()
+            || groups
+                .iter()
+                .zip(expected.iter())
+                .any(|((site, bindings), expected)| {
+                    site.owner() != owner || site != expected || bindings.is_empty()
+                })
+        {
+            return Err(freeze("local-call-binding-sequence"));
         }
         Ok(())
     }
@@ -52,11 +102,11 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         row.lifecycle_emission()
             .map_err(|_| freeze("call-source-mismatch"))?;
-        let local_bindings = self
-            .root_local_call_bindings
-            .borrow_mut()
-            .remove(&owner)
-            .unwrap_or_default();
+        let mut pending = self.root_local_call_bindings.borrow_mut();
+        let pending_groups = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
+        self.validate_local_call_binding_groups(owner, pending_groups)?;
+        let local_bindings = pending.remove(&owner).unwrap_or_default();
+        drop(pending);
         self.record_root_home_exit_with_entry(
             owner,
             origins,
@@ -105,7 +155,14 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let mapped_local_bindings = local_bindings
             .iter()
-            .map(map)
+            .map(|(site, bindings)| {
+                Ok::<_, String>(
+                    (
+                        site.clone(),
+                        bindings.iter().map(map).collect::<Result<Vec<_>, _>>()?,
+                    ),
+                )
+            })
             .collect::<Result<Vec<_>, _>>()?;
         let mapped_arguments = arguments.iter().map(map).collect::<Result<Vec<_>, _>>()?;
         let mapped_invoke = map(invoke)?;
@@ -242,14 +299,17 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("call-binding-drift"));
             }
         }
-        for (id, instruction) in local_bindings {
-            if !super::super::physical_boundary::check_binding(
-                function,
-                finishing,
-                *id,
-                instruction,
-            )? {
-                return Err(freeze("local-call-binding-drift"));
+        self.validate_local_call_binding_groups(owner, local_bindings)?;
+        for (_, group) in local_bindings {
+            for (id, instruction) in group {
+                if !super::super::physical_boundary::check_binding(
+                    function,
+                    finishing,
+                    *id,
+                    instruction,
+                )? {
+                    return Err(freeze("local-call-binding-drift"));
+                }
             }
         }
         let mapped = |binding: &(BasicBlockId, MirInstruction)| match finishing {
@@ -326,7 +386,9 @@ impl RootHomeExitEntry {
             ..
         } = self
         {
-            bindings.extend_from_slice(local_bindings);
+            for (_, group) in local_bindings {
+                bindings.extend_from_slice(group);
+            }
             bindings.extend_from_slice(arguments);
             bindings.push(invoke.clone());
             bindings.push(projection.clone());

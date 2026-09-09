@@ -65,6 +65,15 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
+    pub(in crate::mir::normal_callable_semantic_package) fn local_i64_call_count_for_owner(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    ) -> Option<usize> {
+        self.completion_for_owner(owner)
+            .and_then(|completion| completion.cleanup().root_flow())
+            .map(|flow| flow.local_calls().len())
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn map_install_owners(
         &self,
     ) -> Result<Box<[crate::mir::resolved_semantics::FunctionOwnerIdV1]>, ()> {

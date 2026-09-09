@@ -25,7 +25,10 @@ pub(crate) enum RootHomeExitEntry {
     Plain,
     Call {
         row: crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
-        local_bindings: Vec<(BasicBlockId, MirInstruction)>,
+        local_bindings: Vec<(
+            OwnedExprSiteV1,
+            Vec<(BasicBlockId, MirInstruction)>,
+        )>,
         arguments: Vec<(BasicBlockId, MirInstruction)>,
         invoke: (BasicBlockId, MirInstruction),
         projection: (BasicBlockId, MirInstruction),

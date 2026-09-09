@@ -184,6 +184,10 @@ pub(in crate::mir::builder) fn emit_local(
         .insert(result, MirType::Integer);
     bindings.push((origin, invoke));
     bindings.push((normal_landing, projection));
-    ledger.record_root_local_call_bindings(owner, bindings)?;
+    ledger.record_root_local_call_bindings(
+        owner,
+        crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone()),
+        bindings,
+    )?;
     Ok(result)
 }

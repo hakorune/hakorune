@@ -96,7 +96,7 @@ impl AppMainDirectCallDispositionLoanV1 {
             | AppMainDirectCallDispositionSlotV1::Taken => None,
         }) {
             owners.insert(row.emission.target().callable().owner());
-            if owners.len() > 2 {
+            if owners.len() > 3 {
                 return None;
             }
         }
