@@ -3150,15 +3150,16 @@ Implementation task order: (1) `map_target_owners` now projects a bounded distin
 Delete-set: the single-target projection and one-child comparison only. Keep Completion lookup, owner-indexed cleanup, `prior_homes` rejection, existing cleanup builder and all unsupported family Stops.
 Non-claims: no new source issuer, receipt/schema, Call shape, Map manager, general local-Call cleanup, all-owner support, native Map read/clone, ordinary New generalization or whole-Map/R7 claim.
 
-#### Three-owner local binding frontier: design stop
+#### Three-owner local binding frontier: accepted I0
 
-Decision: consider exactly two local Calls A/B followed by terminal Call C to three distinct ordinary Map owners; keep the two-owner I0 closed and do not widen by changing only the owner count.
+Decision: implement exactly two local Calls A/B followed by terminal Call C to three distinct ordinary Map owners; keep the two-owner I0 closed and widen only after source-ordered local binding retention is in place.
 Source authority + canonical issuer: `home_local_call_flow::issue_local_i64_call`, `home_new_prefix::scan_new_home_flow`, and `direct_call_lifecycle::co_seal_lifecycle` already issue and co-seal exact site/target observations; Completion and owner index remain the sole cleanup owners.
 Non-authority: physical function arrays, Map detection, collection length, or a name-derived target cannot issue the third-owner admission.
 Fail-fast boundary: A/B local Calls precede an optional root Map, then terminal C; fourth, nested, conditional, recursive, uncalled, root-before-first-Call Map/Home, New/Home, field, unknown and native escape reject.
-Blocking design fact: `root_call_entry::record_root_local_call_bindings` currently rejects a second local binding for the same root owner. The next design must choose an exact site-keyed multi-row retention/finishing representation and preserve duplicate, missing, swapped-site and finishing-drift rejection.
+Accepted BoxShape: existing pending and exit local-binding storage becomes source-ordered grouped rows, `Vec<(OwnedExprSiteV1, Bindings)>`, keyed by the existing owner. `emit_local` passes the exact site; the recorder verifies owner and the next source local-Call site before push. Duplicate, foreign, out-of-order, overflow and empty groups reject before mutation. Transfer, finishing rebind and finalization validate the complete sequence; flattening is allowed only at the existing physical boundary. No new receipt or schema is issued.
 Cleanup matrix: A Fault skips B/C and root Map; B Fault skips C and performs only caller obligations already held; C Fault performs optional root Map cleanup; normal C ends C then root Map and publishes exit30. No new cleanup builder is authorized.
-Smallest next slice: audit the existing local binding map and its consumers, define the bounded row key/order and exclusive delete-set, then widen `map_target_owners` from two to three.
+Implementation task order: change the existing pending map and `RootHomeExitEntry::Call.local_bindings` storage, pass the exact site from `selected/terminal_call::emit_local`, validate the complete grouped sequence in root-exit and finishing consumers, then widen `map_target_owners` from two to three. Keep the existing prior-home rejection, cleanup builder and owner index.
+Delete-set: the same-owner-only insertion/replacement path, flat binding storage that loses the site, and any `unwrap_or_default()` or missing-group acceptance. Do not delete the existing cleanup or co-seal owners.
 Acceptance target: natural three-owner source with distinct actuals reaches direct EXE and linked OBJ exit30, while per-owner Fault probes show later calls are skipped and owner/site/duplicate/finishing drift rejects before artifact.
 Non-claims: no fourth owner, general local-Call cleanup, root-before-first-Call Map support, new receipt/schema, native Map read/clone, all-owner support or whole-Map/R7 closure.
 
