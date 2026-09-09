@@ -113,10 +113,19 @@ struct MapOuterHome {
 pub(crate) struct MapHomeEntry {
     site: SourceExprSiteV1,
     key: Box<str>,
-    acquisition: OwnedExprSiteV1,
-    binding: BindingRefV1,
+    ownership: MapEntryOwnership,
     replaced_at: Option<usize>,
     displaced: Option<SourceExprSiteV1>,
+}
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum MapEntryOwnership {
+    Value {
+        binding: Option<BindingRefV1>,
+    },
+    TransferHome {
+        acquisition: OwnedExprSiteV1,
+        binding: BindingRefV1,
+    },
 }
 impl MapHomeEntry {
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
@@ -125,11 +134,20 @@ impl MapHomeEntry {
     pub(crate) fn key(&self) -> &str {
         &self.key
     }
-    pub(crate) fn acquisition(&self) -> &OwnedExprSiteV1 {
-        &self.acquisition
+    pub(crate) fn transfer_home(&self) -> Option<(&OwnedExprSiteV1, BindingRefV1)> {
+        match &self.ownership {
+            MapEntryOwnership::TransferHome {
+                acquisition,
+                binding,
+            } => Some((acquisition, *binding)),
+            MapEntryOwnership::Value { .. } => None,
+        }
     }
-    pub(crate) fn binding(&self) -> BindingRefV1 {
-        self.binding
+    pub(crate) fn binding(&self) -> Option<BindingRefV1> {
+        match self.ownership {
+            MapEntryOwnership::TransferHome { binding, .. } => Some(binding),
+            MapEntryOwnership::Value { binding } => binding,
+        }
     }
     pub(crate) fn displaced(&self) -> Option<&SourceExprSiteV1> {
         self.displaced.as_ref()
@@ -183,20 +201,36 @@ pub(super) fn observe_map<E>(
             return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
         }
         let child = relation.child();
-        let Some((binding, acquisition)) = locals.direct_available_home(child) else {
-            return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
-                child.clone(),
-            )));
+        let ownership = if let Some((binding, acquisition)) = locals.direct_available_home(child) {
+            if !used.insert(binding) || !compatible(acquisition, binding)? {
+                return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
+                    child.clone(),
+                )));
+            }
+            let Some(position) = remaining.iter().position(|home| *home == binding) else {
+                return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
+            };
+            remaining.remove(position);
+            let Some(home) = outer.iter_mut().find(|home| home.binding == binding) else {
+                return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
+            };
+            home.transferred_at = Some(entries.len());
+            MapEntryOwnership::TransferHome {
+                acquisition: acquisition.clone(),
+                binding,
+            }
+        } else {
+            let binding = match locals.observe(child) {
+                Some(OrdinaryObservation::Integer(_) | OrdinaryObservation::Bool(_)) => None,
+                Some(OrdinaryObservation::TrivialLocal(binding)) => Some(binding),
+                _ => {
+                    return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
+                        child.clone(),
+                    )))
+                }
+            };
+            MapEntryOwnership::Value { binding }
         };
-        if !used.insert(binding) || !compatible(acquisition, binding)? {
-            return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
-                child.clone(),
-            )));
-        }
-        let Some(position) = remaining.iter().position(|home| *home == binding) else {
-            return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
-        };
-        remaining.remove(position);
         // Literal String key equality follows the existing canonical key law:
         // canonical integer spellings are unique; noncanonical spellings stay text.
         let entry_index = entries.len();
@@ -204,16 +238,10 @@ pub(super) fn observe_map<E>(
             entries[prior].replaced_at = Some(entry_index);
             entries[prior].site.clone()
         });
-        // Binding membership was checked above; update the same initial Home row.
-        let Some(home) = outer.iter_mut().find(|home| home.binding == binding) else {
-            return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
-        };
-        home.transferred_at = Some(entry_index);
         entries.push(MapHomeEntry {
             site: child.clone(),
             key: key.clone(),
-            acquisition: acquisition.clone(),
-            binding,
+            ownership,
             replaced_at: None,
             displaced,
         });

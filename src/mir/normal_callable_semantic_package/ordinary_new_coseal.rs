@@ -174,7 +174,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let completion = self.root_completion.as_ref().and_then(|c| c.as_ref().ok()).ok_or(())?;
         let flow = completion.cleanup().root_flow().ok_or(())?;
         if self.app_main_identity.is_none()
-            || flow.maps().iter().any(|m| m.complete().is_none())
+            || flow.maps().iter().any(|m| m.complete().is_none_or(|map|
+                map.entries().iter().any(|entry| entry.transfer_home().is_none())))
             || !matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
             || !matches!(self.terminal_relation, Some(TerminalRelationV1::IntegerLiteral(_)
                 | TerminalRelationV1::I64Add(_) | TerminalRelationV1::I64Field(_)))
@@ -484,7 +485,13 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                         candidates.push(candidate);
                     }
                 }
-                if seed_eligible {
+                let has_map = input.body_shape().is_some_and(|shape| {
+                    shape.expressions().iter().any(|row| matches!(
+                        row,
+                        crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { .. }
+                    ))
+                });
+                if seed_eligible && !has_map {
                     let completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
                         .map_err(|issue| OrdinaryNewCoSealIssueV1::CompletionSeed(
                             super::physical_header::CallablePhysicalHeaderIssueV1::Completion {
@@ -493,15 +500,9 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                     seeds.push_completion(declaration, selected, completion)
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 }
-                let selected: BTreeMap<_, _> = candidates.iter()
+                let new_sites: BTreeMap<_, _> = candidates.iter()
                     .map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
-                let has_map = input.body_shape().is_some_and(|shape| {
-                    shape.expressions().iter().any(|row| matches!(
-                        row,
-                        crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { .. }
-                    ))
-                });
-                let (home_prefixes, argument_observations) = if is_app_main && (!selected.is_empty() || has_map) {
+                let (home_prefixes, argument_observations) = if (is_app_main && (!new_sites.is_empty() || has_map)) || (seed_eligible && has_map) {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -514,7 +515,11 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                         Ok(true)
                     };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
-                        input, &selected, &mut field_is_integer, &mut |site, binding| {
+                        input, &new_sites,
+                        parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
+                            .flat_map(|row| row.parameters.iter())
+                            .map(|row| (row.ordinal, row.binding, row.kind.home_demand())),
+                        &mut field_is_integer, &mut |site, binding| {
                             let mut exact = candidates.iter().filter(|row| &row.site == site);
                             let candidate = exact.next().ok_or_else(|| OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() })?;
                             if exact.next().is_some() || candidate.destination != binding {
@@ -523,7 +528,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                             Ok(candidate.construction.is_ok() && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
                         })? {
                         Ok((completion, prefixes, terminal_relation, observations)) => {
-                            if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
+                            if is_app_main && matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
                                 if let Some(TerminalRelationV1::I64Add(result)) = &terminal_relation {
                                     if result.owner() != input.owner()
                                         || result.field_reads().iter().any(|site|
@@ -550,15 +555,26 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                                 root_field_reads = staged_reads;
                                 root_terminal_relation = terminal_relation;
                             }
-                            root_completion = Some(Ok(completion));
+                            if is_app_main {
+                                root_completion = Some(Ok(completion));
+                            } else {
+                                seeds.push_completion(declaration, selected, completion)
+                                    .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+                            }
                             (prefixes, observations)
                         }
                         Err(error) => {
+                            if !is_app_main {
+                                return Err(OrdinaryNewCoSealIssueV1::CompletionSeed(
+                                    super::physical_header::CallablePhysicalHeaderIssueV1::Completion {
+                                        _batch_slot: batch_slot, _issue: error,
+                                    }));
+                            }
                             root_completion = Some(Err(error));
-                            (issue_new_home_prefixes_v1(input, &selected), BTreeMap::new())
+                            (issue_new_home_prefixes_v1(input, &new_sites), BTreeMap::new())
                         }
                     }
-                } else { (issue_new_home_prefixes_v1(input, &selected), BTreeMap::new()) };
+                } else { (issue_new_home_prefixes_v1(input, &new_sites), BTreeMap::new()) };
                 Ok((candidates, home_prefixes, argument_observations))
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;

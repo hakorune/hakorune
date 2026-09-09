@@ -55,6 +55,41 @@ impl<'source> PrefixLocalFlow<'source> {
         }
     }
 
+    // Declaration contracts are borrowed from the sole package issuer. No
+    // physical signature or default capability participates in entry admission.
+    pub(super) fn install_parameters(
+        &mut self,
+        parameters: impl IntoIterator<Item = (u32, BindingRefV1, super::HomeDemandV1)>,
+    ) -> bool {
+        let mut count = 0;
+        for (ordinal, binding, demand) in parameters {
+            if binding.owner() != self.input.owner()
+                || self
+                    .input
+                    .function()
+                    .declaration_binding(&super::SourceBindingSiteV1::Parameter { index: ordinal })
+                    != Some(binding)
+                || self.locals.contains_key(&binding)
+            {
+                return false;
+            }
+            let value = match demand {
+                super::HomeDemandV1::Trivial => StoredLocal::Trivial,
+                super::HomeDemandV1::Handle => StoredLocal::Handle(binding),
+                super::HomeDemandV1::Home | super::HomeDemandV1::SharedHome => return false,
+            };
+            self.locals.insert(binding, value);
+            count += 1;
+        }
+        count
+            == self
+                .input
+                .function()
+                .declaration_sites()
+                .filter(|site| matches!(site, super::SourceBindingSiteV1::Parameter { .. }))
+                .count()
+    }
+
     pub(super) fn observe(&self, site: &SourceExprSiteV1) -> Option<OrdinaryObservation> {
         match self.input.function().expression_source().literal(site) {
             Some(ResolvedLiteralSourceV1::Integer(value)) => {

@@ -26,9 +26,8 @@ impl ResolvedCleanupObligationsV1 {
         &self.crossed_scopes
     }
 
-    pub(super) fn with_root_flow(mut self, flow: RootHomeFlow) -> Self {
+    pub(super) fn attach_root_flow(&mut self, flow: RootHomeFlow) {
         self.root_flow = Some(flow);
-        self
     }
     pub(crate) fn root_flow(&self) -> Option<&RootHomeFlow> {
         self.root_flow.as_ref()

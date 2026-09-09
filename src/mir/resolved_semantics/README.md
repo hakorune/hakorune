@@ -32,7 +32,14 @@ ordinary-expression observation. Stored Home state is distinct from a read's
 Handle result; alias initialization cannot install a Home. Integer/Bool values
 and exact Trivial local bindings survive the selected-argument projection.
 The source scanner still owns traversal, Normal installation and cleanup order.
-This does not issue Map transfer, Shared acquisition or Dynamic carrier adoption.
+For the selected Map-bearing callable walk, entry initialization consumes the
+existing declared parameter ordinal/binding/HomeDemand projection, verifies full
+unique source coverage and owner, and keeps Trivial distinct from borrowed Handle.
+Receiver/capture and unissued Home formals remain unavailable. Map flow records
+Value versus TransferHome; only the latter consumes an acquisition. A Value's
+exact site/binding does not supply an assumed i64 physical representation.
+Entry initialization itself does not issue Map transfer, Shared acquisition or
+Dynamic carrier adoption.
 Terminal Add additionally requires integer evidence on both operands. Bool and
 coarse Trivial locals cannot supply that proof; rejected expressions publish no
 terminal relation or staged field reads. Exact field-pair and integer-only

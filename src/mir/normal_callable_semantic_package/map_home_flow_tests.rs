@@ -57,13 +57,13 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
     };
     assert_eq!(
         map.allocation_fault().collect::<Vec<_>>(),
-        [c.binding(), b.binding(), a.binding()]
+        [c.binding().unwrap(), b.binding().unwrap(), a.binding().unwrap()]
     );
     assert_eq!(outer(0), map.allocation_fault().collect::<Vec<_>>());
-    assert_eq!(outer(1), [c.binding(), b.binding()]);
+    assert_eq!(outer(1), [c.binding().unwrap(), b.binding().unwrap()]);
     assert!(live(0).is_empty());
     assert_eq!(live(1), [a.site().clone()]);
-    assert_eq!(outer(2), [c.binding()]);
+    assert_eq!(outer(2), [c.binding().unwrap()]);
     assert!(outer(3).is_empty());
     assert_eq!(live(2), [b.site().clone(), a.site().clone()]);
     assert_eq!(live(3), [c.site().clone(), b.site().clone()]);
@@ -75,7 +75,7 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
     assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
     let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
     for entry in map.entries() {
-        assert!(claims.contains_key(entry.acquisition()));
+        assert!(claims.contains_key(entry.transfer_home().unwrap().0));
     }
     let declaration = package
         .batch()
@@ -93,7 +93,7 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
             assert!(crate::mir::resolved_control_flow::map_source_outward(
                 input,
                 map.site(),
-                a.binding()
+                a.binding().unwrap()
             )
             .is_err());
         })
@@ -262,7 +262,7 @@ fn map_delta_preserves_untransferred_homes_and_later_new_fault_order() {
     assert_eq!(terminal[3], prior.destination());
     assert_eq!(
         current.outer_after_installs(0).unwrap().collect::<Vec<_>>(),
-        [entry.binding(), terminal[2], prior.destination()]
+        [entry.binding().unwrap(), terminal[2], prior.destination()]
     );
     assert_eq!(
         current.outer_after_installs(1).unwrap().collect::<Vec<_>>(),

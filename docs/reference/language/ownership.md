@@ -237,6 +237,15 @@ tags and current MapBox clone behavior do not select ownership meaning.
 | Ordinary borrowed handle | Not an owning-slot input without a separately authorized acquisition/transfer. |
 | Unknown capability or unavailable source relation | Unsupported; no default Trivial, Shared or carrier classification. |
 
+The selected compiler retains Value versus TransferHome in the source Map flow.
+Its bounded Value evidence covers Integer/Bool literals, observed Trivial locals
+and declaration-authorized exact-i64 formals. Reusing a Trivial value is not a
+second Home transfer. A borrowed formal may remain unused without becoming an
+owning-slot candidate. This source evidence does not assert runtime coverage:
+the current Indexed-only consumer rejects Value before publication, including
+AppMain. Ordinary callable source Completion is retained separately from root
+admission; source success cannot silently select the generic MapBox path.
+
 This matrix preserves the existing source capability and carrier authorities.
 A fresh acquisition can supply its existing obligation; an alias cannot supply
 the Home of its supporting root by guessing provenance. This decision does not

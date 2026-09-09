@@ -267,6 +267,17 @@ For direct-local Map entries, a scoped callback checks the same candidate's exac
 New site/binding, construction eligibility and PlainI64NoHook destruction.
 The source walk owns availability and transfer; it keeps the acquisition site in
 the Home state and invalidates old-local/alias observations after transfer.
+Map-bearing Cataloged ordinary declarations consume their retained formal
+ordinal/binding/capability in the same source loan and move Home-aware Completion
+into the existing seed/result cohort. No-Map ordinary/S6C remain on the plain
+verifier; AppMain root and Dynamic retain their separate existing owners.
+Map entries distinguish Value (exact source site and optional binding) from
+TransferHome (acquisition and binding). Integer/Bool literals and proven Trivial
+locals/formals do not consume Homes; Trivial capability does not prove wire kind.
+Borrowed Handle/ExactText may be unused but cannot acquire a Map slot implicitly.
+Missing/duplicate/foreign formal projections leave Home analysis unavailable.
+The Indexed-only physical consumer still requires TransferHome-only entries:
+Value rejects before install, or before private emission progress changes.
 Completion owns one root flow, including successful or unavailable Map sites and
 their cleanup successors. `prepare_install` checks Complete Map flows, exact
 I64 terminal and same-root ordinary claim readiness before catalog mutation.

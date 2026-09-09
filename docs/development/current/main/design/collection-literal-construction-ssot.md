@@ -2657,6 +2657,20 @@ Map entry relation inside this loan; checked storage and V4 remain downstream.
 
 ### Ordinary Map capability and Completion: bounded implementation
 
+Source slice completed: the Map-bearing ordinary verifier replacement, exact
+formal projection, Value/TransferHome sum and Home-only physical refusal are
+implemented. Existing Completion cleanup is preserved when attaching root flow.
+Package146 and resolved_control_flow33 pass with jobs4 locked quick lib, serial
+test threads; logs `/tmp/hakorune-map-capability-final.log` and
+`/tmp/hakorune-map-capability-control.log`. The added Text test originally used
+unsupported `String`; correcting it to the existing `StringBox` contract resolved
+that test-only failure without changing the issuer. Source max699, existing
+pointer/corridor guards and diff checks pass. No C/runtime or EXE evidence added.
+Next: design the value-capable checked storage/install ABI in ordered task2,
+then ordinary Completion borrowing/finishing and callable Fault ABI; the current
+install refusal remains until those consumers exist. Do not repeat source-loan
+or entry-capability census to select another preparatory row.
+
 Decision: replace plain Completion for Map-bearing Cataloged ordinary declarations
 with existing Home-aware issuance in the same source loan. Extend the existing
 Map entry sum with Value versus TransferHome; do not introduce a new receipt.

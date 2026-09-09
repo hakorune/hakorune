@@ -153,10 +153,12 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         for entry in flow.entries() {
+            let (acquisition, binding) = entry.transfer_home()
+                .ok_or_else(|| freeze("map-value-consumer-missing"))?;
             let row = rows
-                .get(entry.acquisition())
+                .get(acquisition)
                 .and_then(LocalCommitV1::ordinary)
-                .filter(|row| row.installs(entry.binding()))
+                .filter(|row| row.installs(binding))
                 .ok_or_else(|| freeze("map-candidate-not-installed"))?;
             if row.destruction != super::super::ObjectDestructionDispositionV1::PlainI64NoHook {
                 return Err(freeze("map-candidate-end-unavailable"));
@@ -177,11 +179,13 @@ impl OrdinaryNewClaimLedgerV1 {
         entry: &MapHomeEntry,
         value: ValueId,
     ) -> Result<CanonicalObjectIdV1, String> {
+        let (acquisition, binding) = entry.transfer_home()
+            .ok_or_else(|| freeze("map-value-consumer-missing"))?;
         let rows = self.local_commits.borrow();
         let row = rows
-            .get(entry.acquisition())
+            .get(acquisition)
             .and_then(LocalCommitV1::ordinary)
-            .filter(|row| row.installs(entry.binding()) && row.emission.local() == Some(value))
+            .filter(|row| row.installs(binding) && row.emission.local() == Some(value))
             .ok_or_else(|| freeze("map-candidate-value-drift"))?;
         Ok(row.object)
     }

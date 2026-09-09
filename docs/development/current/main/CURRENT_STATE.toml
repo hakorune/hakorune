@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "MAP-OWNING-ENTRY-CALLABLE-COMPLETION"
-current_blocker_token = "Accepted source capability slice: declaration formal projection -> Home-aware ordinary Map Completion in the existing source loan; Map entry Value/TransferHome distinction. Preserve AppMain/Dynamic/S6C ownership and source-unavailable observations. Value must stop at map_install_owner and private emission until Indexed-only runtime is replaced. Implement source retention plus refusal; no ordinary Map execution claim. See collection SSOT bounded implementation."
+current_design_stop = "MAP-VALUE-CHECKED-STORAGE-INSTALL-ABI"
+current_blocker_token = "Ordinary Map source capability/Completion slice implemented: Value vs TransferHome, exact formal projection, sole result ownership and Indexed-only consumer refusal; package146/control33 and guards pass. Next ordered task2: audit value-capable checked Map storage/install ABI in existing owner. Then ordinary Completion borrow/finishing and callable Fault ABI. Keep install Stop; no Map EXE claim and no repeat source capability census."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -49,8 +49,8 @@ in Completion and unconnected Map demand stops at common package install.
 Native Map insert/remove/clear now drop detached values outside locks; owned-slot
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
-next_design_card = "none"
-next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

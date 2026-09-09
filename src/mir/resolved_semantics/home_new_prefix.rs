@@ -5,7 +5,7 @@
 //! dependency; unknown prefix meaning never becomes an empty Home list.
 
 use super::{
-    BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
+    BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomeDemandV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
     ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::ast::ASTNode;
@@ -71,7 +71,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
 ) -> BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>> {
-    scan_new_home_flow(input, selected, None, &mut |_, _, _, _, _| {
+    scan_new_home_flow(input, selected, std::iter::empty(), None, &mut |_, _, _, _, _| {
         Ok::<_, std::convert::Infallible>(false)
     }, &mut |_, _| Ok(false))
     .unwrap_or_else(|never| match never {})
@@ -341,6 +341,7 @@ pub(crate) enum TerminalRelationV1 {
 pub(crate) fn scan_new_home_flow<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
+    parameters: impl IntoIterator<Item = (u32, BindingRefV1, super::HomeDemandV1)>,
     terminal: Option<&SourceStmtSiteV1>,
     field_is_integer: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -368,7 +369,7 @@ pub(crate) fn scan_new_home_flow<E>(
     let mut unavailable = (function.declaration_sites().any(|site| {
         matches!(
             site,
-            SourceBindingSiteV1::Receiver | SourceBindingSiteV1::Parameter { .. }
+            SourceBindingSiteV1::Receiver
         )
     }) || !input
         .forest()
@@ -387,6 +388,9 @@ pub(crate) fn scan_new_home_flow<E>(
         ));
     };
     let mut locals = PrefixLocalFlow::new(input);
+    if !locals.install_parameters(parameters) {
+        unavailable = Some(HomePrefixUnavailableV1::EntryDemandMissing);
+    }
     let mut homes = Vec::new();
     let mut covered_statements = Vec::new();
     for index in 0..body.statements().len() {
@@ -611,7 +615,9 @@ pub(crate) fn scan_new_home_flow<E>(
                     )? {
                         Ok((map, remaining)) => {
                             for entry in map.entries() {
-                                locals.consume_home(entry.binding());
+                                if let Some((_, binding)) = entry.transfer_home() {
+                                    locals.consume_home(binding);
+                                }
                             }
                             homes = remaining;
                             homes.push(binding);
