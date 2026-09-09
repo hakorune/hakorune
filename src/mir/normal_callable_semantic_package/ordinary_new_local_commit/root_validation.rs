@@ -20,7 +20,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         self.validate_root_body(owner, function, None)?;
         let observation = self.finalized_root_observation(owner);
-        self.validate_root_cleanup_shape(function)?;
+        self.validate_root_cleanup_shape(owner, function)?;
         let bindings = self.lifecycle_bindings(owner)?;
         let boundary = super::physical_boundary::PhysicalBoundary::capture(function, &bindings)?;
         *state = RootNewValidation::Checked(owner, boundary);
@@ -35,7 +35,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         self.validate_new_emissions_projected(owner, function, projection)?;
         self.validate_terminal_unit_return(owner, function)?;
-        self.validate_root_home_exit(function, projection)?;
+        self.validate_root_home_exit(owner, function, projection)?;
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_i64_add_return(owner, function)?;
         self.validate_terminal_integer_literal_return(owner, function)?;
@@ -209,7 +209,9 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             result.extend_from_slice(bindings);
         }
-        if let RootHomeExitProgress::Emitted { bindings, entry, .. } = &*self.root_exit.borrow() {
+        if let Some(RootHomeExitProgress::Emitted { bindings, entry, .. }) =
+            self.root_exits.borrow().get(&owner)
+        {
             result.extend_from_slice(bindings);
             entry.append_bindings(&mut result);
         }

@@ -31,9 +31,11 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         };
         if !matches!(
-            *self.root_exit.borrow(),
-            local_commit::RootHomeExitProgress::Prepared(_)
-                | local_commit::RootHomeExitProgress::Unavailable
+            self.root_exits.borrow().get(&site.owner()),
+            Some(
+                local_commit::RootHomeExitProgress::Prepared(_)
+                    | local_commit::RootHomeExitProgress::Unavailable,
+            )
         ) {
             return Err(fault("root-exit-phase"));
         }

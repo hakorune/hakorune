@@ -218,7 +218,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     assert!(ledger
         .prepare_root_home_exit(sites[0].owner(), &exit_site)
         .is_err());
-    let origins = ledger.begin_root_home_exit().unwrap();
+    let origins = ledger.begin_root_home_exit(sites[0].owner()).unwrap();
     assert_eq!(
         origins
             .iter()
@@ -300,7 +300,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         crate::mir::MirInstruction::Jump { target: entry_id, edge_args: None });
     bindings.push((entry_id, entry_jump));
     ledger
-        .record_root_home_exit(origin_bindings, bindings)
+        .record_root_home_exit(sites[0].owner(), origin_bindings, bindings)
         .unwrap();
     assert!(ledger.is_empty());
     let mut changed_home = physical.clone();

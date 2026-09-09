@@ -140,6 +140,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             builder,
             &mut state.borrow_mut(),
             ledger,
+            owner,
             row,
         )
         .map(Some)
@@ -312,6 +313,9 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         builder: &mut crate::mir::MirBuilder,
         value: crate::mir::ValueId,
     ) -> Result<crate::mir::ValueId, String> {
+        let owner = self
+            .callable_owner_v1()
+            .ok_or("[root-home-exit/owner-missing]")?;
         let state = self
             .callable_ledger
             .as_ref()
@@ -324,6 +328,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             builder,
             &mut state.borrow_mut(),
             ledger,
+            owner,
             value,
         )
     }
@@ -352,6 +357,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             builder,
             &mut state.borrow_mut(),
             ledger,
+            owner,
         )
     }
     fn prepare_ordinary_new_emission(

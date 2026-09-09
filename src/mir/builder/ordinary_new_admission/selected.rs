@@ -11,6 +11,7 @@ use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1,
     PreparedTerminalI64FieldReturnV1,
 };
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlock, BasicBlockId, Callee, MirBuilder, MirInstruction, MirType, ValueId};
 
 pub(in crate::mir::builder) fn emit(
@@ -268,29 +269,32 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
     value: ValueId,
 ) -> Result<ValueId, String> {
-    emit_root_home_exit_payload(builder, state, ledger, Some(value), value, None)
+    emit_root_home_exit_payload(builder, state, ledger, owner, Some(value), value, None)
 }
 
 pub(in crate::mir::builder) fn emit_root_home_unit_exit(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
 ) -> Result<ValueId, String> {
     let statement_result = crate::mir::builder::emission::constant::emit_void(builder)?;
-    emit_root_home_exit_payload(builder, state, ledger, None, statement_result, None)
+    emit_root_home_exit_payload(builder, state, ledger, owner, None, statement_result, None)
 }
 
 fn emit_root_home_exit_payload(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
     return_value: Option<ValueId>,
     statement_result: ValueId,
     call: Option<terminal_call::Emission>,
 ) -> Result<ValueId, String> {
-    let operations = ledger.begin_root_home_exit()?;
+    let operations = ledger.begin_root_home_exit(owner)?;
     let frame = state.borrow_fault_frame(builder)?;
     let mut bindings = Vec::new();
     let mut clean = builder.next_block_id();
@@ -346,6 +350,7 @@ fn emit_root_home_exit_payload(
         )?;
         let frame_binding = fault_frame_binding(builder, state, frame)?;
         ledger.record_root_call_exit(
+            owner,
             call.row,
             call.arguments,
             invoke,
@@ -366,7 +371,7 @@ fn emit_root_home_exit_payload(
     };
     builder.emit_instruction(jump.clone())?;
     bindings.push((origin, jump));
-    ledger.record_root_home_exit(origins, bindings)?;
+    ledger.record_root_home_exit(owner, origins, bindings)?;
     Ok(statement_result)
 }
 

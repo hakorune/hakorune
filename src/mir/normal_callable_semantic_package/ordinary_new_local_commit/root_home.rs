@@ -1,4 +1,4 @@
-//! Existing root Home progress and physical emission validation.
+//! Existing owner-indexed root Home progress and physical emission validation.
 //!
 //! `RootHomeExitProgress` is the sole owner of the retained Home binding,
 //! completion exit, object, and physical value until selected emission has
@@ -66,14 +66,34 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn root_home_exit_is_complete(
         &self,
     ) -> bool {
-        let Some(Ok(completion)) = &self.root_completion else {
-            return true;
-        };
-        !matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
-            || matches!(
-                *self.root_exit.borrow(),
-                RootHomeExitProgress::Unavailable | RootHomeExitProgress::Emitted { .. }
-            )
+        let exits = self.root_exits.borrow();
+        let indexed_pending = self.completion_index.values().any(|row| {
+            row.as_ref().ok().is_some_and(|completion| {
+                matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
+                    && !matches!(
+                        exits.get(&completion.owner()),
+                        Some(
+                            RootHomeExitProgress::Unavailable
+                                | RootHomeExitProgress::Emitted { .. }
+                        )
+                    )
+            })
+        });
+        let root_pending = self
+            .root_completion
+            .as_ref()
+            .and_then(|row| row.as_ref().ok())
+            .is_some_and(|completion| {
+                matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
+                    && !matches!(
+                        exits.get(&completion.owner()),
+                        Some(
+                            RootHomeExitProgress::Unavailable
+                                | RootHomeExitProgress::Emitted { .. },
+                        )
+                    )
+            });
+        !indexed_pending && !root_pending
     }
 
     pub(crate) fn prepare_root_home_exit(
@@ -81,12 +101,9 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         site: &SourceNodeSiteV1,
     ) -> Result<bool, String> {
-        let Some(Ok(completion)) = &self.root_completion else {
+        let Some(completion) = self.completion_for_owner(owner) else {
             return Ok(false);
         };
-        if completion.owner() != owner {
-            return Ok(false);
-        }
         let Some(Ok(homes)) = completion.cleanup().terminal_homes() else {
             return Ok(false);
         };
@@ -96,7 +113,10 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("root-exit-site-mismatch"));
         }
-        let mut progress = self.root_exit.borrow_mut();
+        let mut exits = self.root_exits.borrow_mut();
+        let progress = exits
+            .entry(owner)
+            .or_insert(RootHomeExitProgress::Unprepared);
         if !matches!(*progress, RootHomeExitProgress::Unprepared) {
             return Err(freeze("duplicate-root-exit-prepare"));
         }
@@ -127,8 +147,14 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(available)
     }
 
-    pub(crate) fn begin_root_home_exit(&self) -> Result<Vec<RootHomeReleaseOriginV1>, String> {
-        let mut progress = self.root_exit.borrow_mut();
+    pub(crate) fn begin_root_home_exit(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<RootHomeReleaseOriginV1>, String> {
+        let mut exits = self.root_exits.borrow_mut();
+        let progress = exits
+            .get_mut(&owner)
+            .ok_or_else(|| freeze("root-exit-not-prepared"))?;
         if !matches!(*progress, RootHomeExitProgress::Prepared(_)) {
             return Err(freeze("root-exit-not-prepared"));
         }
@@ -142,19 +168,24 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(crate) fn record_root_home_exit(
         &self,
+        owner: FunctionOwnerIdV1,
         origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        self.record_root_home_exit_with_entry(origins, bindings, RootHomeExitEntry::Plain)
+        self.record_root_home_exit_with_entry(owner, origins, bindings, RootHomeExitEntry::Plain)
     }
 
     fn record_root_home_exit_with_entry(
         &self,
+        owner: FunctionOwnerIdV1,
         origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         entry: RootHomeExitEntry,
     ) -> Result<(), String> {
-        let mut progress = self.root_exit.borrow_mut();
+        let mut exits = self.root_exits.borrow_mut();
+        let progress = exits
+            .get_mut(&owner)
+            .ok_or_else(|| freeze("root-exit-record-without-prepare"))?;
         if !matches!(*progress, RootHomeExitProgress::Emitting) || bindings.is_empty() {
             return Err(freeze("root-exit-record-without-emission"));
         }
@@ -176,10 +207,11 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(super) fn validate_root_home_exit(
         &self,
+        owner: FunctionOwnerIdV1,
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
     ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
-        let Some(Ok(completion)) = &self.root_completion else {
+        let Some(completion) = self.completion_for_owner(owner) else {
             return Ok(Vec::new());
         };
         if !matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
@@ -191,13 +223,14 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(Ok(expected_homes)) = completion.cleanup().terminal_homes() else {
             return Ok(Vec::new());
         };
-        match &*self.root_exit.borrow() {
-            RootHomeExitProgress::Unavailable => Ok(Vec::new()),
-            RootHomeExitProgress::Emitted {
+        let exits = self.root_exits.borrow();
+        match exits.get(&owner) {
+            Some(RootHomeExitProgress::Unavailable) => Ok(Vec::new()),
+            Some(RootHomeExitProgress::Emitted {
                 origins,
                 bindings,
                 entry,
-            } => {
+            }) => {
                 self.validate_call_entry(function, projection, entry, bindings)?;
                 if origins.len() != expected_homes.len() {
                     return Err(freeze("root-exit-origin-count"));
@@ -284,12 +317,17 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(super) fn validate_root_cleanup_shape(&self, function: &MirFunction) -> Result<(), String> {
-        if let RootHomeExitProgress::Emitted {
+    pub(super) fn validate_root_cleanup_shape(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let exits = self.root_exits.borrow();
+        if let Some(RootHomeExitProgress::Emitted {
             origins,
             bindings,
             entry,
-        } = &*self.root_exit.borrow()
+        }) = exits.get(&owner)
         {
             match entry {
                 RootHomeExitEntry::Plain if !origins.is_empty() => {

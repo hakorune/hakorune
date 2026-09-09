@@ -3,6 +3,7 @@
 use super::*;
 use crate::mir::definitions::MirCall;
 use crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
 pub(super) struct Emission {
     pub(super) row: AppMainDirectCallDispositionRowV1,
@@ -14,6 +15,7 @@ pub(in crate::mir::builder) fn emit(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
     row: AppMainDirectCallDispositionRowV1,
 ) -> Result<ValueId, String> {
     let emission = row
@@ -52,6 +54,7 @@ pub(in crate::mir::builder) fn emit(
         builder,
         state,
         ledger,
+        owner,
         Some(value),
         value,
         Some(Emission {

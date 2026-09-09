@@ -3077,7 +3077,7 @@ needs Normal-only result and Fault propagation. No generic continuation receipt,
 second cleanup graph owner or blind release-count relaxation is authorized.
 
 Read-only cleanup review fixes the implementation shape inside existing
-`RootHomeExitProgress`: retain source origins once, cleanup terminal bindings,
+owner-indexed `RootHomeExitProgress`: retain source origins once, cleanup terminal bindings,
 and a Plain/Call entry mode. Call mode retains the same affine row and physical
 argument/Invoke/projection bindings plus named clean/fault entries. Capture both
 sets together through the existing `PhysicalBoundary`; do not mix the projection

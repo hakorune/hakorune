@@ -431,7 +431,9 @@ Returned Homes, arbitrary suffixes and other Completion forms are not admitted
 by this cleanup relation.
 
 RootHomeExitProgress retains installed bindings, exact exit site, object ID and
-bound ValueId through emission. Finalization checks source origins against actual
+bound ValueId through emission. The existing ledger indexes this progress by
+FunctionOwnerIdV1, so AppMain and selected ordinary children cannot overwrite
+one mutable root slot. Finalization checks source origins against actual
 releases/terminals. Terminal field reads join original Home, selected New and
 same-session definition: successful source construction and exact nonweak i64
 fields qualify, not names outside the definition, runtime slots or physical types.

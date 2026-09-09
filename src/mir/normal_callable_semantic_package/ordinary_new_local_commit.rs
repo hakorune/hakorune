@@ -306,9 +306,9 @@ impl OrdinaryNewClaimLedgerV1 {
         }) {
             return Unavailable(NewEmissionUnavailable);
         }
-        match &*self.root_exit.borrow() {
-            RootHomeExitProgress::Emitted { .. } => SourceCompleteAtFinalization,
-            RootHomeExitProgress::Unavailable => Unavailable(RootExitUnavailable),
+        match self.root_exits.borrow().get(&owner) {
+            Some(RootHomeExitProgress::Emitted { .. }) => SourceCompleteAtFinalization,
+            Some(RootHomeExitProgress::Unavailable) => Unavailable(RootExitUnavailable),
             _ => unreachable!("final root validation rejects unconsumed exit"),
         }
     }

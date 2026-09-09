@@ -110,7 +110,10 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     ledger
         .complete_new_emissions(site.owner(), &function)
         .unwrap();
-    *ledger.root_exit.borrow_mut() = local_commit::RootHomeExitProgress::Unavailable;
+    ledger
+        .root_exits
+        .borrow_mut()
+        .insert(site.owner(), local_commit::RootHomeExitProgress::Unavailable);
     let read_site = ledger.field_reads.borrow().keys().next().unwrap().clone();
     let return_site = ledger
         .terminal_i64_field_return()

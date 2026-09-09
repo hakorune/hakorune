@@ -13,6 +13,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(crate) fn record_root_call_exit(
         &self,
+        owner: FunctionOwnerIdV1,
         row: AppMainDirectCallDispositionRowV1,
         arguments: Vec<(BasicBlockId, MirInstruction)>,
         invoke: (BasicBlockId, MirInstruction),
@@ -24,6 +25,7 @@ impl OrdinaryNewClaimLedgerV1 {
         row.lifecycle_emission()
             .map_err(|_| freeze("call-source-mismatch"))?;
         self.record_root_home_exit_with_entry(
+            owner,
             origins,
             bindings,
             RootHomeExitEntry::Call {
