@@ -1362,11 +1362,11 @@ drift remain fail-fast negatives.
 
 ##### ROOT-METHOD-I0 integrity follow-up queue (2026-09-10)
 
-The following findings were verified against `814629bb` and are queued behind
-the active root-method I0. They are behavior-preserving owner/ordering fixes;
+The following findings were verified against `814629bb` and are queued after
+the active physical receiver-lane D0. They are behavior-preserving owner/ordering fixes;
 they do not change the selected source shapes, add a semantic receipt, or open
-the physical receiver lane. Execute them in the listed order after the active
-I0 has reached a natural closeout boundary.
+the physical receiver lane. Execute them in the listed order after the physical
+receiver-lane D0 has reached a natural closeout boundary.
 
 | order | bounded task / owner | change and fail-fast boundary | acceptance / non-claims |
 | --- | --- | --- | --- |
@@ -1377,7 +1377,7 @@ I0 has reached a natural closeout boundary.
 
 Each of the first three rows is a `BoxShape` refactor: the source authority,
 canonical issuer, terminal consumer, and exclusive delete-set already exist.
-While root-method I0 is active, these follow-ups must not be used to paper over
+While the physical receiver-lane D0 is active, these follow-ups must not be used to paper over
 `artifact-source-unavailable` or to authorize OBJ/EXE acceptance.
 
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
