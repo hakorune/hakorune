@@ -341,7 +341,9 @@ impl<'module> PublishedMirBackendView<'module> {
                     .functions()
                     .get(function_index as usize)
                     .ok_or_else(|| fault("compiled-entry-ordinary-index"))?;
-                if function.params().len() != call.args.len()
+                let receiver = super::physical_program::ordinary_call_receiver(&call.callee)?;
+                let expected_arity = call.args.len() + usize::from(receiver.is_some());
+                if function.params().len() != expected_arity
                     || !matches!(
                         function.role(),
                         PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key: target }

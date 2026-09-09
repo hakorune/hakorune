@@ -39,6 +39,7 @@ fn emit_lifecycle_physical_program_value(
                         .map(|row| -> Result<Value, String> { Ok(json!({
                             "index": row.index(),
                             "instruction": encode_instruction(
+                                program.module(), function.name(), block.id(), row.index(),
                                 row.instruction(), &births, function_ordinal,
                                 diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), row.instruction())?,
                                 abi_input,
@@ -52,7 +53,9 @@ fn emit_lifecycle_physical_program_value(
                         "terminator": {
                             "index": block.terminator().index(),
                             "instruction": encode_instruction(
-                                block.terminator().instruction(), &births, function_ordinal,
+                                program.module(), function.name(), block.id(),
+                                block.terminator().index(), block.terminator().instruction(),
+                                &births, function_ordinal,
                                 diagnostic_site(
                                     abi_input, function_ordinal, block.id().0,
                                     block.terminator().index(), block.terminator().instruction(),
@@ -68,8 +71,8 @@ fn emit_lifecycle_physical_program_value(
             Ok(json!({
                 "name": function.name(),
                 "role": function.role().wire_name(),
-                "receiver": function.role().birth_target().and_then(|_| function.params().first().map(value)),
-                "params": function.params().iter().skip(usize::from(function.role().birth_target().is_some()))
+                "receiver": function.role().receiver_value(function.params()).map(|value| value.0),
+                "params": function.params().iter().skip(usize::from(function.role().has_receiver()))
                     .map(|param| json!({
                         "value": value(param),
                         "representation": if function.role().ordinary_target().is_some() {
@@ -179,6 +182,10 @@ fn encode_edge_args(args: &EdgeArgs) -> Value {
 }
 
 fn encode_instruction(
+    module: &crate::mir::MirModule,
+    function_name: &str,
+    block: crate::mir::BasicBlockId,
+    instruction_index: u32,
     instruction: &MirInstruction,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
     caller_function_index: u32,
@@ -226,6 +233,25 @@ fn encode_instruction(
             "op": "object_field_get", "dst": value(dst), "base": value(base),
             "object_id": field.object().declaration_index(), "field_ordinal": field.declaration_ordinal(),
         }),
+        MirInstruction::FieldGet { dst, base, .. } => {
+            let function = module
+                .functions
+                .get(function_name)
+                .ok_or_else(|| fault("field-get-function-missing"))?;
+            let field = super::physical_program::project_field_get(
+                module,
+                function,
+                block,
+                instruction_index as usize,
+                instruction,
+            )?
+            .ok_or_else(|| fault("field-get-route-missing"))?;
+            json!({
+                "op": "object_field_get", "dst": value(dst), "base": value(base),
+                "object_id": field.object().declaration_index(),
+                "field_ordinal": field.declaration_ordinal(),
+            })
+        }
         MirInstruction::Invoke {
             operation,
             fault_frame,
@@ -422,15 +448,25 @@ fn encode_invoke(
             if call.dst.is_some() {
                 return Err(fault("ordinary-destination"));
             }
+            let args = call.args.iter().map(|value| json!({
+                "kind": "i64", "value": value.0,
+            })).collect::<Vec<_>>();
+            let call = match super::physical_program::ordinary_call_receiver(&call.callee)? {
+                Some(receiver) => json!({
+                    "target": target,
+                    "receiver": value(&receiver),
+                    "args": args,
+                    "dst": Value::Null,
+                }),
+                None => json!({
+                    "target": target,
+                    "args": args,
+                    "dst": Value::Null,
+                }),
+            };
             json!({
                 "kind": "ordinary_call",
-                "call": {
-                    "target": target,
-                    "args": call.args.iter().map(|value| json!({
-                        "kind": "i64", "value": value.0,
-                    })).collect::<Vec<_>>(),
-                    "dst": Value::Null,
-                },
+                "call": call,
                 "result": "i64",
             })
         }

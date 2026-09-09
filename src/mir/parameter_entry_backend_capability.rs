@@ -80,6 +80,10 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
         let call_key = crate::mir::compiler::published_backend_view::ordinary_callable_key(
             &ordinary.call().callee,
         )?;
+        let has_receiver = crate::mir::compiler::published_backend_view::ordinary_call_receiver(
+            &ordinary.call().callee,
+        )?
+        .is_some();
         if key != &call_key {
             return Err(format!(
                 "{} reason=ordinary-key-drift",
@@ -100,8 +104,9 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                 LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
             )
         })?;
+        let expected_arity = ordinary.call().args.len() + usize::from(has_receiver);
         if physical.params() != target.params.as_slice()
-            || physical.params().len() != ordinary.call().args.len()
+            || physical.params().len() != expected_arity
         {
             return Err(format!(
                 "{} reason=ordinary-parameter-value-drift function={symbol}",
@@ -112,8 +117,10 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
             continue;
         }
         validate_parameter_entry_contracts(target)?;
+        let receiver_offset = usize::from(has_receiver);
         if target.metadata.declared_param_decls.len() != target.params.len()
-            || target.metadata.parameter_entry_contracts.len() != target.params.len()
+            || target.metadata.parameter_entry_contracts.len()
+                != target.params.len().saturating_sub(receiver_offset)
             || target.signature.params.len() != target.params.len()
         {
             return Err(format!(
@@ -121,24 +128,39 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                 LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
             ));
         }
-        for (index, ((declaration, contract), ty)) in target
+        if has_receiver
+            && (target
+                .metadata
+                .declared_param_decls
+                .first()
+                .is_none_or(|declaration| !declaration.implicit_receiver)
+                || !matches!(target.signature.params.first(), Some(MirType::Box(_))))
+        {
+            return Err(format!(
+                "{} reason=ordinary-receiver-contract function={symbol}",
+                LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
+            ));
+        }
+        for (explicit_index, ((declaration, contract), ty)) in target
             .metadata
             .declared_param_decls
             .iter()
+            .skip(receiver_offset)
             .zip(&target.metadata.parameter_entry_contracts)
-            .zip(&target.signature.params)
+            .zip(target.signature.params.iter().skip(receiver_offset))
             .enumerate()
         {
+            let formal_index = explicit_index + receiver_offset;
             if declaration.implicit_receiver
                 || declaration.declared_type_name.as_deref() != Some("i64")
                 || *ty != MirType::Integer
-                || contract.formal_parameter_index != index
-                || contract.source_parameter_index != index
-                || contract.parameter_value_id != target.params[index]
+                || contract.formal_parameter_index != formal_index
+                || contract.source_parameter_index != explicit_index
+                || contract.parameter_value_id != target.params[formal_index]
                 || contract.implicit_receiver
             {
                 return Err(format!(
-                    "{} reason=ordinary-parameter-contract function={symbol} index={index}",
+                    "{} reason=ordinary-parameter-contract function={symbol} index={formal_index}",
                     LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
                 ));
             }

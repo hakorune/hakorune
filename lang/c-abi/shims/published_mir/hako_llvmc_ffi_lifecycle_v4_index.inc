@@ -142,6 +142,7 @@ static int lv4_index_open(hako_lv4_input* in) {
     yyjson_val* body = yyjson_arr_get(in->functions, fi);
     int birth = lv4_is(body, "role", "birth_unit");
     int ordinary = lv4_is(body, "role", "ordinary_i64");
+    int ordinary_receiver = ordinary && yyjson_is_uint(yyjson_obj_get(body, "receiver"));
     yyjson_val* blocks = hako_physical_blocks(body);
     yyjson_val* params = yyjson_obj_get(body, "params");
     size_t capacity = lv4_value_budget(body) + 1;
@@ -150,7 +151,7 @@ static int lv4_index_open(hako_lv4_input* in) {
     fn->values = calloc(capacity, sizeof(*fn->values));
     fn->blocks = calloc(fn->block_count, sizeof(*fn->blocks));
     if (!fn->values || !fn->blocks) return 0;
-    if (birth) {
+    if (birth || ordinary_receiver) {
       hako_lv4_value* receiver = &fn->values[fn->value_count++];
       receiver->id = lv4_u(body, "receiver"); receiver->kind = LV4_HANDLE;
       receiver->origin = -2; /* Borrowed physical receiver, never an allocation. */

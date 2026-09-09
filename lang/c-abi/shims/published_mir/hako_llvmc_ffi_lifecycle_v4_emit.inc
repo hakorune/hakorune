@@ -17,6 +17,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     fprintf(f, ") {\nstart:\n");
   } else if (ordinary) {
     fprintf(f, "define internal i32 @hako_lifecycle_ordinary_%zu(ptr %%frame, ptr %%out_i64", fi);
+    if (yyjson_is_uint(yyjson_obj_get(fn, "receiver")))
+      fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
     for (size_t i = 0; i < yyjson_arr_size(params); i++) {
       uint32_t value = lv4_u(yyjson_arr_get(params, i), "value");
       fprintf(f, ", i64 %%v%u", value);
@@ -162,6 +164,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         yyjson_val* args = yyjson_obj_get(call, "args");
         fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%%s",
             b, lv4_u(call, "target"), ordinary ? "out_i64" : "ordinary_out");
+        if (yyjson_is_uint(yyjson_obj_get(call, "receiver")))
+          fprintf(f, ", i64 %%v%u", lv4_u(call, "receiver"));
         for (size_t i = 0; i < yyjson_arr_size(args); i++)
           fprintf(f, ", i64 %%v%u", lv4_u(yyjson_arr_get(args, i), "value"));
         fprintf(f, ")\n");

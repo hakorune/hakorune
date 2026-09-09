@@ -82,7 +82,18 @@ fn serializer_rejects_nonissued_instruction_vocabulary() {
         value: ConstValue::Float(1.0),
     };
     assert!(matches!(
-        encode_instruction(&instruction, &BTreeMap::new(), 0, None, None, &BTreeMap::new()),
+        encode_instruction(
+            &crate::mir::MirModule::new("test".into()),
+            "",
+            crate::mir::BasicBlockId(0),
+            0,
+            &instruction,
+            &BTreeMap::new(),
+            0,
+            None,
+            None,
+            &BTreeMap::new(),
+        ),
         Err(error) if error.contains("instruction-unsupported"),
     ));
 }
@@ -238,6 +249,10 @@ fn native_float_wire_preserves_signed_zero_and_nan_payload_bits() {
                             value: ConstValue::Float(f64::from_bits(bits)),
                         };
                         let encoded = encode_instruction(
+                            input.program().module(),
+                            input.program().functions()[0].name(),
+                            crate::mir::BasicBlockId(0),
+                            0,
                             &instruction,
                             &BTreeMap::new(),
                             0,

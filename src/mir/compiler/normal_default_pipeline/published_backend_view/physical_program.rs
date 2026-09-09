@@ -12,8 +12,10 @@ use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 use crate::mir::definitions::MirCall;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::{
-    BasicBlockId, BinaryOp, Callee, ConstValue, EdgeArgs, MirFunction, MirInstruction, ValueId,
+    BasicBlockId, BinaryOp, Callee, ConstValue, EdgeArgs, MirFunction, MirInstruction, MirModule,
+    ValueId,
 };
+use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 
 use super::{CompiledEntryRootResultV1, PublishedMirBackendView, PublishedStaticMethodRouteV1};
 use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
@@ -64,6 +66,20 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::OrdinaryI64 { key } => Some(key),
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
+    }
+
+    pub(crate) fn has_receiver(&self) -> bool {
+        match self {
+            Self::BirthUnit { .. } => true,
+            Self::OrdinaryI64 { key } => {
+                key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+            }
+            Self::Root { .. } => false,
+        }
+    }
+
+    pub(crate) fn receiver_value(&self, params: &[ValueId]) -> Option<ValueId> {
+        self.has_receiver().then(|| params.first().copied()).flatten()
     }
 }
 
@@ -162,11 +178,16 @@ impl<'module> PublishedLifecyclePhysicalFunctionV1<'module> {
 pub(crate) struct PublishedLifecyclePhysicalProgramV1<'module> {
     functions: Box<[PublishedLifecyclePhysicalFunctionV1<'module>]>,
     handoff: &'module FinalizedRootHandoffV1,
+    module: &'module MirModule,
 }
 
 impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
     pub(crate) fn handoff(&self) -> &'module FinalizedRootHandoffV1 {
         self.handoff
+    }
+
+    pub(crate) fn module(&self) -> &'module MirModule {
+        self.module
     }
     pub(crate) fn is_native_array(&self) -> bool {
         self.handoff.script_array().is_some()
@@ -224,7 +245,8 @@ impl<'module> PublishedMirBackendView<'module> {
         let mut names = BTreeSet::new();
         let mut functions = Vec::with_capacity(births.len() + ordinary_calls.len() + 1);
         names.insert(root.signature.name.as_str());
-        functions.push(issue_function(
+        functions.push(issue_function_with_module(
+            Some(self.module()),
             root,
             PublishedLifecyclePhysicalFunctionRoleV1::Root {
                 result: root_result,
@@ -247,14 +269,17 @@ impl<'module> PublishedMirBackendView<'module> {
                 .functions
                 .get(symbol)
                 .ok_or_else(|| fault("ordinary-function-missing"))?;
+            let receiver = ordinary_call_receiver(&call.callee)?;
+            let expected_arity = call.args.len() + usize::from(receiver.is_some());
             if function.signature.name != key.mir_symbol_projection()
-                || function.signature.params.len() != call.args.len()
+                || function.signature.params.len() != expected_arity
                 || function.signature.return_type != crate::mir::MirType::Integer
                 || !names.insert(symbol)
             {
                 return Err(fault("ordinary-membership-drift"));
             }
-            functions.push(issue_function(
+            functions.push(issue_function_with_module(
+                Some(self.module()),
                 function,
                 PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key },
                 false,
@@ -281,7 +306,8 @@ impl<'module> PublishedMirBackendView<'module> {
             {
                 return Err(fault("birth-membership-drift"));
             }
-            functions.push(issue_function(
+            functions.push(issue_function_with_module(
+                Some(self.module()),
                 function,
                 PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi: birth.clone() },
                 false,
@@ -291,6 +317,7 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(PublishedLifecyclePhysicalProgramV1 {
             functions: functions.into_boxed_slice(),
             handoff,
+            module: self.module(),
         })
     }
 }
@@ -328,6 +355,16 @@ pub(super) fn issue_function<'module>(
     script: bool,
     ordinary_calls: &[MirCall],
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
+    issue_function_with_module(None, function, role, script, ordinary_calls)
+}
+
+fn issue_function_with_module<'module>(
+    module: Option<&'module MirModule>,
+    function: &'module MirFunction,
+    role: PublishedLifecyclePhysicalFunctionRoleV1,
+    script: bool,
+    ordinary_calls: &[MirCall],
+) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
     let mut ids: Vec<_> = function.blocks.keys().copied().collect();
     ids.sort();
     if ids.is_empty() || !function.blocks.contains_key(&function.entry_block) {
@@ -345,13 +382,29 @@ pub(super) fn issue_function<'module>(
             .ok_or_else(|| fault("block-terminator-missing"))?;
         let mut instructions = Vec::with_capacity(block.instructions.len());
         for (index, instruction) in block.instructions.iter().enumerate() {
-            validate_instruction(instruction, script, ordinary_calls)?;
+            validate_instruction_with_context(
+                module,
+                Some(function),
+                block.id,
+                index,
+                instruction,
+                script,
+                ordinary_calls,
+            )?;
             instructions.push(PublishedLifecyclePhysicalInstructionRefV1 {
                 index: as_u32(index, "instruction-index")?,
                 instruction,
             });
         }
-        validate_instruction(terminator, script, ordinary_calls)?;
+        validate_instruction_with_context(
+            module,
+            Some(function),
+            block.id,
+            block.instructions.len(),
+            terminator,
+            script,
+            ordinary_calls,
+        )?;
         let terminator_index = as_u32(block.instructions.len(), "terminator-index")?;
         let edges = block
             .out_edges()
@@ -421,6 +474,18 @@ fn validate_instruction(
     script: bool,
     ordinary_calls: &[MirCall],
 ) -> Result<(), String> {
+    validate_instruction_with_context(None, None, BasicBlockId(0), 0, instruction, script, ordinary_calls)
+}
+
+fn validate_instruction_with_context(
+    module: Option<&MirModule>,
+    function: Option<&MirFunction>,
+    block: BasicBlockId,
+    instruction_index: usize,
+    instruction: &MirInstruction,
+    script: bool,
+    ordinary_calls: &[MirCall],
+) -> Result<(), String> {
     if script {
         return if matches!(
             instruction,
@@ -458,7 +523,18 @@ fn validate_instruction(
             ..
         } if ordinary_calls.iter().any(|expected| expected == call)
     );
+    let field_get = if matches!(instruction, MirInstruction::FieldGet { .. }) {
+        match (module, function) {
+            (Some(module), Some(function)) => {
+                project_field_get(module, function, block, instruction_index, instruction)?.is_some()
+            }
+            (None, _) | (_, None) => false,
+        }
+    } else {
+        false
+    };
     let supported = ordinary
+        || field_get
         || matches!(
             instruction,
             MirInstruction::Const {
@@ -506,15 +582,82 @@ fn validate_instruction(
     }
 }
 
+/// Project an already-issued exact typed-object route into the physical field
+/// reference consumed by the lifecycle C ABI.  A missing route is not repaired
+/// here: the selected physical consumer rejects the instruction.
+pub(crate) fn project_field_get(
+    module: &MirModule,
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
+    instruction: &MirInstruction,
+) -> Result<Option<CanonicalFieldRefV1>, String> {
+    let MirInstruction::FieldGet { field, .. } = instruction else {
+        return Ok(None);
+    };
+    let mut rows = function.metadata.route_decisions.iter().filter(|decision| {
+        decision.source_plan_kind == "TypedObjectExactSlotRoute"
+            && decision.semantic_op == "FieldGet"
+            && decision.block == block
+            && decision.instruction_index == instruction_index
+    });
+    let Some(decision) = rows.next() else {
+        return Ok(None);
+    };
+    if rows.next().is_some()
+        || decision.selected_route != "hako.typed_object.slot_load_i64"
+        || decision.selected_storage != Some("i64")
+        || decision.field_id.as_deref() != Some(field.as_str())
+    {
+        return Err(fault("field-get-route-drift"));
+    }
+    let Some(box_name) = decision.receiver_box_name.as_deref() else {
+        return Err(fault("field-get-receiver-missing"));
+    };
+    let Some(slot) = decision.selected_slot else {
+        return Err(fault("field-get-slot-missing"));
+    };
+    let object = module
+        .metadata
+        .canonical_object_membership
+        .as_ref()
+        .and_then(|membership| membership.get(box_name).copied())
+        .ok_or_else(|| fault("field-get-object-missing"))?;
+    let object = CanonicalObjectIdV1::from_declaration_index(object.declaration_index() as usize)
+        .ok_or_else(|| fault("field-get-object-overflow"))?;
+    CanonicalFieldRefV1::from_declaration_ordinal(object, slot as usize)
+        .map(Some)
+        .ok_or_else(|| fault("field-get-slot-overflow"))
+}
+
 pub(crate) fn ordinary_callable_key(
     callee: &Callee,
 ) -> Result<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, String> {
-    let Callee::Global(target) = callee else {
-        return Err(fault("ordinary-call-callee"));
-    };
-    super::static_method_key(target)
-        .or_else(|| super::free_function_key(target))
-        .ok_or_else(|| fault("ordinary-call-target"))
+    match callee {
+        Callee::Global(target) => super::static_method_key(target)
+            .or_else(|| super::free_function_key(target))
+            .ok_or_else(|| fault("ordinary-call-target")),
+        Callee::SameModuleInstance { key, .. }
+            if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod =>
+        {
+            Ok(key.clone())
+        }
+        Callee::SameModuleInstance { .. } => Err(fault("ordinary-call-instance-namespace")),
+        _ => Err(fault("ordinary-call-callee")),
+    }
+}
+
+pub(crate) fn ordinary_call_receiver(callee: &Callee) -> Result<Option<ValueId>, String> {
+    match callee {
+        Callee::Global(_) => Ok(None),
+        Callee::SameModuleInstance { key, receiver }
+            if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod =>
+        {
+            Ok(Some(*receiver))
+        }
+        Callee::SameModuleInstance { .. } => Err(fault("ordinary-call-instance-namespace")),
+        _ => Err(fault("ordinary-call-callee")),
+    }
 }
 
 fn as_u32(value: usize, reason: &str) -> Result<u32, String> {

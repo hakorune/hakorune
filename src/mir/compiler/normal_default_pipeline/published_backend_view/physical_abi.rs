@@ -247,7 +247,7 @@ impl<'module> PublishedMirBackendView<'module> {
         let storage_profile = self
             .lifecycle_storage_profile()
             .ok_or_else(|| fault("storage-profile-missing"))? as u32;
-        let ids = referenced_objects(entry.program());
+        let ids = referenced_objects(entry.program())?;
         let definitions = self
             .module()
             .canonical_object_definitions()
@@ -348,9 +348,16 @@ fn issue_diagnostic_sites(
     Ok(sites)
 }
 
-fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTreeSet<u32> {
+fn referenced_objects(
+    program: &PublishedLifecyclePhysicalProgramV1<'_>,
+) -> Result<BTreeSet<u32>, String> {
     let mut ids = BTreeSet::new();
     for function in program.functions() {
+        let source_function = program
+            .module()
+            .functions
+            .get(function.name())
+            .ok_or_else(|| fault("function-missing"))?;
         for block in function.blocks() {
             for row in block
                 .instructions()
@@ -360,6 +367,17 @@ fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTre
             {
                 match row.instruction() {
                     MirInstruction::ObjectFieldGet { field, .. } => {
+                        ids.insert(field.object().declaration_index());
+                    }
+                    MirInstruction::FieldGet { .. } => {
+                        let field = super::physical_program::project_field_get(
+                            program.module(),
+                            source_function,
+                            block.id(),
+                            row.index() as usize,
+                            row.instruction(),
+                        )?
+                        .ok_or_else(|| fault("field-get-route-missing"))?;
                         ids.insert(field.object().declaration_index());
                     }
                     MirInstruction::Invoke { operation, .. } => match operation {
@@ -382,7 +400,7 @@ fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTre
             }
         }
     }
-    ids
+    Ok(ids)
 }
 
 fn fault(reason: &str) -> String {
