@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D0"
-current_execution_cohort = "acceptance_source_reconciliation_i0"
+current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D1"
+current_execution_cohort = "root_method_crosswalk_d1"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Invoke root-method D0: Birth reaches linked exit30; typed_object_method_min stops before PublishedLifecyclePhysicalAbiInputV1 because Main.main -> pair.sum() has a resolver MethodCall row but no verified source-to-target issuer for a lexical receiver in the static root. Name or reject that authority before implementation; keep generic MIR JSON Invoke rejection; no second schema, CLI fallback, child cleanup, dynamic storage, or RawCompatibility changes."
+current_blocker_token = "Invoke root-method D1: keep the existing ordinary_new source/co-seal owner and name one package-private affine crosswalk row for Main.main -> pair.sum(); prove MethodCall site -> same-owner binding -> initializer -> selected New claim -> class/object -> selected instance declaration -> result/signature contract. Reject reassignment, foreign or unselected New, class/arity drift, duplicate target, and missing cleanup before lifecycle publication; no C/backend fallback or generic MIR JSON Invoke."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -45,14 +45,15 @@ reclassified at terminator Invoke. The Invoke transport D0 is accepted:
 selected lifecycle uses existing physical-program.v2/C V4, while generic MIR
 JSON keeps its rejection. The next bounded work is the method physical V2
 OBJ/EXE caller cutover; untyped storage and child cleanup remain separate.
-That caller is now paused at ROOT-METHOD-CALL-D0: Main.main's lexical
+That caller is now paused at ROOT-METHOD-CALL-D1: Main.main's lexical
 pair.sum() has resolver MethodCall facts but no verified source-to-target issuer
 that can feed the existing AppMain lifecycle loan. Physical V2/C V4 remains
 unchanged until that source authority is named. The D0 census closed as
-NoSafeSlice for implementation and leaves a finite crosswalk D1 as the next
-design decision; no code or transport fallback is authorized.
+NoSafeSlice for implementation. The D1 design now names ordinary_new as the
+co-seal owner and limits the next slice to a package-private affine crosswalk
+row; no code or transport fallback is authorized.
 """
-next_design_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D0"
+next_design_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D1"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

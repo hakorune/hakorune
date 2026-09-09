@@ -1229,6 +1229,72 @@ missing result contract before lifecycle publication. If the existing products
 cannot be joined without reissuing meaning, retain `NoSafeSlice` and leave the
 physical V2/C V4 consumer unchanged.
 
+##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D1`
+
+Decision: keep the source-to-target crosswalk in the existing
+`ordinary_new` co-seal owner. It already owns the selected root Completion,
+ordinary-New claims, and terminal ownership; it may issue one package-private,
+affine root-method disposition row for the existing lifecycle terminal Call.
+That row is a handoff/consumption product, not a second source authority or a
+public semantic receipt. The direct-call loan remains direct-call-only unless
+the D1 proof shows an in-place extension preserves its source contract.
+
+Source authority + canonical issuer: the resolver's exact
+`VerifiedResolvedMethodCallSourceV1`, the same function's initializer and
+assignment facts, the existing `OrdinaryNewAdmissionClaimV1`, the source-backed
+declaration catalog, and the selected batch/result/signature products. The
+`ordinary_new` issuer must co-seal the following finite relation before the
+terminal callback can return true:
+
+```text
+MethodCall site
+ -> lexical BindingRef (same owner)
+ -> one initializer for that binding
+ -> one selected OrdinaryNew claim at that initializer site
+ -> claim class/object
+ -> instance declaration lookup by class + selector + arity
+ -> one selected catalog identity/batch row
+ -> one matching completion/result/signature contract
+```
+
+The target key is accepted only as the source-catalog lookup result and must
+be checked against the selected identity and result owner. It is never rebuilt
+from MIR symbols, receiver spelling, or C input. The row is consumed by the
+existing root terminal lifecycle validation and leaves no residual row.
+
+Finite disposition before implementation:
+
+| state | issuer condition | allowed terminal |
+| --- | --- | --- |
+| `Ready` | every link above is unique, same-owner, selected, and contract-complete | existing lifecycle `Invoke` path |
+| `Unavailable` | receiver is not a direct lexical local, New is unselected/opaque, or the supported result contract is absent | existing source-unavailable stop; no C ingress |
+| `Rejected` | owner/site drift, reassignment, duplicate initializer/target, class/arity mismatch, foreign selected identity, or result/signature mismatch | fail-fast before artifact publication |
+| `NoSafeSlice` | joining the products would require reissuing source meaning or name/MIR recovery | retain D1 stop and leave physical V2/C V4 unchanged |
+
+Non-authority: `AppMainDirectCallDispositionLoanV1` when its direct-call
+observation contract does not match, `DeclaredInstanceCallRelationV1` for
+instance-method callers only, `MirInstruction::Call`, MIR types, user-box
+route metadata, generic JSON, C defaults, compatibility retry, and receiver
+names. No child cleanup, dynamic/opaque storage, generic MIR-JSON `Invoke`, or
+physical backend change is included.
+
+Fail-fast boundary: the issuer rejects before lifecycle publication and before
+the root terminal callback admits `Invoke`. Positive acceptance is the
+existing typed-object method source through the selected root handoff; negative
+acceptance covers reassigned/foreign locals, multiple matching New claims,
+unselected New, wrong class or arity, missing selected target, and missing or
+drifting result/cleanup contract.
+
+Smallest next slice: read-only D1 implementation inventory in
+`ordinary_new_coseal` and its existing source/result products, ending in one
+named package-private row shape and one focused positive/negative test plan.
+Do not edit C, physical transport, or generic MIR JSON until that inventory
+proves the row can be issued without a new semantic authority. If it cannot,
+record the exact missing source relation and keep `NoSafeSlice`.
+
+Non-claims: this design does not authorize code, fixture, production switch,
+OBJ/EXE acceptance, or any other MethodCall family.
+
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 
 The source issuer preserves `init_fields` membership, but canonical layout must
