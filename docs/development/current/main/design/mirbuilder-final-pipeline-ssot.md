@@ -1090,29 +1090,57 @@ reclassification only; no Invoke fallback or compatibility retry was added.
 
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-JSON-TERMINATOR-D0`
 
-Decision: before admitting `Invoke` into the generic MIR JSON egress, choose
-one canonical transport for the existing lifecycle Invoke triplet
-(`Invoke`, `InvokeNormalResult`, and `ReturnFault`). Reuse the existing
-`InvokeOperation`/compiled-entry relation and the already defined physical
-JSON encoder as evidence; do not make the generic emitter infer targets,
-fault frames, result kinds, or landing blocks from names or C defaults.
-Source authority + canonical issuer: the existing selected MIR lifecycle
-owner and `CompiledEntryContractV1` that already bind operation, frame, result,
-and cleanup relations. The production caller is the selfhost MIR egress that
-currently reaches `src/runner/mir_json_emit`; the physical consumer remains
-the selected lifecycle C owner after the transport is chosen.
-Non-authority: RawCompatibility, function names, MIR observations, C-side
-reclassification, and a second JSON schema or retry route. Fail-fast boundary:
-unsupported operation/result kind, missing or orphaned normal/fault landing,
-mismatched fault frame, and an Invoke row that is not covered by the selected
-compiled-entry contract must stop before artifact output.
-Smallest next slice: audit the existing generic and physical encoders for the
-selected method Birth call, record the single canonical ingress and its
-negative shapes, then implement only that bounded terminator/progress pair.
-Do not open child cleanup, dynamic/opaque storage, Map extensions, or whole
-suite acceptance in this D0.
-Non-claims: this row does not claim arbitrary Invoke support, new runtime ABI,
-child Birth execution, or final MirBuilder completion.
+Decision (accepted): selected lifecycle `Invoke`, `InvokeNormalResult`, and
+`ReturnFault` use the existing `hako.published-lifecycle-physical-program.v2`
+transport. Do not add `Invoke` to generic `src/runner/mir_json_emit`; that
+transport is a harness/generic lane and its explicit rejection remains the
+fail-fast boundary. The physical encoder already emits the complete triplet,
+including operation, frame, result, and landing relations.
+Source authority + canonical issuer: `PublishedMirBackendView` binds the
+existing `CompiledEntryContractV1` into one
+`PublishedLifecyclePhysicalAbiInputV1`, then
+`published_backend_view/physical_program_json.rs` emits the physical document.
+Canonical consumer: `LifecycleInvocationInputV1` →
+`compile_published_lifecycle_physical_v4` → the C V4 parser/admission/index/
+emitter. Non-authority: generic MIR JSON, RawCompatibility, function names,
+MIR observations, C reclassification, and any retry route.
+Fail-fast boundary: target/arity/receiver mismatch, missing or orphaned
+normal/fault landing, frame mismatch, unsupported operation/result kind,
+duplicate or missing normal projection, and physical schema/key drift reject
+before artifact output.
+Smallest next slice: route the existing `typed_object_method_min` production
+EXE/OBJ caller through `emit_published_view_exe`/`compile_published_view_object`
+and record physical JSON positive/negative evidence. Keep the generic
+`selfhost_build.sh --mir` lane explicit and unsupported for lifecycle Invoke;
+do not add a second JSON schema or CLI fallback. Do not open child cleanup,
+dynamic/opaque storage, Map extensions, or whole-suite acceptance here.
+Non-claims: arbitrary Invoke support, a new runtime ABI, generic JSON lifecycle
+execution, child Birth execution beyond the existing physical cohort, or final
+MirBuilder completion.
+
+##### `MIRBUILDER-INVOKE-LIFECYCLE-PHYSICAL-V2-CUTOVER-I0`
+
+Decision: use the existing selected physical lifecycle caller for the method
+cohort. The source/MIR module is admitted by `PublishedMirBackendView`, bound
+as `PublishedLifecyclePhysicalAbiInputV1` with one runtime session, serialized
+once by `physical_program_json`, and consumed by C V4 for OBJ/EXE. The generic
+`selfhost_build.sh --mir` route remains a compatibility/harness probe and must
+continue to reject lifecycle `Invoke`; it is not a second production route.
+Issuer: existing source-backed normal pipeline and
+`PublishedMirBackendView::issue_lifecycle_physical_abi_input`.
+Consumer: `compile_published_view_object` / `emit_published_view_exe` through
+`LifecycleInvocationInputV1` and `compile_published_lifecycle_physical_v4`.
+Fail-fast: selected route, runtime archive/session, physical schema, target
+mapping, Birth/ordinary target, frame, landing blocks, projections, cleanup,
+and artifact result must all be accepted by the existing V4 checks. No name
+repair, generic JSON retry, or CLI-side operation inference.
+Smallest slice: make the existing method acceptance caller invoke this
+selected physical owner, add one positive method physical JSON/OBJ/EXE check
+and the existing negative contract checks, then record exit `30` and linked
+OBJ evidence. Do not alter C child gates, dynamic storage, Map semantics, or
+generic MIR JSON vocabulary.
+Non-claims: generic JSON lifecycle execution, arbitrary Invoke families, new
+runtime ABI, child cleanup expansion, and whole-suite completion.
 
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 

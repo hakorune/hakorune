@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-JSON-TERMINATOR-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-PHYSICAL-V2-CUTOVER-I0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Invoke lifecycle egress D0: choose one canonical transport for existing Invoke/InvokeNormalResult/ReturnFault relations. Do not infer targets or frames, add a second JSON schema, open child cleanup or dynamic storage, or alter RawCompatibility."
+current_blocker_token = "Invoke lifecycle physical V2 I0: route typed_object_method_min through the existing PublishedLifecyclePhysicalAbiInputV1 and C V4 OBJ/EXE owner. Keep generic MIR JSON Invoke rejection; do not add a second schema, CLI fallback, child cleanup, dynamic storage, or alter RawCompatibility."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -40,12 +40,14 @@ with issuer-focused tests 6/6. The next bounded work is design-stop D0 for the
 IntegerBox storage contract and source migration are closed through
 89199dbc3c: newbox EXE exit30, method now isolated at FaultFrameEnter, and
 canonical layout negatives 3/3. FaultFrameEnter JSON egress is now closed at
-36cdbb08c8 with focused 1/1 evidence; the method smoke is reclassified at
-terminator Invoke. The next bounded work is Invoke lifecycle JSON transport
-D0; untyped storage and child cleanup remain separate.
+36cdbb08c8 with focused 1/1 evidence; generic method smoke is intentionally
+reclassified at terminator Invoke. The Invoke transport D0 is accepted:
+selected lifecycle uses existing physical-program.v2/C V4, while generic MIR
+JSON keeps its rejection. The next bounded work is the method physical V2
+OBJ/EXE caller cutover; untyped storage and child cleanup remain separate.
 """
-next_design_card = "MIRBUILDER-INVOKE-LIFECYCLE-JSON-TERMINATOR-D0"
-next_execution_card = "none"
+next_design_card = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
+next_execution_card = "MIRBUILDER-INVOKE-LIFECYCLE-PHYSICAL-V2-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
