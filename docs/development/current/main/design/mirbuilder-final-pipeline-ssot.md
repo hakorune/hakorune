@@ -1262,6 +1262,15 @@ be checked against the selected identity and result owner. It is never rebuilt
 from MIR symbols, receiver spelling, or C input. The row is consumed by the
 existing root terminal lifecycle validation and leaves no residual row.
 
+D1 inventory finding: the source crosswalk facts are available for comparison,
+but the existing `AppMainDirectCallDispositionRowV1` also owns a canonical
+physical emission issued from `VerifiedCallableHeaderV1` and the root direct
+call index. A lexical instance target is not admitted by that direct-call
+index. D1 therefore must prove one existing selected-instance target emitter
+that preserves the catalog key, physical signature, and result owner, or stop
+at `NoSafeSlice`; it may not fabricate a header from a name, MIR type, or
+receiver spelling.
+
 Finite disposition before implementation:
 
 | state | issuer condition | allowed terminal |
@@ -1269,7 +1278,7 @@ Finite disposition before implementation:
 | `Ready` | every link above is unique, same-owner, selected, and contract-complete | existing lifecycle `Invoke` path |
 | `Unavailable` | receiver is not a direct lexical local, New is unselected/opaque, or the supported result contract is absent | existing source-unavailable stop; no C ingress |
 | `Rejected` | owner/site drift, reassignment, duplicate initializer/target, class/arity mismatch, foreign selected identity, or result/signature mismatch | fail-fast before artifact publication |
-| `NoSafeSlice` | joining the products would require reissuing source meaning or name/MIR recovery | retain D1 stop and leave physical V2/C V4 unchanged |
+| `NoSafeSlice` | joining the products would require reissuing source meaning, name/MIR recovery, or a synthetic physical header | retain D1 stop and leave physical V2/C V4 unchanged |
 
 Non-authority: `AppMainDirectCallDispositionLoanV1` when its direct-call
 observation contract does not match, `DeclaredInstanceCallRelationV1` for
