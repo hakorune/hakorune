@@ -363,6 +363,10 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
         )
         .unwrap();
     let root = handoff.root_source().expect("retained Call source relation");
+    assert!(matches!(
+        handoff.root_result(),
+        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. })
+    ));
     assert!(root.call_entry().is_some(), "Call payload is retained");
     assert!(root.call_entry().unwrap().call_invoke().is_some());
     assert!(!root.call_cleanup().is_empty(), "Call bindings stay retained");

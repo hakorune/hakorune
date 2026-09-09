@@ -44,7 +44,7 @@ pub(crate) use compiled_entry_contract::{
 };
 pub(crate) use physical_abi::{PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1};
 pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
-pub(crate) use physical_program::{issued_ordinary_call, ordinary_callable_key};
+pub(crate) use physical_program::ordinary_callable_key;
 pub(crate) use physical_program_json::emit_lifecycle_physical_abi_json;
 
 /// The only route decisions a backend may observe for the selected published

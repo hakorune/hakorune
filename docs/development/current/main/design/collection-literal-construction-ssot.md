@@ -3140,12 +3140,12 @@ whole Map/R7 claim is made.
 
 #### Ordinary callee ledger placement: bounded connection closed
 
-Decision: retain the original ordinary Map Completion/terminal in the existing ledger's owner-indexed borrow table after S6C consumes its exclusive seed; do not copy it. The root-plus-one-called-child scalar cohort is closed; the next wider-owner step is a design stop, not a physical Option-to-collection patch.
-Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row and owner index share the same `Rc` Completion.
-Non-authority: AppMain's former root-only admission check, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
-Fail-fast boundary: admit the AppMain root plus one exact called ordinary child Map owner with scalar Value-only entries and completed terminal cleanup; unavailable/foreign rows, uncalled or additional owners, unknown values, and New/Home transfer reject before physical admission.
-Smallest next slice: retire the remaining single-terminal-only production edge now that `MAP-LITERAL-MULTI-CALL-CLEANUP-D0` has its bounded source/ledger/physical implementation and direct/linked Pair exit30 evidence. Do not widen to multiple ordinary owners by changing transport alone.
-Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or whole-Map/R7 claim.
+Decision: design the two-exact-owner scalar Map slice; no implementation permission until the owner and cleanup relation is closed.
+Source authority + canonical issuer: the same resolver session issues exact Call target/site facts; existing affine loan, Completion/root-flow co-seal and owner index remain canonical.
+Non-authority: declaration existence, Map detection, MIR shape, physical function count, or an owner count cannot issue admission.
+Fail-fast boundary: root plus two exact called ordinary owners only; third/nested/conditional/recursive Calls, uncalled owners, New/Home, field, unknown values and native escape reject before install.
+Smallest next slice: accept the owner-set and cleanup matrix, then replace `single_map_target_owner` and the one-child install preflight only.
+Non-claims: no new source issuer, receipt/schema, Call shape, Map manager, all-owner support, native Map read/clone, ordinary New generalization or whole-Map/R7 claim.
 
 Superseded design-stop brief (2026-09-09): at design entry the source issuer
 emitted only a terminal `TerminalI64CallReturnV1`, and the existing affine loan

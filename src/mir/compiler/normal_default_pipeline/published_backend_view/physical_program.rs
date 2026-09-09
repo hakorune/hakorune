@@ -23,7 +23,6 @@ use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
     Root {
         result: CompiledEntryRootResultV1,
-        ordinary_call: Option<MirCall>,
     },
     BirthUnit {
         abi: crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1,
@@ -191,7 +190,12 @@ impl<'module> PublishedMirBackendView<'module> {
             .retained_handoff
             .ok_or_else(|| fault("root-handoff-missing"))?;
         let root = self.retained_root().ok_or_else(|| fault("root-missing"))?;
-        let (root_result, births, ordinary_call) = if let Some(script) = handoff.script_array() {
+        let ordinary_calls = if handoff.script_array().is_some() {
+            Vec::new()
+        } else {
+            collect_ordinary_calls(root)?
+        };
+        let (root_result, births) = if let Some(script) = handoff.script_array() {
             script.validate_root_binding(root)?;
             let result = match script.root_result()? {
                 crate::mir::builder::ScriptArrayRootResultV1::Integer { .. } => {
@@ -201,18 +205,13 @@ impl<'module> PublishedMirBackendView<'module> {
                     CompiledEntryRootResultV1::Unit
                 }
             };
-            (result, &[][..], None)
+            (result, &[][..])
         } else {
             if self.route() != PublishedStaticMethodRouteV1::CanonicalTyped {
                 return Err(fault("not-final-lifecycle-view"));
             }
-            let source = handoff
-                .root_source()
-                .ok_or_else(|| fault("root-source-missing"))?;
-            let ordinary_call = issued_ordinary_call(source)?;
             let result = match handoff.root_result() {
                 Some(result) => super::compiled_entry_contract::root_result_category(result),
-                None if ordinary_call.is_some() => CompiledEntryRootResultV1::I64,
                 None => return Err(fault("root-result-missing")),
             };
             (
@@ -220,10 +219,8 @@ impl<'module> PublishedMirBackendView<'module> {
                 handoff
                     .births()
                     .ok_or_else(|| fault("birth-handoff-missing"))?,
-                ordinary_call,
             )
         };
-        let ordinary_calls = collect_ordinary_calls(root)?;
         let mut names = BTreeSet::new();
         let mut functions = Vec::with_capacity(births.len() + ordinary_calls.len() + 1);
         names.insert(root.signature.name.as_str());
@@ -231,7 +228,6 @@ impl<'module> PublishedMirBackendView<'module> {
             root,
             PublishedLifecyclePhysicalFunctionRoleV1::Root {
                 result: root_result,
-                ordinary_call: ordinary_call.clone(),
             },
             handoff.script_array().is_some(),
             &ordinary_calls,
@@ -375,25 +371,41 @@ pub(super) fn issue_function<'module>(
             edges,
         });
     }
+    let ordinary_rows = blocks
+        .iter()
+        .flat_map(|block| {
+            block
+                .instructions()
+                .iter()
+                .copied()
+                .chain(std::iter::once(block.terminator()))
+        })
+        .filter_map(|row| {
+            let MirInstruction::Invoke {
+                operation:
+                    InvokeOperation::Call {
+                        call,
+                        result: InvokeCallResultKind::I64,
+                    },
+                ..
+            } = row.instruction()
+            else {
+                return None;
+            };
+            Some(call)
+        })
+        .collect::<Vec<_>>();
+    let mut consumed = vec![false; ordinary_rows.len()];
     for expected in ordinary_calls {
-        let count = blocks
-            .iter()
-            .flat_map(|block| {
-                block
-                    .instructions()
-                    .iter()
-                    .copied()
-                    .chain(std::iter::once(block.terminator()))
-            })
-            .filter(|row| {
-                matches!(row.instruction(), MirInstruction::Invoke {
-                operation: InvokeOperation::Call { call, result: InvokeCallResultKind::I64 }, ..
-            } if call == expected)
-            })
-            .count();
-        if count != 1 {
+        let Some(index) = ordinary_rows.iter().enumerate().find_map(|(index, actual)| {
+            (!consumed[index] && *actual == expected).then_some(index)
+        }) else {
             return Err(fault("ordinary-call-membership"));
-        }
+        };
+        consumed[index] = true;
+    }
+    if consumed.iter().any(|used| !used) {
+        return Err(fault("ordinary-call-membership"));
     }
     Ok(PublishedLifecyclePhysicalFunctionV1 {
         name: function.signature.name.as_str(),
@@ -492,33 +504,6 @@ fn validate_instruction(
     } else {
         Err(fault("instruction-unsupported"))
     }
-}
-
-pub(crate) fn issued_ordinary_call(
-    source: &crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1,
-) -> Result<Option<MirCall>, String> {
-    let Some(entry) = source.call_entry() else {
-        return Ok(None);
-    };
-    let invoke = entry
-        .call_invoke()
-        .ok_or_else(|| fault("ordinary-call-entry-missing"))?;
-    let MirInstruction::Invoke {
-        operation:
-            InvokeOperation::Call {
-                call,
-                result: InvokeCallResultKind::I64,
-            },
-        ..
-    } = &invoke.1
-    else {
-        return Err(fault("ordinary-call-shape"));
-    };
-    ordinary_callable_key(&call.callee)?;
-    if call.dst.is_some() {
-        return Err(fault("ordinary-call-destination"));
-    }
-    Ok(Some(call.clone()))
 }
 
 pub(crate) fn ordinary_callable_key(

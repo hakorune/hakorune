@@ -10,6 +10,7 @@ use crate::mir::normal_callable_semantic_package::{
     FinalizedRootResultAbiV1,
 };
 use crate::mir::{Callee, MirInstruction, ValueId};
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::{
     physical_program::{
@@ -179,7 +180,7 @@ pub(crate) struct CompiledEntryContractV1<'module> {
     root_result: CompiledEntryRootResultV1,
     births: Box<[CompiledEntryBirthV1]>,
     birth_calls: Box<[CompiledEntryBirthCallV1]>,
-    ordinary_call: Option<CompiledEntryOrdinaryCallV1>,
+    ordinary_calls: Box<[CompiledEntryOrdinaryCallV1]>,
     cleanup: Box<[CompiledEntryCleanupCoordinateV1]>,
     array_claims: Box<[CompiledEntryArrayClaimV1<'module>]>,
     array_writes: Box<[CompiledEntryArrayWriteV1]>,
@@ -205,8 +206,8 @@ impl<'module> CompiledEntryContractV1<'module> {
     pub(crate) fn birth_calls(&self) -> &[CompiledEntryBirthCallV1] {
         &self.birth_calls
     }
-    pub(crate) fn ordinary_call(&self) -> Option<&CompiledEntryOrdinaryCallV1> {
-        self.ordinary_call.as_ref()
+    pub(crate) fn ordinary_calls(&self) -> &[CompiledEntryOrdinaryCallV1] {
+        &self.ordinary_calls
     }
     pub(crate) fn cleanup(&self) -> &[CompiledEntryCleanupCoordinateV1] {
         &self.cleanup
@@ -218,20 +219,42 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Result<CompiledEntryContractV1<'module>, String> {
         let program = self.issue_lifecycle_physical_program()?;
-        let (root_result, ordinary_call, contract_births, birth_calls, cleanup) = {
+        let (root_result, ordinary_calls, contract_births, birth_calls, cleanup) = {
             let [root, tail @ ..] = program.functions() else {
                 return Err(fault("compiled-entry-root-missing"));
             };
-            let PublishedLifecyclePhysicalFunctionRoleV1::Root {
-                result,
-                ordinary_call,
-            } = root.role()
+            let PublishedLifecyclePhysicalFunctionRoleV1::Root { result } = root.role()
             else {
                 return Err(fault("compiled-entry-root-role"));
             };
+            let root_ordinary_calls = root
+                .blocks()
+                .iter()
+                .flat_map(|block| {
+                    block
+                        .instructions()
+                        .iter()
+                        .copied()
+                        .chain(std::iter::once(block.terminator()))
+                })
+                .filter_map(|row| {
+                    let MirInstruction::Invoke {
+                        operation:
+                            InvokeOperation::Call {
+                                call,
+                                result: InvokeCallResultKind::I64,
+                            },
+                        ..
+                    } = row.instruction()
+                    else {
+                        return None;
+                    };
+                    Some(call.clone())
+                })
+                .collect::<Vec<_>>();
             let mut contract_births = Vec::with_capacity(tail.len());
             let mut birth_functions = Vec::with_capacity(tail.len());
-            let mut ordinary_function_index = None;
+            let mut ordinary_function_indices = BTreeMap::new();
             for (index, function) in tail.iter().enumerate() {
                 let physical_index =
                     u32::try_from(index + 1).map_err(|_| fault("compiled-entry-index"))?;
@@ -284,21 +307,16 @@ impl<'module> PublishedMirBackendView<'module> {
                         birth_functions.push((physical_index, function));
                     }
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. } => {
-                        if ordinary_function_index.replace(physical_index).is_some() {
-                            return Err(fault("compiled-entry-ordinary-duplicate"));
-                        }
-                        let Some(call) = ordinary_call else {
-                            return Err(fault("compiled-entry-ordinary-unissued"));
-                        };
                         let PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key } =
                             function.role()
                         else {
                             unreachable!()
                         };
-                        if function.params().len() != call.args.len()
-                            || &super::physical_program::ordinary_callable_key(&call.callee)? != key
+                        if ordinary_function_indices
+                            .insert(key.clone(), physical_index)
+                            .is_some()
                         {
-                            return Err(fault("compiled-entry-ordinary-arity"));
+                            return Err(fault("compiled-entry-ordinary-duplicate"));
                         }
                     }
                     PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => {
@@ -306,8 +324,34 @@ impl<'module> PublishedMirBackendView<'module> {
                     }
                 }
             }
-            if ordinary_call.is_some() != ordinary_function_index.is_some() {
-                return Err(fault("compiled-entry-ordinary-missing"));
+            let mut referenced_ordinary_keys = BTreeSet::new();
+            let mut ordinary_calls = Vec::with_capacity(root_ordinary_calls.len());
+            for call in root_ordinary_calls {
+                let key = super::physical_program::ordinary_callable_key(&call.callee)?;
+                let function_index = *ordinary_function_indices
+                    .get(&key)
+                    .ok_or_else(|| fault("compiled-entry-ordinary-missing"))?;
+                let function = program
+                    .functions()
+                    .get(function_index as usize)
+                    .ok_or_else(|| fault("compiled-entry-ordinary-index"))?;
+                if function.params().len() != call.args.len()
+                    || !matches!(
+                        function.role(),
+                        PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key: target }
+                            if target == &key
+                    )
+                {
+                    return Err(fault("compiled-entry-ordinary-arity"));
+                }
+                referenced_ordinary_keys.insert(key);
+                ordinary_calls.push(CompiledEntryOrdinaryCallV1 {
+                    function_index,
+                    call,
+                });
+            }
+            if referenced_ordinary_keys.len() != ordinary_function_indices.len() {
+                return Err(fault("compiled-entry-ordinary-unissued"));
             }
             let birth_calls = if program.is_native_array() {
                 Vec::new()
@@ -326,13 +370,7 @@ impl<'module> PublishedMirBackendView<'module> {
             let cleanup = issue_cleanup_coordinates(program.functions())?;
             (
                 *result,
-                ordinary_call
-                    .as_ref()
-                    .map(|call| CompiledEntryOrdinaryCallV1 {
-                        function_index: ordinary_function_index
-                            .expect("ordinary function checked above"),
-                        call: call.clone(),
-                    }),
+                ordinary_calls,
                 contract_births,
                 birth_calls,
                 cleanup,
@@ -377,7 +415,7 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(CompiledEntryContractV1 {
             program,
             root_result,
-            ordinary_call,
+            ordinary_calls: ordinary_calls.into_boxed_slice(),
             births: contract_births.into_boxed_slice(),
             birth_calls: birth_calls.into_boxed_slice(),
             cleanup: cleanup.into_boxed_slice(),
@@ -488,7 +526,8 @@ fn issue_birth_calls(
     result: FinalizedRootResultAbiV1,
 ) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
     let owner = match result {
-        FinalizedRootResultAbiV1::I64AddReturn { owner }
+        FinalizedRootResultAbiV1::CallReturn { owner }
+        | FinalizedRootResultAbiV1::I64AddReturn { owner }
         | FinalizedRootResultAbiV1::UnitReturn { owner }
         | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
         | FinalizedRootResultAbiV1::I64FieldReturn { owner } => owner,
@@ -568,7 +607,8 @@ fn issue_cleanup_coordinates(
 
 pub(super) fn root_result_category(result: FinalizedRootResultAbiV1) -> CompiledEntryRootResultV1 {
     match result {
-        FinalizedRootResultAbiV1::I64AddReturn { .. }
+        FinalizedRootResultAbiV1::CallReturn { .. }
+        | FinalizedRootResultAbiV1::I64AddReturn { .. }
         | FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
         | FinalizedRootResultAbiV1::I64FieldReturn { .. } => CompiledEntryRootResultV1::I64,
         FinalizedRootResultAbiV1::UnitReturn { .. } => CompiledEntryRootResultV1::Unit,

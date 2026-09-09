@@ -6,6 +6,7 @@ use super::*;
 use crate::mir::compiler::MirCompiler;
 use crate::mir::{BasicBlock, BasicBlockId, EffectMask};
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
+use std::collections::BTreeSet;
 
 #[test]
 fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections() {
@@ -17,6 +18,7 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                     "../../../../apps/typed-object-birth-min/main.hako"
                 )),
                 |view, _| {
+                    let no_ordinary = BTreeSet::new();
                     let root = view.retained_root().unwrap().signature.name.as_str();
                     let births = view.retained_birth_abi().unwrap();
                     let key = births[0].target();
@@ -24,12 +26,12 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                         .module()
                         .canonical_callable_definition_symbol(key)
                         .unwrap();
-                    assert_eq!(validate_functions(view.module(), root, births, None), Ok(()));
+                    assert_eq!(validate_functions(view.module(), root, births, &no_ordinary), Ok(()));
 
                     let mut foreign = view.module().clone();
                     foreign.canonical_callable_definitions.remove(key);
                     assert_eq!(
-                        validate_functions(&foreign, root, births, None),
+                        validate_functions(&foreign, root, births, &no_ordinary),
                         Err(fault("function-not-cataloged"))
                     );
 
@@ -40,7 +42,7 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                         symbol.to_owned(),
                     );
                     assert_eq!(
-                        validate_functions(&non_birth, root, births, None),
+                        validate_functions(&non_birth, root, births, &no_ordinary),
                         Err(fault("function-not-birth"))
                     );
 
@@ -50,7 +52,7 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                     let mut block = BasicBlock::new(BasicBlockId::new(0));
                     block.terminator = Some(MirInstruction::Return { value: None });
                     function.blocks.insert(block.id, block);
-                    assert_eq!(validate_functions(&return_only, root, births, None), Ok(()));
+                    assert_eq!(validate_functions(&return_only, root, births, &no_ordinary), Ok(()));
                     return_only
                         .functions
                         .get_mut(symbol)
@@ -59,7 +61,7 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                         .name
                         .push_str("-drift");
                     assert_eq!(
-                        validate_functions(&return_only, root, births, None),
+                        validate_functions(&return_only, root, births, &no_ordinary),
                         Err(fault("function-not-birth"))
                     );
 
@@ -83,7 +85,7 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                                 EffectMask::PURE,
                             ));
                         assert_eq!(
-                            validate_functions(&bad_call, root, births, None),
+                            validate_functions(&bad_call, root, births, &no_ordinary),
                             Err(fault("birth-call-drift"))
                         );
                     }

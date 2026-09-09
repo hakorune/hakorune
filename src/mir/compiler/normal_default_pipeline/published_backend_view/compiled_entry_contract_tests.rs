@@ -120,7 +120,6 @@ fn map_cleanup_coordinates_follow_physical_block_contraction() {
             function,
             PublishedLifecyclePhysicalFunctionRoleV1::Root {
                 result: CompiledEntryRootResultV1::I64,
-                ordinary_call: None,
             },
             false,
             &[],

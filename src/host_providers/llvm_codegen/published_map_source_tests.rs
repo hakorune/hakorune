@@ -155,6 +155,7 @@ fn issued_ordinary_child_map_value_direct_exe_and_linked_object_exit_30() {
                 assert!(view.has_lifecycle_instructions());
                 assert_eq!(view.route(), PublishedStaticMethodRouteV1::CanonicalTyped);
                 let input = view.issue_lifecycle_physical_abi_input()?;
+                assert_eq!(input.entry().ordinary_calls().len(), 2);
                 let json = emit_lifecycle_physical_abi_json(&input)?;
                 assert!(json.contains("ordinary_i64"));
                 assert!(json.contains("map_install_value"));
@@ -292,7 +293,7 @@ fn issued_local_and_terminal_map_calls_direct_exe_and_linked_object_exit_30() {
             materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
         };
         let source = r#"static box Main {
-            main() { local first = helper(10) return helper(20) }
+            main() { local first = helper(10) return helper(10) }
             helper(value: i64): i64 { local m = %{"first" => value} return 30 }
         }"#;
         let NormalCallableMaterializationOutcomeV1::SourceBacked(source) =

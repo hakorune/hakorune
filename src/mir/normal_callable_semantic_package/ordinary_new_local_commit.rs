@@ -150,7 +150,9 @@ impl FinalizedRootSourceHandoffV1 {
     /// Derived at this result boundary; never retained as a second source tag.
     pub(crate) fn result_abi(&self) -> Option<FinalizedRootResultAbiV1> {
         Some(match &self.terminal {
-            TerminalRelationV1::Call(_) => return None,
+            TerminalRelationV1::Call(row) => {
+                FinalizedRootResultAbiV1::CallReturn { owner: row.owner() }
+            }
             TerminalRelationV1::I64Add(row) => {
                 FinalizedRootResultAbiV1::I64AddReturn { owner: row.owner() }
             }
@@ -211,6 +213,7 @@ impl FinalizedRootSourceHandoffV1 {
 /// Final-handoff projection of the already-issued terminal source relation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FinalizedRootResultAbiV1 {
+    CallReturn { owner: FunctionOwnerIdV1 },
     I64AddReturn { owner: FunctionOwnerIdV1 },
     UnitReturn { owner: FunctionOwnerIdV1 },
     IntegerLiteralReturn { owner: FunctionOwnerIdV1 },
