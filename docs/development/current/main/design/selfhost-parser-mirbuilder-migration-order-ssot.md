@@ -59,6 +59,12 @@ automatic resume targets; they reopen only if the selected authority names
 them as a necessary dependency. Pure output equality remains bootstrap
 evidence until the final non-delegation gate is demonstrated.
 
+Compiler-library completion dependencies are queued in
+[rust-to-hako-converter-implementation-role-ssot.md](rust-to-hako-converter-implementation-role-ssot.md#compiler-library-completion-backlog):
+existing Array/Map contracts, TextBuilder join, canonical key ordering, scanner
+results, then caller-driven Set/Worklist. These refine the selected compiler
+closure's needs; they neither reopen this lane nor replace gates 1–3 above.
+
 ## Resume admission: `.hako` mimalloc promotion gate
 
 Decision: accepted — parked required gate, not the current blocker.

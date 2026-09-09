@@ -708,6 +708,46 @@ library to language only when multiple compiler families require it, the
 library cannot preserve type safety or optimization semantics, and VM/AOT
 behavior must be fixed as language meaning.
 
+## Compiler-library completion backlog
+
+Decision (2026-09-09): finish existing collection consumers before adding new
+collection kinds. This queue is outside the active Map compiler cutover;
+it does not authorize `.hako` migration or change the unified resume gates in
+`selfhost-parser-mirbuilder-migration-order-ssot.md`. The earlier OrderedMap
+helper suggestion is conditional, not a requirement to introduce OrderedMapBox.
+
+Static evidence at c43b636: `text_builder.hako::finish` concatenates accumulated
+prefixes; `canonical_json.hako::_sorted_keys` rebuilds an Array for every key;
+`MapBox::keys` sorts public text; Array `ops/sequence/order.rs::join` already
+joins parts. These facts do not prove selected canonical execution or a measured
+speedup. The finite scope here is those library consumers plus the scanner and
+carrier named below, not all compiler collection callers.
+
+| Order / status | Existing owner and bounded task | Acceptance and exclusive removal |
+| --- | --- | --- |
+| 1 / prerequisite, queued | Collection source/Completion and selected backend owners in `collection-literal-construction-ssot.md`: pin the actual compiler-source callers needing Array/Map get, update, remove and function transfer; connect only their required contracts. | Natural source reaches the selected artifact and executes normal, missing and Fault cases, with exact ownership/cleanup. Missing is distinguished from a stored normal value through the existing result contract; no new sentinel or error-string convention. Retire the corresponding old selected edge; API presence and reference-backend green are insufficient. Reuse existing cutover rows instead of a second collection backlog. |
+| 2 / ParkedSealed | `lang/src/compiler/lib/text_builder.hako::finish`: use existing Array join with empty separator once its selected-route support and conversion contract are established. | Empty/uninitialized, Unicode, escaped text, append conversion, clear and repeated finish preserve output and builder behavior through a real writer caller. Delete the prefix-concatenation loop. Record matched input/time/allocation evidence before claiming a performance gain; no extra Builder or buffer ABI. |
+| 3 / ParkedSealed | `lang/src/compiler/lib/canonical_json.hako::_sorted_keys`: reuse guaranteed key order for the actual receiver, or sort once in this owner if its contract does not guarantee that order. | Resolve the actual receiver/provider and compare its key ordering with `TextOrder.compare_rust_string_v1`, including non-ASCII keys. Insertion permutations emit identical canonical JSON through the selected route. Remove per-key Array reconstruction; do not infer builtin semantics from the name MapBox or waive canonical ordering. |
+| 4 / ParkedSealed | Parser scan owners (`parser_string_scan_box.hako`, its escape producer and actual consumers): retain source/range and decoded value/next position in an ordinary result Box where necessary. | First name the existing source-position authority and byte/character unit. Unicode, escapes including `@`, bounds, malformed and unterminated input preserve the chosen error contract and next position. Switch producer and consumers together and delete their delimiter serialization/reparse. No speculative Tuple syntax or new source authority; malformed-input policy changes require their own decision. |
+| 5 / demand-only ParkedSealed | The compiler caller that first demonstrates duplicated membership/work-queue logic: ordinary Set/Worklist helper over existing Array/Map. | Name a real caller and ownership/order contract before selection. Insert reports newly added membership; duplicate work is suppressed without changing traversal order. Retire that caller's duplicated bookkeeping. No claim of one lookup merely because Map is wrapped. |
+
+Reopen conditions for orders 2–4: the unified resume gates permit the selected
+library caller, prerequisite collection/string operations execute on that route,
+and the task is explicitly selected. Each library remains an ordinary consumer,
+not a resolver, Recipe issuer, host ABI owner or execution selector. Missing
+prerequisites return to their existing owner; no `.hako` workaround opens them.
+Order 4's position contract is required before migrating its scanner, but its
+allocation optimization is not an unconditional selfhost gate.
+
+Keep the existing dense-ID visited bool arrays and Array stack in
+`source_carrier_v1/source_carrier_sealer_v1.hako`; do not convert them wholesale
+to Set. BitSet, name interning, Deque and LinkedList remain demand/performance
+candidates only: reopen with a named caller and measured representation cost,
+not collection-name parity. Array front insertion alone cannot establish O(1).
+The Buffer policy owner remains `lang/src/runtime/collections/buffer/README.md`;
+its facade inventory does not prove executable cutover. Reuse it only if the
+scanner's selected byte-access contract actually needs Buffer.
+
 ## Open Design Boundaries
 
 No additional design consultation is required before the current freeze
