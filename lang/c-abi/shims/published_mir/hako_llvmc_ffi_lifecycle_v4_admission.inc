@@ -8,6 +8,7 @@ typedef struct {
   size_t index_count;
   struct hako_lv4_layout_index* layouts;
   size_t layout_count;
+  hako_llvmc_lifecycle_measurement* measurement;
 } hako_lv4_input;
 
 enum { LV4_BAD, LV4_I64, LV4_HANDLE, LV4_FRAME, LV4_UNIT, LV4_TEXT, LV4_BOOL, LV4_F64, LV4_TAGGED, LV4_MAP, LV4_KEY, LV4_OUTCOME };

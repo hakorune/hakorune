@@ -2,6 +2,7 @@
 /* LLVM text emission from the admitted physical graph. No generic dispatcher. */
 static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     const hako_llvmc_lifecycle_target_session_v2* session, size_t fi) {
+  if (in->measurement) in->measurement->v4_emit_functions++;
   yyjson_val* fn = yyjson_arr_get(in->functions, fi);
   yyjson_val* blocks = hako_physical_blocks(fn);
   yyjson_val* params = yyjson_obj_get(fn, "params");
@@ -32,6 +33,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
     yyjson_val* block = yyjson_arr_get(blocks, bi);
     yyjson_val* rows = yyjson_obj_get(block, "instructions");
+    if (in->measurement) {
+      in->measurement->v4_emit_blocks++;
+      in->measurement->v4_emit_rows += yyjson_arr_size(rows);
+    }
     yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
     if (op && (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")))
       fprintf(f, "  %%new%u = alloca i64, align 8\n", lv4_u(block, "id"));

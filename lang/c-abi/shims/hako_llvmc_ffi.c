@@ -12,6 +12,7 @@
 // recipe-aware pure-first export remains the direct production entry.
 
 #include <stddef.h>
+#include <time.h>
 #include <stdlib.h>
 #include <string.h>
 #if !defined(_WIN32)

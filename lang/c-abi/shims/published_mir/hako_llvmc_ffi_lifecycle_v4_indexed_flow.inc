@@ -12,6 +12,7 @@ static int lv4_indexed_live(hako_lv4_function_index* fn, uint32_t id, int kind,
 static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
     yyjson_val* block, uint16_t* state, int faulted, int birth) {
   yyjson_val* rows = yyjson_obj_get(block, "instructions");
+  if (in->measurement) in->measurement->v4_flow_rows += yyjson_arr_size(rows);
   for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
     yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
     if (lv4_is(ins, "op", "fault_frame_enter")) {
@@ -59,6 +60,7 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
   yyjson_val* block = yyjson_arr_get(blocks, bi);
   yyjson_val* term = lv4_term(block);
   size_t count = fn->block_count;
+  if (in->measurement) in->measurement->v4_flow_blocks++;
   uint16_t state[256], normal[256];
   if (active[bi]) return 0;
   if (faults[bi] >= 0)

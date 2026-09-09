@@ -1631,6 +1631,24 @@ contains the input revision, profile, toolchain, and separate V2/V4/`llc`
 measurements. No speedup, concurrency, or whole-backend performance claim is
 made by the observation alone.
 
+Measurement P0 closeout (2026-09-10): the existing
+`NYASH_LLVM_ROUTE_TRACE=1` surface now emits one machine-readable
+`lifecycle-v4-measure` line per physical V4 invocation. The observation is
+stack-owned by that invocation and remains disabled by default; it records the
+physical-program revision, profile, target/toolchain, index lifetime, parse,
+V2 validation, V4 admission, emission, and `llc` nanoseconds, plus V2 graph
+census, V4 index/resolve/flow counts, and indexed type/layout lookup counts.
+The selected Rust Pair test produced six successful observations (direct and
+linked object for Pair, Bool-first, and Bool-second), retained exit 30/70
+behavior, and emitted no measurement line when the trace gate was unset. The
+physical parser preartifact test and V4 execution test retained their schema,
+SSA, dominance, diagnostic-site, runtime-fault, and temporary-artifact
+rejections. The observed Pair sample is roughly 0.13 ms for V2 validation,
+0.04 ms for V4 admission, 0.05 ms for emission, and 12--13 ms for `llc`; this
+names the existing `llc` subprocess as the dominant measured slice, but does
+not authorize in-process `llc`, a shared V2/V4 index, a cache, or a concurrency
+claim. Any such change requires a separate owner and before/after evidence.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root

@@ -60,6 +60,10 @@ collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
   owns the source handoff, admission and storage profile. Its published view
   borrows the products and observes lifecycle presence without retaining another
   instruction-coordinate array or activating itself. Generic views stay fenced.
+  Set `NYASH_LLVM_ROUTE_TRACE=1` to opt into one
+  `stage=lifecycle-v4-measure` line per invocation. It reports parse/V2/V4/
+  emission/llc timings and invocation-local index counts; the line is
+  diagnostic-only and the default route emits nothing.
 - The call-local physical-v2 parser checks structure/SSA, function/block/value/
   layout, Birth, PHI, invoke/frame and CFG references without source-name repair.
   V4 separately checks type/cohort coverage. Parser success alone does not prove

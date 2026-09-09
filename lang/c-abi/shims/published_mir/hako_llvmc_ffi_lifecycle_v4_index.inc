@@ -31,6 +31,7 @@ static int lv4_layout_compare(const void* a, const void* b) {
 }
 static yyjson_val* lv4_layout(const hako_lv4_input* in, uint32_t id) {
   hako_lv4_layout_index key = {id, NULL};
+  if (in->measurement) in->measurement->v4_layout_lookups++;
   if (!in->layout_count) return NULL;
   hako_lv4_layout_index* found = bsearch(&key, in->layouts, in->layout_count,
       sizeof(key), lv4_layout_compare);
@@ -138,6 +139,7 @@ static int lv4_index_open(hako_lv4_input* in) {
   }
   if (in->layout_count) qsort(in->layouts, in->layout_count, sizeof(*in->layouts), lv4_layout_compare);
   for (size_t fi = 0; fi < functions; fi++) {
+    if (in->measurement) in->measurement->v4_index_functions++;
     hako_lv4_function_index* fn = &in->index[fi];
     yyjson_val* body = yyjson_arr_get(in->functions, fi);
     int birth = lv4_is(body, "role", "birth_unit");
@@ -151,6 +153,7 @@ static int lv4_index_open(hako_lv4_input* in) {
     fn->values = calloc(capacity, sizeof(*fn->values));
     fn->blocks = calloc(fn->block_count, sizeof(*fn->blocks));
     if (!fn->values || !fn->blocks) return 0;
+    if (in->measurement) in->measurement->v4_index_blocks += fn->block_count;
     if (birth || ordinary_receiver) {
       hako_lv4_value* receiver = &fn->values[fn->value_count++];
       receiver->id = lv4_u(body, "receiver"); receiver->kind = LV4_HANDLE;
@@ -174,6 +177,7 @@ static int lv4_index_open(hako_lv4_input* in) {
         value->id = (uint32_t)yyjson_get_uint(dst); value->instruction = ins; value->origin = -1;
       }
     }
+    if (in->measurement) in->measurement->v4_index_values += fn->value_count;
     qsort(fn->values, fn->value_count, sizeof(*fn->values), lv4_value_compare);
     qsort(fn->blocks, fn->block_count, sizeof(*fn->blocks), lv4_block_compare);
     for (size_t i = 1; i < fn->value_count; i++)
@@ -181,12 +185,16 @@ static int lv4_index_open(hako_lv4_input* in) {
     for (size_t i = 1; i < fn->block_count; i++)
       if (fn->blocks[i-1].id == fn->blocks[i].id) return 0;
     for (size_t i = 0; i < fn->value_count; i++)
-      if (!lv4_index_resolve(fn, &fn->values[i])) return 0;
+      {
+        if (in->measurement) in->measurement->v4_index_resolves++;
+        if (!lv4_index_resolve(fn, &fn->values[i])) return 0;
+      }
   }
   return 1;
 }
 
 static int lv4_input_type(const hako_lv4_input* in, yyjson_val* fn, uint32_t value) {
+  if (in->measurement) in->measurement->v4_type_lookups++;
   if (in->native) return lv4_type(fn, value, lv4_value_budget(fn));
   for (size_t fi = 0; fi < in->index_count; fi++) {
     if (in->index[fi].function != fn) continue;

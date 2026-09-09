@@ -3,6 +3,32 @@ typedef struct hako_llvmc_entry_rune_selection {
   const char* callconv;
 } hako_llvmc_entry_rune_selection;
 
+/* Opt-in, invocation-local observation for the selected lifecycle ingress.
+ * These counters are diagnostics only; they never participate in admission,
+ * emission, rejection, or artifact publication. */
+typedef struct hako_llvmc_lifecycle_measurement {
+  int enabled;
+  int native;
+  uint32_t profile;
+  char target_triple[64];
+  uint64_t parse_ns, v2_ns, v4_ns, emit_ns, llc_ns;
+  uint64_t v2_functions, v2_blocks, v2_rows;
+  uint64_t v4_index_functions, v4_index_blocks, v4_index_values;
+  uint64_t v4_index_resolves, v4_flow_blocks, v4_flow_rows;
+  uint64_t v4_emit_functions, v4_emit_blocks, v4_emit_rows;
+  uint64_t v4_type_lookups, v4_layout_lookups;
+} hako_llvmc_lifecycle_measurement;
+
+static uint64_t hako_llvmc_measure_now_ns(void) {
+#if defined(_WIN32)
+  return 0;
+#else
+  struct timespec ts;
+  if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) return 0;
+  return (uint64_t)ts.tv_sec * UINT64_C(1000000000) + (uint64_t)ts.tv_nsec;
+#endif
+}
+
 static void hako_llvmc_select_entry_runes(
     yyjson_val* fn0,
     hako_llvmc_entry_rune_selection* out);
