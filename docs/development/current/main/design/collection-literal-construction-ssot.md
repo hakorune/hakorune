@@ -3169,11 +3169,21 @@ Decision: implement one bounded cohort of three source-local Calls A/B/C followe
 Source authority + canonical issuer: the existing resolver exact target/site observations, affine AppMain loan, `RootHomeFlow.local_calls` plus terminal relation, and per-owner Completion/result co-seal. No new semantic issuer or receipt is proposed.
 Non-authority: owner count, declaration count, MIR Call count, physical function arrays, binding-group count, or Map-name recognition cannot issue admission.
 Fail-fast boundary: every local Call must have empty prior Homes; fifth or repeated-target Call, fifth distinct owner, uncalled owner, nested/conditional/recursive Call, New/Home, field, unknown value, and native escape reject before install.
-Smallest next slice: record the passing direct/linked artifact and Fault-prefix evidence for the bounded four-owner set, then close this I0; `map_target_owners` and `preflight_map_install` already pass semantic 14/14 and reuse the physical Call collection.
+Smallest next slice: correct the stale ordinary-child `ordinary_calls().len()` expectation from2 to1, then run the existing selected C/runtime direct and linked exit30 evidence; `map_target_owners`, `preflight_map_install`, and the formal consumer remain unchanged.
 Caller and owner: `direct_call_lifecycle::co_seal_lifecycle`, `install_map_preflight`, and `selected/terminal_call::emit_local` remain the callers; Completion, owner index, and existing physical boundary remain owners.
 Exclusive delete-set: only the three-owner cap and its `local_i64_call_count == 2` admission edge may be replaced by a bounded four-owner/count-three case. Keep the three-owner guard, prior-home rejection, group mutation checks, cleanup builder, and all unsupported Stops.
 Acceptance: a four-target source reaches direct EXE and linked OBJ exit30, and the per-prefix Fault/cleanup probes at A/B/C/D pass; fifth repeated-target and fifth-distinct-owner negatives reject; root-before-first-Call, group duplicate/foreign/swapped/omitted, finishing drift, and 0/1/2-local regressions remain negative/green as appropriate.
 Non-claims: no general local-Call cleanup, new receipt/schema, Map manager, all-owner support, native Map read/clone, or whole-Map/R7 completion. This I0 does not widen the root-before-first-Call or unsupported-shape boundary.
+
+### Ordinary-child Value-only artifact recheck I0
+
+Decision: repair the stale test expectation for one source `main -> helper` Call site and observe the existing formal-to-Map-Value physical path. This is a BoxShape/test-alignment slice; it does not issue a new source or ABI product.
+Source authority + canonical issuer: `direct_call_lifecycle::exact_formals` and `co_seal_lifecycle` retain the exact target, i64 formal, and original Completion; existing callable binding state supplies the parameter value.
+Non-authority: function count, `ordinary_i64` role count, MIR type alone, or `ordinary_calls()` length cannot admit a second source Call.
+Fail-fast boundary: owner/target/arity/formal ValueId or parameter-contract drift remains rejected before C ABI/OBJ/EXE; unknown scalar and unselected families stay stopped.
+Caller and consumer: `port_aware_function_draft_impl` -> `adopt_callable_entry_values_v1` -> `install_entry_values` -> existing `lower_callable_map_v1` and lifecycle parameter capability consumer.
+Delete-set: only the incorrect `ordinary_calls().len()==2` assertion and its stale baseline classification. Keep four-owner caps, negatives, formal checks, cleanup owners, and physical collection.
+Acceptance: the ignored ordinary-child test reaches existing selected C/runtime direct EXE and linked OBJ exit30; root+child Map and current two/four-owner evidence remain green. A downstream failure reopens a separate bounded consumer row; no default or inferred authority is added.
 
 Superseded design-stop brief (2026-09-09): at design entry the source issuer
 emitted only a terminal `TerminalI64CallReturnV1`, and the existing affine loan
