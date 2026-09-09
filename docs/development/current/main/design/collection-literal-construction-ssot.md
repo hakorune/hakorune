@@ -2522,9 +2522,10 @@ same ordered slot/replacement structure. Map/key native cleanup and first-Fault
 preservation remain mandatory. These are the existing language laws, not new
 capability inference from physical tags.
 
-The same package issuer already owns parameter contracts (`issuer.rs` around
-528/553) but does not pass them to `issue_ordinary_new_claims_v1` around699.
-That existing issuance is the connection point. `MapHomeEntry` currently means
+The package issuer passes its retained parameter contracts to
+`issue_ordinary_source_cohort_v1` in the same declaration loan as New candidate
+and Completion issuance (60b0abe3d6). The Home scanner does not yet consume those
+contracts. That existing issuance is the connection point. `MapHomeEntry` currently means
 Home acquisition/transfer; its internal representation must distinguish a
 proven Trivial value from that obligation without sentinel acquisitions or a
 parallel receipt. A per-callable Completion must preserve the callee's normal
@@ -2653,6 +2654,79 @@ lib `mir::normal_callable_semantic_package:: -- --test-threads=1`; log
 the renamed issuer and passes; changed source maximum733. No Home-aware ordinary
 verifier switch yet. Next audit fixes parameter capability input and the owning
 Map entry relation inside this loan; checked storage and V4 remain downstream.
+
+### Ordinary Map capability and Completion: bounded implementation
+
+Decision: replace plain Completion for Map-bearing Cataloged ordinary declarations
+with existing Home-aware issuance in the same source loan. Extend the existing
+Map entry sum with Value versus TransferHome; do not introduce a new receipt.
+Source authority + canonical issuer: declaration parameter contracts and exact
+EntryValue/initializer relations, consumed by the existing ordinary source issuer
+and Home scanner. Completion moves into the existing seed/result owner.
+Non-authority: Trivial capability is not an i64 wire kind; root ledger presence,
+MIR tags, caller literal values and absent observations cannot grant admission.
+Fail-fast boundary: preserve unavailable source observations; unsupported physical
+Value entry rejects at existing map_install_owner before catalog commit, and at
+private emission entry before progress/MIR changes. No generic fallback.
+Smallest next slice: one source capability extension plus its required consumer
+refusal. No-Map ordinary/S6C keep plain verification, AppMain keeps its root
+Completion, successful Dynamic keeps borrowed Completion, TopLevel keeps no seed.
+Non-claims: source retention does not implement value storage, ordinary callable
+Fault ABI, mixed-formal execution, or Map OBJ/EXE completion.
+
+Boundary: declaration contracts + exact source loan -> Home flow -> sole ordinary
+Completion seed/result -> existing install refusal. Includes parameter coverage,
+all current observed Map entry kinds and AppMain's shared scanner. Excludes
+receiver/capture/transfer-formal admission, new expression capability issuers,
+runtime/ABI promotion and no-Map source families.
+
+Implementation order inside this slice:
+
+1. Pass a borrowed ordinal/BindingRef/HomeDemand projection of existing formal
+   rows through function_control_new_homes into the Home scanner. Verify exact
+   source Parameter owner, binding, ordinal and complete unique coverage. Replace
+   blanket parameter EntryDemandMissing; receiver/capture remain unavailable.
+   ExactTrivial (currently I64) initializes Trivial availability; ExactText and
+   OpaqueHandle initialize borrowed Handle, never an acquired Home.
+2. In existing MapHomeEntry retain shared exact site/key/replacement deltas and
+   an internal Value or TransferHome payload. Value retains a source binding when
+   applicable; TransferHome retains acquisition plus binding. Integer/Bool literal,
+   observed Trivial local and exact-I64 formal are Value evidence. Handle, consumed,
+   uninitialized, unknown, Float/Void/String/call/nested collection stay unissued
+   unless their own capability relation is implemented. No default scalar tag.
+   Only TransferHome consumes a Home or updates its outer transfer position.
+3. For seed-eligible ordinary declarations with Map membership, replace the plain
+   verifier with the Home-aware verifier using the same candidates and formal
+   projection; move Completion into the seed inside the loan. Attach root flow to
+   existing Completion cleanup rather than replacing crossed-scope obligations
+   with explicit_empty. No second Completion in the root ledger.
+4. Keep map_flow as a source borrow. At map_install_owner require TransferHome-only
+   entries for the present Indexed consumer. begin_map_emission and
+   map_candidate_object explicitly reject Value before progress/MIR mutation;
+   never fabricate acquisition, binding or object ID. Retain current ordinary
+   MapLifecycleConsumerMissing until result-cohort borrowing and callable ABI land.
+
+Delete-set: Map-bearing ordinary plain-only Completion emission; blanket formal
+entry refusal; unconditional all-entry Home consumption. Existing source, SSA,
+ownership and FFI checks remain. Source files start at Home scanner651,
+Map flow232, local flow127, wrapper116, co-seal683; keep each below800 and design
+responsibility splits at760 without a new semantic owner.
+
+Acceptance: source package retains Value and Map cleanup for an exact-I64 formal;
+repeated Trivial use stays legal without Home transfer; borrowed formal unused in
+Map does not invalidate the walk, but storing it is unavailable. Preserve Home
+transfer, duplicate-key replacement order and reject repeated Home/consumed alias.
+Reject missing/duplicate/foreign formal coverage. AppMain Value remains source
+Complete but install rejects with vacant catalog; Home-only AppMain still passes.
+Private Value emission refuses before progress/MIR change. Package/S6C/Dynamic
+borrow regressions and existing pointer/corridor guards must pass. No new guard
+family or runtime benchmark is required for this source-only boundary.
+
+Next consumer transition after this slice: borrow ordinary Completion from the
+existing result cohort through the installed callable loan. Replace root-only
+ledger lookup for that selected callable without cloning Completion. Coordinate
+Map local progress/finishing and value-capable runtime/ordinary Fault ABI before
+removing install refusal. Source Complete alone is not physical admission.
 
 ## Remaining source obligations
 
