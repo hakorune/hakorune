@@ -1567,6 +1567,70 @@ an invocation-local shared view can be introduced without changing checks.
 Non-claims: no global cache, compile parallelism, whole-backend speedup, new
 physical schema, C fallback, or OBJ/EXE behavior change is authorized.
 
+##### D0 audit result and measurement boundary (2026-09-10)
+
+The selected existing production caller is the Rust path in
+`src/host_providers/llvm_codegen/published_mir_object.rs` that prepares one
+`LifecycleInvocationInputV1` and calls
+`hako_llvmc_compile_published_lifecycle_physical_v4`. The fixed positive
+workload is `apps/typed-object-birth-min/main.hako`, whose Pair object already
+has linked OBJ and EXE exit-30 evidence. `typed-object-method-min` is excluded
+because its receiver-bearing method is a separate physical-ingress boundary.
+
+The invocation order is:
+
+```text
+Rust published physical input
+  -> one parsed yyjson document
+  -> V2 structural/SSA/dominance validation
+  -> V4 admission and invocation-owned hako_lv4_function_index
+  -> V4 flow and emission
+  -> LLVM text/object publication
+```
+
+The exact repeated work to observe is finite and local to this invocation:
+
+* V2 `value_def_count`, `value_def_block`, `value_available_at`, block lookup,
+  and dominance calls;
+* V4 index-open, index resolve, flow row scans, emitter row scans, and
+  `lv4_input_type`/layout lookups;
+* separate elapsed time for JSON parse, V2 validation, V4 admission/flow,
+  emission, and `llc`.
+
+V2 and V4 indexes are not interchangeable products: V2 also proves formal,
+row, terminator, SSA, and dominance contracts, while V4's index serves the
+selected physical consumer. The measurement therefore records both sides
+before any sharing proposal. A future implementation may share only an
+immutable, invocation-owned fact view after the corresponding V2 checks have
+passed; it must not make an unvalidated V4 index authoritative for V2.
+
+The C index worker audit confirms that the V4 index is already created and
+destroyed once per invocation. The remaining candidate is redundant lookup or
+scan work around that existing owner, not a process-global cache. The design
+boundary is now closed because the caller, workload, authority chain, and
+measurement fields are named. The implementation row remains measurement-only
+until a checked-in observation names the hot owner and preserves the existing
+positive/negative result and artifact behavior; no C consumer change is
+allowed before that evidence.
+
+##### MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-MEASURE-P0
+
+Next bounded slice after this design stop: add opt-in, invocation-local
+observation for the selected V4 caller, or use an existing equivalent
+instrumentation surface if it can report the counters without changing the
+FFI contract. Record separate V2/V4 counts and timings plus the `llc` slice,
+then close with a machine-readable observation. Do not alter admission,
+emission, rejection, or object publication in this slice. If the selected
+observation cannot distinguish a hot owner, keep the row parked rather than
+inventing a shared index.
+
+Acceptance: the Pair positive remains linked OBJ/EXE exit 30; malformed
+schema/SSA/dominance/diagnostic-site inputs retain their existing rejection;
+the observation reports one invocation-owned index lifetime; and the report
+contains the input revision, profile, toolchain, and separate V2/V4/`llc`
+measurements. No speedup, concurrency, or whole-backend performance claim is
+made by the observation alone.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root
