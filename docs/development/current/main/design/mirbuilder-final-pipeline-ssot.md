@@ -1009,6 +1009,34 @@ projection tests; do not decide untyped storage. Non-claims: `IntegerBox`
 vocabulary, `FaultFrameEnter`, method Birth, and final EXE acceptance remain
 separate rows.
 
+I0 evidence (landed at `f4b387de48`): the existing object-definition issuer now
+projects legacy `init_fields` after explicit fields exactly once, preserving
+source order, duplicate elimination, and weak-field marking before the
+`CanonicalObjectDefinitionV1` crosses the package boundary. The focused issuer
+suite is `6/6` green, including an AST-level weak-field mutation because the
+default parser grammar intentionally rejects the legacy weak spelling. This
+slice does not claim typed storage, C execution, or source-to-EXE acceptance.
+
+##### `MIRBUILDER-TYPED-OBJECT-STORAGE-CONTRACT-D0`
+
+Decision: design-stop the remaining typed-object acceptance split until the
+source storage contract is explicit. `IntegerBox` is an object identity in the
+language type SSOT, while the historical metadata planner still treats it as
+an inline i64 candidate; legacy untyped `init_fields` now have source membership
+but still lack a canonical storage type. No compatibility inference or layout
+widening is permitted in this row.
+
+Source authority + canonical issuer: the language type/reference contract and
+`ASTNode::BoxDeclaration` as consumed by the existing object-definition issuer;
+the exact representation decision must be accepted here before a new physical
+product is issued. Non-authority: old metadata planners, MIR observations,
+layout inference, RawCompatibility, and C consumers. Fail-fast boundary: reject
+unresolved `IntegerBox` or untyped storage before layout/package transfer rather
+than silently treating it as i64. Smallest next slice: audit the two existing
+type contracts and write one accepted mapping (or an explicit source migration)
+with focused positive/negative cases. Non-claims: `FaultFrameEnter`, method
+Birth, whole-suite recovery, and final MirBuilder completion.
+
 Handoff after Loop retirement and repository convergence is owned by
 `selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`:
 language conformance -> canonical mimalloc promotion -> authority migration
