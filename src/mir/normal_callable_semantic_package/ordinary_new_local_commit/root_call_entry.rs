@@ -260,7 +260,7 @@ impl OrdinaryNewClaimLedgerV1 {
             frame,
         } = entry
         else {
-            return if self.root_instance_call_expected() {
+            return if self.root_instance_call_expected(owner) {
                 // The source method is known, but its target result contract
                 // is unavailable. Preserve the existing artifact stop rather
                 // than manufacturing a direct-call entry.

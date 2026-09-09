@@ -36,9 +36,12 @@ impl OrdinaryNewClaimLedgerV1 {
         return_site: &SourceNodeSiteV1,
         mut resolve_binding: impl FnMut(BindingRefV1, &SourceNodeSiteV1) -> Result<ValueId, String>,
     ) -> Result<Option<PreparedTerminalI64AddReturnV1>, String> {
-        let Some(relation) = self.terminal_i64_add_return() else {
+        let Some(relation) = self.terminal_i64_add_return_for_owner(owner) else {
             return Ok(None);
         };
+        if self.root_owner() != Some(owner) {
+            return Err(fault("non-root-owner-unsupported"));
+        }
         if relation.owner() != owner || relation.return_site().node() != return_site {
             return Err(fault("return-site-mismatch"));
         }

@@ -10,23 +10,33 @@ fn root_instance_call_uses_selected_result_contract() {
     )
     .expect("annotated instance result must be source-admitted");
     let ledger = &package.ordinary_new_claim_ledger;
-    assert!(ledger.root_instance_call_expected());
+    assert!(ledger.root_instance_call_expected(ledger.root_completion_for_test().owner()));
     assert!(!ledger.root_instance_call_is_empty());
 }
 
 #[test]
 fn root_instance_call_without_result_contract_stays_unavailable() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        "box Pair { left: i64 right: i64
+        "box Page { birth() { } }
+        box Pair { left: i64 right: i64
         birth(left, right) { me.left = left me.right = right }
         sum() { return me.left + me.right } }
         static box Main { main() {
         local pair = new Pair(10, 20)
-        return pair.sum() } }",
+        return pair.sum() }
+        helper() { local page = new Page() local m = %{\"v\" => 1} return 30 } }",
     )
     .expect("missing result contract is an unavailable source shape");
     let ledger = &package.ordinary_new_claim_ledger;
-    assert!(ledger.root_instance_call_expected());
+    assert!(ledger.root_instance_call_expected(ledger.root_completion_for_test().owner()));
+    let child_owner = package
+        .batch()
+        .declarations()
+        .find(|declaration| declaration.owner() != ledger.root_completion_for_test().owner())
+        .map(|declaration| declaration.owner());
+    if let Some(child_owner) = child_owner {
+        assert!(!ledger.root_instance_call_expected(child_owner));
+    }
     assert!(ledger.root_instance_call_is_empty());
 }
 
@@ -185,7 +195,8 @@ fn ordinary_child_literal_relation_is_borrowed_by_owner() {
         .owner();
     assert!(ledger
         .prepare_terminal_integer_literal_return(foreign_owner, relation.return_site().node())
-        .is_err());
+        .unwrap()
+        .is_none());
     ledger
         .record_terminal_integer_literal_return(owner, crate::mir::ValueId(900))
         .unwrap();
@@ -237,7 +248,8 @@ fn ordinary_child_field_relation_is_retained_by_owner() {
         .prepare_terminal_i64_field_return(foreign_owner, relation.return_site().node(), |_, _| {
             Ok(crate::mir::ValueId(1))
         })
-        .is_err());
+        .unwrap()
+        .is_none());
 }
 
 #[test]

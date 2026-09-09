@@ -86,7 +86,7 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return Ok(());
         };
-        self.root_instance_call_expected.set(true);
+        self.root_instance_call_expected.borrow_mut().insert(owner);
         let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) =
             call.receiver()
         else {
@@ -248,8 +248,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .all(|slot| matches!(slot, RootInstanceCallDispositionSlotV1::Taken))
     }
 
-    pub(crate) fn root_instance_call_expected(&self) -> bool {
-        self.root_instance_call_expected.get()
+    pub(crate) fn root_instance_call_expected(&self, owner: FunctionOwnerIdV1) -> bool {
+        self.root_instance_call_expected.borrow().contains(&owner)
     }
 }
 

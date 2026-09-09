@@ -21,16 +21,6 @@ impl OrdinaryNewClaimLedgerV1 {
         mut resolve_binding: impl FnMut(BindingRefV1, &SourceNodeSiteV1) -> Result<ValueId, String>,
     ) -> Result<Option<PreparedTerminalI64FieldReturnV1>, String> {
         let Some(relation) = self.terminal_i64_field_return_for_owner(owner) else {
-            let foreign = self.terminal_relation_index.values().any(|candidate| {
-                matches!(candidate.as_ref(), TerminalRelationV1::I64Field(row)
-                    if row.return_site().node() == return_site)
-            }) || self.terminal_relation.as_ref().is_some_and(|candidate| {
-                matches!(candidate, TerminalRelationV1::I64Field(row)
-                    if row.return_site().node() == return_site)
-            });
-            if foreign {
-                return Err(fault("owner-drift"));
-            }
             return Ok(None);
         };
         let Some(completion) = self.completion_for_owner(owner) else {

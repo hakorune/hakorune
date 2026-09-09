@@ -173,6 +173,16 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
+    pub(crate) fn terminal_i64_add_return_for_owner(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    ) -> Option<&TerminalI64AddReturnV1> {
+        match self.terminal_relation_for_owner(owner) {
+            Some(TerminalRelationV1::I64Add(row)) => Some(row),
+            _ => None,
+        }
+    }
+
     pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> {
         match self.terminal_relation.as_ref() {
             Some(TerminalRelationV1::Unit(row)) => Some(row),
@@ -222,17 +232,6 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &SourceNodeSiteV1,
     ) -> Result<Option<i64>, String> {
         let Some(relation) = self.terminal_integer_literal_return_for_owner(owner) else {
-            let foreign_indexed = self.terminal_relation_index.values().any(|candidate| {
-                matches!(candidate.as_ref(), TerminalRelationV1::IntegerLiteral(row)
-                    if row.return_site().node() == site)
-            });
-            let foreign_root = self.terminal_relation.as_ref().is_some_and(|candidate| {
-                matches!(candidate, TerminalRelationV1::IntegerLiteral(row)
-                    if row.return_site().node() == site)
-            });
-            if foreign_indexed || foreign_root {
-                return Err("[freeze:contract][ordinary-new/literal-owner-drift]".into());
-            }
             return Ok(None);
         };
         let Some(completion) = self.completion_for_owner(owner) else {

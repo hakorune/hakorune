@@ -8,7 +8,7 @@
 use super::instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 use crate::mir::function::ObjectDestructionDispositionV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
-use std::{cell::{Cell, RefCell}, collections::BTreeMap, rc::Rc};
+use std::{cell::RefCell, collections::{BTreeMap, BTreeSet}, rc::Rc};
 
 pub(crate) use self::birth_abi_handoff::{BirthAbiHandoffV1, BirthResultAbiV1};
 use super::instance_constructor_semantic::{
@@ -183,7 +183,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
             root_instance_call::RootInstanceCallDispositionSlotV1,
         >,
     >,
-    root_instance_call_expected: Cell<bool>,
+    root_instance_call_expected: RefCell<BTreeSet<FunctionOwnerIdV1>>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
     terminal_relation: Option<TerminalRelationV1>,
@@ -264,7 +264,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_exits: RefCell::new(BTreeMap::new()),
             root_local_call_bindings: RefCell::new(BTreeMap::new()),
             root_instance_calls: RefCell::new(BTreeMap::new()),
-            root_instance_call_expected: Cell::new(false),
+            root_instance_call_expected: RefCell::new(BTreeSet::new()),
             field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             terminal_relation: None,
@@ -349,10 +349,13 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceNodeSiteV1,
     ) -> Result<bool, String> {
-        let Some(relation) = self.terminal_unit_return() else {
+        if self.root_owner() != Some(owner) {
+            return Ok(false);
+        }
+        let Some(TerminalRelationV1::Unit(relation)) = self.terminal_relation_for_owner(owner) else {
             return Ok(false);
         };
-        let Some(Ok(completion)) = self.root_completion.as_ref() else {
+        let Some(completion) = self.completion_for_owner(owner) else {
             return Err(
                 "[freeze:contract][ordinary-new/unit-return-completion-missing]".to_owned(),
             );
