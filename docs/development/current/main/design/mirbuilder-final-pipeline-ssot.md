@@ -1168,6 +1168,35 @@ focused test
 passes `1/1`. That finding is closed and must not be re-opened as the method
 artifact blocker.
 
+##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D0`
+
+Decision: pause before implementation until the source-backed target relation
+for a lexical receiver in the selected static root is named and verified. The
+existing `VerifiedResolvedMethodCallSourceV1` preserves site/receiver/selector
+facts only; `AppMainDirectCallDispositionLoanV1` is issued from direct-call
+observations, while `DeclaredInstanceCallRelationV1` covers instance-method
+callers and does not cover `Main.main -> pair.sum()`. Therefore the current
+method stop is a missing source-to-target issuer, not a C/V4 transport fault.
+Source authority + canonical issuer: the resolver's exact MethodCall row plus
+the existing typed-object/source declaration relation must co-seal the lexical
+receiver's selected callable target before any lifecycle row is issued. The
+ordinary-New Completion/root cleanup remains the consumer; no second target
+registry or backend name lookup is allowed.
+Non-authority: `MirInstruction::Call`, MIR type observations, receiver names,
+generic JSON, C-side defaults, compatibility retry, and the existing
+`DeclaredInstanceCallRelationV1` when its caller/receiver contract does not
+match the static root.
+Fail-fast boundary: missing/foreign/duplicate method site, lexical receiver
+not proven to the selected New object, target declaration/arity/result contract
+mismatch, or missing completion/cleanup rejects before artifact publication.
+Smallest next slice: census the existing typed-object declaration/layout and
+selected-New source products for a lossless `pair.sum()` target crosswalk, then
+either bind that existing issuer to `AppMainDirectCallDispositionLoanV1` or
+record `NoSafeSlice` with the exact missing authority. Only after this closes
+may the root terminal callback emit the existing ordinary lifecycle `Invoke`.
+Non-claims: no new MethodCall semantic receipt, no dynamic/opaque storage, no
+child cleanup, no generic MIR-JSON Invoke support, and no OBJ/EXE acceptance.
+
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 
 The source issuer preserves `init_fields` membership, but canonical layout must

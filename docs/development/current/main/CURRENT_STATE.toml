@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-PHYSICAL-V2-CUTOVER-I0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Invoke physical V2 I0: Birth reaches linked exit30; typed_object_method_min stops before PublishedLifecyclePhysicalAbiInputV1 at ordinary-new artifact-source-unavailable for the root Pair.sum() Call/cleanup owner. Resume the existing source-backed method Call/root-cleanup handoff; keep generic MIR JSON Invoke rejection; no second schema, CLI fallback, child cleanup, dynamic storage, or RawCompatibility changes."
+current_blocker_token = "Invoke root-method D0: Birth reaches linked exit30; typed_object_method_min stops before PublishedLifecyclePhysicalAbiInputV1 because Main.main -> pair.sum() has a resolver MethodCall row but no verified source-to-target issuer for a lexical receiver in the static root. Name or reject that authority before implementation; keep generic MIR JSON Invoke rejection; no second schema, CLI fallback, child cleanup, dynamic storage, or RawCompatibility changes."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -45,9 +45,13 @@ reclassified at terminator Invoke. The Invoke transport D0 is accepted:
 selected lifecycle uses existing physical-program.v2/C V4, while generic MIR
 JSON keeps its rejection. The next bounded work is the method physical V2
 OBJ/EXE caller cutover; untyped storage and child cleanup remain separate.
+That caller is now paused at ROOT-METHOD-CALL-D0: Main.main's lexical
+pair.sum() has resolver MethodCall facts but no verified source-to-target issuer
+that can feed the existing AppMain lifecycle loan. Physical V2/C V4 remains
+unchanged until that source authority is named.
 """
-next_design_card = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
-next_execution_card = "MIRBUILDER-INVOKE-LIFECYCLE-PHYSICAL-V2-CUTOVER-I0"
+next_design_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
