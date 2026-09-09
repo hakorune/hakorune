@@ -31,6 +31,17 @@ pub(super) enum RootNewValidation {
     FinishingChecked,
 }
 
+/// Physical validation retained for one selected ordinary child.  This is
+/// request-local finishing state, not a source receipt or a second owner.
+#[derive(Debug)]
+pub(super) enum ChildPhysicalValidation {
+    Checked {
+        symbol: String,
+        boundary: physical_boundary::PhysicalBoundary,
+    },
+    FinishingChecked,
+}
+
 #[path = "ordinary_new_local_commit/progress.rs"]
 mod progress;
 use progress::{EmittedLocalProgress, NewEmissionProgress, UnavailableLocalProgress};
@@ -479,9 +490,25 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
+        if self.child_physical_validation.borrow().contains_key(&owner) {
+            return Err(freeze("duplicate-child-physical-validation"));
+        }
         self.validate_new_emissions(owner, function)?;
         self.validate_field_reads(owner, function)?;
-        self.validate_terminal_i64_field_return(owner, function)
+        self.validate_terminal_integer_literal_return(owner, function)?;
+        self.validate_terminal_i64_field_return(owner, function)?;
+        self.validate_root_home_exit(owner, function, None)?;
+        self.validate_root_cleanup_shape(owner, function)?;
+        let bindings = self.lifecycle_bindings(owner)?;
+        let boundary = physical_boundary::PhysicalBoundary::capture(function, &bindings)?;
+        self.child_physical_validation.borrow_mut().insert(
+            owner,
+            ChildPhysicalValidation::Checked {
+                symbol: function.signature.name.clone(),
+                boundary,
+            },
+        );
+        Ok(())
     }
 
     /// Called after all New overrides, never merely after Birth returns.

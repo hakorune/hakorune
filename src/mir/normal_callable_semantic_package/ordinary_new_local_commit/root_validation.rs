@@ -1,6 +1,7 @@
 //! Final-root validation is separate from local New emission state changes.
 
 use super::*;
+use std::collections::BTreeSet;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Called on the exact physical root after all module finalization passes.
@@ -25,6 +26,57 @@ impl OrdinaryNewClaimLedgerV1 {
         let boundary = super::physical_boundary::PhysicalBoundary::capture(function, &bindings)?;
         *state = RootNewValidation::Checked(owner, boundary);
         Ok(observation)
+    }
+
+    /// Recheck every selected ordinary child against the same physical
+    /// boundary captured at draft finalization. The function symbol is only a
+    /// physical draft locator; source ownership remains the owner-indexed
+    /// ledger row.
+    pub(crate) fn validate_finalized_child_functions(
+        &self,
+        module: &crate::mir::MirModule,
+        artifact: bool,
+    ) -> Result<BTreeSet<String>, String> {
+        let owners: Vec<_> = self
+            .child_physical_validation
+            .borrow()
+            .keys()
+            .copied()
+            .collect();
+        let mut covered = BTreeSet::new();
+        for owner in owners {
+            let mut states = self.child_physical_validation.borrow_mut();
+            let state = states
+                .get_mut(&owner)
+                .ok_or_else(|| freeze("child-physical-state-missing"))?;
+            let ChildPhysicalValidation::Checked { symbol, boundary } = state else {
+                return Err(freeze("duplicate-child-finishing-validation"));
+            };
+            let function = module
+                .functions
+                .get(symbol)
+                .ok_or_else(|| freeze("child-definition-missing"))?;
+            if function.signature.name != *symbol || !covered.insert(symbol.clone()) {
+                return Err(freeze("child-definition-symbol-drift"));
+            }
+            let bindings = self.lifecycle_bindings(owner)?;
+            let mut projection = boundary.project(function)?;
+            self.validate_new_emissions_projected(owner, function, Some(&projection))?;
+            self.validate_field_reads(owner, function)?;
+            self.validate_terminal_integer_literal_return(owner, function)?;
+            self.validate_terminal_i64_field_return(owner, function)?;
+            self.validate_root_home_exit(owner, function, Some(&projection))?;
+            boundary.validate_complete(function, &mut projection, &bindings)?;
+            if artifact {
+                self.validate_artifact_lifecycle_coverage(
+                    owner,
+                    function,
+                    projection.recorded(),
+                )?;
+            }
+            *state = ChildPhysicalValidation::FinishingChecked;
+        }
+        Ok(covered)
     }
 
     fn validate_root_body(
@@ -125,13 +177,22 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(relation) = self.terminal_integer_literal_return() else {
+        let Some(relation) = self.terminal_integer_literal_return_for_owner(owner) else {
             return Ok(());
         };
-        if relation.owner() != owner {
-            return Err(freeze("literal-owner-drift"));
-        }
-        let Some(value) = *self.terminal_integer_literal_value.borrow() else {
+        let value = if self
+            .terminal_relation
+            .as_ref()
+            .is_some_and(|terminal| terminal.owner() == owner)
+        {
+            *self.terminal_integer_literal_value.borrow()
+        } else {
+            self.terminal_integer_literal_values
+                .borrow()
+                .get(&owner)
+                .copied()
+        };
+        let Some(value) = value else {
             return Err(freeze("literal-unconsumed"));
         };
         let exact = function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(actual) } if *dst == value && *actual == relation.value()));
@@ -188,7 +249,7 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    fn lifecycle_bindings(
+    pub(super) fn lifecycle_bindings(
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {

@@ -154,6 +154,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     ordinary_box_names: Box<[Box<str>]>,
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::LocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
+    child_physical_validation: RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::ChildPhysicalValidation>>,
     root_exits: RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::RootHomeExitProgress>>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
@@ -182,7 +183,6 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // ABI, or physical root selection.
     app_main_identity: Option<crate::parser::CallableDeclarationIdentityV1>,
 }
-
 impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn requires_map_lifecycle_consumer(&self) -> bool {
         let indexed = self.completion_index.values().any(|row| {
@@ -292,6 +292,7 @@ impl OrdinaryNewClaimLedgerV1 {
             ordinary_box_names,
             local_commits: RefCell::new(BTreeMap::new()),
             root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),
+            child_physical_validation: RefCell::new(BTreeMap::new()),
             root_exits: RefCell::new(BTreeMap::new()),
             field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),

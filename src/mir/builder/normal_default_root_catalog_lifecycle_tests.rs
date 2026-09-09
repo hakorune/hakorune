@@ -648,6 +648,27 @@ fn parser_scan_package_passes_callable_source_handoff_without_fallback() {
     assert!(rejected._source.is_none());
     rejected.discard();
 }
+#[test]
+fn artifact_validation_rejects_selected_ordinary_child_symbol_drift() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source("box Page {} static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }", ParserBuildConfig::default());
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("ordinary child source must lower");
+    let (_, mut module, validate) = completed.into_artifact_parts();
+    let (_, helper) = module
+        .functions
+        .iter_mut()
+        .find(|(_, function)| function.signature.name.contains("helper"))
+        .expect("ordinary helper definition");
+    helper.signature.name.push_str("_drift");
+    let error = validate(&module).expect_err("child symbol drift must reject");
+    assert!(error.contains("child-definition-symbol-drift"), "{error}");
+}
 
 #[test]
 fn source_backed_package_failure_is_terminal_before_builder_effects() {

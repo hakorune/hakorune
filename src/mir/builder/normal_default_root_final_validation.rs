@@ -27,8 +27,14 @@ impl RootValidation {
         }
     }
 
-    fn validate(&mut self, module: &MirModule, artifact: bool) -> Result<(), String> {
-        let Some(key) = self.key() else { return Ok(()) };
+    fn validate(
+        &mut self,
+        module: &MirModule,
+        artifact: bool,
+    ) -> Result<BTreeSet<String>, String> {
+        let Some(key) = self.key() else {
+            return Ok(BTreeSet::new());
+        };
         let root = module
             .functions
             .get(key)
@@ -39,17 +45,20 @@ impl RootValidation {
         match self {
             Self::Absent => unreachable!(),
             Self::OrdinaryNew { ledger, .. } => {
+                let covered = ledger.validate_finalized_child_functions(module, artifact)?;
                 if artifact && (has_lifecycle(root) || has_exact_field_read(root)) {
-                    ledger.validate_artifact_after_compiler_finishing(root)
+                    ledger.validate_artifact_after_compiler_finishing(root)?;
                 } else {
-                    ledger.validate_after_compiler_finishing(root)
+                    ledger.validate_after_compiler_finishing(root)?;
                 }
+                Ok(covered)
             }
             Self::Script { entry, source, .. } => {
                 if root.entry_block != *entry {
                     return Err(fault("script-root-owner-drift"));
                 }
-                source.validate_finished_array_root(root)
+                source.validate_finished_array_root(root)?;
+                Ok(BTreeSet::new())
             }
         }
     }
@@ -66,7 +75,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         let validate = move |module: &MirModule| {
             let _callables = self.callables;
             let mut root_validation = self.root_validation;
-            root_validation.validate(module, false)?;
+            let _ = root_validation.validate(module, false)?;
             for (key, validation) in self.construction {
                 let definition = module
                     .canonical_callable_definition_symbol(&key)
@@ -102,7 +111,8 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 RootValidation::OrdinaryNew { key, .. } => Some(key.clone()),
                 RootValidation::Script { .. } | RootValidation::Absent => None,
             };
-            root_validation.validate(module, true)?;
+            let child_symbols = root_validation.validate(module, true)?;
+            covered.extend(child_symbols);
             if let Some(key) = &retained_root {
                 covered.insert(key.clone());
             }

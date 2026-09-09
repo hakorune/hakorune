@@ -3127,7 +3127,7 @@ Decision: retain the original ordinary Map Completion/terminal in the existing l
 Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row and owner index share the same `Rc` Completion.
 Non-authority: AppMain's root-only admission checks, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
 Fail-fast boundary: preserve ordinary install/artifact Stops until selected scope, local/cleanup validation and ordinary ABI are connected; unavailable/foreign rows reject, and mixed AppMain/ordinary Map ownership remains stopped.
-Smallest next slice: BoxShape inside the existing ledger and result-row retention; populate the owner index only after S6C's exclusive consumer, then select the exact owner for Map source lookup.
+Smallest next slice: retain the selected child's existing physical boundary in the same owner-indexed ledger after draft validation, recheck it during finishing/artifact coverage, then connect the existing ordinary ABI/cleanup consumer.
 Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or install/EXE claim from retention alone.
 
 Read-only physical-owner audit found `preflight_map_install`, `map_flow`,
@@ -3149,7 +3149,10 @@ consumer implicitly.
 
 Implementation checkpoint: the seed/result row now retains one `Rc` Completion,
 the ordinary ledger indexes remaining rows by `FunctionOwnerIdV1` after S6C,
-and Map lookup uses that owner. S6C consumes its exclusive seed with
+and Map lookup uses that owner. Selected ordinary child draft capture also
+retains one `PhysicalBoundary` and artifact finishing rechecks the same
+function/boundary before adding its symbol to coverage; this is physical
+validation only and does not enable ordinary install or ABI execution. S6C consumes its exclusive seed with
 `Rc::try_unwrap`; a shared seed rejects instead of cloning. `map_install_owner`
 still rejects any non-AppMain Map when an AppMain Map is present, so owner
 lookup cannot grant ordinary execution. The semantic package is green at

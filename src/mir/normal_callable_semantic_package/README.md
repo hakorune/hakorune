@@ -457,8 +457,10 @@ progress can be consumed with the same owner/site checks.
 Cataloged static-child draft capture uses the existing callable construction and
 ordinary-New emission validators after finalization, keyed by the active
 FunctionOwnerIdV1. This closes the draft-validation bypass without creating a
-second Completion, physical boundary, or install/ABI consumer; ordinary Map
-installation and artifact emission remain explicit Stops.
+second Completion, physical boundary, or install/ABI consumer. The same
+owner-indexed PhysicalBoundary is retained for the child and rechecked during
+finishing; artifact coverage consumes the validated child symbol. Ordinary Map
+installation and ABI emission remain explicit Stops.
 
 | Relation | Dedicated consumption and retained result |
 | --- | --- |
