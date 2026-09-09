@@ -114,3 +114,29 @@ fn rejects_argument_cardinality_before_materialization() {
         })
     );
 }
+
+#[test]
+fn invoke_projection_retains_issued_target_and_has_no_embedded_result() {
+    let emission = VerifiedCanonicalDirectCallEmissionV1::from_header_with_published_key(
+        &header(),
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
+            "Main", "countdown", 1,
+        ),
+    );
+    let target = emission.target() as *const _;
+    let args = vec![ValueId::new(3)];
+    let projected = emission.materialize_call(None, args.clone()).unwrap();
+    assert_eq!(target, emission.target() as *const _);
+    assert_eq!(projected.dst, None);
+    assert!(projected.effects.contains(Effect::Barrier));
+    assert_eq!(
+        emission.materialize_call(None, Vec::new()),
+        Err(DirectCallEmissionErrorV1::ArgumentCardinality { expected: 1, actual: 0 }),
+    );
+    let MirInstruction::Call(scalar) = emission.materialize(ValueId::new(9), args).unwrap() else {
+        unreachable!()
+    };
+    assert_eq!(projected.callee, scalar.callee);
+    assert_eq!(projected.args, scalar.args);
+    assert_eq!(projected.effects, scalar.effects);
+}

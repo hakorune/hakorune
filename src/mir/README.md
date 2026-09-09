@@ -269,6 +269,11 @@ The three-test materialization parity and shared guard are the receipt; other
 concat families, unified/array/canonicalizer writers, and Call schema
 retirement remain outside this cell.
 
+`canonical_direct_call.rs` projects an issued target, arity and effect once for
+both scalar Call and destination-free Invoke payloads. Borrowed materialization
+lets the existing ledger retain the emission for finishing checks; it does not
+grant lifecycle admission or determine Normal/Fault cleanup.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

@@ -105,7 +105,7 @@ if rg -F -q "maybe_resolve_calls" "$PROGRAM_LOWERING" || rg -F -q "func_map" "$P
 fi
 require "$ARRAY_WRITE_BACKEND" "project_for_legacy_backend"
 require "$METHODS" "pub(crate) fn call("
-require "$CANONICAL_DIRECT_CALL" "MirInstruction::call("
+require "$CANONICAL_DIRECT_CALL" "MirCall::new(dst, Callee::Global(target), args)"
 require "$CANONICAL_DIRECT_CALL" "canonical_global_target_v1()"
 require "$CANONICAL_DIRECT_CALL" "CanonicalGlobalTargetV1::new_free_function"
 require "$CANONICAL_DIRECT_CALL" "Callee::Global(target)"
@@ -242,8 +242,8 @@ if sum((root / path).read_text().count("canonicalize_for_site(") for path in sch
 array_writer = (root / "src/mir/array_element_write.rs").read_text()
 if array_writer.count("*instruction = MirInstruction::LegacyCallV0 {") != 1: raise SystemExit("ArrayElementWrite legacy projection writer count drifted from one")
 direct_call = (root / "src/mir/canonical_direct_call.rs").read_text()
-if direct_call.count("MirInstruction::call(") != 1:
-    raise SystemExit("direct-call issuer does not delegate exactly once to the canonical helper")
+if direct_call.count("MirCall::new(") != 1 or direct_call.count("self.materialize_call(Some(dst), args)") != 1:
+    raise SystemExit("direct-call issuer lost its shared scalar/Invoke canonical projection")
 if "MirInstruction::Call {" in direct_call or "func:" in direct_call or "callee: Some(" in direct_call:
     raise SystemExit("direct-call issuer retained a legacy Call literal or decoration")
 extern_call = (root / "src/mir/ssot/extern_call.rs").read_text()

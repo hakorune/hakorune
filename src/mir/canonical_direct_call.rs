@@ -9,6 +9,7 @@ use crate::mir::canonical_direct_call_contract::{
 };
 use crate::mir::resolved_semantics::VerifiedCallableHeaderV1;
 use crate::mir::resolved_value_profile::VerifiedTrivialDirectCallV1;
+use crate::mir::definitions::MirCall;
 use crate::mir::{Callee, Effect, EffectMask, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
@@ -83,6 +84,17 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
         dst: ValueId,
         args: Vec<ValueId>,
     ) -> Result<MirInstruction, DirectCallEmissionErrorV1> {
+        self.materialize_call(Some(dst), args).map(MirInstruction::Call)
+    }
+
+    /// Borrow the issued target so its owner can retain it for finishing checks.
+    /// An Invoke supplies no destination; its Normal landing owns the result.
+    /// This projection grants no lifecycle admission or continuation contract.
+    pub(crate) fn materialize_call(
+        &self,
+        dst: Option<ValueId>,
+        args: Vec<ValueId>,
+    ) -> Result<MirCall, DirectCallEmissionErrorV1> {
         let expected = self.target.signature().arity();
         if args.len() != expected {
             return Err(DirectCallEmissionErrorV1::ArgumentCardinality {
@@ -105,12 +117,9 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
                 key: self.target.source_key().name().to_owned(),
             })?
         };
-        Ok(MirInstruction::call(
-            Some(dst),
-            Callee::Global(target),
-            args,
-            materialize_direct_call_effect_v1(self.effect),
-        ))
+        let mut call = MirCall::new(dst, Callee::Global(target), args);
+        call.effects = materialize_direct_call_effect_v1(self.effect);
+        Ok(call)
     }
 }
 

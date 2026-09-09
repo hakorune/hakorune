@@ -3052,6 +3052,17 @@ support alone must not remove the ordinary package install Stop. Actual target,
 argument, projection and cleanup drift checks belong to that consumer, followed
 by retained callee role/formal/result/cleanup validation and selected ordinary ABI.
 
+Canonical projection now borrows the existing emission through
+`materialize_call(dst, args)`; the scalar materializer delegates to this same
+target/arity/effect projection. Invoke can pass no destination while the ledger
+retains the original affine row for finishing checks. This is a physical helper,
+not permission to consume a Scalar row as Lifecycle or issue a continuation.
+Projection validation: canonical direct Call4 and semantic package155 pass;
+existing pointer/corridor guards pass. The initial compile failed on a `MirCall`
+import from the facade rather than `definitions`; corrected before acceptance.
+The corridor guard now checks the one shared `MirCall` construction and scalar
+delegation. No source consumer, C execution or cleanup acceptance is claimed.
+
 Cleanup physical boundary detail: `root_cleanup_graph::validate_original`
 currently requires one entry Jump and 2N-1 releases (N clean, N-1 pending suffix).
 Call Fault needs the full pending entry, including the first Home: N pending
@@ -3061,6 +3072,22 @@ identity through finishing. Do not treat an arbitrary incoming edge as permitted
 or skip the first Home by borrowing the partial suffix. Zero-Home Call still
 needs Normal-only result and Fault propagation. No generic continuation receipt,
 second cleanup graph owner or blind release-count relaxation is authorized.
+
+Read-only cleanup review fixes the implementation shape inside existing
+`RootHomeExitProgress`: retain source origins once, cleanup terminal bindings,
+and a Plain/Call entry mode. Call mode retains the same affine row and physical
+argument/Invoke/projection bindings plus named clean/fault entries. Capture both
+sets together through the existing `PhysicalBoundary`; do not mix the projection
+instruction into the cleanup terminal-only node inventory. The clean entry may
+contain exactly its recorded Normal projection, the fault entry contains none.
+Validate exact Invoke Normal slot0 and Fault slot1 destinations, not an allowed
+target set. Both paths must follow the same ordered origins: clean[i] Normal
+continues clean[i+1], its Fault joins pending[i+1], and pending[i] always
+continues pending[i+1]. Zero Homes still requires both named entry checks.
+Finishing uses existing destination/binding projection and preserves exact
+external ingress; no relaxation of sole-predecessor Jump contraction. Required
+consumer tests cover N=0/1/2, swapped ingress, skipped/reordered Home, foreign
+incoming, pending-to-clean, Fault projection, frame drift and Jump contraction.
 
 Use existing RootOwned/Borrowed frame state and ordinary callable validation;
 NewFaultContinuation remains New-specific. Normal alone projects result; Fault
