@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-CALL-ORDER-I0"
-current_execution_cohort = "root_method_terminal_probe_call_order_i0"
+current_execution_row = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-PHI-CONVERGENCE-I0"
+current_execution_cohort = "root_method_terminal_probe_phi_convergence_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Terminal-probe call-order I0: enumerate ordinary calls through sorted block ids and existing instruction order, preserving key/membership/arity checks and rejecting missing blocks or destinations before physical numbering. Do not change call membership, add a receipt, or open child physical support."
+current_blocker_token = "Terminal-probe PHI convergence I0: infer the existing same-module helper contract through one sorted block-id order, and reject an iteration-budget exhaustion before return routing instead of consuming partial state. Preserve the bounded alias walk, mixed-contract rejection, and all existing route membership; do not add a receipt, budget, fallback, or backend support."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -38,11 +38,13 @@ reaches linked exit 30. The terminal-probe D0 is accepted as an existing-owner
 BoxShape refactor; owner-local add/literal/field probes and the explicit
 root-only Unit boundary landed at a37eba6cc4. Additive field-read retention
 for child I64Field/I64Add rows landed at 29f9c3ee3d. I0 now fixes deterministic
-ordinary-call collection; PHI convergence follows later. Untyped storage,
+ordinary-call collection landed at a078c00699 with sorted block-id traversal,
+reversed-insertion coverage, and the physical-program 3-test suite green. PHI
+convergence is the next bounded row. Untyped storage,
 child physical shapes, and whole-Map/R7 remain parked.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-CALL-ORDER-I0"
+next_execution_card = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-PHI-CONVERGENCE-I0"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

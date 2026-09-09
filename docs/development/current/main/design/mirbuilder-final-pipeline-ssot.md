@@ -1486,6 +1486,47 @@ reversed-insertion test, and run the existing physical-program tests.
 Non-claims: this row does not open child-method physical support, alter call
 membership, change C emission, or address PHI convergence.
 
+Ordinary-call order I0 landed at `a078c00699`. `collect_ordinary_calls()` now
+uses sorted block ids and each block's existing instruction order, while
+retaining the prior membership, destination, arity, and signature checks. The
+reversed-insertion two-block test and the physical-program 3-test suite passed.
+No call membership, physical numbering scheme, or backend behavior changed.
+
+##### MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-PHI-CONVERGENCE-I0
+
+Decision: accept one bounded fail-fast `BoxShape` correction in the existing
+same-module static-helper contract issuer. Initial observation, PHI
+propagation, and return scanning use one sorted `BasicBlockId` order. The
+existing 32-pass propagation budget remains; if the last pass still changes
+the contract map, inference returns the existing unavailable result before
+route admission rather than publishing a partial fixed point. The bounded
+copy-alias walk remains a separate concern and is unchanged.
+
+Source authority + canonical issuer: the already-issued `MirFunction` MIR,
+`metadata.value_types`, and route metadata consumed by
+`infer_same_module_static_helper_return_contract()` and its existing PHI
+helper. Consumer: `classify_global_call_target_shape()` through the existing
+direct-contract and `GlobalCallTargetFacts` route path.
+
+Non-authority: `HashMap` iteration order, a partial propagation map, declaration
+types used to repair an unresolved PHI, the separate bounded alias walk, names,
+C/backend numbering, generic JSON, resolver re-entry, and compatibility
+fallback.
+
+Fail-fast boundary: a mixed contract still rejects as before; a missing block
+or an unresolved PHI after the existing budget returns the current unavailable
+or typed failure before direct route admission. No route kind, semantic
+receipt, iteration budget, backend fallback, or physical support is added.
+
+Smallest next slice: collect and sort the existing block ids once, use that
+order for the three contract scans, record whether propagation reached a
+no-change pass, and add coverage for an over-budget PHI chain plus equivalent
+reordered block insertion. Keep existing scalar/loop PHI acceptance green.
+
+Non-claims: this row does not change contract vocabulary, alter call membership,
+open child-method physical support, change C emission, or claim OBJ/EXE
+acceptance.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root
