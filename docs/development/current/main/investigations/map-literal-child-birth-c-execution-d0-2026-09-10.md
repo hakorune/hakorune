@@ -1,5 +1,5 @@
 ---
-Status: design_stop
+Status: closed bounded C I0; implementation landed at `60bcf68add`
 Task: MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-C-EXECUTION-D0
 Date: 2026-09-10
 Priority: design the selected C child physical consumer before activation
@@ -96,9 +96,34 @@ and all field/unknown/native/general Map claims remain outside this I0.
 
 **D0 decision:** accepted. The owner, rows, session, and exclusive delete set
 are finite, and the receiver-binding/live-handle/normal-fault cleanup contract
-above is now the bounded I0 acceptance. Switch to `work_mode = fast` for one
-selected ordinary child New/Birth/Home consumer. Do not open any other child
-shape or whole-Map route in the same series.
+above was the bounded I0 acceptance. That selected ordinary child consumer is
+now implemented and closed below. Do not open any other child shape or whole-Map
+route in the same series.
+
+## C I0 implementation evidence
+
+The selected consumer landed at `60bcf68add`. It removes only the five
+root-only assumptions listed above. `lv4_indexed_admit()` now scans every
+selected caller, binds one exact Birth receiver/object/layout, and rejects a
+second caller for that Birth target. The indexed flow admits an ordinary child
+`new_box`, `birth_call`, normal `home_release`, and fault
+`reclaim_unpublished`; root, non-ordinary child, foreign receiver, and
+unsupported shapes remain fail-fast.
+
+Focused evidence after rebuilding `libhako_llvmc_ffi.so`:
+
+* ignored Rust source test
+  `issued_ordinary_child_new_birth_map_direct_exe_and_linked_object_exit_30`
+  passes direct EXE and independently linked OBJ with exit 30;
+* the existing ordinary-child Map-value Pair regression still passes;
+* the physical parser pre-artifact C test and the V4 execution suite pass,
+  including the existing malformed-input, session, tool, and artifact guards;
+* the generated child physical input accepts unchanged, while temporary
+  foreign-receiver and duplicate-Birth mutations both reject before emission.
+
+The last mutation check is boundary evidence only; it is not a new source
+fixture or a whole-Map claim. Field/unknown/native children, multiple Birth
+callers, and broader Map/R7 activation remain outside this closed I0.
 
 ## Design tasks
 
