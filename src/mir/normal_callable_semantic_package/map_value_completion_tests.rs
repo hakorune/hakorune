@@ -199,6 +199,29 @@ fn app_main_call_admits_one_ordinary_map_callee_value_owner() {
 }
 
 #[test]
+fn app_main_and_one_ordinary_map_owner_share_install_admission() {
+    let package = issue(
+        "static box Main {
+        main() { local root_map = %{\"root\" => 1} return helper(30) }
+        helper(value: i64): i64 { local child_map = %{\"child\" => value} return 30 }
+    }",
+    )
+    .unwrap();
+    assert!(package.has_app_main_direct_call_loan());
+    assert!(package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .is_some_and(|flow| !flow.maps().is_empty()));
+    let mut context = CompilationContext::new();
+    package
+        .prepare_install(&mut context)
+        .expect("root and one called ordinary Map owner are admitted");
+    assert!(context.callable_declaration_catalog_vacant());
+}
+
+#[test]
 fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
     use crate::mir::resolved_semantics::home_new_prefix::{
         scan_new_home_flow, HomePrefixUnavailableV1,

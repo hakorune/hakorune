@@ -2681,7 +2681,7 @@ and Home scanner. Completion moves into the existing seed/result owner.
 Non-authority: Trivial capability is not an i64 wire kind; root ledger presence,
 MIR tags, caller literal values and absent observations cannot grant admission.
 Fail-fast boundary: preserve unavailable source observations; unsupported physical
-Value entry rejects at existing map_install_owner before catalog commit, and at
+Value entry rejects at the existing Map install-owner selection before catalog commit, and at
 private emission entry before progress/MIR changes. No generic fallback.
 Smallest next slice: one source capability extension plus its required consumer
 refusal. No-Map ordinary/S6C keep plain verification, AppMain keeps its root
@@ -2715,7 +2715,8 @@ Implementation order inside this slice:
    projection; move Completion into the seed inside the loan. Attach root flow to
    existing Completion cleanup rather than replacing crossed-scope obligations
    with explicit_empty. No second Completion in the root ledger.
-4. Keep map_flow as a source borrow. At map_install_owner require TransferHome-only
+4. Keep map_flow as a source borrow. At the Map install-owner selection require
+TransferHome-only
    entries for the present Indexed consumer. begin_map_emission and
    map_candidate_object explicitly reject Value before progress/MIR mutation;
    never fabricate acquisition, binding or object ID. Retain current ordinary
@@ -3132,24 +3133,25 @@ physical validator, indexed admission and emitter consume those roles without
 name lookup or receiver repair. The ignored Pair/Bool/range direct-EXE and
 linked-OBJ test passes exit30/70 as expected; the cleanup probe confirms one
 report/dispose path and Fault103 ordering. This closes the bounded ordinary ABI
-consumer. One ordinary child scalar-Map owner now also reaches the selected
-physical consumer and direct/linked exit30; the next selected boundary is wider
-Map owner coverage. No generic Call fallback or whole Map/R7 claim is made.
+consumer. The AppMain root plus one exact called ordinary child scalar-Map owner
+now also reaches the selected physical consumer and direct/linked exit30; the
+next selected boundary is wider Map owner coverage. No generic Call fallback or
+whole Map/R7 claim is made.
 
 #### Ordinary callee ledger placement: bounded connection closed
 
 Decision: retain the original ordinary Map Completion/terminal in the existing ledger's owner-indexed borrow table after S6C consumes its exclusive seed; do not copy it.
 Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row and owner index share the same `Rc` Completion.
-Non-authority: AppMain's root-only admission checks, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
-Fail-fast boundary: admit only one ordinary child Map owner with scalar Value-only entries and completed terminal cleanup; unavailable/foreign rows, unknown values, New/Home transfer, and mixed AppMain/ordinary Map ownership reject before physical admission.
-Smallest next slice: widen ordinary child Map owner coverage after the selected scalar Value-only physical path is stable; do not widen ownership or value families in this slice.
+Non-authority: AppMain's former root-only admission check, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
+Fail-fast boundary: admit the AppMain root plus one exact called ordinary child Map owner with scalar Value-only entries and completed terminal cleanup; unavailable/foreign rows, uncalled or additional owners, unknown values, and New/Home transfer reject before physical admission.
+Smallest next slice: widen ordinary Map owner coverage after the selected scalar Value-only physical path is stable; do not widen value families or admit unmatched owners in this slice.
 Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or whole-Map/R7 claim.
 
-Read-only physical-owner audit found `preflight_map_install`, `map_flow`,
-`has_map_source`, `map_demands_consumed` and `map_install_owner` observing only
-the AppMain ledger/root Completion. `with_callable_source_scope` passes that
-same Rc ledger to each child. The ordinary source product already lives in
-the result cohort; selected Map emission already uses callable Fault-frame
+Read-only physical-owner audit originally found `preflight_map_install`, `map_flow`,
+`has_map_source` and `map_demands_consumed` observing only the AppMain ledger/root
+Completion. The retention cut now uses the same Rc ledger's owner index for the
+exact direct-call target. `with_callable_source_scope` passes that ledger to each
+child. The ordinary source product already lives in the result cohort; selected Map emission already uses callable Fault-frame
 state, whose ordinary role is Borrowed. The issue is placement/selection, not
 a missing source Completion issuer.
 
@@ -3173,12 +3175,13 @@ projection retains the exact ordinary I64 Call and existing cleanup coordinates,
 and the role-based C schema/admission/index/emitter consumes it. Direct EXE and
 linked OBJ Pair exit30, Bool/range exit70 with Fault103, and cleanup-probe
 evidence close this bounded ordinary ABI series. S6C consumes its exclusive seed with
-`Rc::try_unwrap`; a shared seed rejects instead of cloning. `map_install_owner`
-still rejects any non-AppMain Map when an AppMain Map is present, so owner
-lookup cannot grant ordinary Map ownership. The semantic package is green at
-161/161, including the ordinary-child Value-only admission and mixed-owner negative case;
-the selected ordinary-child physical Map install/value path and scoped parameter/return
-capability checks now pass direct and linked exit30. Wider owner coverage remains open.
+`Rc::try_unwrap`; a shared seed rejects instead of cloning. The Map install-owner
+selection admits only the root and the exact direct-call target, so owner lookup
+cannot grant an uncalled or extra ordinary Map ownership. The semantic package is green at
+161/161, including the ordinary-child Value-only admission, root-plus-child
+mixed-owner admission, and uncalled-owner negative case; the selected mixed-owner
+physical Map install/value path and scoped parameter/return capability checks now
+pass direct and linked exit30. Wider owner coverage remains open.
 The terminal Call probe is
 owner-scoped as a prerequisite: a root Call is visible only to its root owner,
 so a child terminal return cannot be rejected by the root Call's source row.
@@ -3361,7 +3364,7 @@ Next is step4's ordinary Completion/frame/result audit; no implementation mappin
 for that separate boundary is inferred from AppMain or synthetic C execution.
 
 AppMain source connection audit at c40220153a: the next bounded cutover replaces
-both transfer-only admission checks (ordinary_new_coseal::map_install_owner and
+both transfer-only admission checks (the Map install-owner selection and
 ordinary_new_local_commit/map::begin_map_emission) for Integer/Bool and exact
 Local(Some kind). Local(None) still stops before install/progress; ordinary
 callee, Script and transferred-lambda ABI are not promoted by this row.

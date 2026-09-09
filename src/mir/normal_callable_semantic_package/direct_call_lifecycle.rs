@@ -85,6 +85,25 @@ impl AppMainDirectCallDispositionLoanV1 {
         })
     }
 
+    pub(in crate::mir::normal_callable_semantic_package) fn single_map_target_owner(
+        &self,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+    ) -> Option<FunctionOwnerIdV1> {
+        let mut owner = None;
+        for row in self.rows.values().filter_map(|slot| match slot {
+            AppMainDirectCallDispositionSlotV1::Ready(row) if map_owned(batch, row) => Some(row),
+            AppMainDirectCallDispositionSlotV1::Ready(_)
+            | AppMainDirectCallDispositionSlotV1::Taken => None,
+        }) {
+            let candidate = row.emission.target().callable().owner();
+            if owner.is_some_and(|existing| existing != candidate) {
+                return None;
+            }
+            owner = Some(candidate);
+        }
+        owner
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn is_map_i64_call(
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,

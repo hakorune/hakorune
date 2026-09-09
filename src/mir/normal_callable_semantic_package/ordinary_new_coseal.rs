@@ -199,66 +199,6 @@ impl OrdinaryNewClaimLedgerV1 {
                 .and_then(|completion| completion.cleanup().root_flow())
                 .is_some_and(|flow| !flow.maps().is_empty())
     }
-    pub(super) fn map_install_owner(
-        &self,
-    ) -> Result<Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>, ()> {
-        if !self.requires_map_lifecycle_consumer() {
-            return Ok(None);
-        }
-        let mut map_owners = BTreeMap::new();
-        for completion in self
-            .completion_index
-            .values()
-            .filter_map(|row| row.as_ref().ok())
-            .chain(self.root_completion.iter().filter_map(|row| row.as_ref().ok()))
-        {
-            if completion
-                .cleanup()
-                .root_flow()
-                .is_some_and(|flow| !flow.maps().is_empty())
-            {
-                map_owners.insert(completion.owner(), ());
-            }
-        }
-        if map_owners.len() != 1 {
-            return Err(());
-        }
-        let owner = *map_owners.keys().next().ok_or(())?;
-        let completion = self.completion_for_owner(owner).ok_or(())?;
-        let flow = completion.cleanup().root_flow().ok_or(())?;
-        let terminal = self.terminal_relation_for_owner(owner).ok_or(())?;
-        if self.app_main_identity.is_none()
-            || flow.maps().iter().any(|m| {
-                m.complete().is_none_or(|map| {
-                    map.entries().iter().any(|entry| {
-                        entry.transfer_home().is_none()
-                            && entry.value_source().and_then(|v| v.scalar_kind()).is_none()
-                    })
-                })
-            })
-            || !matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
-            || !matches!(
-                terminal,
-                TerminalRelationV1::IntegerLiteral(_)
-                    | TerminalRelationV1::I64Add(_)
-                    | TerminalRelationV1::I64Field(_)
-            )
-            || self
-                .claims
-                .borrow()
-                .values()
-                .filter(|c| c.site.owner() == owner)
-                .any(|c| {
-                    c.construction.is_err()
-                        || c.destruction != ObjectDestructionDispositionV1::PlainI64NoHook
-                        || c.home_prefix.is_err()
-                        || c.argument_rows.is_err()
-                })
-        {
-            return Err(());
-        }
-        Ok(Some(owner))
-    }
     #[cfg(test)]
     pub(super) fn root_completion_for_test(
         &self,
