@@ -1142,6 +1142,32 @@ generic MIR JSON vocabulary.
 Non-claims: generic JSON lifecycle execution, arbitrary Invoke families, new
 runtime ABI, child cleanup expansion, and whole-suite completion.
 
+##### Physical V2 probe evidence (2026-09-10)
+
+The selected physical caller was exercised directly with the existing CLI
+entry (`--backend mir --emit-exe --emit-exe-nyrt`) and a runtime directory
+containing both required archives. `apps/typed-object-birth-min/main.hako`
+reached the canonical physical caller, linked an executable, and exited `30`.
+This is positive evidence for the existing physical V2/C V4 Birth cohort; it
+does not close the method row.
+
+`apps/typed-object-method-min/main.hako` still stops before the published-view
+callback with
+`[freeze:contract][ordinary-new/local-commit/artifact-source-unavailable]`.
+The same source reaches a complete diagnostic MIR dump containing the root
+`Pair.sum()` method call, but its root result/cleanup ownership is not admitted
+as a finished artifact. Therefore this is an upstream source-backed ordinary
+method Call/root-cleanup owner boundary, not a physical JSON or C V4 parser
+failure. Do not add a generic-JSON Invoke case, a retry, or a C-side default to
+work around it. The method physical OBJ/EXE acceptance remains open until the
+existing Call/root cleanup owner supplies a completed artifact handoff.
+
+The owner-scoped terminal Call probe is already fixed at `c8887bbda2`; the
+focused test
+`mir::normal_callable_semantic_package::direct_call_lifecycle_tests::physical::terminal_call_probe_is_scoped_to_its_source_owner`
+passes `1/1`. That finding is closed and must not be re-opened as the method
+artifact blocker.
+
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 
 The source issuer preserves `init_fields` membership, but canonical layout must
