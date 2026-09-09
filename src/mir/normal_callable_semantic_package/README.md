@@ -4,8 +4,10 @@ Selected package issuance settles Dynamic source/Recipe/exit ownership before
 ordinary Completion seeds, S6C take and result-contract publication. Parameter
 contracts and constructor authority are already available. On jointly invalid
 input, Dynamic failure wins; there is no deferred error or ordinary retry.
-This order alone does not merge Dynamic and ordinary Completion products or
-activate unissued Map source families.
+A successful Dynamic slot now borrows its retained canonical Completion for
+installed result/header views; it has no ordinary owned seed/result row. Ordinary
+siblings retain their rows and S6C still takes its exclusive seed. Parameter and
+result checks remain; no unissued Map source family is activated.
 
 
 This module owns one pre-Builder semantic package for a final parser callable

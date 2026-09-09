@@ -2,7 +2,8 @@
 //!
 //! The seed cohort is private to the package issuer.  It prevents the generic
 //! header issuer and the S6C child issuer from independently verifying and
-//! owning the same `VerifiedFunctionCompletionV1`.
+//! owning the same `VerifiedFunctionCompletionV1`. A successful Dynamic slot
+//! validates its already-retained Completion and emits no ordinary seed.
 
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
@@ -113,6 +114,7 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
+    dynamic: &mut super::model::NormalCallableDynamicProjectionV1,
 ) -> Result<VerifiedCallableCompletionSeedCohortV1, CallablePhysicalHeaderIssueV1> {
     let mut rows = Vec::new();
     for selected_key in selected.keys() {
@@ -154,6 +156,20 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
             .role_for_batch_slot(batch_slot)
             .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
         let identity = declaration.identity().clone();
+        if let super::model::NormalCallableDynamicProjectionV1::Selected {
+            batch_slot: dynamic_slot,
+            program,
+            result,
+            ..
+        } = dynamic
+        {
+            if *dynamic_slot == batch_slot {
+                *result = program.with_canonical_session_authority(|authority| {
+                    validate_result(authority.completion(), declaration.owner(), batch_slot)
+                })?;
+                continue;
+            }
+        }
         let result = batch
             .with_lowering_input(batch_slot, |input| {
                 let completion = verify_function_completion_v1(input).map_err(|issue| {
@@ -162,23 +178,7 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
                         _issue: issue,
                     }
                 })?;
-                let result = match completion.function_exit_contract().declared_result() {
-                    DeclaredFunctionResultContractV1::Annotated(name) => {
-                        Some(ExactTrivialScalarAbiV1::classify(name).ok_or_else(|| {
-                            CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
-                                _batch_slot: batch_slot,
-                                _name: name.clone(),
-                            }
-                        })?)
-                    }
-                    DeclaredFunctionResultContractV1::Unannotated
-                    | DeclaredFunctionResultContractV1::Void => None,
-                };
-                if completion.owner() != input.owner() {
-                    return Err(CallablePhysicalHeaderIssueV1::CompletionOwnerMismatch {
-                        _batch_slot: batch_slot,
-                    });
-                }
+                let result = validate_result(&completion, input.owner(), batch_slot)?;
                 Ok((result, completion))
             })
             .map_err(|error| CallablePhysicalHeaderIssueV1::BatchLoan { _error: error })??;
@@ -193,4 +193,30 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
     }
     rows.sort_by_key(|row| row.batch_slot);
     Ok(VerifiedCallableCompletionSeedCohortV1 { rows })
+}
+
+fn validate_result(
+    completion: &VerifiedFunctionCompletionV1,
+    owner: FunctionOwnerIdV1,
+    batch_slot: u32,
+) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
+    let result = match completion.function_exit_contract().declared_result() {
+        DeclaredFunctionResultContractV1::Annotated(name) => {
+            Some(ExactTrivialScalarAbiV1::classify(name).ok_or_else(|| {
+                CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
+                    _batch_slot: batch_slot,
+                    _name: name.clone(),
+                }
+            })?)
+        }
+        DeclaredFunctionResultContractV1::Unannotated | DeclaredFunctionResultContractV1::Void => {
+            None
+        }
+    };
+    if completion.owner() != owner {
+        return Err(CallablePhysicalHeaderIssueV1::CompletionOwnerMismatch {
+            _batch_slot: batch_slot,
+        });
+    }
+    Ok(result)
 }

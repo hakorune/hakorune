@@ -2,7 +2,8 @@
 //!
 //! The completion seed is issued once by the resolver-owned verifier. This
 //! cohort keeps the original non-`Clone` Completion alive for every selected
-//! Cataloged callable after the S6C child has consumed its exclusive seed.
+//! ordinary Cataloged callable after S6C takes its exclusive seed. Successful
+//! Dynamic uses the same borrowed view over its canonical authority Completion.
 //! Physical headers borrow this product and never become a second Completion
 //! owner.
 
@@ -39,7 +40,11 @@ pub(super) struct VerifiedCallableResultContractRowV1 {
 
 #[derive(Clone, Copy)]
 pub(crate) struct CallableResultContractRefV1<'a> {
-    row: &'a VerifiedCallableResultContractRowV1,
+    owner: FunctionOwnerIdV1,
+    identity: &'a CallableDeclarationIdentityV1,
+    role: SelectedCallableConsumptionRoleV1,
+    result: Option<ExactTrivialScalarAbiV1>,
+    completion: &'a VerifiedFunctionCompletionV1,
 }
 
 impl VerifiedCallableResultContractCohortV1 {
@@ -77,53 +82,77 @@ impl VerifiedCallableResultContractRowV1 {
     }
 
     pub(super) fn borrow(&self) -> CallableResultContractRefV1<'_> {
-        CallableResultContractRefV1 { row: self }
+        CallableResultContractRefV1::from_completion(
+            self.owner,
+            &self.identity,
+            self.role,
+            self.result,
+            &self.completion,
+        )
     }
 }
 
-impl CallableResultContractRefV1<'_> {
+impl<'a> CallableResultContractRefV1<'a> {
+    pub(super) fn from_completion(
+        owner: FunctionOwnerIdV1,
+        identity: &'a CallableDeclarationIdentityV1,
+        role: SelectedCallableConsumptionRoleV1,
+        result: Option<ExactTrivialScalarAbiV1>,
+        completion: &'a VerifiedFunctionCompletionV1,
+    ) -> Self {
+        Self {
+            owner,
+            identity,
+            role,
+            result,
+            completion,
+        }
+    }
+
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.row.owner
+        self.owner
     }
 
     pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
-        &self.row.identity
+        self.identity
     }
 
     pub(crate) const fn role(&self) -> SelectedCallableConsumptionRoleV1 {
-        self.row.role
+        self.role
     }
 
     pub(crate) const fn result(&self) -> Option<ExactTrivialScalarAbiV1> {
-        self.row.result
+        self.result
     }
 
     #[cfg(test)]
     pub(crate) fn declared_result(&self) -> &DeclaredFunctionResultContractV1 {
-        self.row
-            .completion
-            .function_exit_contract()
-            .declared_result()
+        self.completion.function_exit_contract().declared_result()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn completion_for_test(&self) -> &VerifiedFunctionCompletionV1 {
+        self.completion
     }
 
     pub(crate) const fn completion_owner(&self) -> FunctionOwnerIdV1 {
-        self.row.completion.owner()
+        self.completion.owner()
     }
 
     pub(crate) const fn completion_target_function(&self) -> RegionId {
-        self.row.completion.target_function()
+        self.completion.target_function()
     }
 
     pub(crate) const fn completion_returns_value(&self) -> bool {
-        self.row.completion.returns_value()
+        self.completion.returns_value()
     }
 
     pub(crate) fn completion_explicit_site_count(&self) -> usize {
-        self.row.completion.explicit_sites().len()
+        self.completion.explicit_sites().len()
     }
 
     pub(crate) fn completion_cleanup_is_empty(&self) -> bool {
-        self.row.completion.cleanup().crossed_scopes().is_empty()
+        self.completion.cleanup().crossed_scopes().is_empty()
     }
 }
 

@@ -2592,6 +2592,34 @@ Dynamic exclusion and S6C exclusive take must be preserved, while AppMain keeps
 its separate root owner. Co-seal and physical mapping remain prerequisites for
 production promotion; no deferred-error storage or second Dynamic classifier.
 
+### Successful Dynamic Completion ownership cutover
+
+Decision: replace successful Dynamic's ordinary seed/result ownership with a
+borrow of its retained canonical authority Completion. Ordinary rows remain owned.
+Source authority + canonical issuer: existing Dynamic source/exit co-seal; existing
+seed validation still checks parameter coverage, identity and declared result.
+Non-authority: skipping a row, absent header or MIR signature cannot replace the
+APrimeI64 physical demand's Completion checks.
+Fail-fast boundary: preserve unsupported result/owner/coverage diagnostics and
+installed loan mismatch checks before physical lowering.
+Implemented: borrowed result/header view and Dynamic-authority-scoped callback;
+successful slot second verifier and owned seed/result row are deleted. Package140
+passes, including identical Completion pointer, three ordinary sibling rows,
+physical header/APrime demand and S6C tests. Log:
+`/tmp/hakorune-dynamic-completion-borrow-fixed.log`. Initial missing module
+qualification was a current-change compile failure and is fixed.
+Non-claims: Dynamic candidates that Decline and later verify as ordinary remain
+outside this deletion; no all-verifier-once or Map execution claim.
+
+Actual consumer includes APrimeI64PhysicalDemand's owner/target/return-sites/
+cleanup checks. Keep the separate catalog Dynamic physical header. Declared
+instance target lookup remains ordinary-only (InstanceBoxMethod); do not widen
+that target boundary. Record the validated optional result representation in the
+existing selected Dynamic product, not a new Completion owner. S6C never consumes
+this Dynamic slot. Acceptance: package/APrime tests, same Completion pointer at
+installed borrow, no Dynamic owned result row, retained ordinary sibling, existing
+unsupported annotations and S6C take. No runtime/schema change.
+
 ## Remaining source obligations
 
 The original wider source cutover still requires materialized Script Loop,

@@ -54,17 +54,26 @@ pub(super) struct VerifiedCallablePhysicalHeaderRowV1 {
 
 #[derive(Clone, Copy)]
 pub(crate) struct CallablePhysicalHeaderRefV1<'a> {
-    row: &'a VerifiedCallablePhysicalHeaderRowV1,
+    result: ExactTrivialScalarAbiV1,
     result_contract: CallableResultContractRefV1<'a>,
 }
 
-impl CallablePhysicalHeaderRefV1<'_> {
+impl<'a> CallablePhysicalHeaderRefV1<'a> {
+    pub(super) fn from_result_contract(
+        result_contract: CallableResultContractRefV1<'a>,
+    ) -> Option<Self> {
+        Some(Self {
+            result: result_contract.result()?,
+            result_contract,
+        })
+    }
+
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.row.owner
+        self.result_contract.owner()
     }
 
     pub(crate) const fn result(&self) -> ExactTrivialScalarAbiV1 {
-        self.row.result
+        self.result
     }
 
     pub(crate) const fn completion_owner(&self) -> FunctionOwnerIdV1 {
@@ -106,7 +115,7 @@ impl VerifiedCallablePhysicalHeaderCohortV1 {
             return None;
         }
         Some(CallablePhysicalHeaderRefV1 {
-            row,
+            result: row.result,
             result_contract: result_contract.borrow(),
         })
     }

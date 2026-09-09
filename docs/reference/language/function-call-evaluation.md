@@ -210,3 +210,9 @@ precedes ordinary Completion/S6C publication. If both latter stages are invalid,
 the Dynamic error is reported first and the package is not installed. A failed
 Dynamic candidate never retries as an ordinary callable. This compiler ordering
 does not change runtime argument evaluation or grant an owning-slot capability.
+
+Successful Dynamic selection retains its canonical Completion as the sole
+completion input for its installed callable view. Parameter/result validation
+and downstream physical-header checks still apply; ordinary result retention
+does not verify or own that successful slot a second time. A declined Dynamic
+candidate's later ordinary path is a separate case, with no global one-pass claim.

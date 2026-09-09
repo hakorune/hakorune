@@ -343,9 +343,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         BuilderPrivateInstalledCallablePackageBundleV1,
         NormalCallableSemanticPackageInstallIssueV1,
     > {
-        let prepared = self
-            .prepare_install(context)
-            .map_err(|(_, issue)| issue)?;
+        let prepared = self.prepare_install(context).map_err(|(_, issue)| issue)?;
         let installed = prepared.commit();
         Ok(consumer.seal(installed, BuilderInstallTokenV1::issue()))
     }
@@ -353,13 +351,18 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     pub(crate) fn prepare_install<'context>(
         self,
         context: &'context mut CompilationContext,
-    ) -> Result<PreparedNormalCallableSemanticPackageInstallV1<'context>,
-        (Self, NormalCallableSemanticPackageInstallIssueV1)> {
+    ) -> Result<
+        PreparedNormalCallableSemanticPackageInstallV1<'context>,
+        (Self, NormalCallableSemanticPackageInstallIssueV1),
+    > {
         if let Err(issue) = self.preflight_map_install() {
             return Err((self, issue));
         }
         if !context.callable_declaration_catalog_vacant() {
-            return Err((self, NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied));
+            return Err((
+                self,
+                NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied,
+            ));
         }
         Ok(PreparedNormalCallableSemanticPackageInstallV1 {
             context,
@@ -579,6 +582,84 @@ impl InstalledNormalCallableSemanticPackageV1 {
             }
             SelectedNormalCallableKeyV1::TopLevel(_) => None,
         };
+        let block_expr_expectation = self
+            .batch
+            .block_expr_expectation(batch_slot)
+            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?;
+        let semantic = match &self.dynamic {
+            NormalCallableDynamicProjectionV1::Selected {
+                batch_slot: dynamic_slot,
+                program,
+                source,
+                ..
+            } if *dynamic_slot == batch_slot => {
+                SelectedCallableSemanticRefV1::Dynamic { program, source }
+            }
+            _ => SelectedCallableSemanticRefV1::Ordinary,
+        };
+        let lend = |result_contract: Option<CallableResultContractRefV1<'_>>,
+                    physical_header: Option<CallablePhysicalHeaderRefV1<'_>>| {
+            self.batch
+                .with_lowering_input_and_source_identity(batch_slot, |source, source_identity| {
+                    if result_contract.is_some_and(|contract| contract.owner() != source.owner()) {
+                        return Err(
+                            NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch,
+                        );
+                    }
+                    let parameters = match parameter_declaration {
+                        Some(declaration) => {
+                            if declaration.owner != source.owner() {
+                                return Err(
+                                NormalCallableSemanticPackageInstallIssueV1::
+                                    ParameterContractOwnerMismatch,
+                            );
+                            }
+                            declaration.parameters.as_ref()
+                        }
+                        None => &[],
+                    };
+                    Ok(callback(SelectedCallableLoweringInputRefV1 {
+                        source,
+                        parameter_contracts: parameters,
+                        block_expr_expectation,
+                        physical_header,
+                        result_contract,
+                        semantic,
+                        source_identity,
+                        selected_key,
+                    }))
+                })
+                .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?
+        };
+        if let NormalCallableDynamicProjectionV1::Selected {
+            batch_slot: dynamic_slot,
+            program,
+            result,
+            ..
+        } = &self.dynamic
+        {
+            if *dynamic_slot == batch_slot {
+                let identity = self
+                    .selected
+                    .identity_for_batch_slot(batch_slot)
+                    .ok_or(NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch)?;
+                let role = self
+                    .selected
+                    .role_for_batch_slot(batch_slot)
+                    .ok_or(NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch)?;
+                return program.with_canonical_session_authority(|authority| {
+                    let contract = CallableResultContractRefV1::from_completion(
+                        authority.completion().owner(),
+                        identity,
+                        role,
+                        *result,
+                        authority.completion(),
+                    );
+                    let header = CallablePhysicalHeaderRefV1::from_result_contract(contract);
+                    lend(Some(contract), header)
+                });
+            }
+        }
         let result_contract = match key {
             // The S6C child consumed this row's Completion seed exclusively
             // before the generic retention cohort was assembled. Its selected
@@ -613,51 +694,6 @@ impl InstalledNormalCallableSemanticPackageV1 {
             SelectedNormalCallableKeyV1::TopLevel(_) => None,
         };
         let physical_header = self.physical_header.row(batch_slot, &self.result_contracts);
-        let block_expr_expectation = self
-            .batch
-            .block_expr_expectation(batch_slot)
-            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?;
-        let semantic = match &self.dynamic {
-            NormalCallableDynamicProjectionV1::Selected {
-                batch_slot: dynamic_slot,
-                program,
-                source,
-                ..
-            } if *dynamic_slot == batch_slot => {
-                SelectedCallableSemanticRefV1::Dynamic { program, source }
-            }
-            _ => SelectedCallableSemanticRefV1::Ordinary,
-        };
-        self.batch
-            .with_lowering_input_and_source_identity(batch_slot, |source, source_identity| {
-                if result_contract.is_some_and(|contract| contract.owner() != source.owner()) {
-                    return Err(
-                        NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch,
-                    );
-                }
-                let parameters = match parameter_declaration {
-                    Some(declaration) => {
-                        if declaration.owner != source.owner() {
-                            return Err(
-                                NormalCallableSemanticPackageInstallIssueV1::
-                                    ParameterContractOwnerMismatch,
-                            );
-                        }
-                        declaration.parameters.as_ref()
-                    }
-                    None => &[],
-                };
-                Ok(callback(SelectedCallableLoweringInputRefV1 {
-                    source,
-                    parameter_contracts: parameters,
-                    block_expr_expectation,
-                    physical_header,
-                    result_contract,
-                    semantic,
-                    source_identity,
-                    selected_key,
-                }))
-            })
-            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?
+        lend(result_contract, physical_header)
     }
 }

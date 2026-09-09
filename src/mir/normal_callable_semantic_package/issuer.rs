@@ -584,7 +584,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             }
         }
     }
-    let (dynamic, dynamic_physical_header) = match candidate {
+    let (mut dynamic, dynamic_physical_header) = match candidate {
         None => (NormalCallableDynamicProjectionV1::ValidUnselected, None),
         Some((
             dynamic_batch_slot,
@@ -660,6 +660,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
                     _owner: dynamic_owner,
                     source: Rc::new(dynamic_source),
                     program,
+                    result: None,
                 },
                 Some(physical_header),
             )
@@ -670,7 +671,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         NormalCallableDynamicProjectionV1::ValidUnselected => None,
     };
     let completion_seeds =
-        issue_callable_completion_seed_cohort_v1(&batch, &selected, &parameter_contracts).map_err(
+        issue_callable_completion_seed_cohort_v1(&batch, &selected, &parameter_contracts, &mut dynamic).map_err(
             |error| NormalCallableSemanticPackageIssueV1::PhysicalHeader { _error: error },
         )?;
     let mut completion_seeds = completion_seeds;

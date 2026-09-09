@@ -71,6 +71,7 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
         _owner: FunctionOwnerIdV1,
         source: Rc<VerifiedSourceBackedDynamicCallableV1>,
         program: VerifiedDynamicExitTransactionCoSealV1,
+        result: Option<crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1>,
     },
 }
 
