@@ -6,8 +6,8 @@
 // - method body reads typed slots and returns scalar i64
 
 box Pair {
-  left: IntegerBox
-  right: IntegerBox
+  left: i64
+  right: i64
 
   birth(left, right) {
     me.left = left

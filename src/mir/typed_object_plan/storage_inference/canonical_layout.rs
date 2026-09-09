@@ -150,7 +150,9 @@ mod tests {
                 Err(ObjectLayoutUnavailableV1::Inheritance),
                 crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
                     crate::mir::function::ObjectDestructionUnavailableV1::Declaration(
-                        ObjectLayoutUnavailableV1::Inheritance)),
+                        ObjectLayoutUnavailableV1::Inheritance,
+                    ),
+                ),
             ),
             CanonicalObjectDefinitionV1::from_source_declaration(
                 "Pair".into(),
@@ -289,10 +291,28 @@ mod tests {
             .into_boxed_slice(),
             Ok(()),
             crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
-                crate::mir::function::ObjectDestructionUnavailableV1::FieldType),
+                crate::mir::function::ObjectDestructionUnavailableV1::FieldType,
+            ),
         );
         assert_eq!(
             layout(&definition, 1).unwrap(),
+            Err(Unavailable::FieldType(0))
+        );
+        let integer_box = CanonicalObjectDefinitionV1::from_source_declaration(
+            "IntegerBoxField".into(),
+            vec![UserBoxFieldDecl {
+                name: "value".into(),
+                declared_type_name: Some("IntegerBox".into()),
+                is_weak: false,
+            }]
+            .into_boxed_slice(),
+            Ok(()),
+            crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
+                crate::mir::function::ObjectDestructionUnavailableV1::FieldType,
+            ),
+        );
+        assert_eq!(
+            layout(&integer_box, 1).unwrap(),
             Err(Unavailable::FieldType(0))
         );
         let mut weak = field("weak");
@@ -302,7 +322,8 @@ mod tests {
             vec![weak].into_boxed_slice(),
             Ok(()),
             crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
-                crate::mir::function::ObjectDestructionUnavailableV1::WeakField),
+                crate::mir::function::ObjectDestructionUnavailableV1::WeakField,
+            ),
         );
         assert_eq!(
             layout(&definition, 1).unwrap(),
