@@ -2900,6 +2900,27 @@ Ordered implementation within the existing Map series:
    mandatory before removing its Stop; finish the existing natural caller/callee
    source-to-OBJ/EXE series and retire the exclusive old edge.
 
+AppMain source connection audit at c40220153a: the next bounded cutover replaces
+both transfer-only admission checks (ordinary_new_coseal::map_install_owner and
+ordinary_new_local_commit/map::begin_map_emission) for Integer/Bool and exact
+Local(Some kind). Local(None) still stops before install/progress; ordinary
+callee, Script and transferred-lambda ABI are not promoted by this row.
+The selected Map emitter uses the retained MapValueSource. A local read consumes
+its exact source site and is checked against value_for_exact_binding; a literal
+Const is recorded in existing bindings before its own PrepareKey, after prior
+EndOutcome. map_candidate_object stays Home-only. No scalar object/acquisition
+or second progress ledger is permitted.
+Finishing must enumerate both install variants and match source entry, map,
+scalar kind and exact literal Const/value association through FinishedBindings.
+Preserve precommit index and committed index+1 cleanup; Value changes no outer
+Home ownership. Acceptance extends the existing ignored source direct-EXE and
+independent linked-OBJ test with Integer/Bool, aliases/reuse and both mixed
+replacement orders, generated/optimized verification and exit30. Include Value
+Fault probes/mixed cleanup and finishing mutations for kind/family, swapped
+entry/value and literal drift. Replace known-Value Stop assertions while retaining
+unknown-kind and Home-only candidate rejection. Retire only representable
+AppMain Value -> map-value-consumer-missing in this slice, not the ordinary Stop.
+
 Physical consumer implementation checkpoint: explicit InstallValue is connected
 through MIR opaque-role checks, wire projection, physical parser, indexed type/
 lifetime admission and shared C install emission. I64/Bool values keep availability;
