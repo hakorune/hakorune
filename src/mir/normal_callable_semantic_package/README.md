@@ -136,7 +136,14 @@ Builder IDs and S6C physical-session adoption remain downstream obligations.
 ### S6C and BlockExpr
 
 [The S6C child](s6c_child.rs) is issued inside the same package/batch owner.
-A private seed cohort runs `verify_function_completion_v1` once. Exact
+The ordinary source issuer creates New candidates and calls
+`verify_function_completion_v1` inside one declaration source loan, moving the
+Completion into the existing private seed cohort. There is no independent seed
+batch walk or second seed source loan. After Dynamic selection, declarations
+are checked in batch order: candidate validation precedes that declaration's
+Completion diagnostics. All declarations succeed before S6C takes its seed.
+AppMain keeps its separate Home-aware root ledger; TopLevel emits no seed,
+and successful Dynamic borrows its retained authority. Exact
 AppMainStaticChild consumes its seed into `VerifiedS6CSemanticChildV1`; ordinary
 seeds feed the generic header projection. The child retains the complete
 Facts/Recipe/Join/prephysical parent. Result/parity, Completion, Loop Return and

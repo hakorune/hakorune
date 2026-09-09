@@ -5,10 +5,9 @@
 //! owning the same `VerifiedFunctionCompletionV1`. A successful Dynamic slot
 //! validates its already-retained Completion and emits no ordinary seed.
 
-use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::resolved_control_flow::{
-    verify_function_completion_v1, DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1,
+    DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::parser::CallableDeclarationIdentityV1;
@@ -110,92 +109,82 @@ impl VerifiedCallableCompletionSeedCohortV1 {
     }
 }
 
-pub(super) fn issue_callable_completion_seed_cohort_v1(
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
+pub(super) fn preflight_declaration(
+    declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
     selected: &VerifiedSelectedCallableBatchMapV1,
     parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
-    dynamic: &mut super::model::NormalCallableDynamicProjectionV1,
-) -> Result<VerifiedCallableCompletionSeedCohortV1, CallablePhysicalHeaderIssueV1> {
-    let mut rows = Vec::new();
-    for selected_key in selected.keys() {
-        if !matches!(
-            selected_key,
-            crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(_)
-        ) {
-            continue;
-        }
-        let batch_slot = selected
-            .batch_slot(selected_key)
-            .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
-        let declaration = batch
-            .declarations()
-            .find(|row| row.batch_slot() == batch_slot)
-            .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
-        let mut contracts = parameter_contracts
-            .iter()
-            .filter(|row| row.batch_slot == batch_slot);
-        let Some(contract) = contracts.next() else {
-            continue;
-        };
-        if contracts.next().is_some() {
-            return Err(CallablePhysicalHeaderIssueV1::DuplicateParameterContract {
-                _batch_slot: batch_slot,
-            });
-        }
-        if contract.owner != declaration.owner() {
-            return Err(CallablePhysicalHeaderIssueV1::ParameterOwnerMismatch {
-                _batch_slot: batch_slot,
-            });
-        }
-        if contract.parameters.len() != declaration.parameter_count() as usize {
-            return Err(CallablePhysicalHeaderIssueV1::ParameterCoverage {
-                _batch_slot: batch_slot,
-            });
-        }
+) -> Result<bool, CallablePhysicalHeaderIssueV1> {
+    let batch_slot = declaration.batch_slot();
+    if !matches!(
+        selected.key_for_batch_slot(batch_slot),
+        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+            _
+        ))
+    ) {
+        return Ok(false);
+    }
+    let mut contracts = parameter_contracts
+        .iter()
+        .filter(|row| row.batch_slot == batch_slot);
+    let Some(contract) = contracts.next() else {
+        return Ok(false);
+    };
+    if contracts.next().is_some() {
+        return Err(CallablePhysicalHeaderIssueV1::DuplicateParameterContract {
+            _batch_slot: batch_slot,
+        });
+    }
+    if contract.owner != declaration.owner() {
+        return Err(CallablePhysicalHeaderIssueV1::ParameterOwnerMismatch {
+            _batch_slot: batch_slot,
+        });
+    }
+    if contract.parameters.len() != declaration.parameter_count() as usize {
+        return Err(CallablePhysicalHeaderIssueV1::ParameterCoverage {
+            _batch_slot: batch_slot,
+        });
+    }
+    if selected.role_for_batch_slot(batch_slot).is_none() {
+        return Err(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable);
+    }
+    Ok(true)
+}
+
+impl VerifiedCallableCompletionSeedCohortV1 {
+    pub(super) fn new() -> Self {
+        Self { rows: Vec::new() }
+    }
+
+    // Called inside the same source loan as ordinary-New candidate issuance.
+    pub(super) fn push_completion(
+        &mut self,
+        declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        completion: VerifiedFunctionCompletionV1,
+    ) -> Result<(), CallablePhysicalHeaderIssueV1> {
+        let batch_slot = declaration.batch_slot();
+        let result = validate_result(&completion, declaration.owner(), batch_slot)?;
         let role = selected
             .role_for_batch_slot(batch_slot)
             .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
-        let identity = declaration.identity().clone();
-        if let super::model::NormalCallableDynamicProjectionV1::Selected {
-            batch_slot: dynamic_slot,
-            program,
-            result,
-            ..
-        } = dynamic
-        {
-            if *dynamic_slot == batch_slot {
-                *result = program.with_canonical_session_authority(|authority| {
-                    validate_result(authority.completion(), declaration.owner(), batch_slot)
-                })?;
-                continue;
-            }
-        }
-        let result = batch
-            .with_lowering_input(batch_slot, |input| {
-                let completion = verify_function_completion_v1(input).map_err(|issue| {
-                    CallablePhysicalHeaderIssueV1::Completion {
-                        _batch_slot: batch_slot,
-                        _issue: issue,
-                    }
-                })?;
-                let result = validate_result(&completion, input.owner(), batch_slot)?;
-                Ok((result, completion))
-            })
-            .map_err(|error| CallablePhysicalHeaderIssueV1::BatchLoan { _error: error })??;
-        rows.push(VerifiedCallableCompletionSeedV1 {
+        self.rows.push(VerifiedCallableCompletionSeedV1 {
             batch_slot,
             owner: declaration.owner(),
-            identity,
+            identity: declaration.identity().clone(),
             role,
-            result: result.0,
-            completion: result.1,
+            result,
+            completion,
         });
+        Ok(())
     }
-    rows.sort_by_key(|row| row.batch_slot);
-    Ok(VerifiedCallableCompletionSeedCohortV1 { rows })
+
+    pub(super) fn finish(mut self) -> Self {
+        self.rows.sort_by_key(|row| row.batch_slot);
+        self
+    }
 }
 
-fn validate_result(
+pub(super) fn validate_result(
     completion: &VerifiedFunctionCompletionV1,
     owner: FunctionOwnerIdV1,
     batch_slot: u32,

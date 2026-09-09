@@ -331,8 +331,9 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug)]
 pub(crate) enum OrdinaryNewCoSealIssueV1 {
+    CompletionSeed(super::physical_header::CallablePhysicalHeaderIssueV1),
     BatchLoan,
     SourceNavigation {
         site: OwnedExprSiteV1,
@@ -394,13 +395,14 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
     AppMainIdentityDuplicate,
 }
 
-pub(crate) fn issue_ordinary_new_claims_v1(
+pub(super) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
-    excluded_dynamic_batch_slot: Option<u32>,
+    parameter_contracts: &[super::model::OwnedCallableParameterContractDeclarationV1],
+    dynamic: &mut super::model::NormalCallableDynamicProjectionV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-) -> Result<OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1> {
+) -> Result<(OrdinaryNewClaimLedgerV1, super::completion_seed::VerifiedCallableCompletionSeedCohortV1), OrdinaryNewCoSealIssueV1> {
     let app_main_batch_slot = app_main_identity
         .map(|identity| {
             let mut matches = batch
@@ -416,6 +418,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
         })
         .transpose()?;
     let mut claims = Vec::new();
+    let mut seeds = super::completion_seed::VerifiedCallableCompletionSeedCohortV1::new();
     let mut root_completion = None;
     let mut root_field_reads = BTreeMap::new();
     let mut root_terminal_relation = None;
@@ -430,8 +433,20 @@ pub(crate) fn issue_ordinary_new_claims_v1(
         if selected.role_for_batch_slot(batch_slot).is_none() && !is_app_main {
             continue;
         }
-        if excluded_dynamic_batch_slot == Some(batch_slot) {
-            continue;
+        let seed_eligible = super::completion_seed::preflight_declaration(
+            declaration, selected, parameter_contracts,
+        ).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+        if let super::model::NormalCallableDynamicProjectionV1::Selected {
+            batch_slot: dynamic_slot, program, result, ..
+        } = dynamic {
+            if *dynamic_slot == batch_slot {
+                if seed_eligible {
+                    *result = program.with_canonical_session_authority(|authority| {
+                        super::completion_seed::validate_result(authority.completion(), owner, batch_slot)
+                    }).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+                }
+                continue;
+            }
         }
         // One source loan covers both initializer membership and binding
         // validation. Its order is not a Home availability/execution timeline.
@@ -468,6 +483,15 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     )? {
                         candidates.push(candidate);
                     }
+                }
+                if seed_eligible {
+                    let completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
+                        .map_err(|issue| OrdinaryNewCoSealIssueV1::CompletionSeed(
+                            super::physical_header::CallablePhysicalHeaderIssueV1::Completion {
+                                _batch_slot: batch_slot, _issue: issue,
+                            }))?;
+                    seeds.push_completion(declaration, selected, completion)
+                        .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 }
                 let selected: BTreeMap<_, _> = candidates.iter()
                     .map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
@@ -593,7 +617,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     ledger.birth_abi_handoffs = RefCell::new(birth_abi_handoffs);
     ledger.terminal_relation = root_terminal_relation;
     ledger.app_main_identity = app_main_identity.cloned();
-    Ok(ledger)
+    Ok((ledger, seeds.finish()))
 }
 
 fn convert_selected_new_arguments(

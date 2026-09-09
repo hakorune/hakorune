@@ -2620,6 +2620,40 @@ this Dynamic slot. Acceptance: package/APrime tests, same Completion pointer at
 installed borrow, no Dynamic owned result row, retained ordinary sibling, existing
 unsupported annotations and S6C take. No runtime/schema change.
 
+### Ordinary source loan fusion
+
+Decision: one existing ordinary source issuer returns the ledger and existing
+Completion seed cohort; remove the independent seed batch/source traversal.
+Source authority + canonical issuer: exact batch declaration and existing New
+candidate/source input. Construct the seed inside the same loan as its candidates.
+Non-authority: owner-key pairing after the loan, empty formal contracts and a
+second Completion map cannot substitute this connection.
+Fail-fast boundary: after Dynamic selection, process batch declaration order;
+complete each owner's preflight before the next and take S6C only after all
+succeed. Joint-invalid first-error order changes explicitly; no deferred errors.
+Smallest next slice: fuse current work without changing verifier selection:
+ordinary plain Completion, AppMain Home-aware/root ledger, TopLevel no seed,
+Dynamic retained-authority validation. Return a tuple, not a new manager/receipt.
+Non-claims: no Map/capability widening or V4 activation. Next slice replaces the
+eligible ordinary verifier with Home-aware issuance using the same loan.
+
+Delete-set: independent completion_seed loop and its second source loan. Keep
+parameter cardinality/identity, declared result and Completion validation;
+ordinary Completion moves directly to seed, then S6C or result cohort. Existing
+Map install Stops, AppMain root owner, Dynamic header borrow and TopLevel scope
+remain. Acceptance: package tests, explicit batch-order diagnostic case, existing
+S6C/Dynamic/AppMain Map/constructor evidence and old issuer caller-zero.
+
+Completed prerequisite: candidates and ordinary Completion share the existing
+declaration loan; the separate seed traversal/source loan is deleted. Package141
+passes, including the compound candidate/result diagnostic case, Dynamic
+same-pointer borrow and existing S6C/AppMain tests. Command: jobs4 locked quick
+lib `mir::normal_callable_semantic_package:: -- --test-threads=1`; log
+`/tmp/hakorune-ordinary-source-loan-fixed.log`. Existing corridor guard follows
+the renamed issuer and passes; changed source maximum733. No Home-aware ordinary
+verifier switch yet. Next audit fixes parameter capability input and the owning
+Map entry relation inside this loan; checked storage and V4 remain downstream.
+
 ## Remaining source obligations
 
 The original wider source cutover still requires materialized Script Loop,

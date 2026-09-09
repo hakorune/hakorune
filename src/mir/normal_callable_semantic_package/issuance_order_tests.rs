@@ -38,6 +38,27 @@ fn dynamic_owner_error_precedes_ordinary_completion_error() {
 }
 
 #[test]
+fn ordinary_batch_preflight_checks_candidates_before_that_owners_completion() {
+    use super::super::brand_catalog_tests::issue_with_brand_catalog as issue;
+    use super::super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1;
+    let result_only = "box Page {} static box Work { run(): bool { return true } }";
+    assert!(matches!(
+        issue(result_only),
+        Err(Issue::PhysicalHeader { .. })
+    ));
+    let both = "box Page {} static box Work { run(): bool {
+        local page = new Page(1)
+        return true
+    } }";
+    assert!(matches!(
+        issue(both),
+        Err(Issue::OrdinaryNew {
+            _error: OrdinaryNewCoSealIssueV1::BirthConstructorMissing { arity: 1, .. }
+        })
+    ));
+}
+
+#[test]
 fn dynamic_lends_its_original_completion_without_owned_result_row() {
     use super::{
         CanonicalSameModuleCallableKeyV1, CompilationContext, SelectedCallableSemanticRefV1,

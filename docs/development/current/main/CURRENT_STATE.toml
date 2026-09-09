@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "MAP-OWNING-ENTRY-CALLABLE-COMPLETION"
-current_blocker_token = "Successful Dynamic secondary Completion verifier/owned seed/result row removed; installed result/header borrows canonical authority, package140 incl same-pointer/APrime/ordinary/S6C pass. Next same Map row: connect declaration capability and existing Home-aware verifier to ordinary seed/result owner under one source loan; AppMain remains separate. Declined Dynamic revalidation is outside this boundary. Checked storage/V4 callable mapping still required, no generic fallback or Map completion claim."
+current_blocker_token = "Ordinary New candidates and Completion seeds now share one declaration source loan; independent seed walk removed, package141 and corridor/pointer guards pass. Next same Map row: audit declaration capability -> existing Home-aware verifier -> ordinary Completion under that loan. AppMain root and successful Dynamic borrow remain separate; no Map admission/runtime/V4 widening. Checked storage and callable C mapping remain required."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

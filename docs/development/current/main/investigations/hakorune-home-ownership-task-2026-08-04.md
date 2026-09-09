@@ -1485,7 +1485,7 @@ Additional thinning queue (verified against 61076eb17b and current code, 2026-09
 keep finishing -> selected C -> source OBJ/EXE -> old-edge retirement as the
 completion order. These rows do not authorize source-family widening or replace
 cutover with optimization work.
-Status (2026-09-09, feedback rechecked at HEAD 41912dd3bc plus working tree):
+Status (2026-09-09, feedback rechecked at HEAD fd1cfe8801 plus working tree):
 rows11 and14 are closed at 0ae4f899af and 34f8ae8506 respectively, with their focused acceptance.
 Rows10 and12 remain queued. Row13 is partially implemented: invocation-owned
 function/block/value/layout lookups, memoized physical kinds and one Copy query.
@@ -1499,8 +1499,11 @@ Deletion targets are repeated work, not independent source/ownership/FFI checks.
 Repeated feedback maps here; no sibling cards or new guard family are needed.
 Review boundary: the five reported production owners below; includes their
 current repeated generation/read/lookup sites, excludes whole-program cost,
-runtime speed and completion of the in-progress static V2 changes. No new
+runtime speed and completion of the in-progress ordinary source-loan fusion. No new
 build or performance measurement was run for this feedback reconciliation.
+The repeated five-point report adds no missing task: items1/2/3/4/5 map to
+rows10/11/12/13/14 respectively. The current Local alias-chain scan is not
+the deleted declaration lookup; do not reopen row11 from that remaining scan.
 Scheduling: finish the selected Map cutover first; take row10 at the next
 mixed-cleanup owner edit, row12 at runtime-session integration, and the remaining
 row13 at physical-validator work. None requires reopening closed rows11/14.

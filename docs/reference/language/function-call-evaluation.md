@@ -211,6 +211,14 @@ the Dynamic error is reported first and the package is not installed. A failed
 Dynamic candidate never retries as an ordinary callable. This compiler ordering
 does not change runtime argument evaluation or grant an owning-slot capability.
 
+After Dynamic selection, ordinary source preflight completes each declaration
+in retained batch order before proceeding to the next. Within a declaration,
+New candidate validation precedes Completion/result validation in the same
+source loan. Thus a missing Birth candidate is diagnosed before an unsupported
+result annotation in that declaration. S6C consumes its Completion only after
+the ordinary source cohort succeeds. This replaces the former whole-cohort
+Completion-before-New diagnostic ordering; it does not widen accepted programs.
+
 Successful Dynamic selection retains its canonical Completion as the sole
 completion input for its installed callable view. Parameter/result validation
 and downstream physical-header checks still apply; ordinary result retention
