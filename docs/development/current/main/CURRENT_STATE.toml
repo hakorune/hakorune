@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-INIT-FIELDS-CANONICAL-PROJECTION-I0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Final acceptance at 1752f973e9 is 1/11 versus 6/11 at pinned parent 72f2496568fcd555499fdcb26fef2d8f1df03089. Five common reds remain separate baseline/source-boundary failures. The five current-only reds split into IntegerBox vocabulary, init_fields declaration projection, C FaultFrameEnter, and dependent method Birth. Existing package->definition->collector transfer is present; select the existing issuer/consumer owners before code. Do not add RawCompatibility fallback, restore old metadata authority, or reject accepted source."
+current_blocker_token = "Bounded init_fields canonical projection is selected: existing AST object-definition issuer must preserve source order and duplicate/weak/foreign fail-fast before package transfer. Do not infer untyped storage, widen IntegerBox vocabulary, touch C FaultFrameEnter, or alter RawCompatibility."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,16 +31,15 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The selected Map ordinary-child C I0 is closed at 60bcf68add: direct/linked
-exit30, parser/V4 guards, and foreign-receiver/duplicate-Birth rejection pass.
-The exact final acceptance suite is the active design stop. Current
-1752f973e9 is 1/11 versus pinned parent 72f2496568fcd555499fdcb26fef2d8f1df03089
-at 6/11. Current-only reds split into IntegerBox vocabulary, init_fields
-projection, C FaultFrameEnter, and dependent method Birth; existing package
-transfer is present. Five common reds remain separately owned.
+Map ordinary-child C I0 is closed at 60bcf68add with direct/linked exit30,
+parser/V4 guards, and foreign-receiver/duplicate-Birth rejection. Final
+acceptance remains open (current 1/11 versus pinned parent 6/11); current-only
+reds split into IntegerBox vocabulary, init_fields projection, C FaultFrameEnter,
+and dependent method Birth. This fast slice only fixes source init_fields
+projection and does not infer storage or change RawCompatibility.
 """
-next_design_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
-next_execution_card = "none"
+next_design_card = "MIRBUILDER-INIT-FIELDS-CANONICAL-PROJECTION-I0"
+next_execution_card = "MIRBUILDER-INIT-FIELDS-CANONICAL-PROJECTION-I0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

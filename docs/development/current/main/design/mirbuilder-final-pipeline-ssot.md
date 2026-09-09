@@ -995,6 +995,20 @@ case. These are separate slices: no new receipt, RawCompatibility fallback,
 or accepted-source-to-rejection mutation is allowed, and no production
 cutover claim is made while the current-only reds remain.
 
+##### `MIRBUILDER-INIT-FIELDS-CANONICAL-PROJECTION-I0`
+
+Decision: legacy `init_fields` names join the existing source declaration
+projection once, preserving source order and existing duplicate/weak rules.
+Source authority + canonical issuer: `ASTNode::BoxDeclaration` consumed by the
+existing `instance_constructor_semantic::object_definition::issue`.
+Non-authority: `CompilationContext` metadata, MIR observations, layout
+inference, RawCompatibility, and C consumers. Fail-fast boundary: source
+coverage/duplicate/weak/foreign drift rejects before package transfer or
+metadata commit. Smallest next slice: add the issuer normalization and focused
+projection tests; do not decide untyped storage. Non-claims: `IntegerBox`
+vocabulary, `FaultFrameEnter`, method Birth, and final EXE acceptance remain
+separate rows.
+
 Handoff after Loop retirement and repository convergence is owned by
 `selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`:
 language conformance -> canonical mimalloc promotion -> authority migration
