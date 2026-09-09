@@ -176,5 +176,9 @@ mod native_array_c_tests;
 mod map_source_tests;
 
 #[cfg(all(test, feature = "plugins"))]
+#[path = "published_map_four_owner_tests.rs"]
+mod map_four_owner_tests;
+
+#[cfg(all(test, feature = "plugins"))]
 #[path = "published_static_map_tests.rs"]
 mod static_map_tests;
