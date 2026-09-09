@@ -17,6 +17,7 @@ pub(super) fn infer_same_module_static_helper_return_contract(
         &function.signature.return_type,
         typed_plan_type_ids,
     );
+    let block_ids = same_module_static_helper_sorted_block_ids(function);
     let mut copy_sources = BTreeMap::new();
     let mut result_contracts = BTreeMap::new();
 
@@ -42,7 +43,10 @@ pub(super) fn infer_same_module_static_helper_return_contract(
         }
     }
 
-    for block in function.blocks.values() {
+    for block_id in &block_ids {
+        let Some(block) = function.blocks.get(block_id) else {
+            return None;
+        };
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             match instruction {
                 MirInstruction::Copy { dst, src } => {
@@ -72,9 +76,13 @@ pub(super) fn infer_same_module_static_helper_return_contract(
         }
     }
 
+    let mut phi_converged = false;
     for _ in 0..32 {
         let mut changed = false;
-        for block in function.blocks.values() {
+        for block_id in &block_ids {
+            let Some(block) = function.blocks.get(block_id) else {
+                return None;
+            };
             for instruction in block.instructions.iter().chain(block.terminator.iter()) {
                 let MirInstruction::Phi { dst, inputs, .. } = instruction else {
                     continue;
@@ -97,11 +105,18 @@ pub(super) fn infer_same_module_static_helper_return_contract(
             }
         }
         if !changed {
+            phi_converged = true;
             break;
         }
     }
+    if !phi_converged {
+        return None;
+    }
 
-    for block in function.blocks.values() {
+    for block_id in &block_ids {
+        let Some(block) = function.blocks.get(block_id) else {
+            return None;
+        };
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             let MirInstruction::Return { value } = instruction else {
                 continue;
@@ -121,6 +136,12 @@ pub(super) fn infer_same_module_static_helper_return_contract(
     }
 
     inferred.map(|contract| (same_module_static_helper_contract_proof(contract), contract))
+}
+
+fn same_module_static_helper_sorted_block_ids(function: &MirFunction) -> Vec<BasicBlockId> {
+    let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+    block_ids.sort_by_key(|id| id.as_u32());
+    block_ids
 }
 
 pub(super) fn same_module_static_helper_contract_allowed(
@@ -365,6 +386,49 @@ mod tests {
     use super::*;
     use crate::mir::{BasicBlock, EffectMask, FunctionSignature};
 
+    fn make_phi_chain(length: usize, reverse_insert: bool) -> MirFunction {
+        assert!(length > 0);
+        let signature = FunctionSignature {
+            name: format!("PhiChain.make/{length}"),
+            params: vec![],
+            return_type: MirType::Unknown,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId::new(0));
+        function.blocks.clear();
+        let base = 1_000_u32;
+        let mut blocks = Vec::with_capacity(length);
+        for index in 0..length {
+            let block_id = BasicBlockId::new(index as u32);
+            let mut block = BasicBlock::new(block_id);
+            let input = if index + 1 == length {
+                block.instructions.push(MirInstruction::Const {
+                    dst: ValueId::new(1),
+                    value: ConstValue::Integer(1),
+                });
+                ValueId::new(1)
+            } else {
+                ValueId::new(base + index as u32 + 1)
+            };
+            block.instructions.push(MirInstruction::Phi {
+                dst: ValueId::new(base + index as u32),
+                inputs: vec![(block_id, input)],
+                type_hint: Some(MirType::Integer),
+            });
+            block.set_terminator(MirInstruction::Return {
+                value: Some(ValueId::new(base + index as u32)),
+            });
+            blocks.push(block);
+        }
+        if reverse_insert {
+            blocks.reverse();
+        }
+        for block in blocks {
+            function.blocks.insert(block.id, block);
+        }
+        function
+    }
+
     #[test]
     fn infers_object_handle_from_builtin_newbox_with_unknown_signature() {
         let entry = BasicBlockId::new(0);
@@ -396,5 +460,30 @@ mod tests {
             contract,
             &BTreeMap::new()
         ));
+    }
+
+    #[test]
+    fn phi_contract_is_independent_of_block_insertion_order() {
+        let forward = make_phi_chain(4, false);
+        let reverse = make_phi_chain(4, true);
+
+        let forward_contract =
+            infer_same_module_static_helper_return_contract(&forward, &BTreeMap::new())
+                .expect("forward PHI chain contract");
+        let reverse_contract =
+            infer_same_module_static_helper_return_contract(&reverse, &BTreeMap::new())
+                .expect("reverse PHI chain contract");
+
+        assert_eq!(forward_contract, reverse_contract);
+        assert_eq!(forward_contract.1, GlobalCallReturnContract::ScalarI64);
+    }
+
+    #[test]
+    fn phi_contract_rejects_partial_state_after_iteration_budget() {
+        let function = make_phi_chain(33, false);
+
+        assert!(
+            infer_same_module_static_helper_return_contract(&function, &BTreeMap::new()).is_none()
+        );
     }
 }
