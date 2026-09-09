@@ -838,8 +838,10 @@ be narrowed or rewritten. The exact task order is in
 
 The raw and Core Map literal owners emit `IntrinsicMap` and ordered
 `MapLiteralEntryWrite`; literal Named allocation/birth/set edges are retired.
-Callable Map dispatch still selects the checked Home emitter and needs explicit
-source-owned generic/checked selection before natural mixed-formal closure.
+Callable Map dispatch consumes checked Home flow; package install rejects
+unissued declaration-root Map sites before lowering. Mixed-formal owning
+capability and transferred lambda inventory remain open; generic clone behavior
+cannot issue that permission.
 
 ## Top-Level Map
 

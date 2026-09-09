@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "MAP-GENERIC-CHECKED-CONSUMER-SELECTION"
-current_blocker_token = "Static V2 retained host and raw/Core IntrinsicMap cutover verified; public V1 and six literal edges retired. Checks complete; non-plugins runtime-stub failures reproduced on parent41912dd3bc. Next same Map row: source-owned generic copy/boxed versus checked Home consumer selection; callable ledger presence must not force checked admission or absent map_flow trigger fallback. Script6/EXE12 and Array5/EXE10 do not prove natural mixed-formal callee closure. No whole Map or R7 claim."
+current_blocker_token = "Declared-root Map install bypass retired: exact body-shape sites require issued flow before catalog mutation. Map flow11 and unchanged Script6/EXE12 pass. Next same Map row: audit transferred lambda Map membership/consumer boundary, then close source capability plus residence/Fault/cleanup for mixed-formal owning-slot promotion. No generic clone fallback; physical kinds do not issue ownership. No whole Map/R7 claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

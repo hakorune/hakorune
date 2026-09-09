@@ -7,6 +7,19 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         &self,
     ) -> Result<(), NormalCallableSemanticPackageInstallIssueV1> {
         use NormalCallableSemanticPackageInstallIssueV1 as Issue;
+        // Membership is already sealed per declared root. Never infer owning
+        // admission from ledger presence or skip unissued non-AppMain Maps.
+        for declaration in self.batch.declarations() {
+            for expression in declaration.body_shape().expressions() {
+                if let crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { site, .. } = expression {
+                    let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                        declaration.owner(), site.clone(),
+                    );
+                    self.ordinary_new_claim_ledger.map_flow(&owned)
+                        .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
+                }
+            }
+        }
         let Some(owner) = self
             .ordinary_new_claim_ledger
             .map_install_owner()

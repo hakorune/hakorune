@@ -7,9 +7,9 @@ Scope: intrinsic literal identity, retained Script numeric Array lifecycle and s
 
 ## Current capsule
 
-- **Current decision:** preserve Named versus IntrinsicArray identity, one source lifecycle/Recipe and one runtime storage/contract owner.
+- **Current decision:** preserve Named versus intrinsic Array/Map identity and source-owned lifecycle/Recipe; physical representation cannot issue ownership.
 - **Current implementation status:** raw/typed-local/Core literals preserve intrinsic identity; selected retained Script Arrays execute through the checked native ABI and bound V4 OBJ/EXE path. Literal birth and selected duplicate/preparation/projection/Stop edges are retired.
-- **Next ordered task:** implement the accepted three-step Map compiler cutover below, after the completed runtime ABI dependency; remaining canonical/compatibility and backend/runtime work follows.
+- **Next ordered task:** close callable Map source capability/consumer selection after the static V2 host/raw/Core checkpoint; retain the owning-slot target and distinguish compatibility from final coverage.
 - **Production stop line:** exact retained Script LocalInit/claim coverage and a compatible explicit runtime session are required. Module-only/unselected typed families and Script Loop keep their Stops.
 - **Retirement finish line:** the admitted numeric Script execution series is closed; Map/Main/named/compatibility callers remain live. Wider Array and Call R7 completion are not claimed.
 
@@ -2428,23 +2428,49 @@ trying to compile it is not additional Map acceptance. Do not replace its input
 with an easier result or count it as a source proof. Runtime ABI/body contracts
 and full ambient/global-row concurrency remain separate from source meaning.
 
-Decision: before natural mixed-formal closure, fix existing source-owned
-consumer selection; no fallback based on missing map_flow.
-Source authority + canonical issuer: existing callable source/Completion and
-Map entry relations must explicitly select generic copy/boxed versus checked
-Home consumption at their existing issuance boundary.
-Non-authority: callable_ledger presence, failed checked admission or absent root
-Completion cannot select generic emission or repair a checked product.
-Fail-fast boundary: unresolved/mismatched consumer selection stays before child
-emission and catalog mutation; preserve the admitted checked AppMain cohort.
-Smallest next slice: read-only selection design for the existing callable Map
-branch, naming one issuer, both consumers and the exclusive unconditional dispatch
-edge to replace. Do not add fixtures to discover a source-to-Recipe mapping.
-Non-claims: Script6 and physical expanded-formal tests do not prove natural
-callee formal values. Static/free callee -> with_callable_source_scope ->
-child_lowering_impl Map arm -> lower_callable_map_v1 always reaches checked
-begin_map_emission; co-seal Map flow is AppMain-only and map_flow requires that
-root owner. Independent worker audit confirms this concrete remaining blocker.
+### Declared-root Map install selection
+
+Decision: stop unissued selected callable Map consumption at existing package
+install; generic clone compatibility is not owning-slot admission. This replaces
+our earlier generic/checked routing premise, under ownership.md's slot-destination
+and ordinary noescape parameter contracts. Runtime scalar representation proves
+neither an owning acquisition nor Map residence/cleanup permission.
+
+Change: existing `preflight_map_install` enumerates `batch.declarations()` ->
+`body_shape().expressions()` -> exact `MapLiteral` site and matches the existing
+ledger flow. Delete the owner-none unconditional install-success edge for these
+sites; keep existing annotation/destination/terminal validation.
+Contract: body-shape issues membership only; existing ordinary_new_coseal and
+Completion/Home flow issue ownership. Missing flow uses existing
+`MapLifecycleConsumerMissing` before catalog mutation or child lowering. No new
+receipt, AST walk, inferred capabilities or retry through generic emission.
+Done: admitted AppMain and no-Map declarations remain accepted; non-AppMain
+formal, nested/return/argument/control Map without flow rejects with unchanged
+catalog. Existing Script V2 cohort remains separate. Run focused package tests
+and existing pointer/corridor guards; no backend expansion.
+Stop: missing shape ownership or a consumer outside this finite inventory
+requires separate mapping, never a skipped Dynamic slot or default permission.
+
+This census covers: declared-root callable batch body-shape -> package install.
+Includes same-owner nested/branch/block/argument Maps and Dynamic-selected
+**declaration roots**. Excludes Script root (batch issuer requires DeclaredFunction),
+separately transferred lambda bodies and explicit compatibility entry. Script
+programs may still contain declared functions in this batch. No all-executable-Map
+or Exhausted claim. Worker premise and API audit confirmed this boundary.
+
+Validation: Map home-flow11 pass, including five unissued declaration-root
+source cases and retained admitted AppMain/no-Map declarations; unchanged
+materialized Script6/direct+linked EXE12 exits30. The initial argument fixture
+used an undeclared call and stopped at UnissuedDirectCallObservation; declaring
+Helpers.consume preserves the argument Map and reaches the intended install
+Stop. Logs `/tmp/hakorune-map-install-{inventory-fixed,script-regression}.log`.
+No new backend or speed claim.
+
+Next ordered cutover blocker: audit transferred lambda Map membership/consumer inventory;
+source capability plus Map residence/Fault/cleanup co-seal for mixed-formal and
+other unissued candidates. Existing parameter OpaqueHandle/ExactTrivial/ExactText
+and physical tagged formals do not complete those obligations. Keep the same Map
+series open; this Stop is retirement of invalid admission, not execution coverage.
 
 ## Remaining source obligations
 

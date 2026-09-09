@@ -253,7 +253,11 @@ the Home state and invalidates old-local/alias observations after transfer.
 Completion owns one root flow, including successful or unavailable Map sites and
 their cleanup successors. `prepare_install` checks Complete Map flows, exact
 I64 terminal and same-root ordinary claim readiness before catalog mutation.
-The existing Local annotation policy is shared with physical placement; source
+Every declared-root Map site in the batch body-shape must match an issued Map
+flow, including same-owner nested/argument/control sites and Dynamic-selected
+declarations. Missing owner/flow cannot bypass preflight. Script roots and
+separately transferred lambda bodies are outside this inventory; no all-Map
+coverage claim is made. The existing Local annotation policy is shared with physical placement; source
 initializer/alias relations select its precommit use without ValueIds or names.
 Unavailable coverage returns `MapLifecycleConsumerMissing`; annotation refusal
 returns `MapLocalAnnotation` with the original diagnostic. The unchanged package

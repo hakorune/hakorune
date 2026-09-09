@@ -346,7 +346,12 @@ Aliases and consumed locals do not supply new transfer evidence. Other candidate
 families and source/runtime cutover remain open. Package install selects only
 Complete Map flows with an issued I64 terminal and ready same-root ordinary New
 claims. Unavailable coverage rejects with `MapLifecycleConsumerMissing` before
-catalog/body effects. Numeric/typed-Array Local annotations on Maps or their
+catalog/body effects. This check also covers unissued Map sites in every selected
+declaration root, including non-AppMain, nested and argument/control sites.
+A borrowed formal or known physical scalar representation cannot authorize an
+owning slot; generic clone compatibility is not a fallback. Transferred lambda
+bodies and Script roots remain outside this bounded declaration inventory.
+Numeric/typed-Array Local annotations on Maps or their
 unused aliases use the existing Local policy before initializer emission and
 reject with `MapLocalAnnotation`; no new annotation vocabulary is introduced.
 This preflight is not source-to-EXE evidence. Nested-statement Maps, indexed Unit

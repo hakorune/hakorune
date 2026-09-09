@@ -6,6 +6,33 @@ fn source(body: &str) -> String {
 }
 
 #[test]
+fn declared_root_unissued_map_sites_stop_before_install() {
+    for body in [
+        "local m = %{\"v\" => value} return 30",
+        "local m = %{\"nested\" => %{}} return 30",
+        "return %{}",
+        "Helpers.consume(%{}) return 30",
+        "if value { local m = %{} } return 30",
+    ] {
+        let program = format!(
+            "static box Helpers {{ consume(value) {{ return 30 }} run(value) {{ {body} }} }}
+             static box Main {{ main() {{ return 30 }} }}"
+        );
+        let package = issue(&program)
+            .unwrap_or_else(|error| panic!("declared-root Map source inventory: {body}: {error:?}"));
+        let mut context = CompilationContext::new();
+        let issue = match package.prepare_install(&mut context) {
+            Err((_, issue)) => issue,
+            Ok(_) => panic!("unissued Map installed: {body}"),
+        };
+        assert!(matches!(issue,
+            super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
+        ), "{issue:?}: {body}");
+        assert!(context.callable_declaration_catalog_vacant());
+    }
+}
+
+#[test]
 fn map_completion_retains_transfer_replacement_and_fault_successors() {
     let package = issue(&source(
         "local a = new Page() local b = new Page() local c = new Page()
