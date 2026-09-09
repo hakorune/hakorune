@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-MEASURE-P0"
-current_execution_cohort = "mirbuilder_physical_c_invocation_index_reuse_measure_p0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D1"
+current_execution_cohort = "mirbuilder_physical_c_invocation_index_reuse_d1"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "C invocation-index reuse measurement P0: instrument or reuse an existing opt-in observation surface for the selected typed-object-birth-min V4 caller, capture separate V2/V4 scan timings/counts and llc time, and preserve every admission/rejection/artifact result. Do not change the FFI contract, add a global cache, or claim a speedup from observation alone."
+current_blocker_token = "C invocation-index reuse D1: measurement P0 is closed. Existing V4 invocation-local index reuse is sufficient for the selected Pair caller; cross-phase V2/V4 fusion is ParkedSealed until a larger selected production input shows repeated pre-llc scan cost and a trust-preserving owner/delete-set. Keep llc subprocess work in a separate design boundary."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -42,12 +42,14 @@ ordinary-call collection landed at a078c00699 with sorted block-id traversal,
 reversed-insertion coverage, and the physical-program 3-test suite green. PHI
 convergence landed at 14a8f88c6a with sorted contract scans and a no-partial-
 state budget stop; the focused PHI tests and cargo check passed. The C
-invocation-index D0 is now closed with one selected production caller and the
-measurement owner fixed; the next bounded row is measurement P0. Untyped storage,
-child physical shapes, and whole-Map/R7 remain parked.
+invocation-index D0 and measurement P0 are closed at a0ab958b81: the selected
+Pair caller reports invocation-local V2/V4/emit/llc timings and counts, while
+existing V4 index reuse remains the sole index owner. Cross-phase V2/V4 fusion
+is ParkedSealed; llc subprocess work has a separate design boundary. Untyped
+storage, child physical shapes, and whole-Map/R7 remain parked.
 """
-next_design_card = "none"
-next_execution_card = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-MEASURE-P0"
+next_design_card = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D1"
+next_execution_card = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
@@ -64,5 +66,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change.",
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
-  "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30, Fault/cleanup and multi-owner evidence; c3fa1f8a75 and 60bcf68add close Rust/C Birth handoff slices. f4b387de48 closes init_fields projection 6/6; 89199dbc3c closes i64 fixture migration/newbox EXE30/layout negatives; 36cdbb08c8 closes FaultFrameEnter JSON egress and reclassifies method at Invoke. 2026-09-10 physical probe confirms typed-object-birth-min linked exit30; typed-object-method-min remains before physical ingress at artifact-source-unavailable for root method Call/cleanup. Owner-scoped Call probe is closed at c8887bbda2 (1/1). Root method Rust I0 closes at 629e558e91 with source/verifier tests and complete dump-MIR evidence; physical receiver-lane D0 accepted and I0 selected. Untyped storage, child shapes, whole-Map/R7 remain parked."
+  "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30, Fault/cleanup and multi-owner evidence; c3fa1f8a75 and 60bcf68add close Rust/C Birth handoff slices. f4b387de48 closes init_fields projection 6/6; 89199dbc3c closes i64 fixture migration/newbox EXE30/layout negatives; 36cdbb08c8 closes FaultFrameEnter JSON egress and reclassifies method at Invoke. 2026-09-10 physical probe confirms typed-object-birth-min linked exit30; typed-object-method-min remains before physical ingress at artifact-source-unavailable for root method Call/cleanup. Owner-scoped Call probe is closed at c8887bbda2 (1/1). Root method Rust I0 closes at 629e558e91 with source/verifier tests and complete dump-MIR evidence; physical receiver-lane D0 accepted and I0 selected. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked."
 ]

@@ -1649,6 +1649,46 @@ names the existing `llc` subprocess as the dominant measured slice, but does
 not authorize in-process `llc`, a shared V2/V4 index, a cache, or a concurrency
 claim. Any such change requires a separate owner and before/after evidence.
 
+##### MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D1
+
+Decision: Park cross-phase V2/V4 index fusion. The existing V4
+`hako_lv4_input` owns one invocation-local `hako_lv4_function_index`, and its
+admission, flow, and emitter already reuse that index. The measured Pair
+caller does not show a safe additional index owner or an exclusive delete-set.
+
+Source authority + canonical issuer: the existing Rust
+`PublishedLifecyclePhysicalAbiInputV1` and its one V4 invocation. V2 remains
+the structural/SSA/dominance trust boundary; V4 remains the physical
+admission/index owner. Neither phase may trust the other's partial scan as a
+replacement for its own validation.
+
+Non-authority: a global cache, a V2-to-V4 borrowed index, C/MIR name lookup,
+measurement-derived acceptance, and any claim about `llc` or concurrent
+compilation. The V2 validator and its repeated checks remain required until a
+separate, equivalent trust-preserving owner is proven.
+
+Fail-fast boundary: malformed schema, SSA, dominance, diagnostic-site,
+admission, flow, emission, and object-publication behavior must remain exactly
+as before. A future index-sharing proposal stops at design if it cannot name
+one owner, one invocation lifetime, one caller, and a delete-set that removes
+only duplicate work after V2 trust is established.
+
+Smallest next slice: no V2/V4 fusion code. Keep the observation surface and
+the selected Pair evidence as the baseline; reopen only when a larger selected
+production input repeatedly shows pre-`llc` scans as a material phase and a
+measured, trust-preserving reuse removes those scans. Treat `llc` subprocess
+work as a separate performance design with its own owner and acceptance.
+
+Non-claims: this row does not change the FFI contract, add a cache, enable
+parallel compilation, remove V2 validation, or complete the
+`typed-object-method-min` physical ingress.
+
+Census boundary: `typed-object-birth-min` Rust physical caller ->
+`compile_published_lifecycle_physical_v4` JSON parse/V2 validation/V4
+admission-flow-emission/`llc`/object publication; includes Pair, Bool-first,
+and Bool-second direct and linked invocations; excludes native-array,
+compatibility, and receiver-method ingress.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root
