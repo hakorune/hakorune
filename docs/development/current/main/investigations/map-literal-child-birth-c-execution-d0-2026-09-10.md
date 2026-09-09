@@ -94,9 +94,11 @@ assumptions: the `fi` rejection branches for `new_box`, `birth_call`,
 binding scan. Generic fallback, compatibility routes, other runtime families,
 and all field/unknown/native/general Map claims remain outside this I0.
 
-**D0 decision:** keep `work_mode = design_stop`. The owner and rows are known,
-but cleanup state and child receiver binding still need this finite acceptance
-to be encoded before any guard is opened or production edge is switched.
+**D0 decision:** accepted. The owner, rows, session, and exclusive delete set
+are finite, and the receiver-binding/live-handle/normal-fault cleanup contract
+above is now the bounded I0 acceptance. Switch to `work_mode = fast` for one
+selected ordinary child New/Birth/Home consumer. Do not open any other child
+shape or whole-Map route in the same series.
 
 ## Design tasks
 

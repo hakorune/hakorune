@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-C-EXECUTION-D0"
-current_execution_cohort = "map_literal_ordinary_new_home_child_birth_c_execution_d0"
+work_mode = "fast"
+current_execution_row = "MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-C-EXECUTION-I0"
+current_execution_cohort = "map_literal_ordinary_new_home_child_birth_c_execution_i0"
 current_design_stop = "docs/development/current/main/investigations/map-literal-child-birth-c-execution-d0-2026-09-10.md"
-current_blocker_token = "The Rust New/Home Birth-handoff I0 landed at c3fa1f8a75 with root and child-only Birth+Map/New compiled-entry/JSON/cleanup evidence. The C D0 census named the existing child New/Birth/HomeRelease consumer, one invocation-owned runtime/session, exact rows, and the five root-only assumptions to delete; work remains design_stop until the finite receiver-binding, live-handle, normal/fault cleanup acceptance is encoded."
+current_blocker_token = "The Rust New/Home Birth-handoff I0 landed at c3fa1f8a75 and the C D0 census is accepted at 5f62746179. The bounded C I0 may remove only the five root-only assumptions for one ordinary child New/Birth/HomeRelease path; receiver binding, live-handle, normal/fault cleanup, and focused C/OBJ/EXE evidence remain required before broader Map claims."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -56,7 +56,7 @@ retention plus bounded owner admission; the explicit fourth-Call and grouped
 mutation guards, natural Pair exit30, and Fault-order prefix probes pass; the four-owner D0 is accepted and its source-admission guard passes semantic 14/14. Four-owner direct/linked exit30 and per-prefix Fault/cleanup probes pass. The ordinary-child Value-only artifact recheck passes with one source Call row and root+child Pair exit30. Five-owner source admission, direct/linked exit30, and A-E Fault-prefix/cleanup probes pass. The New/Home Rust handoff I0 landed at c3fa1f8a75: caller-scoped child Birth actuals share the existing final owner, compiled-entry/JSON matching is caller-aware, and root/child-only Birth plus cleanup evidence is green. C child New/Birth/HomeRelease gates move to the explicit D0 design stop; no C or whole-Map/R7 claim.
 """
 next_design_card = "MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-C-EXECUTION-D0"
-next_execution_card = "none (C execution I0 requires this D0 decision)"
+next_execution_card = "MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-C-EXECUTION-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
