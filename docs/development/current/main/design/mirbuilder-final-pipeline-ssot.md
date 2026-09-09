@@ -967,18 +967,33 @@ and `10/11` fail; the pinned parent is `6/11` pass and `5/11` fail. The
 unsupported-boundary probe passes in both runs. The five common reds are
 `boxtorrent_mini_exe`, `binary_trees_exe`, `mimalloc_lite_exe`,
 `json_stream_aggregator_exe_runtime_boundary`, and `allocator_stress_exe`;
-they remain separately owned baseline/source-boundary failures. The five
-current-only reds are `typed_object_newbox_min_exe`,
-`typed_object_method_min_exe`, `typed_object_birth_min_exe`,
-`typed_object_untyped_field_min_exe`, and `typed_object_birth_param_min_exe`.
-They appeared after strict canonical object-layout refresh and must be treated
-as an open current-change blocker: the RawCompatibility direct source route
-does not carry the canonical object-definition product required by the new
-layout authority. Do not restore the old metadata inference, add a fallback, or
-turn these accepted source programs into rejects. The next bounded design slice
-is to select the existing source-ingress/package owner that can issue and
-transfer the canonical definitions before typed-object planning, then rerun
-this exact suite; no production cutover claim is made while these five remain.
+they remain separately owned baseline/source-boundary failures.
+
+The five current-only reds are split by owner. `typed_object_newbox_min_exe`
+is outside the exact canonical storage vocabulary because it declares
+`IntegerBox`; the language type SSOT treats `IntegerBox` as an object identity,
+while the old metadata compatibility planner treated it as an inline i64.
+`typed_object_untyped_field_min_exe` and
+`typed_object_birth_param_min_exe` use legacy `init { ... }` slots; the
+canonical package issuer currently ignores `init_fields`, so metadata commit
+rejects the declaration projection before layout. `typed_object_birth_min_exe`
+reaches the C consumer and stops at the unimplemented `FaultFrameEnter` shape.
+`typed_object_method_min_exe` depends on the typed layout result and must be
+reclassified after those upstream owners are fixed. The existing
+source-backed package -> `take_object_definitions` -> `ModuleDraftCollector`
+transfer is present; RawCompatibility must remain an adapter and must not gain
+canonical fallback, AST re-inference, or old metadata authority.
+
+The bounded design order is therefore: (1) decide and issue `init_fields`
+membership in the existing object-definition issuer with its source order,
+duplicate, weak-field, and foreign/brand rejection rules; (2) reconcile the
+`IntegerBox` direct-EXE contract between the language type SSOT and the typed
+layout reference, choosing an explicit source migration or an explicit
+representation contract; (3) handle `FaultFrameEnter` in its existing C
+consumer owner; then rerun this exact suite and reclassify the method Birth
+case. These are separate slices: no new receipt, RawCompatibility fallback,
+or accepted-source-to-rejection mutation is allowed, and no production
+cutover claim is made while the current-only reds remain.
 
 Handoff after Loop retirement and repository convergence is owned by
 `selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`:
