@@ -1301,6 +1301,14 @@ Do not edit C, physical transport, or generic MIR JSON until that inventory
 proves the row can be issued without a new semantic authority. If it cannot,
 record the exact missing source relation and keep `NoSafeSlice`.
 
+Current D1 inventory status: the resolver, initializer, New claim, selected
+identity, and result-contract facts can be compared without name recovery, but
+no selected-instance target emitter has been found. The existing root direct
+index is free-static-only, and `VerifiedCanonicalDirectCallEmissionV1` requires
+its verified callable header. Therefore D1 remains `NoSafeSlice` for code until
+an existing source-backed instance target/header projection is identified or a
+package-private physical projection is explicitly designed with its own owner.
+
 Non-claims: this design does not authorize code, fixture, production switch,
 OBJ/EXE acceptance, or any other MethodCall family.
 
