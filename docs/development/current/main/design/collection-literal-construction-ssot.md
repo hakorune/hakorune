@@ -2924,6 +2924,51 @@ EXE/linked OBJ; callee Fault cleanup before caller cleanup and one final report;
 foreign target/formal/result, Fault-result use, missing cleanup, borrowed-frame
 disposal and role-mislabel rejection. Keep AppMain source/Fault acceptance.
 
+### Ordinary Call finalization and continuation frontier
+
+Decision: design_stop after source checkpoint 11aff90193. Read-only physical
+owner audit covers installed package -> scoped lowering -> completed lifecycle
+-> finalized handoff -> compiled-entry; excludes source reclassification and
+nonselected backends. No repeated root/Birth census is required.
+
+Source authority + canonical issuer: existing affine Call correspondence,
+original caller/callee Completion, selected membership and formal/result owners.
+The issuer consuming these into Call Normal/Fault continuation remains unnamed.
+Non-authority: scalar MIR, physical header, Borrowed frame defaults and a green
+retention test cannot issue that continuation or authorize ordinary execution.
+Fail-fast boundary: preserve ordinary install, artifact and non-Birth Invoke
+rejections until the corresponding consumer contract is closed.
+Smallest next slice: name the existing Recipe/continuation issuer and its exact
+Normal-only i64 / Fault-cleanup mapping, then move existing completed products
+through the scoped finish boundary without widening execution.
+Non-claims: no ordinary ABI/LLVM activation, new semantic receipt, or EXE proof.
+
+Concrete lifetime seam: `normal_default_root_catalog_lifecycle.rs` drops its
+local installed package after scoped lowering returns module/root validation/
+construction. The package still owns ordinary `result_contracts`, `selected`
+and `parameter_contracts`; child lowering only borrows them (`install.rs`).
+A consuming finish on `BuilderPrivateCallableLoweringScopeV1`, after all loans
+end, should move the existing required rows into
+`CompletedNormalDefaultRootCatalogLifecycleV1` and then `FinalizedRootHandoffV1`.
+Do not retain the whole source-bearing package, clone Completion, or add a
+sibling graph. View and compiled-entry borrow the completed owner's products.
+
+The bounded retention task deletes the package-end drop of required ordinary
+products. Acceptance: original Completion moves with exact membership/formals/
+result; foreign correspondence and double consumption reject; root and callee
+remain distinct; missing cleanup never becomes empty. Both installation and
+artifact execution remain stopped. This is not the final execution deletion.
+
+Before implementation of Invoke: `instruction/invoke.rs::normal_result_kind`
+currently gives Call no normal result, and `verification/invoke.rs` rejects
+non-Birth Call. `NewFaultContinuationV1` requires direct-local New and cannot
+issue Call continuations. Reuse the existing RootOwned/Borrowed frame owner,
+but explicitly map the source-authorized Call's two exits in the existing
+Recipe owner before changing these verifiers. Ordinary validation must consume
+its own callable lowering state, not relabel it Birth. Execution acceptance
+remains Normal-only result, callee-before-caller cleanup on Fault, no borrowed
+frame disposal, root-only report/dispose, direct EXE and linked OBJ exit30.
+
 ### Checked Map Value storage/install ABI: accepted next slice
 
 Runtime slice completed: inline I64/Bool/Residence payload, exact rejected
