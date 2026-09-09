@@ -120,8 +120,9 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
 
 impl FinalizedRootSourceHandoffV1 {
     /// Derived at this result boundary; never retained as a second source tag.
-    pub(crate) fn result_abi(&self) -> FinalizedRootResultAbiV1 {
-        match &self.terminal {
+    pub(crate) fn result_abi(&self) -> Option<FinalizedRootResultAbiV1> {
+        Some(match &self.terminal {
+            TerminalRelationV1::Call(_) => return None,
             TerminalRelationV1::I64Add(row) => {
                 FinalizedRootResultAbiV1::I64AddReturn { owner: row.owner() }
             }
@@ -134,7 +135,7 @@ impl FinalizedRootSourceHandoffV1 {
             TerminalRelationV1::I64Field(row) => {
                 FinalizedRootResultAbiV1::I64FieldReturn { owner: row.owner() }
             }
-        }
+        })
     }
 
     pub(crate) fn birth_actuals(&self) -> &[FinalizedBirthActualsV1] {

@@ -3,6 +3,16 @@ use super::*;
 use crate::mir::resolved_semantics::SourceNodeSiteV1;
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn call_source_completion(&self) -> Option<(
+        &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+        &crate::mir::resolved_semantics::home_new_prefix::TerminalI64CallReturnV1,
+    )> {
+        match (self.root_completion.as_ref(), self.terminal_relation.as_ref()) {
+            (Some(Ok(completion)), Some(TerminalRelationV1::Call(call))) => Some((completion, call)),
+            _ => None,
+        }
+    }
+
     pub(crate) fn is_empty(&self) -> bool {
         self.claims.borrow().is_empty()
             && self.map_demands_consumed()

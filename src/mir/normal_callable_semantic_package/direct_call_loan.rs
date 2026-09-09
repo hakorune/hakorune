@@ -17,13 +17,22 @@ pub(crate) enum AppMainDirectCallLoanErrorV1 {
     SiteAlreadyTaken,
     ResidualRows,
     DuplicateSite,
+    LifecycleSourceMismatch,
+    LifecycleConsumerMissing,
 }
 
 #[derive(Debug)]
 pub(crate) struct AppMainDirectCallDispositionRowV1 {
     argument_sites: Box<[SourceExprSiteV1]>,
     emission: VerifiedCanonicalDirectCallEmissionV1,
+    execution: AppMainCallExecutionV1,
 }
+
+#[derive(Debug)]
+enum AppMainCallExecutionV1 { Scalar, Lifecycle }
+
+#[path = "direct_call_lifecycle.rs"]
+mod lifecycle;
 
 impl AppMainDirectCallDispositionRowV1 {
     pub(crate) fn new(
@@ -33,6 +42,7 @@ impl AppMainDirectCallDispositionRowV1 {
         Self {
             argument_sites,
             emission,
+            execution: AppMainCallExecutionV1::Scalar,
         }
     }
 
@@ -40,8 +50,11 @@ impl AppMainDirectCallDispositionRowV1 {
         &self.argument_sites
     }
 
-    pub(crate) fn into_emission(self) -> VerifiedCanonicalDirectCallEmissionV1 {
-        self.emission
+    pub(crate) fn into_scalar_emission(self) -> Result<VerifiedCanonicalDirectCallEmissionV1, AppMainDirectCallLoanErrorV1> {
+        match self.execution {
+            AppMainCallExecutionV1::Scalar => Ok(self.emission),
+            AppMainCallExecutionV1::Lifecycle => Err(AppMainDirectCallLoanErrorV1::LifecycleConsumerMissing),
+        }
     }
 }
 

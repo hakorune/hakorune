@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "none"
-current_blocker_token = "Ordinary terminal retention implemented through existing seed/result; package150 and guard pass. Next implement accepted source Call co-seal in AppMain affine disposition plus Completion/Home walk: terminal Cataloged call, literal I64 args, exact I64 formals/result and supported Map callee. Preserve early target error order; bind lifecycle after callee contracts exist; root Call needs its own Home walk. Scalar edge and ordinary install Stop remain series delete-set; no ABI activation or new retention wrapper."
+current_blocker_token = "Source Call co-seal implemented: package153/control33/corridor pass, source max739. Map-owned terminal calls preserve original caller Completion and exact callee/formal/result correspondence; missing source correspondence rejects and scalar descent stops before arguments. Close source checkpoint, then audit existing finalized/compiled-entry handoff and Invoke continuation ownership. Ordinary install/artifact Stops remain; no C/OBJ/EXE activation or new semantic wrapper."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

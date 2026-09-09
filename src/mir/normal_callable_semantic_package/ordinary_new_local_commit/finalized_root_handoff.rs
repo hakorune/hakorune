@@ -19,6 +19,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // Structural exclusivity replaces collision checks, not physical progress.
         if let Some(terminal) = &self.terminal_relation {
             match terminal {
+                TerminalRelationV1::Call(_) => return Err(freeze("artifact-call-consumer-missing")),
                 TerminalRelationV1::I64Add(relation) => {
                     if relation.owner() != owner || !self.terminal_result_complete() {
                         return Err(freeze("artifact-root-result-unavailable"));

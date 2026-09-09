@@ -401,6 +401,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
+    app_main_calls: Option<&super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
     parameter_contracts: &[super::model::OwnedCallableParameterContractDeclarationV1],
     dynamic: &mut super::model::NormalCallableDynamicProjectionV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
@@ -503,7 +504,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                 }
                 let new_sites: BTreeMap<_, _> = candidates.iter()
                     .map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
-                let (home_prefixes, argument_observations) = if (is_app_main && (!new_sites.is_empty() || has_map)) || (seed_eligible && has_map) {
+                let (home_prefixes, argument_observations) = if (is_app_main && (!new_sites.is_empty() || has_map || app_main_calls.is_some_and(|loan| loan.has_map_target(batch)))) || (seed_eligible && has_map) {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -527,7 +528,8 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                                 return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() });
                             }
                             Ok(candidate.construction.is_ok() && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
-                        })? {
+                        }, &mut |site| Ok(is_app_main && app_main_calls.is_some_and(|loan|
+                            loan.is_map_i64_call(batch, parameter_contracts, input, site))))? {
                         Ok((completion, prefixes, mut terminal_relation, observations)) => {
                             if is_app_main && matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
                                 if let Some(TerminalRelationV1::I64Add(result)) = &terminal_relation {

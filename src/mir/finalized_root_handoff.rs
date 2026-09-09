@@ -45,7 +45,7 @@ impl FinalizedRootHandoffV1 {
 
     pub(crate) fn root_result(&self) -> Option<FinalizedRootResultAbiV1> {
         self.root_source()
-            .map(FinalizedRootSourceHandoffV1::result_abi)
+            .and_then(FinalizedRootSourceHandoffV1::result_abi)
     }
 
     pub(crate) fn root_source(&self) -> Option<&FinalizedRootSourceHandoffV1> {

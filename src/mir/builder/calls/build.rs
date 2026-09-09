@@ -139,7 +139,9 @@ impl MirBuilder {
         // argument descent, so nested calls can use the same affine loan.
         let row = port.take_app_main_direct_call_disposition_v1()?;
         let expected_sites = row.argument_sites().to_vec();
-        let emission = row.into_emission();
+        let emission = row.into_scalar_emission().map_err(|error| {
+            format!("[freeze:contract][app-main-direct-call/lifecycle-consumer-missing] {error:?}")
+        })?;
         let arg_values = drive_call_arguments_with_expected_sites_v1(
             self,
             port,

@@ -224,3 +224,11 @@ completion input for its installed callable view. Parameter/result validation
 and downstream physical-header checks still apply; ordinary result retention
 does not verify or own that successful slot a second time. A declined Dynamic
 candidate's later ordinary path is a separate case, with no global one-pass claim.
+
+For the bounded AppMain-to-ordinary-Map compiler connection, exact Integer
+literal arguments are paired with declaration-issued I64 formals. The source
+terminal Call retains a pending return only on Normal; Fault uses caller
+Completion cleanup without publishing the result. Early target/arity errors
+remain first. Unsupported Map-call correspondence fails before argument effects
+instead of using the scalar Call path. This source connection does not yet
+activate the ordinary callable Fault ABI or object/executable emission.

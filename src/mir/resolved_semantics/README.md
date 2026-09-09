@@ -33,6 +33,13 @@ and an unavailable prefix cannot lend stale local evidence. Physical
 AppMain Value admission consumes known kinds in the selected consumer; unknown
 formal representation and ordinary callable execution remain separate obligations.
 
+The existing terminal relation also records a package-selected I64 Call return.
+Literal arguments have no intervening acquisition; Normal alone supplies the
+pending return value, while Fault uses the same Completion's live Home state.
+Target/argument sites remain in the affine package row. Unary expressions,
+locals and nested argument calls are not Integer literal evidence in this row.
+No physical continuation or ABI tag is issued by these source facts.
+
 ## Ordinary-New caller-prefix facts
 
 `home_prefix_local_flow` owns the prefix's private local-state table and one

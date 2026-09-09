@@ -74,7 +74,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
 ) -> BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>> {
     scan_new_home_flow(input, selected, std::iter::empty(), None, &mut |_, _, _, _, _| {
         Ok::<_, std::convert::Infallible>(false)
-    }, &mut |_, _| Ok(false))
+    }, &mut |_, _| Ok(false), &mut |_| Ok(false))
     .unwrap_or_else(|never| match never {})
     .0
 }
@@ -327,10 +327,28 @@ fn return_scalar<E>(
     }
 }
 
+/// A terminal Call publishes its pending value only on Normal. On Fault the
+/// original Completion supplies caller cleanup and outward propagation.
+/// Target and argument sites stay in the package's existing affine Call row.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct TerminalI64CallReturnV1 {
+    owner: FunctionOwnerIdV1,
+    return_site: SourceStmtSiteV1,
+    call_site: SourceExprSiteV1,
+    arguments: Box<[i64]>,
+}
+impl TerminalI64CallReturnV1 {
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
+    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 { &self.return_site }
+    pub(crate) fn call_site(&self) -> &SourceExprSiteV1 { &self.call_site }
+    pub(crate) fn arguments(&self) -> &[i64] { &self.arguments }
+}
+
 /// One source-issued terminal relation. Absence stays outside this enum;
 /// no ABI, physical progress or new source classification is issued here.
 #[derive(Debug, Clone)]
 pub(crate) enum TerminalRelationV1 {
+    Call(TerminalI64CallReturnV1),
     I64Add(TerminalI64AddReturnV1),
     Unit(TerminalUnitReturnV1),
     IntegerLiteral(TerminalIntegerLiteralReturnV1),
@@ -358,6 +376,7 @@ pub(crate) fn scan_new_home_flow<E>(
         &str,
     ) -> Result<bool, E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
+    terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
@@ -429,6 +448,23 @@ pub(crate) fn scan_new_home_flow<E>(
                                 ),
                             ));
                             true
+                        }
+                        _ if terminal_call(&OwnedExprSiteV1::new(input.owner(), value.site().clone()))? => {
+                            let arguments = input.function().direct_call_observations()
+                                .find(|(site, _)| *site == value.site())
+                                .and_then(|(_, row)| row.argument_sites().iter().map(|site| {
+                                    match input.function().expression_source().literal(site) {
+                                        Some(ResolvedLiteralSourceV1::Integer(value)) => Some(*value),
+                                        _ => None,
+                                    }
+                                }).collect::<Option<Vec<_>>>());
+                            if let Some(arguments) = arguments {
+                                terminal_relation = Some(TerminalRelationV1::Call(TerminalI64CallReturnV1 {
+                                    owner: input.owner(), return_site: statement.site().clone(),
+                                    call_site: value.site().clone(), arguments: arguments.into_boxed_slice(),
+                                }));
+                                true
+                            } else { false }
                         }
                         _ => match return_scalar(input, value.site(), &locals, field_is_integer)? {
                             Some(ReturnScalar::I64Add { site, field_reads }) => {

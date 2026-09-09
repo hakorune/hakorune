@@ -517,7 +517,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     }
     app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
-    let app_main_direct_call_loan = match app_main_identity.as_ref() {
+    let mut app_main_direct_call_loan = match app_main_identity.as_ref() {
         Some(identity) => issue_app_main_direct_call_loan_v1(&catalog, &batch, &selected, identity)
             .map_err(
                 |error| NormalCallableSemanticPackageIssueV1::AppMainDirectCall { _error: error },
@@ -666,7 +666,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         }
     };
     let (ordinary_new_claim_ledger, mut completion_seeds) = issue_ordinary_source_cohort_v1(
-        &batch, &selected, app_main_identity.as_ref(), &parameter_contracts,
+        &batch, &selected, app_main_identity.as_ref(), app_main_direct_call_loan.as_ref(), &parameter_contracts,
         &mut dynamic, &instance_constructors,
     ).map_err(|error| match error {
         OrdinaryNewCoSealIssueV1::CompletionSeed(error) =>
@@ -694,6 +694,12 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         .map_err(|error| {
         NormalCallableSemanticPackageIssueV1::ResultContract { _error: error }
     })?;
+    if let Some(loan) = &mut app_main_direct_call_loan {
+        loan.co_seal_lifecycle(&batch, &parameter_contracts, &result_contracts, &ordinary_new_claim_ledger)
+            .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainDirectCall {
+                _error: AppMainDirectCallDispositionIssueV1::Loan(error),
+            })?;
+    }
     let physical_header = issue_callable_physical_header_from_result_contract_v1(&result_contracts);
     let physical_signature = issue_callable_physical_signature_v1(
         catalog.catalog().brand().clone(),

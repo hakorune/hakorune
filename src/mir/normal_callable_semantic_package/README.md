@@ -140,6 +140,23 @@ The formal issuer retains ordinal/binding/owner/kind authority. This cohort
 does not define TextFormal wire, ExactText physical residence or TextEq routing;
 Builder IDs and S6C physical-session adoption remain downstream obligations.
 
+### AppMain terminal Call lifecycle co-seal
+
+Early resolver target/arity validation keeps its existing order. The AppMain
+Home walk also observes a terminal Call to an ordinary Map-owned declaration,
+even without a local New/Map. It retains only the source return/Call relation
+and exact Integer literal values; target and argument sites remain in the affine
+Call row. Declaration I64 contracts authorize the source result and arguments.
+The original caller Completion owns cleanup and outward propagation.
+
+After ordinary result retention, the same row becomes Lifecycle only when its
+callee I64 result, literal return, formal bindings and complete Map obligations
+match. A Map target with incomplete correspondence rejects before installation;
+it cannot remain Scalar. Non-Map scalar calls keep their existing owner.
+Scalar extraction rejects Lifecycle before argument descent. Ordinary Map
+installation and finalized Call artifact emission remain stopped until the
+Invoke/ABI consumer is connected; source co-seal is not execution evidence.
+
 ### S6C and BlockExpr
 
 [The S6C child](s6c_child.rs) is issued inside the same package/batch owner.

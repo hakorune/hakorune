@@ -2872,11 +2872,34 @@ ordinary Map install Stop only with direct EXE/linked OBJ exit30 and injected
 callee-Fault -> callee cleanup -> caller cleanup -> one root report evidence.
 Source success or Stop arrival cannot close that execution acceptance.
 
-Ordered ordinary execution frontier (read-only physical audit at e77b7ab57b):
-1. Implement the source co-seal selected above: existing AppMain affine row and
+Terminal Call source connection: the existing AppMain Home walk accepts an
+exact Map-targeted terminal Call using the affine row's verified header and
+parameter contracts. TerminalRelation::Call owns return/call sites and literal
+values only; target and argument-site vectors are not copied into it. Caller
+Completion owns the live Home list and outward function, including earlier New
+Homes. After callee results exist, co_seal_lifecycle validates the same target,
+I64 formal bindings, callee literal terminal and Complete Map flow, then marks
+the affine row Lifecycle. Every Map-owned target is checked before disposition;
+missing correspondence is a typed source mismatch, never Scalar fallback.
+
+The existing build.rs consumer now extracts Scalar through a fallible terminal
+before raw argument descent; Lifecycle stops with lifecycle-consumer-missing.
+Finalized Call source remains artifact-call-consumer-missing and supplies no
+invented legacy result-ABI variant. Ordinary Map package installation remains
+stopped. Non-Map scalar calls and early target/arity diagnostic order remain.
+No C schema/LLVM/OBJ/EXE activation is claimed by this source connection.
+
+Source connection checkpoint: package153/control33 and the canonical corridor
+guard pass; changed source maximum739. The initial negative integer fixture
+used unary `-5`, outside the accepted literal relation; positive uses literal5
+and unary remains an explicit rejection. This was a current-change fixture
+mismatch, corrected without widening admission. No runtime evidence added.
+
+Ordered ordinary execution frontier (physical inventory at e77b7ab57b retained):
+1. Source co-seal is implemented: existing AppMain affine row and
    Completion/Home walk retain exact Call normal/result/Fault correspondence.
-   Early target validation remains first; bind lifecycle after callee contracts
-   exist and scan the terminal-Call root even without local New/Map. Builder
+   Early target validation remains first; lifecycle binds after callee contracts
+   exist and the terminal-Call root is scanned even without local New/Map. Builder
    Invoke Call currently emits Birth only; do not relabel ordinary scalar MIR
    or fabricate a placeholder physical/semantic product. Unconnected execution
    remains stopped.
