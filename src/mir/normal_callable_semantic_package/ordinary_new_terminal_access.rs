@@ -91,6 +91,16 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
+    pub(crate) fn terminal_i64_field_return_for_owner(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    ) -> Option<&TerminalI64FieldReturnV1> {
+        match self.terminal_relation_for_owner(owner) {
+            Some(TerminalRelationV1::I64Field(row)) => Some(row),
+            _ => None,
+        }
+    }
+
     pub(crate) fn prepare_terminal_integer_literal_return(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,

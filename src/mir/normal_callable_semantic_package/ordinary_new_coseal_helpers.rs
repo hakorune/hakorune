@@ -9,6 +9,7 @@ use super::{
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1;
+use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     SelectedNewArgumentKindV1, SelectedNewArgumentObservationV1,
 };
@@ -70,4 +71,12 @@ pub(super) fn no_birth_constructor_disposition(
         class: class.into(),
         arity,
     })
+}
+
+pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: bool) -> bool {
+    has_map
+        || matches!(
+            row,
+            TerminalRelationV1::IntegerLiteral(_) | TerminalRelationV1::I64Field(_)
+        )
 }

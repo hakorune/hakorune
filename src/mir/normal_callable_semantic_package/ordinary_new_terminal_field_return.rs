@@ -20,17 +20,27 @@ impl OrdinaryNewClaimLedgerV1 {
         return_site: &SourceNodeSiteV1,
         mut resolve_binding: impl FnMut(BindingRefV1, &SourceNodeSiteV1) -> Result<ValueId, String>,
     ) -> Result<Option<PreparedTerminalI64FieldReturnV1>, String> {
-        let Some(relation) = self.terminal_i64_field_return() else {
+        let Some(relation) = self.terminal_i64_field_return_for_owner(owner) else {
+            let foreign = self.terminal_relation_index.values().any(|candidate| {
+                matches!(candidate.as_ref(), TerminalRelationV1::I64Field(row)
+                    if row.return_site().node() == return_site)
+            }) || self.terminal_relation.as_ref().is_some_and(|candidate| {
+                matches!(candidate, TerminalRelationV1::I64Field(row)
+                    if row.return_site().node() == return_site)
+            });
+            if foreign {
+                return Err(fault("owner-drift"));
+            }
             return Ok(None);
         };
-        let Some(Ok(completion)) = self.root_completion.as_ref() else {
+        let Some(completion) = self.completion_for_owner(owner) else {
             return Err(fault("completion-missing"));
         };
         if relation.owner() != owner
             || completion.owner() != owner
             || completion.explicit_site() != Some(relation.return_site())
             || relation.return_site().node() != return_site
-            || self.terminal_i64_field_value.borrow().is_some()
+            || self.terminal_i64_field_value_for_owner(owner).is_some()
         {
             return Err(fault("source-drift"));
         }
@@ -52,9 +62,31 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some(PreparedTerminalI64FieldReturnV1 { site, base, field }))
     }
 
-    pub(crate) fn record_terminal_i64_field_return(&self, value: ValueId) -> Result<(), String> {
-        if self.terminal_i64_field_return().is_none()
-            || self.terminal_i64_field_value.replace(Some(value)).is_some()
+    pub(crate) fn record_terminal_i64_field_return(
+        &self,
+        owner: FunctionOwnerIdV1,
+        value: ValueId,
+    ) -> Result<(), String> {
+        if self.terminal_i64_field_return_for_owner(owner).is_none() {
+            return Err(fault("duplicate-emission"));
+        }
+        if self
+            .terminal_relation
+            .as_ref()
+            .is_some_and(|relation| relation.owner() == owner)
+        {
+            if self
+                .terminal_i64_field_value
+                .replace(Some(value))
+                .is_some()
+            {
+                return Err(fault("duplicate-emission"));
+            }
+        } else if self
+            .terminal_i64_field_values
+            .borrow_mut()
+            .insert(owner, value)
+            .is_some()
         {
             return Err(fault("duplicate-emission"));
         }
@@ -62,8 +94,13 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     pub(super) fn terminal_i64_field_return_complete(&self) -> bool {
-        self.terminal_i64_field_return().is_none()
-            || self.terminal_i64_field_value.borrow().is_some()
+        (self.terminal_i64_field_return().is_none()
+            || self.terminal_i64_field_value.borrow().is_some())
+            && self
+            .terminal_relation_index
+            .iter()
+            .filter(|(_, relation)| matches!(relation.as_ref(), TerminalRelationV1::I64Field(_)))
+            .all(|(owner, _)| self.terminal_i64_field_values.borrow().contains_key(owner))
     }
 
     pub(super) fn validate_terminal_i64_field_return(
@@ -71,13 +108,10 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(relation) = self.terminal_i64_field_return() else {
+        let Some(relation) = self.terminal_i64_field_return_for_owner(owner) else {
             return Ok(());
         };
-        if relation.owner() != owner {
-            return Err(fault("foreign-owner"));
-        }
-        let Some(value) = *self.terminal_i64_field_value.borrow() else {
+        let Some(value) = self.terminal_i64_field_value_for_owner(owner) else {
             return Err(fault("unconsumed"));
         };
         let reads = self.field_reads.borrow();
@@ -109,6 +143,18 @@ impl OrdinaryNewClaimLedgerV1 {
         (exact_read && returned)
             .then_some(())
             .ok_or_else(|| fault("physical-drift"))
+    }
+
+    fn terminal_i64_field_value_for_owner(&self, owner: FunctionOwnerIdV1) -> Option<ValueId> {
+        if self
+            .terminal_relation
+            .as_ref()
+            .is_some_and(|relation| relation.owner() == owner)
+        {
+            *self.terminal_i64_field_value.borrow()
+        } else {
+            self.terminal_i64_field_values.borrow().get(&owner).copied()
+        }
     }
 }
 

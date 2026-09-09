@@ -160,6 +160,55 @@ fn ordinary_child_literal_relation_is_borrowed_by_owner() {
 }
 
 #[test]
+fn ordinary_child_field_relation_is_retained_by_owner() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { slot: i64 birth() { me.slot = 7 } } static box Main {
+            main() { return 30 }
+            helper(value: i64): i64 { local page = new Page() local m = %{\"v\" => value} return page.slot }
+        }",
+    )
+    .expect("ordinary child field source package");
+    let owner = package
+        .batch()
+        .declarations()
+        .find_map(|declaration| {
+            package
+                .batch()
+                .with_lowering_input(declaration.batch_slot(), |input| {
+                    input
+                        .function()
+                        .expression_source()
+                        .initializers()
+                        .next()
+                        .map(|_| declaration.owner())
+                })
+                .expect("same batch loan")
+        })
+        .expect("helper owner");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let relation = ledger
+        .terminal_i64_field_return_for_owner(owner)
+        .expect("ordinary child field relation");
+    assert_eq!(relation.owner(), owner);
+    assert_eq!(relation.field_read_site().owner(), owner);
+    assert!(ledger
+        .field_reads
+        .borrow()
+        .contains_key(relation.field_read_site()));
+    let foreign_owner = package
+        .batch()
+        .declarations()
+        .find(|declaration| declaration.owner() != owner)
+        .expect("app main owner")
+        .owner();
+    assert!(ledger
+        .prepare_terminal_i64_field_return(foreign_owner, relation.return_site().node(), |_, _| {
+            Ok(crate::mir::ValueId(1))
+        })
+        .is_err());
+}
+
+#[test]
 fn direct_i64_field_issues_exact_terminal_relation() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return pair.left } }",

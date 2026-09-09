@@ -450,8 +450,8 @@ one nonoptional relation. Physical progress remains separate and mandatory:
 For selected ordinary children, the same issued terminal relation is retained by
 `Rc` in the result-contract row and the owner-indexed ledger view. The ledger
 borrows that product for the physical consumer; it does not clone or reclassify
-the relation. The first owner-indexed consumer is the exact integer-literal
-return. Other terminal forms remain stopped until their existing physical
+the relation. Integer-literal and direct i64-field returns use the owner-indexed
+consumer path; other terminal forms remain stopped until their existing physical
 progress can be consumed with the same owner/site checks.
 
 Cataloged static-child draft capture uses the existing callable construction and

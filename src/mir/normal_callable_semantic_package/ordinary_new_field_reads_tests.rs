@@ -150,7 +150,9 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     block.set_terminator(MirInstruction::Return {
         value: Some(ValueId(3)),
     });
-    ledger.record_terminal_i64_field_return(ValueId(3)).unwrap();
+    ledger
+        .record_terminal_i64_field_return(site.owner(), ValueId(3))
+        .unwrap();
     assert!(ledger.field_reads_complete());
     ledger
         .validate_field_reads(site.owner(), &function)

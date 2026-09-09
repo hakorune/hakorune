@@ -474,6 +474,16 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    pub(crate) fn validate_finalized_child_emissions(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        self.validate_new_emissions(owner, function)?;
+        self.validate_field_reads(owner, function)?;
+        self.validate_terminal_i64_field_return(owner, function)
+    }
+
     /// Called after all New overrides, never merely after Birth returns.
     pub(crate) fn complete_new_expression(
         &self,

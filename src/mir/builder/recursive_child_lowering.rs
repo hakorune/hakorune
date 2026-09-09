@@ -582,7 +582,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                             let state = state.borrow();
                             state.validate_finalized_construction_stores(&function)?;
                             if let Some(news) = &child_port.ordinary_new_claim_ledger {
-                                news.validate_new_emissions(state.owner(), &function)?;
+                                news.validate_finalized_child_emissions(state.owner(), &function)?;
                             }
                         }
                         Ok(function)

@@ -102,7 +102,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut expected = Vec::new();
         for (site, row) in reads.iter() {
             if site.owner() != owner {
-                return Err(fault("foreign-owner"));
+                continue;
             }
             let Progress::Emitted(block, instruction) = &row.progress else {
                 return Err(fault("unconsumed-read"));

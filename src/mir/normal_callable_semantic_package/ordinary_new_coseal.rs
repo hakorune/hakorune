@@ -52,7 +52,7 @@ mod completion_lookup;
 // The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
 use coseal_helpers::{
     convert_selected_new_arguments, is_direct_local_initializer,
-    no_birth_constructor_disposition,
+    no_birth_constructor_disposition, retain_child_terminal_relation,
 };
 #[path = "ordinary_new_terminal_result.rs"]
 mod terminal_result;
@@ -162,6 +162,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     terminal_integer_literal_value: RefCell<Option<crate::mir::ValueId>>,
     terminal_integer_literal_values: RefCell<BTreeMap<FunctionOwnerIdV1, crate::mir::ValueId>>,
     terminal_i64_field_value: RefCell<Option<crate::mir::ValueId>>,
+    terminal_i64_field_values: RefCell<BTreeMap<FunctionOwnerIdV1, crate::mir::ValueId>>,
     terminal_result_progress: RefCell<terminal_result::Progress>,
     root_completion: Option<
         Result<
@@ -299,6 +300,7 @@ impl OrdinaryNewClaimLedgerV1 {
             terminal_integer_literal_value: RefCell::new(None),
             terminal_integer_literal_values: RefCell::new(BTreeMap::new()),
             terminal_i64_field_value: RefCell::new(None),
+            terminal_i64_field_values: RefCell::new(BTreeMap::new()),
             terminal_result_progress: RefCell::new(terminal_result::Progress::Pending),
             root_completion: None,
             completion_index: BTreeMap::new(),
@@ -504,15 +506,12 @@ pub(super) fn issue_ordinary_source_cohort_v1(
     let mut claims = Vec::new();
     let mut seeds = super::completion_seed::VerifiedCallableCompletionSeedCohortV1::new();
     let mut root_completion = None;
-    let mut root_field_reads = BTreeMap::new();
+    let mut field_reads = BTreeMap::new();
     let mut root_terminal_relation = None;
     let mut birth_abi_handoffs = BTreeMap::new();
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
-        // App Main is intentionally omitted from the generic selected-role
-        // map; its exact parser identity is still admitted through the
-        // source-backed batch slot supplied by the package issuer.
         let is_app_main = app_main_batch_slot == Some(batch_slot);
         if selected.role_for_batch_slot(batch_slot).is_none() && !is_app_main {
             continue;
@@ -545,8 +544,6 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                 continue;
             }
         }
-        // One source loan covers both initializer membership and binding
-        // validation. Its order is not a Home availability/execution timeline.
         let (candidates, mut home_prefixes, mut argument_observations) = batch
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
                 let function = input.function();
@@ -587,7 +584,10 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                         crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { .. }
                     ))
                 });
-                if seed_eligible && !has_map {
+                let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
+                let child_new_ready = seed_eligible && !new_sites.is_empty()
+                    && issue_new_home_prefixes_v1(input, &new_sites).values().all(Result::is_ok);
+                if seed_eligible && !has_map && !child_new_ready {
                     let completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
                         .map_err(|issue| OrdinaryNewCoSealIssueV1::CompletionSeed(
                             super::physical_header::CallablePhysicalHeaderIssueV1::Completion {
@@ -596,9 +596,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                     seeds.push_completion(declaration, selected, completion, None)
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 }
-                let new_sites: BTreeMap<_, _> = candidates.iter()
-                    .map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
-                let (home_prefixes, argument_observations) = if (is_app_main && (!new_sites.is_empty() || has_map || app_main_calls.is_some_and(|loan| loan.has_map_target(batch)))) || (seed_eligible && has_map) {
+                let (home_prefixes, argument_observations) = if (is_app_main && (!new_sites.is_empty() || has_map || app_main_calls.is_some_and(|loan| loan.has_map_target(batch)))) || (seed_eligible && (has_map || child_new_ready)) {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -625,37 +623,47 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                         }, &mut |site| Ok(is_app_main && app_main_calls.is_some_and(|loan|
                             loan.is_map_i64_call(batch, parameter_contracts, input, site))))? {
                         Ok((completion, prefixes, mut terminal_relation, observations)) => {
-                            if is_app_main && matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
-                                if let Some(TerminalRelationV1::I64Add(result)) = &terminal_relation {
-                                    if result.owner() != input.owner()
-                                        || result.field_reads().iter().any(|site|
-                                            !staged_reads.contains_key(site))
-                                    {
-                                        return Err(
-                                            OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                            if is_app_main {
+                                if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
+                                    if let Some(TerminalRelationV1::I64Add(result)) = &terminal_relation {
+                                        if result.owner() != input.owner()
+                                            || result.field_reads().iter().any(|site|
+                                                !staged_reads.contains_key(site))
+                                        {
+                                            return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
                                                 site: result.add_site().clone(),
-                                            },
-                                        );
+                                            });
+                                        }
                                     }
+                                    if let Some(TerminalRelationV1::I64Field(result)) = &terminal_relation {
+                                        if result.owner() != input.owner()
+                                            || !staged_reads.contains_key(result.field_read_site())
+                                        {
+                                            return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                                                site: result.field_read_site().clone(),
+                                            });
+                                        }
+                                    }
+                                    field_reads = staged_reads;
+                                    root_terminal_relation = terminal_relation.take();
                                 }
-                                if let Some(TerminalRelationV1::I64Field(result)) = &terminal_relation {
+                                root_completion = Some(Ok(Rc::new(completion)));
+                            } else {
+                                if let Some(TerminalRelationV1::I64Field(result)) =
+                                    terminal_relation.as_ref()
+                                {
                                     if result.owner() != input.owner()
                                         || !staged_reads.contains_key(result.field_read_site())
                                     {
-                                        return Err(
-                                            OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                                                site: result.field_read_site().clone(),
-                                            },
-                                        );
+                                        return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                                            site: result.field_read_site().clone(),
+                                        });
                                     }
+                                    field_reads.extend(staged_reads);
                                 }
-                                root_field_reads = staged_reads;
-                                root_terminal_relation = terminal_relation.take();
-                            }
-                            if is_app_main {
-                                root_completion = Some(Ok(Rc::new(completion)));
-                            } else {
-                                seeds.push_completion(declaration, selected, completion, terminal_relation)
+                                let relation = terminal_relation
+                                    .filter(|row| retain_child_terminal_relation(row, has_map));
+                                seeds.push_completion(declaration, selected, completion, relation)
                                     .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                             }
                             (prefixes, observations)
@@ -735,14 +743,13 @@ pub(super) fn issue_ordinary_source_cohort_v1(
         .collect();
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
     ledger.root_completion = root_completion;
-    ledger.field_reads = RefCell::new(root_field_reads);
+    ledger.field_reads = RefCell::new(field_reads);
     ledger.birth_abi_handoffs = RefCell::new(birth_abi_handoffs);
     ledger.terminal_relation = root_terminal_relation;
     ledger.app_main_identity = app_main_identity.cloned();
     let seeds = seeds.finish();
     Ok((ledger, seeds))
 }
-
 #[cfg(test)]
 #[path = "ordinary_new_terminal_result_tests.rs"]
 mod terminal_result_tests;

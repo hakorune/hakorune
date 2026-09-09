@@ -448,7 +448,7 @@ pub(in crate::mir::builder) fn emit_terminal_i64_field_return(
         prepared.base,
         prepared.field,
     )?;
-    ledger.record_terminal_i64_field_return(result)?;
+    ledger.record_terminal_i64_field_return(prepared.site.owner(), result)?;
     Ok(result)
 }
 
