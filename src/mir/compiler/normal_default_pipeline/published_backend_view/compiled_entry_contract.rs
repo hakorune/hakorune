@@ -75,6 +75,17 @@ pub(crate) struct CompiledEntryBirthCallV1 {
     actual: FinalizedBirthActualsV1,
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct CompiledEntryOrdinaryCallV1 {
+    call: crate::mir::definitions::MirCall,
+}
+
+impl CompiledEntryOrdinaryCallV1 {
+    pub(crate) fn call(&self) -> &crate::mir::definitions::MirCall {
+        &self.call
+    }
+}
+
 impl CompiledEntryBirthCallV1 {
     pub(crate) const fn function_index(&self) -> u32 {
         self.function_index
@@ -164,6 +175,7 @@ pub(crate) struct CompiledEntryContractV1<'module> {
     root_result: CompiledEntryRootResultV1,
     births: Box<[CompiledEntryBirthV1]>,
     birth_calls: Box<[CompiledEntryBirthCallV1]>,
+    ordinary_call: Option<CompiledEntryOrdinaryCallV1>,
     cleanup: Box<[CompiledEntryCleanupCoordinateV1]>,
     array_claims: Box<[CompiledEntryArrayClaimV1<'module>]>,
     array_writes: Box<[CompiledEntryArrayWriteV1]>,
@@ -189,6 +201,9 @@ impl<'module> CompiledEntryContractV1<'module> {
     pub(crate) fn birth_calls(&self) -> &[CompiledEntryBirthCallV1] {
         &self.birth_calls
     }
+    pub(crate) fn ordinary_call(&self) -> Option<&CompiledEntryOrdinaryCallV1> {
+        self.ordinary_call.as_ref()
+    }
     pub(crate) fn cleanup(&self) -> &[CompiledEntryCleanupCoordinateV1] {
         &self.cleanup
     }
@@ -199,11 +214,15 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Result<CompiledEntryContractV1<'module>, String> {
         let program = self.issue_lifecycle_physical_program()?;
-        let (root_result, contract_births, birth_calls, cleanup) = {
+        let (root_result, ordinary_call, contract_births, birth_calls, cleanup) = {
             let [root, births @ ..] = program.functions() else {
                 return Err(fault("compiled-entry-root-missing"));
             };
-            let PublishedLifecyclePhysicalFunctionRoleV1::Root { result } = root.role() else {
+            let PublishedLifecyclePhysicalFunctionRoleV1::Root {
+                result,
+                ordinary_call,
+            } = root.role()
+            else {
                 return Err(fault("compiled-entry-root-role"));
             };
             let mut contract_births = Vec::with_capacity(births.len());
@@ -265,14 +284,18 @@ impl<'module> PublishedMirBackendView<'module> {
                     .handoff()
                     .root_source()
                     .ok_or_else(|| fault("compiled-entry-actual-source-missing"))?;
-                let result = program
-                    .handoff()
-                    .root_result()
-                    .ok_or_else(|| fault("compiled-entry-actual-root"))?;
-                issue_birth_calls(root, births, source.birth_actuals(), result)?
+                issue_birth_calls_for_owner(root, births, source.birth_actuals(), source.owner())?
             };
             let cleanup = issue_cleanup_coordinates(program.functions())?;
-            (*result, contract_births, birth_calls, cleanup)
+            (
+                *result,
+                ordinary_call
+                    .as_ref()
+                    .map(|call| CompiledEntryOrdinaryCallV1 { call: call.clone() }),
+                contract_births,
+                birth_calls,
+                cleanup,
+            )
         };
         let mut array_claims = Vec::new();
         let mut array_writes = Vec::new();
@@ -313,6 +336,7 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(CompiledEntryContractV1 {
             program,
             root_result,
+            ordinary_call,
             births: contract_births.into_boxed_slice(),
             birth_calls: birth_calls.into_boxed_slice(),
             cleanup: cleanup.into_boxed_slice(),
@@ -334,6 +358,15 @@ fn issue_birth_calls(
         | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
         | FinalizedRootResultAbiV1::I64FieldReturn { owner } => owner,
     };
+    issue_birth_calls_for_owner(root, births, actuals, owner)
+}
+
+fn issue_birth_calls_for_owner(
+    root: &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
+    births: &[super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>],
+    actuals: &[FinalizedBirthActualsV1],
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
     for (i, actual) in actuals.iter().enumerate() {
         if actuals[..i].iter().any(|previous| {
             previous.site() == actual.site() || previous.destination() == actual.destination()
@@ -363,7 +396,11 @@ fn issue_birth_calls(
             .chain(std::iter::once(block.terminator()))
         {
             let MirInstruction::Invoke {
-                operation: InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
+                operation:
+                    InvokeOperation::Call {
+                        call,
+                        result: InvokeCallResultKind::Unit,
+                    },
                 ..
             } = row.instruction()
             else {

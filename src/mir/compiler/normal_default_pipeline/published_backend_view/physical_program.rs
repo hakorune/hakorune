@@ -23,6 +23,7 @@ use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
     Root {
         result: CompiledEntryRootResultV1,
+        ordinary_call: Option<MirCall>,
     },
     BirthUnit {
         abi: crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1,
@@ -34,9 +35,11 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         match self {
             Self::Root {
                 result: CompiledEntryRootResultV1::I64,
+                ..
             } => "root_i64",
             Self::Root {
                 result: CompiledEntryRootResultV1::Unit,
+                ..
             } => "root_unit",
             Self::BirthUnit { .. } => "birth_unit",
         }
@@ -175,7 +178,7 @@ impl<'module> PublishedMirBackendView<'module> {
             .retained_handoff
             .ok_or_else(|| fault("root-handoff-missing"))?;
         let root = self.retained_root().ok_or_else(|| fault("root-missing"))?;
-        let (root_result, births) = if let Some(script) = handoff.script_array() {
+        let (root_result, births, ordinary_call) = if let Some(script) = handoff.script_array() {
             script.validate_root_binding(root)?;
             let result = match script.root_result()? {
                 crate::mir::builder::ScriptArrayRootResultV1::Integer { .. } => {
@@ -185,19 +188,26 @@ impl<'module> PublishedMirBackendView<'module> {
                     CompiledEntryRootResultV1::Unit
                 }
             };
-            (result, &[][..])
+            (result, &[][..], None)
         } else {
             if self.route() != PublishedStaticMethodRouteV1::CanonicalTyped {
                 return Err(fault("not-final-lifecycle-view"));
             }
-            let result = handoff
-                .root_result()
-                .ok_or_else(|| fault("root-result-missing"))?;
+            let source = handoff
+                .root_source()
+                .ok_or_else(|| fault("root-source-missing"))?;
+            let ordinary_call = issued_ordinary_call(source)?;
+            let result = match handoff.root_result() {
+                Some(result) => super::compiled_entry_contract::root_result_category(result),
+                None if ordinary_call.is_some() => CompiledEntryRootResultV1::I64,
+                None => return Err(fault("root-result-missing")),
+            };
             (
-                super::compiled_entry_contract::root_result_category(result),
+                result,
                 handoff
                     .births()
                     .ok_or_else(|| fault("birth-handoff-missing"))?,
+                ordinary_call,
             )
         };
         let mut names = BTreeSet::new();
@@ -207,8 +217,10 @@ impl<'module> PublishedMirBackendView<'module> {
             root,
             PublishedLifecyclePhysicalFunctionRoleV1::Root {
                 result: root_result,
+                ordinary_call: ordinary_call.clone(),
             },
             handoff.script_array().is_some(),
+            ordinary_call.as_ref(),
         )?);
         for birth in births {
             let key = birth.target();
@@ -234,6 +246,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 function,
                 PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi: birth.clone() },
                 false,
+                None,
             )?);
         }
         Ok(PublishedLifecyclePhysicalProgramV1 {
@@ -247,6 +260,7 @@ pub(super) fn issue_function<'module>(
     function: &'module MirFunction,
     role: PublishedLifecyclePhysicalFunctionRoleV1,
     script: bool,
+    ordinary_call: Option<&MirCall>,
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
     let mut ids: Vec<_> = function.blocks.keys().copied().collect();
     ids.sort();
@@ -265,13 +279,13 @@ pub(super) fn issue_function<'module>(
             .ok_or_else(|| fault("block-terminator-missing"))?;
         let mut instructions = Vec::with_capacity(block.instructions.len());
         for (index, instruction) in block.instructions.iter().enumerate() {
-            validate_instruction(instruction, script)?;
+            validate_instruction(instruction, script, ordinary_call)?;
             instructions.push(PublishedLifecyclePhysicalInstructionRefV1 {
                 index: as_u32(index, "instruction-index")?,
                 instruction,
             });
         }
-        validate_instruction(terminator, script)?;
+        validate_instruction(terminator, script, ordinary_call)?;
         let terminator_index = as_u32(block.instructions.len(), "terminator-index")?;
         let edges = block
             .out_edges()
@@ -291,6 +305,26 @@ pub(super) fn issue_function<'module>(
             edges,
         });
     }
+    if let Some(expected) = ordinary_call {
+        let count = blocks
+            .iter()
+            .flat_map(|block| {
+                block
+                    .instructions()
+                    .iter()
+                    .copied()
+                    .chain(std::iter::once(block.terminator()))
+            })
+            .filter(|row| {
+                matches!(row.instruction(), MirInstruction::Invoke {
+                operation: InvokeOperation::Call { call, result: InvokeCallResultKind::I64 }, ..
+            } if call == expected)
+            })
+            .count();
+        if count != 1 {
+            return Err(fault("ordinary-call-membership"));
+        }
+    }
     Ok(PublishedLifecyclePhysicalFunctionV1 {
         name: function.signature.name.as_str(),
         role,
@@ -300,7 +334,11 @@ pub(super) fn issue_function<'module>(
     })
 }
 
-fn validate_instruction(instruction: &MirInstruction, script: bool) -> Result<(), String> {
+fn validate_instruction(
+    instruction: &MirInstruction,
+    script: bool,
+    ordinary_call: Option<&MirCall>,
+) -> Result<(), String> {
     if script {
         return if matches!(
             instruction,
@@ -328,48 +366,88 @@ fn validate_instruction(instruction: &MirInstruction, script: bool) -> Result<()
             Err(fault("script-instruction-unsupported"))
         };
     }
-    let supported = matches!(
+    let ordinary = matches!(
         instruction,
-        MirInstruction::Const {
-            value: ConstValue::Integer(_)
-                | ConstValue::Bool(_)
-                | ConstValue::String(_)
-                | ConstValue::Void,
+        MirInstruction::Invoke {
+            operation: InvokeOperation::Call {
+                call,
+                result: InvokeCallResultKind::I64,
+            },
             ..
-        } | MirInstruction::BinOp {
-            op: BinaryOp::Add,
-            ..
-        } | MirInstruction::Copy { .. }
-            | MirInstruction::Phi { .. }
-            | MirInstruction::ObjectFieldGet { .. }
-            | MirInstruction::Invoke {
-                operation: InvokeOperation::Map(_)
-                    | InvokeOperation::NewBox { .. }
-                    | InvokeOperation::FieldSet { .. }
-                    | InvokeOperation::HomeRelease { .. }
-                    | InvokeOperation::ReclaimUnpublished { .. }
-                    | InvokeOperation::Call { call: MirCall {
-                        callee: Callee::BirthConstructor { .. },
-                        ..
-                    }, result: InvokeCallResultKind::Unit },
-                ..
-            }
-            | MirInstruction::InvokeNormalResult { .. }
-            | MirInstruction::ReturnFault { .. }
-            | MirInstruction::FaultFrameEnter { .. }
-            | MirInstruction::Branch { .. }
-            | MirInstruction::Jump { .. }
-            | MirInstruction::Return { .. }
-            | MirInstruction::Call(MirCall {
-                callee: Callee::BirthConstructor { .. },
-                ..
-            })
+        } if ordinary_call.is_some_and(|expected| expected == call)
     );
+    let supported = ordinary
+        || matches!(
+            instruction,
+            MirInstruction::Const {
+                value: ConstValue::Integer(_)
+                    | ConstValue::Bool(_)
+                    | ConstValue::String(_)
+                    | ConstValue::Void,
+                ..
+            } | MirInstruction::BinOp {
+                op: BinaryOp::Add,
+                ..
+            } | MirInstruction::Copy { .. }
+                | MirInstruction::Phi { .. }
+                | MirInstruction::ObjectFieldGet { .. }
+                | MirInstruction::Invoke {
+                    operation: InvokeOperation::Map(_)
+                        | InvokeOperation::NewBox { .. }
+                        | InvokeOperation::FieldSet { .. }
+                        | InvokeOperation::HomeRelease { .. }
+                        | InvokeOperation::ReclaimUnpublished { .. }
+                        | InvokeOperation::Call {
+                            call: MirCall {
+                                callee: Callee::BirthConstructor { .. },
+                                ..
+                            },
+                            result: InvokeCallResultKind::Unit
+                        },
+                    ..
+                }
+                | MirInstruction::InvokeNormalResult { .. }
+                | MirInstruction::ReturnFault { .. }
+                | MirInstruction::FaultFrameEnter { .. }
+                | MirInstruction::Branch { .. }
+                | MirInstruction::Jump { .. }
+                | MirInstruction::Return { .. }
+                | MirInstruction::Call(MirCall {
+                    callee: Callee::BirthConstructor { .. },
+                    ..
+                })
+        );
     if supported {
         Ok(())
     } else {
         Err(fault("instruction-unsupported"))
     }
+}
+
+fn issued_ordinary_call(
+    source: &crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1,
+) -> Result<Option<MirCall>, String> {
+    let Some(entry) = source.call_entry() else {
+        return Ok(None);
+    };
+    let invoke = entry
+        .call_invoke()
+        .ok_or_else(|| fault("ordinary-call-entry-missing"))?;
+    let MirInstruction::Invoke {
+        operation:
+            InvokeOperation::Call {
+                call,
+                result: InvokeCallResultKind::I64,
+            },
+        ..
+    } = &invoke.1
+    else {
+        return Err(fault("ordinary-call-shape"));
+    };
+    if !matches!(call.callee, Callee::Global(_)) {
+        return Err(fault("ordinary-call-callee"));
+    }
+    Ok(Some(call.clone()))
 }
 
 fn as_u32(value: usize, reason: &str) -> Result<u32, String> {
@@ -420,7 +498,8 @@ mod tests {
                     assert!(matches!(
                         root.role(),
                         PublishedLifecyclePhysicalFunctionRoleV1::Root {
-                            result: CompiledEntryRootResultV1::I64
+                            result: CompiledEntryRootResultV1::I64,
+                            ..
                         }
                     ));
                     let [entry_birth] = contract.births() else {

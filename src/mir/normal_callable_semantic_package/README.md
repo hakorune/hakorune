@@ -462,8 +462,10 @@ owner-indexed PhysicalBoundary is retained for the child and rechecked during
 finishing; artifact coverage consumes the validated child symbol. The root's
 existing Call row is rebound through the finishing projection and moved once
 with its cleanup bindings into the finalized source handoff. This preserves
-the physical payload only; ordinary Map installation and ABI emission remain
-explicit Stops.
+the physical payload only. The selected physical program/compiled-entry
+projection now carries the exact ordinary I64 Call and its existing cleanup
+coordinates; ordinary Map installation and C ABI emission remain explicit
+Stops.
 
 | Relation | Dedicated consumption and retained result |
 | --- | --- |

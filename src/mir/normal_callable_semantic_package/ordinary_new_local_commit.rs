@@ -137,6 +137,16 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
 }
 
 impl FinalizedRootSourceHandoffV1 {
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
+        match &self.terminal {
+            TerminalRelationV1::Call(row) => row.owner(),
+            TerminalRelationV1::I64Add(row) => row.owner(),
+            TerminalRelationV1::Unit(row) => row.owner(),
+            TerminalRelationV1::IntegerLiteral(row) => row.owner(),
+            TerminalRelationV1::I64Field(row) => row.owner(),
+        }
+    }
+
     /// Derived at this result boundary; never retained as a second source tag.
     pub(crate) fn result_abi(&self) -> Option<FinalizedRootResultAbiV1> {
         Some(match &self.terminal {
@@ -327,8 +337,12 @@ impl OrdinaryNewClaimLedgerV1 {
             return Unavailable(TerminalHomesUnavailable);
         }
         if selected.any(|row| {
-            row.ordinary().is_some_and(|row| matches!(row.emission,
-                NewEmissionProgress::RetainedUnavailable { .. }))
+            row.ordinary().is_some_and(|row| {
+                matches!(
+                    row.emission,
+                    NewEmissionProgress::RetainedUnavailable { .. }
+                )
+            })
         }) {
             return Unavailable(NewEmissionUnavailable);
         }
@@ -357,7 +371,8 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
-            .get(claim.site()).and_then(LocalCommitV1::ordinary)
+            .get(claim.site())
+            .and_then(LocalCommitV1::ordinary)
             .ok_or_else(|| freeze("prepare-without-take"))?;
         if !matches!(row.emission, NewEmissionProgress::Unprepared)
             || row.object != claim.object()
@@ -405,7 +420,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        rows.get_mut(claim.site()).and_then(LocalCommitV1::ordinary_mut).expect("checked ordinary row").emission = if available {
+        rows.get_mut(claim.site())
+            .and_then(LocalCommitV1::ordinary_mut)
+            .expect("checked ordinary row")
+            .emission = if available {
             NewEmissionProgress::Prepared { operands, reclaim }
         } else {
             NewEmissionProgress::RetainedUnavailable {
@@ -421,7 +439,8 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(Vec<InvokeOperation>, Option<ReclaimUnpublishedOriginV1>), String> {
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
-            .get_mut(site).and_then(LocalCommitV1::ordinary_mut)
+            .get_mut(site)
+            .and_then(LocalCommitV1::ordinary_mut)
             .ok_or_else(|| freeze("emit-without-take"))?;
         if !matches!(row.emission, NewEmissionProgress::Prepared { .. }) {
             return Err(freeze("emit-without-prepare-or-duplicate"));
@@ -446,7 +465,8 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
-            .get_mut(site).and_then(LocalCommitV1::ordinary_mut)
+            .get_mut(site)
+            .and_then(LocalCommitV1::ordinary_mut)
             .ok_or_else(|| freeze("record-without-take"))?;
         if !matches!(row.emission, NewEmissionProgress::Emitting) || bindings.is_empty() {
             return Err(freeze("record-without-emission-or-duplicate"));
@@ -542,7 +562,8 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
-            .get_mut(site).and_then(LocalCommitV1::ordinary_mut)
+            .get_mut(site)
+            .and_then(LocalCommitV1::ordinary_mut)
             .ok_or_else(|| freeze("expression-without-target-take"))?;
         if row.box_source.name() != class {
             return Err(freeze("expression-parent-mismatch"));
@@ -591,7 +612,8 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             if row.initializer() != Some(*initializer)
                 || (matches!(row, LocalCommitV1::Ordinary(_)) && initializer == local)
-                || (matches!(row, LocalCommitV1::Map(_)) && initializer != local) {
+                || (matches!(row, LocalCommitV1::Map(_)) && initializer != local)
+            {
                 return Err(freeze("local-initializer-mismatch"));
             }
             commits.push((site.clone(), *local));

@@ -8,11 +8,17 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
         // Existing two-destination cohort; Local is retained, never promoted to i64.
         let text = "box Page { left: i64\nright: i64\nbirth(a, b) { me.left = a\nme.right = b } } static box Main { main() { local a = 7\nlocal b = 9\nlocal first = new Page(a, b)\nlocal second = new Page(b, a)\nreturn 0 } }";
         let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-            text, crate::parser::ParserBuildConfig::default()).unwrap();
+            text,
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .unwrap();
         let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
             crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
-            else { panic!("source identity lost") };
-        let request = NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default());
+        else {
+            panic!("source identity lost")
+        };
+        let request =
+            NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default());
         MirCompiler::with_options(false).compile_normal_with_published(request, |view, verification| {
             assert!(verification.is_ok(), "{verification:?}");
             let contract = view.issue_lifecycle_compiled_entry_contract()?;
@@ -114,8 +120,10 @@ fn map_cleanup_coordinates_follow_physical_block_contraction() {
             function,
             PublishedLifecyclePhysicalFunctionRoleV1::Root {
                 result: CompiledEntryRootResultV1::I64,
+                ordinary_call: None,
             },
             false,
+            None,
         )
         .unwrap();
         let rows = issue_cleanup_coordinates(&[physical]).unwrap();
