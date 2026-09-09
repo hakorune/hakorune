@@ -624,6 +624,46 @@ impl AppMainDirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.take_app_main_direct_call_disposition_inner_v1()
     }
 
+    fn emit_app_main_local_lifecycle_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        row: crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        arguments: Vec<ValueId>,
+    ) -> Result<Option<ValueId>, String> {
+        if !self.is_app_main_direct_call_scope_v1() {
+            return Ok(None);
+        }
+        let owner = self
+            .callable_owner_v1()
+            .ok_or_else(|| "[freeze:contract][local-call/owner-missing]".to_owned())?;
+        let site = self
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][local-call/site-missing]".to_owned())?;
+        let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site);
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][local-call/ledger-missing]".to_owned())?;
+        if ledger.local_i64_call_for_owner(owner, &site).is_none() {
+            return Ok(None);
+        }
+        let state = self
+            .callable_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][local-call/state-missing]".to_owned())?;
+        let value =
+            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local(
+                builder,
+                &mut state.borrow_mut(),
+                ledger,
+                owner,
+                &site,
+                row,
+                arguments,
+            )?;
+        Ok(Some(value))
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         expected: &crate::mir::resolved_semantics::SourceExprSiteV1,

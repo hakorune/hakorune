@@ -48,6 +48,23 @@ impl OrdinaryNewClaimLedgerV1 {
         })
     }
 
+    pub(crate) fn local_i64_call_for_owner(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Option<&crate::mir::resolved_semantics::home_new_prefix::LocalI64CallObservationV1>
+    {
+        self.root_completion
+            .as_ref()
+            .and_then(|row| row.as_ref().ok())
+            .and_then(|completion| completion.cleanup().root_flow())
+            .and_then(|flow| {
+                flow.local_calls()
+                    .iter()
+                    .find(|call| call.owner() == owner && call.site().site() == site)
+            })
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn map_install_owners(
         &self,
     ) -> Result<Box<[crate::mir::resolved_semantics::FunctionOwnerIdV1]>, ()> {

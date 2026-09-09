@@ -59,6 +59,47 @@ fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {
 }
 
 #[test]
+fn local_map_call_and_terminal_map_call_share_the_root_source_owner() {
+    let mut package = issue(
+        r#"static box Main {
+            main() { local first = helper(10) return second(20) }
+            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
+            second(value: i64): i64 { local m = %{"second" => value} return 30 }
+        }"#,
+    )
+    .expect("bounded local plus terminal Map package");
+    let (completion, terminal) = package
+        .ordinary_new_claim_ledger
+        .call_source_completion()
+        .expect("terminal Call relation");
+    let flow = completion.cleanup().root_flow().expect("root home flow");
+    assert_eq!(flow.local_calls().len(), 1);
+    let local = &flow.local_calls()[0];
+    assert_eq!(local.owner(), terminal.owner());
+    assert_eq!(local.arguments(), [10]);
+    assert_eq!(terminal.arguments(), [20]);
+
+    let owner = terminal.owner();
+    let local_site = local.site().site().clone();
+    let terminal_site = terminal.call_site().clone();
+    let mut loan = package
+        .app_main_direct_call_loan
+        .take()
+        .expect("AppMain direct-call loan");
+    assert!(loan
+        .take_once(owner, local_site)
+        .expect("local lifecycle row")
+        .lifecycle_emission()
+        .is_ok());
+    assert!(loan
+        .take_once(owner, terminal_site)
+        .expect("terminal lifecycle row")
+        .lifecycle_emission()
+        .is_ok());
+    loan.finish_empty().expect("all lifecycle rows consumed");
+}
+
+#[test]
 fn map_target_without_exact_terminal_arguments_or_cleanup_cannot_remain_scalar() {
     for (main, helper) in [
         ("return helper(-5)", "local m = %{\"v\" => value} return 30"),

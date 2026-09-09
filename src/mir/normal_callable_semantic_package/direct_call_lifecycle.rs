@@ -152,17 +152,32 @@ impl AppMainDirectCallDispositionLoanV1 {
             if !exact_formals(batch, parameters, row) {
                 return Err(reject);
             }
-            let (caller, terminal) = root.call_source_completion().ok_or(reject)?;
-            if terminal.owner() != self.owner
-                || caller.owner() != self.owner
-                || site.site() != terminal.call_site()
-                || caller.explicit_site() != Some(terminal.return_site())
+            let (caller, terminal) = root
+                .call_source_completion_for_owner(self.owner)
+                .ok_or(reject)?;
+            if caller.explicit_site() != Some(terminal.return_site())
                 || !caller.returns_value()
                 || !matches!(caller.cleanup().terminal_homes(), Some(Ok(_)))
-                || terminal.arguments().len() != row.argument_sites.len()
             {
                 return Err(reject);
             }
+            let arguments = if site.site() == terminal.call_site() {
+                if terminal.arguments().len() != row.argument_sites.len() {
+                    return Err(reject);
+                }
+                terminal.arguments()
+            } else {
+                let local = root
+                    .local_i64_call_for_owner(self.owner, site.site())
+                    .ok_or(reject)?;
+                if local.owner() != self.owner
+                    || local.site().site() != site.site()
+                    || local.arguments().len() != row.argument_sites.len()
+                {
+                    return Err(reject);
+                }
+                local.arguments()
+            };
             let owner = row.emission.target().callable().owner();
             let mut matches = results.rows().filter(|result| result.owner() == owner);
             let callee = matches.next().ok_or(reject)?.borrow();
@@ -185,6 +200,7 @@ impl AppMainDirectCallDispositionLoanV1 {
             if flow.terminal_homes().is_err()
                 || flow.maps().is_empty()
                 || flow.maps().iter().any(|map| map.complete().is_none())
+                || arguments.len() != row.argument_sites.len()
             {
                 return Err(reject);
             }

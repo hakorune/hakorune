@@ -122,3 +122,64 @@ pub(super) fn emit_ingress(
     builder.emit_instruction(invoke.clone())?;
     Ok(((origin, invoke), (normal_landing, projection)))
 }
+
+/// Emit one source-issued local Call result and leave its normal continuation
+/// open for the enclosing local statement. This bounded slice accepts only a
+/// local relation with no prior Homes; terminal cleanup remains root-owned.
+pub(in crate::mir::builder) fn emit_local(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    row: AppMainDirectCallDispositionRowV1,
+    arguments: Vec<ValueId>,
+) -> Result<ValueId, String> {
+    let relation = ledger
+        .local_i64_call_for_owner(owner, site)
+        .ok_or_else(|| freeze("local-call-source-missing"))?;
+    if !relation.prior_homes().is_empty() {
+        return Err(freeze("local-call-prior-homes-unsupported"));
+    }
+    let call = row
+        .lifecycle_emission()
+        .map_err(|_| freeze("local-call-source-mismatch"))?
+        .materialize_call(None, arguments)
+        .map_err(|_| freeze("local-call-projection-failed"))?;
+    let frame = state.borrow_fault_frame(builder)?;
+    let origin = builder
+        .function_state
+        .current_block
+        .ok_or_else(|| freeze("no-block"))?;
+    let normal_landing = builder.next_block_id();
+    let fault_landing = builder.next_block_id();
+    let result = builder.next_value_id();
+    let mut bindings = Vec::new();
+    append_block(
+        builder,
+        fault_landing,
+        MirInstruction::ReturnFault { fault_frame: frame },
+        &mut bindings,
+    )?;
+    let invoke = MirInstruction::Invoke {
+        operation: InvokeOperation::Call {
+            call,
+            result: InvokeCallResultKind::I64,
+        },
+        fault_frame: frame,
+        normal_landing,
+        fault_landing,
+    };
+    builder.emit_instruction(invoke)?;
+    builder.start_new_block(normal_landing)?;
+    builder.emit_instruction(MirInstruction::InvokeNormalResult {
+        invoke_block: origin,
+        dst: result,
+    })?;
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(result, MirType::Integer);
+    Ok(result)
+}

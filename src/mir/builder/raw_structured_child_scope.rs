@@ -285,6 +285,16 @@ where
         self.child.take_app_main_direct_call_disposition_v1()
     }
 
+    fn emit_app_main_local_lifecycle_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        row: crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        arguments: Vec<ValueId>,
+    ) -> Result<Option<ValueId>, String> {
+        self.child
+            .emit_app_main_local_lifecycle_call_v1(builder, row, arguments)
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         expected: &crate::mir::resolved_semantics::SourceExprSiteV1,

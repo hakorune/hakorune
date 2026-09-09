@@ -126,6 +126,16 @@ impl AppMainDirectCallDispositionPortV1
         self.inner.take_app_main_direct_call_disposition_v1()
     }
 
+    fn emit_app_main_local_lifecycle_call_v1(
+        &mut self,
+        builder: &mut crate::mir::MirBuilder,
+        row: AppMainDirectCallDispositionRowV1,
+        arguments: Vec<crate::mir::ValueId>,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        self.inner
+            .emit_app_main_local_lifecycle_call_v1(builder, row, arguments)
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         expected: &SourceExprSiteV1,

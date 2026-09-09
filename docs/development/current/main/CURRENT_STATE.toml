@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "MAP-LITERAL-MULTI-CALL-CLEANUP-D0"
-current_blocker_token = "Bounded root-plus-one-called-ordinary-child scalar Map admission and direct/linked exit30 are closed. The next wider-owner candidate is a design stop: physical ordinary_call Option-to-collection alone is insufficient because the source issuer currently emits only a terminal Call. A bounded sequential two-Call cohort needs canonical Normal continuation, result binding, and Fault cleanup before transport or C changes. Field/New/Home and uncalled/additional owners remain stopped; no new receipt/frame/reclassification."
+current_design_stop = "none"
+current_blocker_token = "Bounded root-plus-one-called-ordinary-child scalar Map admission and direct/linked exit30 are closed. D0 now admits only one source-local exact-i64 Call followed by the existing terminal exact-i64 Call, with source order and caller cleanup retained in the existing Completion/root-flow owner. Third/nested/conditional/recursive Calls, field/New/Home, uncalled/additional owners, and unknown values remain fail-fast until the D0 artifact evidence closes."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -48,9 +48,12 @@ follows the accepted owned-slot target; direct-local Map source flow is retained
 in Completion and unconnected Map demand stops at common package install.
 Native Map insert/remove/clear now drop detached values outside locks; owned-slot
 residence/read/end migration and actual session/host/Map cutover remain open.
+The bounded multi-call D0 now retains one source-local exact-i64 Call before the
+existing terminal Call, co-seals both under the root owner, and emits both
+physical I64 Call terminators; wider Calls and artifact exit30 remain open.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-next_execution_card = "none_until_design_acceptance"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

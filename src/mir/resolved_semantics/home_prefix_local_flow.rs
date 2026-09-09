@@ -157,6 +157,13 @@ impl<'source> PrefixLocalFlow<'source> {
         self.locals.insert(binding, StoredLocal::Map);
     }
 
+    pub(super) fn install_i64_call_result(&mut self, binding: BindingRefV1) {
+        self.locals.insert(
+            binding,
+            StoredLocal::Trivial(Some(SourceScalarKind::Integer)),
+        );
+    }
+
     pub(super) fn install_uninitialized(&mut self, binding: BindingRefV1) {
         self.locals.insert(binding, StoredLocal::Uninitialized);
     }

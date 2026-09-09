@@ -64,6 +64,9 @@ impl CallerNewHomePrefixV1 {
 mod local_flow;
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 pub(crate) use local_flow::SourceScalarKind;
+#[path = "home_local_call_flow.rs"]
+mod local_call_flow;
+pub(crate) use local_call_flow::LocalI64CallObservationV1;
 #[path = "home_map_flow.rs"]
 mod map_flow;
 pub(crate) use map_flow::{RootHomeFlow, MapHomeFlow, MapHomeEntry, MapValueSource};
@@ -401,6 +404,7 @@ pub(crate) fn scan_new_home_flow<E>(
     let mut results = BTreeMap::new();
     let mut terminal_homes = Err(HomePrefixUnavailableV1::TerminalNotCovered);
     let mut maps = Vec::new();
+    let mut local_calls = Vec::new();
     let mut terminal_relation = None;
     let mut argument_observations = BTreeMap::new();
     let function = input.function();
@@ -420,7 +424,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 .keys()
                 .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
                 .collect(),
-            RootHomeFlow { terminal: Err(HomePrefixUnavailableV1::SourceMismatch), maps },
+            RootHomeFlow { terminal: Err(HomePrefixUnavailableV1::SourceMismatch), maps, local_calls },
             terminal_relation,
             argument_observations,
         ));
@@ -566,6 +570,13 @@ pub(crate) fn scan_new_home_flow<E>(
                 continue;
             };
             let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+            if let Some(local_call) = local_call_flow::issue_local_i64_call(
+                input, statement.site(), &owned, binding, &homes, terminal_call,
+            )? {
+                local_calls.push(local_call);
+                locals.install_i64_call_result(binding);
+                continue;
+            }
             if let Some(destination) = selected.get(&owned) {
                 if *destination != binding {
                     unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
@@ -705,7 +716,7 @@ pub(crate) fn scan_new_home_flow<E>(
     }
     Ok((
         results,
-        RootHomeFlow { terminal: terminal_homes, maps },
+        RootHomeFlow { terminal: terminal_homes, maps, local_calls },
         terminal_relation,
         argument_observations,
     ))

@@ -35,6 +35,67 @@ fn terminal_call_probe_is_scoped_to_its_source_owner() {
 }
 
 #[test]
+fn local_map_call_then_terminal_map_call_reaches_physical_lowering() {
+    let mut package = issue(
+        r#"static box Main {
+            main() { local first = helper(10) return second(20) }
+            helper(value: i64): i64 { local m = %{"first" => value} return 30 }
+            second(value: i64): i64 { local m = %{"second" => value} return 30 }
+        }"#,
+    )
+    .expect("bounded local plus terminal Map package");
+    let mut loan = package.app_main_direct_call_loan.take().unwrap();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .unwrap();
+    let mut builder = MirBuilder::new();
+    let function = package
+        .batch()
+        .with_lowering_input_and_source_identity(
+            declaration.batch_slot(),
+            |input, identity| {
+                builder.lower_map_dependency_for_test(
+                    input,
+                    SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                    main.parser_identity(),
+                    identity.method_source_observation().cloned(),
+                    std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                    Some(&mut loan),
+                )
+            },
+        )
+        .unwrap()
+        .expect("physical Main lowering");
+    loan.finish_empty().expect("both Call rows consumed");
+    crate::mir::verification::MirVerifier::new_strict()
+        .verify_function(&function)
+        .expect("local and terminal Call CFG");
+    let calls = function
+        .blocks
+        .values()
+        .filter(|block| {
+            matches!(
+                block.terminator,
+                Some(MirInstruction::Invoke {
+                    operation: InvokeOperation::Call {
+                        result: InvokeCallResultKind::I64,
+                        ..
+                    },
+                    ..
+                })
+            )
+        })
+        .count();
+    assert_eq!(calls, 2, "local and terminal direct calls are both physical");
+}
+
+#[test]
 fn source_terminal_call_preserves_both_cleanup_paths_through_finishing() {
     for prefix in [
         "",

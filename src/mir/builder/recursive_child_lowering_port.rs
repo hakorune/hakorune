@@ -218,6 +218,15 @@ pub(in crate::mir::builder) trait AppMainDirectCallDispositionPortV1 {
         Err("[freeze:contract][app-main-direct-call/loan-unavailable]".to_owned())
     }
 
+    fn emit_app_main_local_lifecycle_call_v1(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _row: AppMainDirectCallDispositionRowV1,
+        _arguments: Vec<ValueId>,
+    ) -> Result<Option<ValueId>, String> {
+        Ok(None)
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         _expected: &SourceExprSiteV1,
