@@ -185,3 +185,25 @@ fn selected_bare_return_rejects_value_bearing_terminal_drift() {
     let error = validate(&module).expect_err("value-bearing drift must reject");
     assert!(error.contains("unit-return-control-drift"), "{error}");
 }
+
+#[test]
+fn ordinary_result_survives_real_lowering_and_artifact_handoff() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "box Page {} static box Main { main() { local page = new Page() return 30 } helper(value: i64): i64 { return value } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session().complete_normal_default_program_root_catalog_lifecycle(
+        source, CallableMainMaterializationPolicyV1::Omitted,
+        NormalRuntimeInputSnapshotV1::empty(),
+    ).expect("ordinary source lowering");
+    let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::test_static_box_method("Main", "helper", 1));
+    let before = completed.callables.as_ref().unwrap().completed_result(&key).unwrap()
+        .completion() as *const _ as usize;
+    let (_, module, validate) = completed.into_artifact_parts();
+    let handoff = validate(&module).expect("artifact validation").expect("root handoff");
+    let result = handoff.callables().unwrap().completed_result(&key).unwrap();
+    assert_eq!(result.completion() as *const _ as usize, before);
+    assert_eq!(result.result(), Some(crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64));
+}

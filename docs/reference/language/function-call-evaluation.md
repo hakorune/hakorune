@@ -232,3 +232,8 @@ Completion cleanup without publishing the result. Early target/arity errors
 remain first. Unsupported Map-call correspondence fails before argument effects
 instead of using the scalar Call path. This source connection does not yet
 activate the ordinary callable Fault ABI or object/executable emission.
+
+Compiler retention note: successful callable lowering preserves the original
+ordinary Completion and its same-package formal/selected correspondence through
+finalization. This is ownership transport only; it does not admit ordinary
+lifecycle Call execution or infer an absent result/cleanup contract.

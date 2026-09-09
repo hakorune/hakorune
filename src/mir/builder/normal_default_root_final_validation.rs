@@ -64,6 +64,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         impl FnOnce(&MirModule) -> Result<(), String>,
     ) {
         let validate = move |module: &MirModule| {
+            let _callables = self.callables;
             let mut root_validation = self.root_validation;
             root_validation.validate(module, false)?;
             for (key, validation) in self.construction {
@@ -159,11 +160,11 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             }
             match root_validation {
                 RootValidation::OrdinaryNew { key, ledger } => ledger
-                    .seal_finalized_root_birth_handoff(key, &birth_keys)
+                    .seal_finalized_root_birth_handoff(key, &birth_keys, self.callables)
                     .map(Some),
                 RootValidation::Script { key, entry, source } => source
                     .into_array_artifact(entry)
-                    .map(|array| array.map(|array| crate::mir::finalized_root_handoff::FinalizedRootHandoffV1::ScriptArray { root_key: key, array })),
+                    .map(|array| array.map(|array| crate::mir::finalized_root_handoff::FinalizedRootHandoffV1::ScriptArray { root_key: key, array, callables: self.callables })),
                 RootValidation::Absent => Ok(None),
             }
         };

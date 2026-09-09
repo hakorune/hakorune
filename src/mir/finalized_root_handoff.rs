@@ -4,6 +4,7 @@
 
 use crate::mir::normal_callable_semantic_package::{
     BirthAbiHandoffV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
+    VerifiedCallableResultContractCohortV1,
 };
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
@@ -13,14 +14,17 @@ use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 pub(crate) enum FinalizedRootHandoffV1 {
     ScriptArray {
         root_key: String,
+        callables: Option<VerifiedCallableResultContractCohortV1>,
         array: crate::mir::builder::FinalizedScriptArrayV1,
     },
     NoBirth {
         root_key: String,
+        callables: Option<VerifiedCallableResultContractCohortV1>,
         root_source: Option<FinalizedRootSourceHandoffV1>,
     },
     Births {
         root_key: String,
+        callables: Option<VerifiedCallableResultContractCohortV1>,
         root_source: Option<FinalizedRootSourceHandoffV1>,
         keys: Box<[CanonicalSameModuleCallableKeyV1]>,
         births: Box<[BirthAbiHandoffV1]>,
@@ -28,6 +32,14 @@ pub(crate) enum FinalizedRootHandoffV1 {
 }
 
 impl FinalizedRootHandoffV1 {
+    pub(crate) fn callables(&self) -> Option<&VerifiedCallableResultContractCohortV1> {
+        match self {
+            Self::ScriptArray { callables, .. }
+            | Self::NoBirth { callables, .. }
+            | Self::Births { callables, .. } => callables.as_ref(),
+        }
+    }
+
     pub(crate) fn script_array(&self) -> Option<&crate::mir::builder::FinalizedScriptArrayV1> {
         match self {
             Self::ScriptArray { array, .. } => Some(array),

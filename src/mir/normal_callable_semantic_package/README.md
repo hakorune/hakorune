@@ -140,7 +140,21 @@ The formal issuer retains ordinal/binding/owner/kind authority. This cohort
 does not define TextFormal wire, ExactText physical residence or TextEq routing;
 Builder IDs and S6C physical-session adoption remain downstream obligations.
 
-### AppMain terminal Call lifecycle co-seal
+### Completed callable retention
+
+Successful package-port completion marks the installed owner's consumption
+state. The Builder scope consumes that owner only after the outer lowering
+succeeds. Unopened, dropped or failed ports cannot finish. Existing result rows
+then take ownership of the same selected mapping and formal declarations;
+original non-Clone Completion remains in place. Completed root lifecycle and
+final artifact handoff own this cohort, so the source batch/AST and lowering
+capabilities can be dropped without dropping ordinary result correspondence.
+
+The retained context is not ABI admission. Dynamic/S6C do not gain ordinary
+rows by inference; root Completion remains in its own ledger. Ordinary Map
+installation and Invoke/artifact Stops remain until their actual consumers land.
+
+## AppMain terminal Call lifecycle co-seal
 
 Early resolver target/arity validation keeps its existing order. The AppMain
 Home walk also observes a terminal Call to an ordinary Map-owned declaration,

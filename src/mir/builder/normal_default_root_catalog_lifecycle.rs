@@ -106,6 +106,7 @@ pub(in crate::mir) struct CompletedNormalDefaultRootCatalogLifecycleV1 {
     module: MirModule,
     root_validation: final_validation::RootValidation,
     construction: RetainedConstructionDrafts,
+    callables: Option<crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1>,
 }
 
 #[path = "normal_default_root_final_validation.rs"]
@@ -552,7 +553,7 @@ impl ModuleBuilderInvocationSessionV1 {
                                     .into(),
                             ));
                         }
-                        Ok(finish_normal_default_root_after_pre_effect_bind(
+                        finish_normal_default_root_after_pre_effect_bind(
                                 builder,
                                 work,
                                 source_ast,
@@ -571,9 +572,9 @@ impl ModuleBuilderInvocationSessionV1 {
                                 &import_rows,
                                 binding,
                                 callable_loop_root_scope,
-                            ))
+                            )
                 };
-                match installed_package.as_mut() {
+                let (module, root_validation, construction) = match installed_package.as_mut() {
                     Some(package) => package.with_lowering_once_and_program_source_loan(|package_port, loan| {
                         source_backed_root_execution
                             .expect("source-backed package retained its pre-effect root projection")
@@ -637,14 +638,19 @@ impl ModuleBuilderInvocationSessionV1 {
                         }
                         lower_with_expansion(source_ast, expansion, None, None)
                     }
-                }
+                }?;
+                let callables = installed_package.map(|package| package.finish())
+                    .transpose().map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::RootLower(
+                            format!("[mir/callable-semantic-package/finish] {error:?}").into())
+                    })?;
+                Ok((module, root_validation, construction, callables))
             })()
                 },
             );
-        let result = result.and_then(|inner| inner);
 
         match result {
-            Ok((module, root_validation, construction)) => {
+            Ok((module, root_validation, construction, callables)) => {
                 if let Some(source) = compatibility_source {
                     source.discard_at_named_lifecycle_terminal();
                 }
@@ -653,6 +659,7 @@ impl ModuleBuilderInvocationSessionV1 {
                     module,
                     root_validation,
                     construction,
+                    callables,
                 })
             }
             Err(error) => Err(RejectedNormalDefaultRootCatalogLifecycleV1 {

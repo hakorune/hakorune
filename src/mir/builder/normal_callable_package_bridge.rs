@@ -75,6 +75,13 @@ pub(in crate::mir) struct BuilderPrivateCallableLoweringScopeV1 {
 }
 
 impl BuilderPrivateCallableLoweringScopeV1 {
+    pub(in crate::mir::builder) fn finish(self) -> Result<
+        crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
+        NormalCallableSemanticPackageInstallIssueV1,
+    > {
+        self.installed.finish_lowering()
+    }
+
     pub(in crate::mir::builder) fn with_declared_instance_call_locators<R>(
         &self,
         callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorViewV1<'view>) -> R,
@@ -134,7 +141,7 @@ mod tests {
     use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
     use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
-    fn source() -> VerifiedFinalCallableProgramSourceV1 {
+    pub(super) fn source() -> VerifiedFinalCallableProgramSourceV1 {
         let parsed = NyashParser::parse_normal_callable_program_with_build_config(
             "static box Scan { run(value) { return value } }",
             ParserBuildConfig::default(),
@@ -223,3 +230,7 @@ mod tests {
         assert_eq!(count, 0);
     }
 }
+
+#[cfg(test)]
+#[path = "normal_callable_package_finish_tests.rs"]
+mod finish_tests;

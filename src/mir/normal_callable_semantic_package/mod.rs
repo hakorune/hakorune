@@ -29,6 +29,7 @@ mod ordinary_new_coseal;
 mod physical_header;
 mod physical_signature;
 mod result_contract;
+pub(crate) use result_contract::VerifiedCallableResultContractCohortV1;
 mod s6c_child;
 mod s6c_effects;
 mod s6c_storage_header;

@@ -403,6 +403,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         {
             return Err(NormalCallableSemanticPackageInstallIssueV1::ObjectDefinitionsNotConsumed);
         }
+        self.installed.lowering_completed.set(true);
         Ok(())
     }
 }

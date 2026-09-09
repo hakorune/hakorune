@@ -2972,6 +2972,42 @@ no C build is required for retention alone. Sources remain below800.
 Stop: if moving the existing products requires reconstructing meaning, retaining
 AST or bypassing port completion, return to this owner decision before coding.
 
+Retention implementation checkpoint: existing result cohort now owns the moved
+selected/formal context after successful package completion; scope finish is
+called only after successful outer lowering. Existing completed lifecycle and
+final handoff retain the cohort. Diagnostic validation keeps it for its own
+lifetime and does not imply artifact admission. Completion's address is preserved
+across the real selected loan and across natural-source artifact finalization.
+No package/AST retention, second Completion or post-finalization bind was added.
+Changed source maximum712; package155 and bridge4 pass; pointer/corridor guards
+pass. A first artifact fixture used a scalar-only root without issued root
+Completion and correctly hit artifact-root-completion-unavailable; the retention
+test now uses the existing Home-root artifact path plus an ordinary definition.
+That fixture correction changes no acceptance or Stop.
+
+Root suite: current24 pass/4 fail; parent5ac03c0e47 gives23 pass/the same4 fail.
+Classified known baseline debt, not waived current-change failures. Both used
+`CARGO_BUILD_JOBS=4 cargo test --locked --profile quick --lib
+mir::builder::normal_default_root_catalog_lifecycle:: -- --test-threads=1`.
+Parent ran in an isolated worktree using the same ignored Cargo.lock and explicit
+shared `--target-dir /home/tomoaki/git/hakorune-selfhost/target`; Cargo remained
+serial. Parent initially lacked the ignored lock; no dependency update or flag
+relaxation was used. Logs: `/tmp/hakorune-call-retention-root-final.log` and
+`/tmp/hakorune-call-retention-parent.log`.
+All four tests are under
+`mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::`:
+
+| Test | Matching parent/current cause |
+| --- | --- |
+| actual_string_helpers_general_result_row_reaches_its_first_loop_carrier | raw-compat/runtime-box-fate-retired/static |
+| source_bound_static_result_owner_reaches_the_raw_terminal | raw-compat/runtime-box-fate-retired/static |
+| parser_scan_package_passes_callable_source_handoff_without_fallback | static-result-ingress/no-exact-static-target |
+| source_backed_package_failure_is_terminal_before_builder_effects | observed RootExpansion, expected CallableSemanticSeal |
+
+The next implementation is the accepted Invoke dependency below; do not reopen
+the completed ownership census. Ordinary install/artifact and ABI execution
+remain open until their actual consumer and EXE/Fault evidence close the series.
+
 Accepted next dependency: existing selected emitter and ledger realize the
 source-connected Call using the same root ledger's Completion/terminal borrow
 and the moved affine row. Lifecycle remains a tag; do not accept an arbitrary

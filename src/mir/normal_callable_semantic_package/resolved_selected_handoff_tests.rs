@@ -59,11 +59,14 @@ box InstanceApi {
     let instance_key =
         CanonicalSameModuleCallableKeyV1::test_instance_box_method("InstanceApi", "run", 1);
     let mut port = installed.begin_lowering(&context).expect("same catalog");
+    let mut completion_address = 0usize;
 
     port.with_selected_cataloged_lowering_input_and_signature(
         admission(&static_key),
         |input, signature| {
             input.with_selected_and_admission(|selected, admitted| {
+                completion_address = selected.result_contract().unwrap().completion()
+                    as *const _ as usize;
                 assert_eq!(selected.source().owner(), signature.owner());
                 assert_eq!(selected.block_expr_expectation().pair_count(), 1);
                 assert_eq!(
@@ -105,7 +108,12 @@ box InstanceApi {
     port.take_object_definitions(&context)
         .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("all selected rows consumed");
+    let retained = installed.finish_lowering().expect("completed rows moved");
+    let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(static_key);
+    let result = retained.completed_result(&key).expect("same selected result");
+    assert_eq!(result.completion() as *const _ as usize, completion_address);
 }
+
 
 fn declared_instance_package() -> super::VerifiedNormalCallableSemanticPackageV1 {
     let mut resolver = FunctionSemanticResolverSessionV1::new(952).expect("resolver");

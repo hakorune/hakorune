@@ -12,8 +12,8 @@ use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 #[cfg(test)]
 use crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::completion_seed::VerifiedCallableCompletionSeedV1;
@@ -25,8 +25,12 @@ pub(in crate::mir) enum CallableResultContractIssueV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct VerifiedCallableResultContractCohortV1 {
+pub(crate) struct VerifiedCallableResultContractCohortV1 {
     rows: Box<[VerifiedCallableResultContractRowV1]>,
+    completed_context: Option<(
+        super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        Box<[super::model::OwnedCallableParameterContractDeclarationV1]>,
+    )>,
 }
 
 #[derive(Debug)]
@@ -181,5 +185,53 @@ pub(super) fn issue_callable_result_contract_cohort_v1(
     rows.sort_by_key(|row| row.batch_slot);
     Ok(VerifiedCallableResultContractCohortV1 {
         rows: rows.into_boxed_slice(),
+        completed_context: None,
     })
 }
+
+impl VerifiedCallableResultContractCohortV1 {
+    /// Move the same package context after successful consumption. This checks
+    /// correspondence, never reissues source meaning or infers absent rows.
+    pub(super) fn retain_completed_context(
+        mut self,
+        selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        parameters: Box<[super::model::OwnedCallableParameterContractDeclarationV1]>,
+    ) -> Result<Self, super::NormalCallableSemanticPackageInstallIssueV1> {
+        use super::NormalCallableSemanticPackageInstallIssueV1 as Issue;
+        if self.completed_context.is_some() {
+            return Err(Issue::ResultContractMismatch);
+        }
+        for row in &self.rows {
+            if selected.key_for_batch_slot(row.batch_slot).is_none()
+                || !selected
+                    .identity_for_batch_slot(row.batch_slot)
+                    .is_some_and(|identity| identity.same_as(&row.identity))
+                || selected.role_for_batch_slot(row.batch_slot) != Some(row.role)
+            {
+                return Err(Issue::ResultContractMismatch);
+            }
+            let mut matches = parameters.iter().filter(|p| p.batch_slot == row.batch_slot);
+            let parameter = matches.next().ok_or(Issue::MissingParameterContract)?;
+            if matches.next().is_some() {
+                return Err(Issue::DuplicateParameterContract);
+            }
+            if parameter.owner != row.owner {
+                return Err(Issue::ParameterContractOwnerMismatch);
+            }
+        }
+        self.completed_context = Some((selected, parameters));
+        Ok(self)
+    }
+
+    pub(crate) fn completed_result(
+        &self,
+        key: &crate::mir::builder::SelectedNormalCallableKeyV1,
+    ) -> Option<CallableResultContractRefV1<'_>> {
+        let (selected, _) = self.completed_context.as_ref()?;
+        self.row(selected.batch_slot(key)?).map(|row| row.borrow())
+    }
+}
+
+#[cfg(test)]
+#[path = "completed_result_context_tests.rs"]
+mod completed_context_tests;

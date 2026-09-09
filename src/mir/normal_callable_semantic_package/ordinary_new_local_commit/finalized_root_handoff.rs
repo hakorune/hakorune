@@ -7,6 +7,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         root_key: String,
         construction_keys: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
+        callables: Option<crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1>,
     ) -> Result<FinalizedRootHandoffV1, String> {
         match *self.root_validation.borrow() {
             RootNewValidation::FinishingChecked => {}
@@ -132,11 +133,13 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(if births.is_empty() {
             FinalizedRootHandoffV1::NoBirth {
+                callables,
                 root_key,
                 root_source,
             }
         } else {
             FinalizedRootHandoffV1::Births {
+                callables,
                 root_key,
                 root_source,
                 keys: keys.into_iter().collect(),

@@ -73,6 +73,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     PhysicalSignatureUnavailable,
     CatalogSlotOccupied,
     LoweringAlreadyStarted,
+    LoweringNotCompleted,
     DirectCallLoanNotConsumed,
     MainRootUnavailable,
     MainRootRelationMismatch,
@@ -84,6 +85,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
 
 #[derive(Debug)]
 pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
+    lowering_completed: std::cell::Cell<bool>,
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     app_main_direct_call_loan: Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
@@ -399,6 +401,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
         self.context
             .install_callable_declaration_catalog_preflighted(catalog.into_catalog());
         InstalledNormalCallableSemanticPackageV1 {
+            lowering_completed: std::cell::Cell::new(false),
             catalog_brand,
             batch,
             app_main_direct_call_loan,
@@ -419,6 +422,15 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
+    pub(in crate::mir) fn finish_lowering(self)
+        -> Result<VerifiedCallableResultContractCohortV1, NormalCallableSemanticPackageInstallIssueV1>
+    {
+        if !self.lowering_completed.get() {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringNotCompleted);
+        }
+        self.result_contracts.retain_completed_context(self.selected, self.parameter_contracts)
+    }
+
     pub(in crate::mir) fn with_declared_instance_call_locators<R>(
         &self,
         callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorViewV1<'view>) -> R,
