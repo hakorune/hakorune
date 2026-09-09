@@ -1266,9 +1266,10 @@ D1 inventory finding: the source crosswalk facts are available for comparison,
 but the existing `AppMainDirectCallDispositionRowV1` also owns a canonical
 physical emission issued from `VerifiedCallableHeaderV1` and the root direct
 call index. A lexical instance target is not admitted by that direct-call
-index. D1 therefore must prove one existing selected-instance target emitter
-that preserves the catalog key, physical signature, and result owner, or stop
-at `NoSafeSlice`; it may not fabricate a header from a name, MIR type, or
+index. The generic selected-instance emitter and receiver ingress exist, but
+D1 must still prove a root lifecycle projection that preserves the catalog
+key, physical signature, result owner, receiver lane, and cleanup contract, or
+stop at `NoSafeSlice`; it may not fabricate a header from a name, MIR type, or
 receiver spelling.
 
 Finite disposition before implementation:
@@ -1302,19 +1303,52 @@ proves the row can be issued without a new semantic authority. If it cannot,
 record the exact missing source relation and keep `NoSafeSlice`.
 
 Current D1 inventory status: the resolver, initializer, New claim, selected
-identity, and result-contract facts can be compared without name recovery, but
-no selected-instance target emitter has been found. The existing root direct
-index is free-static-only, and `VerifiedCanonicalDirectCallEmissionV1` requires
-its verified callable header. Therefore D1 remains `NoSafeSlice` for code until
-an existing source-backed instance target/header projection is identified or a
-package-private physical projection is explicitly designed with its own owner.
-The existing root terminal Call shape is also scalar-direct-only:
+identity, and result-contract facts can be compared without name recovery. An
+existing generic selected-instance projection is present, but it is not a root
+lifecycle consumer: `DeclaredInstanceCallLocatorScopeV1` can lend the selected
+instance key and exact receiver binding, `take_exact_receiver_value()` can
+provide the already-materialized `ValueId`, and
+`emit_canonical_instance_value_terminal_v1()` can form
+`Callee::SameModuleInstance { key, receiver }`. Those pieces currently emit a
+plain generic `MirInstruction::Call` and serve the `me.method(...)` caller
+mode; they do not issue the root `Invoke`/cleanup product for `Main.main`.
+
+The root direct index is still free-static-only, and
+`VerifiedCanonicalDirectCallEmissionV1` requires its verified callable header.
+Therefore D1 remains `NoSafeSlice` for code until the existing source-backed
+instance target facts are joined by the root owner and a package-private
+lifecycle projection is explicitly designed with its own owner. The existing
+root terminal Call shape is also scalar-direct-only:
 `TerminalI64CallReturnV1` retains literal arguments without a receiver, while
 `RootHomeExitEntry::Call` validates a direct emission with no receiver lane.
 `Pair.sum()` needs the selected instance key plus its receiver `ValueId` and
-physical receiver lane. It must therefore reuse an existing instance-call
-projection or receive a separately designed package-private root-call physical
-projection; it cannot be squeezed into the direct scalar row.
+physical receiver lane. It cannot be squeezed into the direct scalar row.
+
+The bounded physical bridge is now named, without authorizing implementation:
+
+```text
+source-issued instance key + exact receiver binding
+  -> existing ledger receiver ValueId
+  -> Callee::SameModuleInstance { key, receiver }
+  -> existing terminal_call::emit_ingress()
+  -> Invoke(Call{I64}) + InvokeNormalResult + root cleanup graph
+```
+
+`terminal_call::emit_ingress()` and `root_cleanup_graph::call::ingress()` are
+existing lifecycle consumers. The remaining physical boundary is separate:
+the current ordinary-call physical program and C V4 schema carry source
+arguments but no receiver lane, and `physical_program::ordinary_callable_key()`
+accepts only `Callee::Global`. A future physical-consumer card must choose one
+explicit receiver projection and validate the instance signature lane; it must
+not add a generic MIR-JSON `Invoke`, infer the receiver in C, or reuse the
+direct global row. Rust MIR receiver-bearing construction and OBJ/EXE
+acceptance are therefore separate claims.
+
+The next design slice is the package-private root lifecycle projection and its
+source-owned crosswalk. Its acceptance must prove exact owner/site, selected
+instance key, receiver `ValueId`, result/signature/cleanup agreement, and
+direct-vs-instance exclusivity. Only after that slice closes may the physical
+receiver projection and `Pair.sum()` OBJ/EXE exit-30 test be opened.
 
 Non-claims: this design does not authorize code, fixture, production switch,
 OBJ/EXE acceptance, or any other MethodCall family.

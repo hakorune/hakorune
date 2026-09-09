@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D1"
 current_execution_cohort = "root_method_crosswalk_d1"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Invoke root-method D1: keep the existing ordinary_new source/co-seal owner and name one package-private affine crosswalk row for Main.main -> pair.sum(); prove MethodCall site -> same-owner binding -> initializer -> selected New claim -> class/object -> selected instance declaration -> result/signature contract, then identify an existing source-backed instance target/header projection and receiver-bearing root Call shape. Reject reassignment, foreign or unselected New, class/arity drift, duplicate target, synthetic header, scalar-only Call reuse, and missing cleanup before lifecycle publication; no C/backend fallback or generic MIR JSON Invoke."
+current_blocker_token = "Invoke root-method D1: keep the existing ordinary_new source/co-seal owner and name one package-private affine crosswalk row for Main.main -> pair.sum(); prove MethodCall site -> same-owner binding -> initializer -> selected New claim -> class/object -> selected instance declaration -> result/signature contract. Reuse the existing source-backed instance key/receiver projection and terminal_call ingress, but design a distinct root lifecycle projection because the current direct row and C ordinary-call schema are scalar/global-only. Reject reassignment, foreign or unselected New, class/arity drift, duplicate target, synthetic header, scalar-only Call reuse, missing receiver lane, and missing cleanup before lifecycle publication; no C/backend fallback or generic MIR JSON Invoke."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -49,11 +49,12 @@ That caller is now paused at ROOT-METHOD-CALL-D1: Main.main's lexical
 pair.sum() has resolver MethodCall facts but no verified source-to-target issuer
 that can feed the existing AppMain lifecycle loan. Physical V2/C V4 remains
 unchanged until that source authority is named. The D0 census closed as
-NoSafeSlice for implementation. The D1 design now names ordinary_new as the
+NoSafeSlice for implementation. The D1 design names ordinary_new as the
 co-seal owner and limits the next slice to a package-private affine crosswalk
-row. The source facts join, but the selected-instance target emitter and
-receiver-bearing root Call shape are still unproven, so no code or transport
-fallback is authorized.
+row. A generic selected-instance target/receiver emitter and the existing
+Invoke/cleanup ingress are present, but the root lifecycle projection and the
+physical receiver-lane schema are not. No code or transport fallback is
+authorized until those two boundaries are separately owned.
 """
 next_design_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D1"
 next_execution_card = "none"
