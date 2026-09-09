@@ -3,6 +3,7 @@ use super::*;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalFieldRefV1;
+use std::collections::BTreeMap;
 
 #[derive(Debug)]
 pub(super) struct FieldRead {
@@ -18,6 +19,54 @@ pub(super) enum Progress {
     Pending,
     Taken(ValueId),
     Emitted(BasicBlockId, MirInstruction),
+}
+
+pub(super) fn merge_staged_field_reads(
+    destination: &mut BTreeMap<OwnedExprSiteV1, FieldRead>,
+    owner: FunctionOwnerIdV1,
+    staged: BTreeMap<OwnedExprSiteV1, FieldRead>,
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    for (site, row) in &staged {
+        if site.owner() != owner || row.receiver.owner() != owner || row.home.owner() != owner {
+            return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch { site: site.clone() });
+        }
+        if destination.contains_key(site) {
+            return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() });
+        }
+    }
+    destination.extend(staged);
+    Ok(())
+}
+
+pub(super) fn merge_terminal_relation_field_reads(
+    destination: &mut BTreeMap<OwnedExprSiteV1, FieldRead>,
+    owner: FunctionOwnerIdV1,
+    relation: Option<&TerminalRelationV1>,
+    staged: BTreeMap<OwnedExprSiteV1, FieldRead>,
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    match relation {
+        Some(TerminalRelationV1::I64Add(result)) => {
+            if result.owner() != owner
+                || result
+                    .field_reads()
+                    .iter()
+                    .any(|site| !staged.contains_key(site))
+            {
+                return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                    site: result.add_site().clone(),
+                });
+            }
+        }
+        Some(TerminalRelationV1::I64Field(result)) => {
+            if result.owner() != owner || !staged.contains_key(result.field_read_site()) {
+                return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                    site: result.field_read_site().clone(),
+                });
+            }
+        }
+        _ => return Ok(()),
+    }
+    merge_staged_field_reads(destination, owner, staged)
 }
 
 impl OrdinaryNewClaimLedgerV1 {

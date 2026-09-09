@@ -253,6 +253,48 @@ fn ordinary_child_field_relation_is_retained_by_owner() {
 }
 
 #[test]
+fn child_and_root_add_field_reads_merge_in_declaration_order() {
+    for methods in [
+        r#"main() { local pair = new Pair(10, 20) local m = %{"root" => 1} return pair.left + pair.right }
+           helper(value: i64): i64 { local pair = new Pair(value, 20) local m = %{"child" => value} return pair.left + pair.right }"#,
+        r#"helper(value: i64): i64 { local pair = new Pair(value, 20) local m = %{"child" => value} return pair.left + pair.right }
+           main() { local pair = new Pair(10, 20) local m = %{"root" => 1} return pair.left + pair.right }"#,
+    ] {
+        let source = format!(
+            "box Pair {{ left: i64 right: i64 birth(left, right) {{ me.left = left me.right = right }} }} static box Main {{ {methods} }}"
+        );
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(&source)
+            .expect("root and child add source package");
+        let ledger = &package.ordinary_new_claim_ledger;
+        let root_owner = ledger.root_completion_for_test().owner();
+        let child_owner = package
+            .batch()
+            .declarations()
+            .find_map(|declaration| {
+                let owner = declaration.owner();
+                (owner != root_owner && ledger.terminal_i64_add_return_for_owner(owner).is_some())
+                    .then_some(owner)
+            })
+            .expect("child add relation");
+        let root = ledger
+            .terminal_i64_add_return_for_owner(root_owner)
+            .expect("root add relation");
+        let child = ledger
+            .terminal_i64_add_return_for_owner(child_owner)
+            .expect("child add relation");
+        let reads = ledger.field_reads.borrow();
+        assert_eq!(root.field_reads().len(), 2);
+        assert_eq!(child.field_reads().len(), 2);
+        assert_eq!(reads.len(), 4);
+        assert!(root
+            .field_reads()
+            .iter()
+            .chain(child.field_reads())
+            .all(|site| reads.contains_key(site)));
+    }
+}
+
+#[test]
 fn direct_i64_field_issues_exact_terminal_relation() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return pair.left } }",

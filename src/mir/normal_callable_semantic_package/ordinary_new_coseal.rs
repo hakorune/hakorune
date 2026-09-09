@@ -442,6 +442,9 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
     DuplicateSite {
         site: OwnedExprSiteV1,
     },
+    FieldReadOwnerMismatch {
+        site: OwnedExprSiteV1,
+    },
     TerminalResultFieldReadMissing {
         site: OwnedExprSiteV1,
     },
@@ -634,23 +637,21 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                                             });
                                         }
                                     }
-                                    field_reads = staged_reads;
+                                    field_reads::merge_staged_field_reads(
+                                        &mut field_reads,
+                                        input.owner(),
+                                        staged_reads,
+                                    )?;
                                     root_terminal_relation = terminal_relation.take();
                                 }
                                 root_completion = Some(Ok(Rc::new(completion)));
                             } else {
-                                if let Some(TerminalRelationV1::I64Field(result)) =
-                                    terminal_relation.as_ref()
-                                {
-                                    if result.owner() != input.owner()
-                                        || !staged_reads.contains_key(result.field_read_site())
-                                    {
-                                        return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                                            site: result.field_read_site().clone(),
-                                        });
-                                    }
-                                    field_reads.extend(staged_reads);
-                                }
+                                field_reads::merge_terminal_relation_field_reads(
+                                    &mut field_reads,
+                                    input.owner(),
+                                    terminal_relation.as_ref(),
+                                    staged_reads,
+                                )?;
                                 let relation = terminal_relation
                                     .filter(|row| retain_child_terminal_relation(row, has_map));
                                 seeds.push_completion(declaration, selected, completion, relation)
