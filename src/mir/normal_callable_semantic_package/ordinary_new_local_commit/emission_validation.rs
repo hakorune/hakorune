@@ -1,5 +1,6 @@
 //! Validation of recorded physical New emission remains owned by local commit.
 
+use crate::mir::instruction::InvokeCallResultKind;
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -151,7 +152,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         .filter(|instruction| matches!(
                             instruction,
                             MirInstruction::Invoke {
-                                operation: crate::mir::instruction::InvokeOperation::Call(call),
+                                operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
                                 ..
                             } if matches!(&call.callee,
                                 crate::mir::Callee::BirthConstructor { receiver, .. } if receiver == result)

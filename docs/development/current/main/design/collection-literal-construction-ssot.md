@@ -3026,14 +3026,47 @@ extend to nonliteral/nested Call, early return or catch/defer. Existing
 Call Fault needs a pending entry BEFORE the first Home. Extend that existing
 cleanup builder, never reuse its partial suffix as the full pending entry.
 
-`instruction/invoke.rs::normal_result_kind` currently gives Call no result;
-`verification/invoke.rs` rejects non-Birth. The later consumer slice changes
-these only for source-connected ordinary calls, preserving actual Birth checks.
+Physical Call result dependency: `InvokeOperation::Call { call, result }` now
+uses finite Unit/I64 representation. Unit Birth retains no Normal projection;
+I64 requires one. Effects, operands and rewrite share the same Call arm.
+Function verification checks Birth/Unit or same-module StaticBoxMethod/I64 and
+structural arity, embedded destination absence, exclusive Normal projection and
+Fault dominance. This is physical validity only, not source admission.
+Existing Birth producers/observers explicitly use Unit. Physical program and
+JSON export reject ordinary I64, and the Birth actual collector only consumes
+Unit Birth. No new source producer or ordinary C role is activated by this edit.
+
+Physical result checkpoint: Invoke16/package155/physical program+JSON10 pass,
+including I64 projection, missing/duplicate projection, embedded destination,
+wrong role/arity and Fault-side use rejection. Unit Birth rewrite and existing
+source emission checks remain green. The physical input gate rejects ordinary
+I64 and mislabeled I64 Birth before JSON. Changed source maximum744 and existing
+pointer/corridor guards pass. This closes representation only: source Call
+emission/progress and actual binding drift checks remain the next dependency;
+no ordinary execution or runtime test was claimed.
+
+Next source-consumer binding must consume the SAME affine Lifecycle row plus
+original root ledger Completion/terminal relation, and record target/arguments/
+result/frame/cleanup with existing ledger progress. NormalResult physical
+support alone must not remove the ordinary package install Stop. Actual target,
+argument, projection and cleanup drift checks belong to that consumer, followed
+by retained callee role/formal/result/cleanup validation and selected ordinary ABI.
+
+Cleanup physical boundary detail: `root_cleanup_graph::validate_original`
+currently requires one entry Jump and 2N-1 releases (N clean, N-1 pending suffix).
+Call Fault needs the full pending entry, including the first Home: N pending
+releases if materialized in the current graph shape. Extend existing recorded
+boundary validation for the two named ingress paths and preserve original edge
+identity through finishing. Do not treat an arbitrary incoming edge as permitted,
+or skip the first Home by borrowing the partial suffix. Zero-Home Call still
+needs Normal-only result and Fault propagation. No generic continuation receipt,
+second cleanup graph owner or blind release-count relaxation is authorized.
+
 Use existing RootOwned/Borrowed frame state and ordinary callable validation;
 NewFaultContinuation remains New-specific. Normal alone projects result; Fault
 runs callee cleanup before caller cleanup, borrowed frames cannot be disposed,
 and root alone reports/disposes. Direct EXE and linked OBJ exit30 plus injected
-Fault evidence retire the ordinary install/artifact Stops in the same series.
+Fault evidence retire ordinary install/artifact Stops in the same series.
 
 ### Checked Map Value storage/install ABI: accepted next slice
 

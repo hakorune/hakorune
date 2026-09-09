@@ -19,7 +19,7 @@ mod construction_target;
 pub use construction_target::ConstructionTarget;
 
 mod invoke;
-pub use invoke::{FaultFrameMode, InvokeOperation, InvokeNormalResultKind, MapInvokeOperation, MapValueKind};
+pub use invoke::{InvokeCallResultKind, FaultFrameMode, InvokeOperation, InvokeNormalResultKind, MapInvokeOperation, MapValueKind};
 
 // (unused imports removed)
 

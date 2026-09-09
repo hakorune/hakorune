@@ -1,8 +1,9 @@
-//! Physical opaque roles; never source types, host handles or identity issuers.
+//! Physical Normal result roles; never source types or identity issuers.
 use crate::mir::{Effect, EffectMask, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InvokeNormalResultKind {
+    I64,
     Handle,
     Map,
     MapKey,

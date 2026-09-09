@@ -1,4 +1,5 @@
 //! Source-issued New/Home progress and finishing coverage, including multiple Homes.
+use crate::mir::instruction::InvokeCallResultKind;
 use super::issue_with_brand_catalog;
 
 #[test]
@@ -141,7 +142,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         };
         let birth_id = crate::mir::BasicBlockId(200 + index as u32);
         let birth = crate::mir::MirInstruction::Invoke {
-            operation: crate::mir::instruction::InvokeOperation::Call(call),
+            operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
             fault_frame: ValueId(100),
             normal_landing: block_id,
             fault_landing: reclaim_block,

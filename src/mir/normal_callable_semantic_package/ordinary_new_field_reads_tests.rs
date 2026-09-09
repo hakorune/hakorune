@@ -1,3 +1,4 @@
+use crate::mir::instruction::InvokeCallResultKind;
 use super::*;
 use crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog;
 use crate::mir::BasicBlock;
@@ -70,7 +71,7 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     };
     let birth_id = BasicBlockId(2);
     let birth = MirInstruction::Invoke {
-        operation: crate::mir::instruction::InvokeOperation::Call(call),
+        operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
         fault_frame: ValueId(100),
         normal_landing: entry,
         fault_landing: reclaim_block,

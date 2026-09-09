@@ -1,4 +1,5 @@
 //! Physical consumption of one prepared exact New claim, never a target issuer.
+use crate::mir::instruction::InvokeCallResultKind;
 #[path = "selected/map.rs"]
 pub(in crate::mir::builder) mod map;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
@@ -108,7 +109,7 @@ pub(in crate::mir::builder) fn emit(
         };
         let after_birth = builder.next_block_id();
         let birth = MirInstruction::Invoke {
-            operation: InvokeOperation::Call(call),
+            operation: InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
             fault_frame: frame,
             normal_landing: after_birth,
             fault_landing: birth_fault,

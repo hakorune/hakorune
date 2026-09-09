@@ -279,7 +279,7 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
             .flat_map(|block| block.all_instructions())
         {
             if let crate::mir::MirInstruction::Invoke {
-                operation: crate::mir::instruction::InvokeOperation::Call(call),
+                operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
                 ..
             } = instruction
             {

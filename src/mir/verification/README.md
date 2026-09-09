@@ -13,6 +13,17 @@ This directory owns MIR verifier checks that run from
 | `builder/control_flow/verify` | CorePlan verifier | verifies CorePlan before lowering | always-on for verified plan paths |
 | `tools/hako_check` | tooling | observation/report checks | read-only, not semantic truth |
 
+## Invoke Call result contract
+
+`InvokeOperation::Call` carries explicit physical `Unit` or `I64` result kind.
+Function verification admits Birth/Unit and same-module static/I64 pairs only;
+the latter also checks exact structural arity. Embedded destinations are
+forbidden. Unit has no projection, I64 has exactly one in the exclusive Normal
+landing, and dominance rejects Fault-side uses. This is structural validity,
+not source permission: affine Lifecycle/Completion and final recorded bindings
+remain the source and execution owners. Ordinary physical export remains stopped;
+I64 cannot pass the existing Unit Birth serializer.
+
 ## Function Check Groups
 
 `verify_function` keeps error precision by running separate checks. Treat these

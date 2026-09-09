@@ -134,6 +134,13 @@ Fault-frame operand and distinct Normal/Fault successors. It defines no value.
 `InvokeNormalResult { invoke_block, dst }` is the only result definition, first
 after PHIs in the exclusive Normal landing. Ordinary/Array allocation has one handle result;
 Unit Birth, FieldSet, HomeRelease and ReclaimUnpublished have none.
+`InvokeOperation::Call { call, result }` uses finite `InvokeCallResultKind`
+Unit/I64. Birth requires Unit; only same-module StaticBoxMethod with explicit I64
+and matching arity is structurally valid as an ordinary call. This does not infer
+source result types or authorize execution. I64 requires exactly one Normal
+projection, and no Fault use; the embedded Call destination remains absent.
+The existing selected physical exporter accepts Unit Birth only until the
+ordinary role/ABI consumer is connected.
 HomeRelease carries an exact object ID and a completed Home value; its definition
 must admit destruction. ReclaimUnpublished carries the exact object ID and only
 reclaims incomplete outer storage, without parent fini or recursive field release.

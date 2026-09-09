@@ -56,7 +56,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             InvokeOperation::IntrinsicArrayNew => Some(Self::ArrayNew),
             InvokeOperation::ArrayStateContractClaim { .. } => Some(Self::ArrayClaim),
             InvokeOperation::ArrayElementWrite { .. } => Some(Self::ArrayWrite),
-            InvokeOperation::Call(_) => None,
+            InvokeOperation::Call { .. } => None,
         }
     }
 }
@@ -372,7 +372,7 @@ fn referenced_objects(program: &PublishedLifecyclePhysicalProgramV1<'_>) -> BTre
                         InvokeOperation::FieldSet { field, .. } => {
                             ids.insert(field.object().declaration_index());
                         }
-                        InvokeOperation::Call(_) | InvokeOperation::Map(_) => {}
+                        InvokeOperation::Call { .. } | InvokeOperation::Map(_) => {}
                         InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::ArrayStateContractClaim { .. }
                         | InvokeOperation::ArrayElementWrite { .. } => {}

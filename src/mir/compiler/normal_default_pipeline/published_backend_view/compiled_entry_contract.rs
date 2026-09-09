@@ -3,6 +3,7 @@
 //! It joins already-retained source/handoff facts to final-MIR parameter values.
 //! It neither classifies source parameters nor makes C ABI choices.
 
+use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     BirthFormalContractV1, BirthFormalPhysicalDispositionV1, FinalizedBirthActualsV1,
@@ -362,7 +363,7 @@ fn issue_birth_calls(
             .chain(std::iter::once(block.terminator()))
         {
             let MirInstruction::Invoke {
-                operation: InvokeOperation::Call(call),
+                operation: InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
                 ..
             } = row.instruction()
             else {

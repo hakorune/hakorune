@@ -120,11 +120,28 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
             if *normal_landing == function.entry_block || normal_landing == id {
                 errors.push(error(*id, "normal-landing-before-invocation"));
             }
-            if let InvokeOperation::Call(call) = operation {
+            if let InvokeOperation::Call { call, result } = operation {
                 if call.dst.is_some() {
                     errors.push(error(*id, "embedded-call-destination"));
                 }
-                if !matches!(call.callee, Callee::BirthConstructor { .. }) {
+                use crate::mir::instruction::InvokeCallResultKind as ResultKind;
+                use hakorune_mir_defs::{
+                    CanonicalGlobalTargetV1 as Global,
+                    CanonicalSameModuleGlobalTargetV1 as SameModule,
+                };
+                let valid = match (&call.callee, result) {
+                    (Callee::BirthConstructor { .. }, ResultKind::Unit) => true,
+                    (
+                        Callee::Global(
+                            target @ Global::SameModule(SameModule::StaticBoxMethod { .. }),
+                        ),
+                        ResultKind::I64,
+                    ) => target
+                        .arity()
+                        .is_some_and(|arity| arity as usize == call.args.len()),
+                    _ => false,
+                };
+                if !valid {
                     errors.push(error(*id, "call-result-contract-not-connected"));
                 }
             }
@@ -270,3 +287,7 @@ mod array_tests;
 #[cfg(test)]
 #[path = "invoke_map_tests.rs"]
 mod map_tests;
+
+#[cfg(test)]
+#[path = "invoke_call_tests.rs"]
+mod call_tests;

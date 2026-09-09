@@ -1,3 +1,4 @@
+use crate::mir::instruction::InvokeCallResultKind;
 use super::*;
 use crate::mir::resolved_semantics::SourceBindingSiteV1;
 use crate::mir::{BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature};
@@ -85,16 +86,14 @@ pub(super) fn fixture() -> EmissionFixture {
         dst: RESULT,
     };
     let birth = crate::mir::MirInstruction::Invoke {
-        operation: crate::mir::instruction::InvokeOperation::Call(
-            crate::mir::definitions::MirCall::new(
+        operation: crate::mir::instruction::InvokeOperation::Call { call: crate::mir::definitions::MirCall::new(
                 None,
                 Callee::BirthConstructor {
                     key: target,
                     receiver: RESULT,
                 },
                 vec![INTEGER, BOOLEAN],
-            ),
-        ),
+            ), result: InvokeCallResultKind::Unit },
         fault_frame: FRAME,
         normal_landing: BasicBlockId::new(0),
         fault_landing: BasicBlockId::new(0),
@@ -191,7 +190,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
 
     let mut order = fixture.function.clone();
     let Some(crate::mir::MirInstruction::Invoke {
-        operation: crate::mir::instruction::InvokeOperation::Call(birth_call),
+        operation: crate::mir::instruction::InvokeOperation::Call { call: birth_call, result: InvokeCallResultKind::Unit },
         ..
     }) = order
         .blocks
@@ -211,7 +210,7 @@ fn ordinary_new_finalizer_rejects_literal_order_and_birth_call_drift() {
 
     let mut call = fixture.function.clone();
     let Some(crate::mir::MirInstruction::Invoke {
-        operation: crate::mir::instruction::InvokeOperation::Call(birth_call),
+        operation: crate::mir::instruction::InvokeOperation::Call { call: birth_call, result: InvokeCallResultKind::Unit },
         ..
     }) = call
         .blocks

@@ -3,6 +3,7 @@
 //! This deliberately does not share generic MIR JSON: generic egress changes
 //! function and PHI order, while this transport preserves issued physical order.
 
+use crate::mir::instruction::InvokeCallResultKind;
 use std::collections::BTreeMap;
 
 use serde_json::{json, Value};
@@ -359,12 +360,13 @@ fn encode_invoke(
                 required_site(diagnostic_site, true)?,
             )?
         }
-        InvokeOperation::Call(call) => {
+        InvokeOperation::Call { call, result: InvokeCallResultKind::Unit } => {
             if diagnostic_site.is_some() {
                 return Err(fault("site-on-birth-call"));
             }
             json!({ "kind": "birth_call", "call": encode_birth_call(call, births, abi_input)? })
         }
+        InvokeOperation::Call { .. } => return Err(fault("call-result-consumer-missing")),
         InvokeOperation::NewBox { object } => with_site(
             json!({
                 "kind": "new_box", "object_id": object.declaration_index(),

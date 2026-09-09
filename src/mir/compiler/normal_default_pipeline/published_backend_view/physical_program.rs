@@ -4,6 +4,7 @@
 //! This projection validates retained correspondence and borrows the result;
 //! it issues neither source facts nor C execution permission.
 
+use crate::mir::instruction::InvokeCallResultKind;
 use std::collections::BTreeSet;
 
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
@@ -347,10 +348,10 @@ fn validate_instruction(instruction: &MirInstruction, script: bool) -> Result<()
                     | InvokeOperation::FieldSet { .. }
                     | InvokeOperation::HomeRelease { .. }
                     | InvokeOperation::ReclaimUnpublished { .. }
-                    | InvokeOperation::Call(MirCall {
+                    | InvokeOperation::Call { call: MirCall {
                         callee: Callee::BirthConstructor { .. },
                         ..
-                    }),
+                    }, result: InvokeCallResultKind::Unit },
                 ..
             }
             | MirInstruction::InvokeNormalResult { .. }
@@ -485,3 +486,7 @@ mod tests {
         });
     }
 }
+
+#[cfg(test)]
+#[path = "physical_program_call_tests.rs"]
+mod call_result_tests;

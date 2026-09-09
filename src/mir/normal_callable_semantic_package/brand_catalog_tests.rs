@@ -1,3 +1,4 @@
+use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::builder::NormalRootExecutionConsumerV1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{NyashParser, ParserBuildConfig};
@@ -384,7 +385,7 @@ fn ordinary_new_local_completion_reaches_package_finish_for_two_destinations() {
             crate::mir::function::RootOrdinaryNewObservation::SourceCompleteAtFinalization);
         assert_eq!(main.blocks.values().flat_map(|block| block.all_instructions()).filter(|inst|
             matches!(inst, crate::mir::MirInstruction::Invoke {
-                operation: crate::mir::instruction::InvokeOperation::Call(call), .. }
+                operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit }, .. }
                 if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }))
         ).count(), 2);
         assert!(!main.blocks.values().flat_map(|block| block.all_instructions()).any(|inst|

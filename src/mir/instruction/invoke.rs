@@ -6,7 +6,7 @@ use crate::mir::{Effect, EffectMask, ValueId};
 
 #[path = "invoke_map.rs"]
 mod map;
-pub use map::{MapInvokeOperation, MapValueKind, InvokeNormalResultKind};
+pub use map::{InvokeNormalResultKind, MapInvokeOperation, MapValueKind};
 
 impl crate::mir::MirInstruction {
     /// Identifies physical sites needing retained lifecycle validation.
@@ -31,10 +31,20 @@ pub enum FaultFrameMode {
     Borrowed,
 }
 
+/// Physical result projection; never source admission or inferred from a name.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum InvokeCallResultKind {
+    Unit,
+    I64,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum InvokeOperation {
     /// The embedded destination must be absent; the Normal projection owns it.
-    Call(MirCall),
+    Call {
+        call: MirCall,
+        result: InvokeCallResultKind,
+    },
     /// Allocation only; constructor arguments belong to the subsequent Birth.
     NewBox {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
@@ -77,8 +87,18 @@ impl InvokeOperation {
         match self {
             Self::NewBox { .. } | Self::IntrinsicArrayNew => Some(InvokeNormalResultKind::Handle),
             Self::Map(operation) => operation.normal_result_kind(),
-            Self::Call(_) | Self::FieldSet { .. } | Self::ArrayStateContractClaim { .. }
-            | Self::ArrayElementWrite { .. } | Self::HomeRelease { .. }
+            Self::Call {
+                result: InvokeCallResultKind::I64,
+                ..
+            } => Some(InvokeNormalResultKind::I64),
+            Self::Call {
+                result: InvokeCallResultKind::Unit,
+                ..
+            }
+            | Self::FieldSet { .. }
+            | Self::ArrayStateContractClaim { .. }
+            | Self::ArrayElementWrite { .. }
+            | Self::HomeRelease { .. }
             | Self::ReclaimUnpublished { .. } => None,
         }
     }
@@ -86,7 +106,7 @@ impl InvokeOperation {
     pub fn effects(&self) -> EffectMask {
         match self {
             Self::Map(operation) => operation.effects(),
-            Self::Call(call) => call.effects.add(Effect::Control),
+            Self::Call { call, .. } => call.effects.add(Effect::Control),
             Self::NewBox { .. } | Self::IntrinsicArrayNew => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldSet { .. }
             | Self::ArrayStateContractClaim { .. }
@@ -101,7 +121,7 @@ impl InvokeOperation {
     pub fn used_values(&self) -> Vec<ValueId> {
         match self {
             Self::Map(operation) => operation.used_values(),
-            Self::Call(call) => {
+            Self::Call { call, .. } => {
                 let mut values = Vec::new();
                 call.callee
                     .for_each_value_operand(|value| values.push(value));
@@ -131,7 +151,7 @@ impl InvokeOperation {
     pub fn rewrite_values(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
         match self {
             Self::Map(operation) => operation.rewrite_values(rewrite),
-            Self::Call(call) => {
+            Self::Call { call, .. } => {
                 call.callee.rewrite_value_operands(|value| rewrite(value));
                 for value in &mut call.args {
                     rewrite(value);

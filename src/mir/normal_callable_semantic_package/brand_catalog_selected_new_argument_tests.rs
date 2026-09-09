@@ -34,7 +34,7 @@ fn selected_new_arguments_reach_birth_in_issued_order() {
             .flat_map(|block| block.all_instructions())
             .filter_map(|instruction| match instruction {
                 crate::mir::MirInstruction::Invoke {
-                    operation: crate::mir::instruction::InvokeOperation::Call(call),
+                    operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
                     ..
                 } if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }) => {
                     Some(call)
