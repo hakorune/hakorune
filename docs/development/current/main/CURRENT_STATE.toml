@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MAP-LITERAL-WIDER-ORDINARY-OWNER-COVERAGE-I0"
-current_execution_cohort = "map_literal_wider_ordinary_owner_coverage_i0"
-current_design_stop = "none"
-current_blocker_token = "The two-owner design is accepted for implementation: root plus two distinct exact ordinary Map owners A/B, with scalar Value-only entries and existing Completion/cleanup ownership. The accepted source order is local A, optional root Map, then terminal B; a root Map before the first Call remains rejected by the existing prior_homes contract. Third/nested/conditional/recursive Calls, uncalled owners, New/Home, field, unknown values, native escape, and whole Map/R7 remain fail-fast."
+work_mode = "design_stop"
+current_execution_row = "MAP-LITERAL-THREE-ORDINARY-OWNER-COVERAGE-D0"
+current_execution_cohort = "map_literal_three_ordinary_owner_coverage_d0"
+current_design_stop = "MAP-LITERAL-THREE-ORDINARY-OWNER-COVERAGE-D0"
+current_blocker_token = "The two-owner scalar Map I0 is closed. The next design selects exactly two local Calls A/B plus one terminal Call C to three distinct ordinary Map owners, with optional root Map only after both locals. Before implementation, root_call_entry must retain multiple exact local Call bindings per owner/site without collapsing or accepting duplicates. Fourth/nested/conditional/recursive Calls, uncalled owners, root-before-first-Call Map/Home, New/Home, field, unknown values, native escape, and whole Map/R7 remain fail-fast."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -52,11 +52,12 @@ The bounded multi-call D0 now retains one source-local exact-i64 Call before the
 existing terminal Call, co-seals both under the root owner, emits both physical
 I64 Call terminators, and passes the selected direct/linked artifact Pair exit30.
 The single-terminal-only production edge is retired through explicit CallReturn
-and ordinary Call-site collection. The two-owner design is accepted; I0 now
-changes only owner-set admission and its existing install preflight. The natural distinct-A/B source passes semantic install, direct/linked exit30; root-before-first-Call Map remains a negative prior_homes case.
+and ordinary Call-site collection. Two-owner admission and direct/linked exit30
+are closed. The next design stop selects three distinct owners and the existing
+root_call_entry local-binding retention gap; no implementation permission yet.
 """
-next_design_card = "none (accepted MAP-LITERAL-WIDER-ORDINARY-OWNER-COVERAGE-D0)"
-next_execution_card = "MAP-LITERAL-WIDER-ORDINARY-OWNER-COVERAGE-I0"
+next_design_card = "MAP-LITERAL-THREE-ORDINARY-OWNER-COVERAGE-D0"
+next_execution_card = "none (after design)"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -75,5 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change.",
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
-  "2026-09-09: ordinary_i64 physical consumer landed in the selected Map series: role-based physical JSON, C admission/index/emission, direct EXE and linked OBJ Pair exit30, bool/range exit70 with Fault103, cleanup probe pass, and root-plus-called-ordinary-child scalar-Map direct/linked exit30. The bounded two-Call source now reaches production physical JSON and selected direct/linked artifact consumers; JSON carries two ordinary_call operations, including same-target/same-actual sites, both artifacts exit30, and cleanup/finishing passes. The single-terminal-only production edge is retired by explicit CallReturn and ordinary Call-site collection across lifecycle admission, CompiledEntry and parameter capability. The two-distinct-owner design is accepted for I0; root-before-first-Call Map remains rejected by prior_homes; no whole-Map/R7 claim.",
+  "2026-09-09: ordinary_i64 physical consumer landed in the selected Map series: role-based physical JSON, C admission/index/emission, direct EXE and linked OBJ Pair exit30, bool/range exit70 with Fault103, cleanup probe pass, and root-plus-called-ordinary-child scalar-Map direct/linked exit30. The bounded two-Call source now reaches production physical JSON and selected direct/linked artifact consumers; JSON carries two ordinary_call operations, including same-target/same-actual sites, both artifacts exit30, and cleanup/finishing passes. The single-terminal-only production edge is retired by explicit CallReturn and ordinary Call-site collection across lifecycle admission, CompiledEntry and parameter capability. Two-owner admission and distinct-A/B direct/linked exit30 are closed; the next design stop is three owners plus local binding retention; no whole-Map/R7 claim.",
 ]
