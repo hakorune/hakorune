@@ -34,6 +34,70 @@ The remaining C guards are the selected lifecycle indexed-flow gates for child
 contract is the boundary to audit. The C layer must receive a complete issued
 program/session and may only project already-checked rows into LLVM calls.
 
+## Read-only C census result
+
+The D0 audit confirms that the stop is a deliberate root-only admission rule,
+not a missing transport row. The production caller is
+`published_mir_object.rs` -> `LifecycleInvocationInputV1` ->
+`hako_llvmc_compile_published_lifecycle_physical_v4`; one invocation owns the
+Rust runtime session, the parsed physical document, the C index, and the LLVM
+target session. No second source authority is needed.
+
+The selected C consumer still rejects a non-root function index (`fi`) for all
+four operations below:
+
+```text
+ordinary child: new_box
+ordinary child: birth_call
+ordinary child: home_release
+ordinary child: reclaim_unpublished
+```
+
+Removing only those guards is insufficient. `lv4_indexed_admit()` also binds
+Birth receiver layouts by scanning root blocks only. A child Birth therefore
+has no receiver/object binding and is rejected by the existing
+`birth_unit && !receiver_object_set` check. The smallest physical admission
+unit is consequently the following one bounded change:
+
+```text
+allow child New
+  -> bind its exact object/layout row
+  -> allow child Birth using that live receiver
+  -> allow child normal HomeRelease and fault ReclaimUnpublished
+```
+
+The existing rows already carry the required coordinates: New has `site` and
+`object_id`, Birth has `target`, `receiver`, and typed arguments, and cleanup
+has `site`, `object_id`, and `value`. The runtime ABI/layout/session remains
+owned by `LifecycleRuntimeSessionV1` and the existing C target session. C may
+cache these indexes for the invocation, but it must not resolve names or issue
+source meaning.
+
+## C I0 acceptance and delete set
+
+Do not open C I0 until the following finite acceptance is written into the
+focused test/guard plan:
+
+* one selected ordinary child caller per Birth target;
+* caller function index, Birth target, receiver object, argument kind/value,
+  New object/layout, and cleanup coordinates match the same physical input;
+* New creates one live handle, Birth consumes that handle as receiver, and
+  normal/fault cleanup consumes it exactly once;
+* cleanup-before-New, foreign or mismatched receiver/layout, duplicate or
+  omitted cleanup, and multiple Birth callers reject before emission;
+* no source-name lookup, registry repair, implicit root fallback, or semantic
+  receipt/schema is introduced.
+
+The exclusive old-edge delete set is limited to the five root-only C
+assumptions: the `fi` rejection branches for `new_box`, `birth_call`,
+`home_release`, and `reclaim_unpublished`, plus the root-only Birth receiver
+binding scan. Generic fallback, compatibility routes, other runtime families,
+and all field/unknown/native/general Map claims remain outside this I0.
+
+**D0 decision:** keep `work_mode = design_stop`. The owner and rows are known,
+but cleanup state and child receiver binding still need this finite acceptance
+to be encoded before any guard is opened or production edge is switched.
+
 ## Design tasks
 
 1. Enumerate the exact C caller/consumer functions and current stopped tokens for

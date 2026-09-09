@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-C-EXECUTION-D0"
 current_execution_cohort = "map_literal_ordinary_new_home_child_birth_c_execution_d0"
 current_design_stop = "docs/development/current/main/investigations/map-literal-child-birth-c-execution-d0-2026-09-10.md"
-current_blocker_token = "The Rust New/Home Birth-handoff I0 landed at c3fa1f8a75 with root and child-only Birth+Map/New compiled-entry/JSON/cleanup evidence. The next design stop is the existing C child New/Birth/HomeRelease consumer: no C gate may open until caller/session ownership, exact row matching, runtime layout compatibility, and the exclusive old-edge delete set are named."
+current_blocker_token = "The Rust New/Home Birth-handoff I0 landed at c3fa1f8a75 with root and child-only Birth+Map/New compiled-entry/JSON/cleanup evidence. The C D0 census named the existing child New/Birth/HomeRelease consumer, one invocation-owned runtime/session, exact rows, and the five root-only assumptions to delete; work remains design_stop until the finite receiver-binding, live-handle, normal/fault cleanup acceptance is encoded."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
