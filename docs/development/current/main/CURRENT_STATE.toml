@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-D0"
-current_execution_cohort = "root_method_physical_receiver_lane_d0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-I0"
+current_execution_cohort = "root_method_physical_receiver_lane_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Design stop: inventory the existing published lifecycle physical input, physical_program_json, and C V4 ordinary-call rows for one explicit receiver projection of the closed RootInstanceCallDisposition. Choose lane or named physical field, then name caller, exclusive delete-set, and acceptance before any C/schema/production edit. Reject instance namespace/owner/key mismatch, receiver lane not exactly one, source arity/signature drift, missing ordinary definition, and Global-only coercion before JSON/object output; keep generic MIR JSON lifecycle Invoke rejected."
+current_blocker_token = "Physical receiver-lane I0: project the closed RootInstanceCallDisposition through the existing lifecycle wire. InstanceBoxMethod ordinary functions use the existing function-level receiver field and ordinary calls add receiver beside target/args/dst; static ordinary wire stays unchanged. Update Rust physical issuer/JSON and C V2/V4 validator/index/emitter. Reject namespace/owner/key drift, missing or duplicate receiver, unavailable receiver, arity/signature drift, missing definition, and Global-only coercion before JSON/object output; keep generic MIR JSON lifecycle Invoke rejected."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -49,17 +49,17 @@ That caller is now the bounded ROOT-METHOD-CALL-I0 fast slice: Main.main's lexic
 pair.sum() has resolver MethodCall facts but no verified source-to-target issuer
 that can feed the existing AppMain lifecycle loan. Physical V2/C V4 remains
 unchanged until that source authority is named. The D0 census closed as
-NoSafeSlice for implementation. The D1 design named ordinary_new as the
-co-seal owner and identified the existing generic selected-instance target,
-receiver lookup, and Invoke/cleanup ingress. Rust source/lifecycle I0 landed at
-629e558e91 with focused source/verifier tests and complete --dump-mir evidence.
+NoSafeSlice for implementation. The D1 design named ordinary_new as the co-seal
+owner and identified the existing generic selected-instance target,
+receiver lookup, and Invoke/cleanup ingress. Rust source/lifecycle I0 landed at 629e558e91 with focused source/verifier tests and complete --dump-mir evidence.
 The selected physical caller still rejects the receiver-bearing call at the
-Global-only ordinary-call boundary, so the next bounded row is the physical
-receiver-lane D0; no C/schema/production edit or transport fallback is
-authorized before that design closes.
+Global-only ordinary-call boundary. D0 is now accepted: existing optional
+receiver fields are the single lane-0 projection for instance ordinary calls,
+with static wire compatibility retained. Physical receiver-lane I0 is next;
+generic JSON and unrelated method families remain closed.
 """
-next_design_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-D0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-I0"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
@@ -76,5 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change.",
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
-  "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30, Fault/cleanup and multi-owner evidence; c3fa1f8a75 and 60bcf68add close Rust/C Birth handoff slices. f4b387de48 closes init_fields projection 6/6; 89199dbc3c closes i64 fixture migration/newbox EXE30/layout negatives; 36cdbb08c8 closes FaultFrameEnter JSON egress and reclassifies method at Invoke. 2026-09-10 physical probe confirms typed-object-birth-min linked exit30; typed-object-method-min remains before physical ingress at artifact-source-unavailable for root method Call/cleanup. Owner-scoped Call probe is closed at c8887bbda2 (1/1). Root method Rust I0 closes at 629e558e91 with source/verifier tests and complete dump-MIR evidence; physical receiver-lane D0 is now selected. Untyped storage, child shapes, whole-Map/R7 remain parked."
+  "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30, Fault/cleanup and multi-owner evidence; c3fa1f8a75 and 60bcf68add close Rust/C Birth handoff slices. f4b387de48 closes init_fields projection 6/6; 89199dbc3c closes i64 fixture migration/newbox EXE30/layout negatives; 36cdbb08c8 closes FaultFrameEnter JSON egress and reclassifies method at Invoke. 2026-09-10 physical probe confirms typed-object-birth-min linked exit30; typed-object-method-min remains before physical ingress at artifact-source-unavailable for root method Call/cleanup. Owner-scoped Call probe is closed at c8887bbda2 (1/1). Root method Rust I0 closes at 629e558e91 with source/verifier tests and complete dump-MIR evidence; physical receiver-lane D0 accepted and I0 selected. Untyped storage, child shapes, whole-Map/R7 remain parked."
 ]

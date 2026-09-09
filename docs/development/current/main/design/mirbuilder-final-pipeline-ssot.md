@@ -1449,33 +1449,59 @@ the next physical receiver-lane design boundary, not a failed Rust I0.
 
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-D0`
 
-Decision: open a design stop for the existing published physical owner. The
-source-issued `RootInstanceCallDisposition` and `InstanceBoxMethod` signature
-already provide the target key, receiver `ValueId`, source argument arity, and
-one receiver lane. The physical owner must project those facts once into the
-existing lifecycle input; it must not rebuild them from MIR names or C text.
+Decision: accept one bounded physical projection using the existing lifecycle
+wire. An `InstanceBoxMethod` ordinary function keeps role `ordinary_i64`, puts
+its physical receiver in the already-supported function-level `receiver` field,
+and leaves explicit source parameters in `params`. Its ordinary call carries a
+`receiver` field alongside the existing `target`, `args`, and `dst` fields.
+Static ordinary calls keep their current receiverless shape. This is a lane-0
+projection, not a new schema revision or a second callable product.
 
-Source authority + canonical issuer: the closed ordinary-New root handoff and
-the selected callable physical-signature row. Non-authority: generic MIR JSON,
-`physical_program::ordinary_callable_key()` when it only accepts Global,
-function names, MIR type observations, receiver spelling, C defaults, and
-compatibility retry.
+Source authority + canonical issuer: the closed ordinary-New
+`RootInstanceCallDisposition` and selected `InstanceBoxMethod` physical
+signature. The published physical program consumes the existing
+`Callee::SameModuleInstance { key, receiver }` once. It may use the existing
+function parameter lane 0, but it must not derive the receiver from names,
+MIR types, or C text. Non-authority remains generic MIR JSON,
+`physical_program::ordinary_callable_key()` while it is Global-only, function
+names, C defaults, and compatibility retry.
+
+Consumer and delete-set: extend the existing physical-program issuer,
+`physical_program_json`, V2 validator, V4 index/flow, and V4 emitter to
+recognize the instance receiver field. Retain the static Global/FreeFunction
+ordinary shape and delete only the receiverless rejection and static-only
+arity assumptions for selected instance rows. Generic MIR JSON lifecycle
+`Invoke` remains rejected.
 
 Fail-fast boundary: instance namespace/owner/key mismatch, receiver lane not
-exactly one, source arity/signature drift, missing ordinary definition, or a
-receiver-bearing call entering the Global-only physical row must reject before
-JSON/object output. The generic MIR JSON route continues to reject lifecycle
-`Invoke`.
+exactly one, missing or duplicate receiver field, receiver unavailable at the
+call site, source arity/signature drift, missing ordinary definition, or a
+receiver-bearing call entering the static Global row must reject before
+JSON/object output. C must treat the function-level instance receiver as a
+borrowed handle and explicit params as i64 lanes.
 
-Smallest next slice: read the existing `PublishedLifecyclePhysicalProgramV1`,
-`physical_program_json`, and C V4 ordinary-call rows as one finite inventory;
-choose one explicit receiver projection (lane or named physical field), then
-write the production caller, exact delete-set, and focused positive/negative
-acceptance. Do not edit C, add a new schema, or switch production while this D0
-remains open.
+Acceptance: the annotated `Pair.sum()` source emits lifecycle JSON, passes V2
+and V4 admission, reaches LLVM/object/executable, and returns exit 30; existing
+static ordinary calls retain their current output and result. Negative coverage
+rejects missing/extra receiver, wrong namespace, duplicate target, wrong
+receiver value, and arity/signature drift. No arbitrary instance methods,
+dynamic/opaque receivers, child cleanup expansion, generic JSON lifecycle
+support, or unrelated OBJ/EXE claims are included.
 
-Non-claims: no arbitrary instance methods, dynamic/opaque receivers, child
-cleanup expansion, generic JSON lifecycle support, or OBJ/EXE exit 30.
+##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-I0`
+
+Implementation row: use the D0 projection above. The Rust issuer must accept
+`Callee::SameModuleInstance` only for the selected instance namespace, check
+`key.arity() == call.args.len()`, require exactly one physical receiver lane,
+and project the receiver once into the existing physical function/call input.
+The Rust JSON consumer and C validators/emitter must share that one lane; no
+receiver prefix repair, name lookup, or generic fallback is permitted.
+
+Focused gates: physical-program positive/negative unit tests, V2/C V4 focused
+admission tests, static ordinary regression, then `Pair.sum()` OBJ/EXE exit 30.
+The old Global-only path is removed only after these selected caller tests are
+green. This row does not reopen the three owner/ordering refactors queued after
+the physical receiver lane.
 
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 
