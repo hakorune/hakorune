@@ -1180,6 +1180,33 @@ tests::mir::mir_corebox_router_unified::map. Actual/expected values match across
 parent and current runs. Logs `/tmp/hakorune-map-finished-parent.log` and
 `/tmp/hakorune-map-finished-focused.log`; this is no whole-library green claim.
 
+**Bounded callable Map closeout and next deletion (2026-09-09)**
+
+map_home_flow_tests10/10 now includes three ordinary numeric Local relations
+beside Map: root numeric value/alias and a foreign callable's same-name Local.
+Their BindingRefs remain distinct from the Map destination and prepare_install
+accepts without catalog mutation. Same-scope redeclaration remains the resolver's
+typed refusal; nested shadowing is not promoted by this test. Log
+`/tmp/hakorune-map-binding-boundary.log`. Together with source13/EXE26, source
+completion probes12 and the finite route census, this closes the selected
+Complete callable AppMain direct-local I64 Map cohort only.
+
+Broader MAP-LITERAL-COMPILER-CUTOVER-I0 remains open: raw/Script/Core issuers,
+all selected static hosts, V1 ingress, the six literal edges and natural nested/
+mixed-formal acceptance still belong to the collection owner. No R7 completion
+or deletion permission for those callers follows from this bounded closeout.
+The preflight getter also does not close queue11's physical Local lookup scans.
+
+Next selected existing candidate is additional thinning queue14, a Delete
+BoxShape: remove the second record propagation after metadata::propagate and
+collapse the with_types-only forwarder into the existing preclaims entry.
+Raw-root from-values and callable receipt_v1 keep the same private publication
+owner; retain preclaims because parity tests call it. Acceptance is existing
+local_statement_parity_tests plus local_placement_tests: ordinary/typed Array/
+record snapshots, failed-batch reuse, and unchanged Copy/reuse/registration order.
+No new receipt, source form, test hierarchy or constructor policy is authorized.
+One worker independently checked actual callers and intervening mutation absence.
+
 **Source-object Fault checkpoint (2026-09-09)**
 
 The same actual13 source/26 EXE executions now include source-object probes on

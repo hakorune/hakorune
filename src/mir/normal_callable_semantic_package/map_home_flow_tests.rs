@@ -296,3 +296,28 @@ fn map_annotation_preflight_preserves_malformed_diagnostic() {
     assert!(message.contains("bogus"), "{message}");
     assert!(context.callable_declaration_catalog_vacant());
 }
+
+#[test]
+fn map_preflight_keeps_non_map_numeric_locals_and_foreign_same_name_separate() {
+    let program = "static box Other { run() { local m: i64 = 30 return 30 } }
+        static box Main { main() {
+            local value: i64 = 30 local alias: i64 = value local m = %{} return 30
+        } }";
+    let package = issue(program).unwrap();
+    let map_binding = package.ordinary_new_claim_ledger.root_completion_for_test()
+        .cleanup().root_flow().unwrap().maps()[0].complete().unwrap().destination();
+    let mut numeric_bindings = Vec::new();
+    for declaration in package.batch().declarations() {
+        package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+            numeric_bindings.extend(input.function().expression_source().initializers()
+                .filter(|row| row.declared_type_name() == Some("i64"))
+                .map(|row| row.binding()));
+        }).unwrap();
+    }
+    assert_eq!(numeric_bindings.len(), 3);
+    assert!(numeric_bindings.iter().all(|binding| *binding != map_binding));
+    assert!(numeric_bindings.iter().any(|binding| binding.owner() != map_binding.owner()));
+    let mut context = CompilationContext::new();
+    package.prepare_install(&mut context).expect("numeric locals are not Map aliases");
+    assert!(context.callable_declaration_catalog_vacant());
+}
