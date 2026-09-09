@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-I0"
-current_execution_cohort = "root_method_physical_receiver_lane_i0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-D0"
+current_execution_cohort = "root_method_terminal_probe_family_d0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Physical receiver-lane I0: project the closed RootInstanceCallDisposition through the existing lifecycle wire. InstanceBoxMethod ordinary functions use the existing function-level receiver field and ordinary calls add receiver beside target/args/dst; static ordinary wire stays unchanged. Update Rust physical issuer/JSON and C V2/V4 validator/index/emitter. Reject namespace/owner/key drift, missing or duplicate receiver, unavailable receiver, arity/signature drift, missing definition, and Global-only coercion before JSON/object output; keep generic MIR JSON lifecycle Invoke rejected."
+current_blocker_token = "Terminal-probe-family D0: make add/literal/field probes owner-scoped and preserve explicit root-only Unit semantics; remove cross-owner relative-site scans, retain child I64Add field reads, scope root_instance_call_expected by owner, and make PHI propagation fail-fast on non-convergence before the next physical cutover. No new semantic receipt, resolver, fallback, or child-method physical support."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,35 +31,15 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-Map ordinary-child C I0 is closed at 60bcf68add with direct/linked exit30,
-parser/V4 guards, and foreign-receiver/duplicate-Birth rejection. Final
-acceptance remains open (current 1/11 versus pinned parent 6/11); current-only
-reds split into IntegerBox vocabulary, init_fields projection, C FaultFrameEnter,
-and dependent method Birth. Init_fields projection is now closed at f4b387de48
-with issuer-focused tests 6/6. The next bounded work is design-stop D0 for the
-IntegerBox storage contract and source migration are closed through
-89199dbc3c: newbox EXE exit30, method now isolated at FaultFrameEnter, and
-canonical layout negatives 3/3. FaultFrameEnter JSON egress is now closed at
-36cdbb08c8 with focused 1/1 evidence; generic method smoke is intentionally
-reclassified at terminator Invoke. The Invoke transport D0 is accepted:
-selected lifecycle uses existing physical-program.v2/C V4, while generic MIR
-JSON keeps its rejection. The next bounded work is the method physical V2
-OBJ/EXE caller cutover; untyped storage and child cleanup remain separate.
-That caller is now the bounded ROOT-METHOD-CALL-I0 fast slice: Main.main's lexical
-pair.sum() has resolver MethodCall facts but no verified source-to-target issuer
-that can feed the existing AppMain lifecycle loan. Physical V2/C V4 remains
-unchanged until that source authority is named. The D0 census closed as
-NoSafeSlice for implementation. The D1 design named ordinary_new as the co-seal
-owner and identified the existing generic selected-instance target,
-receiver lookup, and Invoke/cleanup ingress. Rust source/lifecycle I0 landed at 629e558e91 with focused source/verifier tests and complete --dump-mir evidence.
-The selected physical caller still rejects the receiver-bearing call at the
-Global-only ordinary-call boundary. D0 is now accepted: existing optional
-receiver fields are the single lane-0 projection for instance ordinary calls,
-with static wire compatibility retained. Physical receiver-lane I0 is next;
-generic JSON and unrelated method families remain closed.
+Map/Birth cohorts and method Rust I0 are closed with their recorded direct or
+linked evidence. Physical receiver-lane I0 closes at 82c512e614: typed FieldGet
+uses the existing route, C V2/V4 admission and emission pass, and Pair.sum()
+reaches linked exit 30. Next is design-stop D0 for terminal-probe owner scope,
+child field-read retention, owner-scoped root expected-state, and fail-fast PHI
+convergence; untyped storage, child shapes, and whole-Map/R7 remain parked.
 """
-next_design_card = "none"
-next_execution_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-I0"
+next_design_card = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-D0"
+next_execution_card = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

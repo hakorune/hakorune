@@ -1360,7 +1360,7 @@ explicit unannotated-return authority. It must not infer `i64` from MIR or
 invent a backend result row. Missing, Void, non-i64, owner-drift, and signature
 drift remain fail-fast negatives.
 
-##### ROOT-METHOD-I0 integrity follow-up queue (2026-09-10, expanded 2026-09-10)
+##### MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-D0 — integrity follow-up queue (2026-09-10, expanded 2026-09-10)
 
 The following findings were verified against `814629bb` and are queued after
 the active physical receiver-lane D0. They are behavior-preserving owner/ordering fixes;
@@ -1505,6 +1505,18 @@ admission tests, static ordinary regression, then `Pair.sum()` OBJ/EXE exit 30.
 The old Global-only path is removed only after these selected caller tests are
 green. This row does not reopen the three owner/ordering refactors queued after
 the physical receiver lane.
+
+I0 closeout evidence (2026-09-10, `82c512e614`): the existing selected
+`SameModuleInstance` relation now projects its receiver through the function
+parameter lane and its exact typed `FieldGet` route through the existing
+`object_field_get` physical operation. Rust physical admission, lifecycle V2,
+V4 indexing/flow, and V4 emission share that receiver lane; static ordinary
+calls retain the receiverless shape. Focused physical-program JSON tests pass
+8/8, the C shim build passes, and `apps/typed-object-method-min/main.hako`
+produces a linked executable with `Result: 30` and process exit 30. This closes
+the selected receiver-lane I0 only. It does not consume the terminal-probe
+integrity queue, authorize generic MIR-JSON `Invoke`, or claim child cleanup,
+arbitrary instance methods, or whole-backend concurrency.
 
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 
