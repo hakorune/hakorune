@@ -1383,6 +1383,40 @@ Row 5 is a fail-fast convergence correction at an existing route owner.
 While the physical receiver-lane D0 is active, these follow-ups must not be used to paper over
 `artifact-source-unavailable` or to authorize OBJ/EXE acceptance.
 
+##### MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-I0
+
+Decision: accept one bounded `BoxShape` implementation series for terminal
+probe ownership. The resolver-issued `TerminalRelationV1`, its verified
+`Completion`, and the existing owner index remain the sole source authority;
+the ledger only provides owner-local access and progress consumption.
+
+Source authority + canonical issuer: `scan_new_home_flow()` and the existing
+completion-seed/index retention. The probe consumer receives an explicit
+`FunctionOwnerIdV1` and may read only that owner's relation/completion. A
+missing row returns `None` so the next probe arm may run; a relation with a
+different owner or site fails at the existing contract boundary.
+
+Non-authority: relative source nodes without owner branding, ledger-global
+booleans, MIR instruction shape or type guesses, HashMap iteration order,
+generic JSON, C/backend defaults, resolver re-entry, and compatibility retry.
+Unit remains an explicit root-only contract until an existing child Unit
+consumer is identified; it must stop with a named source-unavailable result,
+never silently widen into a child terminal family.
+
+Fail-fast boundary: owner/site/Completion drift, duplicate or foreign field
+reads, child field-read loss, root-only expected-state observed by a child,
+and PHI non-convergence must be rejected before terminal emission or physical
+admission. The physical receiver lane and generic MIR-JSON `Invoke` stay closed.
+
+Smallest next slice: replace the add/literal/field cross-owner probes with
+owner-index lookups, audit the Unit arm without widening it, and add the
+root/child same-relative-site matrix. Keep the child `I64Add` field-read rows
+available for the following accumulator slice; do not change the terminal
+progress product or physical backend in this row.
+
+Non-claims: this row does not add child-method physical support, a new
+semantic receipt, a new route, a new terminal kind, or OBJ/EXE acceptance.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root
