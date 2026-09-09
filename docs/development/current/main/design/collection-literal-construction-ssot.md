@@ -2851,6 +2851,65 @@ and named-new semantics remain separate. Do not reopen the closed admitted
 Script series merely to repeat its census, or label these uncompleted families
 as completed/invalid because another boundary succeeds.
 
+### Map scalar representation retention and selected consumer order
+
+Decision: retain existing exact Integer/Bool evidence through the source local
+flow and Map entries before adding the physical Value consumer. Worker physical
+inventory and independent source audit at c350d1e354 found no local-kind issuer
+in Birth: scalar_actual_kind explicitly rejects Local. Trivial is capability,
+not a representation proof. No new receipt, resolver or source family is needed.
+Source authority + canonical issuer: expression_source literal relation and
+existing PrefixLocalFlow exact BindingRef observations; MapHomeEntry retains
+that evidence in the existing Completion flow.
+Non-authority: HomeDemand::Trivial, MIR types, raw payload bits and Birth's local
+argument row cannot select Integer or Bool. Formal annotation consumption remains
+open; unknown scalar representation is retained as unknown, never defaulted.
+Fail-fast boundary: assignment/uncovered prefix, uninitialized/consumed binding,
+Handle alias and unsupported expression preserve existing unavailable/Stop paths.
+Smallest next slice: source retention below is implemented; connect its explicit
+representation evidence to the existing selected MIR/physical/C consumer next.
+Non-claims: no source execution, formal kind issuance, widened Birth arguments,
+Float/Text/Handle scalar, ordinary Fault ABI or Map cutover completion.
+
+Ordered implementation within the existing Map series:
+
+1. Source retention (BoxShape, implemented): replace kind-erasing local storage/observations;
+   Map Value retains exact literal or binding plus optional issued scalar kind.
+   No second binding index. Acceptance: exact Integer payloads, Bool values, aliases,
+   repeated local use, mixed Home/Value replacement, unknown formal kind and
+   unchanged unavailable cases. Existing source install Stop stays authoritative.
+2. MIR/physical/C: add finite InstallValue alongside InstallIndexed, with explicit
+   I64/Bool kind and no object_id/layout/origin transfer. Update invoke_map roles,
+   immediate Key consumer, live Map checks, physical exact keys/site/SSA checks,
+   index outcome kind, indexed flow, map emitter and required runtime symbol.
+   Bool uses zext i1 to i64. Preserve fi==0, SafeMutex and non-faulted admission;
+   native and ordinary callee remain refused until their own selected contracts.
+   Both status paths consume Key; only Normal issues Outcome; scalar remains
+   available and never acquires/transfers an Indexed Home origin. Share existing
+   install status/disposal code. Acceptance includes kinds/SSA/opaque misuse,
+   Value/Indexed replacement, prepare/install/old-end Fault, OBJ and linked EXE.
+   Physical fixtures alone are dependency evidence, never source cutover evidence.
+3. Source connection: per entry, after prior EndOutcome, materialize only pure
+   literal Const or retrieve the already bound scalar before PrepareKey. Preserve
+   the immediate Key-to-install verifier. Do not hoist all entries or move calls,
+   field reads, conversions, allocation or nested collections across PrepareKey.
+   No runtime lookup/clone is hidden in binding access. Connect retained evidence
+   directly; do not reclassify source in the ABI or infer stale kinds past writes.
+4. Ordinary callee frame/result and actual Completion cleanup borrowing remain
+   mandatory before removing its Stop; finish the existing natural caller/callee
+   source-to-OBJ/EXE series and retire the exclusive old edge.
+
+Source-retention verification: map_value_completion_tests 7/7, semantic package
+148/148 and resolved_control_flow 33/33 pass with jobs4 locked quick lib tests,
+serial test execution. Source maximum658; pointer/corridor guards and diff check
+pass. Existing Map Value install refusal is asserted before catalog publication.
+No C build or source-to-artifact execution was part of this BoxShape. Next is
+step2, then step3; ordinary cleanup/frame/result obligations remain step4.
+
+When editing the selected C emitter, task13 may remove eager value-budget scans
+from indexed lookups; native recursion protection and preceding physical checks
+remain. No broad performance claim or new general cache is authorized.
+
 ### CONSTRUCTOR-ARRAY-CURRENT-DOCS-R0
 
 Documentation-only reconciliation is complete after Array execution/retirement

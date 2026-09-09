@@ -1,6 +1,7 @@
 //! Source capability retention never grants the Indexed-only runtime admission.
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use crate::mir::builder::CompilationContext;
+use crate::mir::resolved_semantics::home_new_prefix::{MapValueSource, SourceScalarKind};
 
 fn assert_install_stop(package: super::VerifiedNormalCallableSemanticPackageV1) {
     let mut context = CompilationContext::new();
@@ -35,6 +36,13 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
         .all(|entry| entry.transfer_home().is_none()));
     assert!(map.entries()[0].binding().is_some());
     assert_eq!(map.entries()[0].binding(), map.entries()[1].binding());
+    assert!(
+        matches!(
+            map.entries()[0].value_source(),
+            Some(MapValueSource::Local { kind: None, .. })
+        ),
+        "Trivial formal capability is not a scalar representation issuer"
+    );
     assert_eq!(map.allocation_fault().count(), 0);
     assert_eq!(map.outer_after_installs(2).unwrap().count(), 0);
     assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
@@ -214,5 +222,68 @@ fn mixed_value_replacement_keeps_home_transfer_positions() {
     );
     assert_eq!(map.outer_after_installs(3).unwrap().count(), 0);
     assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
+    assert_install_stop(package);
+}
+
+#[test]
+fn map_scalar_literals_and_aliases_retain_exact_source_evidence() {
+    for (literal, expected, kind) in [
+        ("0", MapValueSource::Integer(0), SourceScalarKind::Integer),
+        (
+            "9223372036854775807",
+            MapValueSource::Integer(i64::MAX),
+            SourceScalarKind::Integer,
+        ),
+        ("true", MapValueSource::Bool(true), SourceScalarKind::Bool),
+        ("false", MapValueSource::Bool(false), SourceScalarKind::Bool),
+    ] {
+        let package = issue(&format!(
+            "static box Main {{ main() {{
+            local value = {literal} local alias = value local final_alias = alias
+            local m = %{{\"k\" => {literal}, \"k\" => final_alias, \"b\" => final_alias}}
+            return 30
+        }} }}"
+        ))
+        .unwrap();
+        let flow = package
+            .ordinary_new_claim_ledger
+            .root_completion_for_test()
+            .cleanup()
+            .root_flow()
+            .unwrap();
+        let map = flow.maps()[0].complete().unwrap();
+        let [direct, first, repeated] = map.entries() else {
+            panic!("three entries")
+        };
+        assert_eq!(direct.value_source(), Some(&expected));
+        assert!(
+            matches!(first.value_source(), Some(MapValueSource::Local { kind: Some(k), .. }) if *k == kind)
+        );
+        assert_eq!(first.value_source(), repeated.value_source());
+        assert_eq!(first.displaced(), Some(direct.site()));
+        assert!(map
+            .entries()
+            .iter()
+            .all(|entry| entry.transfer_home().is_none()));
+        assert_install_stop(package);
+    }
+}
+
+#[test]
+fn source_write_does_not_reuse_a_stale_scalar_kind() {
+    let package = issue(
+        "static box Main { main() {
+        local value = 30 value = true local m = %{\"k\" => value} return 30
+    } }",
+    )
+    .unwrap();
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    assert!(flow.maps().iter().all(|map| map.complete().is_none()));
+    assert!(flow.terminal_homes().is_err());
     assert_install_stop(package);
 }

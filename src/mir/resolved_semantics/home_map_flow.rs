@@ -119,14 +119,23 @@ pub(crate) struct MapHomeEntry {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum MapEntryOwnership {
-    Value {
-        binding: Option<BindingRefV1>,
-    },
+    Value(MapValueSource),
     TransferHome {
         acquisition: OwnedExprSiteV1,
         binding: BindingRefV1,
     },
 }
+/// Exact source payload or binding observation; unknown formal kind stays unknown.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum MapValueSource {
+    Integer(i64),
+    Bool(bool),
+    Local {
+        binding: BindingRefV1,
+        kind: Option<SourceScalarKind>,
+    },
+}
+
 impl MapHomeEntry {
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
         &self.site
@@ -140,13 +149,20 @@ impl MapHomeEntry {
                 acquisition,
                 binding,
             } => Some((acquisition, *binding)),
-            MapEntryOwnership::Value { .. } => None,
+            MapEntryOwnership::Value(_) => None,
         }
     }
     pub(crate) fn binding(&self) -> Option<BindingRefV1> {
-        match self.ownership {
-            MapEntryOwnership::TransferHome { binding, .. } => Some(binding),
-            MapEntryOwnership::Value { binding } => binding,
+        match &self.ownership {
+            MapEntryOwnership::TransferHome { binding, .. } => Some(*binding),
+            MapEntryOwnership::Value(MapValueSource::Local { binding, .. }) => Some(*binding),
+            MapEntryOwnership::Value(_) => None,
+        }
+    }
+    pub(crate) fn value_source(&self) -> Option<&MapValueSource> {
+        match &self.ownership {
+            MapEntryOwnership::Value(value) => Some(value),
+            MapEntryOwnership::TransferHome { .. } => None,
         }
     }
     pub(crate) fn displaced(&self) -> Option<&SourceExprSiteV1> {
@@ -220,16 +236,19 @@ pub(super) fn observe_map<E>(
                 binding,
             }
         } else {
-            let binding = match locals.observe(child) {
-                Some(OrdinaryObservation::Integer(_) | OrdinaryObservation::Bool(_)) => None,
-                Some(OrdinaryObservation::TrivialLocal(binding)) => Some(binding),
+            let value = match locals.observe(child) {
+                Some(OrdinaryObservation::Integer(value)) => MapValueSource::Integer(value),
+                Some(OrdinaryObservation::Bool(value)) => MapValueSource::Bool(value),
+                Some(OrdinaryObservation::TrivialLocal(binding, kind)) => {
+                    MapValueSource::Local { binding, kind }
+                }
                 _ => {
                     return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
                         child.clone(),
                     )))
                 }
             };
-            MapEntryOwnership::Value { binding }
+            MapEntryOwnership::Value(value)
         };
         // Literal String key equality follows the existing canonical key law:
         // canonical integer spellings are unique; noncanonical spellings stay text.

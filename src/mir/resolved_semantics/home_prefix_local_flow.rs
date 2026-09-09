@@ -8,26 +8,33 @@ use super::{BindingRefV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1, SourceE
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use std::collections::BTreeMap;
 
+/// Source scalar class retained from an exact literal, never from capability.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SourceScalarKind {
+    Integer,
+    Bool,
+}
+
 enum StoredLocal {
     Home { acquisition: super::OwnedExprSiteV1 },
     Map,
     Consumed,
     Handle(BindingRefV1),
-    Trivial,
+    Trivial(Option<SourceScalarKind>),
     Uninitialized,
 }
 
 pub(super) enum OrdinaryObservation {
     Integer(i64),
     Bool(bool),
-    TrivialLocal(BindingRefV1),
+    TrivialLocal(BindingRefV1, Option<SourceScalarKind>),
     Handle(BindingRefV1),
 }
 
 impl OrdinaryObservation {
     pub(super) fn is_trivial(&self) -> bool {
         match self {
-            Self::Integer(_) | Self::Bool(_) | Self::TrivialLocal(_) => true,
+            Self::Integer(_) | Self::Bool(_) | Self::TrivialLocal(..) => true,
             Self::Handle(_) => false,
         }
     }
@@ -36,7 +43,7 @@ impl OrdinaryObservation {
         match self {
             Self::Integer(value) => Some(SelectedNewArgumentKindV1::Integer(value)),
             Self::Bool(value) => Some(SelectedNewArgumentKindV1::Bool(value)),
-            Self::TrivialLocal(binding) => Some(SelectedNewArgumentKindV1::Local { binding }),
+            Self::TrivialLocal(binding, _) => Some(SelectedNewArgumentKindV1::Local { binding }),
             Self::Handle(_) => None,
         }
     }
@@ -74,7 +81,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 return false;
             }
             let value = match demand {
-                super::HomeDemandV1::Trivial => StoredLocal::Trivial,
+                super::HomeDemandV1::Trivial => StoredLocal::Trivial(None),
                 super::HomeDemandV1::Handle => StoredLocal::Handle(binding),
                 super::HomeDemandV1::Home | super::HomeDemandV1::SharedHome => return false,
             };
@@ -113,7 +120,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 Some(OrdinaryObservation::Handle(*root))
             }
             StoredLocal::Handle(_) | StoredLocal::Consumed => None,
-            StoredLocal::Trivial => Some(OrdinaryObservation::TrivialLocal(binding)),
+            StoredLocal::Trivial(kind) => Some(OrdinaryObservation::TrivialLocal(binding, *kind)),
             StoredLocal::Uninitialized => None,
         }
     }
@@ -153,9 +160,11 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(super) fn install_observed(&mut self, binding: BindingRefV1, value: OrdinaryObservation) {
         let stored = match value {
             OrdinaryObservation::Handle(root) => StoredLocal::Handle(root),
-            OrdinaryObservation::Integer(_)
-            | OrdinaryObservation::Bool(_)
-            | OrdinaryObservation::TrivialLocal(_) => StoredLocal::Trivial,
+            OrdinaryObservation::Integer(_) => {
+                StoredLocal::Trivial(Some(SourceScalarKind::Integer))
+            }
+            OrdinaryObservation::Bool(_) => StoredLocal::Trivial(Some(SourceScalarKind::Bool)),
+            OrdinaryObservation::TrivialLocal(_, kind) => StoredLocal::Trivial(kind),
         };
         self.locals.insert(binding, stored);
     }

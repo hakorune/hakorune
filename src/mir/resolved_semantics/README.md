@@ -25,6 +25,12 @@ The [Map slot target](../../../docs/reference/language/ownership.md#intrinsic-ma
 and [source-shape task](../../../docs/development/current/main/design/collection-literal-construction-ssot.md#map-source-shape-preservation-decision)
 own the destination semantics and remaining co-seal work.
 
+Map Completion retains exact Integer/Bool literal payloads and scalar kinds from
+literal-derived local/alias bindings in its existing source flow. Trivial formal
+capability alone leaves the scalar kind unknown. No MIR type or ABI default fills
+that gap, and an unavailable prefix cannot lend stale local evidence. Physical
+Value admission remains a separate consumer connection.
+
 ## Ordinary-New caller-prefix facts
 
 `home_prefix_local_flow` owns the prefix's private local-state table and one

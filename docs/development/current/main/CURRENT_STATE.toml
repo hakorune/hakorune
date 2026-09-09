@@ -1,10 +1,10 @@
 date = "2026-09-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "MAP-VALUE-PHYSICAL-CONSUMER"
-current_blocker_token = "Checked Map inline I64/Bool/Residence storage and shared value/Indexed ABI implemented; storage7/kernel9, fresh archive host descriptor1, exact export and header/guards pass. Next audit MIR/physical/C value-install consumer with explicit representation proof. Retain source install Stop; ordinary callable Fault/frame/result and actual cleanup borrowing remain open. Crossed-scopes-only cleanup summary is not no-cleanup authority; C indexed budget scans remain task13."
+current_design_stop = "none"
+current_blocker_token = "Map source scalar retention implemented: exact literal/local evidence, unknown formal preserved; package148/control33 and guards pass. Next selected MIR/physical/C InstallValue consumer per collection SSOT. Source install Stop remains until connection; ordinary Fault/frame/result and actual Completion cleanup borrowing remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -50,7 +50,7 @@ Native Map insert/remove/clear now drop detached values outside locks; owned-slo
 residence/read/end migration and actual session/host/Map cutover remain open.
 """
 next_design_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
-next_execution_card = "none"
+next_execution_card = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
