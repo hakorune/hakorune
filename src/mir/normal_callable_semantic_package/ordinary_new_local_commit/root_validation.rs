@@ -135,8 +135,11 @@ impl OrdinaryNewClaimLedgerV1 {
             self.rebind_root_call_entry(owner, &projection)?;
         }
         if artifact
-            && self.finalized_root_observation(owner)
-                != RootOrdinaryNewObservation::SourceCompleteAtFinalization
+            && !matches!(
+                self.finalized_root_observation(owner),
+                RootOrdinaryNewObservation::SourceCompleteAtFinalization
+                    | RootOrdinaryNewObservation::NoSelectedLocalNew
+            )
         {
             return Err(freeze("artifact-source-unavailable"));
         }

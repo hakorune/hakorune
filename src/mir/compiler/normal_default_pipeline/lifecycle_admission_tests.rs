@@ -24,12 +24,12 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                         .module()
                         .canonical_callable_definition_symbol(key)
                         .unwrap();
-                    assert_eq!(validate_functions(view.module(), root, births), Ok(()));
+                    assert_eq!(validate_functions(view.module(), root, births, None), Ok(()));
 
                     let mut foreign = view.module().clone();
                     foreign.canonical_callable_definitions.remove(key);
                     assert_eq!(
-                        validate_functions(&foreign, root, births),
+                        validate_functions(&foreign, root, births, None),
                         Err(fault("function-not-cataloged"))
                     );
 
@@ -40,7 +40,7 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                         symbol.to_owned(),
                     );
                     assert_eq!(
-                        validate_functions(&non_birth, root, births),
+                        validate_functions(&non_birth, root, births, None),
                         Err(fault("function-not-birth"))
                     );
 
@@ -50,7 +50,7 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                     let mut block = BasicBlock::new(BasicBlockId::new(0));
                     block.terminator = Some(MirInstruction::Return { value: None });
                     function.blocks.insert(block.id, block);
-                    assert_eq!(validate_functions(&return_only, root, births), Ok(()));
+                    assert_eq!(validate_functions(&return_only, root, births, None), Ok(()));
                     return_only
                         .functions
                         .get_mut(symbol)
@@ -59,7 +59,7 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                         .name
                         .push_str("-drift");
                     assert_eq!(
-                        validate_functions(&return_only, root, births),
+                        validate_functions(&return_only, root, births, None),
                         Err(fault("function-not-birth"))
                     );
 
@@ -83,7 +83,7 @@ fn lifecycle_admission_preserves_foreign_return_only_and_birth_call_rejections()
                                 EffectMask::PURE,
                             ));
                         assert_eq!(
-                            validate_functions(&bad_call, root, births),
+                            validate_functions(&bad_call, root, births, None),
                             Err(fault("birth-call-drift"))
                         );
                     }

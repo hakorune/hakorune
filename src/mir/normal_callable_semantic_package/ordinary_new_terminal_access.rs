@@ -3,7 +3,7 @@ use super::*;
 use crate::mir::resolved_semantics::SourceNodeSiteV1;
 
 impl OrdinaryNewClaimLedgerV1 {
-    fn terminal_relation_for_owner(
+    pub(super) fn terminal_relation_for_owner(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     ) -> Option<&TerminalRelationV1> {
@@ -25,6 +25,18 @@ impl OrdinaryNewClaimLedgerV1 {
             (Some(Ok(completion)), Some(TerminalRelationV1::Call(call))) => Some((completion, call)),
             _ => None,
         }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn call_source_completion_for_owner(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    ) -> Option<(
+        &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+        &crate::mir::resolved_semantics::home_new_prefix::TerminalI64CallReturnV1,
+    )> {
+        self.call_source_completion().filter(|(completion, terminal)| {
+            completion.owner() == owner && terminal.owner() == owner
+        })
     }
 
     pub(crate) fn is_empty(&self) -> bool {

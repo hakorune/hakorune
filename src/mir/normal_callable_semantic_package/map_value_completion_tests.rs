@@ -171,7 +171,7 @@ fn root_known_value_enters_progress_without_becoming_a_home() {
 }
 
 #[test]
-fn app_main_call_keeps_ordinary_map_callee_terminal_before_install_stop() {
+fn app_main_call_admits_one_ordinary_map_callee_value_owner() {
     let package = issue(
         "static box Main {
         main() { return helper(30) }
@@ -191,7 +191,11 @@ fn app_main_call_keeps_ordinary_map_callee_terminal_before_install_stop() {
     assert_eq!(terminal.value(), 30);
     assert_eq!(terminal.owner(), contract.owner());
     assert_eq!(Some(terminal.return_site()), contract.completion().explicit_site());
-    assert_install_stop(package);
+    let mut context = CompilationContext::new();
+    package
+        .prepare_install(&mut context)
+        .expect("one ordinary child Map owner is admitted");
+    assert!(context.callable_declaration_catalog_vacant());
 }
 
 #[test]

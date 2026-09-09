@@ -75,6 +75,7 @@ impl MirBuilder {
         )?;
         run_function_body_step_tree_guard_v1(self, &body, &self.current_function_name_for_port()?)?;
         let _ = port.lower_body(self, body)?;
+        port.complete_construction_stores_v1(self)?;
         prepare_port_aware_draft_body_completion_v1(self)
     }
 

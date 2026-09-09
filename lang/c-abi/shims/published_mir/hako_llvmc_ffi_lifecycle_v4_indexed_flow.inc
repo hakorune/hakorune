@@ -65,6 +65,7 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
   memcpy(saved + bi * count, incoming, count * sizeof(*state));
   faults[bi] = (signed char)faulted; active[bi] = 1;
   int birth = lv4_is(fn->function, "role", "birth_unit");
+  int ordinary = lv4_is(fn->function, "role", "ordinary_i64");
   if (!lv4_indexed_rows(in, fn, block, state, faulted, birth)) return 0;
   if (lv4_is(term, "op", "return") || lv4_is(term, "op", "return_fault")) {
     for (size_t i = 0; i < count; i++) if (state[i]) return 0;
@@ -93,7 +94,8 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||
         lv4_is(op, "kind", "map_prepare_key")) {
-      if (fi || faulted || state[bi]) return 0;
+      if ((fi && !ordinary) || (fi && lv4_is(op, "kind", "new_box")) ||
+          faulted || state[bi]) return 0;
       if (lv4_is(op, "kind", "new_box") && !lv4_layout(in, lv4_u(op, "object_id"))) return 0;
       if (hako_physical_map_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) &&
           in->profile != LV4_INDEXED_SAFE_MUTEX) return 0;
@@ -126,7 +128,8 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
       hako_lv4_value *map = lv4_index_value(fn, lv4_u(op, "map")),
           *key = lv4_index_value(fn, lv4_u(op, "key")),
           *value = lv4_index_value(fn, lv4_u(op, "value"));
-      if (fi || faulted || state[bi] || in->profile != LV4_INDEXED_SAFE_MUTEX ||
+      if ((fi && !ordinary) || faulted || state[bi] ||
+          in->profile != LV4_INDEXED_SAFE_MUTEX ||
           !lv4_indexed_live(fn, lv4_u(op, "map"), LV4_MAP, state, 0, 0) ||
           !lv4_indexed_live(fn, lv4_u(op, "key"), LV4_KEY, state, 0, 0) || !value) return 0;
       if (scalar) {
@@ -144,7 +147,8 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
       int map_end = lv4_is(op, "kind", "map_end");
       uint32_t id = lv4_u(op, map_end ? "map" : "outcome");
       hako_lv4_value* value = lv4_index_value(fn, id);
-      if (fi || !lv4_indexed_live(fn, id, map_end ? LV4_MAP : LV4_OUTCOME, state, 0, 0)) return 0;
+      if ((fi && !ordinary) ||
+          !lv4_indexed_live(fn, id, map_end ? LV4_MAP : LV4_OUTCOME, state, 0, 0)) return 0;
       normal[value->origin] = state[value->origin] = 0;
       if (map_end) for (size_t i = 0; i < count; i++)
         if (state[i] == value->origin + LV4_TRANSFER_BASE) normal[i] = state[i] = 0;

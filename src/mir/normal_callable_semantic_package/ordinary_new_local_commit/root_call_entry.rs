@@ -20,10 +20,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Option<&[i64]> {
-        self.call_source_completion()
-            .filter(|(completion, terminal)| {
-                completion.owner() == owner && terminal.owner() == owner
-            })
+        self.call_source_completion_for_owner(owner)
             .map(|(_, terminal)| terminal.arguments())
     }
 
@@ -147,12 +144,13 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_call_entry(
         &self,
+        owner: FunctionOwnerIdV1,
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
         entry: &RootHomeExitEntry,
         cleanup: &[(BasicBlockId, MirInstruction)],
     ) -> Result<(), String> {
-        let Some((_, terminal)) = self.call_source_completion() else {
+        let Some((_, terminal)) = self.call_source_completion_for_owner(owner) else {
             return if matches!(entry, RootHomeExitEntry::Plain) {
                 Ok(())
             } else {

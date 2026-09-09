@@ -3140,8 +3140,8 @@ coverage; no generic Call fallback or whole Map/R7 claim is made.
 Decision: retain the original ordinary Map Completion/terminal in the existing ledger's owner-indexed borrow table after S6C consumes its exclusive seed; do not copy it.
 Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row and owner index share the same `Rc` Completion.
 Non-authority: AppMain's root-only admission checks, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
-Fail-fast boundary: preserve selected Map install/value Stops until wider owner coverage and the physical Map consumer are connected; unavailable/foreign rows reject, and mixed AppMain/ordinary Map ownership remains stopped.
-Smallest next slice: consume the selected ordinary Map install/value contract using the retained owner-indexed ledger and existing physical path.
+Fail-fast boundary: admit only one ordinary child Map owner with scalar Value-only entries and completed terminal cleanup; unavailable/foreign rows, unknown values, New/Home transfer, and mixed AppMain/ordinary Map ownership reject before physical admission.
+Smallest next slice: connect that bounded ordinary child Map contract to the existing physical path after the parameter-entry backend capability is available; do not widen ownership or value families in this slice.
 Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or whole-Map/R7 claim.
 
 Read-only physical-owner audit found `preflight_map_install`, `map_flow`,
@@ -3175,18 +3175,20 @@ evidence close this bounded ordinary ABI series. S6C consumes its exclusive seed
 `Rc::try_unwrap`; a shared seed rejects instead of cloning. `map_install_owner`
 still rejects any non-AppMain Map when an AppMain Map is present, so owner
 lookup cannot grant ordinary Map ownership. The semantic package is green at
-161/161, including the mixed-owner negative case; selected Map install/value
-execution and wider owner coverage remain open. The terminal Call probe is
+161/161, including the ordinary-child Value-only admission and mixed-owner negative case;
+selected physical Map install/value execution remains behind the existing
+parameter-entry backend capability, and wider owner coverage remains open. The terminal Call probe is
 owner-scoped as a prerequisite: a root Call is visible only to its root owner,
 so a child terminal return cannot be rejected by the root Call's source row.
 
 Retention acceptance: result/header and ledger borrow the same original
 Completion with matching owner/terminal; root and foreign-site isolation,
 existing result/S6C/Dynamic tests and completed/finalized lifetime checks remain
-valid. Subsequent consumer acceptance requires I64 formals feeding Map install,
-literal30 after cleanup, Map Fault cleanup using the Borrowed frame, no callee
-report/dispose, and draft/finishing validation of the same obligations. Selected
-artifact/EXE evidence is still required by the enclosing series.
+valid. Subsequent consumer acceptance requires the existing typed-formal backend gate
+to be closed, then I64 formals feeding Map install, literal30 after cleanup,
+Map Fault cleanup using the Borrowed frame, no callee report/dispose, and
+draft/finishing validation of the same obligations. Selected artifact/EXE
+evidence is still required by the enclosing series.
 
 ### Checked Map Value storage/install ABI: accepted next slice
 

@@ -234,7 +234,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 bindings,
                 entry,
             }) => {
-                self.validate_call_entry(function, projection, entry, bindings)?;
+                self.validate_call_entry(owner, function, projection, entry, bindings)?;
                 if origins.len() != expected_homes.len() {
                     return Err(freeze("root-exit-origin-count"));
                 }

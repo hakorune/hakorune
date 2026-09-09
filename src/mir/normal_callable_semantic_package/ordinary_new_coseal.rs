@@ -205,26 +205,28 @@ impl OrdinaryNewClaimLedgerV1 {
         if !self.requires_map_lifecycle_consumer() {
             return Ok(None);
         }
-        let completion = self
-            .root_completion
-            .as_ref()
-            .and_then(|c| c.as_ref().ok())
-            .ok_or(())?;
-        let root_owner = completion.owner();
-        if self.completion_index.values().any(|row| {
-            row.as_ref()
-                .ok()
-                .is_some_and(|candidate| {
-                    candidate.owner() != root_owner
-                        && candidate
-                            .cleanup()
-                            .root_flow()
-                            .is_some_and(|flow| !flow.maps().is_empty())
-                })
-        }) {
+        let mut map_owners = BTreeMap::new();
+        for completion in self
+            .completion_index
+            .values()
+            .filter_map(|row| row.as_ref().ok())
+            .chain(self.root_completion.iter().filter_map(|row| row.as_ref().ok()))
+        {
+            if completion
+                .cleanup()
+                .root_flow()
+                .is_some_and(|flow| !flow.maps().is_empty())
+            {
+                map_owners.insert(completion.owner(), ());
+            }
+        }
+        if map_owners.len() != 1 {
             return Err(());
         }
+        let owner = *map_owners.keys().next().ok_or(())?;
+        let completion = self.completion_for_owner(owner).ok_or(())?;
         let flow = completion.cleanup().root_flow().ok_or(())?;
+        let terminal = self.terminal_relation_for_owner(owner).ok_or(())?;
         if self.app_main_identity.is_none()
             || flow.maps().iter().any(|m| {
                 m.complete().is_none_or(|map| {
@@ -236,18 +238,16 @@ impl OrdinaryNewClaimLedgerV1 {
             })
             || !matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
             || !matches!(
-                self.terminal_relation,
-                Some(
-                    TerminalRelationV1::IntegerLiteral(_)
-                        | TerminalRelationV1::I64Add(_)
-                        | TerminalRelationV1::I64Field(_)
-                )
+                terminal,
+                TerminalRelationV1::IntegerLiteral(_)
+                    | TerminalRelationV1::I64Add(_)
+                    | TerminalRelationV1::I64Field(_)
             )
             || self
                 .claims
                 .borrow()
                 .values()
-                .filter(|c| c.site.owner() == completion.owner())
+                .filter(|c| c.site.owner() == owner)
                 .any(|c| {
                     c.construction.is_err()
                         || c.destruction != ObjectDestructionDispositionV1::PlainI64NoHook
@@ -257,7 +257,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(());
         }
-        Ok(Some(completion.owner()))
+        Ok(Some(owner))
     }
     #[cfg(test)]
     pub(super) fn root_completion_for_test(

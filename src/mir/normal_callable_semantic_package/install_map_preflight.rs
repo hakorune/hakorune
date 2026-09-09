@@ -27,6 +27,13 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         else {
             return Ok(());
         };
+        if self
+            .app_main_direct_call_loan
+            .as_ref()
+            .is_some_and(|loan| !loan.has_map_target(&self.batch))
+        {
+            return Err(Issue::MapLifecycleConsumerMissing);
+        }
         let mut declarations = self.batch.declarations().filter(|d| d.owner() == owner);
         let declaration = declarations
             .next()

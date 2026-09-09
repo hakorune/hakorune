@@ -462,7 +462,7 @@ fn validate_instruction(
     }
 }
 
-fn issued_ordinary_call(
+pub(crate) fn issued_ordinary_call(
     source: &crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1,
 ) -> Result<Option<MirCall>, String> {
     let Some(entry) = source.call_entry() else {
@@ -489,7 +489,7 @@ fn issued_ordinary_call(
     Ok(Some(call.clone()))
 }
 
-pub(super) fn ordinary_callable_key(
+pub(crate) fn ordinary_callable_key(
     callee: &Callee,
 ) -> Result<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, String> {
     let Callee::Global(target) = callee else {
