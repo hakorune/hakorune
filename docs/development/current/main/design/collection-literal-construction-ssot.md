@@ -2524,8 +2524,9 @@ capability inference from physical tags.
 
 The package issuer passes its retained parameter contracts to
 `issue_ordinary_source_cohort_v1` in the same declaration loan as New candidate
-and Completion issuance (60b0abe3d6). The Home scanner does not yet consume those
-contracts. That existing issuance is the connection point. `MapHomeEntry` currently means
+and Completion issuance (60b0abe3d6). The Home scanner now consumes those exact
+contracts without erasing I64 to a coarse HomeDemand. That existing issuance
+remains the connection point. `MapHomeEntry` currently means
 Home acquisition/transfer; its internal representation must distinguish a
 proven Trivial value from that obligation without sentinel acquisitions or a
 parallel receipt. A per-callable Completion must preserve the callee's normal
@@ -2794,6 +2795,58 @@ old completion_cleanup_is_empty definitions/callers are zero in src. Existing
 pointer/corridor guards and diff check pass; changed source maximum755 (tests).
 No C/runtime ABI change or ordinary activation occurred. Next is source issuer
 closure in step1 below; no new retained correspondence can be issued before it.
+
+Source issuer decision (audit at9eeed39595): the first ordinary execution
+series uses AppMain terminal `return helper(30)` and a Cataloged static helper
+with explicit I64 formals, supported Map prefix, and literal I64 return. Exact
+Integer literal arguments use the existing resolver argument sites and formal
+ordinal/binding contracts; no fallible argument-frame policy is inferred.
+The boundary covers AppMain direct-call source -> package -> Builder Call ->
+finalized retention; excludes instance/Dynamic/Script and arbitrary callgraphs.
+
+Existing issuer/consumer inventory: direct_call observations retain target/site/
+arguments; issue_app_main_direct_call_loan_v1 co-seals header/published identity;
+direct_call_loan owns the affine disposition. build's
+lower_prepared_app_main_direct_call_v1 currently descends raw arguments and
+canonical_direct_call emits scalar Call. Neither issues normal/Fault cleanup.
+The Home return classifier has Integer/OtherTrivial/IntegerField/I64Add and
+uncovered expressions; Call remains uncovered. NewFaultContinuation requires
+a direct-local New and cannot stand in for Call. Ordinary Completion stays in
+result_contract, while ordinary_new_coseal currently drops its terminal relation.
+Extend these existing owners and finalized_root_handoff; no sibling graph.
+
+| Source disposition | Selected behavior |
+| --- | --- |
+| Exact terminal Cataloged call, literal I64 args, exact I64 formals/result and complete Map obligations | Co-seal caller/callee relations; named pre-effect Stop until physical consumer exists |
+| Selected lifecycle target with missing/foreign argument, result or cleanup | Reject before effects; no scalar retry |
+| Existing non-lifecycle scalar call | Preserve existing scalar owner |
+| TopLevel, instance, Dynamic, nested/local-initializer call, nonliteral argument, recursion | No implicit promotion by this series; preserve existing refusal/owner |
+
+The bounded BoxShape preserves parameter contracts through the existing
+Home walk instead of projecting to HomeDemand and losing exact I64. Its sole
+production caller is ordinary_new_coseal -> function_control_new_homes ->
+scan_new_home_flow -> PrefixLocalFlow.install_parameters. Delete that lossy
+projection; retain binding/ordinal/cardinality checks and OpaqueHandle/ExactText
+handle semantics. No new type, cache or physical authority is required.
+Acceptance: repeated and aliased I64 formal values retain kind and no transfer;
+missing/duplicate/foreign parameters and borrowed-formal entry refusal remain;
+ordinary package install still stops. Existing package/control tests and guards
+suffice. This does not implement Call issuance or ordinary execution.
+Implementation checkpoint: the sole production projection now passes the exact
+contract kind; PrefixLocalFlow retains I64 through aliases and rejects foreign,
+duplicate, missing or wrong-ordinal bindings. Package149/control33 pass; ordinary
+Map install still stops. Changed source maximum700. The selected Call co-seal
+is next; do not repeat the closed source/physical census or activate scalar retry.
+
+Then co-seal the exact terminal Call normal/result/Fault relation in the existing
+AppMain disposition and source Completion walk; retain ordinary terminal relation
+in its existing result owner. Recipe alone issues logical continuation keys;
+physical lowering alone allocates block/value identities. Replace the selected
+raw-argument/scalar-materialize edge with its lifecycle consumer (or pre-effect
+Stop during the same series). Connect finalized caller/callee and retire the
+ordinary Map install Stop only with direct EXE/linked OBJ exit30 and injected
+callee-Fault -> callee cleanup -> caller cleanup -> one root report evidence.
+Source success or Stop arrival cannot close that execution acceptance.
 
 Ordered ordinary execution frontier (read-only physical audit at e77b7ab57b):
 1. Close exact caller Invoke normal/result/Fault issuance. It is not yet proven:

@@ -342,7 +342,13 @@ pub(crate) enum TerminalRelationV1 {
 pub(crate) fn scan_new_home_flow<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
-    parameters: impl IntoIterator<Item = (u32, BindingRefV1, super::HomeDemandV1)>,
+    parameters: impl IntoIterator<
+        Item = (
+            u32,
+            BindingRefV1,
+            crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+        ),
+    >,
     terminal: Option<&SourceStmtSiteV1>,
     field_is_integer: &mut impl FnMut(
         &OwnedExprSiteV1,

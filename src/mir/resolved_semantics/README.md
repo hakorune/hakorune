@@ -26,9 +26,10 @@ and [source-shape task](../../../docs/development/current/main/design/collection
 own the destination semantics and remaining co-seal work.
 
 Map Completion retains exact Integer/Bool literal payloads and scalar kinds from
-literal-derived local/alias bindings in its existing source flow. Trivial formal
-capability alone leaves the scalar kind unknown. No MIR type or ABI default fills
-that gap, and an unavailable prefix cannot lend stale local evidence. Physical
+literal-derived local/alias bindings in its existing source flow. Exact I64
+parameter contracts retain Integer through the same local/alias table. A coarse
+Trivial demand alone cannot issue kind; no MIR type or ABI default fills a gap,
+and an unavailable prefix cannot lend stale local evidence. Physical
 AppMain Value admission consumes known kinds in the selected consumer; unknown
 formal representation and ordinary callable execution remain separate obligations.
 
@@ -40,7 +41,7 @@ Handle result; alias initialization cannot install a Home. Integer/Bool values
 and exact Trivial local bindings survive the selected-argument projection.
 The source scanner still owns traversal, Normal installation and cleanup order.
 For the selected Map-bearing callable walk, entry initialization consumes the
-existing declared parameter ordinal/binding/HomeDemand projection, verifies full
+existing declared parameter ordinal/binding/contract kind, verifies full
 unique source coverage and owner, and keeps Trivial distinct from borrowed Handle.
 Receiver/capture and unissued Home formals remain unavailable. Map flow records
 Value versus TransferHome; only the latter consumes an acquisition. A Value's

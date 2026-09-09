@@ -519,7 +519,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                         input, &new_sites,
                         parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
                             .flat_map(|row| row.parameters.iter())
-                            .map(|row| (row.ordinal, row.binding, row.kind.home_demand())),
+                            .map(|row| (row.ordinal, row.binding, row.kind)),
                         &mut field_is_integer, &mut |site, binding| {
                             let mut exact = candidates.iter().filter(|row| &row.site == site);
                             let candidate = exact.next().ok_or_else(|| OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() })?;

@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "MAP-ORDINARY-CALL-ISSUER"
-current_blocker_token = "Completion borrow implemented: misleading summary removed; package148/source6/control33 and guards pass. Next audit exact source issuer for ordinary Call normal/Fault/result correspondence before finalized retention and status/out-i64 ABI. Ordinary family remains NoSafeSlice; no placeholder product or fi-based Birth relabeling. AppMain Value cutover remains verified."
+current_design_stop = "MAP-ORDINARY-CALL-COSEAL"
+current_blocker_token = "Source issuer audit closed: extend existing AppMain affine direct-call disposition and Completion walk for terminal Cataloged call with Integer literal arguments to exact I64 formals/result and supported Map callee. Parameter kind loss fixed; package149/control33 pass. Next co-seal caller normal/Fault/result and retain ordinary terminal relation before physical activation. Existing scalar edge is exclusive series delete-set; ordinary Map remains stopped. No repeated census or synthetic New continuation."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

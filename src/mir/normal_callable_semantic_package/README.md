@@ -276,11 +276,14 @@ into the existing seed/result cohort. No-Map ordinary/S6C remain on the plain
 verifier; AppMain root and Dynamic retain their separate existing owners.
 Map entries distinguish Value (exact source site and optional binding) from
 TransferHome (acquisition and binding). Integer/Bool literals and proven Trivial
-locals/formals do not consume Homes; Trivial capability does not prove wire kind.
+locals/formals do not consume Homes; coarse Trivial capability does not prove
+wire kind. The existing declaration's ExactTrivial(I64) kind is preserved into
+Map source flow, including aliases, without projecting it away to HomeDemand.
 Borrowed Handle/ExactText may be unused but cannot acquire a Map slot implicitly.
 Missing/duplicate/foreign formal projections leave Home analysis unavailable.
-The Indexed-only physical consumer still requires TransferHome-only entries:
-Value rejects before install, or before private emission progress changes.
+AppMain uses InstallValue for known scalar kinds and InstallIndexed for Home
+transfer. Ordinary callable install remains stopped until its Call/cleanup ABI
+and physical consumer are connected.
 Completion owns one root flow, including successful or unavailable Map sites and
 their cleanup successors. `prepare_install` checks Complete Map flows, exact
 I64 terminal and same-root ordinary claim readiness before catalog mutation.

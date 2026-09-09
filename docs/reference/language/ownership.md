@@ -241,8 +241,9 @@ The selected compiler retains Value versus TransferHome in the source Map flow.
 Its bounded Value evidence covers Integer/Bool literals, observed Trivial locals
 and declaration-authorized exact-i64 formals. Reusing a Trivial value is not a
 second Home transfer. Literal values and literal-derived local scalar kinds are
-retained separately from capability; a formal's Trivial capability alone does
-not supply its physical representation. An unsupported intervening statement
+retained separately from capability. The compiler now also preserves the exact
+I64 declaration contract through parameter and alias source flow; a coarse
+Trivial capability alone does not supply its representation. An unsupported intervening statement
 cannot preserve a usable stale local kind. A borrowed formal may remain unused without becoming an
 owning-slot candidate. AppMain consumes exact Integer/Bool literal and known
 local representations through InstallValue, retaining Home-only InstallIndexed.

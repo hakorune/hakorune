@@ -62,7 +62,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         Item = (
             u32,
             crate::mir::resolved_semantics::BindingRefV1,
-            crate::mir::resolved_semantics::HomeDemandV1,
+            crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
         ),
     >,
     field_is_integer: &mut impl FnMut(

@@ -8,7 +8,7 @@ use super::{BindingRefV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1, SourceE
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use std::collections::BTreeMap;
 
-/// Source scalar class retained from an exact literal, never from capability.
+/// Source scalar class retained from an exact literal or declaration contract.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SourceScalarKind {
     Integer,
@@ -66,10 +66,16 @@ impl<'source> PrefixLocalFlow<'source> {
     // physical signature or default capability participates in entry admission.
     pub(super) fn install_parameters(
         &mut self,
-        parameters: impl IntoIterator<Item = (u32, BindingRefV1, super::HomeDemandV1)>,
+        parameters: impl IntoIterator<
+            Item = (
+                u32,
+                BindingRefV1,
+                crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+            ),
+        >,
     ) -> bool {
         let mut count = 0;
-        for (ordinal, binding, demand) in parameters {
+        for (ordinal, binding, kind) in parameters {
             if binding.owner() != self.input.owner()
                 || self
                     .input
@@ -80,10 +86,17 @@ impl<'source> PrefixLocalFlow<'source> {
             {
                 return false;
             }
-            let value = match demand {
-                super::HomeDemandV1::Trivial => StoredLocal::Trivial(None),
-                super::HomeDemandV1::Handle => StoredLocal::Handle(binding),
-                super::HomeDemandV1::Home | super::HomeDemandV1::SharedHome => return false,
+            use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+            use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
+            let value = match kind {
+                CallableParameterContractKindV1::ExactTrivial(abi)
+                    if abi == ExactTrivialParameterAbiV1::I64 =>
+                {
+                    StoredLocal::Trivial(Some(SourceScalarKind::Integer))
+                }
+                CallableParameterContractKindV1::ExactTrivial(_) => return false,
+                CallableParameterContractKindV1::OpaqueHandle
+                | CallableParameterContractKindV1::ExactText(_) => StoredLocal::Handle(binding),
             };
             self.locals.insert(binding, value);
             count += 1;

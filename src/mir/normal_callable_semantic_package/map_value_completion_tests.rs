@@ -1,4 +1,4 @@
-//! Source capability retention never grants the Indexed-only runtime admission.
+//! Source capability retention never grants ordinary callable runtime admission.
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use crate::mir::builder::CompilationContext;
 use crate::mir::resolved_semantics::home_new_prefix::{MapValueSource, SourceScalarKind};
@@ -42,9 +42,9 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
     assert!(
         matches!(
             map.entries()[0].value_source(),
-            Some(MapValueSource::Local { kind: None, .. })
+            Some(MapValueSource::Local { kind: Some(SourceScalarKind::Integer), .. })
         ),
-        "Trivial formal capability is not a scalar representation issuer"
+        "exact declaration I64 survives the source Home walk"
     );
     assert_eq!(map.allocation_fault().count(), 0);
     assert_eq!(map.outer_after_installs(2).unwrap().count(), 0);
@@ -53,6 +53,31 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
         !package.ordinary_new_claim_ledger.has_map_source(map.site()),
         "ordinary Completion is not duplicated in the root ledger"
     );
+    assert_install_stop(package);
+}
+
+#[test]
+fn ordinary_i64_formal_alias_preserves_source_kind_without_a_home() {
+    let package = issue(
+        "static box Work { stash(value: i64): i64 {
+        local alias = value local m = %{\"a\" => alias, \"b\" => value} return 30
+    } }",
+    )
+    .unwrap();
+    let row = package.result_contracts.rows().next().unwrap();
+    let contract = row.borrow();
+    let flow = contract.completion().cleanup().root_flow().unwrap();
+    let map = flow.maps()[0].complete().unwrap();
+    assert_eq!(map.entries().len(), 2);
+    assert_ne!(map.entries()[0].binding(), map.entries()[1].binding());
+    for entry in map.entries() {
+        assert!(matches!(
+            entry.value_source(),
+            Some(MapValueSource::Local { kind: Some(SourceScalarKind::Integer), .. })
+        ));
+        assert!(entry.transfer_home().is_none());
+    }
+    assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
     assert_install_stop(package);
 }
 
@@ -164,12 +189,13 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
     let good = (
         own.parameters[0].ordinal,
         own.parameters[0].binding,
-        own.parameters[0].kind.home_demand(),
+        own.parameters[0].kind,
     );
     for parameters in [
         vec![],
         vec![good, good],
         vec![(good.0, foreign.parameters[0].binding, good.2)],
+        vec![(good.0 + 1, good.1, good.2)],
     ] {
         package
             .batch()
