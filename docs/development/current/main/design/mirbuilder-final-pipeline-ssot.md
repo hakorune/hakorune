@@ -1350,6 +1350,53 @@ instance key, receiver `ValueId`, result/signature/cleanup agreement, and
 direct-vs-instance exclusivity. Only after that slice closes may the physical
 receiver projection and `Pair.sum()` OBJ/EXE exit-30 test be opened.
 
+##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
+
+Decision: accept one bounded implementation slice for the Rust MIR/root
+lifecycle side. The existing `ordinary_new` co-seal owner will issue a
+package-private affine `RootInstanceCallDisposition` row after the selected
+result and physical-signature cohorts are available. The row is a crosswalk
+and physical handoff only; it does not become a second resolver authority or a
+public semantic receipt. The existing direct-call row remains direct-only.
+
+Issuer: the ordinary-New ledger, using the resolver's exact MethodCall and
+initializer facts, its own still-live `OrdinaryNewAdmissionClaimV1`, the
+source-backed declaration catalog, selected batch map, result contract, and
+physical signature. The issuer must accept only a root lexical local receiver
+whose binding has exactly one direct initializer at a selected New claim. It
+looks up the instance key by the claim's canonical class plus the resolver's
+selector and arity, then checks selected identity, result owner/identity,
+instance mode, one receiver lane, and i64 result/Completion. Any binding
+reassignment, foreign owner, unselected/opaque New, duplicate target, class or
+arity drift, missing result/signature, or missing cleanup is rejected before
+the row is published.
+
+Consumer: the root lowering port takes the row exactly once, obtains the
+receiver `ValueId` only through the existing owner-scoped ledger binding
+lookup, and builds this existing MIR shape:
+
+```text
+MirCall::new(None, Callee::SameModuleInstance { key, receiver }, source_arguments)
+```
+
+It passes that call to the existing `selected::terminal_call::emit_ingress()` and
+records the same root cleanup entry. Direct and instance rows are an explicit
+exclusive pair in the private root-entry representation; the instance row
+must never be coerced into `VerifiedCanonicalDirectCallEmissionV1`.
+
+Focused acceptance for I0 is the selected typed-object source through the
+Rust MIR terminal: exact `Pair.sum/0` key, receiver lane 0, argument order,
+`InvokeOperation::Call { result: I64 }`, normal `InvokeNormalResult`, fault
+frame, and root cleanup graph. Negative cases cover reassignment, wrong
+class/arity, foreign or unselected New, duplicate selected target, missing
+receiver materialization, and result/signature/cleanup drift. This slice does
+not claim physical-program/C V4 support or OBJ/EXE exit 30; those belong to a
+separate physical receiver-lane card after I0 closes.
+
+Non-authority: MIR names/types, receiver spelling, generic JSON, C defaults,
+the `me.method(...)` locator as a root issuer, compatibility retry, and any
+new backend route. No source fallback or generic MIR-JSON `Invoke` is allowed.
+
 Non-claims: this design does not authorize code, fixture, production switch,
 OBJ/EXE acceptance, or any other MethodCall family.
 

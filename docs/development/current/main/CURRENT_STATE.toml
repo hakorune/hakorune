@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D1"
-current_execution_cohort = "root_method_crosswalk_d1"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0"
+current_execution_cohort = "root_method_lifecycle_projection_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Invoke root-method D1: keep the existing ordinary_new source/co-seal owner and name one package-private affine crosswalk row for Main.main -> pair.sum(); prove MethodCall site -> same-owner binding -> initializer -> selected New claim -> class/object -> selected instance declaration -> result/signature contract. Reuse the existing source-backed instance key/receiver projection and terminal_call ingress, but design a distinct root lifecycle projection because the current direct row and C ordinary-call schema are scalar/global-only. Reject reassignment, foreign or unselected New, class/arity drift, duplicate target, synthetic header, scalar-only Call reuse, missing receiver lane, and missing cleanup before lifecycle publication; no C/backend fallback or generic MIR JSON Invoke."
+current_blocker_token = "Invoke root-method I0: implement the package-private affine RootInstanceCallDisposition in the existing ordinary_new owner. Join exact Main.main MethodCall/lexical binding/initializer/selected New/class facts with the selected InstanceBoxMethod key, result contract, and receiver-lane signature; take the row once, read receiver ValueId from the owner-scoped ledger, and feed SameModuleInstance into existing terminal_call::emit_ingress plus root cleanup. Reject reassignment, foreign or unselected New, class/arity drift, duplicate target, synthetic header, direct-row coercion, missing receiver lane, and missing cleanup. Keep physical-program/C V4 and generic MIR JSON unchanged until the separate receiver-lane card."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -45,19 +45,19 @@ reclassified at terminator Invoke. The Invoke transport D0 is accepted:
 selected lifecycle uses existing physical-program.v2/C V4, while generic MIR
 JSON keeps its rejection. The next bounded work is the method physical V2
 OBJ/EXE caller cutover; untyped storage and child cleanup remain separate.
-That caller is now paused at ROOT-METHOD-CALL-D1: Main.main's lexical
+That caller is now the bounded ROOT-METHOD-CALL-I0 fast slice: Main.main's lexical
 pair.sum() has resolver MethodCall facts but no verified source-to-target issuer
 that can feed the existing AppMain lifecycle loan. Physical V2/C V4 remains
 unchanged until that source authority is named. The D0 census closed as
-NoSafeSlice for implementation. The D1 design names ordinary_new as the
-co-seal owner and limits the next slice to a package-private affine crosswalk
-row. A generic selected-instance target/receiver emitter and the existing
-Invoke/cleanup ingress are present, but the root lifecycle projection and the
-physical receiver-lane schema are not. No code or transport fallback is
-authorized until those two boundaries are separately owned.
+NoSafeSlice for implementation. The D1 design named ordinary_new as the
+co-seal owner and identified the existing generic selected-instance target,
+receiver lookup, and Invoke/cleanup ingress. I0 implements the root lifecycle
+projection and source crosswalk only. The physical receiver-lane schema
+remains a separate follow-up; no code or transport fallback is authorized for
+that boundary yet.
 """
-next_design_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D1"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
