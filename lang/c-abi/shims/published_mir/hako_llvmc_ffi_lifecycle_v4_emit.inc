@@ -5,7 +5,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   yyjson_val* fn = yyjson_arr_get(in->functions, fi);
   yyjson_val* blocks = hako_physical_blocks(fn);
   yyjson_val* params = yyjson_obj_get(fn, "params");
-  int birth = fi != 0;
+  int birth = lv4_is(fn, "role", "birth_unit");
+  int ordinary = lv4_is(fn, "role", "ordinary_i64");
   if (birth) {
     fprintf(f, "define internal i32 @hako_lifecycle_birth_%zu(ptr %%frame", fi);
     fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
@@ -14,9 +15,17 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
     }
     fprintf(f, ") {\nstart:\n");
+  } else if (ordinary) {
+    fprintf(f, "define internal i32 @hako_lifecycle_ordinary_%zu(ptr %%frame, ptr %%out_i64", fi);
+    for (size_t i = 0; i < yyjson_arr_size(params); i++) {
+      uint32_t value = lv4_u(yyjson_arr_get(params, i), "value");
+      fprintf(f, ", i64 %%v%u", value);
+    }
+    fprintf(f, ") {\nstart:\n");
   } else {
     fprintf(f, "define i64 @ny_main() {\nstart:\n  %%frame = alloca [%u x i8], align %u\n",
         session->frame_size, session->frame_align);
+    fprintf(f, "  %%ordinary_out = alloca i64, align 8\n");
   }
   for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
     yyjson_val* block = yyjson_arr_get(blocks, bi);
@@ -53,7 +62,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
       uint32_t dst = lv4_u(ins, "dst");
       if (lv4_is(ins, "op", "fault_frame_enter")) {
-        if (!birth) fprintf(f,
+        if (!birth && !ordinary) fprintf(f,
             "  %%init = call i32 @\"nyash.fault.frame_init_v1\"(ptr %%frame)\n"
             "  %%init_ok = icmp eq i32 %%init, 0\n"
             "  br i1 %%init_ok, label %%step%u_%zu, label %%init_failed\nstep%u_%zu:\n", b, ri, b, ri);
@@ -102,6 +111,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  br label %%fault\n");
     } else if (lv4_is(term, "op", "return")) {
       if (birth) fprintf(f, "  ret i32 0\n");
+      else if (ordinary) {
+        fprintf(f, "  store i64 %%v%u, ptr %%out_i64, align 8\n  ret i32 0\n", lv4_u(term, "value"));
+      }
       else if (lv4_is(fn, "role", "root_unit")) {
         fprintf(f,
             "  %%disposed%u = call i32 @\"nyash.fault.frame_dispose_v1\"(ptr %%frame)\n"
@@ -143,6 +155,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       }
       if (lv4_is(op, "kind", "array_append") && lv4_is(op, "representation", "bool"))
         fprintf(f, "  %%bool%u = trunc i64 %%v%u to i32\n", b, lv4_u(op, "value"));
+      if (lv4_is(op, "kind", "ordinary_call")) {
+        yyjson_val* call = yyjson_obj_get(op, "call");
+        yyjson_val* args = yyjson_obj_get(call, "args");
+        fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%%s",
+            b, lv4_u(call, "target"), ordinary ? "out_i64" : "ordinary_out");
+        for (size_t i = 0; i < yyjson_arr_size(args); i++)
+          fprintf(f, ", i64 %%v%u", lv4_u(yyjson_arr_get(args, i), "value"));
+        fprintf(f, ")\n");
+      } else {
       fprintf(f, "  %%status%u = call i32 ", b);
       if (lv4_is(op, "kind", "array_new")) {
         fprintf(f, "@\"nyash.array.checked_new_v1\"(ptr %%frame, i64 %llu, ptr %%new%u)\n", site, b);
@@ -178,12 +199,13 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             lv4_is(op, "kind", "home_release") ? "home_release_plain_i64" : "reclaim_unpublished",
             in->profile, site, lv4_u(op, "value"), (long long)lv4_type_id(in, op));
       }
+      }
       fprintf(f, "  switch i32 %%status%u, label %%invalid [ i32 0, label %%bb%u i32 1, label %%bb%u ]\n",
           b, lv4_u(term, "normal"), lv4_u(term, "fault"));
     }
   }
   if (!in->native) fprintf(f, "map_invalid:\n  call void @llvm.trap()\n  unreachable\n");
-  if (birth) fprintf(f, "fault:\n  ret i32 1\ninvalid:\n  ret i32 2\n}\n");
+  if (birth || ordinary) fprintf(f, "fault:\n  ret i32 1\ninvalid:\n  ret i32 2\n}\n");
   else fprintf(f,
       "fault:\n  %%reported = call i32 @\"nyash.fault.report_final_v1\"(ptr %%frame)\n"
       "  br label %%invalid\ninvalid:\n"

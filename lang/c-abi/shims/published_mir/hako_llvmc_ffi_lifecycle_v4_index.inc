@@ -67,6 +67,7 @@ static hako_lv4_block* lv4_index_block(hako_lv4_function_index* fn, uint32_t id)
 }
 static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")) return LV4_HANDLE;
+  if (lv4_is(op, "kind", "ordinary_call")) return LV4_I64;
   if (lv4_is(op, "kind", "map_new")) return LV4_MAP;
   if (lv4_is(op, "kind", "map_prepare_key")) return LV4_KEY;
   if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value")) return LV4_OUTCOME;
@@ -139,6 +140,8 @@ static int lv4_index_open(hako_lv4_input* in) {
   for (size_t fi = 0; fi < functions; fi++) {
     hako_lv4_function_index* fn = &in->index[fi];
     yyjson_val* body = yyjson_arr_get(in->functions, fi);
+    int birth = lv4_is(body, "role", "birth_unit");
+    int ordinary = lv4_is(body, "role", "ordinary_i64");
     yyjson_val* blocks = hako_physical_blocks(body);
     yyjson_val* params = yyjson_obj_get(body, "params");
     size_t capacity = lv4_value_budget(body) + 1;
@@ -147,7 +150,7 @@ static int lv4_index_open(hako_lv4_input* in) {
     fn->values = calloc(capacity, sizeof(*fn->values));
     fn->blocks = calloc(fn->block_count, sizeof(*fn->blocks));
     if (!fn->values || !fn->blocks) return 0;
-    if (fi) {
+    if (birth) {
       hako_lv4_value* receiver = &fn->values[fn->value_count++];
       receiver->id = lv4_u(body, "receiver"); receiver->kind = LV4_HANDLE;
       receiver->origin = -2; /* Borrowed physical receiver, never an allocation. */
@@ -155,7 +158,7 @@ static int lv4_index_open(hako_lv4_input* in) {
     for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
       hako_lv4_value* param = &fn->values[fn->value_count++];
       param->id = lv4_u(yyjson_arr_get(params, pi), "value");
-      param->kind = LV4_TAGGED; param->origin = -1;
+      param->kind = ordinary ? LV4_I64 : LV4_TAGGED; param->origin = -1;
     }
     for (size_t bi = 0; bi < fn->block_count; bi++) {
       yyjson_val* block = yyjson_arr_get(blocks, bi);

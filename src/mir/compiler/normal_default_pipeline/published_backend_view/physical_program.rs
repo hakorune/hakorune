@@ -28,6 +28,9 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
     BirthUnit {
         abi: crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1,
     },
+    OrdinaryI64 {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    },
 }
 
 impl PublishedLifecyclePhysicalFunctionRoleV1 {
@@ -42,6 +45,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
                 ..
             } => "root_unit",
             Self::BirthUnit { .. } => "birth_unit",
+            Self::OrdinaryI64 { .. } => "ordinary_i64",
         }
     }
 
@@ -50,7 +54,16 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
     ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
         match self {
             Self::BirthUnit { abi } => Some(abi.target()),
-            Self::Root { .. } => None,
+            Self::Root { .. } | Self::OrdinaryI64 { .. } => None,
+        }
+    }
+
+    pub(crate) fn ordinary_target(
+        &self,
+    ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
+        match self {
+            Self::OrdinaryI64 { key } => Some(key),
+            Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
     }
 }
@@ -211,7 +224,7 @@ impl<'module> PublishedMirBackendView<'module> {
             )
         };
         let mut names = BTreeSet::new();
-        let mut functions = Vec::with_capacity(births.len() + 1);
+        let mut functions = Vec::with_capacity(births.len() + ordinary_call.is_some() as usize + 1);
         names.insert(root.signature.name.as_str());
         functions.push(issue_function(
             root,
@@ -222,6 +235,31 @@ impl<'module> PublishedMirBackendView<'module> {
             handoff.script_array().is_some(),
             ordinary_call.as_ref(),
         )?);
+        if let Some(call) = ordinary_call.as_ref() {
+            let key = ordinary_callable_key(&call.callee)?;
+            let symbol = self
+                .module()
+                .canonical_callable_definition_symbol(&key)
+                .ok_or_else(|| fault("ordinary-definition-missing"))?;
+            let function = self
+                .module()
+                .functions
+                .get(symbol)
+                .ok_or_else(|| fault("ordinary-function-missing"))?;
+            if function.signature.name != key.mir_symbol_projection()
+                || function.signature.params.len() != call.args.len()
+                || function.signature.return_type != crate::mir::MirType::Integer
+                || !names.insert(symbol)
+            {
+                return Err(fault("ordinary-membership-drift"));
+            }
+            functions.push(issue_function(
+                function,
+                PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key },
+                false,
+                None,
+            )?);
+        }
         for birth in births {
             let key = birth.target();
             if key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor {
@@ -444,10 +482,22 @@ fn issued_ordinary_call(
     else {
         return Err(fault("ordinary-call-shape"));
     };
-    if !matches!(call.callee, Callee::Global(_)) {
-        return Err(fault("ordinary-call-callee"));
+    ordinary_callable_key(&call.callee)?;
+    if call.dst.is_some() {
+        return Err(fault("ordinary-call-destination"));
     }
     Ok(Some(call.clone()))
+}
+
+pub(super) fn ordinary_callable_key(
+    callee: &Callee,
+) -> Result<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, String> {
+    let Callee::Global(target) = callee else {
+        return Err(fault("ordinary-call-callee"));
+    };
+    super::static_method_key(target)
+        .or_else(|| super::free_function_key(target))
+        .ok_or_else(|| fault("ordinary-call-target"))
 }
 
 fn as_u32(value: usize, reason: &str) -> Result<u32, String> {

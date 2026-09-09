@@ -21,7 +21,7 @@ fn emit_lifecycle_physical_program_value(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
-    let births = birth_ordinals(program)?;
+    let (births, ordinary) = function_ordinals(program)?;
     let functions = program
         .functions()
         .iter()
@@ -42,6 +42,7 @@ fn emit_lifecycle_physical_program_value(
                                 row.instruction(), &births,
                                 diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), row.instruction())?,
                                 abi_input,
+                                &ordinary,
                             )?,
                         })) })
                         .collect::<Result<Vec<_>, String>>()?;
@@ -57,6 +58,7 @@ fn emit_lifecycle_physical_program_value(
                                     block.terminator().index(), block.terminator().instruction(),
                                 )?,
                                 abi_input,
+                                &ordinary,
                             )?,
                         },
                         "edges": block.edges().iter().map(encode_edge).collect::<Vec<_>>(),
@@ -66,9 +68,16 @@ fn emit_lifecycle_physical_program_value(
             Ok(json!({
                 "name": function.name(),
                 "role": function.role().wire_name(),
-                "receiver": if function_ordinal == 0 { None } else { function.params().first().map(value) },
-                "params": function.params().iter().skip(if function_ordinal == 0 { 0 } else { 1 })
-                    .map(|param| json!({"value": value(param), "representation": "kind_payload_v1"}))
+                "receiver": function.role().birth_target().and_then(|_| function.params().first().map(value)),
+                "params": function.params().iter().skip(usize::from(function.role().birth_target().is_some()))
+                    .map(|param| json!({
+                        "value": value(param),
+                        "representation": if function.role().ordinary_target().is_some() {
+                            "i64"
+                        } else {
+                            "kind_payload_v1"
+                        },
+                    }))
                     .collect::<Vec<_>>(),
                 "entry": function.entry().0,
                 "blocks": blocks,
@@ -128,20 +137,31 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
     serde_json::to_string(&root).map_err(|error| fault(&format!("serialize:{error}")))
 }
 
-fn birth_ordinals(
+fn function_ordinals(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
-) -> Result<BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>, String> {
-    let mut result = BTreeMap::new();
+) -> Result<
+    (
+        BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+        BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+    ),
+    String,
+> {
+    let mut births = BTreeMap::new();
+    let mut ordinary = BTreeMap::new();
     for (ordinal, function) in program.functions().iter().enumerate() {
-        let Some(key) = function.role().birth_target() else {
-            continue;
-        };
         let ordinal = u32::try_from(ordinal).map_err(|_| fault("function-ordinal"))?;
-        if result.insert(key.clone(), ordinal).is_some() {
-            return Err(fault("duplicate-birth-target"));
+        if let Some(key) = function.role().birth_target() {
+            if births.insert(key.clone(), ordinal).is_some() {
+                return Err(fault("duplicate-birth-target"));
+            }
+        }
+        if let Some(key) = function.role().ordinary_target() {
+            if ordinary.insert(key.clone(), ordinal).is_some() {
+                return Err(fault("duplicate-ordinary-target"));
+            }
         }
     }
-    Ok(result)
+    Ok((births, ordinary))
 }
 
 fn encode_edge(edge: &super::physical_program::PublishedLifecyclePhysicalEdgeV1) -> Value {
@@ -163,6 +183,7 @@ fn encode_instruction(
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
     diagnostic_site: Option<u64>,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
+    ordinary: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
 ) -> Result<Value, String> {
     Ok(match instruction {
         MirInstruction::Const {
@@ -211,7 +232,7 @@ fn encode_instruction(
             fault_landing,
         } => json!({
             "op": "invoke", "operation": encode_invoke(
-                operation, births, diagnostic_site, abi_input,
+                operation, births, ordinary, diagnostic_site, abi_input,
             )?,
             "fault_frame": value(fault_frame), "normal": normal_landing.0, "fault": fault_landing.0,
         }),
@@ -277,6 +298,7 @@ fn diagnostic_site(
 fn encode_invoke(
     operation: &InvokeOperation,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+    ordinary: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
     diagnostic_site: Option<u64>,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
@@ -286,21 +308,36 @@ fn encode_invoke(
             let encoded = match operation {
                 Map::New => json!({"kind": "map_new"}),
                 Map::PrepareKey { utf8 } => json!({"kind": "map_prepare_key", "utf8": utf8}),
-                Map::InstallIndexed { map, key, object, value: stored } => json!({
+                Map::InstallIndexed {
+                    map,
+                    key,
+                    object,
+                    value: stored,
+                } => json!({
                     "kind": "map_install_indexed", "map": value(map), "key": value(key),
                     "object_id": object.declaration_index(), "value": value(stored),
                 }),
-                Map::InstallValue { map, key, value: stored, kind } => json!({
+                Map::InstallValue {
+                    map,
+                    key,
+                    value: stored,
+                    kind,
+                } => json!({
                     "kind": "map_install_value", "map": value(map), "key": value(key),
                     "value": value(stored), "value_kind": match kind {
                         crate::mir::instruction::MapValueKind::I64 => 1u32,
                         crate::mir::instruction::MapValueKind::Bool => 2u32,
                     },
                 }),
-                Map::EndOutcome { outcome } => json!({"kind": "map_end_outcome", "outcome": value(outcome)}),
+                Map::EndOutcome { outcome } => {
+                    json!({"kind": "map_end_outcome", "outcome": value(outcome)})
+                }
                 Map::End { map } => json!({"kind": "map_end", "map": value(map)}),
             };
-            with_site(encoded, required_site(diagnostic_site, abi_input.is_some())?)?
+            with_site(
+                encoded,
+                required_site(diagnostic_site, abi_input.is_some())?,
+            )?
         }
         InvokeOperation::IntrinsicArrayNew => {
             require_native_input(abi_input)?;
@@ -360,13 +397,41 @@ fn encode_invoke(
                 required_site(diagnostic_site, true)?,
             )?
         }
-        InvokeOperation::Call { call, result: InvokeCallResultKind::Unit } => {
+        InvokeOperation::Call {
+            call,
+            result: InvokeCallResultKind::Unit,
+        } => {
             if diagnostic_site.is_some() {
                 return Err(fault("site-on-birth-call"));
             }
             json!({ "kind": "birth_call", "call": encode_birth_call(call, births, abi_input)? })
         }
-        InvokeOperation::Call { .. } => return Err(fault("call-result-consumer-missing")),
+        InvokeOperation::Call {
+            call,
+            result: InvokeCallResultKind::I64,
+        } => {
+            if diagnostic_site.is_some() {
+                return Err(fault("site-on-ordinary-call"));
+            }
+            let key = super::physical_program::ordinary_callable_key(&call.callee)?;
+            let target = ordinary
+                .get(&key)
+                .ok_or_else(|| fault("ordinary-target-missing"))?;
+            if call.dst.is_some() {
+                return Err(fault("ordinary-destination"));
+            }
+            json!({
+                "kind": "ordinary_call",
+                "call": {
+                    "target": target,
+                    "args": call.args.iter().map(|value| json!({
+                        "kind": "i64", "value": value.0,
+                    })).collect::<Vec<_>>(),
+                    "dst": Value::Null,
+                },
+                "result": "i64",
+            })
+        }
         InvokeOperation::NewBox { object } => with_site(
             json!({
                 "kind": "new_box", "object_id": object.declaration_index(),

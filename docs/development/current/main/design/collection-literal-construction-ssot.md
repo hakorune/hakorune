@@ -2907,18 +2907,21 @@ Ordered ordinary execution frontier (physical inventory at e77b7ab57b retained):
    through existing finalized/compiled-entry owners once step1 is closed.
    Existing catalog keys and result/header contracts are available; the header
    explicitly is not a runtime ABI. Do not recover meaning from emitted MIR.
-3. Implement caller/callee together: proposed internal status + out-i64 result,
+3. Implement caller/callee together: internal status + out-i64 result,
    borrowing caller Fault frame. Callee writes result only on Normal after its
    cleanup; caller normal landing alone consumes it. Root alone reports,
-   disposes the shared frame and applies process result policy.
-4. Add explicit ordinary role to existing physical program/schema/index/emitter;
-   remove only affected nonroot-means-Birth assumptions. Preserve actual Birth
-   receiver/layout checks. Connect ordinary Completion and retire its Stop.
+   disposes the shared frame and applies process result policy. This is closed
+   for the bounded Pair/Bool/range cohort; wider Map install remains separate.
+4. Add explicit ordinary role to the existing physical program/schema/index/
+   emitter; remove only affected nonroot-means-Birth assumptions. Preserve
+   actual Birth receiver/layout checks. The role-based consumer and direct/
+   linked artifact evidence are now landed for that cohort.
 
-Physical inventory: physical_program and compiled_entry_contract retain root/
-Birth only; physical_program_json routes both Call forms through encode_birth_call;
-C physical_v2 requires nonroot birth_unit/receiver; indexed_flow and emit use
-nonzero function index as Birth. Removing only fi==0 Map checks is insufficient.
+Physical inventory: physical_program and compiled_entry_contract retain root,
+ordinary_i64 and Birth roles; physical_program_json emits separate ordinary and
+Birth call rows. C physical_v2 validates role-specific receiver/formals; indexed_flow
+and emit distinguish ordinary_i64 from birth_unit. Removing only fi==0 Map checks
+is insufficient.
 Acceptance for the eventual series: actual root -> ordinary Map -> i64 result ->
 EXE/linked OBJ; callee Fault cleanup before caller cleanup and one final report;
 foreign target/formal/result, Fault-result use, missing cleanup, borrowed-frame
@@ -3121,14 +3124,25 @@ runs callee cleanup before caller cleanup, borrowed frames cannot be disposed,
 and root alone reports/disposes. Direct EXE and linked OBJ exit30 plus injected
 Fault evidence retire ordinary install/artifact Stops in the same series.
 
-#### Ordinary callee ledger placement: next bounded connection
+Implementation checkpoint (2026-09-09, `dcb33c91ad` plus working cutover): the
+existing ordinary I64 Call is now issued as an explicit `ordinary_i64` physical
+function beside root and Birth functions. JSON separates ordinary i64 formals
+and `ordinary_call` rows from Birth receiver/payload rows. The existing C
+physical validator, indexed admission and emitter consume those roles without
+name lookup or receiver repair. The ignored Pair/Bool/range direct-EXE and
+linked-OBJ test passes exit30/70 as expected; the cleanup probe confirms one
+report/dispose path and Fault103 ordering. This closes the bounded ordinary ABI
+consumer. The next selected boundary is Map install/value execution and owner
+coverage; no generic Call fallback or whole Map/R7 claim is made.
+
+#### Ordinary callee ledger placement: bounded connection closed
 
 Decision: retain the original ordinary Map Completion/terminal in the existing ledger's owner-indexed borrow table after S6C consumes its exclusive seed; do not copy it.
 Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row and owner index share the same `Rc` Completion.
 Non-authority: AppMain's root-only admission checks, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
-Fail-fast boundary: preserve ordinary install/artifact Stops until selected scope, local/cleanup validation and ordinary ABI are connected; unavailable/foreign rows reject, and mixed AppMain/ordinary Map ownership remains stopped.
-Smallest next slice: retain the selected child's existing physical boundary in the same owner-indexed ledger after draft validation, recheck it during finishing/artifact coverage, rebind the existing ordinary Call payload after projection, move it once into the finalized root handoff, and project that exact Call through the existing physical program/compiled-entry contract with its cleanup coordinates; then connect the existing ordinary ABI/formals/result/cleanup consumer.
-Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or install/EXE claim from retention alone.
+Fail-fast boundary: preserve selected Map install/value Stops until wider owner coverage and the physical Map consumer are connected; unavailable/foreign rows reject, and mixed AppMain/ordinary Map ownership remains stopped.
+Smallest next slice: consume the selected ordinary Map install/value contract using the retained owner-indexed ledger and existing physical path.
+Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or whole-Map/R7 claim.
 
 Read-only physical-owner audit found `preflight_map_install`, `map_flow`,
 `has_map_source`, `map_demands_consumed` and `map_install_owner` observing only
@@ -3154,14 +3168,15 @@ retains one `PhysicalBoundary` and artifact finishing rechecks the same
 function/boundary before adding its symbol to coverage. The root's existing
 Call row and projected cleanup bindings are rebound after finishing and moved
 once into the finalized source handoff; the Rust physical program/compiled-entry
-projection now retains the exact ordinary I64 Call and existing cleanup
-coordinates, while C ordinary-call schema/emission remains stopped. This is
-still not ordinary install or ABI execution. S6C consumes its exclusive seed with
+projection retains the exact ordinary I64 Call and existing cleanup coordinates,
+and the role-based C schema/admission/index/emitter consumes it. Direct EXE and
+linked OBJ Pair exit30, Bool/range exit70 with Fault103, and cleanup-probe
+evidence close this bounded ordinary ABI series. S6C consumes its exclusive seed with
 `Rc::try_unwrap`; a shared seed rejects instead of cloning. `map_install_owner`
 still rejects any non-AppMain Map when an AppMain Map is present, so owner
-lookup cannot grant ordinary execution. The semantic package is green at
-156/156, including the mixed-owner negative case; ordinary install, artifact,
-OBJ/EXE30 and Fault cutover remain open.
+lookup cannot grant ordinary Map ownership. The semantic package is green at
+156/156, including the mixed-owner negative case; selected Map install/value
+execution and wider owner coverage remain open.
 
 Retention acceptance: result/header and ledger borrow the same original
 Completion with matching owner/terminal; root and foreign-site isolation,

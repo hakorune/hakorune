@@ -82,7 +82,7 @@ fn serializer_rejects_nonissued_instruction_vocabulary() {
         value: ConstValue::Float(1.0),
     };
     assert!(matches!(
-        encode_instruction(&instruction, &BTreeMap::new(), None, None),
+        encode_instruction(&instruction, &BTreeMap::new(), None, None, &BTreeMap::new()),
         Err(error) if error.contains("instruction-unsupported"),
     ));
 }
@@ -220,24 +220,40 @@ fn diagnostic_finishing_accepts_the_same_optimized_pair_cleanup() {
 fn native_float_wire_preserves_signed_zero_and_nan_payload_bits() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        MirCompiler::with_options(true).compile_normal_with_published(
-            request("local a: Array<i64> = [0.0]\nreturn 30"),
-            |view, _| -> Result<(), String> {
-                let input = view.issue_lifecycle_physical_abi_input()?;
-                // Encoder-only evidence: this does not admit NaN or unary minus in source.
-                for bits in [0u64, 0x8000_0000_0000_0000, 0x7ff8_0000_0000_0042,
-                    0xfff8_0000_0000_0123, 0x7ff0_0000_0000_0001] {
-                    let instruction = MirInstruction::Const {
-                        dst: ValueId::new(0), value: ConstValue::Float(f64::from_bits(bits)),
-                    };
-                    let encoded = encode_instruction(&instruction, &BTreeMap::new(), None, Some(&input))?;
-                    let decoded: Value = serde_json::from_str(&serde_json::to_string(&encoded).unwrap()).unwrap();
-                    assert_eq!(decoded["op"], "const_f64_bits");
-                    assert_eq!(decoded["bits"].as_u64(), Some(bits));
-                }
-                Ok(())
-            },
-        ).unwrap();
+        MirCompiler::with_options(true)
+            .compile_normal_with_published(
+                request("local a: Array<i64> = [0.0]\nreturn 30"),
+                |view, _| -> Result<(), String> {
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    // Encoder-only evidence: this does not admit NaN or unary minus in source.
+                    for bits in [
+                        0u64,
+                        0x8000_0000_0000_0000,
+                        0x7ff8_0000_0000_0042,
+                        0xfff8_0000_0000_0123,
+                        0x7ff0_0000_0000_0001,
+                    ] {
+                        let instruction = MirInstruction::Const {
+                            dst: ValueId::new(0),
+                            value: ConstValue::Float(f64::from_bits(bits)),
+                        };
+                        let encoded = encode_instruction(
+                            &instruction,
+                            &BTreeMap::new(),
+                            None,
+                            Some(&input),
+                            &BTreeMap::new(),
+                        )?;
+                        let decoded: Value =
+                            serde_json::from_str(&serde_json::to_string(&encoded).unwrap())
+                                .unwrap();
+                        assert_eq!(decoded["op"], "const_f64_bits");
+                        assert_eq!(decoded["bits"].as_u64(), Some(bits));
+                    }
+                    Ok(())
+                },
+            )
+            .unwrap();
     });
 }
 
@@ -246,10 +262,17 @@ fn map_value_wire_kind_is_explicit_and_has_no_object_identity() {
     use crate::mir::instruction::{MapInvokeOperation as Map, MapValueKind};
     for (kind, wire) in [(MapValueKind::I64, 1), (MapValueKind::Bool, 2)] {
         let op = InvokeOperation::Map(Map::InstallValue {
-            map: ValueId(1), key: ValueId(2), value: ValueId(3), kind,
+            map: ValueId(1),
+            key: ValueId(2),
+            value: ValueId(3),
+            kind,
         });
-        let encoded = encode_invoke(&op, &BTreeMap::new(), Some(42), None).unwrap();
-        assert_eq!(encoded, json!({"kind": "map_install_value", "map": 1,
-            "key": 2, "value": 3, "value_kind": wire, "site": 42}));
+        let encoded =
+            encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), Some(42), None).unwrap();
+        assert_eq!(
+            encoded,
+            json!({"kind": "map_install_value", "map": 1,
+            "key": 2, "value": 3, "value_kind": wire, "site": 42})
+        );
     }
 }

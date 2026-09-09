@@ -77,10 +77,14 @@ pub(crate) struct CompiledEntryBirthCallV1 {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct CompiledEntryOrdinaryCallV1 {
+    function_index: u32,
     call: crate::mir::definitions::MirCall,
 }
 
 impl CompiledEntryOrdinaryCallV1 {
+    pub(crate) const fn function_index(&self) -> u32 {
+        self.function_index
+    }
     pub(crate) fn call(&self) -> &crate::mir::definitions::MirCall {
         &self.call
     }
@@ -215,7 +219,7 @@ impl<'module> PublishedMirBackendView<'module> {
     ) -> Result<CompiledEntryContractV1<'module>, String> {
         let program = self.issue_lifecycle_physical_program()?;
         let (root_result, ordinary_call, contract_births, birth_calls, cleanup) = {
-            let [root, births @ ..] = program.functions() else {
+            let [root, tail @ ..] = program.functions() else {
                 return Err(fault("compiled-entry-root-missing"));
             };
             let PublishedLifecyclePhysicalFunctionRoleV1::Root {
@@ -225,57 +229,85 @@ impl<'module> PublishedMirBackendView<'module> {
             else {
                 return Err(fault("compiled-entry-root-role"));
             };
-            let mut contract_births = Vec::with_capacity(births.len());
-            for (index, function) in births.iter().enumerate() {
-                let PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = function.role()
-                else {
-                    return Err(fault("compiled-entry-birth-role"));
-                };
-                if function.params().len() != abi.abi().physical_arity()
-                    || abi.formal_contracts().len() != abi.parameters().len()
-                {
-                    return Err(fault("compiled-entry-birth-arity"));
-                }
-                let receiver = abi.receiver();
-                if receiver.source_ordinal().is_some() || receiver.physical_lane() != 0 {
-                    return Err(fault("compiled-entry-receiver-lane"));
-                }
-                let mut formals = Vec::with_capacity(function.params().len());
-                formals.push(CompiledEntryFormalV1 {
-                    source_ordinal: None,
-                    physical_ordinal: receiver.physical_lane(),
-                    value: function.params()[0],
-                    kind: CompiledEntryFormalKindV1::Receiver,
-                    contract: None,
-                });
-                for (ordinal, (lane, contract)) in abi
-                    .parameters()
-                    .iter()
-                    .zip(abi.formal_contracts())
-                    .enumerate()
-                {
-                    let ordinal =
-                        u32::try_from(ordinal).map_err(|_| fault("compiled-entry-ordinal"))?;
-                    if lane.source_ordinal() != Some(ordinal)
-                        || lane.physical_lane() != ordinal + 1
-                        || contract.ordinal() != ordinal
-                        || contract.binding() != lane.binding()
-                    {
-                        return Err(fault("compiled-entry-formal-drift"));
+            let mut contract_births = Vec::with_capacity(tail.len());
+            let mut birth_functions = Vec::with_capacity(tail.len());
+            let mut ordinary_function_index = None;
+            for (index, function) in tail.iter().enumerate() {
+                let physical_index =
+                    u32::try_from(index + 1).map_err(|_| fault("compiled-entry-index"))?;
+                match function.role() {
+                    PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } => {
+                        if function.params().len() != abi.abi().physical_arity()
+                            || abi.formal_contracts().len() != abi.parameters().len()
+                        {
+                            return Err(fault("compiled-entry-birth-arity"));
+                        }
+                        let receiver = abi.receiver();
+                        if receiver.source_ordinal().is_some() || receiver.physical_lane() != 0 {
+                            return Err(fault("compiled-entry-receiver-lane"));
+                        }
+                        let mut formals = Vec::with_capacity(function.params().len());
+                        formals.push(CompiledEntryFormalV1 {
+                            source_ordinal: None,
+                            physical_ordinal: receiver.physical_lane(),
+                            value: function.params()[0],
+                            kind: CompiledEntryFormalKindV1::Receiver,
+                            contract: None,
+                        });
+                        for (ordinal, (lane, contract)) in abi
+                            .parameters()
+                            .iter()
+                            .zip(abi.formal_contracts())
+                            .enumerate()
+                        {
+                            let ordinal = u32::try_from(ordinal)
+                                .map_err(|_| fault("compiled-entry-ordinal"))?;
+                            if lane.source_ordinal() != Some(ordinal)
+                                || lane.physical_lane() != ordinal + 1
+                                || contract.ordinal() != ordinal
+                                || contract.binding() != lane.binding()
+                            {
+                                return Err(fault("compiled-entry-formal-drift"));
+                            }
+                            formals.push(CompiledEntryFormalV1 {
+                                source_ordinal: Some(ordinal),
+                                physical_ordinal: lane.physical_lane(),
+                                value: function.params()[lane.physical_lane() as usize],
+                                kind: CompiledEntryFormalKindV1::Parameter,
+                                contract: Some(contract.clone()),
+                            });
+                        }
+                        contract_births.push(CompiledEntryBirthV1 {
+                            function_index: physical_index,
+                            formals: formals.into_boxed_slice(),
+                        });
+                        birth_functions.push((physical_index, function));
                     }
-                    formals.push(CompiledEntryFormalV1 {
-                        source_ordinal: Some(ordinal),
-                        physical_ordinal: lane.physical_lane(),
-                        value: function.params()[lane.physical_lane() as usize],
-                        kind: CompiledEntryFormalKindV1::Parameter,
-                        contract: Some(contract.clone()),
-                    });
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. } => {
+                        if ordinary_function_index.replace(physical_index).is_some() {
+                            return Err(fault("compiled-entry-ordinary-duplicate"));
+                        }
+                        let Some(call) = ordinary_call else {
+                            return Err(fault("compiled-entry-ordinary-unissued"));
+                        };
+                        let PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key } =
+                            function.role()
+                        else {
+                            unreachable!()
+                        };
+                        if function.params().len() != call.args.len()
+                            || &super::physical_program::ordinary_callable_key(&call.callee)? != key
+                        {
+                            return Err(fault("compiled-entry-ordinary-arity"));
+                        }
+                    }
+                    PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => {
+                        return Err(fault("compiled-entry-nested-root"));
+                    }
                 }
-                contract_births.push(CompiledEntryBirthV1 {
-                    function_index: u32::try_from(index + 1)
-                        .map_err(|_| fault("compiled-entry-index"))?,
-                    formals: formals.into_boxed_slice(),
-                });
+            }
+            if ordinary_call.is_some() != ordinary_function_index.is_some() {
+                return Err(fault("compiled-entry-ordinary-missing"));
             }
             let birth_calls = if program.is_native_array() {
                 Vec::new()
@@ -284,14 +316,23 @@ impl<'module> PublishedMirBackendView<'module> {
                     .handoff()
                     .root_source()
                     .ok_or_else(|| fault("compiled-entry-actual-source-missing"))?;
-                issue_birth_calls_for_owner(root, births, source.birth_actuals(), source.owner())?
+                issue_birth_calls_for_owner(
+                    root,
+                    &birth_functions,
+                    source.birth_actuals(),
+                    source.owner(),
+                )?
             };
             let cleanup = issue_cleanup_coordinates(program.functions())?;
             (
                 *result,
                 ordinary_call
                     .as_ref()
-                    .map(|call| CompiledEntryOrdinaryCallV1 { call: call.clone() }),
+                    .map(|call| CompiledEntryOrdinaryCallV1 {
+                        function_index: ordinary_function_index
+                            .expect("ordinary function checked above"),
+                        call: call.clone(),
+                    }),
                 contract_births,
                 birth_calls,
                 cleanup,
@@ -346,24 +387,12 @@ impl<'module> PublishedMirBackendView<'module> {
     }
 }
 
-fn issue_birth_calls(
-    root: &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
-    births: &[super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>],
-    actuals: &[FinalizedBirthActualsV1],
-    result: FinalizedRootResultAbiV1,
-) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
-    let owner = match result {
-        FinalizedRootResultAbiV1::I64AddReturn { owner }
-        | FinalizedRootResultAbiV1::UnitReturn { owner }
-        | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
-        | FinalizedRootResultAbiV1::I64FieldReturn { owner } => owner,
-    };
-    issue_birth_calls_for_owner(root, births, actuals, owner)
-}
-
 fn issue_birth_calls_for_owner(
     root: &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
-    births: &[super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>],
+    births: &[(
+        u32,
+        &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
+    )],
     actuals: &[FinalizedBirthActualsV1],
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
 ) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
@@ -411,7 +440,7 @@ fn issue_birth_calls_for_owner(
             };
             let index = births
                 .iter()
-                .position(|birth| {
+                .position(|(_, birth)| {
                     matches!(birth.role(),
                 PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } if abi.target() == key)
                 })
@@ -436,13 +465,12 @@ fn issue_birth_calls_for_owner(
             if std::mem::replace(&mut consumed[*actual_index], true) {
                 return Err(fault("compiled-entry-call-duplicate"));
             }
-            if call.args.len() != births[index].params().len().saturating_sub(1) {
+            if call.args.len() != births[index].1.params().len().saturating_sub(1) {
                 return Err(fault("compiled-entry-call-arity"));
             }
             referenced[index] = true;
             calls.push(CompiledEntryBirthCallV1 {
-                function_index: u32::try_from(index + 1)
-                    .map_err(|_| fault("compiled-entry-call-index"))?,
+                function_index: births[index].0,
                 actual: actuals[*actual_index].clone(),
             });
         }
@@ -451,6 +479,31 @@ fn issue_birth_calls_for_owner(
         return Err(fault("compiled-entry-call-missing"));
     }
     Ok(calls)
+}
+
+fn issue_birth_calls(
+    root: &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
+    births: &[super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>],
+    actuals: &[FinalizedBirthActualsV1],
+    result: FinalizedRootResultAbiV1,
+) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
+    let owner = match result {
+        FinalizedRootResultAbiV1::I64AddReturn { owner }
+        | FinalizedRootResultAbiV1::UnitReturn { owner }
+        | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
+        | FinalizedRootResultAbiV1::I64FieldReturn { owner } => owner,
+    };
+    let indexed = births
+        .iter()
+        .enumerate()
+        .map(|(index, birth)| {
+            Ok((
+                u32::try_from(index + 1).map_err(|_| fault("compiled-entry-call-index"))?,
+                birth,
+            ))
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    issue_birth_calls_for_owner(root, &indexed, actuals, owner)
 }
 
 fn issue_cleanup_coordinates(

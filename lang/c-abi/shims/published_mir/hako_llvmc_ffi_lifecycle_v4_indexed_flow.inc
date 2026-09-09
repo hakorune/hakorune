@@ -64,20 +64,34 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
   memcpy(state, incoming, count * sizeof(*state));
   memcpy(saved + bi * count, incoming, count * sizeof(*state));
   faults[bi] = (signed char)faulted; active[bi] = 1;
-  if (!lv4_indexed_rows(in, fn, block, state, faulted, fi != 0)) return 0;
+  int birth = lv4_is(fn->function, "role", "birth_unit");
+  if (!lv4_indexed_rows(in, fn, block, state, faulted, birth)) return 0;
   if (lv4_is(term, "op", "return") || lv4_is(term, "op", "return_fault")) {
     for (size_t i = 0; i < count; i++) if (state[i]) return 0;
     active[bi] = 0;
     if (lv4_is(term, "op", "return_fault")) return faulted;
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
-    return !faulted && result && result->kind == (fi ? LV4_UNIT : LV4_I64);
+    return !faulted && result && result->kind == (birth ? LV4_UNIT : LV4_I64);
   }
   memcpy(normal, state, count * sizeof(*state));
   int failed = faulted;
   if (lv4_is(term, "op", "invoke")) {
     yyjson_val* op = yyjson_obj_get(term, "operation");
     failed = 1;
-    if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||
+    if (lv4_is(op, "kind", "ordinary_call")) {
+      yyjson_val* call = yyjson_obj_get(op, "call");
+      yyjson_val* args = yyjson_obj_get(call, "args");
+      uint32_t target = lv4_u(call, "target");
+      if (fi || faulted || !target || target >= in->index_count ||
+          !lv4_is(in->index[target].function, "role", "ordinary_i64") ||
+          yyjson_arr_size(args) != yyjson_arr_size(yyjson_obj_get(in->index[target].function, "params"))) return 0;
+      for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+        yyjson_val* arg = yyjson_arr_get(args, i);
+        hako_lv4_value* value = lv4_index_value(fn, lv4_u(arg, "value"));
+        if (!value || value->kind != LV4_I64) return 0;
+      }
+      normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||
         lv4_is(op, "kind", "map_prepare_key")) {
       if (fi || faulted || state[bi]) return 0;
       if (lv4_is(op, "kind", "new_box") && !lv4_layout(in, lv4_u(op, "object_id"))) return 0;
@@ -170,7 +184,7 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
     hako_lv4_function_index* fn = &in->index[fi];
     size_t count = fn->block_count, frames = 0;
     uint16_t initial[256] = {0}; unsigned char active[256] = {0}; signed char faults[256];
-    if (fi && !fn->receiver_object_set) return 0;
+    if (lv4_is(fn->function, "role", "birth_unit") && !fn->receiver_object_set) return 0;
     memset(faults, -1, sizeof(faults));
     hako_lv4_block* entry = lv4_index_block(fn, lv4_u(fn->function, "entry"));
     for (size_t bi = 0; bi < count; bi++) {
