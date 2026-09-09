@@ -3140,12 +3140,26 @@ whole Map/R7 claim is made.
 
 #### Ordinary callee ledger placement: bounded connection closed
 
-Decision: retain the original ordinary Map Completion/terminal in the existing ledger's owner-indexed borrow table after S6C consumes its exclusive seed; do not copy it.
+Decision: retain the original ordinary Map Completion/terminal in the existing ledger's owner-indexed borrow table after S6C consumes its exclusive seed; do not copy it. The root-plus-one-called-child scalar cohort is closed; the next wider-owner step is a design stop, not a physical Option-to-collection patch.
 Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row and owner index share the same `Rc` Completion.
 Non-authority: AppMain's former root-only admission check, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
 Fail-fast boundary: admit the AppMain root plus one exact called ordinary child Map owner with scalar Value-only entries and completed terminal cleanup; unavailable/foreign rows, uncalled or additional owners, unknown values, and New/Home transfer reject before physical admission.
-Smallest next slice: widen ordinary Map owner coverage after the selected scalar Value-only physical path is stable; do not widen value families or admit unmatched owners in this slice.
+Smallest next slice: design `MAP-LITERAL-MULTI-CALL-CLEANUP-D0` before implementation. Specify one root local I64 Call followed by the existing terminal I64 Call, with source order, Normal result binding, Fault cleanup continuation, exact target inventory, and the old terminal-only edge to retire. Do not widen to multiple ordinary owners by changing transport alone.
 Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or whole-Map/R7 claim.
+
+Design-stop brief (2026-09-09): the source issuer currently emits only a terminal
+`TerminalI64CallReturnV1`, and the existing affine loan requires that one site to
+match the terminal relation. `PublishedLifecyclePhysicalProgramV1` and the
+compiled-entry currently carry one ordinary target, but changing that option to a
+collection would not issue the missing source order, Normal continuation/result
+binding, or Fault cleanup successor. The recommended bounded D0 is AppMain with
+one local I64 call followed by the existing terminal I64 call; both callees use
+literal actuals and scalar Value-only Map entries. The design must co-seal call
+order, owner-indexed Completion/cleanup, result binding, target-definition
+inventory, and the exclusive terminal-only edge to retire before any Rust/C
+transport or artifact implementation. Field return, New/Home transfer, nested or
+conditional calls, callee-to-callee calls, recursion, third calls, and generic
+fallback remain outside the candidate.
 
 Read-only physical-owner audit originally found `preflight_map_install`, `map_flow`,
 `has_map_source` and `map_demands_consumed` observing only the AppMain ledger/root
