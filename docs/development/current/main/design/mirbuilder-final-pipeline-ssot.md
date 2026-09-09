@@ -1080,6 +1080,40 @@ Smallest slice: add the allowlist/emitter case and focused JSON positive/negativ
 coverage, then rerun the existing method smoke to expose its next owner. Do not
 open child cleanup, dynamic slots, or untyped storage here.
 
+I0 evidence (landed at `36cdbb08c8`): the selected MIR JSON allowlist and
+emitter now carry the existing `fault_frame_enter` row with its `dst` and
+`root_owned`/`borrowed` mode. The focused emitter test is `1/1` green. After
+refreshing the release `hakorune` binary, `typed_object_method_min_exe` passed
+the FaultFrameEnter boundary and stopped at the next named owner:
+`MIR JSON emit contract violation: unsupported terminator Invoke`. This is a
+reclassification only; no Invoke fallback or compatibility retry was added.
+
+##### `MIRBUILDER-INVOKE-LIFECYCLE-JSON-TERMINATOR-D0`
+
+Decision: before admitting `Invoke` into the generic MIR JSON egress, choose
+one canonical transport for the existing lifecycle Invoke triplet
+(`Invoke`, `InvokeNormalResult`, and `ReturnFault`). Reuse the existing
+`InvokeOperation`/compiled-entry relation and the already defined physical
+JSON encoder as evidence; do not make the generic emitter infer targets,
+fault frames, result kinds, or landing blocks from names or C defaults.
+Source authority + canonical issuer: the existing selected MIR lifecycle
+owner and `CompiledEntryContractV1` that already bind operation, frame, result,
+and cleanup relations. The production caller is the selfhost MIR egress that
+currently reaches `src/runner/mir_json_emit`; the physical consumer remains
+the selected lifecycle C owner after the transport is chosen.
+Non-authority: RawCompatibility, function names, MIR observations, C-side
+reclassification, and a second JSON schema or retry route. Fail-fast boundary:
+unsupported operation/result kind, missing or orphaned normal/fault landing,
+mismatched fault frame, and an Invoke row that is not covered by the selected
+compiled-entry contract must stop before artifact output.
+Smallest next slice: audit the existing generic and physical encoders for the
+selected method Birth call, record the single canonical ingress and its
+negative shapes, then implement only that bounded terminator/progress pair.
+Do not open child cleanup, dynamic/opaque storage, Map extensions, or whole
+suite acceptance in this D0.
+Non-claims: this row does not claim arbitrary Invoke support, new runtime ABI,
+child Birth execution, or final MirBuilder completion.
+
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 
 The source issuer preserves `init_fields` membership, but canonical layout must
