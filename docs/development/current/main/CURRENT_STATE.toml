@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-C-EXECUTION-I0"
-current_execution_cohort = "map_literal_ordinary_new_home_child_birth_c_execution_i0"
-current_design_stop = "docs/development/current/main/investigations/map-literal-child-birth-c-execution-d0-2026-09-10.md"
-current_blocker_token = "The bounded C child New/Birth/Home I0 landed at 60bcf68add after the Rust handoff c3fa1f8a75 and C D0 acceptance 5f62746179. Direct EXE and independently linked OBJ exit30, parser/V4 guards pass, and foreign-receiver/duplicate-Birth mutations reject. Broader child shapes, whole Map, and R7 remain parked."
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
+current_execution_cohort = "acceptance_source_reconciliation_i0"
+current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+current_blocker_token = "Final acceptance at 1752f973e9 is 1/11 versus 6/11 at pinned parent 72f2496568fcd555499fdcb26fef2d8f1df03089: five typed-object source cases regress after strict canonical-layout refresh because RawCompatibility does not carry the canonical object-definition product. Five common reds remain separate baseline/source-boundary failures. Select the existing source-ingress/package owner before code; do not restore metadata inference, add fallback, or reject accepted source."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -27,37 +27,20 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/map-literal-child-birth-c-execution-d0-2026-09-10.md"
-latest_card = "map-literal-child-birth-c-execution-d0-2026-09-10"
-latest_card_path = "docs/development/current/main/investigations/map-literal-child-birth-c-execution-d0-2026-09-10.md"
+current_execution_design = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+latest_card = "mirbuilder-final-pipeline-ssot"
+latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-Conditional representation is separated from execution coverage. Private invocation owns existing document/config/outcomes/program/definition products.
-Named binding closes demand/domain/original-lane handling in the MIR planner.
-Private query now binds actual C outcomes and retains input across compile/cancel.
-Demanded projection actions reuse one mapping with explicit non-host escape refusal.
-Owned V2 rows now retain backing and expanded target/Formal correspondence.
-Private Original allocation/Call/boxed projection consumers join exact/operation emission.
-Boxed tails/Bool aliases and String concat projection/declaration ownership are corrected.
-Copy/NamedAlias consumers preserve Map lanes and the demanded original producer.
-Phi/Select lanes join existing owners; stable original i64 references are implemented.
-Formal/expanded-function consumers share one index and private signatures.
-Map source-shape preservation and explicit Script Map-entry call Stop are implemented.
-After-group original i1 PHI normalization is implemented. Runtime escape ownership follows the accepted owned-slot target; direct-local Map source flow is retained
-in Completion and unconnected Map demand stops at common package install.
-Native Map insert/remove/clear now drop detached values outside locks; owned-slot
-residence/read/end migration and actual session/host/Map cutover remain open.
-The bounded multi-call D0 now retains one source-local exact-i64 Call before the
-existing terminal Call, co-seals both under the root owner, emits both physical
-I64 Call terminators, and passes the selected direct/linked artifact Pair exit30.
-The single-terminal-only production edge is retired through explicit CallReturn
-and ordinary Call-site collection. Two-owner admission and direct/linked exit30
-are closed. The three-owner I0 changes only source-ordered local binding
-retention plus bounded owner admission; the explicit fourth-Call and grouped
-mutation guards, natural Pair exit30, and Fault-order prefix probes pass; the four-owner D0 is accepted and its source-admission guard passes semantic 14/14. Four-owner direct/linked exit30 and per-prefix Fault/cleanup probes pass. The ordinary-child Value-only artifact recheck passes with one source Call row and root+child Pair exit30. Five-owner source admission, direct/linked exit30, and A-E Fault-prefix/cleanup probes pass. The New/Home Rust handoff I0 landed at c3fa1f8a75: caller-scoped child Birth actuals share the existing final owner, compiled-entry/JSON matching is caller-aware, and root/child-only Birth plus cleanup evidence is green. C child New/Birth/Home I0 landed at 60bcf68add: five root-only gates are removed only for one ordinary child path, direct/linked exit30 and parser/V4 evidence pass, and foreign-receiver/duplicate-Birth mutations reject. Broader child shapes, whole-Map, and R7 remain parked.
+The selected Map ordinary-child C I0 is closed at 60bcf68add: direct/linked
+exit30, parser/V4 guards, and foreign-receiver/duplicate-Birth rejection pass.
+The exact final acceptance suite is the active design stop. Current
+1752f973e9 is 1/11 versus pinned parent 72f2496568fcd555499fdcb26fef2d8f1df03089
+at 6/11. Five current-only typed-object reds need source-ingress/package
+authority selection before code; five common reds remain separately owned.
 """
-next_design_card = "MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-C-EXECUTION-D0"
-next_execution_card = "MAP-LITERAL-ORDINARY-NEW-HOME-CHILD-BIRTH-C-EXECUTION-I0"
-next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+next_design_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
+next_execution_card = "none"
+next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

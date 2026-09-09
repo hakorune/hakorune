@@ -958,6 +958,28 @@ decision and cost impact; raw test counts and synthetic MIR tests cannot prove
 source-to-artifact coverage. Reuse the corpus owner's manifest and tests;
 create no parallel acceptance ledger or per-case guard.
 
+#### Acceptance evidence and current blocker (2026-09-10)
+
+The exact owner suite was run at current `1752f973e9` and at its pinned parent
+`72f2496568fcd555499fdcb26fef2d8f1df03089` in an isolated worktree with the
+same release `hakorune`/`ny-llvmc` tool pair. Current results are `1/11` pass
+and `10/11` fail; the pinned parent is `6/11` pass and `5/11` fail. The
+unsupported-boundary probe passes in both runs. The five common reds are
+`boxtorrent_mini_exe`, `binary_trees_exe`, `mimalloc_lite_exe`,
+`json_stream_aggregator_exe_runtime_boundary`, and `allocator_stress_exe`;
+they remain separately owned baseline/source-boundary failures. The five
+current-only reds are `typed_object_newbox_min_exe`,
+`typed_object_method_min_exe`, `typed_object_birth_min_exe`,
+`typed_object_untyped_field_min_exe`, and `typed_object_birth_param_min_exe`.
+They appeared after strict canonical object-layout refresh and must be treated
+as an open current-change blocker: the RawCompatibility direct source route
+does not carry the canonical object-definition product required by the new
+layout authority. Do not restore the old metadata inference, add a fallback, or
+turn these accepted source programs into rejects. The next bounded design slice
+is to select the existing source-ingress/package owner that can issue and
+transfer the canonical definitions before typed-object planning, then rerun
+this exact suite; no production cutover claim is made while these five remain.
+
 Handoff after Loop retirement and repository convergence is owned by
 `selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`:
 language conformance -> canonical mimalloc promotion -> authority migration
