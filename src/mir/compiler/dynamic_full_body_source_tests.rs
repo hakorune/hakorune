@@ -226,26 +226,22 @@ fn profile_expr_site(
 
 #[test]
 fn extra_loop_statement_rejects_instead_of_narrowing_source() {
-    let function = parsed_method(
-        "static box Scan {\n\
-         skip_while(src, pos, end, pred_chars) {\n\
-           local i = pos\n\
-           loop(i < end) {\n\
-             local ch = src.substring(i, i + 1)\n\
-             if pred_chars.indexOf(ch) < 0 { return i }\n\
-             print(ch)\n\
-             i = i + 1\n\
-           }\n\
-           return i\n\
-         }\n\
-         }",
-        "Scan",
-        "skip_while",
-    );
-    assert!(matches!(
-        issue(function),
-        Err(DynamicFullBodySourceIssueV1::BodyShape)
-    ));
+    for statement in ["print(ch)", r#"local m = %{"v" => ch}"#] {
+        let source = format!("static box Scan {{
+            skip_while(src, pos, end, pred_chars) {{
+                local i = pos
+                loop(i < end) {{
+                    local ch = src.substring(i, i + 1)
+                    if pred_chars.indexOf(ch) < 0 {{ return i }}
+                    {statement}
+                    i = i + 1
+                }}
+                return i
+            }}
+        }}");
+        assert!(matches!(issue(parsed_method(&source, "Scan", "skip_while")),
+            Err(DynamicFullBodySourceIssueV1::BodyShape)));
+    }
 }
 
 #[test]

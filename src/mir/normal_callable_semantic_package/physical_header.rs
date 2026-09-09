@@ -76,26 +76,10 @@ impl<'a> CallablePhysicalHeaderRefV1<'a> {
         self.result
     }
 
-    pub(crate) const fn completion_owner(&self) -> FunctionOwnerIdV1 {
-        self.result_contract.completion_owner()
-    }
-
-    pub(crate) const fn completion_target_function(
+    pub(crate) fn completion(
         &self,
-    ) -> crate::mir::resolved_semantics::RegionId {
-        self.result_contract.completion_target_function()
-    }
-
-    pub(crate) const fn completion_returns_value(&self) -> bool {
-        self.result_contract.completion_returns_value()
-    }
-
-    pub(crate) fn completion_explicit_site_count(&self) -> usize {
-        self.result_contract.completion_explicit_site_count()
-    }
-
-    pub(crate) fn completion_cleanup_is_empty(&self) -> bool {
-        self.result_contract.completion_cleanup_is_empty()
+    ) -> &'a crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1 {
+        self.result_contract.completion()
     }
 }
 

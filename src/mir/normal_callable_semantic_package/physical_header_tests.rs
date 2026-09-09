@@ -61,10 +61,10 @@ fn explicit_result_annotation_lends_one_complete_header_view() {
             header.result(),
             crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64
         );
-        assert_eq!(header.completion_owner(), input.source().owner());
-        assert!(header.completion_returns_value());
-        assert_eq!(header.completion_explicit_site_count(), 1);
-        assert!(header.completion_cleanup_is_empty());
+        assert_eq!(header.completion().owner(), input.source().owner());
+        assert!(header.completion().returns_value());
+        assert_eq!(header.completion().explicit_sites().len(), 1);
+        assert!(header.completion().cleanup().crossed_scopes().is_empty());
         assert!(matches!(
             input.semantic(),
             SelectedCallableSemanticRefV1::Ordinary
@@ -183,8 +183,8 @@ fn mixed_package_lends_only_the_eligible_physical_header_row() {
                     header.result(),
                     crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64
                 );
-                assert!(header.completion_returns_value());
-                assert_eq!(header.completion_explicit_site_count(), 2);
+                assert!(header.completion().returns_value());
+                assert_eq!(header.completion().explicit_sites().len(), 2);
             }
         })
         .expect("selected row loan");

@@ -12,7 +12,7 @@ use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 #[cfg(test)]
 use crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::completion_seed::VerifiedCallableCompletionSeedV1;
@@ -130,29 +130,10 @@ impl<'a> CallableResultContractRefV1<'a> {
         self.completion.function_exit_contract().declared_result()
     }
 
-    #[cfg(test)]
-    pub(crate) fn completion_for_test(&self) -> &VerifiedFunctionCompletionV1 {
+    /// Borrow the issued product; callers must not infer missing obligations
+    /// from a partial summary or absent Home analysis.
+    pub(crate) const fn completion(&self) -> &'a VerifiedFunctionCompletionV1 {
         self.completion
-    }
-
-    pub(crate) const fn completion_owner(&self) -> FunctionOwnerIdV1 {
-        self.completion.owner()
-    }
-
-    pub(crate) const fn completion_target_function(&self) -> RegionId {
-        self.completion.target_function()
-    }
-
-    pub(crate) const fn completion_returns_value(&self) -> bool {
-        self.completion.returns_value()
-    }
-
-    pub(crate) fn completion_explicit_site_count(&self) -> usize {
-        self.completion.explicit_sites().len()
-    }
-
-    pub(crate) fn completion_cleanup_is_empty(&self) -> bool {
-        self.completion.cleanup().crossed_scopes().is_empty()
     }
 }
 

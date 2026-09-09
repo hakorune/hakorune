@@ -94,16 +94,21 @@ fn validate_package_physical_header(
     physical_header: &APrimePhysicalFunctionHeaderV1,
 ) -> Result<(), APrimeI64PhysicalDemandRejectV1> {
     let package_header = require_package_physical_header(package_header)?;
+    let completion = package_header.completion();
+    let cleanup = completion.cleanup();
+    // This closed APrime source family uses plain function Completion.
+    // Invocation End obligations remain on its canonical program, not this header.
     if package_header.owner() != input.source().owner()
         || package_header.result() != ExactTrivialScalarAbiV1::I64
-        || package_header.completion_owner() != source_relation.owner()
-        || package_header.completion_target_function()
+        || completion.owner() != source_relation.owner()
+        || completion.target_function()
             != input.source().function().function_region()
-        || !package_header.completion_returns_value()
-        || package_header.completion_explicit_site_count()
+        || !completion.returns_value()
+        || completion.explicit_sites().len()
             != source_relation.completion_sites().len()
-        || package_header.completion_explicit_site_count() != 2
-        || !package_header.completion_cleanup_is_empty()
+        || completion.explicit_sites().len() != 2
+        || !cleanup.crossed_scopes().is_empty()
+        || cleanup.root_flow().is_some()
         || physical_header.return_type_name()
             != Some(ExactTrivialScalarAbiV1::I64.source_type_name())
     {

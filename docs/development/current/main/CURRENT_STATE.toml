@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
-current_design_stop = "MAP-ORDINARY-COMPLETION-ABI"
-current_blocker_token = "AppMain known Map Value source cutover verified: package148 and 16 source direct EXE/linked OBJ exit30, mixed Value Fault cleanup, dedicated runtime rebuilt. Next audit ordinary callable actual Completion borrowing and frame/result ABI before its Stop removal. Unknown scalar, Script and transferred-lambda restrictions remain; crossed-scopes-only summary cannot prove cleanup-free."
+current_design_stop = "MAP-ORDINARY-CALL-ISSUER"
+current_blocker_token = "Completion borrow implemented: misleading summary removed; package148/source6/control33 and guards pass. Next audit exact source issuer for ordinary Call normal/Fault/result correspondence before finalized retention and status/out-i64 ABI. Ordinary family remains NoSafeSlice; no placeholder product or fi-based Birth relabeling. AppMain Value cutover remains verified."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

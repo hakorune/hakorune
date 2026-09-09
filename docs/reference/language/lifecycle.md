@@ -21,6 +21,9 @@ retry. This is a compiler control connection, not runtime activation or full
 Home Flow support. Unavailable completion/ownership analysis does not authorize
 execution; backend admission remains fenced until the lifecycle consumers and
 required source-to-artifact proofs are complete.
+An empty crossed-scope list does not establish absence of cleanup: terminal Home
+and invocation obligations remain with their respective semantic owners. A
+consumer must borrow those obligations; absent analysis is not an empty proof.
 
 The selected LLVM lowering design keeps source requirements and cleanup
 origins in their existing semantic owners, physical value binding in emission,

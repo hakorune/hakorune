@@ -95,7 +95,7 @@ fn dynamic_lends_its_original_completion_without_owned_result_row() {
         };
         program.with_canonical_session_authority(|authority| {
             assert!(std::ptr::eq(
-                input.result_contract().unwrap().completion_for_test(),
+                input.result_contract().unwrap().completion(),
                 authority.completion()
             ));
         });

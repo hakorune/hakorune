@@ -19,6 +19,11 @@ materialize those facts and publish its own session-local receipt. This module
 does not re-observe AST/source, reissue Dynamic semantics, or select a backend.
 Its physical function header comes from the installed catalog's one-shot
 projection; it must not reconstruct header fields from an AST/root node.
+The package header lends its actual Completion. This exact A-prime source family
+requires empty crossed scopes and absent root Home flow; that shape check is not
+a generic cleanup-free proof. Canonical invocation cleanup still owns substring
+End on Fault, inner return and backedge. Map/extra source statements remain
+outside the source relation rather than being hidden by a header summary.
 
 `VerifiedResolvedCallableSourceIdentityV1` is a private comparison/navigation
 view borrowed from the same resolved batch row. It is not a callable key,

@@ -127,7 +127,10 @@ an explicit currently supported scalar result annotation (`i64`) project a
 header. Missing/unannotated siblings cannot erase eligible rows or ordinary
 result contracts. `Option<CallablePhysicalHeaderRefV1>::None` is a valid ordinary
 semantic route, not permission to infer a header from body, MIR, ResultCatalog
-or fixture expectations.
+or fixture expectations. Result contract and header expose the same borrowed
+Completion, including actual cleanup obligations and unavailable Home analysis.
+They do not summarize crossed scopes as proof of empty cleanup. Consumers must
+apply their existing family contract; the header remains no runtime ABI.
 
 The formal issuer retains ordinal/binding/owner/kind authority. This cohort
 does not define TextFormal wire, ExactText physical residence or TextEq routing;

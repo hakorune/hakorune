@@ -430,7 +430,7 @@ pub(super) fn issue_declared_instance_call_package_locator_v1(
             return Err(DeclaredInstanceCallPackageLocatorIssueV1::TargetResultIdentityMismatch);
         }
         if result_row.owner() != relation_row.target_owner()
-            || result_row.borrow().completion_owner() != relation_row.target_owner()
+            || result_row.borrow().completion().owner() != relation_row.target_owner()
         {
             return Err(DeclaredInstanceCallPackageLocatorIssueV1::TargetResultOwnerMismatch);
         }

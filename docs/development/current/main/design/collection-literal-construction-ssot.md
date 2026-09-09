@@ -2742,17 +2742,85 @@ ledger lookup for that selected callable without cloning Completion. Coordinate
 Map local progress/finishing and value-capable runtime/ordinary Fault ABI before
 removing install refusal. Source Complete alone is not physical admission.
 
-Mandatory connection blocker (feedback verified at269b4b829b): result_contract's
-completion_cleanup_is_empty currently reads only crossed_scopes; physical_header
-forwards it and the APrime validator consumes it. Map root_flow obligations can
-coexist with empty crossed_scopes. Keep the existing ordinary Map install Stop;
-no execution bypass was demonstrated by this static check. Before connecting
-ordinary callable cleanup, borrow the actual Completion obligations and replace
-or accurately narrow this summary. Absent/unavailable Home analysis must not
-become a proof of no cleanup. Preserve Dynamic/APrime's explicit existing
-contract. Acceptance covers nonempty Map terminal obligations with empty scopes,
-unavailable flow, truly obligation-free admitted input and the actual consumer's
-refusal/cleanup path. Do not add a second cleanup ledger or cached boolean.
+Mandatory ordinary connection blocker: the old crossed-scopes-only summary is
+removed in the Completion-borrow slice below. Consumers borrow the original
+Completion, preserving terminal Map obligations and unavailable analysis.
+Ordinary cleanup/frame/result and caller Invoke issuance remain open; no execution
+bypass was demonstrated by the earlier static check. Missing/unknown analysis
+must never become a generic no-cleanup proof. APrime keeps its own explicit
+source-family check and separate canonical invocation cleanup authority.
+
+### Ordinary Completion borrowing and callable ABI frontier
+
+Decision: remove misleading Completion summaries and lend the existing product;
+keep ordinary Map execution closed until its caller normal/Fault issuer exists.
+Source authority + canonical issuer: existing result-contract cohort owns ordinary
+Completion; selected Dynamic lends its canonical authority Completion in install.
+Non-authority: crossed scopes, terminal emptiness, function ordinal, symbol,
+physical signature and Trivial capability cannot issue cleanup or call meaning.
+Fail-fast boundary: APrime retains its exact source-family Completion shape;
+ordinary missing call/result/cleanup correspondence rejects before physical input.
+Smallest next slice: BoxShape replacing summary/forwarders with actual Completion
+borrows in result contract/header and their existing consumers; no new receipt.
+Non-claims: ordinary Invoke issuance, generalized cleanup-free predicate,
+ordinary ABI activation, changed invocation cleanup or nonselected backend parity.
+
+The bounded source audit covers selected Dynamic source admission -> APrime
+package-header validation, including source shape, Completion issuance/borrow,
+APrime source relation and canonical invocation cleanup; it excludes whole
+Dynamic and ordinary physical ABI. dynamic_admission uses the plain Completion
+verifier. dynamic_full_body_source fixes root/loop/inner-return statements and
+all expression sites; a_prime_source co-seals that exact source/Recipe coverage.
+install lends that same canonical authority, never a second owner-matched row.
+APrime therefore requires crossed scopes empty AND root_flow absent as its
+family-specific shape check. Some(empty terminal Homes) is not admitted.
+This is not cleanup-free: invocation_cleanup separately retains substring V10
+End at indexOf Fault, inner return and backedge. Preserve that existing owner.
+
+Implementation/deletion: replace result-contract/header summary wrappers with
+actual Completion access; update APrime and declared-instance owner checks.
+Delete completion_cleanup_is_empty and its sole production use. Tests check
+ordinary Map obligations/unavailable through the same borrow, actual APrime
+positive/source rejection, and ordinary NotSelectedDynamic. Existing guards and
+exact old-name caller search suffice; no new guard or cached cleanup boolean.
+
+Completion-borrow checkpoint: result contract/header now lend the original
+Completion; misleading summary and scalar Completion forwarders are removed.
+APrime's actual-family positive and ordinary refusal remain green. Tests verify
+header/result pointer identity with Map obligations and unavailable analysis,
+and additional Map source syntax is refused by APrime's exact source issuer.
+Package148, source6, control33 pass with jobs4 locked quick lib, serial tests;
+old completion_cleanup_is_empty definitions/callers are zero in src. Existing
+pointer/corridor guards and diff check pass; changed source maximum755 (tests).
+No C/runtime ABI change or ordinary activation occurred. Next is source issuer
+closure in step1 below; no new retained correspondence can be issued before it.
+
+Ordered ordinary execution frontier (read-only physical audit at e77b7ab57b):
+1. Close exact caller Invoke normal/result/Fault issuance. It is not yet proven:
+   builder Invoke Call currently emits Birth only. Existing ordinary scalar Call
+   cannot be relabeled retrospectively. Until the source/execution-envelope
+   issuer and existing finalized retaining owner are named, this family remains
+   NoSafeSlice; do not create placeholder physical/semantic products.
+2. Retain exact ordinary membership, formal/result and cleanup correspondence
+   through existing finalized/compiled-entry owners once step1 is closed.
+   Existing catalog keys and result/header contracts are available; the header
+   explicitly is not a runtime ABI. Do not recover meaning from emitted MIR.
+3. Implement caller/callee together: proposed internal status + out-i64 result,
+   borrowing caller Fault frame. Callee writes result only on Normal after its
+   cleanup; caller normal landing alone consumes it. Root alone reports,
+   disposes the shared frame and applies process result policy.
+4. Add explicit ordinary role to existing physical program/schema/index/emitter;
+   remove only affected nonroot-means-Birth assumptions. Preserve actual Birth
+   receiver/layout checks. Connect ordinary Completion and retire its Stop.
+
+Physical inventory: physical_program and compiled_entry_contract retain root/
+Birth only; physical_program_json routes both Call forms through encode_birth_call;
+C physical_v2 requires nonroot birth_unit/receiver; indexed_flow and emit use
+nonzero function index as Birth. Removing only fi==0 Map checks is insufficient.
+Acceptance for the eventual series: actual root -> ordinary Map -> i64 result ->
+EXE/linked OBJ; callee Fault cleanup before caller cleanup and one final report;
+foreign target/formal/result, Fault-result use, missing cleanup, borrowed-frame
+disposal and role-mislabel rejection. Keep AppMain source/Fault acceptance.
 
 ### Checked Map Value storage/install ABI: accepted next slice
 

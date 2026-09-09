@@ -169,6 +169,9 @@ fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
             assert_eq!(admitted.physical_symbol(), "ParserScanLoopBox.skip_while/4");
             assert_eq!(admitted.physical_arity(), 4);
         });
+        let header = input.selected().physical_header().unwrap();
+        assert!(header.completion().cleanup().crossed_scopes().is_empty());
+        assert!(header.completion().cleanup().root_flow().is_none());
         let owner = input.selected().source().owner();
         let demand = crate::mir::compiler::a_prime_i64_physical_capability::
             issue_selected_a_prime_i64_physical_demand(input)

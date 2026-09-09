@@ -26,7 +26,10 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
     .unwrap();
     let row = package.result_contracts.rows().next().unwrap();
     let contract = row.borrow();
-    let completion = contract.completion_for_test();
+    let completion = contract.completion();
+    let header = package.physical_header.row(row.batch_slot(), &package.result_contracts).unwrap();
+    assert!(std::ptr::eq(header.completion(), completion));
+    assert!(header.completion().cleanup().crossed_scopes().is_empty());
     let flow = completion.cleanup().root_flow().unwrap();
     let map = flow.maps()[0].complete().unwrap();
     assert_eq!(map.entries().len(), 2);
@@ -66,11 +69,16 @@ fn borrowed_formals_are_allowed_unused_but_do_not_issue_map_ownership() {
             let row = package.result_contracts.rows().next().unwrap();
             let contract = row.borrow();
             let flow = contract
-                .completion_for_test()
+                .completion()
                 .cleanup()
                 .root_flow()
                 .unwrap();
             assert_eq!(flow.maps()[0].complete().is_some(), complete);
+            let header = package.physical_header.row(row.batch_slot(), &package.result_contracts).unwrap();
+            assert!(std::ptr::eq(header.completion(), contract.completion()));
+            if !complete {
+                assert!(header.completion().cleanup().terminal_homes().unwrap().is_err());
+            }
             assert_install_stop(package);
         }
     }
@@ -135,14 +143,14 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
         .rows()
         .find(|row| {
             row.borrow()
-                .completion_for_test()
+                .completion()
                 .cleanup()
                 .root_flow()
                 .is_some()
         })
         .unwrap();
     let contract = row.borrow();
-    let terminal = contract.completion_for_test().explicit_site();
+    let terminal = contract.completion().explicit_site();
     let own = package
         .parameter_contracts
         .iter()
