@@ -129,6 +129,11 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut projection = boundary.project(function)?;
         self.validate_root_body(owner, function, Some(&projection))?;
         boundary.validate_complete(function, &mut projection, &bindings)?;
+        // The finishing projection may rewrite block identities. Rebind the
+        // already-issued Call payload before the handoff moves it affinely.
+        if matches!(self.terminal_relation.as_ref(), Some(TerminalRelationV1::Call(_))) {
+            self.rebind_root_call_entry(owner, &projection)?;
+        }
         if artifact
             && self.finalized_root_observation(owner)
                 != RootOrdinaryNewObservation::SourceCompleteAtFinalization

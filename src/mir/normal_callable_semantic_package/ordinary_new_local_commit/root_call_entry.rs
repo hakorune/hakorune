@@ -38,6 +38,97 @@ impl OrdinaryNewClaimLedgerV1 {
         )
     }
 
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn rebind_root_call_entry(
+        &self,
+        owner: FunctionOwnerIdV1,
+        projection: &super::super::physical_boundary::FinishedBindings,
+    ) -> Result<(), String> {
+        let mut exits = self.root_exits.borrow_mut();
+        let Some(progress) = exits.get_mut(&owner) else {
+            return Err(freeze("root-call-entry-missing"));
+        };
+        let RootHomeExitProgress::Emitted { bindings, entry, .. } = progress else {
+            return Err(freeze("root-call-entry-missing"));
+        };
+        let RootHomeExitEntry::Call {
+            arguments,
+            invoke,
+            projection: result_projection,
+            frame,
+            ..
+        } = entry
+        else {
+            return Ok(());
+        };
+        let map = |binding: &(BasicBlockId, MirInstruction)| {
+            projection
+                .binding(binding.0, &binding.1)?
+                .ok_or_else(|| freeze("root-call-binding-contracted"))
+        };
+        let mapped_arguments = arguments.iter().map(map).collect::<Result<Vec<_>, _>>()?;
+        let mapped_invoke = map(invoke)?;
+        let mapped_projection = map(result_projection)?;
+        let mapped_frame = map(frame)?;
+        let mapped_cleanup = projection.bindings(bindings)?;
+        *arguments = mapped_arguments;
+        *invoke = mapped_invoke;
+        *result_projection = mapped_projection;
+        *frame = mapped_frame;
+        *bindings = mapped_cleanup;
+        Ok(())
+    }
+
+    pub(crate) fn take_finalized_root_call(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Option<(RootHomeExitEntry, Vec<(BasicBlockId, MirInstruction)>)>, String> {
+        let mut exits = self.root_exits.borrow_mut();
+        let Some(progress) = exits.get_mut(&owner) else {
+            return Ok(None);
+        };
+        let state = std::mem::replace(progress, RootHomeExitProgress::Finalized);
+        match state {
+            RootHomeExitProgress::Emitted {
+                bindings,
+                entry:
+                    RootHomeExitEntry::Call {
+                        row,
+                        arguments,
+                        invoke,
+                        projection,
+                        frame,
+                    },
+                ..
+            } => Ok(Some((
+                RootHomeExitEntry::Call {
+                    row,
+                    arguments,
+                    invoke,
+                    projection,
+                    frame,
+                },
+                bindings,
+            ))),
+            RootHomeExitProgress::Emitted {
+                origins,
+                bindings,
+                entry: RootHomeExitEntry::Plain,
+            } => {
+                *progress = RootHomeExitProgress::Emitted {
+                    origins,
+                    bindings,
+                    entry: RootHomeExitEntry::Plain,
+                };
+                Ok(None)
+            }
+            RootHomeExitProgress::Finalized => Err(freeze("root-call-already-finalized")),
+            other => {
+                *progress = other;
+                Err(freeze("root-call-entry-unavailable"))
+            }
+        }
+    }
+
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_call_entry(
         &self,
         function: &MirFunction,
@@ -121,6 +212,46 @@ impl OrdinaryNewClaimLedgerV1 {
             &mapped(projection)?,
         )?;
         Ok(())
+    }
+}
+
+impl RootHomeExitEntry {
+    pub(crate) fn call_row(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1>
+    {
+        match self {
+            Self::Call { row, .. } => Some(row),
+            Self::Plain => None,
+        }
+    }
+
+    pub(crate) fn call_arguments(&self) -> Option<&[(BasicBlockId, MirInstruction)]> {
+        match self {
+            Self::Call { arguments, .. } => Some(arguments),
+            Self::Plain => None,
+        }
+    }
+
+    pub(crate) fn call_invoke(&self) -> Option<&(BasicBlockId, MirInstruction)> {
+        match self {
+            Self::Call { invoke, .. } => Some(invoke),
+            Self::Plain => None,
+        }
+    }
+
+    pub(crate) fn call_projection(&self) -> Option<&(BasicBlockId, MirInstruction)> {
+        match self {
+            Self::Call { projection, .. } => Some(projection),
+            Self::Plain => None,
+        }
+    }
+
+    pub(crate) fn call_frame(&self) -> Option<&(BasicBlockId, MirInstruction)> {
+        match self {
+            Self::Call { frame, .. } => Some(frame),
+            Self::Plain => None,
+        }
     }
 }
 

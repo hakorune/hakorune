@@ -17,10 +17,11 @@ pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         entry: RootHomeExitEntry,
     },
+    Finalized,
 }
 
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitEntry {
+pub(crate) enum RootHomeExitEntry {
     Plain,
     Call {
         row: crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
@@ -75,6 +76,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         Some(
                             RootHomeExitProgress::Unavailable
                                 | RootHomeExitProgress::Emitted { .. }
+                                | RootHomeExitProgress::Finalized
                         )
                     )
             })
@@ -89,7 +91,8 @@ impl OrdinaryNewClaimLedgerV1 {
                         exits.get(&completion.owner()),
                         Some(
                             RootHomeExitProgress::Unavailable
-                                | RootHomeExitProgress::Emitted { .. },
+                                | RootHomeExitProgress::Emitted { .. }
+                                | RootHomeExitProgress::Finalized,
                         )
                     )
             });

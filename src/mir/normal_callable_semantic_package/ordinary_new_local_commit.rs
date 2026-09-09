@@ -23,6 +23,8 @@ use crate::parser::CallableDeclarationIdentityV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
+use self::root_home::RootHomeExitEntry;
+
 #[derive(Debug)]
 pub(super) enum RootNewValidation {
     Unregistered,
@@ -122,11 +124,16 @@ pub(super) use local_entry::LocalCommitV1;
 /// Exact source relation retained after its matching physical root passed
 /// final validation. This is transport only: it cannot select an entry ABI or
 /// recreate source membership from a physical key.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(crate) struct FinalizedRootSourceHandoffV1 {
     birth_actuals: Box<[FinalizedBirthActualsV1]>,
     app_main_identity: CallableDeclarationIdentityV1,
     terminal: TerminalRelationV1,
+    // Existing physical Call payload, moved from the owner-indexed ledger at
+    // the finalization boundary. This is retention only; it does not select
+    // an ABI or infer a target from emitted MIR.
+    call_entry: Option<RootHomeExitEntry>,
+    call_cleanup: Box<[(BasicBlockId, MirInstruction)]>,
 }
 
 impl FinalizedRootSourceHandoffV1 {
@@ -155,6 +162,14 @@ impl FinalizedRootSourceHandoffV1 {
 
     pub(crate) fn app_main_identity(&self) -> &CallableDeclarationIdentityV1 {
         &self.app_main_identity
+    }
+
+    pub(crate) fn call_entry(&self) -> Option<&RootHomeExitEntry> {
+        self.call_entry.as_ref()
+    }
+
+    pub(crate) fn call_cleanup(&self) -> &[(BasicBlockId, MirInstruction)] {
+        &self.call_cleanup
     }
 
     pub(crate) fn terminal_i64_add(&self) -> Option<&TerminalI64AddReturnV1> {

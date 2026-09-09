@@ -224,6 +224,68 @@ fn source_terminal_call_preserves_both_cleanup_paths_through_finishing() {
     }
 }
 
+#[test]
+fn source_terminal_call_payload_moves_into_final_root_handoff() {
+    let mut package = issue(
+        "static box Main { main() { return helper(30, 5) } helper(value: i64, other: i64): i64 { local m = %{\"v\" => value} return 30 } }",
+    )
+    .unwrap();
+    let mut loan = package.app_main_direct_call_loan.take().unwrap();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .unwrap();
+    let mut builder = MirBuilder::new();
+    let mut function = package
+        .batch()
+        .with_lowering_input_and_source_identity(
+            declaration.batch_slot(),
+            |input, identity| {
+                builder.lower_map_dependency_for_test(
+                    input,
+                    SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                    main.parser_identity(),
+                    identity.method_source_observation().cloned(),
+                    std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                    Some(&mut loan),
+                )
+            },
+        )
+        .unwrap()
+        .unwrap();
+    loan.finish_empty().unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let observation = ledger.validate_finalized_new_root(&function).unwrap();
+    function.install_root_ordinary_new_observation(observation).unwrap();
+    ledger
+        .validate_after_compiler_finishing(&function)
+        .unwrap();
+    let handoff = ledger
+        .seal_finalized_root_birth_handoff(
+            "Main.main/0".into(),
+            &std::collections::BTreeSet::new(),
+            None,
+        )
+        .unwrap();
+    let root = handoff.root_source().expect("retained Call source relation");
+    assert!(root.call_entry().is_some(), "Call payload is retained");
+    assert!(root.call_entry().unwrap().call_invoke().is_some());
+    assert!(!root.call_cleanup().is_empty(), "Call bindings stay retained");
+    let duplicate = ledger
+        .seal_finalized_root_birth_handoff(
+            "Main.main/0".into(),
+            &std::collections::BTreeSet::new(),
+            None,
+        )
+        .expect_err("a finalized Call payload cannot be taken twice");
+    assert!(duplicate.contains("root-call-already-finalized"), "{duplicate}");
+}
+
 fn follow_jumps(
     function: &crate::mir::MirFunction,
     mut id: crate::mir::BasicBlockId,

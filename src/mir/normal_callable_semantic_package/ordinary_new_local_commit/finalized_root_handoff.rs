@@ -20,7 +20,11 @@ impl OrdinaryNewClaimLedgerV1 {
         // Structural exclusivity replaces collision checks, not physical progress.
         if let Some(terminal) = &self.terminal_relation {
             match terminal {
-                TerminalRelationV1::Call(_) => return Err(freeze("artifact-call-consumer-missing")),
+                TerminalRelationV1::Call(relation) => {
+                    if relation.owner() != owner {
+                        return Err(freeze("artifact-call-owner-drift"));
+                    }
+                }
                 TerminalRelationV1::I64Add(relation) => {
                     if relation.owner() != owner || !self.terminal_result_complete() {
                         return Err(freeze("artifact-root-result-unavailable"));
@@ -53,6 +57,30 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
+        let call_payload = if matches!(
+            self.terminal_relation.as_ref(),
+            Some(TerminalRelationV1::Call(_))
+        ) {
+            let (entry, cleanup) = self
+                .take_finalized_root_call(owner)?
+                .ok_or_else(|| freeze("artifact-call-physical-missing"))?;
+            Some((entry, cleanup.into_boxed_slice()))
+        } else {
+            if self.take_finalized_root_call(owner)?.is_some() {
+                return Err(freeze("artifact-call-terminal-drift"));
+            }
+            None
+        };
+        let (call_entry, call_cleanup) = match call_payload {
+            Some((entry, cleanup)) => (Some(entry), cleanup),
+            None => (
+                None,
+                Vec::<(BasicBlockId, MirInstruction)>::new().into_boxed_slice(),
+            ),
+        };
+        if self.terminal_relation.is_none() && call_entry.is_some() {
+            return Err(freeze("artifact-call-root-source-missing"));
+        }
         let mut root_source = self
             .terminal_relation
             .as_ref()
@@ -64,7 +92,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         .as_ref()
                         .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
                         .clone(),
-                    terminal: terminal.clone(),
+                        terminal: terminal.clone(),
+                    call_entry,
+                    call_cleanup,
                 })
             })
             .transpose()?;

@@ -459,8 +459,11 @@ ordinary-New emission validators after finalization, keyed by the active
 FunctionOwnerIdV1. This closes the draft-validation bypass without creating a
 second Completion, physical boundary, or install/ABI consumer. The same
 owner-indexed PhysicalBoundary is retained for the child and rechecked during
-finishing; artifact coverage consumes the validated child symbol. Ordinary Map
-installation and ABI emission remain explicit Stops.
+finishing; artifact coverage consumes the validated child symbol. The root's
+existing Call row is rebound through the finishing projection and moved once
+with its cleanup bindings into the finalized source handoff. This preserves
+the physical payload only; ordinary Map installation and ABI emission remain
+explicit Stops.
 
 | Relation | Dedicated consumption and retained result |
 | --- | --- |
