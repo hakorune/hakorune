@@ -123,7 +123,7 @@ fn map_cleanup_coordinates_follow_physical_block_contraction() {
                 ordinary_call: None,
             },
             false,
-            None,
+            &[],
         )
         .unwrap();
         let rows = issue_cleanup_coordinates(&[physical]).unwrap();

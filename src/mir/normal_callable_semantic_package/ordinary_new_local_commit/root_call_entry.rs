@@ -6,6 +6,21 @@ use crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRo
 use crate::mir::ConstValue;
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn record_root_local_call_bindings(
+        &self,
+        owner: FunctionOwnerIdV1,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<(), String> {
+        if bindings.is_empty() {
+            return Err(freeze("local-call-bindings-empty"));
+        }
+        let mut rows = self.root_local_call_bindings.borrow_mut();
+        if rows.insert(owner, bindings).is_some() {
+            return Err(freeze("duplicate-local-call-bindings"));
+        }
+        Ok(())
+    }
+
     pub(crate) fn terminal_call_arguments(&self) -> Option<&[i64]> {
         self.call_source_completion()
             .map(|(_, terminal)| terminal.arguments())
@@ -37,12 +52,18 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         row.lifecycle_emission()
             .map_err(|_| freeze("call-source-mismatch"))?;
+        let local_bindings = self
+            .root_local_call_bindings
+            .borrow_mut()
+            .remove(&owner)
+            .unwrap_or_default();
         self.record_root_home_exit_with_entry(
             owner,
             origins,
             bindings,
             RootHomeExitEntry::Call {
                 row,
+                local_bindings,
                 arguments,
                 invoke,
                 projection,
@@ -60,10 +81,14 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(progress) = exits.get_mut(&owner) else {
             return Err(freeze("root-call-entry-missing"));
         };
-        let RootHomeExitProgress::Emitted { bindings, entry, .. } = progress else {
+        let RootHomeExitProgress::Emitted {
+            bindings, entry, ..
+        } = progress
+        else {
             return Err(freeze("root-call-entry-missing"));
         };
         let RootHomeExitEntry::Call {
+            local_bindings,
             arguments,
             invoke,
             projection: result_projection,
@@ -78,11 +103,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 .binding(binding.0, &binding.1)?
                 .ok_or_else(|| freeze("root-call-binding-contracted"))
         };
+        let mapped_local_bindings = local_bindings
+            .iter()
+            .map(map)
+            .collect::<Result<Vec<_>, _>>()?;
         let mapped_arguments = arguments.iter().map(map).collect::<Result<Vec<_>, _>>()?;
         let mapped_invoke = map(invoke)?;
         let mapped_projection = map(result_projection)?;
         let mapped_frame = map(frame)?;
         let mapped_cleanup = projection.bindings(bindings)?;
+        *local_bindings = mapped_local_bindings;
         *arguments = mapped_arguments;
         *invoke = mapped_invoke;
         *result_projection = mapped_projection;
@@ -106,6 +136,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 entry:
                     RootHomeExitEntry::Call {
                         row,
+                        local_bindings,
                         arguments,
                         invoke,
                         projection,
@@ -115,6 +146,7 @@ impl OrdinaryNewClaimLedgerV1 {
             } => Ok(Some((
                 RootHomeExitEntry::Call {
                     row,
+                    local_bindings,
                     arguments,
                     invoke,
                     projection,
@@ -158,6 +190,7 @@ impl OrdinaryNewClaimLedgerV1 {
             };
         };
         let RootHomeExitEntry::Call {
+            local_bindings,
             row,
             arguments,
             invoke,
@@ -207,6 +240,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 instruction,
             )? {
                 return Err(freeze("call-binding-drift"));
+            }
+        }
+        for (id, instruction) in local_bindings {
+            if !super::super::physical_boundary::check_binding(
+                function,
+                finishing,
+                *id,
+                instruction,
+            )? {
+                return Err(freeze("local-call-binding-drift"));
             }
         }
         let mapped = |binding: &(BasicBlockId, MirInstruction)| match finishing {
@@ -275,6 +318,7 @@ impl RootHomeExitEntry {
         bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
     ) {
         if let Self::Call {
+            local_bindings,
             arguments,
             invoke,
             projection,
@@ -282,6 +326,7 @@ impl RootHomeExitEntry {
             ..
         } = self
         {
+            bindings.extend_from_slice(local_bindings);
             bindings.extend_from_slice(arguments);
             bindings.push(invoke.clone());
             bindings.push(projection.clone());

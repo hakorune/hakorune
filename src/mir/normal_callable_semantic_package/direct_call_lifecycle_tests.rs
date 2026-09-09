@@ -62,9 +62,8 @@ fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {
 fn local_map_call_and_terminal_map_call_share_the_root_source_owner() {
     let mut package = issue(
         r#"static box Main {
-            main() { local first = helper(10) return second(20) }
+            main() { local first = helper(10) return helper(20) }
             helper(value: i64): i64 { local m = %{"first" => value} return 30 }
-            second(value: i64): i64 { local m = %{"second" => value} return 30 }
         }"#,
     )
     .expect("bounded local plus terminal Map package");

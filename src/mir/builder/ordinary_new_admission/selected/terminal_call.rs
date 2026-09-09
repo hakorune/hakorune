@@ -170,16 +170,20 @@ pub(in crate::mir::builder) fn emit_local(
         normal_landing,
         fault_landing,
     };
-    builder.emit_instruction(invoke)?;
+    builder.emit_instruction(invoke.clone())?;
     builder.start_new_block(normal_landing)?;
-    builder.emit_instruction(MirInstruction::InvokeNormalResult {
+    let projection = MirInstruction::InvokeNormalResult {
         invoke_block: origin,
         dst: result,
-    })?;
+    };
+    builder.emit_instruction(projection.clone())?;
     builder
         .function_state
         .type_ctx
         .value_types
         .insert(result, MirType::Integer);
+    bindings.push((origin, invoke));
+    bindings.push((normal_landing, projection));
+    ledger.record_root_local_call_bindings(owner, bindings)?;
     Ok(result)
 }

@@ -156,6 +156,10 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_validation: RefCell<local_commit::RootNewValidation>,
     child_physical_validation: RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::ChildPhysicalValidation>>,
     root_exits: RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::RootHomeExitProgress>>,
+    // Physical bindings for the bounded source-local Call prefix. These are
+    // consumed by the existing root Call entry; they do not issue a target or
+    // create a second lifecycle owner.
+    root_local_call_bindings: RefCell<BTreeMap<FunctionOwnerIdV1, Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>>>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
     terminal_relation: Option<TerminalRelationV1>,
@@ -234,6 +238,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),
             child_physical_validation: RefCell::new(BTreeMap::new()),
             root_exits: RefCell::new(BTreeMap::new()),
+            root_local_call_bindings: RefCell::new(BTreeMap::new()),
             field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             terminal_relation: None,

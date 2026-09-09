@@ -33,12 +33,12 @@ fn non_unit_call_stays_before_physical_export() {
             fault_landing: crate::mir::BasicBlockId::new(3),
         };
         if ordinary {
-            assert!(validate_instruction(&instruction, false, Some(&expected_call)).is_ok());
-            assert!(validate_instruction(&instruction, false, None)
+            assert!(validate_instruction(&instruction, false, std::slice::from_ref(&expected_call)).is_ok());
+            assert!(validate_instruction(&instruction, false, &[])
                 .unwrap_err()
                 .contains("instruction-unsupported"));
         } else {
-            assert!(validate_instruction(&instruction, false, None)
+            assert!(validate_instruction(&instruction, false, &[])
                 .unwrap_err()
                 .contains("instruction-unsupported"));
         }

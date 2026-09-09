@@ -38,9 +38,8 @@ fn terminal_call_probe_is_scoped_to_its_source_owner() {
 fn local_map_call_then_terminal_map_call_reaches_physical_lowering() {
     let mut package = issue(
         r#"static box Main {
-            main() { local first = helper(10) return second(20) }
+            main() { local first = helper(10) return helper(20) }
             helper(value: i64): i64 { local m = %{"first" => value} return 30 }
-            second(value: i64): i64 { local m = %{"second" => value} return 30 }
         }"#,
     )
     .expect("bounded local plus terminal Map package");

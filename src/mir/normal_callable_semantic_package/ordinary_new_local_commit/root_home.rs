@@ -25,6 +25,7 @@ pub(crate) enum RootHomeExitEntry {
     Plain,
     Call {
         row: crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        local_bindings: Vec<(BasicBlockId, MirInstruction)>,
         arguments: Vec<(BasicBlockId, MirInstruction)>,
         invoke: (BasicBlockId, MirInstruction),
         projection: (BasicBlockId, MirInstruction),
@@ -185,6 +186,15 @@ impl OrdinaryNewClaimLedgerV1 {
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         entry: RootHomeExitEntry,
     ) -> Result<(), String> {
+        if matches!(entry, RootHomeExitEntry::Plain)
+            && self
+                .root_local_call_bindings
+                .borrow()
+                .get(&owner)
+                .is_some_and(|bindings| !bindings.is_empty())
+        {
+            return Err(freeze("local-call-without-terminal"));
+        }
         let mut exits = self.root_exits.borrow_mut();
         let progress = exits
             .get_mut(&owner)

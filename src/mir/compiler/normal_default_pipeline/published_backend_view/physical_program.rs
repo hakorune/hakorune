@@ -223,8 +223,9 @@ impl<'module> PublishedMirBackendView<'module> {
                 ordinary_call,
             )
         };
+        let ordinary_calls = collect_ordinary_calls(root)?;
         let mut names = BTreeSet::new();
-        let mut functions = Vec::with_capacity(births.len() + ordinary_call.is_some() as usize + 1);
+        let mut functions = Vec::with_capacity(births.len() + ordinary_calls.len() + 1);
         names.insert(root.signature.name.as_str());
         functions.push(issue_function(
             root,
@@ -233,10 +234,14 @@ impl<'module> PublishedMirBackendView<'module> {
                 ordinary_call: ordinary_call.clone(),
             },
             handoff.script_array().is_some(),
-            ordinary_call.as_ref(),
+            &ordinary_calls,
         )?);
-        if let Some(call) = ordinary_call.as_ref() {
+        let mut ordinary_keys = BTreeSet::new();
+        for call in &ordinary_calls {
             let key = ordinary_callable_key(&call.callee)?;
+            if !ordinary_keys.insert(key.clone()) {
+                continue;
+            }
             let symbol = self
                 .module()
                 .canonical_callable_definition_symbol(&key)
@@ -257,7 +262,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 function,
                 PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key },
                 false,
-                None,
+                &[],
             )?);
         }
         for birth in births {
@@ -284,7 +289,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 function,
                 PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi: birth.clone() },
                 false,
-                None,
+                &[],
             )?);
         }
         Ok(PublishedLifecyclePhysicalProgramV1 {
@@ -294,11 +299,38 @@ impl<'module> PublishedMirBackendView<'module> {
     }
 }
 
+fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<MirCall>, String> {
+    let mut calls = Vec::new();
+    for instruction in function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+    {
+        let MirInstruction::Invoke {
+            operation:
+                InvokeOperation::Call {
+                    call,
+                    result: InvokeCallResultKind::I64,
+                },
+            ..
+        } = instruction
+        else {
+            continue;
+        };
+        ordinary_callable_key(&call.callee)?;
+        if call.dst.is_some() {
+            return Err(fault("ordinary-destination"));
+        }
+        calls.push(call.clone());
+    }
+    Ok(calls)
+}
+
 pub(super) fn issue_function<'module>(
     function: &'module MirFunction,
     role: PublishedLifecyclePhysicalFunctionRoleV1,
     script: bool,
-    ordinary_call: Option<&MirCall>,
+    ordinary_calls: &[MirCall],
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
     let mut ids: Vec<_> = function.blocks.keys().copied().collect();
     ids.sort();
@@ -317,13 +349,13 @@ pub(super) fn issue_function<'module>(
             .ok_or_else(|| fault("block-terminator-missing"))?;
         let mut instructions = Vec::with_capacity(block.instructions.len());
         for (index, instruction) in block.instructions.iter().enumerate() {
-            validate_instruction(instruction, script, ordinary_call)?;
+            validate_instruction(instruction, script, ordinary_calls)?;
             instructions.push(PublishedLifecyclePhysicalInstructionRefV1 {
                 index: as_u32(index, "instruction-index")?,
                 instruction,
             });
         }
-        validate_instruction(terminator, script, ordinary_call)?;
+        validate_instruction(terminator, script, ordinary_calls)?;
         let terminator_index = as_u32(block.instructions.len(), "terminator-index")?;
         let edges = block
             .out_edges()
@@ -343,7 +375,7 @@ pub(super) fn issue_function<'module>(
             edges,
         });
     }
-    if let Some(expected) = ordinary_call {
+    for expected in ordinary_calls {
         let count = blocks
             .iter()
             .flat_map(|block| {
@@ -375,7 +407,7 @@ pub(super) fn issue_function<'module>(
 fn validate_instruction(
     instruction: &MirInstruction,
     script: bool,
-    ordinary_call: Option<&MirCall>,
+    ordinary_calls: &[MirCall],
 ) -> Result<(), String> {
     if script {
         return if matches!(
@@ -412,7 +444,7 @@ fn validate_instruction(
                 result: InvokeCallResultKind::I64,
             },
             ..
-        } if ordinary_call.is_some_and(|expected| expected == call)
+        } if ordinary_calls.iter().any(|expected| expected == call)
     );
     let supported = ordinary
         || matches!(

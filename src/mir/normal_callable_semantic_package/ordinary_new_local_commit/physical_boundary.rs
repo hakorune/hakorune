@@ -26,6 +26,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
     nodes: BTreeMap<BasicBlockId, Node>,
     incoming: Incoming,
     removable_constants: BTreeSet<ValueId>,
+    removable_copies: BTreeSet<ValueId>,
 }
 
 pub(super) struct FinishedBindings {
@@ -37,14 +38,21 @@ pub(super) struct FinishedBindings {
 impl PhysicalBoundary {
     pub(super) fn capture(function: &MirFunction, bindings: &Bindings) -> Result<Self, String> {
         let used = used_values(function);
+        let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
         let mut definitions = BTreeMap::<ValueId, usize>::new();
-        for instruction in function.blocks.values().flat_map(|b| b.all_instructions()) {
+        for instruction in function
+            .blocks
+            .values()
+            .filter(|block| reachable.contains(&block.id))
+            .flat_map(|b| b.all_instructions())
+        {
             if let Some(dst) = instruction.dst_value() {
                 *definitions.entry(dst).or_default() += 1;
             }
         }
         let recorded: BTreeSet<_> = bindings.iter().filter_map(|(_, i)| i.dst_value()).collect();
         let mut removable_constants = BTreeSet::new();
+        let mut removable_copies = BTreeSet::new();
         let ids: BTreeSet<_> = bindings.iter().map(|(id, _)| *id).collect();
         let mut nodes = BTreeMap::new();
         for id in &ids {
@@ -60,12 +68,26 @@ impl PhysicalBoundary {
                 return Err(fault("phi-in-recorded-block"));
             }
             for instruction in &block.instructions {
-                if let MirInstruction::Const { dst, .. } = instruction {
-                    if !used.contains(dst)
-                        && !recorded.contains(dst)
-                        && definitions.get(dst) == Some(&1)
+                let candidate = match instruction {
+                    MirInstruction::Const { dst, .. } | MirInstruction::Copy { dst, .. } => {
+                        Some(*dst)
+                    }
+                    _ => None,
+                };
+                if let Some(dst) = candidate {
+                    if !used.contains(&dst)
+                        && !recorded.contains(&dst)
+                        && definitions.get(&dst) == Some(&1)
                     {
-                        removable_constants.insert(*dst);
+                        match instruction {
+                            MirInstruction::Const { .. } => {
+                                removable_constants.insert(dst);
+                            }
+                            MirInstruction::Copy { .. } => {
+                                removable_copies.insert(dst);
+                            }
+                            _ => unreachable!("candidate is const or copy"),
+                        }
                     }
                 }
             }
@@ -118,6 +140,7 @@ impl PhysicalBoundary {
             nodes,
             incoming: incoming(function, &ids),
             removable_constants,
+            removable_copies,
         })
     }
 
@@ -182,9 +205,12 @@ impl PhysicalBoundary {
         if projection.destinations.len() != self.nodes.len() {
             return Err(fault("unmapped-block"));
         }
-        // DCE may remove an unrecorded Const already unused before finishing.
-        // This is a one-way omission permission, never an actual-side filter.
-        if !self.removable_constants.is_disjoint(&used_values(function)) {
+        // DCE may remove an unrecorded Const or Copy already unused before
+        // finishing. These are one-way omission permissions, never an
+        // actual-side filter.
+        let used = used_values(function);
+        if !self.removable_constants.is_disjoint(&used) || !self.removable_copies.is_disjoint(&used)
+        {
             return Err(fault("unused-constant-became-used"));
         }
         for (id, (instructions, terminal)) in &projection.sequences {
@@ -198,9 +224,13 @@ impl PhysicalBoundary {
             for expected in &instructions {
                 if remaining.peek().is_some_and(|actual| *actual == expected) {
                     remaining.next();
-                } else if !matches!(expected, MirInstruction::Const { dst, .. }
+                } else if matches!(expected, MirInstruction::Const { dst, .. }
                     if self.removable_constants.contains(dst))
+                    || matches!(expected, MirInstruction::Copy { dst, .. }
+                        if self.removable_copies.contains(dst) || !used.contains(dst))
                 {
+                    continue;
+                } else {
                     return Err(fault("finished-sequence"));
                 }
             }
@@ -315,9 +345,11 @@ fn fault(reason: &str) -> String {
 }
 
 fn used_values(function: &MirFunction) -> BTreeSet<ValueId> {
+    let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
     function
         .blocks
         .values()
+        .filter(|block| reachable.contains(&block.id))
         .flat_map(|block| block.all_instructions())
         .flat_map(MirInstruction::used_values)
         .collect()
