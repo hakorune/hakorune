@@ -42,7 +42,7 @@ pub(super) struct VerifiedCallableResultContractRowV1 {
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: Rc<VerifiedFunctionCompletionV1>,
-    terminal_relation: Option<TerminalRelationV1>,
+    terminal_relation: Option<Rc<TerminalRelationV1>>,
 }
 
 #[derive(Clone, Copy)]
@@ -96,7 +96,7 @@ impl VerifiedCallableResultContractRowV1 {
             self.role,
             self.result,
             self.completion.as_ref(),
-            self.terminal_relation.as_ref(),
+            self.terminal_relation.as_deref(),
         )
     }
 }

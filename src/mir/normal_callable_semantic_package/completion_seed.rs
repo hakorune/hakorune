@@ -28,7 +28,7 @@ pub(super) struct VerifiedCallableCompletionSeedV1 {
     role: crate::mir::builder::SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: Rc<VerifiedFunctionCompletionV1>,
-    terminal_relation: Option<TerminalRelationV1>,
+    terminal_relation: Option<Rc<TerminalRelationV1>>,
 }
 
 impl VerifiedCallableCompletionSeedV1 {
@@ -57,7 +57,7 @@ impl VerifiedCallableCompletionSeedV1 {
         crate::mir::builder::SelectedCallableConsumptionRoleV1,
         Option<ExactTrivialScalarAbiV1>,
         Rc<VerifiedFunctionCompletionV1>,
-        Option<TerminalRelationV1>,
+        Option<Rc<TerminalRelationV1>>,
     ) {
         (
             self.batch_slot,
@@ -172,7 +172,7 @@ impl VerifiedCallableCompletionSeedCohortV1 {
             role,
             result,
             completion: Rc::new(completion),
-            terminal_relation,
+            terminal_relation: terminal_relation.map(Rc::new),
         });
         Ok(())
     }
@@ -188,6 +188,19 @@ impl VerifiedCallableCompletionSeedCohortV1 {
         self.rows
             .iter()
             .map(|row| (row.owner, Rc::clone(&row.completion)))
+            .collect()
+    }
+
+    pub(super) fn terminal_relation_index(
+        &self,
+    ) -> std::collections::BTreeMap<FunctionOwnerIdV1, Rc<TerminalRelationV1>> {
+        self.rows
+            .iter()
+            .filter_map(|row| {
+                row.terminal_relation
+                    .as_ref()
+                    .map(|relation| (row.owner, Rc::clone(relation)))
+            })
             .collect()
     }
 }

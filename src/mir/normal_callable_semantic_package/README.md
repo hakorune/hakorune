@@ -447,6 +447,13 @@ The terminal relations are separate source proofs carried by one internal
 Only the not-yet-issued ledger uses `Option`; a finalized source handoff retains
 one nonoptional relation. Physical progress remains separate and mandatory:
 
+For selected ordinary children, the same issued terminal relation is retained by
+`Rc` in the result-contract row and the owner-indexed ledger view. The ledger
+borrows that product for the physical consumer; it does not clone or reclassify
+the relation. The first owner-indexed consumer is the exact integer-literal
+return. Other terminal forms remain stopped until their existing physical
+progress can be consumed with the same owner/site checks.
+
 | Relation | Dedicated consumption and retained result |
 | --- | --- |
 | TerminalI64AddReturnV1 | Exact owner/Return/Add and ordered two qualifying FieldRead sites; reserve once, consume receivers/reads in order, emit Add, pass the exact result through cleanup/Return. |

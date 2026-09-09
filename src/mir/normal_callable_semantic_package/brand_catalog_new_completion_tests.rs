@@ -247,7 +247,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         value: crate::mir::ConstValue::Integer(literal),
     });
     ledger
-        .record_terminal_integer_literal_return(result)
+        .record_terminal_integer_literal_return(sites[0].owner(), result)
         .unwrap();
     exit_block.set_terminator(exit.clone());
     physical.add_block(exit_block);

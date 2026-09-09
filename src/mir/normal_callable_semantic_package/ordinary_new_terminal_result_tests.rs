@@ -107,6 +107,59 @@ fn direct_integer_literal_issues_exact_terminal_relation() {
 }
 
 #[test]
+fn ordinary_child_literal_relation_is_borrowed_by_owner() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { birth() { } } static box Main {
+            main() { return helper(0) }
+            helper(value: i64): i64 { local page = new Page() local m = %{\"v\" => value} return 30 }
+        }",
+    )
+    .expect("ordinary child source package");
+    let owner = package
+        .batch()
+        .declarations()
+        .find_map(|declaration| {
+            package
+                .batch()
+                .with_lowering_input(declaration.batch_slot(), |input| {
+                    input
+                        .function()
+                        .expression_source()
+                        .initializers()
+                        .next()
+                        .map(|_| declaration.owner())
+                })
+                .expect("same batch loan")
+        })
+        .expect("helper owner");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let relation = ledger
+        .terminal_integer_literal_return_for_owner(owner)
+        .expect("ordinary child literal relation");
+    let completion = ledger.completion_index.get(&owner).unwrap().as_ref().unwrap();
+    assert_eq!(relation.owner(), owner);
+    assert_eq!(relation.value(), 30);
+    assert_eq!(completion.explicit_site(), Some(relation.return_site()));
+    let value = ledger
+        .prepare_terminal_integer_literal_return(owner, relation.return_site().node())
+        .unwrap()
+        .expect("owner-indexed literal consumer");
+    assert_eq!(value, 30);
+    let foreign_owner = package
+        .batch()
+        .declarations()
+        .find(|declaration| declaration.owner() != owner)
+        .expect("app main owner")
+        .owner();
+    assert!(ledger
+        .prepare_terminal_integer_literal_return(foreign_owner, relation.return_site().node())
+        .is_err());
+    ledger
+        .record_terminal_integer_literal_return(owner, crate::mir::ValueId(900))
+        .unwrap();
+}
+
+#[test]
 fn direct_i64_field_issues_exact_terminal_relation() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return pair.left } }",

@@ -260,7 +260,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             return Ok(None);
         };
         let emitted = crate::mir::builder::emission::constant::emit_integer(builder, value)?;
-        ledger.record_terminal_integer_literal_return(emitted)?;
+        ledger.record_terminal_integer_literal_return(owner, emitted)?;
         Ok(Some(emitted))
     }
 

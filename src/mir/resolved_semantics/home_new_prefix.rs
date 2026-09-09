@@ -355,6 +355,18 @@ pub(crate) enum TerminalRelationV1 {
     I64Field(TerminalI64FieldReturnV1),
 }
 
+impl TerminalRelationV1 {
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        match self {
+            Self::Call(row) => row.owner,
+            Self::I64Add(row) => row.owner,
+            Self::Unit(row) => row.owner,
+            Self::IntegerLiteral(row) => row.owner,
+            Self::I64Field(row) => row.owner,
+        }
+    }
+}
+
 /// One source walk supplies both New-failure prefixes and terminal ownership.
 /// The caller must take the terminal from the Completion verified on this input.
 pub(crate) fn scan_new_home_flow<E>(

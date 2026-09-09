@@ -17,6 +17,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .into_iter()
             .map(|(owner, completion)| (owner, Ok(completion)))
             .collect();
+        self.terminal_relation_index = seeds.terminal_relation_index();
         if let Some(Ok(completion)) = &self.root_completion {
             self.completion_index
                 .entry(completion.owner())
