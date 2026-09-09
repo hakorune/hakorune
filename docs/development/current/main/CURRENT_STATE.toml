@@ -48,7 +48,9 @@ OBJ/EXE caller cutover; untyped storage and child cleanup remain separate.
 That caller is now paused at ROOT-METHOD-CALL-D0: Main.main's lexical
 pair.sum() has resolver MethodCall facts but no verified source-to-target issuer
 that can feed the existing AppMain lifecycle loan. Physical V2/C V4 remains
-unchanged until that source authority is named.
+unchanged until that source authority is named. The D0 census closed as
+NoSafeSlice for implementation and leaves a finite crosswalk D1 as the next
+design decision; no code or transport fallback is authorized.
 """
 next_design_card = "MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-D0"
 next_execution_card = "none"

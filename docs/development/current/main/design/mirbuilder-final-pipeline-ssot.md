@@ -1197,6 +1197,38 @@ may the root terminal callback emit the existing ordinary lifecycle `Invoke`.
 Non-claims: no new MethodCall semantic receipt, no dynamic/opaque storage, no
 child cleanup, no generic MIR-JSON Invoke support, and no OBJ/EXE acceptance.
 
+The D0 census is now closed as `NoSafeSlice` for implementation: the existing
+products are individually real but do not co-seal the required relation.
+`VerifiedResolvedMethodCallSourceV1` has site/receiver binding/selector/arity;
+`ResolvedInitializerRelationV1` has binding-to-initializer site; and
+`OrdinaryNewCandidate`/`OrdinaryNewAdmissionClaimV1` has the exact New site,
+`Pair` class, destination binding, object, and Birth key. The callable catalog
+and selected map have the `Pair.sum/0` key and result/signature rows, but none
+of these products joins the receiver binding to that selected New and target.
+`DeclaredInstanceCallRelationV1` is limited to instance-method callers, and
+`AppMainDirectCallDispositionLoanV1` is limited to direct-call observations;
+neither is a valid issuer for `Main.main -> pair.sum()`.
+
+The next D1 design task must name one package-private source issuer and prove
+this finite chain without a new semantic authority:
+
+```text
+MethodCall site
+ -> exact receiver binding
+ -> initializer relation
+ -> selected New site
+ -> canonical object/class
+ -> selector + arity
+ -> exactly one selected instance declaration
+ -> result/signature contract
+```
+
+It must reject reassigned or foreign bindings, unselected/opaque New values,
+class/target-owner drift, ambiguous selector/arity, absent selected target, and
+missing result contract before lifecycle publication. If the existing products
+cannot be joined without reissuing meaning, retain `NoSafeSlice` and leave the
+physical V2/C V4 consumer unchanged.
+
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 
 The source issuer preserves `init_fields` membership, but canonical layout must
