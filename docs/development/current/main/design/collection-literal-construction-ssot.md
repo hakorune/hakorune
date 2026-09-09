@@ -2466,11 +2466,101 @@ Helpers.consume preserves the argument Map and reaches the intended install
 Stop. Logs `/tmp/hakorune-map-install-{inventory-fixed,script-regression}.log`.
 No new backend or speed claim.
 
-Next ordered cutover blocker: audit transferred lambda Map membership/consumer inventory;
-source capability plus Map residence/Fault/cleanup co-seal for mixed-formal and
+Next ordered cutover blocker: source capability plus Map residence/Fault/cleanup
+co-seal for mixed-formal and
 other unissued candidates. Existing parameter OpaqueHandle/ExactTrivial/ExactText
 and physical tagged formals do not complete those obligations. Keep the same Map
 series open; this Stop is retirement of invalid admission, not execution coverage.
+
+### Transferred lambda Map: selected C terminal inventory
+
+ParkedSealed at 6494f39ff8, read-only worker audit. Boundary: callable/Script
+lambda source owner -> selected static V2 JSON export or lifecycle V4 physical
+input. Includes inline/body_id-backed closures containing Map and nested lambda
+bodies; excludes nonselected backends and a future canonical lambda-body consumer.
+This is a pre-artifact/body-execution Stop, not a pre-MIR-mutation guarantee.
+
+| Owner / path | Existing terminal or handoff |
+| --- | --- |
+| Source owner construction/resolver | Callable child uses SelectedCallable; Script child uses ScriptLambdaLeafV1, which rejects nested Lambda. Child body-shapes are issued separately. |
+| Callable batch issuer | Keeps declared-root shape; transferred child shape is not part of its Map preflight inventory. |
+| raw_lambda_capture_lifecycle / raw_lambda_closure_emission | Consume source capture relation; retain body AST in NewClosure/module closure_bodies without lowering body Map to generic MIR. |
+| mir_json_emit/emitters/calls.rs::emit_new_closure | Body ID or nonempty body rejects with closure-body-wire-unavailable. Static host exports before output-parent preparation and C invocation. |
+| published backend physical_program | NewClosure is absent from both ordinary/Script allowlists; instruction-unsupported. Callee::Value may stop even earlier at UnsupportedBeforeObject. |
+
+Non-authority: capture receipt, retained AST body and absent child shape cannot
+issue owning-slot permission. An empty body descriptor cannot contain Map and
+is not a bypass. Existing body_backed_new_closure_rejects_lossy_wire_projection
+is a local refusal test, not a natural-source lambda Map execution proof; no
+build or test was run for this census.
+Reopen on selected acceptance of body-backed NewClosure or connection of a
+lambda body -> canonical MIR consumer. Before that consumer is enabled, retain
+source owner, exact child Map membership, capability and cleanup together; no
+AST rescan or parent-owner repair. General lambda lineage/capture remains with
+its existing later migration owner, not a new Map implementation lane.
+
+### Owning entry and ordinary callee: accepted dependency design
+
+Decision: connect entry capability and per-callable cleanup at the existing
+package source issuance; preserve the owning-slot target. Generic clone-backed
+static execution remains compatibility evidence, not an alternate owning family.
+The required final result includes natural caller -> ordinary callee -> Map
+install/replacement/end -> OBJ/EXE, with source-authorized transfer and Fault order.
+
+| Existing authority / input | Entry meaning and retained obligation |
+| --- | --- |
+| ExactTrivial parameter contract | Currently exact I64 only. Store the proven value without a child Home; Map/key residence still needs its own cleanup. |
+| Available selected Home local | Transfer the same acquisition once at install commit; remove only that local's responsibility. |
+| Literal/Trivial local source relation | Use its actual issued capability, never a fabricated Home. Current Map walk does not yet admit it. |
+| ExactText / OpaqueHandle formal | Handle contract alone gives no owning acquisition. Keep refusal; caller literal bits cannot rewrite the callee contract. |
+| Alias/consumed/uninitialized/unknown or unsupported transfer formal | No owner recovery, implicit share, or fallback. Preserve distinct source refusal. |
+
+For every admitted entry, precommit failure leaves the candidate with its prior
+owner. Install commits once, then detached old-end runs; an old-end Fault cannot
+undo commit. Trivial values have no child-finalization action but occupy the
+same ordered slot/replacement structure. Map/key native cleanup and first-Fault
+preservation remain mandatory. These are the existing language laws, not new
+capability inference from physical tags.
+
+The same package issuer already owns parameter contracts (`issuer.rs` around
+528/553) but does not pass them to `issue_ordinary_new_claims_v1` around699.
+That existing issuance is the connection point. `MapHomeEntry` currently means
+Home acquisition/transfer; its internal representation must distinguish a
+proven Trivial value from that obligation without sentinel acquisitions or a
+parallel receipt. A per-callable Completion must preserve the callee's normal
+result and cleanup/Fault obligation; the present single root_completion cannot
+be relabelled as arbitrary-callee proof.
+
+Ordered tasks, all inside the existing Map series:
+1. Fix the source-to-Completion mapping in the existing package/Home walk:
+   exact EntryValue + declaration-issued capability + availability + normal/
+   Fault obligations. Enumerate all current entry arms and opaque inputs;
+   specify ordinary-callee completion alongside root completion. Delete the
+   implicit all-entries-are-Home assumption only with its actual replacement.
+2. Connect the required value/residence cases in existing checked Map storage
+   and install ABI. Today InstallIndexed/IndexedResidence require object ID and
+   indexed handle; I64 bits cannot use them. Retire the selected indexed-only
+   assumption while retaining its real Home consumer, key failure, detached-end
+   failure and reverse-order cleanup. No generic MapBox clone adapter.
+3. Extend existing physical program/compiled-entry invocation for ordinary
+   callable completion. Today roles/functions are Root+BirthUnit and Invoke Call
+   accepts only BirthConstructor. Specify arguments, normal-only result and
+   Fault/cleanup transfer with the existing Fault ABI before enabling the role;
+   never borrow the infallible static calling convention as a silent substitute.
+4. Connect the natural full source chain, validate normal/Fault/duplicate-key/
+   alias refusal and both direct/linked artifacts, then remove the corresponding
+   package/physical Stops and obsolete exclusive paths in that cutover series.
+
+Acceptance cannot be met by scalar-only source, physical-tag tests, parser green
+or test-only issuance. Keep current unissued install rejection until the selected
+source/consumer chain is complete. No extra semantic program, MapManager or
+physical-kind authority. No new Home-transfer syntax, Bool/Float formal contract
+or general lambda capability is implicitly authorized.
+
+Current mode stays design_stop. The next bounded design action is task1's exact
+entry/per-callable Completion mapping against task2/3 physical requirements;
+implementation is not authorized by this dependency order alone. Read-only worker
+source/physical audit establishes the named gaps; it ran no build or fixtures.
 
 ## Remaining source obligations
 

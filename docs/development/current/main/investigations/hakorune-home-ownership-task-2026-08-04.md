@@ -1730,13 +1730,13 @@ Map deletion returns Bool, not an ownership-returning value.
 Ordered closure: accepted Map end law and plain-object compatibility -> source
 Normal/transfer flow and root Completion/Recipe cleanup co-seal;
 add consuming physical transaction; connect runtime storage/cleanup; switch
-source/host and retire the old edges with OBJ/EXE evidence. `InvokeOperation`
-currently has no Map install/detached-old result. Array write and FieldSet promise
-no mutation on Fault and cannot represent postcommit cleanup Fault. Raw
-`collection_literals::build_map_literal_with_port_v1` and Core
-`helpers_value/lower.rs` still emit generic set. Runtime
-`nyash_map_literal_store_v1`/`MapBox::insert_key_str` return no detached obligation;
-a status change alone cannot issue source transfer.
+source/host and retire the old edges with OBJ/EXE evidence. The bounded checked
+Map Invoke transaction and raw/Core IntrinsicMap/write cutovers have since
+landed; see the collection SSOT for current evidence and remaining source scope.
+Array write and FieldSet retain their separate no-mutation-on-Fault contracts.
+The generic runtime `nyash_map_literal_store_v1`/`MapBox::insert_key_str` has no
+detached obligation and is not a substitute for the checked transaction; a
+status change alone cannot issue source transfer.
 
 Included open work: candidate capability/availability, implementation of key
 residence and Map/root cleanup under the fixed end order, borrow invalidation, Dynamic read
