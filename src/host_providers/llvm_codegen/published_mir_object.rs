@@ -1,15 +1,14 @@
 //! Canonical published-MIR object ingress for the first backend cohort.
 //!
-//! The JSON file here is only the existing physical body transport.  The
-//! selected published-call target/site relation is passed separately through
-//! the versioned typed C rows; a typed failure never retries the JSON route.
+//! Static V2 retains one parsed body across query, frame planning and compile.
+//! Published targets/sites remain typed rows; failures never retry a legacy route.
 
 use std::path::{Path, PathBuf};
 
 #[cfg(test)]
 use crate::mir::emit_lifecycle_physical_abi_json;
 use crate::mir::function::{
-    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodRouteV1,
+    PublishedMirBackendView, PublishedStaticMethodRouteV1,
 };
 use crate::mir::MirModule;
 
@@ -108,21 +107,11 @@ fn compile_published_view_object<'session>(
         return Ok(Some(input.runtime_archive()));
     }
     crate::mir::backend_capability::enforce_published_backend_supported(view, "ny-llvmc-obj")?;
-    let frame = PublishedStaticMethodCFrameV1::from_view(view)
-        .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
-    let mir_json_path = transport_io::prepare_backend_input_json_file(
-        &crate::runner::mir_json_emit::emit_published_view_body(view)?,
-    )?;
+    let body = crate::runner::mir_json_emit::emit_published_view_body(view)?;
     let output = PathBuf::from(obj_out);
     transport_io::ensure_backend_output_parent(&output);
     let opts = boundary_default_object_opts(Some(output.clone()), None, None, None);
-    let result = capi_transport::compile_published_static_method_v1(
-        &mir_json_path,
-        &output,
-        frame.as_slice(),
-        &opts,
-    );
-    transport_io::remove_backend_temp_file(&mir_json_path);
+    let result = capi_transport::compile_published_static_v2(view, &body, &output, &opts);
     result.map(|()| None)
 }
 
@@ -185,3 +174,7 @@ mod native_array_c_tests;
 #[cfg(all(test, feature = "plugins"))]
 #[path = "published_map_source_tests.rs"]
 mod map_source_tests;
+
+#[cfg(all(test, feature = "plugins"))]
+#[path = "published_static_map_tests.rs"]
+mod static_map_tests;

@@ -5,7 +5,7 @@ use super::map_body_index::{MapBodyIndex, Producer, Site, ValueKey};
 use crate::mir::{ConstructionTarget, MirInstruction, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum NamedAllocationConsumer {
+pub(crate) enum NamedAllocationConsumer {
     Array,
     DirectArray,
     Map,

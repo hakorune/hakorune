@@ -28,9 +28,34 @@ class Row(ctypes.Structure):
                     ("arity", "kind", "site_id", "receiver", "index", "value", "dst", "flags")]
 
 
-compile_input = lib.hako_llvmc_compile_published_static_method_v1
-compile_input.argtypes = [ctypes.c_char_p, ctypes.POINTER(Row), ctypes.c_size_t,
-                          ctypes.c_char_p, ctypes.POINTER(ctypes.c_char_p)]
+class Frame(ctypes.Structure):
+    _fields_ = [("revision", ctypes.c_uint32), ("byte_size", ctypes.c_uint32)] + [
+        item for name in ("calls", "maps", "values", "expanded")
+        for item in ((name, ctypes.c_void_p), (name + "_count", ctypes.c_uint64))]
+
+open_session = lib.hako_llvmc_static_open_v2
+open_session.argtypes = [ctypes.c_char_p, ctypes.c_size_t,
+                        ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_char_p)]
+compile_session = lib.hako_llvmc_static_compile_v2
+compile_session.argtypes = [ctypes.c_void_p, ctypes.POINTER(Frame), ctypes.c_char_p,
+                           ctypes.POINTER(ctypes.c_char_p)]
+close_session = lib.hako_llvmc_static_close_v2
+close_session.argtypes = [ctypes.c_void_p]
+
+def compile_input(path, rows, count, output, error):
+    body = Path(os.fsdecode(path)).read_bytes()
+    handle = ctypes.c_void_p()
+    rc = open_session(body, len(body), ctypes.byref(handle), error)
+    if rc:
+        return rc
+    try:
+        frame = Frame(2, ctypes.sizeof(Frame))
+        frame.calls = ctypes.cast(rows, ctypes.c_void_p)
+        frame.calls_count = count
+        return compile_session(handle, ctypes.byref(frame), output, error)
+    finally:
+        close_session(handle)
+
 free_error = ctypes.CDLL(None).free
 free_error.argtypes = [ctypes.c_void_p]
 os.environ["HAKO_BACKEND_COMPILE_RECIPE"] = "pure-first"

@@ -2378,61 +2378,73 @@ also does not prove generic Map artifact execution impossible: the static path
 can select mixed modules. The planned dedicated write consumer replaces that gap; Map execution remains
 unproved until source/caller switching and artifact acceptance complete.
 
-### Next static host connection (2026-09-09)
+### Static V2 host checkpoint and remaining selection (2026-09-09)
 
-Decision: resume the existing V2 same-invocation host connection after Local
-queue11/14 thinning. Generic scalar/nested Map uses the existing runtime
-copy/boxed contract (`plugin/map_literal.rs`, `value_codec/decode.rs`), not
-checked V4 Home transfer. Missing Script Map lifecycle alone is not a blocker
-for this generic consumer; the independent worker's initial contrary premise
-was refuted against those owners and `static_v2_emit.inc`.
-Source authority + canonical issuer: existing literal/child relations and call
-edges; actual C Named outcomes feed the existing MapBodyIndex/frame planner.
-Non-authority: a Map name, Array lifecycle proof, or checked Home receipt cannot
-repair generic input. Runtime clone semantics remain with the existing codec.
-Fail-fast boundary: retain intrinsic configuration and original inputs within
-one invocation; missing/drifted/duplicate/residual rows reject before artifact.
-Direct-array/typed-object escape coverage remains a named existing blocker.
-Smallest next slice: connect retained query -> frame -> compile to the selected
-static host, retaining library/bytes/handle until close on success/error/cancel.
-Delete the replaced V1 host/stub/frame/file edges at the public switch; no V1
-retry or separate query-only public path. Six literal edges retire at the series
-cutover, with all affected selected hosts accounted for.
-Non-claims: current callable checked source13/EXE26/completion12 does not prove
-this generic source cutover. Acceptance remains both C walkers, unchanged natural
-scalar/nested/mixed-formal OBJ/EXE, failure/cancel closure and invalid-row refusal.
+The selected static host retains Library/document/config across actual Named
+query, existing frame planning and compile, then closes before unload on every
+path. The C invocation is initialized at its final address. Public V1 file
+entry and Rust feature branches are deleted; V2 has the feature-disabled stub.
+Generic scalar/nested Map retains the runtime copy/boxed contract, distinct from
+checked V4 Home transfer. Raw/Core literal Named allocation/birth/set are replaced
+by IntrinsicMap/MapLiteralEntryWrite in their original child evaluation order.
+No query-only host route or V1 retry exists.
 
-Implementation binding is accepted after the independent configuration and
-error-order audit at `0ae4f899af`. Reuse capture_allocation_config's two fields;
-no Rust environment classifier or semantic receipt. Initialize the C invocation
-at its final address, keep query rows inactive, and close before Library unload.
-The compiler V2 stage-specific precedence is fixed in
-[the ABI reference](../../../../reference/abi/nyrt_c_abi_v0.md#selected-static-compiler-v2-retained-invocation-accepted-not-yet-public).
-Allocation settings are closed; full ambient configuration/global-row concurrency
-is not. Existing non-host demanded projections still reject without fallback.
+Finite retirement boundary: selected Rust static object/EXE host -> C published
+V1 ingress -> compile core, and the two raw/Core literal emission arms. Includes
+host/stub/export and dedicated proof callers; excludes explicit generic
+compatibility, shared call-row schema/core, checked V4 and callable checked Map
+selection. The old V1 symbol/caller search is zero in src and lang/c-abi source;
+the shared frame backing is retained. Six literal emission edges are deleted,
+not six whole semantic families. Whole Map/R7 completion is not claimed.
 
-Finite replacement boundary: selected Rust static object/EXE host -> C published
-V1 ingress -> compile core; includes host/stub/export and their dedicated proof
-callers, excludes explicit generic compatibility ingress and lifecycle V4.
-`published_mir_object.rs` is the production caller of the two feature branches
-in `capi_transport.rs`. V1 C proof callers are published_rows_preartifact_test.c,
-pure_document_lifetime_driver.c and named_allocation_emission_test.py; migrate
-their row/error/lifetime coverage rather than retaining V1 solely for tests.
-Retire the private Named query subprocess bridge when the real retained host
-test covers query/frame/compile/cancel. Do not delete the shared call-row schema,
-existing frame backing or generic pure-first core just because their names say V1.
+Evidence: natural materialized Script6 -> direct/linked EXE12 exits30 (empty,
+all scalar classes/UTF-8, shadow MapBox, duplicates, nested, prior Local); existing
+Array5 -> EXE10 passes unchanged after rebuilding the required release runtime.
+Initial Array shadow linking lacked `nyash.box.from_i8_string_const_len_v1` in
+the stale archive; nm and reproduced linker error proved the missing dependency.
+No String downgrade or fixture rewrite. Map planning/opcode36 and literal4 pass;
+Named60, ASan document22, query16 and published row/preartifact proofs pass.
+Rust actual-C query/host test and both exact Script source positive/negative
+tests also pass; the earlier zero-test module filter is not counted as evidence.
+Logs use `/tmp/hakorune-static-v2-*.log`. Initial normalizer/Local test expectations
+counted legacy MethodCall; they now check ordered intrinsic/write output.
+The query-only invalid document retains its source and now rejects at the V2
+function index before schema/residual; the full residual proof remains in the
+published-row test. The stage order is fixed in
+[the ABI reference](../../../../reference/abi/nyrt_c_abi_v0.md#selected-static-compiler-v2-retained-invocation).
 
-One implementation series must connect complete open/query/compile/close and
-feature-disabled behavior, expose the existing frame planner through its owner,
-update input-aware capability/body export, switch both literal issuers and all
-selected hosts, then remove the named six literal and V1 ingress edges. Do not
-publish an isolated query API as a completed milestone. Acceptance includes
-existing Static/Free/Array rows and both walkers alongside natural scalar/nested/
-mixed-formal Map OBJ/EXE, same-session config mutation, dual-invalid error order,
-planner cancel and error teardown. Preserve unchanged natural inputs.
-Source budgets at this checkpoint: capi_transport519, host187, view647, C route531,
-header149, collection_literals563, Core lower736. The Core owner is near760;
-replace its Map arm in place and design a responsibility split before growth.
+
+Static V2 closeout: Map source6/direct+linked EXE12, unchanged Array5/EXE10, Map36/literal4, exact Script2 and
+actual-C query/host1 pass. C Named60/document22/query16 and published-row proofs pass. `CARGO_BUILD_JOBS=4
+cargo check --locked --profile quick --lib --no-default-features` fails identically on parent41912dd3bc and
+current at 11 unchanged runtime plugin-stub sites (plugin_loader_unified.rs and semantics.rs;
+E0308/E0609/E0599). Classified known baseline debt, not non-plugins green; logs
+`/tmp/hakorune-static-v2-no-plugins{,-parent}.log`. Parent used tracked source archive plus the unchanged
+local Cargo.lock. No dependency resolution or stub repair included.
+
+The temporary query bridge retains its original non-Map compile / Map-only
+cancel boundary. The latter fixture has no executable physical root result;
+trying to compile it is not additional Map acceptance. Do not replace its input
+with an easier result or count it as a source proof. Runtime ABI/body contracts
+and full ambient/global-row concurrency remain separate from source meaning.
+
+Decision: before natural mixed-formal closure, fix existing source-owned
+consumer selection; no fallback based on missing map_flow.
+Source authority + canonical issuer: existing callable source/Completion and
+Map entry relations must explicitly select generic copy/boxed versus checked
+Home consumption at their existing issuance boundary.
+Non-authority: callable_ledger presence, failed checked admission or absent root
+Completion cannot select generic emission or repair a checked product.
+Fail-fast boundary: unresolved/mismatched consumer selection stays before child
+emission and catalog mutation; preserve the admitted checked AppMain cohort.
+Smallest next slice: read-only selection design for the existing callable Map
+branch, naming one issuer, both consumers and the exclusive unconditional dispatch
+edge to replace. Do not add fixtures to discover a source-to-Recipe mapping.
+Non-claims: Script6 and physical expanded-formal tests do not prove natural
+callee formal values. Static/free callee -> with_callable_source_scope ->
+child_lowering_impl Map arm -> lower_callable_map_v1 always reaches checked
+begin_map_emission; co-seal Map flow is AppMain-only and map_flow requires that
+root owner. Independent worker audit confirms this concrete remaining blocker.
 
 ## Remaining source obligations
 

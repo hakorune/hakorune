@@ -9,6 +9,8 @@
 #include <assert.h>
 #include "yyjson.h"
 
+#include "static_v2_file_test_helper.h"
+
 /* Exercise the shared internal transport owner as well as the real ABI below.
  * No test-only export or duplicate row implementation is introduced. */
 static int set_err_owned(char **out, const char *message) {
@@ -190,13 +192,13 @@ static void test_same_module_prepass_uses_published_row(void) {
   }
   char *error = NULL;
   rows[1].arity = 2;
-  int rc = hako_llvmc_compile_published_static_method_v1(
+  int rc = compile_static_test_file_v2(
       input, rows, 2, output, &error);
   assert(rc != 0 && error && access(output, F_OK) != 0);
   free(error);
   error = NULL;
   rows[1].arity = 1;
-  rc = hako_llvmc_compile_published_static_method_v1(
+  rc = compile_static_test_file_v2(
       input, rows, 2, output, &error);
   if (rc != 0) fprintf(stderr, "nested prepass rc=%d: %s\n", rc, error ? error : "none");
   assert(rc == 0 && access(output, F_OK) == 0);
@@ -204,7 +206,7 @@ static void test_same_module_prepass_uses_published_row(void) {
   error = NULL;
   assert(unlink(output) == 0);
   rows[0].kind = rows[1].kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD;
-  assert(hako_llvmc_compile_published_static_method_v1(input, rows, 2, output, &error) == 0);
+  assert(compile_static_test_file_v2(input, rows, 2, output, &error) == 0);
   assert(error == NULL && access(output, F_OK) == 0);
   assert(unlink(input) == 0 && unlink(output) == 0);
 }
@@ -240,10 +242,10 @@ static void test_missing_global_rows_cannot_use_legacy_names(void) {
     rows[i].arity = 1;
   }
   char *error = NULL;
-  assert(hako_llvmc_compile_published_static_method_v1(input, rows, 2, output, &error) == 0);
+  assert(compile_static_test_file_v2(input, rows, 2, output, &error) == 0);
   assert(error == NULL && access(output, F_OK) == 0 && unlink(output) == 0);
   for (int retained = 0; retained < 2; retained++) {
-    int rc = hako_llvmc_compile_published_static_method_v1(input, &rows[retained], 1, output, &error);
+    int rc = compile_static_test_file_v2(input, &rows[retained], 1, output, &error);
     assert(rc != 0 && error && access(output, F_OK) != 0);
     /* Not a late residual error: the supplied other row is valid. */
     assert(!strstr(error, "typed row was not consumed"));
@@ -267,7 +269,7 @@ static void test_missing_global_rows_cannot_use_legacy_names(void) {
     assert(fwrite(body, 1, (size_t)(at - body), file) == (size_t)(at - body));
     assert(fputs(external, file) >= 0 && fputs(at + strlen(global), file) >= 0);
     assert(fclose(file) == 0);
-    rc = hako_llvmc_compile_published_static_method_v1(
+    rc = compile_static_test_file_v2(
         input, &rows[1 - site], 1, output, &error);
     assert(rc != 0 && error && access(output, F_OK) != 0);
     assert(!strstr(error, "typed row was not consumed"));
@@ -327,11 +329,11 @@ static void test_intrinsic_array_allocation_rows(void) {
       assert(length > 0 && length < (int)sizeof(body));
       FILE *file = fopen(input, "w");
       assert(file && fputs(body, file) >= 0 && fclose(file) == 0);
-      int rc = hako_llvmc_compile_published_static_method_v1(input, rows, 2, output, &error);
+      int rc = compile_static_test_file_v2(input, rows, 2, output, &error);
       if (test < 0) {
         if (rc) fprintf(stderr, "intrinsic allocation rc=%d: %s\n", rc, error ? error : "none");
         assert(rc == 0 && access(output, F_OK) == 0 && unlink(output) == 0);
-        assert(hako_llvmc_compile_published_static_method_v1(
+        assert(compile_static_test_file_v2(
             input, &rows[site], 1, output, &error) != 0);
         assert(error && access(output, F_OK) != 0);
         free(error); error = NULL;
@@ -387,7 +389,7 @@ int main(int argc, char **argv) {
   row.kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT;
   row.arity = 1;
   char *error = NULL;
-  int rc = hako_llvmc_compile_published_static_method_v1(
+  int rc = compile_static_test_file_v2(
       argv[1], &row, 1, argv[2], &error);
   int ok = rc != 0 && error &&
       strstr(error, "typed row was not consumed") &&

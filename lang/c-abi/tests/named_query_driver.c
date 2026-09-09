@@ -79,8 +79,12 @@ int main(int argc, char** argv) {
     row.instruction_index = call ? yyjson_get_uint(yyjson_obj_get(call, "instruction")) : 1;
     row.target_symbol = call ? yyjson_get_str(yyjson_obj_get(call, "target")) : "anchor";
     row.kind = call ? yyjson_get_uint(yyjson_obj_get(call, "kind")) : HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION;
-    rc = hako_llvmc_compile_published_static_input_v1(
-        &invocation, argv[1], &row, 1, argv[2], &error);
+    hako_llvmc_published_static_frame_v2 frame = {0};
+    frame.revision = HAKO_LLVMC_STATIC_FRAME_REVISION;
+    frame.byte_size = sizeof(frame);
+    frame.calls = &row;
+    frame.call_count = 1;
+    rc = hako_llvmc_compile_static_v2_retained(&invocation, &frame, argv[2], &error);
   } else {
     assert(action == 'x' || action == EOF);
   }

@@ -30,8 +30,8 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
   uint32_t flags;
 } hako_llvmc_published_static_method_call_v1;
 
-/* Static v2 frame schema. The v1 production entry remains selected until
- * both v2 consumers are ready; this declaration is not execution capability.
+/* Static v2 frame consumed by the retained selected host.
+ * The original body remains the only operand/CFG graph.
  * All pointers borrow caller-owned buffers for one synchronous invocation. */
 #define HAKO_LLVMC_STATIC_FRAME_REVISION 2u
 #define HAKO_LLVMC_MAP_OP_ALLOCATE 1u
@@ -121,18 +121,36 @@ typedef struct hako_llvmc_lifecycle_target_session_v2 {
   uint32_t outcome_size, outcome_align, outcome_revision;
 } hako_llvmc_lifecycle_target_session_v2;
 
-// Compile a module whose selected published call sites are described by the
-// typed rows.  json_in remains a physical body transport for this bounded
-// cohort; target identity for selected calls comes only from `calls`.
-// Every Global Call in this published session requires its exact row. Missing
-// Global rows reject before legacy plan/name dispatch; generic ingress is separate.
-// Published Call(Extern) rejects with or without a row, as in Rust host admission.
-int hako_llvmc_compile_published_static_method_v1(
-    const char* json_in,
-    const hako_llvmc_published_static_method_call_v1* calls,
-    size_t call_count,
-    const char* obj_out,
-    char** err_out);
+/* Stable physical query status/consumer vocabulary; no source admission. */
+enum HakoLlvmcNamedQueryStatus {
+  NAMED_QUERY_BOUND = 0,
+  NAMED_QUERY_PROGRAM_UNAVAILABLE = 1,
+  NAMED_QUERY_UNADDRESSABLE = 2,
+  NAMED_QUERY_STORAGE_FAILED = 3,
+  NAMED_QUERY_NOT_OBSERVED = 4,
+};
+enum NamedAllocationConsumer {
+  NAMED_ALLOCATION_ARRAY = 0,
+  NAMED_ALLOCATION_DIRECT_ARRAY = 1,
+  NAMED_ALLOCATION_MAP = 2,
+  NAMED_ALLOCATION_FILE = 3,
+  NAMED_ALLOCATION_ALIAS_OPERAND_ZERO = 4,
+  NAMED_ALLOCATION_TYPED_OBJECT = 5,
+  NAMED_ALLOCATION_INVALID_PLAN = 6,
+  NAMED_ALLOCATION_UNSUPPORTED = 7,
+};
+
+/* Retained static V2: open owns a parsed copy; query never activates rows.
+ * The opaque invocation stays at its final address until close. */
+typedef struct HakoLlvmcInvocation hako_llvmc_static_invocation_v2;
+int hako_llvmc_static_open_v2(const char* bytes, size_t length,
+    hako_llvmc_static_invocation_v2** out, char** error);
+int hako_llvmc_static_query_v2(hako_llvmc_static_invocation_v2* invocation,
+    const char* function, size_t length, uint32_t block, uint32_t instruction,
+    uint32_t* consumer);
+int hako_llvmc_static_compile_v2(hako_llvmc_static_invocation_v2* invocation,
+    const hako_llvmc_published_static_frame_v2* frame, const char* output, char** error);
+void hako_llvmc_static_close_v2(hako_llvmc_static_invocation_v2* invocation);
 
 /* Selected physical Pair consumer; accepts only physical-program.v2.
  * Borrows input/session for one synchronous invocation; publishes obj_out only after llc succeeds. No compatibility retry. */

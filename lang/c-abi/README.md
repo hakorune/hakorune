@@ -156,14 +156,14 @@ Named allocation emission
   coordinates from the same invocation. Program observation is cached once;
   unavailable program/storage and unaddressable/unobserved sites remain distinct.
   Query neither activates typed rows nor reruns allocation selection. The retained
-  compile entry shares V1 rows begin/finish/end; the public V1 gate/read order stays
-  unchanged. There is no new exported query ABI or Map-through-V1 execution.
+  compile entry uses shared V2 rows begin/finish/end. The static host owns the
+  complete open/query/frame/compile/close lifetime; public V1 is retired.
 - `tests/named_query_driver.c` is a temporary live subprocess bridge to the actual
   Rust `MapBodyIndex` planner. Build like the document-lifetime driver, adding
   `-finstrument-functions -fsanitize=address -fno-omit-frame-pointer -g`.
   Run `tests/named_query_test.py DRIVER [DYNAMIC_JSON]` for coordinate/error cases.
   Set `HAKO_NAMED_QUERY_TEST_DRIVER=DRIVER` and run the ignored Rust library test
-  `map_literal_actual_c_query` with the quick profile. The driver retains its
+  `map_literal_actual_c_query` with the quick profile and `RUST_MIN_STACK=16777216`. The driver retains its
   document across Rust planning; non-Map input compiles after its file is removed,
   while Map/planner rejection cancels. Retire this driver/protocol when public
   V2 host tests cover the connection. These are dependency witnesses, not source
@@ -188,10 +188,10 @@ Named allocation emission
 
 Map literal runtime boundary
 
-The unpublished static v2 value projection separates result kind from finite
+The selected static V2 value projection separates result kind from finite
 physical operation selection (integer/Bool/String comparison, String concat,
 integer binary and integer/Bool Not). Body opcode and operands remain the sole
-instruction graph. Private retained V2 compilation now binds an invocation-owned
+instruction graph. Retained V2 compilation binds an invocation-owned
 index and publishes staged output only after both ledgers finish. Both walkers
 consume ExactBits, selected integer/Bool/String operations, host-backed allocation,
 canonical Static/Free Call results and boxed Tag/Integer/Bool/String projections.
@@ -199,7 +199,8 @@ Integer comparison bypasses dynamic kind dispatch; Bool payload normalization
 preserves existing i1 producers. String concat uses proved payloads directly.
 Operation input closure checks demanded rows against the retained body. Direct
 array/typed-store tokens cannot escape as host handles; boxed Make/general handle
-escape and selected boxed Unit comparison remain explicit unsupported. Public V2 and the host/source cutover stay closed. Both typed Static/Free
+escape and selected boxed Unit comparison remain explicit unsupported. The static host and raw/Core literal issuers now use V2. Callable generic/checked
+consumer selection and natural mixed-formal acceptance remain open. Both typed Static/Free
 callers share `emit_published_i64_call` for argument output and result consumption;
 one invocation-owned expanded index now supplies that owner and the existing
 signature owner. Demanded Formal parameters receive kind/payload and only when
@@ -415,3 +416,12 @@ APIs (Phase 20.9)
 Notes
 - Future control hooks (`hako_gc_collect/start/stop`) are defined but gated; do not silently succeed.
  - Platform CRT note: Only `hako_mem_free()` may be used to free memory obtained from any `hako_*` API to avoid CRT boundary issues (Windows msvcrt/ucrt, macOS libc).
+
+Static V2 host verification uses `tests/static_v2_session_test.py LIBRARY`, the
+migrated Named/row/document/query proofs above, and the ignored Rust
+`static_map_source_v2_direct_and_linked_objects` test. Build the quick kernel
+archive for that test; existing Array source regression uses the release archive.
+Both must include `nyash.box.from_i8_string_const_len_v1`. Old archives are not a
+reason to downgrade String emission. The Script test owns a32MiB test thread.
+The private Rust/query bridge remains for its cancellation and counter boundary;
+its Map-only fixture is not an executable root-result contract.

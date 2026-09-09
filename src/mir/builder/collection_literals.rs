@@ -6,11 +6,9 @@ use crate::mir::builder::observe::types as type_trace;
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
-use crate::mir::definitions::call_unified::TypeCertainty;
-use crate::mir::ssot::method_call::runtime_method_call;
 use crate::mir::{ArrayElementWriteKind, ArrayWriteProducerKind};
 
-use super::{EffectMask, MirInstruction, MirType, ValueId};
+use super::{MirInstruction, MirType, ValueId};
 
 impl super::MirBuilder {
     /// Lower an array literal while retaining the caller's raw child port.
@@ -143,10 +141,9 @@ impl super::MirBuilder {
         let map_id = self.next_value_id();
         self.emit_instruction(MirInstruction::NewBox {
             dst: map_id,
-            target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
+            target: crate::mir::ConstructionTarget::IntrinsicMap,
             args: vec![],
         })?;
-        self.emit_constructor_birth_marker(map_id, "MapBox")?;
         self.function_state
             .type_ctx
             .value_origin_newbox
@@ -171,15 +168,9 @@ impl super::MirBuilder {
         for (key, expr) in entries {
             let key_id = crate::mir::builder::emission::constant::emit_string(self, key)?;
             let value_id = drive_legacy_expression_v1(self, port, expr)?;
-            self.emit_instruction(runtime_method_call(
-                None,
-                map_id,
-                "MapBox",
-                "set",
-                vec![key_id, value_id],
-                EffectMask::MUT,
-                TypeCertainty::Known,
-            ))?;
+            self.emit_instruction(MirInstruction::MapLiteralEntryWrite {
+                receiver: map_id, key: key_id, value: value_id,
+            })?;
         }
         Ok(map_id)
     }
@@ -197,7 +188,7 @@ mod tests {
     use crate::mir::builder::recursive_child_lowering::{
         drive_raw_legacy_expression_v1, RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
     };
-    use crate::mir::{Callee, EffectMask, MirBuilder, MirInstruction, MirType};
+    use crate::mir::{MirBuilder, MirInstruction, MirType};
 
     fn integer(value: i64) -> ASTNode {
         ASTNode::Literal {
@@ -271,7 +262,7 @@ mod tests {
             .count()
     }
 
-    fn map_set_count(builder: &MirBuilder) -> usize {
+    fn map_write_count(builder: &MirBuilder) -> usize {
         builder
             .function_state
             .current_function
@@ -280,22 +271,7 @@ mod tests {
             .blocks
             .values()
             .flat_map(|block| block.instructions.iter())
-            .filter(|instruction| match instruction {
-                MirInstruction::Call(call) => {
-                    matches!(&call.callee, Callee::Method { box_name, method, .. }
-                        if box_name == "MapBox" && method == "set")
-                        && call.effects == EffectMask::MUT
-                }
-                MirInstruction::LegacyCallV0 {
-                    callee:
-                        Some(Callee::Method {
-                            box_name, method, ..
-                        }),
-                    effects,
-                    ..
-                } => box_name == "MapBox" && method == "set" && *effects == EffectMask::MUT,
-                _ => false,
-            })
+            .filter(|instruction| matches!(instruction, MirInstruction::MapLiteralEntryWrite { .. }))
             .count()
     }
 
@@ -431,8 +407,8 @@ mod tests {
             spanned_instructions(&selected),
             spanned_instructions(&legacy)
         );
-        assert_eq!(map_set_count(&selected), 4);
-        assert_eq!(map_set_count(&selected), map_set_count(&legacy));
+        assert_eq!(map_write_count(&selected), 4);
+        assert_eq!(map_write_count(&selected), map_write_count(&legacy));
         assert_eq!(
             selected
                 .function_state
@@ -548,7 +524,7 @@ mod tests {
         .expect_err("missing Map value must fail");
 
         assert!(error.contains("Undefined variable: missing"), "{error}");
-        assert_eq!(map_set_count(&builder), 1);
+        assert_eq!(map_write_count(&builder), 1);
         let keys = builder
             .function_state
             .type_ctx

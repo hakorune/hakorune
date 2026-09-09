@@ -836,6 +836,11 @@ be narrowed or rewritten. The exact task order is in
   - `src/mir/builder/control_flow/lower/planner_compat.rs`
   - `src/mir/builder/control_flow/plan/REGISTRY.md`
 
+The raw and Core Map literal owners emit `IntrinsicMap` and ordered
+`MapLiteralEntryWrite`; literal Named allocation/birth/set edges are retired.
+Callable Map dispatch still selects the checked Home emitter and needs explicit
+source-owned generic/checked selection before natural mixed-formal closure.
+
 ## Top-Level Map
 
 - `crates/hakorune_mir_builder/src/core_context.rs`: ID 生成器と最小の共通コア状態。

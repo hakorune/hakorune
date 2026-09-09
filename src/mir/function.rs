@@ -78,3 +78,7 @@ pub use types::{
     StaticElementType, StaticTableContractProof, StaticTableContractSpec, StaticTableId,
     VerifiedStaticTableContract,
 };
+
+pub(crate) use crate::mir::compiler::published_backend_view::{
+    NamedAllocationConsumer, PublishedStaticFrameHeaderV2, PublishedStaticMethodCFrameV2,
+};

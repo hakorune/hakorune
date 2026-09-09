@@ -30,6 +30,13 @@ static yyjson_doc* counted_read_file(const char* path, yyjson_read_flag flags,
   if (doc) { assert(!active_document); active_document = doc; parsed++; }
   return doc;
 }
+static yyjson_doc* counted_read_opts(char* bytes, size_t length, yyjson_read_flag flags,
+                                    const yyjson_alc* alc, yyjson_read_err* err) {
+  read_attempts++;
+  yyjson_doc* doc = yyjson_read_opts(bytes, length, flags, alc, err);
+  if (doc) { assert(!active_document); active_document = doc; parsed++; }
+  return doc;
+}
 static void counted_doc_free(yyjson_doc* doc) {
   assert(doc && doc == active_document && !active_outcomes);
   active_document = NULL;
@@ -39,12 +46,16 @@ static void counted_doc_free(yyjson_doc* doc) {
 #define realloc counted_realloc
 #define free counted_free
 #define yyjson_read_file counted_read_file
+#define yyjson_read_opts counted_read_opts
 #define yyjson_doc_free counted_doc_free
 #include "../shims/hako_llvmc_ffi.c"
+#undef yyjson_read_opts
 #undef yyjson_read_file
 #undef yyjson_doc_free
 #undef realloc
 #undef free
+
+#include "static_v2_file_test_helper.h"
 
 int main(int argc, char** argv) {
   assert(argc == 4);
@@ -67,7 +78,7 @@ int main(int argc, char** argv) {
     row.instruction_index = 1;
     row.target_symbol = "anchor";
     row.kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION;
-    rc = hako_llvmc_compile_published_static_method_v1(argv[1], &row, 1, argv[2], &error);
+    rc = compile_static_test_file_v2(argv[1], &row, 1, argv[2], &error);
   }
   if (fail_realloc_at) assert(realloc_attempts == fail_realloc_at);
   assert(read_attempts == 1 && parsed == freed && !active_document);

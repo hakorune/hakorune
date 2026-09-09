@@ -238,7 +238,7 @@ mod tests {
     }
 
     #[test]
-    fn lower_value_ast_accepts_map_literal_and_emits_set_calls() {
+    fn lower_value_ast_accepts_map_literal_and_emits_ordered_writes() {
         let map_expr = ASTNode::MapLiteral {
             entries: vec![("x".to_string(), int_lit(1)), ("y".to_string(), int_lit(2))],
             span: Span::unknown(),
@@ -248,51 +248,21 @@ mod tests {
             PlanNormalizer::lower_value_ast(&map_expr, &mut builder, &BTreeMap::new())
                 .expect("MapLiteral should lower in value context");
 
-        match effects.first() {
-            Some(CoreEffectPlan::NewBox {
-                dst,
-                target: crate::mir::ConstructionTarget::Named(box_type),
-                args,
-            }) => {
-                assert_eq!(*dst, map_id);
-                assert_eq!(box_type, "MapBox");
-                assert!(args.is_empty());
-            }
-            other => panic!("first effect must be NewBox(MapBox), got {:?}", other),
-        }
-        match effects.get(1) {
-            Some(CoreEffectPlan::MethodCall {
-                dst: None,
-                object,
-                method,
-                args,
-                ..
-            }) => {
-                assert_eq!(*object, map_id);
-                assert_eq!(method, "birth");
-                assert!(args.is_empty());
-            }
-            other => panic!("second effect must be birth() call, got {:?}", other),
+        assert!(matches!(effects.first(), Some(CoreEffectPlan::NewBox {
+            dst, target: crate::mir::ConstructionTarget::IntrinsicMap, args,
+        }) if *dst == map_id && args.is_empty()));
+        assert_eq!(effects.len(), 7);
+        for (chunk, (expected_key, expected_value)) in effects[1..].chunks_exact(3)
+            .zip([("x", 1), ("y", 2)]) {
+            let [CoreEffectPlan::Const { dst: key_id, value: crate::mir::ConstValue::String(key) },
+                 CoreEffectPlan::Const { dst: value_id, value: crate::mir::ConstValue::Integer(value) },
+                 CoreEffectPlan::MapLiteralEntryWrite { receiver, key: written_key, value: written_value }] = chunk
+            else { panic!("ordered key/value/write: {chunk:?}") };
+            assert_eq!(key, expected_key);
+            assert_eq!(*value, expected_value);
+            assert_eq!((*receiver, *written_key, *written_value), (map_id, *key_id, *value_id));
         }
 
-        let set_calls = effects
-            .iter()
-            .filter(|effect| {
-                if let CoreEffectPlan::MethodCall {
-                    dst: None,
-                    object,
-                    method,
-                    args,
-                    ..
-                } = effect
-                {
-                    *object == map_id && method == "set" && args.len() == 2
-                } else {
-                    false
-                }
-            })
-            .count();
-        assert_eq!(set_calls, 2);
     }
 
     #[test]

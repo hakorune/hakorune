@@ -22,8 +22,12 @@ body = {"functions": [
     {"name": "anchor", "params": [], "metadata": {},
      "blocks": [{"id": 0, "instructions": [const, ret]}]}]}
 cases = [("success", json.dumps(body), 0, 1, "typed", None),
-         ("malformed-json", "{", -1, 0, "typed", "json read error:"),
-         ("schema", '{"schema_version":42}', -1, 1, "typed", "invalid schema_version")]
+         ("malformed-json", "{", -1, 0, "typed", "static-v2/json"),
+         ("schema", '{"schema_version":42}', -1, 1, "typed", "static-v2/function-index")]
+# V2 frame binding precedes core schema; the earlier dual-invalid input stays.
+schema_only = copy.deepcopy(body)
+schema_only["schema_version"] = 42
+cases.append(("schema-with-bound-frame", json.dumps(schema_only), -1, 1, "typed", "invalid schema_version"))
 invalid = copy.deepcopy(body)
 invalid["functions"][0]["blocks"][0]["instructions"].insert(2, {
     "op": "newbox", "dst": 2, "type": "Unsupported", "args": []})

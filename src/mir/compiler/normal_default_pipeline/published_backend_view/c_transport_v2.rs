@@ -220,17 +220,17 @@ pub(super) struct ExpandedFunctionRow {
 /// Counts cover complete arrays, including rows for nested function emission.
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub(super) struct FrameHeader {
-    pub revision: u32,
-    pub byte_size: u32,
-    pub calls: *const PublishedStaticMethodCallCRowV1,
-    pub call_count: u64,
-    pub map_operations: *const MapOperationRow,
-    pub map_operation_count: u64,
-    pub values: *const ValueProjectionRow,
-    pub value_count: u64,
-    pub expanded_functions: *const ExpandedFunctionRow,
-    pub expanded_function_count: u64,
+pub(crate) struct FrameHeader {
+    pub(super) revision: u32,
+    pub(super) byte_size: u32,
+    pub(super) calls: *const PublishedStaticMethodCallCRowV1,
+    pub(super) call_count: u64,
+    pub(super) map_operations: *const MapOperationRow,
+    pub(super) map_operation_count: u64,
+    pub(super) values: *const ValueProjectionRow,
+    pub(super) value_count: u64,
+    pub(super) expanded_functions: *const ExpandedFunctionRow,
+    pub(super) expanded_function_count: u64,
 }
 
 #[cfg(test)]
@@ -241,7 +241,7 @@ mod tests;
 /// reused as backing, not reissued as another call graph. This is a candidate
 /// until the C consumer validates coverage, ingress and actual materialization.
 #[derive(Debug)]
-pub(super) struct PublishedStaticMethodCFrameV2 {
+pub(crate) struct PublishedStaticMethodCFrameV2 {
     calls: super::c_transport::PublishedStaticMethodCFrameV1,
     strings: Vec<std::ffi::CString>,
     map_operations: Vec<MapOperationRow>,
@@ -260,10 +260,34 @@ impl PublishedStaticMethodCFrameV2 {
         >,
     ) -> Result<Self, String> {
         use super::map_body_index::MapBodyIndex;
+        let index = MapBodyIndex::from_view(view)?.with_named_allocations(observations)?;
+        Self::from_index(view, index)
+    }
+
+    pub(crate) fn from_view_with_query<'m>(
+        view: &super::PublishedMirBackendView<'m>,
+        mut query: impl FnMut(&str, u32, u32) -> Result<Option<super::map_named_allocations::NamedAllocationConsumer>, String>,
+    ) -> Result<Self, String> {
+        let index = super::map_body_index::MapBodyIndex::from_view(view)?;
+        let mut observations = Vec::new();
+        for (&site, instruction) in &index.instructions {
+            if matches!(instruction, crate::mir::MirInstruction::NewBox {
+                target: crate::mir::ConstructionTarget::Named(_), ..
+            }) {
+                if let Some(consumer) = query(site.0, site.1, site.2)? {
+                    observations.push((site, consumer));
+                }
+            }
+        }
+        Self::from_index(view, index.with_named_allocations(observations)?)
+    }
+
+    fn from_index<'m>(
+        view: &super::PublishedMirBackendView<'m>,
+        index: super::map_body_index::MapBodyIndex<'m>,
+    ) -> Result<Self, String> {
         use std::collections::{BTreeMap, BTreeSet};
         use std::ffi::CString;
-
-        let index = MapBodyIndex::from_view(view)?.with_named_allocations(observations)?;
         let (actions, original) = index.map_frame_projection()?;
         let expanded: BTreeSet<_> = actions
             .iter()
@@ -330,7 +354,7 @@ impl PublishedStaticMethodCFrameV2 {
 
     /// Header borrows all pointers from this frame for one synchronous call.
     /// Moving the frame preserves CString/Vec allocations; mutation is private.
-    pub(super) fn header(&self) -> FrameHeader {
+    pub(crate) fn header(&self) -> FrameHeader {
         fn pointer<T>(rows: &[T]) -> *const T {
             if rows.is_empty() {
                 std::ptr::null()

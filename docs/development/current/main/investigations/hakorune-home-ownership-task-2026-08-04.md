@@ -1485,16 +1485,25 @@ Additional thinning queue (verified against 61076eb17b and current code, 2026-09
 keep finishing -> selected C -> source OBJ/EXE -> old-edge retirement as the
 completion order. These rows do not authorize source-family widening or replace
 cutover with optimization work.
-Status (2026-09-09): rows11 and14 are closed with their focused acceptance.
+Status (2026-09-09, feedback rechecked at HEAD 41912dd3bc plus working tree):
+rows11 and14 are closed at 0ae4f899af and 34f8ae8506 respectively, with their focused acceptance.
 Rows10 and12 remain queued. Row13 is partially implemented: invocation-owned
 function/block/value/layout lookups, memoized physical kinds and one Copy query.
 Parser definition scans, dominance walks and unused dominance `seen` remain;
 there is no measured speed claim or whole-row13 closure.
-Next is the existing static V2 host connection. Row10 needs multi-ingress cleanup
+The active execution pointer remains CURRENT_STATE.toml; this queue does not
+select a new implementation row. Row10 needs multi-ingress cleanup
 correspondence proof; row12 belongs to session integration; remaining row13 work
 belongs to its validator. Keep broader Map cutover ahead of unrelated tuning.
 Deletion targets are repeated work, not independent source/ownership/FFI checks.
 Repeated feedback maps here; no sibling cards or new guard family are needed.
+Review boundary: the five reported production owners below; includes their
+current repeated generation/read/lookup sites, excludes whole-program cost,
+runtime speed and completion of the in-progress static V2 changes. No new
+build or performance measurement was run for this feedback reconciliation.
+Scheduling: finish the selected Map cutover first; take row10 at the next
+mixed-cleanup owner edit, row12 at runtime-session integration, and the remaining
+row13 at physical-validator work. None requires reopening closed rows11/14.
 
 10. Map emitter cleanup sharing: selected/map.rs separately emits each pre/post
     failure chain; post(i) equals pre(i+1) for the same issued ownership state,
@@ -1529,10 +1538,13 @@ Repeated feedback maps here; no sibling cards or new guard family are needed.
     ar/nm invocation counts and unchanged required-symbol checks. Queue with
     selected runtime/session integration, before treating inspection as cheap.
 
-13. Selected C physical lookup sharing: physical_v2 value_def_block scans rows;
-    dominance revisits blocks; lv4 Copy calls lv4_type twice. Build/retain only
-    invocation/function-owned definition/block lookups and verified physical
-    representations. Preserve separate structure, SSA/dominance and ABI checks,
+13. Selected C physical lookup sharing: physical_v2 value_def_block still scans
+    rows and dominance revisits blocks. The reported two Copy type queries are
+    already replaced by one lv4_input_type query with a retained local kind;
+    invocation-owned indexes and memoized kinds also exist. Reuse those owners
+    where their validation/lifetime contract permits, rather than adding a
+    second index. Retire remaining repeated definition/block scans and the
+    unused seen allocation. Preserve separate structure, SSA/dominance and ABI checks,
     duplicate/cycle/range rejection, and disposal on error. No semantic reissuer.
     The dominance seen allocation is confirmed unused except allocation checks
     and frees; remove that independently when this function is touched.

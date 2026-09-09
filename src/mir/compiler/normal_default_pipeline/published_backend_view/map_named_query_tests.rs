@@ -86,17 +86,7 @@ fn map_literal_actual_c_query_binds_before_same_invocation_compile_or_cancel() {
         let dir = tempfile::tempdir().unwrap();
         let input = dir.path().join("input.json");
         let object = dir.path().join("output.o");
-        let body = if map_only {
-            // Production is deliberately closed until V2; this existing test-only
-            // exporter borrows the exact candidate without clone/refresh.
-            assert!(crate::runner::mir_json_emit::emit_published_view_body(&view).is_err());
-            crate::runner::mir_json_emit::emit_mir_json_string_for_unpublished_candidate(
-                view.module(),
-            )
-            .unwrap()
-        } else {
-            crate::runner::mir_json_emit::emit_published_view_body(&view).unwrap()
-        };
+        let body = crate::runner::mir_json_emit::emit_published_view_body(&view).unwrap();
         std::fs::write(&input, body).unwrap();
         let mut process = LiveQuery(
             Command::new(&driver)
@@ -205,6 +195,17 @@ fn map_literal_actual_c_query_binds_before_same_invocation_compile_or_cancel() {
             "{tail}: {error}"
         );
         assert_eq!(object.exists(), !map_only);
+        if !planner_reject && !map_only {
+            // Preserve this fixture's original compile/cancel boundary: its Map
+            // branch has no supported physical root result and remains cancel-only.
+            // The real host now queries C and binds the same retained invocation.
+            let public_object = dir.path().join("public-v2.o");
+            assert!(crate::host_providers::llvm_codegen::try_compile_published_view_object(
+                &view, public_object.to_str().unwrap(), None,
+            ).unwrap());
+            assert!(public_object.exists());
+        }
+
         if !map_only {
             let source = dir.path().join("main.c");
             let exe = dir.path().join("run");

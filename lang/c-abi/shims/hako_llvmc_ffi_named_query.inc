@@ -1,12 +1,7 @@
+#include "../include/hako_llvmc_ffi.h"
 /* Private exact-coordinate query. Does not activate rows, emit diagnostics,
  * classify names, reselect consumers, or claim execution/coverage. */
-enum HakoLlvmcNamedQueryStatus {
-  NAMED_QUERY_BOUND,
-  NAMED_QUERY_PROGRAM_UNAVAILABLE,
-  NAMED_QUERY_UNADDRESSABLE,
-  NAMED_QUERY_STORAGE_FAILED,
-  NAMED_QUERY_NOT_OBSERVED
-};
+
 
 static int hako_llvmc_named_query_u32(yyjson_val* value, uint32_t* out) {
   if (!yyjson_is_int(value) || (yyjson_is_sint(value) && yyjson_get_sint(value) < 0) ||

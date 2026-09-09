@@ -568,16 +568,8 @@ impl super::super::PlanNormalizer {
                 record_newbox_metadata(builder, map_id, "MapBox");
                 effects.push(CoreEffectPlan::NewBox {
                     dst: map_id,
-                    target: crate::mir::ConstructionTarget::Named("MapBox".to_string()),
+                    target: crate::mir::ConstructionTarget::IntrinsicMap,
                     args: vec![],
-                });
-                effects.push(CoreEffectPlan::MethodCall {
-                    source: CoreCallSourceV1::Unlocated,
-                    dst: None,
-                    object: map_id,
-                    method: "birth".to_string(),
-                    args: vec![],
-                    effects: EffectMask::MUT,
                 });
                 for (index, (key_expr, _)) in entries.iter().enumerate() {
                     let key_literal = ASTNode::Literal {
@@ -594,13 +586,8 @@ impl super::super::PlanNormalizer {
                     let (value_id, mut value_effects) =
                         Self::lower_value_input(port, value, builder, phi_bindings)?;
                     effects.append(&mut value_effects);
-                    effects.push(CoreEffectPlan::MethodCall {
-                        source: CoreCallSourceV1::Unlocated,
-                        dst: None,
-                        object: map_id,
-                        method: "set".to_string(),
-                        args: vec![key_id, value_id],
-                        effects: EffectMask::PURE.add(Effect::Io),
+                    effects.push(CoreEffectPlan::MapLiteralEntryWrite {
+                        receiver: map_id, key: key_id, value: value_id,
                     });
                 }
                 Ok((map_id, effects))

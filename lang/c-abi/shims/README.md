@@ -7,11 +7,20 @@ The backend performs physical lowering; it does not issue source meaning.
 
 The lifecycle target validator consumes session revision2 and checks Map/key/
 outcome revision, nonzero size and power-of-two aligned geometry. The production
-V4 emitter receives that same session; Map operation emission is still pending.
+V4 emitter receives that same session and consumes the selected checked Map operations.
 `lifecycle_opaque_session_test.c` uses an extracted actual descriptor to exercise
 this owner. The generic V4 driver's opaque geometry is fixture-only, not a claim
 about runtime Map layout. `checked_map_runtime_abi_test.c` links the real runtime
 archive and calls the opaque C ABI directly; neither test proves source cutover.
+
+## Static V2 invocation
+
+The selected static host opens bytes once, queries exact Named sites, builds the
+existing frame and compiles the same invocation. Rust closes C before unloading
+the Library, including planner failure. Public V1 file ingress is retired;
+explicit generic compatibility and checked lifecycle V4 remain separate owners.
+The stage error order and remaining source selection boundary are in the
+collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
 
 ## Responsibility Boundary
 

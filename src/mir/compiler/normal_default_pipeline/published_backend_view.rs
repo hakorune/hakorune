@@ -188,6 +188,7 @@ impl<'module> PublishedMirBackendView<'module> {
         let mut intrinsic_arrays = Vec::new();
         let mut has_lifecycle_instructions = false;
         let mut has_non_lifecycle_unsupported = false;
+        let mut has_intrinsic_maps = false;
         for (function_name, function) in &module.functions {
             let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
             block_ids.sort();
@@ -228,15 +229,14 @@ impl<'module> PublishedMirBackendView<'module> {
                         });
                         continue;
                     }
-                    // Map's v2 frame/consumers must be connected before this
-                    // substrate can cross the existing v1 production ingress.
+                    // V2 frame and C validate the exact Map physical input.
                     if matches!(instruction,
                         MirInstruction::MapLiteralEntryWrite { .. }
                         | MirInstruction::NewBox {
                             target: crate::mir::ConstructionTarget::IntrinsicMap, ..
                         })
                     {
-                        has_non_lifecycle_unsupported = true;
+                        has_intrinsic_maps = true;
                         continue;
                     }
                     if is_lifecycle_instruction(instruction) {
@@ -363,6 +363,7 @@ impl<'module> PublishedMirBackendView<'module> {
             && builtin_print_calls.is_empty()
             && array_element_writes.is_empty()
             && intrinsic_arrays.is_empty()
+            && !has_intrinsic_maps
         {
             return Ok(Self {
                 module,
@@ -645,3 +646,6 @@ fn free_function_key(target: &CanonicalGlobalTargetV1) -> Option<CanonicalSameMo
 
 #[cfg(test)]
 mod script_physical_input_tests;
+
+pub(crate) use c_transport_v2::{FrameHeader as PublishedStaticFrameHeaderV2, PublishedStaticMethodCFrameV2};
+pub(crate) use map_named_allocations::NamedAllocationConsumer;

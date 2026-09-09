@@ -57,7 +57,7 @@ for target in ({"kind": "intrinsic_map"}, None):
     data["functions"][0]["blocks"][0]["instructions"][2]["target"] = target
     case(f"explicit-target-{target}", data, [query], [{"status": 4}])
 case("program-unavailable-before-schema", {"schema_version": 42}, [query, query],
-     [{"status": 1}] * 2, "c", "invalid schema_version")
+     [{"status": 1}] * 2, "c", "static-v2/function-index")
 data = copy.deepcopy(body)
 data["schema_version"] = 42
 case("storage-failure-before-schema", data, [query], [{"status": 3}], "c",
@@ -74,8 +74,8 @@ data = copy.deepcopy(body)
 data["functions"][1]["blocks"][0]["instructions"] = [constant, ret]
 case("storage-failure-demand", data, [query], [{"status": 3}], "c",
      "named_outcome_storage_failed", 1)
-case("residual-row-after-pattern", {"functions": [dict(body["functions"][0],
-     blocks=[{"id": 0, "instructions": [constant, ret]}])]}, [], [], "c", "typed row was not consumed")
+case("dangling-definition-before-residual", {"functions": [dict(body["functions"][0],
+     blocks=[{"id": 0, "instructions": [constant, ret]}])]}, [], [], "c", "static-v2/function-index")
 
 # Query-only physical mutation of a real Dynamic document; never compiled.
 if len(sys.argv) > 2:

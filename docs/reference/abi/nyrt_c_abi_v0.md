@@ -130,8 +130,9 @@ with linked-kernel readback and nonzero-status trap evidence. Bool operation
 results are widened at their producer; Integer comparison uses its selected
 physical operation without runtime kind inference.
 String keys retain their byte length and zero handles trap at materialization.
-The complete projection/formal consumer and public host/source switch remain
-open; the physical fixture proof does not establish source-to-EXE cutover.
+The static V2 host and raw/Core literal switch are implemented. Natural
+callable mixed-formal source selection remains open; physical formal fixtures
+do not close that source boundary.
 
 Map kind constants are scoped to this protocol: `NYRT_MAP_LITERAL_I64=1`,
 `BOOL=2`, `F64=3`, `VOID=4`, `HANDLE=5` (each with the same prefix). Zero and
@@ -418,12 +419,13 @@ Rule:
 - Defining TypeBox plugin dispatch wire protocol (belongs to TypeBox ABI v2).
 - Defining GC algorithm details (only lifecycle boundary contracts are fixed here).
 
-### Selected static compiler V2 retained invocation (accepted, not yet public)
+### Selected static compiler V2 retained invocation
 
 Decision (2026-09-09): the compiler boundary retains one parsed document across
 open, exact-coordinate Named query, frame planning, compile and close. This is
 compiler ABI ownership, not a change to runtime Map copy/clone or checked Home
-transfer. Public activation remains part of the atomic host/source cutover.
+transfer. Static host and raw/Core literal activation is implemented; callable generic/checked
+consumer selection remains an open source boundary.
 
 Open checks API arguments, rejects ambient harness replay, parses the input,
 and initializes the existing HakoLlvmcInvocation at its final address. The

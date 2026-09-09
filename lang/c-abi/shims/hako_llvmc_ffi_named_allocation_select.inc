@@ -1,3 +1,4 @@
+#include "../include/hako_llvmc_ffi.h"
 /* Physical Named emission selection, shared by the two active walkers.
  * Borrow existing plan metadata only after builtin/alias precedence is settled.
  * No environment reads, register facts, materialization or emission here.
@@ -44,16 +45,7 @@ enum NamedAllocationWalker {
   NAMED_ALLOCATION_GENERIC,
   NAMED_ALLOCATION_SAME_MODULE
 };
-enum NamedAllocationConsumer {
-  NAMED_ALLOCATION_ARRAY,
-  NAMED_ALLOCATION_DIRECT_ARRAY,
-  NAMED_ALLOCATION_MAP,
-  NAMED_ALLOCATION_FILE,
-  NAMED_ALLOCATION_ALIAS_OPERAND_ZERO,
-  NAMED_ALLOCATION_TYPED_OBJECT,
-  NAMED_ALLOCATION_INVALID_PLAN,
-  NAMED_ALLOCATION_UNSUPPORTED
-};
+
 
 static enum NamedAllocationConsumer select_named_allocation_consumer(
     yyjson_val* root,
