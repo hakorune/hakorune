@@ -2742,6 +2742,80 @@ ledger lookup for that selected callable without cloning Completion. Coordinate
 Map local progress/finishing and value-capable runtime/ordinary Fault ABI before
 removing install refusal. Source Complete alone is not physical admission.
 
+### Checked Map Value storage/install ABI: accepted next slice
+
+Decision: extend the sole CheckedMap payload owner with I64, Bool and Residence
+variants. Keep one MapTable and the existing install/end algorithm. Reject the
+boxed scalar residence proposal: a Trivial value needs neither a per-value Box
+nor an invented child-Home obligation or virtual no-op end.
+Source authority + canonical issuer: source Value/TransferHome stays with the
+existing source Completion; runtime only consumes explicit physical ABI kinds
+and validates Indexed identity. Runtime payload construction issues no capability.
+Non-authority: raw payload bits, object type IDs, native MapBox/clone and symbol
+presence cannot grant source ownership or ordinary callable execution.
+Fail-fast boundary: reject unknown kind and Bool payload outside0/1 before Key
+consumption. Preserve frame/profile/storage/nonoverlap checks, InvalidContract
+versus returned Fault, and unchanged install/outcome/disposal transitions.
+Smallest next slice: existing CheckedMap payload sum plus one checked value
+install export using the same private install state machine as Indexed install.
+Non-claims: no compiler admission, public read/clone/host publication, Float/Text/
+Handle value kind, C emission or ordinary callable Fault ABI activation.
+
+Boundary: repository CheckedMap payload constructors -> install -> rejected
+candidate/detached/terminal end; includes src/boxes and kernel checked Map exports
+and tests. Excludes external crate consumers and the later MIR/C/source switch.
+Inventory: map_box_checked.rs owns Entry/MapInstallFailure/DetachedMapEntry/end;
+map_box_checked_tests.rs owns Probe/pointer-identity checks; kernel
+checked_map_residence.rs and its tests own Indexed preparation/reclaim;
+fault_checked_map.rs owns checked install; fault_checked_map_storage.rs owns
+opaque OutcomeState placement. No second payload table or residence owner.
+
+Implementation:
+
+1. Use a non-Clone/non-Copy CheckedMapPayload enum with I64(i64), Bool(bool),
+   Residence(Box<dyn CanonicalMapResidence>). Entry, rejected candidate and
+   DetachedMapEntry retain this same payload. One private end match discards
+   Trivial values and invokes actual Residence end once. Indexed prepare returns
+   Residence without changing identity validation or reclaim semantics.
+2. Add nyash.map.checked_install_value_v1(frame, profile, site, map, key,
+   kind:u32, payload:i64, outcome)->Status, with named ABI constants I64=1/Bool=2
+   in the runtime ABI owner. Do not infer a Handle from i64. Indexed export stays
+   the real Home path. Factor its state machine into one private helper with
+   candidate preparation after Key Ready->Consumed; do not duplicate validation,
+   capacity reservation, commit or outcome publication in the new export.
+3. Value kind/bits validation precedes Key consumption. Existing Indexed prepare
+   remains after Key consumption. Returned install Fault leaves Outcome Unissued
+   and old entry intact, with the exact candidate returned by storage. Dropping
+   a rejected Residence wrapper never reclaims its caller-owned object. Commit
+   installs new payload before detached old end; old-end Fault never rolls back.
+4. Keep native observation of present entries ProjectionUnavailable, even Value.
+   Preserve Ending/reentry refusal, reverse order, first/suppressed errors and
+   explicit outcome consumption. Host allocator abort remains outside returned
+   Fault evidence; inline scalar payload construction itself needs no allocation.
+
+Delete-set: the universal boxed-residence assumption in storage, failure return
+and end; indexed install's embedded state machine moves into the shared helper.
+Do not delete the actual Indexed Home consumer or add scalar residence wrappers.
+
+Acceptance: existing checked Map/Indexed/Fault tests plus I64 extrema, Bool0/1,
+unknown kind/Bool2 preserving Key Ready and Outcome Unissued; Value->Residence,
+Residence->Value and Value->Value replacement; failed old Residence end with new
+Value retained and remaining real Homes ended. Preserve failed-candidate pointer
+identity, Value contents, reverse end, reentry/dispose rejection and native-read
+refusal. Verify actual opaque target sizes/alignments (especially OutcomeState),
+descriptor decode and new exported ABI. No layout constant/padding assumptions.
+Current source owners are245/333/48/80 lines; keep below800.
+
+The later C consumer has explicit indexed-only sites: MapInvokeOperation,
+physical_program_json/physical_abi, physical_v2 admission, lv4 index/kind and
+indexed_flow, map_emit and runtime_map_symbols. Value installation must consume
+an already-proven physical I64/Bool representation, produce an Outcome, consume
+Key on the same returned statuses and never transfer a scalar as an indexed
+origin. Those edits and the real symbol requirement belong to its selected
+consumer slice. Current fi==0 restriction, ordinary callable Fault/frame/result
+and result-cohort borrowing are separate explicit execution blockers; a new
+runtime symbol or source Complete cannot remove them.
+
 ## Remaining source obligations
 
 The original wider source cutover still requires materialized Script Loop,
