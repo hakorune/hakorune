@@ -665,7 +665,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             )
         }
     };
-    let (ordinary_new_claim_ledger, mut completion_seeds) = issue_ordinary_source_cohort_v1(
+    let (mut ordinary_new_claim_ledger, mut completion_seeds) = issue_ordinary_source_cohort_v1(
         &batch, &selected, app_main_identity.as_ref(), app_main_direct_call_loan.as_ref(), &parameter_contracts,
         &mut dynamic, &instance_constructors,
     ).map_err(|error| match error {
@@ -675,6 +675,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     })?;
     let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::S6CChild { _error: error })?;
+    ordinary_new_claim_ledger.retain_completion_index(&completion_seeds);
     let s6c_storage_header = match s6c_child.as_ref() {
         None => None,
         Some(child) => {

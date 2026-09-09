@@ -38,6 +38,7 @@ use super::selected_mapping::{
 
 use crate::mir::builder::SelectedCallableConsumptionRoleV1;
 use crate::parser::CallableDeclarationIdentityV1;
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub(in crate::mir) enum S6CSemanticChildIssueV1 {
@@ -69,6 +70,7 @@ pub(in crate::mir) enum S6CSemanticChildIssueV1 {
         _error: S6CPhysicalFunctionEffectsRejectV1,
     },
     MissingCompletionSeed,
+    CompletionShared,
     UnexpectedTerminalRelation,
     DuplicateCandidate,
     ResultMismatch,
@@ -294,6 +296,8 @@ fn issue_s6c_child_for_row(
                             .map_err(|error| S6CSemanticChildIssueV1::CallRelation {
                                 _error: error,
                             })?;
+                    let completion = Rc::try_unwrap(completion)
+                        .map_err(|_| S6CSemanticChildIssueV1::CompletionShared)?;
                     issue_s6c_exit_tail_source_coseal_v1(&ledger, calls, completion)
                         .map_err(|error| S6CSemanticChildIssueV1::ExitTail { _error: error })
                 })

@@ -5,6 +5,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     MapHomeEntry, MapHomeFlow, MapValueSource, SourceScalarKind,
 };
 use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct MapLocalProgress {
@@ -88,18 +89,13 @@ impl MapLocalProgress {
 }
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn has_map_source(&self, site: &OwnedExprSiteV1) -> bool {
-        self.root_completion
-            .as_ref()
-            .and_then(|c| c.as_ref().ok())
+        self.completion_for_owner(site.owner())
             .and_then(|c| c.cleanup().root_flow())
             .is_some_and(|flow| flow.maps().iter().any(|row| row.site() == site))
     }
     pub(crate) fn map_flow(&self, site: &OwnedExprSiteV1) -> Result<&MapHomeFlow, String> {
         let completion = self
-            .root_completion
-            .as_ref()
-            .and_then(|c| c.as_ref().ok())
-            .filter(|c| c.owner() == site.owner())
+            .completion_for_owner(site.owner())
             .ok_or_else(|| freeze("map-completion"))?;
         let flow = completion
             .cleanup()
@@ -116,19 +112,29 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(map)
     }
     pub(in crate::mir::normal_callable_semantic_package) fn map_demands_consumed(&self) -> bool {
-        let Some(flow) = self
+        let rows = self.local_commits.borrow();
+        let mut completions: Vec<_> = self
+            .completion_index
+            .values()
+            .filter_map(|row| row.as_ref().ok().map(Rc::as_ref))
+            .collect();
+        if let Some(root) = self
             .root_completion
             .as_ref()
-            .and_then(|c| c.as_ref().ok())
-            .and_then(|c| c.cleanup().root_flow())
-        else {
-            return true;
-        };
-        let rows = self.local_commits.borrow();
-        flow.maps().iter().all(|m| {
-            m.complete().is_some()
-                && matches!(rows.get(m.site()), Some(LocalCommitV1::Map(row)) if row.is_complete())
-        })
+            .and_then(|row| row.as_ref().ok())
+        {
+            if !completions
+                .iter()
+                .any(|completion| completion.owner() == root.owner())
+            {
+                completions.push(root.as_ref());
+            }
+        }
+        completions.iter().filter_map(|completion| completion.cleanup().root_flow())
+            .flat_map(|flow| flow.maps().iter()).all(|m| {
+                m.complete().is_some()
+                    && matches!(rows.get(m.site()), Some(LocalCommitV1::Map(row)) if row.is_complete())
+            })
     }
     pub(crate) fn begin_map_emission(
         &self,

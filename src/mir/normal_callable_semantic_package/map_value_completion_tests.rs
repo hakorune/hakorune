@@ -59,9 +59,17 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
     assert_eq!(terminal.value(), 30);
     assert_eq!(terminal.owner(), completion.owner());
     assert_eq!(Some(terminal.return_site()), completion.explicit_site());
+    let indexed = package
+        .ordinary_new_claim_ledger
+        .completion_for_owner(map.site().owner())
+        .expect("owner-indexed ordinary Completion");
     assert!(
-        !package.ordinary_new_claim_ledger.has_map_source(map.site()),
-        "ordinary Completion is not duplicated in the root ledger"
+        package.ordinary_new_claim_ledger.has_map_source(map.site()),
+        "owner-indexed ordinary Completion exposes the exact Map source"
+    );
+    assert!(
+        std::ptr::eq(indexed, completion),
+        "the owner index borrows the result row's Completion"
     );
     assert_install_stop(package);
 }

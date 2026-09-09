@@ -8,7 +8,7 @@
 use super::instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 use crate::mir::function::ObjectDestructionDispositionV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
-use std::{cell::RefCell, collections::BTreeMap};
+use std::{cell::RefCell, collections::BTreeMap, rc::Rc};
 
 pub(crate) use self::birth_abi_handoff::{BirthAbiHandoffV1, BirthResultAbiV1};
 use super::instance_constructor_semantic::{
@@ -23,8 +23,9 @@ use crate::mir::instance_constructor_abi::{
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
     SelectedNewArgumentUnavailableV1, TerminalI64AddReturnV1, TerminalI64FieldReturnV1,
-    TerminalIntegerLiteralReturnV1, TerminalUnitReturnV1, TerminalRelationV1,
+    TerminalIntegerLiteralReturnV1, TerminalRelationV1, TerminalUnitReturnV1,
 };
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
@@ -42,6 +43,17 @@ pub(crate) use ordinary_new_arguments::{
 };
 #[path = "ordinary_new_field_reads.rs"]
 mod field_reads;
+#[path = "ordinary_new_coseal_helpers.rs"]
+mod coseal_helpers;
+#[path = "ordinary_new_completion_index.rs"]
+mod completion_index;
+#[path = "ordinary_new_completion_lookup.rs"]
+mod completion_lookup;
+// The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
+use coseal_helpers::{
+    convert_selected_new_arguments, is_direct_local_initializer,
+    no_birth_constructor_disposition,
+};
 #[path = "ordinary_new_terminal_result.rs"]
 mod terminal_result;
 pub(crate) use terminal_result::PreparedTerminalI64AddReturnV1;
@@ -50,14 +62,14 @@ mod terminal_field_return;
 pub(crate) use terminal_field_return::PreparedTerminalI64FieldReturnV1;
 #[path = "birth_abi_handoff.rs"]
 mod birth_abi_handoff;
+#[path = "ordinary_new_candidate.rs"]
+mod candidate;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 #[path = "ordinary_new_terminal_access.rs"]
 mod terminal_access;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
-#[path = "ordinary_new_candidate.rs"]
-mod candidate;
 use candidate::OrdinaryNewCandidate;
 
 pub(crate) use local_commit::{
@@ -151,7 +163,14 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     terminal_result_progress: RefCell<terminal_result::Progress>,
     root_completion: Option<
         Result<
-            crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+            Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
+            crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1,
+        >,
+    >,
+    completion_index: BTreeMap<
+        FunctionOwnerIdV1,
+        Result<
+            Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
             crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1,
         >,
     >,
@@ -163,28 +182,78 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn requires_map_lifecycle_consumer(&self) -> bool {
-        self.root_completion
-            .as_ref()
-            .and_then(|row| row.as_ref().ok())
-            .and_then(|completion| completion.cleanup().root_flow())
-            .is_some_and(|flow| !flow.maps().is_empty())
+        let indexed = self.completion_index.values().any(|row| {
+            row.as_ref()
+                .ok()
+                .and_then(|completion| completion.cleanup().root_flow())
+                .is_some_and(|flow| !flow.maps().is_empty())
+        });
+        indexed
+            || self
+                .root_completion
+                .as_ref()
+                .and_then(|row| row.as_ref().ok())
+                .and_then(|completion| completion.cleanup().root_flow())
+                .is_some_and(|flow| !flow.maps().is_empty())
     }
-    pub(super) fn map_install_owner(&self) -> Result<Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>, ()> {
-        if !self.requires_map_lifecycle_consumer() { return Ok(None); }
-        let completion = self.root_completion.as_ref().and_then(|c| c.as_ref().ok()).ok_or(())?;
+    pub(super) fn map_install_owner(
+        &self,
+    ) -> Result<Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>, ()> {
+        if !self.requires_map_lifecycle_consumer() {
+            return Ok(None);
+        }
+        let completion = self
+            .root_completion
+            .as_ref()
+            .and_then(|c| c.as_ref().ok())
+            .ok_or(())?;
+        let root_owner = completion.owner();
+        if self.completion_index.values().any(|row| {
+            row.as_ref()
+                .ok()
+                .is_some_and(|candidate| {
+                    candidate.owner() != root_owner
+                        && candidate
+                            .cleanup()
+                            .root_flow()
+                            .is_some_and(|flow| !flow.maps().is_empty())
+                })
+        }) {
+            return Err(());
+        }
         let flow = completion.cleanup().root_flow().ok_or(())?;
         if self.app_main_identity.is_none()
-            || flow.maps().iter().any(|m| m.complete().is_none_or(|map|
-                map.entries().iter().any(|entry| entry.transfer_home().is_none()
-                    && entry.value_source().and_then(|v| v.scalar_kind()).is_none())))
+            || flow.maps().iter().any(|m| {
+                m.complete().is_none_or(|map| {
+                    map.entries().iter().any(|entry| {
+                        entry.transfer_home().is_none()
+                            && entry.value_source().and_then(|v| v.scalar_kind()).is_none()
+                    })
+                })
+            })
             || !matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
-            || !matches!(self.terminal_relation, Some(TerminalRelationV1::IntegerLiteral(_)
-                | TerminalRelationV1::I64Add(_) | TerminalRelationV1::I64Field(_)))
-            || self.claims.borrow().values().filter(|c| c.site.owner() == completion.owner())
-                .any(|c| c.construction.is_err()
-                    || c.destruction != ObjectDestructionDispositionV1::PlainI64NoHook
-                    || c.home_prefix.is_err() || c.argument_rows.is_err())
-        { return Err(()); }
+            || !matches!(
+                self.terminal_relation,
+                Some(
+                    TerminalRelationV1::IntegerLiteral(_)
+                        | TerminalRelationV1::I64Add(_)
+                        | TerminalRelationV1::I64Field(_)
+                )
+            )
+            || self
+                .claims
+                .borrow()
+                .values()
+                .filter(|c| c.site.owner() == completion.owner())
+                .any(|c| {
+                    c.construction.is_err()
+                        || c.destruction != ObjectDestructionDispositionV1::PlainI64NoHook
+                        || c.home_prefix.is_err()
+                        || c.argument_rows.is_err()
+                })
+        {
+            return Err(());
+        }
         Ok(Some(completion.owner()))
     }
     #[cfg(test)]
@@ -196,6 +265,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .expect("selected root")
             .as_ref()
             .expect("verified completion")
+            .as_ref()
     }
     #[cfg(test)]
     pub(super) fn pending_claims_for_test(
@@ -227,6 +297,7 @@ impl OrdinaryNewClaimLedgerV1 {
             terminal_i64_field_value: RefCell::new(None),
             terminal_result_progress: RefCell::new(terminal_result::Progress::Pending),
             root_completion: None,
+            completion_index: BTreeMap::new(),
             app_main_identity: None,
         }
     }
@@ -405,7 +476,13 @@ pub(super) fn issue_ordinary_source_cohort_v1(
     parameter_contracts: &[super::model::OwnedCallableParameterContractDeclarationV1],
     dynamic: &mut super::model::NormalCallableDynamicProjectionV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-) -> Result<(OrdinaryNewClaimLedgerV1, super::completion_seed::VerifiedCallableCompletionSeedCohortV1), OrdinaryNewCoSealIssueV1> {
+) -> Result<
+    (
+        OrdinaryNewClaimLedgerV1,
+        super::completion_seed::VerifiedCallableCompletionSeedCohortV1,
+    ),
+    OrdinaryNewCoSealIssueV1,
+> {
     let app_main_batch_slot = app_main_identity
         .map(|identity| {
             let mut matches = batch
@@ -437,16 +514,29 @@ pub(super) fn issue_ordinary_source_cohort_v1(
             continue;
         }
         let seed_eligible = super::completion_seed::preflight_declaration(
-            declaration, selected, parameter_contracts,
-        ).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+            declaration,
+            selected,
+            parameter_contracts,
+        )
+        .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
         if let super::model::NormalCallableDynamicProjectionV1::Selected {
-            batch_slot: dynamic_slot, program, result, ..
-        } = dynamic {
+            batch_slot: dynamic_slot,
+            program,
+            result,
+            ..
+        } = dynamic
+        {
             if *dynamic_slot == batch_slot {
                 if seed_eligible {
-                    *result = program.with_canonical_session_authority(|authority| {
-                        super::completion_seed::validate_result(authority.completion(), owner, batch_slot)
-                    }).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+                    *result = program
+                        .with_canonical_session_authority(|authority| {
+                            super::completion_seed::validate_result(
+                                authority.completion(),
+                                owner,
+                                batch_slot,
+                            )
+                        })
+                        .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 }
                 continue;
             }
@@ -559,7 +649,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                                 root_terminal_relation = terminal_relation.take();
                             }
                             if is_app_main {
-                                root_completion = Some(Ok(completion));
+                                root_completion = Some(Ok(Rc::new(completion)));
                             } else {
                                 seeds.push_completion(declaration, selected, completion, terminal_relation)
                                     .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
@@ -583,8 +673,17 @@ pub(super) fn issue_ordinary_source_cohort_v1(
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
         for candidate in candidates {
             let OrdinaryNewCandidate {
-                site, box_source, class, arity, destination, declaration,
-                construction, object, destruction, constructor, birth_handoff,
+                site,
+                box_source,
+                class,
+                arity,
+                destination,
+                declaration,
+                construction,
+                object,
+                destruction,
+                constructor,
+                birth_handoff,
             } = candidate;
             let argument_rows = argument_observations
                 .remove(&site)
@@ -636,62 +735,8 @@ pub(super) fn issue_ordinary_source_cohort_v1(
     ledger.birth_abi_handoffs = RefCell::new(birth_abi_handoffs);
     ledger.terminal_relation = root_terminal_relation;
     ledger.app_main_identity = app_main_identity.cloned();
-    Ok((ledger, seeds.finish()))
-}
-
-fn convert_selected_new_arguments(
-    observation: crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentObservationV1,
-) -> Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1> {
-    use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentKindV1 as Source;
-    observation
-        .arguments()
-        .map(|rows| {
-            rows.iter()
-                .map(|row| {
-                    let kind = match row.kind() {
-                        Source::Integer(value) => OrdinaryNewTrivialArgumentKindV1::Integer(*value),
-                        Source::Bool(value) => OrdinaryNewTrivialArgumentKindV1::Bool(*value),
-                        Source::Local { binding } => {
-                            OrdinaryNewTrivialArgumentKindV1::Local { binding: *binding }
-                        }
-                    };
-                    OrdinaryNewTrivialArgumentV1::new(
-                        observation.new_site().owner(),
-                        observation.new_site().clone(),
-                        row.ordinal(),
-                        row.site().clone(),
-                        kind,
-                    )
-                })
-                .collect::<Vec<_>>()
-                .into_boxed_slice()
-        })
-        .map_err(Clone::clone)
-}
-
-fn is_direct_local_initializer(segments: &[SourcePathSegmentV1]) -> bool {
-    matches!(
-        segments,
-        [
-            SourcePathSegmentV1::Body(_),
-            SourcePathSegmentV1::Initializer(_)
-        ]
-    )
-}
-
-fn no_birth_constructor_disposition(
-    site: &OwnedExprSiteV1,
-    class: &str,
-    arity: usize,
-) -> Result<OrdinaryNewConstructorDispositionV1, OrdinaryNewCoSealIssueV1> {
-    if arity == 0 {
-        return Ok(OrdinaryNewConstructorDispositionV1::NoBirthZero);
-    }
-    Err(OrdinaryNewCoSealIssueV1::BirthConstructorMissing {
-        site: site.clone(),
-        class: class.into(),
-        arity,
-    })
+    let seeds = seeds.finish();
+    Ok((ledger, seeds))
 }
 
 #[cfg(test)]

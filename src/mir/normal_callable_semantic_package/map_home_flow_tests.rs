@@ -6,6 +6,29 @@ fn source(body: &str) -> String {
 }
 
 #[test]
+fn non_app_main_map_keeps_install_stop_with_an_app_main_map() {
+    let package = issue(
+        "static box Helper { use(value: i64): i64 {
+            local h = %{\"a\" => value} return 30
+        } }
+        static box Main { main() {
+            local m = %{\"a\" => 1} return 30
+        } }",
+    )
+    .expect("mixed AppMain and ordinary Map source");
+    let mut context = CompilationContext::new();
+    let issue = match package.prepare_install(&mut context) {
+        Err((_, issue)) => issue,
+        Ok(_) => panic!("ordinary Map must not pass through AppMain Map admission"),
+    };
+    assert!(matches!(
+        issue,
+        super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
+    ));
+    assert!(context.callable_declaration_catalog_vacant());
+}
+
+#[test]
 fn declared_root_unissued_map_sites_stop_before_install() {
     for body in [
         "local m = %{\"v\" => value} return 30",

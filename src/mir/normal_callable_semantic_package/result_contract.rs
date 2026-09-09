@@ -15,6 +15,7 @@ use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::parser::CallableDeclarationIdentityV1;
+use std::rc::Rc;
 
 use super::completion_seed::VerifiedCallableCompletionSeedV1;
 
@@ -40,7 +41,7 @@ pub(super) struct VerifiedCallableResultContractRowV1 {
     identity: CallableDeclarationIdentityV1,
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
-    completion: VerifiedFunctionCompletionV1,
+    completion: Rc<VerifiedFunctionCompletionV1>,
     terminal_relation: Option<TerminalRelationV1>,
 }
 
@@ -94,7 +95,7 @@ impl VerifiedCallableResultContractRowV1 {
             &self.identity,
             self.role,
             self.result,
-            &self.completion,
+            self.completion.as_ref(),
             self.terminal_relation.as_ref(),
         )
     }

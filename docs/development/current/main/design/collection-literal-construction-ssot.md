@@ -3123,11 +3123,11 @@ Fault evidence retire ordinary install/artifact Stops in the same series.
 
 #### Ordinary callee ledger placement: next bounded connection
 
-Decision: place the original ordinary Map Completion/terminal in a per-callable instance of the existing ledger, retained by its existing result row; do not copy it.
-Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row's accessors borrow that same Completion.
-Non-authority: AppMain's ledger, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
-Fail-fast boundary: preserve ordinary install/artifact Stops until selected scope, local/cleanup validation and ordinary ABI are connected; unavailable/foreign rows reject.
-Smallest next slice: BoxShape inside result-row retention, creating its existing ledger before handing out Completion borrows; delete the sibling direct Completion/terminal storage for that row.
+Decision: retain the original ordinary Map Completion/terminal in the existing ledger's owner-indexed borrow table after S6C consumes its exclusive seed; do not copy it.
+Source authority + canonical issuer: existing completion seed/result cohort and exact selected membership. The result row and owner index share the same `Rc` Completion.
+Non-authority: AppMain's root-only admission checks, missing app_main_identity, MIR shape and physical frame defaults cannot establish ordinary admission.
+Fail-fast boundary: preserve ordinary install/artifact Stops until selected scope, local/cleanup validation and ordinary ABI are connected; unavailable/foreign rows reject, and mixed AppMain/ordinary Map ownership remains stopped.
+Smallest next slice: BoxShape inside the existing ledger and result-row retention; populate the owner index only after S6C's exclusive consumer, then select the exact owner for Map source lookup.
 Non-claims: no new source issuer, Map manager, copied Completion, ordinary New generalization or install/EXE claim from retention alone.
 
 Read-only physical-owner audit found `preflight_map_install`, `map_flow`,
@@ -3138,14 +3138,23 @@ the result cohort; selected Map emission already uses callable Fault-frame
 state, whose ordinary role is Borrowed. The issue is placement/selection, not
 a missing source Completion issuer.
 
-After the retention slice, select the exact owner's ledger at
-`with_selected_lowering_input` and lend it through the existing source scope.
-Retire the ordinary-Map-to-AppMain-ledger inquiry edge in that connection, not
-by deleting the install Stop wholesale. Keep original root behavior and
-Borrowed callee frame distinct. Existing completed/finalized result retention
-must also retain that ledger's emission/finishing state. If ordinary New claims
-are needed, move the same exact-owner claims from the existing inventory;
-do not clone them or broaden the initial Map/formal/literal consumer implicitly.
+After the retention slice, select the exact owner through the existing source
+scope. Retire the ordinary-Map-to-AppMain-ledger inquiry edge in that
+connection, not by deleting the install Stop wholesale. Keep original root
+behavior and Borrowed callee frame distinct. Existing completed/finalized
+result retention must also retain that ledger's emission/finishing state. If
+ordinary New claims are needed, move the same exact-owner claims from the
+existing inventory; do not clone them or broaden the initial Map/formal/literal
+consumer implicitly.
+
+Implementation checkpoint: the seed/result row now retains one `Rc` Completion,
+the ordinary ledger indexes remaining rows by `FunctionOwnerIdV1` after S6C,
+and Map lookup uses that owner. S6C consumes its exclusive seed with
+`Rc::try_unwrap`; a shared seed rejects instead of cloning. `map_install_owner`
+still rejects any non-AppMain Map when an AppMain Map is present, so owner
+lookup cannot grant ordinary execution. The semantic package is green at
+156/156, including the mixed-owner negative case; ordinary install, artifact,
+OBJ/EXE30 and Fault cutover remain open.
 
 Retention acceptance: result/header and ledger borrow the same original
 Completion with matching owner/terminal; root and foreign-site isolation,
