@@ -1689,6 +1689,52 @@ admission-flow-emission/`llc`/object publication; includes Pair, Bool-first,
 and Bool-second direct and linked invocations; excludes native-array,
 compatibility, and receiver-method ingress.
 
+##### MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-D0 (ParkedSealed)
+
+Decision: keep the measured `llc-18` subprocess as the selected physical
+emitter for now, and connect a future in-process replacement to the existing
+LLVM native-library graduation owner. The current C backend writes LLVM text;
+the future owner may parse, verify, and emit that text through the invocation's
+LLVM C API session, but it is not part of the index-reuse row.
+
+Source authority + canonical issuer: the existing Rust
+`PublishedLifecyclePhysicalAbiInputV1` and the invocation-local
+`hako_lts_session`. The LLVM library session owns only target/session and
+object emission. Source meaning, V2/V4 admission, lifecycle cleanup, and Map
+index ownership remain unchanged.
+
+Non-authority: `lv4_llc()` as a permanent semantic owner, generic or legacy
+`hako_aot`/mem2reg routes, a process-global TargetMachine/cache, environment
+flags, source names, and any fallback/retry from library emission to `llc`.
+
+Fail-fast boundary: missing or incompatible LLVM library/symbols, IR
+parse/verify failure, target or data-layout drift, diagnostic failure, empty
+object, and atomic rename failure must reject before publication. The future
+replacement must preserve Pair direct/linked exit 30, Bool Fault behavior,
+malformed-input rejection, and temporary-artifact cleanup.
+
+Smallest next slice: remain parked until the existing native-library
+graduation task provides an invocation-local lifecycle owner, LLVM18 target
+and layout parity, and a before/after Pair/OBJ baseline. Then perform one
+selected-V4 library-emission comparison and delete `lv4_llc()` only after the
+library caller is production-selected and the fallback caller is zero.
+
+Non-claims: this row does not change the FFI schema, V2/V4 validation, Map
+index, compilation concurrency, runtime ABI, or `typed-object-method-min`
+physical ingress. The current measurement identifies `llc` as dominant but
+does not itself authorize the replacement.
+
+Census boundary: `hako_llvmc_compile_published_lifecycle_physical_v4` after
+V2/V4 admission through LLVM text/object publication; includes the selected
+`typed-object-birth-min` Pair/Bool caller and its direct/linked artifacts;
+excludes generic compatibility, native-array, and other LLVM ingress owners.
+
+Reopen trigger: the existing
+`llvm-native-library-llvmlite-graduation-task-2026-07-22.md` owner supplies
+the lifecycle-specific C API parse/verify/emit seam and the baseline/negative
+parity evidence above. Until then this is `ParkedSealed`, not an implementation
+permission.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root

@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D1"
-current_execution_cohort = "mirbuilder_physical_c_invocation_index_reuse_d1"
+current_execution_row = "MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-D0"
+current_execution_cohort = "mirbuilder_physical_c_llc_library_emission_d0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "C invocation-index reuse D1: measurement P0 is closed. Existing V4 invocation-local index reuse is sufficient for the selected Pair caller; cross-phase V2/V4 fusion is ParkedSealed until a larger selected production input shows repeated pre-llc scan cost and a trust-preserving owner/delete-set. Keep llc subprocess work in a separate design boundary."
+current_blocker_token = "C LLVM library-emission D0 is ParkedSealed: existing llc-18 remains selected; reopen only when the native-library graduation owner supplies lifecycle parse/verify/emit, LLVM18 target/layout parity, before/after Pair/OBJ, and negative evidence. No fallback/cache/concurrency."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -45,10 +45,11 @@ state budget stop; the focused PHI tests and cargo check passed. The C
 invocation-index D0 and measurement P0 are closed at a0ab958b81: the selected
 Pair caller reports invocation-local V2/V4/emit/llc timings and counts, while
 existing V4 index reuse remains the sole index owner. Cross-phase V2/V4 fusion
-is ParkedSealed; llc subprocess work has a separate design boundary. Untyped
+is ParkedSealed. LLVM library emission has its own ParkedSealed D0 tied to the
+existing native-library graduation owner; llc-18 remains selected. Untyped
 storage, child physical shapes, and whole-Map/R7 remain parked.
 """
-next_design_card = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D1"
+next_design_card = "MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-D0"
 next_execution_card = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
