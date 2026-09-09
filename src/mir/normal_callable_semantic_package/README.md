@@ -454,6 +454,12 @@ the relation. The first owner-indexed consumer is the exact integer-literal
 return. Other terminal forms remain stopped until their existing physical
 progress can be consumed with the same owner/site checks.
 
+Cataloged static-child draft capture uses the existing callable construction and
+ordinary-New emission validators after finalization, keyed by the active
+FunctionOwnerIdV1. This closes the draft-validation bypass without creating a
+second Completion, physical boundary, or install/ABI consumer; ordinary Map
+installation and artifact emission remain explicit Stops.
+
 | Relation | Dedicated consumption and retained result |
 | --- | --- |
 | TerminalI64AddReturnV1 | Exact owner/Return/Add and ordered two qualifying FieldRead sites; reserve once, consume receivers/reads in order, emit Add, pass the exact result through cleanup/Return. |
