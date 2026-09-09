@@ -1204,8 +1204,11 @@ Existing local_statement_parity_tests6/6 and local_placement_tests2/2 pass,
 including record/typed Array snapshots and failed-batch registration. Logs:
 `/tmp/hakorune-local-thinning-parity.log` and
 `/tmp/hakorune-local-thinning-placement.log`. No language/ABI contract changed.
-Next bounded candidate is queue11's exact Local initializer lookup; alias-chain
-lookup and the broader Map obligations remain separate.
+Queue11 is also closed: exact declaration lookup plus BindingRef check replaces
+the placement scan. Lookup2/2, parity6/6 and source13/EXE26/completion12 pass;
+logs `/tmp/hakorune-local-lookup{,-parity,-source}.log`. Alias-origin and
+Map initializer-site scans remain separate. Next is the existing static V2
+host invocation connection in the collection SSOT, not unrelated tuning.
 
 **Source-object Fault checkpoint (2026-09-09)**
 
@@ -1482,12 +1485,12 @@ Additional thinning queue (verified against 61076eb17b and current code, 2026-09
 keep finishing -> selected C -> source OBJ/EXE -> old-edge retirement as the
 completion order. These rows do not authorize source-family widening or replace
 cutover with optimization work.
-Status (2026-09-09): row14 is closed with parity6/6 and placement2/2.
-Rows10–12 remain queued. Row13 is partially implemented: invocation-owned
+Status (2026-09-09): rows11 and14 are closed with their focused acceptance.
+Rows10 and12 remain queued. Row13 is partially implemented: invocation-owned
 function/block/value/layout lookups, memoized physical kinds and one Copy query.
 Parser definition scans, dominance walks and unused dominance `seen` remain;
 there is no measured speed claim or whole-row13 closure.
-Next is row11 at the current Local boundary. Row10 needs multi-ingress cleanup
+Next is the existing static V2 host connection. Row10 needs multi-ingress cleanup
 correspondence proof; row12 belongs to session integration; remaining row13 work
 belongs to its validator. Keep broader Map cutover ahead of unrelated tuning.
 Deletion targets are repeated work, not independent source/ownership/FFI checks.
@@ -1506,16 +1509,15 @@ Repeated feedback maps here; no sibling cards or new guard family are needed.
     multi-predecessor joins and actual simplify_cfg + artifact validation.
     Handle at the same owner's next boundary after current finishing closes.
 
-11. Exact Local initializer lookup: map_local.rs retains declaration-keyed
-    BTreeMap rows but local_placement scans values by binding per local.
-    Use get with the current exact statement/ordinal declaration locator, then
-    verify its BindingRef. SourceStmtSiteV1::from_node is only a lookup-key
+11. Closed: Exact Local initializer lookup. map_local.rs uses its retained
+    declaration-keyed BTreeMap with the exact statement/ordinal locator, then
+    verifies BindingRef. The former per-Local values scan is deleted. SourceStmtSiteV1::from_node is only a lookup-key
     projection of the existing statement, never source membership issuance or
     AST-path reconstruction. Keep insertion uniqueness and foreign/ordinal
     refusal; no second index or ledger. Alias-chain lookup is separately
     measured, not implicitly claimed fixed by this one change.
-    Acceptance: existing placement/source tests and wrong locator/binding tests.
-    This is a bounded Local BoxShape at the next natural Local edit.
+    Acceptance: lookup2/2 (missing locator/binding drift), parity6/6 and real
+    source13/EXE26/completion12 pass. No language or ABI contract changed.
 
 12. Runtime archive I/O sharing: LifecycleRuntimeSessionV1::select calls Fault
     descriptor and entry ABI readers, both traversing/extracting every archive

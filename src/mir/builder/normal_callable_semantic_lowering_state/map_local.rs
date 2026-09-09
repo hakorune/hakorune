@@ -28,27 +28,14 @@ impl CallableSemanticLoweringState {
         value: ValueId,
         ledger: &OrdinaryNewClaimLedgerV1,
     ) -> Result<LocalValuePlacement, String> {
-        let binding = self
-            .locals
-            .get(statement)
-            .and_then(|rows| rows.get(ordinal))
-            .ok_or_else(|| freeze("placement-local-missing"))?;
-        let mut rows = self
-            .initializers
-            .values()
-            .filter(|row| row.binding() == *binding);
-        let relation = rows
-            .next()
-            .ok_or_else(|| freeze("placement-initializer-missing"))?;
-        if rows.next().is_some() {
-            return Err(freeze("placement-initializer-duplicate"));
-        }
+        let relation = self.local_initializer(statement, ordinal)?;
+        let binding = relation.binding();
         let Some(site) = relation.initializer_site() else {
             return Ok(LocalValuePlacement::Copy);
         };
         let owned = OwnedExprSiteV1::new(self.owner, site.clone());
         let reuse = if ledger.has_map_source(&owned) {
-            if !ledger.map_initializer_matches(&owned, *binding, value) {
+            if !ledger.map_initializer_matches(&owned, binding, value) {
                 return Err(freeze("placement-map-result-drift"));
             }
             true
@@ -68,6 +55,27 @@ impl CallableSemanticLoweringState {
         } else {
             Ok(LocalValuePlacement::Copy)
         }
+    }
+    // The statement/ordinal is a locator only; the retained binding remains
+    // authoritative. Registration already rejects duplicate declaration keys.
+    fn local_initializer(
+        &self,
+        statement: &SourceNodeSiteV1,
+        ordinal: usize,
+    ) -> Result<&ResolvedInitializerRelationV1, String> {
+        let binding = self.locals.get(statement)
+            .and_then(|rows| rows.get(ordinal))
+            .ok_or_else(|| freeze("placement-local-missing"))?;
+        let declaration = SourceBindingSiteV1::Local {
+            statement: crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(statement.clone()),
+            ordinal: u32::try_from(ordinal).map_err(|_| freeze("placement-local-ordinal"))?,
+        };
+        let relation = self.initializers.get(&declaration)
+            .ok_or_else(|| freeze("placement-initializer-missing"))?;
+        if relation.binding() != *binding {
+            return Err(freeze("placement-initializer-binding-drift"));
+        }
+        Ok(relation)
     }
     fn map_alias_origin(
         &self,
@@ -150,3 +158,7 @@ pub(in crate::mir) fn validate_map_local_annotation(annotation: Option<&str>) ->
     }
     Ok(())
 }
+
+#[cfg(test)]
+#[path = "map_local_tests.rs"]
+mod tests;

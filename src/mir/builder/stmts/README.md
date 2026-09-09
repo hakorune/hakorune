@@ -30,6 +30,11 @@ The from-values shell enters the existing preclaims publication function
 directly. Metadata propagation, including record metadata, happens once through
 `metadata::propagate::propagate`; Local registration adds no second record clone.
 
+Callable Local placement borrows its initializer through the retained declaration
+key (statement and ordinal), then checks BindingRef equality. The locator issues
+no membership; registration retains uniqueness checks. Map alias-origin walking
+remains a separate consumer and is not covered by this direct-lookup change.
+
 Selected Script Local uses the existing resolver initializer relation, retained
 by its same-source lowering projection. The local input explicitly distinguishes
 that source-backed annotation from raw/callable compatibility syntax. Declaration

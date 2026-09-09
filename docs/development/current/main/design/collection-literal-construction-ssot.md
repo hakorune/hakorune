@@ -2378,6 +2378,30 @@ also does not prove generic Map artifact execution impossible: the static path
 can select mixed modules. The planned dedicated write consumer replaces that gap; Map execution remains
 unproved until source/caller switching and artifact acceptance complete.
 
+### Next static host connection (2026-09-09)
+
+Decision: resume the existing V2 same-invocation host connection after Local
+queue11/14 thinning. Generic scalar/nested Map uses the existing runtime
+copy/boxed contract (`plugin/map_literal.rs`, `value_codec/decode.rs`), not
+checked V4 Home transfer. Missing Script Map lifecycle alone is not a blocker
+for this generic consumer; the independent worker's initial contrary premise
+was refuted against those owners and `static_v2_emit.inc`.
+Source authority + canonical issuer: existing literal/child relations and call
+edges; actual C Named outcomes feed the existing MapBodyIndex/frame planner.
+Non-authority: a Map name, Array lifecycle proof, or checked Home receipt cannot
+repair generic input. Runtime clone semantics remain with the existing codec.
+Fail-fast boundary: retain intrinsic configuration and original inputs within
+one invocation; missing/drifted/duplicate/residual rows reject before artifact.
+Direct-array/typed-object escape coverage remains a named existing blocker.
+Smallest next slice: connect retained query -> frame -> compile to the selected
+static host, retaining library/bytes/handle until close on success/error/cancel.
+Delete the replaced V1 host/stub/frame/file edges at the public switch; no V1
+retry or separate query-only public path. Six literal edges retire at the series
+cutover, with all affected selected hosts accounted for.
+Non-claims: current callable checked source13/EXE26/completion12 does not prove
+this generic source cutover. Acceptance remains both C walkers, unchanged natural
+scalar/nested/mixed-formal OBJ/EXE, failure/cancel closure and invalid-row refusal.
+
 ## Remaining source obligations
 
 The original wider source cutover still requires materialized Script Loop,
