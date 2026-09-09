@@ -86,20 +86,11 @@ pub(in crate::mir::builder) fn build_local_statement_from_values(
     variables: Vec<String>,
     initial_values: Vec<ValueId>,
 ) -> Result<ValueId, String> {
-    build_local_statement_from_values_with_types(builder, variables, initial_values, Vec::new())
-}
-
-pub(in crate::mir::builder) fn build_local_statement_from_values_with_types(
-    builder: &mut MirBuilder,
-    variables: Vec<String>,
-    initial_values: Vec<ValueId>,
-    declared_type_names: Vec<Option<String>>,
-) -> Result<ValueId, String> {
     build_local_statement_from_values_with_types_and_preclaims(
         builder,
         variables,
         initial_values,
-        declared_type_names,
+        Vec::new(),
         Vec::new(),
     )
 }
@@ -263,10 +254,6 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
             })?;
         }
         crate::mir::builder::metadata::propagate::propagate(builder, init_val, var_id);
-        builder
-            .function_state
-            .compilation
-            .propagate_record_local_value(init_val, var_id);
 
         if crate::config::env::builder_loopform_debug() {
             crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(

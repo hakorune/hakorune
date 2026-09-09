@@ -1197,15 +1197,15 @@ mixed-formal acceptance still belong to the collection owner. No R7 completion
 or deletion permission for those callers follows from this bounded closeout.
 The preflight getter also does not close queue11's physical Local lookup scans.
 
-Next selected existing candidate is additional thinning queue14, a Delete
-BoxShape: remove the second record propagation after metadata::propagate and
-collapse the with_types-only forwarder into the existing preclaims entry.
-Raw-root from-values and callable receipt_v1 keep the same private publication
-owner; retain preclaims because parity tests call it. Acceptance is existing
-local_statement_parity_tests plus local_placement_tests: ordinary/typed Array/
-record snapshots, failed-batch reuse, and unchanged Copy/reuse/registration order.
-No new receipt, source form, test hierarchy or constructor policy is authorized.
-One worker independently checked actual callers and intervening mutation absence.
+Additional thinning queue14 is closed: the duplicate record propagation and
+sole with_types forwarder are deleted. Raw-root from-values and callable
+receipt_v1 retain the same private publication owner and preclaims entry.
+Existing local_statement_parity_tests6/6 and local_placement_tests2/2 pass,
+including record/typed Array snapshots and failed-batch registration. Logs:
+`/tmp/hakorune-local-thinning-parity.log` and
+`/tmp/hakorune-local-thinning-placement.log`. No language/ABI contract changed.
+Next bounded candidate is queue11's exact Local initializer lookup; alias-chain
+lookup and the broader Map obligations remain separate.
 
 **Source-object Fault checkpoint (2026-09-09)**
 
@@ -1482,22 +1482,16 @@ Additional thinning queue (verified against 61076eb17b and current code, 2026-09
 keep finishing -> selected C -> source OBJ/EXE -> old-edge retirement as the
 completion order. These rows do not authorize source-family widening or replace
 cutover with optimization work.
-Status (rechecked 2026-09-09 at 18b5afc072 plus the working tree): rows10–12
-and14 remain queued. Row13 has C consumer implementation: invocation-owned
-function/block/value/layout lookups, memoized physical kinds and one Copy type
-query. Parser definition scans, dominance walks and the unused dominance `seen`
-allocation remain. This is not row13 acceptance or a measured speed improvement.
-At a natural Local edit, prefer row11 then row14; row10 follows finishing,
-row13 belongs to the C consumer, and row12 to runtime-session integration.
-Deletion targets are the repeated work named in each row, not the independent
-source/ownership/trust-boundary checks. No new guard family is required.
-Repeated feedback maps to these existing rows; do not open sibling task cards.
-For row10, finishing is now closed, but cleanup sharing still needs its own
-multi-ingress correspondence proof; do not mix it into the pending C cutover.
-The immediate order remains the selected C consumer and source cutover. Take
-row11 then row14 at a natural Local edit, row12 at session integration, and the
-remaining row13 scans only with their owning validator. No whole-queue closure
-or arbitrary-order linear cleanup bound is claimed.
+Status (2026-09-09): row14 is closed with parity6/6 and placement2/2.
+Rows10–12 remain queued. Row13 is partially implemented: invocation-owned
+function/block/value/layout lookups, memoized physical kinds and one Copy query.
+Parser definition scans, dominance walks and unused dominance `seen` remain;
+there is no measured speed claim or whole-row13 closure.
+Next is row11 at the current Local boundary. Row10 needs multi-ingress cleanup
+correspondence proof; row12 belongs to session integration; remaining row13 work
+belongs to its validator. Keep broader Map cutover ahead of unrelated tuning.
+Deletion targets are repeated work, not independent source/ownership/FFI checks.
+Repeated feedback maps here; no sibling cards or new guard family are needed.
 
 10. Map emitter cleanup sharing: selected/map.rs separately emits each pre/post
     failure chain; post(i) equals pre(i+1) for the same issued ownership state,
@@ -1544,15 +1538,12 @@ or arbitrary-order linear cleanup bound is claimed.
     failure cleanup, and measured lookup/scan counts. Align with C consumer
     edits; no new global state or general optimizer project.
 
-14. Local metadata/forwarder thinning: variable_stmt calls propagate_record_local_value
-    after propagate already performs it. Remove the duplicate clone/registration.
-    build_local_statement_from_values is a real raw-root entry; its with_types
-    intermediary has no independent Builder caller in the inspected owner.
-    Recheck the full private caller chain before deleting forwarding-only nodes;
-    retain completed-local correspondence and contract preflight.
-    Acceptance: record metadata survives once, ordinary/typed Array/local tests,
-    reuse and failed-batch registration unchanged. Pair with row11 only as one
-    Local responsibility refactor; otherwise keep separate from semantic changes.
+14. Closed: Local metadata/forwarder thinning. Removed the second record
+    clone/registration after common propagate and the sole with_types forwarder.
+    Real raw-root from-values and callable receipt callers still use the same
+    private publication owner. Preclaims, completed-local correspondence and
+    contract preflight remain. Existing parity6/6 and placement2/2 pass;
+    no independent caller of the deleted forwarder remains. Row11 is separate.
 
 **Map quality queue (2026-09-09, measured at 7cc63ab9ea)**
 

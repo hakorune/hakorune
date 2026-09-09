@@ -26,6 +26,10 @@ dispatcher has selected a statement family.
 5. publish bindings once through the existing from-values completion owner
    after every initializer succeeds.
 
+The from-values shell enters the existing preclaims publication function
+directly. Metadata propagation, including record metadata, happens once through
+`metadata::propagate::propagate`; Local registration adds no second record clone.
+
 Selected Script Local uses the existing resolver initializer relation, retained
 by its same-source lowering projection. The local input explicitly distinguishes
 that source-backed annotation from raw/callable compatibility syntax. Declaration
