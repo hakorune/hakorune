@@ -1057,6 +1057,29 @@ canonical fixtures. Non-claims: untyped fields, dynamic/opaque slots, C
 `FaultFrameEnter`, and method Birth beyond the reclassification exposed by the
 focused smoke run.
 
+I0 evidence (landed at `89199dbc3c`): both canonical fixtures now declare
+explicit `i64` fields. `typed_object_newbox_min_exe` reaches the selected pure
+first EXE and exits `30`; `typed_object_method_min_exe` passes the old
+`IntegerBox`/layout blocker and is now isolated at the existing MIR JSON
+`FaultFrameEnter` egress stop. The canonical layout negative suite is `3/3`
+green, including explicit `IntegerBox` and untyped-field rejection. No source
+fixture was changed to a rejection case.
+
+##### `MIRBUILDER-FAULT-FRAME-ENTER-JSON-EGRESS-I0`
+
+Decision: carry the existing `FaultFrameEnter { dst, mode }` relation through
+the selected MIR JSON egress as the already defined `fault_frame_enter` row.
+Preserve `root_owned` versus `borrowed`; do not erase or synthesize a frame in
+the emitter. Source authority is the existing function fault-frame owner and
+compiled-entry contract. Canonical consumer is the existing
+`src/runner/mir_json_emit` owner; C v4 remains a physical consumer and must not
+reclassify the mode. Non-authority: RawCompatibility, C defaults, function
+names, and a retry route. Fail-fast boundary: unsupported mode, duplicate/missing
+frame, or mismatched `fault_frame` use remains rejected before artifact output.
+Smallest slice: add the allowlist/emitter case and focused JSON positive/negative
+coverage, then rerun the existing method smoke to expose its next owner. Do not
+open child cleanup, dynamic slots, or untyped storage here.
+
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 
 The source issuer preserves `init_fields` membership, but canonical layout must

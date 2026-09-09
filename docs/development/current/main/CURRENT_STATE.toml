@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-TYPED-OBJECT-SOURCE-MIGRATION-I0"
+current_execution_row = "MIRBUILDER-FAULT-FRAME-ENTER-JSON-EGRESS-I0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Accepted storage contract: canonical typed-object EXE requires explicit exact numeric storage with i64 as the live scalar; IntegerBox requires explicit source migration and untyped init_fields remain unavailable to canonical layout. This slice migrates only the two canonical IntegerBox smoke fixtures; do not infer storage from MIR/layout, widen compatibility vocabulary, touch C FaultFrameEnter, or alter RawCompatibility."
+current_blocker_token = "FaultFrameEnter egress slice: carry existing dst and root_owned/borrowed mode through the selected MIR JSON emitter. Do not erase/synthesize frames, infer mode in C, open child cleanup or dynamic slots, widen compatibility vocabulary, or alter RawCompatibility."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -37,12 +37,14 @@ acceptance remains open (current 1/11 versus pinned parent 6/11); current-only
 reds split into IntegerBox vocabulary, init_fields projection, C FaultFrameEnter,
 and dependent method Birth. Init_fields projection is now closed at f4b387de48
 with issuer-focused tests 6/6. The next bounded work is design-stop D0 for the
-IntegerBox/untyped-storage contract is accepted. The next fast slice migrates
-the two canonical IntegerBox fixtures; untyped storage, C FaultFrameEnter, and
-method Birth remain separate.
+IntegerBox storage contract and source migration are closed through
+89199dbc3c: newbox EXE exit30, method now isolated at FaultFrameEnter, and
+canonical layout negatives 3/3. The current fast slice only carries the
+existing FaultFrameEnter relation through MIR JSON; untyped storage and child
+cleanup remain separate.
 """
 next_design_card = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
-next_execution_card = "MIRBUILDER-TYPED-OBJECT-SOURCE-MIGRATION-I0"
+next_execution_card = "MIRBUILDER-FAULT-FRAME-ENTER-JSON-EGRESS-I0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -61,5 +63,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change.",
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
-  "2026-09-09/10: Map physical consumer and ordinary_i64 Pair evidence close (direct/linked exit30, Fault103, cleanup, root+child/two-owner); single-terminal edge retired. Three/four/five-owner admission and Pair/Fault-prefix evidence pass (semantic 15/15). Value-only row passes root+child exit30. c3fa1f8a75 closes Rust Birth handoff I0 with caller-scoped child actuals, compiled-entry/JSON index match, and focused Birth/cleanup tests. 60bcf68add closes bounded C child New/Birth/Home I0 for one ordinary child path with direct/linked exit30, parser/V4, and rejection evidence. f4b387de48 closes init_fields source projection with issuer tests 6/6; IntegerBox/untyped storage and broader child shapes are design-stopped, whole-Map/R7 parked.",
+  "2026-09-09/10: Map physical consumer and ordinary_i64 Pair evidence close (direct/linked exit30, Fault103, cleanup, root+child/two-owner); single-terminal edge retired. Three/four/five-owner admission and Pair/Fault-prefix evidence pass (semantic 15/15). Value-only row passes root+child exit30. c3fa1f8a75 closes Rust Birth handoff I0 with caller-scoped child actuals, compiled-entry/JSON index match, and focused Birth/cleanup tests. 60bcf68add closes bounded C child New/Birth/Home I0 for one ordinary child path with direct/linked exit30, parser/V4, and rejection evidence. f4b387de48 closes init_fields projection 6/6; 89199dbc3c migrates canonical IntegerBox fixtures, newbox EXE exit30, and layout negatives 3/3; method is now isolated at FaultFrameEnter. Untyped storage, child shapes, whole-Map/R7 remain parked.",
 ]
