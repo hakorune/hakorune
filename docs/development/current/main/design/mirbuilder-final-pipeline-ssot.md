@@ -1350,6 +1350,36 @@ instance key, receiver `ValueId`, result/signature/cleanup agreement, and
 direct-vs-instance exclusivity. Only after that slice closes may the physical
 receiver projection and `Pair.sum()` OBJ/EXE exit-30 test be opened.
 
+The active I0 has one upstream contract prerequisite: the current
+`apps/typed-object-method-min/main.hako` declares `Pair.sum()` without a return
+annotation. The existing completion/result issuer maps an unannotated return to
+no usable result contract, even though the body is an i64-shaped Add. The I0
+positive path must therefore either use the existing source contract (the
+fixture's `sum(): i64` declaration) or stop in a separate design row for an
+explicit unannotated-return authority. It must not infer `i64` from MIR or
+invent a backend result row. Missing, Void, non-i64, owner-drift, and signature
+drift remain fail-fast negatives.
+
+##### ROOT-METHOD-I0 integrity follow-up queue (2026-09-10)
+
+The following findings were verified against `814629bb` and are queued behind
+the active root-method I0. They are behavior-preserving owner/ordering fixes;
+they do not change the selected source shapes, add a semantic receipt, or open
+the physical receiver lane. Execute them in the listed order after the active
+I0 has reached a natural closeout boundary.
+
+| order | bounded task / owner | change and fail-fast boundary | acceptance / non-claims |
+| --- | --- | --- | --- |
+| 1 | `ordinary_new_terminal_access` owner-local terminal lookup | Make `prepare_terminal_integer_literal_return` answer only from the requested owner's indexed/root relation. A missing literal relation for that owner returns `None`; foreign-owner detection uses an owner-branded site/caller, never a same-function-relative node comparison. Keep the existing completion, explicit-site, and duplicate checks. | Add/retain a two-owner negative where both functions use the same relative return position and the caller reaches the correct `I64Field` arm without a literal-owner drift error; retain a true owner/site drift rejection. No terminal-family widening, no cross-owner scan, no new index. |
+| 2 | `ordinary_new_coseal` field-read accumulator | Replace the AppMain `field_reads = staged_reads` overwrite with the same owner-scoped additive merge used for children. Reject a duplicate site at merge time and preserve the existing field/result consistency checks. Processing order must not determine whether child field-read rows survive. | Exercise child-before-AppMain and AppMain-before-child declaration orders with the same rows; both retain all owner-scoped reads, while duplicate and foreign-site inputs fail before completion publication. No new field-read authority or completion product. |
+| 3 | `published_backend_view::physical_program::collect_ordinary_calls` | Traverse blocks and instructions through the existing deterministic block/instruction order (the same sorted block ids used by `issue_function`) before issuing ordinary-call order. Do not use `HashMap::values()` as a numbering source. Preserve membership, destination, arity, and signature checks. | Compile the same multi-callee module repeatedly and assert identical ordinary physical function order and diagnostic-site order; retain malformed destination/membership rejection. No new physical numbering scheme and no C/backend change. |
+| later / measured | C physical invocation index reuse | After a selected physical caller is active and a profile names this hot owner, share the invocation-local definition/block index and validated value facts between V2 structural checks, dominance checks, and V4 emission. Remove only redundant scans; keep each trust-boundary check. | Requires a before/after measurement and an existing physical caller. Do not count this queue item as a correctness fix, do not add a global cache, and do not claim compile concurrency or whole-backend speedup without measurement. |
+
+Each of the first three rows is a `BoxShape` refactor: the source authority,
+canonical issuer, terminal consumer, and exclusive delete-set already exist.
+While root-method I0 is active, these follow-ups must not be used to paper over
+`artifact-source-unavailable` or to authorize OBJ/EXE acceptance.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-I0`
 
 Decision: accept one bounded implementation slice for the Rust MIR/root
@@ -1399,6 +1429,53 @@ new backend route. No source fallback or generic MIR-JSON `Invoke` is allowed.
 
 Non-claims: this design does not authorize code, fixture, production switch,
 OBJ/EXE acceptance, or any other MethodCall family.
+
+I0 Rust closeout evidence (2026-09-10): the selected fixture now declares
+`Pair.sum(): i64`; the existing result issuer supplies the selected
+`InstanceBoxMethod` contract, and focused source tests cover both the ready row
+and the unannotated/unavailable case. The common Invoke verifier accepts the
+existing `SameModuleInstance` + `I64` shape only when the selected namespace
+and source arity match. `--dump-mir` reaches the complete root lifecycle:
+
+```text
+NewBox -> Birth(Unit) -> SameModuleInstance(Pair.sum/0, receiver %11)
+       -> InvokeNormalResult -> HomeRelease -> Return
+```
+
+This closes the Rust source/lifecycle I0. The selected physical caller still
+rejects the receiver-bearing call at
+`[freeze:contract][published-lifecycle-program/ordinary-call-callee]`; that is
+the next physical receiver-lane design boundary, not a failed Rust I0.
+
+##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-D0`
+
+Decision: open a design stop for the existing published physical owner. The
+source-issued `RootInstanceCallDisposition` and `InstanceBoxMethod` signature
+already provide the target key, receiver `ValueId`, source argument arity, and
+one receiver lane. The physical owner must project those facts once into the
+existing lifecycle input; it must not rebuild them from MIR names or C text.
+
+Source authority + canonical issuer: the closed ordinary-New root handoff and
+the selected callable physical-signature row. Non-authority: generic MIR JSON,
+`physical_program::ordinary_callable_key()` when it only accepts Global,
+function names, MIR type observations, receiver spelling, C defaults, and
+compatibility retry.
+
+Fail-fast boundary: instance namespace/owner/key mismatch, receiver lane not
+exactly one, source arity/signature drift, missing ordinary definition, or a
+receiver-bearing call entering the Global-only physical row must reject before
+JSON/object output. The generic MIR JSON route continues to reject lifecycle
+`Invoke`.
+
+Smallest next slice: read the existing `PublishedLifecyclePhysicalProgramV1`,
+`physical_program_json`, and C V4 ordinary-call rows as one finite inventory;
+choose one explicit receiver projection (lane or named physical field), then
+write the production caller, exact delete-set, and focused positive/negative
+acceptance. Do not edit C, add a new schema, or switch production while this D0
+remains open.
+
+Non-claims: no arbitrary instance methods, dynamic/opaque receivers, child
+cleanup expansion, generic JSON lifecycle support, or OBJ/EXE exit 30.
 
 ##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
 
