@@ -45,7 +45,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             InvokeOperation::Map(operation) => Some(match operation {
                 MapInvokeOperation::New => Self::MapNew,
                 MapInvokeOperation::PrepareKey { .. } => Self::MapPrepareKey,
-                MapInvokeOperation::InstallIndexed { .. } => Self::MapInstall,
+                MapInvokeOperation::InstallIndexed { .. } | MapInvokeOperation::InstallValue { .. } => Self::MapInstall,
                 MapInvokeOperation::EndOutcome { .. } => Self::MapEndOutcome,
                 MapInvokeOperation::End { .. } => Self::MapEnd,
             }),

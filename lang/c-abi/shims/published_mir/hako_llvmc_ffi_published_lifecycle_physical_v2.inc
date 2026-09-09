@@ -456,7 +456,7 @@ static int hako_physical_validate_call(yyjson_val* function, yyjson_val* functio
 /* Exact physical Map vocabulary; roles/lifetime are checked by V4 admission. */
 static int hako_physical_map_kind(const char* kind) {
   return kind && (!strcmp(kind, "map_new") || !strcmp(kind, "map_prepare_key") ||
-      !strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_end_outcome") ||
+      (!strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_install_value")) || !strcmp(kind, "map_end_outcome") ||
       !strcmp(kind, "map_end"));
 }
 static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts,
@@ -464,6 +464,7 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
   static const char* const new_keys[] = {"kind", "site"};
   static const char* const key_keys[] = {"kind", "site", "utf8"};
   static const char* const install_keys[] = {"kind", "site", "map", "key", "object_id", "value"};
+  static const char* const value_keys[] = {"kind", "site", "map", "key", "value_kind", "value"};
   static const char* const end_keys[] = {"kind", "site", "map"};
   static const char* const outcome_keys[] = {"kind", "site", "outcome"};
   uint32_t value, object;
@@ -480,6 +481,14 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
       !hako_physical_value_available_at(function, value, block, index)) return 0;
   if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_end"))
     return hako_physical_exact_keys(op, end_keys, 3);
+  if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_install_value"))
+    return hako_physical_exact_keys(op, value_keys, 6) &&
+        hako_physical_u32(yyjson_obj_get(op, "value_kind"), &object) &&
+        (object == NYRT_MAP_VALUE_I64 || object == NYRT_MAP_VALUE_BOOL) &&
+        hako_physical_u32(yyjson_obj_get(op, "key"), &value) &&
+        hako_physical_value_available_at(function, value, block, index) &&
+        hako_physical_u32(yyjson_obj_get(op, "value"), &value) &&
+        hako_physical_value_available_at(function, value, block, index);
   return hako_physical_exact_keys(op, install_keys, 6) &&
       hako_physical_u32(yyjson_obj_get(op, "key"), &value) &&
       hako_physical_value_available_at(function, value, block, index) &&
@@ -493,7 +502,7 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
   if (!kind) return 0;
   if (native) return !strcmp(kind, "array_new");
   return !strcmp(kind, "new_box") || !strcmp(kind, "map_new") ||
-      !strcmp(kind, "map_prepare_key") || !strcmp(kind, "map_install_indexed");
+      !strcmp(kind, "map_prepare_key") || (!strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_install_value"));
 }
 
 static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* functions,

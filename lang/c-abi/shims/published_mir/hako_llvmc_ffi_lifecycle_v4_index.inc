@@ -69,7 +69,7 @@ static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")) return LV4_HANDLE;
   if (lv4_is(op, "kind", "map_new")) return LV4_MAP;
   if (lv4_is(op, "kind", "map_prepare_key")) return LV4_KEY;
-  if (lv4_is(op, "kind", "map_install_indexed")) return LV4_OUTCOME;
+  if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value")) return LV4_OUTCOME;
   return LV4_BAD;
 }
 
@@ -182,9 +182,8 @@ static int lv4_index_open(hako_lv4_input* in) {
   return 1;
 }
 
-static int lv4_input_type(const hako_lv4_input* in, yyjson_val* fn, uint32_t value,
-    size_t budget) {
-  if (in->native) return lv4_type(fn, value, budget);
+static int lv4_input_type(const hako_lv4_input* in, yyjson_val* fn, uint32_t value) {
+  if (in->native) return lv4_type(fn, value, lv4_value_budget(fn));
   for (size_t fi = 0; fi < in->index_count; fi++) {
     if (in->index[fi].function != fn) continue;
     hako_lv4_value* row = lv4_index_value(&in->index[fi], value);

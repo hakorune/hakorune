@@ -6,7 +6,7 @@ use crate::mir::{Effect, EffectMask, ValueId};
 
 #[path = "invoke_map.rs"]
 mod map;
-pub use map::{MapInvokeOperation, InvokeNormalResultKind};
+pub use map::{MapInvokeOperation, MapValueKind, InvokeNormalResultKind};
 
 impl crate::mir::MirInstruction {
     /// Identifies physical sites needing retained lifecycle validation.

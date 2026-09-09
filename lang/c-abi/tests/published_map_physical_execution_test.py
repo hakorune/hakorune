@@ -99,6 +99,45 @@ def program(keys):
                                 blocks=graph.blocks)])
 
 
+def value_program(kinds):
+    """Explicit physical scalars; shared key exercises value/Home replacement."""
+    graph = Graph()
+    map_value = graph.invoke(dict(kind="map_new"), [], True)
+    end = dict(kind="map_end", map=map_value)
+    scalars = {}
+    for kind, payload in kinds:
+        if kind == "home":
+            value = graph.invoke(dict(kind="new_box", object_id=0), [end], True)
+            failure = [dict(kind="home_release", object_id=0, value=value), end]
+        else:
+            if (kind, payload) not in scalars:
+                value = graph.value
+                graph.value += 1
+                graph.row(graph.current, dict(op="const_" + kind, dst=value, value=payload))
+                for _ in range(2):
+                    alias = graph.value
+                    graph.value += 1
+                    graph.row(graph.current, dict(op="copy", dst=alias, src=value))
+                    value = alias
+                scalars[kind, payload] = value
+            value = scalars[kind, payload]
+            failure = [end]
+        key = graph.invoke(dict(kind="map_prepare_key", utf8="same"), failure, True)
+        operation = dict(kind="map_install_value", map=map_value, key=key,
+                         value=value, value_kind=1 if kind == "i64" else 2)
+        if kind == "home":
+            operation.pop("value_kind")
+            operation.update(kind="map_install_indexed", object_id=0)
+        outcome = graph.invoke(operation, failure, True)
+        graph.invoke(dict(kind="map_end_outcome", outcome=outcome), [end])
+    graph.invoke(end, [])
+    graph.term(graph.current, dict(op="return", value=1))
+    data = program(["unused"])
+    data["functions"][0]["blocks"] = graph.blocks
+    data["process_result_site"] = graph.site
+    return data
+
+
 def mixed_program():
     """Two live Maps, with later ordinary allocations under their cleanup."""
     graph = Graph()
@@ -183,6 +222,27 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
         assert result.returncode == -signal.SIGILL, (mode, result.returncode, result.stderr)
     print("six completion paths dispose exactly once; InvalidContract/unknown trap")
 
+    for entries in [[("i64", -(2**63)), ("i64", 2**63-1)],
+                    [("bool", False), ("bool", True), ("bool", True)],
+                    [("i64", 30), ("home", None), ("bool", True), ("home", None)]]:
+        compile_input(value_program(entries))
+        checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+        assert run([exe], env=env).returncode == 30
+    print("I64/Bool and alternating Value/Home replacements -> linked EXE30")
+
+    compile_input(value_program([("bool", True), ("i64", 30)]))
+    checked(["cc", "-DHAKO_MAP_VALUE_PROBE", TESTS / "published_map_fault_probe.c", obj, ARCHIVE,
+             *["-Wl,--wrap=nyash.map." + name + "_v1" for name in wraps + ["checked_install_value"]],
+             "-ldl", "-lpthread", "-lm", "-o", exe])
+    for mode, keys, outcomes in [("normal", 2, 2), ("new-fault", 0, 0),
+                                ("prepare-fault", 1, 0), ("install-fault", 1, 1),
+                                ("outcome-fault", 1, 1), ("end-fault", 2, 2)]:
+        result = run([exe, mode], env=env)
+        expected = 30 if mode == "normal" else 70
+        assert result.returncode == expected, (mode, result.stderr)
+        assert result.stdout.strip() == f"{expected} 1 1 {keys} {keys} {outcomes} {outcomes}", result.stdout
+    print("Value status paths preserve Key/Outcome disposal")
+
     base = program(["a", "b"])
 
     def operation(data, kind):
@@ -191,6 +251,37 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
                     if b["terminator"]["instruction"].get("operation", {}).get("kind") == kind)
 
     malformed = []
+    for field, bad in [("value_kind", 0), ("value_kind", 3), ("value_kind", 2),
+                       ("value", 999999), ("object_id", 0)]:
+        data = value_program([("i64", 30)])
+        operation(data, "map_install_value")[field] = bad
+        malformed.append(data)
+    for operand in ["map", "key"]:
+        data = value_program([("i64", 30)])
+        op = operation(data, "map_install_value")
+        op["value"] = op[operand]
+        malformed.append(data)
+
+    for key in ["value_kind", "value", "site"]:
+        data = value_program([("i64", 30)])
+        del operation(data, "map_install_value")[key]
+        malformed.append(data)
+    data = value_program([("i64", 30)])
+    for block in data["functions"][0]["blocks"]:
+        for row in block["instructions"]:
+            ins = row["instruction"]
+            if ins.get("op") == "const_i64" and ins["dst"] != 1:
+                ins.update(op="const_f64_bits", bits=0)
+                del ins["value"]
+    malformed.append(data)
+    data = value_program([("home", None)])
+    op = operation(data, "map_install_indexed")
+    op.update(kind="map_install_value", value_kind=1)
+    del op["object_id"]
+    malformed.append(data)
+    data = value_program([("bool", True)])
+    data["storage_profile"] = 2
+    malformed.append(data)
     for key, value in [("map", 0), ("key", 0), ("value", 0), ("object_id", 999), ("site", 0)]:
         data = copy.deepcopy(base)
         operation(data, "map_install_indexed")[key] = value

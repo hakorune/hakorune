@@ -2882,7 +2882,8 @@ Ordered implementation within the existing Map series:
    I64/Bool kind and no object_id/layout/origin transfer. Update invoke_map roles,
    immediate Key consumer, live Map checks, physical exact keys/site/SSA checks,
    index outcome kind, indexed flow, map emitter and required runtime symbol.
-   Bool uses zext i1 to i64. Preserve fi==0, SafeMutex and non-faulted admission;
+   Bool uses the existing normalized i64 payload lane. Preserve fi==0, SafeMutex
+   and non-faulted admission;
    native and ordinary callee remain refused until their own selected contracts.
    Both status paths consume Key; only Normal issues Outcome; scalar remains
    available and never acquires/transfers an Indexed Home origin. Share existing
@@ -2898,6 +2899,48 @@ Ordered implementation within the existing Map series:
 4. Ordinary callee frame/result and actual Completion cleanup borrowing remain
    mandatory before removing its Stop; finish the existing natural caller/callee
    source-to-OBJ/EXE series and retire the exclusive old edge.
+
+Physical consumer implementation checkpoint: explicit InstallValue is connected
+through MIR opaque-role checks, wire projection, physical parser, indexed type/
+lifetime admission and shared C install emission. I64/Bool values keep availability;
+Home origin transfer remains exclusive to InstallIndexed. Required runtime symbol
+inventory includes value install. Source install Stop and ordinary callee ABI
+remain open; this checkpoint does not implement step3/4 or claim source cutover.
+
+C verification: selected C build and physical parser preartifact test pass.
+The existing Map execution proof links target/quick/libnyash_kernel.a and passes
+I64 extrema, Bool Copy chains/reuse, alternating Value/Home replacement, six
+Value status paths with actual Key/Outcome disposal and exact observed payloads,
+and 26 malformed inputs preserving the previous object. The attempt-Fault probe
+uses the shared real indexed rejection transition, not simulated allocator OOM.
+Existing V4 Pair/Bool/range and 14 malformed/tag/schema tests also pass. No
+new source acceptance or measured compile-time speedup follows from these tests.
+
+Final restored-source Rust checks: mir::verification::invoke:: 13/13,
+map_value_wire_kind_is_explicit 1/1 and requires_each_opaque_entry_exactly_once
+1/1 pass (jobs4, locked quick lib, serial). The earlier runtime_map_symbols path
+filter also selected zero tests and was replaced by the observed real test name.
+Changed source maximum744; pointer/corridor guards and diff check pass. No source
+Value execution, ordinary callable admission, global baseline reset or removal
+of all C searches is claimed. Next is the existing step3 source connection.
+
+Red classification: the initial wrong Rust module filter executed zero tests
+and is not evidence. The broader map_ run reports 235 passed/5 failed/3 ignored;
+parent6effe70603 sources with the identical jobs4 locked quick command report
+233/5/3. All five names and assertion values match: the four historical route/
+Map-get failures recorded in the ownership task, plus
+mir::function::published_backend_view::tests::intrinsic_map_substrate_stops_before_v1_object_without_compatibility
+(CanonicalTyped versus UnsupportedBeforeObject). These are known baseline debt,
+not whole-library green. Logs: /tmp/hakorune-map-value-parent.log and
+/tmp/hakorune-map-value-rust.log. Parent comparison restored all working sources.
+
+Physical Bool correction: the initial i1-to-i64 proposal was disproved by the
+new Bool execution proof (llc type mismatch; current-change failure). The bounded
+worker re-audit confirmed const_bool and Bool Copy chains already produce i64
+0/1 in Indexed V4. Birth formals stay Tagged, not Bool; comparisons/PHI/Select
+are not admitted Bool producers here. Pass that i64 lane directly, preserving
+explicit Bool kind, exact index-kind validation and runtime bit validation.
+No native/static-V2 representation change or general conversion is authorized.
 
 Source-retention verification: map_value_completion_tests 7/7, semantic package
 148/148 and resolved_control_flow 33/33 pass with jobs4 locked quick lib tests,

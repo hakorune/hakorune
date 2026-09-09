@@ -289,6 +289,13 @@ fn encode_invoke(
                     "kind": "map_install_indexed", "map": value(map), "key": value(key),
                     "object_id": object.declaration_index(), "value": value(stored),
                 }),
+                Map::InstallValue { map, key, value: stored, kind } => json!({
+                    "kind": "map_install_value", "map": value(map), "key": value(key),
+                    "value": value(stored), "value_kind": match kind {
+                        crate::mir::instruction::MapValueKind::I64 => 1u32,
+                        crate::mir::instruction::MapValueKind::Bool => 2u32,
+                    },
+                }),
                 Map::EndOutcome { outcome } => json!({"kind": "map_end_outcome", "outcome": value(outcome)}),
                 Map::End { map } => json!({"kind": "map_end", "map": value(map)}),
             };

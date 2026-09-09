@@ -88,7 +88,13 @@ collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
   after the C build. The explicit archive must export the V2 runtime descriptor;
   the driver reads its actual Map/key/outcome storage geometry. Synthetic physical
   inputs cover empty/duplicate/NUL keys, reversed block order, checked Fault
-  disposal, invalid-status traps and pre-artifact lifetime rejection. These are
+  disposal, invalid-status traps and pre-artifact lifetime rejection. InstallValue
+  adds explicit I64/Bool payloads (including Copy chains/reuse) and mixed Home
+  replacement; both use normalized i64 lanes and the shared opaque install
+  protocol. Value has no object layout or transferred origin. Exact physical
+  kind mismatch rejects before artifact; ordinary callee/native admission is
+  unchanged. Indexed type lookup no longer evaluates native value-budget scans.
+  These are
   C consumer tests, not source publication or Map cutover acceptance. Indexed
   Unit roots remain unsupported; NativeArray retains its separate admission.
   Actual source artifacts are checked by the ignored Rust test

@@ -347,7 +347,12 @@ end by the placement caller. Map destruction is legal only Unissued/Ended;
 opaque detached storage rejects disposal before consumption. Rust Drop is
 not a fallback source finalizer. Opaque ABI and descriptor/session are implemented.
 Selected C Map emission uses the existing V4 physical input and exact-origin
-storage validation. Mixed-origin finishing and physical-consumer execution do
+storage validation. Its explicit `map_install_value` operation carries I64/Bool
+kind and an existing i64 payload lane, never an object identity. Bool remains
+0/1 through constant/Copy emission; it is not an i1 lane in this consumer.
+Value leaves scalar availability unchanged; both install operations consume Key
+on returned Normal/Fault, and only Normal publishes an Outcome. Missing/wrong
+kind and opaque payload misuse reject before artifact. Mixed-origin finishing and physical-consumer execution do
 not by themselves establish source-to-EXE activation; that cutover remains open.
 
 ## Checked Map opaque ABI contract

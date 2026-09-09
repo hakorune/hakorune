@@ -99,3 +99,62 @@ fn map_operation_rewrite_keeps_key_bytes_object_identity_and_effects() {
     key.rewrite_values(|_| panic!("key text is not a ValueId"));
     assert_eq!(key, InvokeOperation::Map(Map::PrepareKey { utf8: "a\0b".into() }));
 }
+
+#[test]
+fn scalar_install_preserves_opaque_protocol_and_rejects_opaque_payload() {
+    use crate::mir::instruction::MapValueKind;
+    for kind in [MapValueKind::I64, MapValueKind::Bool] {
+        let mut function = graph(true);
+        function
+            .blocks
+            .get_mut(&BasicBlockId(2))
+            .unwrap()
+            .set_terminator(invoke(
+                Map::InstallValue {
+                    map: ValueId(2),
+                    key: ValueId(3),
+                    value: ValueId(1),
+                    kind,
+                },
+                3,
+                6,
+            ));
+        check_function(&function).unwrap();
+        for bad in [2, 3, 4] {
+            function
+                .blocks
+                .get_mut(&BasicBlockId(2))
+                .unwrap()
+                .set_terminator(invoke(
+                    Map::InstallValue {
+                        map: ValueId(2),
+                        key: ValueId(3),
+                        value: ValueId(bad),
+                        kind,
+                    },
+                    3,
+                    6,
+                ));
+            assert!(check_function(&function).is_err());
+        }
+    }
+    let mut op = Map::InstallValue {
+        map: ValueId(2),
+        key: ValueId(3),
+        value: ValueId(1),
+        kind: MapValueKind::Bool,
+    };
+    op.rewrite_values(|v| v.0 += 10);
+    assert_eq!(
+        op.used_values(),
+        vec![ValueId(12), ValueId(13), ValueId(11)]
+    );
+    assert!(!op.effects().is_pure());
+    assert!(matches!(
+        op,
+        Map::InstallValue {
+            kind: MapValueKind::Bool,
+            ..
+        }
+    ));
+}

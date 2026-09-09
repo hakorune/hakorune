@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MAP-LITERAL-COMPILER-CUTOVER-I0"
 current_execution_cohort = "map_literal_compiler_cutover_i0"
 current_design_stop = "none"
-current_blocker_token = "Map source scalar retention implemented: exact literal/local evidence, unknown formal preserved; package148/control33 and guards pass. Next selected MIR/physical/C InstallValue consumer per collection SSOT. Source install Stop remains until connection; ordinary Fault/frame/result and actual Completion cleanup borrowing remain open."
+current_blocker_token = "MIR/physical/C InstallValue implemented and verified: explicit I64/Bool i64 lanes, shared opaque protocol, actual OBJ/EXE30, 26 negative inputs; Rust13+1+1 and guards pass. Next source connection per collection SSOT step3. Unknown scalar/source install Stop and ordinary Fault/frame/result/actual Completion cleanup remain; five broad map_ reds are parent-confirmed baseline."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

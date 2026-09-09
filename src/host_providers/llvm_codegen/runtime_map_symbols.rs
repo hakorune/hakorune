@@ -8,6 +8,7 @@ const SYMBOLS: &[&str] = &[
     "nyash.map.key_dispose_v1",
     "nyash.map.outcome_init_v1",
     "nyash.map.checked_install_indexed_v1",
+    "nyash.map.checked_install_value_v1",
     "nyash.map.outcome_end_v1",
     "nyash.map.outcome_dispose_v1",
     "nyash.map.checked_end_v1",

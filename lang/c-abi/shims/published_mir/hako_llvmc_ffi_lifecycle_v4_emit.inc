@@ -71,7 +71,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         fprintf(f, "  call void @nyrt_handle_release_h(i64 %%v%u)\n", lv4_u(ins, "value"));
       } else if (lv4_is(ins, "op", "copy")) {
         uint32_t src = lv4_u(ins, "src");
-        int kind = lv4_input_type(in, fn, src, lv4_value_budget(fn));
+        int kind = lv4_input_type(in, fn, src);
         if (kind == LV4_F64)
           fprintf(f, "  %%copy_bits%u = bitcast double %%v%u to i64\n"
               "  %%v%u = bitcast i64 %%copy_bits%u to double\n", dst, src, dst, dst);
@@ -81,7 +81,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(ins, "op", "add")) {
         fprintf(f, "  %%v%u = add i64 %%v%u, %%v%u\n", dst, lv4_u(ins, "lhs"), lv4_u(ins, "rhs"));
       } else if (lv4_is(ins, "op", "invoke_normal_result")) {
-        int kind = lv4_input_type(in, fn, dst, lv4_value_budget(fn));
+        int kind = lv4_input_type(in, fn, dst);
         const char* storage = kind == LV4_MAP ? "map" : kind == LV4_KEY ? "key" : kind == LV4_OUTCOME ? "outcome" : NULL;
         if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
         else fprintf(f, "  %%v%u = load i64, ptr %%new%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
@@ -131,7 +131,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         continue;
       }
       if (lv4_is(op, "kind", "field_set") &&
-          lv4_input_type(in, fn, lv4_u(op, "value"), lv4_value_budget(fn)) == LV4_TAGGED) {
+          lv4_input_type(in, fn, lv4_u(op, "value")) == LV4_TAGGED) {
         uint32_t value = lv4_u(op, "value");
         fprintf(f,
             "  %%store_int%u = icmp eq i32 %%k%u, 1\n"

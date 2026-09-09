@@ -31,7 +31,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             if let MirInstruction::Invoke { operation: InvokeOperation::Map(operation), .. } = instruction {
                 let valid = match operation {
                     Map::New | Map::PrepareKey { .. } => true,
-                    Map::InstallIndexed { map, key, value, .. } => has_kind(map, Kind::Map)
+                    Map::InstallIndexed { map, key, value, .. } | Map::InstallValue { map, key, value, .. } => has_kind(map, Kind::Map)
                         && has_kind(key, Kind::MapKey) && !results.contains_key(value),
                     Map::EndOutcome { outcome } => has_kind(outcome, Kind::MapOutcome),
                     Map::End { map } => has_kind(map, Kind::Map),
@@ -40,7 +40,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
             }
             for value in instruction.used_values().into_iter().filter(|v| results.contains_key(v)) {
                 let allowed = matches!(instruction,
-                    MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallIndexed { map, key, .. }), .. }
+                    MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallIndexed { map, key, .. } | Map::InstallValue { map, key, .. }), .. }
                         if value == *map || value == *key)
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::End { map }), .. } if value == *map)
@@ -61,7 +61,7 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
         let Some(MirInstruction::Invoke { normal_landing, .. }) = function.blocks[producer].terminator.as_ref() else { unreachable!() };
         let normal = function.blocks.get(normal_landing).ok_or("map-normal-missing")?;
         let immediate = matches!(normal.terminator.as_ref(),
-            Some(MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallIndexed { key, .. }), .. })
+            Some(MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallIndexed { key, .. } | Map::InstallValue { key, .. }), .. })
                 if *kind == Kind::MapKey && key == value)
             || matches!(normal.terminator.as_ref(),
             Some(MirInstruction::Invoke { operation: InvokeOperation::Map(Map::EndOutcome { outcome }), .. })
@@ -98,7 +98,7 @@ fn visit(
         if let MirInstruction::Invoke { operation: InvokeOperation::Map(operation), .. } = term {
             match operation {
                 Map::End { map } if !live.remove(map) => return Err("map-end-not-live"),
-                Map::InstallIndexed { map, .. } if !live.contains(map) => return Err("map-install-not-live"),
+                Map::InstallIndexed { map, .. } | Map::InstallValue { map, .. } if !live.contains(map) => return Err("map-install-not-live"),
                 _ => {}
             }
         }

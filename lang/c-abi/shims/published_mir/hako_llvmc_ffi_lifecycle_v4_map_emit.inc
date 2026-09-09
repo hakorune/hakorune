@@ -20,7 +20,8 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
   int make_map = lv4_is(op, "kind", "map_new");
   int make_key = lv4_is(op, "kind", "map_prepare_key");
-  int install = lv4_is(op, "kind", "map_install_indexed");
+  int scalar = lv4_is(op, "kind", "map_install_value");
+  int install = scalar || lv4_is(op, "kind", "map_install_indexed");
   int end_map = lv4_is(op, "kind", "map_end");
   if (make_map || make_key || install) {
     const char* storage = make_map ? "map" : make_key ? "key" : "outcome";
@@ -35,6 +36,10 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
     size_t len = yyjson_get_len(yyjson_obj_get(op, "utf8"));
     fprintf(f, "@\"nyash.map.key_prepare_utf8_v1\"(ptr %%frame, i64 %llu, ptr %%key%u, ptr @map_key_%zu_%u, i64 %zu)\n",
         site, b, fi, b, len);
+  } else if (scalar) {
+    fprintf(f, "@\"nyash.map.checked_install_value_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr %%v%u, ptr %%v%u, i32 %u, i64 %%v%u, ptr %%outcome%u)\n",
+        in->profile, site, lv4_u(op, "map"), lv4_u(op, "key"), lv4_u(op, "value_kind"),
+        lv4_u(op, "value"), b);
   } else if (install) {
     fprintf(f, "@\"nyash.map.checked_install_indexed_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr %%v%u, ptr %%v%u, i64 %%v%u, i64 %u, ptr %%outcome%u)\n",
         in->profile, site, lv4_u(op, "map"), lv4_u(op, "key"), lv4_u(op, "value"), lv4_type_id(in, op), b);
@@ -67,7 +72,7 @@ static void lv4_map_alloca(FILE* f, yyjson_val* op, uint32_t b,
   uint32_t size = 0, align = 0;
   if (lv4_is(op, "kind", "map_new")) { name = "map"; size = abi->map_size; align = abi->map_align; }
   else if (lv4_is(op, "kind", "map_prepare_key")) { name = "key"; size = abi->key_size; align = abi->key_align; }
-  else if (lv4_is(op, "kind", "map_install_indexed")) { name = "outcome"; size = abi->outcome_size; align = abi->outcome_align; }
+  else if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value")) { name = "outcome"; size = abi->outcome_size; align = abi->outcome_align; }
   if (name) fprintf(f, "  %%%s%u = alloca [%u x i8], align %u\n", name, b, size, align);
 }
 
@@ -80,6 +85,7 @@ static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.map.checked_new_v1\"(ptr, i32, i64, ptr)\n"
       "declare i32 @\"nyash.map.key_prepare_utf8_v1\"(ptr, i64, ptr, ptr, i64)\n"
       "declare i32 @\"nyash.map.checked_install_indexed_v1\"(ptr, i32, i64, ptr, ptr, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.map.checked_install_value_v1\"(ptr, i32, i64, ptr, ptr, i32, i64, ptr)\n"
       "declare i32 @\"nyash.map.outcome_end_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.checked_end_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.storage_dispose_v1\"(ptr)\n"
