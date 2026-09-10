@@ -1,5 +1,5 @@
 ---
-Status: design_stop__CallableSingleLoopSessionOwnerMismatch
+Status: accepted design__SingleFunctionSessionPendingDraftSeal
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0
 Parent: mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11
@@ -93,9 +93,10 @@ the parent's.
    retain, or restore a second function session.
 4. Add the smallest existing-owner terminal that carries the ready DraftSeal
    through prepare/commit while the same pending parent context remains held
-   until collector admission completes. A new semantic receipt or alternate
-   publication path is out of scope; if the existing owner cannot express this,
-   stop and record the exact API gap before editing callers.
+   until collector admission completes. The selected entry may use the
+   existing `PendingFunctionSessionCloseV1`; only its private DraftSeal-to-
+   pending bridge is missing. A new semantic receipt or alternate publication
+   path is out of scope.
 5. Connect header condition, body read/rebind, backedge, and false-edge After
    through the single session's canonical Binding SSA/PHI state. Names and
    composer-local maps remain non-authority.
@@ -152,7 +153,7 @@ the existing session cannot consume the Recipe and a new owner contract proves
 that every PHI token carries BindingRef, exact block/predecessor witnesses,
 dominance, and seal completion without creating a second issuer.
 
-## Reopened audit finding (2026-09-11)
+## Reopened audit finding and accepted resolution (2026-09-11)
 
 The current implementation has two `CanonicalFunctionLoweringSessionV1`
 owners for one selected child: the cataloged method's
@@ -163,20 +164,32 @@ is not a second PHI issuer, but it makes session ownership and restoration
 ambiguous and leaves no direct terminal that combines DraftSeal commit with
 collector completion before the parent is restored.
 
-The row is therefore reopened in `design_stop` until the smallest existing
-session/pending API is identified. The required design is:
+The row was reopened in `design_stop` until the smallest existing
+session/pending API was identified. The accepted design is:
 
 ```text
 selected cataloged entry
   -> one CanonicalFunctionLoweringSessionV1 owner
   -> borrowed callable physicalizer
   -> ReadyFunctionDraftSealV1
-  -> DraftSeal prepare/commit
+  -> DraftSeal prepare
+  -> pending DraftSeal commit (without parent restore)
   -> collector admission while parent remains captured
   -> one restoration/discard terminal
 ```
 
 `CanonicalSsaFunctionSessionV2` may remain an internal physical helper, but it
 must borrow the function-session Builder and cannot become another function
-session owner. Until this terminal is available, no 0/1/multiple fixture or
-OBJ/EXE claim is valid.
+session owner. The selected cataloged entry opens the one
+`CanonicalFunctionLoweringSessionV1`. The callable lowerer receives a mutable
+borrow of that owner and returns `ReadyFunctionDraftSealV1`; it never opens or
+restores a function session. A private DraftSeal terminal moves the prepared
+projected draft into the existing `PendingFunctionSessionCloseV1` without
+restoring the parent. `complete_before_restore` then performs collector
+admission and restores the parent exactly once. Any lowerer or DraftSeal
+failure discards the same owner. No semantic receipt, source adapter, or second
+publication path is introduced.
+
+This Decision closes the design stop. Implementation may begin at the selected
+CallableSingleLoop entry; 0/1/multiple fixtures and OBJ/EXE remain acceptance
+work, not pre-existing evidence.
