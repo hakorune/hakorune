@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1-D0"
-current_execution_cohort = "mirbuilder_ordinary_call_callee_object_identity_i1_d0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1"
+current_execution_cohort = "mirbuilder_ordinary_call_callee_object_identity_i1"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Ordinary-call callee object identity I1-D0: choose the existing physical row that carries the prepared callee object definition through V2/V4, then reject caller/callee mismatch before LLVM emission. No new semantic receipt, C inference, or fallback."
+current_blocker_token = "Ordinary-call callee object identity I1: project the existing canonical object membership into the physical function row, validate the receiver_object wire field, and reject caller/callee mismatch in V4 before LLVM emission. No new semantic receipt, C inference, or fallback."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -48,14 +48,15 @@ tagged ABI exists. The ordinary-call receiver identity design stop is now accept
 claim supplies canonical object definition plus exact initializer/binding. Rust
 receiver I0 landed at `694f61e253`; it retains the initializer/object in the
 source row and validates the emitted receiver against the owner-scoped local
-commit. The physical callee identity I1-D0 is now the design stop; it must
-select one existing physical row before any C/transport edit. Consumer cutover
-I2 and FieldGet prepared-reuse D0 remain queued. Whole MirBuilder,
+commit. The physical callee identity I1 is now the selected implementation row:
+the existing physical function row carries the prepared object definition and
+V4 compares it before LLVM emission. Consumer cutover I2 and FieldGet
+prepared-reuse D0 remain queued. Whole MirBuilder,
 R7, general LLVM graduation, parallel sessions, and memory-only transport
 remain unproven.
 """
-next_design_card = "MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1-D0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

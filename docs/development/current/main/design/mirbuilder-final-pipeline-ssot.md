@@ -1905,7 +1905,7 @@ needs the callee's prepared object definition to be compared with the borrowed
 receiver before LLVM emission; that is the next I1 design boundary, not a
 failed Rust I0.
 
-##### `MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1-D0` (current design stop)
+##### `MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1-D0` (design accepted; I1 selected)
 
 Decision: carry the selected callee's canonical object definition through the
 existing physical function row and compare it with the borrowed receiver at
@@ -1960,6 +1960,15 @@ Non-claims: no arbitrary instance methods, dynamic or opaque receivers,
 child cleanup expansion, FieldGet prepared-row reuse, transport concurrency,
 or general LLVM performance claim. OBJ/EXE exit 30 is counted only after the
 I1 receiver check is active in the selected production caller.
+
+D0 acceptance (2026-09-10): the physical audit confirmed that no canonical
+function-level receiver-object row existed, V2 only checked receiver shape and
+SSA availability, and V4 ordinary-call validation checked live-handle status
+without comparing the callee object. The existing module canonical-membership
+map plus selected callable key is the sole physical issuer for this projection;
+the existing function row is the consumer. The selected I1 implementation may
+now change only that row, its JSON/V2 validation, and the invocation-local V4
+index/flow. No new semantic receipt or second source resolver is permitted.
 
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-D0`
 
