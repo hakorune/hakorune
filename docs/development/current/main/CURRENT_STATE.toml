@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0"
-current_execution_cohort = "mirbuilder_ordinary_call_receiver_object_identity_d0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-I0"
+current_execution_cohort = "mirbuilder_ordinary_call_receiver_object_identity_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Ordinary-call receiver object identity D0: existing New claim is the source-backed issuer; taskization is accepted, but implementation remains queued. Extend the existing row and local-commit validation before any C/transport cutover; do not infer from MIR, FieldGet, names, or C defaults."
+current_blocker_token = "Ordinary-call receiver object identity I0: extend the existing source row with claim object and initializer site, then validate the emitted receiver against the existing New local commit. No C/transport cutover or fallback."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -53,7 +53,7 @@ R7, general LLVM graduation, parallel sessions, and memory-only transport
 remain unproven.
 """
 next_design_card = "MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-I0"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

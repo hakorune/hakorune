@@ -1627,6 +1627,22 @@ selected Pair/Method production witness. No alias receiver, argument-bearing
 instance call, dynamic receiver, cache, concurrency, or general performance
 claim is included.
 
+##### `MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-I0` (selected)
+
+Owner: `ordinary_new_root_instance_call.rs` plus the existing
+`ordinary_new_local_commit/root_call_entry.rs`. This slice is limited to the
+Rust source-row and finalization boundary. It may add fields/accessors to the
+existing `RootInstanceCallDispositionRowV1`, consume the existing New claim and
+local-commit value, and add focused positive/negative tests. It must not add a
+C field, JSON schema key, physical fallback, or new semantic receipt.
+
+Acceptance: the row contains the exact initializer site and claim object; the
+finalizer rejects a substituted receiver `ValueId` even when both objects have
+the same declared type; valid receiver binding and local-commit mapping remain
+green. The focused test must execute one or more tests and the source/module
+README or reference receipt must record the boundary. After this row, the
+pointer moves to the physical callee identity I1 design/implementation gate.
+
 ##### `MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0` (queued after receiver D0)
 
 After the receiver identity decision, inspect the existing physical projection
