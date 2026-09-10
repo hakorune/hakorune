@@ -157,6 +157,18 @@ old 202/208-reader and 990-LOC figures are stale for this boundary. The row
 does not authorize LegacyCallV0 deletion, a reader migration, or a caller-zero
 claim.
 
+The aggregate table is not yet the machine-readable manifest required by the
+parent GUARD-I0 design. The next execution slice must add one observation-only
+manifest with a pinned full commit, scope digest, and stable rows. Each row
+must carry a deterministic id derived from `path|line|symbol|token`, the exact
+source anchor, role, owner, reachability, selected-corridor disposition, and
+retirement/reopen condition. The manifest must cover 239 Legacy lexical rows,
+5 compile-environment route rows, and 4 test-only Dynamic Loop-PHI file rows
+(248 rows total); `boxcall` and the mechanical reissuer are classifications
+within the Legacy rows, not duplicate rows. A dedicated guard is deferred to
+GUARD-I0, and no production code or semantic receipt is permitted in this
+design stop.
+
 ### Reopen triggers
 
 Reopen the census if a selected canonical backend consumes `LegacyCallV0`, a
