@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0"
-current_execution_cohort = "selected_dynamic_canonical_json_egress_stop_closeout"
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-EMIT-CLONE-SHAPE-P0"
+current_execution_cohort = "mir_builder_emit_clone_shape_p0_fast"
 current_design_stop = "none"
-current_blocker_token = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0-CLOSEOUT: record the explicit CanonicalV1 selected Dynamic egress, forced-selector focused evidence, scrubbed-metadata rejection, and pointer/diff checks; next selection remains separate from this closeout."
+current_blocker_token = "MIR-BUILDER-EMIT-CLONE-SHAPE-P0: remove only proven dead debug metadata and the non-Phi append clone; preserve the sole append point, Phi observation, MIR parity, and failure diagnostics."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0 closeout: selected Dynamic export uses explicit CanonicalV1; forced compatibility selectors cannot re-enter V0. The two selected-candidate focused tests pass 1/1 each under NYASH_JSON_SCHEMA_V1=0, NYASH_MIR_UNIFIED_CALL=0, HAKO_MIR_BUILDER_METHODIZE=1; pointer guard and diff check pass. Generic harness remains compatibility-owned; no generic caller-zero or OBJ/EXE claim."
+guard_followup = "MIR-BUILDER-EMIT-CLONE-SHAPE-P0 focused gate: prove the dead debug locals are gone, non-Phi append uses move, Phi observation remains equivalent, selected Builder parity tests and compile-cost baseline pass, all touched source stays below 800 lines, and pointer/diff checks pass. No route, semantic, fallback, or backend change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -27,9 +27,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-latest_card = "mirbuilder-final-pipeline-ssot"
-latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+latest_card = "mirbuilder-compile-time-performance-owner-first-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 latest_card_summary = """
 Receiver identity, physical-program module/getter retirement, and the reusable
 negative-test proof are closed at `0cd9ccec70`, `7a31b48b75`, and `5a117a96a2`
@@ -41,11 +41,13 @@ pure-first stop is closed at `907550c78b`; the selected Dynamic JSON egress is
 closed at `e2bb3b8b91` and uses explicit CanonicalV1 even under forced
 compatibility selectors. Its two focused candidate tests pass 1/1 each; the
 generic harness remains compatibility-owned. No generic caller-zero, backend
-parity, or whole-pipeline OBJ/EXE claim is made.
+parity, or whole-pipeline OBJ/EXE claim is made. The next selected fast row is
+the existing behavior-neutral `MIR-BUILDER-EMIT-CLONE-SHAPE-P0` performance
+owner; it changes only proven redundant emit work.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0"
-next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+next_execution_card = "MIR-BUILDER-EMIT-CLONE-SHAPE-P0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

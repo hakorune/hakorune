@@ -4,7 +4,7 @@ Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-COMPILE-TIME-PERF-BASELINE-P0
+NextCard: MIR-BUILDER-EMIT-CLONE-SHAPE-P0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
@@ -188,6 +188,30 @@ Keep the sole physical append point. Preserve receiver materialization, PHI
 completion/origin, predecessor updates, metadata, and error diagnostics.
 Acceptance requires MIR output parity, focused emit tests, the compile-time
 baseline, and a guard that prevents reintroducing the unconditional clone.
+
+### Selected execution — `MIR-BUILDER-EMIT-CLONE-SHAPE-P0` (2026-09-10)
+
+This fast slice is limited to two proven dead computations and the append
+ownership shape in the existing `MirBuilder::emit_instruction` owner:
+
+```text
+remove `_dbg_fn_name` and `_dbg_region_id` (no production reader)
+capture only the post-materialization Phi observation when the instruction is Phi
+move every non-Phi instruction into the existing append point
+```
+
+The existing `MirInstruction` append remains the sole physical mutation. The
+source/semantic authority, receiver materialization, strict checks, metadata
+recording, predecessor updates, Phi completion/origin, and diagnostic order are
+unchanged. No new helper, receipt, route, fallback, retry, or backend consumer
+is permitted. The exclusive deletion set is the two dead locals and the
+non-Phi `instruction.clone()` allocation; Phi observation keeps its existing
+post-append behavior through a bounded local snapshot.
+
+Acceptance is the existing Builder/Phi focused suite plus the compile-cost
+baseline protocol, `builder_emit.rs` below 760/800 lines, no remaining dead
+local anchors, one append call, `git diff --check`, and the current-state
+pointer guard. No speedup or whole-library green claim follows from this row.
 
 ### P3 — `MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0`
 
