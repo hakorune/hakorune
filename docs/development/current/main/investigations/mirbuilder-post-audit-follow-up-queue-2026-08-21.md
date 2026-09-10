@@ -32,6 +32,7 @@ second health-repair task.
 | `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0` | Candidate cleanup | `mutable_accumulator.rs` test surface | after the active perf row; delete one body-identical test only with baseline inventory update |
 | `MIR-DEBUG-PAYLOAD-LAZY-P0` | Landed `21e85270ac` | unified-call observer ingress | existing DebugHub gate now owns the lazy callback; output/KPI parity evidence is recorded below |
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Design stop (2026-09-10) | `builder_emit.rs` + `ssa/local.rs` | fix the prepared/legacy boundary and enumerate every function mutation before any definition index or fast path is added |
+| `MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0` | Fast bounded | existing `local_ssa_map` + `ssa/local.rs` | after successful materialization, remember the returned in-block value under its own key; no new index, prepared receipt, or semantic Call route |
 | `MIR-PHI-ANALYSIS-BATCH-D0` | Landed `7b7f6860c3` | existing `PhiInputMaterializationAnalysis::new(func)` + PHI materialization/finalization | invocation-local CFG/definition/dominator batch is shared by self-carry and grouped-edge repair; no persistent cache or semantic PHI change |
 | `MIR-POSTPROCESS-WALK-CENSUS-D0` | Medium | semantic refresh + old/shared finish owners | count actual block/instruction visits and caller classes before one adjacent-wave fusion is considered |
 | `MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0` | Medium | existing `compile_timing` + semantic refresh owners | add observation-only stage/function/block/instruction counters after the D0 census; no fusion or cache |
@@ -835,6 +836,30 @@ transaction capture/restore, parameter/signature changes, and ValueId remap.
 `local_ssa_map` or `schedule_mat_map` invalidates prepared operands derived
 from those caches.  Reserving a destination with `next_value_id()` is not a
 definition until the append succeeds.
+
+### `MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0` implementation boundary
+
+This is the only implementation slice opened from the design stop.  It keeps
+the existing `local_ssa_map` as the sole cache owner and records
+`(current_block, returned_value, kind) -> returned_value` only after
+`materialize_local_v1` succeeds.  A later request for that already-local value
+then returns through the existing cache path without another definition scan.
+The first materialization still follows the legacy LocalSSA repair owner, and
+the strict stale-cache check remains unchanged.  No persistent definition
+index, prepared semantic receipt, new Call route, or mutation policy is added.
+
+Acceptance:
+
+- repeated receiver/argument requests for a successful local result return the
+  same `ValueId` and emit no second Copy/rematerialization;
+- failed materialization never publishes the self-cache entry;
+- existing cache clears and transaction capture/restore remain authoritative;
+- LocalSSA temporal and Call focused tests plus the quick library check pass;
+- no PHI, Loop, Call, type, optimizer, backend, or compatibility behavior changes.
+
+The broader prepared-operand boundary remains a separate design concern.  It
+still requires an explicit typed issuer proof and a complete mutation census
+before any function-owned definition index is considered.
 
 ## `MIR-PHI-ANALYSIS-BATCH-D0`
 

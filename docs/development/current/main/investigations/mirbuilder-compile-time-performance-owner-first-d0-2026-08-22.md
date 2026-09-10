@@ -1,10 +1,10 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, and PHI analysis batch I0 closed; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; next LocalSSA prepared-operand D0 design-stop
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, PHI analysis batch I0, and LocalSSA self-cache reuse I0 active; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; prepared-operand D0 remains deferred
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-LOCAL-SSA-PREPARED-OPERAND-D0
+NextCard: MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
@@ -658,6 +658,29 @@ parameter/signature changes, and ValueId remap.  A `current_block` change
 invalidates prepared use-context; clearing `local_ssa_map` or
 `schedule_mat_map` invalidates operands derived from those caches.  A reserved
 destination is not a definition until append succeeds.
+
+### `MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0` implementation boundary
+
+This is the only implementation slice opened from the prepared-operand design
+stop.  It keeps the existing `local_ssa_map` as the sole cache owner and
+records `(current_block, returned_value, kind) -> returned_value` only after
+`materialize_local_v1` succeeds.  A later request for that already-local value
+therefore exits through the existing cache path without another definition
+scan.  The first materialization still follows the legacy LocalSSA repair
+owner, and the strict stale-cache check remains unchanged.
+
+Acceptance:
+
+- repeated receiver/argument requests for a successful local result return the
+  same `ValueId` and emit no second Copy/rematerialization;
+- failed materialization never publishes the self-cache entry;
+- existing cache clears and transaction capture/restore remain authoritative;
+- LocalSSA temporal and Call focused tests plus the quick library check pass;
+- no PHI, Loop, Call, type, optimizer, backend, or compatibility behavior changes.
+
+This slice adds no persistent definition index, prepared semantic receipt, new
+Call route, or mutation policy.  The broader prepared-operand path remains a
+separate design concern until its explicit typed issuer proof is available.
 
 ## All-worker surface audit (2026-09-03)
 

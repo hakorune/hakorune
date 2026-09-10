@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0"
-current_execution_cohort = "mir_local_ssa_prepared_operand_d0_design_stop"
-current_design_stop = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: existing typed issuers and sole append point are identified; select the explicit prepared commit boundary and preserve the enumerated FunctionLoweringState invalidations before I0."
-current_blocker_token = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: prepared operand proof and stale-index fail-fast contract are not represented yet; no definition-index implementation permission."
+work_mode = "fast"
+current_execution_row = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0"
+current_execution_cohort = "mir_local_ssa_self_cache_reuse_i0"
+current_design_stop = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0 implementation: reuse the existing local_ssa_map after successful materialization; do not add a definition index or prepared semantic receipt."
+current_blocker_token = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0: self-cache only a successfully materialized in-block value, preserve strict stale checks, and keep legacy Call repair unchanged."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: read-only owner/caller/mutation census; no definition index, fallback, retry, or semantic Call change."
+guard_followup = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0: focused repeated LocalSSA request parity; no definition index, fallback, retry, or semantic Call change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -39,11 +39,14 @@ repair consumers, with no persistent cache or semantic PHI change. The lookup
 facade remains `ParkedSealed__NoExclusiveDeleteSet`; `Some` retains retry
 rejection and `None` retains compatibility. Callable Loop PHI generation and
 local-completion remain queued pre-consumer rows; no generic caller-zero or
-whole-pipeline claim is made. The next bounded row is the
-`MIR-LOCAL-SSA-PREPARED-OPERAND-D0` design stop.
+whole-pipeline claim is made. The prepared-operand D0 census identified the
+typed issuers and mutation boundaries; a persistent definition index remains
+deferred. The current bounded implementation is
+`MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0`, which only reuses the existing cache after
+successful materialization.
 """
 next_design_card = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0"
-next_execution_card = "none__design_stop_until_local_ssa_prepared_operand_census"
+next_execution_card = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
