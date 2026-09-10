@@ -1,21 +1,31 @@
+use std::cell::RefCell;
 use std::collections::BTreeSet;
+use std::rc::Rc;
 
 use super::{CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
+use crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
 use crate::mir::builder::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopBindingReceiptV1,
     CallableLoopBindingRoleV1, VerifiedCallableSemanticLoopBindingScheduleV1,
 };
 use crate::mir::builder::normal_callable_loop_physical_adapter::CallableGenericLoopV1PhysicalAdapterV1;
+use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1,
 };
 use crate::mir::builder::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
 use crate::mir::builder::MirBuilder;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIssuerV1, SourceBodyKindV1, SourcePathSegmentV1, SourcePathV1,
+    CallableFunctionSyntaxViewV1, FunctionOwnerIssuerV1, FunctionSemanticResolverSessionV1,
+    ResolveSelectedCallableForestsOutcomeV1, SourceBindingSiteV1, SourceBodyKindV1,
+    SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
 };
+use crate::parser::NyashParser;
 use hakorune_mir_core::BindingId;
 
 fn variable(name: &str) -> ASTNode {
@@ -398,4 +408,167 @@ fn ready_source_facts_requires_the_unpublished_root_scope_before_physical_loweri
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
     });
+}
+
+#[test]
+fn source_aware_adapter_consumes_real_callable_ledger_once() {
+    let program = NyashParser::parse_from_string(
+        "function caller(i, limit) { loop(i < limit) { local tmp = 0; i = i + 1 } }",
+    )
+    .expect("source loop parses");
+    let crate::ast::ASTNode::Program { mut statements, .. } = program else {
+        panic!("source loop must be a program")
+    };
+    let function = statements.remove(0);
+    let (params, body, loop_node) = match &function {
+        crate::ast::ASTNode::FunctionDeclaration { params, body, .. } => {
+            let loop_node = body.first().cloned().expect("source loop body");
+            (params.clone(), body.clone(), loop_node)
+        }
+        _ => panic!("source loop must be a function"),
+    };
+    let syntax =
+        CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(9201).expect("resolver");
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
+        .resolve_selected_callable_forests(&[syntax.function()])
+        .expect("source forest")
+    else {
+        panic!("source loop unexpectedly deferred")
+    };
+    let forest = forests.into_vec().pop().expect("source forest root");
+    let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
+        &function,
+        &forest,
+        syntax.function().root_profile(),
+    )
+    .expect("source projection");
+    let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+        &function,
+        &forest,
+        &projection,
+    )
+    .expect("source lowering input");
+    let owner = input.owner();
+    let local_statement = SourceStmtSiteV1::from_node(
+        SourcePathV1::root_body(0)
+            .child(SourcePathSegmentV1::LoopBody(0))
+            .node(),
+    );
+    let local_binding = forest
+        .owner(owner)
+        .expect("source owner")
+        .declaration_binding(&SourceBindingSiteV1::Local {
+            statement: local_statement.clone(),
+            ordinal: 0,
+        })
+        .expect("local binding");
+    let mut state =
+        CallableSemanticLoweringState::from_exact_source(input).expect("callable ledger");
+    let loop_site = SourcePathV1::root_body(0).node();
+    let schedule = state
+        .loop_binding_source_projection()
+        .project(loop_site.clone())
+        .expect("Ready loop schedule");
+    assert_eq!(
+        schedule
+            .receipts()
+            .filter(|receipt| receipt.role() == CallableLoopBindingRoleV1::ConditionRead)
+            .count(),
+        2
+    );
+    assert_eq!(
+        schedule
+            .receipts()
+            .filter(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRead)
+            .count(),
+        1
+    );
+    assert_eq!(
+        schedule
+            .receipts()
+            .filter(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRebind)
+            .count(),
+        1
+    );
+    let parent_source = RawInvocationSourceContextV1::Located {
+        root: RawInvocationRootLineageV1::ScriptRoot,
+        site: loop_site,
+        body_kind: Some(SourceBodyKindV1::Function),
+    };
+    let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
+        &parent_source,
+        loop_node,
+        Some(CallableLoopBindingProjectionDispositionV1::Ready(schedule)),
+    )
+    .expect("located source entry");
+    let payload = prepared
+        .into_callable_generic_loop_source_facts_payload(owner, "caller", false, false, policy())
+        .expect("source facts payload");
+    let CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) =
+        CallableGenericLoopSourceFactsIssuerV1::issue_once(payload)
+    else {
+        panic!("source loop must be Ready")
+    };
+    let recipe = source_facts
+        .claim_all()
+        .expect("one-shot source claim")
+        .into_semantic_recipe()
+        .expect("semantic Recipe");
+
+    let mut builder = MirBuilder::new();
+    builder
+        .create_method_skeleton("caller".into(), "Caller", &params, &body)
+        .expect("function skeleton");
+    builder
+        .setup_method_params("Caller", &params)
+        .expect("function params");
+    for value in builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .params
+        .iter()
+        .skip(1)
+        .copied()
+    {
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(value, crate::mir::MirType::Integer);
+    }
+    let entry = PreparedCallableEntryValuesV1::instance_method(&builder, params.len())
+        .expect("entry values");
+    state.install_entry_values(&entry).expect("entry install");
+    state
+        .install_single_local_for_test(
+            local_statement.node(),
+            local_binding,
+            0,
+            crate::mir::ValueId::new(90),
+            crate::mir::ValueId::new(91),
+        )
+        .expect("local materialization");
+    let ledger = Rc::new(RefCell::new(state));
+    let mut root_scope = UnpublishedCallableLoopRootScopeV1::for_test();
+    let value = CallableGenericLoopV1PhysicalAdapterV1::lower(
+        &mut builder,
+        &mut root_scope,
+        recipe,
+        &ledger,
+    )
+    .expect("source-aware adapter");
+    assert!(builder
+        .function_state
+        .type_ctx
+        .value_types
+        .contains_key(&value));
+    let state = Rc::try_unwrap(ledger)
+        .expect("adapter must not retain the callable ledger")
+        .into_inner();
+    state
+        .finish()
+        .expect("all source reads and rebinds consumed");
 }

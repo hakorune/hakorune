@@ -621,6 +621,15 @@ available for diagnostics and does not authorize a second consumer. The
 selected slice remains non-nested `RecipeOnly` Ready: Outside, legacy,
 fallback/retry, OBJ/EXE, and route retirement are not claimed here.
 
+The focused production-adapter evidence is
+`source_aware_adapter_consumes_real_callable_ledger_once` in
+`normal_callable_loop_source_facts_tests.rs`. It resolves a real callable
+source forest, installs the existing instance-entry values and local
+materialization, issues the source Facts/Recipe once, runs the named physical
+adapter, and finishes the same ledger after one condition read, one body read,
+and one body rebind. This proves the selected Rust adapter seam only; it does
+not claim full package discovery, OBJ/EXE output, or loop route retirement.
+
 The selected `MIR-CALLABLE-LOOP-READY-CLAIM-I0` keeps the aggregate in place as
 `CallableGenericLoopSourceFactsV1` and exposes one private `claim_all()` move.
 That move retains `CallableSemanticLoopHandoffPreEffectReceiptV1` inside a

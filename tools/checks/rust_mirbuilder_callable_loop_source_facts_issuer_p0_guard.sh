@@ -201,8 +201,8 @@ if [[ "$planner_calls" -ne 1 ]]; then
   guard_fail "$TAG" "issuer must have exactly one route-neutral planner call; found $planner_calls"
 fi
 claim_calls="$(rg -F -o -- 'claim_all()' "$TESTS" | wc -l | tr -d '[:space:]')"
-if [[ "$claim_calls" -ne 3 ]]; then
-  guard_fail "$TAG" "focused evidence must cover three one-shot source-facts claims; found $claim_calls"
+if [[ "$claim_calls" -ne 4 ]]; then
+  guard_fail "$TAG" "focused evidence must cover four one-shot source-facts claims; found $claim_calls"
 fi
 lease_definitions="$(rg -F -o -- 'with_existing_structural_port<R>' "$STRUCTURAL_PORT" | wc -l | tr -d '[:space:]')"
 lease_tests="$(rg -F -o -- 'with_existing_structural_port(&context' "$STRUCTURAL_PORT_TESTS" | wc -l | tr -d '[:space:]')"

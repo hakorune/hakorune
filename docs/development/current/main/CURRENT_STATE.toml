@@ -38,7 +38,11 @@ The port pairs RawInvocationSourceContextV1 sites with the existing callable
 ledger read_variable/rebind accessors, borrowed once from the raw invocation
 callback. Missing/foreign/nested/unlocated sites reject before Builder effects;
 non-callable legacy and compatibility routes remain unchanged. This row does
-not claim OBJ/EXE, old-route retirement, or performance.
+not claim OBJ/EXE, old-route retirement, or performance. Focused evidence now
+includes `source_aware_adapter_consumes_real_callable_ledger_once`: a real
+callable source forest reaches the named adapter, consumes the ledger once,
+and finishes after the exact condition/body/rebind rows. Full package discovery
+and artifact output remain outside this row.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-I0"

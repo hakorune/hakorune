@@ -1543,6 +1543,15 @@ read and body rebind; missing, foreign, duplicate, nested, or unlocated site
 coverage must fail before Builder mutation. No OBJ/EXE, route retirement,
 fallback/retry, new receipt, or performance claim belongs to this row.
 
+I0 implementation evidence: the focused test
+`source_aware_adapter_consumes_real_callable_ledger_once` resolves a real
+callable source forest, uses the existing instance-entry and local
+materialization owners, sends the one-shot source Facts/Recipe to the named
+physical adapter, and finishes the same ledger after the exact condition-read,
+body-read, and body-rebind rows. This is Rust adapter evidence only; package
+discovery, OBJ/EXE output, route retirement, and performance remain outside
+the acceptance claim.
+
 ##### Acceptance recheck classification (2026-09-10)
 
 The selected physical caller cutover was re-run against the same fixed
