@@ -1,11 +1,27 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, PHI analysis batch I0, LocalSSA self-cache reuse I0, and C invocation-driver arity repair R0 closed; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; prepared-operand D0 remains deferred
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, PHI analysis batch I0, LocalSSA self-cache reuse I0, C invocation-driver arity repair R0 closed, and LocalSSA guard path repair R0 active; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; prepared-operand D0 remains deferred
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-C-INVOCATION-DRIVER-ARITY-REPAIR-R0
+NextCard: MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0
 ---
+
+## `MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0` fast row (2026-09-10)
+
+Decision: repair only the registered COPY-UNKNOWN0 guard after the LocalSSA
+materialization split. The guard must count each production consumer in its
+landed owner file (`local/materialize.rs`, `local/post_success.rs`, and
+`local/copy_type.rs`) while retaining the existing `local.rs` entry checks.
+
+Source authority + canonical issuer: the existing LocalSSA split and its
+current guard contract. Non-authority: guard text as a semantic owner,
+`variable_map`, PHI/Loop state, a new index, or any new proof receipt.
+
+Fail-fast boundary: `python3 tools/checks/lib/mirbuilder_copy_unknown_authority_guard.py .`
+must pass with the current split. Acceptance is path-aware guard success and
+`git diff --check`; no LocalSSA behavior, fallback, or production route changes.
+The exclusive delete-set is stale path/count assumptions in this guard only.
 
 ## `MIR-C-INVOCATION-DRIVER-ARITY-REPAIR-R0` closeout (2026-09-10)
 
