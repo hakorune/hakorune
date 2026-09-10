@@ -1010,13 +1010,12 @@ the explicit unsupported-boundary probe. The nine failures were
 owner-scoped failures: unsupported `Invoke` MIR JSON for method/Birth,
 unsupported declared parameter or loop handoff for the older real-app corpus,
 the untyped-field local-commit drift, and the missing root-call entry for
-Birth parameters. This recheck does not close acceptance or alter the
-existing baseline classification. The current remaining work is selected by
-the existing owner rows: use the physical lifecycle caller for method/Birth
-instead of the generic MIR-JSON harness (which intentionally rejects
-`Invoke`), then close the existing root-call-entry and local-commit owners
-exposed by the recheck. No new acceptance ledger or semantic receipt is
-needed.
+Birth parameters. This recheck does not close the acceptance evidence by
+itself or alter the existing baseline classification. The physical lifecycle
+caller for method/Birth is now selected and direct V4 evidence is recorded
+below; the remaining reds must be classified by their existing owners rather
+than sent through the generic MIR-JSON harness, which intentionally rejects
+`Invoke`. No new acceptance ledger or semantic receipt is needed.
 
 Hash receipt for the `4a96073343` run (manifest, runner, script, and source
 inputs) is fixed below; the unsupported-boundary probe has no source input.
@@ -1036,6 +1035,35 @@ allocator script 42ccf8ba637c4a8c82a226342d2ec66b9249688f64986d1b279e4e7bc2db44c
 json      script fa378922fc21740551d54f8f1e453b08c9b119edb6b7eda591e05e31951c5e08 source b5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370
 probe     script 489c6f28bd174962d21c2631dd0c79b172c379a77c90410e80d684aa3cade33d
 ```
+
+##### Acceptance recheck classification (2026-09-10)
+
+The selected physical caller cutover was re-run against the same fixed
+11-entry manifest at HEAD `4a96073343`. Four entries pass: typed-object
+NewBox, lifecycle Birth, lifecycle Method, and the explicit unsupported
+boundary probe. The seven remaining reds are named owner boundaries, not a
+single unfinished MirBuilder feature:
+
+| entries | observed terminal | existing owner and disposition |
+| --- | --- | --- |
+| `typed_object_untyped_field_min_exe`, `typed_object_birth_param_min_exe` | `local-commit/emission-local-copy-drift`, `root-call-entry-missing` | `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0`; `NoSafeSlice / ParkedSealed` until source-backed storage is either migrated to an explicit supported type or issued with a tagged dynamic/opaque ABI. Do not repair from MIR, receiver names, or C defaults. |
+| `boxtorrent_mini_exe`, `mimalloc_lite_exe`, `allocator_stress_exe` | `UnsupportedDeclaredType` for a declared `usize` parameter | existing callable-parameter/exact-`usize` Phase 294x boundary; baseline/source-boundary with no selected MirBuilder implementation row. Do not coerce `usize` to i64 or OpaqueHandle without a source issuer, consumer, and production cutover. |
+| `binary_trees_exe`, `json_stream_aggregator_exe_runtime_boundary` | `callable-loop-handoff/outside-first-cohort` | `MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0` followed by the existing Loop coverage/Recipe/bridge order; `NoSafeSlice / ParkedSealed` until that loop owner supplies a source relation and consumer. Do not add a generic loop fallback in the Call lane. |
+
+The bounded task order is therefore: (1) close this finite acceptance
+evidence and retain the seven classifications; (2) reopen untyped storage
+only after its existing D0 chooses source migration or a source-backed tagged
+dynamic contract; (3) progress the existing Loop D0 chain in its recorded
+order; and (4) select an exact `usize` callable owner only when its issuer,
+consumer, caller, fail-fast terminal, and exclusive delete-set exist. Rerun
+the same manifest after one of those owners lands. Do not create a parallel
+acceptance ledger, synthetic fixture, compatibility retry, or new semantic
+receipt from these red names.
+
+This classification closes the caller-cutover evidence task but does not claim
+whole-MirBuilder completion, Loop parity, dynamic storage, `usize` support,
+or a green 11/11 suite. The seven entries remain observable reopen triggers
+for their named owners.
 
 ##### `MIRBUILDER-INIT-FIELDS-CANONICAL-PROJECTION-I0`
 

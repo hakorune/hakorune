@@ -4,7 +4,7 @@ work_mode = "closeout"
 current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
 current_execution_cohort = "mirbuilder_final_acceptance_scope"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Rerun and classify the existing finite real-app EXE boundary suite after the Birth/Method physical caller cutover; seven owner-scoped reds remain. Preserve the V2 structural/V4 identity boundary and do not claim whole-MirBuilder completion from this scope. Untyped storage remains an intentional NoSafeSlice boundary."
+current_blocker_token = "The fixed real-app EXE boundary suite is classified at 4/11 after the Birth/Method physical caller cutover. Seven owner-scoped reds remain: untyped storage is NoSafeSlice/ParkedSealed, usize callable parameters are a baseline/source boundary, and two loop cases are outside the existing Loop cohort. Preserve the V2 structural/V4 identity boundary; do not claim whole-MirBuilder completion or invent a shared fallback from this scope."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -56,7 +56,7 @@ and a dedicated mismatch rejection are recorded. The finite V2/V4 caller-chain
 census found no artifact bypass: V2 is structural/layout validation and V4 is
 the identity gate before `hako_lts_open()`/`lv4_emit()`; the boundary row is
 closed.
-FieldGet prepared-reference reuse I0 landed at `90928e0585`: the existing physical instruction row now owns one projected `CanonicalFieldRefV1`, and admission, layout collection, and JSON consume it. The focused suite is 9/9; C parser/build and Pair direct/linked exit-30 checks remain green. C invocation-index measurement/fusion is already closed and ParkedSealed at D1; untyped object storage remains a parked NoSafeSlice. Whole MirBuilder, R7, general LLVM graduation, parallel sessions, and memory-only transport remain unproven. The fixed real-app EXE boundary suite was rechecked at HEAD `4a96073343`: 4/11 passed (typed object NewBox, lifecycle Birth, lifecycle Method, and the explicit unsupported-boundary probe) and 7/11 remain owner-scoped failures. The acceptance row stays open; these reds do not reopen the already-closed V2/V4 verifier boundary.
+FieldGet prepared-reference reuse I0 landed at `90928e0585`; its physical row is now the single `CanonicalFieldRefV1` source for admission, layouts, and JSON. Focused 9/9 plus C parser/build and Pair exit-30 checks are green. C index fusion is ParkedSealed at D1; untyped storage is parked NoSafeSlice. Whole MirBuilder, R7, LLVM graduation, parallel sessions, and memory-only transport remain unproven. The fixed real-app EXE suite at HEAD `4a96073343` is 4/11: NewBox, Birth, Method, and the unsupported probe pass. Seven reds are classified in the final-pipeline SSOT: two untyped-storage NoSafeSlice, three existing usize source-boundary, and two parked Loop-cohort cases. Acceptance evidence closes at this bounded observation; no shared implementation row is authorized.
 """
 next_design_card = "none"
 next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"

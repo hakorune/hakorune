@@ -485,8 +485,7 @@ except the explicit annotation migration below; retain its pre-migration evidenc
 Required exclusions are language-v1 corpus, Loop/M8-M9 parity, non-delegating
 selfhost proof, WASM, unselected backend parity, and the whole-library known-red
 baseline. This scope must not grow into a second ledger or a whole-repository
-green claim. Missing evidence is an open acceptance item; after the fixed list
-is recorded, the next handoff is `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
+green claim. Missing evidence is an open acceptance item; after the fixed list is recorded, the next handoff is `REPO-FINAL-CONVERGENCE-AUDIT0-G0`. The physical caller cutover and `4/11` recheck at `4a96073343` are recorded in the final-pipeline SSOT; seven reds remain with existing untyped-storage, exact-`usize`, and Loop owners, with no shared implementation row or whole-MirBuilder claim.
 
 #### Acceptance incident and bounded repair order (2026-09-05)
 
