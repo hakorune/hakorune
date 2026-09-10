@@ -30,8 +30,11 @@ refuted direct reuse: the Generic Ready Recipe has no complete
 operation/effect/continuation handoff to the common physicalizer
 (`PlanBuildOutcome.recipe_contract` is structural and normally `None`). A
 bounded straight-line-I64 source cohort and one source-bound demand issuer are
-now the only design candidate; the old composer remains quarantined until that
-owner is accepted. The selected static callable DirectAccum branch already
+now the only design candidate. The selected callback must borrow the existing
+`ResolvedFunctionLoweringInputV1` and `CallableSemanticSourceLedgerView` into
+that issuer because the raw port has no safe resolver-context path; no raw-port
+semantic/session field is allowed. The old composer remains quarantined until
+that owner is accepted. The selected static callable DirectAccum branch already
 reuses `CanonicalDirectAccumSsaLowererV1`; all compatibility callers remain
 parked. No OBJ/EXE claim is open. Local-completion and guard-cleanup remain
 queued after the physical-demand decision and session entry.
