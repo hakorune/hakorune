@@ -202,7 +202,6 @@ impl<'module> PublishedLifecyclePhysicalFunctionV1<'module> {
 pub(crate) struct PublishedLifecyclePhysicalProgramV1<'module> {
     functions: Box<[PublishedLifecyclePhysicalFunctionV1<'module>]>,
     handoff: &'module FinalizedRootHandoffV1,
-    module: &'module MirModule,
 }
 
 impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
@@ -210,9 +209,6 @@ impl<'module> PublishedLifecyclePhysicalProgramV1<'module> {
         self.handoff
     }
 
-    pub(crate) fn module(&self) -> &'module MirModule {
-        self.module
-    }
     pub(crate) fn is_native_array(&self) -> bool {
         self.handoff.script_array().is_some()
     }
@@ -345,7 +341,6 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(PublishedLifecyclePhysicalProgramV1 {
             functions: functions.into_boxed_slice(),
             handoff,
-            module: self.module(),
         })
     }
 }
