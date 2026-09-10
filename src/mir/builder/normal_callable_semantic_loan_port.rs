@@ -45,6 +45,7 @@ use crate::mir::compiler::callable_single_loop_recipe_coseal::{
 use crate::mir::compiler::callable_single_loop_source_map::{
     issue_callable_single_loop_source_map_v1, CallableSourceMapRejectV1,
 };
+use crate::mir::compiler::callable_single_loop_source_shapes::SourceCallKindV1;
 use crate::mir::compiler::callable_single_loop_syntax_facts::{
     issue_callable_single_loop_syntax_facts_from_ledger_v1, CallableSyntaxFactsRejectV1,
 };
@@ -250,6 +251,18 @@ fn try_prepare_callable_single_loop_program_v1(
             ))
         }
     };
+    // The bounded CallableSingleLoop consumer currently has a resolver-issued
+    // FreeStatic target, but no declared-instance target owner for Method
+    // prefixes. Keep that shape explicitly outside this route so it reaches
+    // the ordinary method path instead of failing later as MissingPreludeTarget.
+    if map
+        .prefix()
+        .target()
+        .prefix()
+        .is_some_and(|(_, call, _)| matches!(call.kind(), SourceCallKindV1::Method(_)))
+    {
+        return Ok(None);
+    }
     let product = match issue_callable_single_loop_recipe_v1(&ledger, map) {
         Ok(product) => product,
         Err(error) if callable_recipe_shape_outside(&error) => return Ok(None),

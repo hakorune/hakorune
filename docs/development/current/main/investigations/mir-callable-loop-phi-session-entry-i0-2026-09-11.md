@@ -166,9 +166,11 @@ production fixture, PHI emission, module publication, or OBJ/EXE execution.
    duplicating the index per row. Keep observer-only callers and nested owner
    policy unchanged. The implementation remains uncommitted until the
    natural code boundary is reviewed.
-4. Mark Method-prefix CallableSingleLoop shapes outside and select a valid
-   non-AppMain FreeStatic caller; the Method target path remains a later
-   declared-instance row.
+4. [implemented locally; FreeStatic route regression green 2026-09-11] Mark
+   Method-prefix CallableSingleLoop shapes outside so they return to the
+   ordinary method path; the Method target path remains a later
+   declared-instance row. A package-level direct-call gate still prevents a
+   no-manual-ledger production caller from being claimed by this row.
 5. Inventory the existing function-session opener, DraftSeal prepare/commit,
    pending restoration, collector admission, and discard terminals. The
    selected entry must have one named owner for all of them.
