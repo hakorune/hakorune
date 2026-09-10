@@ -340,6 +340,16 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         if self.consumed.contains(&key) {
             return Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey);
         }
+        let batch_slot = self
+            .installed
+            .selected
+            .batch_slot(&key)
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
+        let signature = self
+            .installed
+            .physical_signature
+            .row(batch_slot)
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
         let result = self
             .installed
             .with_selected_lowering_input(&key, |selected| {
@@ -364,6 +374,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                 Ok(callback(MainStaticChildLoweringInputV1 {
                     selected,
                     admission,
+                    signature: ResolvedCallablePhysicalSignatureLoanV1::new(signature),
                     _role: role,
                     _catalog_brand: self.installed.catalog_brand.clone(),
                 }))

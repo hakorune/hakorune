@@ -96,7 +96,7 @@ fn main_static_child_port_consumes_all_role_rows_once() {
         assert_eq!(children.len(), 4);
         for child in children {
             port.with_main_static_child_lowering_input(child, |input| {
-                let (selected, admission) = input.into_lowering_and_admission();
+                let (selected, admission, _signature) = input.into_lowering_and_admission();
                 assert!(matches!(
                     selected.semantic(),
                     super::SelectedCallableSemanticRefV1::Ordinary

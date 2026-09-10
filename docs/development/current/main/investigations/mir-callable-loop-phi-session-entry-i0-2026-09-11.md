@@ -348,3 +348,24 @@ caller. If neither is available, record `NoSafeSlice` and explicitly redesign
 the resolver/prefix policy before any production switch. No source-name or
 method-selector lookup, physical-signature substitute, or optional target
 default is allowed.
+
+## CallableSingleLoop AppMain consumer receipt (2026-09-11)
+
+The selected AppMain static-child adapter now reuses the installed owner,
+resolver index/header, and physical signature. It opens the existing
+CallableSingleLoop consumer only when the existing source-bound
+`try_prepare_callable_single_loop_program_v1` produces a program; other static
+child shapes retain their previous source lowering until their own consumer is
+selected. The physical direct-call emitter receives the admission-selected
+physical symbol explicitly, while the resolver header remains the logical
+callable identity. Cataloged children are admitted with the existing
+`CatalogedBoxMethod` key, so no second semantic issuer or name repair is added.
+
+The production fixture
+`normal_ingress_routes_app_main_static_loop_child_through_callable_consumer`
+compiles without manual ledger installation and observes a PHI. The existing
+AppMain free-static publication test and CallableSingleLoop positive and late
+failure canaries also pass. This receipt proves only the selected
+CallableSingleLoop AppMain child edge; zero/one/multiple iteration acceptance,
+generic Ready/DirectAccum consumers, module publication, OBJ/EXE, and process
+exit remain open.

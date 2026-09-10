@@ -294,6 +294,7 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         &branded,
         &input_relations,
         &prelude,
+        "int_to_str/1",
     )
     .map_err(|error| format!("Prelude materialization: {error}"))?;
     assert_eq!(input_relations.rows().len(), 1);

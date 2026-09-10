@@ -426,6 +426,30 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
 }
 
 #[test]
+fn normal_ingress_routes_app_main_static_loop_child_through_callable_consumer() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let source = "function to_i64(value: i64): i64 { return value } static box Main { main() { return 0 } int_to_str(n: i64): i64 { local value = to_i64(n) local i = 0 loop(i < 1) { i = i + 1 } return value } }";
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler
+            .compile_normal(published_request(source))
+            .expect("App Main static loop child compile");
+        let helper = result
+            .module
+            .functions
+            .get("Main.int_to_str/1")
+            .expect("Main int_to_str definition");
+        let phi_count = helper
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
+            .count();
+        assert!(phi_count > 0, "selected loop consumer must publish a PHI");
+    });
+}
+
+#[test]
 fn normal_ingress_preserves_top_level_free_function_after_finish() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

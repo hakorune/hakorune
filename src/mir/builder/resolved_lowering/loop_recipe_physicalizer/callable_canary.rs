@@ -169,6 +169,7 @@ pub(super) fn materialize_callable_prelude_v1(
     input: &VerifiedCallableFunctionLoweringInputV1<'_>,
     input_relations: &VerifiedLoopInitializedLocalInputSourceSetV1,
     prelude: &VerifiedCallablePreludeCapabilityV1,
+    current_physical_symbol: &str,
 ) -> Result<CallablePreludeMaterializationReceiptV1, CallablePreludeMaterializationRejectV1> {
     if input.owner() != prelude.owner() || input.owner() != input_relations.owner() {
         return Err(CallablePreludeMaterializationRejectV1::OwnerMismatch);
@@ -202,6 +203,7 @@ pub(super) fn materialize_callable_prelude_v1(
         input.input(),
         target_header,
         prelude.result_abi(),
+        current_physical_symbol,
         arguments
             .iter()
             .map(|receipt| receipt.physical_value())
@@ -489,6 +491,7 @@ mod tests {
                 &input,
                 &demand.co_seal().input(),
                 &prelude,
+                function_name.as_str(),
             )
             .expect("Prelude receipt")
         };

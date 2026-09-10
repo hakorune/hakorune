@@ -9,7 +9,6 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::compiler::direct_accum_capability::probe_direct_accum_function_v1;
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, ExprChildRoleV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
 };
@@ -22,10 +21,6 @@ use super::callable_declaration_catalog::{
 use super::main_expansion::VerifiedMainStaticChildV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
-use super::normal_callable_prepared_operation::PreparedCallableLoopOperationProgramV1;
-use super::normal_callable_semantic_source::{
-    PreparedCallableLoopIngressV1, VerifiedNormalCallableSourceIngressReceiptV1,
-};
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_instance_constructor_demand_loan::InstanceConstructorDemandConsumptionV1;
 use super::normal_instance_constructor_semantic_scope::with_constructor_semantic_scope;
@@ -36,18 +31,6 @@ use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawInvocationChildPortV1,
     RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
-};
-use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
-use crate::mir::compiler::CanonicalLoweringErrorV1;
-use crate::mir::compiler::callable_single_loop_recipe_coseal::{
-    issue_callable_single_loop_recipe_v1, CallableRecipeCoSealRejectV1,
-};
-use crate::mir::compiler::callable_single_loop_source_map::{
-    issue_callable_single_loop_source_map_v1, CallableSourceMapRejectV1,
-};
-use crate::mir::compiler::callable_single_loop_source_shapes::SourceCallKindV1;
-use crate::mir::compiler::callable_single_loop_syntax_facts::{
-    issue_callable_single_loop_syntax_facts_from_ledger_v1, CallableSyntaxFactsRejectV1,
 };
 use crate::mir::normal_callable_semantic_package::{
     NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
@@ -60,6 +43,12 @@ mod cataloged_instance_scope;
 mod main_root;
 #[path = "normal_callable_semantic_loan_port/ordinary_new.rs"]
 mod ordinary_new;
+#[path = "normal_callable_semantic_loan_port/canonical_route.rs"]
+mod canonical_route;
+pub(super) use canonical_route::{
+    classify_canonical_callable_route, try_prepare_callable_single_loop_program_v1,
+    CanonicalCallableRouteV1,
+};
 
 pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
     'package,
@@ -162,169 +151,34 @@ fn validate_selected_signature_loan(
     signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
 ) -> Result<(), String> {
     input.with_selected_and_admission(|selected, admission| {
-        let key = admission.source_key();
-        let expected_receiver_lane_count = match key.namespace() {
-            SameModuleCallableNamespaceV1::FreeFunction => 0,
-            SameModuleCallableNamespaceV1::StaticBoxMethod => 0,
-            SameModuleCallableNamespaceV1::InstanceBoxMethod
-            | SameModuleCallableNamespaceV1::BirthConstructor => 1,
-        };
-        if signature.owner() != selected.source().owner()
-            || !signature
-                .identity()
-                .same_as(selected.source_identity().identity())
-            || signature.source_logical_arity() != key.arity()
-            || signature.receiver_lane_count() != expected_receiver_lane_count
-        {
-            return Err(package_issue(
-                NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureMismatch,
-            ));
-        }
-        Ok(())
+        validate_selected_signature_loan_parts(selected, admission, signature)
     })
 }
 
-enum CanonicalCallableRouteV1<'source> {
-    Ready(crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1<'source>),
-    DirectAccum(crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1<'source>),
-    CallableSingleLoop(PreparedCallableLoopOperationProgramV1<'source>),
-    Outside,
-}
-
-fn classify_canonical_callable_route(
-    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-) -> Result<CanonicalCallableRouteV1<'_>, String> {
-    if let Some(plan) = probe_direct_accum_function_v1(input)
-        .map_err(|error| format!("[freeze:contract][mir/callable-direct-accum-preflight] {error:?}"))?
+fn validate_selected_signature_loan_parts(
+    selected: &SelectedCallableLoweringInputRefV1<'_>,
+    admission: &NormalCatalogedBoxMethodDraftAdmissionV1,
+    signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
+) -> Result<(), String> {
+    let key = admission.source_key();
+    let expected_receiver_lane_count = match key.namespace() {
+        SameModuleCallableNamespaceV1::FreeFunction => 0,
+        SameModuleCallableNamespaceV1::StaticBoxMethod => 0,
+        SameModuleCallableNamespaceV1::InstanceBoxMethod
+        | SameModuleCallableNamespaceV1::BirthConstructor => 1,
+    };
+    if signature.owner() != selected.source().owner()
+        || !signature
+            .identity()
+            .same_as(selected.source_identity().identity())
+        || signature.source_logical_arity() != key.arity()
+        || signature.receiver_lane_count() != expected_receiver_lane_count
     {
-        if let CanonicalFirstFamilyPlanV1::Loop(
-            crate::mir::compiler::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
-        ) = plan
-        {
-            return Ok(CanonicalCallableRouteV1::DirectAccum(plan));
-        }
-        return Err(
-            "[freeze:contract][mir/callable-direct-accum-preflight] unexpected plan family"
-                .to_owned(),
-        );
+        return Err(package_issue(
+            NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureMismatch,
+        ));
     }
-    if let Some(program) = try_prepare_callable_single_loop_program_v1(input)? {
-        return Ok(CanonicalCallableRouteV1::CallableSingleLoop(program));
-    }
-    match CanonicalLoweringPreflightV1::verify_function(input) {
-        Ok(CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan)) => {
-            Ok(CanonicalCallableRouteV1::Ready(plan))
-        }
-        Ok(_) => Ok(CanonicalCallableRouteV1::Outside),
-        Err(error) if is_canonical_shape_outside(&error) => Ok(CanonicalCallableRouteV1::Outside),
-        Err(error) => Err(format!(
-            "[freeze:contract][mir/callable-canonical-preflight] {error:?}"
-        )),
-    }
-}
-
-fn try_prepare_callable_single_loop_program_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-) -> Result<Option<PreparedCallableLoopOperationProgramV1<'_>>, String> {
-    let ledger = input
-        .forest()
-        .callable_source_ledger(input.owner())
-        .map_err(|error| format!("[freeze:contract][callable-loop/source-ledger] {error:?}"))?;
-    if ledger.loop_sites().count() != 1 {
-        return Ok(None);
-    }
-    let syntax = match issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger) {
-        Ok(syntax) => syntax,
-        Err(error) if callable_syntax_shape_outside(error) => return Ok(None),
-        Err(error) => {
-            return Err(format!(
-                "[freeze:contract][callable-loop/syntax-facts] {error:?}"
-            ))
-        }
-    };
-    let map = match issue_callable_single_loop_source_map_v1(&ledger, syntax) {
-        Ok(map) => map,
-        Err(error) if callable_source_map_shape_outside(error) => return Ok(None),
-        Err(error) => {
-            return Err(format!(
-                "[freeze:contract][callable-loop/source-map] {error:?}"
-            ))
-        }
-    };
-    // The bounded CallableSingleLoop consumer currently has a resolver-issued
-    // FreeStatic target, but no declared-instance target owner for Method
-    // prefixes. Keep that shape explicitly outside this route so it reaches
-    // the ordinary method path instead of failing later as MissingPreludeTarget.
-    if map
-        .prefix()
-        .target()
-        .prefix()
-        .is_some_and(|(_, call, _)| matches!(call.kind(), SourceCallKindV1::Method(_)))
-    {
-        return Ok(None);
-    }
-    let product = match issue_callable_single_loop_recipe_v1(&ledger, map) {
-        Ok(product) => product,
-        Err(error) if callable_recipe_shape_outside(&error) => return Ok(None),
-        Err(error) => {
-            return Err(format!(
-                "[freeze:contract][callable-loop/recipe] {error:?}"
-            ))
-        }
-    };
-    let source = VerifiedNormalCallableSourceIngressReceiptV1::from_resolved_input_v1(input)?;
-    let prepared = PreparedCallableLoopIngressV1::from_source_v1(source, product)
-        .map_err(|error| format!("[freeze:contract][callable-loop/source-context] {error:?}"))?
-        .prepare_full_demand()
-        .map_err(|error| format!("[freeze:contract][callable-loop/semantic-demand] {error:?}"))?;
-    Ok(Some(prepared))
-}
-
-fn callable_syntax_shape_outside(error: CallableSyntaxFactsRejectV1) -> bool {
-    matches!(
-        error,
-        CallableSyntaxFactsRejectV1::LoopCardinality
-            | CallableSyntaxFactsRejectV1::LoopShape
-            | CallableSyntaxFactsRejectV1::LoopBodyArity
-            | CallableSyntaxFactsRejectV1::InitialCarrierShape
-            | CallableSyntaxFactsRejectV1::DuplicateInitialCarrier
-            | CallableSyntaxFactsRejectV1::PrefixBoundaryShape
-            | CallableSyntaxFactsRejectV1::DuplicatePrefixBoundary
-            | CallableSyntaxFactsRejectV1::ConditionShape
-            | CallableSyntaxFactsRejectV1::ConditionRhsNotLiteral
-            | CallableSyntaxFactsRejectV1::StepShape
-            | CallableSyntaxFactsRejectV1::StepRhsNotLiteral
-            | CallableSyntaxFactsRejectV1::StepTargetShape
-            | CallableSyntaxFactsRejectV1::TailShape
-            | CallableSyntaxFactsRejectV1::UnexpectedBodyStatement
-    )
-}
-
-fn callable_source_map_shape_outside(error: CallableSourceMapRejectV1) -> bool {
-    matches!(
-        error,
-        CallableSourceMapRejectV1::UnsupportedAssignmentTarget
-            | CallableSourceMapRejectV1::UnsupportedLiteral(_)
-            | CallableSourceMapRejectV1::UnsupportedOperator(_)
-    )
-}
-
-fn callable_recipe_shape_outside(error: &CallableRecipeCoSealRejectV1) -> bool {
-    matches!(
-        error,
-        CallableRecipeCoSealRejectV1::UnsupportedLiteral(_)
-            | CallableRecipeCoSealRejectV1::UnsupportedOperator(_)
-    )
-}
-
-fn is_canonical_shape_outside(error: &CanonicalLoweringErrorV1) -> bool {
-    matches!(
-        error,
-        CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind
-            | CanonicalLoweringErrorV1::UnsupportedCanonicalSyntaxKind
-            | CanonicalLoweringErrorV1::UnsupportedCanonicalControlRoute
-            | CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape { .. }
-    )
+    Ok(())
 }
 
 fn with_selected_source_scope<'port, 'collector, R>(
@@ -535,11 +389,12 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
     ) -> Result<(), String> {
         let (_symbol, params, param_decls, return_type_name, body, uses, attrs) =
             child.to_owned_lowering().into_parts();
+        let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package
             .with_main_static_child_lowering_input(child, |input| {
-                let (selected, admission) = input.into_lowering_and_admission();
+                let (selected, admission, signature) = input.into_lowering_and_admission();
                 if !matches!(
                     selected.semantic(),
                     crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Ordinary
@@ -548,29 +403,48 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                         NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch,
                     ));
                 }
+                validate_selected_signature_loan_parts(&selected, &admission, &signature)?;
+                let target_capability = target_binding.map(|binding| binding.target_capability());
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
+                // This bounded production edge owns only the existing
+                // CallableSingleLoop consumer. Other static-child shapes keep
+                // their prior source lowering until their own consumer is
+                // selected, so this adapter does not reclassify or open an
+                // unrelated canonical session.
+                if let Some(program) = try_prepare_callable_single_loop_program_v1(selected.source())?
+                {
+                    return inner
+                        .lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
+                            builder,
+                            admission,
+                            signature,
+                            program,
+                            target_capability,
+                        )
+                        .map_err(|error| error.to_string());
+                }
                 with_selected_source_scope(
                     inner,
                     lineage,
                     selected,
                     Rc::clone(&ordinary_new_claim_ledger),
                     |inner, transport| {
-                    inner
-                        .lower_normal_cataloged_static_box_method_with_source_v1(
-                            builder,
-                            admission,
-                            params,
-                            param_decls,
-                            return_type_name,
-                            body,
-                            uses,
-                            attrs,
-                            transport,
-                        )
-                        .map_err(|error| error.to_string())
+                        inner
+                            .lower_normal_cataloged_static_box_method_with_source_v1(
+                                builder,
+                                admission,
+                                params,
+                                param_decls,
+                                return_type_name,
+                                body,
+                                uses,
+                                attrs,
+                                transport,
+                            )
+                            .map_err(|error| error.to_string())
                     },
                 )
             })

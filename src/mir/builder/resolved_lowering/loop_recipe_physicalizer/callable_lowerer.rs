@@ -164,6 +164,7 @@ fn lower_inside_session<'builder>(
             input,
             &input_relations,
             &prelude,
+            physical_name.as_str(),
         )
         .map_err(|error| format!("[freeze:contract][callable-loop/prelude-materialization] {error:?}"))?;
         let entry_rows = prelude_receipt

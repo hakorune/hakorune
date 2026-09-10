@@ -68,11 +68,16 @@ pub(super) fn emit(
 /// header but does not belong to the whole Trivial profile.  This keeps the
 /// canonical direct-call capability, emission, and type-fact owners shared by
 /// profile routes without manufacturing a second profile row.
+///
+/// The resolver header carries the logical callable name. The caller supplies
+/// the admission-selected physical symbol because cataloged static children
+/// may be emitted under a module-qualified symbol.
 pub(in crate::mir::builder::resolved_lowering) fn emit_resolved_header(
     builder: &mut MirBuilder,
     input: ResolvedFunctionLoweringInputV1<'_>,
     target: &VerifiedCallableHeaderV1,
     result_abi: ExactTrivialReturnAbiV1,
+    current_physical_symbol: &str,
     arguments: Vec<ValueId>,
 ) -> Result<(ValueId, TrivialRepresentationV1), String> {
     if result_abi != ExactTrivialReturnAbiV1::I64
@@ -95,10 +100,10 @@ pub(in crate::mir::builder::resolved_lowering) fn emit_resolved_header(
         .as_ref()
         .map(|function| function.signature.name.as_str())
         .ok_or_else(|| "[freeze:contract][canonical_direct_call/function_missing]".to_string())?;
-    if current_symbol != current_header.symbol().as_mir_name() {
+    if current_symbol != current_physical_symbol {
         return Err(format!(
             "[freeze:contract][canonical_direct_call/symbol_drift] expected={} actual={current_symbol}",
-            current_header.symbol().as_mir_name()
+            current_physical_symbol
         ));
     }
     let capability_rows = &builder

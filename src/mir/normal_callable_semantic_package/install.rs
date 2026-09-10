@@ -225,6 +225,7 @@ impl S6CInstalledCallableLoanRefV1<'_> {
 pub(crate) struct MainStaticChildLoweringInputV1<'loan> {
     selected: SelectedCallableLoweringInputRefV1<'loan>,
     admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+    signature: ResolvedCallablePhysicalSignatureLoanV1<'loan>,
     _role: crate::mir::builder::SelectedCallableConsumptionRoleV1,
     _catalog_brand: SameModuleCallableCatalogBrandV1,
 }
@@ -235,8 +236,9 @@ impl<'loan> MainStaticChildLoweringInputV1<'loan> {
     ) -> (
         SelectedCallableLoweringInputRefV1<'loan>,
         NormalCatalogedBoxMethodDraftAdmissionV1,
+        ResolvedCallablePhysicalSignatureLoanV1<'loan>,
     ) {
-        (self.selected, self.admission)
+        (self.selected, self.admission, self.signature)
     }
 }
 
