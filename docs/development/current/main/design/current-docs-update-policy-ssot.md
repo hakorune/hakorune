@@ -79,6 +79,14 @@ not classifiers. A worker review, local test, or legacy parity result is
 evidence for the mode decision, not permission to cross it. This prevents a
 small green probe from silently becoming a production claim.
 
+Separate implementation-entry prerequisites from closeout evidence. Existing
+authority, a named consumer, a bounded delete-set, and a settled failure contract
+can authorize an implementation row; the new implementation and its after-change
+parity tests are that row's outputs, not prerequisites for starting it. A missing
+internal implementation is not an external dependency. If parking would require
+the parked row's own outputs to reopen it, correct the premise in the existing
+card before repeating the census or reporting an external wait.
+
 ### Source-backed semantic receipt gate
 
 When a row proposes a new `Verified*` or `Prepared*` semantic product, its

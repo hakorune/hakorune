@@ -1,9 +1,9 @@
 ---
-Status: Post-W6 graduation board; current production mutation is forbidden
+Status: Graduation board; lifecycle V4 design accepted, implementation queued
 Decision: staged llvmlite graduation and native-library ownership selected
 Date: 2026-07-22
 Scope: LLVM route truth, native library boundary, Hako LLVM-text ownership, and llvmlite retirement
-Current-lane effect: none; D-prime HEADERPORT0 remains authoritative
+Current-lane effect: CURRENT_STATE selects execution; lifecycle V4 slice below is bounded
 Reserved activation: W6 final-live receipt/caller evidence is landed; G1/G2/G3
 remain independently gated
 Related:
@@ -17,6 +17,19 @@ Related:
 ---
 
 # LLVM Native Library And llvmlite Graduation Task Board
+
+## Current Capsule
+
+- **Current decision:** the existing lifecycle session may own V4 object
+  emission; the bounded design below is accepted independently of graduation.
+- **Current implementation status:** V4 still invokes llc; the library
+  replacement is designed, not implemented or verified.
+- **Next ordered task:** use the lifecycle cutover brief when selected by
+  `CURRENT_STATE`; other graduation rows keep their own prerequisites.
+- **Production stop line:** preserve target/layout, validation, failure and
+  artifact contracts; never retry through another emitter.
+- **Retirement finish line:** the selected V4 llc edge disappears with shared
+  caller parity; whole-library, Hako and oracle retirement require later proof.
 
 ## Decision
 
@@ -813,6 +826,116 @@ helper/boxing/dynamic field lookup in hot load = 0
 ```
 
 ## 4. In-process LLVM promotion
+
+### Lifecycle V4 existing-session cutover
+
+`MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-D0` — accepted, design closeout.
+
+Decision (2026-09-10): accept the existing-session design for
+`MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-I0`. The earlier ParkedSealed
+condition required implementation outputs before implementation could begin.
+That premise is withdrawn. This is an internal backend task with an existing
+owner, not an external-team dependency. General graduation, FastMem, G1/G2/G3,
+memory-only transport and concurrent-session proofs remain separate.
+
+Entry prerequisites: the accepted owner/failure contract below, the finite
+caller and delete-set, available LLVM18 library/build tools, and recorded
+baseline commands with known reds classified. Parse/verify/emit implementation
+and after-change parity are Done evidence, not entry prerequisites. The
+measurement at `a0ab958b81` identifies the llc slice; refresh its baseline before
+editing if binaries or runtime archives differ. No speedup is assumed.
+
+#### Ordered bounded series
+
+1. Capture existing selected source/artifact and opt-in timing baseline once.
+   Pair/Bool observations exist; include shared-caller regressions below.
+2. Extend the existing lifecycle target session's private LLVM function table
+   and resource cleanup; replace the sole V4 llc call with parse/verify/emit.
+   Migrate subprocess-dependent tests in the same implementation commit.
+3. Run focused session/artifact negatives, then shared V4 source regressions;
+   compare timing under the same configuration and prove object-emission child=0.
+4. Close with caller-zero deletion, accurate measurement labels, owning README
+   and affected ABI reference documentation, commit/push and pointer handoff.
+   Keep this one series, not a separate design card for each LLVM operation.
+
+#### Implementation brief
+
+Change: one BoxShape physical-emitter replacement at
+`hako_llvmc_compile_published_lifecycle_physical_v4`. Keep `lv4_emit` and the
+file-backed temporary LLVM text; extend `hako_lts_session` to parse that text,
+verify the module, and emit the temporary object with its existing TargetMachine.
+Delete `lv4_llc`, its only invocation, and V4-private spawn/wait/environ plumbing
+in the same cutover. Do not remove shared process helpers without caller-zero
+proof. No new public ABI, runtime selector, cache, fallback, or second emitter.
+
+Contract: the issued physical input remains semantic authority. V2/V4 admission
+runs before emission; the existing V4 entry owns temporary files and atomic
+publication. The lifecycle session owns LLVM resources only. Preserve explicit
+triple, CPU `generic`, empty features, O0, PIC and default code model. Verify
+parsed module triple/layout equality; never overwrite drift to make it pass.
+The existing target session uses the corresponding machine options already.
+Pinned-text code is a lifetime/API reference, not a transferable semantic owner.
+
+The parse operation owns buffer/context/module locally under the live session.
+Transfer buffer ownership to `LLVMParseIRInContext` exactly once; dispose module
+before context and both before TargetMachine/library teardown. Before parse,
+failure disposes the owned buffer; after parse is called, neither success nor
+failure may dispose that transferred buffer again. Copy bounded
+LLVM diagnostics into the existing owned error channel, then dispose LLVM
+messages. Use `LLVMReturnStatusAction` for verification, not abort-on-invalid-IR.
+Retain flush/close checks, nonempty object verification, same-directory atomic
+rename, existing artifact preservation on failure and temporary-file cleanup.
+
+Done: selected production caller uses library emission; V4 llc call count is
+zero, shared-caller results/Fault/cleanup are unchanged, errors preserve a
+sentinel destination and leak no temporary artifacts. Actual process observation
+must show no object-emission child; link tools remain allowed. Rename `llc_ns`
+and `toolchain=llc-18` to truthful library-stage labels in measurement/tests/docs;
+trace stays default-off. Update `lang/c-abi/shims/README.md` and the affected
+`docs/reference/abi/nyrt_c_abi_v0.md` contract in the implementation slice.
+Use the existing pointer guard; add no per-row guard or semantic receipt.
+
+Stop: an actual target/layout/ownership discrepancy, unclassified regression,
+or need for source reclassification returns the row to design. Library/symbol,
+parse, verify, target/layout, emit, empty-output and rename failures are ordinary
+bounded stage errors before publication, never reasons to retry through llc.
+Session is 209 lines and compile entry 182 at the audited HEAD; use existing
+owners, design a responsibility split at 760 and never exceed 800 source lines.
+
+#### Finite boundary and acceptance
+
+Boundary: Rust `compile_published_view_object` lifecycle branch ->
+`capi_transport::compile_published_lifecycle_physical_v4` -> C V4 -> atomic
+object rename. Direct C test caller: `published_lifecycle_v4_driver.c`.
+Includes Pair/Bool, checked Map/multi-owner, ordinary-child Map/New/Birth,
+retained NativeArray and accepted receiver-method input. Excludes static V2,
+generic compatibility and pinned-text entries. These siblings share the changed
+V4 entry and cannot be excluded merely because Pair supplied the timing sample.
+
+Existing acceptance homes: `published_mir_object_tests.rs`,
+`published_native_array_c_tests.rs`, `published_map_source_tests.rs`,
+`published_map_four_owner_tests.rs`, physical receiver admission tests and
+`apps/typed-object-method-min/main.hako` linked exit30. Run their actual Rust
+module paths under `host_providers::llvm_codegen::published_mir_object`, with
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib <filter> -- --ignored`
+for ignored artifact tests; run nonignored admission tests separately. Cargo
+runs serially; zero matched tests is not evidence. Build the shared library once
+with `bash tools/build_hako_llvmc_ffi.sh`, then run the existing parser C test,
+`published_lifecycle_v4_execution_test.py` with freshly captured source-issued
+Pair/Bool JSON, and `published_map_physical_execution_test.py` with its runtime
+archive. Preserve source-to-artifact evidence separately from C parser tests.
+
+`published_lifecycle_v4_execution_test.py` currently intercepts PATH's llc to
+inject invalid-kind/invalid-bool LLVM payloads and tests missing llc as failure.
+Move those mutations to a test-only driver/session seam, preserving runtime
+InvalidContract assertions. Missing llc becomes a success/no-child test.
+Exercise missing library/symbol, malformed IR, verifier-invalid IR, target/layout
+drift, emit/empty-output and rename failure through the private test boundary;
+no production environment injection or public test API. Preserve both sentinel
+artifact and absent-output cases. State inventory: admitted text -> parsed ->
+verified -> temporary object -> published; each failure cleans owned resources
+without publishing or retrying. API-input rejection and runtime Fault remain
+different outcomes and both retain their existing checks.
 
 ### `LLVM-NATIVELIB0-LLVMAPI0`
 
