@@ -11,6 +11,7 @@ use serde_json::{json, Value};
 use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::instruction::{FaultFrameMode, InvokeOperation};
 use crate::mir::{BinaryOp, Callee, ConstValue, EdgeArgs, MirInstruction, ValueId};
+use hakorune_mir_defs::CanonicalFieldRefV1;
 
 use super::physical_abi::PublishedLifecyclePhysicalAbiInputV1;
 use super::physical_program::PublishedLifecyclePhysicalProgramV1;
@@ -39,8 +40,7 @@ fn emit_lifecycle_physical_program_value(
                         .map(|row| -> Result<Value, String> { Ok(json!({
                             "index": row.index(),
                             "instruction": encode_instruction(
-                                program.module(), function.name(), block.id(), row.index(),
-                                row.instruction(), &births, function_ordinal,
+                                row.field_ref(), row.instruction(), &births, function_ordinal,
                                 diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), row.instruction())?,
                                 abi_input,
                                 &ordinary,
@@ -53,8 +53,7 @@ fn emit_lifecycle_physical_program_value(
                         "terminator": {
                             "index": block.terminator().index(),
                             "instruction": encode_instruction(
-                                program.module(), function.name(), block.id(),
-                                block.terminator().index(), block.terminator().instruction(),
+                                block.terminator().field_ref(), block.terminator().instruction(),
                                 &births, function_ordinal,
                                 diagnostic_site(
                                     abi_input, function_ordinal, block.id().0,
@@ -186,10 +185,7 @@ fn encode_edge_args(args: &EdgeArgs) -> Value {
 }
 
 fn encode_instruction(
-    module: &crate::mir::MirModule,
-    function_name: &str,
-    block: crate::mir::BasicBlockId,
-    instruction_index: u32,
+    field_ref: Option<CanonicalFieldRefV1>,
     instruction: &MirInstruction,
     births: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
     caller_function_index: u32,
@@ -238,18 +234,7 @@ fn encode_instruction(
             "object_id": field.object().declaration_index(), "field_ordinal": field.declaration_ordinal(),
         }),
         MirInstruction::FieldGet { dst, base, .. } => {
-            let function = module
-                .functions
-                .get(function_name)
-                .ok_or_else(|| fault("field-get-function-missing"))?;
-            let field = super::physical_program::project_field_get(
-                module,
-                function,
-                block,
-                instruction_index as usize,
-                instruction,
-            )?
-            .ok_or_else(|| fault("field-get-route-missing"))?;
+            let field = field_ref.ok_or_else(|| fault("field-get-route-missing"))?;
             json!({
                 "op": "object_field_get", "dst": value(dst), "base": value(base),
                 "object_id": field.object().declaration_index(),

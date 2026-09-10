@@ -84,10 +84,7 @@ fn serializer_rejects_nonissued_instruction_vocabulary() {
     };
     assert!(matches!(
         encode_instruction(
-            &crate::mir::MirModule::new("test".into()),
-            "",
-            crate::mir::BasicBlockId(0),
-            0,
+            None,
             &instruction,
             &BTreeMap::new(),
             0,
@@ -151,6 +148,33 @@ fn ordinary_instance_function_publishes_canonical_receiver_object() {
                         .role()
                         .receiver_object()
                         .ok_or_else(|| "ordinary method receiver object missing".to_owned())?;
+                    let prepared_field = ordinary
+                        .blocks()
+                        .iter()
+                        .flat_map(|block| {
+                            block
+                                .instructions()
+                                .iter()
+                                .copied()
+                                .chain(std::iter::once(block.terminator()))
+                        })
+                        .find_map(|row| {
+                            matches!(row.instruction(), MirInstruction::FieldGet { .. })
+                                .then_some(row.field_ref())
+                        })
+                        .flatten()
+                        .ok_or_else(|| "ordinary method prepared FieldGet missing".to_owned())?;
+                    let layout_field = input
+                        .layouts()
+                        .iter()
+                        .find(|layout| layout.object_id() == prepared_field.object().declaration_index())
+                        .and_then(|layout| {
+                            layout
+                                .fields()
+                                .iter()
+                                .find(|field| field.declaration_ordinal() == prepared_field.declaration_ordinal())
+                        })
+                        .ok_or_else(|| "prepared FieldGet layout missing".to_owned())?;
                     let json = emit_lifecycle_physical_abi_json(&input)?;
                     let decoded: Value = serde_json::from_str(&json).unwrap();
                     let row = decoded["functions"]
@@ -161,6 +185,25 @@ fn ordinary_instance_function_publishes_canonical_receiver_object() {
                         .ok_or_else(|| "ordinary method JSON row missing".to_owned())?;
                     assert_eq!(row["receiver_object"], object.declaration_index());
                     assert!(row["receiver"].is_number());
+                    let json_field = row["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|block| block["instructions"].as_array().into_iter().flatten())
+                        .find(|instruction| instruction["instruction"]["op"] == "object_field_get")
+                        .ok_or_else(|| "ordinary method JSON FieldGet missing".to_owned())?;
+                    assert_eq!(
+                        json_field["instruction"]["object_id"],
+                        prepared_field.object().declaration_index()
+                    );
+                    assert_eq!(
+                        json_field["instruction"]["field_ordinal"],
+                        prepared_field.declaration_ordinal()
+                    );
+                    assert_eq!(
+                        layout_field.declaration_ordinal(),
+                        prepared_field.declaration_ordinal()
+                    );
                     Ok::<(), String>(())
                 },
             )
@@ -295,10 +338,7 @@ fn native_float_wire_preserves_signed_zero_and_nan_payload_bits() {
                             value: ConstValue::Float(f64::from_bits(bits)),
                         };
                         let encoded = encode_instruction(
-                            input.program().module(),
-                            input.program().functions()[0].name(),
-                            crate::mir::BasicBlockId(0),
-                            0,
+                            None,
                             &instruction,
                             &BTreeMap::new(),
                             0,

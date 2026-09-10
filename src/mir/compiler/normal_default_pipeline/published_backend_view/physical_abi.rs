@@ -353,11 +353,6 @@ fn referenced_objects(
 ) -> Result<BTreeSet<u32>, String> {
     let mut ids = BTreeSet::new();
     for function in program.functions() {
-        let source_function = program
-            .module()
-            .functions
-            .get(function.name())
-            .ok_or_else(|| fault("function-missing"))?;
         for block in function.blocks() {
             for row in block
                 .instructions()
@@ -370,14 +365,9 @@ fn referenced_objects(
                         ids.insert(field.object().declaration_index());
                     }
                     MirInstruction::FieldGet { .. } => {
-                        let field = super::physical_program::project_field_get(
-                            program.module(),
-                            source_function,
-                            block.id(),
-                            row.index() as usize,
-                            row.instruction(),
-                        )?
-                        .ok_or_else(|| fault("field-get-route-missing"))?;
+                        let field = row
+                            .field_ref()
+                            .ok_or_else(|| fault("field-get-route-missing"))?;
                         ids.insert(field.object().declaration_index());
                     }
                     MirInstruction::Invoke { operation, .. } => match operation {
