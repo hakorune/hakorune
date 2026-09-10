@@ -221,6 +221,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh"]
 
 [[rows]]
+id = "mir-artifact-schema-selector-i0"
+label = "MIR artifact parsed schema selector I0 guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mir_artifact_schema_selector_i0_guard.sh"]
+
+[[rows]]
 id = "force-hv1-caller-lifecycle"
 label = "Force-hv1 body-derived caller lifecycle guard"
 profiles = ["pilot", "quick-static"]

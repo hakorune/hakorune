@@ -8,7 +8,9 @@ Public route-family SSOT: `docs/development/current/main/design/json-v0-route-ma
 
 - `mir_loader.rs`
   - mainline `MIR(JSON)` intake
-  - direct v1-first parse, with v0 selected only when `schema_version` is absent
+  - parsed top-level v1 bridge decides absent, supported, or unsupported
+    `schema_version`; v0 is selected only when the key is absent (including
+    escaped JSON key spellings)
   - no Program(JSON v0) import-bundle behavior
 - `program_json_v0_loader.rs`
   - compat-only `Program(JSON v0)` intake
@@ -28,6 +30,8 @@ Public route-family SSOT: `docs/development/current/main/design/json-v0-route-ma
 - `core_executor` is the terminal execution owner after a `MirModule` exists.
 - `--mir-json-file` must stay on the mainline MIR loader.
 - A declared v1 parse error is terminal; it must not be retried through v0.
+- Schema presence is decided from parsed JSON, never from a raw substring
+  search; an explicit unsupported schema is terminal before v0 parsing.
 - `--json-file` is a compat umbrella intake; only the compat loader may own Program(JSON v0)-specific merge/trace behavior.
 - do not reintroduce Program(JSON v0) import-bundle policy into `core_executor`.
 

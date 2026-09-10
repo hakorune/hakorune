@@ -1,12 +1,10 @@
 use crate::mir::MirModule;
 
 pub(super) fn load_mir_json_to_module(text: &str) -> Result<Option<MirModule>, String> {
-    if text.contains("\"schema_version\"") {
-        match crate::runner::json_v1_bridge::try_parse_v1_to_module(text) {
-            Ok(Some(module)) => return Ok(Some(module)),
-            Ok(None) => {}
-            Err(error) => return Err(format!("JSON v1 bridge error: {}", error)),
-        }
+    match crate::runner::json_v1_bridge::try_parse_v1_to_module(text) {
+        Ok(Some(module)) => return Ok(Some(module)),
+        Ok(None) => {}
+        Err(error) => return Err(format!("JSON v1 bridge error: {}", error)),
     }
 
     if looks_like_mir_v0(text) {
@@ -75,6 +73,19 @@ mod tests {
 
         let result = load_mir_json_to_module(mir_json).expect("mir json should parse");
         assert!(result.is_some());
+    }
+
+    #[test]
+    fn load_mir_json_to_module_rejects_escaped_declared_schema_before_v0() {
+        let payload = r#"{
+            "\u0073chema_version": "2.0",
+            "functions": [{"name": "main", "blocks": [{"id": 0, "instructions": []}]}]
+        }"#;
+
+        let error = load_mir_json_to_module(payload)
+            .expect_err("escaped declared schemas must be terminal");
+        assert!(error.contains("JSON v1 bridge error"));
+        assert!(error.contains("unsupported schema_version"));
     }
 
     #[test]
