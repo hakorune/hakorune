@@ -234,6 +234,15 @@ does not claim that `PlanVerifier` is effect-free. See the active card in
 `CURRENT_STATE.toml` for the exact call chain, acceptance guards, and
 `NoSafeSlice` conditions.
 
+The first callable Loop production edge is now the selected static
+DirectAccum branch. It reuses `CanonicalDirectAccumSsaLowererV1` and its
+existing `CanonicalSsaFunctionSessionV2` owner after the shared capability
+probe; the catalog physical symbol is passed only as an already-admitted
+name. The generic root `Ready` body driver and its private function-scope
+wrapper remain a separate follow-up slice. This edge has route-selection and
+existing session/lowering evidence only; it does not claim generic Loop
+completion or OBJ/EXE output.
+
 ### Raw invocation source transport classifier
 
 `raw_invocation_source_transport/` owns exact path construction and temporal

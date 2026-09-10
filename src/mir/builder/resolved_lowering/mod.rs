@@ -360,7 +360,15 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalDirectAccumPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_direct_accum_function_draft_inner(plan, false)
+        self.lower_resolved_direct_accum_function_draft_inner(plan, false, None)
+    }
+
+    pub(in crate::mir) fn lower_resolved_direct_accum_function_draft_with_physical_name_v1(
+        &mut self,
+        plan: CanonicalDirectAccumPlanV1<'_>,
+        physical_name: String,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        self.lower_resolved_direct_accum_function_draft_inner(plan, false, Some(physical_name))
     }
 
     pub(in crate::mir) fn lower_resolved_nested_predicate_function_draft(
@@ -375,13 +383,14 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalDirectAccumPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_direct_accum_function_draft_inner(plan, true)
+        self.lower_resolved_direct_accum_function_draft_inner(plan, true, None)
     }
 
     fn lower_resolved_direct_accum_function_draft_inner(
         &mut self,
         plan: CanonicalDirectAccumPlanV1<'_>,
         _inject_seal_failure: bool,
+        physical_name: Option<String>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
         let input = plan.input();
         let crate::ast::ASTNode::FunctionDeclaration {
@@ -398,7 +407,8 @@ impl MirBuilder {
                 "[freeze:contract][direct_accum/root_not_function]".into(),
             ));
         };
-        let function_name = format!("{}/{}", name, params.len());
+        let function_name =
+            physical_name.unwrap_or_else(|| format!("{}/{}", name, params.len()));
         let mut session = self.open_resolved_function_draft_seal_session_v1(&function_name);
         let lowering = {
             let builder = session.builder_view_mut_for_lowering();

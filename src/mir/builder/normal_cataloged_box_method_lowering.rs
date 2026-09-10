@@ -177,6 +177,47 @@ impl RawInvocationChildPortV1<'_, '_> {
         )
     }
 
+    /// Canonical sibling for the bounded DirectAccum Loop profile. The plan
+    /// already owns its source Recipe and completion; this method only gives
+    /// it the catalog symbol and the existing physical-signature loan.
+    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_canonical_direct_accum_plan_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        signature: ResolvedCallablePhysicalSignatureLoanV1<'_>,
+        plan: crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1<'_>,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        if plan.input().owner() != signature.owner() {
+            return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
+        }
+        let function_name = admission.physical_symbol().to_owned();
+        let session_name = function_name.clone();
+        let resolved = ResolvedChildDraftAdmissionV1::canonical_resolved_owner(
+            signature.owner(),
+            function_name.clone(),
+            admission.physical_arity(),
+        );
+        let pending = builder
+            .capture_resolved_function_pending_session_v1(&session_name, move |builder| {
+                builder
+                    .lower_resolved_direct_accum_function_draft_with_physical_name_v1(
+                        plan,
+                        function_name,
+                    )
+                    .map_err(|error| format!("{error:?}"))
+            })
+            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
+        self.module_port.complete_resolved_child_with_physical_loan(
+            pending,
+            resolved,
+            signature,
+            target_capability,
+        )
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub(in crate::mir::builder) fn lower_normal_cataloged_instance_box_method_with_signature_v1(
         &mut self,

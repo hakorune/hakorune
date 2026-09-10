@@ -29,13 +29,26 @@ pub(crate) fn probe_direct_accum_source_unit_v1<'source>(
     unit: &'source VerifiedResolvedSourceUnitV1,
 ) -> Result<DirectAccumSourceUnitProbeV1<'source>, CanonicalLoweringErrorV1> {
     let function = unit.root_function_input()?;
+    match probe_direct_accum_function_v1(function)? {
+        Some(plan) => Ok(DirectAccumSourceUnitProbeV1::Candidate(plan)),
+        None => Ok(DirectAccumSourceUnitProbeV1::NotCandidate(function)),
+    }
+}
+
+/// Probe one already-selected function input with the same DirectAccum shape
+/// boundary used by the source-unit ingress. This is a borrowed capability
+/// only: it reuses the existing plan issuer and never reconstructs source
+/// meaning in the Builder adapter.
+pub(crate) fn probe_direct_accum_function_v1<'source>(
+    function: ResolvedFunctionLoweringInputV1<'source>,
+) -> Result<Option<CanonicalFirstFamilyPlanV1<'source>>, CanonicalLoweringErrorV1> {
     let root = function.source().root();
     if !matches!(root, ASTNode::FunctionDeclaration { .. }) {
-        return Ok(DirectAccumSourceUnitProbeV1::NotCandidate(function));
+        return Ok(None);
     }
     let body = function.source().root_body().map_err(source_navigation)?;
     if body.statements().len() != 2 {
-        return Ok(DirectAccumSourceUnitProbeV1::NotCandidate(function));
+        return Ok(None);
     }
     let local = function
         .source()
@@ -48,10 +61,10 @@ pub(crate) fn probe_direct_accum_source_unit_v1<'source>(
     if !matches!(local.node(), ASTNode::Local { .. })
         || !matches!(loop_stmt.node(), ASTNode::Loop { .. })
     {
-        return Ok(DirectAccumSourceUnitProbeV1::NotCandidate(function));
+        return Ok(None);
     }
     verify_direct_accum_first_family_function_v1(function, loop_stmt)
-        .map(DirectAccumSourceUnitProbeV1::Candidate)
+        .map(Some)
 }
 
 pub(crate) fn verify_direct_accum_function_v1<'source>(

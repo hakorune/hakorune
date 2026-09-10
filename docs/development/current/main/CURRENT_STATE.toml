@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0"
 current_execution_cohort = "mir_callable_loop_phi_session_entry_i0"
-current_design_stop = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0: design accepted; implementation is open for the selected static-callable canonical branch only."
+current_design_stop = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0: design accepted; DirectAccum first edge is connected, while the generic Ready session bridge remains open."
 current_blocker_token = "ImplementationActive__CallableLoopPhiSessionEntryI0"
-guard_followup = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0: use one private function-scope session wrapper and the located body driver; keep R7 parked independently and do not add a second BindingRef/SSA issuer, name fallback, local adapter, raw-port session field, or manual-ledger positive fixture."
+guard_followup = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0: keep the DirectAccum edge on the existing canonical session, then use one private function-scope wrapper for the generic Ready body driver; keep R7 parked independently and do not add a second BindingRef/SSA issuer, name fallback, local adapter, raw-port session field, or manual-ledger positive fixture."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -25,9 +25,10 @@ contract is recorded in `docs/reference/mir/loop-recipe-contract.md:1227`,
 with CallableSemanticLoweringState as source authority and canonical Binding
 SSA/PHI as the sole physical issuer. The accepted bridge now enters
 `MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0` in fast mode. Its selected static
-callable branch owns one session through the private
-`resolved_lowering/canonical_callable_session_scope.rs` wrapper and lends a
-short capability to the located body driver. The plan-level adapter and all
+callable DirectAccum branch now reuses the existing
+`CanonicalDirectAccumSsaLowererV1` session owner and preserves the catalog
+physical symbol. The generic Ready body driver still needs the private
+function-scope wrapper described by the card. The plan-level adapter and all
 compatibility callers remain parked. No OBJ/EXE claim is open. Local-completion
 and guard-cleanup remain queued after this session entry and PHI value
 generation.

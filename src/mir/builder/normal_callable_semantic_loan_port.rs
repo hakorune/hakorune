@@ -9,6 +9,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::compiler::direct_accum_capability::probe_direct_accum_function_v1;
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, ExprChildRoleV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
 };
@@ -169,20 +170,35 @@ fn validate_selected_signature_loan(
     })
 }
 
-enum CanonicalTrivialRouteV1<'source> {
+enum CanonicalCallableRouteV1<'source> {
     Ready(crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1<'source>),
+    DirectAccum(crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1<'source>),
     Outside,
 }
 
-fn classify_canonical_trivial_route(
+fn classify_canonical_callable_route(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-) -> Result<CanonicalTrivialRouteV1<'_>, String> {
+) -> Result<CanonicalCallableRouteV1<'_>, String> {
+    if let Some(plan) = probe_direct_accum_function_v1(input)
+        .map_err(|error| format!("[freeze:contract][mir/callable-direct-accum-preflight] {error:?}"))?
+    {
+        if let CanonicalFirstFamilyPlanV1::Loop(
+            crate::mir::compiler::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
+        ) = plan
+        {
+            return Ok(CanonicalCallableRouteV1::DirectAccum(plan));
+        }
+        return Err(
+            "[freeze:contract][mir/callable-direct-accum-preflight] unexpected plan family"
+                .to_owned(),
+        );
+    }
     match CanonicalLoweringPreflightV1::verify_function(input) {
         Ok(CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan)) => {
-            Ok(CanonicalTrivialRouteV1::Ready(plan))
+            Ok(CanonicalCallableRouteV1::Ready(plan))
         }
-        Ok(_) => Ok(CanonicalTrivialRouteV1::Outside),
-        Err(error) if is_canonical_shape_outside(&error) => Ok(CanonicalTrivialRouteV1::Outside),
+        Ok(_) => Ok(CanonicalCallableRouteV1::Outside),
+        Err(error) if is_canonical_shape_outside(&error) => Ok(CanonicalCallableRouteV1::Outside),
         Err(error) => Err(format!(
             "[freeze:contract][mir/callable-canonical-preflight] {error:?}"
         )),
@@ -611,14 +627,14 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     return Ok(());
                 }
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
-                let canonical_route = classify_canonical_trivial_route(selected.source())?;
+                let canonical_route = classify_canonical_callable_route(selected.source())?;
                 let target_capability = target_binding.map(|binding| binding.target_capability());
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
                 match canonical_route {
-                    CanonicalTrivialRouteV1::Ready(plan) => inner
+                    CanonicalCallableRouteV1::Ready(plan) => inner
                         .lower_normal_cataloged_static_box_method_with_canonical_trivial_plan_v1(
                             builder,
                             admission,
@@ -627,7 +643,16 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             target_capability,
                         )
                         .map_err(|error| error.to_string()),
-                    CanonicalTrivialRouteV1::Outside => {
+                    CanonicalCallableRouteV1::DirectAccum(plan) => inner
+                        .lower_normal_cataloged_static_box_method_with_canonical_direct_accum_plan_v1(
+                            builder,
+                            admission,
+                            signature,
+                            plan,
+                            target_capability,
+                        )
+                        .map_err(|error| error.to_string()),
+                    CanonicalCallableRouteV1::Outside => {
                         with_selected_source_scope(
                             inner,
                             lineage,
@@ -698,3 +723,21 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
 #[cfg(test)]
 #[path = "normal_callable_semantic_loan_port/map_dependency_tests.rs"]
 mod map_dependency_tests;
+
+#[cfg(test)]
+mod canonical_route_tests {
+    use super::{classify_canonical_callable_route, CanonicalCallableRouteV1};
+    use crate::mir::compiler::{
+        direct_accum_projection::direct_accum_function_for_test,
+        VerifiedResolvedSourceUnitV1,
+    };
+
+    #[test]
+    fn direct_accum_selection_uses_the_canonical_route() {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(direct_accum_function_for_test())
+            .expect("DirectAccum fixture must resolve");
+        let input = unit.root_function_input().expect("root function input");
+        let route = classify_canonical_callable_route(input).expect("canonical preflight");
+        assert!(matches!(route, CanonicalCallableRouteV1::DirectAccum(_)));
+    }
+}
