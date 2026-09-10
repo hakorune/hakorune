@@ -141,6 +141,14 @@ pub(crate) enum PublishedMirBackendViewErrorV1 {
         function: String,
         kind: ArrayElementWriteKind,
     },
+    /// A selected normal module must not mix canonical typed calls with the
+    /// legacy instruction carrier.  Compatibility-only callers use the
+    /// generic view and keep their existing route.
+    SelectedNormalUsesLegacyCallV0 {
+        function: String,
+        block_id: u32,
+        instruction_index: u32,
+    },
 }
 
 impl std::fmt::Display for PublishedMirBackendViewErrorV1 {
@@ -405,6 +413,62 @@ impl<'module> PublishedMirBackendView<'module> {
         })
     }
 
+    /// Admit the selected normal Static/Free/Print corridor.  The generic
+    /// view remains available to explicit compatibility callers; this owner
+    /// adds only the selected-corridor shape rule and never repairs a legacy
+    /// instruction.
+    pub(crate) fn try_new_selected_normal(
+        module: &'module MirModule,
+    ) -> Result<Self, PublishedMirBackendViewErrorV1> {
+        let view = Self::try_new(module)?;
+        let mut has_canonical_selected_call = false;
+        let mut legacy_site = None;
+        for (function_name, function) in &module.functions {
+            let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
+            block_ids.sort();
+            for block_id in block_ids {
+                let block = function
+                    .blocks
+                    .get(&block_id)
+                    .expect("sorted MIR block id must remain present");
+                for (instruction_index, instruction) in block.all_instructions().enumerate() {
+                    match instruction {
+                        MirInstruction::Call(call)
+                            if is_selected_global_callee(&call.callee) => {
+                                has_canonical_selected_call = true;
+                            }
+                        MirInstruction::LegacyCallV0 { .. } if legacy_site.is_none() => {
+                            legacy_site = Some((
+                                function_name.clone(),
+                                block_id.as_u32(),
+                                u32::try_from(instruction_index).map_err(|_| {
+                                    PublishedMirBackendViewErrorV1::SelectedNormalUsesLegacyCallV0 {
+                                        function: function_name.clone(),
+                                        block_id: block_id.as_u32(),
+                                        instruction_index: u32::MAX,
+                                    }
+                                })?,
+                            ));
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+        if has_canonical_selected_call {
+            if let Some((function, block_id, instruction_index)) = legacy_site {
+                return Err(
+                    PublishedMirBackendViewErrorV1::SelectedNormalUsesLegacyCallV0 {
+                        function,
+                        block_id,
+                        instruction_index,
+                    },
+                );
+            }
+        }
+        Ok(view)
+    }
+
     pub(crate) const fn route(&self) -> PublishedStaticMethodRouteV1 {
         if self.lifecycle_storage_profile.is_some() {
             PublishedStaticMethodRouteV1::CanonicalTyped
@@ -445,6 +509,15 @@ fn is_builtin_print_target(target: &CanonicalGlobalTargetV1) -> bool {
         target,
         CanonicalGlobalTargetV1::Builtin(CanonicalBuiltinGlobalV1::Print)
     )
+}
+
+fn is_selected_global_callee(callee: &Callee) -> bool {
+    let Callee::Global(target) = callee else {
+        return false;
+    };
+    static_method_key(target).is_some()
+        || free_function_key(target).is_some()
+        || is_builtin_print_target(target)
 }
 
 fn validate_builtin_print_call(

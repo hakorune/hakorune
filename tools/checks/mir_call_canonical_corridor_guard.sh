@@ -67,6 +67,7 @@ LLVM_MIR_CALL_EXTERN_RULES="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_s
 LLVM_MIR_CALL_EXTERN_BODY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit_body.inc"
 NEW_EXPRESSION="$ROOT_DIR/src/mir/builder/new_expression.rs"
 RAW_DISPATCH="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/mod.rs"
+PUBLISHED_BACKEND_VIEW="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view.rs"
 fail() {
   echo "[$TAG] $*" >&2
   exit 1
@@ -85,6 +86,8 @@ fi
 if rg -F -q -e "allow_legacy_target_rewrite" -e "collect_const_string_literals" -e "callee: None" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/pass.rs" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/schedule.rs" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/helpers.rs"; then
   fail "callsite canonicalizer retained a late legacy target issuer"
 fi
+require "$PUBLISHED_BACKEND_VIEW" "try_new_selected_normal"
+require "$PUBLISHED_BACKEND_VIEW" "SelectedNormalUsesLegacyCallV0"
 require "$ROOT_DIR/src/mir/passes/callsite_canonicalize/tests/mcl.rs" "mcl5_does_not_rewrite_legacy_call_with_const_string_func"
 require "$ROOT_DIR/src/mir/passes/callsite_canonicalize/tests/mod.rs" "schedule_facade_rejects_late_legacy_target_repair"
 require "$OPTIMIZER" "call_callee_{:?}_"

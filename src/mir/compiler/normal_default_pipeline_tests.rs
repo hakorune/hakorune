@@ -323,7 +323,7 @@ fn compatibility_origin_moves_through_request_and_prepared_root() {
             assert!(imports.is_empty());
             assert_eq!(
                 admission,
-                NormalCompileAdmissionV1::PreparedSourceWithImports(
+                NormalCompileAdmissionV1::PreparedCompatibilitySourceWithImports(
                     NormalPreparedSourceCallerV1::MirMode
                 )
             );

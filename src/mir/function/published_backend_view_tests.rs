@@ -310,6 +310,7 @@ fn published_builtin_print_rejects_destination_and_wrong_arity() {
 // Physical split only: include preserves existing focused test paths.
 include!("published_backend_view_array_tests.rs");
 include!("published_backend_view_intrinsic_array_tests.rs");
+include!("published_backend_view_selected_admission_tests.rs");
 
 #[test]
 fn selected_static_method_keeps_other_families_on_compatibility_routes() {

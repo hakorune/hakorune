@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-NORMAL-TYPED-ADMISSION-D0"
 current_execution_cohort = "mir_call_normal_typed_admission_d0"
 current_design_stop = ""
-current_blocker_token = "MIR-CALL-NORMAL-TYPED-ADMISSION-D0 fast: add the existing-owner mixed LegacyCallV0 admission reject and mutation-discriminating focused fixtures before reopening GUARD-I0."
-guard_followup = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0 ParkedSealed__NormalLegacyAdmissionMissing: existing Dynamic guard is dependency evidence; reopen only after normal typed admission closes."
+current_blocker_token = "MIR-CALL-NORMAL-TYPED-ADMISSION-D0 closeout: record the named mixed LegacyCallV0 admission evidence and commit/push before reopening GUARD-I0."
+guard_followup = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0 ParkedSealed__NormalLegacyAdmissionMissing: D0 now supplies the named mixed reject and focused evidence; revalidate the existing guard after closeout."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -41,15 +41,15 @@ LegacyCallV0 deletion or caller-zero claim is made.
 The observation-only R7 manifest is validated at
 `tools/checks/manifests/mir_r7_legacy_census_manifest_v1.json`; its 239/127
 Legacy, 5 env, and 4 Loop-PHI rows are evidence only. Normal typed admission D0
-is selected because the existing view still accepts a typed `LegacyCallV0` in
-the normal shape. The canonical corridor guard is
-`ParkedSealed__NormalLegacyAdmissionMissing` until that admission has a named
-pre-artifact reject and mutation-discriminating evidence; its existing
-Dynamic-only guard remains dependency evidence, not completion evidence.
+now uses the existing view owner’s `try_new_selected_normal` predicate. The
+named `SelectedNormalUsesLegacyCallV0` reject, three focused admission tests,
+and canonical corridor guard pass. Legacy-only selected output remains on its
+existing route until a separate producer cutover; no LegacyCallV0 retirement
+claim is made. The guard is the next revalidation row.
 """
 next_design_card = "none__mir_call_normal_typed_admission_d0_accepted"
-next_execution_card = "MIR-CALL-NORMAL-TYPED-ADMISSION-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-normal-typed-admission-d0-2026-09-11.md"
+next_execution_card = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-canonical-corridor-guard-i0-2026-08-20.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

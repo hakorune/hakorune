@@ -39,6 +39,7 @@ enum NormalPreparedSourceCallerV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum NormalCompileAdmissionV1 {
     PreparedSourceWithImports(NormalPreparedSourceCallerV1),
+    PreparedCompatibilitySourceWithImports(NormalPreparedSourceCallerV1),
     MinimalMirJsonNoImports,
     ProgramJsonV0ImportBundleNoBuilderImports,
     ReplProgramNoBuilderImports,
@@ -276,7 +277,7 @@ impl NormalCompileRequestV1 {
             PreparedNormalDefaultProgramRootV1::from_compatibility_origin(origin),
             source_file,
             imports,
-            NormalCompileAdmissionV1::PreparedSourceWithImports(
+            NormalCompileAdmissionV1::PreparedCompatibilitySourceWithImports(
                 NormalPreparedSourceCallerV1::MirMode,
             ),
         )
@@ -306,7 +307,7 @@ impl NormalCompileRequestV1 {
             PreparedNormalDefaultProgramRootV1::from_compatibility_origin(origin),
             source_file,
             imports,
-            NormalCompileAdmissionV1::PreparedSourceWithImports(
+            NormalCompileAdmissionV1::PreparedCompatibilitySourceWithImports(
                 NormalPreparedSourceCallerV1::LlvmSourceCompiler,
             ),
         )
@@ -456,6 +457,13 @@ impl NormalCompileRequestV1 {
             self.compile_target_capability,
         )
     }
+
+    fn uses_selected_published_admission(&self) -> bool {
+        matches!(
+            self.admission,
+            NormalCompileAdmissionV1::PreparedSourceWithImports(_)
+        )
+    }
 }
 
 struct NormalDefaultPublishedPipelineV1;
@@ -565,13 +573,20 @@ impl MirCompiler {
     ) -> Result<NormalPublishedCompileOutcome<R>, String> {
         super::validate_builder_operator_call_ingress_once_v1()
             .map_err(|error| error.to_string())?;
+        let selected_normal_admission = request.uses_selected_published_admission();
         NormalDefaultPublishedPipelineV1::compile(
             self,
             request,
             |completed| completed.into_artifact_parts(),
             |result, session, retained_root| {
-                let view = published_backend_view::PublishedMirBackendView::try_new(&result.module)
-                    .map_err(|error| error.to_string())?;
+                let view = if selected_normal_admission {
+                    published_backend_view::PublishedMirBackendView::try_new_selected_normal(
+                        &result.module,
+                    )
+                } else {
+                    published_backend_view::PublishedMirBackendView::try_new(&result.module)
+                }
+                .map_err(|error| error.to_string())?;
                 use published_backend_view::PublishedStaticMethodRouteV1;
                 match view.route() {
                     PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
