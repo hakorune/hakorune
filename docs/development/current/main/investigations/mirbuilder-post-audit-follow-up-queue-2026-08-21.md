@@ -88,20 +88,22 @@ second move/clone row.
 | `MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0` | **Revalidated 2026-09-11 (`c005e8ddb6`)**; existing corridor guard | normal typed corridor | guard-only assertions after normal admission closes | selected normal corridor guard passes with named mixed-shape admission and focused positive/negative evidence; no LegacyCallV0 retirement or compatibility claim |
 | `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` | **Design stop; strict/dev owner already closed 2026-09-11**; [owner-unit retirement card](./mir-call-compatibility-retire-r7-d0-2026-09-11.md) | existing M7-S compatibility owners | strict/dev JSON-v0 `boxcall` ingress is closed at the existing Stop; release compatibility remains live and shared | no second unshared production owner is currently available; keep `NoSafeSlice__NoRemainingUnsharedM7SOwner` until a caller or replacement can be isolated; no aggregate LegacyCallV0 deletion or second resolver |
 
-## 2026-09-10 callable Loop bridge findings (I0 active; follow-up rows queued)
+## 2026-09-10 callable Loop bridge findings (generic physical-demand D0 active; follow-up rows queued)
 
 The review of the source-bound callable Loop consumer found two correctness
 conditions that must be closed before a production normalizer/physical
 consumer is opened. They are not a new source authority and do not reopen the
 already-designed structural lease. The generic Loop source-facts/Ready edges
 remain caller-zero or explicitly parked. The selected session-entry I0 only
-establishes the canonical physical session; it does not claim a production
-normalizer/consumer cutover.
+establishes the canonical physical-session shape; its generic Ready consumer is
+held by the new physical-demand D0 until one builder-free operation/effect/
+continuation handoff is proven. No production normalizer/consumer cutover is
+claimed.
 
 | Row | Priority | Owner / terminal | Production caller | Acceptance |
 | --- | --- | --- | --- | --- |
 | `MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0` | High (**bridge accepted 2026-09-11; implementation follows the session-entry row**) | [`R0 design-stop card`](./mir-callable-loop-phi-value-binding-r0-2026-09-11.md), [`canonical-session bridge D0`](./mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11.md) | selected static-callable entry owns the session; `RawInvocationChildPortV1::lower_loop` is the scoped-capability consumer | use the existing `CanonicalSsaFunctionSessionV2`/`BindingSsaBuilderV1` as the sole physical owner; no plan-level adapter, name fallback, second issuer, or manual-ledger fixture; the bounded implementation starts with [`MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md) |
-| `MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0` | High (implementation active; DirectAccum edge connected, generic Ready bridge open) | [`session-entry I0 card`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md); existing callable function entry/session owner | selected static-callable entry opens and owns one session; `RawInvocationChildPortV1::lower_loop` consumes a short scoped capability | establish one unpublished `CanonicalSsaFunctionSessionV2` capability at callable entry, consume the logical Recipe once, and connect canonical block-scoped SSA/PHI/CFG/seal relations; valid source-backed graph has no manual ledger injection; 0/1/multiple iterations with After=`h_0` on zero path and next-header generation after a backedge, plus single-relation mutation negatives; no local-completion, backend/OBJ/EXE, fallback, or R7 claim |
+| `MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0` | High (DirectAccum edge connected; generic Ready bridge held by physical-demand D0) | [`session-entry I0 card`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md); [`generic physical-demand D0`](./mir-callable-loop-phi-generic-physical-demand-d0-2026-09-11.md) | selected static-callable entry will own one session; `RawInvocationChildPortV1::lower_loop` remains the scoped consumer | first prove one builder-free handoff from the generic Ready Recipe to `PreparedLoopOperationProgramV1`; then connect canonical block-scoped SSA/PHI/CFG/seal relations with no manual ledger injection; no local-completion, backend/OBJ/EXE, fallback, or R7 claim |
 | `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0` | High | `generic_loop_body/direct_associated.rs` + existing local completion publisher | future source-bound Loop normalizer | a body `local` publishes its completed `ValueId` into the callable ledger before the next source read; the positive fixture performs no manual pre-registration; missing publication has a named fail-fast terminal; 0/1/multiple-iteration cases cover initialization and update |
 | `MIR-CALLABLE-LOOP-GUARD-SELECTION-CLEANUP-R0` | Medium | `tools/checks/guard_rows.toml` and four Loop guards | guard profiles only | permanent guards assert structural invariants and remain valid when `current_execution_row` advances; temporary task selection is not encoded as four mutually exclusive current-row predicates; no successor-row guard proliferation |
 

@@ -1,5 +1,5 @@
 ---
-Status: accepted design; implementation active (DirectAccum first edge connected; generic Ready bridge remains open)
+Status: accepted design; implementation held by generic physical-demand D0 (DirectAccum first edge connected)
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0
 Parent: mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11
@@ -28,11 +28,14 @@ It routes the existing DirectAccum capability to
 `CanonicalDirectAccumSsaLowererV1`, whose function-owned session already owns
 Binding SSA, CFG, and the PHI transaction. This row does not add a second
 selector or a second Loop consumer. The generic Ready branch in
-`src/mir/builder/raw_loop_child_port.rs` remains the next bounded consumer.
+`src/mir/builder/raw_loop_child_port.rs` remains the next bounded consumer,
+but its builder-free physical-demand handoff is first specified by
+`mir-callable-loop-phi-generic-physical-demand-d0-2026-09-11.md`.
 
 The legacy `capture_static_box_method_pending_v1` path stays untouched. A
 private function-scope wrapper is still required when the generic Ready
-consumer is opened; it must lend a short-lived canonical body capability
+consumer is opened; after the physical-demand handoff is accepted, it must
+lend a short-lived canonical body capability
 without adding a session field to `RawInvocationChildPortV1`. The selected
 static-callable entry is the only session opener and owner for that follow-up;
 `RawInvocationChildPortV1::lower_loop` receives the scoped capability as a
