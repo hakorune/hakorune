@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0"
-current_execution_cohort = "mir_local_ssa_self_cache_reuse_i0"
-current_design_stop = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0 implementation: reuse the existing local_ssa_map after successful materialization; do not add a definition index or prepared semantic receipt."
-current_blocker_token = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0: self-cache only a successfully materialized in-block value, preserve strict stale checks, and keep legacy Call repair unchanged."
+current_execution_cohort = "mir_local_ssa_self_cache_reuse_i0_closeout"
+current_design_stop = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0 implementation is complete; closeout evidence and pointer synchronization are required before selecting the next row."
+current_blocker_token = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0 closeout: verify repeated receiver reuse, failure non-publication, source-size/guard health, and no new definition index or Call route."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0: focused repeated LocalSSA request parity; no definition index, fallback, retry, or semantic Call change."
+guard_followup = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0 closeout: focused repeated LocalSSA request parity; no definition index, fallback, retry, or semantic Call change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -41,12 +41,12 @@ rejection and `None` retains compatibility. Callable Loop PHI generation and
 local-completion remain queued pre-consumer rows; no generic caller-zero or
 whole-pipeline claim is made. The prepared-operand D0 census identified the
 typed issuers and mutation boundaries; a persistent definition index remains
-deferred. The current bounded implementation is
-`MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0`, which only reuses the existing cache after
-successful materialization.
+deferred. The bounded self-cache implementation is landed at
+`6383fe6a96`; it only reuses the existing cache after successful
+materialization and is now in closeout.
 """
 next_design_card = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0"
-next_execution_card = "MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0"
+next_execution_card = "none__closeout_local_ssa_self_cache_reuse_i0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -64,5 +64,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 is still open; M7-S write-only source/MIR/OBJ/EXE/reject evidence is closed; llvmlite remains explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA, selected-C, Dynamic JSON, emit-clone, debug-policy, lazy-payload, postprocess-walk, refresh-counter, and variable-read rows are closed with focused evidence. Method-handler policy split landed at a173e5456c; PHI analysis batch I0 landed at 7b7f6860c3 with invocation-local sharing only. Lookup facade remains ParkedSealed__NoExclusiveDeleteSet; next is MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop."
+  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA, selected-C, Dynamic JSON, emit-clone, debug-policy, lazy-payload, postprocess-walk, refresh-counter, and variable-read rows are closed with focused evidence. Method-handler policy split landed at a173e5456c; PHI analysis batch I0 landed at 7b7f6860c3 with invocation-local sharing only; LocalSSA self-cache I0 landed at 6383fe6a96. Lookup facade remains ParkedSealed__NoExclusiveDeleteSet; prepared-operand definition index remains deferred."
 ]

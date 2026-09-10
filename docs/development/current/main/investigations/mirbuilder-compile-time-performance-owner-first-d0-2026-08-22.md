@@ -682,6 +682,22 @@ This slice adds no persistent definition index, prepared semantic receipt, new
 Call route, or mutation policy.  The broader prepared-operand path remains a
 separate design concern until its explicit typed issuer proof is available.
 
+Closeout evidence for `MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0` (`6383fe6a96`):
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib temporal_witness  # 17 passed
+CARGO_BUILD_JOBS=4 cargo check --profile quick -p nyash-rust --lib    # passed
+rustfmt --edition 2021 --check src/mir/builder/ssa/local.rs \
+  src/mir/builder/calls/unified_emitter/temporal_witness_tests.rs      # passed
+bash tools/checks/current_state_pointer_guard.sh + git diff --check   # passed
+```
+
+The successful materialization result is now self-cached under its existing
+block/value/kind key, and the focused repeated-receiver test observes no new
+entry.  The cache is written only from `Ok`, so failure paths do not publish a
+false result.  No persistent definition index, prepared semantic receipt,
+Call route, PHI/Loop meaning, or timing gate was added.
+
 ## All-worker surface audit (2026-09-03)
 
 Six read-only workers audited the remaining MirBuilder surface after the

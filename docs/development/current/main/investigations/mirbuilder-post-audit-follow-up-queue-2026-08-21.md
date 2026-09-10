@@ -32,7 +32,7 @@ second health-repair task.
 | `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0` | Candidate cleanup | `mutable_accumulator.rs` test surface | after the active perf row; delete one body-identical test only with baseline inventory update |
 | `MIR-DEBUG-PAYLOAD-LAZY-P0` | Landed `21e85270ac` | unified-call observer ingress | existing DebugHub gate now owns the lazy callback; output/KPI parity evidence is recorded below |
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Design stop (2026-09-10) | `builder_emit.rs` + `ssa/local.rs` | fix the prepared/legacy boundary and enumerate every function mutation before any definition index or fast path is added |
-| `MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0` | Fast bounded | existing `local_ssa_map` + `ssa/local.rs` | after successful materialization, remember the returned in-block value under its own key; no new index, prepared receipt, or semantic Call route |
+| `MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0` | Landed `6383fe6a96` | existing `local_ssa_map` + `ssa/local.rs` | successful materialization now self-caches the returned in-block value; no new index, prepared receipt, or semantic Call route |
 | `MIR-PHI-ANALYSIS-BATCH-D0` | Landed `7b7f6860c3` | existing `PhiInputMaterializationAnalysis::new(func)` + PHI materialization/finalization | invocation-local CFG/definition/dominator batch is shared by self-carry and grouped-edge repair; no persistent cache or semantic PHI change |
 | `MIR-POSTPROCESS-WALK-CENSUS-D0` | Medium | semantic refresh + old/shared finish owners | count actual block/instruction visits and caller classes before one adjacent-wave fusion is considered |
 | `MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0` | Medium | existing `compile_timing` + semantic refresh owners | add observation-only stage/function/block/instruction counters after the D0 census; no fusion or cache |
@@ -860,6 +860,22 @@ Acceptance:
 The broader prepared-operand boundary remains a separate design concern.  It
 still requires an explicit typed issuer proof and a complete mutation census
 before any function-owned definition index is considered.
+
+Closeout evidence (`6383fe6a96`):
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib temporal_witness  # 17 passed
+CARGO_BUILD_JOBS=4 cargo check --profile quick -p nyash-rust --lib    # passed
+rustfmt --edition 2021 --check src/mir/builder/ssa/local.rs \
+  src/mir/builder/calls/unified_emitter/temporal_witness_tests.rs      # passed
+bash tools/checks/current_state_pointer_guard.sh + git diff --check   # passed
+```
+
+The focused mutation proves that a repeated receiver request returns the same
+`ValueId` without adding a second cache entry.  Failed materialization still
+publishes no entry because the self-cache is recorded only from an `Ok` result.
+No PHI/Loop/Call semantics, compatibility route, persistent index, or timing
+claim changed.  The larger prepared-operand/index design remains deferred.
 
 ## `MIR-PHI-ANALYSIS-BATCH-D0`
 
