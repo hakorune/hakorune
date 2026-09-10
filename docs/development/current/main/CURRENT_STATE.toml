@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0"
 current_execution_cohort = "mir_callable_loop_phi_canonical_session_bridge_d0"
-current_design_stop = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0: choose session-level consumption or a formally bounded plan-level mechanical adapter before implementing PHI value flow."
-current_blocker_token = "NoSafeSlice__CallableLoopRecipeComposerHasNoCanonicalSsaBridge"
-guard_followup = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0: keep R7 parked independently; do not add a second BindingRef/SSA issuer, name fallback, local adapter, or manual-ledger positive fixture."
+current_design_stop = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0: session-level consumption is accepted; implementation remains unopened at this taskization boundary."
+current_blocker_token = "ImplementationNotOpened__CallableLoopPhiSessionEntryI0"
+guard_followup = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0: next execution may open the session-entry I0; keep R7 parked independently and do not add a second BindingRef/SSA issuer, name fallback, local adapter, or manual-ledger positive fixture."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -23,12 +23,12 @@ The R7 compatibility-retirement family is parked at
 closed and the env route pair belongs to existing Task 3. The PHI value-flow
 contract is recorded in `docs/reference/mir/loop-recipe-contract.md:1227`,
 with CallableSemanticLoweringState as source authority and canonical Binding
-SSA/PHI as the sole physical issuer. `MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0`
-is now a design stop because the current Recipe composer has no safe bridge to
-that canonical session without creating a second issuer. The next design card
-compares session-level consumption with a formally bounded plan-level
-mechanical adapter; no code or OBJ/EXE claim is open. Local-completion and
-guard-cleanup remain queued after that bridge decision.
+SSA/PHI as the sole physical issuer. The bridge D0 accepted session-level
+consumption on 2026-09-11; its next bounded task is
+`MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0`, which is queued but not opened at
+this taskization boundary. The plan-level adapter remains parked. No code or
+OBJ/EXE claim is open. Local-completion and guard-cleanup remain queued after
+the session entry and PHI value-generation rows.
 """
 next_design_card = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11.md"

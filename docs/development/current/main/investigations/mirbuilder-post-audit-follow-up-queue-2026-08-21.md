@@ -99,14 +99,16 @@ when a named production consumer is chosen.
 
 | Row | Priority | Owner / terminal | Production caller | Acceptance |
 | --- | --- | --- | --- | --- |
-| `MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0` | High (**design stop 2026-09-11; `NoSafeSlice__CallableLoopRecipeComposerHasNoCanonicalSsaBridge`**) | [`R0 design-stop card`](./mir-callable-loop-phi-value-binding-r0-2026-09-11.md), next [`canonical-session bridge D0`](./mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11.md) | `RawInvocationChildPortV1::lower_loop` Ready branch (one existing production caller), current Recipe composer remains unchanged | first select a bridge to the existing canonical `CanonicalSsaFunctionSessionV2`/`BindingSsaBuilderV1` owner; compare session-level consumption with a formally bounded plan-level mechanical adapter; only after that prove condition/body/backedge/After generations for 0/1/multiple iterations and mutation-discriminating negatives; no name fallback, second issuer, or manual-ledger fixture |
+| `MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0` | High (**bridge accepted 2026-09-11; implementation follows the session-entry row**) | [`R0 design-stop card`](./mir-callable-loop-phi-value-binding-r0-2026-09-11.md), [`canonical-session bridge D0`](./mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11.md) | `RawInvocationChildPortV1::lower_loop` Ready branch (one existing production caller) | use the existing `CanonicalSsaFunctionSessionV2`/`BindingSsaBuilderV1` as the sole physical owner; no plan-level adapter, name fallback, second issuer, or manual-ledger fixture; the bounded implementation starts with [`MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md) |
+| `MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0` | High (accepted design; implementation not opened) | [`session-entry I0 card`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md); existing callable function entry/session owner | `RawInvocationChildPortV1::lower_loop` Ready branch after one capability handoff | establish one unpublished `CanonicalSsaFunctionSessionV2` capability at callable entry, consume the logical Recipe once, and connect canonical block-scoped SSA/PHI/CFG/seal relations; valid source-backed graph has no manual ledger injection; 0/1/multiple iterations plus single-relation mutation negatives; no local-completion, backend/OBJ/EXE, fallback, or R7 claim |
 | `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0` | High | `generic_loop_body/direct_associated.rs` + existing local completion publisher | future source-bound Loop normalizer | a body `local` publishes its completed `ValueId` into the callable ledger before the next source read; the positive fixture performs no manual pre-registration; missing publication has a named fail-fast terminal; 0/1/multiple-iteration cases cover initialization and update |
 | `MIR-CALLABLE-LOOP-GUARD-SELECTION-CLEANUP-R0` | Medium | `tools/checks/guard_rows.toml` and four Loop guards | guard profiles only | permanent guards assert structural invariants and remain valid when `current_execution_row` advances; temporary task selection is not encoded as four mutually exclusive current-row predicates; no successor-row guard proliferation |
 
 Required order when the Loop consumer is selected:
 
 ```text
-PHI/value-generation binding
+session capability handoff
+  -> PHI/value-generation binding
   -> local completion handoff
   -> guard selection cleanup
   -> normalizer/physical consumer design
@@ -119,10 +121,12 @@ fails on liveness does not close these rows. The positive side must include
 the same graph without manual ledger injection. No OBJ/EXE or production
 cutover claim is made by these queued rows.
 
-The PHI value-flow design audit is closed as a caller-zero D0 on 2026-09-10.
-It confirms that `CallableSemanticLoweringState` and composer maps are
-transport state, not a second PHI authority. The R0 implementation must reuse
-the existing source-bound schedule and canonical Binding SSA owner; it must not
+The PHI value-flow design audit is closed as an accepted D0 on 2026-09-11.
+The worker audit selected session-level consumption: `CallableSemanticLoweringState`
+and composer maps are transport state, not a second PHI authority, while
+`CanonicalSsaFunctionSessionV2` owns physical CFG/Binding SSA/PhiTxn. The I0
+implementation must reuse the existing source-bound schedule and canonical
+Binding SSA owner; it must not
 add a `BindingRef -> latest ValueId` issuer, name fallback, or new semantic
 receipt. The Loop source edge remains caller-zero until this R0 and the separate
 local-completion handoff row are both selected.

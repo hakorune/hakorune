@@ -1,5 +1,5 @@
 ---
-Status: design stop — no safe implementation slice at the selected Recipe seam
+Status: accepted design; bridge selected; implementation delegated to session-entry I0
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0
 Parent: docs/development/current/main/investigations/mirbuilder-post-audit-follow-up-queue-2026-08-21.md
@@ -14,11 +14,11 @@ Decision: do not connect the source-aware Recipe composer to Binding SSA by a lo
 Source authority + canonical issuer: CallableSemanticLoweringState and its verified source-bound schedule own BindingRef/role/site; BindingSsaBuilderV1 with MirBindingSsaAdapterV1 and PhiTxn owns physical ValueId/PHI issuance.
 Non-authority: variable_map, composer-local phi_bindings, carrier_step_phis, names, ValueId order, source "latest" values, and any fallback or retry.
 Fail-fast boundary: owner/site, BindingRef, generation, predecessor/edge, definition dominance, and seal must be checked by the selected canonical session before CFG/PHI effects; foreign, stale, missing, or unsealed evidence returns a named reject.
-Smallest next slice: design one bridge from the existing Ready Recipe to the existing `CanonicalSsaFunctionSessionV2`/`BindingSsaBuilderV1` path, or explicitly accept a plan-level mechanical adapter whose only output is `CorePhiInfo`; do not implement either until its issuer and block-seal contract is chosen.
+Smallest next slice: open the successor session-entry I0 to hand one existing `CanonicalSsaFunctionSessionV2` capability from callable entry to the Ready consumer; the plan-level adapter remains parked.
 Non-claims: no source port mutation, local-completion handoff, generic fallback deletion, backend/OBJ/EXE result, runtime change, or aggregate R7 LegacyCallV0 retirement.
 ```
 
-## Design-stop finding (2026-09-11)
+## Design-stop finding and resolution (2026-09-11)
 
 The selected Ready seam is not an implementation-safe Binding SSA boundary.
 `CallableLoopSourceExpressionPortV1` reads the request-local
@@ -31,7 +31,7 @@ issuer or an unowned plan adapter. Passing the current `variable_map`,
 `phi_bindings`, or the ledger's latest values through a new wrapper would
 violate this card's authority rule.
 
-This is a `NoSafeSlice` at the selected composer boundary, not evidence that
+This was a `NoSafeSlice` at the selected composer boundary, not evidence that
 the PHI contract is wrong. The value-flow contract is already recorded in
 `docs/reference/mir/loop-recipe-contract.md:1227`; the missing decision is the
 place where the Recipe's logical BindingRef/role rows become canonical
@@ -51,10 +51,13 @@ B. Keep the CorePlan composer and add a private mechanical plan adapter around
    must be proven before PlanLowerer consumes the plan.
 ```
 
-No code, fixture, fallback, production switch, or new semantic receipt is
-authorized by this stop. A targeted worker audit was cancelled after the
-selected seam proved to require this owner decision; that timeout is not
-negative evidence.
+The owner audit resolved the stop by selecting session-level consumption (A).
+The bounded implementation is delegated to
+`mir-callable-loop-phi-session-entry-i0-2026-09-11.md`; a plan-level adapter
+remains parked. No code, fixture, fallback, production switch, or new
+semantic receipt is authorized by this design card itself. The selected I0
+must establish the session capability before the separate local-completion row
+is opened. The earlier targeted-worker timeout was not used as evidence.
 
 ## Selected boundary
 

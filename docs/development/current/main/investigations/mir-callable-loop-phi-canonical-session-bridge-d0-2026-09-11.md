@@ -1,5 +1,5 @@
 ---
-Status: design stop — compare two existing-owner bridges before implementation
+Status: accepted design; implementation not opened
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0
 Parent: mir-callable-loop-phi-value-binding-r0-2026-09-11
@@ -85,6 +85,44 @@ proves that its adapter is mechanical and that no second PHI lifecycle exists.
 4. implement the selected bridge for one valid 0/1/multiple-iteration graph
 5. add mutation-discriminating generation/edge/publication negatives
 6. only then reopen local completion and guard-cleanup rows
+
+## Worker audit and accepted decision (2026-09-11)
+
+The read-only owner audit confirms **A — session-level consumption**. The
+existing `CanonicalSsaFunctionSessionV2` is the only safe physical bridge:
+it already owns `ResolvedSsaIdentityStateV2`, `BindingSsaBuilderV1`,
+`CanonicalCfgSessionV1`, and the single `PhiTxn`. The direct-accum and dynamic
+loop consumers provide the existing precedent for this ownership shape.
+
+The current composer cannot be made safe by passing its `variable_map`,
+`phi_bindings`, or latest values into a wrapper. `CorePhiInfo` has no
+`BindingRef`, predecessor witness, or seal/dominance proof, so a plan-level
+adapter would become a second physical PHI lifecycle. Option B is therefore
+parked until a separate owner contract proves it mechanical; it is not part of
+the next implementation.
+
+The selected bounded implementation slice is a capability handoff at the
+callable function entry:
+
+```text
+callable function entry
+  -> one CanonicalSsaFunctionSessionV2
+  -> RawInvocationChildPortV1::lower_loop Ready consumer
+  -> existing BindingSsaBuilderV1 / CanonicalCfgSessionV1 / PhiTxn
+```
+
+The Recipe remains a move-only logical product. It supplies the already-issued
+`BindingRefV1`/role/site rows; the session supplies block-scoped `ValueId`s,
+PHI creation, predecessor edges, and seals. The composer-local name maps,
+`CorePhiInfo`, and `latest` values are not allowed to issue or select physical
+SSA values.
+
+The implementation card is
+[`mir-callable-loop-phi-session-entry-i0-2026-09-11.md`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md).
+It is queued at this taskization boundary and is not opened by this design
+commit. Its first acceptance is a valid source-backed graph without manual
+ledger registration, followed by 0/1/multiple-iteration coverage and
+single-relation mutation negatives before any published physical effect.
 ```
 
 ## Acceptance and non-claims
