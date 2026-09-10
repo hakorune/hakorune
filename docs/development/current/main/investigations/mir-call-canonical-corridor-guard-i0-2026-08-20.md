@@ -1,6 +1,6 @@
 ---
-Status: ParkedSealed__NormalLegacyAdmissionMissing
-Date: 2026-08-20
+Status: Closed — bounded normal corridor revalidation
+Date: 2026-09-11
 Decision: MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: existing selected Dynamic LLVM boundary only
@@ -96,18 +96,14 @@ The smallest implementation is one narrow observation/structural extension
 to the existing guard, reusing the R7 manifest and existing owner anchors. It
 must not add a second guard family or a new semantic receipt.
 
-## 2026-09-11 NoSafeSlice disposition
+## 2026-09-11 NoSafeSlice disposition (superseded)
 
-The existing `PublishedMirBackendView::try_new` treats a
-`LegacyCallV0` carrying a typed `Global` callee as a published call row. A
-guard cannot prove typed-only normal consumption while that admission remains
-possible. Adding the guard first would require a production admission change,
-which violates this row's observation-only boundary. The row is therefore
-`ParkedSealed__NormalLegacyAdmissionMissing` until
-`MIR-CALL-NORMAL-TYPED-ADMISSION-D0` supplies a named pre-artifact terminal.
-
-Reopen when the admission row lands with positive typed-only and negative
-mixed/legacy fixtures, or when a new normal caller bypasses that admission.
+The prior parked disposition was valid before normal typed admission had a
+named terminal. It is superseded by `MIR-CALL-NORMAL-TYPED-ADMISSION-D0`,
+landed at `c005e8ddb6`, which supplies the selected-corridor
+`SelectedNormalUsesLegacyCallV0` reject and mutation-discriminating focused
+evidence. The generic compatibility view and legacy-only source-backed route
+remain outside this guard's selected corridor.
 
 ## Historical Dynamic guard evidence
 
@@ -135,3 +131,19 @@ the 25 legacy-target mentions from the D0 census. JSON-v0/VM compatibility,
 raw/compatibility lanes, canonical Script transport, and the `Option<Callee>`
 retirement remain separate prerequisites. No next execution row is opened by
 this guard-only closeout.
+
+## 2026-09-11 revalidation evidence
+
+The existing guard was rerun after the selected admission change:
+
+```text
+bash tools/checks/mir_call_canonical_corridor_guard.sh
+[mir-call-canonical-corridor-guard] ok
+
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib 'selected_normal_admission_'
+3 passed
+```
+
+The guard remains observation-only. This closes the selected normal corridor
+revalidation and makes no claim about LegacyCallV0 retirement, compatibility
+routes, Loop PHI, or OBJ/EXE production.
