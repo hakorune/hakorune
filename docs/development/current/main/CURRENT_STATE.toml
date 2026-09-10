@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0"
-current_execution_cohort = "m7s_pure_first_legacy_op_stop_i0_closeout"
+current_execution_row = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0"
+current_execution_cohort = "selected_dynamic_canonical_json_egress_stop_closeout"
 current_design_stop = "none"
-current_blocker_token = "MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0-CLOSEOUT: record the strict selected-profile stop, named-reject proof, generic compatibility reachability, focused C/Static V2/smoke evidence, and pointer/diff checks; next selection remains separate from this closeout."
+current_blocker_token = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0-CLOSEOUT: record the explicit CanonicalV1 selected Dynamic egress, forced-selector focused evidence, scrubbed-metadata rejection, and pointer/diff checks; next selection remains separate from this closeout."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0 closeout: invocation-local Boundary/Static V2 profiles reject instruction op=call before lowering with the named terminal; generic export retains its compatibility terminal; nested metadata call text is accepted. bash tools/build_hako_llvmc_ffi.sh, published_rows_preartifact_test.c, static_v2_session_test.py, llvm_hako_aot_ffi_admission_smoke.sh, diff check, and pointer guard pass. No generic caller-zero or OBJ/EXE claim."
+guard_followup = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0 closeout: selected Dynamic export uses explicit CanonicalV1; forced compatibility selectors cannot re-enter V0. The two selected-candidate focused tests pass 1/1 each under NYASH_JSON_SCHEMA_V1=0, NYASH_MIR_UNIFIED_CALL=0, HAKO_MIR_BUILDER_METHODIZE=1; pointer guard and diff check pass. Generic harness remains compatibility-owned; no generic caller-zero or OBJ/EXE claim."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -36,15 +36,15 @@ negative-test proof are closed at `0cd9ccec70`, `7a31b48b75`, and `5a117a96a2`
 with named-reject mutation evidence; do not duplicate that row. The callable
 Loop old-edge census is `ParkedSealed__NoCallableNoneCaller`. LocalSSA
 materialization BoxShape is closed at `473c006604` with unchanged body hash,
-focused parity suites, cargo check, and line/pointer guards. The accepted slice `MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0` is closed in the
-current C transport: an invocation-local profile makes Boundary pure-first and
-typed Static V2 reject legacy instruction `op=call` before dispatch with a
-named terminal, while the public generic export remains compatibility-owned.
-The focused C proof also covers generic reachability and nested metadata text;
-no generic caller-zero or OBJ/EXE result claim is made.
+focused parity suites, cargo check, and line/pointer guards. The selected C
+pure-first stop is closed at `907550c78b`; the selected Dynamic JSON egress is
+closed at `e2bb3b8b91` and uses explicit CanonicalV1 even under forced
+compatibility selectors. Its two focused candidate tests pass 1/1 each; the
+generic harness remains compatibility-owned. No generic caller-zero, backend
+parity, or whole-pipeline OBJ/EXE claim is made.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0"
+next_execution_card = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -62,5 +62,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA materialization BoxShape I0 closed at 473c006604; focused Rust suites, cargo check, line budgets, pointer, and diff checks are green."
+  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA materialization BoxShape I0 closed at 473c006604; selected C pure-first stop closed at 907550c78b; selected Dynamic JSON egress pinned to CanonicalV1 at e2bb3b8b91 with forced-selector tests green. No generic caller-zero or whole-pipeline claim."
 ]

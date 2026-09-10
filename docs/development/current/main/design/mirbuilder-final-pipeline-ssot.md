@@ -765,20 +765,18 @@ deletion is authorized. The exclusive delete-set is the one ambient-profile
 call in the selected Dynamic exporter and its test expectation; generic
 harness emitters remain compatibility owners.
 
-Closeout evidence (`26e59acaef`): the M7-S guard applies the source-size ceiling to its
-implementation owners and keeps the final-pipeline design SSOT as the
-canonical long-form design document. The pointer guard separately limits the
-rolling workstream to 1,000 lines and passes. On this design pointer,
-`bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh` was
-executed after removing the incorrect final-pipeline size assertion. This is
-documentation/
-guard debt; the parent row was unsupported by that guard, so it is not a
-same-command parent-green regression or a reproduced parent failure.
-No new guard or receipt was added. The historical ingress-schema guard now
-names the retained loader function; its default phase remains tied to its
-older card and is not this row's acceptance gate. The full repository
-`cargo fmt --check` still reports pre-existing formatting drift outside the
-changed owners; the touched Rust files pass targeted rustfmt checking.
+Closeout evidence (`e2bb3b8b91`, verified 2026-09-10):
+`emit_mir_json_for_selected_dynamic_candidate` now calls the existing
+`build_mir_json_root_with_profile(..., CanonicalV1)` issuer directly, so forced
+`NYASH_JSON_SCHEMA_V1=0`, `NYASH_MIR_UNIFIED_CALL=0`, and
+`HAKO_MIR_BUILDER_METHODIZE=1` selectors cannot re-enter CompatibilityV0 on
+the selected Dynamic path. The existing focused tests
+`selected_candidate_export_uses_the_supplied_module_without_refresh_clone` and
+`selected_candidate_export_rejects_scrubbed_metadata_clone` each ran `1/1`
+under that forced environment and passed. `bash
+tools/checks/current_state_pointer_guard.sh` and `git diff --check` pass. The
+generic harness exporters remain compatibility-owned; this closeout claims no
+generic caller-zero, backend parity, or new OBJ/EXE result.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
