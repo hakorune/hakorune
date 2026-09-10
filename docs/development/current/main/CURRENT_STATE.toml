@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0"
-current_execution_cohort = "mir_callable_loop_phi_session_entry_i0"
-current_design_stop = "MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0: NoSafeSlice__GenericRecipeLacksPhysicalDemand; PlanBuildOutcome has no recipe_contract and the claimed GenericLoopV1 Recipe has no operation/effect/continuation handoff. Keep the old composer quarantined until the physical-demand owner is fixed."
+current_execution_row = "MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0"
+current_execution_cohort = "mir_callable_loop_phi_generic_semantic_demand_d0"
+current_design_stop = "MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0: NoSafeSlice__GenericRecipeLacksPhysicalDemand remains until one bounded source-bound producer co-seals Recipe/Core/operation/effect/After; keep the old composer quarantined."
 current_blocker_token = "NoSafeSlice__GenericRecipeLacksPhysicalDemand"
-guard_followup = "MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0: audit and either reuse an existing builder-free operation/effect/continuation product or record NoSafeSlice; do not add a second BindingRef/SSA issuer, name fallback, plan adapter, raw-port session field, or manual-ledger positive fixture."
+guard_followup = "MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0: choose one bounded source-bound operation/effect/continuation issuer or retain NoSafeSlice; do not add a second BindingRef/SSA issuer, name fallback, plan adapter, raw-port session field, broad GenericLoopV1 promotion, or manual-ledger positive fixture."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -14,31 +14,31 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-physical-demand-d0-2026-09-11.md"
-latest_card = "mir-callable-loop-phi-generic-physical-demand-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-physical-demand-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md"
+latest_card = "mir-callable-loop-phi-generic-semantic-demand-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md"
 latest_card_summary = """
 The R7 compatibility-retirement family is parked at
 `NoSafeSlice__NoRemainingUnsharedM7SOwner`; its strict/dev boxcall Stop is
 closed and the env route pair belongs to existing Task 3. The PHI value-flow
 contract is recorded in `docs/reference/mir/loop-recipe-contract.md:1227`,
 with CallableSemanticLoweringState as source authority and canonical Binding
-SSA/PHI as the sole physical issuer. The accepted PHI bridge now has a design
-stop at `MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0`. Its selected static
-callable DirectAccum branch already reuses the existing
-`CanonicalDirectAccumSsaLowererV1` session owner and preserves the catalog
-physical symbol. The generic Ready Recipe has no operation/effect/continuation
-handoff to the common physicalizer (`PlanBuildOutcome.recipe_contract` is
-currently `None`); this is recorded as
-`NoSafeSlice__GenericRecipeLacksPhysicalDemand`, and the old composer remains
-quarantined until the physical-demand owner is fixed. The plan-level adapter
-and all compatibility callers remain parked. No OBJ/EXE claim is open.
-Local-completion and guard-cleanup remain queued after the physical-demand
-decision and session entry.
+SSA/PHI as the sole physical issuer. The accepted PHI bridge now has a
+successor design stop at
+`MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0`. The existing-product audit
+refuted direct reuse: the Generic Ready Recipe has no complete
+operation/effect/continuation handoff to the common physicalizer
+(`PlanBuildOutcome.recipe_contract` is structural and normally `None`). A
+bounded straight-line-I64 source cohort and one source-bound demand issuer are
+now the only design candidate; the old composer remains quarantined until that
+owner is accepted. The selected static callable DirectAccum branch already
+reuses `CanonicalDirectAccumSsaLowererV1`; all compatibility callers remain
+parked. No OBJ/EXE claim is open. Local-completion and guard-cleanup remain
+queued after the physical-demand decision and session entry.
 """
-next_design_card = "MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-physical-demand-d0-2026-09-11.md"
-next_execution_card = "none__awaiting-generic-physical-demand-decision"
+next_design_card = "MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md"
+next_execution_card = "none__awaiting-generic-semantic-demand-decision"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

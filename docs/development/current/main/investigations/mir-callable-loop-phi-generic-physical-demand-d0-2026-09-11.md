@@ -1,5 +1,5 @@
 ---
-Status: design stop; implementation not opened
+Status: closed as NoSafeSlice; successor semantic-demand design selected
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0
 Parent: mir-callable-loop-phi-session-entry-i0-2026-09-11
@@ -87,6 +87,39 @@ accepted as a new owner before implementation. The Builder must not infer the
 operations from `GenericLoopV1Facts` or call the legacy Composer to obtain
 them.
 
+## Audit conclusion (2026-09-11)
+
+The requested reuse audit is now complete. There is no builder-free projection
+from the current `CallableGenericLoopV1SemanticRecipeV1` to the common demand.
+The source Recipe retains `CanonicalLoopFacts`/`GenericLoopV1Facts` and the
+callable pre-effect BindingRef rows, but it has no complete operation item
+inventory, value graph, source effect anchors, placement rows, or JoinSig After
+binding. `PlanBuildOutcome.recipe_contract` is structural and is normally
+`None`; it cannot supply those missing relations. The existing Callable
+single-loop product and Generic G0 product are different source owners and
+cannot be paired with this Recipe.
+
+The missing owner is therefore a source-bound semantic-demand producer for a
+bounded GenericLoopV1 cohort. It must consume the claimed Recipe once, issue
+the existing neutral Core/operation-effect/continuation products in one
+lineage, and then call the existing `VerifiedLoopOperationPhysicalDemandV1`
+boundary. The next design card names that producer and its first admissible
+shape; no implementation is opened by this card.
+
+## Finite state
+
+| State | Owner | Effect | Allowed next step |
+| --- | --- | ---: | --- |
+| `RecipeReady` | `CallableGenericLoopV1SemanticRecipeIssuerV1` | 0 | one source-bound demand audit/claim |
+| `DemandUnavailable` | physical-demand D0 | 0 | terminal `NoSafeSlice__GenericRecipeLacksPhysicalDemand`; open successor design |
+| `DemandReuse` | physical-demand D0 | 0 | only if complete operation/effect/continuation already exists; not observed |
+| `DemandProjectionCandidate` | successor semantic-demand D0 | 0 | accepted bounded producer decision |
+| `PreparedOperation` | existing neutral physical-demand owner | 0 | later canonical session consumer |
+| `RejectedBeforeEffect` | named relation verifier | 0 | terminal discard; no old-composer retry |
+
+No state in this row opens a Builder session, emits PHI/CFG, or activates the
+legacy Composer. `DemandUnavailable` is the current state.
+
 ## Ordered tasks
 
 1. Inventory the exact fields exposed by `CallableGenericLoopV1SemanticRecipeV1`,
@@ -96,10 +129,11 @@ them.
    `PreparedLoopOperationProgramV1`. The proof must preserve Recipe order,
    operation placement, BindingRef identity, continuation/After binding, and
    owner/frame/site equality without AST reparse or name lookup.
-3. If Reuse is proven, add one private compiler-side handoff and a named
-   reject for every missing relation. If not, record `NoSafeSlice` with the
-   missing owner and reopen a bounded design card; do not implement a partial
-   projection.
+3. Reuse is refuted by the audit above. Keep the named
+   `NoSafeSlice__GenericRecipeLacksPhysicalDemand` terminal and open
+   [`MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0`](./mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md)
+   for one bounded source-shape producer; do not implement a partial
+   projection here.
 4. Only after the handoff is accepted, reopen I0's session consumer: one
    function-scoped `CanonicalSsaFunctionSessionV2`, canonical header/body/
    backedge/After values, and explicit discard on failure.
