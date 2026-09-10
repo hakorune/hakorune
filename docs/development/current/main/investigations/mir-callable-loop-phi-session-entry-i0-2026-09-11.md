@@ -33,7 +33,10 @@ selector or a second Loop consumer. The generic Ready branch in
 The legacy `capture_static_box_method_pending_v1` path stays untouched. A
 private function-scope wrapper is still required when the generic Ready
 consumer is opened; it must lend a short-lived canonical body capability
-without adding a session field to `RawInvocationChildPortV1`.
+without adding a session field to `RawInvocationChildPortV1`. The selected
+static-callable entry is the only session opener and owner for that follow-up;
+`RawInvocationChildPortV1::lower_loop` receives the scoped capability as a
+consumer and must never construct, retain, or finish a session by itself.
 
 ## Six-line brief
 
@@ -85,10 +88,10 @@ the parent's.
    unpublished-session discard path. Do not add a local map or adapter.
 3. Split the selected static-callable canonical entry's body preparation from
    legacy capture, then add the private function-scope wrapper in
-   `canonical_callable_session_scope.rs`. It owns one session and lends a
-   short capability; do not add a session field or new lifetime parameter to
-   the raw port. Keep source relation rows unchanged and consume the Recipe
-   once.
+   `canonical_callable_session_scope.rs`. The outer entry owns one session
+   and lends a short capability to `lower_loop`; do not add a session field or
+   new lifetime parameter to the raw port. Keep source relation rows
+   unchanged and consume the Recipe once.
 4. Pass the scoped body port to the located invocation body driver and connect
    header condition, body read/rebind, backedge, and false-edge After to the
    session's canonical block-scoped reads and seals.
