@@ -1,5 +1,5 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, PHI analysis batch I0, and LocalSSA self-cache reuse I0 closed; C invocation-driver arity repair R0 active; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; prepared-operand D0 remains deferred
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, PHI analysis batch I0, LocalSSA self-cache reuse I0, and C invocation-driver arity repair R0 closed; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; prepared-operand D0 remains deferred
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
@@ -7,7 +7,7 @@ Parent: MIRBUILDER-FINAL-PIPELINE-v1
 NextCard: MIR-C-INVOCATION-DRIVER-ARITY-REPAIR-R0
 ---
 
-## `MIR-C-INVOCATION-DRIVER-ARITY-REPAIR-R0` fast row (2026-09-10)
+## `MIR-C-INVOCATION-DRIVER-ARITY-REPAIR-R0` closeout (2026-09-10)
 
 Decision: repair the three focused C test drivers to call the existing
 four-argument `hako_llvmc_invocation_init` owner. The fourth argument is the
@@ -29,6 +29,12 @@ fallback, receipt, or guard is introduced.
 This row is a mechanical prerequisite before selecting the queued Loop PHI
 consumer rows. It does not claim Loop production reachability, OBJ/EXE
 execution, or a compiler-speed improvement.
+
+Implementation evidence: `d5658dc759` passes direct compilation of all three
+focused drivers with the existing C/yyjson sources. The static V2 driver uses
+`HAKO_LLVMC_INGRESS_STATIC_V2`; the allocation-capture and named-query drivers
+use `HAKO_LLVMC_INGRESS_GENERIC_COMPAT`. No other C source or invocation
+semantics changed.
 
 # MIRBuilder compile-time performance owner-first D0
 
