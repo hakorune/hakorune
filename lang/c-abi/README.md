@@ -304,6 +304,13 @@ Lifecycle invocation ownership
   existing physical parser preartifact C test and `published_lifecycle_v4_execution_test.py`
   with the three JSON paths captured by the Rust physical_program_json tests
   (`/tmp/hako-issued-physical-v2.json`, and `...-bool-0.json`, `...-bool-1.json`).
+- Receiver identity R0 reproduction: after rebuilding the C shim, compile
+  `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` against
+  `target/release/libhako_llvmc_ffi.so`. The fixture first accepts the same-typed
+  receiver with valid normal/fault cleanup, then mutates only `receiver_object`
+  and requires the named `published-lifecycle-v4/receiver-object-mismatch`
+  rejection with no artifact. This proves V4 test discrimination; it does not
+  add a second identity verifier or an OBJ/EXE claim.
   The Python test links the actual lifecycle kernel; temporary LLVM mutation
   probes only test dynamic ABI rejection and grant no new source acceptance.
   `published_mir_object_tests.rs` separately links the same runtime probe against

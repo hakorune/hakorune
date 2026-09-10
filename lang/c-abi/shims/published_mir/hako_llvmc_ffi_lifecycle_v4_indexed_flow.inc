@@ -1,5 +1,6 @@
 /* Physical obligations on supplied DAG edges. Live storage is not a source Home. */
 enum { LV4_INDEXED_SAFE_MUTEX = 1, LV4_LIVE = 1, LV4_TRANSFER_BASE = 2 };
+enum { LV4_FLOW_RECEIVER_MISMATCH = -2 };
 
 static int lv4_indexed_live(hako_lv4_function_index* fn, uint32_t id, int kind,
     const uint16_t* state, uint32_t object, int check_object) {
@@ -60,6 +61,7 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
   yyjson_val* block = yyjson_arr_get(blocks, bi);
   yyjson_val* term = lv4_term(block);
   size_t count = fn->block_count;
+  int next_result;
   if (in->measurement) in->measurement->v4_flow_blocks++;
   uint16_t state[256], normal[256];
   if (active[bi]) return 0;
@@ -93,11 +95,13 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
       if (fi || faulted || !target || target >= in->index_count ||
           !lv4_is(callee, "role", "ordinary_i64") ||
           (callee_has_receiver != (receiver && !yyjson_is_null(receiver))) ||
-          (callee_has_receiver && (!yyjson_is_uint(receiver) ||
-              !in->index[target].receiver_object_set ||
-              !lv4_indexed_live(fn, lv4_u(call, "receiver"), LV4_HANDLE, state,
-                  in->index[target].receiver_object, 1))) ||
           yyjson_arr_size(args) != yyjson_arr_size(yyjson_obj_get(in->index[target].function, "params"))) return 0;
+      if (callee_has_receiver) {
+        if (!yyjson_is_uint(receiver) || !in->index[target].receiver_object_set) return 0;
+        if (!lv4_indexed_live(fn, lv4_u(call, "receiver"), LV4_HANDLE, state,
+                in->index[target].receiver_object, 1))
+          return LV4_FLOW_RECEIVER_MISMATCH;
+      }
       for (size_t i = 0; i < yyjson_arr_size(args); i++) {
         yyjson_val* arg = yyjson_arr_get(args, i);
         hako_lv4_value* value = lv4_index_value(fn, lv4_u(arg, "value"));
@@ -170,9 +174,11 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
   for (size_t ei = 0; ei < yyjson_arr_size(edges); ei++) {
     yyjson_val* edge = yyjson_arr_get(edges, ei);
     hako_lv4_block* next = lv4_index_block(fn, lv4_u(edge, "target"));
-    if (!next || !yyjson_is_null(yyjson_obj_get(edge, "args")) ||
-        !lv4_indexed_flow(in, fi, next->ordinal, ei ? state : normal,
-            ei ? failed : faulted, saved, faults, active)) return 0;
+    if (!next || !yyjson_is_null(yyjson_obj_get(edge, "args"))) return 0;
+    next_result = lv4_indexed_flow(in, fi, next->ordinal,
+        ei ? state : normal, ei ? failed : faulted, saved, faults, active);
+    if (next_result == LV4_FLOW_RECEIVER_MISMATCH) return next_result;
+    if (!next_result) return 0;
   }
   active[bi] = 0;
   return 1;
@@ -232,6 +238,10 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
     uint16_t* saved = calloc(count * count, sizeof(*saved));
     if (!saved) return 0;
     int valid = lv4_indexed_flow(in, fi, entry->ordinal, initial, 0, saved, faults, active);
+    if (valid == LV4_FLOW_RECEIVER_MISMATCH) {
+      free(saved);
+      return valid;
+    }
     for (size_t bi = 0; valid && bi < count; bi++) if (faults[bi] < 0) valid = 0;
     free(saved);
     if (!valid) return 0;

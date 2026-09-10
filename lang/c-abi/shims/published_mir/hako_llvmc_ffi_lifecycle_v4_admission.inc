@@ -69,10 +69,17 @@ static size_t lv4_value_budget(yyjson_val* fn) {
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc"
 
 static int lv4_admit(yyjson_val* root, hako_lv4_input* out, char** error) {
+  int result;
   out->root = root; out->functions = yyjson_obj_get(root, "functions");
   out->native = yyjson_obj_get(root, "runtime_requirements") != NULL;
   out->result_site = yyjson_get_uint(yyjson_obj_get(root, "process_result_site"));
   out->profile = lv4_u(root, "storage_profile");
-  if (out->native ? lv4_native_admit(out) : lv4_indexed_admit(out)) return 0;
+  result = out->native ? lv4_native_admit(out) : lv4_indexed_admit(out);
+  if (result) {
+    if (result == LV4_FLOW_RECEIVER_MISMATCH)
+      return set_err_owned(error,
+          "[freeze:contract][published-lifecycle-v4/receiver-object-mismatch]");
+    return 0;
+  }
   return set_err_owned(error, "[freeze:contract][published-lifecycle-v4/unsupported-cohort]");
 }

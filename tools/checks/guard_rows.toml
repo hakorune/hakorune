@@ -227,6 +227,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mir_artifact_schema_selector_i0_guard.sh"]
 
 [[rows]]
+id = "mirbuilder-physical-receiver-identity-r0"
+label = "MirBuilder physical receiver identity R0 guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mirbuilder_physical_receiver_identity_r0_guard.sh"]
+
+[[rows]]
 id = "force-hv1-caller-lifecycle"
 label = "Force-hv1 body-derived caller lifecycle guard"
 profiles = ["pilot", "quick-static"]
