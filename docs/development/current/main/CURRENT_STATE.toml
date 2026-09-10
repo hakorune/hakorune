@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0"
-current_execution_cohort = "mir_callable_loop_phi_value_binding_r0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0: connect the existing source schedule to the canonical Binding SSA/PHI owner; named generation/edge rejects must occur before Builder effects."
-guard_followup = "MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0: keep R7 parked independently; do not add a second BindingRef issuer, name fallback, or manual-ledger positive fixture."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0"
+current_execution_cohort = "mir_callable_loop_phi_canonical_session_bridge_d0"
+current_design_stop = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0: choose session-level consumption or a formally bounded plan-level mechanical adapter before implementing PHI value flow."
+current_blocker_token = "NoSafeSlice__CallableLoopRecipeComposerHasNoCanonicalSsaBridge"
+guard_followup = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0: keep R7 parked independently; do not add a second BindingRef/SSA issuer, name fallback, local adapter, or manual-ledger positive fixture."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -14,23 +14,26 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-callable-loop-phi-value-binding-r0-2026-09-11.md"
-latest_card = "mir-callable-loop-phi-value-binding-r0"
-latest_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-value-binding-r0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11.md"
+latest_card = "mir-callable-loop-phi-canonical-session-bridge-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11.md"
 latest_card_summary = """
 The R7 compatibility-retirement family is parked at
 `NoSafeSlice__NoRemainingUnsharedM7SOwner`; its strict/dev boxcall Stop is
 closed and the env route pair belongs to existing Task 3. The PHI value-flow
 contract is recorded in `docs/reference/mir/loop-recipe-contract.md:1227`,
 with CallableSemanticLoweringState as source authority and canonical Binding
-SSA/PHI as the sole physical issuer. The selected
-`MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0` uses the existing raw Ready production
-edge and has no new semantic issuer, fallback, or OBJ/EXE claim. The following
-local-completion and guard-cleanup rows remain queued in their recorded order.
+SSA/PHI as the sole physical issuer. `MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0`
+is now a design stop because the current Recipe composer has no safe bridge to
+that canonical session without creating a second issuer. The next design card
+compares session-level consumption with a formally bounded plan-level
+mechanical adapter; no code or OBJ/EXE claim is open. Local-completion and
+guard-cleanup remain queued after that bridge decision.
 """
-next_design_card = "none"
-next_execution_card = "MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-value-binding-r0-2026-09-11.md"
+next_design_card = "MIR-CALLABLE-LOOP-PHI-CANONICAL-SESSION-BRIDGE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

@@ -1,5 +1,5 @@
 ---
-Status: implementation ready
+Status: design stop — no safe implementation slice at the selected Recipe seam
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0
 Parent: docs/development/current/main/investigations/mirbuilder-post-audit-follow-up-queue-2026-08-21.md
@@ -10,13 +10,51 @@ Parent: docs/development/current/main/investigations/mirbuilder-post-audit-follo
 ## Six-line brief
 
 ```text
-Decision: connect the first source-backed callable Loop consumer to the existing canonical Binding SSA/PHI owner; preserve the current Recipe and physical skeleton.
+Decision: do not connect the source-aware Recipe composer to Binding SSA by a local adapter; first choose a canonical-session bridge that keeps one PHI issuer.
 Source authority + canonical issuer: CallableSemanticLoweringState and its verified source-bound schedule own BindingRef/role/site; BindingSsaBuilderV1 with MirBindingSsaAdapterV1 and PhiTxn owns physical ValueId/PHI issuance.
 Non-authority: variable_map, composer-local phi_bindings, carrier_step_phis, names, ValueId order, source "latest" values, and any fallback or retry.
-Fail-fast boundary: owner/site, BindingRef, generation, predecessor/edge, definition dominance, and seal are checked before CFG/PHI Builder effects; foreign, stale, missing, or unsealed evidence returns a named reject.
-Smallest next slice: the existing RawInvocationChildPortV1 Ready edge -> CallableGenericLoopV1PhysicalAdapterV1 -> source-port composer, replacing the current carrier-local PHI issuance with the canonical owner relation one time.
-Non-claims: no new Facts/Recipe issuer, local-completion handoff, generic fallback deletion, backend/OBJ/EXE result, runtime change, or aggregate R7 LegacyCallV0 retirement.
+Fail-fast boundary: owner/site, BindingRef, generation, predecessor/edge, definition dominance, and seal must be checked by the selected canonical session before CFG/PHI effects; foreign, stale, missing, or unsealed evidence returns a named reject.
+Smallest next slice: design one bridge from the existing Ready Recipe to the existing `CanonicalSsaFunctionSessionV2`/`BindingSsaBuilderV1` path, or explicitly accept a plan-level mechanical adapter whose only output is `CorePhiInfo`; do not implement either until its issuer and block-seal contract is chosen.
+Non-claims: no source port mutation, local-completion handoff, generic fallback deletion, backend/OBJ/EXE result, runtime change, or aggregate R7 LegacyCallV0 retirement.
 ```
+
+## Design-stop finding (2026-09-11)
+
+The selected Ready seam is not an implementation-safe Binding SSA boundary.
+`CallableLoopSourceExpressionPortV1` reads the request-local
+`CallableSemanticLoweringState`, while `RecipeComposer` allocates carrier
+`ValueId`s and records name-keyed `CorePhiInfo`. The existing canonical owner
+(`CanonicalSsaFunctionSessionV2` with `BindingSsaBuilderV1`,
+`CanonicalCfgSessionV1`, and one `PhiTxn`) operates while emitting a real CFG
+and therefore cannot be borrowed by the composer without a new physical
+issuer or an unowned plan adapter. Passing the current `variable_map`,
+`phi_bindings`, or the ledger's latest values through a new wrapper would
+violate this card's authority rule.
+
+This is a `NoSafeSlice` at the selected composer boundary, not evidence that
+the PHI contract is wrong. The value-flow contract is already recorded in
+`docs/reference/mir/loop-recipe-contract.md:1227`; the missing decision is the
+place where the Recipe's logical BindingRef/role rows become canonical
+block-scoped SSA reads and seals.
+
+The next design card must compare these two bounded choices against existing
+owners and caller/delete-set evidence:
+
+```text
+A. Move this source-backed Loop consumer into the existing
+   CanonicalSsaFunctionSessionV2 path, keeping Recipe as logical input and
+   letting the session own CFG/Binding SSA/PhiTxn directly.
+
+B. Keep the CorePlan composer and add a private mechanical plan adapter around
+   the existing BindingSsaBuilderV1 that emits only CorePhiInfo; it may not
+   mint a second BindingRef/SSA authority, and its block-seal/dominance witness
+   must be proven before PlanLowerer consumes the plan.
+```
+
+No code, fixture, fallback, production switch, or new semantic receipt is
+authorized by this stop. A targeted worker audit was cancelled after the
+selected seam proved to require this owner decision; that timeout is not
+negative evidence.
 
 ## Selected boundary
 
