@@ -61,6 +61,32 @@ The old composer remains a compatibility consumer while this row is stopped.
 It cannot be described as canonical physical evidence and cannot be used to
 close the session-entry acceptance row.
 
+## Initial audit result (2026-09-11)
+
+The existing products do not yet form the required handoff. `PlanBuildOutcome`
+currently carries `facts` plus `recipe_contract`, and its builder-free outcome
+constructor sets `recipe_contract` to `None`. The claimed
+`CallableGenericLoopV1SemanticRecipeV1` retains the source relation view and
+`CanonicalLoopFacts`/`GenericLoopV1Facts`; it does not retain a
+`VerifiedLoopOperationEffectProductV1`, `VerifiedLoopContinuationContractV1`,
+or `PreparedLoopOperationProgramV1`. The common physicalizer therefore cannot
+consume this Recipe without either re-running source lowering or introducing a
+new operation/effect issuer.
+
+This is the current named state:
+
+```text
+NoSafeSlice__GenericRecipeLacksPhysicalDemand
+```
+
+The next design decision must name the owner of that missing physical demand.
+It may reuse an already-issued operation/effect/continuation product if one is
+found in the compiler boundary. If no such product exists, a compiler-side
+projection must be designed as a single source-bound issuance step and must be
+accepted as a new owner before implementation. The Builder must not infer the
+operations from `GenericLoopV1Facts` or call the legacy Composer to obtain
+them.
+
 ## Ordered tasks
 
 1. Inventory the exact fields exposed by `CallableGenericLoopV1SemanticRecipeV1`,
@@ -89,4 +115,3 @@ set. The selected old composer path may be deleted only after the new consumer
 is production-connected and the generic Loop acceptance matrix passes. No
 CorePhiInfo, common PlanLowerer, dynamic/non-callable Loop route, or
 compatibility reader is in this delete set.
-

@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0"
 current_execution_cohort = "mir_callable_loop_phi_session_entry_i0"
-current_design_stop = "MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0: the generic Ready Recipe has no proven builder-free handoff to PreparedLoopOperationProgramV1; keep the old composer quarantined until the physical-demand owner is fixed."
-current_blocker_token = "DesignStop__CallableLoopPhiGenericPhysicalDemand"
+current_design_stop = "MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0: NoSafeSlice__GenericRecipeLacksPhysicalDemand; PlanBuildOutcome has no recipe_contract and the claimed GenericLoopV1 Recipe has no operation/effect/continuation handoff. Keep the old composer quarantined until the physical-demand owner is fixed."
+current_blocker_token = "NoSafeSlice__GenericRecipeLacksPhysicalDemand"
 guard_followup = "MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0: audit and either reuse an existing builder-free operation/effect/continuation product or record NoSafeSlice; do not add a second BindingRef/SSA issuer, name fallback, plan adapter, raw-port session field, or manual-ledger positive fixture."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -27,11 +27,14 @@ SSA/PHI as the sole physical issuer. The accepted PHI bridge now has a design
 stop at `MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0`. Its selected static
 callable DirectAccum branch already reuses the existing
 `CanonicalDirectAccumSsaLowererV1` session owner and preserves the catalog
-physical symbol. The generic Ready Recipe has no proven builder-free handoff
-to the common physicalizer; the old composer remains quarantined until that
-owner is fixed. The plan-level adapter and all compatibility callers remain
-parked. No OBJ/EXE claim is open. Local-completion and guard-cleanup remain
-queued after the physical-demand decision and session entry.
+physical symbol. The generic Ready Recipe has no operation/effect/continuation
+handoff to the common physicalizer (`PlanBuildOutcome.recipe_contract` is
+currently `None`); this is recorded as
+`NoSafeSlice__GenericRecipeLacksPhysicalDemand`, and the old composer remains
+quarantined until the physical-demand owner is fixed. The plan-level adapter
+and all compatibility callers remain parked. No OBJ/EXE claim is open.
+Local-completion and guard-cleanup remain queued after the physical-demand
+decision and session entry.
 """
 next_design_card = "MIR-CALLABLE-LOOP-PHI-GENERIC-PHYSICAL-DEMAND-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-physical-demand-d0-2026-09-11.md"
