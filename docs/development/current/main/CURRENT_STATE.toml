@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-I0 closeout: 473c006604 moves the unchanged materialize_local_v1 body into local/materialize.rs; cargo check and focused post_success28/temporal16/local6/assignment5/if6/return5 pass; local.rs=152, materialize.rs=632; pointer/diff checks pass; historical phase-card guards remain baseline-stale and unchanged."
+guard_followup = "Current design stop has no code/test gate: 67c2eea408 records the selected-C pure-first legacy op=call boundary and preserves the existing pointer guard; prior LocalSSA closeout evidence remains at 473c006604, with historical phase-card guards baseline-stale and unchanged."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
