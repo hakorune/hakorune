@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "M7-S closeout landed at 26e59acaef. Loader/core focused tests passed 11/11 and 3/3; current_state_pointer_guard.sh and the existing M7-S parent guard are green. No new guard or receipt was added; select the next finite shared ingress boundary before further implementation."
+guard_followup = "Fixed real-app EXE acceptance ran at 27d516ee3d with 4/11 pass and seven existing owner-scoped reds; hashes and expected/observed results are recorded in the final-pipeline SSOT. The ordinary bridge S0 audit is NoSafeSlice; no implementation edge or new receipt is authorized until S0-D1 closes the source-aware handoff."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -56,5 +56,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/local I0, callee identity I1 and FieldGet prepared-reference reuse landed; Pair exit30 is green. C index fusion remains ParkedSealed D1; untyped storage and seven classified reds remain with their owners. Direct MIR JSON schema-error Stop landed at 26e59acaef: declared-v1 errors are terminal, schema-absent MIR v0 remains compatibility, loader/core suites passed 11/11 and 3/3, and R7 remains unproven."
+  "2026-09-10: receiver/local I0, callee identity I1 and FieldGet prepared-reference reuse landed; Pair exit30 is green. C index fusion remains ParkedSealed D1. Direct MIR JSON schema-error Stop and selected Dynamic CanonicalV1 egress landed; fixed real-app acceptance at 27d516ee3d is 4/11 with seven owner-scoped reds, and Loop ordinary bridge S0 is now a NoSafeSlice design handoff."
 ]
