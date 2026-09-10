@@ -22,7 +22,8 @@ int main(int argc, char** argv) {
   yyjson_doc* document = hako_json_v1_read_owned_file(argv[1], &error);
   assert(document && !error);
   struct HakoLlvmcInvocation invocation;
-  hako_llvmc_invocation_init(&invocation, document, hako_llvmc_capture_allocation_config());
+  hako_llvmc_invocation_init(&invocation, document, hako_llvmc_capture_allocation_config(),
+      HAKO_LLVMC_INGRESS_GENERIC_COMPAT);
   unsigned initial_selections = selections;
   yyjson_doc* requests = yyjson_read(argv[3], strlen(argv[3]), 0);
   assert(requests);

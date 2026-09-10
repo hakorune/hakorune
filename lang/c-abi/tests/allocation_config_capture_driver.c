@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
   yyjson_doc* doc = hako_json_v1_read_owned_file(argv[1], &error);
   assert(doc);
   struct HakoLlvmcInvocation invocation;
-  hako_llvmc_invocation_init(&invocation, doc, config);
+  hako_llvmc_invocation_init(&invocation, doc, config, HAKO_LLVMC_INGRESS_GENERIC_COMPAT);
   int rc = compile_doc_compat_pure(&invocation, argv[1], argv[2], &error);
   hako_llvmc_invocation_destroy(&invocation);
   if (error) fprintf(stderr, "%s\n", error);

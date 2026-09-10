@@ -65,7 +65,8 @@ int main(int argc, char** argv) {
   if (yyjson_obj_get(root, "byte_size")) frame.byte_size = fixture_u32(root, "byte_size");
   if (yyjson_obj_get(root, "value_count")) frame.value_count = yyjson_get_uint(yyjson_obj_get(root, "value_count"));
   struct HakoLlvmcInvocation invocation;
-  hako_llvmc_invocation_init(&invocation, document, hako_llvmc_capture_allocation_config());
+  hako_llvmc_invocation_init(&invocation, document, hako_llvmc_capture_allocation_config(),
+      HAKO_LLVMC_INGRESS_STATIC_V2);
   char* error = NULL;
   int rc = hako_llvmc_compile_static_v2_retained(&invocation, &frame, argv[3], &error);
   assert(!invocation.static_v2.frame && !hako_llvmc_published_call_rows_active());
