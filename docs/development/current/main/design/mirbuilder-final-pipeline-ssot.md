@@ -1537,6 +1537,27 @@ still contains known baseline failures (139 passed, 6 failed); one blocker
 failure was reproduced unchanged on parent `8090c8c9f0`, so that suite is not
 used as a green claim for this row.
 
+##### MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-COVERAGE-REPAYMENT-R0
+
+Status: queued coverage-only follow-up; no semantic or production-route change
+is authorized. The owner-scoped probe implementation is closed. The existing
+test owners must add the two missing observations before this family is called
+fully evidenced: (1) the inverse declaration order where a child terminal home
+is visited before the root's missing instance-call result contract, proving the
+owner-scoped expected-state observation remains isolated; and (2) one repeated
+multi-callee physical compile/diagnostic-order check, proving the deterministic
+block order is stable across complete invocations rather than only within the
+focused reversed-insertion fixture.
+
+Source authority and consumer stay unchanged: the existing terminal relation,
+Completion, owner index, `collect_ordinary_calls()` order, and current focused
+test modules. Fail-fast remains the existing owner/site/Completion mismatch and
+pre-numbering membership checks. Acceptance is positive evidence for both
+orders, negative evidence for a branded foreign owner/site, and no new receipt,
+guard, route, child physical Add consumer, or child Unit consumer. If either
+test exposes a real semantic discrepancy, reopen the existing owner row for a
+design decision instead of widening this coverage task.
+
 ##### MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0
 
 Decision: design stop before any C or transport change. Select one existing
