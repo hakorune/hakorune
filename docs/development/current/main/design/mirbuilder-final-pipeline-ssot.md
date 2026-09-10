@@ -661,6 +661,72 @@ inventory proves no selected product depends on the legacy row. Until then,
 keep this row in `design_stop` and do not infer a target from a rejected or
 missing typed row.
 
+##### MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0 (accepted next slice)
+
+The design stop is resolved by an invocation-local physical ingress profile;
+the common call dispatcher remains shared. `hako_llvmc_compile_json_pure_first`
+and the typed Static V2 invocation are strict selected profiles. The historical
+`hako_llvmc_compile_json` export remains an explicit generic compatibility
+profile because it is a public ABI with external callers that are not in the
+repository census. The named harness export remains the separate llvmlite
+compatibility owner.
+
+```text
+Decision: stamp the existing HakoLlvmcInvocation with its ingress profile and
+  reject legacy instruction objects in strict selected profiles before the
+  generic lowering walk or call dispatcher. Keep the shared dispatcher and the
+  generic compatibility profile unchanged.
+Source authority + canonical issuer: the Rust Boundary/Static V2 callers issue
+  canonical `mir_call` rows; the C profile only classifies the transport entry.
+  Typed published rows remain the meaning authority.
+Non-authority: JSON names, `callee` repair, registry/header lookup, MIR type,
+  metadata strings, nested lifecycle objects, generic ABI behavior, harness,
+  VM/WASM readers, and backend fallback.
+Fail-fast boundary: inspect only
+  `functions[*].blocks[*].instructions[*].op` in the existing parsed document;
+  `op == "call"` in a strict profile returns the named
+  `pure-first/legacy-op-call` terminal before generic prepass, dispatch, LLVM
+  effect, or object publication. Malformed JSON keeps the parser terminal.
+Smallest next slice: add the profile field to the existing invocation and stamp
+  Boundary pure-first plus Static V2 as strict; add one preflight helper and
+  named-reject coverage. Prove a canonical `mir_call` positive, a strict legacy
+  `call` negative with no artifact, and a generic-export compatibility positive.
+  Do not alter `emit_mir_call_dispatch`.
+Non-claims: no new schema or semantic receipt, no `boxcall`/`externcall` stop,
+  no generic-export caller-zero claim, no llvmlite/VM/WASM retirement, no
+  backend parity, and no OBJ/EXE result claim beyond the selected C boundary.
+```
+
+Census boundary: `ny-llvmc` Boundary pure-first and typed Static V2 entries ->
+existing `HakoLlvmcInvocation` -> instruction-op preflight -> generic C lowering
+terminal; includes the in-repository pure-first/Static V2 producers and their
+focused drivers; excludes public generic `hako_llvmc_compile_json` external
+callers, explicit harness/llvmlite, VM/WASM, and reference fixtures.
+
+Finite ingress states:
+
+```text
+StrictSelectedCanonical -> `mir_call` reaches the existing typed consumer
+StrictSelectedLegacy    -> named `pure-first/legacy-op-call` before dispatch
+GenericCompatibility    -> existing generic reader retains legacy `call`
+MalformedInput           -> existing parser/contract terminal; no v0 repair
+```
+
+The exclusive selected delete-set is the strict-profile acceptance of legacy
+`op == "call"` in the existing C reader and only its selected-C fixtures or
+guards. The shared dispatcher, generic compatibility export, harness, and
+non-C readers are not in that delete-set. This is a Stop series, not a caller-
+zero claim for the public generic ABI.
+
+I0 acceptance is bounded to the finite entries above: all active Boundary and
+Static V2 fixtures use canonical `mir_call` (or no call); a strict legacy
+instruction fails before artifact creation with the named terminal; the same
+document through the generic compatibility export retains its existing legacy
+behavior. The preflight must not reject metadata keys or nested data containing
+the word `call`, and it must not scan raw JSON text. No new generic negative-test
+taxonomy is opened; reuse the existing valid-base/mutation proof rule only for
+the selected strict negative.
+
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 
 Decision: pin the existing selected Dynamic LLVM Boundary exporter to the
