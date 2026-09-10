@@ -1,11 +1,13 @@
 ---
-Status: design_stop__SourceIndexHeaderHandoffOpen
+Status: fast__SourceIndexHeaderPreludeHandoffI0
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0
 Parent: mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11
 ---
 
 # MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0
+
+Active execution row: `MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-PRELUDE-HANDOFF-I0`.
 
 ## Boundary
 
@@ -92,20 +94,20 @@ next bounded acceptance work.
 ## Six-line brief
 
 ```text
-Decision: use one CanonicalSsaFunctionSessionV2 for the selected callable Loop.
-Source authority + canonical issuer: CallableSemanticLoweringState/verified
-  Recipe owns BindingRef, role, and source site; session identity plus
-  BindingSsaBuilderV1 owns physical ValueId/PHI issuance.
-Non-authority: variable_map, composer-local phi_bindings, carrier_step_phis,
-  CorePhiInfo tags, names, latest values, and ValueId ordering.
-Fail-fast boundary: before a new CFG/PHI or other Builder effect, reject
-  foreign owner/site, stale generation, wrong predecessor/edge, dominance
-  drift, and unsealed publication with a named terminal.
-Smallest next slice: open the generic Ready consumer through a private
-  function-scope wrapper after the DirectAccum edge is stable; keep the Recipe
-  logical and move-only.
-Non-claims: no local-completion closure, backend/OBJ/EXE, legacy retirement,
-  performance result, or plan-level adapter.
+Decision: use one CanonicalSsaFunctionSessionV2 for the selected callable Loop
+  and one source-unit resolver index for eligible selected roots.
+Source authority + canonical issuer: the resolver session issues the exact
+  index/header/FreeStatic target; the batch lends those products by owner.
+Non-authority: Method-name lookup, catalog-key repair, physical signatures,
+  variable_map, composer-local phi_bindings, and latest-value ordering.
+Fail-fast boundary: before physical Builder effects, reject missing or foreign
+  index/header/target, Method prefix outside the profile, stale generation,
+  wrong edge/predecessor, dominance drift, and unsealed publication.
+Smallest next slice: attach the existing resolver index/header to eligible
+  selected roots, keep nested owners unindexed, and prove one FreeStatic
+  production caller without manual ledger setup.
+Non-claims: no declared-instance Method target, local-completion closure,
+  backend/OBJ/EXE, legacy retirement, or performance result.
 ```
 
 ## Ownership contract
@@ -131,48 +133,49 @@ the parent's.
 
 ## Implementation order
 
-1. **Design stop (open):** choose an existing source owner that can lend the
-   exact resolver-issued index/header pair and the exact prelude target
-   contract to the selected non-AppMain child. For a FreeStatic prefix this
-   includes the exact `ResolvedDirectCallTargetV1`; for the current Method
-   prefix it requires an already-existing method target owner or an explicit
-   decision that the CallableSingleLoop profile excludes Method shapes and a
-   valid FreeStatic production caller exists. The resolver-owned
-   `VerifiedCallableIndexV1`/`VerifiedCallableHeaderV1` and
-   `VerifiedResolvedCallableModuleV1::function_input()` are the only
-   complete candidate authorities found so far, but the latter belongs to a
-   separate module product and cannot be mixed with the package's observer
-   forest. Preserve the current observer-only
-   `from_exact_parts_without_callable` contract for roots/generic callers;
-   do not repair by name, method selector, rebuild a header or target from a
-   physical signature/catalog key, attach the main-only index to unrelated
-   children, weaken `MissingPreludeTarget`, or add a second semantic receipt.
-   Close this item with an owner, caller, pre-effect reject, and exact
-   positive/negative acceptance before resuming code.
+1. **Accepted design (2026-09-11):** reuse the existing
+   `FunctionSemanticResolverSessionV1` source-unit callable index as the sole
+   issuer. Eligible selected top-level/static roots receive the exact index
+   and their owner-matched header through the batch handoff; nested owners
+   remain unindexed. `VerifiedResolvedCallableModuleV1::function_input()` is
+   evidence of the same owner pattern, not a product to mix into this batch.
+   The CallableSingleLoop profile accepts a `FreeStatic` prefix only until an
+   existing declared-instance target owner is available; `Method` is an
+   explicit outside-shape, not a fallback. Preserve
+   `VerifiedCallableFunctionLoweringInputV1::issue` and
+   `MissingPreludeTarget`; do not repair by name, selector, catalog key, or
+   physical signature, attach a main-only index to unrelated children, or add
+   a second semantic receipt.
 2. Keep the landed semantic demand and route selection unchanged. Do not
    reopen source Facts/Recipe issuance or add a plan adapter.
-3. Inventory the existing function-session opener, DraftSeal prepare/commit,
+3. Add the bounded resolver-index/header handoff and exact owner/header
+   lookup without duplicating the index per row. Keep observer-only callers
+   and nested owner policy unchanged.
+4. Mark Method-prefix CallableSingleLoop shapes outside and select a valid
+   non-AppMain FreeStatic caller; the Method target path remains a later
+   declared-instance row.
+5. Inventory the existing function-session opener, DraftSeal prepare/commit,
    pending restoration, collector admission, and discard terminals. The
    selected entry must have one named owner for all of them.
-4. [landed at `6c41d0925b`] Replace the nested `capture -> lowerer opens another session` shape with a
+6. [landed at `6c41d0925b`] Replace the nested `capture -> lowerer opens another session` shape with a
    private session-scoped lowering API. The selected cataloged entry opens one
    `CanonicalFunctionLoweringSessionV1`; the lowerer borrows that owner for
    Builder effects and returns only a ready DraftSeal product. It must not open,
    retain, or restore a second function session.
-5. [landed at `6c41d0925b`] Add the smallest existing-owner terminal that carries the ready DraftSeal
+7. [landed at `6c41d0925b`] Add the smallest existing-owner terminal that carries the ready DraftSeal
    through prepare/commit while the same pending parent context remains held
    until collector admission completes. The selected entry may use the
    existing `PendingFunctionSessionCloseV1`; only its private DraftSeal-to-
    pending bridge is missing. A new semantic receipt or alternate publication
    path is out of scope.
-6. Connect header condition, body read/rebind, backedge, and false-edge After
+8. Connect header condition, body read/rebind, backedge, and false-edge After
    through the single session's canonical Binding SSA/PHI state. Names and
    composer-local maps remain non-authority.
-7. Add one reusable valid fixture with no manual ledger registration. Cover
+9. Add one reusable valid fixture with no manual ledger registration. Cover
    zero, one, and multiple iterations only after the real session terminal is
    connected; add mutation-discriminating negatives for foreign owner, stale
    generation, wrong edge/predecessor, and unsealed publication.
-8. Run focused positive/negative gates, update the module README/reference
+10. Run focused positive/negative gates, update the module README/reference
    receipt, and only then move to module publication/OBJ/EXE. The generic Ready
    consumer, local-completion handoff, and legacy retirement remain later rows.
 
@@ -275,14 +278,16 @@ co-issued callable index; other selected rows use
 `from_exact_parts_without_callable` by design. The resolver comments also
 state that nested owners do not inherit the index.
 
-This reopens the row in `design_stop`. The next task is not to weaken
-`VerifiedCallableFunctionLoweringInputV1::issue`, nor to use
-`CallablePhysicalHeaderRefV1`/`ResolvedCallablePhysicalSignatureLoanV1` as a
-look-alike. It is to connect one already-issued resolver index/header owner to
-the selected child boundary without changing observer-only callers. If no
-existing owner can supply that pair for the child, the row remains
-`NoSafeSlice` until the resolver policy is explicitly redesigned; no guessed
-`Verified*`/`Prepared*` product may be added.
+The design stop is resolved by reusing one existing source-unit resolver index
+for each eligible selected root. The batch may lend that index and the header
+matched to the selected owner; nested owners remain unindexed. This is a
+policy/handoff change inside the existing resolver owner, not a second issuer.
+The CallableSingleLoop profile is explicitly FreeStatic-only for this row, so
+the current Method fixture remains outside until a declared-instance target
+owner is opened separately. The next implementation task must not weaken
+`VerifiedCallableFunctionLoweringInputV1::issue` or
+`MissingPreludeTarget`, nor use `CallablePhysicalHeaderRefV1`/
+`ResolvedCallablePhysicalSignatureLoanV1` as a look-alike.
 
 The failed probe is retained as design evidence only; its uncommitted test
 fixture was removed and no production-success claim is made. The PHI

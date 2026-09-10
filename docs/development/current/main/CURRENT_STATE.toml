@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0"
+work_mode = "fast"
+current_execution_row = "MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-PRELUDE-HANDOFF-I0"
 current_execution_cohort = "mir_callable_loop_phi_callable_single_loop_session_i0"
-current_design_stop = "open__CallableSingleLoopSelectedChildResolverIndexHeaderPreludeTarget"
-current_blocker_token = "open__CallableSingleLoopSelectedChildResolverIndexHeaderPreludeTarget"
-guard_followup = "MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0: design only. The semantic package selected child intentionally has no attached resolver callable_index/header, while the physicalizer requires both; the current Method prefix also has no resolver direct target while PreludeCapability requires one. Identify an existing resolver/module owner and one scoped index/header/prelude-target handoff, or explicitly restrict Method shapes and prove a valid FreeStatic caller, or record NoSafeSlice. Preserve VerifiedCallableFunctionLoweringInputV1::issue and MissingPreludeTarget checks; do not add a second issuer, name/method-selector/catalog-key repair, physical-signature substitute, main-only index sharing, fallback, fixture, or production switch."
+current_design_stop = "closed__CallableSingleLoopSelectedChildResolverIndexHeaderPreludeTarget__2026-09-11"
+current_blocker_token = "none__CallableSingleLoopSelectedChildResolverIndexHeaderPreludeTarget"
+guard_followup = "MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-PRELUDE-HANDOFF-I0: fast implementation. Reuse the existing source-unit FunctionSemanticResolverSessionV1 callable index as the sole issuer; attach exact owner-matched index/header to eligible selected roots, keep nested owners unindexed, and admit FreeStatic prefix only. Method prefix is an explicit outside-shape until a declared-instance target owner exists. Preserve VerifiedCallableFunctionLoweringInputV1::issue and MissingPreludeTarget; no second issuer, name/method-selector/catalog-key repair, physical-signature substitute, main-only index sharing, fallback, manual-ledger fixture, or production switch before focused positive/negative proof."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -43,22 +43,22 @@ an authority gap: selected non-AppMain input is intentionally observer-only
 resolver-issued pair. The current Method prefix has the same gap for its
 resolver-issued prelude target: the selected observer-only batch does not own
 that target, while the separate resolved-callable module path only covers
-direct free-static targets. The active row is therefore a design stop for one
-existing-owner source-index/header/prelude-target handoff, or an explicit
-Method-profile exclusion with a valid FreeStatic caller; no name repair,
-physical-signature substitute, or second issuer is allowed. The PHI value-flow
-contract is already SSOTed in `docs/reference/mir/loop-recipe-contract.md:1227`.
-implementation and its zero/one/multiple acceptance, module publication, and
-OBJ/EXE execution remain open.
+direct free-static targets. The design stop is now resolved by reusing one
+source-unit resolver index for eligible selected roots, keeping nested owners
+unindexed, and making the CallableSingleLoop profile FreeStatic-only until a
+declared-instance target owner exists. The PHI value-flow contract is already
+SSOTed in `docs/reference/mir/loop-recipe-contract.md:1227`; its implementation
+and the zero/one/multiple acceptance, module publication, and OBJ/EXE execution
+remain open.
 The old composer remains quarantined for the broad Generic route. The selected
 static callable DirectAccum branch already reuses
 `CanonicalDirectAccumSsaLowererV1`; all compatibility callers remain parked.
 No OBJ/EXE or broad GenericLoop claim is open. Local-completion and
 guard-cleanup remain queued after the session-entry acceptance slice.
 """
-next_design_card = "MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0"
+next_design_card = "none__CallableSingleLoopSelectedChildResolverIndexHeaderPreludeTargetDesignAccepted"
 next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-session-entry-i0-2026-09-11.md"
-next_execution_card = "none__CallableSingleLoopSelectedChildResolverIndexHeaderPreludeTargetDesignStop"
+next_execution_card = "MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-PRELUDE-HANDOFF-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-session-entry-i0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
