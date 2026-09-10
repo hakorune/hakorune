@@ -526,14 +526,11 @@ nonzero or unsupported-cohort result does not close the row.
   lookup through JSON.
 
 The selected execution frontier is now
-`MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0` in closeout. The preceding
-BodyOnlyRebind implementation landed at `3559464960` with its source-aware
-consumer, relation-owner rejection, and planner-owned increment checks; its
-closeout is recorded at `74f717841c`. The artifact row then landed at
-`444822ff80` by making the existing parsed v1 bridge the schema authority and
-adding the escaped-key terminal proof. Receiver-identity R0 remains queued;
-no production receiver fixture, legacy-route deletion, OBJ/EXE, or performance
-claim is opened by this closeout.
+`MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` in fast mode. The
+artifact schema selector closed at `444822ff80`; this row reuses the existing
+V4 index/flow and only repairs its test discrimination and named receiver
+mismatch propagation. No second identity verifier, object walk, runtime
+accessor, legacy-route deletion, OBJ/EXE, or performance claim is opened.
 
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 
