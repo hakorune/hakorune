@@ -1,10 +1,10 @@
 ---
-Status: baseline observation complete; snapshot D0/I0 and emit-clone P0 closed; lazy payload P0 selected
+Status: snapshot D0/I0, emit-clone P0, and lazy payload P0 closed; next postprocess walk census design stop
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-DEBUG-PAYLOAD-LAZY-P0
+NextCard: MIR-POSTPROCESS-WALK-CENSUS-D0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
@@ -338,11 +338,11 @@ negative evidence for the existing publication/view validators. The optional
 loop-bound probes remain a separate route-coverage rejection and are not a
 false green.
 
-There is no next implementation row selected. Keep this card in closeout until
-either a finite Hako published-view ingress is found or an independent cleanup
-candidate has a caller-zero/equal-successor proof. Do not reopen the old
-snapshot D0/I0 wording and do not add a second Builder, adapter, fallback, or
-semantic receipt merely to manufacture a next row.
+The lazy resolve payload slice is now landed. Keep the Hako published-view
+ingress parked and move the next bounded performance row to the existing
+postprocess walk census design stop. Do not reopen the old snapshot D0/I0
+wording and do not add a second Builder, adapter, fallback, or semantic receipt
+merely to manufacture a next row.
 
 ## All-worker surface audit (2026-09-03)
 
@@ -551,6 +551,32 @@ the next family is not opened on a broken feature build or an inactive stable
 dispatch gate. Whole-library health is still a separately classified known-red
 baseline, not a green claim. DebugHub payload construction, observer OnceLock
 state, and other non-selected environment readers remain outside I0.
+
+### Lazy resolve payload P0 closeout (2026-09-10)
+
+Status: **landed** at `21e85270ac`. The existing `DebugHub` remains the sole
+master/category/sample/sink gate and JSONL writer. `resolve.try` and
+`resolve.choose` now pass a synchronous private callback through that gate;
+candidate lookup, receiver/function/region strings, timestamps, and JSON are
+constructed only after acceptance. `resolve.choose` records its Known KPI from
+the typed `TypeCertainty` value, so no observer JSON is parsed back into
+meaning.
+
+Focused evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --profile quick -p nyash-rust --lib  # passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib debug::hub::tests::lazy_event -- --nocapture  # 2 passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib method_call_terminal -- --nocapture  # 8 passed
+rustfmt --edition 2021 --check src/debug/hub.rs src/mir/builder/observe/resolve.rs src/mir/builder/calls/unified_emitter.rs  # passed
+git diff --check  # passed
+```
+
+The negative test proves that a disabled master gate does not invoke the
+payload callback; the enabled test checks the existing `try` JSON shape. The
+selected emitter remains below the 760/800-line boundary. No method target,
+MIR, KPI meaning, non-resolve observer, backend, or semantic route changed.
+No compiler speedup or whole-library green claim follows from this row.
 
 ## Post-audit follow-up queue (2026-09-03)
 

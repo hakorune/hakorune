@@ -29,7 +29,7 @@ second health-repair task.
 | `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` | Bounded BoxShape | `variable_read.rs` | move only direct read access to the existing variable owner; do not privatize or clone-rewrite the whole map |
 | `MIR-C-SPEED-EXACT-MODE-CONTRACT-D0` | Separate design | value/ABI + storage/runtime owners | keep safe defaults until generation/lease/lifetime/thread/failure contracts are fixed |
 | `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0` | Candidate cleanup | `mutable_accumulator.rs` test surface | after the active perf row; delete one body-identical test only with baseline inventory update |
-| `MIR-DEBUG-PAYLOAD-LAZY-P0` | High confidence | unified-call observer ingress | gate candidate projection and JSON construction before work, preserving observer output exactly |
+| `MIR-DEBUG-PAYLOAD-LAZY-P0` | Landed `21e85270ac` | unified-call observer ingress | existing DebugHub gate now owns the lazy callback; output/KPI parity evidence is recorded below |
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Medium-High | `builder_emit.rs` + `ssa/local.rs` | design the prepared/legacy boundary and function-owned definition index before implementation |
 | `MIR-PHI-ANALYSIS-BATCH-D0` | Medium-High | PHI materialization/finalization | name a mutation-stable analysis batch before caching or deleting a repair pass |
 | `MIR-POSTPROCESS-WALK-CENSUS-D0` | Medium | semantic refresh + old/shared finish owners | count actual block/instruction visits and caller classes before one adjacent-wave fusion is considered |
@@ -547,9 +547,14 @@ Census boundary: `unified_emitter.rs` resolve.try/choose ->
 payload construction and excludes semantic target resolution, Builder config
 snapshot, emit/SSA/backend callers, and all other debug categories.
 
-The bounded implementation `MIR-DEBUG-PAYLOAD-LAZY-P0` may now proceed. Its
-exclusive delete-set is the eager resolve candidate/JSON/function/region work
-and KPI JSON reread; no Hub contract or non-resolve caller is deleted.
+The bounded implementation `MIR-DEBUG-PAYLOAD-LAZY-P0` was selected with this
+exclusive delete-set: eager resolve candidate/JSON/function/region work and
+KPI JSON reread. No Hub contract or non-resolve caller is deleted.
+
+Closeout: `MIR-DEBUG-PAYLOAD-LAZY-P0` landed at `21e85270ac`. The focused Hub
+tests prove callback suppression with debug disabled and existing JSON shape
+when enabled; the selected method-call suite remains green. No compiler
+speedup, semantic route change, or whole-library green claim is made.
 
 ## `MIR-POSTPROCESS-WALK-CENSUS-D0`
 
