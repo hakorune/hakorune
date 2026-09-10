@@ -1,10 +1,10 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, and variable-read accessor S0 closed; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; next PHI analysis batch D0 design-stop
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, and PHI analysis batch I0 closed; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; next LocalSSA prepared-operand D0 design-stop
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-PHI-ANALYSIS-BATCH-D0
+NextCard: MIR-LOCAL-SSA-PREPARED-OPERAND-D0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
@@ -598,6 +598,47 @@ unused-PHI pruning and shares it with self-carry completion and grouped-edge
 rematerialization. The direct completion test wrapper keeps its existing API
 and creates its own local batch. No persistent cache, topology mutation, PHI
 meaning change, or Loop production caller was added.
+
+## `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` design stop (2026-09-10)
+
+The next bounded row is a design stop, not permission to add a persistent
+definition index.  A read-only owner audit found that the current prepared
+request carries destination, target, and arguments but does not prove the SSA
+definition location or use block.  Typed Calls still pass through
+`finalize_call_operands`, and the common writer can invoke LocalSSA receiver
+materialization again; `MirInstruction::Call` alone cannot select a prepared
+path.
+
+```text
+Decision:
+  Fix the prepared/legacy boundary and enumerate every FunctionLoweringState
+  mutation before selecting an I0 definition index or fast path.
+Source authority + canonical issuer:
+  Existing typed Call owner selects the target. A future explicit prepared
+  operand issuer must own receiver/argument definition and block evidence; the
+  physical append owner remains the sole emission commit.
+Non-authority:
+  MirInstruction::Call shape, variable_map, MirType, the field-only
+  ExactDefinitionIndexV1, and LocalSSA repair state cannot issue prepared facts.
+Fail-fast boundary:
+  Prepared receiver/arguments with owner, block, or definition drift reject
+  before append. They never repair by name or fall back to LocalSSA; legacy
+  Calls retain the current repair owner.
+Smallest next slice:
+  Census the typed Call issuer, sole append entry, and all mutation paths:
+  instruction append, PHI/edge repair, Loop/CFG/SSA, JoinIR rewrite,
+  lifecycle/exit emission, and transaction capture/restore.
+Non-claims:
+  no whole-Call scan deletion, variable-name interning, PHI/type/optimizer/
+  backend change, or Call semantic change.
+```
+
+Observed surface: `builder_emit.rs` is 548 lines, `builder_emit_core.rs` 229,
+`ssa/local.rs` 152, and `ssa/local/materialize.rs` 632.  The existing
+`ExactDefinitionIndexV1` is rebuilt inside field-receiver provenance validation
+and is not a `FunctionLoweringStateV1` authority.  A future index may update
+only after a successful append and must reject stale use after every enumerated
+mutation; N/2N scan probes are advisory evidence, not a timing gate.
 
 ## All-worker surface audit (2026-09-03)
 

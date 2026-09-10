@@ -24,15 +24,15 @@ second health-repair task.
 | `MIR-COMPILE-COST-BASELINE-P0` | Parked prerequisite | existing compile timing/scaling tools | select before claiming any compiler-speed keeper |
 | `MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0` | High confidence | config ingress + Builder session | choose a request/session owner; a process-global `OnceLock` is not accepted by source inspection alone |
 | `MIR-EMIT-MOVE-COMMIT-R0` | High confidence | `builder_emit.rs` | after debug-policy ownership is fixed; do not overlap a semantic writer row |
-| `MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` | Required before growth | `method_call_handlers.rs` | behavior-neutral split at the publication-ingress policy / legacy prepare-execute boundary; the file is 766 lines |
+| `MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` | Landed `a173e5456c` | `method_call_handlers.rs` + private policy child | behavior-neutral publication-ingress split is closed; reopen only for a new production responsibility |
 | `MIR-UNIFIED-EMITTER-FORWARDER-CENSUS-D0` | Parked design | `unified_emitter.rs` + exact callers | no layer merge until `PermitLegacy` and `RequireGenericReceipt` callers have a finite contract-preserving delete set |
 | `MIR-CALL-EMIT-LOOKUP-FACADE-RETIRE-S0` | `ParkedSealed__NoExclusiveDeleteSet` | `MirBuilder` lookup policy + `UnifiedCallEmitterBox` | census closed: `Some` and `None` callers have distinct policy terminals; keep the facade until one exclusive delete-set preserves both |
 | `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` | Bounded BoxShape | `variable_read.rs` | move only direct read access to the existing variable owner; do not privatize or clone-rewrite the whole map |
 | `MIR-C-SPEED-EXACT-MODE-CONTRACT-D0` | Separate design | value/ABI + storage/runtime owners | keep safe defaults until generation/lease/lifetime/thread/failure contracts are fixed |
 | `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0` | Candidate cleanup | `mutable_accumulator.rs` test surface | after the active perf row; delete one body-identical test only with baseline inventory update |
 | `MIR-DEBUG-PAYLOAD-LAZY-P0` | Landed `21e85270ac` | unified-call observer ingress | existing DebugHub gate now owns the lazy callback; output/KPI parity evidence is recorded below |
-| `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Medium-High | `builder_emit.rs` + `ssa/local.rs` | design the prepared/legacy boundary and function-owned definition index before implementation |
-| `MIR-PHI-ANALYSIS-BATCH-D0` | Medium-High | existing `PhiInputMaterializationAnalysis::new(func)` + PHI materialization/finalization | name one immutable CFG/definition/dominator batch and invalidate it on topology, successor, parameter/entry, or analyzed-definition mutation before caching or deleting repair work |
+| `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Design stop (2026-09-10) | `builder_emit.rs` + `ssa/local.rs` | fix the prepared/legacy boundary and enumerate every function mutation before any definition index or fast path is added |
+| `MIR-PHI-ANALYSIS-BATCH-D0` | Landed `7b7f6860c3` | existing `PhiInputMaterializationAnalysis::new(func)` + PHI materialization/finalization | invocation-local CFG/definition/dominator batch is shared by self-carry and grouped-edge repair; no persistent cache or semantic PHI change |
 | `MIR-POSTPROCESS-WALK-CENSUS-D0` | Medium | semantic refresh + old/shared finish owners | count actual block/instruction visits and caller classes before one adjacent-wave fusion is considered |
 | `MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0` | Medium | existing `compile_timing` + semantic refresh owners | add observation-only stage/function/block/instruction counters after the D0 census; no fusion or cache |
 | `NORMAL-ROOT-AST-MOVE-D0` | Medium | normal source package -> root work plan | remove the one production root AST deep clone only after a move/loan boundary is accepted |
@@ -771,6 +771,48 @@ advisory.
 
 Non-claims: no variable-name interning, A/C, Recipe, target selection, or Call
 semantics.
+
+### LocalSSA prepared-operand design stop audit (2026-09-10)
+
+The read-only owner audit keeps this row at design stop.  The current
+`PreparedStandardValueCallRequestV1` carries destination, target, and arguments,
+but it does not prove the SSA definition location or use block.  Typed Calls
+still pass through `finalize_call_operands`, and the common writer can invoke
+LocalSSA receiver materialization again; `MirInstruction::Call` alone cannot
+select a prepared path.
+
+```text
+Decision:
+  Do not add a FunctionLoweringState definition index yet.  First fix the
+  prepared/legacy boundary and enumerate every function mutation that would
+  invalidate an index.
+Source authority + canonical issuer:
+  Existing typed Call owner selects the target; a future explicit prepared
+  operand issuer must own receiver/argument definition and block evidence.
+  The physical append owner remains the sole commit point.
+Non-authority:
+  MirInstruction::Call shape, variable_map, MirType, the existing field-only
+  ExactDefinitionIndexV1, and LocalSSA's repair map cannot issue prepared facts.
+Fail-fast boundary:
+  A prepared Call whose receiver/arguments have owner, block, or definition
+  drift must reject before append.  It must not repair by name or fall back to
+  LocalSSA; legacy Calls keep the current repair owner.
+Smallest next slice:
+  Census the typed Call issuer, the sole append entry, and all mutation paths
+  (instruction append, PHI/edge repair, Loop/CFG/SSA, JoinIR rewrite, lifecycle
+  and exit emission, and transaction capture/restore) before selecting I0.
+Non-claims:
+  no whole-Call scan deletion, variable-name interning, PHI/type/optimizer/
+  backend change, or Call semantic change.
+```
+
+The observed implementation surface is `builder_emit.rs` (548 lines),
+`builder_emit_core.rs` (229), `ssa/local.rs` (152), and
+`ssa/local/materialize.rs` (632).  The existing `ExactDefinitionIndexV1` is
+rebuilt inside field-receiver provenance validation and is not a
+`FunctionLoweringStateV1` authority.  A future index may update only after a
+successful append and must reject stale use after any enumerated mutation;
+N/2N scan probes are advisory acceptance evidence, not a timing gate.
 
 ## `MIR-PHI-ANALYSIS-BATCH-D0`
 

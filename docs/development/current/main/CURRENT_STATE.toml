@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-PHI-ANALYSIS-BATCH-I0"
-current_execution_cohort = "mir_phi_analysis_batch_i0_closeout"
-current_design_stop = "MIR-PHI-ANALYSIS-BATCH-I0 implementation is complete; closeout evidence and pointer synchronization are required before selecting the next row."
-current_blocker_token = "MIR-PHI-ANALYSIS-BATCH-I0 closeout: verify one invocation-local batch, focused parity, source-size/guard health, and no persistent cache or second PHI authority."
+work_mode = "design_stop"
+current_execution_row = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0"
+current_execution_cohort = "mir_local_ssa_prepared_operand_d0_design_stop"
+current_design_stop = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: fix the prepared/legacy Call boundary and enumerate all FunctionLoweringState mutation invalidations before selecting an I0 definition index."
+current_blocker_token = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: typed Call issuer, sole append owner, and stale-index fail-fast boundary are not yet fixed; no implementation permission."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-PHI-ANALYSIS-BATCH-I0 closeout: focused PHI repair parity and one-analysis census; no cache, fallback, retry, or semantic PHI change."
+guard_followup = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: read-only owner/caller/mutation census; no definition index, fallback, retry, or semantic Call change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -31,33 +31,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-compile-time-performance-owner-first-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 latest_card_summary = """
-Receiver identity, physical-program module/getter retirement, and the reusable
-negative-test proof are closed at `0cd9ccec70`, `7a31b48b75`, and `5a117a96a2`
-with named-reject mutation evidence; do not duplicate that row. The callable
-Loop old-edge census is `ParkedSealed__NoCallableNoneCaller`. LocalSSA
-materialization BoxShape is closed at `473c006604` with unchanged body hash,
-focused parity suites, cargo check, and line/pointer guards. The selected C
-pure-first stop is closed at `907550c78b`; the selected Dynamic JSON egress is
-closed at `e2bb3b8b91` and uses explicit CanonicalV1 even under forced
-compatibility selectors. Its two focused candidate tests pass 1/1 each; the
-generic harness remains compatibility-owned. No generic caller-zero, backend
-parity, or whole-pipeline OBJ/EXE claim is made. The behavior-neutral emit-clone
-slice closed at `9808923785`: Builder/Phi focused suites, compile-cost baseline,
-line/anchor checks, diff check, and pointer guard passed; no speedup or whole-lib
-claim. The debug-policy snapshot D0/I0 is closed at `4ba9293900` after current
-focused revalidation; the emit-clone P0 is closed at `9808923785`; and lazy
-resolve payload P0 is closed at `21e85270ac` with Hub OFF/ON evidence. Edge-
-health findings are queued at `7d51a10efc`; they do not alter the selected
-row. The postprocess walk census D0 and observation-only counter P0 are closed
-with finite scope and no fusion claim. Variable-read accessor S0 is closed at
-`968f135fce` through the existing VariableContext lookup owner, with no
-PHI/Loop or whole-map change. The lookup-facade census is closed as
-`ParkedSealed__NoExclusiveDeleteSet`: `Some` lookup retains legacy-retry
-rejection while `None` retains compatibility, so the facade remains the single
-  policy owner. The next bounded row is the `MIR-PHI-ANALYSIS-BATCH-D0` design stop. Callable Loop PHI generation and local-completion findings remain queued as pre-consumer correctness rows; the Loop source edge remains caller-zero.
+Closed focused rows include receiver/FieldGet/schema evidence, selected-C and
+Dynamic JSON, emit-clone/debug-policy/lazy-payload, postprocess/refresh,
+variable-read, and the method-handler split (`a173e5456c`). The PHI analysis
+batch I0 is closed at `7b7f6860c3`: one invocation-local analysis is shared by
+repair consumers, with no persistent cache or semantic PHI change. The lookup
+facade remains `ParkedSealed__NoExclusiveDeleteSet`; `Some` retains retry
+rejection and `None` retains compatibility. Callable Loop PHI generation and
+local-completion remain queued pre-consumer rows; no generic caller-zero or
+whole-pipeline claim is made. The next bounded row is the
+`MIR-LOCAL-SSA-PREPARED-OPERAND-D0` design stop.
 """
-next_design_card = "MIR-PHI-ANALYSIS-BATCH-I0"
-next_execution_card = "none__closeout_phi_analysis_batch_i0"
+next_design_card = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0"
+next_execution_card = "none__design_stop_until_local_ssa_prepared_operand_census"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -75,5 +61,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 is still open; M7-S write-only source/MIR/OBJ/EXE/reject evidence is closed; llvmlite remains explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA, selected-C, Dynamic JSON, emit-clone, debug-policy, lazy-payload, postprocess-walk, refresh-counter, and variable-read rows are closed with focused evidence. No generic caller-zero or whole-pipeline claim. Lookup-facade census is ParkedSealed__NoExclusiveDeleteSet; next is MIR-PHI-ANALYSIS-BATCH-D0 design stop."
+  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA, selected-C, Dynamic JSON, emit-clone, debug-policy, lazy-payload, postprocess-walk, refresh-counter, and variable-read rows are closed with focused evidence. Method-handler policy split landed at a173e5456c; PHI analysis batch I0 landed at 7b7f6860c3 with invocation-local sharing only. Lookup facade remains ParkedSealed__NoExclusiveDeleteSet; next is MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop."
 ]
