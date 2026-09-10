@@ -1,5 +1,5 @@
 ---
-Status: Selected design stop
+Status: Design accepted — bounded implementation row open
 Date: 2026-09-11
 Decision: MIR-CALL-NORMAL-TYPED-ADMISSION-D0
 Parent: docs/development/current/main/investigations/mir-call-canonical-corridor-guard-i0-2026-08-20.md
@@ -53,6 +53,22 @@ No retry or name repair is allowed. The guard row remains parked until these
 three outcomes are observable. If the existing callback cannot distinguish a
 selected normal module from compatibility-only input without changing an
 unrelated owner, return to `NoSafeSlice` rather than widening this row.
+
+## Worker audit (2026-09-11)
+
+The finite owner/caller audit found one selected normal admission owner:
+`NormalDefaultPublishedPipelineV1::compile` through its existing published
+callback and `PublishedMirBackendView::try_new`. The canonical issuer is
+`MirInstruction::Call(MirCall)`; `LegacyCallV0` remains the explicit
+compatibility issuer. The existing view can therefore enforce one named
+pre-artifact mixed-shape rejection without a second view, resolver, fallback,
+or semantic receipt. Legacy-only input remains compatibility-positive,
+including a typed Global callee carried by the legacy instruction.
+
+The implementation row is limited to that admission predicate and its
+mutation-discriminating fixtures. It does not claim LegacyCallV0 retirement,
+JSON-v0 migration, Dynamic/VM/WASM parity, or object/EXE production until the
+selected corridor guard is revalidated.
 
 ## Required order
 
