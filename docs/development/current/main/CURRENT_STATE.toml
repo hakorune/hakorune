@@ -47,7 +47,8 @@ materialization and is now in closeout. The generic compatibility positive
 proof is landed at `c1467583fe`: structured legacy `Global/print` reaches
 `rc == 0` with an object while selected pure-first keeps its named reject; no
 generic caller-zero claim is made.
-R7 census reconcile is selected at `MIR-R7-LEGACY-CENSUS-RECONCILE-D0` with
+R7 census reconcile is landed at `ba8c88f85f` for
+`MIR-R7-LEGACY-CENSUS-RECONCILE-D0` with
 current counts and reopen triggers recorded in the linked census card; no
 LegacyCallV0 deletion or caller-zero claim is made.
 The observation-only R7 manifest is validated at

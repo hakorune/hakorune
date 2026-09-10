@@ -318,8 +318,27 @@ def validate_manifest(root: Path, data: dict[str, Any]) -> None:
     if data.get("schema_version") != SCHEMA_VERSION or data.get("kind") != KIND:
         fail("schema_version/kind mismatch")
     current = build_manifest(root)
-    if data != current:
-        fail("manifest drift: run with --write at the current pinned commit")
+    # The manifest itself is committed after it is written, so its pinned
+    # observation commit is normally the parent of the commit running this
+    # check.  Compare every generated field except that pin; source hashes and
+    # the scope digest still make source drift fail closed.
+    observed_commit = data.get("observed_commit")
+    if not isinstance(observed_commit, str) or not re.fullmatch(r"[0-9a-f]{40}", observed_commit):
+        fail("observed_commit must be a full hexadecimal commit")
+    try:
+        subprocess.run(
+            ["git", "cat-file", "-e", f"{observed_commit}^{{commit}}"],
+            cwd=root,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        fail(f"observed_commit is not reachable: {observed_commit}: {exc}")
+    expected = dict(current)
+    expected["observed_commit"] = observed_commit
+    if data != expected:
+        fail("manifest drift: run with --write after a source or scope change")
     counts = current["counts"]
     expected = {
         "legacy_occurrences": LEGACY_EXPECTED,

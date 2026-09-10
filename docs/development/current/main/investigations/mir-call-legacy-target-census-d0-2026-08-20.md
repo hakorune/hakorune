@@ -1,5 +1,5 @@
 ---
-Status: Implementation complete; 2026-09-11 closeout pending
+Status: Closed design; observation manifest landed at `ba8c88f85f`
 Date: 2026-08-20
 Decision: MIR-CALL-LEGACY-TARGET-CENSUS-D0
 Active row: MIR-R7-LEGACY-CENSUS-RECONCILE-D0
