@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0"
-current_execution_cohort = "mir_r7_legacy_census_reconcile_d0"
-current_design_stop = ""
-current_blocker_token = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 closeout: manifest and linked SSOT are resynchronized; commit/push evidence before opening the R7 retirement design."
-guard_followup = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 reconciled at the current source boundary: 243/127 Legacy, 5 env, 4 Loop-PHI, 252 rows; no retirement claim."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
+current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
+current_design_stop = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0: first owner-unit is selected; hand off to existing MIR-CALL-LEGACY-READER-STOP-R0 only after exact strict/dev caller, terminal, mutation evidence, and exclusive delete-set are recorded."
+current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0 design_stop: module.rs boxcall is selected as the first owner-unit; no implementation or aggregate LegacyCallV0 deletion until the bounded stop contract is recorded."
+guard_followup = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0 design stop: selected owner is strict/dev JSON-v0 boxcall ingress; preserve release compatibility and forbid a second resolver or aggregate delete."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -15,8 +15,8 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
-latest_card = "mir-call-legacy-target-census-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
+latest_card = "mir-call-compatibility-retire-r7-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
 Closed focused rows include receiver/FieldGet/schema evidence, selected-C and
 Dynamic JSON, emit-clone/debug-policy/lazy-payload, postprocess/refresh,
@@ -42,13 +42,14 @@ The observation-only R7 manifest was resynchronized after the selected typed
 admission change: the current production-scope snapshot is 243/127 Legacy
 rows, 5 env routes, 4 Loop-PHI files, and 252 independent rows. The selected
 normal named reject and corridor guard remain passing; no LegacyCallV0
-retirement claim is made. The R7 owner-unit retirement design is now recorded
-in `mir-call-compatibility-retire-r7-d0-2026-09-11.md`; implementation remains
-stopped until one finite M7-S owner is selected.
+retirement claim is made. The R7 owner-unit retirement design is now recorded in
+`mir-call-compatibility-retire-r7-d0-2026-09-11.md`; the first bounded owner is
+the strict/dev JSON-v0 `boxcall` ingress, while implementation remains stopped
+until its exact M7-S stop contract is recorded.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_execution_card = "none__MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

@@ -86,3 +86,21 @@ selected admission source change (243/127 Legacy, five environment anchors,
 four test-only Loop-PHI files, 252 rows). After that, select one owner-unit
 Stop/Promote/Delete from the existing M7-S inventory; do not repeat the broad
 census or delete the shared schema early.
+
+### Candidate comparison and first bounded owner
+
+The follow-up audit compared the two remaining concrete candidates without
+reopening the census:
+
+| Candidate | Real callers / terminal | Exclusive delete-set | Disposition |
+| --- | --- | --- | --- |
+| `src/runner/mir_json_v0/module.rs` `boxcall` arm | `json_artifact::mir_loader`, `selfhost::stage_a_route`, `stage_a_compat_bridge`, and `stage1_bridge::stub_emit::parse`; compatibility parser currently produces `LegacyCallV0`, while strict/dev has a named pre-effect stop | not yet exclusive: release/v0 compatibility and strict/dev ingress share the parser and the `LegacyCallV0` carrier | **Select first as an existing M7-S reader-stop owner.** Keep release compatibility; stop only the strict/dev outer ingress with its existing terminal. Promote is not allowed because JSON `receiver`/`box_name` is not a source-backed typed issuer. Delete waits for release caller-zero. |
+| `src/mir/joinir_id_remapper.rs` Legacy arm | merge/rewriter and test/reference callers only; no production terminal | no production delete-set and no semantic consumer | **Park as test/reference cleanup.** It is not a safe first M7-S production owner. |
+
+The next bounded design handoff is therefore the existing generic
+`MIR-CALL-LEGACY-READER-STOP-R0` row, scoped to the strict/dev outer ingress
+around the JSON-v0 `boxcall` reader. This selection does not authorize code
+changes yet: the fast row must name the exact caller, stable stop reason,
+positive compatibility preservation, one-point mutation negative, and the
+exclusive strict/dev edge to remove. No second parser, source-identity
+reconstruction, or aggregate `LegacyCallV0` deletion is permitted.
