@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0"
-current_execution_cohort = "physical_program_module_borrow_retire_r0"
+current_execution_row = "MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0"
+current_execution_cohort = "physical_negative_test_proof_r0"
 current_design_stop = "none"
-current_blocker_token = "MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0: census every PublishedLifecyclePhysicalProgramV1 module/getter caller; remove the borrow only if no layout/JSON/Pair consumer remains, and do not add a module lookup through transport."
+current_blocker_token = "MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0: keep a valid normal/fault cleanup base, mutate one physical field at a time, and assert the named reject owned by that check before artifact publication."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Census PublishedLifecyclePhysicalProgramV1::module and its getter across Rust production/tests and JSON/layout callers. If caller-zero, remove the borrow/getter in one refactor and run physical JSON, Pair exit30, focused module tests, current_state_pointer_guard.sh, and diff check. If a real consumer remains, keep the borrow and record the owner; do not add a projection or JSON lookup."
+guard_followup = "Run the selected V4 negative-proof fixture with its valid normal/fault base and receiver-only mutation, assert the named mismatch and absent artifact, then run the dedicated receiver guard, current_state_pointer_guard.sh, focused physical tests, and diff check. Reuse this base for the next concrete negative; do not accept generic unsupported-cohort evidence."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -33,13 +33,14 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 Receiver-identity R0 is closed at `0cd9ccec70` with valid normal/fault fixture,
 receiver-only named mismatch, absent-artifact proof, focused C test, and
-dedicated guard. The active bounded row is now the physical-program
-module-borrow census: verify caller-zero before removing the borrow/getter, or
-retain it with the concrete layout/JSON/Pair consumer owner. No new projection,
-transport lookup, or semantic authority is allowed.
+dedicated guard. The physical-program module/getter caller census was zero and
+the product borrow was removed at `7a31b48b75`; issuance-time module input is
+retained and 13 physical-program tests pass. The active bounded row now makes
+that valid base a reusable negative-test asset; only a concrete one-field
+mutation and its named owner rejection may be added.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0"
+next_execution_card = "MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -57,5 +58,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/local and callee-identity I0/I1 plus FieldGet reuse landed; Pair exit30 is green. C index fusion is ParkedSealed. Direct schema Stop/Dynamic egress and Loop source-recipe evidence are landed; BodyOnlyRebind I0 is at 3559464960 with focused Rust gates green. Artifact MIR JSON schema-selector Stop I0 landed at 444822ff80 with parsed v1 authority, escaped-key terminal, no-schema v0 compatibility, 7/7 loader tests, and guard green. Receiver-identity R0 landed at 0cd9ccec70: valid receiver/fault-cleanup positive, receiver-only mutation to named mismatch, absent artifact, focused C test and dedicated guard green. The broad ingress guard remains a separately classified pointer mismatch; the next row is physical-program module-borrow census."
+  "2026-09-10: receiver/local and callee-identity I0/I1 plus FieldGet reuse landed; Pair exit30 is green. C index fusion is ParkedSealed. Direct schema Stop/Dynamic egress and Loop source-recipe evidence are landed; BodyOnlyRebind I0 is at 3559464960 with focused Rust gates green. Artifact MIR JSON schema-selector Stop I0 landed at 444822ff80 with parsed v1 authority, escaped-key terminal, no-schema v0 compatibility, 7/7 loader tests, and guard green. Receiver-identity R0 landed at 0cd9ccec70: valid receiver/fault-cleanup positive, receiver-only mutation to named mismatch, absent artifact, focused C test and dedicated guard green. Physical-program module/getter borrow retirement landed at 7a31b48b75 after caller-zero census; issuance-time module input remains, 13 physical-program tests and the dedicated guard are green. The next row is reusable physical negative-test proof."
 ]
