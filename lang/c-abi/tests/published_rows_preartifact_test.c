@@ -213,6 +213,55 @@ static void test_same_module_prepass_uses_published_row(void) {
 
 /* The explicit generic C entry has no published-row session. */
 extern int hako_llvmc_compile_json_pure_first(const char*, const char*, char**);
+extern int hako_llvmc_compile_json(const char*, const char*, char**);
+
+static void test_selected_pure_first_rejects_legacy_call_only(void) {
+  const char *legacy_call_body =
+      "{\"functions\":[{\"name\":\"main\",\"params\":[],"
+      "\"metadata\":{},\"blocks\":[{\"id\":0,\"instructions\":["
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":30}},"
+      "{\"op\":\"call\",\"args\":[]},{\"op\":\"ret\",\"value\":1}]}]}]}";
+  const char *nested_call_text_body =
+      "{\"functions\":[{\"name\":\"main\",\"params\":[],"
+      "\"metadata\":{\"note\":{\"op\":\"call\"}},"
+      "\"blocks\":[{\"id\":0,\"instructions\":["
+      "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":30}},"
+      "{\"op\":\"ret\",\"value\":1}]}]}]}";
+  char input[] = "/tmp/hakorune-pure-first-call-XXXXXX";
+  int fd = mkstemp(input);
+  assert(fd >= 0);
+  FILE *file = fdopen(fd, "w");
+  assert(file && fputs(legacy_call_body, file) >= 0 && fclose(file) == 0);
+  char output[sizeof(input) + 2];
+  snprintf(output, sizeof(output), "%s.o", input);
+  char *error = NULL;
+
+  /* The selected profile stops before the generic call dispatcher. */
+  int rc = hako_llvmc_compile_json_pure_first(input, output, &error);
+  assert(rc != 0 && error &&
+      strstr(error, "[freeze:contract][pure-first/legacy-op-call]") &&
+      access(output, F_OK) != 0);
+  free(error);
+  error = NULL;
+
+  /* The public generic export keeps its compatibility owner and terminal. */
+  setenv("HAKO_BACKEND_COMPILE_RECIPE", "pure-first", 1);
+  rc = hako_llvmc_compile_json(input, output, &error);
+  assert(rc != 0 && error &&
+      !strstr(error, "[freeze:contract][pure-first/legacy-op-call]") &&
+      access(output, F_OK) != 0);
+  free(error);
+  error = NULL;
+
+  /* A nested metadata string is not an instruction and must not be scanned. */
+  file = fopen(input, "w");
+  assert(file && fputs(nested_call_text_body, file) >= 0 && fclose(file) == 0);
+  rc = hako_llvmc_compile_json_pure_first(input, output, &error);
+  assert(rc == 0 && error == NULL && access(output, F_OK) == 0);
+  assert(unlink(output) == 0);
+  unsetenv("HAKO_BACKEND_COMPILE_RECIPE");
+  assert(unlink(input) == 0);
+}
 
 static void test_missing_global_rows_cannot_use_legacy_names(void) {
   const char *body =
@@ -377,6 +426,7 @@ int main(int argc, char **argv) {
   test_prepass_peek_and_emitter_take();
   test_array_row_rejects_second_take();
   test_same_module_prepass_uses_published_row();
+  test_selected_pure_first_rejects_legacy_call_only();
   test_missing_global_rows_cannot_use_legacy_names();
   puts("published peek/take and coordinate tests: PASS");
   if (argc == 1) return 0;

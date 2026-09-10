@@ -59,6 +59,14 @@ struct HakoLlvmcAllocationConfig {
   int exact_slot_helper;
 };
 
+/* Physical ingress policy captured by each invocation.  This is transport
+ * routing state only; typed published rows remain the semantic authority. */
+enum HakoLlvmcIngressProfile {
+  HAKO_LLVMC_INGRESS_GENERIC_COMPAT = 0,
+  HAKO_LLVMC_INGRESS_BOUNDARY_PURE_FIRST = 1,
+  HAKO_LLVMC_INGRESS_STATIC_V2 = 2
+};
+
 static struct HakoLlvmcAllocationConfig hako_llvmc_capture_allocation_config(void) {
   struct HakoLlvmcAllocationConfig config = {0, 0};
   const char* typed_store = getenv("HAKO_TYPED_OBJECT_STORE");

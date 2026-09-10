@@ -61,7 +61,11 @@ int hako_llvmc_static_open_v2(const char* bytes, size_t length,
     yyjson_doc_free(document);
     return set_err_owned(error, "[freeze:contract][static-v2/open-storage]");
   }
-  hako_llvmc_invocation_init(invocation, document, hako_llvmc_capture_allocation_config());
+  hako_llvmc_invocation_init(
+      invocation,
+      document,
+      hako_llvmc_capture_allocation_config(),
+      HAKO_LLVMC_INGRESS_STATIC_V2);
   *out = invocation;
   return 0;
 }

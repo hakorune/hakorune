@@ -400,6 +400,7 @@ static int forward_link_obj_to_aot_v2(
 }
 
 static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);
+static int compile_json_pure_first_selected(const char* json_in, const char* obj_out, char** err_out);
 struct HakoLlvmcInvocation;
 static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
     const char* json_in, const char* obj_out, char** err_out);
@@ -466,7 +467,7 @@ int hako_llvmc_compile_json_pure_first(const char* json_in, const char* obj_out,
   if (hako_llvmc_reject_ambient_harness_replay(err_out) != 0) {
     return -1;
   }
-  return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
+  return compile_json_pure_first_selected(json_in, obj_out, err_out);
 }
 
 // Canonical published-MIR ingress.  The module body is still read from the

@@ -87,6 +87,24 @@ Pure-first invocation ownership
   the earlier indexof pattern return. Non-document cleanup is unchanged.
   Downstream legacy exact-seed/replay file readers and other ABI entrypoints
   are outside this parse-once boundary; selected typed rows reject those routes.
+
+Pure-first ingress profiles
+- The selected `hako_llvmc_compile_json_pure_first` entry and typed Static V2
+  invocation stamp the existing invocation with a strict physical profile.
+  Before the shared lowering walk, that profile rejects an instruction whose
+  top-level `op` is the legacy `call` form with the named terminal
+  `[freeze:contract][pure-first/legacy-op-call]`. The check reads only the
+  parsed `functions[*].blocks[*].instructions[*].op` fields; it does not scan
+  raw JSON text or metadata/nested values containing `call`.
+- The public `hako_llvmc_compile_json` export remains the generic compatibility
+  profile. It retains the existing legacy reader and terminal for external
+  callers; this is not a selected-product caller-zero or retirement claim.
+- The focused physical proof is part of
+  `tests/published_rows_preartifact_test.c`. After the selected C build,
+  compile/run it with the yyjson implementation. The proof covers a strict
+  legacy-call rejection with no object, generic compatibility reachability
+  without the strict terminal, and a nested metadata `call` string that is
+  accepted by the strict profile.
 - Build the ownership instrument with ASan, then run the seven physical cases:
 
 ```bash

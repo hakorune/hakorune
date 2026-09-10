@@ -9,6 +9,7 @@ enum HakoLlvmcProgramObservation { PROGRAM_UNOBSERVED, PROGRAM_AVAILABLE, PROGRA
 struct HakoLlvmcInvocation {
   yyjson_doc* document;
   struct HakoLlvmcAllocationConfig config;
+  enum HakoLlvmcIngressProfile ingress_profile;
   struct NamedAllocationOutcomes outcomes;
   hako_llvmc_generic_pure_program_view program;
   struct PhysicalDefinitionPlan definitions;
@@ -19,8 +20,12 @@ struct HakoLlvmcInvocation {
 /* Takes document ownership; config is already captured by the invocation caller. */
 static void hako_llvmc_invocation_init(
     struct HakoLlvmcInvocation* invocation, yyjson_doc* document,
-    struct HakoLlvmcAllocationConfig config) {
-  *invocation = (struct HakoLlvmcInvocation){.document = document, .config = config};
+    struct HakoLlvmcAllocationConfig config,
+    enum HakoLlvmcIngressProfile ingress_profile) {
+  *invocation = (struct HakoLlvmcInvocation){
+      .document = document,
+      .config = config,
+      .ingress_profile = ingress_profile};
   named_allocation_outcomes_init(
       &invocation->outcomes, yyjson_doc_get_root(document), &invocation->config);
 }

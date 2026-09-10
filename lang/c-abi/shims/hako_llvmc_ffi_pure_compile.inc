@@ -175,6 +175,7 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
 
 #include "hako_llvmc_ffi_pure_unsupported_shape_diagnostic.inc"
 
+#include "hako_llvmc_ffi_selected_ingress_preflight.inc"
 #include "hako_llvmc_ffi_invocation.inc"
 
 /* Borrowed core: json_in survives only for explicit legacy downstream routes. */
@@ -203,6 +204,10 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
   hako_llvmc_pure_unsupported_shape_emit(&pure_unsupported_diag)
 
   if (hako_json_v1_validate_root(document_root, err_out) != 0) return -1;
+  if (hako_llvmc_reject_selected_legacy_call_op(
+          invocation->ingress_profile, document_root, err_out) != 0) {
+    return -1;
+  }
   if (hako_llvmc_collect_pinned_text_module_census_root(document_root, &ptfb_census, err_out) != 0) {
     return -1;
   }
@@ -544,14 +549,43 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
 }
 
 /* Sole document owner for the existing pure-first file ingress. */
-static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out) {
+static int compile_json_compat_pure_profile(
+    const char* json_in,
+    const char* obj_out,
+    char** err_out,
+    enum HakoLlvmcIngressProfile ingress_profile) {
   yyjson_doc* document = hako_json_v1_read_owned_file(json_in, err_out);
   if (!document) return -1;
   struct HakoLlvmcInvocation invocation;
-  hako_llvmc_invocation_init(&invocation, document, hako_llvmc_capture_allocation_config());
+  hako_llvmc_invocation_init(
+      &invocation,
+      document,
+      hako_llvmc_capture_allocation_config(),
+      ingress_profile);
   int rc = compile_doc_compat_pure(&invocation, json_in, obj_out, err_out);
   hako_llvmc_invocation_destroy(&invocation);
   return rc;
+}
+
+/* Historical generic C ABI remains the explicit compatibility owner. */
+static int compile_json_compat_pure(
+    const char* json_in, const char* obj_out, char** err_out) {
+  return compile_json_compat_pure_profile(
+      json_in,
+      obj_out,
+      err_out,
+      HAKO_LLVMC_INGRESS_GENERIC_COMPAT);
+}
+
+/* Selected Boundary callers receive the strict profile at the existing
+ * recipe-aware export; no dispatcher or semantic product is duplicated. */
+static int compile_json_pure_first_selected(
+    const char* json_in, const char* obj_out, char** err_out) {
+  return compile_json_compat_pure_profile(
+      json_in,
+      obj_out,
+      err_out,
+      HAKO_LLVMC_INGRESS_BOUNDARY_PURE_FIRST);
 }
 
 __attribute__((visibility("default")))

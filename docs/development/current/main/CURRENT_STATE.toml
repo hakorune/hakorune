@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0"
-current_execution_cohort = "m7s_pure_first_legacy_op_stop_i0"
+current_execution_cohort = "m7s_pure_first_legacy_op_stop_i0_closeout"
 current_design_stop = "none"
-current_blocker_token = "MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0: strict Boundary pure-first and typed Static V2 profiles must reject instruction op=call before generic dispatch; generic hako_llvmc_compile_json remains explicit compatibility."
+current_blocker_token = "MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0-CLOSEOUT: record the strict selected-profile stop, named-reject proof, generic compatibility reachability, focused C/Static V2/smoke evidence, and pointer/diff checks; next selection remains separate from this closeout."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Selected pure-first legacy-op Stop I0 is now implementation-ready from the accepted profile split in mirbuilder-final-pipeline-ssot.md; no code/test gate has run yet. Prior LocalSSA closeout evidence remains at 473c006604, with historical phase-card guards baseline-stale and unchanged."
+guard_followup = "MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0 closeout: invocation-local Boundary/Static V2 profiles reject instruction op=call before lowering with the named terminal; generic export retains its compatibility terminal; nested metadata call text is accepted. bash tools/build_hako_llvmc_ffi.sh, published_rows_preartifact_test.c, static_v2_session_test.py, llvm_hako_aot_ffi_admission_smoke.sh, diff check, and pointer guard pass. No generic caller-zero or OBJ/EXE claim."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -36,11 +36,12 @@ negative-test proof are closed at `0cd9ccec70`, `7a31b48b75`, and `5a117a96a2`
 with named-reject mutation evidence; do not duplicate that row. The callable
 Loop old-edge census is `ParkedSealed__NoCallableNoneCaller`. LocalSSA
 materialization BoxShape is closed at `473c006604` with unchanged body hash,
-focused parity suites, cargo check, and line/pointer guards. The accepted next
-slice is `MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0`: an invocation-local profile
-makes Boundary pure-first and typed Static V2 reject legacy instruction
-`op=call` before dispatch, while the public generic export remains
-compatibility-owned.
+focused parity suites, cargo check, and line/pointer guards. The accepted slice `MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0` is closed in the
+current C transport: an invocation-local profile makes Boundary pure-first and
+typed Static V2 reject legacy instruction `op=call` before dispatch with a
+named terminal, while the public generic export remains compatibility-owned.
+The focused C proof also covers generic reachability and nested metadata text;
+no generic caller-zero or OBJ/EXE result claim is made.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-PURE-FIRST-LEGACY-OP-STOP-I0"

@@ -21,6 +21,12 @@ the Library, including planner failure. Public V1 file ingress is retired;
 explicit generic compatibility and checked lifecycle V4 remain separate owners.
 The stage error order and remaining source selection boundary are in the
 collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
+Static V2 carries the strict invocation profile: an instruction-level legacy
+`op:"call"` is rejected before the shared lowering walk with
+`[freeze:contract][pure-first/legacy-op-call]`. The public generic JSON export
+keeps the compatibility profile for external callers; no generic caller-zero
+claim is made. The same profile check is used by the selected Boundary
+pure-first entry, and nested metadata strings are not scanned as instructions.
 
 ## Responsibility Boundary
 
