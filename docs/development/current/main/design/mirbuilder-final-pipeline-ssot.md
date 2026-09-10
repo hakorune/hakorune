@@ -1566,7 +1566,7 @@ Both focused tests passed with one executed test each and the coverage-only
 series landed at `0d2ea64e9e`. This closes evidence debt only; it does not open
 child physical Add/Unit consumers or change a route.
 
-##### `MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0` (design accepted; I0 queued)
+##### `MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0` (design accepted; I0 landed; I1 design stop)
 
 Decision: the ordinary-call identity fact can be issued by existing source
 authority. Do not create a new semantic receipt or infer identity from C,
@@ -1597,15 +1597,14 @@ projection emits the prepared receiver-object identity for the ordinary callee;
 V2/V4 reject caller/callee object mismatch before LLVM emission. A missing
 prepared identity remains unavailable.
 
-Bounded task order (implementation remains unstarted while this design-stop is
-open):
+Bounded task order (the physical I1 design-stop is now open):
 
-1. **Receiver source row (I0).** Extend the existing row with claim object and
+1. **Receiver source row (I0, landed at `694f61e253`).** Extend the existing row with claim object and
    initializer site; add accessors and replace the actual-Call self-reference
    in `root_call_entry` with the existing local-commit New binding/value check.
    Keep allocation-instance identity distinct from the canonical definition
    ID. Add positive and negative same-typed two-object receiver mutation tests.
-2. **Physical callee identity (I1).** In the existing physical program owner,
+2. **Physical callee identity (I1-D0, current design stop).** In the existing physical program owner,
    prepare one receiver-object identity for each selected ordinary instance
    function from the canonical object membership already used by the module.
    Carry it through the existing JSON/V2/V4 rows and compare it in the
@@ -1884,12 +1883,17 @@ new backend route. No source fallback or generic MIR-JSON `Invoke` is allowed.
 Non-claims: this design does not authorize code, fixture, production switch,
 OBJ/EXE acceptance, or any other MethodCall family.
 
-I0 Rust closeout evidence (2026-09-10): the selected fixture now declares
-`Pair.sum(): i64`; the existing result issuer supplies the selected
-`InstanceBoxMethod` contract, and focused source tests cover both the ready row
-and the unannotated/unavailable case. The common Invoke verifier accepts the
-existing `SameModuleInstance` + `I64` shape only when the selected namespace
-and source arity match. `--dump-mir` reaches the complete root lifecycle:
+I0 Rust closeout evidence (2026-09-10, `694f61e253`): the selected fixture now
+declares `Pair.sum(): i64`; the existing result issuer supplies the selected
+`InstanceBoxMethod` contract, and the source row retains the exact initializer
+site plus the claim's canonical object definition. Finalization resolves the
+receiver from the owner-scoped New local commit and rejects a substituted
+receiver `ValueId` even when two allocations have the same declared type.
+The focused receiver family is `5/5` green, including the positive retained
+identity case and the negative emitted-receiver mutation. The common Invoke
+verifier accepts the existing `SameModuleInstance` + `I64` shape only when the
+selected namespace and source arity match. `--dump-mir` reaches the complete
+root lifecycle:
 
 ```text
 NewBox -> Birth(Unit) -> SameModuleInstance(Pair.sum/0, receiver %11)
@@ -1897,9 +1901,65 @@ NewBox -> Birth(Unit) -> SameModuleInstance(Pair.sum/0, receiver %11)
 ```
 
 This closes the Rust source/lifecycle I0. The selected physical caller still
-rejects the receiver-bearing call at
-`[freeze:contract][published-lifecycle-program/ordinary-call-callee]`; that is
-the next physical receiver-lane design boundary, not a failed Rust I0.
+needs the callee's prepared object definition to be compared with the borrowed
+receiver before LLVM emission; that is the next I1 design boundary, not a
+failed Rust I0.
+
+##### `MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1-D0` (current design stop)
+
+Decision: carry the selected callee's canonical object definition through the
+existing physical function row and compare it with the borrowed receiver at
+the existing V2/V4 call gate. Do not infer the expected object from the first
+`FieldGet`, runtime handle liveness, runtime type IDs, names, or C text. This
+is a `BoxShape` physical projection; it does not issue a new semantic receipt
+or change the source receiver authority.
+
+Source authority + canonical issuer: the selected
+`CanonicalSameModuleCallableKeyV1` plus the existing module
+`canonical_object_membership` map. For an `InstanceBoxMethod`, the physical
+program owner resolves `key.owner()` through that already-validated map and
+stores the resulting `CanonicalObjectIdV1` in the existing
+`PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64` row. Static and free
+ordinary functions keep the receiverless shape and carry no object identity.
+The Rust source row from I0 remains the authority for the caller's binding,
+initializer, and emitted `ValueId`; the physical row only projects the
+callee's expected object layout.
+
+Non-authority: the first `object_field_get` in a callee body, a `FieldGet`
+route, `receiver_object_set` inferred after parsing, handle liveness, runtime
+type IDs, function names, C defaults, or compatibility retry. C may consume
+the prepared object ID and compare it, but may not discover, repair, or
+reclassify it.
+
+Fail-fast boundary: missing or duplicate canonical membership, an instance
+role without exactly one prepared object ID, a static role with an object ID,
+function-row/layout object drift, a receiver-bearing call targeting a
+receiverless row, and a live receiver whose object ID differs from the
+callee's prepared object all reject before LLVM emission. V2 and V4 must use
+the same existing function-row field; the current C V4 inference from the
+first `FieldGet` is retired in the same cutover. Birth receiver checks remain
+unchanged.
+
+Smallest next slice: census the existing physical function JSON/V2/V4 row and
+its exact-key tests, then name the one row extension (`receiver_object`,
+nullable for static/root roles) and its owner. After that decision, I1
+implementation is ordered as: (1) project membership once in the Rust
+physical program, (2) emit and validate the row in the existing JSON/V2
+input, (3) seed the existing V4 invocation index from that field and compare
+ordinary-call receivers, and (4) add missing/foreign/wrong-object negatives
+before the selected Pair witness. No generic call route or new transport
+revision is opened.
+
+Acceptance for I1 is a selected `Pair.sum()` physical positive, a same-type
+wrong-receiver negative, a foreign-object/layout negative, static ordinary
+regression, and V2/V4 rejection before LLVM/object output. The existing
+receiver lane, atomic publication, cleanup coordinates, and C/LLVM session
+remain the sole consumers.
+
+Non-claims: no arbitrary instance methods, dynamic or opaque receivers,
+child cleanup expansion, FieldGet prepared-row reuse, transport concurrency,
+or general LLVM performance claim. OBJ/EXE exit 30 is counted only after the
+I1 receiver check is active in the selected production caller.
 
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-D0`
 

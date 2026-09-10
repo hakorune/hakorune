@@ -383,6 +383,14 @@ full pending cleanup; Plain keeps the existing one-entry suffix contract.
 The same physical boundary captures both sets and validates compiler finishing.
 This caller consumer does not authorize ordinary Map package installation or
 the ordinary compiled-entry/LLVM role; those remain explicit Stops.
+The selected root instance-call row also retains the exact New initializer site
+and the claim's `CanonicalObjectIdV1`. Finalization resolves the receiver
+`ValueId` from that owner-scoped local commit and compares the emitted Call
+receiver with it; copying the receiver from the observed Call is not allowed.
+This source/local boundary is covered by a same-typed two-object positive and
+receiver-substitution negative. The physical callee object check remains a
+separate physical-program/C boundary and is not inferred from this README's
+MIR observations.
 The same table uses private LocalCommitV1::Ordinary / Map entries. Map progress
 retains one opaque result through ExpressionCompleted, Installed and Checked;
 Completion alone owns its source order and transfers. Callable local placement
