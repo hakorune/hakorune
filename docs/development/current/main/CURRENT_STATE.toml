@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-COVERAGE-REPAYMENT-R0"
-current_execution_cohort = "mirbuilder_root_method_terminal_probe_family_coverage_repayment_r0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0"
+current_execution_cohort = "mirbuilder_ordinary_call_receiver_object_identity_d0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Coverage-only terminal probe repayment: add inverse root/child declaration-order evidence and repeated full physical compile/diagnostic-order evidence. No semantic issuer, route, or child physical support changes."
+current_blocker_token = "Ordinary-call receiver object identity D0: C checks handle liveness but no caller/callee object identity, while Rust has no source-backed receiver-object issuer. Design an existing source authority or explicitly keep the shape unavailable; do not infer from MIR, FieldGet, names, or C defaults."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,23 +33,24 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 Selected Pair/Birth/Map and receiver-method checkpoints retain their recorded
 bounded execution evidence. Terminal owner probes, additive field-read merge,
-ordinary-call order and PHI convergence fixes are closed. Lifecycle V4 now
-uses the existing invocation-local hako_lts_session for LLVM18 C API
+ordinary-call order and PHI convergence fixes are closed; the missing inverse
+owner-order and repeated physical-order evidence landed at 0d2ea64e9e. Lifecycle
+V4 now uses the existing invocation-local hako_lts_session for LLVM18 C API
 parse/verify/object emission; the sole V4 llc edge and private subprocess
 plumbing are retired at 720849812b. Pair/Bool, ordinary-child New/Birth/Map,
 NativeArray, Map physical, parser negatives, PATH-without-llc, and trace
 evidence passed. The quick runtime archive is the recorded Map witness; the
 release archive's unrelated main collision remains baseline debt. Physical
 V2/V4 index fusion is parked at D1 because the trust owners remain separate
-and no measured delete-set exists. Untyped object storage D0 is now
+and no measured delete-set exists. Untyped object storage is
 ParkedSealed/NoSafeSlice because no source-backed storage issuer or dynamic
-tagged ABI exists. The next executable row is coverage-only terminal-probe
-repayment: inverse owner-order evidence plus repeated full physical order
-evidence. Whole MirBuilder, R7, general LLVM graduation, parallel sessions,
-and memory-only transport remain unproven.
+tagged ABI exists. The next design stop is ordinary-call receiver object
+identity: no source-backed receiver-object issuer exists yet. Whole MirBuilder,
+R7, general LLVM graduation, parallel sessions, and memory-only transport
+remain unproven.
 """
-next_design_card = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
-next_execution_card = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-COVERAGE-REPAYMENT-R0"
+next_design_card = "MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0"
+next_execution_card = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

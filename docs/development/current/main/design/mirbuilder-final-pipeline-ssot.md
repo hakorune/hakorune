@@ -1558,6 +1558,67 @@ guard, route, child physical Add consumer, or child Unit consumer. If either
 test exposes a real semantic discrepancy, reopen the existing owner row for a
 design decision instead of widening this coverage task.
 
+##### Terminal probe coverage repayment closeout (2026-09-10)
+
+The inverse declaration-order owner test and repeated full physical
+function/diagnostic-order test are implemented in the existing test owners.
+Both focused tests passed with one executed test each and the coverage-only
+series landed at `0d2ea64e9e`. This closes evidence debt only; it does not open
+child physical Add/Unit consumers or change a route.
+
+##### `MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0` (design stop)
+
+Decision: do not add an ordinary-call object-identity check until a
+source-backed receiver-object issuer is named. The existing source relation
+issues the exact callable key and receiver `ValueId`, but it does not issue a
+canonical object identity. C V2/V4 scans and the first `FieldGet` cannot be
+promoted into that authority.
+
+Source authority + canonical issuer: the existing
+`RootInstanceCallDispositionRowV1` / validated source binding is the candidate
+issuer for the target and receiver. A future bounded design must either
+extend that source-backed relation with an exact receiver-object fact or
+explicitly keep ordinary instance calls unavailable when the fact cannot be
+issued.
+
+Non-authority: `root_call_entry`'s self-derived expected receiver, MIR type or
+handle liveness, function names, C V2/V4 receiver scans, JSON defaults, and
+`project_field_get` inference. The current C ordinary-call path checks only a
+live handle; it does not prove caller/callee object identity. No unsafe read was
+observed, but the rejection boundary is too late for a physical admission
+claim.
+
+Fail-fast boundary: source/canonical publication must reject receiver binding,
+call key, or object-identity drift before physical JSON and C admission. Once a
+source-backed fact exists, Rust projection, V2/V4 validation, and emission must
+compare the same object identity; a missing fact remains unavailable rather
+than being inferred.
+
+Smallest next slice: design-only census of the existing source binding and
+field/object catalog to decide whether an exact receiver-object fact can be
+issued without a second semantic authority. If not, record the selected
+unsupported boundary. Only after that decision may a focused positive/negative
+test cover two same-typed objects calling different receivers.
+
+Non-claims: no receiver-object receipt, JSON field, C fallback, ordinary-call
+physical consumer change, cache, concurrency, or performance claim is
+authorized by this row.
+
+##### `MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0` (queued after receiver D0)
+
+After the receiver identity decision, inspect the existing physical projection
+owner for one `CanonicalFieldRefV1` per admitted `FieldGet`. The physical
+admission check, referenced-layout collection, and JSON encoder must consume
+that same prepared row instead of rebuilding box/slot identity three times.
+Keep route, object membership, slot, and layout rejection at the physical
+owner. This is a `BoxShape` reuse task only if the existing owner can produce
+the row without issuing new source meaning; otherwise return to design stop.
+
+Acceptance will compare positive FieldGet projection and missing-route,
+foreign-object, slot/layout, and serializer-consistency negatives. No source
+resolver re-entry, C-side inference, generic fallback, new semantic receipt,
+or measured speed claim is included.
+
 ##### MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0
 
 Decision: design stop before any C or transport change. Select one existing
