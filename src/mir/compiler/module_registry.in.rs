@@ -18,7 +18,6 @@ pub(in crate::mir) mod callable_scc_partition;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_single_loop_operation_effect;
 pub(in crate::mir) mod callable_semantic_program;
-#[cfg(test)]
 pub(crate) mod callable_single_loop_prelude_arguments;
 #[allow(dead_code)]
 pub(crate) mod callable_single_loop_recipe;
@@ -105,7 +104,6 @@ pub(in crate::mir) mod located;
 pub(crate) mod loop_cond_break_continue_observation;
 #[allow(dead_code)]
 pub(in crate::mir) mod loop_cond_break_continue_projection;
-#[cfg(test)]
 pub(crate) mod loop_physical_prepare;
 #[cfg(test)]
 pub(crate) mod loop_true_break_continue_observation;

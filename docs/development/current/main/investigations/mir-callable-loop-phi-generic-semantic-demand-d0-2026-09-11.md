@@ -1,5 +1,5 @@
 ---
-Status: accepted design; bounded Callable profile selected for implementation
+Status: accepted design; bounded Callable profile semantic-demand slice landed
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0
 Parent: mir-callable-loop-phi-generic-physical-demand-d0-2026-09-11
@@ -201,3 +201,21 @@ There is no deletion set yet. The old GenericLoopV1 Composer path can be
 deleted only after the new demand is production-connected, the canonical
 session acceptance matrix passes, and its caller is zero for the selected
 cohort. No OBJ/EXE, process exit, backend, or R7 claim is made here.
+
+## Semantic-demand implementation receipt (2026-09-11)
+
+The selected callback now borrows the existing resolved function input and
+callable source ledger, issues the CallableSingleLoop syntax-facts,
+source-map, and Recipe products once, and consumes the existing common
+operation/effect/continuation demand. A move-only `CallableSingleLoop` route
+is selected only after those products pass their owner, source-site, frame,
+and scope checks; unsupported shapes remain on their existing explicit route.
+The source ingress constructor is shared by tests and production, while the
+old Generic Composer remains unchanged for the broad Generic profile.
+
+The bounded physicalizer is wired to the existing canonical SSA/CFG/PHI and
+DraftSeal owners, with a route-selection test and the existing full canary
+green. This is structural/session-entry evidence only: module publication,
+OBJ/EXE, zero/one/multiple execution acceptance, and legacy deletion remain
+open for the next I0 row. No second BindingRef/SSA issuer, semantic field on
+`RawInvocationChildPortV1`, name fallback, or Generic relabeling was added.

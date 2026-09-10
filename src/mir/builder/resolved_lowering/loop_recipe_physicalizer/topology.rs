@@ -54,7 +54,7 @@ pub(in crate::mir::builder::resolved_lowering) struct ReadyLoopEntryV1 {
 }
 
 impl ReadyLoopEntryV1 {
-    pub(super) fn new_for_test(
+    pub(super) fn from_rows(
         owner: FunctionOwnerIdV1,
         preheader: BasicBlockId,
         rows: Vec<ReadyLoopEntryRowV1>,
@@ -64,6 +64,15 @@ impl ReadyLoopEntryV1 {
             preheader,
             rows: rows.into_boxed_slice(),
         }
+    }
+
+    #[cfg(test)]
+    pub(super) fn new_for_test(
+        owner: FunctionOwnerIdV1,
+        preheader: BasicBlockId,
+        rows: Vec<ReadyLoopEntryRowV1>,
+    ) -> Self {
+        Self::from_rows(owner, preheader, rows)
     }
 
     pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {

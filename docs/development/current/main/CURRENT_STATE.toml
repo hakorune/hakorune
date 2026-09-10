@@ -32,11 +32,14 @@ normally `None`). The selected callback owns the bounded implementation
 handoff: it must borrow the existing `ResolvedFunctionLoweringInputV1` and
 `CallableSemanticSourceLedgerView` into the Callable syntax-facts/source-map/
 Recipe/common-demand chain; no raw-port semantic/session field is allowed. The
-old composer remains quarantined for the broad Generic route. The selected
+semantic-demand route and canonical SSA/CFG/PHI physicalizer are now wired;
+route-selection and full-canary evidence are green, but module publication,
+OBJ/EXE execution, and zero/one/multiple iteration acceptance remain open.
+The old composer remains quarantined for the broad Generic route. The selected
 static callable DirectAccum branch already reuses
 `CanonicalDirectAccumSsaLowererV1`; all compatibility callers remain parked.
-No OBJ/EXE claim is open. Local-completion and guard-cleanup remain queued
-after the semantic-demand slice and session entry.
+No OBJ/EXE or broad GenericLoop claim is open. Local-completion and
+guard-cleanup remain queued after the session-entry acceptance slice.
 """
 next_design_card = "MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md"

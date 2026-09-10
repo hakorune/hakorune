@@ -22,6 +22,10 @@ use super::callable_declaration_catalog::{
 use super::main_expansion::VerifiedMainStaticChildV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
+use super::normal_callable_prepared_operation::PreparedCallableLoopOperationProgramV1;
+use super::normal_callable_semantic_source::{
+    PreparedCallableLoopIngressV1, VerifiedNormalCallableSourceIngressReceiptV1,
+};
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_instance_constructor_demand_loan::InstanceConstructorDemandConsumptionV1;
 use super::normal_instance_constructor_semantic_scope::with_constructor_semantic_scope;
@@ -35,6 +39,15 @@ use super::recursive_child_lowering::{
 };
 use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use crate::mir::compiler::CanonicalLoweringErrorV1;
+use crate::mir::compiler::callable_single_loop_recipe_coseal::{
+    issue_callable_single_loop_recipe_v1, CallableRecipeCoSealRejectV1,
+};
+use crate::mir::compiler::callable_single_loop_source_map::{
+    issue_callable_single_loop_source_map_v1, CallableSourceMapRejectV1,
+};
+use crate::mir::compiler::callable_single_loop_syntax_facts::{
+    issue_callable_single_loop_syntax_facts_from_ledger_v1, CallableSyntaxFactsRejectV1,
+};
 use crate::mir::normal_callable_semantic_package::{
     NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
     ResolvedCallablePhysicalSignatureLoanV1, SelectedCallableLoweringInputRefV1,
@@ -173,6 +186,7 @@ fn validate_selected_signature_loan(
 enum CanonicalCallableRouteV1<'source> {
     Ready(crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1<'source>),
     DirectAccum(crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1<'source>),
+    CallableSingleLoop(PreparedCallableLoopOperationProgramV1<'source>),
     Outside,
 }
 
@@ -193,6 +207,9 @@ fn classify_canonical_callable_route(
                 .to_owned(),
         );
     }
+    if let Some(program) = try_prepare_callable_single_loop_program_v1(input)? {
+        return Ok(CanonicalCallableRouteV1::CallableSingleLoop(program));
+    }
     match CanonicalLoweringPreflightV1::verify_function(input) {
         Ok(CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan)) => {
             Ok(CanonicalCallableRouteV1::Ready(plan))
@@ -203,6 +220,88 @@ fn classify_canonical_callable_route(
             "[freeze:contract][mir/callable-canonical-preflight] {error:?}"
         )),
     }
+}
+
+fn try_prepare_callable_single_loop_program_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+) -> Result<Option<PreparedCallableLoopOperationProgramV1<'_>>, String> {
+    let ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .map_err(|error| format!("[freeze:contract][callable-loop/source-ledger] {error:?}"))?;
+    if ledger.loop_sites().count() != 1 {
+        return Ok(None);
+    }
+    let syntax = match issue_callable_single_loop_syntax_facts_from_ledger_v1(input, &ledger) {
+        Ok(syntax) => syntax,
+        Err(error) if callable_syntax_shape_outside(error) => return Ok(None),
+        Err(error) => {
+            return Err(format!(
+                "[freeze:contract][callable-loop/syntax-facts] {error:?}"
+            ))
+        }
+    };
+    let map = match issue_callable_single_loop_source_map_v1(&ledger, syntax) {
+        Ok(map) => map,
+        Err(error) if callable_source_map_shape_outside(error) => return Ok(None),
+        Err(error) => {
+            return Err(format!(
+                "[freeze:contract][callable-loop/source-map] {error:?}"
+            ))
+        }
+    };
+    let product = match issue_callable_single_loop_recipe_v1(&ledger, map) {
+        Ok(product) => product,
+        Err(error) if callable_recipe_shape_outside(&error) => return Ok(None),
+        Err(error) => {
+            return Err(format!(
+                "[freeze:contract][callable-loop/recipe] {error:?}"
+            ))
+        }
+    };
+    let source = VerifiedNormalCallableSourceIngressReceiptV1::from_resolved_input_v1(input)?;
+    let prepared = PreparedCallableLoopIngressV1::from_source_v1(source, product)
+        .map_err(|error| format!("[freeze:contract][callable-loop/source-context] {error:?}"))?
+        .prepare_full_demand()
+        .map_err(|error| format!("[freeze:contract][callable-loop/semantic-demand] {error:?}"))?;
+    Ok(Some(prepared))
+}
+
+fn callable_syntax_shape_outside(error: CallableSyntaxFactsRejectV1) -> bool {
+    matches!(
+        error,
+        CallableSyntaxFactsRejectV1::LoopCardinality
+            | CallableSyntaxFactsRejectV1::LoopShape
+            | CallableSyntaxFactsRejectV1::LoopBodyArity
+            | CallableSyntaxFactsRejectV1::InitialCarrierShape
+            | CallableSyntaxFactsRejectV1::DuplicateInitialCarrier
+            | CallableSyntaxFactsRejectV1::PrefixBoundaryShape
+            | CallableSyntaxFactsRejectV1::DuplicatePrefixBoundary
+            | CallableSyntaxFactsRejectV1::ConditionShape
+            | CallableSyntaxFactsRejectV1::ConditionRhsNotLiteral
+            | CallableSyntaxFactsRejectV1::StepShape
+            | CallableSyntaxFactsRejectV1::StepRhsNotLiteral
+            | CallableSyntaxFactsRejectV1::StepTargetShape
+            | CallableSyntaxFactsRejectV1::TailShape
+            | CallableSyntaxFactsRejectV1::UnexpectedBodyStatement
+    )
+}
+
+fn callable_source_map_shape_outside(error: CallableSourceMapRejectV1) -> bool {
+    matches!(
+        error,
+        CallableSourceMapRejectV1::UnsupportedAssignmentTarget
+            | CallableSourceMapRejectV1::UnsupportedLiteral(_)
+            | CallableSourceMapRejectV1::UnsupportedOperator(_)
+    )
+}
+
+fn callable_recipe_shape_outside(error: &CallableRecipeCoSealRejectV1) -> bool {
+    matches!(
+        error,
+        CallableRecipeCoSealRejectV1::UnsupportedLiteral(_)
+            | CallableRecipeCoSealRejectV1::UnsupportedOperator(_)
+    )
 }
 
 fn is_canonical_shape_outside(error: &CanonicalLoweringErrorV1) -> bool {
@@ -652,6 +751,15 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             target_capability,
                         )
                         .map_err(|error| error.to_string()),
+                    CanonicalCallableRouteV1::CallableSingleLoop(program) => inner
+                        .lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
+                            builder,
+                            admission,
+                            signature,
+                            program,
+                            target_capability,
+                        )
+                        .map_err(|error| error.to_string()),
                     CanonicalCallableRouteV1::Outside => {
                         with_selected_source_scope(
                             inner,
@@ -728,6 +836,7 @@ mod map_dependency_tests;
 mod canonical_route_tests {
     use super::{classify_canonical_callable_route, CanonicalCallableRouteV1};
     use crate::mir::compiler::{
+        callable_single_loop_static_fixture_tests::static_fixture_for_test,
         direct_accum_projection::direct_accum_function_for_test,
         VerifiedResolvedSourceUnitV1,
     };
@@ -739,5 +848,21 @@ mod canonical_route_tests {
         let input = unit.root_function_input().expect("root function input");
         let route = classify_canonical_callable_route(input).expect("canonical preflight");
         assert!(matches!(route, CanonicalCallableRouteV1::DirectAccum(_)));
+    }
+
+    #[test]
+    fn callable_single_loop_selection_uses_the_source_bound_route() {
+        let module = static_fixture_for_test();
+        let header = module
+            .source()
+            .catalog()
+            .index()
+            .resolve_free_static_source_call("int_to_str", 1)
+            .expect("int_to_str header");
+        let input = module
+            .function_input(header.source_key())
+            .expect("int_to_str input");
+        let route = classify_canonical_callable_route(input).expect("canonical preflight");
+        assert!(matches!(route, CanonicalCallableRouteV1::CallableSingleLoop(_)));
     }
 }

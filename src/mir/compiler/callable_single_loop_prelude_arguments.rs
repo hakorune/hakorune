@@ -4,8 +4,6 @@
 //! It intentionally admits only direct variable arguments backed by caller
 //! parameters with the existing exact `i64` representation.
 
-#![cfg(test)]
-
 use crate::ast::ASTNode;
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;

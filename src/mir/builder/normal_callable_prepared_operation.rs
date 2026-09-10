@@ -86,6 +86,10 @@ impl<'source> PreparedCallableLoopIngressV1<'source> {
 }
 
 impl<'source> PreparedCallableLoopOperationProgramV1<'source> {
+    pub(super) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.source.owner()
+    }
+
     pub(super) fn into_parts(
         self,
     ) -> (

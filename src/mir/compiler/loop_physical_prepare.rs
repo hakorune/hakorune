@@ -1,11 +1,9 @@
 //! Caller-zero contracts for the post-Recipe callable Loop boundary.
 //!
-//! This module is deliberately test-only while the physical selector is
-//! parked.  It joins existing resolver, Recipe, ABI, and completion products
-//! without opening a Builder session.  The only new fact is the relation that
-//! those products may be executed together; no source meaning is re-resolved.
-
-#![cfg(test)]
+//! This module joins existing resolver, Recipe, ABI, and completion products
+//! before the canonical callable Loop session opens. The only new fact is the
+//! relation that those products may be executed together; no source meaning
+//! is re-resolved.
 
 use std::ptr;
 

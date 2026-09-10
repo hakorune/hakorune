@@ -578,6 +578,21 @@ the verified Recipe value class; concrete or missing type facts reject as
 caller; rejection paths continue to discard the unpublished session.
 Production selection, retry, and legacy deletion remain closed.
 
+## Callable source-bound semantic demand I0 (2026-09-11)
+
+The selected CallableSingleLoop route now borrows the existing resolved
+function input and callable source ledger, then consumes the existing
+syntax-facts → source-map → Recipe → common operation/effect/continuation
+demand chain once. The route is explicit and move-only; broad GenericLoop
+shapes stay on their existing Composer path. The bounded physicalizer uses
+the existing canonical SSA/CFG/PHI and DraftSeal owners and does not issue
+source identity or Binding SSA values of its own.
+
+Focused route-selection and full-canary tests are green. Module publication,
+OBJ/EXE execution, zero/one/multiple iteration acceptance, and legacy
+retirement remain open; this receipt does not promote the broad GenericLoop
+profile.
+
 ### Callable full physical canary closeout (2026-08-08)
 
 `CALLABLE-LOOP-PHYSICAL-CANARY-P0` is now closed as caller-zero evidence. The

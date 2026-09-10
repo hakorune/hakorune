@@ -3,9 +3,7 @@
 use crate::mir::canonical_direct_call::VerifiedCanonicalDirectCallEmissionV1;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-#[cfg(test)]
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
-#[cfg(test)]
 use crate::mir::resolved_semantics::VerifiedCallableHeaderV1;
 use crate::mir::resolved_value_profile::product::TrivialRepresentationV1;
 use crate::mir::resolved_value_profile::VerifiedTrivialDirectCallV1;
@@ -70,7 +68,6 @@ pub(super) fn emit(
 /// header but does not belong to the whole Trivial profile.  This keeps the
 /// canonical direct-call capability, emission, and type-fact owners shared by
 /// profile routes without manufacturing a second profile row.
-#[cfg(test)]
 pub(in crate::mir::builder::resolved_lowering) fn emit_resolved_header(
     builder: &mut MirBuilder,
     input: ResolvedFunctionLoweringInputV1<'_>,

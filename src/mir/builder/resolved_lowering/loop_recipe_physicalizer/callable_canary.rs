@@ -1,9 +1,10 @@
-//! Caller-zero Prelude materialization for the callable Loop canary.
+//! Callable Loop Prelude materialization shared by the bounded consumer and
+//! its canary.
 //!
 //! This adapter consumes only already-sealed resolver capabilities.  It
 //! publishes parameter declarations through the canonical identity owner,
 //! emits the exact resolver-issued static call through the shared direct-call
-//! emitter, and returns one `ReadyLoopEntryV1`.  Tail, Loop operations,
+//! emitter, and returns one `ReadyLoopEntryV1`. Tail, Loop operations,
 //! Completion, and DraftSeal remain outside this cell.
 
 use super::super::canonical_ssa::{CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2};
@@ -12,7 +13,6 @@ use super::topology::{ReadyLoopEntryRowV1, ReadyLoopEntryV1};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::emission::constant;
 use crate::mir::builder::MirBuilder;
-use crate::mir::compiler::callable_loop_physical_canary::into_canary_parts;
 use crate::mir::compiler::loop_physical_prepare::{
     VerifiedCallableFunctionLoweringInputV1, VerifiedCallablePreludeCapabilityV1,
 };
@@ -223,7 +223,7 @@ pub(super) fn materialize_callable_prelude_v1(
     session
         .identity
         .publish_declaration(
-            site,
+            &site,
             result_record.kind(),
             result_record.diagnostic_name(),
             preheader,
@@ -248,7 +248,7 @@ pub(super) fn materialize_callable_prelude_v1(
             ASTNode::Literal {
                 value: LiteralValue::Integer(value),
                 ..
-            } => *value,
+            } => value,
             _ => return Err(CallablePreludeMaterializationRejectV1::InputInitializerUnsupported),
         };
         let input_binding = input
@@ -269,11 +269,11 @@ pub(super) fn materialize_callable_prelude_v1(
         };
         if !matches!(
             input_record.origin(),
-            BindingOriginV1::Source(site) if site == input_relation.declaration()
+            BindingOriginV1::Source(site) if *site == *input_relation.declaration()
         ) {
             return Err(CallablePreludeMaterializationRejectV1::InputBindingMismatch);
         }
-        let input_value = constant::emit_integer(builder, initial_value)
+        let input_value = constant::emit_integer(builder, *initial_value)
             .map_err(CallablePreludeMaterializationRejectV1::InputDeclaration)?;
         session
             .identity
@@ -291,7 +291,7 @@ pub(super) fn materialize_callable_prelude_v1(
             input_value,
         ));
     }
-    let entry = ReadyLoopEntryV1::new_for_test(input.owner(), preheader, entry_rows);
+    let entry = ReadyLoopEntryV1::from_rows(input.owner(), preheader, entry_rows);
     Ok(CallablePreludeMaterializationReceiptV1 {
         owner: input.owner(),
         preheader,
@@ -352,7 +352,7 @@ fn materialize_parameters(
             .ok_or(CallablePreludeMaterializationRejectV1::ParameterRecordMissing)?;
         if !matches!(
             record.origin(),
-            BindingOriginV1::Source(site) if site == &source_site
+            BindingOriginV1::Source(site) if *site == source_site
         ) {
             return Err(CallablePreludeMaterializationRejectV1::ParameterOriginMismatch);
         }
@@ -381,6 +381,7 @@ fn materialize_parameters(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::compiler::callable_loop_physical_canary::into_canary_parts;
     use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
     use crate::mir::builder::resolved_lowering::MirBuilder;
     use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;

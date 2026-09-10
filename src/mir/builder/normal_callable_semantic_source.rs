@@ -96,11 +96,11 @@ impl<'source> VerifiedNormalCallableSourceIngressReceiptV1<'source> {
         self.input.owner()
     }
 
-    /// Test-only bridge for an already resolved callable-module input.  The
-    /// physical canary must use the exact input/index/header owner pair; this
-    /// helper does not resolve source or issue a second semantic owner.
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn from_resolved_input_for_test(
+    /// Bridge an already resolved callable-module input into the source
+    /// ingress. The resolver forest remains the sole source authority; this
+    /// constructor only borrows its existing ledger and never rescans or
+    /// reissues source facts.
+    pub(in crate::mir::builder) fn from_resolved_input_v1(
         input: ResolvedFunctionLoweringInputV1<'source>,
     ) -> Result<Self, String> {
         let ledger = input
@@ -108,6 +108,15 @@ impl<'source> VerifiedNormalCallableSourceIngressReceiptV1<'source> {
             .callable_source_ledger(input.owner())
             .map_err(|error| format!("callable source ledger: {error:?}"))?;
         Ok(Self { input, ledger })
+    }
+
+    /// Test spelling retained for existing canaries while production callers
+    /// use the explicit non-test constructor above.
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn from_resolved_input_for_test(
+        input: ResolvedFunctionLoweringInputV1<'source>,
+    ) -> Result<Self, String> {
+        Self::from_resolved_input_v1(input)
     }
 }
 
@@ -275,50 +284,7 @@ impl<'source, 'loan> VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
         logical: VerifiedCallableSingleLoopRecipeProductV1,
     ) -> Result<PreparedCallableLoopIngressV1<'loan>, PreparedCallableLoopIngressRejectV1> {
         let source = self.source_ingress;
-        let source_owner = source.owner();
-        if source.input().owner() != source_owner || source.ledger().owner() != source_owner {
-            return Err(PreparedCallableLoopIngressRejectV1::SourceOwnerMismatch);
-        }
-
-        let co_seal = logical.co_seal();
-        if co_seal.core().owner() != source_owner {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalCoreOwnerMismatch);
-        }
-        if logical.prelude().owner() != source_owner {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalPreludeOwnerMismatch);
-        }
-        if logical.tail().owner() != source_owner {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalTailOwnerMismatch);
-        }
-        if co_seal.continuation().owner() != source_owner {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalContinuationOwnerMismatch);
-        }
-
-        let context = co_seal.context();
-        if context.owner() != source_owner {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalContextOwnerMismatch);
-        }
-        if context.origin() != source.ledger().function_origin() {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalOriginMismatch);
-        }
-        if context.source_kind() != source.ledger().source_kind() {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalSourceKindMismatch);
-        }
-        let membership = source
-            .ledger()
-            .only_loop_site()
-            .map_err(|_| PreparedCallableLoopIngressRejectV1::SourceLoopIdentityUnavailable)?;
-        if context.loop_site() != membership.source().site() {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalLoopSiteMismatch);
-        }
-        if context.frame() != membership.frame() {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalFrameMismatch);
-        }
-        if context.scope_region() != membership.scope_region() {
-            return Err(PreparedCallableLoopIngressRejectV1::LogicalScopeRegionMismatch);
-        }
-
-        Ok(PreparedCallableLoopIngressV1 { source, logical })
+        prepare_callable_loop_ingress(source, logical)
     }
 
     pub(super) fn into_parts(
@@ -331,7 +297,64 @@ impl<'source, 'loan> VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
     }
 }
 
+fn prepare_callable_loop_ingress<'source>(
+    source: VerifiedNormalCallableSourceIngressReceiptV1<'source>,
+    logical: VerifiedCallableSingleLoopRecipeProductV1,
+) -> Result<PreparedCallableLoopIngressV1<'source>, PreparedCallableLoopIngressRejectV1> {
+    let source_owner = source.owner();
+    if source.input().owner() != source_owner || source.ledger().owner() != source_owner {
+        return Err(PreparedCallableLoopIngressRejectV1::SourceOwnerMismatch);
+    }
+
+    let co_seal = logical.co_seal();
+    if co_seal.core().owner() != source_owner {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalCoreOwnerMismatch);
+    }
+    if logical.prelude().owner() != source_owner {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalPreludeOwnerMismatch);
+    }
+    if logical.tail().owner() != source_owner {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalTailOwnerMismatch);
+    }
+    if co_seal.continuation().owner() != source_owner {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalContinuationOwnerMismatch);
+    }
+
+    let context = co_seal.context();
+    if context.owner() != source_owner {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalContextOwnerMismatch);
+    }
+    if context.origin() != source.ledger().function_origin() {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalOriginMismatch);
+    }
+    if context.source_kind() != source.ledger().source_kind() {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalSourceKindMismatch);
+    }
+    let membership = source
+        .ledger()
+        .only_loop_site()
+        .map_err(|_| PreparedCallableLoopIngressRejectV1::SourceLoopIdentityUnavailable)?;
+    if context.loop_site() != membership.source().site() {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalLoopSiteMismatch);
+    }
+    if context.frame() != membership.frame() {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalFrameMismatch);
+    }
+    if context.scope_region() != membership.scope_region() {
+        return Err(PreparedCallableLoopIngressRejectV1::LogicalScopeRegionMismatch);
+    }
+
+    Ok(PreparedCallableLoopIngressV1 { source, logical })
+}
+
 impl<'source> PreparedCallableLoopIngressV1<'source> {
+    pub(super) fn from_source_v1(
+        source: VerifiedNormalCallableSourceIngressReceiptV1<'source>,
+        logical: VerifiedCallableSingleLoopRecipeProductV1,
+    ) -> Result<Self, PreparedCallableLoopIngressRejectV1> {
+        prepare_callable_loop_ingress(source, logical)
+    }
+
     pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.source.owner()
     }

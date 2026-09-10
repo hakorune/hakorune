@@ -6,6 +6,7 @@ use super::calls::{LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 use super::module_lowering_invocation::ResolvedChildDraftAdmissionV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
+use super::normal_callable_prepared_operation::PreparedCallableLoopOperationProgramV1;
 use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
@@ -205,6 +206,47 @@ impl RawInvocationChildPortV1<'_, '_> {
                 builder
                     .lower_resolved_direct_accum_function_draft_with_physical_name_v1(
                         plan,
+                        function_name,
+                    )
+                    .map_err(|error| format!("{error:?}"))
+            })
+            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
+        self.module_port.complete_resolved_child_with_physical_loan(
+            pending,
+            resolved,
+            signature,
+            target_capability,
+        )
+    }
+
+    /// Canonical consumer for the bounded source-bound CallableSingleLoop
+    /// profile. The existing semantic demand is consumed once by the shared
+    /// PHI/CFG physicalizer; no legacy body driver or source re-resolution is
+    /// reachable from this edge.
+    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        signature: ResolvedCallablePhysicalSignatureLoanV1<'_>,
+        program: PreparedCallableLoopOperationProgramV1<'_>,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        if program.owner() != signature.owner() {
+            return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
+        }
+        let function_name = admission.physical_symbol().to_owned();
+        let resolved = ResolvedChildDraftAdmissionV1::canonical_resolved_owner(
+            signature.owner(),
+            function_name.clone(),
+            admission.physical_arity(),
+        );
+        let pending = builder
+            .capture_resolved_function_pending_session_v1(&function_name.clone(), move |builder| {
+                builder
+                    .lower_resolved_callable_single_loop_function_draft_with_physical_name_v1(
+                        program,
                         function_name,
                     )
                     .map_err(|error| format!("{error:?}"))

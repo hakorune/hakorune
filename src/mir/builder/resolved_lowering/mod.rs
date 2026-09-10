@@ -128,7 +128,6 @@ mod identity_separation_tests;
 mod if_materialization_tests;
 #[cfg(test)]
 mod if_tests;
-#[cfg(test)]
 mod loop_recipe_physicalizer;
 
 pub(in crate::mir::builder::resolved_lowering) use canonical_compare_writer::{
@@ -369,6 +368,21 @@ impl MirBuilder {
         physical_name: String,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
         self.lower_resolved_direct_accum_function_draft_inner(plan, false, Some(physical_name))
+    }
+
+    /// Consume one source-bound CallableSingleLoop demand through the
+    /// existing canonical SSA/CFG/PHI session.  The profile physicalizer owns
+    /// no route choice or source lookup; it only emits the already co-sealed
+    /// operation product and closes the normal draft seal.
+    pub(in crate::mir::builder) fn lower_resolved_callable_single_loop_function_draft_with_physical_name_v1(
+        &mut self,
+        program: crate::mir::builder::normal_callable_prepared_operation::
+            PreparedCallableLoopOperationProgramV1<'_>,
+        physical_name: String,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::
+            lower_callable_single_loop_function_draft_v1(self, program, physical_name)
+        .map_err(CanonicalResolvedBuildErrorV1::BuilderContract)
     }
 
     pub(in crate::mir) fn lower_resolved_nested_predicate_function_draft(

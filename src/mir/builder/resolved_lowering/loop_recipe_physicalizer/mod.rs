@@ -1,13 +1,14 @@
-//! Caller-zero common Loop physicalizer facade.
+//! Common Loop physicalizer facade.
 //!
 //! `topology` owns the recursive block skeleton, `operation_emitter` owns the
 //! private operation leaf seams, and each focused test module owns its own
-//! evidence. Full physicalization and production activation remain closed.
+//! evidence. The bounded CallableSingleLoop consumer is production-connected;
+//! broader GenericLoop physicalization remains closed.
 
-#[cfg(test)]
 mod callable_canary;
 #[cfg(test)]
 mod callable_production_canary_tests;
+mod callable_lowerer;
 mod carrier_emitter;
 mod compare_i64_operands;
 mod compare_i64_writer;
@@ -33,12 +34,13 @@ mod recursive_after;
 mod segment_allocator;
 mod segment_dispatcher;
 mod segment_topology;
-#[cfg(test)]
 mod tail_completion;
+#[cfg(test)]
 mod tests;
 mod topology;
 
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
+pub(super) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
 use operation_dispatcher::*;
 use operation_emitter::*;
 use operation_ledger::*;

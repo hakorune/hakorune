@@ -1,4 +1,4 @@
-//! Test-only callable Tail -> Completion handoff.
+//! Callable Tail -> Completion handoff.
 //!
 //! The common Loop physicalizer stops at `ReadyLoopAfterContinuationV1`.
 //! This seam belongs to the outer callable profile: it reads the exact Tail
