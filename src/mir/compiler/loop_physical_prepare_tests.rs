@@ -317,3 +317,28 @@ fn resolver_static_fixture_produces_declaration_backed_prepared_positive() {
             .callable()
     );
 }
+
+#[test]
+fn prepared_rejects_one_point_receiver_shape_mutation() {
+    let module = static_fixture_for_test();
+    let key = CanonicalCallableKeyV1::free_static_for_test("int_to_str", 1);
+    let input = module.function_input(&key).unwrap();
+    let index = module.source().catalog().index();
+    let header = index.lookup(&key).unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let (_, product) = loop_product(input);
+
+    assert!(matches!(
+        issue_callable_loop_physicalization_v1(
+            input,
+            index,
+            header,
+            product,
+            completion,
+            SourceReceiverShapeV1::Other,
+        ),
+        Err(LoopPhysicalPrepareRejectV1::NoSafeSlice(
+            LoopPhysicalPrepareRejectReasonV1::PreludeReceiverMismatch
+        ))
+    ));
+}

@@ -390,3 +390,18 @@ multiple iteration shapes within the selected profile.
 The receipt does not claim that generic Loop Composer value-flow, body-local
 ledger completion, mutation-discriminating negatives, module/OBJ/EXE, or Pair
 exit behavior is complete; those remain queued acceptance work.
+
+### Mutation-discriminating receiver rejection receipt (2026-09-11)
+
+The valid declaration-backed FreeStatic fixture is now reused for a one-point
+receiver-shape mutation. The only changed input is the expected receiver
+(`FreeStatic` -> `Other`); the source owner, resolver index/header, callable
+target, completion, Recipe, and cleanup-capable graph remain valid. The
+physical prepare boundary rejects this mutation with the named
+`PreludeReceiverMismatch` terminal before a physical effect. This closes the
+receiver side of the negative-proof requirement for the selected entry.
+
+Wrong edge/predecessor, stale generation, and unsealed publication mutations
+still need dedicated selected-session helpers; the existing low-level verifier
+tests are not promoted as production-fixture evidence. Module publication,
+OBJ/EXE, and Pair exit remain unclaimed.
