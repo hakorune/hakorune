@@ -26,6 +26,7 @@ second health-repair task.
 | `MIR-EMIT-MOVE-COMMIT-R0` | High confidence | `builder_emit.rs` | after debug-policy ownership is fixed; do not overlap a semantic writer row |
 | `MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` | Required before growth | `method_call_handlers.rs` | behavior-neutral split at the publication-ingress policy / legacy prepare-execute boundary; the file is 766 lines |
 | `MIR-UNIFIED-EMITTER-FORWARDER-CENSUS-D0` | Parked design | `unified_emitter.rs` + exact callers | no layer merge until `PermitLegacy` and `RequireGenericReceipt` callers have a finite contract-preserving delete set |
+| `MIR-CALL-EMIT-LOOKUP-FACADE-RETIRE-S0` | Design stop | `MirBuilder` lookup policy + `UnifiedCallEmitterBox` | audit `Some`/`None` lookup policy and retain the facade unless one exclusive delete-set preserves legacy rejection/compatibility terminals |
 | `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` | Bounded BoxShape | `variable_read.rs` | move only direct read access to the existing variable owner; do not privatize or clone-rewrite the whole map |
 | `MIR-C-SPEED-EXACT-MODE-CONTRACT-D0` | Separate design | value/ABI + storage/runtime owners | keep safe defaults until generation/lease/lifetime/thread/failure contracts are fixed |
 | `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0` | Candidate cleanup | `mutable_accumulator.rs` test surface | after the active perf row; delete one body-identical test only with baseline inventory update |

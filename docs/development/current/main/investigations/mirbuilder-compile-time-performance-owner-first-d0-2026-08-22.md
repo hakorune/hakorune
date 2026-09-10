@@ -1,10 +1,10 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, and postprocess walk census D0/P0 closed; variable-read accessor S0 is selected
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, and postprocess walk census D0/P0 closed; variable-read accessor S0 closed; lookup-facade S0 is design-stop
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0
+NextCard: MIR-CALL-EMIT-LOOKUP-FACADE-RETIRE-S0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
@@ -422,8 +422,7 @@ loop-bound probes remain a separate route-coverage rejection and are not a
 false green.
 
 The lazy resolve payload slice and the observation-only postprocess walk
-counter slice are now landed. Keep the Hako published-view ingress parked and
-select the bounded `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` BoxShape. The
+counter slice are now landed. Keep the Hako published-view ingress parked. The
 debug-policy snapshot is already closed at `4ba9293900`; do not reopen its D0
 wording or add a second Builder, adapter, fallback, or semantic receipt.
 
@@ -450,10 +449,49 @@ Non-claims:
   privatization, or compiler-speed claim.
 ```
 
-Acceptance is the existing variable-read behavior suite plus quick library
-check, line/pointer/diff guards, and the source census above. A failure in
-diagnostic text, `__pin$`, or escape handling reopens this row; it does not
-authorize a broader accessor rewrite.
+Closeout at `968f135fce`:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --profile quick -p nyash-rust --lib       # passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_loop_handoff # 6 passed
+rustfmt --edition 2021 --check src/mir/builder/variable_read.rs          # passed
+rg -n "variable_map\.get" src/mir/builder/variable_read.rs              # zero matches
+bash tools/checks/current_state_pointer_guard.sh + git diff --check      # passed
+```
+
+The selected direct read now uses the existing `VariableContext::lookup`
+owner. `__pin$` rejection, escape checks, debug observation, and undefined
+variable diagnostics remain in the same method. No PHI/Loop, assignment,
+snapshot, whole-map, or compiler-speed claim is made.
+
+### `MIR-CALL-EMIT-LOOKUP-FACADE-RETIRE-S0` design stop
+
+The next row is not an immediate deletion. The worker census found that the
+facade owns three distinct policy cases: unified-profile lookup present,
+lookup-present legacy retry rejection, and lookup-absent compatibility. Its
+real callers include the method-call terminal's global and standard paths plus
+one header-port test; raw invocation ports can produce both `Some` and `None`.
+
+```text
+Decision:
+  Audit whether one finite, contract-preserving delete-set exists. Keep the
+  facade if deleting it would duplicate or bypass the existing policy.
+Source authority + canonical issuer:
+  MirBuilder::emit_unified_call_with_lookup owns lookup policy; the typed
+  UnifiedCallEmitter consumes it.
+Non-authority:
+  caller frame count, a new port/receipt, name repair, fallback, retry, or
+  semantic target re-resolution.
+Fail-fast boundary:
+  lookup-present must retain the legacy-retry rejection; lookup-absent may
+  retain only the existing compatibility path. Any proposed deletion must
+  preserve both terminals and their diagnostics.
+Smallest next slice:
+  read-only caller/consumer/policy census, then either one exclusive delete-set
+  or an explicit ParkedSealed decision.
+Non-claims:
+  no code change, new port, receipt, backend route, or semantic Call change.
+```
 
 ## All-worker surface audit (2026-09-03)
 
