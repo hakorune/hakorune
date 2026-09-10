@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
-current_execution_cohort = "mirbuilder_untyped_object_storage_d0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-COVERAGE-REPAYMENT-R0"
+current_execution_cohort = "mirbuilder_root_method_terminal_probe_family_coverage_repayment_r0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Untyped object storage D0: preserve source-issued init_fields membership, then choose an existing source annotation/migration authority or explicitly stop at a dynamic/opaque tagged ABI design. MIR observation, constant-caller heuristics, receiver names, and C defaults cannot issue storage meaning."
+current_blocker_token = "Coverage-only terminal probe repayment: add inverse root/child declaration-order evidence and repeated full physical compile/diagnostic-order evidence. No semantic issuer, route, or child physical support changes."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -41,12 +41,15 @@ NativeArray, Map physical, parser negatives, PATH-without-llc, and trace
 evidence passed. The quick runtime archive is the recorded Map witness; the
 release archive's unrelated main collision remains baseline debt. Physical
 V2/V4 index fusion is parked at D1 because the trust owners remain separate
-and no measured delete-set exists. The next bounded row is the design-only
-untyped object-storage authority decision. Whole MirBuilder, R7, general LLVM
-graduation, parallel sessions, and memory-only transport remain unproven.
+and no measured delete-set exists. Untyped object storage D0 is now
+ParkedSealed/NoSafeSlice because no source-backed storage issuer or dynamic
+tagged ABI exists. The next executable row is coverage-only terminal-probe
+repayment: inverse owner-order evidence plus repeated full physical order
+evidence. Whole MirBuilder, R7, general LLVM graduation, parallel sessions,
+and memory-only transport remain unproven.
 """
 next_design_card = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-COVERAGE-REPAYMENT-R0"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

@@ -1877,6 +1877,44 @@ annotations/migration or an explicit dynamic/opaque slot and tagged runtime ABI;
 MIR observation, constant-caller heuristics, and receiver-name inference cannot
 be promoted into this authority.
 
+##### Untyped object storage D0 audit (2026-09-10)
+
+Status: `NoSafeSlice` / `ParkedSealed`. The existing source-backed chain is
+`BoxDeclaration`/`FieldDecl` plus `init_fields` membership ->
+`ProgramDeclarationFacts` transport -> compilation-context normalization ->
+`object_definition::issue` -> canonical layout -> typed-object plan -> typed
+object C ABI. `object_definition::issue` projects the init-only names once, in
+source order, and records weak fields, but it does not issue a storage type;
+canonical layout therefore correctly rejects the missing type.
+
+The compatibility fixed-point inference is not an authority, and neither are
+MIR `FieldSet` observations, receiver names, constant-caller heuristics,
+`new_typed_hi`'s I64 default, or C-side defaults. The current typed-object ABI
+has numeric/handle tags only; no source-backed dynamic/opaque slot contract or
+tagged consumer exists. The fail-fast boundary remains canonical layout before
+typed-plan or package/artifact publication.
+
+Reopen only when one of these two bounded design choices has an existing owner:
+(a) migrate the source declaration to a supported exact field type, or (b)
+issue a source-backed dynamic/opaque field contract together with its tagged
+runtime ABI and consumer. Until then, do not add a guessed storage receipt,
+write-based inference, generic fallback, or fixture that claims typed-object
+acceptance. This audit does not authorize production code changes.
+
+##### Terminal probe coverage repayment selection (2026-09-10)
+
+The four integrity fixes reported by the terminal-probe audit are already
+landed in the current branch: owner-scoped Call/Add/literal/field probes and
+root-only Unit handling (`a37eba6cc4`), additive child/AppMain field-read
+retention (`29f9c3ee3d`), deterministic ordinary-call collection
+(`a078c00699`), and PHI non-convergence rejection (`14a8f88c6a`). They are not
+opened again as duplicate implementation rows. The remaining bounded work is
+coverage repayment only: inverse root/child declaration-order evidence for the
+owner-scoped expected-state observation, and repeated full physical compile
+evidence for ordinary function and diagnostic-site order. Any semantic failure
+reopens the owning row; a passing check does not authorize child physical Add,
+child Unit, or a new route.
+
 Handoff after Loop retirement and repository convergence is owned by
 `selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`:
 language conformance -> canonical mimalloc promotion -> authority migration
