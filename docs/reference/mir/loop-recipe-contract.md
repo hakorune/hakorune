@@ -1258,9 +1258,11 @@ evidence for this contract.
 
 For iteration `n`, the Header condition and Body reads both consume `h_n`. A
 Body rebind produces `s_n`; the canonical Backedge carries that value into the
-next Header generation `h_(n+1)`, and the false-edge After/Tail reads
-`h_(n+1)`. The later creation of `s_n` never makes it an After value by itself;
-the edge relation is the only proof of that generation transition.
+next Header generation `h_(n+1)`. `After`/`Tail` reads the Header generation
+selected by the canonical false edge: the initial `h_0` on a zero-iteration
+path, or `h_(n+1)` after a preceding Backedge. The later creation of `s_n`
+never makes it an After value by itself; the edge relation is the only proof of
+that generation transition.
 
 ## Rejection boundary
 

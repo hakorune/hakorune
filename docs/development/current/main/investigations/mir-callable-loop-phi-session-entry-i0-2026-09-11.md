@@ -114,7 +114,9 @@ The final positive graph must reach a named session terminal without manual
 must return with its short borrow ended and the session fully sealed or
 explicitly discarded. Header reads
 use generation `h_n`, body reads use `h_n`, a rebind defines `s_n`, the
-backedge carries `s_n`, and the false edge exposes the canonical After value.
+backedge carries `s_n`, and the false edge exposes the canonical After value
+(`h_0` for zero iterations, or the next-header `h_(n+1)` after a backedge).
+The later `s_n` value is never selected for After merely by creation order.
 The session is fully sealed or explicitly discarded before the handoff
 returns.
 
