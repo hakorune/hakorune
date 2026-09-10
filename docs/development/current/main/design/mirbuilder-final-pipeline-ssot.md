@@ -960,16 +960,18 @@ create no parallel acceptance ledger or per-case guard.
 
 #### Acceptance evidence and current blocker (2026-09-10)
 
-The exact owner suite was run at current `1752f973e9` and at its pinned parent
-`72f2496568fcd555499fdcb26fef2d8f1df03089` in an isolated worktree with the
-same release `hakorune`/`ny-llvmc` tool pair. Current results are `1/11` pass
-and `10/11` fail; the pinned parent is `6/11` pass and `5/11` fail. The
+The historical baseline run was recorded at `1752f973e9` and at its pinned
+parent `72f2496568fcd555499fdcb26fef2d8f1df03089` in an isolated worktree
+with the same release `hakorune`/`ny-llvmc` tool pair. That historical result
+was `1/11` pass and `10/11` fail; the pinned parent was `6/11` pass and `5/11`
+fail. The
 unsupported-boundary probe passes in both runs. The five common reds are
 `boxtorrent_mini_exe`, `binary_trees_exe`, `mimalloc_lite_exe`,
 `json_stream_aggregator_exe_runtime_boundary`, and `allocator_stress_exe`;
 they remain separately owned baseline/source-boundary failures.
 
-The five current-only reds are split by owner. `typed_object_newbox_min_exe`
+At that historical run, the five additional reds were split by owner.
+`typed_object_newbox_min_exe`
 is outside the exact canonical storage vocabulary because it declares
 `IntegerBox`; the language type SSOT treats `IntegerBox` as an object identity,
 while the old metadata compatibility planner treated it as an inline i64.
@@ -984,7 +986,7 @@ source-backed package -> `take_object_definitions` -> `ModuleDraftCollector`
 transfer is present; RawCompatibility must remain an adapter and must not gain
 canonical fallback, AST re-inference, or old metadata authority.
 
-The bounded design order is therefore: (1) decide and issue `init_fields`
+The historical bounded design order was therefore: (1) decide and issue `init_fields`
 membership in the existing object-definition issuer with its source order,
 duplicate, weak-field, and foreign/brand rejection rules; (2) reconcile the
 `IntegerBox` direct-EXE contract between the language type SSOT and the typed
@@ -1009,7 +1011,12 @@ owner-scoped failures: unsupported `Invoke` MIR JSON for method/Birth,
 unsupported declared parameter or loop handoff for the older real-app corpus,
 the untyped-field local-commit drift, and the missing root-call entry for
 Birth parameters. This recheck does not close acceptance or alter the
-existing baseline classification.
+existing baseline classification. The current remaining work is selected by
+the existing owner rows: use the physical lifecycle caller for method/Birth
+instead of the generic MIR-JSON harness (which intentionally rejects
+`Invoke`), then close the existing root-call-entry and local-commit owners
+exposed by the recheck. No new acceptance ledger or semantic receipt is
+needed.
 
 ##### `MIRBUILDER-INIT-FIELDS-CANONICAL-PROJECTION-I0`
 
