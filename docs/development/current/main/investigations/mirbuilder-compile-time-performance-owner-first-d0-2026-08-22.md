@@ -242,9 +242,10 @@ has one `append_instruction_core` call, and has no `_dbg_fn_name`,
 `_dbg_region_id`, or unconditional `instruction.clone()` anchor. This does
 not claim a measured speedup or whole-library health.
 
-The next performance row is the separately scoped
-`MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0`; it remains a design stop until the
-existing Hub owner and a production caller are audited. The unrelated C
+The next performance row is the ordered
+`MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0`; its D0 design is accepted using the
+existing invocation/session owner and both production ingress forms. Lazy
+payload construction is later in the queue. The unrelated C
 invocation-driver arity, generic compatibility-positive fixture, and
 path-aware LocalSSA guard findings remain separate queue items and are not
 silently counted as resolved by this emit slice.

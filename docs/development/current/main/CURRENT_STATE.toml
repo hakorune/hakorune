@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0"
-current_execution_cohort = "mir_builder_debug_event_lazy_args_p0_design_stop"
-current_design_stop = "MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0: audit the existing Hub owner and one production caller before selecting a lazy-argument seam; no new permit, receipt, or debug route may be issued until the caller/consumer and acceptance are named."
-current_blocker_token = "MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0: design-only audit of the existing debug gate and caller-owned payload construction; no code or fixture changes until one bounded BoxShape is accepted."
+work_mode = "fast"
+current_execution_row = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
+current_execution_cohort = "mir_emit_debug_policy_snapshot_i0_fast"
+current_design_stop = "none"
+current_blocker_token = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0: reuse the existing BuilderEmitDebugPolicySnapshotV1/BuilderInvocationConfigV1 install seam; prove session isolation and zero selected emit process-env reads without adding a new authority."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0 design gate: name the existing Hub gate owner, one production caller, payload construction boundary, fail-fast behavior, and acceptance without issuing a new semantic product. The closed emit-clone slice is evidenced separately; no route, semantic, fallback, or backend change."
+guard_followup = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0 focused gate: prove normal/default and canonical ingress install the existing snapshot, two sessions retain independent explicit settings after ambient env mutation, selected emit readers perform zero process-env reads, focused flag behavior remains equivalent, touched sources stay below 800 lines, and pointer/diff checks pass. No new receipt, route, semantic, fallback, or backend change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -44,10 +44,12 @@ generic harness remains compatibility-owned. No generic caller-zero, backend
 parity, or whole-pipeline OBJ/EXE claim is made. The behavior-neutral emit-clone
 slice closed at `9808923785`: Builder/Phi focused suites, compile-cost baseline,
 line/anchor checks, diff check, and pointer guard passed; no speedup or whole-lib
-claim. The next selected row is the debug-event lazy-argument design stop.
+claim. The debug-policy snapshot D0 is accepted in the existing queue; the next
+selected row is its bounded I0. Lazy debug payload construction remains later
+in the queue.
 """
-next_design_card = "MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0"
-next_execution_card = "none__design_stop_until_debug_hub_census"
+next_design_card = "none"
+next_execution_card = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -65,5 +67,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA materialization BoxShape I0 closed at 473c006604; selected C pure-first stop closed at 907550c78b; selected Dynamic JSON egress pinned to CanonicalV1 at e2bb3b8b91 with forced-selector tests green. No generic caller-zero or whole-pipeline claim. MIR-BUILDER-EMIT-CLONE-SHAPE-P0 also closed at 9808923785: dead debug metadata and non-Phi append clone removed, sole append/Phi observation and focused evidence green; no speedup or whole-library claim. Next row is the debug-event lazy-argument design stop."
+  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA materialization BoxShape I0 closed at 473c006604; selected C pure-first stop closed at 907550c78b; selected Dynamic JSON egress pinned to CanonicalV1 at e2bb3b8b91 with forced-selector tests green. No generic caller-zero or whole-pipeline claim. MIR-BUILDER-EMIT-CLONE-SHAPE-P0 also closed at 9808923785: dead debug metadata and non-Phi append clone removed, sole append/Phi observation and focused evidence green; no speedup or whole-library claim. Debug-policy snapshot D0 is accepted; next row is MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0, with lazy payload later."
 ]

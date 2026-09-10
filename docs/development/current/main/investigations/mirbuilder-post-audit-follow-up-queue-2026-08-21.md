@@ -435,6 +435,48 @@ no semantic feature flag is moved into debug policy
 Non-claims: no repository-wide env cache, no runtime flag ABI change, no
 removal of compatibility aliases, and no compile-speed keeper before baseline.
 
+### D0 decision — accepted 2026-09-10
+
+The existing invocation/session chain is sufficient; no new receipt, adapter,
+or context axis is needed:
+
+```text
+joinir_dev / builder_flags environment parser
+  -> BuilderEmitDebugPolicySnapshotV1::from_environment()
+  -> BuilderInvocationConfigV1::{snapshot_for_raw[_with_imports], snapshot_for_canonical}
+  -> CompilationContext / existing module invocation session install
+  -> existing Builder debug readers
+```
+
+The snapshot captures the existing vocabulary before the first MIR instruction.
+The accepted key set is `HAKO_JOINIR_DEBUG` (with the existing
+`NYASH_JOINIR_DEBUG` alias), `HAKO_JOINIR_STRICT` / `NYASH_JOINIR_STRICT`,
+`HAKO_JOINIR_PLANNER_REQUIRED`, `NYASH_LOCAL_SSA_TRACE`,
+`NYASH_BUILDER_TRACE_RECV`, `NYASH_BUILDER_DEBUG`,
+`NYASH_STATIC_CALL_TRACE`, `NYASH_STATIC_METHOD_TRACE`, and
+`NYASH_CALL_RESOLVE_TRACE`. Normal/default and canonical ingress both use the
+same existing snapshot vocabulary; the test override remains the existing
+lock/restore boundary in `src/test_support.rs`.
+
+Source authority and issuer are existing config/parser owners. `builder_emit`,
+`unified_emitter`, and `receiver` are consumers only. `DebugHub`, observer
+OnceLock state, VM/backend, and direct environment reads in
+`function_impl.rs` are outside this selected boundary and remain separate
+rows. The fail-fast boundary is capture/install before the first MIR
+instruction; an ambient environment change afterward must not alter the
+session policy.
+
+Census boundary: normal/default and canonical compiler ingress -> existing
+`CompilationContext`/module invocation install -> selected Builder emit/debug
+readers; includes only the keys above and excludes DebugHub payload construction,
+observer caches, VM/backend, runtime flags, and repository-wide env reads.
+
+The next bounded slice is `MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0`: reuse the
+existing snapshot/install seam, prove two independently created sessions keep
+their own explicit configurations after an ambient environment flip, and make
+the selected emit readers perform zero process-env reads. No semantic route,
+fallback, retry, or backend change is permitted.
+
 ## `MIR-DEBUG-PAYLOAD-LAZY-P0`
 
 The observer gate must run before payload construction. Use a closure or named
