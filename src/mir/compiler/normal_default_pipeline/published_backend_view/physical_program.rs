@@ -20,6 +20,12 @@ use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 use super::{CompiledEntryRootResultV1, PublishedMirBackendView, PublishedStaticMethodRouteV1};
 use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 
+#[path = "physical_program_object_identity.rs"]
+mod object_identity;
+#[path = "physical_program_call_helpers.rs"]
+mod call_helpers;
+pub(crate) use call_helpers::{ordinary_call_receiver, ordinary_callable_key};
+
 /// One exact selected function in the physical lifecycle program.
 #[derive(Debug, Clone)]
 pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
@@ -31,6 +37,7 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
     },
     OrdinaryI64 {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>,
     },
 }
 
@@ -63,7 +70,16 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         &self,
     ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
         match self {
-            Self::OrdinaryI64 { key } => Some(key),
+            Self::OrdinaryI64 { key, .. } => Some(key),
+            Self::Root { .. } | Self::BirthUnit { .. } => None,
+        }
+    }
+
+    pub(crate) const fn receiver_object(&self) -> Option<CanonicalObjectIdV1> {
+        match self {
+            Self::OrdinaryI64 {
+                receiver_object, ..
+            } => *receiver_object,
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
     }
@@ -71,7 +87,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
     pub(crate) fn has_receiver(&self) -> bool {
         match self {
             Self::BirthUnit { .. } => true,
-            Self::OrdinaryI64 { key } => {
+            Self::OrdinaryI64 { key, .. } => {
                 key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
             }
             Self::Root { .. } => false,
@@ -278,10 +294,14 @@ impl<'module> PublishedMirBackendView<'module> {
             {
                 return Err(fault("ordinary-membership-drift"));
             }
+            let receiver_object = object_identity::ordinary_receiver_object(self.module(), &key)?;
             functions.push(issue_function_with_module(
                 Some(self.module()),
                 function,
-                PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key },
+                PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 {
+                    key,
+                    receiver_object,
+                },
                 false,
                 &[],
             )?);
@@ -632,36 +652,6 @@ pub(crate) fn project_field_get(
     CanonicalFieldRefV1::from_declaration_ordinal(object, slot as usize)
         .map(Some)
         .ok_or_else(|| fault("field-get-slot-overflow"))
-}
-
-pub(crate) fn ordinary_callable_key(
-    callee: &Callee,
-) -> Result<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, String> {
-    match callee {
-        Callee::Global(target) => super::static_method_key(target)
-            .or_else(|| super::free_function_key(target))
-            .ok_or_else(|| fault("ordinary-call-target")),
-        Callee::SameModuleInstance { key, .. }
-            if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod =>
-        {
-            Ok(key.clone())
-        }
-        Callee::SameModuleInstance { .. } => Err(fault("ordinary-call-instance-namespace")),
-        _ => Err(fault("ordinary-call-callee")),
-    }
-}
-
-pub(crate) fn ordinary_call_receiver(callee: &Callee) -> Result<Option<ValueId>, String> {
-    match callee {
-        Callee::Global(_) => Ok(None),
-        Callee::SameModuleInstance { key, receiver }
-            if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod =>
-        {
-            Ok(Some(*receiver))
-        }
-        Callee::SameModuleInstance { .. } => Err(fault("ordinary-call-instance-namespace")),
-        _ => Err(fault("ordinary-call-callee")),
-    }
 }
 
 fn as_u32(value: usize, reason: &str) -> Result<u32, String> {

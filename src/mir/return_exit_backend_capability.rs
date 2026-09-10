@@ -50,7 +50,7 @@ pub(crate) fn enforce_lifecycle_return_exit_backend_supported(
     for physical in input.program().functions() {
         let symbol = match physical.role() {
             crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => physical.name(),
-            crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key } => module
+            crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. } => module
                 .canonical_callable_definition_symbol(key)
                 .ok_or_else(|| format!("{} reason=ordinary-definition-missing", LIFECYCLE_RETURN_EXIT_CAPABILITY_MISSING_TAG))?,
             crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { .. } => continue,

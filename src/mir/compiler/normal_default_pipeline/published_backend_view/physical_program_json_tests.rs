@@ -1,5 +1,6 @@
 use super::*;
 use crate::mir::compiler::normal_default_pipeline::{MirCompiler, NormalCompileRequestV1};
+use crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1;
 use crate::parser::NyashParser;
 use std::collections::HashMap;
 
@@ -119,6 +120,51 @@ static box Main { main() { local pair = new Pair(10, 20) return } }
         if let Err(error) = result {
             panic!("{error}");
         }
+    });
+}
+
+#[test]
+fn ordinary_instance_function_publishes_canonical_receiver_object() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(true);
+        compiler
+            .compile_normal_with_published(
+                request(include_str!(
+                    "../../../../../apps/typed-object-method-min/main.hako"
+                )),
+                |view, verification| {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let ordinary = input
+                        .program()
+                        .functions()
+                        .iter()
+                        .find(|function| {
+                            matches!(
+                                function.role(),
+                                PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                            )
+                        })
+                        .ok_or_else(|| "ordinary method function missing".to_owned())?;
+                    let object = ordinary
+                        .role()
+                        .receiver_object()
+                        .ok_or_else(|| "ordinary method receiver object missing".to_owned())?;
+                    let json = emit_lifecycle_physical_abi_json(&input)?;
+                    let decoded: Value = serde_json::from_str(&json).unwrap();
+                    let row = decoded["functions"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|row| row["role"] == "ordinary_i64")
+                        .ok_or_else(|| "ordinary method JSON row missing".to_owned())?;
+                    assert_eq!(row["receiver_object"], object.declaration_index());
+                    assert!(row["receiver"].is_number());
+                    Ok::<(), String>(())
+                },
+            )
+            .unwrap();
     });
 }
 

@@ -72,6 +72,10 @@ fn emit_lifecycle_physical_program_value(
                 "name": function.name(),
                 "role": function.role().wire_name(),
                 "receiver": function.role().receiver_value(function.params()).map(|value| value.0),
+                "receiver_object": function
+                    .role()
+                    .receiver_object()
+                    .map(|object| object.declaration_index()),
                 "params": function.params().iter().skip(usize::from(function.role().has_receiver()))
                     .map(|param| json!({
                         "value": value(param),

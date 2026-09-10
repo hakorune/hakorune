@@ -313,7 +313,7 @@ impl<'module> PublishedMirBackendView<'module> {
                         birth_functions.push((physical_index, function));
                     }
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. } => {
-                        let PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key } =
+                        let PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. } =
                             function.role()
                         else {
                             unreachable!()
@@ -346,7 +346,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 if function.params().len() != expected_arity
                     || !matches!(
                         function.role(),
-                        PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key: target }
+                        PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key: target, .. }
                             if target == &key
                     )
                 {

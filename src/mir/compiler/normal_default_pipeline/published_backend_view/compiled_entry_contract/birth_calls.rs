@@ -49,7 +49,7 @@ pub(super) fn issue_birth_calls_for_program(
             u32::try_from(caller_function_index).map_err(|_| fault("compiled-entry-call-index"))?;
         let owner = match function.role() {
             PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => Some(root_owner),
-            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key } => {
+            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. } => {
                 let has_birth = function.blocks().iter().any(|block| {
                     block
                         .instructions()

@@ -94,7 +94,9 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
           !lv4_is(callee, "role", "ordinary_i64") ||
           (callee_has_receiver != (receiver && !yyjson_is_null(receiver))) ||
           (callee_has_receiver && (!yyjson_is_uint(receiver) ||
-              !lv4_indexed_live(fn, lv4_u(call, "receiver"), LV4_HANDLE, state, 0, 0))) ||
+              !in->index[target].receiver_object_set ||
+              !lv4_indexed_live(fn, lv4_u(call, "receiver"), LV4_HANDLE, state,
+                  in->index[target].receiver_object, 1))) ||
           yyjson_arr_size(args) != yyjson_arr_size(yyjson_obj_get(in->index[target].function, "params"))) return 0;
       for (size_t i = 0; i < yyjson_arr_size(args); i++) {
         yyjson_val* arg = yyjson_arr_get(args, i);
@@ -178,30 +180,12 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
 
 static int lv4_indexed_admit(hako_lv4_input* in) {
   if (!lv4_index_open(in)) return 0;
-  /* Every selected caller binds each borrowed receiver to an exact layout. */
+  /* Birth callers bind borrowed receivers; ordinary callees already carry the
+   * prepared object identity in their physical function row. */
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* caller = &in->index[fi];
     int ordinary = lv4_is(caller->function, "role", "ordinary_i64");
     yyjson_val* blocks = hako_physical_blocks(caller->function);
-    if (ordinary && yyjson_is_uint(yyjson_obj_get(caller->function, "receiver"))) {
-      uint32_t receiver_id = lv4_u(caller->function, "receiver");
-      for (size_t bi = 0; bi < caller->block_count; bi++) {
-        yyjson_val* rows = yyjson_obj_get(caller->blocks[bi].block, "instructions");
-        for (size_t ri = 0; ri < yyjson_arr_size(rows) + 1; ri++) {
-          yyjson_val* instruction = ri < yyjson_arr_size(rows)
-              ? yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction")
-              : lv4_term(caller->blocks[bi].block);
-          if (!lv4_is(instruction, "op", "object_field_get") ||
-              lv4_u(instruction, "base") != receiver_id) continue;
-          hako_lv4_value* receiver = lv4_index_value(caller, receiver_id);
-          uint32_t object = lv4_u(instruction, "object_id");
-          if (!receiver || (caller->receiver_object_set && receiver->object_id != object)) return 0;
-          receiver->object_id = object;
-          caller->receiver_object = object;
-          caller->receiver_object_set = 1;
-        }
-      }
-    }
     for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
       yyjson_val* op = yyjson_obj_get(lv4_term(yyjson_arr_get(blocks, bi)), "operation");
       if (!lv4_is(op, "kind", "birth_call")) continue;

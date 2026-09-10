@@ -158,6 +158,13 @@ static int lv4_index_open(hako_lv4_input* in) {
       hako_lv4_value* receiver = &fn->values[fn->value_count++];
       receiver->id = lv4_u(body, "receiver"); receiver->kind = LV4_HANDLE;
       receiver->origin = -2; /* Borrowed physical receiver, never an allocation. */
+      if (ordinary_receiver) {
+        if (!yyjson_is_uint(yyjson_obj_get(body, "receiver_object")) ||
+            !lv4_layout(in, lv4_u(body, "receiver_object"))) return 0;
+        receiver->object_id = lv4_u(body, "receiver_object");
+        fn->receiver_object = receiver->object_id;
+        fn->receiver_object_set = 1;
+      }
     }
     for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
       hako_lv4_value* param = &fn->values[fn->value_count++];
