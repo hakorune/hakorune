@@ -50,13 +50,18 @@ selected non-AppMain child has no attached `VerifiedCallableIndexV1` or
 stops at the named `[freeze:contract][callable-loop/missing-index]` boundary.
 The existing `ResolvedCallablePhysicalSignatureLoanV1` and package physical
 header are projections and cannot substitute for the resolver index/header.
-The same boundary also matters for a prefix free-static call: the source map
+The same boundary also matters for the prefix call contract. The source map
 can carry a target only when the selected input's resolver ledger owns an
 exact `ResolvedDirectCallTargetV1`; the observer-only child batch does not
 issue that target, while `VerifiedResolvedCallableModuleV1::function_input()`
-does so only on a separate module product. The target must not be rebuilt from
-the source name, physical signature, or catalog key. This is evidence that
-the session bridge is structurally landed, not evidence that the selected
+does so only on a separate module product. The current package fixture uses a
+`SourceCallKindV1::Method` prefix, for which this ledger has no direct target,
+but `VerifiedCallablePreludeCapabilityV1::issue` currently requires a target
+for every call kind. Therefore an index/header handoff alone would only move
+the failure to `[freeze:contract][callable-loop/prelude]
+MissingPreludeTarget`. The target must not be rebuilt from the source name,
+method selector, physical signature, or catalog key. This is evidence that the
+session bridge is structurally landed, not evidence that the selected
 production edge is executable.
 
 `CanonicalSsaFunctionSessionV2` remains a physical SSA/CFG helper inside the
@@ -127,20 +132,23 @@ the parent's.
 ## Implementation order
 
 1. **Design stop (open):** choose an existing source owner that can lend the
-   exact resolver-issued index/header pair, plus the exact direct-call target
-   relation when the selected prefix is a free-static call, to the selected
-   non-AppMain child. The resolver-owned
+   exact resolver-issued index/header pair and the exact prelude target
+   contract to the selected non-AppMain child. For a FreeStatic prefix this
+   includes the exact `ResolvedDirectCallTargetV1`; for the current Method
+   prefix it requires an already-existing method target owner or an explicit
+   decision that the CallableSingleLoop profile excludes Method shapes and a
+   valid FreeStatic production caller exists. The resolver-owned
    `VerifiedCallableIndexV1`/`VerifiedCallableHeaderV1` and
    `VerifiedResolvedCallableModuleV1::function_input()` are the only
    complete candidate authorities found so far, but the latter belongs to a
    separate module product and cannot be mixed with the package's observer
    forest. Preserve the current observer-only
    `from_exact_parts_without_callable` contract for roots/generic callers;
-   do not repair by name, rebuild a header or target from a physical
-   signature/catalog key, attach the main-only index to unrelated children, or
-   add a second semantic receipt. Close this item with an owner, caller,
-   pre-effect reject, and exact positive/negative acceptance before resuming
-   code.
+   do not repair by name, method selector, rebuild a header or target from a
+   physical signature/catalog key, attach the main-only index to unrelated
+   children, weaken `MissingPreludeTarget`, or add a second semantic receipt.
+   Close this item with an owner, caller, pre-effect reject, and exact
+   positive/negative acceptance before resuming code.
 2. Keep the landed semantic demand and route selection unchanged. Do not
    reopen source Facts/Recipe issuance or add a plan adapter.
 3. Inventory the existing function-session opener, DraftSeal prepare/commit,
@@ -256,7 +264,7 @@ work, not pre-existing evidence.
 
 ## MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0
 
-### Reopened design finding: selected child has no resolver index/header (2026-09-11)
+### Reopened design finding: selected child has no resolver index/header or prelude target (2026-09-11)
 
 The first package-owned production-entry fixture intentionally avoided manual
 ledger registration and entered through the selected cataloged adapter. It
@@ -290,8 +298,12 @@ observation is rejected by the package gate rather than repaired. The complete
 `VerifiedResolvedCallableModuleV1` path resolves every top-level module
 function with the same catalog index, but it is not retained by the selected
 package and its forest/owner products are not interchangeable with the package
-batch. Therefore the D0 must decide whether an already-existing resolver/module
-owner can lend the selected child an exact index/header/target set in one
-scoped handoff. If not, record `NoSafeSlice` and explicitly redesign the
-resolver policy before any production switch. No source-name lookup, physical
-signature substitute, or optional target default is allowed.
+batch. The current package fixture's `Method` prefix also has no resolver
+direct target, while the physicalizer requires one. Therefore the D0 must
+decide whether an already-existing resolver/module owner can lend the selected
+child an exact index/header/target set in one scoped handoff, or whether the
+profile must explicitly reject Method prefixes and select a valid FreeStatic
+caller. If neither is available, record `NoSafeSlice` and explicitly redesign
+the resolver/prefix policy before any production switch. No source-name or
+method-selector lookup, physical-signature substitute, or optional target
+default is allowed.
