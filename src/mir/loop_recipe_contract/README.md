@@ -392,8 +392,9 @@ and emits one deterministic `GenericG0` Recipe artifact plus the common
 source-bound Core and Generic After envelope. The exact portable mapping is
 the SSOT in `docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md`:
 two bindings, two nested loops, fifteen values, three carrier rows, and ten
-source/effect relations. This subtree is `cfg(test)` only until a later,
-explicit production-caller row; it has no Builder/MIR, physical, completion,
+source/effect relations. This subtree is compiled as a private module, but its
+consuming ingress is caller-zero and currently test-only until a later,
+explicit production-caller row. It has no Builder/MIR, physical, completion,
 retry/fallback, or legacy-deletion authority. The implementation receipt is
 in `docs/reference/mir/generic-loop-stage-matrix.md`.
 

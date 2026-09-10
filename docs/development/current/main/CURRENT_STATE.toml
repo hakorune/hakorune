@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
-current_execution_cohort = "mirbuilder_final_acceptance_scope"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7"
+current_execution_cohort = "mir_call_compatibility_retire_r7"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "The fixed real-app EXE boundary suite is classified at 4/11 after the Birth/Method physical caller cutover. Seven owner-scoped reds remain: untyped storage is NoSafeSlice/ParkedSealed, usize callable parameters are a baseline/source boundary, and two loop cases are outside the existing Loop cohort. Preserve the V2 structural/V4 identity boundary; do not claim whole-MirBuilder completion or invent a shared fallback from this scope."
+current_blocker_token = "Call acceptance evidence is classified at 4/11 after the Birth/Method physical caller cutover. MIR-CALL-COMPATIBILITY-RETIRE-R7 remains a design stop because shared MIR/JSON compatibility callers are not caller-zero and no exclusive LegacyCallV0 delete-set is available. Seven reds stay with their existing untyped-storage, usize, and Loop owners. Do not delete the schema, invent fallback/retry, or start Loop G0 from this stop."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -44,8 +44,7 @@ release archive's unrelated main collision remains baseline debt. Physical
 V2/V4 index fusion is parked at D1 because the trust owners remain separate
 and no measured delete-set exists. Untyped object storage remains
 ParkedSealed/NoSafeSlice because no source-backed storage issuer or dynamic
-tagged ABI exists. The ordinary-call receiver identity design stop is now accepted: the existing New
-claim supplies canonical object definition plus exact initializer/binding. Rust
+tagged ABI exists. The ordinary-call receiver identity design stop is now accepted: the existing New claim supplies canonical object definition plus exact initializer/binding. Rust
 receiver I0 landed at `694f61e253`; it retains the initializer/object in the
 source row and validates the emitted receiver against the owner-scoped local
 commit. Physical callee identity I1 and its consumer cutover landed at
@@ -58,8 +57,8 @@ the identity gate before `hako_lts_open()`/`lv4_emit()`; the boundary row is
 closed.
 FieldGet prepared-reference reuse I0 landed at `90928e0585`; its physical row is now the single `CanonicalFieldRefV1` source for admission, layouts, and JSON. Focused 9/9 plus C parser/build and Pair exit-30 checks are green. C index fusion is ParkedSealed at D1; untyped storage is parked NoSafeSlice. Whole MirBuilder, R7, LLVM graduation, parallel sessions, and memory-only transport remain unproven. The fixed real-app EXE suite at HEAD `4a96073343` is 4/11: NewBox, Birth, Method, and the unsupported probe pass. Seven reds are classified in the final-pipeline SSOT: two untyped-storage NoSafeSlice, three existing usize source-boundary, and two parked Loop-cohort cases. Acceptance evidence closes at this bounded observation; no shared implementation row is authorized.
 """
-next_design_card = "none"
-next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
+next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7"
+next_execution_card = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
@@ -76,5 +75,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver source/local I0 landed at 694f61e253; same-typed receiver substitution rejects before transport. Callee identity I1 landed at f82e0b51af/648eed76dc: the function row carries canonical membership, V2 checks structural/layout shape, V4 rejects object drift before LLVM, and Pair exit 30 is green. FieldGet prepared-reference reuse landed at 90928e0585; one row-owned ref feeds admission/layout/JSON, the focused suite is 9/9, and Pair exit 30 is green. The V2/V4 caller-chain census found no artifact bypass: V2 is structural/layout, V4 is the identity gate before hako_lts_open/lv4_emit; the verifier-boundary row is closed. C index fusion is ParkedSealed D1; untyped storage is ParkedSealed/NoSafeSlice. The pointer advances to the existing finite acceptance scope."
+  "2026-09-10: receiver source/local I0 landed at 694f61e253; same-typed receiver substitution rejects before transport. Callee identity I1 landed at f82e0b51af/648eed76dc: the function row carries canonical membership, V2 checks structural/layout shape, V4 rejects object drift before LLVM, and Pair exit 30 is green. FieldGet prepared-reference reuse landed at 90928e0585; one row-owned ref feeds admission/layout/JSON. The V2/V4 caller-chain census found no artifact bypass: V2 is structural/layout, V4 is the identity gate before hako_lts_open/lv4_emit; the verifier-boundary row is closed. C index fusion is ParkedSealed D1; untyped storage is ParkedSealed/NoSafeSlice. Finite acceptance evidence is classified at 4/11 in docs commit 02e74eba35; seven reds remain with existing untyped-storage, exact-usize, and Loop owners. The pointer names the existing R7 caller-zero design stop, with no executable row until shared compatibility callers and an exclusive delete-set close."
 ]

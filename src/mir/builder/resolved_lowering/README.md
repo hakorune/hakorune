@@ -307,7 +307,8 @@ borrow. Missing seed, wrong role/type, duplicate/re-entry, and late callback
 failure reject before publication; the outer unpublished transaction is the
 only discard owner. No branch/edge/terminator, CFG/PHI, Completion/DraftSeal,
 lifecycle, Text, route, publication, fallback, retry, or production caller is
-opened. The next bounded gate is `LOOP-PRECUTOVER-AUTHORITY-G0`.
+opened. The next design gate is `LOOP-PRECUTOVER-AUTHORITY-G0`; production
+selection remains closed until its caller/switch/delete-set tuple is named.
 
 ## Common V2 initial index seed source transport I0
 

@@ -30,18 +30,58 @@ Related:
   caller-zero slices. The all-family source-parent/co-seal boundary, Generic
   G0 source-parent BoxShape, and same-cohort source-view BoxShape are accepted.
   A-prime Text lifecycle and production selection remain parked.
-- **Next ordered task:** fast
-  `LOOP-PRECUTOVER-AUTHORITY-G0-I0`. The source view retains the resolver
-  input while issuing Generic demand, and this I0 replaces only the Generic
-  cfg(test) ingress; no all-19 coverage or production physical effect opens.
-  Do not extend the selected-normal legacy finalizer with lifecycle or Return
-  authority.
+- **Next ordered task:** `LOOP-PRECUTOVER-AUTHORITY-G0` remains
+  `ParkedSealed__ProductionCallerAndDeleteSetMissing`. The source-parent and
+  canonical issuer exist as caller-zero material, but no production caller,
+  switch target, or exclusive old-edge delete-set has been identified. Do not
+  open a G0-I0 implementation from the cfg(test) ingress.
+- **Reopen condition:** complete the recorded M10 semantic/transfer/session
+  prerequisites and M8/M9 coverage, then name one unchanged production
+  caller, its replacement path, fail-fast terminal, and exclusive deletion
+  set. Until that tuple exists, this is a design stop and no route_loop or
+  physical effect is changed.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
 - **Retirement finish line:** every admitted Loop family reaches one common
   semantic-program, layout, canonical SSA session, and publication path, with
   old route-local owners at caller zero.
+
+## G0 pre-cutover execution audit (2026-09-10)
+
+Decision: retain the existing Generic G0 source parent and caller-zero
+producer, but do not promote them to a production implementation row.
+
+Source authority + canonical issuer: `ResolvedFunctionLoweringInputV1` and
+resolver/source facts enter `generic_g0_source_parent.rs`; the existing
+`issue_generic_g0_source_parent_v1()` co-seals the selected family, demand,
+Recipe, source relations, ABI, effect, Completion, and body coverage. The
+producer never re-resolves names or chooses a route.
+
+Non-authority: `route_loop`, the `cfg(test)` Generic ingress and physical
+prepare witness, physical admission/layout/session, MIR observations, and
+test canaries. These may consume or compare products; they do not issue the
+Generic meaning or authorize a production switch.
+
+Fail-fast boundary: owner/origin/source-kind/site/frame/scope/forest,
+body-shape, ABI/effect/Completion, demand, product, and physical parity
+checks reject before a physical session or artifact. An unpublished session
+is discarded on failure. Missing production ownership is a scheduler stop,
+not permission to add a fallback or infer a caller from `route_loop`.
+
+Smallest next slice after the stop reopens: record one real production caller
+and one selected replacement edge, prove the existing source parent reaches
+that caller without split/re-pair ingress, and list the old edge(s) that the
+same series deletes. Then run the existing G0 acceptance at that boundary.
+
+Non-claims: no all-19 coverage, physical G0 activation, Completion/DraftSeal
+production switch, generic fallback, compatibility retry, or whole Loop/M10b
+completion follows from the caller-zero producer or its tests.
+
+This audit also supersedes the older D4-S4-S0 prose below that said no
+`Selected(Generic)` issuer existed. The current admission window and nested
+G0 selector/Recipe rows are closed caller-zero evidence; production activation
+is still zero for the reasons above.
 
 ## Decision
 
@@ -578,9 +618,10 @@ terminal: no legacy-route re-selection, retry, suffix, fallback, or alias to
 DirectAccum/NestedPredicate. If no real sealed `Selected(Generic)` exists, the
 next witness is `NoSafeSlice`; it must not fabricate a winner.
 
-### D4-S4-S0 audit disposition
+### D4-S4-S0 audit disposition (historical; superseded by the closed G0 window)
 
-The first Generic semantic-demand witness is `NoSafeSlice`. There is no
+At the time of this audit, the first Generic semantic-demand witness was
+`NoSafeSlice`. There was no
 `Selected(Generic)` issuer or callsite, no resolver-issued Generic
 candidate-envelope, no one-shot role-level `BindingRef` lease, and no
 `VerifiedGenericRecipeDemandV1`. The current Generic facts contain AST/Builder
@@ -588,7 +629,7 @@ recipes, while the resolver source-window/provenance witnesses are test-only
 identity transport without Generic carrier/eligibility. The legacy selected
 demand and historical synthetic handoff receipts are explicitly excluded.
 
-The next design stop is
+The historical next design stop was
 `JOINIR-GENERIC-RESOLVED-CARRIER-GENERIC-SEMANTIC-SHAPE-DESIGN0-D4-S4-S0-D0`.
 It must define the minimum AST-free candidate/shape product, exact sites,
 mode/coverage, forest/frame, carrier/step/body effect roles, and
