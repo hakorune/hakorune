@@ -859,6 +859,25 @@ in existing guards/manifests; those references must be retargeted or retained
 by owner, never deleted to make the split pass. This row is independent of the
 parked callable Loop bridge and does not authorize Loop/OBJ/EXE work.
 
+##### `MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-I0` (selected)
+
+Implementation owner: `src/mir/builder/ssa/local.rs` and one private sibling
+`src/mir/builder/ssa/local/materialize.rs`. Move the existing function body
+without changing its signature, recursive calls, imports' meaning, or public
+facade. Update only the existing path-aware guards/manifests that refer to the
+physical owner; do not delete or weaken a guard.
+
+Focused acceptance is the existing LocalSSA parity surface: post-success,
+temporal-witness, local-statement, local/assignment/if/return forwarding, and
+the current LocalSSA guard set. The moved implementation must preserve the
+cache hit/stale removal, block creation, pin/PHI redirect, definition and
+dominance checks, forwarding decisions, failure policy, emission order, and
+post-success metadata/cache commit. This is a behavior-neutral split; no new
+fixture, semantic receipt, fallback, retry, route, or production caller is
+allowed. The series closes only when the old body has one caller location, the
+façade and sibling both remain below 760 lines, all touched source/check files
+remain below 800, and pointer/diff guards are green.
+
 ### Evidence reuse and repayment
 
 Do not add an R6/R7-specific guard. Reuse the existing lifecycle, canonical
