@@ -474,6 +474,33 @@ boundaries; this row does not reopen a broad census or remote poll. The global
 MirBuilder goal remains open: this closeout claims only the direct-loader Stop,
 not R7 caller-zero, backend parity, or whole-pipeline completion.
 
+##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
+
+Decision: pin the existing selected Dynamic LLVM Boundary exporter to the
+explicit `JsonEgressProfile::CanonicalV1` issuer. The exporter currently calls
+the ambient `build_mir_json_root()` helper, so inherited
+`NYASH_JSON_SCHEMA_V1`/`NYASH_MIR_UNIFIED_CALL` selectors can re-enter the
+CompatibilityV0 profile even though the selected Dynamic boundary already
+rejects legacy callsites.
+
+Source authority + canonical issuer: the already sealed selected Dynamic
+`MirModule` remains the source; `mir_json_emit::root::build_mir_json_root_with_profile`
+is the sole profile-selected issuer. Non-authority: environment variables,
+CompatibilityV0, JSON text, legacy `func`, and the backend cannot select or
+repair this route. Fail-fast remains the existing
+`reject_selected_dynamic_legacy_callsites` check before artifact generation.
+
+Smallest next slice: change only
+`emit_mir_json_for_selected_dynamic_candidate` and its existing focused test so
+the selected caller uses `CanonicalV1`; reuse the existing selected Dynamic
+boundary/canonical-corridor checks. Acceptance is schema `1.0` with canonical
+`mir_call` output under an externally forced compatibility selector, legacy
+callsite rejection before object generation, and the existing selected Dynamic
+OBJ/EXE/Pair evidence. No new receipt, adapter, guard, or compatibility-wide
+deletion is authorized. The exclusive delete-set is the one ambient-profile
+call in the selected Dynamic exporter and its test expectation; generic
+harness emitters remain compatibility owners.
+
 Closeout evidence (`26e59acaef`): the M7-S guard applies the source-size ceiling to its
 implementation owners and keeps the final-pipeline design SSOT as the
 canonical long-form design document. The pointer guard separately limits the

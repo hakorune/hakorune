@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "direct_mir_json_schema_error_stop"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0"
+current_execution_cohort = "selected_dynamic_canonical_json_egress_stop"
 current_design_stop = "none"
-current_blocker_token = "MIR-CALL-LEGACY-READER-STOP-R0 landed at 26e59acaef: direct declared-v1 errors are terminal, schema-absent MIR v0 remains explicit compatibility, and the Err-to-v0 retry edge is retired. Select the next finite shared ingress boundary; do not claim R7 caller-zero or whole MirBuilder completion."
+current_blocker_token = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0: selected Dynamic JSON egress must use the existing explicit CanonicalV1 issuer and reject ambient CompatibilityV0 re-entry before object generation; keep the generic compatibility harness unchanged."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,19 +31,15 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-MIR-CALL-LEGACY-READER-STOP-R0 landed at 26e59acaef under the existing M7-S
-owner. The direct CLI/core/loader caller now treats declared-v1 parse errors as
-terminal; schema-absent MIR v0 remains explicit compatibility. Loader tests
-passed 11/11 and core-entry tests passed 3/3; pointer and M7-S guards passed.
-README/reference and existing guard references were updated, with no new guard
-or semantic receipt. The historical ingress-schema guard remains owned by its
-older card and is not this row's acceptance gate. R7 schema deletion still
-requires caller-zero, and broader shared compatibility callers need explicit
-per-caller dispositions. Whole MirBuilder, R7 and Loop completion remain
-unproven.
+Selected Dynamic JSON egress is the next bounded M7-S Stop. Its existing
+production caller is the LLVM Boundary bundle exporter; the source authority
+and CanonicalV1 issuer already exist. Pin only that caller to the explicit
+profile, preserve the compatibility harness, and prove forced compatibility
+selectors cannot re-enter before object generation. Do not claim R7 or whole
+MirBuilder completion.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

@@ -86,7 +86,10 @@ pub fn emit_mir_json_for_selected_dynamic_candidate(
     module: &crate::mir::MirModule,
     path: &std::path::Path,
 ) -> Result<(), String> {
-    let root = build_mir_json_root(module)?;
+    let root = super::root::build_mir_json_root_with_profile(
+        module,
+        super::root::JsonEgressProfile::CanonicalV1,
+    )?;
     write_mir_json_root(path, &root)
 }
 
@@ -426,6 +429,8 @@ mod tests {
         emit_mir_json_for_selected_dynamic_candidate(&module, &path).expect("candidate export");
         let json = std::fs::read_to_string(&path).expect("candidate JSON");
         assert!(json.contains("\"name\": \"main\""));
+        let root: serde_json::Value = serde_json::from_str(&json).expect("candidate JSON root");
+        assert_eq!(root["schema_version"], serde_json::json!("1.0"));
         std::fs::remove_file(path).expect("cleanup candidate JSON");
     }
 
