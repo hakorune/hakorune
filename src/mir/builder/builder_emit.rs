@@ -71,14 +71,6 @@ impl MirBuilder {
         // Make instruction mutable for potential receiver materialization
         let mut instruction = instruction;
 
-        // Precompute debug metadata to avoid borrow conflicts later
-        let _dbg_fn_name = self
-            .function_state
-            .current_function
-            .as_ref()
-            .map(|f| f.signature.name.clone());
-        let _dbg_region_id = self.debug_current_region_id();
-
         // Fail-fast: emitting into a non-existent block is a hard bug.
         // Previously this could silently drop instructions via `get_block_mut(None)` paths.
         if let Err(e) = self.ensure_block_exists(block_id) {
@@ -166,6 +158,13 @@ impl MirBuilder {
                 instruction = MirInstruction::call(dst, new_callee, args.clone(), effects);
             }
         }
+
+        // The append consumes the instruction. Keep only the post-append Phi
+        // observation payload; non-Phi instructions need no whole-value clone.
+        let phi_observation = match &instruction {
+            MirInstruction::Phi { dst, inputs, .. } => Some((*dst, inputs.clone())),
+            _ => None,
+        };
 
         // Record caller only when emission succeeds.
         // If we record before validation/emit and the emit path returns Err, diagnostics may
@@ -400,7 +399,7 @@ impl MirBuilder {
                 append_instruction_core(
                     function,
                     block_id,
-                    instruction.clone(),
+                    instruction,
                     self.metadata_ctx.current_span(),
                 )?;
             } else {
@@ -462,8 +461,8 @@ impl MirBuilder {
         if let Some((dst, prepared)) = prepared_phi_origin {
             origin::phi::commit_unanimous_origin(self, dst, prepared);
         }
-        if let MirInstruction::Phi { dst, inputs, .. } = &instruction {
-            observe::ssa::emit_phi(self, *dst, inputs);
+        if let Some((dst, inputs)) = phi_observation {
+            observe::ssa::emit_phi(self, dst, &inputs);
         }
         Ok(())
     }
