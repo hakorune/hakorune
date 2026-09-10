@@ -32,10 +32,13 @@ Related:
   to the parsed v1 bridge; escaped declared schemas stop before v0. The V4
   receiver-identity coverage now uses a valid normal/fault base and a named
   receiver-only mismatch proof.
-- **Next ordered task:** take the physical-program module-borrow retirement row
-  through its caller census. Constructor/Array execution and retirement
-  evidence belongs to their owner SSOTs; no lifecycle V2 waiting state is
-  implied.
+- **Next ordered task:** keep the callable Loop ordinary bridge at its
+  old-edge ownership design stop. The physical-program module-borrow and
+  mutation-specific negative-test rows are closed; the next implementation is
+  not authorized until the ledger-bearing versus ledger-free Loop callers and
+  an exclusive delete-set are proven. Constructor/Array execution and
+  retirement evidence belongs to their owner SSOTs; no lifecycle V2 waiting
+  state is implied.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
