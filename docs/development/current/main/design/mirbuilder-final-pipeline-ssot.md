@@ -544,6 +544,35 @@ exclusive old-edge delete-set. The shared non-callable/legacy route remains
 outside that census; no implementation, fallback, or retry is authorized by
 this pointer transition.
 
+##### MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0 (design stop: old-edge ownership)
+
+```text
+Decision: keep the `callable_handoff == None` branch until its caller census
+          distinguishes the non-callable Script owner from any callable bypass;
+          do not delete or re-enter the shared JoinIR route from this stop.
+Source authority + canonical issuer: RawInvocationChildPortV1 carries the
+          existing callable ledger when a callable scope is active; its
+          `issue_callable_loop_binding_schedule_v1` projects the existing
+          CallableLoopSourceProjectionV1. The ledger-free invocation path is
+          the existing non-callable Script owner until proven otherwise.
+Non-authority: the `None` value by itself, AST/name/ordinal/ValueId matching,
+          test-only structural leases, diagnostics, or a generic fallback.
+Fail-fast boundary: caller/owner census before any branch deletion; callable
+          scope with missing schedule must reject typed, while the non-callable
+          Script path keeps its existing JoinIR owner.
+Smallest next slice: read-only enumerate constructors of
+          RawInvocationChildPortV1, the callable-ledger arm, and every
+          lower_non_callable_loop_legacy_v1 edge; record production caller,
+          terminal, and an exclusive delete-set or ParkedSealed outcome.
+Non-claims: no production switch, callable-None deletion, new source
+          relation, fallback/retry, OBJ/EXE, or performance result.
+```
+
+The existing worker audit confirms one direct `None` branch and one shared
+legacy port, but it does not prove that the branch is callable-only. This
+design stop therefore treats a callable old-edge delete-set as unproven until
+the ledger-bearing and ledger-free constructors are separated by evidence.
+
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 
 Decision: pin the existing selected Dynamic LLVM Boundary exporter to the
