@@ -9,6 +9,7 @@ from pathlib import Path
 
 TAG = "mirbuilder-copy-unknown-authority"
 LOCAL = "src/mir/builder/ssa/local.rs"
+MATERIALIZE = "src/mir/builder/ssa/local/materialize.rs"
 POST_SUCCESS = "src/mir/builder/ssa/local/post_success.rs"
 COPY_TYPE = "src/mir/builder/ssa/local/copy_type.rs"
 SELF = "tools/checks/lib/mirbuilder_copy_unknown_authority_guard.py"
@@ -43,35 +44,36 @@ def require_absent(source: str, needle: str, label: str) -> None:
 def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     local = production_source(read(root, LOCAL))
+    materialize = production_source(read(root, MATERIALIZE))
     post_success = production_source(read(root, POST_SUCCESS))
     copy_type = production_source(read(root, COPY_TYPE))
 
     require_count(
-        local,
+        materialize,
         "LocalSsaSourceTypeEntryV1::classify(",
         1,
         "source type-entry classifier consumer",
     )
     require_count(
-        local,
+        materialize,
         "PreparedLocalSsaPostSuccessV1::prepare(",
         1,
         "post-success decision owner",
     )
     require_count(
-        local,
+        materialize,
         "PreparedLocalSsaPhysicalCopyTypeV1::prepare(",
         1,
         "shared physical-Copy decision consumer",
     )
     require_count(
-        local,
+        materialize,
         "prepared_physical_copy_type.commit(",
         1,
         "shared physical-Copy commit consumer",
     )
     require_count(
-        local,
+        materialize,
         "prepared_post_success.commit(",
         1,
         "post-success commit consumer",
@@ -141,11 +143,11 @@ def main() -> None:
         ("TypeFactDecisionV1", "premature COPY0 consumer"),
         ("metadata::propagate", "metadata propagation authority"),
     ):
-        require_absent(local + post_success, forbidden, label)
+        require_absent(local + materialize + post_success, forbidden, label)
 
     oversized = [
         relative
-        for relative in (LOCAL, POST_SUCCESS, COPY_TYPE, SELF)
+        for relative in (LOCAL, MATERIALIZE, POST_SUCCESS, COPY_TYPE, SELF)
         if len(read(root, relative).splitlines()) >= 800
     ]
     if oversized:
