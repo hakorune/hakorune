@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0"
-current_execution_cohort = "receiver_identity_coverage_r0_closeout"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0"
+current_execution_cohort = "physical_program_module_borrow_retire_r0"
 current_design_stop = "none"
-current_blocker_token = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0-CLOSEOUT: record the valid normal/fault fixture, receiver-only mutation, named mismatch, absent-artifact evidence, and dedicated guard; next row is the physical-program module-borrow census."
+current_blocker_token = "MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0: census every PublishedLifecyclePhysicalProgramV1 module/getter caller; remove the borrow only if no layout/JSON/Pair consumer remains, and do not add a module lookup through transport."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Focused receiver C test passed after C shim rebuild: valid receiver object 8 emits a nonempty object; receiver-only mutation to 7 returns the named mismatch and no artifact. mirbuilder_physical_receiver_identity_r0_guard.sh, current_state_pointer_guard.sh, and diff check are green. Do not add a second identity walk, runtime accessor, schema, or OBJ/EXE claim."
+guard_followup = "Census PublishedLifecyclePhysicalProgramV1::module and its getter across Rust production/tests and JSON/layout callers. If caller-zero, remove the borrow/getter in one refactor and run physical JSON, Pair exit30, focused module tests, current_state_pointer_guard.sh, and diff check. If a real consumer remains, keep the borrow and record the owner; do not add a projection or JSON lookup."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -31,17 +31,15 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-Receiver-identity R0 is closed at `0cd9ccec70`. The existing V4 index/flow
-remains the sole identity owner. Its reusable fixture first compiles receiver
-object 8 with valid normal/fault cleanup, then mutates only callee
-receiver_object to 7 and asserts the named mismatch with no artifact. Focused C
-test, shim rebuild, dedicated R0 guard, pointer guard, and diff check are green.
-The next bounded row is the physical-program module-borrow census; no new
-verifier, object walk, runtime accessor, schema, OBJ/EXE, or performance claim
-is made here.
+Receiver-identity R0 is closed at `0cd9ccec70` with valid normal/fault fixture,
+receiver-only named mismatch, absent-artifact proof, focused C test, and
+dedicated guard. The active bounded row is now the physical-program
+module-borrow census: verify caller-zero before removing the borrow/getter, or
+retain it with the concrete layout/JSON/Pair consumer owner. No new projection,
+transport lookup, or semantic authority is allowed.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0"
+next_execution_card = "MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

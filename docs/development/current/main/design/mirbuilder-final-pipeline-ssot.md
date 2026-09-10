@@ -526,12 +526,11 @@ nonzero or unsupported-cohort result does not close the row.
   lookup through JSON.
 
 The selected execution frontier is now
-`MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` in closeout. The row
-landed at `0cd9ccec70` by reusing the existing V4 index/flow and repairing only
-test discrimination plus named receiver mismatch propagation. The next row is
-the physical-program module-borrow census; no second identity verifier, object
-walk, runtime accessor, legacy-route deletion, OBJ/EXE, or performance claim is
-opened by this closeout.
+`MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0` in fast mode. Receiver
+identity coverage closed at `0cd9ccec70`; this row is caller census plus a
+behavior-neutral borrow/getter removal only if caller-zero is proven. No new
+projection, JSON/module lookup, semantic authority, legacy-route deletion,
+OBJ/EXE, or performance claim is opened.
 
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 
