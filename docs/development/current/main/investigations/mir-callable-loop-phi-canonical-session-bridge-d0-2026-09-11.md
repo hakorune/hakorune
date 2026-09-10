@@ -102,14 +102,24 @@ parked until a separate owner contract proves it mechanical; it is not part of
 the next implementation.
 
 The selected bounded implementation slice is a capability handoff at the
-callable function entry:
+callable function entry. The handoff is scoped by a private function wrapper;
+it is not a permanent field on the raw child port:
 
 ```text
 callable function entry
   -> one CanonicalSsaFunctionSessionV2
-  -> RawInvocationChildPortV1::lower_loop Ready consumer
+  -> CallableCanonicalFunctionScopeV1
+       -> short reborrow of RawInvocationChildPortV1
+       -> RawInvocationChildPortV1::lower_loop Ready consumer
   -> existing BindingSsaBuilderV1 / CanonicalCfgSessionV1 / PhiTxn
 ```
+
+The wrapper owns the unpublished session on the function stack and lends a
+short `&mut` capability to the recursive body through a scoped closure. It
+must not put the session in `Rc<RefCell<_>>`, make the raw port generic over a
+new session lifetime, or expose the capability to compatibility callers.
+Nested callable functions open their own session; a parent session is never
+passed into a child function.
 
 The Recipe remains a move-only logical product. It supplies the already-issued
 `BindingRefV1`/role/site rows; the session supplies block-scoped `ValueId`s,
