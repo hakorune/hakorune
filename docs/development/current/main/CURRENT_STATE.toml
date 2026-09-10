@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-D0"
-current_execution_cohort = "mirbuilder_physical_c_llc_library_emission_d0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-I0"
+current_execution_cohort = "mirbuilder_physical_c_llc_library_emission_i0"
 current_design_stop = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
-current_blocker_token = "Design accepted; design-only closeout. Prior external-wait premise withdrawn: existing lifecycle session owns the next V4 library-emission slice. Implementation and after-change parity are outputs, not entry prerequisites. Next I0 includes all shared V4 callers and removal of its sole llc edge; no implementation executed yet."
+current_blocker_token = "LLVM library-emission I0 selected: extend the existing invocation-local hako_lts_session and replace the sole lifecycle V4 llc edge. Preserve V2/V4 admission, target/layout, failure cleanup and atomic publication; no fallback/cache/concurrency."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -38,9 +38,8 @@ a0ab958b81 identifies llc as the dominant Pair phase; V2/V4 index fusion stays
 parked. The LLVM library-emission design now reuses hako_lts_session and the
 sole V4 caller, with no external-owner wait. Entry prerequisites are separated
 from implementation/parity outputs; shared Map/Array/child/method regressions
-and test-only negative injection are required. Design-only closeout is complete;
-next is the bounded I0 in the existing native-library board. No code, build,
-or runtime verification was performed for this design change. Whole MirBuilder,
+and test-only negative injection are required. The design closeout is complete;
+the bounded I0 is now selected. Whole MirBuilder,
 R7, general LLVM graduation and concurrency remain unproven.
 """
 next_design_card = "none"
