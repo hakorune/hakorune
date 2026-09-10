@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0"
-current_execution_cohort = "callable_loop_body_only_rebind_i0_closeout"
+work_mode = "fast"
+current_execution_row = "MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0"
+current_execution_cohort = "artifact_mir_json_toplevel_schema_stop_i0"
 current_design_stop = "none"
-current_blocker_token = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0-CLOSEOUT: record the landed CallableLoopReadyBodyOnlyProductV1 evidence and focused gates; preserve relation-owner equality and planner-owned increment classification, and keep other Outside kinds, callable-None bypass, fallback/retry, shared legacy, and OBJ/EXE unchanged."
+current_blocker_token = "MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0: use the existing parsed JSON top-level schema disposition in runner::json_artifact::mir_loader; explicit supported or unsupported schema_version must be decided before v0, escaped keys must not bypass the decision, and no second parser or compatibility retry may be added."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Record the focused callable-loop handoff/source-facts/raw-entry gates already run for BodyOnly I0, then run current_state_pointer_guard.sh and the existing relevant MIR guard before closeout commit/push. Keep other Outside kinds, the non-callable legacy route, fallback/retry policy, receiver-identity R0, and production artifact routes unchanged."
+guard_followup = "Run the focused runner::json_artifact tests, including escaped-key unsupported schema and absent-schema v0 compatibility; then run current_state_pointer_guard.sh and the existing JSON ingress guard before closeout. Reject explicit schema errors before mir_json_v0::parse_mir_v0_to_module; do not widen Program(JSON v0)."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -31,18 +31,16 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The Ready-port implementation is closed in the final-pipeline SSOT at
-`3867539488`. The BodyOnly D0 design is implemented at `3559464960` as one
-private `CallableLoopReadyBodyOnlyProductV1 { ready, body_only }`. Its raw entry
-and existing source-aware Facts/Recipe issuer consume the product once; the
-physical adapter rejects relation-owner mismatch before effects, and the
-composer consumes planner-owned increment classification. Focused Loop (19)
-and raw-entry (8) tests are green. Closeout records these Rust adapter proofs;
-package discovery, OBJ/EXE, route retirement, receiver-identity R0, and
-performance remain outside the claim.
+BodyOnlyRebind I0 is closed at `3559464960` with docs/guard closeout at
+`74f717841c`; its Rust adapter evidence remains in the landed tail. The next
+bounded Stop is the existing artifact-loader schema selector. Use
+`json_v1_bridge::try_parse_v1_to_module` as the parsed top-level authority so
+absent schema selects v0 compatibility while supported/unsupported declared
+schema is terminal before `mir_json_v0`. The slice does not widen Program(JSON
+v0), add a parser, or reopen receiver R0/OBJ/EXE work.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0"
+next_execution_card = "MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
