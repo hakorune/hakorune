@@ -1682,6 +1682,18 @@ emission; existing Pair direct/linked exit-30 plus static/root/Birth coverage
 remain green. This row makes no claim about C index fusion, concurrency,
 compile-time speed, dynamic fields, or LLVM performance.
 
+**I0 implementation closeout (2026-09-10, `90928e0585`):**
+`PublishedLifecyclePhysicalInstructionRefV1` now carries the prepared optional
+field reference. The existing physical projection owner issues it once while
+the row is built; admission, referenced-object/layout collection, and JSON
+encoding consume the row accessor. The projection helper was split into a
+same-owner file to keep `physical_program.rs` at 738 lines. The Pair.sum
+positive test compares prepared object/ordinal with the layout and emitted
+JSON. The physical-program JSON suite is 9/9, the C ABI build and parser
+fixture pass, and Pair direct/linked exit-30 remains green. No C inference or
+new semantic authority was added. The next bounded stop is the existing
+invocation-local C index-reuse D0; this closeout makes no performance claim.
+
 ##### MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0
 
 Decision: design stop before any C or transport change. Select one existing
