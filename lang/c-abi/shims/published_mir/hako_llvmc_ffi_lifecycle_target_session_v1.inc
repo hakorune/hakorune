@@ -14,6 +14,13 @@ typedef void* (*hako_lts_make_data_fn)(void*);
 typedef char* (*hako_lts_data_layout_text_fn)(void*);
 typedef unsigned (*hako_lts_pointer_size_fn)(void*);
 typedef void* (*hako_lts_make_context_fn)(void);
+typedef void (*hako_lts_dispose_memory_buffer_fn)(void*);
+typedef int (*hako_lts_create_memory_buffer_fn)(const char*, void**, char**);
+typedef int (*hako_lts_parse_ir_fn)(void*, void*, void**, char**);
+typedef void (*hako_lts_dispose_module_fn)(void*);
+typedef int (*hako_lts_verify_module_fn)(void*, int, char**);
+typedef const char* (*hako_lts_module_text_fn)(void*);
+typedef int (*hako_lts_emit_to_file_fn)(void*, void*, char*, int, char**);
 typedef void* (*hako_lts_int_type_fn)(void*);
 typedef void* (*hako_lts_pointer_type_fn)(void*, unsigned);
 typedef void* (*hako_lts_array_type_fn)(void*, uint64_t);
@@ -22,6 +29,13 @@ typedef unsigned long long (*hako_lts_abi_size_fn)(void*, void*);
 typedef unsigned (*hako_lts_abi_align_fn)(void*, void*);
 typedef unsigned long long (*hako_lts_element_offset_fn)(void*, void*, unsigned);
 
+#if defined(HAKO_LLVMC_LIFECYCLE_TEST_SEAM)
+static int hako_lts_test_mode(const char* expected) {
+  const char* mode = getenv("HAKO_LIFECYCLE_TEST_SEAM");
+  return mode && expected && strcmp(mode, expected) == 0;
+}
+#endif
+
 /* One invocation owns every LLVM resource through object publication. */
 typedef struct {
   void *lib, *machine, *data;
@@ -29,6 +43,16 @@ typedef struct {
   hako_lts_dispose_message_fn dispose_message;
   hako_lts_dispose_machine_fn dispose_machine;
   hako_lts_dispose_data_fn dispose_data;
+  hako_lts_make_context_fn make_context;
+  hako_lts_dispose_context_fn dispose_context;
+  hako_lts_create_memory_buffer_fn create_buffer;
+  hako_lts_dispose_memory_buffer_fn dispose_buffer;
+  hako_lts_parse_ir_fn parse_ir;
+  hako_lts_dispose_module_fn dispose_module;
+  hako_lts_verify_module_fn verify_module;
+  hako_lts_module_text_fn module_target;
+  hako_lts_module_text_fn module_data_layout;
+  hako_lts_emit_to_file_fn emit_to_file;
 } hako_lts_session;
 
 static void hako_lts_close(hako_lts_session* session) {
@@ -98,6 +122,14 @@ static int hako_lts_open(
   hako_lts_dispose_machine_fn dispose_machine;
   hako_lts_dispose_data_fn dispose_data;
   hako_lts_dispose_context_fn dispose_context;
+  hako_lts_dispose_memory_buffer_fn dispose_buffer;
+  hako_lts_create_memory_buffer_fn create_buffer;
+  hako_lts_parse_ir_fn parse_ir;
+  hako_lts_dispose_module_fn dispose_module;
+  hako_lts_verify_module_fn verify_module;
+  hako_lts_module_text_fn module_target;
+  hako_lts_module_text_fn module_data_layout;
+  hako_lts_emit_to_file_fn emit_to_file;
   hako_lts_get_version_fn get_version;
   hako_lts_get_target_fn get_target;
   hako_lts_make_machine_fn make_machine;
@@ -117,6 +149,10 @@ static int hako_lts_open(
   int rc = -1;
   if (!in || in->revision != 2u || !in->target_triple || !in->target_triple[0])
     return set_err_owned(err_out, "[freeze:contract][lifecycle-session/input]");
+#if defined(HAKO_LLVMC_LIFECYCLE_TEST_SEAM)
+  if (hako_lts_test_mode("missing-library"))
+    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/test-missing-library]");
+#endif
   if (in->endian != 1u || in->fault_abi_version != NYRT_FAULT_ABI_VERSION_V1 ||
       in->status_abi_version != 1u || in->pointer_width != sizeof(void*) ||
       in->diagnostic_size != sizeof(NyrtFaultDiagnosticV1) ||
@@ -145,6 +181,18 @@ static int hako_lts_open(
   dispose_machine = HAKO_LTS_SYM("LLVMDisposeTargetMachine", hako_lts_dispose_machine_fn);
   dispose_data = HAKO_LTS_SYM("LLVMDisposeTargetData", hako_lts_dispose_data_fn);
   dispose_context = HAKO_LTS_SYM("LLVMContextDispose", hako_lts_dispose_context_fn);
+  dispose_buffer = HAKO_LTS_SYM("LLVMDisposeMemoryBuffer", hako_lts_dispose_memory_buffer_fn);
+  create_buffer = HAKO_LTS_SYM(
+      "LLVMCreateMemoryBufferWithContentsOfFile", hako_lts_create_memory_buffer_fn);
+  parse_ir = HAKO_LTS_SYM("LLVMParseIRInContext", hako_lts_parse_ir_fn);
+  dispose_module = HAKO_LTS_SYM("LLVMDisposeModule", hako_lts_dispose_module_fn);
+  verify_module = HAKO_LTS_SYM("LLVMVerifyModule", hako_lts_verify_module_fn);
+  module_target = HAKO_LTS_SYM("LLVMGetTarget", hako_lts_module_text_fn);
+  module_data_layout = HAKO_LTS_SYM("LLVMGetDataLayoutStr", hako_lts_module_text_fn);
+  emit_to_file = HAKO_LTS_SYM("LLVMTargetMachineEmitToFile", hako_lts_emit_to_file_fn);
+#if defined(HAKO_LLVMC_LIFECYCLE_TEST_SEAM)
+  if (hako_lts_test_mode("missing-symbol")) emit_to_file = NULL;
+#endif
   get_version = HAKO_LTS_SYM("LLVMGetVersion", hako_lts_get_version_fn);
   get_target = HAKO_LTS_SYM("LLVMGetTargetFromTriple", hako_lts_get_target_fn);
   make_machine = HAKO_LTS_SYM("LLVMCreateTargetMachine", hako_lts_make_machine_fn);
@@ -166,7 +214,9 @@ static int hako_lts_open(
   init_mc = HAKO_LTS_SYM("LLVMInitializeX86TargetMC", hako_lts_init_fn);
   init_printer = HAKO_LTS_SYM("LLVMInitializeX86AsmPrinter", hako_lts_init_fn);
 #undef HAKO_LTS_SYM
-  if (!dispose_message || !dispose_machine || !dispose_data || !dispose_context || !get_version ||
+  if (!dispose_message || !dispose_machine || !dispose_data || !dispose_context ||
+      !dispose_buffer || !create_buffer || !parse_ir || !dispose_module || !verify_module ||
+      !module_target || !module_data_layout || !emit_to_file || !get_version ||
       !get_target || !make_machine || !machine_triple || !make_data || !data_layout_text || !pointer_size ||
       !make_context || !int32_type || !int64_type || !pointer_type || !array_type || !struct_type ||
       !abi_size || !abi_align || !element_offset || !init_info || !init_target || !init_mc || !init_printer)
@@ -194,6 +244,16 @@ cleanup:
     out->dispose_message = dispose_message;
     out->dispose_machine = dispose_machine;
     out->dispose_data = dispose_data;
+    out->make_context = make_context;
+    out->dispose_context = dispose_context;
+    out->create_buffer = create_buffer;
+    out->dispose_buffer = dispose_buffer;
+    out->parse_ir = parse_ir;
+    out->dispose_module = dispose_module;
+    out->verify_module = verify_module;
+    out->module_target = module_target;
+    out->module_data_layout = module_data_layout;
+    out->emit_to_file = emit_to_file;
     lib = machine = data = NULL;
     actual_triple = data_layout = NULL;
   }
@@ -205,5 +265,107 @@ cleanup:
   if (lib) dlclose(lib);
   if (rc != 0) return set_err_owned(err_out, "[freeze:contract][lifecycle-session/llvm-layout]");
   return 0;
+#endif
+}
+
+static void hako_lts_take_diagnostic(
+    hako_lts_session* session, char** err_out, char** diagnostic, const char* fallback) {
+  const char* message = (diagnostic && *diagnostic && **diagnostic) ? *diagnostic : fallback;
+  set_err_owned(err_out, message);
+  if (diagnostic && *diagnostic && session && session->dispose_message) {
+    session->dispose_message(*diagnostic);
+    *diagnostic = NULL;
+  }
+}
+
+/* Parse, verify, and emit one file-backed module through the invocation-owned
+ * target session.  LLVMParseIRInContext consumes its memory buffer on both
+ * success and failure; ownership is therefore cleared immediately after the
+ * call and the cleanup path never disposes it twice. */
+static int hako_lts_emit_object_from_ir(
+    hako_lts_session* session, const char* ll_path, const char* obj_path, char** err_out) {
+#if defined(_WIN32)
+  (void)session;
+  (void)ll_path;
+  (void)obj_path;
+  return set_err_owned(err_out, "[freeze:contract][lifecycle-session/windows]");
+#else
+  void* context = NULL;
+  void* buffer = NULL;
+  void* module = NULL;
+  char* diagnostic = NULL;
+  int rc = -1;
+  if (!session || !session->make_context || !session->create_buffer || !session->parse_ir ||
+      !session->verify_module || !session->module_target || !session->module_data_layout ||
+      !session->emit_to_file || !ll_path || !ll_path[0] || !obj_path || !obj_path[0]) {
+    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/emit-input]");
+  }
+  context = session->make_context();
+  if (!context) {
+    return set_err_owned(err_out, "[freeze:contract][lifecycle-session/context]");
+  }
+  if (session->create_buffer(ll_path, &buffer, &diagnostic) != 0 || !buffer) {
+    hako_lts_take_diagnostic(
+        session, err_out, &diagnostic, "[freeze:contract][lifecycle-session/buffer]");
+    goto done;
+  }
+  if (diagnostic && session->dispose_message) {
+    session->dispose_message(diagnostic);
+    diagnostic = NULL;
+  }
+  {
+    int parse_failed = session->parse_ir(context, buffer, &module, &diagnostic);
+    buffer = NULL;
+    if (parse_failed != 0 || !module) {
+      hako_lts_take_diagnostic(
+          session, err_out, &diagnostic, "[freeze:contract][lifecycle-session/parse]");
+      goto done;
+    }
+  }
+  if (session->verify_module(module, 2, &diagnostic) != 0) {
+    hako_lts_take_diagnostic(
+        session, err_out, &diagnostic, "[freeze:contract][lifecycle-session/verify]");
+    goto done;
+  }
+  if (diagnostic && session->dispose_message) {
+    session->dispose_message(diagnostic);
+    diagnostic = NULL;
+  }
+  {
+    const char* module_target = session->module_target(module);
+    const char* module_layout = session->module_data_layout(module);
+    if (!module_target || !module_layout || strcmp(module_target, session->triple) != 0 ||
+        strcmp(module_layout, session->data_layout) != 0) {
+      hako_lts_take_diagnostic(
+          session, err_out, &diagnostic, "[freeze:contract][lifecycle-session/module-layout]");
+      goto done;
+    }
+  }
+  if (session->emit_to_file(session->machine, module, (char*)obj_path, 1, &diagnostic) != 0) {
+    hako_lts_take_diagnostic(
+        session, err_out, &diagnostic, "[freeze:contract][lifecycle-session/emit]");
+    goto done;
+  }
+  if (diagnostic && session->dispose_message) {
+    session->dispose_message(diagnostic);
+    diagnostic = NULL;
+  }
+#if defined(HAKO_LLVMC_LIFECYCLE_TEST_SEAM)
+  if (hako_lts_test_mode("emit-failure")) {
+    set_err_owned(err_out, "[freeze:contract][lifecycle-session/test-emit-failure]");
+    goto done;
+  }
+  if (hako_lts_test_mode("empty-output")) {
+    FILE* empty = fopen(obj_path, "wb");
+    if (empty) fclose(empty);
+  }
+#endif
+  rc = 0;
+done:
+  if (diagnostic && session->dispose_message) session->dispose_message(diagnostic);
+  if (buffer && session->dispose_buffer) session->dispose_buffer(buffer);
+  if (module && session->dispose_module) session->dispose_module(module);
+  if (context && session->dispose_context) session->dispose_context(context);
+  return rc;
 #endif
 }

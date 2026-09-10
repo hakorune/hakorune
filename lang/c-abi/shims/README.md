@@ -62,7 +62,7 @@ collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
   instruction-coordinate array or activating itself. Generic views stay fenced.
   Set `NYASH_LLVM_ROUTE_TRACE=1` to opt into one
   `stage=lifecycle-v4-measure` line per invocation. It reports parse/V2/V4/
-  emission/llc timings and invocation-local index counts; the line is
+  emission/library-object timings and invocation-local index counts; the line is
   diagnostic-only and the default route emits nothing.
 - The call-local physical-v2 parser checks structure/SSA, function/block/value/
   layout, Birth, PHI, invoke/frame and CFG references without source-name repair.
@@ -74,7 +74,7 @@ collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
   Empty Birth may omit an unused borrowed-frame projection; root still owns
   exactly one frame entry and SSA rejects any undefined frame use.
 - V4 retains the selected LLVM18 target session through preamble/layout checking,
-  explicit llc-18 PIC emission and atomic same-directory object publication.
+  LLVM C API PIC object emission and atomic same-directory object publication.
   Failure cleans temporary artifacts; no generic flags or compatibility retry.
   Shared parser, target/session, layout and runtime descriptors remain live.
 - The bounded child New/Birth I0 now admits one selected `ordinary_i64` caller:
@@ -88,7 +88,8 @@ collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
   preartifact test and `published_lifecycle_v4_execution_test.py` with the three
   source-issued inputs documented in [the C ABI README](../README.md).
   The physical execution driver checks real-runtime Pair/Fault/range behavior,
-  invalid input and tool/session/temp cleanup. Mutations test ABI rejection and
+  invalid input and library/session/temp cleanup. The Python test builds a
+  temporary compile-time-only private seam for LLVM-text mutation; mutations test ABI rejection and
   grant no new source acceptance. The Rust normal-source host test separately
   proves unchanged Pair EXE/independent linked OBJ exit30 and Bool Fault70/103,
   including actual Home/reclaim/report/dispose observations. Generic sessionless

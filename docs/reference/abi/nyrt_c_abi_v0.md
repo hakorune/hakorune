@@ -283,6 +283,16 @@ field/layout and retained tagged formal coverage. Generic OBJ admission is
 unchanged. Default source CLI acceptance and old transport retirement remain
 separate acceptance requirements; host-test execution alone does not close them.
 
+Object realization (2026-09-10) is invocation-local as well: the selected V4
+consumer keeps the existing LLVM18 TargetMachine session, parses the emitted
+file-backed LLVM text with `LLVMParseIRInContext`, verifies it with
+`LLVMReturnStatusAction`, checks the module target/data layout without repairing
+drift, and emits the temporary object through `LLVMTargetMachineEmitToFile`.
+The lifecycle object stage has no `llc` subprocess, retry, fallback, or shared
+TargetMachine/cache. LLVM buffers, modules, contexts, diagnostics, and the
+TargetMachine are disposed before the session closes; object publication still
+uses the existing nonempty check and same-directory atomic rename.
+
 ### `include/nyrt_dynamic_call_slot_v2.h` and `include/nyrt_dynamic_text_scan_v1.h`
 
 The selected Boundary AOT CheckedCallOut lane uses the versioned CallSlot

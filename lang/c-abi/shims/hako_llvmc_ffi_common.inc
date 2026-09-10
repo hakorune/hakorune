@@ -11,7 +11,7 @@ typedef struct hako_llvmc_lifecycle_measurement {
   int native;
   uint32_t profile;
   char target_triple[64];
-  uint64_t parse_ns, v2_ns, v4_ns, emit_ns, llc_ns;
+  uint64_t parse_ns, v2_ns, v4_ns, emit_ns, library_emit_ns;
   uint64_t v2_functions, v2_blocks, v2_rows;
   uint64_t v4_index_functions, v4_index_blocks, v4_index_values;
   uint64_t v4_index_resolves, v4_flow_blocks, v4_flow_rows;

@@ -1,10 +1,120 @@
 /* One parsed document, one target session, one atomic object publication. */
 #if !defined(_WIN32)
-#include <spawn.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
-#include <errno.h>
-extern char** environ;
+
+#if defined(HAKO_LLVMC_LIFECYCLE_TEST_SEAM)
+static int lv4_test_replace_once(char** text, size_t* len, const char* old_text, const char* new_text) {
+  char* at;
+  size_t old_len, new_len, prefix, suffix;
+  char* next;
+  if (!text || !*text || !len || !old_text || !new_text) return 0;
+  at = strstr(*text, old_text);
+  if (!at) return 0;
+  old_len = strlen(old_text);
+  new_len = strlen(new_text);
+  prefix = (size_t)(at - *text);
+  suffix = *len - prefix - old_len;
+  next = malloc(*len - old_len + new_len + 1);
+  if (!next) return 0;
+  memcpy(next, *text, prefix);
+  memcpy(next + prefix, new_text, new_len);
+  memcpy(next + prefix + new_len, at + old_len, suffix);
+  next[*len - old_len + new_len] = '\0';
+  free(*text);
+  *text = next;
+  *len = *len - old_len + new_len;
+  return 1;
+}
+
+static int lv4_test_replace_body_with_verify_invalid(char** text, size_t* len) {
+  static const char body[] =
+      "define i64 @hako_test_verify_invalid() {\n"
+      "entry:\n"
+      "  %x = phi i64 [ 1, %other ]\n"
+      "  ret i64 %x\n"
+      "other:\n"
+      "  ret i64 2\n"
+      "}\n";
+  char* first_newline;
+  char* second_newline;
+  char* next;
+  size_t prefix;
+  if (!text || !*text || !len) return 0;
+  first_newline = strchr(*text, '\n');
+  second_newline = first_newline ? strchr(first_newline + 1, '\n') : NULL;
+  if (!second_newline) return 0;
+  prefix = (size_t)(second_newline - *text) + 1;
+  next = malloc(prefix + sizeof(body));
+  if (!next) return 0;
+  memcpy(next, *text, prefix);
+  memcpy(next + prefix, body, sizeof(body));
+  free(*text);
+  *text = next;
+  *len = prefix + sizeof(body) - 1;
+  return 1;
+}
+
+static int lv4_test_rewrite_llvm(const char* path) {
+  const char* mode = getenv("HAKO_LIFECYCLE_TEST_SEAM");
+  FILE* file;
+  long size;
+  size_t len;
+  char* text;
+  int changed = 1;
+  if (!mode || !strcmp(mode, "missing-library") || !strcmp(mode, "missing-symbol") ||
+      !strcmp(mode, "emit-failure") ||
+      !strcmp(mode, "empty-output")) return 1;
+  file = fopen(path, "rb");
+  if (!file || fseek(file, 0, SEEK_END) != 0) {
+    if (file) fclose(file);
+    return 0;
+  }
+  size = ftell(file);
+  if (size < 0 || fseek(file, 0, SEEK_SET) != 0) {
+    fclose(file);
+    return 0;
+  }
+  len = (size_t)size;
+  text = malloc(len + 1);
+  if (!text || fread(text, 1, len, file) != len) {
+    free(text);
+    fclose(file);
+    return 0;
+  }
+  text[len] = '\0';
+  fclose(file);
+  if (!strcmp(mode, "invalid-kind")) {
+    changed = lv4_test_replace_once(&text, &len, ", i32 2, i64", ", i32 99, i64");
+  } else if (!strcmp(mode, "invalid-bool")) {
+    changed = lv4_test_replace_once(&text, &len, "add i64 0, 1", "add i64 0, 2");
+  } else if (!strcmp(mode, "malformed-ir")) {
+    changed = lv4_test_replace_once(&text, &len, "define ", "broken ");
+  } else if (!strcmp(mode, "verify-invalid")) {
+    changed = lv4_test_replace_body_with_verify_invalid(&text, &len);
+  } else if (!strcmp(mode, "target-drift")) {
+    changed = lv4_test_replace_once(
+        &text, &len, "x86_64-unknown-linux-gnu", "i386-unknown-linux-gnu");
+  }
+  if (changed) {
+    file = fopen(path, "wb");
+    if (!file) {
+      changed = 0;
+    } else {
+      int write_ok = fwrite(text, 1, len, file) == len;
+      int close_ok = fclose(file) == 0;
+      file = NULL;
+      if (!write_ok || !close_ok) changed = 0;
+    }
+  }
+  free(text);
+  return changed;
+}
+#else
+static int lv4_test_rewrite_llvm(const char* path) {
+  (void)path;
+  return 1;
+}
+#endif
 
 static int lv4_preamble_matches(const char* path, const hako_lts_session* session) {
   FILE* f = fopen(path, "rb");
@@ -40,8 +150,8 @@ static void lv4_emit_measurement(const hako_llvmc_lifecycle_measurement* measure
   char extra[1024];
   if (!measurement || !measurement->enabled) return;
   snprintf(extra, sizeof(extra),
-      "input_revision=hako.published-lifecycle-physical-program.v2;profile=%u;native=%d;target=%s;toolchain=llc-18;"
-      "index_lifetime=invocation;parse_ns=%llu;v2_ns=%llu;v4_ns=%llu;emit_ns=%llu;llc_ns=%llu;"
+      "input_revision=hako.published-lifecycle-physical-program.v2;profile=%u;native=%d;target=%s;toolchain=llvm-c-api;"
+      "index_lifetime=invocation;parse_ns=%llu;v2_ns=%llu;v4_ns=%llu;emit_ns=%llu;library_emit_ns=%llu;"
       "v2_functions=%llu;v2_blocks=%llu;v2_rows=%llu;"
       "v4_index_functions=%llu;v4_index_blocks=%llu;v4_index_values=%llu;"
       "v4_index_resolves=%llu;v4_flow_blocks=%llu;v4_flow_rows=%llu;"
@@ -53,7 +163,7 @@ static void lv4_emit_measurement(const hako_llvmc_lifecycle_measurement* measure
       (unsigned long long)measurement->v2_ns,
       (unsigned long long)measurement->v4_ns,
       (unsigned long long)measurement->emit_ns,
-      (unsigned long long)measurement->llc_ns,
+      (unsigned long long)measurement->library_emit_ns,
       (unsigned long long)measurement->v2_functions,
       (unsigned long long)measurement->v2_blocks,
       (unsigned long long)measurement->v2_rows,
@@ -72,18 +182,6 @@ static void lv4_emit_measurement(const hako_llvmc_lifecycle_measurement* measure
       result == 0 ? "ok" : "fail", "invocation-local", extra);
 }
 
-static int lv4_llc(const char* input, const char* output, const hako_lts_session* session) {
-  char triple[256];
-  pid_t child;
-  int status, rc;
-  int n = snprintf(triple, sizeof(triple), "-mtriple=%s", session->triple);
-  if (n < 0 || (size_t)n >= sizeof(triple)) return 0;
-  char* argv[] = {"llc-18", "-filetype=obj", triple, "-mcpu=generic", "-O0",
-      "-relocation-model=pic", "-o", (char*)output, (char*)input, NULL};
-  if (posix_spawnp(&child, argv[0], NULL, NULL, argv, environ) != 0) return 0;
-  do { rc = waitpid(child, &status, 0); } while (rc < 0 && errno == EINTR);
-  return rc == child && WIFEXITED(status) && WEXITSTATUS(status) == 0;
-}
 #endif
 
 __attribute__((visibility("default")))
@@ -149,16 +247,17 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
   measurement.emit_ns = hako_llvmc_measure_now_ns() - started;
   file = NULL;
   failure = "module-write";
-  if (!emitted || !lv4_preamble_matches(ll, &session)) goto done;
+  if (!emitted || !lv4_test_rewrite_llvm(ll) || !lv4_preamble_matches(ll, &session)) goto done;
   fd = mkstemp(object);
   if (fd < 0) goto done;
   object_owned = 1;
   close(fd); fd = -1;
-  failure = "llc";
+  failure = "library-emit";
   started = hako_llvmc_measure_now_ns();
-  int llc_ok = lv4_llc(ll, object, &session);
-  measurement.llc_ns = hako_llvmc_measure_now_ns() - started;
-  if (!llc_ok || stat(object, &st) != 0 || st.st_size <= 0) goto done;
+  int library_emit_ok = hako_lts_emit_object_from_ir(&session, ll, object, error);
+  measurement.library_emit_ns = hako_llvmc_measure_now_ns() - started;
+  if (library_emit_ok != 0) { failure = NULL; goto done; }
+  if (stat(object, &st) != 0 || st.st_size <= 0) goto done;
   failure = "publish";
   if (rename(object, obj_out) != 0) goto done;
   object_owned = 0;

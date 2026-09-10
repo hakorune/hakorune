@@ -22,10 +22,14 @@ Related:
 
 - **Current decision:** the existing lifecycle session may own V4 object
   emission; the bounded design below is accepted independently of graduation.
-- **Current implementation status:** V4 still invokes llc; the library
-  replacement is designed, not implemented or verified.
-- **Next ordered task:** use the lifecycle cutover brief when selected by
-  `CURRENT_STATE`; other graduation rows keep their own prerequisites.
+- **Current implementation status:** the selected lifecycle V4 path now uses
+  the invocation-owned LLVM18 C API session for parse/verify/object emission;
+  shared Pair/Bool/Map/child/NativeArray acceptance and private-seam negatives
+  have been run. The implementation is ready for closeout evidence and pointer
+  handoff; other graduation rows keep their own prerequisites.
+- **Next ordered task:** record the I0 closeout, commit/push, and move
+  `CURRENT_STATE` to the next explicit row; no general LLVM graduation is
+  claimed.
 - **Production stop line:** preserve target/layout, validation, failure and
   artifact contracts; never retry through another emitter.
 - **Retirement finish line:** the selected V4 llc edge disappears with shared
@@ -925,10 +929,10 @@ with `bash tools/build_hako_llvmc_ffi.sh`, then run the existing parser C test,
 Pair/Bool JSON, and `published_map_physical_execution_test.py` with its runtime
 archive. Preserve source-to-artifact evidence separately from C parser tests.
 
-`published_lifecycle_v4_execution_test.py` currently intercepts PATH's llc to
-inject invalid-kind/invalid-bool LLVM payloads and tests missing llc as failure.
-Move those mutations to a test-only driver/session seam, preserving runtime
-InvalidContract assertions. Missing llc becomes a success/no-child test.
+`published_lifecycle_v4_execution_test.py` builds a temporary compile-time-only
+private driver/session seam to inject invalid-kind/invalid-bool LLVM payloads;
+the production library has no test environment selector or public test API.
+Missing llc is a success/no-child test because object emission is in-process.
 Exercise missing library/symbol, malformed IR, verifier-invalid IR, target/layout
 drift, emit/empty-output and rename failure through the private test boundary;
 no production environment injection or public test API. Preserve both sentinel
@@ -936,6 +940,43 @@ artifact and absent-output cases. State inventory: admitted text -> parsed ->
 verified -> temporary object -> published; each failure cleans owned resources
 without publishing or retrying. API-input rejection and runtime Fault remain
 different outcomes and both retain their existing checks.
+
+#### I0 implementation evidence (2026-09-10)
+
+The selected production caller now uses the existing `hako_lts_session` for
+LLVM18 C API parse, verify and object emission. `lv4_llc` and its V4-private
+spawn/wait/environment plumbing are deleted; shared legacy tool resolution is
+untouched. The invocation preserves the selected target triple, generic CPU,
+empty features, O0, PIC and default code model, and rejects module target or
+data-layout drift before object publication. The parse buffer is transferred
+exactly once, module disposal precedes context disposal, LLVM diagnostics are
+copied into the existing owned error channel, and the V4 sentinel/temporary/
+nonempty/atomic-rename contract remains in place.
+
+Observed focused evidence:
+
+```text
+bash tools/build_hako_llvmc_ffi.sh                              PASS
+published_lifecycle_physical_parser_preartifact_test.c            PASS
+published_lifecycle_v4_execution_test.py (Pair/Bool JSON)         PASS
+Rust Pair direct EXE + linked OBJ exit30 / Bool Fault70           PASS
+Rust ordinary-child New/Birth/Map direct EXE + linked OBJ exit30  PASS
+Rust retained NativeArray C path                                 PASS
+published_map_physical_execution_test.py (target/quick archive)   PASS
+NYASH_LLVM_ROUTE_TRACE=1 measurement toolchain=llvm-c-api         PASS
+PATH without llc                                                  PASS
+```
+
+The private seam covers missing library/symbol, malformed and verification
+failure, target drift, emit failure, empty output, rename failure, sentinel
+preservation and temporary-artifact cleanup. No object-emission child was
+needed by the PATH-free run. The release lifecycle archive has an unrelated
+`main` collision in the descriptor Map harness, so the quick runtime archive
+is the recorded physical-runtime witness for this I0.
+
+Non-claims: parallel-session safety, memory-only transport, linker-library
+replacement, whole-library llvmlite/Hako graduation and general R7 remain
+separate rows.
 
 ### `LLVM-NATIVELIB0-LLVMAPI0`
 

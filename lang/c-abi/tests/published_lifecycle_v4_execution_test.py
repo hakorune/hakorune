@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""V4 physical input -> llc -> actual lifecycle archive; not Rust host cutover proof.
+"""V4 physical input -> LLVM C API -> actual lifecycle archive; not Rust host cutover proof.
 
 Pass JSON captured from the source-issued Pair transport test, without repair.
 Range variants below test the physical ABI only, not new source acceptance.
@@ -7,7 +7,6 @@ Range variants below test the physical ABI only, not new source acceptance.
 import copy
 import json
 import os
-import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -15,14 +14,13 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / "lang/c-abi/tests"
+YYJSON = ROOT / "plugins/nyash-json-plugin/c/yyjson"
 issued = json.loads(Path(sys.argv[1]).read_text())
 bool_inputs = [json.loads(Path(path).read_text()) for path in sys.argv[2:]]
 assert len(bool_inputs) == 2, "pass source-issued Pair JSON and both source-issued Bool JSON files"
 archive = ROOT / "target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a"
 assert archive.is_file()
 env = dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off")
-# This ambient flag must not override the selected session's explicit target.
-env["NYASH_NY_LLVM_LLC_FLAGS"] = "-mtriple=i386-unknown-linux-gnu"
 
 
 def run(argv, **kw):
@@ -38,9 +36,16 @@ def checked(argv, **kw):
 with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ("driver", "pair.o", "pair")]
+    test_ffi = work / "libhako_llvmc_ffi_test.so"
+    checked(["cc", "-DHAKO_LLVMC_LIFECYCLE_TEST_SEAM", "-fPIC", "-shared",
+             "-I" + str(YYJSON), "-o", test_ffi,
+             ROOT / "lang/c-abi/shims/hako_llvmc_ffi.c",
+             ROOT / "lang/c-abi/shims/hako_aot.c",
+             ROOT / "lang/c-abi/shims/hako_json_v1.c",
+             YYJSON / "yyjson.c"])
     checked(["cc", TESTS / "published_lifecycle_v4_driver.c",
-             "-L" + str(ROOT / "target/release"), "-lhako_llvmc_ffi",
-             "-Wl,-rpath," + str(ROOT / "target/release"), "-o", driver])
+             "-L" + str(work), "-lhako_llvmc_ffi_test",
+             "-Wl,-rpath," + str(work), "-o", driver])
     wraps = ["fault.frame_init", "fault.frame_dispose", "fault.report_final",
              "object.checked_field_set", "object.home_release_plain_i64", "object.reclaim_unpublished"]
 
@@ -125,26 +130,10 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
     link()
     execute("normal", 70, "1 0 0 1 1 1", f"FAULT 103 {sites[0]} 1 2 HOME 0 RECLAIM 1")
 
-    # Fault-inject the LLVM call after parser admission to exercise dynamic ABI
-    # rejection. The production compiler remains unchanged; this tool lives only
-    # in the temporary test directory and delegates to the actual LLVM18 tool.
-    real_llc = shutil.which("llc-18")
-    injection = work / "inject"
-    injection.mkdir()
-    tool = injection / "llc-18"
-    payload = call_args(bool_inputs[0])[0]["value"]
-    for label, old, new in [
-            ("invalid-kind", "@hako_lifecycle_birth_1(ptr %frame, i64 %v", None),
-            ("invalid-bool", f"%v{payload} = add i64 0, 1", f"%v{payload} = add i64 0, 2")]:
-        if label == "invalid-kind":
-            old = ", i32 2, i64 %v" + str(payload)
-            new = ", i32 99, i64 %v" + str(payload)
-        tool.write_text("#!" + sys.executable + "\nimport pathlib,sys,os\n"
-                        "p=pathlib.Path(sys.argv[-1]); s=p.read_text()\n"
-                        f"assert {old!r} in s\ns=s.replace({old!r},{new!r},1); p.write_text(s)\n"
-                        f"os.execv({real_llc!r},[{real_llc!r}]+sys.argv[1:])\n")
-        tool.chmod(0o755)
-        compile_input(bool_inputs[0], custom_env=dict(env, PATH=str(injection) + os.pathsep + env["PATH"]))
+    # Fault-inject the emitted LLVM text through a private compile-time seam.
+    # The production build has no test hook or environment-based mutation.
+    for label, mode in [("invalid-kind", "invalid-kind"), ("invalid-bool", "invalid-bool")]:
+        compile_input(bool_inputs[0], custom_env=dict(env, HAKO_LIFECYCLE_TEST_SEAM=mode))
         link()
         execute("normal", 70, "1 0 0 0 0 1")
         print(label, "InvalidContract without source Fault")
@@ -195,9 +184,21 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
         compile_input(data, False)
         assert obj.read_bytes() == sentinel
     print(len(malformed_inputs), "tag/schema/type negative inputs preserve artifact")
-    compile_input(issued, False, dict(env, PATH=str(work)))  # llc unavailable
-    assert obj.read_bytes() == sentinel
+
+    # Object emission stays in-process; hiding llc from PATH must not change it.
+    compile_input(issued, custom_env=dict(env, PATH=str(work)))
+    link()
+    execute("normal", 30, "1 2 1 0 0 1")
+
+    for mode in ["missing-library", "missing-symbol", "malformed-ir", "verify-invalid",
+                 "target-drift", "emit-failure", "empty-output"]:
+        obj.write_bytes(sentinel)
+        compile_input(issued, False, dict(env, HAKO_LIFECYCLE_TEST_SEAM=mode))
+        assert obj.read_bytes() == sentinel
+    bad_parent = work / "missing-parent" / "pair.o"
+    failed = run([driver, work / "input.json", bad_parent], env=env)
+    assert failed.returncode != 0
     obj.unlink()
     compile_input(malformed, False)
     assert not obj.exists()
-    print("session mismatch, missing/colliding site and tool failure: pre-artifact rejection passed")
+    print("session mismatch, private library seam and temp cleanup: pre-artifact rejection passed")
