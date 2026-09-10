@@ -241,6 +241,23 @@ fn local_ssa_receiver_copy_preserves_stored_unknown_and_origin_after_commit() {
 }
 
 #[test]
+fn repeated_local_ssa_receiver_reuses_successful_identity_cache() {
+    let mut builder = builder_with_method_entry("fact0_temporal_receiver_cache/0", RECEIVER_OWNER);
+    let receiver = receiver_parameter(&mut builder, RECEIVER_OWNER);
+
+    let first = local::recv(&mut builder, receiver);
+    let cache_after_first = builder.function_state.local_ssa_map.len();
+    let second = local::recv(&mut builder, first);
+    let cache_after_second = builder.function_state.local_ssa_map.len();
+
+    assert_eq!(second, first);
+    assert_eq!(
+        cache_after_second, cache_after_first,
+        "a successful local result must be reusable without a second cache entry"
+    );
+}
+
+#[test]
 fn local_ssa_rematerialized_copy_keeps_its_exact_transient_type_after_commit() {
     let mut builder = builder_with_entry("fact0_temporal_rematerialized_copy/0");
     let source = builder.alloc_value_for_test();

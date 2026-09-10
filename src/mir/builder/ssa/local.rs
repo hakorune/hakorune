@@ -94,13 +94,26 @@ fn ensure_inner(
     kind: LocalKind,
     forbid_non_pure: bool,
 ) -> Result<ValueId, String> {
-    match materialize::materialize_local_v1(
+    let result = materialize::materialize_local_v1(
         builder,
         v,
         kind,
         forbid_non_pure,
         LocalSsaFailurePolicyV1::LegacyFacade,
-    ) {
+    );
+
+    // A successfully materialized value is already local to this block.  Keep
+    // an identity entry for the returned value so a later consumer does not
+    // re-enter definition discovery for the same `(block, value, kind)`.
+    // Failed materialization must not publish any cache state.
+    if let (Some(bb), Ok(value)) = (builder.function_state.current_block, result.as_ref()) {
+        builder
+            .function_state
+            .local_ssa_map
+            .insert((bb, *value, kind.tag()), *value);
+    }
+
+    match result {
         Ok(value) => Ok(value),
         Err(LocalSsaMaterializationErrorV1::Contract(error)) => Err(error),
         Err(LocalSsaMaterializationErrorV1::BlockCreation(_))
