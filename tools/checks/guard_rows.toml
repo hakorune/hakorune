@@ -239,6 +239,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mirbuilder_physical_program_module_borrow_r0_guard.sh"]
 
 [[rows]]
+id = "mirbuilder-physical-negative-test-proof-r0"
+label = "MirBuilder physical negative-test proof R0 guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mirbuilder_physical_negative_test_proof_r0_guard.sh"]
+
+[[rows]]
 id = "force-hv1-caller-lifecycle"
 label = "Force-hv1 body-derived caller lifecycle guard"
 profiles = ["pilot", "quick-static"]

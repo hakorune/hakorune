@@ -311,6 +311,10 @@ Lifecycle invocation ownership
   and requires the named `published-lifecycle-v4/receiver-object-mismatch`
   rejection with no artifact. This proves V4 test discrimination; it does not
   add a second identity verifier or an OBJ/EXE claim.
+  The Map physical proof reuses its valid normal/fault graph, mutates only the
+  layout `fields` member, and asserts the parser-owned named
+  `published-lifecycle-physical-parser/abi-layout` rejection before artifact
+  publication.
   The Python test links the actual lifecycle kernel; temporary LLVM mutation
   probes only test dynamic ABI rejection and grant no new source acceptance.
   `published_mir_object_tests.rs` separately links the same runtime probe against

@@ -93,10 +93,10 @@ def program(keys):
     graph.term(graph.current, dict(op="return", value=1))
     return dict(schema="hako.published-lifecycle-physical-program.v2", storage_profile=1,
                 fault_abi_version=1, process_result_site=graph.site,
-                layouts=[dict(object_id=i, runtime_type_id=900+i, field_count=0, fields=[])
-                         for i in range(len(keys))],
-                functions=[dict(name="main", role="root_i64", entry=0, params=[], receiver=None,
-                                blocks=graph.blocks)])
+        layouts=[dict(object_id=i, runtime_type_id=900+i, field_count=0, fields=[])
+                 for i in range(len(keys))],
+        functions=[dict(name="main", role="root_i64", entry=0, params=[], receiver=None,
+                                receiver_object=None, blocks=graph.blocks)])
 
 
 def value_program(kinds):
@@ -182,6 +182,12 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
             assert obj.read_bytes() == before, "rejected input changed object"
         return result
 
+    def assert_named_reject(data, marker):
+        """A negative is evidence only when the intended owner names it."""
+        result = compile_input(data, False)
+        assert marker in result.stderr, (marker, result.stderr)
+        return result
+
     for keys in [[], ["a"], ["a", "b"], ["a", "a"], ["a\x00b", "a\x00b"], ["", "01"]]:
         data = program(keys)
         compile_input(data)
@@ -244,6 +250,18 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     print("Value status paths preserve Key/Outcome disposal")
 
     base = program(["a", "b"])
+
+    # Reuse the valid normal/fault-cleanup graph and mutate one parser-owned
+    # field. The parser's named rejection proves this is not a generic V4
+    # unsupported-cohort negative.
+    abi_layout = copy.deepcopy(base)
+    abi_layout["layouts"][0]["fields"] = [{
+        "declaration_ordinal": 0, "runtime_slot": 0, "storage_kind": 99
+    }]
+    assert_named_reject(
+        abi_layout,
+        "[freeze:contract][published-lifecycle-physical-parser/abi-layout]",
+    )
 
     def operation(data, kind):
         return next(b["terminator"]["instruction"]["operation"]
