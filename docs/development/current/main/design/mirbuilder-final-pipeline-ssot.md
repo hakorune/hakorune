@@ -1165,6 +1165,16 @@ generic MIR JSON vocabulary.
 Non-claims: generic JSON lifecycle execution, arbitrary Invoke families, new
 runtime ABI, child cleanup expansion, and whole-suite completion.
 
+I0 caller cutover evidence (landed at `4a96073343`): the existing Birth and
+Method EXE smoke callers now invoke `hakorune --backend mir --emit-exe` with
+the explicit lifecycle runtime archive. Both assert the invocation-local V4
+trace, LLVM C API toolchain, absence of compatibility replay, an emitted
+artifact, and process exit `30`. The generic `selfhost_build.sh --mir` route
+continues to reject `Invoke` as specified and is no longer used as an artifact
+producer for these lifecycle cases. The full fixed acceptance suite improved
+from `2/11` to `4/11`; the remaining seven failures are outside this caller
+cutover and stay owner-scoped.
+
 ##### Physical V2 probe evidence (2026-09-10)
 
 The selected physical caller was exercised directly with the existing CLI
