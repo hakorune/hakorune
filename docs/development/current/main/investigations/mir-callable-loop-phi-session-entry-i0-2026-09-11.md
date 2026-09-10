@@ -144,6 +144,23 @@ both source owners receive only their own header from the same resolver-issued
 index. This receipt does not claim Method-prefix admission, the real package
 production fixture, PHI emission, module publication, or OBJ/EXE execution.
 
+## Package direct-call target validation receipt (2026-09-11)
+
+The cataloged package gate now validates each direct-call observation against
+the same resolver-issued source-unit index already lent by the batch. It
+requires an exact target and an owner-known callable header, while preserving
+the existing source-site and owned-site checks. An observation with no exact
+target or no matching index is rejected at the package gate; it is never
+repaired from a name, selector, catalog key, or physical signature.
+
+The focused positive
+`cataloged_typed_static_direct_call_uses_source_index_target` proves a typed
+cataloged FreeStatic call is admitted without manual ledger installation. The
+existing package rejection/acceptance tests remain green, including unissued,
+foreign, nested, and wrong-arity observations. This closes the package's
+source-index admission check only; it does not claim the selected Loop
+consumer, PHI emission, module publication, or OBJ/EXE execution.
+
 ## Implementation order
 
 1. **Accepted design (2026-09-11):** reuse the existing
@@ -166,11 +183,13 @@ production fixture, PHI emission, module publication, or OBJ/EXE execution.
    duplicating the index per row. Keep observer-only callers and nested owner
    policy unchanged. The implementation remains uncommitted until the
    natural code boundary is reviewed.
-4. [implemented locally; FreeStatic route regression green 2026-09-11] Mark
-   Method-prefix CallableSingleLoop shapes outside so they return to the
-   ordinary method path; the Method target path remains a later
-   declared-instance row. A package-level direct-call gate still prevents a
-   no-manual-ledger production caller from being claimed by this row.
+4. [implemented locally; FreeStatic route and package target gate green
+   2026-09-11] Mark Method-prefix CallableSingleLoop shapes outside so they
+   return to the ordinary method path; the Method target path remains a later
+   declared-instance row. The cataloged package gate now consumes the
+   resolver-issued index to validate an exact FreeStatic target, and the
+   focused typed positive has no manual ledger setup. This still does not
+   claim the selected Loop production consumer or its PHI execution.
 5. Inventory the existing function-session opener, DraftSeal prepare/commit,
    pending restoration, collector admission, and discard terminals. The
    selected entry must have one named owner for all of them.

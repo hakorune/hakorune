@@ -94,15 +94,15 @@ pub(crate) enum AppMainDirectCallDispositionIssueV1 {
     Loan(super::direct_call_loan::AppMainDirectCallLoanErrorV1),
 }
 
-/// Validate the expected Cataloged owner/site/provenance relation without
-/// issuing a target.  Actual raw lineage remains a later Builder boundary.
-/// The boolean is a private transient only: callers still fail closed with
-/// the existing unissued-observation issue when any row is present.
+/// Validate the expected Cataloged owner/site/provenance relation against the
+/// resolver-issued source-unit index. Actual raw lineage remains a later
+/// Builder boundary; an observation without an exact target/header still
+/// fails closed at this package gate.
 fn validate_cataloged_source_co_seal_v1(
     catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-) -> Result<bool, ResolvedCallableSemanticBatchIssueV1> {
+) -> Result<(), ResolvedCallableSemanticBatchIssueV1> {
     let declaration_catalog = catalog.catalog();
     if !declaration_catalog
         .brand()
@@ -111,7 +111,6 @@ fn validate_cataloged_source_co_seal_v1(
         return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
     }
 
-    let mut observed = false;
     let mut owned_sites = BTreeSet::new();
     let app_main_identity = declaration_catalog
         .source_backed_app_main()
@@ -181,7 +180,8 @@ fn validate_cataloged_source_co_seal_v1(
             return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
         }
 
-        let has_observation = batch
+        let callable_index = batch.callable_index();
+        batch
             .with_lowering_input(slot, |input| {
                 let forest = input.forest();
                 if forest.semantic_owners().any(|(owner, product)| {
@@ -190,7 +190,6 @@ fn validate_cataloged_source_co_seal_v1(
                     return None;
                 }
                 let compilation = input.owner().compilation_brand();
-                let mut has_observation = false;
                 for (owner, function) in forest.owners() {
                     if owner.compilation_brand() != compilation
                         || function.owner() != owner
@@ -201,7 +200,15 @@ fn validate_cataloged_source_co_seal_v1(
                         return None;
                     }
                     for (site, _observation) in function.direct_call_observations() {
-                        has_observation = true;
+                        let Some(target) = function.direct_call_target(site) else {
+                            return None;
+                        };
+                        let Some(callable_index) = callable_index else {
+                            return None;
+                        };
+                        if callable_index.header_for_callable(target.callable()).is_err() {
+                            return None;
+                        }
                         if !function.source_site_inventory().contains_expression(site)
                             || !owned_sites.insert(
                                 crate::mir::resolved_semantics::OwnedExprSiteV1::new(
@@ -214,13 +221,12 @@ fn validate_cataloged_source_co_seal_v1(
                         }
                     }
                 }
-                Some(has_observation)
+                Some(())
             })
             .map_err(|_| ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation)?
             .ok_or(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation)?;
-        observed |= has_observation;
     }
-    Ok(observed)
+    Ok(())
 }
 
 /// Move the exact App Main direct-call products into a private package loan.
@@ -510,13 +516,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error })?;
-    if validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?
-    {
-        return Err(NormalCallableSemanticPackageIssueV1::Batch {
-            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
-        });
-    }
+    validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected).map_err(|error| {
+        NormalCallableSemanticPackageIssueV1::Batch { _error: error }
+    })?;
     app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
     let mut app_main_direct_call_loan = match app_main_identity.as_ref() {

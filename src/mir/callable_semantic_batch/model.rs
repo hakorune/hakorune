@@ -156,6 +156,14 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
             .zip(self.callable_index.as_ref())
     }
 
+    /// Borrow the resolver-issued source-unit index shared by eligible
+    /// selected roots. No row can mint or replace this product.
+    pub(crate) fn callable_index(
+        &self,
+    ) -> Option<&crate::mir::resolved_semantics::VerifiedCallableIndexV1> {
+        self.callable_index.as_ref()
+    }
+
     pub(crate) fn declarations(
         &self,
     ) -> impl ExactSizeIterator<Item = VerifiedResolvedCallableSemanticDeclarationRefV1<'_>> {

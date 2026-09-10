@@ -191,7 +191,12 @@ impl FunctionSemanticResolverSessionV1 {
                     return Err(Self::reject_app_main(input.source().clone(), issue));
                 }
             }
-            let wants_root_index = is_app_main || is_free_static_root;
+            // A FreeStatic root requires the index only after this source
+            // unit actually issued one. Unsupported headers remain
+            // observer-only so the existing package gate can report the
+            // unissued observation at its established boundary.
+            let wants_root_index =
+                is_app_main || (is_free_static_root && callable_index.is_some());
             let policy = if wants_root_index && callable_index.is_some() {
                 DirectCallCanonicalizationPolicyV1::RequireCallableIndexAtRoot
             } else if wants_root_index {

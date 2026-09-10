@@ -174,6 +174,16 @@ fn cataloged_static_direct_call_observation_rejects_before_install() {
 }
 
 #[test]
+fn cataloged_typed_static_direct_call_uses_source_index_target() {
+    let source = final_source(
+        "static box Api { caller(value: i64): i64 { return helper(value) } helper(value: i64): i64 { return value } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(1001).unwrap();
+    issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("typed cataloged direct call has an exact source target");
+}
+
+#[test]
 fn cataloged_nested_lambda_direct_call_observation_rejects_before_install() {
     let source = final_source(
         "static box Api { caller() { local f = fn() { return helper() } return 0 } helper() { return 0 } }",
