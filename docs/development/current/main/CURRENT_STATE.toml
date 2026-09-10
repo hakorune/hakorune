@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Use the generic M7-S parent guard; cohort semantics belong to source tests and the implementation diff. Stage1 repayment is closed at f15098cf0b: exact six assets and stale paths are gone, integration discovery is zero, and new guard/receipt/test/ignore plus baseline delta are zero. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
+guard_followup = "The generic M7-S parent guard applies only to an M7-S implementation or closeout row; while the selected R7 row is a design_stop, run current_state_pointer_guard.sh only and do not treat the M7-S guard as an R7 gate. Cohort semantics belong to source tests and the implementation diff. Stage1 repayment is closed at f15098cf0b: exact six assets and stale paths are gone, integration discovery is zero, and new guard/receipt/test/ignore plus baseline delta are zero. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
