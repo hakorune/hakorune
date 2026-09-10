@@ -28,12 +28,12 @@ Related:
   are separated; the direct-loader schema-error retry is retired and the fixed
   acceptance is classified. The selected callable-loop BodyOnlyRebind product
   is now consumed by the existing source-aware adapter with relation-owner and
-  planner-increment checks. The artifact loader's parsed-top-level schema
-  selection remains a separate queued boundary.
-- **Next ordered task:** close the BodyOnlyRebind I0 evidence row, then take the
-  artifact-loader schema selector through its existing owner. Constructor/Array
-  execution and retirement evidence belongs to their owner SSOTs; no lifecycle
-  V2 waiting state is implied.
+  planner-increment checks. The artifact loader now delegates schema selection
+  to the parsed v1 bridge; escaped declared schemas stop before v0.
+- **Next ordered task:** take the receiver-identity R0 coverage row using its
+  reusable valid normal/fault fixture. Constructor/Array execution and
+  retirement evidence belongs to their owner SSOTs; no lifecycle V2 waiting
+  state is implied.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -487,7 +487,7 @@ verifier.
 
 | order | owner / task | bounded change and fail-fast boundary | acceptance / non-claims |
 | --- | --- | --- | --- |
-| 1 | `runner::json_artifact::mir_loader` — `MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0` | Remove the raw `text.contains("\"schema_version\"")` selector. Let the existing parsed top-level `Value`/`json_v1_bridge::try_parse_v1_to_module` decide whether the schema key is absent, supported, or explicitly unsupported, so escaped keys such as `\u0073chema_version` cannot enter v0. Keep the existing no-schema v0 selection and terminal v1 errors. | Add an escaped-key unsupported-schema case and a malformed/absent-key matrix; rejection must occur before `mir_json_v0::parse_mir_v0_to_module`. No new parser, schema revision, or blanket v0 removal. |
+| 1 landed | `runner::json_artifact::mir_loader` — `MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0` | Remove the raw `text.contains("\"schema_version\"")` selector. Let the existing parsed top-level `Value`/`json_v1_bridge::try_parse_v1_to_module` decide whether the schema key is absent, supported, or explicitly unsupported, so escaped keys such as `\u0073chema_version` cannot enter v0. Keep the existing no-schema v0 selection and terminal v1 errors. | Landed at `444822ff80`; focused loader tests are `7/7` green, including escaped-key unsupported schema and no-schema v0 compatibility. The dedicated artifact selector guard passes. No new parser, schema revision, or blanket v0 removal. |
 | 2 (high / reopened) | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` — `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` | The current negative is non-discriminating because the fault/liveness path rejects before the receiver comparison. Build one reusable valid normal+fault cleanup base fixture, add stable named rejection `published-lifecycle-v4/receiver-object-mismatch`, then mutate only the callee `receiver_object`; assert that named rejection and absent artifact. Add the same-typed valid receiver execution at the same boundary. The base fixture is a reusable test asset for later identity negatives, not a one-off. | Positive valid receiver, valid cleanup-on-fault, and object-only mutation negative all execute; mutating only the receiver check must make the negative fail. Keep V2 structural/V4 identity ownership unchanged; no second object walk or runtime-accessor proof. |
 | 3 | `published_backend_view::physical_program` — `MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0` | After a caller census, remove the unused `PublishedLifecyclePhysicalProgramV1::module` borrow and getter if no downstream consumer remains. Close the getter so later JSON/layout consumers cannot return to the original module through this product. | Existing physical JSON/layout/Pair exit-30 suites stay green and the source remains below the 760 split trigger. No semantic projection, layout authority, or transport change. |
 
@@ -498,22 +498,26 @@ or new optimization row follows from that structural result.
 
 ##### Adjacent-ingress review reconciliation (2026-09-10)
 
-The follow-up review confirms that the three rows above remain separate
-bounded tasks; none is a reason to reopen the source authority or physical
-receiver design.
+The follow-up review confirms that the three rows above remain separately
+tracked bounded tasks; row 1 is now landed, and none is a reason to reopen the
+source authority or physical receiver design.
 
-* The direct MIR loader's v1 error-to-v0 retry is retired, but the artifact
-  loader still has the older raw `text.contains("\"schema_version\"")`
-  selector. An escaped JSON key can therefore bypass that selector. The
-  artifact row stays open until the existing parsed top-level object decides
-  absent, supported, or unsupported schema status before v0 parsing. No second
-  parser or compatibility retry is allowed.
+* The artifact loader row is closed at `444822ff80`: the existing parsed v1
+  bridge now decides absent, supported, or unsupported schema status before v0
+  parsing, and the escaped-key negative proves that raw substring selection is
+  gone. The artifact-specific guard pins this contract without creating a
+  second parser or compatibility retry.
 * The receiver-identity C negative is not yet isolated evidence: its method
   fault edge currently reaches `return_fault` without the valid receiver
   cleanup graph, so lifecycle rejection can happen before the object mismatch
   check. The coverage row must first make the normal and fault paths valid,
   then mutate only the callee `receiver_object` and assert the named V4
   mismatch. A generic nonzero result is not acceptance.
+
+Negative-test proof rule for the reopened receiver row: a rejection is evidence
+only when a reusable valid normal+fault cleanup base is green, exactly one
+receiver field is mutated, and the stable named mismatch is asserted. A generic
+nonzero or unsupported-cohort result does not close the row.
 * The physical-program `module` borrow/getter remains conditional cleanup.
   A caller census must include the existing layout/reference path before any
   deletion. If that path can consume the already-issued rows instead, remove
@@ -522,15 +526,14 @@ receiver design.
   lookup through JSON.
 
 The selected execution frontier is now
-`MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0` in design_stop. The preceding Ready
-port implementation landed at `3867539488`: its bounded consumer pairs the
-moved source Recipe relation with a short-lived borrow of the existing callable
-ledger inside one callback. The structural `LoopPlanExpressionPortV1`
-navigation remains the port; `&self` observation is not a one-shot guarantee.
-One-shot consumption is the move into the callback,
-which must reject missing/foreign sites before the existing composer or
-lowerer mutates the builder. No production caller, legacy-route deletion,
-artifact cutover, or performance claim is opened by this reconciliation.
+`MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0` in closeout. The preceding
+BodyOnlyRebind implementation landed at `3559464960` with its source-aware
+consumer, relation-owner rejection, and planner-owned increment checks; its
+closeout is recorded at `74f717841c`. The artifact row then landed at
+`444822ff80` by making the existing parsed v1 bridge the schema authority and
+adding the escaped-key terminal proof. Receiver-identity R0 remains queued;
+no production receiver fixture, legacy-route deletion, OBJ/EXE, or performance
+claim is opened by this closeout.
 
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 

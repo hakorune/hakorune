@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0"
-current_execution_cohort = "artifact_mir_json_toplevel_schema_stop_i0"
+current_execution_cohort = "artifact_mir_json_toplevel_schema_stop_i0_closeout"
 current_design_stop = "none"
-current_blocker_token = "MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0: use the existing parsed JSON top-level schema disposition in runner::json_artifact::mir_loader; explicit supported or unsupported schema_version must be decided before v0, escaped keys must not bypass the decision, and no second parser or compatibility retry may be added."
+current_blocker_token = "MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0-CLOSEOUT: record the parsed-top-level schema selector implementation, escaped-key terminal test, dedicated guard, and focused loader evidence; keep receiver-identity R0 and the historical broad ingress guard outside this closeout."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Run the focused runner::json_artifact tests, including escaped-key unsupported schema and absent-schema v0 compatibility; then run current_state_pointer_guard.sh and the existing JSON ingress guard before closeout. Reject explicit schema errors before mir_json_v0::parse_mir_v0_to_module; do not widen Program(JSON v0)."
+guard_followup = "Focused runner::json_artifact tests (7/7) and mir_artifact_schema_selector_i0_guard.sh are green. current_state_pointer_guard.sh is green. The historical mir_call_ingress_schema_lifecycle_guard.sh remains a baseline pointer mismatch because it names an older card; do not relabel that unrelated red as artifact evidence. Reject explicit schema errors before mir_json_v0::parse_mir_v0_to_module; do not widen Program(JSON v0)."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -31,13 +31,16 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-BodyOnlyRebind I0 is closed at `3559464960` with docs/guard closeout at
-`74f717841c`; its Rust adapter evidence remains in the landed tail. The next
-bounded Stop is the existing artifact-loader schema selector. Use
-`json_v1_bridge::try_parse_v1_to_module` as the parsed top-level authority so
-absent schema selects v0 compatibility while supported/unsupported declared
-schema is terminal before `mir_json_v0`. The slice does not widen Program(JSON
-v0), add a parser, or reopen receiver R0/OBJ/EXE work.
+Artifact MIR JSON schema-selector I0 is implemented at `444822ff80`.
+`runner::json_artifact::mir_loader` now asks the existing parsed v1 bridge to
+decide absent/supported/unsupported schema before the v0 parser; escaped-key
+unsupported schema is terminal. Focused loader tests are 7/7 green and the
+artifact-specific guard is green. The historical broad ingress guard still
+points at an older card and is recorded as unrelated baseline red. The next
+queued task is receiver-identity R0, whose negative must reuse a valid
+normal/fault cleanup base and assert a stable named mismatch after one-field
+mutation. No receiver implementation, OBJ/EXE, or whole-pipeline claim is
+made here.
 """
 next_design_card = "none"
 next_execution_card = "MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0"
@@ -58,5 +61,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/local I0, callee identity I1 implementation and FieldGet prepared-reference reuse landed; Pair exit30 is green. Receiver identity coverage R0 is reopened because the existing C negative is non-discriminating until valid normal/fault cleanup is isolated. C index fusion remains ParkedSealed D1. Direct MIR JSON schema-error Stop and selected Dynamic CanonicalV1 egress landed; fixed real-app acceptance at 27d516ee3d is 4/11 with seven owner-scoped reds. Loop ordinary bridge S0-D1 is accepted as design with only the callable-None bypass eligible for later deletion; the source-recipe relation P0 borrowed view and focused evidence landed at 3867539488 with 18/18 focused tests green. BodyOnlyRebind I0 implementation landed at 3559464960 with planner increment reuse, relation-owner pre-effect rejection, 19 callable-loop tests and 8 raw-entry tests green. Closeout records Rust adapter evidence only; no OBJ/EXE, route retirement, receiver R0, or performance claim."
+  "2026-09-10: receiver/local and callee-identity I0/I1 plus FieldGet reuse landed; Pair exit30 is green. Receiver R0 remains open because its C negative is non-discriminating; C index fusion is ParkedSealed. Direct schema Stop/Dynamic egress and Loop source-recipe evidence are landed; BodyOnlyRebind I0 is at 3559464960 with focused Rust gates green. Artifact MIR JSON schema-selector Stop I0 landed at 444822ff80: parsed v1 schema authority, escaped-key terminal before MIR-v0, no-schema v0 compatibility, 7/7 loader tests, and dedicated guard green. The broad ingress guard is a separately classified pointer mismatch. Receiver-identity R0 is next; no OBJ/EXE or whole-pipeline claim."
 ]
