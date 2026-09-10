@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
-current_execution_cohort = "fixed_real_apps_exe_boundary"
-current_design_stop = "none"
-current_blocker_token = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE: run the existing real-app EXE boundary manifest exactly, record each expected/observed result and source/script hash, and keep known reds with their existing owners; do not widen into a whole-repository green claim."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0"
+current_execution_cohort = "callable_loop_ordinary_bridge_design"
+current_design_stop = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0"
+current_blocker_token = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0: design one source-aware port seam for the existing normalizer/JoinIR owner; no production edge, generic fallback, post-walk join, or new semantic receipt until owner/caller/nested boundary/delete-set are closed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,16 +31,15 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0 landed at e2bb3b8b91.
-The selected Dynamic LLVM Boundary exporter now calls the explicit CanonicalV1
-issuer; generic compatibility emitters remain ambient-profile owners. The
-focused mir_json_emit suite passed 8/8, rustfmt check passed, and pointer,
-canonical-corridor, and LLVM ingress guards passed. The next existing bounded
-owner is MIRBUILDER-FINAL-ACCEPTANCE-SCOPE; R7 and whole MirBuilder remain
-unproven.
+The fixed real-app EXE boundary suite ran at 27d516ee3d and recorded 4/11
+passes with seven existing owner-scoped reds: two untyped-storage stops, three
+exact-usize parameter stops, and two Loop outside-first-cohort stops. The next
+selected row is the existing MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0 design cell;
+the acceptance result does not authorize implementation or whole-pipeline
+completion.
 """
-next_design_card = "none"
-next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
+next_design_card = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

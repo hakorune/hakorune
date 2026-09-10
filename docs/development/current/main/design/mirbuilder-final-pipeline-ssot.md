@@ -1149,6 +1149,55 @@ json      script fa378922fc21740551d54f8f1e453b08c9b119edb6b7eda591e05e31951c5e0
 probe     script 489c6f28bd174962d21c2631dd0c79b172c379a77c90410e80d684aa3cade33d
 ```
 
+##### Fixed-scope execution at current HEAD (2026-09-10)
+
+The exact command was re-run without filters or fixture edits at repository
+HEAD `27d516ee3d69aa5968d706dffda18d54633e00df`:
+
+```text
+tools/smokes/v2/run.sh --profile integration --owner-profile integration \
+  --suite real-apps-exe-boundary
+```
+
+The manifest, runner, smoke scripts, and source hashes are unchanged from the
+fixed receipt immediately above. Environment was `hakorune 1.0`,
+`rustc 1.89.0 (29483883e 2025-08-04)`, Ubuntu LLVM 18.1.3, and the existing
+`target/release/ny-llvmc` selected by the smoke scripts. No source or fixture
+was changed during the run.
+
+| entry | expected | observed | result |
+| --- | --- | --- | --- |
+| `typed_object_newbox_min_exe` | exit 30 | exit 30 | pass |
+| `typed_object_method_min_exe` | exit 30 | exit 30 | pass |
+| `typed_object_birth_min_exe` | exit 30 | exit 30 | pass |
+| `real_apps_exe_boundary_probe` | exact unsupported boundary | exact probe pass | pass |
+| `typed_object_untyped_field_min_exe` | exit 7 | `emission-local-copy-drift` before MIR artifact | fail / untyped-storage owner |
+| `typed_object_birth_param_min_exe` | exit 30 | `root-call-entry-missing` before MIR artifact | fail / untyped-storage owner |
+| `boxtorrent_mini_exe` | stdout + `Result: 0` | `UnsupportedDeclaredType` parameter contract | fail / exact-`usize` owner |
+| `mimalloc_lite_exe` | stdout + `Result: 0` | `UnsupportedDeclaredType` parameter contract | fail / exact-`usize` owner |
+| `allocator_stress_exe` | stdout + `Result: 0` | `UnsupportedDeclaredType` parameter contract | fail / exact-`usize` owner |
+| `binary_trees_exe` | stdout + `Result: 0` | `callable-loop-handoff/outside-first-cohort` | fail / Loop owner |
+| `json_stream_aggregator_exe_runtime_boundary` | stdout + `Result: 0` | `callable-loop-handoff/outside-first-cohort` | fail / Loop owner |
+
+This run closes the fixed acceptance evidence for the current revision at
+4/11, while keeping all seven reds with their existing owner rows. It does
+not authorize a generic fallback, `usize` coercion, untyped storage inference,
+or a Loop change inside the Call lane. The next implementation selection must
+name one existing owner, its source issuer and consumer, a fail-fast terminal,
+and its exclusive old-edge delete-set.
+
+##### MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0 (design stop)
+
+The next selected row is the existing Loop BoxShape/design cell
+`MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0`. It may only specify one source-aware
+port seam for the existing normalizer/JoinIR physical owner, preserving the
+grouped `binding + class + (site, role)` relation and strict pre-effect
+consumption. The audit must name the real caller, the structural owner, nested
+loop ownership, the typed fail-fast terminal, and the exclusive old-edge
+delete-set. It must not add a production edge, reopen `Outside` into the old
+route, infer from names/ordinals/ValueId, or introduce a second Facts/Recipe
+issuer. Implementation remains closed until this design boundary is accepted.
+
 ##### Acceptance recheck classification (2026-09-10)
 
 The selected physical caller cutover was re-run against the same fixed
