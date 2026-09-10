@@ -46,6 +46,23 @@ second health-repair task.
 | `MIRBUILDER-INIT-RESPONSIBILITY-CLEANUP-D0` | Medium | `builder_init.rs` | after the barrel/owner census is accepted |
 | `MIRBUILDER-MAIN-INTEGRATION-CLOSEOUT` | Operational | branch/pointer SSOT | after the active branch has an explicit integration step |
 
+## 2026-09-10 edge-health findings (queued, not selected)
+
+These rows came from the external edge review and are kept separate from the
+closed emit-clone slice. They are queued for a later read-only revalidation;
+none changes the current pointer or authorizes a production switch.
+
+The older `MIR-EMIT-MOVE-COMMIT-R0` queue label is satisfied by the selected
+`MIR-BUILDER-EMIT-CLONE-SHAPE-P0` slice, closed at `9808923785`; do not open a
+second move/clone row.
+
+| Row | Owner / terminal | Production caller | Exclusive delete-set | Acceptance |
+| --- | --- | --- | --- | --- |
+| `MIR-C-INVOCATION-DRIVER-ARITY-REPAIR-R0` | `lang/c-abi/tests` / direct C driver compile | `static_v2_execution_driver.c`, `allocation_config_capture_driver.c`, `named_query_driver.c` | stale three-argument `hako_llvmc_invocation_init` call sites only | all focused drivers compile against the four-argument declaration; no runtime or ABI semantic change |
+| `MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0` | selected C compatibility test owner / rc==0 positive terminal | existing generic-export fixture | non-callee fixture or weakened reachability-only assertion, only after proof review | valid callee-backed generic export succeeds, or the requirement is explicitly reclassified before closeout; no silent weakening |
+| `MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0` | `tools/checks` / path-aware guard | existing LocalSSA split guard | stale path literals in the registered guard only | guard resolves the landed owner path and passes against the current split; no LocalSSA semantic edit |
+| `MIR-R7-LEGACY-CENSUS-RECONCILE-D0` | final-pipeline SSOT / inventory terminal | R7 writer/reader/env census and test-only Loop PHI inventory | stale counts and unregistered test-only inventory rows only | finite boundary records writer/env/boxcall/reader counts with includes/excludes and names a reopen trigger; no R7 deletion claim |
+
 ## Compile-cost observation SSOT
 
 Do not add a second timing framework or an always-on benchmark gate. The

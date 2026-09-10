@@ -213,6 +213,42 @@ baseline protocol, `builder_emit.rs` below 760/800 lines, no remaining dead
 local anchors, one append call, `git diff --check`, and the current-state
 pointer guard. No speedup or whole-library green claim follows from this row.
 
+### P0 closeout — `9808923785` (2026-09-10)
+
+The selected slice is closed. `MirBuilder::emit_instruction` now removes the
+two unread debug metadata computations, moves the instruction through the
+existing sole append point, and retains only the bounded `(dst, inputs)`
+snapshot needed for the existing post-append Phi observation. Receiver
+materialization, metadata, predecessor updates, Phi completion/origin, and
+diagnostic ordering are unchanged. No semantic, route, fallback, retry, or
+backend surface changed.
+
+Evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --profile quick -p nyash-rust --lib       # passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib phi_type_publication  # 14 passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib method_call_terminal  # 8 passed
+python3 tools/perf/mir_compile_scaling.py --bin target/quick/hakorune \
+  --profile-label quick --warmup-runs 1 --repeat-runs 5                 # all retained runs rc=0
+bash tools/checks/current_state_pointer_guard.sh                         # passed
+git diff --check                                                          # passed
+```
+
+The compile-cost observation remained a baseline only: the retained
+`static_methods` medians were 14 ms (50), 65 ms (100), and 227 ms (250), with
+shadow parity mismatches at zero. The touched `builder_emit.rs` is 548 lines,
+has one `append_instruction_core` call, and has no `_dbg_fn_name`,
+`_dbg_region_id`, or unconditional `instruction.clone()` anchor. This does
+not claim a measured speedup or whole-library health.
+
+The next performance row is the separately scoped
+`MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0`; it remains a design stop until the
+existing Hub owner and a production caller are audited. The unrelated C
+invocation-driver arity, generic compatibility-positive fixture, and
+path-aware LocalSSA guard findings remain separate queue items and are not
+silently counted as resolved by this emit slice.
+
 ### P3 — `MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0`
 
 Move the debug decision to the debug hub boundary without moving authority:
