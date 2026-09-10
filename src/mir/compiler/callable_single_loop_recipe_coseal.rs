@@ -344,7 +344,12 @@ pub(crate) fn issue_callable_single_loop_recipe_v1(
     }
     let condition_bound_literal = literal_target(&condition_bound)?;
     let step_delta_literal = literal_target(&step_delta)?;
-    if !matches!(condition_bound_literal, SourceLiteralShapeV1::Integer(1)) {
+    let SourceLiteralShapeV1::Integer(condition_bound_value) = condition_bound_literal else {
+        return Err(CallableRecipeCoSealRejectV1::UnsupportedLiteral(
+            CallableSourceMapRoleV1::ConditionBound,
+        ));
+    };
+    if *condition_bound_value < 0 {
         return Err(CallableRecipeCoSealRejectV1::UnsupportedLiteral(
             CallableSourceMapRoleV1::ConditionBound,
         ));
@@ -371,7 +376,8 @@ pub(crate) fn issue_callable_single_loop_recipe_v1(
     let (declaration, statement) = declaration_for_binding(ledger, carrier_binding)?;
     let source_root = bind_resolved_loop_root_v1(loop_source)
         .map_err(CallableRecipeCoSealRejectV1::SourceRoot)?;
-    let recipe = canonical_callable_single_loop_recipe_v1();
+    let condition_bound_value = *condition_bound_value;
+    let recipe = canonical_callable_single_loop_recipe_v1(condition_bound_value);
     let verified_recipe =
         crate::mir::loop_recipe_contract::LoopRecipeVerifierV1::verify(recipe.clone())
             .map_err(CallableRecipeCoSealRejectV1::Recipe)?;
@@ -399,6 +405,7 @@ pub(crate) fn issue_callable_single_loop_recipe_v1(
         &step_delta,
         &step_operator,
         &step_write,
+        condition_bound_value,
         carrier_binding,
         context.loop_site().clone(),
         statement,
@@ -534,6 +541,7 @@ fn relations(
     step_delta: &CallableSourceMapRowV1,
     step_operator: &CallableSourceMapRowV1,
     step_write: &CallableSourceMapRowV1,
+    condition_bound_value: i64,
     binding: BindingRefV1,
     loop_site: SourceStmtSiteV1,
     _declaration_statement: SourceStmtSiteV1,
@@ -582,7 +590,7 @@ fn relations(
             condition_bound_site.clone(),
             LoopRecipeOperationViewV1::ConstI64 {
                 result: LoopValueKeyV1::new(2),
-                value: 1,
+                value: condition_bound_value,
             },
         ),
         operation(

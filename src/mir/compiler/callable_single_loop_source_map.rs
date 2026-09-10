@@ -653,9 +653,10 @@ fn require_profile_literal(
         CallableSourceMapRoleV1::InitialCarrier => {
             matches!(literal, SourceLiteralShapeV1::Integer(0))
         }
-        CallableSourceMapRoleV1::ConditionBound | CallableSourceMapRoleV1::StepDelta => {
-            matches!(literal, SourceLiteralShapeV1::Integer(1))
+        CallableSourceMapRoleV1::ConditionBound => {
+            matches!(literal, SourceLiteralShapeV1::Integer(value) if *value >= 0)
         }
+        CallableSourceMapRoleV1::StepDelta => matches!(literal, SourceLiteralShapeV1::Integer(1)),
         _ => false,
     };
     accepted

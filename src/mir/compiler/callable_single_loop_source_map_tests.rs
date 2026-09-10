@@ -105,7 +105,7 @@ fn rejects_foreign_syntax_owner_before_rows() {
 
 #[test]
 fn rejects_condition_bound_outside_selected_profile() {
-    let unit = unit(None, integer(2));
+    let unit = unit(None, integer(-1));
     let (input, loop_stmt, context) = input_loop_and_context(&unit);
     let syntax = super::super::callable_single_loop_syntax_facts::
         issue_callable_single_loop_syntax_facts_v1(input, loop_stmt, context)
@@ -120,6 +120,27 @@ fn rejects_condition_bound_outside_selected_profile() {
             CallableSourceMapRoleV1::ConditionBound,
         ))
     );
+}
+
+#[test]
+fn accepts_zero_and_multiple_iteration_bounds_as_source_literals() {
+    for bound in [0, 3] {
+        let unit = unit(None, integer(bound));
+        let (_, map) = issue(&unit);
+        let row = map
+            .rows()
+            .iter()
+            .find(|row| row.role() == CallableSourceMapRoleV1::ConditionBound)
+            .expect("condition bound row");
+        assert_eq!(
+            row.target().literal(),
+            Some(
+                &super::super::callable_single_loop_source_shapes::SourceLiteralShapeV1::Integer(
+                    bound
+                )
+            )
+        );
+    }
 }
 
 #[test]

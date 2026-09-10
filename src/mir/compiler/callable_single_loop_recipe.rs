@@ -12,7 +12,7 @@ use crate::mir::loop_recipe_contract::{
     LoopValueKeyV1,
 };
 
-pub(crate) fn canonical_callable_single_loop_recipe_v1() -> LoopRecipeV1 {
+pub(crate) fn canonical_callable_single_loop_recipe_v1(condition_bound: i64) -> LoopRecipeV1 {
     let loop_key = LoopNodeKeyV1::new(0);
     let condition_block = LoopBlockKeyV1::new(0);
     let body_block = LoopBlockKeyV1::new(1);
@@ -69,7 +69,7 @@ pub(crate) fn canonical_callable_single_loop_recipe_v1() -> LoopRecipeV1 {
                 LoopRecipeItemV1::Operation {
                     operation: crate::mir::loop_recipe_contract::LoopOperationV1::ConstI64 {
                         result: LoopValueKeyV1::new(2),
-                        value: 1,
+                        value: condition_bound,
                     },
                 },
             ),

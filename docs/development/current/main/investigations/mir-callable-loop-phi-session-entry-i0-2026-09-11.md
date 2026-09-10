@@ -369,3 +369,24 @@ failure canaries also pass. This receipt proves only the selected
 CallableSingleLoop AppMain child edge; zero/one/multiple iteration acceptance,
 generic Ready/DirectAccum consumers, module publication, OBJ/EXE, and process
 exit remain open.
+
+### Condition-bound extension receipt (2026-09-11)
+
+The selected CallableSingleLoop profile now carries its source-issued
+`ConditionBound` literal through the existing source-map to Recipe and relation
+co-seal. The profile keeps the initial carrier at `0`, the step delta at `1`,
+and the strict-less-than condition; only a non-negative plain integer bound is
+accepted. Negative, typed, symbolic, and otherwise unsupported bounds remain
+named source-map rejects. No new issuer, receipt, fallback, or physicalizer
+path was added.
+
+The focused source-map test accepts bounds `0` and `3` and checks that the
+co-sealed row retains the exact literal. The production AppMain consumer test
+compiles the same selected edge for bounds `0`, `1`, and `3`, with no manual
+ledger installation, and observes the published PHI plus the bound constant in
+the emitted helper. This provides compile-time coverage for zero, one, and
+multiple iteration shapes within the selected profile.
+
+The receipt does not claim that generic Loop Composer value-flow, body-local
+ledger completion, mutation-discriminating negatives, module/OBJ/EXE, or Pair
+exit behavior is complete; those remain queued acceptance work.
