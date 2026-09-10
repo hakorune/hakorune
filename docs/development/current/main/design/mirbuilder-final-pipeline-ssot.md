@@ -397,8 +397,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = design_open
-implementation permission = false
+status = fast_open
+implementation permission = true
 current cohort = `direct_mir_json_schema_error_stop`
 
 ##### Accepted prerequisite design (2026-09-10, audited at `adab473a7b`)
@@ -406,8 +406,8 @@ current cohort = `direct_mir_json_schema_error_stop`
 Decision: remove the direct MIR loader's v1-error-to-v0 retry in the existing
 M7-S owner. R7 caller-zero is a final deletion condition, not a prerequisite
 for the work that produces caller-zero. Missing internal implementation is
-not an external wait. This design closes the mapping for one Stop; this turn
-changes documentation only.
+not an external wait. The mapping is accepted and the bounded Stop is now
+selected for implementation.
 Source authority + canonical issuer: no source meaning is issued here;
 `json_v1_bridge::try_parse_v1_to_module` owns transport classification:
 `Ok(Some)` is accepted v1, `Ok(None)` means schema absent, and `Err` is terminal.

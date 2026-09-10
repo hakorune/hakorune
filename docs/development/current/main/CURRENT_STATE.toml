@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "direct_mir_json_schema_error_stop"
-current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Planning closeout: direct_mir_json_schema_error_stop is accepted in M7-S. Next implement the existing direct loader's Err-to-v0 retry deletion; v1 rejection must remain terminal before module/execution, while schema-absent v0 remains explicit compatibility. R7 caller-zero is a migration output, not an external wait. No source/fixture/code changed in this design turn; shared schema deletion and broader compatibility migration remain open."
+current_design_stop = "none"
+current_blocker_token = "Implement direct_mir_json_schema_error_stop at the existing M7-S owner: v1 rejection remains terminal before module/execution, while schema-absent v0 remains explicit compatibility. Keep the change within the existing loader/core caller and retire only the Err-to-v0 retry edge."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Run current_state_pointer_guard.sh for this planning closeout. Before implementation, resolve the existing M7-S guard's design-file/workstream 1000-line ownership mismatch without raising limits or adding guards; update existing ingress-schema references with the private loader rename. Focused loader/core tests own rejection semantics; the parent guard is not claimed green."
+guard_followup = "Run current_state_pointer_guard.sh and the existing M7-S parent guard. The guard applies the 1,000-line budget to the rolling workstream, not the final-pipeline SSOT. Update existing ingress-schema references with the private loader rename. Focused loader/core tests own rejection semantics; do not add a new guard or raise a threshold."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -46,8 +46,8 @@ exact-usize and Loop owners retain seven classified reds. Pair/receiver,
 FieldGet reuse and LLVM C API checkpoints remain recorded in their owners.
 Whole MirBuilder, R7 and Loop completion remain unproven.
 """
-next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

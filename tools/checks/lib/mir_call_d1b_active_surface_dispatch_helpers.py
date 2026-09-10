@@ -323,8 +323,6 @@ def check_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
     for token in expected:
         if token not in card_text:
             api.fail(f"{row}/{cohort} contract is missing: {token}")
-    if len(card_text.splitlines()) > 1000:
-        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
     print(f"[{api.TAG}] row={row} cohort={cohort}")
 
 
