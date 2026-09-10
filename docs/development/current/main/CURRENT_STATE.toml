@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7"
-current_execution_cohort = "mir_call_compatibility_retire_r7"
+current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
+current_execution_cohort = "direct_mir_json_schema_error_stop"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Call acceptance evidence is classified at 4/11 after the Birth/Method physical caller cutover. MIR-CALL-COMPATIBILITY-RETIRE-R7 remains a design stop because shared MIR/JSON compatibility callers are not caller-zero and no exclusive LegacyCallV0 delete-set is available. Seven reds stay with their existing untyped-storage, usize, and Loop owners. Do not delete the schema, invent fallback/retry, or start Loop G0 from this stop."
+current_blocker_token = "Planning closeout: direct_mir_json_schema_error_stop is accepted in M7-S. Next implement the existing direct loader's Err-to-v0 retry deletion; v1 rejection must remain terminal before module/execution, while schema-absent v0 remains explicit compatibility. R7 caller-zero is a migration output, not an external wait. No source/fixture/code changed in this design turn; shared schema deletion and broader compatibility migration remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "The generic M7-S parent guard applies only to an M7-S implementation or closeout row; while the selected R7 row is a design_stop, run current_state_pointer_guard.sh only and do not treat the M7-S guard as an R7 gate. Cohort semantics belong to source tests and the implementation diff. Stage1 repayment is closed at f15098cf0b: exact six assets and stale paths are gone, integration discovery is zero, and new guard/receipt/test/ignore plus baseline delta are zero. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
+guard_followup = "Run current_state_pointer_guard.sh for this planning closeout. Before implementation, resolve the existing M7-S guard's design-file/workstream 1000-line ownership mismatch without raising limits or adding guards; update existing ingress-schema references with the private loader rename. Focused loader/core tests own rejection semantics; the parent guard is not claimed green."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -31,34 +31,24 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-Selected Pair/Birth/Map and receiver-method checkpoints retain their recorded
-bounded execution evidence. Terminal owner probes, additive field-read merge,
-ordinary-call order and PHI convergence fixes are closed; the missing inverse
-owner-order and repeated physical-order evidence landed at 0d2ea64e9e. Lifecycle
-V4 now uses the existing invocation-local hako_lts_session for LLVM18 C API
-parse/verify/object emission; the sole V4 llc edge and private subprocess
-plumbing are retired at 720849812b. Pair/Bool, ordinary-child New/Birth/Map,
-NativeArray, Map physical, parser negatives, PATH-without-llc, and trace
-evidence passed. The quick runtime archive is the recorded Map witness; the
-release archive's unrelated main collision remains baseline debt. Physical
-V2/V4 index fusion is parked at D1 because the trust owners remain separate
-and no measured delete-set exists. Untyped object storage remains
-ParkedSealed/NoSafeSlice because no source-backed storage issuer or dynamic
-tagged ABI exists. The ordinary-call receiver identity design stop is now accepted: the existing New claim supplies canonical object definition plus exact initializer/binding. Rust
-receiver I0 landed at `694f61e253`; it retains the initializer/object in the
-source row and validates the emitted receiver against the owner-scoped local
-commit. Physical callee identity I1 and its consumer cutover landed at
-`f82e0b51af`/`648eed76dc`: the existing physical function row carries the
-prepared object definition, V2 validates its structural/layout shape, and V4
-compares the receiver object before LLVM emission; Pair direct/linked exit-30
-and a dedicated mismatch rejection are recorded. The finite V2/V4 caller-chain
-census found no artifact bypass: V2 is structural/layout validation and V4 is
-the identity gate before `hako_lts_open()`/`lv4_emit()`; the boundary row is
-closed.
-FieldGet prepared-reference reuse I0 landed at `90928e0585`; its physical row is now the single `CanonicalFieldRefV1` source for admission, layouts, and JSON. Focused 9/9 plus C parser/build and Pair exit-30 checks are green. C index fusion is ParkedSealed at D1; untyped storage is parked NoSafeSlice. Whole MirBuilder, R7, LLVM graduation, parallel sessions, and memory-only transport remain unproven. The fixed real-app EXE suite at HEAD `4a96073343` is 4/11: NewBox, Birth, Method, and the unsupported probe pass. Seven reds are classified in the final-pipeline SSOT: two untyped-storage NoSafeSlice, three existing usize source-boundary, and two parked Loop-cohort cases. Acceptance evidence closes at this bounded observation; no shared implementation row is authorized.
+Worker-audited prerequisite design selects direct_mir_json_schema_error_stop
+under the existing M7-S parent. The real CLI/core/direct-loader caller retries
+v0 after a declared v1 error; v0 can recreate LegacyCallV0. Delete that retry
+and its double-error formatting, preserving absent-schema v0 selection.
+The existing parser owns classification; no source authority is added.
+Existing loader/core tests, README/reference updates and same-series edge
+retirement are specified in the final-pipeline card. This turn is design only.
+R7 schema deletion still requires caller-zero, but producing caller-zero is
+internal migration work rather than an external-state wait. Broader shared
+compatibility callers need explicit per-caller dispositions, not blanket Stop.
+The fixed real-app observation remains 4/11 at 4a96073343; untyped-storage,
+exact-usize and Loop owners retain seven classified reds. Pair/receiver,
+FieldGet reuse and LLVM C API checkpoints remain recorded in their owners.
+Whole MirBuilder, R7 and Loop completion remain unproven.
 """
-next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7"
+next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card = "none"
+next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
@@ -75,5 +65,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver source/local I0 landed at 694f61e253; same-typed receiver substitution rejects before transport. Callee identity I1 landed at f82e0b51af/648eed76dc: the function row carries canonical membership, V2 checks structural/layout shape, V4 rejects object drift before LLVM, and Pair exit 30 is green. FieldGet prepared-reference reuse landed at 90928e0585; one row-owned ref feeds admission/layout/JSON. The V2/V4 caller-chain census found no artifact bypass: V2 is structural/layout, V4 is the identity gate before hako_lts_open/lv4_emit; the verifier-boundary row is closed. C index fusion is ParkedSealed D1; untyped storage is ParkedSealed/NoSafeSlice. Finite acceptance evidence is classified at 4/11 in docs commit 02e74eba35; seven reds remain with existing untyped-storage, exact-usize, and Loop owners. The pointer names the existing R7 caller-zero design stop, with no executable row until shared compatibility callers and an exclusive delete-set close."
+  "2026-09-10: receiver source/local I0 landed at 694f61e253; same-typed receiver substitution rejects before transport. Callee identity I1 landed at f82e0b51af/648eed76dc: the function row carries canonical membership, V2 checks structural/layout shape, V4 rejects object drift before LLVM, and Pair exit 30 is green. FieldGet prepared-reference reuse landed at 90928e0585; one row-owned ref feeds admission/layout/JSON. The V2/V4 caller-chain census found no artifact bypass: V2 is structural/layout, V4 is the identity gate before hako_lts_open/lv4_emit; the verifier-boundary row is closed. C index fusion is ParkedSealed D1; untyped storage is ParkedSealed/NoSafeSlice. Finite acceptance evidence is classified at 4/11 in docs commit 02e74eba35; seven reds remain with existing untyped-storage, exact-usize, and Loop owners. The later direct-loader premise correction selects a concrete M7-S prerequisite; R7 itself remains unproven."
 ]

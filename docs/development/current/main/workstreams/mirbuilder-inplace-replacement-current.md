@@ -420,16 +420,16 @@ consumer, and no whole-repository green claim. After closeout, the next
 eligible M7-S owner is selected from the existing finite queue; parked families
 remain family-local.
 
-### Scheduler pause after the closed VM cohort
+### M7-S prerequisite selection after the closed VM cohort
 
-The finite M7-S queue has no safe next owner at this checkpoint. MIR/JSON
-`boxcall` is shared by parser, artifact, selfhost, and VM-Hako compatibility
-callers; the JSON egress is likewise shared by harness, VM-Hako, selected
-dynamic, and CLI export paths. Both lack an exclusive delete-set, so they are
-`ParkedSealed__SharedCompatibilityCallersNoExclusiveDeleteSet`. Do not reopen
-the VM row, repeat the broad census, or add a new D0/receipt/adapter/fixture/
-guard. Resume only when an existing owner-specific decision or caller-zero
-asset supplies a finite Stop/Delete boundary.
+The prior blanket pause is superseded by the worker-audited direct MIR loader
+Stop in the [final-pipeline owner](../design/mirbuilder-final-pipeline-ssot.md#accepted-prerequisite-design-2026-09-10-audited-at-adab473a7b).
+`direct_mir_json_schema_error_stop` removes v1 `Err` -> v0 retry at the existing
+CLI/core/loader boundary, preserving schema-absent v0 selection. Design is
+accepted; implementation and rejection evidence are the next bounded slice.
+Shared boxcall/egress migration still needs per-caller dispositions. R7's
+caller-zero is their output, not an external prerequisite for beginning work.
+Do not repeat the broad census, reopen VM, or delete the shared schema early.
 
 These are repair/verification tasks, not a request for a new source authority.
 An upstream terminal is dependency evidence: name its owner and fix an in-scope

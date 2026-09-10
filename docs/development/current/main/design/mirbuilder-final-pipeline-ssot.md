@@ -25,9 +25,10 @@ Related:
 - **Current decision:** the final pipeline remains one-way, and canonical MIR
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** canonical Call and explicit legacy ingress
-  are separated; current work is the finite source acceptance reconciliation.
-- **Next ordered task:** the active workstream selects remaining source and
-  published-boundary cutovers. Constructor/Array execution and retirement
+  are separated; fixed acceptance is classified and a direct-loader retry
+  remains to be retired before schema-wide removal.
+- **Next ordered task:** retire the direct MIR loader's declared-schema error
+  retry through the existing M7-S owner. Constructor/Array execution and retirement
   evidence belongs to their owner SSOTs; no lifecycle V2 waiting state is implied.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
@@ -390,20 +391,97 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
-current cohort = `acceptance_source_reconciliation_i0`
+status = design_open
+implementation permission = false
+current cohort = `direct_mir_json_schema_error_stop`
 
-The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)
-and [lifecycle Decision](constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
-own the root/Birth handoff BoxShape. Pair result BoxCount landed at
-`181d7f8e92`: one exact source terminal relation is retained during
-`return_scalar`/Completion issuance. Raw field/binary/return remains
-non-authority until its dedicated consumer. No view/frame/C extension is
-permitted. The [terminal consumer design](constructor-birth-new-lifecycle-ssot.md#terminal-consumer-design-2026-09-06)
-fixes the task order: scalar coverage repair, connected terminal consumer,
-then ABI/body handoff and C execution. Stop at the requested planning boundary. Pair
-EXE30/linked OBJ30 and selected old-edge retirement remain open.
+##### Accepted prerequisite design (2026-09-10, audited at `adab473a7b`)
+
+Decision: remove the direct MIR loader's v1-error-to-v0 retry in the existing
+M7-S owner. R7 caller-zero is a final deletion condition, not a prerequisite
+for the work that produces caller-zero. Missing internal implementation is
+not an external wait. This design closes the mapping for one Stop; this turn
+changes documentation only.
+Source authority + canonical issuer: no source meaning is issued here;
+`json_v1_bridge::try_parse_v1_to_module` owns transport classification:
+`Ok(Some)` is accepted v1, `Ok(None)` means schema absent, and `Err` is terminal.
+Non-authority: `functions`/`blocks` text, v0 parser success, VM execution, and
+runtime accessors cannot override a v1 rejection or recover a target.
+Fail-fast boundary: return the existing v1 error with the input path before
+returning a `MirModule` to `execute_loaded_mir_module()`; no alternate parser
+runs after `Err`.
+Smallest next slice: one Stop implementation in `json_artifact::mir_loader`,
+with its existing facade/core caller, focused tests and owning docs. Keep
+`Ok(None)` -> no-schema v0 selection; delete only the error retry and combined
+v1/v0 error construction.
+Non-claims: no source widening, blanket v0/boxcall removal, schema-version
+policy change, new receipt/dispatcher, backend parity, or whole R7 completion.
+
+This audit covers `--mir-json-file` -> `execute_mir_json_text` -> direct loader
+-> accepted module or parser error; includes v1 success, schema absence and
+all v1 errors; excludes Program import, explicit downconversion, serializer,
+other direct parser callers, and backend execution. The facade is a forwarding
+caller, not a second classifier. No repository-wide caller-zero claim follows.
+
+The concrete counterexample is a document declaring `schema_version: "1.0"`
+with `functions`/`blocks` and `boxcall`: the v1 instruction parser rejects it,
+then `mir_loader.rs` currently retries v0, whose `module.rs` boxcall arm can
+create `LegacyCallV0`. Unsupported or non-string declared schema can take the
+same retry. This is static branch evidence; execution reproduction is I0 work.
+The other artifact MIR loader already treats v1 `Err` as terminal.
+
+Ordered tasks inside this existing parent:
+
+1. **Direct loader Stop, selected next.** Real caller:
+   `runner/mod.rs` -> `core_executor::execute_mir_json_text` ->
+   `json_artifact` facade -> `mir_loader`. Delete the `Err(error_v1)` retry
+   branch and its double-error formatting. Rename the private
+   `parse_direct_mir_json_text_with_v0_fallback` to reflect selection rather
+   than retry, updating its facade/caller and existing guard references.
+   Existing owners measure 95/75/210 lines; keep touched sources below 760
+   and never exceed 800. No additional parser or semantic product is needed.
+2. **Acceptance and same-series retirement.** Extend existing loader tests to cover
+   valid v1, absent-schema valid v0, declared-v1 boxcall rejection, unsupported
+   schema, non-string schema, malformed JSON and direct Program rejection.
+   Core-entry tests must observe the parser error before terminal execution;
+   do not count a later VM rejection as success. Reuse
+   `cargo test --profile quick --lib runner::json_artifact::` and
+   `cargo test --profile quick --lib runner::core_executor::tests::` serially;
+   every intended test must execute. Update `json_artifact/README.md`,
+   `json-v0-route-map-ssot.md` and the MIR intake contract in
+   `docs/reference/mir/INSTRUCTION_SET.md` in the implementation slice.
+   Verify zero references to the removed private name and zero Err-to-v0
+   edge; retain no-schema compatibility. new guard=0, new receipt=0,
+   fixed failure-name set unchanged.
+3. **Remaining shared boundaries, still open.** Use existing M7-S/R6-S3
+   owner decisions for each actual ingress/egress caller: typed consumer,
+   pre-artifact unsupported, or explicitly isolated compatibility. Sharing
+   a file does not itself require blanket Park or authorize blanket Stop.
+   Preserve fixed product acceptance; do not remove a supported caller to
+   manufacture a zero count. Selection/migration and its finite old-edge
+   deletion produce caller-zero; R7 removes the shared schema only afterward.
+
+Next implementation can select this same parent/cohort in `fast` after this
+planning closeout; no additional source-authority consultation is required.
+The next action is the bounded Stop, not a fourth broad census or remote poll.
+The global goal remains stopped until the user resumes implementation.
+
+Verification note: the existing M7-S guard checks the final-pipeline design
+file against a 1,000-line ceiling, although that file already has 2,355 lines
+at the audited parent. The pointer guard separately limits the rolling
+workstream to 1,000 lines and passes. On this design pointer,
+`bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh` was
+executed and fails at that size check. This is newly exposed documentation/
+guard debt; the parent row was unsupported by that guard, so it is not a
+same-command parent-green regression or a reproduced parent failure.
+Verification preparation is a bounded first task: in the existing guard,
+apply the unchanged 1,000-line rolling-card limit to `latest_workstream_card`,
+as `DOCS_LAYOUT.md` specifies, retaining the final-pipeline contract/token
+checks. Do not raise a threshold or add a guard. Require both pointer and
+M7-S guards to pass before the Stop series closes; any remaining failure
+must be classified, never hidden by the pointer check.
+The ingress-schema guard also names the old private loader function; update
+those references with the rename and classify any pre-existing failure.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
@@ -502,7 +580,9 @@ for the deleted symbols, and unchanged fixed baseline/pointer guards; new guard=
 new receipt=0, and the fixed failure-name set unchanged.
 No VM feature parity, Hako/WASM/JSON ingress, R7 schema deletion, or whole
 repository-green claim belongs to this cohort. The remaining MIR/JSON boxcall
-and JSON egress readers are `ParkedSealed__SharedCompatibilityCallersNoExclusiveDeleteSet`; reopen only with an existing owner-specific decision or a caller-zero asset, not a new census or D0.
+and JSON egress owners still have shared callers. The blanket scheduler pause
+is superseded by the accepted direct-loader Stop above; broader removal still
+requires caller-specific disposition and its finite deletion set.
 
 Ordered follow-through remains the workstream's **Ordered frontier**, with
 Call/R7, Loop closure and selfhost proof kept distinct.
