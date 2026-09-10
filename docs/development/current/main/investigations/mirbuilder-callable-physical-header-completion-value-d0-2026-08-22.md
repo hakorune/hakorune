@@ -1,12 +1,27 @@
 ---
-Status: grouped Outside coverage P0 complete; next source-aware Facts design stop
-Task: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0
+Status: historical rolling record; current pointer is MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1
+Task: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1 (see final-pipeline SSOT)
 Date: 2026-08-22
-Priority: design one-shot source-aware GenericLoop Facts issuance before any consumer
+Priority: historical record of the one-shot source-aware GenericLoop Facts design
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0 (this rolling card)
+NextCard: docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 ---
+
+## Current-pointer reconciliation (2026-09-10)
+
+This investigation keeps the historical Loop D0/P0 decisions and their
+evidence, but it is not the active execution card. The sole current authority
+is `CURRENT_STATE.toml` and its latest card
+`mirbuilder-final-pipeline-ssot.md`, currently at
+`MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1` in `design_stop`.
+
+The source-Facts issuer, policy-frame, grouped Outside-row, Ready claim, and
+route-neutral planner entries below are closed historical prerequisites. They
+must not be reopened as parallel work. The remaining open question is one
+source-aware handoff into the existing normalizer, with a named eventual
+consumer and exclusive old-edge delete-set. No code, fixture, production
+switch, or fallback is authorized until that S0-D1 design is accepted.
 
 # Callable physical-header eligibility D0
 
@@ -1256,9 +1271,10 @@ post-walk repair, finish relaxation, fallback, or retry.
 ```
 
 The former immediate task `MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0` is
-superseded by the worker-verified `NoSafeSlice` below. The current task is
-`MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0`; no Rust implementation or
-production edge is authorized until that design stop is accepted.
+superseded by the worker-verified `NoSafeSlice` below. The active task is the
+later `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1` recorded in the final-pipeline
+SSOT; the source-Facts issuer D0 named in this historical section is already
+closed and must not be selected again.
 
 ## P0 worker closure — NoSafeSlice and recovery order
 
@@ -1284,7 +1300,7 @@ an unbranded Facts product by name/ordinal/AST shape/ValueId, or add a
 production source edge into the retry-capable route. None is an acceptable
 source authority.
 
-### Corrected six-line brief
+### Corrected six-line brief (historical D0)
 
 ```text
 Decision: keep body-only-rebind Outside terminal and return to design_stop; do not implement the current P0 until one source-aware Facts issuer and one terminal route transport are designed.
@@ -1295,7 +1311,7 @@ Smallest next slice: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0; design the one-sh
 Non-claims: no Rust implementation in this D0, no ordinary consumer, no body-only admission, no GenericLoop production switch, no fallback/retry, no finish weakening, no physical/publication/backend/performance work, and no main integration.
 ```
 
-### Authority decision for the next D0
+### Authority decision for the historical D0
 
 The existing Facts extractor remains the semantic owner of GenericLoop shape,
 Recipe construction, and the final `BodyLoweringPolicy`. The new D0 must not
@@ -1327,7 +1343,7 @@ binding authority. The callable state/projection remains the only owner of
 binding role/class relations. The relation issuer only co-seals these already
 issued facts; it must not invent roles from the cloned AST.
 
-### Correct task order
+### Historical task order (superseded by final-pipeline S0-D1)
 
 1. `MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0` — current design stop.
    Fix the source-to-Facts issuance boundary on paper and in the active card:
@@ -1392,10 +1408,10 @@ body-only rebind relabeled as the existing Ready carrier
 finish relaxation or Builder-map repair
 ```
 
-The current execution row is therefore
-`MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0`; no Rust implementation or
-production claim is authorized until that design stop receives an accepted
-Decision.
+This historical D0 row is closed. The current execution row is
+`MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1`; no Rust implementation or
+production claim is authorized until the current S0-D1 handoff design is
+accepted in the final-pipeline SSOT.
 
 ## D0 Decision — accepted source-aware Facts boundary
 
@@ -1529,7 +1545,7 @@ hint/facts facades in the Facts builder, checks the mutually-exclusive
 policy-aware call sites, rejects downstream environment reads, and keeps the
 source-aware issuer/Outside consumer absent.
 
-### Explicit non-claims and next task
+### Explicit non-claims and historical next task
 
 No callable source relation, grouped Outside rows, `LoopRouteContext` field,
 ordinary consumer, route selection, production caller, fallback, retry,
@@ -1590,11 +1606,11 @@ Outside guard now checks the grouped fields, move-only shape, one shared row
 builder, terminal-only raw path, no ordinary lowering, and the 800-line hard
 boundary.
 
-### Next design stop
+### Historical next design stop
 
-The next task is `MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0`. It must design the
-one-shot source-aware Facts issuer and terminal route transport before any
-source-to-Recipe relation or ordinary consumer is added. The current grouped
-rows are prepared evidence only; they do not authorize source/Facts pairing,
-GenericLoop extraction, ordinary body-only-rebind support, production switch,
-fallback/retry, publication, performance work, or main integration.
+This section records the historical transition into the source-aware Facts
+issuer D0. That D0 and its grouped-row prerequisite are closed; the current
+grouped rows remain evidence only. The active successor is
+`MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1` in the final-pipeline SSOT, which
+must specify the one-shot source-aware handoff before any source-to-Recipe
+consumer or ordinary body-only-rebind support is added.

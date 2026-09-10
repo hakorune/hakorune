@@ -1217,6 +1217,28 @@ Facts/Recipe issuer, generic fallback, AST/name/ordinal/ValueId join,
 production switch, or backend work is permitted until that relation and its
 caller are explicit.
 
+Task order authority for this Loop remainder:
+
+```text
+current  MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1  design the move-only
+         source-aware handoff and name the eventual callable old-bypass edge
+next     MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0  caller-zero relation
+         product, only after S0-D1 is accepted
+then     MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0  terminal port with no
+         PostEffectRetryDebt/fallback/retry continuation
+then     MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0  one non-nested Ready
+         normalizer consumer
+then     MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0  first admitted Outside cohort
+final    MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0  production cutover and old
+         bypass caller-zero
+```
+
+The earlier source-Facts issuer, policy-frame, grouped Outside-row, and Ready
+claim entries are prerequisites already recorded as closed evidence in the
+rolling investigation. They are not parallel next cards. `Outside` remains a
+typed terminal until the named consumer is ready; no task in this order may
+re-enter the shared legacy route or add a second Facts/Recipe issuer.
+
 ##### Acceptance recheck classification (2026-09-10)
 
 The selected physical caller cutover was re-run against the same fixed
