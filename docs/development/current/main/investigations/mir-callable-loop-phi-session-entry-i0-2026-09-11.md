@@ -405,3 +405,20 @@ Wrong edge/predecessor, stale generation, and unsealed publication mutations
 still need dedicated selected-session helpers; the existing low-level verifier
 tests are not promoted as production-fixture evidence. Module publication,
 OBJ/EXE, and Pair exit remain unclaimed.
+
+### Selected production value-flow receipt (2026-09-11)
+
+The selected AppMain production test now inspects the emitted helper's actual
+CFG rather than asserting only that a PHI exists. For bounds `0`, `1`, and `3`,
+it locates the source-bound header branch, checks that the condition PHI has
+both preheader and backedge inputs, verifies that the body PHI consumes the
+header generation before the increment, and verifies that the exit return is
+the header PHI's preheader/backedge value. This is compile-time evidence for
+the `h_n -> s_n -> h_(n+1)` shape and the false-edge After value within the
+selected profile, with no manual ledger setup.
+
+The structural assertion was moved to
+`normal_default_pipeline_loop_tests.rs` so the production-shaped test facade
+stays below the 760-line design target. The receipt still does not claim
+generic Composer value-flow, body-local ledger completion, stale/wrong-edge/
+unsealed selected-session mutations, module/OBJ/EXE, or Pair exit.
