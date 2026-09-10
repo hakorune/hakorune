@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0"
-current_execution_cohort = "mir_r7_legacy_census_reconcile_d0_closeout"
-current_design_stop = "R7 D0 observation manifest is complete; record its validation evidence and synchronize the pointer before selecting GUARD-I0."
-current_blocker_token = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 closeout: 248-row manifest is validated; no deletion, migration, production switch, or caller-zero claim."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0"
+current_execution_cohort = "mir_call_canonical_corridor_guard_i0"
+current_design_stop = "GUARD-I0 design stop: define one selected normal typed Static/Free/Print corridor using the closed R7 manifest; no guard implementation or retirement yet."
+current_blocker_token = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0 design stop: prove typed Callee-only consumption and pre-artifact LegacyCallV0 rejection without production behavior changes."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 closeout: manifest check, diff check, and pointer guard passed; no permanent guard until GUARD-I0."
+guard_followup = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0 design stop: existing Dynamic guard is dependency evidence; no new guard until normal corridor owner and acceptance are fixed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -28,8 +28,8 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
-latest_card = "mir-call-legacy-target-census-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
+latest_card = "mir-call-canonical-corridor-guard-i0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-canonical-corridor-guard-i0-2026-08-20.md"
 latest_card_summary = """
 Closed focused rows include receiver/FieldGet/schema evidence, selected-C and
 Dynamic JSON, emit-clone/debug-policy/lazy-payload, postprocess/refresh,
@@ -54,9 +54,11 @@ LegacyCallV0 deletion or caller-zero claim is made.
 The observation-only R7 manifest is validated at
 `tools/checks/manifests/mir_r7_legacy_census_manifest_v1.json`; its 239/127
 Legacy, 5 env, and 4 Loop-PHI rows are evidence only. GUARD-I0 remains next.
+GUARD-I0 now targets the normal typed Static/Free/Print corridor; its existing
+Dynamic-only guard is a dependency, not completion evidence.
 """
 next_design_card = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0"
-next_execution_card = "none__closeout_mir_r7_legacy_census_reconcile_d0"
+next_execution_card = "none__design_stop_mir_call_canonical_corridor_guard_i0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

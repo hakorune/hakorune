@@ -290,7 +290,7 @@ def build_manifest(root: Path) -> dict[str, Any]:
         "kind": KIND,
         "observed_commit": git_revision(root),
         "scope": {
-            "roots": ["src/mir", "src/runner", "src/backend", "crates/nyash-llvm-compiler", "lang/c-abi route"],
+            "roots": ["src (Rust production scope)", "crates (Rust production scope)", "lang/c-abi route (fixed env anchors)"],
             "excludes": ["tests and fixtures", "#[cfg(test)] modules", "unrelated runtime/startup env", "runtime hook registry", "future VM/WASM parity"],
             "classifier": "lexical LegacyCallV0 rows + fixed compile-env anchors + fixed test-only Loop-PHI files",
             "scope_sha256": scope_digest,

@@ -15,7 +15,7 @@
     "loop_phi_loc": 1009
   },
   "kind": "MirR7LegacyCensusManifestV1",
-  "observed_commit": "4e40227130a9a95f6fb9f36ef37f0f36fe9b87b3",
+  "observed_commit": "b5cb533f213c2f949a047a1a3144790cd51ad55b",
   "rows": [
     {
       "disposition": "production lexical surface",
@@ -4749,11 +4749,9 @@
       "future VM/WASM parity"
     ],
     "roots": [
-      "src/mir",
-      "src/runner",
-      "src/backend",
-      "crates/nyash-llvm-compiler",
-      "lang/c-abi route"
+      "src (Rust production scope)",
+      "crates (Rust production scope)",
+      "lang/c-abi route (fixed env anchors)"
     ],
     "scope_sha256": "9cf90580d3457ddf8f6250660c7aafbd27d0bf6634dce40f9910a596fd1dc51c"
   }

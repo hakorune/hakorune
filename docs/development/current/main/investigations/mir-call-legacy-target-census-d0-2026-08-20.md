@@ -145,8 +145,8 @@ test-only Dynamic Loop-PHI files
   -> production-caller census terminal
 ```
 
-Included are `src/mir`, `src/runner`, selected
-`crates/nyash-llvm-compiler`, and the related `lang/c-abi` route. Excluded are
+Included are the Rust production scope under `src` and `crates`, plus the
+fixed `lang/c-abi` environment anchors. Excluded are
 the canonical `MirInstruction::Call` definition, ordinary test fixtures,
 unrelated startup/runtime environment state, runtime hook registries, future
 VM/WASM parity, and production Dynamic Loop canary code.
