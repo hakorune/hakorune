@@ -397,8 +397,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = landed
+implementation permission = false
 current cohort = `direct_mir_json_schema_error_stop`
 
 ##### Accepted prerequisite design (2026-09-10, audited at `adab473a7b`)
@@ -406,8 +406,8 @@ current cohort = `direct_mir_json_schema_error_stop`
 Decision: remove the direct MIR loader's v1-error-to-v0 retry in the existing
 M7-S owner. R7 caller-zero is a final deletion condition, not a prerequisite
 for the work that produces caller-zero. Missing internal implementation is
-not an external wait. The mapping is accepted and the bounded Stop is now
-selected for implementation.
+not an external wait. The mapping is accepted and the bounded Stop landed at
+`26e59acaef`.
 Source authority + canonical issuer: no source meaning is issued here;
 `json_v1_bridge::try_parse_v1_to_module` owns transport classification:
 `Ok(Some)` is accepted v1, `Ok(None)` means schema absent, and `Err` is terminal.
@@ -438,15 +438,15 @@ The other artifact MIR loader already treats v1 `Err` as terminal.
 
 Ordered tasks inside this existing parent:
 
-1. **Direct loader Stop, selected next.** Real caller:
+1. **Direct loader Stop, landed.** Real caller:
    `runner/mod.rs` -> `core_executor::execute_mir_json_text` ->
    `json_artifact` facade -> `mir_loader`. Delete the `Err(error_v1)` retry
    branch and its double-error formatting. Rename the private
-   `parse_direct_mir_json_text` to reflect selection rather
-   than retry, updating its facade/caller and existing guard references.
+   `parse_direct_mir_json_text` now reflects selection rather than retry;
+   its facade, caller and existing guard references are updated.
    Existing owners measure 95/75/210 lines; keep touched sources below 760
    and never exceed 800. No additional parser or semantic product is needed.
-2. **Acceptance and same-series retirement.** Extend existing loader tests to cover
+2. **Acceptance and same-series retirement, landed.** Existing loader tests cover
    valid v1, absent-schema valid v0, declared-v1 boxcall rejection, unsupported
    schema, non-string schema, malformed JSON and direct Program rejection.
    Core-entry tests must observe the parser error before terminal execution;
@@ -458,7 +458,9 @@ Ordered tasks inside this existing parent:
    `docs/reference/mir/INSTRUCTION_SET.md` in the implementation slice.
    Verify zero references to the removed private name and zero Err-to-v0
    edge; retain no-schema compatibility. new guard=0, new receipt=0,
-   fixed failure-name set unchanged.
+   fixed failure-name set unchanged. The loader suite ran 11 tests and the
+   core-entry suite ran 3 tests; both passed. Pointer and M7-S guards passed,
+   and the removed private name has zero active references.
 3. **Remaining shared boundaries, still open.** Use existing M7-S/R6-S3
    owner decisions for each actual ingress/egress caller: typed consumer,
    pre-artifact unsupported, or explicitly isolated compatibility. Sharing
@@ -467,12 +469,12 @@ Ordered tasks inside this existing parent:
    manufacture a zero count. Selection/migration and its finite old-edge
    deletion produce caller-zero; R7 removes the shared schema only afterward.
 
-Next implementation can select this same parent/cohort in `fast` after this
-planning closeout; no additional source-authority consultation is required.
-The next action is the bounded Stop, not a fourth broad census or remote poll.
-The global goal remains stopped until the user resumes implementation.
+The next action is a new bounded selection from the remaining shared ingress
+boundaries; this row does not reopen a broad census or remote poll. The global
+MirBuilder goal remains open: this closeout claims only the direct-loader Stop,
+not R7 caller-zero, backend parity, or whole-pipeline completion.
 
-Verification note: the M7-S guard applies the source-size ceiling to its
+Closeout evidence (`26e59acaef`): the M7-S guard applies the source-size ceiling to its
 implementation owners and keeps the final-pipeline design SSOT as the
 canonical long-form design document. The pointer guard separately limits the
 rolling workstream to 1,000 lines and passes. On this design pointer,
@@ -481,14 +483,11 @@ executed after removing the incorrect final-pipeline size assertion. This is
 documentation/
 guard debt; the parent row was unsupported by that guard, so it is not a
 same-command parent-green regression or a reproduced parent failure.
-Verification preparation is a bounded first task: in the existing guard,
-apply the unchanged 1,000-line rolling-card limit to `latest_workstream_card`,
-as `DOCS_LAYOUT.md` specifies, retaining the final-pipeline contract/token
-checks. Do not raise a threshold or add a guard. Require both pointer and
-M7-S guards to pass before the Stop series closes; any remaining failure
-must be classified, never hidden by the pointer check.
-The ingress-schema guard also names the old private loader function; update
-those references with the rename and classify any pre-existing failure.
+No new guard or receipt was added. The historical ingress-schema guard now
+names the retained loader function; its default phase remains tied to its
+older card and is not this row's acceptance gate. The full repository
+`cargo fmt --check` still reports pre-existing formatting drift outside the
+changed owners; the touched Rust files pass targeted rustfmt checking.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

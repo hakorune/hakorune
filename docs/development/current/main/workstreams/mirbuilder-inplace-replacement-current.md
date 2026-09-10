@@ -425,8 +425,9 @@ remain family-local.
 The prior blanket pause is superseded by the worker-audited direct MIR loader
 Stop in the [final-pipeline owner](../design/mirbuilder-final-pipeline-ssot.md#accepted-prerequisite-design-2026-09-10-audited-at-adab473a7b).
 `direct_mir_json_schema_error_stop` removes v1 `Err` -> v0 retry at the existing
-CLI/core/loader boundary, preserving schema-absent v0 selection. Design is
-accepted; implementation and rejection evidence are the next bounded slice.
+CLI/core/loader boundary, preserving schema-absent v0 selection. It landed at
+`26e59acaef` with loader/core rejection evidence, README/reference updates and
+the existing pointer/M7-S guards green.
 Shared boxcall/egress migration still needs per-caller dispositions. R7's
 caller-zero is their output, not an external prerequisite for beginning work.
 Do not repeat the broad census, reopen VM, or delete the shared schema early.
