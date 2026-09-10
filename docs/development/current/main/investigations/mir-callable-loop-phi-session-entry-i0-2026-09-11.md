@@ -1,5 +1,5 @@
 ---
-Status: fast implementation__SessionBridgeLanded__ValueFlowAcceptanceOpen
+Status: design_stop__SourceIndexHeaderHandoffOpen
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0
 Parent: mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11
@@ -33,6 +33,25 @@ pending restoration terminal before collector admission. The session bridge
 is focused-tested, but this row is not fully accepted until the real selected
 module publication path proves zero, one, and multiple iterations without
 manual ledger setup.
+
+The PHI value-flow contract is already recorded in
+`docs/reference/mir/loop-recipe-contract.md:1227` and is not missing a second
+SSOT. It names the source `BindingRef` owner, the canonical physical
+Binding SSA/PHI issuer, the `h_n -> s_n -> h_(n+1)` edge relation, the false
+edge `After` rule, and the named pre-effect rejects. No additional PHI
+receipt, issuer, or design layer is opened by this review.
+
+The first real package-to-production probe exposed a separate authority gap
+before PHI emission. `SelectedCallableLoweringInputRefV1` is intentionally
+created by the semantic batch through
+`ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable`, so a
+selected non-AppMain child has no attached `VerifiedCallableIndexV1` or
+`VerifiedCallableHeaderV1`. The physicalizer currently requires both and
+stops at the named `[freeze:contract][callable-loop/missing-index]` boundary.
+The existing `ResolvedCallablePhysicalSignatureLoanV1` and package physical
+header are projections and cannot substitute for the resolver index/header.
+This is evidence that the session bridge is structurally landed, not evidence
+that the selected production edge is executable.
 
 `CanonicalSsaFunctionSessionV2` remains a physical SSA/CFG helper inside the
 single function session; it is not a second source authority. The legacy
@@ -101,30 +120,40 @@ the parent's.
 
 ## Implementation order
 
-1. Keep the landed semantic demand and route selection unchanged. Do not
+1. **Design stop (open):** choose an existing source owner that can lend the
+   exact resolver-issued index/header pair to the selected non-AppMain child.
+   The resolver-owned `VerifiedCallableIndexV1`/`VerifiedCallableHeaderV1`
+   and `VerifiedResolvedCallableModuleV1::function_input()` are the only
+   candidate authorities found so far. Preserve the current observer-only
+   `from_exact_parts_without_callable` contract for roots/generic callers;
+   do not repair by name, rebuild a header from a physical signature, attach
+   the main-only index to unrelated children, or add a second semantic
+   receipt. Close this item with an owner, caller, pre-effect reject, and
+   exact positive/negative acceptance before resuming code.
+2. Keep the landed semantic demand and route selection unchanged. Do not
    reopen source Facts/Recipe issuance or add a plan adapter.
-2. Inventory the existing function-session opener, DraftSeal prepare/commit,
+3. Inventory the existing function-session opener, DraftSeal prepare/commit,
    pending restoration, collector admission, and discard terminals. The
    selected entry must have one named owner for all of them.
-3. [landed at `6c41d0925b`] Replace the nested `capture -> lowerer opens another session` shape with a
+4. [landed at `6c41d0925b`] Replace the nested `capture -> lowerer opens another session` shape with a
    private session-scoped lowering API. The selected cataloged entry opens one
    `CanonicalFunctionLoweringSessionV1`; the lowerer borrows that owner for
    Builder effects and returns only a ready DraftSeal product. It must not open,
    retain, or restore a second function session.
-4. [landed at `6c41d0925b`] Add the smallest existing-owner terminal that carries the ready DraftSeal
+5. [landed at `6c41d0925b`] Add the smallest existing-owner terminal that carries the ready DraftSeal
    through prepare/commit while the same pending parent context remains held
    until collector admission completes. The selected entry may use the
    existing `PendingFunctionSessionCloseV1`; only its private DraftSeal-to-
    pending bridge is missing. A new semantic receipt or alternate publication
    path is out of scope.
-5. Connect header condition, body read/rebind, backedge, and false-edge After
+6. Connect header condition, body read/rebind, backedge, and false-edge After
    through the single session's canonical Binding SSA/PHI state. Names and
    composer-local maps remain non-authority.
-6. Add one reusable valid fixture with no manual ledger registration. Cover
+7. Add one reusable valid fixture with no manual ledger registration. Cover
    zero, one, and multiple iterations only after the real session terminal is
    connected; add mutation-discriminating negatives for foreign owner, stale
    generation, wrong edge/predecessor, and unsealed publication.
-7. Run focused positive/negative gates, update the module README/reference
+8. Run focused positive/negative gates, update the module README/reference
    receipt, and only then move to module publication/OBJ/EXE. The generic Ready
    consumer, local-completion handoff, and legacy retirement remain later rows.
 
@@ -213,3 +242,29 @@ publication path is introduced.
 This Decision closes the design stop. Implementation may begin at the selected
 CallableSingleLoop entry; 0/1/multiple fixtures and OBJ/EXE remain acceptance
 work, not pre-existing evidence.
+
+## MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0
+
+### Reopened design finding: selected child has no resolver index/header (2026-09-11)
+
+The first package-owned production-entry fixture intentionally avoided manual
+ledger registration and entered through the selected cataloged adapter. It
+reached the existing lowerer and returned
+`[freeze:contract][callable-loop/missing-index]`. The source batch's
+`with_lowering_input` path confirms that only the App Main slot receives the
+co-issued callable index; other selected rows use
+`from_exact_parts_without_callable` by design. The resolver comments also
+state that nested owners do not inherit the index.
+
+This reopens the row in `design_stop`. The next task is not to weaken
+`VerifiedCallableFunctionLoweringInputV1::issue`, nor to use
+`CallablePhysicalHeaderRefV1`/`ResolvedCallablePhysicalSignatureLoanV1` as a
+look-alike. It is to connect one already-issued resolver index/header owner to
+the selected child boundary without changing observer-only callers. If no
+existing owner can supply that pair for the child, the row remains
+`NoSafeSlice` until the resolver policy is explicitly redesigned; no guessed
+`Verified*`/`Prepared*` product may be added.
+
+The failed probe is retained as design evidence only; its uncommitted test
+fixture was removed and no production-success claim is made. The PHI
+value-flow SSOT remains valid and unchanged.

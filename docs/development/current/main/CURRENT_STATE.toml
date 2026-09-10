@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0"
 current_execution_cohort = "mir_callable_loop_phi_callable_single_loop_session_i0"
-current_design_stop = "none__SingleFunctionSessionPendingDraftSealAccepted"
-current_blocker_token = "none__SingleFunctionSessionPendingDraftSealAccepted"
-guard_followup = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0: implement the accepted one-session design. The selected entry opens one CanonicalFunctionLoweringSessionV1; the callable lowerer borrows it and returns ReadyFunctionDraftSealV1; a private DraftSeal-to-PendingFunctionSessionCloseV1 bridge commits without parent restore, then collector admission restores once. Do not add a second BindingRef/SSA issuer, name fallback, plan adapter, RawInvocationChildPort semantic field, Generic relabeling, old Composer fallback, or manual-ledger fixture."
+current_design_stop = "open__CallableSingleLoopSelectedChildResolverIndexHeaderOwner"
+current_blocker_token = "open__CallableSingleLoopSelectedChildResolverIndexHeaderOwner"
+guard_followup = "MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0: design only. The semantic package selected child intentionally has no attached resolver callable_index/header, while the physicalizer requires both. Identify an existing resolver/module owner and a single scoped handoff, or record NoSafeSlice. Preserve VerifiedCallableFunctionLoweringInputV1::issue checks; do not add a second issuer, name repair, physical-signature substitute, main-only index sharing, fallback, fixture, or production switch."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -33,10 +33,17 @@ handoff: it must borrow the existing `ResolvedFunctionLoweringInputV1` and
 `CallableSemanticSourceLedgerView` into the Callable syntax-facts/source-map/
 Recipe/common-demand chain; no raw-port semantic/session field is allowed. The
 semantic-demand route and canonical SSA/CFG/PHI physicalizer are now wired;
-route-selection and full-canary evidence are green. The session-entry design is
-accepted: one cataloged entry-owned CanonicalFunctionLoweringSessionV1 will be
-borrowed by the callable lowerer, then its prepared DraftSeal will move into
-the existing pending restoration terminal before collector admission. The
+route-selection and full-canary evidence are green. The session-entry design
+was implemented structurally: one cataloged entry-owned
+CanonicalFunctionLoweringSessionV1 is borrowed by the callable lowerer, then
+its prepared DraftSeal moves into the existing pending restoration terminal
+before collector admission. A real package-owned production probe now exposes
+an authority gap: selected non-AppMain input is intentionally observer-only
+(`callable_index/header=None`), while the physicalizer requires the
+resolver-issued pair. The active row is therefore a design stop for an
+existing-owner source-index/header handoff; no name repair, physical-signature
+substitute, or second issuer is allowed. The PHI value-flow contract is
+already SSOTed in `docs/reference/mir/loop-recipe-contract.md:1227`. The
 implementation and its zero/one/multiple acceptance, module publication, and
 OBJ/EXE execution remain open.
 The old composer remains quarantined for the broad Generic route. The selected
@@ -45,9 +52,9 @@ static callable DirectAccum branch already reuses
 No OBJ/EXE or broad GenericLoop claim is open. Local-completion and
 guard-cleanup remain queued after the session-entry acceptance slice.
 """
-next_design_card = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0"
+next_design_card = "MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-session-entry-i0-2026-09-11.md"
-next_execution_card = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0"
+next_execution_card = "none__CallableSingleLoopSelectedChildResolverIndexHeaderOwnerDesignStop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-session-entry-i0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
