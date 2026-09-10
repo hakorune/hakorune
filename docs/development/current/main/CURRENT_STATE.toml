@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-POSTPROCESS-WALK-CENSUS-D0"
-current_execution_cohort = "mir_postprocess_walk_census_d0_design_stop"
-current_design_stop = "MIR-POSTPROCESS-WALK-CENSUS-D0: count actual block/instruction visits and caller classes for the existing refresh stages before any adjacent fusion; no refresh owner may be merged from names or source appearance."
-current_blocker_token = "MIR-POSTPROCESS-WALK-CENSUS-D0: design-only census of refresh stage invocation, block/instruction visits, mutation/read class, and intermediate-product consumers; no fusion or cache."
+work_mode = "fast"
+current_execution_row = "MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0"
+current_execution_cohort = "mir_semantic_refresh_walk_counters_p0"
+current_design_stop = "none__MIR-POSTPROCESS-WALK-CENSUS-D0-accepted"
+current_blocker_token = "MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0: observation-only counters for existing refresh callers/stages and actual block/instruction visits; no fusion, cache, semantic receipt, or production route change."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-POSTPROCESS-WALK-CENSUS-D0 design gate: finite refresh caller/stage inventory, counted block/instruction visits, mutation/read class, consumer dependency, and no-fusion non-claims. No code, cache, semantic receipt, or production switch."
+guard_followup = "MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0: focused observation proves caller/family/stage/function/block/instruction counters and read/write class with explicit boundary; no fusion, cache, semantic receipt, or production switch."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -48,14 +48,14 @@ claim. The debug-policy snapshot D0/I0 is closed at `4ba9293900` after current
 focused revalidation; the emit-clone P0 is closed at `9808923785`; and lazy
 resolve payload P0 is closed at `21e85270ac` with Hub OFF/ON evidence. Edge-
 health findings are queued at `7d51a10efc`; they do not alter the selected
-row. The postprocess walk census audit now records the exact caller classes and
-the next observation-only counter slice in the queue/card. Callable Loop PHI
-generation and local-completion findings are queued separately as pre-consumer
-correctness rows; the Loop source edge remains caller-zero. The next bounded
-row is still the postprocess walk census design stop.
+row. The postprocess walk census design is accepted and the next bounded
+execution is the observation-only counter slice
+`MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0`. Callable Loop PHI generation and
+local-completion findings are queued separately as pre-consumer correctness
+rows; the Loop source edge remains caller-zero.
 """
-next_design_card = "MIR-POSTPROCESS-WALK-CENSUS-D0"
-next_execution_card = "none__design_stop_until_postprocess_walk_census"
+next_design_card = "none__postprocess_walk_census_d0_accepted"
+next_execution_card = "MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

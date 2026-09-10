@@ -98,7 +98,7 @@ when a named production consumer is chosen.
 
 | Row | Priority | Owner / terminal | Production caller | Acceptance |
 | --- | --- | --- | --- | --- |
-| `MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0` | High | `generic_loop_composer.rs` + existing Loop source port/ledger | future source-bound Loop normalizer | header condition, body reads, and exit reads use the PHI generation belonging to the same `BindingRef`; 0/1/multiple-iteration fixtures cover increment and condition; foreign/stale generation rejects before Builder effect; no name fallback or second Facts issuer |
+| `MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0` | High | `generic_loop_composer.rs` + existing Loop source port/ledger + canonical Binding SSA/PHI owner | future source-bound Loop normalizer | follow the source-bound value-flow contract in `docs/reference/mir/loop-recipe-contract.md`: the callable semantic schedule owns `BindingRef`/role/site, while canonical Binding SSA owns physical `ValueId`/PHI; preheader defines, header/body read `h_n`, backedge transfers `s_n`, and After/tail read the canonical false-edge value; 0/1/multiple-iteration fixtures cover increment and condition; foreign/stale/unsealed generation or edge rejects before Builder effect; no name fallback or second Facts issuer |
 | `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0` | High | `generic_loop_body/direct_associated.rs` + existing local completion publisher | future source-bound Loop normalizer | a body `local` publishes its completed `ValueId` into the callable ledger before the next source read; the positive fixture performs no manual pre-registration; missing publication has a named fail-fast terminal; 0/1/multiple-iteration cases cover initialization and update |
 | `MIR-CALLABLE-LOOP-GUARD-SELECTION-CLEANUP-R0` | Medium | `tools/checks/guard_rows.toml` and four Loop guards | guard profiles only | permanent guards assert structural invariants and remain valid when `current_execution_row` advances; temporary task selection is not encoded as four mutually exclusive current-row predicates; no successor-row guard proliferation |
 
@@ -117,6 +117,14 @@ assert the named reject. A generic `reject != 0` or a fixture that already
 fails on liveness does not close these rows. The positive side must include
 the same graph without manual ledger injection. No OBJ/EXE or production
 cutover claim is made by these queued rows.
+
+The PHI value-flow design audit is closed as a caller-zero D0 on 2026-09-10.
+It confirms that `CallableSemanticLoweringState` and composer maps are
+transport state, not a second PHI authority. The R0 implementation must reuse
+the existing source-bound schedule and canonical Binding SSA owner; it must not
+add a `BindingRef -> latest ValueId` issuer, name fallback, or new semantic
+receipt. The Loop source edge remains caller-zero until this R0 and the separate
+local-completion handoff row are both selected.
 
 ## Compile-cost observation SSOT
 

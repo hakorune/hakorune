@@ -1,10 +1,10 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, and lazy payload P0 closed; next postprocess walk census design stop
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, and postprocess walk census D0 closed; observation counter P0 selected
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-POSTPROCESS-WALK-CENSUS-D0
+NextCard: MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0
 ---
 
 # MIRBuilder compile-time performance owner-first D0

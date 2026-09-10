@@ -1224,6 +1224,38 @@ may map it to Binding SSA and PHI, but this contract never chooses a value or
 creates a physical identity. A later source-bound/Generic product requests the
 opaque After capability for its exact loop and binding.
 
+### Source-bound Binding SSA/PHI value flow
+
+The logical table above does not choose a physical `ValueId`. When a named
+source-bound Loop is admitted to physicalization, the existing callable
+semantic schedule is the sole authority for the source `BindingRef` and its
+role/site, while the canonical Binding SSA/PHI owner is the sole issuer of the
+physical value for that binding. `CallableSemanticLoweringState`, the
+name-keyed `variable_map`, and the composer-local `phi_bindings` or
+`carrier_step_phis` are transport/consumer state; none may mint, repair, or
+reclassify a Binding SSA value.
+
+For each accepted `BindingRef`, the physical owner must preserve the following
+generation and edge relation before any Builder effect:
+
+```text
+Preheader  -> define the initial Binding SSA generation
+Header     -> read the current header generation h_n for the condition
+Body       -> read h_n; a rebind defines the step/body generation s_n
+Backedge   -> transfer s_n to the next Header generation
+After      -> read the Header-side value selected by the canonical false edge
+Tail/exit  -> read the canonical After value for that binding
+```
+
+The body generation must not be used as an After value merely because it was
+created later, and a source ledger's "latest" value must not override the
+role/edge mapping. Missing, foreign, stale, or unsealed generation evidence is
+a named rejection at the Binding SSA/PHI boundary, before CFG/PHI mutation or
+other physical effect. The accepted first consumer must prove zero-, one-, and
+multiple-iteration cases from one valid graph, then mutate one generation or
+edge/publication relation for each negative case; a generic rejection is not
+evidence for this contract.
+
 ## Rejection boundary
 
 The following remain typed rejects at this stage:
