@@ -1,11 +1,34 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, PHI analysis batch I0, and LocalSSA self-cache reuse I0 active; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; prepared-operand D0 remains deferred
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, PHI analysis batch I0, and LocalSSA self-cache reuse I0 closed; C invocation-driver arity repair R0 active; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; prepared-operand D0 remains deferred
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0
+NextCard: MIR-C-INVOCATION-DRIVER-ARITY-REPAIR-R0
 ---
+
+## `MIR-C-INVOCATION-DRIVER-ARITY-REPAIR-R0` fast row (2026-09-10)
+
+Decision: repair the three focused C test drivers to call the existing
+four-argument `hako_llvmc_invocation_init` owner. The fourth argument is the
+driver's existing ingress profile: `STATIC_V2` for the static V2 driver and
+`GENERIC_COMPAT` for the compatibility/query drivers.
+
+Source authority + canonical issuer: the declaration and existing production
+callers in `lang/c-abi/shims`; the test drivers only exercise that private
+invocation owner. Non-authority: Recipe, Loop, SSA, MIR meaning, runtime ABI,
+and production compiler routing.
+
+Fail-fast boundary: each focused driver must compile against the four-argument
+declaration. Acceptance is compile success for
+`static_v2_execution_driver.c`, `allocation_config_capture_driver.c`, and
+`named_query_driver.c`, with no runtime or ABI semantic change. The exclusive
+delete-set is the three stale three-argument call sites; no new dispatcher,
+fallback, receipt, or guard is introduced.
+
+This row is a mechanical prerequisite before selecting the queued Loop PHI
+consumer rows. It does not claim Loop production reachability, OBJ/EXE
+execution, or a compiler-speed improvement.
 
 # MIRBuilder compile-time performance owner-first D0
 
