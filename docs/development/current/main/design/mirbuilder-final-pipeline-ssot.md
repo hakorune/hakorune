@@ -492,7 +492,7 @@ verifier.
 | 1 landed | `runner::json_artifact::mir_loader` — `MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0` | Remove the raw `text.contains("\"schema_version\"")` selector. Let the existing parsed top-level `Value`/`json_v1_bridge::try_parse_v1_to_module` decide whether the schema key is absent, supported, or explicitly unsupported, so escaped keys such as `\u0073chema_version` cannot enter v0. Keep the existing no-schema v0 selection and terminal v1 errors. | Landed at `444822ff80`; focused loader tests are `7/7` green, including escaped-key unsupported schema and no-schema v0 compatibility. The dedicated artifact selector guard passes. No new parser, schema revision, or blanket v0 removal. |
 | 2 landed | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` — `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` | Reuse the existing V4 index/flow identity owner. Build one valid normal+fault cleanup base fixture, propagate stable rejection `published-lifecycle-v4/receiver-object-mismatch`, then mutate only the callee `receiver_object`; assert named rejection and absent artifact. Add the same-typed valid receiver execution at the same boundary. The base fixture is a reusable test asset for later identity negatives, not a one-off. | Landed at `0cd9ccec70`; positive, fault-cleanup base, receiver-only mutation, named mismatch, and absent-artifact checks pass. The dedicated R0 guard passes. Keep V2 structural/V4 identity ownership unchanged; no second object walk or runtime-accessor proof. |
 | 3 landed | `published_backend_view::physical_program` — `MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0` | After a caller census, remove the unused `PublishedLifecyclePhysicalProgramV1::module` borrow and getter if no downstream consumer remains. Close the getter so later JSON/layout consumers cannot return to the original module through this product. | Landed at `7a31b48b75`; the caller census is zero, issuance-time `Option<&MirModule>` remains, physical-program tests (13) pass, and the dedicated guard passes. No semantic projection, layout authority, or transport change. |
-| 4 selected | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` plus the existing V4 admission owner — `MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0` | Make the receiver fixture the reusable base for physical integrity negatives: first prove a valid normal path and valid fault/cleanup path, then mutate exactly one field and require the check's stable named rejection. Extend the existing admission reason propagation only for a concrete selected negative; do not accept a generic nonzero or `unsupported-cohort` as isolated proof. | The selected V4 caller must keep one positive base, one receiver-only mutation, the named mismatch, and absent-artifact evidence. Future physical negatives reuse that base and change one input. No second verifier, broad error taxonomy, runtime/OBJ claim, or unrelated fixture family. |
+| 4 landed | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` plus the existing V4 admission owner — `MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0` | Make the receiver fixture the reusable base for physical integrity negatives: first prove a valid normal path and valid fault/cleanup path, then mutate exactly one field and require the check's stable named rejection. Extend the existing admission reason propagation only for a concrete selected negative; do not accept a generic nonzero or `unsupported-cohort` as isolated proof. | Landed at `5a117a96a2` with guard follow-up `a451f939f8`; receiver keeps the valid normal/fault base and receiver-only named mismatch, while Map reuses a valid graph, mutates only `layouts[0].fields`, and asserts parser-owned `abi-layout`. Map physical execution passes including 26 malformed inputs; no second verifier or broad error taxonomy. |
 
 The in-process LLVM C-API cutover is already structurally closed at
 `720849812b`: it reuses the existing session/emitter and removes the V4 `llc`
@@ -530,14 +530,19 @@ nonzero or unsupported-cohort result does not close the row.
   stable named reject. A generic rejection is not evidence that the intended
   rule ran. This test rule is separate from the already-landed Loop relation
   owner/increment checks at `3559464960`.
+* The physical negative-test proof row closed at `5a117a96a2` with the
+  receiver base and the Map parser-owned layout mutation. Its reusable helper
+  and named-reject guard remain available for the next concrete physical
+  integrity check; no blanket error taxonomy was introduced.
 
-The selected execution frontier is now
-`MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0` in fast mode. The physical
-program module-borrow row closed at `7a31b48b75`; the receiver identity base
-and Loop relation-owner evidence remain reusable prior evidence. The selected
-row may improve fixture/reject discrimination only for a concrete V4 physical
-negative. It does not open a new verifier, semantic authority, legacy-route
-deletion, OBJ/EXE claim, or performance work.
+The selected execution frontier now moves to
+`MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0` as a design stop. The physical
+negative-test proof row closed at `5a117a96a2`; its valid base and named-reject
+guard are reusable evidence. Before any Loop production switch, census the
+callable `None -> lower_non_callable_loop_legacy_v1` callers and prove an
+exclusive old-edge delete-set. The shared non-callable/legacy route remains
+outside that census; no implementation, fallback, or retry is authorized by
+this pointer transition.
 
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 

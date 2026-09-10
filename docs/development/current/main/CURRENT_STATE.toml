@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0"
-current_execution_cohort = "physical_negative_test_proof_r0"
-current_design_stop = "none"
-current_blocker_token = "MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0: keep a valid normal/fault cleanup base, mutate one physical field at a time, and assert the named reject owned by that check before artifact publication."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0"
+current_execution_cohort = "callable_loop_ordinary_bridge_r0_design_stop"
+current_design_stop = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0"
+current_blocker_token = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0: census callable_handoff=None callers, separate non-callable/legacy ownership, and prove an exclusive callable old-edge delete-set before implementation."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Run the selected V4 negative-proof fixture with its valid normal/fault base and receiver-only mutation, assert the named mismatch and absent artifact, then run the dedicated receiver guard, current_state_pointer_guard.sh, focused physical tests, and diff check. Reuse this base for the next concrete negative; do not accept generic unsupported-cohort evidence."
+guard_followup = "Read-only census raw_loop_child_entry callable_handoff=None callers and lower_non_callable_loop_legacy_v1 ownership; name production caller, terminal, non-authority, exclusive delete-set, and acceptance. Do not edit code, add a fallback, or reopen the shared legacy route during design_stop."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -33,14 +33,15 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 Receiver-identity R0 is closed at `0cd9ccec70` with valid normal/fault fixture,
 receiver-only named mismatch, absent-artifact proof, focused C test, and
-dedicated guard. The physical-program module/getter caller census was zero and
-the product borrow was removed at `7a31b48b75`; issuance-time module input is
-retained and 13 physical-program tests pass. The active bounded row now makes
-that valid base a reusable negative-test asset; only a concrete one-field
-mutation and its named owner rejection may be added.
+dedicated guard. Physical-program module/getter retirement closed at
+`7a31b48b75` after caller-zero census, with issuance-time module input retained
+and 13 physical-program tests green. The reusable negative-test proof row
+closed at `5a117a96a2` plus guard follow-up `a451f939f8`: receiver and Map
+layout mutations now assert owner-named rejects. The next design stop is the
+callable Loop ordinary bridge old-edge census.
 """
-next_design_card = "none"
-next_execution_card = "MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0"
+next_design_card = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -58,5 +59,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/local and callee-identity I0/I1 plus FieldGet reuse landed; Pair exit30 is green. C index fusion is ParkedSealed. Direct schema Stop/Dynamic egress and Loop source-recipe evidence are landed; BodyOnlyRebind I0 is at 3559464960 with focused Rust gates green. Artifact MIR JSON schema-selector Stop I0 landed at 444822ff80 with parsed v1 authority, escaped-key terminal, no-schema v0 compatibility, 7/7 loader tests, and guard green. Receiver-identity R0 landed at 0cd9ccec70: valid receiver/fault-cleanup positive, receiver-only mutation to named mismatch, absent artifact, focused C test and dedicated guard green. Physical-program module/getter borrow retirement landed at 7a31b48b75 after caller-zero census; issuance-time module input remains, 13 physical-program tests and the dedicated guard are green. The next row is reusable physical negative-test proof."
+  "2026-09-10: receiver/local, callee-identity, FieldGet reuse, schema Stop, and Loop source-recipe evidence are landed; Pair exit30 is green. BodyOnlyRebind I0 is at 3559464960 with focused Rust gates. Receiver-identity R0 landed at 0cd9ccec70 with valid normal/fault cleanup, receiver-only named mismatch, absent artifact, focused C test, and guard. Physical-program module/getter retirement landed at 7a31b48b75 after caller-zero census; issuance-time module input remains and 13 physical-program tests pass. Mutation-specific negative proof landed at 5a117a96a2 with guard follow-up a451f939f8: receiver and Map layout bases assert named rejects, and Map physical execution passes 26 malformed cases. Next is the callable Loop ordinary-bridge design stop."
 ]
