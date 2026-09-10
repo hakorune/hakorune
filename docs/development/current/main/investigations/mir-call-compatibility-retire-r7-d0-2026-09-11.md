@@ -126,3 +126,39 @@ The follow-up candidate audit found no second safe M7-S production owner:
 aggregate R7 row in design stop with
 `NoSafeSlice__NoRemainingUnsharedM7SOwner`; reopen when a caller can be
 isolated or a supported replacement is selected.
+
+### Environment-route candidate reassessment (2026-09-11)
+
+The two `hako_llvmc_ffi_route.inc` helpers are included in the R7 observation
+manifest, but they are not an independent R7 owner-unit. They only force
+`HAKO_AOT_USE_FFI=0` around the existing `hako_aot_link_obj` and
+`hako_aot_link_obj_v2` consumers; they do not issue or reclassify a MIR call.
+
+```text
+Source authority + issuer:
+  v2 = Boundary caller's explicit runtime archive;
+  v1 = existing compatibility link contract.
+Tracked callers:
+  v1 = backend externals/global callers and the kernel compatibility surrogate
+        through link_object_capi;
+  v2 = published_mir_object plus boundary/static-artifact publication through
+        link_object_to_exe_with_archive; focused C tests/guards also call it.
+Terminal:
+  existing VALIDATION / NOT_FOUND / LINK_FAILED and successful executable
+  publication from hako_aot_link_obj(_v2).
+Exclusive delete-set:
+  none while those AOT exports still consult HAKO_AOT_USE_FFI. Removing only
+  the two wrappers would leave the same process-global decision in the shared
+  AOT implementation and would change the v1 compatibility boundary.
+Next owner:
+  existing lang/c-abi README task 3 (invocation-owned physical state/options),
+  including Rust env overrides, the C save/set/restore pair, and the AOT
+  direct-link consumer in one call-owned design.
+```
+
+The required acceptance for that existing Task 3 is overlapping distinct
+rows/options, failure cleanup, environment preservation, and explicit v1/v2
+link success without recursive FFI selection. It does not claim concurrent
+compilation or LegacyCallV0 retirement. Until that owner is selected with its
+full delete-set, the route pair remains `ParkedSealed__Task3Owner` and the
+R7 aggregate stays at `NoSafeSlice__NoRemainingUnsharedM7SOwner`.
