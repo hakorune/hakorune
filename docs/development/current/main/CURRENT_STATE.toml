@@ -48,7 +48,11 @@ claim. The debug-policy snapshot D0/I0 is closed at `4ba9293900` after current
 focused revalidation; the emit-clone P0 is closed at `9808923785`; and lazy
 resolve payload P0 is closed at `21e85270ac` with Hub OFF/ON evidence. Edge-
 health findings are queued at `7d51a10efc`; they do not alter the selected
-row. The next bounded row is the postprocess walk census design stop.
+row. The postprocess walk census audit now records the exact caller classes and
+the next observation-only counter slice in the queue/card. Callable Loop PHI
+generation and local-completion findings are queued separately as pre-consumer
+correctness rows; the Loop source edge remains caller-zero. The next bounded
+row is still the postprocess walk census design stop.
 """
 next_design_card = "MIR-POSTPROCESS-WALK-CENSUS-D0"
 next_execution_card = "none__design_stop_until_postprocess_walk_census"

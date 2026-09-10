@@ -33,6 +33,7 @@ second health-repair task.
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Medium-High | `builder_emit.rs` + `ssa/local.rs` | design the prepared/legacy boundary and function-owned definition index before implementation |
 | `MIR-PHI-ANALYSIS-BATCH-D0` | Medium-High | PHI materialization/finalization | name a mutation-stable analysis batch before caching or deleting a repair pass |
 | `MIR-POSTPROCESS-WALK-CENSUS-D0` | Medium | semantic refresh + old/shared finish owners | count actual block/instruction visits and caller classes before one adjacent-wave fusion is considered |
+| `MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0` | Medium | existing `compile_timing` + semantic refresh owners | add observation-only stage/function/block/instruction counters after the D0 census; no fusion or cache |
 | `NORMAL-ROOT-AST-MOVE-D0` | Medium | normal source package -> root work plan | remove the one production root AST deep clone only after a move/loan boundary is accepted |
 | `SCRIPT-NEUTRAL-LOAN-ROWS-D0` | Medium-Low | neutral Script source issuer | co-lend one borrowed Program-row view to existing subissuers; do not merge their authorities |
 | `USING-TEXT-MERGE-SOURCE-GRAPH-D0` | Medium | using resolver/text merger | issue one invocation-local path/content/strip graph; no stale global file cache |
@@ -85,6 +86,37 @@ second move/clone row.
 | `MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0` | selected C compatibility test owner / rc==0 positive terminal | existing generic-export fixture | non-callee fixture or weakened reachability-only assertion, only after proof review | valid callee-backed generic export succeeds, or the requirement is explicitly reclassified before closeout; no silent weakening |
 | `MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0` | `tools/checks` / path-aware guard | existing LocalSSA split guard | stale path literals in the registered guard only | guard resolves the landed owner path and passes against the current split; no LocalSSA semantic edit |
 | `MIR-R7-LEGACY-CENSUS-RECONCILE-D0` | final-pipeline SSOT / inventory terminal | R7 writer/reader/env census and test-only Loop PHI inventory | stale counts and unregistered test-only inventory rows only | finite boundary records writer/env/boxcall/reader counts with includes/excludes and names a reopen trigger; no R7 deletion claim |
+
+## 2026-09-10 callable Loop bridge findings (queued, not selected)
+
+The review of the source-bound callable Loop consumer found two correctness
+conditions that must be closed before a production normalizer/physical
+consumer is opened. They are not a new source authority and do not reopen the
+already-designed structural lease. The current Loop source-facts/ready edges
+remain caller-zero or explicitly parked; these rows become selectable only
+when a named production consumer is chosen.
+
+| Row | Priority | Owner / terminal | Production caller | Acceptance |
+| --- | --- | --- | --- | --- |
+| `MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0` | High | `generic_loop_composer.rs` + existing Loop source port/ledger | future source-bound Loop normalizer | header condition, body reads, and exit reads use the PHI generation belonging to the same `BindingRef`; 0/1/multiple-iteration fixtures cover increment and condition; foreign/stale generation rejects before Builder effect; no name fallback or second Facts issuer |
+| `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0` | High | `generic_loop_body/direct_associated.rs` + existing local completion publisher | future source-bound Loop normalizer | a body `local` publishes its completed `ValueId` into the callable ledger before the next source read; the positive fixture performs no manual pre-registration; missing publication has a named fail-fast terminal; 0/1/multiple-iteration cases cover initialization and update |
+| `MIR-CALLABLE-LOOP-GUARD-SELECTION-CLEANUP-R0` | Medium | `tools/checks/guard_rows.toml` and four Loop guards | guard profiles only | permanent guards assert structural invariants and remain valid when `current_execution_row` advances; temporary task selection is not encoded as four mutually exclusive current-row predicates; no successor-row guard proliferation |
+
+Required order when the Loop consumer is selected:
+
+```text
+PHI/value-generation binding
+  -> local completion handoff
+  -> guard selection cleanup
+  -> normalizer/physical consumer design
+```
+
+The negative evidence must be mutation-discriminating: start from a valid
+Loop graph, mutate only the PHI generation or local-publication edge, and
+assert the named reject. A generic `reject != 0` or a fixture that already
+fails on liveness does not close these rows. The positive side must include
+the same graph without manual ledger injection. No OBJ/EXE or production
+cutover claim is made by these queued rows.
 
 ## Compile-cost observation SSOT
 
@@ -579,6 +611,43 @@ whether a later stage consumes the intermediate product
 A later BoxShape may fuse only one adjacent pair with the same input authority
 and mutation-stable boundary. A changed callsite still requires its dependent
 refresh; an unchanged callsite must not pay the conditional second refresh.
+
+### D0 audit result (2026-09-10)
+
+The read-only owner audit confirms that the shared postprocess kernel is still
+the correct ordering owner, but the walk census is not yet an implementation
+or fusion proof. The observed production boundary is:
+
+```text
+finish_built_module / ModulePostprocessOwnerV1
+  -> semantic_refresh stages
+  -> route convergence and post-fixpoint consumers
+  -> contract refresh / verifier / external publication
+```
+
+The existing callers include the normal/canonical compiler finish, raw
+published Script/App finish, the early declaration/layout subset, the JSON-v0
+bridge subset, and rune's immediate refresh. The semantic function-local wave
+has 9 source/fact calls, 3 placement calls, 33 pre-fixpoint route calls, and
+11 experimental seed calls (59 direct calls; 62 after expanding the string
+corridor helper). The post-fixpoint consumer has 13 calls per function. These
+are call-site counts, not block/instruction walk counts.
+
+The current timing surface records only five coarse semantic stages and route
+fixpoint iteration/family counters. It does not record actual function/block/
+instruction visits, read/write mutation class, or whether an intermediate
+product is consumed by a later stage. Therefore the historical “65 named
+refresh” wording is not a current walk census and must not be used as a
+fusion input.
+
+Decision: keep the existing refresh owners and order. The next bounded slice
+is `MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0`, using the existing
+`compile_timing` observation surface. It may add opt-in counters for caller,
+family, stage, function, block, instruction, read/write class, and later
+consumer use. It may not fuse adjacent stages, add a cache, or issue a
+semantic receipt. Acceptance is a stable finite report with explicit
+includes/excludes and zero semantic/order changes; speedup and duplicate-walk
+claims remain unproven until those counters exist.
 
 ## Source reobservation rows
 

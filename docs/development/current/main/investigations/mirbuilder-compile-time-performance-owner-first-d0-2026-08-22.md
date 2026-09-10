@@ -20,6 +20,44 @@ Smallest next slice: MIR-COMPILE-TIME-PERF-BASELINE-P0 — collect a repeatable 
 Non-claims: no 2–4x speed claim, no pass integration, no cache/differential compilation, no parser/resolver redesign, no production route switch, no backend/runtime performance claim, and no generic env helper rewrite.
 ```
 
+## Postprocess walk census D0 decision (2026-09-10)
+
+The existing `semantic_refresh` and `run_postprocess_stages` owners remain the
+authority for refresh order. The audit found these production caller classes:
+
+```text
+normal/canonical compiler finish
+raw published Script/App finish
+early declaration/layout subset
+JSON-v0 bridge subset
+rune immediate refresh
+```
+
+The function-local refresh wave currently exposes 59 direct refresh call sites
+(62 when the string-corridor helper's internal calls are expanded), followed
+by 13 post-fixpoint consumer calls per function. These numbers describe the
+source call graph only; they are not a count of block or instruction visits.
+The current timing hooks expose five coarse semantic stages and route-fixpoint
+iteration/family counters, but no actual function/block/instruction visit
+counts, read/write mutation class, or later-consumer usage of intermediate
+products.
+
+Decision: preserve the existing stage order and shared postprocess kernel and
+open one observation-only execution slice,
+`MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0`, at the existing
+`compile_timing` owner. The slice may report caller/family/stage,
+function/block/instruction visits, metadata-only versus MIR-read/MIR-write
+class, and whether a later stage consumes an intermediate product. It must not
+fuse stages, add a cache, issue a semantic receipt, or change the production
+route. A finite report with explicit boundary, includes/excludes, and stable
+focused evidence is the acceptance; speedup and duplicate-walk claims remain
+unproven until then.
+
+The callable Loop findings are a separate correctness queue. They must close
+PHI generation binding and local completion publication before a source-bound
+Loop normalizer/physical consumer is selected, but they do not change this
+performance observation owner while the Loop source edge remains caller-zero.
+
 ## What the feedback confirms locally
 
 The following are source-backed observations in the current branch:
