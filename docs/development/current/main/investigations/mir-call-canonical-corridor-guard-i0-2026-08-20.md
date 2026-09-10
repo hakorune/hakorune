@@ -1,5 +1,5 @@
 ---
-Status: Selected design; normal typed corridor revalidation pending
+Status: ParkedSealed__NormalLegacyAdmissionMissing
 Date: 2026-08-20
 Decision: MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -95,6 +95,19 @@ re-resolves a target by name, or the guard needs production behavior changes.
 The smallest implementation is one narrow observation/structural extension
 to the existing guard, reusing the R7 manifest and existing owner anchors. It
 must not add a second guard family or a new semantic receipt.
+
+## 2026-09-11 NoSafeSlice disposition
+
+The existing `PublishedMirBackendView::try_new` treats a
+`LegacyCallV0` carrying a typed `Global` callee as a published call row. A
+guard cannot prove typed-only normal consumption while that admission remains
+possible. Adding the guard first would require a production admission change,
+which violates this row's observation-only boundary. The row is therefore
+`ParkedSealed__NormalLegacyAdmissionMissing` until
+`MIR-CALL-NORMAL-TYPED-ADMISSION-D0` supplies a named pre-artifact terminal.
+
+Reopen when the admission row lands with positive typed-only and negative
+mixed/legacy fixtures, or when a new normal caller bypasses that admission.
 
 ## Historical Dynamic guard evidence
 
