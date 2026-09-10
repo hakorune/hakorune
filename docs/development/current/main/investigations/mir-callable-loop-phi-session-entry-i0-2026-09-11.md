@@ -27,6 +27,15 @@ selector or a second Loop consumer. It moves the selected source-backed
 consumer to the existing function-owned session path; it does not redesign
 `MirBuilder`.
 
+The entry-side owner is
+`src/mir/builder/resolved_lowering/canonical_callable_session_scope.rs`,
+constructed only from the selected static-callable branch of
+`NormalCallableSemanticPackagePortAdapterV1::lower_cataloged_static_box_method`.
+The legacy `capture_static_box_method_pending_v1` path stays untouched. The
+scope's body driver must pass a short-lived canonical body port into the
+located invocation driver; calling the raw port's ordinary `lower_body` from
+inside the scope would drop the session capability at nested descent.
+
 ## Six-line brief
 
 ```text
@@ -70,12 +79,15 @@ callable functions open an independent session and never borrow the parent's.
 1. Inventory the existing callable-function session opener, block/terminator
    owners, identity declaration/assignment APIs, completion owner, and
    unpublished-session discard path. Do not add a local map or adapter.
-2. Add the smallest private function-scope wrapper that owns the session and
-   lends a short capability to the existing Ready consumer. Do not add a
-   session field or a new lifetime parameter to the raw port. Keep source
-   relation rows unchanged and consume the Recipe once.
-3. Connect header condition, body read/rebind, backedge, and false-edge After
-   to the session's canonical block-scoped reads and seals.
+2. Split the selected static-callable canonical entry's body preparation from
+   legacy capture, then add the private function-scope wrapper in
+   `canonical_callable_session_scope.rs`. It owns one session and lends a
+   short capability; do not add a session field or new lifetime parameter to
+   the raw port. Keep source relation rows unchanged and consume the Recipe
+   once.
+3. Pass the scoped body port to the located invocation body driver and connect
+   header condition, body read/rebind, backedge, and false-edge After to the
+   session's canonical block-scoped reads and seals.
 4. Remove only the selected source consumer's name-keyed physical PHI path
    after the new consumer is live; keep common generic PlanLowerer and
    non-callable Loop routes.

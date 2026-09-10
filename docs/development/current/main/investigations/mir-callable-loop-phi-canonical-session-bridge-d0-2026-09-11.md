@@ -121,6 +121,15 @@ new session lifetime, or expose the capability to compatibility callers.
 Nested callable functions open their own session; a parent session is never
 passed into a child function.
 
+The concrete owner module is the new private
+`src/mir/builder/resolved_lowering/canonical_callable_session_scope.rs`.
+Only the selected static-callable canonical branch in
+`normal_callable_semantic_loan_port.rs` may construct it. The existing
+`capture_static_box_method_pending_v1` remains the legacy capture owner and is
+not modified for this bridge. The wrapper must invoke the located invocation
+body driver with its scoped body port; delegating back to `raw.lower_body`
+would lose the canonical capability in nested body descent.
+
 The Recipe remains a move-only logical product. It supplies the already-issued
 `BindingRefV1`/role/site rows; the session supplies block-scoped `ValueId`s,
 PHI creation, predecessor edges, and seals. The composer-local name maps,

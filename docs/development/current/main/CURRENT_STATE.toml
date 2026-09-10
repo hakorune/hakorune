@@ -26,8 +26,9 @@ with CallableSemanticLoweringState as source authority and canonical Binding
 SSA/PHI as the sole physical issuer. The bridge D0 accepted session-level
 consumption on 2026-09-11; its next bounded task is
 `MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0`, refined by the owner audit to use a
-private function-scope wrapper that lends a short session capability to the
-Ready consumer. The row is queued but not opened at this taskization
+private function-scope wrapper in
+`resolved_lowering/canonical_callable_session_scope.rs` that lends a short
+session capability to the Ready consumer. The row is queued but not opened at this taskization
 boundary. The plan-level adapter remains parked. No code or OBJ/EXE claim is
 open. Local-completion and guard-cleanup remain queued after the session entry
 and PHI value-generation rows.
