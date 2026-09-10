@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0"
 current_execution_cohort = "callable_loop_generic_terminal_port_p0"
 current_design_stop = "MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0"
-current_blocker_token = "MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0: define one move-only terminal consumer over the landed source-relation view; production callers remain zero and no normalizer, route, Outside, fallback, retry, or legacy switch is allowed."
+current_blocker_token = "MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0: define one callback-scoped move-only terminal consumer that borrows the landed source-relation view together with the active callable ledger capability; production callers remain zero and no normalizer, route, Outside, fallback, retry, or legacy switch is allowed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -37,7 +37,9 @@ source-aware handoff design and a narrow future delete-set: only the callable
 None bypass may retire; Legacy and non-callable JoinIR callers remain. The
 relation P0 implementation adds only a callback-scoped view over the existing
 source-recipe receipt; production callers remain zero. The current design stop
-defines the next terminal-only consumer contract.
+defines the next terminal-only consumer contract, including the single
+unresolved adapter callback that must borrow the active callable ledger with
+the relation so source identity cannot be rejoined later.
 """
 next_design_card = "MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0"
 next_execution_card = "none"

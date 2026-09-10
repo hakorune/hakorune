@@ -1325,6 +1325,51 @@ The next design row is
 consumer over this relation, with production callers still at zero and no
 normalizer, route, Outside, fallback, or legacy switch in the design stop.
 
+##### MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0 — callback boundary refinement (2026-09-10)
+
+The relation view alone is not a complete terminal input. The existing
+normalizer also needs the active callable ledger capability that owns the
+`BindingRef -> ValueId` mapping and the exact source-site read/rebind
+operations. Passing the relation and ledger independently and joining them
+later would recreate the identity-loss problem this row is meant to prevent.
+
+```text
+Decision: design one callback-scoped, move-only terminal port that borrows the
+          co-sealed source relation and the active callable ledger capability
+          together; consume them once before CorePlan composition.
+Source authority + canonical issuer: CallableGenericLoopSourceFactsIssuerV1 /
+          CallableGenericLoopV1SemanticRecipeV1 issue the relation; the active
+          CallableSemanticLoweringState owns BindingRef -> ValueId and read /
+          rebind consumption.
+Non-authority: GenericLoop AST shape, names, ordinals, Builder variable maps,
+          inferred ValueId, LoopRouteContext, route reselection, legacy route,
+          fallback, retry, or a second Facts/Recipe/receipt.
+Fail-fast boundary: before RecipeComposer, PlanLowerer, or Builder mutation,
+          require relation owner = ledger owner, exact parent/condition/body
+          lineage, complete pre-effect (site, role, binding) coverage, and
+          duplicate/foreign/missing ledger access rejection. Any mismatch is
+          a typed terminal and cannot re-enter the old route.
+Smallest next slice: specify the existing adapter/entry callback shape only;
+          production callers remain zero and the normalizer is not connected.
+Non-claims: no Ready cutover, Outside admission, nested-loop support, OBJ/EXE,
+          old-route deletion, or performance result.
+```
+
+Finite census boundary for this design stop: `RawInvocationChildPortV1::lower_loop`
+through the existing `CallableGenericLoopV1PhysicalAdapterV1::lower` seam,
+including the source relation, active callable ledger, and terminal consumer;
+it excludes the normalizer body, `Outside`, the legacy/non-callable route,
+publication, and backend artifact emission. Current callers are one source
+Facts issuer and one physical adapter caller; the new terminal-port callback
+caller count remains zero.
+
+The unresolved implementation point is deliberately singular: the physical
+adapter currently accepts `(builder, root_scope, recipe)` but no active ledger
+capability. The next design must name an existing callback or borrow seam that
+supplies both products for the same owner. It must not add a new semantic
+receipt, reconstruct source identity from AST/name/ordinal/ValueId, or make the
+normalizer consume a relation that is detached from its ledger.
+
 ##### Acceptance recheck classification (2026-09-10)
 
 The selected physical caller cutover was re-run against the same fixed
@@ -1751,6 +1796,18 @@ canonical issuer, terminal consumer, and exclusive delete-set already exist.
 Row 5 is a fail-fast convergence correction at an existing route owner.
 While the physical receiver-lane D0 is active, these follow-ups must not be used to paper over
 `artifact-source-unavailable` or to authorize OBJ/EXE acceptance.
+
+Queue reconciliation (2026-09-10): the three later review findings are not
+missing integrity rows and must not be duplicated as row 6+. Receiver binding
+versus source object identity is owned by
+`MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0/I0`, its physical callee
+identity consumer, and the existing V4 mismatch gate. Rebuilding `FieldGet`
+identity in multiple physical consumers is owned by
+`MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0/I0`. The Rust self-derived
+receiver expectation is part of the same receiver source-row/finalization
+boundary. Those rows already have their own issuer, consumer, delete-set, and
+acceptance; this integrity queue remains limited to the terminal-probe and
+route-order family above.
 
 ##### MIRBUILDER-ROOT-METHOD-I0-TERMINAL-PROBE-FAMILY-I0
 
