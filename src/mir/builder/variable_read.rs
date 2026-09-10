@@ -17,7 +17,7 @@ impl MirBuilder {
             ));
         }
 
-        if let Some(&value_id) = self.function_state.variable_ctx.variable_map.get(&name) {
+        if let Some(value_id) = self.function_state.variable_ctx.lookup(&name) {
             self.fail_if_record_value_escape_by_name(&name, value_id)?;
             // Debug-only observation: check if variable_map value is defined.
             if crate::config::env::joinir_dev::debug_enabled() {

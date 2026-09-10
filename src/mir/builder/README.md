@@ -530,7 +530,9 @@ authority, or fallback route.
 observational `BindingRefV1 -> ValueId` read owned by
 `CallableSemanticLoweringState`. It validates the live owner, binding brand,
 entry installation, and materialized value, then permits repeated reads without
-consuming the binding. The existing variable reader uses this same accessor;
+consuming the binding. Source-bound callable reads use this accessor; ordinary
+`build_variable_access` uses the existing `VariableContext::lookup` owner for
+its name-keyed read;
 the later DeclaredInstance crosswalk may borrow it after proving an exact source
 relation. It does not inspect names or positions, consume locator rows, issue a
 target, open a receiver-specific loan, or infer Method/receiver semantics.

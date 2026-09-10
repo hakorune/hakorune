@@ -1,10 +1,10 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, and postprocess walk census D0/P0 closed; debug-policy snapshot I0 is next
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, and postprocess walk census D0/P0 closed; variable-read accessor S0 is selected
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0
+NextCard: MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
@@ -423,10 +423,37 @@ false green.
 
 The lazy resolve payload slice and the observation-only postprocess walk
 counter slice are now landed. Keep the Hako published-view ingress parked and
-move the next bounded performance row to the already-accepted
-`MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0`. Do not reopen the old snapshot D0 wording
-and do not add a second Builder, adapter, fallback, or semantic receipt merely
-to manufacture a next row.
+select the bounded `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` BoxShape. The
+debug-policy snapshot is already closed at `4ba9293900`; do not reopen its D0
+wording or add a second Builder, adapter, fallback, or semantic receipt.
+
+### `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` selection
+
+```text
+Decision:
+  Replace only the selected direct variable read in variable_read.rs with the
+  existing VariableContext::lookup owner. Preserve behavior and keep the
+  physical variable map unchanged.
+Source authority + canonical issuer:
+  Existing FunctionLoweringStateV1::variable_ctx / VariableContext::lookup.
+Non-authority:
+  PHI/Loop state, assignment writers, snapshots, map clones, and broad
+  variable_map visibility cleanup.
+Fail-fast boundary:
+  __pin$ rejection, escape checks, debug observation, and undefined-variable
+  diagnostics remain in build_variable_access with no fallback or repair.
+Smallest next slice:
+  One direct-read replacement plus focused variable-read parity and a census
+  proving zero direct variable_map.get calls remain in variable_read.rs.
+Non-claims:
+  No PHI/Loop change, assignment change, snapshot change, whole-map
+  privatization, or compiler-speed claim.
+```
+
+Acceptance is the existing variable-read behavior suite plus quick library
+check, line/pointer/diff guards, and the source census above. A failure in
+diagnostic text, `__pin$`, or escape handling reopens this row; it does not
+authorize a broader accessor rewrite.
 
 ## All-worker surface audit (2026-09-03)
 

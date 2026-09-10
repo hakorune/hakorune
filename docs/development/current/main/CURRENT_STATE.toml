@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
-current_execution_cohort = "mir_emit_debug_policy_snapshot_i0"
-current_design_stop = "none__MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0-accepted"
-current_blocker_token = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0: reuse the accepted invocation/session snapshot seam; prove independent A/B sessions survive an ambient environment flip and selected emit readers reach zero process-env reads; no semantic route, fallback, retry, or backend change."
+current_execution_row = "MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0"
+current_execution_cohort = "mir_builder_variable_read_accessor_s0"
+current_design_stop = "none"
+current_blocker_token = "MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0: route the selected variable read through the existing VariableContext lookup owner; preserve __pin$, escape checks, debug observation, and undefined-variable diagnostics; no PHI/Loop, assignment, snapshot, or whole-map change."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0: focused session A/B and ambient-flip evidence plus selected emit reader census; no semantic route, fallback, retry, or backend change."
+guard_followup = "MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0: focused variable-read behavior parity, direct-read census in variable_read.rs, line/pointer/diff guards; no PHI/Loop, assignment, snapshot, or whole-map change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -50,13 +50,13 @@ resolve payload P0 is closed at `21e85270ac` with Hub OFF/ON evidence. Edge-
 health findings are queued at `7d51a10efc`; they do not alter the selected
 row. The postprocess walk census D0 and observation-only counter P0 are closed
 with finite scope and no fusion claim. The next bounded execution is the
-already-accepted `MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0`; its D0 fixes the existing
-invocation/session owner and does not add a context axis. Callable Loop PHI
+`MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` BoxShape; it uses the existing
+VariableContext lookup owner and does not add a context axis. Callable Loop PHI
 generation and local-completion findings are queued separately as pre-consumer
 correctness rows; the Loop source edge remains caller-zero.
 """
-next_design_card = "none__MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0-accepted"
-next_execution_card = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
+next_design_card = "none"
+next_execution_card = "MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -74,5 +74,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA materialization BoxShape I0 closed at 473c006604; selected C pure-first stop closed at 907550c78b; selected Dynamic JSON egress pinned to CanonicalV1 at e2bb3b8b91 with forced-selector tests green. No generic caller-zero or whole-pipeline claim. MIR-BUILDER-EMIT-CLONE-SHAPE-P0 closed at 9808923785, debug-policy snapshot D0/I0 is closed at 4ba9293900 after focused revalidation, and MIR-DEBUG-PAYLOAD-LAZY-P0 closed at 21e85270ac with Hub OFF/ON evidence. Edge-health findings are queued at 7d51a10efc; MIR-POSTPROCESS-WALK-CENSUS-D0 and MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0 are closed as observation-only rows with no fusion claim; next is MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0."
+  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA materialization BoxShape I0 closed at 473c006604; selected C pure-first stop closed at 907550c78b; selected Dynamic JSON egress pinned to CanonicalV1 at e2bb3b8b91 with forced-selector tests green. No generic caller-zero or whole-pipeline claim. MIR-BUILDER-EMIT-CLONE-SHAPE-P0 closed at 9808923785, debug-policy snapshot D0/I0 is closed at 4ba9293900 after focused revalidation, and MIR-DEBUG-PAYLOAD-LAZY-P0 closed at 21e85270ac with Hub OFF/ON evidence. Edge-health findings are queued at 7d51a10efc; MIR-POSTPROCESS-WALK-CENSUS-D0 and MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0 are closed as observation-only rows with no fusion claim. The next bounded BoxShape is MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0."
 ]
