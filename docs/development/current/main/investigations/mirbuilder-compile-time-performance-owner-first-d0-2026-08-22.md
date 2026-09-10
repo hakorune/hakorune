@@ -4,8 +4,48 @@ Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0
+NextCard: MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0
 ---
+
+## `MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0` selected (2026-09-10)
+
+Decision: restore a discriminating positive for the existing public generic
+compatibility export. The fixture will use one top-level legacy `op:"call"`
+with a structured `Global/print` callee and must reach the existing generic
+LLVM emitter with `rc == 0` and an object. The selected pure-first entry keeps
+its named pre-dispatch reject for the same legacy instruction.
+
+Source authority + canonical issuer: the existing generic compatibility
+dispatcher and its `MirCallNeedFlags` declaration owner. The focused test only
+supplies a valid legacy document and observes the existing artifact boundary;
+it does not issue a source target or published row.
+
+Non-authority: a generic rejection, a reachability-only assertion, raw JSON
+text search, selected pure-first behavior, a new route/registry, or a test
+fixture that relies on an unrelated declaration side effect.
+
+Fail-fast boundary: the valid structured-callee document must compile through
+the generic export, while the selected export must reject the top-level legacy
+instruction before object creation with
+`[freeze:contract][pure-first/legacy-op-call]`. The positive must assert
+`rc == 0`, no error, and an existing object; the negative remains named and
+pre-artifact.
+
+Smallest next slice: extend the existing generic prescan only as needed to
+publish the declaration need for the already-supported `Global/print` legacy
+call, then replace the non-callee fixture with the structured-callee positive.
+No second emitter, semantic route, fallback, retry, receipt, or guard is
+allowed.
+
+Non-claims: no generic caller-zero or legacy retirement claim, no backend
+parity, no source admission change, and no OBJ/EXE result claim beyond the
+existing generic object artifact.
+
+Exclusive delete-set: the non-callee generic fixture and its
+reachability-only assertion, plus any minimal duplicate declaration-needed
+branch required solely for this existing legacy `Global/print` compatibility
+surface. The shared dispatcher and selected strict route remain outside the
+delete-set.
 
 ## `MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0` closeout (2026-09-10)
 

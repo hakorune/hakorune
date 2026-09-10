@@ -55,15 +55,12 @@ These rows came from the external edge review and are kept separate from the
 closed emit-clone slice. They are queued for a later read-only revalidation;
 none changes the current pointer or authorizes a production switch.
 
-The older review remains materially relevant at the current branch: the
-invocation owner now requires four arguments while the three named C drivers
-still show the old three-argument call; the generic-export test still proves a
-reject/reachability boundary rather than a callee-backed `rc == 0` success;
-and the LocalSSA split guard still reads the post-split surface incompletely
-(`mirbuilder_copy_unknown_authority_guard.py` currently fails its source-entry
-count). These are evidence for the rows below, not reasons to weaken their
-acceptance. The test-only Dynamic Loop-PHI residue belongs to the finite R7
-census row and is not a separate production task.
+The older review remains materially relevant at the current branch only for
+the generic-export proof: its focused test still proves a
+reject/reachability boundary rather than a callee-backed `rc == 0` success.
+The driver-arity and LocalSSA-guard findings are landed below. The test-only
+Dynamic Loop-PHI residue belongs to the finite R7 census row and is not a
+separate production task.
 
 Order for the next edge-health window is fixed as:
 

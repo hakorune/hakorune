@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0"
-current_execution_cohort = "mir_local_ssa_guard_path_repair_r0_closeout"
-current_design_stop = "MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0 implementation is complete; record the path-aware guard evidence and synchronize the pointer before selecting the next edge row."
-current_blocker_token = "MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0 closeout: COPY-UNKNOWN0 resolves materialization consumers in their landed owner files; no LocalSSA semantic edit or new guard was introduced."
+work_mode = "fast"
+current_execution_row = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0"
+current_execution_cohort = "mir_c_generic_export_positive_proof_r0"
+current_design_stop = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0 is selected: prove the existing generic compatibility owner with one structured-callee legacy call; do not weaken acceptance or open a second route."
+current_blocker_token = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0: use the existing Global print compatibility dispatcher and need-flag owner; selected pure-first still rejects legacy op=call before dispatch."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0 closeout: COPY-UNKNOWN0 path-aware guard passed; no semantic route or new guard."
+guard_followup = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0: existing focused C test and pointer/active-surface guards must remain green; no new guard."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -46,7 +46,7 @@ deferred. The bounded self-cache implementation is landed at
 materialization and is now in closeout.
 """
 next_design_card = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0"
-next_execution_card = "none__closeout_mir_local_ssa_guard_path_repair_r0"
+next_execution_card = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
