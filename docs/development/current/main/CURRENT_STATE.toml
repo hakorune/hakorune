@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0"
-current_execution_cohort = "mir_callable_loop_phi_callable_single_loop_demand_i0"
-current_design_stop = "none__CallableSingleLoopSourceBoundDemandSelected"
-current_blocker_token = "none__CallableSingleLoopSourceBoundDemandSelected"
-guard_followup = "MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0: implement the selected CallableSingleLoop source-bound demand through the existing callback-borrowed resolver input/ledger and common operation/effect/After chain; do not add a second BindingRef/SSA issuer, name fallback, plan adapter, RawInvocationChildPort semantic field, Generic relabeling, old Composer fallback, or manual-ledger fixture."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0"
+current_execution_cohort = "mir_callable_loop_phi_callable_single_loop_session_i0"
+current_design_stop = "CallableSingleLoopFunctionSessionOwnerNotSingle"
+current_blocker_token = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0: nested CanonicalFunctionLoweringSessionV1 remains between cataloged capture and callable DraftSeal; identify one existing owner/terminal before code or fixtures."
+guard_followup = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0: keep the selected CallableSingleLoop semantic demand and canonical PHI/CFG issuer; remove the nested function-session owner, then connect DraftSeal prepare/commit and collector admission through one pending restoration terminal. Do not add a second BindingRef/SSA issuer, name fallback, plan adapter, RawInvocationChildPort semantic field, Generic relabeling, old Composer fallback, or manual-ledger fixture."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md"
-latest_card = "mir-callable-loop-phi-generic-semantic-demand-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mir-callable-loop-phi-session-entry-i0-2026-09-11.md"
+latest_card = "mir-callable-loop-phi-session-entry-i0"
+latest_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-session-entry-i0-2026-09-11.md"
 latest_card_summary = """
 The R7 compatibility-retirement family is parked at
 `NoSafeSlice__NoRemainingUnsharedM7SOwner`; its strict/dev boxcall Stop is
@@ -33,18 +33,22 @@ handoff: it must borrow the existing `ResolvedFunctionLoweringInputV1` and
 `CallableSemanticSourceLedgerView` into the Callable syntax-facts/source-map/
 Recipe/common-demand chain; no raw-port semantic/session field is allowed. The
 semantic-demand route and canonical SSA/CFG/PHI physicalizer are now wired;
-route-selection and full-canary evidence are green, but module publication,
-OBJ/EXE execution, and zero/one/multiple iteration acceptance remain open.
+route-selection and full-canary evidence are green, but the session-entry row
+is reopened in design_stop: the cataloged entry captures one function session
+while the callable lowerer opens another before DraftSeal. The next task is to
+identify one existing session/pending terminal that keeps DraftSeal commit and
+collector admission under one owner. Module publication, OBJ/EXE execution,
+and zero/one/multiple iteration acceptance remain open.
 The old composer remains quarantined for the broad Generic route. The selected
 static callable DirectAccum branch already reuses
 `CanonicalDirectAccumSsaLowererV1`; all compatibility callers remain parked.
 No OBJ/EXE or broad GenericLoop claim is open. Local-completion and
 guard-cleanup remain queued after the session-entry acceptance slice.
 """
-next_design_card = "MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md"
-next_execution_card = "MIR-CALLABLE-LOOP-PHI-GENERIC-SEMANTIC-DEMAND-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md"
+next_design_card = "MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0"
+next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-session-entry-i0-2026-09-11.md"
+next_execution_card = "none__design_stop"
+next_execution_card_path = "none__design_stop"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

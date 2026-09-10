@@ -1,5 +1,5 @@
 ---
-Status: accepted design; implementation held by generic physical-demand D0 (DirectAccum first edge connected)
+Status: design_stop__CallableSingleLoopSessionOwnerMismatch
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0
 Parent: mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11
@@ -22,24 +22,22 @@ excludes: new source Facts/Recipe issuer, plan-level PHI adapter, local
           a follow-up slice
 ```
 
-The first production edge is the selected static-callable branch in
+The selected production edge is the
+`CallableSingleLoop` branch in
 `NormalCallableSemanticPackagePortAdapterV1::lower_cataloged_static_box_method`.
-It routes the existing DirectAccum capability to
-`CanonicalDirectAccumSsaLowererV1`, whose function-owned session already owns
-Binding SSA, CFG, and the PHI transaction. This row does not add a second
-selector or a second Loop consumer. The generic Ready branch in
-`src/mir/builder/raw_loop_child_port.rs` remains the next bounded consumer,
-but its builder-free physical-demand handoff is first specified by
-`mir-callable-loop-phi-generic-physical-demand-d0-2026-09-11.md`.
+The semantic demand and canonical PHI/CFG physicalizer are wired, but this
+edge is not yet accepted as a session-entry implementation. The cataloged
+method currently calls `capture_resolved_function_pending_session_v1`, while
+`callable_lowerer.rs` opens another `CanonicalFunctionLoweringSessionV1`
+before producing `ReadyFunctionDraftSealV1`. That leaves the outer session as
+a pending wrapper around an inner function session and violates this row's
+one-session owner contract, even though existing tests can pass.
 
-The legacy `capture_static_box_method_pending_v1` path stays untouched. A
-private function-scope wrapper is still required when the generic Ready
-consumer is opened; after the physical-demand handoff is accepted, it must
-lend a short-lived canonical body capability
-without adding a session field to `RawInvocationChildPortV1`. The selected
-static-callable entry is the only session opener and owner for that follow-up;
-`RawInvocationChildPortV1::lower_loop` receives the scoped capability as a
-consumer and must never construct, retain, or finish a session by itself.
+`CanonicalSsaFunctionSessionV2` remains a physical SSA/CFG helper inside the
+single function session; it is not a second source authority. The legacy
+`capture_static_box_method_pending_v1` path stays untouched. The generic Ready
+branch in `src/mir/builder/raw_loop_child_port.rs` remains a later consumer and
+must not be opened until this owner boundary is closed.
 
 ## Six-line brief
 
@@ -83,32 +81,31 @@ the parent's.
 
 ## Implementation order
 
-1. (Connected for DirectAccum.) Reuse the existing DirectAccum capability
-   probe and `CanonicalDirectAccumSsaLowererV1` session; pass the catalog
-   physical symbol only as the already-validated function name.
-2. Inventory the existing callable-function session opener, block/terminator
-   owners, identity declaration/assignment APIs, completion owner, and
-   unpublished-session discard path. Do not add a local map or adapter.
-3. Split the selected static-callable canonical entry's body preparation from
-   legacy capture, then add the private function-scope wrapper in
-   `canonical_callable_session_scope.rs`. The outer entry owns one session
-   and lends a short capability to `lower_loop`; do not add a session field or
-   new lifetime parameter to the raw port. Keep source relation rows
-   unchanged and consume the Recipe once.
-4. Pass the scoped body port to the located invocation body driver and connect
-   header condition, body read/rebind, backedge, and false-edge After to the
-   session's canonical block-scoped reads and seals.
-5. Remove only the selected source consumer's name-keyed physical PHI path
-   after the new consumer is live; keep common generic PlanLowerer and
-   non-callable Loop routes.
-6. Add a reusable valid fixture with no manual ledger registration. Cover
-   zero, one, and multiple iterations, including a body local initialization
-   only after its real completion publisher is connected by the next row.
-7. Add mutation-discriminating negatives for one foreign owner/BindingRef,
-   stale generation, wrong edge or predecessor, and unsealed publication.
-8. Run the focused gate and update the module README/reference receipt. Only
-   after this row closes may `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0`
-   become selectable.
+1. Keep the landed semantic demand and route selection unchanged. Do not
+   reopen source Facts/Recipe issuance or add a plan adapter.
+2. Inventory the existing function-session opener, DraftSeal prepare/commit,
+   pending restoration, collector admission, and discard terminals. The
+   selected entry must have one named owner for all of them.
+3. Replace the nested `capture -> lowerer opens another session` shape with a
+   private session-scoped lowering API. The selected cataloged entry opens one
+   `CanonicalFunctionLoweringSessionV1`; the lowerer borrows that owner for
+   Builder effects and returns only a ready DraftSeal product. It must not open,
+   retain, or restore a second function session.
+4. Add the smallest existing-owner terminal that carries the ready DraftSeal
+   through prepare/commit while the same pending parent context remains held
+   until collector admission completes. A new semantic receipt or alternate
+   publication path is out of scope; if the existing owner cannot express this,
+   stop and record the exact API gap before editing callers.
+5. Connect header condition, body read/rebind, backedge, and false-edge After
+   through the single session's canonical Binding SSA/PHI state. Names and
+   composer-local maps remain non-authority.
+6. Add one reusable valid fixture with no manual ledger registration. Cover
+   zero, one, and multiple iterations only after the real session terminal is
+   connected; add mutation-discriminating negatives for foreign owner, stale
+   generation, wrong edge/predecessor, and unsealed publication.
+7. Run focused positive/negative gates, update the module README/reference
+   receipt, and only then move to module publication/OBJ/EXE. The generic Ready
+   consumer, local-completion handoff, and legacy retirement remain later rows.
 
 ## Acceptance
 
@@ -154,3 +151,32 @@ Option B (a plan-level mechanical adapter) remains parked. Reopen it only if
 the existing session cannot consume the Recipe and a new owner contract proves
 that every PHI token carries BindingRef, exact block/predecessor witnesses,
 dominance, and seal completion without creating a second issuer.
+
+## Reopened audit finding (2026-09-11)
+
+The current implementation has two `CanonicalFunctionLoweringSessionV1`
+owners for one selected child: the cataloged method's
+`capture_resolved_function_pending_session_v1` and the callable lowerer's
+`open_resolved_function_draft_seal_session_v1`. The inner owner performs the
+DraftSeal transition, while the outer owner only keeps a pending wrapper. This
+is not a second PHI issuer, but it makes session ownership and restoration
+ambiguous and leaves no direct terminal that combines DraftSeal commit with
+collector completion before the parent is restored.
+
+The row is therefore reopened in `design_stop` until the smallest existing
+session/pending API is identified. The required design is:
+
+```text
+selected cataloged entry
+  -> one CanonicalFunctionLoweringSessionV1 owner
+  -> borrowed callable physicalizer
+  -> ReadyFunctionDraftSealV1
+  -> DraftSeal prepare/commit
+  -> collector admission while parent remains captured
+  -> one restoration/discard terminal
+```
+
+`CanonicalSsaFunctionSessionV2` may remain an internal physical helper, but it
+must borrow the function-session Builder and cannot become another function
+session owner. Until this terminal is available, no 0/1/multiple fixture or
+OBJ/EXE claim is valid.
