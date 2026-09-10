@@ -1502,8 +1502,46 @@ The design must not add the ledger to `GenericLoopV1LoweringContext` alone: it
 has no source-site identity. The selected port must keep structural child
 navigation from `LoopPlanExpressionPortV1` while pairing each AST input with
 its `RawInvocationSourceContextV1` site before calling the existing ledger
-accessors. This is the only open design choice before a fast implementation
-row can be selected.
+accessors.
+
+##### Ready-port design closeout (2026-09-10)
+
+The existing APIs close the remaining design choice. The implementation uses
+one private `CallableLoopSourceExpressionPortV1` capability at the existing
+`LoopPlanExpressionPortV1` boundary. Its expression/statement/body inputs
+borrow the existing AST and carry the corresponding
+`RawInvocationSourceContextV1`; child navigation delegates to the context's
+role-based site projection. It rejects an unlocated, foreign, root-mismatched,
+or nested site before the composer or lowerer runs.
+
+The port's source-binding hooks are narrow extensions of the existing port,
+not a second semantic authority: variable reads call the active callable
+ledger's exact `read_variable(site)`, and variable assignments call its exact
+`rebind(site, value)`. Raw and legacy ports retain their existing name-map
+behavior through the default hook. The source-aware path treats a missing
+exact site as an error, so it cannot silently fall back to a name or inferred
+`ValueId`.
+
+The physical adapter receives the same ledger by scoped borrow from
+`RawInvocationChildPortV1`; it does not clone or retain a second ledger. The
+moved Recipe is consumed by one callback that builds the source port and
+passes it through the existing condition and direct-body normalizer helpers.
+Only the already-selected nonnested `RecipeOnly` first cohort is admitted;
+`ExitAllowed`, nested, Outside, unlocated, and legacy paths remain explicit
+reject/old-route cases. This closes the design dependency without opening
+production cutover beyond the existing Ready caller.
+
+##### `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-I0` (selected)
+
+Implement the closed port at the existing raw Ready -> physical adapter edge.
+Keep the current Facts/Recipe issuer, composer, verifier, lowerer, root scope,
+and non-callable legacy route. Add only the private port/input carrier, the
+source-binding hooks, the RecipeOnly source pipeline threading for condition
+and direct-body read/rebind, and focused positive/negative coverage. The
+selected test must execute one nonnested callable loop with an exact condition
+read and body rebind; missing, foreign, duplicate, nested, or unlocated site
+coverage must fail before Builder mutation. No OBJ/EXE, route retirement,
+fallback/retry, new receipt, or performance claim belongs to this row.
 
 ##### Acceptance recheck classification (2026-09-10)
 

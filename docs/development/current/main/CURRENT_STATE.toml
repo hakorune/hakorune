@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0"
-current_execution_cohort = "callable_loop_ordinary_ready_port_p0"
-current_design_stop = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0"
-current_blocker_token = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0: choose one source-aware LoopPlanExpressionPort seam that pairs exact source sites with the active callable ledger for condition-read and body-read/rebind; no name fallback, nested/Outside admission, route change, retry, legacy switch, or production cutover is allowed."
+work_mode = "fast"
+current_execution_row = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-I0"
+current_execution_cohort = "callable_loop_ordinary_ready_port_i0"
+current_design_stop = "none"
+current_blocker_token = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-I0: implement the existing Ready source-aware expression port for one nonnested RecipeOnly condition-read/body-rebind path; borrow the active ledger once, reject missing/foreign/nested/unlocated sites before Builder effects, and keep all legacy/fallback/route/cutover edges unchanged."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Fixed real-app EXE acceptance ran at 27d516ee3d with 4/11 pass and seven existing owner-scoped reds; hashes and expected/observed results are recorded in the final-pipeline SSOT. Ordinary bridge S0-D1, relation P0, and terminal-port P0 design are closed at their recorded boundaries. Current design stop is the first ordinary Ready source-aware expression port; keep production callers and legacy route unchanged."
+guard_followup = "Run focused callable-loop source/normalizer tests, current_state_pointer_guard.sh, and the existing relevant MIR guard. The selected I0 only threads the existing Ready caller through a borrowed source-aware port; keep the non-callable legacy route, fallback/retry policy, and production artifact routes unchanged."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -31,18 +31,17 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The fixed real-app EXE boundary suite ran at 27d516ee3d and recorded 4/11
-passes with seven existing owner-scoped reds. S0-D1 has an accepted
-source-aware handoff design and a narrow future delete-set: only the callable
-None bypass may retire; Legacy and non-callable JoinIR callers remain. The
-relation P0 implementation adds only a callback-scoped view over the existing
-source-recipe receipt; production callers remain zero. The current design stop
-defines the first ordinary Ready source-aware expression-port contract after
-the terminal-port design was closed. Production callers and the legacy route
-remain unchanged until that port is accepted.
+The Ready-port design is closed in the final-pipeline SSOT. The selected I0
+threads one private source-aware expression port through the existing
+LoopPlanExpressionPortV1 boundary for one nonnested RecipeOnly callable loop.
+The port pairs RawInvocationSourceContextV1 sites with the existing callable
+ledger read_variable/rebind accessors, borrowed once from the raw invocation
+callback. Missing/foreign/nested/unlocated sites reject before Builder effects;
+non-callable legacy and compatibility routes remain unchanged. This row does
+not claim OBJ/EXE, old-route retirement, or performance.
 """
-next_design_card = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-I0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
