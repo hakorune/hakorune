@@ -1253,11 +1253,10 @@ closed   MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1  accepted source-aware
          handoff design and named callable old-bypass edge
 closed   MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0  caller-zero relation
          product over the existing source Facts/Recipe receipt
-current  MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0  design the terminal port
-         with no
-         PostEffectRetryDebt/fallback/retry continuation
-then     MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0  one non-nested Ready
-         normalizer consumer
+closed   MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0  callback-scoped terminal
+         contract over the moved Recipe relation plus active callable ledger
+current  MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0  design one non-nested Ready
+         source-aware LoopPlanExpressionPort consumer
 then     MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0  first admitted Outside cohort
 final    MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0  production cutover and old
          bypass caller-zero
@@ -1425,6 +1424,51 @@ move, borrow the relation/ledger pair only inside its scoped callback, and
 consume the Recipe exactly once. A passing view test therefore proves
 lineage/row preservation only; it does not authorize a production caller or a
 normalizer cutover.
+
+Terminal P0 design closeout (2026-09-10): the existing raw invocation
+`reborrow()` is the only ledger borrow seam. The terminal consumer contract is
+accepted as a callback-scoped pair of the moved Recipe relation and that
+active ledger capability; no second receipt, ledger owner, or route is needed.
+The terminal row is therefore closed as design-only infrastructure with
+production callers still at zero. The next design row is the first ordinary
+Ready normalizer consumer below.
+
+##### MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0 (design stop)
+
+```text
+Decision: thread one source-aware expression capability through the existing
+          LoopPlanExpressionPortV1 boundary for the first non-nested Ready
+          GenericLoopV1 consumer; consume the moved Recipe once.
+Source authority + canonical issuer: the co-sealed source relation supplies
+          exact parent/condition/body contexts; the active
+          CallableSemanticLoweringState supplies BindingRef -> ValueId reads
+          and assignment rebinds through its existing exact accessors.
+Non-authority: Builder variable_map, AST names, ordinals, inferred ValueId,
+          GenericLoopV1LoweringContext as a source authority, LoopRouteContext,
+          legacy route, fallback, retry, or a new Facts/Recipe receipt.
+Fail-fast boundary: before RecipeComposer/PlanLowerer or Builder mutation,
+          validate owner, root lineage, loop/condition/body sites, and every
+          scheduled (site, role, binding). A helper with no exact source site
+          rejects typed; it may not fall back to name lookup.
+Smallest next slice: choose the existing private port/callback shape and wire
+          only condition-read plus body-read/rebind for one non-nested Ready
+          fixture; keep the existing planner and physical adapter owner.
+Non-claims: no nested loops, Outside admission, body-only rebind cohort,
+          old-route deletion, OBJ/EXE, or performance result.
+```
+
+Finite census boundary: `PreparedLocatedRawLoopChildEntryV1` Ready -> moved
+`CallableGenericLoopV1SemanticRecipeV1` -> the existing GenericLoopV1
+composer/normalizer for one non-nested source loop. It includes exact source
+site projection and the active callable ledger; it excludes nested/Outside,
+legacy/non-callable routes, publication, and backend artifacts.
+
+The design must not add the ledger to `GenericLoopV1LoweringContext` alone: it
+has no source-site identity. The selected port must keep structural child
+navigation from `LoopPlanExpressionPortV1` while pairing each AST input with
+its `RawInvocationSourceContextV1` site before calling the existing ledger
+accessors. This is the only open design choice before a fast implementation
+row can be selected.
 
 ##### Acceptance recheck classification (2026-09-10)
 
