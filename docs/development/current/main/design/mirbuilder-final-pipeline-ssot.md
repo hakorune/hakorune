@@ -859,7 +859,7 @@ in existing guards/manifests; those references must be retargeted or retained
 by owner, never deleted to make the split pass. This row is independent of the
 parked callable Loop bridge and does not authorize Loop/OBJ/EXE work.
 
-##### `MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-I0` (selected)
+##### `MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-I0` (closed at `473c006604`)
 
 Implementation owner: `src/mir/builder/ssa/local.rs` and one private sibling
 `src/mir/builder/ssa/local/materialize.rs`. Move the existing function body
@@ -874,9 +874,17 @@ cache hit/stale removal, block creation, pin/PHI redirect, definition and
 dominance checks, forwarding decisions, failure policy, emission order, and
 post-success metadata/cache commit. This is a behavior-neutral split; no new
 fixture, semantic receipt, fallback, retry, route, or production caller is
-allowed. The series closes only when the old body has one caller location, the
-façade and sibling both remain below 760 lines, all touched source/check files
-remain below 800, and pointer/diff guards are green.
+allowed. The series closed when the old body had one caller location, the
+façade and sibling remained below 760 lines, all touched source/check files
+remained below 800, and pointer/diff checks were green. The moved function
+body matched the pre-move hash exactly. `cargo check --profile quick
+-p nyash-rust --lib` passed, as did the focused `post_success` (28),
+`temporal_witness` (16), `local_statement_parity` (6),
+`variable_assignment_parity` (5), `if_statement_parity` (6), and
+`return_statement_parity` (5) suites. This closeout changes only physical
+file placement; no semantic caller, fixture, guard, fallback, retry, route, or
+production behavior changed. Historical guards tied to retired phase cards
+remain baseline-stale and were not weakened.
 
 ### Evidence reuse and repayment
 

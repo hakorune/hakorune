@@ -650,7 +650,8 @@ Non-claims: existing runtime ABI evidence covers ABI8/String2/codec38/legacy Map
 ## Source and ownership budget
 Measured 2026-09-09; flow split updated below, others at 7cc63ab9ea; remeasure before edit.
 ```text
-src/mir/builder/ssa/local.rs                           774
+src/mir/builder/ssa/local.rs                           152
+src/mir/builder/ssa/local/materialize.rs               632
 src/mir/passes/simplify_cfg/flow.rs                     414
 src/mir/builder/raw_expression_dispatch/mod.rs          754
 src/mir/builder.rs                                     752
@@ -661,10 +662,9 @@ src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs 736
 
 The deleted raw_invocation_source_transport.rs is not a live budget owner.
 Flow split is closed (16 tests): value_uses.rs237, tests116; CFG/PHI stays in flow.
-Bound-frame analysis is consolidated (27 tests). Keep registered local.rs's
-618-line materialize_local_v1 for behavior-neutral phase extraction, preserving
-cache/forwarding/failure order. Neither task creates a new semantic authority.
-Instruction/raw-dispatch growth requires deletion/delegation or a prior split.
+Bound-frame analysis is consolidated (27 tests). LocalSSA split landed at
+`473c006604`: `local.rs` is a 152-line façade and `local/materialize.rs` owns the unchanged 632-line body.
+Cache/forwarding/failure order and semantic authority remain unchanged; instruction/raw-dispatch growth requires deletion/delegation or a prior split.
 Quality task order and acceptance live in the ownership task's Map quality queue.
 Every touched/new source stays `<760`; `>=800` stops. This is a bounded inventory.
 Until Call closure, keep these integration owners because they are current
