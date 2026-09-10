@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0"
 current_execution_cohort = "selected_dynamic_canonical_json_egress_stop"
 current_design_stop = "none"
-current_blocker_token = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0: selected Dynamic JSON egress must use the existing explicit CanonicalV1 issuer and reject ambient CompatibilityV0 re-entry before object generation; keep the generic compatibility harness unchanged."
+current_blocker_token = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0 landed at e2bb3b8b91: selected Dynamic JSON egress is pinned to explicit CanonicalV1, while generic compatibility emitters remain unchanged. Select the existing fixed acceptance scope next; do not claim R7 caller-zero or whole MirBuilder completion."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,15 +31,16 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-Selected Dynamic JSON egress is the next bounded M7-S Stop. Its existing
-production caller is the LLVM Boundary bundle exporter; the source authority
-and CanonicalV1 issuer already exist. Pin only that caller to the explicit
-profile, preserve the compatibility harness, and prove forced compatibility
-selectors cannot re-enter before object generation. Do not claim R7 or whole
-MirBuilder completion.
+MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0 landed at e2bb3b8b91.
+The selected Dynamic LLVM Boundary exporter now calls the explicit CanonicalV1
+issuer; generic compatibility emitters remain ambient-profile owners. The
+focused mir_json_emit suite passed 8/8, rustfmt check passed, and pointer,
+canonical-corridor, and LLVM ingress guards passed. The next existing bounded
+owner is MIRBUILDER-FINAL-ACCEPTANCE-SCOPE; R7 and whole MirBuilder remain
+unproven.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0"
+next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
