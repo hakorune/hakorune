@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
-current_execution_cohort = "mirbuilder_final_acceptance_scope"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-INVOKE-LIFECYCLE-PHYSICAL-V2-CUTOVER-I0"
+current_execution_cohort = "mirbuilder_invoke_lifecycle_physical_v2_cutover_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Run the existing finite real-app EXE boundary suite and classify each result against its pinned owner; preserve the V2 structural/V4 identity boundary and do not claim whole-MirBuilder completion from this scope. Untyped storage remains an intentional NoSafeSlice boundary."
+current_blocker_token = "Route the existing lifecycle Birth/Method acceptance callers through the selected physical V4 owner; generic MIR JSON must keep rejecting Invoke. Preserve V2 structural/V4 identity checks and record EXE/OBJ evidence before returning to the finite acceptance suite. Untyped storage remains an intentional NoSafeSlice boundary."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -59,7 +59,7 @@ closed.
 FieldGet prepared-reference reuse I0 landed at `90928e0585`: the existing physical instruction row now owns one projected `CanonicalFieldRefV1`, and admission, layout collection, and JSON consume it. The focused suite is 9/9; C parser/build and Pair direct/linked exit-30 checks remain green. C invocation-index measurement/fusion is already closed and ParkedSealed at D1; untyped object storage remains a parked NoSafeSlice. Whole MirBuilder, R7, general LLVM graduation, parallel sessions, and memory-only transport remain unproven. The fixed real-app EXE boundary suite was rechecked at HEAD `41d3db3076`: 2/11 passed (typed object NewBox plus the explicit unsupported-boundary probe) and 9/11 remain owner-scoped failures. The acceptance row stays open; these reds do not reopen the already-closed V2/V4 verifier boundary.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
+next_execution_card = "MIRBUILDER-INVOKE-LIFECYCLE-PHYSICAL-V2-CUTOVER-I0"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
