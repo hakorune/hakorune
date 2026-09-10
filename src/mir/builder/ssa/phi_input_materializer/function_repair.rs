@@ -14,7 +14,8 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
     context: &str,
 ) -> Result<usize, String> {
     let mut changed = prune_unused_phi_instructions(func);
-    changed += complete_missing_self_carried_phi_inputs(func);
+    let analysis = PhiInputMaterializationAnalysis::new(func);
+    changed += complete_missing_self_carried_phi_inputs_with_analysis(func, &analysis);
     let mut work = Vec::new();
     for (block_id, block) in &func.blocks {
         for (inst_idx, inst) in block.instructions.iter().enumerate() {
@@ -26,7 +27,6 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
         }
     }
 
-    let analysis = PhiInputMaterializationAnalysis::new(func);
     let mut remat_contexts: HashMap<BasicBlockId, PhiInputRematContext> = HashMap::new();
     for (block_id, inst_idx, input_idx, pred, incoming) in work {
         let remat_ctx = remat_contexts
@@ -97,11 +97,18 @@ fn prune_unused_phi_instructions(func: &mut MirFunction) -> usize {
 }
 
 pub(super) fn complete_missing_self_carried_phi_inputs(func: &mut MirFunction) -> usize {
-    func.update_cfg();
-    let preds = crate::mir::verification::utils::compute_predecessors(func);
-    let reachable = crate::mir::verification::utils::compute_reachable_blocks(func);
-    let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
-    let dominators = crate::mir::verification::utils::compute_dominators(func);
+    let analysis = PhiInputMaterializationAnalysis::new(func);
+    complete_missing_self_carried_phi_inputs_with_analysis(func, &analysis)
+}
+
+fn complete_missing_self_carried_phi_inputs_with_analysis(
+    func: &mut MirFunction,
+    analysis: &PhiInputMaterializationAnalysis,
+) -> usize {
+    let preds = &analysis.predecessors;
+    let reachable = &analysis.reachable;
+    let def_blocks = &analysis.def_blocks;
+    let dominators = &analysis.dominators;
 
     let mut additions = Vec::new();
     for (block_id, block) in &func.blocks {

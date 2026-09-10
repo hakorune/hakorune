@@ -10,8 +10,10 @@ use hakorune_mir_defs::CalleeBoxKind;
 use std::collections::{HashMap, HashSet};
 
 pub(super) struct PhiInputMaterializationAnalysis {
-    def_blocks: HashMap<ValueId, BasicBlockId>,
-    dominators: crate::mir::verification::utils::DominatorTree,
+    pub(super) predecessors: HashMap<BasicBlockId, Vec<BasicBlockId>>,
+    pub(super) reachable: HashSet<BasicBlockId>,
+    pub(super) def_blocks: HashMap<ValueId, BasicBlockId>,
+    pub(super) dominators: crate::mir::verification::utils::DominatorTree,
 }
 
 pub(super) struct PhiInputRematContext {
@@ -39,6 +41,8 @@ impl PhiInputMaterializationAnalysis {
     pub(super) fn new(func: &mut MirFunction) -> Self {
         func.update_cfg();
         Self {
+            predecessors: crate::mir::verification::utils::compute_predecessors(func),
+            reachable: crate::mir::verification::utils::compute_reachable_blocks(func),
             def_blocks: crate::mir::verification::utils::compute_def_blocks(func),
             dominators: crate::mir::verification::utils::compute_dominators(func),
         }

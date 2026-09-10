@@ -563,6 +563,42 @@ read-only D0; implementation remains closed until the mutation boundary is
 represented by existing owner state and focused stale-batch rejection is
 defined. No new cache/receipt or second PHI authority is permitted.
 
+### `MIR-PHI-ANALYSIS-BATCH-I0` implementation boundary
+
+The design now permits one focused implementation cell. The batch is local to
+one `materialize_all_phi_inputs` invocation and is borrowed by its helpers; no
+function field, process cache, or cross-phase storage is added. `prune_unused`
+must finish before batch creation. The batch may support only PHI-input
+updates and append-only rematerialization, whose new values are consumed via
+the existing per-predecessor memo. Any topology, successor, parameter/entry,
+or pre-existing definition mutation remains outside the batch and must rebuild
+before analysis is used.
+
+Acceptance:
+
+```text
+- materialize_all_phi_inputs builds PhiInputMaterializationAnalysis once;
+- self-carry completion and grouped-edge rematerialization consume that batch;
+- direct test wrapper behavior remains unchanged;
+- focused PHI repair tests and cargo check pass;
+- no second analysis authority, cache, semantic PHI change, or Loop caller opens.
+```
+
+Closeout evidence for `MIR-PHI-ANALYSIS-BATCH-I0`:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --profile quick -p nyash-rust --lib       # passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib phi_input_materializer # 17 passed
+rustfmt --edition 2021 --check src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs src/mir/builder/ssa/phi_input_materializer/function_repair.rs # passed
+bash tools/checks/current_state_pointer_guard.sh + git diff --check      # passed
+```
+
+The production materializer now builds one invocation-local analysis after
+unused-PHI pruning and shares it with self-carry completion and grouped-edge
+rematerialization. The direct completion test wrapper keeps its existing API
+and creates its own local batch. No persistent cache, topology mutation, PHI
+meaning change, or Loop production caller was added.
+
 ## All-worker surface audit (2026-09-03)
 
 Six read-only workers audited the remaining MirBuilder surface after the

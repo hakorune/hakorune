@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-PHI-ANALYSIS-BATCH-D0"
-current_execution_cohort = "mir_phi_analysis_batch_d0_design_stop"
-current_design_stop = "MIR-PHI-ANALYSIS-BATCH-D0: name one immutable PHI analysis batch and its exact mutation/invalidation boundary before any cache or repair deletion; no code, cache, fallback, retry, or semantic PHI change."
-current_blocker_token = "MIR-PHI-ANALYSIS-BATCH-D0: PHI CFG/definition/dominator analysis must not become stale authority; identify the existing owner, one mutation-stable batch, and named invalidation before implementation."
+work_mode = "closeout"
+current_execution_row = "MIR-PHI-ANALYSIS-BATCH-I0"
+current_execution_cohort = "mir_phi_analysis_batch_i0_closeout"
+current_design_stop = "MIR-PHI-ANALYSIS-BATCH-I0 implementation is complete; closeout evidence and pointer synchronization are required before selecting the next row."
+current_blocker_token = "MIR-PHI-ANALYSIS-BATCH-I0 closeout: verify one invocation-local batch, focused parity, source-size/guard health, and no persistent cache or second PHI authority."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-PHI-ANALYSIS-BATCH-D0: read-only owner/caller/mutation census for PHI analysis reuse; no code, cache, fallback, retry, or semantic PHI change."
+guard_followup = "MIR-PHI-ANALYSIS-BATCH-I0 closeout: focused PHI repair parity and one-analysis census; no cache, fallback, retry, or semantic PHI change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -56,8 +56,8 @@ PHI/Loop or whole-map change. The lookup-facade census is closed as
 rejection while `None` retains compatibility, so the facade remains the single
   policy owner. The next bounded row is the `MIR-PHI-ANALYSIS-BATCH-D0` design stop. Callable Loop PHI generation and local-completion findings remain queued as pre-consumer correctness rows; the Loop source edge remains caller-zero.
 """
-next_design_card = "MIR-PHI-ANALYSIS-BATCH-D0"
-next_execution_card = "none__design_stop_until_phi_analysis_batch_census"
+next_design_card = "MIR-PHI-ANALYSIS-BATCH-I0"
+next_execution_card = "none__closeout_phi_analysis_batch_i0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
