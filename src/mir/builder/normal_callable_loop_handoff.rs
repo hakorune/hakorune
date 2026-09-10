@@ -27,6 +27,7 @@ pub(super) enum CallableLoopReadyBindingClassV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum CallableLoopBindingProjectionDispositionV1 {
     Ready(VerifiedCallableSemanticLoopBindingScheduleV1),
+    ReadyWithBodyOnly(CallableLoopReadyBodyOnlyProductV1),
     Outside(CallableLoopOutsideReasonV1),
 }
 
@@ -48,6 +49,10 @@ impl CallableLoopOutsideReasonV1 {
 
     pub(super) fn rows(&self) -> &[CallableLoopOutsideRowV1] {
         &self.rows
+    }
+
+    pub(super) fn into_rows(self) -> Box<[CallableLoopOutsideRowV1]> {
+        self.rows
     }
 
     pub(super) fn into_terminal_error(self) -> String {
@@ -174,11 +179,23 @@ pub(super) struct VerifiedCallableSemanticLoopBindingScheduleV1 {
     rows: Box<[CallableLoopReadyBindingRowV1]>,
 }
 
+/// One affine source product for the first callable-loop body-only cohort.
+///
+/// The ready remainder and the grouped body-only rows are issued by the same
+/// projection and move together into the existing Facts claim.  No second
+/// resolver or semantic authority is introduced for the deferred rows.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct CallableLoopReadyBodyOnlyProductV1 {
+    ready: VerifiedCallableSemanticLoopBindingScheduleV1,
+    body_only: CallableLoopOutsideReasonV1,
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct CallableSemanticLoopHandoffPreEffectReceiptV1 {
     owner: FunctionOwnerIdV1,
     loop_site: SourceNodeSiteV1,
     rows: Box<[CallableLoopReadyBindingRowV1]>,
+    body_only_rows: Box<[CallableLoopOutsideRowV1]>,
 }
 
 /// Immutable source-only view used by the projector.
@@ -214,6 +231,9 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
     ) -> Result<VerifiedCallableSemanticLoopBindingScheduleV1, String> {
         match self.project_disposition(loop_site)? {
             CallableLoopBindingProjectionDispositionV1::Ready(schedule) => Ok(schedule),
+            CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(_) => {
+                Err(freeze("body-only-first-cohort"))
+            }
             CallableLoopBindingProjectionDispositionV1::Outside(_) => {
                 Err(freeze("outside-first-cohort"))
             }
@@ -300,7 +320,7 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
                 .filter(|binding| !outside_bindings.contains(binding))
                 .copied()
                 .collect();
-            validate_ready_remainder(
+            let ready = validate_ready_remainder(
                 self.owner,
                 loop_site.clone(),
                 ready_receipts,
@@ -315,13 +335,18 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice();
-            return Ok(CallableLoopBindingProjectionDispositionV1::Outside(
-                CallableLoopOutsideReasonV1 {
-                    owner: self.owner,
-                    loop_site,
-                    rows,
-                },
-            ));
+            return Ok(
+                CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(
+                    CallableLoopReadyBodyOnlyProductV1 {
+                        ready,
+                        body_only: CallableLoopOutsideReasonV1 {
+                            owner: self.owner,
+                            loop_site,
+                            rows,
+                        },
+                    },
+                ),
+            );
         }
         Ok(CallableLoopBindingProjectionDispositionV1::Ready(
             VerifiedCallableSemanticLoopBindingScheduleV1::seal(
@@ -345,6 +370,59 @@ impl CallableSemanticLoopHandoffPreEffectReceiptV1 {
 
     pub(super) fn rows(&self) -> &[CallableLoopReadyBindingRowV1] {
         &self.rows
+    }
+
+    pub(super) fn body_only_rows(&self) -> &[CallableLoopOutsideRowV1] {
+        &self.body_only_rows
+    }
+}
+
+impl CallableLoopReadyBodyOnlyProductV1 {
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.ready.owner()
+    }
+
+    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 {
+        self.ready.loop_site()
+    }
+
+    pub(super) fn body_only_rows(&self) -> &[CallableLoopOutsideRowV1] {
+        self.body_only.rows()
+    }
+
+    pub(super) fn without_body_only(
+        schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
+    ) -> Self {
+        let owner = schedule.owner();
+        let loop_site = schedule.loop_site().clone();
+        Self {
+            ready: schedule,
+            body_only: CallableLoopOutsideReasonV1 {
+                owner,
+                loop_site,
+                rows: Box::new([]),
+            },
+        }
+    }
+
+    pub(super) fn consume_pre_effect(
+        self,
+        parent_site: &SourceNodeSiteV1,
+        condition_site: &SourceNodeSiteV1,
+        body_site: &SourceNodeSiteV1,
+    ) -> Result<CallableSemanticLoopHandoffPreEffectReceiptV1, String> {
+        if self.body_only.owner() != self.owner() || self.body_only.loop_site() != self.loop_site()
+        {
+            return Err(freeze("body-only-owner-site-mismatch"));
+        }
+        let body_only_rows = self.body_only.into_rows();
+        let receipt = self
+            .ready
+            .consume_pre_effect(parent_site, condition_site, body_site)?;
+        Ok(CallableSemanticLoopHandoffPreEffectReceiptV1 {
+            body_only_rows,
+            ..receipt
+        })
     }
 }
 
@@ -390,6 +468,7 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
             owner: self.owner,
             loop_site: self.loop_site,
             rows: self.rows,
+            body_only_rows: Box::new([]),
         })
     }
 
@@ -415,9 +494,13 @@ fn validate_ready_remainder(
     loop_site: SourceNodeSiteV1,
     receipts: Vec<CallableLoopBindingReceiptV1>,
     iteration_locals: BTreeSet<BindingRefV1>,
-) -> Result<(), String> {
-    let _ = build_callable_loop_ready_rows(owner, &loop_site, receipts, iteration_locals)?;
-    Ok(())
+) -> Result<VerifiedCallableSemanticLoopBindingScheduleV1, String> {
+    VerifiedCallableSemanticLoopBindingScheduleV1::seal(
+        owner,
+        loop_site,
+        receipts,
+        iteration_locals,
+    )
 }
 
 fn build_callable_loop_ready_rows(

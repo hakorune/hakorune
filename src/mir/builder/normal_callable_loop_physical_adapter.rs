@@ -30,6 +30,12 @@ impl CallableGenericLoopV1PhysicalAdapterV1 {
     ) -> Result<ValueId, String> {
         let lowered = recipe
             .with_source_relation_view_once(|view| -> Result<ValueId, String> {
+                if callable_ledger.borrow().owner() != view.owner() {
+                    return Err(
+                        "[freeze:contract][callable-loop/relation-ledger-owner-mismatch]"
+                            .to_owned(),
+                    );
+                }
                 let port = CallableLoopSourceExpressionPortV1::new(callable_ledger);
                 let condition = port.expr(&view.generic().condition, view.condition_source())?;
                 let body = port.body(&view.generic().body.body, view.body_source())?;

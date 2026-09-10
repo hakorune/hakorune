@@ -214,6 +214,16 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_with_policy(
             loop_var: loop_var.clone(),
             condition: condition.clone(),
             loop_increment,
+            increment_index: match &disposition {
+                GenericLoopV1StepDispositionV1::NumericProgression { placement, .. } => {
+                    match placement {
+                        StepPlacement::Last => flat_body.len().checked_sub(1),
+                        StepPlacement::InBody(index) => Some(*index),
+                        StepPlacement::InContinueIf(_) | StepPlacement::InBreakElseIf(_) => None,
+                    }
+                }
+                GenericLoopV1StepDispositionV1::BodyManagedState => None,
+            },
             body: RecipeBody::new(flat_body.clone()),
             carrier_observation: observe_generic_loop_carrier_observation(&flat_body, loop_var),
             body_lowering_policy,

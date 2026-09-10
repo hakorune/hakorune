@@ -106,17 +106,8 @@ impl RecipeComposer {
         }
 
         let increment_index = generic_loop_v1
-            .body
-            .body
-            .iter()
-            .position(|statement| {
-                source_loop_increment_matches(
-                    statement,
-                    &generic_loop_v1.loop_var,
-                    &generic_loop_v1.loop_increment,
-                )
-            })
-            .ok_or_else(|| Freeze::contract("callable-loop source increment site missing"))?;
+            .increment_index
+            .ok_or_else(|| Freeze::unsupported("callable-loop source step placement"))?;
         let increment_statement = port
             .body_stmt(&body, increment_index)
             .map_err(|error| Freeze::contract(&error.render()))?;
@@ -126,6 +117,7 @@ impl RecipeComposer {
         let increment_input = port
             .child_expr_from_stmt(&increment_statement, ExprChildRoleV1::AssignmentValue)
             .map_err(|error| Freeze::contract(&error.render()))?;
+        let increment_syntax = port.stmt_syntax(&increment_statement) as *const crate::ast::ASTNode;
 
         with_saved_variable_map_typed(builder, |builder| {
             let pre_body_map = builder.function_state.variable_ctx.variable_map.clone();
@@ -175,13 +167,7 @@ impl RecipeComposer {
                             &generic_loop_v1.loop_var,
                             "[callable-loop/source-body]",
                             &mut reject,
-                            &|statement| {
-                                source_loop_increment_matches(
-                                    statement,
-                                    &generic_loop_v1.loop_var,
-                                    &generic_loop_v1.loop_increment,
-                                )
-                            },
+                            &|statement| statement as *const crate::ast::ASTNode == increment_syntax,
                         )?;
 
                         if !generic_loop_body::body_plans_exit_on_all_paths(&body_plans) {
@@ -285,16 +271,4 @@ impl RecipeComposer {
             Ok(CorePlan::Loop(skeleton.plan))
         })
     }
-}
-
-fn source_loop_increment_matches(
-    statement: &crate::ast::ASTNode,
-    loop_var: &str,
-    increment: &crate::ast::ASTNode,
-) -> bool {
-    let crate::ast::ASTNode::Assignment { target, value, .. } = statement else {
-        return false;
-    };
-    matches!(target.as_ref(), crate::ast::ASTNode::Variable { name, .. } if name == loop_var)
-        && value.as_ref() == increment
 }

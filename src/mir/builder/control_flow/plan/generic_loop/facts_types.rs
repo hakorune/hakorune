@@ -72,6 +72,10 @@ pub(in crate::mir::builder) struct GenericLoopV1Facts {
     pub loop_var: String,
     pub condition: ASTNode,
     pub loop_increment: ASTNode,
+    /// Planner-owned top-level increment position for direct source consumers.
+    /// `None` means the selected step is body-managed or conditional and is
+    /// outside the source-port slice.
+    pub increment_index: Option<usize>,
     pub body: RecipeBody,
     pub carrier_observation: GenericLoopCarrierObservationV1,
     pub body_lowering_policy: BodyLoweringPolicy,

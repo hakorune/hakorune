@@ -15,7 +15,7 @@ use super::generic_loop_admission_observation::GenericLoopAdmissionObservationV1
 use super::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 use super::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopOutsideReasonV1,
-    VerifiedCallableSemanticLoopBindingScheduleV1,
+    CallableLoopReadyBodyOnlyProductV1, VerifiedCallableSemanticLoopBindingScheduleV1,
 };
 use super::normal_callable_loop_physical_adapter::CallableGenericLoopV1PhysicalAdapterV1;
 use super::normal_callable_loop_source_facts::{
@@ -72,7 +72,7 @@ pub(in crate::mir::builder) struct PreparedCallableGenericLoopSourceFactsPayload
     pub(in crate::mir::builder) condition: ASTNode,
     pub(in crate::mir::builder) body: Vec<ASTNode>,
     pub(in crate::mir::builder) owner: FunctionOwnerIdV1,
-    pub(in crate::mir::builder) schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
+    pub(in crate::mir::builder) binding_product: CallableLoopReadyBodyOnlyProductV1,
     pub(in crate::mir::builder) function_name: Box<str>,
     pub(in crate::mir::builder) debug: bool,
     pub(in crate::mir::builder) in_static_box: bool,
@@ -231,77 +231,70 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             );
         }
 
-        match callable_handoff {
+        let binding_product = match callable_handoff {
             Some(CallableLoopBindingProjectionDispositionV1::Ready(schedule)) => {
-                let owner = schedule.owner();
-                let prepared = Self {
-                    parent_source,
-                    condition_source,
-                    body_source,
-                    condition,
-                    body,
-                    disposition,
-                    callable_handoff: Some(CallableLoopBindingProjectionDispositionV1::Ready(
-                        schedule,
-                    )),
-                    method_source_observation: None,
-                    admission_observation: None,
-                };
-                let payload = prepared.into_callable_generic_loop_source_facts_payload(
-                    owner,
-                    function_name,
-                    debug,
-                    in_static_box,
-                    policy,
-                )?;
-                let source_facts = match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload)
-                {
-                    CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) => {
-                        source_facts
-                    }
-                    CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => {
-                        return Err(format!(
-                            "[freeze:contract][callable-loop/source-unavailable] {error:?}"
-                        ));
-                    }
-                    CallableGenericLoopSourceFactsDispositionV1::FactsAbsent => {
-                        return Err("[freeze:contract][callable-loop/facts-absent]".to_owned());
-                    }
-                    CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error) => {
-                        return Err(format!(
-                            "[freeze:contract][callable-loop/facts-rejected] {error}"
-                        ));
-                    }
-                    CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error) => {
-                        return Err(format!(
-                            "[freeze:contract][callable-loop/route-not-front-selected] {error:?}"
-                        ));
-                    }
-                };
-                let receipt = source_facts.claim_all().map_err(|error| {
-                    format!("[freeze:contract][callable-loop/source-claim] {error:?}")
-                })?;
-                let recipe = receipt.into_semantic_recipe().map_err(|error| {
-                    format!("[freeze:contract][callable-loop/semantic-recipe] {error:?}")
-                })?;
-                let root_scope = callable_loop_root_scope.as_deref_mut().ok_or_else(|| {
-                    "[freeze:contract][callable-loop/root-scope/missing]".to_owned()
-                })?;
-                let callable_ledger = callable_ledger.ok_or_else(|| {
-                    "[freeze:contract][callable-loop/callable-ledger/missing]".to_owned()
-                })?;
-                CallableGenericLoopV1PhysicalAdapterV1::lower(
-                    builder,
-                    root_scope,
-                    recipe,
-                    callable_ledger,
-                )
+                CallableLoopReadyBodyOnlyProductV1::without_body_only(schedule)
             }
+            Some(CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(product)) => product,
             Some(CallableLoopBindingProjectionDispositionV1::Outside(reason)) => {
-                lower_outside_callable_loop_v1(reason)
+                return lower_outside_callable_loop_v1(reason)
             }
-            None => lower_non_callable_loop_legacy_v1(builder, condition, body),
-        }
+            None => return lower_non_callable_loop_legacy_v1(builder, condition, body),
+        };
+        let owner = binding_product.owner();
+        let prepared = Self {
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            disposition,
+            callable_handoff: Some(
+                CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(binding_product),
+            ),
+            method_source_observation: None,
+            admission_observation: None,
+        };
+        let payload = prepared.into_callable_generic_loop_source_facts_payload(
+            owner,
+            function_name,
+            debug,
+            in_static_box,
+            policy,
+        )?;
+        let source_facts = match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload) {
+            CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) => source_facts,
+            CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => {
+                return Err(format!(
+                    "[freeze:contract][callable-loop/source-unavailable] {error:?}"
+                ));
+            }
+            CallableGenericLoopSourceFactsDispositionV1::FactsAbsent => {
+                return Err("[freeze:contract][callable-loop/facts-absent]".to_owned());
+            }
+            CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error) => {
+                return Err(format!(
+                    "[freeze:contract][callable-loop/facts-rejected] {error}"
+                ));
+            }
+            CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error) => {
+                return Err(format!(
+                    "[freeze:contract][callable-loop/route-not-front-selected] {error:?}"
+                ));
+            }
+        };
+        let receipt = source_facts
+            .claim_all()
+            .map_err(|error| format!("[freeze:contract][callable-loop/source-claim] {error:?}"))?;
+        let recipe = receipt.into_semantic_recipe().map_err(|error| {
+            format!("[freeze:contract][callable-loop/semantic-recipe] {error:?}")
+        })?;
+        let root_scope = callable_loop_root_scope
+            .as_deref_mut()
+            .ok_or_else(|| "[freeze:contract][callable-loop/root-scope/missing]".to_owned())?;
+        let callable_ledger = callable_ledger
+            .ok_or_else(|| "[freeze:contract][callable-loop/callable-ledger/missing]".to_owned())?;
+        CallableGenericLoopV1PhysicalAdapterV1::lower(builder, root_scope, recipe, callable_ledger)
     }
 
     /// Move the exact prepared Loop into the sole source-aware Facts issuer.
@@ -329,8 +322,11 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 "[freeze:contract][callable-loop-source-facts/reachable-child-entry]".to_owned(),
             );
         }
-        let schedule = match callable_handoff {
-            Some(CallableLoopBindingProjectionDispositionV1::Ready(schedule)) => schedule,
+        let binding_product = match callable_handoff {
+            Some(CallableLoopBindingProjectionDispositionV1::Ready(schedule)) => {
+                CallableLoopReadyBodyOnlyProductV1::without_body_only(schedule)
+            }
+            Some(CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(product)) => product,
             Some(CallableLoopBindingProjectionDispositionV1::Outside(_)) => {
                 return Err(
                     "[freeze:contract][callable-loop-source-facts/outside-schedule]".to_owned(),
@@ -349,7 +345,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             condition,
             body,
             owner,
-            schedule,
+            binding_product,
             function_name: function_name.into(),
             debug,
             in_static_box,
@@ -704,7 +700,7 @@ mod tests {
     }
 
     #[test]
-    fn outside_terminal_rejects_before_builder_effect() {
+    fn body_only_product_rejects_before_builder_effect_when_facts_are_absent() {
         let source = located_loop_source();
         let loop_site = source.site().unwrap().clone();
         let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
@@ -723,9 +719,9 @@ mod tests {
                 false,
                 GenericLoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true),
             )
-            .expect_err("Outside must remain a typed terminal");
+            .expect_err("body-only product must reject absent Facts before effects");
 
-        assert!(error.contains("callable-loop-handoff/outside-first-cohort"));
+        assert!(error.contains("callable-loop/facts-absent"));
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
     }

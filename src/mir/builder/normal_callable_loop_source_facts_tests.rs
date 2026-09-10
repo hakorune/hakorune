@@ -157,6 +157,40 @@ fn policy() -> GenericLoopFactsPolicyFrameV1 {
     GenericLoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true)
 }
 
+fn real_callable_ledger_for_owner_mismatch_test() -> CallableSemanticLoweringState {
+    let program = NyashParser::parse_from_string(
+        "function ledger_owner(i, limit) { loop(i < limit) { local tmp = 0; tmp = tmp + 1; i = i + 1 } }",
+    )
+    .expect("source loop parses");
+    let crate::ast::ASTNode::Program { mut statements, .. } = program else {
+        panic!("source loop must be a program")
+    };
+    let function = statements.remove(0);
+    let syntax =
+        CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(9202).expect("resolver");
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
+        .resolve_selected_callable_forests(&[syntax.function()])
+        .expect("source forest")
+    else {
+        panic!("source loop unexpectedly deferred")
+    };
+    let forest = forests.into_vec().pop().expect("source forest root");
+    let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
+        &function,
+        &forest,
+        syntax.function().root_profile(),
+    )
+    .expect("source projection");
+    let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+        &function,
+        &forest,
+        &projection,
+    )
+    .expect("source lowering input");
+    CallableSemanticLoweringState::from_exact_source(input).expect("callable ledger")
+}
+
 #[test]
 fn issuer_co_seals_one_generic_facts_outcome() {
     let source_owner = owner();
@@ -413,7 +447,7 @@ fn ready_source_facts_requires_the_unpublished_root_scope_before_physical_loweri
 #[test]
 fn source_aware_adapter_consumes_real_callable_ledger_once() {
     let program = NyashParser::parse_from_string(
-        "function caller(i, limit) { loop(i < limit) { local tmp = 0; i = i + 1 } }",
+        "function caller(i, limit) { loop(i < limit) { local tmp = 0; tmp = tmp + 1; i = i + 1 } }",
     )
     .expect("source loop parses");
     let crate::ast::ASTNode::Program { mut statements, .. } = program else {
@@ -466,42 +500,31 @@ fn source_aware_adapter_consumes_real_callable_ledger_once() {
     let mut state =
         CallableSemanticLoweringState::from_exact_source(input).expect("callable ledger");
     let loop_site = SourcePathV1::root_body(0).node();
-    let schedule = state
+    let disposition = state
         .loop_binding_source_projection()
-        .project(loop_site.clone())
-        .expect("Ready loop schedule");
-    assert_eq!(
-        schedule
-            .receipts()
-            .filter(|receipt| receipt.role() == CallableLoopBindingRoleV1::ConditionRead)
-            .count(),
-        2
-    );
-    assert_eq!(
-        schedule
-            .receipts()
-            .filter(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRead)
-            .count(),
-        1
-    );
-    assert_eq!(
-        schedule
-            .receipts()
-            .filter(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRebind)
-            .count(),
-        1
-    );
+        .project_disposition(loop_site.clone())
+        .expect("loop source disposition");
+    let CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(product) = &disposition
+    else {
+        panic!("body-only local must stay in the source product")
+    };
+    assert_eq!(product.body_only_rows().len(), 1);
+    assert!(product.body_only_rows()[0]
+        .receipts()
+        .iter()
+        .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRead));
+    assert!(product.body_only_rows()[0]
+        .receipts()
+        .iter()
+        .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRebind));
     let parent_source = RawInvocationSourceContextV1::Located {
         root: RawInvocationRootLineageV1::ScriptRoot,
         site: loop_site,
         body_kind: Some(SourceBodyKindV1::Function),
     };
-    let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
-        &parent_source,
-        loop_node,
-        Some(CallableLoopBindingProjectionDispositionV1::Ready(schedule)),
-    )
-    .expect("located source entry");
+    let prepared =
+        PreparedLocatedRawLoopChildEntryV1::prepare(&parent_source, loop_node, Some(disposition))
+            .expect("located source entry");
     let payload = prepared
         .into_callable_generic_loop_source_facts_payload(owner, "caller", false, false, policy())
         .expect("source facts payload");
@@ -571,4 +594,43 @@ fn source_aware_adapter_consumes_real_callable_ledger_once() {
     state
         .finish()
         .expect("all source reads and rebinds consumed");
+}
+
+#[test]
+fn physical_adapter_rejects_relation_owner_mismatch_before_builder_effect() {
+    let relation_owner = owner();
+    let ledger = Rc::new(RefCell::new(real_callable_ledger_for_owner_mismatch_test()));
+    with_prepared(relation_owner, generic_loop(), |_, prepared| {
+        let payload = prepared
+            .into_callable_generic_loop_source_facts_payload(
+                relation_owner,
+                "owner-mismatch",
+                false,
+                false,
+                policy(),
+            )
+            .expect("source facts payload");
+        let CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) =
+            CallableGenericLoopSourceFactsIssuerV1::issue_once(payload)
+        else {
+            panic!("source loop must be Ready")
+        };
+        let recipe = source_facts
+            .claim_all()
+            .expect("one-shot source claim")
+            .into_semantic_recipe()
+            .expect("semantic Recipe");
+        let mut builder = MirBuilder::new();
+        let mut root_scope = UnpublishedCallableLoopRootScopeV1::for_test();
+        let error = CallableGenericLoopV1PhysicalAdapterV1::lower(
+            &mut builder,
+            &mut root_scope,
+            recipe,
+            &ledger,
+        )
+        .expect_err("foreign callable ledger must fail before physical effects");
+        assert!(error.contains("callable-loop/relation-ledger-owner-mismatch"));
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    });
 }

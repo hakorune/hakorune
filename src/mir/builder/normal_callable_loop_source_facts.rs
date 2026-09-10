@@ -27,7 +27,7 @@ use super::control_flow::joinir::structural_port::{
     CallableLoopSourceBoundStructuralPortV1, CallableLoopStructuralLeaseRejectV1,
 };
 use super::normal_callable_loop_handoff::{
-    CallableSemanticLoopHandoffPreEffectReceiptV1, VerifiedCallableSemanticLoopBindingScheduleV1,
+    CallableLoopReadyBodyOnlyProductV1, CallableSemanticLoopHandoffPreEffectReceiptV1,
 };
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::raw_loop_child_entry::PreparedCallableGenericLoopSourceFactsPayloadV1;
@@ -72,7 +72,7 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsV1<'source> {
     body_source: RawInvocationSourceContextV1,
     condition: ASTNode,
     body: Vec<ASTNode>,
-    schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
+    binding_product: CallableLoopReadyBodyOnlyProductV1,
     policy: GenericLoopFactsPolicyFrameV1,
     debug: bool,
     in_static_box: bool,
@@ -115,7 +115,7 @@ impl<'source> CallableGenericLoopSourceFactsV1<'source> {
             body_source,
             condition,
             body,
-            schedule,
+            binding_product,
             policy,
             debug,
             in_static_box,
@@ -132,7 +132,7 @@ impl<'source> CallableGenericLoopSourceFactsV1<'source> {
         let body_site = body_source
             .site()
             .ok_or(CallableGenericLoopSourceFactsClaimErrorV1::BodyNotLocated)?;
-        let pre_effect = schedule
+        let pre_effect = binding_product
             .consume_pre_effect(parent_site, condition_site, body_site)
             .map_err(CallableGenericLoopSourceFactsClaimErrorV1::PreEffectRejected)?;
         Ok(CallableGenericLoopSourceFactsReceiptV1 {
@@ -576,7 +576,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             condition,
             body,
             owner,
-            schedule,
+            binding_product,
             function_name,
             debug,
             in_static_box,
@@ -588,7 +588,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             &condition_source,
             &body_source,
             owner,
-            &schedule,
+            &binding_product,
         ) {
             return CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error);
         }
@@ -624,7 +624,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             body_source,
             condition,
             body,
-            schedule,
+            binding_product,
             policy,
             debug,
             in_static_box,
@@ -640,7 +640,7 @@ fn validate_source_input(
     condition_source: &RawInvocationSourceContextV1,
     body_source: &RawInvocationSourceContextV1,
     owner: FunctionOwnerIdV1,
-    schedule: &VerifiedCallableSemanticLoopBindingScheduleV1,
+    binding_product: &CallableLoopReadyBodyOnlyProductV1,
 ) -> Result<(), CallableGenericLoopSourceFactsSourceErrorV1> {
     let parent_site = parent_source
         .site()
@@ -656,10 +656,10 @@ fn validate_source_input(
     {
         return Err(CallableGenericLoopSourceFactsSourceErrorV1::ForeignRootLineage);
     }
-    if schedule.loop_site() != parent_site {
+    if binding_product.loop_site() != parent_site {
         return Err(CallableGenericLoopSourceFactsSourceErrorV1::ParentSiteMismatch);
     }
-    if schedule.owner() != owner {
+    if binding_product.owner() != owner {
         return Err(CallableGenericLoopSourceFactsSourceErrorV1::OwnerMismatch);
     }
     if !condition_source.is_exact_loop_condition()

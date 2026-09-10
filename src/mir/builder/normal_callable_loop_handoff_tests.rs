@@ -279,7 +279,7 @@ fn variable_reads_are_rows_not_fixed_counts_or_cross_binding_repair() {
 }
 
 #[test]
-fn body_only_rebind_is_explicit_outside_with_source_evidence() {
+fn body_only_rebind_moves_with_ready_remainder_and_source_evidence() {
     let owner_id = owner();
     let loop_site = SourcePathV1::root_body(2).node();
     let carrier = binding(owner_id, 0);
@@ -321,13 +321,13 @@ fn body_only_rebind_is_explicit_outside_with_source_evidence() {
     let disposition = projection
         .project_disposition(loop_site.clone())
         .expect("complete body-only row is an explicit outside disposition");
-    let CallableLoopBindingProjectionDispositionV1::Outside(reason) = disposition else {
-        panic!("body-only rebind must not become Ready")
+    let CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(product) = disposition else {
+        panic!("body-only rebind must move with the Ready remainder")
     };
-    assert_eq!(reason.loop_site(), &loop_site);
-    assert_eq!(reason.owner(), owner_id);
-    assert_eq!(reason.rows().len(), 1);
-    let row = &reason.rows()[0];
+    assert_eq!(product.loop_site(), &loop_site);
+    assert_eq!(product.owner(), owner_id);
+    assert_eq!(product.body_only_rows().len(), 1);
+    let row = &product.body_only_rows()[0];
     assert_eq!(row.binding(), outside);
     assert_eq!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind);
     assert_eq!(row.receipts().len(), 2);
@@ -339,10 +339,7 @@ fn body_only_rebind_is_explicit_outside_with_source_evidence() {
     assert!(row.receipts().iter().any(|receipt| {
         receipt.site() == &outside_rebind && receipt.role() == CallableLoopBindingRoleV1::BodyRebind
     }));
-    let terminal = reason.into_terminal_error();
-    assert!(terminal.contains("callable-loop-handoff/outside-first-cohort"));
-    assert!(terminal.contains("rows=1"));
-    assert!(terminal.contains("receipts=2"));
+    assert_eq!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind);
 }
 
 #[test]
@@ -404,7 +401,7 @@ fn production_skip_while_keeps_one_carrier_and_variable_operand_rows() {
 }
 
 #[test]
-fn production_esc_json_uses_explicit_outside_for_body_only_rebinds() {
+fn production_esc_json_keeps_body_only_rebinds_in_one_source_product() {
     let function = parsed_method(
         include_str!("../../../lang/src/compiler/parser/scan/parser_common_utils_box.hako"),
         "ParserCommonUtilsBox",
@@ -441,21 +438,28 @@ fn production_esc_json_uses_explicit_outside_for_body_only_rebinds() {
         .loop_binding_source_projection()
         .project_disposition(SourcePathV1::root_body(3).node())
         .expect("esc_json loop source projection");
-    let CallableLoopBindingProjectionDispositionV1::Outside(reason) = disposition else {
-        panic!("esc_json body-only rebinds must be Outside")
+    let CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(product) = disposition else {
+        panic!("esc_json body-only rebinds must move with Ready")
     };
-    assert_eq!(reason.rows().len(), 2);
-    assert!(reason
-        .rows()
+    assert_eq!(product.body_only_rows().len(), 2);
+    assert!(product
+        .body_only_rows()
         .iter()
         .all(|row| { matches!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind) }));
-    assert!(reason.rows().iter().flat_map(|row| row.receipts()).count() >= 4);
-    assert!(reason.rows().iter().all(|row| {
+    assert!(
+        product
+            .body_only_rows()
+            .iter()
+            .flat_map(|row| row.receipts())
+            .count()
+            >= 4
+    );
+    assert!(product.body_only_rows().iter().all(|row| {
         row.receipts()
             .iter()
             .all(|receipt| receipt.binding() == row.binding())
     }));
-    assert!(reason.rows().iter().all(|row| {
+    assert!(product.body_only_rows().iter().all(|row| {
         row.receipts()
             .iter()
             .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRead)
