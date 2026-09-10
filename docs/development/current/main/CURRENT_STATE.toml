@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0"
-current_execution_cohort = "mirbuilder_physical_c_invocation_index_reuse_d0"
+current_execution_row = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
+current_execution_cohort = "mirbuilder_untyped_object_storage_d0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "C invocation-index reuse D0: select one existing production physical caller and one measured hot owner, capture separate V2/V4 scan timings and counts, then design invocation-local sharing of validated definition/block/value facts. Preserve every trust-boundary check; no global cache, concurrency claim, or unmeasured speedup."
+current_blocker_token = "Untyped object storage D0: preserve source-issued init_fields membership, then choose an existing source annotation/migration authority or explicitly stop at a dynamic/opaque tagged ABI design. MIR observation, constant-caller heuristics, receiver names, and C defaults cannot issue storage meaning."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -39,12 +39,13 @@ parse/verify/object emission; the sole V4 llc edge and private subprocess
 plumbing are retired at 720849812b. Pair/Bool, ordinary-child New/Birth/Map,
 NativeArray, Map physical, parser negatives, PATH-without-llc, and trace
 evidence passed. The quick runtime archive is the recorded Map witness; the
-release archive's unrelated main collision remains baseline debt. The next
-bounded row is the design-only C invocation-index reuse measurement. Whole
-MirBuilder, R7, general LLVM graduation, parallel sessions, and memory-only
-transport remain unproven.
+release archive's unrelated main collision remains baseline debt. Physical
+V2/V4 index fusion is parked at D1 because the trust owners remain separate
+and no measured delete-set exists. The next bounded row is the design-only
+untyped object-storage authority decision. Whole MirBuilder, R7, general LLVM
+graduation, parallel sessions, and memory-only transport remain unproven.
 """
-next_design_card = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0"
+next_design_card = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
 next_execution_card = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
