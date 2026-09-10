@@ -13,7 +13,7 @@ use crate::mir::resolved_semantics::{
     DeclaredInstanceCallRelationIssuerV1, DeclaredInstanceCallSourceRefV1,
     DeclaredInstanceMethodModeV1, DeclaredInstanceMethodSourceRefV1,
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1,
+    ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
     ResolvedBlockExpressionExpectationIssueV1, ResolvedLexicalRefV1,
     ResolvedMethodCallReceiverSourceV1, SelectedCallableResolverDeferredBatchV1,
@@ -105,6 +105,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_policy_v1(
         brand_catalog,
         direct_call_policy,
         None,
+        false,
     )
 }
 
@@ -123,6 +124,25 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_main_freestatic_target
         brand_catalog,
         DirectCallObservationBatchPolicyV1::ObserveForCatalogedValidation,
         Some(app_main_identity),
+        true,
+    )
+}
+
+/// Source-bound package entry for selected FreeStatic roots when a source has
+/// no App Main declaration. The resolver still issues one shared index; the
+/// generic observer-only public batch remains unchanged.
+pub(crate) fn issue_resolved_callable_semantic_batch_with_freestatic_targets_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: VerifiedFinalCallableProgramSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
+    issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
+        resolver,
+        source,
+        brand_catalog,
+        DirectCallObservationBatchPolicyV1::ObserveForCatalogedValidation,
+        None,
+        true,
     )
 }
 
@@ -132,6 +152,7 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
     direct_call_policy: DirectCallObservationBatchPolicyV1,
     app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
+    issue_freestatic_targets: bool,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
     let (rows, callable_index, declared_instance_call_source, declared_instance_call_effect_source) = source
         .with_callable_semantic_syntax(|loan| {
@@ -198,12 +219,33 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                     )
                     .map_err(ResolvedCallableSemanticBatchIssueV1::Resolver)?
                 {
-                    ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1::Complete {
+                    ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1::Complete {
                         forests,
                         body_shapes,
                         callable_index,
                     } => (forests, body_shapes, callable_index),
-                    ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1::Deferred(
+                    ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1::Deferred(
+                        deferred,
+                    ) => {
+                        return Err(ResolvedCallableSemanticBatchIssueV1::ResolverDeferred(
+                            deferred,
+                        ))
+                    }
+                }
+            } else if issue_freestatic_targets {
+                match resolver
+                    .resolve_source_bound_selected_callable_forests_with_freestatic_targets(
+                        &resolver_inputs,
+                        brand_catalog,
+                    )
+                    .map_err(ResolvedCallableSemanticBatchIssueV1::Resolver)?
+                {
+                    ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1::Complete {
+                        forests,
+                        body_shapes,
+                        callable_index,
+                    } => (forests, body_shapes, callable_index),
+                    ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1::Deferred(
                         deferred,
                     ) => {
                         return Err(ResolvedCallableSemanticBatchIssueV1::ResolverDeferred(
@@ -420,8 +462,8 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
         })
         .map_err(|error| ResolvedCallableSemanticBatchIssueV1::ParserSyntax { _error: error })??;
 
-    let main_callable_index = match (app_main_identity, callable_index) {
-        (Some(identity), Some(index)) => {
+    let main_callable_slot = match (app_main_identity, callable_index.as_ref()) {
+        (Some(identity), Some(_)) => {
             let mut matching = rows.iter().filter(|row| row.identity.same_as(identity));
             let Some(main) = matching.next() else {
                 return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
@@ -431,22 +473,23 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
             {
                 return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
             }
-            Some((main.batch_slot, index))
+            Some(main.batch_slot)
         }
-        (None, None) => None,
+        (None, _) => None,
         // A specialized App Main batch with no exact-i64 free-static headers
         // simply has no index to lend; direct observations still fail closed
         // at the package gate. The generic batch must never gain one.
         (Some(_), None) => None,
-        (None, Some(_)) => {
-            return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
-        }
     };
+    if !issue_freestatic_targets && app_main_identity.is_none() && callable_index.is_some() {
+        return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
+    }
 
     Ok(VerifiedResolvedCallableSemanticBatchV1 {
         source,
         rows,
-        main_callable_index,
+        callable_index,
+        main_callable_slot,
         declared_instance_call_source,
         declared_instance_call_effect_source,
     })

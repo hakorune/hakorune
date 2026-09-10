@@ -1,6 +1,6 @@
-//! App Main-only callable-index co-issue.
+//! Source-unit FreeStatic callable-index co-issue.
 //!
-//! This is kept outside the general owner-forest owner so the Main-specific
+//! This is kept outside the general owner-forest owner so the bounded
 //! source/target relation does not inflate the common resolver module or leak
 //! a batch-wide index into unrelated lowering inputs.
 
@@ -34,17 +34,52 @@ fn classify_app_main_free_static_header_v1(
 }
 
 impl FunctionSemanticResolverSessionV1 {
-    /// Co-issue the exact App Main root direct-call targets from this same
-    /// source traversal and resolver session. Non-Main roots remain
-    /// observer-only; children of the Main root are explicitly unindexed so a
-    /// root index cannot cross a lambda boundary.
+    /// Co-issue exact FreeStatic root targets from this same source traversal
+    /// and resolver session. The optional App Main identity keeps the older
+    /// direct-call loan policy; all eligible roots share this one index, while
+    /// children remain explicitly unindexed.
     pub(crate) fn resolve_source_bound_selected_callable_forests_with_main_freestatic_targets(
         &mut self,
         inputs: &[SelectedCallableResolverInputV1<'_>],
         brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
         app_main_identity: &crate::parser::CallableDeclarationIdentityV1,
     ) -> Result<
-        ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1,
+        ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1,
+        SourceBoundSelectedCallableResolverRejectV1,
+    > {
+        self.resolve_source_bound_selected_callable_forests_with_freestatic_targets_and_app_main(
+            inputs,
+            brand_catalog,
+            Some(app_main_identity),
+        )
+    }
+
+    /// Co-issue the same source-unit FreeStatic index for selected roots when
+    /// no App Main root exists. Generic observer-only batch callers stay on
+    /// their existing resolver entry; this method is the explicit package
+    /// handoff for the bounded CallableSingleLoop cohort.
+    pub(crate) fn resolve_source_bound_selected_callable_forests_with_freestatic_targets(
+        &mut self,
+        inputs: &[SelectedCallableResolverInputV1<'_>],
+        brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    ) -> Result<
+        ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1,
+        SourceBoundSelectedCallableResolverRejectV1,
+    > {
+        self.resolve_source_bound_selected_callable_forests_with_freestatic_targets_and_app_main(
+            inputs,
+            brand_catalog,
+            None,
+        )
+    }
+
+    fn resolve_source_bound_selected_callable_forests_with_freestatic_targets_and_app_main(
+        &mut self,
+        inputs: &[SelectedCallableResolverInputV1<'_>],
+        brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+        app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
+    ) -> Result<
+        ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1,
         SourceBoundSelectedCallableResolverRejectV1,
     > {
         let mut trees = Vec::with_capacity(inputs.len());
@@ -76,7 +111,7 @@ impl FunctionSemanticResolverSessionV1 {
         }
         if let Some(first) = first_deferred {
             return Ok(
-                ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1::Deferred(
+                ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1::Deferred(
                     SelectedCallableResolverDeferredBatchV1::from_non_empty_parts(
                         first,
                         deferred_rest.into_boxed_slice(),
@@ -130,14 +165,9 @@ impl FunctionSemanticResolverSessionV1 {
                     Self::reject_app_main(
                         inputs
                             .first()
-                            .map(|input| input.source().clone())
-                            .unwrap_or_else(|| {
-                                SelectedCallableResolverSourceIdentityV1::Callable {
-                                    identity: app_main_identity.clone(),
-                                    diagnostic_owner: None,
-                                    diagnostic_name: "Main".into(),
-                                }
-                            }),
+                            .expect("a non-empty callable index has a source input")
+                            .source()
+                            .clone(),
                         AppMainFreeStaticResolverIssueV1::IndexSeal,
                     )
                 })?,
@@ -147,10 +177,13 @@ impl FunctionSemanticResolverSessionV1 {
         let mut forests = Vec::with_capacity(reserved.len());
         let mut body_shapes = BTreeMap::new();
         for (input, tree, origin, owner) in reserved {
-            let is_app_main = input
-                .source()
-                .callable_identity()
-                .is_some_and(|identity| identity.same_as(app_main_identity));
+            let is_app_main = app_main_identity.is_some_and(|identity| {
+                input
+                    .source()
+                    .callable_identity()
+                    .is_some_and(|candidate| candidate.same_as(identity))
+            });
+            let is_free_static_root = input.is_free_static_index_candidate();
             if is_app_main {
                 if let Some(issue) =
                     app_main_direct_call_policy_issue(&tree, callable_index.as_ref())
@@ -158,14 +191,17 @@ impl FunctionSemanticResolverSessionV1 {
                     return Err(Self::reject_app_main(input.source().clone(), issue));
                 }
             }
-            let policy = if is_app_main && callable_index.is_some() {
+            let wants_root_index = is_app_main || is_free_static_root;
+            let policy = if wants_root_index && callable_index.is_some() {
                 DirectCallCanonicalizationPolicyV1::RequireCallableIndexAtRoot
-            } else if is_app_main {
+            } else if wants_root_index {
                 DirectCallCanonicalizationPolicyV1::RejectUnindexed
             } else {
                 DirectCallCanonicalizationPolicyV1::ObserveOnly
             };
-            let root_callable_index = is_app_main.then_some(callable_index.as_ref()).flatten();
+            let root_callable_index = wants_root_index
+                .then_some(callable_index.as_ref())
+                .flatten();
             let mut draft = SemanticOwnerForestDraftV1::new();
             if let Err(error) = self.seal_owner_tree(
                 tree,
@@ -191,7 +227,7 @@ impl FunctionSemanticResolverSessionV1 {
             forests.push(forest);
         }
         Ok(
-            ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1::Complete {
+            ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1::Complete {
                 forests: forests.into_boxed_slice(),
                 body_shapes,
                 callable_index,

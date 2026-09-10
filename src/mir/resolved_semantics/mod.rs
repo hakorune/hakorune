@@ -235,7 +235,7 @@ pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
 pub(crate) use owner_resolver::{
     ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1,
     ResolveSelectedCallableForestsOutcomeV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
-    ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1,
+    ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
     SourceBoundSelectedCallableResolverRejectV1,
 };

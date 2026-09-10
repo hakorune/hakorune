@@ -13,8 +13,8 @@ use crate::mir::callable_parameter_contract::{
     issue_callable_parameter_contract_v1, CallableParameterContractIssueV1,
 };
 use crate::mir::callable_semantic_batch::{
+    issue_resolved_callable_semantic_batch_with_freestatic_targets_v1,
     issue_resolved_callable_semantic_batch_with_main_freestatic_targets_v1,
-    issue_resolved_callable_semantic_batch_with_policy_v1, DirectCallObservationBatchPolicyV1,
     ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchIssueV1,
     ResolvedCallableSemanticBatchLoanErrorV1, VerifiedResolvedCallableSemanticBatchV1,
 };
@@ -499,11 +499,10 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
                         identity,
                     )
                 }
-                None => issue_resolved_callable_semantic_batch_with_policy_v1(
+                None => issue_resolved_callable_semantic_batch_with_freestatic_targets_v1(
                     resolver,
                     source,
                     brand_catalog,
-                    DirectCallObservationBatchPolicyV1::ObserveForCatalogedValidation,
                 ),
             }?;
             Ok((batch, root_execution))

@@ -126,6 +126,7 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
         callable_index: &'a VerifiedCallableIndexV1,
     ) -> Result<Self, CanonicalLoweringErrorV1> {
         let mut input = Self::from_exact_parts_without_callable(syntax_root, forest, projection)?;
+        input.callable_header = callable_index.header_for_owner(input.owner);
         input.callable_index = Some(callable_index);
         Ok(input)
     }

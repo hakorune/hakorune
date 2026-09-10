@@ -260,6 +260,16 @@ impl VerifiedCallableIndexV1 {
             .ok_or(CallableLookupErrorV1::MissingCallableIdentity)
     }
 
+    /// Borrow the header issued for one exact resolver owner. This is a
+    /// convenience over the existing callable index; it does not create a
+    /// second key or infer a target from a name.
+    pub(crate) fn header_for_owner(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Option<&VerifiedCallableHeaderV1> {
+        self.header_for_callable(ResolvedCallableRefV1::new(owner)).ok()
+    }
+
     pub(crate) fn header_for_symbol(
         &self,
         symbol: &CanonicalCallableSymbolV1,

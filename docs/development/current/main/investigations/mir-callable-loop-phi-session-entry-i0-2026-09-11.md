@@ -131,6 +131,19 @@ through its existing cleanup path; no partially published PHI or CFG may
 escape. Nested callable functions open an independent session and never borrow
 the parent's.
 
+## Source-index handoff implementation receipt (2026-09-11)
+
+The selected source-unit batch now reuses the existing
+`FunctionSemanticResolverSessionV1` callable index as its sole issuer. Exact
+top-level and static roots receive the shared index and an owner-matched
+`VerifiedCallableHeaderV1` through `ResolvedFunctionLoweringInputV1`; nested
+owners stay unindexed. The observer-only batch entry remains unchanged, and
+the index is not copied into each row. The focused positive
+`freestatic_target_batch_lends_one_owner_matched_index_and_header` proves that
+both source owners receive only their own header from the same resolver-issued
+index. This receipt does not claim Method-prefix admission, the real package
+production fixture, PHI emission, module publication, or OBJ/EXE execution.
+
 ## Implementation order
 
 1. **Accepted design (2026-09-11):** reuse the existing
@@ -148,9 +161,11 @@ the parent's.
    a second semantic receipt.
 2. Keep the landed semantic demand and route selection unchanged. Do not
    reopen source Facts/Recipe issuance or add a plan adapter.
-3. Add the bounded resolver-index/header handoff and exact owner/header
-   lookup without duplicating the index per row. Keep observer-only callers
-   and nested owner policy unchanged.
+3. [implemented locally; focused test green 2026-09-11] Add the bounded
+   resolver-index/header handoff and exact owner/header lookup without
+   duplicating the index per row. Keep observer-only callers and nested owner
+   policy unchanged. The implementation remains uncommitted until the
+   natural code boundary is reviewed.
 4. Mark Method-prefix CallableSingleLoop shapes outside and select a valid
    non-AppMain FreeStatic caller; the Method target path remains a later
    declared-instance row.

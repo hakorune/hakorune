@@ -41,12 +41,13 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
 pub(crate) struct VerifiedResolvedCallableSemanticBatchV1 {
     pub(super) source: VerifiedFinalCallableProgramSourceV1,
     pub(super) rows: Box<[VerifiedResolvedCallableSemanticRowV1]>,
-    /// The source-unit callable index is scoped to the exact App Main batch
-    /// slot that requested it.  Other lowering inputs must remain
-    /// index-free; sharing this index across the batch would make a root
-    /// relation look valid inside unrelated owners.
-    pub(super) main_callable_index:
-        Option<(u32, crate::mir::resolved_semantics::VerifiedCallableIndexV1)>,
+    /// One resolver-issued source-unit index may be lent to eligible selected
+    /// roots. The optional slot preserves the existing App Main direct-call
+    /// loan without copying the index into a second field. Nested owners never
+    /// receive this product.
+    pub(super) callable_index:
+        Option<crate::mir::resolved_semantics::VerifiedCallableIndexV1>,
+    pub(super) main_callable_slot: Option<u32>,
     /// Resolver-owned source relation for exact root `me.method(...)` calls.
     /// This is facts-only; target, receiver ValueId, effects, and ABI remain
     /// downstream responsibilities.
@@ -151,9 +152,8 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         u32,
         &crate::mir::resolved_semantics::VerifiedCallableIndexV1,
     )> {
-        self.main_callable_index
-            .as_ref()
-            .map(|(slot, index)| (*slot, index))
+        self.main_callable_slot
+            .zip(self.callable_index.as_ref())
     }
 
     pub(crate) fn declarations(
@@ -220,12 +220,14 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                     .get(index)
                     .filter(|row| row.batch_slot() == batch_slot)
                     .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::SourceCoverage)?;
-                let input = match self
-                    .main_callable_index
+                let callable_index = self
+                    .callable_index
                     .as_ref()
-                    .filter(|(main_slot, _)| *main_slot == batch_slot)
-                    .map(|(_, index)| index)
-                {
+                    .filter(|index| {
+                        self.main_callable_slot == Some(batch_slot)
+                            || index.header_for_owner(semantic.owner).is_some()
+                    });
+                let input = match callable_index {
                     Some(index) => {
                         ResolvedFunctionLoweringInputV1::from_exact_parts_with_callable_index(
                             syntax.declaration(),

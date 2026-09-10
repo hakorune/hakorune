@@ -73,12 +73,11 @@ pub(crate) enum ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1
 }
 
 /// Source-bound owner forests plus the callable index issued by the same
-/// resolver session.  The index is deliberately optional: only an exact
-/// source-backed root (currently App Main) may request it.  This keeps the
-/// generic selected-callable path observer-only while giving the bounded I0
-/// one co-issued target authority.
+/// resolver session. The index is deliberately optional: only exact
+/// source-backed FreeStatic roots (and the existing App Main loan) may request
+/// it. Nested owners never inherit the root-scoped index.
 #[derive(Debug)]
-pub(crate) enum ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1 {
+pub(crate) enum ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1 {
     Complete {
         forests: Box<[VerifiedSemanticOwnerForestV1]>,
         body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
