@@ -52,6 +52,29 @@ These rows came from the external edge review and are kept separate from the
 closed emit-clone slice. They are queued for a later read-only revalidation;
 none changes the current pointer or authorizes a production switch.
 
+The older review remains materially relevant at the current branch: the
+invocation owner now requires four arguments while the three named C drivers
+still show the old three-argument call; the generic-export test still proves a
+reject/reachability boundary rather than a callee-backed `rc == 0` success;
+and the LocalSSA split guard still reads the post-split surface incompletely
+(`mirbuilder_copy_unknown_authority_guard.py` currently fails its source-entry
+count). These are evidence for the rows below, not reasons to weaken their
+acceptance. The test-only Dynamic Loop-PHI residue belongs to the finite R7
+census row and is not a separate production task.
+
+Order for the next edge-health window is fixed as:
+
+```text
+driver arity compile repair
+  -> path-aware LocalSSA guard repair
+  -> callee-backed generic-export positive proof (or explicit reclassification)
+  -> R7 writer/reader/env/boxcall and test-only Loop-PHI census reconciliation
+```
+
+The current selected lazy-debug row remains independent of this queue. None of
+these edge rows may be marked closed from a static reject, a reachability-only
+fixture, or a stale guard registration.
+
 The older `MIR-EMIT-MOVE-COMMIT-R0` queue label is satisfied by the selected
 `MIR-BUILDER-EMIT-CLONE-SHAPE-P0` slice, closed at `9808923785`; do not open a
 second move/clone row.
@@ -494,6 +517,39 @@ debug ON resolve.try / resolve.choose output parity = exact
 method resolution and target selection are unchanged
 no observer result becomes semantic authority
 ```
+
+### D0 decision — accepted 2026-09-10
+
+Keep `src/debug/hub.rs` as the sole gate and JSONL writer. The existing
+`unified_emitter` resolve observations issue only debug payloads; they do not
+own target selection or semantic resolution. `observe::resolve` remains a
+thin relay. The smallest implementation is a private synchronous `FnOnce`
+callback at the Hub boundary, so the callback runs only after the existing
+master/category/sample/sink checks pass.
+
+```text
+unified_emitter resolve.try/choose
+  -> observe::resolve relay
+  -> debug::hub gate
+  -> callback builds candidates/function/region/JSON and writes once
+```
+
+The `resolve.choose` KPI keeps its existing `TypeCertainty` meaning through a
+private direct helper; it must not parse the emitted JSON back to recover
+meaning. Debug OFF, category exclusion, sample exclusion, and missing sink
+must execute no candidate lookup, JSON construction, region/function lookup,
+or timestamp creation. The existing `NYASH_DEBUG_*` vocabulary, sampling
+counter, output fields/order, non-resolve callers, and session snapshot I0 are
+outside this row.
+
+Census boundary: `unified_emitter.rs` resolve.try/choose ->
+`observe::resolve.rs` -> `debug/hub.rs` gate/writer; includes only resolve
+payload construction and excludes semantic target resolution, Builder config
+snapshot, emit/SSA/backend callers, and all other debug categories.
+
+The bounded implementation `MIR-DEBUG-PAYLOAD-LAZY-P0` may now proceed. Its
+exclusive delete-set is the eager resolve candidate/JSON/function/region work
+and KPI JSON reread; no Hub contract or non-resolve caller is deleted.
 
 ## `MIR-POSTPROCESS-WALK-CENSUS-D0`
 
