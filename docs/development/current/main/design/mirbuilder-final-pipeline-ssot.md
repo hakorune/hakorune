@@ -492,6 +492,41 @@ The in-process LLVM C-API cutover is already structurally closed at
 child. Its speed delta is intentionally unmeasured here; no performance claim
 or new optimization row follows from that structural result.
 
+##### Adjacent-ingress review reconciliation (2026-09-10)
+
+The follow-up review confirms that the three rows above remain separate
+bounded tasks; none is a reason to reopen the source authority or physical
+receiver design.
+
+* The direct MIR loader's v1 error-to-v0 retry is retired, but the artifact
+  loader still has the older raw `text.contains("\"schema_version\"")`
+  selector. An escaped JSON key can therefore bypass that selector. The
+  artifact row stays open until the existing parsed top-level object decides
+  absent, supported, or unsupported schema status before v0 parsing. No second
+  parser or compatibility retry is allowed.
+* The receiver-identity C negative is not yet isolated evidence: its method
+  fault edge currently reaches `return_fault` without the valid receiver
+  cleanup graph, so lifecycle rejection can happen before the object mismatch
+  check. The coverage row must first make the normal and fault paths valid,
+  then mutate only the callee `receiver_object` and assert the named V4
+  mismatch. A generic nonzero result is not acceptance.
+* The physical-program `module` borrow/getter remains conditional cleanup.
+  A caller census must include the existing layout/reference path before any
+  deletion. If that path can consume the already-issued rows instead, remove
+  the getter in the same refactor; otherwise keep the borrow and record the
+  remaining owner. This row does not authorize a new projection or a module
+  lookup through JSON.
+
+The selected execution frontier remains
+`MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0` in design_stop. Its next bounded
+implementation must pair the moved source Recipe relation with a short-lived
+borrow of the existing callable ledger inside one callback. The structural
+`LoopPlanExpressionPortV1` navigation remains the port; `&self` observation is
+not a one-shot guarantee. One-shot consumption is the move into the callback,
+which must reject missing/foreign sites before the existing composer or
+lowerer mutates the builder. No production caller, legacy-route deletion,
+artifact cutover, or performance claim is opened by this reconciliation.
+
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 
 Decision: pin the existing selected Dynamic LLVM Boundary exporter to the
