@@ -50,8 +50,14 @@ selected non-AppMain child has no attached `VerifiedCallableIndexV1` or
 stops at the named `[freeze:contract][callable-loop/missing-index]` boundary.
 The existing `ResolvedCallablePhysicalSignatureLoanV1` and package physical
 header are projections and cannot substitute for the resolver index/header.
-This is evidence that the session bridge is structurally landed, not evidence
-that the selected production edge is executable.
+The same boundary also matters for a prefix free-static call: the source map
+can carry a target only when the selected input's resolver ledger owns an
+exact `ResolvedDirectCallTargetV1`; the observer-only child batch does not
+issue that target, while `VerifiedResolvedCallableModuleV1::function_input()`
+does so only on a separate module product. The target must not be rebuilt from
+the source name, physical signature, or catalog key. This is evidence that
+the session bridge is structurally landed, not evidence that the selected
+production edge is executable.
 
 `CanonicalSsaFunctionSessionV2` remains a physical SSA/CFG helper inside the
 single function session; it is not a second source authority. The legacy
@@ -121,15 +127,20 @@ the parent's.
 ## Implementation order
 
 1. **Design stop (open):** choose an existing source owner that can lend the
-   exact resolver-issued index/header pair to the selected non-AppMain child.
-   The resolver-owned `VerifiedCallableIndexV1`/`VerifiedCallableHeaderV1`
-   and `VerifiedResolvedCallableModuleV1::function_input()` are the only
-   candidate authorities found so far. Preserve the current observer-only
+   exact resolver-issued index/header pair, plus the exact direct-call target
+   relation when the selected prefix is a free-static call, to the selected
+   non-AppMain child. The resolver-owned
+   `VerifiedCallableIndexV1`/`VerifiedCallableHeaderV1` and
+   `VerifiedResolvedCallableModuleV1::function_input()` are the only
+   complete candidate authorities found so far, but the latter belongs to a
+   separate module product and cannot be mixed with the package's observer
+   forest. Preserve the current observer-only
    `from_exact_parts_without_callable` contract for roots/generic callers;
-   do not repair by name, rebuild a header from a physical signature, attach
-   the main-only index to unrelated children, or add a second semantic
-   receipt. Close this item with an owner, caller, pre-effect reject, and
-   exact positive/negative acceptance before resuming code.
+   do not repair by name, rebuild a header or target from a physical
+   signature/catalog key, attach the main-only index to unrelated children, or
+   add a second semantic receipt. Close this item with an owner, caller,
+   pre-effect reject, and exact positive/negative acceptance before resuming
+   code.
 2. Keep the landed semantic demand and route selection unchanged. Do not
    reopen source Facts/Recipe issuance or add a plan adapter.
 3. Inventory the existing function-session opener, DraftSeal prepare/commit,
@@ -268,3 +279,19 @@ existing owner can supply that pair for the child, the row remains
 The failed probe is retained as design evidence only; its uncommitted test
 fixture was removed and no production-success claim is made. The PHI
 value-flow SSOT remains valid and unchanged.
+
+### Direct-call target scope (same design stop)
+
+The selected CallableSingleLoop source map reads a prefix target from
+`ResolvedFunctionLoweringInputV1::function().direct_call_targets()`. The
+specialized package resolver intentionally gives only the App Main row a
+callable index and leaves other selected rows observer-only; an unissued
+observation is rejected by the package gate rather than repaired. The complete
+`VerifiedResolvedCallableModuleV1` path resolves every top-level module
+function with the same catalog index, but it is not retained by the selected
+package and its forest/owner products are not interchangeable with the package
+batch. Therefore the D0 must decide whether an already-existing resolver/module
+owner can lend the selected child an exact index/header/target set in one
+scoped handoff. If not, record `NoSafeSlice` and explicitly redesign the
+resolver policy before any production switch. No source-name lookup, physical
+signature substitute, or optional target default is allowed.
