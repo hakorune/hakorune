@@ -157,19 +157,23 @@ public_contract_owners > 0:
 
 ### Caller-first vertical admission gate
 
-Before adding another precursor row, classify the intended production
-vertical as exactly one finite tuple:
+Before adding another precursor row, classify the intended semantic Promote
+vertical as one responsibility with the tuple below. Stop/Delete instead use
+the [action-specific entry contract](current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions).
+A finite caller set may share one owner; it is not competing authority.
 
 ```text
 exact semantic family
-named live non-test caller
+finite named set of live non-test callers
 canonical source issuer and selected new owner
 lossless selected result/effect/ABI/backend path
 finite old-edge delete set
 ```
 
-`lossless selected path` means the selected backend can consume the canonical
+`lossless selected path` means a settled contract for consuming the canonical
 product without name/registry repair, fallback, or semantic reconstruction.
+Implementing/connecting that named consumer and proving execution are series
+outputs; do not require the replacement to be implemented before starting.
 `RejectBeforeEffect` proves only a retirement row, not a successful vertical.
 
 ```text
@@ -182,9 +186,10 @@ zero complete tuples or multiple competing tuples:
   add no D0/receipt/adapter/fixture-only route/per-row guard
 ```
 
-Reopen a parked vertical only when an observable tuple field changes: a live
-caller, one owner, a lossless selected path, or a finite delete set. Prose,
-candidate types, and local-green fixtures are not reopen triggers.
+Reopen a parked vertical when code evidence or an accepted owner decision
+settles a missing tuple field. Caller-zero is a retirement output, not a
+prerequisite for designing its migration. Restated prose, candidate types and
+local-green fixtures alone are not reopen evidence.
 
 Intermediate assets have no progress credit. If the series cannot reach its
 switch/delete terminal, revert or stash detached S0 assets and park it.

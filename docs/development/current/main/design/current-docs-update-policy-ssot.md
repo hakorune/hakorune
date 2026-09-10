@@ -79,13 +79,38 @@ not classifiers. A worker review, local test, or legacy parity result is
 evidence for the mode decision, not permission to cross it. This prevents a
 small green probe from silently becoming a production claim.
 
-Separate implementation-entry prerequisites from closeout evidence. Existing
-authority, a named consumer, a bounded delete-set, and a settled failure contract
-can authorize an implementation row; the new implementation and its after-change
-parity tests are that row's outputs, not prerequisites for starting it. A missing
-internal implementation is not an external dependency. If parking would require
-the parked row's own outputs to reopen it, correct the premise in the existing
-card before repeating the census or reporting an external wait.
+### Implementation entry and retirement conditions
+
+One responsibility has one authority/owner and a finite set of named real
+callers. Several callers may share that owner and contract; neither caller
+count nor a shared file implies competing authority. Inventory the affected
+callers and keep their input, failure and ownership contracts explicit.
+
+| Action | Required before implementation | Required before closeout/deletion |
+| --- | --- | --- |
+| Promote | source authority/issuer, settled result/effect/ABI mapping, named consumer to implement or connect, affected callers, rejection boundary, planned old-edge deletion and acceptance | production switch, positive/negative evidence, selected old-edge retirement |
+| Stop | existing boundary owner and callers, justified reject/isolation contract, planned retry/dispatch deletion and acceptance | rejection before effect/artifact, no retry, selected old edge removed; no new source issuer or backend parity required |
+| Delete | selected old asset has zero callers, or callers are switched/stopped earlier in this same bounded series | zero callers at physical removal; shared assets remain until their other callers are resolved |
+
+The new implementation, its after-change tests, and resulting caller-zero are
+outputs of migration, not prerequisites for beginning it. A planned delete-set
+names the exact old responsibility/edge; it need not cover the entire shared
+file or schema. Do not delete supported callers merely to manufacture zero.
+Keep selected old-edge retirement in the same bounded series.
+
+`design_stop` pauses code/fixture/production changes while the missing design
+is resolved. Name the specific uncertainty and close it in the existing owner
+card, using one independent worker for difficult design. Missing internal
+implementation is not an external dependency. If a parked row requires its
+own outputs to reopen, correct that premise rather than repeat its census.
+External wait requires a concrete dependency outside the authorized work.
+
+Once the design is accepted, select the bounded implementation in
+`CURRENT_STATE.toml` when implementation is within the user's requested scope;
+do not request the same approval again. Honor an explicit design-only stop.
+Goal status follows the session's goal-tool contract: design_stop alone proves
+neither completion nor blocked status; the full objective and repeated-blocker
+conditions still apply.
 
 ### Source-backed semantic receipt gate
 
@@ -127,9 +152,9 @@ The mode check is intentionally finite and must happen before editing:
 ```text
 work_mode = "design_stop"?
   -> Design stop
-source -> Facts -> Recipe -> failure boundary is one sentence?
-  no -> Design stop
-  yes -> choose exactly one: BoxCount or BoxShape
+selected action's entry conditions above are closed?
+  no -> Design stop; resolve the named missing condition
+  yes -> Promote/Stop/Delete; use BoxCount/BoxShape for semantic growth/refactor
 ```
 
 `NoSafeSlice` means that the current design cannot yet issue a safe product;
@@ -685,10 +710,10 @@ The stronger repeated-negative rule lives in
 `NoSafeSlice` / `NoStandaloneRow` outcomes force one premise audit, not another
 consultation document or census. Keep that audit in the existing rolling card.
 
-If the active blocker is the explicit design-stop frontier, treat that as a
-pause point for goal-driven execution: do not invent a fresh executable owner
-from historical mirrors, and do not use docs-only follow-ups to keep the same
-goal moving without a new frontier result.
+At a design-stop frontier, apply the [entry and retirement conditions](#implementation-entry-and-retirement-conditions):
+resolve the named missing design; do not invent an owner from historical mirrors.
+Do not use docs-only follow-ups to keep the same goal moving without new evidence
+or an accepted decision that changes the next action.
 
 Implementation cards should include this acceptance line when applicable:
 

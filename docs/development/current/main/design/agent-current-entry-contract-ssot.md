@@ -84,14 +84,12 @@ they never select it. All restart mirrors and guards must follow this field.
 | Design stop | any mapping, selector, authority, failure owner, or canonical issuer is still being discovered | one compact design brief; no code, fixture, fallback, production switch, or guessed `Verified*`/`Prepared*` receipt | accepted Decision plus one bounded next slice |
 | Closeout | the selected slice has been edited and tested | classify evidence, update owning docs, commit/push or retain blocker | all Done items observable; otherwise the row remains active |
 
-The readiness sentence is:
-
-```text
-This input maps once to this Facts/Recipe, and fails at this boundary.
-```
-
-If that sentence is not true, the work is a design stop. A worker report,
-local green test, or compatibility fixture never changes the mode by itself.
+Apply the action-specific
+[entry and retirement conditions](current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions).
+For semantic changes, state the source -> Facts -> Recipe -> failure mapping.
+For Stop, name the existing boundary, callers and terminal rejection; no new
+semantic issuer is required. A worker report, local green test or compatibility
+fixture never changes the mode by itself.
 
 ### 90-second routing card
 
@@ -102,14 +100,13 @@ questions in order:
    `design_stop` forbids code, fixtures, fallback, and production switches;
    `fast` permits only the selected bounded slice; `closeout` permits evidence,
    owning-doc, commit, and pointer work.
-2. Can the source be stated as one deterministic
-   `source -> Facts -> Recipe -> fail-fast boundary` sentence? If no, stay in
-   **Design stop**. A worker may audit the premise, but a worker report is not
-   implementation permission.
-3. If the mapping is closed, is the change **BoxCount** (one new accepted
-   shape) or **BoxShape** (same behavior, cleaner ownership)? Choose exactly
-   one. A behavior-preserving refactor series may have a few commits, but it
-   may not add a shape or fixture.
+2. Are the selected action's entry conditions closed? For semantic work,
+   state `source -> Facts -> Recipe -> fail-fast boundary`; for Stop, state
+   the existing owner/callers -> terminal rejection. Otherwise resolve the
+   named missing condition in **Design stop**.
+3. Select Promote, Stop or Delete. Semantic growth is **BoxCount**; an
+   unchanged-behavior refactor is **BoxShape**. Do not label a rejection
+   correction behavior-preserving or mix it with unrelated source widening.
 
 Use this compact brief when stopping:
 
@@ -171,16 +168,18 @@ family; they never authorize widening that family or repeating its census.
 an existing outer compatibility owner can fail before effect/publication.
 
 Selection priority is `verification recovery > Delete > Stop > Promote >
-required 760-line split > T0`. A ready entry names one authority or explicit
-compatibility owner, one consumer or typed terminal, one real caller, one
-exclusive old-edge delete-set, and focused acceptance. Missing or multiple
-fields mean `Park`, not another D0, receipt, adapter, fixture, or guard.
+required 760-line split > T0`. A ready entry follows the action-specific
+entry contract above, with one responsibility owner and its finite affected
+caller set. Competing authorities or unsettled contracts require design;
+multiple callers sharing that owner do not. Do not fill missing facts with
+another receipt, adapter, fixture or guard.
 
 A closed census is evidence, never the active waiting row. At closeout the
 pointer must select a concrete executable action, select an unclassified-red
 incident, or record an explicit frontier pause with every known family sealed
-and no executable candidate. `next_execution_card = "none"` in that pause is
-a goal stop, not permission to search historical mirrors or rerun the census.
+and no executable candidate. `next_execution_card = "none"` authorizes no
+implementation; resolve a named design dependency without repeating census.
+Goal status follows the session contract, not that pointer value alone.
 Every `Promote`, `Stop`, or `Delete` row must reduce at least one production
 old edge in the same bounded series; row, docs, guard, receipt, and test counts
 are not progress metrics.
@@ -361,9 +360,10 @@ production vertical -> mirbuilder-inplace-replacement-policy-ssot.md
 tracked assets      -> repo-physical-structure-cleanup-ssot.md
 ```
 
-Exactly one complete production tuple opens a bounded series; zero/multiple
-keeps the whole vertical parked without another D0/receipt/guard. Before the
-next family, classify added assets and remeasure tracked files/lines. One
+One settled responsibility with its finite caller set opens a bounded series
+under the action-specific entry contract. Unsettled competing authorities
+keep implementation parked while their named design question is resolved.
+Before the next family, classify added assets and remeasure tracked files/lines. One
 family has one active card and guard owner; moves/archive copies earn zero
 reduction credit, closed detail belongs to Git, and required contract evidence
 is never deleted merely to satisfy a count.
@@ -405,7 +405,9 @@ Workers are a bounded review resource, not a second implementation stream.
 
 - For difficult design/authority work, start with one read-only premise worker
   that verifies the claimed owner, caller, selected boundary, and acceptance
-  evidence actually exist; mechanical T0 work needs no worker.
+  evidence actually exist; mechanical T0 work needs no worker. State the named
+  uncertainty before dispatch; reuse closed findings until changed evidence or
+  a concrete contradiction justifies reopening them.
 - Do not fan out before that result. Only a concrete contradiction or named
   independent uncertainty may open a second non-overlapping specialist audit
   within the two-worker limit. Ask about authority, non-authority, boundary,
@@ -752,14 +754,14 @@ example, CoreContext generator scalarization does not prove
 function-local allocation, reserved ValueId skipping, parameter reservation, and
 module-global fallback.
 
-If a user-scoped Codex goal explicitly says to stop at design consultation, the
-goal should be considered complete at this stop point after the brief is ready
-and the worktree is clean.
+Honor a user-requested design-only boundary after recording the accepted
+Decision and bounded next slice. This does not complete a broader implementation
+goal. Follow the session's goal-tool rules for completion or repeated blocking.
 
-The design brief is the only permission boundary. A worker's green probe,
-existing lowerer, or compatibility fixture cannot authorize implementation
-until the brief names the source authority, non-authority, fail-fast boundary,
-recommended slice, and non-claims.
+A worker's green probe, existing lowerer or compatibility fixture cannot
+replace an accepted design. Once the action-specific brief is settled and
+implementation is already authorized, update the current mode and proceed;
+do not turn internal prerequisite work into an external wait.
 
 ### Source-to-Recipe implementation gate
 

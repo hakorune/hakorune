@@ -23,9 +23,9 @@ acceptance, parked items, and non-claims belong in the active card and the
 workstream SSOT, not this pointer.
 
 When `work_mode = "design_stop"`, do not invent a new executable owner from historical mirrors.
-Do not keep the goal open until the frontier names a concrete next executable
-row; stop at the consultation boundary. When `current_execution_row` names an
-implementation row, follow only the `latest_card_path` contract.
+Resolve the named design dependency in the existing card; honor a requested
+consultation stop. Goal status follows the session contract, not work_mode.
+For implementation, follow only the selected `latest_card_path` contract.
 
 ## Handoff
 

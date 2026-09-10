@@ -1,10 +1,10 @@
-# Rows that define the explicit design-stop pause contract.
+# Required text for design-stop boundaries; goal status follows the session contract.
 # Format:
 #   work_mode=<mode>
 #   target_doc|required_pattern_prefix
 work_mode=design_stop
 CURRENT_TASK.md|invent a new executable owner from historical mirrors.
-CURRENT_TASK.md|keep the goal open until the frontier names a concrete next
-docs/development/current/main/05-Restart-Quick-Resume.md|goal-driven execution loop here and review the frontier card before
-docs/development/current/main/design/current-docs-update-policy-ssot.md|pause point for goal-driven execution: do not invent a fresh executable owner
-docs/development/current/main/design/current-docs-update-policy-ssot.md|do not use docs-only follow-ups to keep the same
+CURRENT_TASK.md|Goal status follows the session contract, not work_mode.
+docs/development/current/main/05-Restart-Quick-Resume.md|pause implementation and resolve the named design dependency
+docs/development/current/main/design/current-docs-update-policy-ssot.md|resolve the named missing design; do not invent an owner from historical mirrors.
+docs/development/current/main/design/current-docs-update-policy-ssot.md|Do not use docs-only follow-ups to keep the same

@@ -286,7 +286,7 @@ The sole current-state vocabulary is:
 | `Canonical` | exact source authority and mandatory typed target already exist | retain; mechanical schema adaptation only |
 | `CompatibilityOuterIngress` | an explicit legacy/wire/reference boundary still owns the shape | stop or quarantine outside the canonical product path |
 | `ExplicitUnsupported` | the selected profile intentionally cannot consume the shape losslessly | typed reject before effect/artifact; no fallback |
-| `ParkedSealed` | zero/multiple owner, consumer, caller, or delete-set | no new D0/receipt/adapter/fixture/guard; reopen only by the exact trigger |
+| `ParkedSealed` | missing contract or competing authorities; multiple callers alone are not a blocker | no new D0/receipt/adapter/fixture/guard; reopen only by the exact trigger |
 
 Historical `DeadDeleteCandidate` is not a fifth semantic disposition. A
 caller-zero private asset stays `ParkedSealed` until its deletion evidence is
@@ -336,14 +336,18 @@ JSON selected-C route. Zero-call physical admission is a separate concern.
 
 ### Exact reopen trigger
 
-No further broad census is permitted. One existing family may reopen only when
-all of the following are named at once:
+No further broad census is permitted. Apply the action-specific
+[entry/retirement contract](current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions).
+The following tuple is for semantic Promote. Stop instead uses an existing
+boundary owner, its callers and settled rejection/isolation contract; Delete
+requires caller-zero at physical removal, possibly after same-series cutover.
+For Promote, name all of the following:
 
 ```text
 exactly one existing source authority
 + exactly one canonical typed issuer before argument descent
 + exactly one lossless selected-product/publication consumer
-+ exactly one real production caller
++ one finite named set of real production callers sharing the owner/contract
 + one named fail-fast typed reject boundary
 + one finite family-exclusive old-edge delete set
 + every compatibility reissuer/reader outside the selected route enumerated
@@ -355,8 +359,10 @@ exactly one existing source authority
 
 Ordinary `FunctionCall` additionally requires one-traversal observer-only
 site/name/arity/argument facts and complete pre-install disposition. If the
-tuple is zero or multiple, the family remains `ParkedSealed`; do not create a
-new semantic `Verified*`/`Prepared*` product or a temporary fallback.
+mapping is missing or authorities compete, keep implementation parked and
+resolve that design in the existing owner. Multiple callers sharing the same
+mapping are allowed. Do not create a guessed semantic `Verified*`/`Prepared*`
+product or a temporary fallback.
 
 ### Executable task contracts
 
@@ -501,7 +507,7 @@ The initial stop inventory is:
 5. MIR/Program JSON ingress that still produces a product-reachable legacy
    carrier.
 
-Each cohort names one owner, terminal, caller, finite delete-set, and focused
+Each cohort names one owner, terminal, finite caller/deletion sets, and focused
 acceptance. Acceptance executes the selected owner-to-terminal boundary; an
 earlier terminal is dependency evidence, not acceptance, and never reopens a
 downstream deletion. Feature parity is not a Stop prerequisite. The shared

@@ -119,6 +119,8 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     lego-ization before any accepted-shape expansion
 - `design/current-docs-update-policy-ssot.md`
   - current docs update policy and mirror-thinning contract
+  - sole procedural owner of action-specific implementation entry versus
+    retirement conditions; agent routers and pipeline cards reference it
 - `design/mirbuilder-inplace-replacement-policy-ssot.md`
   - active Rust MirBuilder migration law: one live production Builder,
     responsibility-by-responsibility caller switch, immediate selected old-path

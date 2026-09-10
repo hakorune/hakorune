@@ -155,8 +155,8 @@ reason, successor, first-red commit, and expiry at family closeout. Production
 build/check failures, unknown red, test deletion/ignore, baseline rewrite, or
 fallback/retry aborts the series and returns to design_stop. Existing known-red
 failure names remain a separate immutable baseline. A family is eligible only
-when one issuer, lossless consumer or typed terminal, caller, and exclusive
-old-edge delete-set are all proven; otherwise it stays `ParkedSealed`.
+when its action-specific entry contract is settled: source issuer for Promote,
+existing boundary for Stop, planned deletion and finite affected callers.
 
 ### Family-local scheduler reconciliation (worker-audited 2026-09-03)
 
@@ -166,9 +166,9 @@ M7-S reader stops are already landed for Rust WASM `Global`, `Extern`, and
 `Method`, and for the VM `Global`, `Extern`, `Value`, and `Method` cohorts;
 do not reopen or duplicate those rows from an older review. The scheduler
 selects only an already-inventoried family with one source/issuer (for Promote)
-or one compatibility reader and typed terminal (for Stop), one real caller,
-an exclusive delete-set, and no unclassified red. A family with zero/multiple
-owners remains `ParkedSealed` while other eligible families may proceed.
+or one compatibility reader and typed terminal (for Stop), a finite caller set,
+a planned delete-set, and no unclassified red. Unsettled competing authorities
+remain parked; several callers sharing one owner are eligible.
 
 The 2026-09-04 worker audit decomposed the former shared boundaries at their
 outer leaves. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0`; do not add a new
