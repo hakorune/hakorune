@@ -4,6 +4,7 @@ import unittest
 
 from tools.perf.mir_compile_scaling import (
     TIMING_RE,
+    WALK_RE,
     aggregate_stage_runs,
     loop_source,
     method_source,
@@ -36,6 +37,40 @@ class MirCompileScalingTests(unittest.TestCase):
         self.assertEqual(
             [(match.group(1), match.group(2)) for match in TIMING_RE.finditer(text)],
             [("build_module", "42"), ("semantic.route.outer_iterations", "2")],
+        )
+
+    def test_walk_parser_accepts_owner_and_visit_counters(self) -> None:
+        text = (
+            "[mir-compile/walk] caller=refresh_module_semantic_metadata "
+            "family=semantic_refresh stage=post_fixpoint access=mir_read_write "
+            "intermediate_consumer=true functions=3 blocks=9 instructions=18"
+        )
+        self.assertEqual(
+            [
+                (
+                    match.group(1),
+                    match.group(2),
+                    match.group(3),
+                    match.group(4),
+                    match.group(5),
+                    match.group(6),
+                    match.group(7),
+                    match.group(8),
+                )
+                for match in WALK_RE.finditer(text)
+            ],
+            [
+                (
+                    "refresh_module_semantic_metadata",
+                    "semantic_refresh",
+                    "post_fixpoint",
+                    "mir_read_write",
+                    "true",
+                    "3",
+                    "9",
+                    "18",
+                )
+            ],
         )
 
     def test_shadow_contract_requires_nonempty_deterministic_parity_rows(self) -> None:

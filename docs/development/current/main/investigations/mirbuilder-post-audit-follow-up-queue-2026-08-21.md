@@ -657,6 +657,31 @@ semantic receipt. Acceptance is a stable finite report with explicit
 includes/excludes and zero semantic/order changes; speedup and duplicate-walk
 claims remain unproven until those counters exist.
 
+### P0 observation result (2026-09-10)
+
+The counter slice is implemented and closed as observation-only. The existing
+`compile_timing` owner emits thread-local `[mir-compile/walk]` rows when the
+compile trace is enabled; canonical spanned-instruction iterators report block
+and yielded-instruction events, and the existing semantic function loops report
+function events. The scaling runner parses these rows as an additive observation
+field without changing its timing keys or correctness gate.
+
+For the 50-method probe, the finite report was:
+
+```text
+layout_and_decl  metadata_read_write  consumer=false  fn=0  bb=0   inst=0
+all_functions    mir_read_write       consumer=false  fn=51 bb=153 inst=306
+route_convergence mir_read_write       consumer=true   fn=51 bb=0   inst=0
+post_fixpoint    mir_read_write       consumer=true   fn=51 bb=153 inst=306
+contracts        mir_read_write       consumer=true   fn=0  bb=867 inst=1734
+```
+
+The boundary is explicit: direct field iteration outside the instrumented
+spanned-instruction owner and route-family internal recomputation are excluded
+and remain unclassified. The default-off probe emits no walk/timing rows;
+shadow parity is zero and the probe return code is zero. No fusion, cache,
+semantic receipt, production switch, or speedup claim is made.
+
 ## Source reobservation rows
 
 `NORMAL-ROOT-AST-MOVE-D0` must choose between consuming/splitting the existing

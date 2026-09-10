@@ -1,10 +1,10 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, and postprocess walk census D0 closed; observation counter P0 selected
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, and postprocess walk census D0/P0 closed; debug-policy snapshot I0 is next
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0
+NextCard: MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
@@ -52,6 +52,51 @@ fuse stages, add a cache, issue a semantic receipt, or change the production
 route. A finite report with explicit boundary, includes/excludes, and stable
 focused evidence is the acceptance; speedup and duplicate-walk claims remain
 unproven until then.
+
+### Observation counter P0 — 2026-09-10
+
+The selected slice is implemented as an opt-in observation scope in the
+existing `src/mir/compile_timing.rs` owner. `BasicBlock::all_spanned_instructions`
+reports one block event and one instruction event per yielded instruction while
+the scope is active; the existing function-owner loops report function events.
+The scope is thread-local, restores any outer scope, and is completely
+inactive when `NYASH_MIR_COMPILE_TRACE` is unset. No refresh helper, metadata
+product, ordering, route, or cache was changed.
+
+The scaling runner now parses the stable `[mir-compile/walk]` rows into its
+existing machine-readable result. One 50-method probe with the accepted
+`static_methods` shape produced the following observation (the compiler exited
+successfully and route shadow parity remained zero):
+
+| stage | access | intermediate consumer | functions | blocks | instructions |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `layout_and_decl` | `metadata_read_write` | false | 0 | 0 | 0 |
+| `all_functions` | `mir_read_write` | false | 51 | 153 | 306 |
+| `route_convergence` | `mir_read_write` | true | 51 | 0 | 0 |
+| `post_fixpoint` | `mir_read_write` | true | 51 | 153 | 306 |
+| `contracts` | `mir_read_write` | true | 0 | 867 | 1734 |
+
+The measured boundary is explicit: function counts cover the existing
+function-owner loops, block counts cover active canonical spanned-instruction
+walks, and instruction counts cover yielded items from those iterators. Direct
+field iteration outside those owners, module declaration-only work, and route
+family-internal recomputation accounting remain outside these counters and are
+not inferred from zeroes. The default-off probe emitted no timing or walk rows.
+
+Focused evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --profile quick -p nyash-rust --lib  # passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib semantic_refresh # 10 passed
+python3 -m unittest tools.perf.test_mir_compile_scaling              # 7 passed
+python3 tools/perf/mir_compile_scaling.py --bin target/quick/hakorune \
+  --profile-label quick --method-counts 50 --warmup-runs 0 --repeat-runs 1 # rc=0
+```
+
+This closes the observation counter slice only. It does not claim a speedup,
+complete whole-repository walk census, pass fusion, cache safety, or a
+production route change. Any fusion proposal must still prove the missing
+direct-iteration boundary and semantic dependency equivalence.
 
 The callable Loop findings are a separate correctness queue. They must close
 PHI generation binding and local completion publication before a source-bound
@@ -376,11 +421,12 @@ negative evidence for the existing publication/view validators. The optional
 loop-bound probes remain a separate route-coverage rejection and are not a
 false green.
 
-The lazy resolve payload slice is now landed. Keep the Hako published-view
-ingress parked and move the next bounded performance row to the existing
-postprocess walk census design stop. Do not reopen the old snapshot D0/I0
-wording and do not add a second Builder, adapter, fallback, or semantic receipt
-merely to manufacture a next row.
+The lazy resolve payload slice and the observation-only postprocess walk
+counter slice are now landed. Keep the Hako published-view ingress parked and
+move the next bounded performance row to the already-accepted
+`MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0`. Do not reopen the old snapshot D0 wording
+and do not add a second Builder, adapter, fallback, or semantic receipt merely
+to manufacture a next row.
 
 ## All-worker surface audit (2026-09-03)
 

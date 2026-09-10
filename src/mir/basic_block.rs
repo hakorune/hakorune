@@ -466,8 +466,10 @@ impl BasicBlock {
 
     /// Iterate all instructions (including terminator) with spans.
     pub fn all_spanned_instructions(&self) -> impl Iterator<Item = SpannedInstRef<'_>> {
+        crate::mir::compile_timing::trace_refresh_block_visit();
         self.iter_spanned()
             .chain(self.terminator_spanned().into_iter())
+            .inspect(|_| crate::mir::compile_timing::trace_refresh_instruction_visit())
     }
 
     /// Iterate all instructions (including terminator) with index and span.

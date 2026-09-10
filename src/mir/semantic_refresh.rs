@@ -253,41 +253,82 @@ pub fn refresh_function_fastmem_region_emitted_counts(function: &mut MirFunction
 pub fn refresh_module_semantic_metadata(module: &mut MirModule) -> Result<(), String> {
     module.validate_object_definition_membership()?;
     let stage_start = std::time::Instant::now();
-    refresh_module_layout_and_decl_plans(module)?;
+    super::compile_timing::with_refresh_walk_scope(
+        "refresh_module_semantic_metadata",
+        "declaration",
+        "layout_and_decl",
+        super::compile_timing::RefreshAccessClass::MetadataReadWrite,
+        false,
+        || refresh_module_layout_and_decl_plans(module),
+    )?;
     super::compile_timing::trace_stage("semantic.layout_and_decl", stage_start.elapsed());
     let module_metadata = module.metadata.clone();
     let stage_start = std::time::Instant::now();
-    refresh_all_functions_semantic_metadata(module, &module_metadata);
+    super::compile_timing::with_refresh_walk_scope(
+        "refresh_module_semantic_metadata",
+        "semantic_refresh",
+        "all_functions",
+        super::compile_timing::RefreshAccessClass::MirReadWrite,
+        false,
+        || refresh_all_functions_semantic_metadata(module, &module_metadata),
+    );
     super::compile_timing::trace_stage("semantic.all_functions", stage_start.elapsed());
     // Seed carrier-API result origins before route convergence so the API
     // bodies themselves can lower nested ArrayBox reads without widening.
     let stage_start = std::time::Instant::now();
-    refresh_module_carrier_api_ordered_map_get_result_origins(module);
-    refresh_module_route_convergence(module);
+    super::compile_timing::with_refresh_walk_scope(
+        "refresh_module_semantic_metadata",
+        "semantic_refresh",
+        "route_convergence",
+        super::compile_timing::RefreshAccessClass::MirReadWrite,
+        true,
+        || {
+            refresh_module_carrier_api_ordered_map_get_result_origins(module);
+            refresh_module_route_convergence(module);
+        },
+    );
     super::compile_timing::trace_stage("semantic.route_convergence", stage_start.elapsed());
     // Reassert focused carrier-data map result origins before the post-fixpoint
     // consumer refresh so caller-side OrderedMapBox.get reads keep the ArrayBox
     // result origin when route metadata is rebuilt.
     let stage_start = std::time::Instant::now();
-    refresh_module_ordered_map_get_result_origins(module);
-    refresh_function_post_fixpoint_consumers(module, &module_metadata);
+    super::compile_timing::with_refresh_walk_scope(
+        "refresh_module_semantic_metadata",
+        "semantic_refresh",
+        "post_fixpoint",
+        super::compile_timing::RefreshAccessClass::MirReadWrite,
+        true,
+        || {
+            refresh_module_ordered_map_get_result_origins(module);
+            refresh_function_post_fixpoint_consumers(module, &module_metadata);
+        },
+    );
     super::compile_timing::trace_stage("semantic.post_fixpoint", stage_start.elapsed());
     // Post-fixpoint consumers may rebuild route metadata again, so reassert the
     // focused carrier-data result origins one last time before contract checks.
     let stage_start = std::time::Instant::now();
-    refresh_module_carrier_api_ordered_map_get_result_origins(module);
-    refresh_module_ordered_map_get_result_origins(module);
-    refresh_module_contracts_and_exact_numeric(module);
-    refresh_module_value_representation_facts(module);
-    // Contract refresh may canonicalize legacy array writes into the
-    // ArrayElementWrite carrier after the pre-fixpoint route pass. Rebuild the
-    // dependent array/text routes once at the final metadata boundary so
-    // observers and combined regions inspect the same canonical instructions
-    // that backend consumers will receive.
-    crate::mir::array_text_edit_plan::refresh_module_array_text_edit_routes(module);
-    crate::mir::array_text_observer_plan::refresh_module_array_text_observer_routes(module);
-    crate::mir::array_text_combined_region_plan::refresh_module_array_text_combined_region_routes(
-        module,
+    super::compile_timing::with_refresh_walk_scope(
+        "refresh_module_semantic_metadata",
+        "semantic_refresh",
+        "contracts",
+        super::compile_timing::RefreshAccessClass::MirReadWrite,
+        true,
+        || {
+            refresh_module_carrier_api_ordered_map_get_result_origins(module);
+            refresh_module_ordered_map_get_result_origins(module);
+            refresh_module_contracts_and_exact_numeric(module);
+            refresh_module_value_representation_facts(module);
+            // Contract refresh may canonicalize legacy array writes into the
+            // ArrayElementWrite carrier after the pre-fixpoint route pass.
+            // Rebuild the dependent array/text routes once at the final
+            // metadata boundary so observers and combined regions inspect the
+            // same canonical instructions that backend consumers receive.
+            crate::mir::array_text_edit_plan::refresh_module_array_text_edit_routes(module);
+            crate::mir::array_text_observer_plan::refresh_module_array_text_observer_routes(module);
+            crate::mir::array_text_combined_region_plan::refresh_module_array_text_combined_region_routes(
+                module,
+            );
+        },
     );
     super::compile_timing::trace_stage("semantic.contracts", stage_start.elapsed());
     Ok(())
@@ -342,6 +383,7 @@ fn refresh_all_functions_semantic_metadata(
     module_metadata: &ModuleMetadata,
 ) {
     for function in module.functions.values_mut() {
+        super::compile_timing::trace_refresh_function_visit();
         refresh_function_semantic_metadata(function, module_metadata);
     }
 }
@@ -355,6 +397,7 @@ fn refresh_function_post_fixpoint_consumers(
     module_metadata: &ModuleMetadata,
 ) {
     for function in module.functions.values_mut() {
+        super::compile_timing::trace_refresh_function_visit();
         // Route fixpoint can add or refine generic method routes after the
         // function-local pass. Recompute route consumers here so metadata such
         // as DirectArrayAccessPlan observes the final route surface.

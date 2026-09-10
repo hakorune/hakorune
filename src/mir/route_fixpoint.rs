@@ -55,6 +55,7 @@ pub fn refresh_module_route_fixpoint(module: &mut MirModule) {
     shadow.record(RouteFamily::MapLookupFusion);
     shadow.record(RouteFamily::MapRepresentation);
     for function in module.functions.values_mut() {
+        super::compile_timing::trace_refresh_function_visit();
         // Some generic method routes depend on global-call target shapes
         // discovered only at module scope.
         refresh_function_map_lookup_fusion_routes(function);

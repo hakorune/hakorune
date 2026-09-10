@@ -22,6 +22,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 TIMING_RE = re.compile(
     r"\[mir-compile/timing\] stage=([^ ]+) (?:elapsed_ms|count)=([0-9]+)"
 )
+WALK_RE = re.compile(
+    r"\[mir-compile/walk\] caller=([^ ]+) family=([^ ]+) stage=([^ ]+) "
+    r"access=([^ ]+) intermediate_consumer=(true|false) functions=([0-9]+) "
+    r"blocks=([0-9]+) instructions=([0-9]+)"
+)
 OBSERVED_ENV_KEYS = (
     "NYASH_DISABLE_PLUGINS",
     "NYASH_JOINIR_LOWER_GENERIC",
@@ -176,6 +181,7 @@ def _run_once(
         return {
             "status": "timeout",
             "elapsed_ms": int((time.monotonic() - started) * 1000),
+            "walks": [],
             "stderr_tail": stderr.splitlines()[-8:],
         }
     return {
@@ -186,6 +192,19 @@ def _run_once(
             match.group(1): int(match.group(2))
             for match in TIMING_RE.finditer(completed.stderr)
         },
+        "walks": [
+            {
+                "caller": match.group(1),
+                "family": match.group(2),
+                "stage": match.group(3),
+                "access": match.group(4),
+                "intermediate_consumer": match.group(5) == "true",
+                "functions": int(match.group(6)),
+                "blocks": int(match.group(7)),
+                "instructions": int(match.group(8)),
+            }
+            for match in WALK_RE.finditer(completed.stderr)
+        ],
         "stderr_tail": completed.stderr.splitlines()[-8:],
     }
 
