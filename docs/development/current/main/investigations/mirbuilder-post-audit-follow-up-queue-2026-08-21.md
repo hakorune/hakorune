@@ -33,6 +33,7 @@ second health-repair task.
 | `MIR-DEBUG-PAYLOAD-LAZY-P0` | Landed `21e85270ac` | unified-call observer ingress | existing DebugHub gate now owns the lazy callback; output/KPI parity evidence is recorded below |
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Design stop (2026-09-10) | `builder_emit.rs` + `ssa/local.rs` | fix the prepared/legacy boundary and enumerate every function mutation before any definition index or fast path is added |
 | `MIR-LOCAL-SSA-SELF-CACHE-REUSE-I0` | Landed `6383fe6a96` | existing `local_ssa_map` + `ssa/local.rs` | successful materialization now self-caches the returned in-block value; no new index, prepared receipt, or semantic Call route |
+| `MIR-LOCAL-SSA-LEGACY-FAILURE-CACHE-R0` | High | `ssa/local.rs` + existing `LocalSsaFailurePolicyV1` boundary | a LegacyFacade failure must not be observed as a successful cacheable materialization | preserve the legacy return fallback where required, but carry failure provenance to the cache owner so a failed Copy/emission cannot publish `(bb,value,kind)`; mutation proof makes the emission failure the named reject, with no new cache/index/receipt |
 | `MIR-PHI-ANALYSIS-BATCH-D0` | Landed `7b7f6860c3` | existing `PhiInputMaterializationAnalysis::new(func)` + PHI materialization/finalization | invocation-local CFG/definition/dominator batch is shared by self-carry and grouped-edge repair; no persistent cache or semantic PHI change |
 | `MIR-POSTPROCESS-WALK-CENSUS-D0` | Medium | semantic refresh + old/shared finish owners | count actual block/instruction visits and caller classes before one adjacent-wave fusion is considered |
 | `MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0` | Medium | existing `compile_timing` + semantic refresh owners | add observation-only stage/function/block/instruction counters after the D0 census; no fusion or cache |
@@ -109,6 +110,7 @@ normalizer/consumer cutover is claimed.
 | `MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0` | **Accepted design 2026-09-11; implementation successor active** | [`session-entry I0 card`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md) | existing `FunctionSemanticResolverSessionV1` source-unit index is the sole issuer; eligible selected roots receive exact index/header, nested owners remain unindexed; CallableSingleLoop is FreeStatic-only for this row | reuse one resolver index without per-row duplication; preserve `VerifiedCallableFunctionLoweringInputV1::issue` and `MissingPreludeTarget`; Method prefixes are explicit outside-shape until a declared-instance target owner exists; no name/method-selector/catalog-key repair, physical-signature substitute, main-only index sharing, second issuer, fallback, or production switch |
 | `MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-PRELUDE-HANDOFF-I0` | **High (implementation active after accepted D0)** | [`session-entry I0 card`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md); [`source index/header D0`](./mirbuilder-post-audit-follow-up-queue-2026-08-21.md) | batch handoff from the existing resolver index/header owner into the selected non-AppMain root, plus explicit FreeStatic prefix admission | owner-matched header and target arrive before physical effects; nested owners stay unindexed; valid non-AppMain FreeStatic caller has no manual ledger setup; Method returns named outside disposition; positive/negative acceptance precedes production switch; no new issuer/receipt, fallback, or OBJ/EXE claim |
 | `MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0` | High (session bridge structurally landed; blocked by source-index/header/prelude-target handoff) | [`session-entry I0 card`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md); [`generic semantic-demand D0`](./mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md) | selected static-callable entry will own one session; `RawInvocationChildPortV1::lower_loop` remains the scoped consumer | after the source index/header/prelude-target owner is closed, accept one bounded source-bound handoff to `PreparedLoopOperationProgramV1`; then connect canonical block-scoped SSA/PHI/CFG/seal relations with no manual ledger injection; no local-completion, backend/OBJ/EXE, fallback, or R7 claim |
+| `MIR-CALLABLE-LOOP-PHI-GENERIC-REWIRE-R0` | High (after the selected CallableSingleLoop I0) | existing generic Loop composer + `CallableSemanticLoweringState` / Binding SSA owner | old Composer header registration and source reads currently use different value authorities and generation order | for each BindingRef, header/body/exit use the canonical generation (`h_n`/`s_n`) from the existing ledger/carrier; name map is observation only; 0/1/multiple iteration positives and one-point PHI-generation mutation reject before physical effects; no second PHI issuer or old Composer production cutover |
 | `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0` | High | `generic_loop_body/direct_associated.rs` + existing local completion publisher | future source-bound Loop normalizer | a body `local` publishes its completed `ValueId` into the callable ledger before the next source read; the positive fixture performs no manual pre-registration; missing publication has a named fail-fast terminal; 0/1/multiple-iteration cases cover initialization and update |
 | `MIR-CALLABLE-LOOP-GUARD-SELECTION-CLEANUP-R0` | Medium | `tools/checks/guard_rows.toml` and four Loop guards | guard profiles only | permanent guards assert structural invariants and remain valid when `current_execution_row` advances; temporary task selection is not encoded as four mutually exclusive current-row predicates; no successor-row guard proliferation |
 
@@ -128,6 +130,58 @@ assert the named reject. A generic `reject != 0` or a fixture that already
 fails on liveness does not close these rows. The positive side must include
 the same graph without manual ledger injection. No OBJ/EXE or production
 cutover claim is made by these queued rows.
+
+## 2026-09-11 adjacent correctness/perf findings
+
+The following findings are independent of the selected source-index/header
+handoff. They are queued so an observed fix is not mistaken for a closed PHI
+or LocalSSA production claim.
+
+### `MIR-LOCAL-SSA-LEGACY-FAILURE-CACHE-R0`
+
+`ssa/local.rs::ensure_inner` currently receives a `Result` from the legacy
+facade and inserts the returned value into `local_ssa_map` whenever that
+result is `Ok`. `LocalSsaFailurePolicyV1::LegacyFacade` can turn block or
+instruction-emission failure into `Ok(original)`, so the outer cache owner
+cannot distinguish a real in-block materialization from a compatibility
+fallback. This is a correctness boundary even though a normal source failure
+has not been reproduced in the current review.
+
+Decision: keep the existing legacy return behavior for callers that require it,
+but make the cache commit conditional on an actually successful materialization
+outcome. The failure provenance belongs to the existing LocalSSA owner; do not
+add a second cache, definition index, or semantic receipt. Acceptance starts
+from a valid fixture, mutates only Copy/emission to fail, asserts the named
+failure or fallback terminal, and proves the next request does not hit a
+published cache entry. A normal successful materialization must retain its
+current cache behavior.
+
+### `MIR-COMPILE-WALK-OBSERVATION-OFF-OVERHEAD-R0`
+
+The observation P0 correctly gates its report, but
+`BasicBlock::all_spanned_instructions` still calls the block/instruction trace
+helpers for every iterator use. With tracing disabled those helpers immediately
+check the thread-local `RefCell`, so the default path still pays a per-block
+and per-instruction observation call. This is a local performance finding, not
+a semantic or PHI authority problem.
+
+Decision: keep `compile_timing` as the sole observation owner and preserve the
+enabled report exactly. Move the disabled choice to the iterator boundary (or
+an equivalent existing owner) so the normal iterator has no TLS/`RefCell`
+callback per yielded instruction. Acceptance is default-off walk behavior with
+zero observation callbacks in a focused counter probe, enabled-mode row parity,
+and no stage-order, route, or semantic change. Do not fuse refresh stages, add
+a cache, or claim a speedup without a before/after measurement.
+
+Required order for these adjacent rows:
+
+```text
+selected CallableSingleLoop source-index/header I0
+  -> generic Loop PHI/value-generation rewire
+  -> Loop local-completion handoff
+  -> LocalSSA failed-materialization cache boundary
+  -> observation-off iterator overhead
+```
 
 The PHI value-flow design audit is closed as an accepted D0 on 2026-09-11.
 The worker audit selected session-level consumption: `CallableSemanticLoweringState`
