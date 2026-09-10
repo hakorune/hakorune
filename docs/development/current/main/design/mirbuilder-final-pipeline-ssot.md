@@ -1250,6 +1250,25 @@ rolling investigation. They are not parallel next cards. `Outside` remains a
 typed terminal until the named consumer is ready; no task in this order may
 re-enter the shared legacy route or add a second Facts/Recipe issuer.
 
+S0-D1 design acceptance (2026-09-10):
+
+```text
+production entry = RawInvocationChildPortV1::lower_loop
+Ready consumer   = CallableGenericLoopV1PhysicalAdapterV1::lower (one caller)
+Outside consumer = typed terminal only (one caller)
+legacy direct callers = raw_loop_child_entry callable-None bypass
+                       + RawLegacyChildLoweringPortV1 compatibility path
+```
+
+The shared `lower_loop_or_freeze_v1` route is therefore not an exclusive
+delete-set for this family. R0 may delete only the callable-`None` bypass in
+`raw_loop_child_entry.rs`, its private helper when caller-zero, and tests or
+guards owned exclusively by that branch. The Legacy port, its delegation, and
+the non-callable compatibility route remain outside this series. This closes
+S0-D1 as a design decision; implementation remains closed at the next
+caller-zero relation row until its private source-located product and one-shot
+consumer contract are explicit.
+
 ##### Acceptance recheck classification (2026-09-10)
 
 The selected physical caller cutover was re-run against the same fixed

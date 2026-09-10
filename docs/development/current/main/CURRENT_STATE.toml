@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1"
-current_execution_cohort = "callable_loop_ordinary_bridge_source_recipe_design"
-current_design_stop = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1"
-current_blocker_token = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1: the source-aware semantic port must carry grouped callable rows into the existing normalizer exactly once; production consumer and exclusive old-edge delete-set remain unproven, so implementation stays closed."
+current_execution_row = "MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0"
+current_execution_cohort = "callable_loop_source_recipe_relation_design"
+current_design_stop = "MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0"
+current_blocker_token = "MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0: define one private move-only source-located relation and its one-shot normalizer seam; callable-None bypass is the only future delete-set, while shared Legacy/non-callable JoinIR callers remain."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Fixed real-app EXE acceptance ran at 27d516ee3d with 4/11 pass and seven existing owner-scoped reds; hashes and expected/observed results are recorded in the final-pipeline SSOT. The ordinary bridge S0 audit is NoSafeSlice; no implementation edge or new receipt is authorized until S0-D1 closes the source-aware handoff."
+guard_followup = "Fixed real-app EXE acceptance ran at 27d516ee3d with 4/11 pass and seven existing owner-scoped reds; hashes and expected/observed results are recorded in the final-pipeline SSOT. Ordinary bridge S0-D1 is accepted as a design decision; the caller-zero source-recipe relation remains a design stop, with no production edge or fallback authorized."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -32,12 +32,12 @@ latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
 The fixed real-app EXE boundary suite ran at 27d516ee3d and recorded 4/11
-passes with seven existing owner-scoped reds. A read-only audit of the existing
-MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0 found the source/Facts/Recipe issuer and
-physical adapter, but no production semantic port for grouped callable rows;
-the slice is NoSafeSlice until the existing S0-D1 design closes that handoff.
+passes with seven existing owner-scoped reds. S0-D1 now has an accepted
+source-aware handoff design and a narrow future delete-set: only the callable
+None bypass may retire; Legacy and non-callable JoinIR callers remain. The
+caller-zero source-recipe relation is the current design stop.
 """
-next_design_card = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1"
+next_design_card = "MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -56,5 +56,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/local I0, callee identity I1 and FieldGet prepared-reference reuse landed; Pair exit30 is green. C index fusion remains ParkedSealed D1. Direct MIR JSON schema-error Stop and selected Dynamic CanonicalV1 egress landed; fixed real-app acceptance at 27d516ee3d is 4/11 with seven owner-scoped reds, and Loop ordinary bridge S0 is now a NoSafeSlice design handoff."
+  "2026-09-10: receiver/local I0, callee identity I1 and FieldGet prepared-reference reuse landed; Pair exit30 is green. C index fusion remains ParkedSealed D1. Direct MIR JSON schema-error Stop and selected Dynamic CanonicalV1 egress landed; fixed real-app acceptance at 27d516ee3d is 4/11 with seven owner-scoped reds. Loop ordinary bridge S0-D1 is accepted as design with only the callable-None bypass eligible for later deletion; source-recipe relation P0 is the current design stop."
 ]

@@ -14,14 +14,15 @@ This investigation keeps the historical Loop D0/P0 decisions and their
 evidence, but it is not the active execution card. The sole current authority
 is `CURRENT_STATE.toml` and its latest card
 `mirbuilder-final-pipeline-ssot.md`, currently at
-`MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1` in `design_stop`.
+`MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0` in `design_stop`.
 
 The source-Facts issuer, policy-frame, grouped Outside-row, Ready claim, and
 route-neutral planner entries below are closed historical prerequisites. They
 must not be reopened as parallel work. The remaining open question is one
-source-aware handoff into the existing normalizer, with a named eventual
-consumer and exclusive old-edge delete-set. No code, fixture, production
-switch, or fallback is authorized until that S0-D1 design is accepted.
+source-aware handoff into the existing normalizer has been accepted for S0-D1;
+the caller-zero relation product and one-shot consumer contract remain open.
+No code, fixture, production switch, or fallback is authorized until that
+relation design is accepted.
 
 # Callable physical-header eligibility D0
 
