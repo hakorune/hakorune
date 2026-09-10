@@ -55,12 +55,11 @@ These rows came from the external edge review and are kept separate from the
 closed emit-clone slice. They are queued for a later read-only revalidation;
 none changes the current pointer or authorizes a production switch.
 
-The older review remains materially relevant at the current branch only for
-the generic-export proof: its focused test still proves a
-reject/reachability boundary rather than a callee-backed `rc == 0` success.
-The driver-arity and LocalSSA-guard findings are landed below. The test-only
-Dynamic Loop-PHI residue belongs to the finite R7 census row and is not a
-separate production task.
+The older edge review is now historical input: driver arity, LocalSSA guard,
+and the callee-backed generic-export proof are landed below. Its old counts
+must not be reused as current production claims. The test-only Dynamic
+Loop-PHI residue belongs to the finite R7 census row and is not a separate
+production task.
 
 Order for the next edge-health window is fixed as:
 

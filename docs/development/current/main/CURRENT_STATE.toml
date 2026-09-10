@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0"
-current_execution_cohort = "mir_c_generic_export_positive_proof_r0_closeout"
-current_design_stop = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0 implementation is complete; record the callee-backed rc=0 evidence and synchronize the pointer before selecting the R7 census row."
-current_blocker_token = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0 closeout: structured Global/print compatibility succeeds through the existing dispatcher; strict pure-first legacy op=call remains a named pre-artifact reject."
+work_mode = "design_stop"
+current_execution_row = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0"
+current_execution_cohort = "mir_r7_legacy_census_reconcile_d0"
+current_design_stop = "R7 D0: reconcile the pinned LegacyCallV0, compile-env, JSON-v0 boxcall, and test-only Loop-PHI inventory at HEAD before any GUARD-I0 or retirement row."
+current_blocker_token = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 design stop: finite inventory only; no deletion, migration, production switch, or caller-zero claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0 closeout: focused C test, static V2 session test, pointer guard, and diff check passed; no new guard."
+guard_followup = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 design stop: no new guard; record finite boundary and reopen triggers before GUARD-I0."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -28,8 +28,8 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
-latest_card = "mirbuilder-compile-time-performance-owner-first-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+latest_card = "mir-call-legacy-target-census-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
 latest_card_summary = """
 Closed focused rows include receiver/FieldGet/schema evidence, selected-C and
 Dynamic JSON, emit-clone/debug-policy/lazy-payload, postprocess/refresh,
@@ -48,9 +48,9 @@ proof is landed at `c1467583fe`: structured legacy `Global/print` reaches
 `rc == 0` with an object while selected pure-first keeps its named reject; no
 generic caller-zero claim is made.
 """
-next_design_card = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0"
-next_execution_card = "none__closeout_mir_c_generic_export_positive_proof_r0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+next_design_card = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0"
+next_execution_card = "none__design_stop_mir_r7_legacy_census_reconcile_d0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

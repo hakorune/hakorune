@@ -1,7 +1,8 @@
 ---
-Status: Closed design; GUARD-I0 selected
+Status: Selected design; 2026-09-10 census reconcile pending closeout
 Date: 2026-08-20
 Decision: MIR-CALL-LEGACY-TARGET-CENSUS-D0
+Active row: MIR-R7-LEGACY-CENSUS-RECONCILE-D0
 Parent: docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 ProductionCaller: none (observation only)
 ReplacementCell: none until the census closes
@@ -119,13 +120,65 @@ Return to `NoSafeSlice` and do not open GUARD-I0 implementation if:
 The smallest successful outcome is a complete, pinned census and a named
 GUARD-I0 design. It is not a production cutover.
 
-## D0 closeout
+## 2026-09-10 R7 census reconcile (selected design)
 
-The source census is complete at the pinned worktree HEAD: 25 literal
+The previous 25-mention snapshot is historical evidence only. At HEAD
+`e7e5c1455a8b4c487c0311f8064c8311d784e172`, the bounded R7 inventory is:
+
+| Inventory | Current count | Boundary and disposition |
+| --- | ---: | --- |
+| direct `LegacyCallV0` production constructors | 3 | `compat_entrypoints.rs` (2) and JSON-v0 `module.rs` `boxcall` (1); explicit compatibility ingress |
+| mechanical Legacy reissuer | 1 | `joinir_id_remapper.rs`; ID remap only, no semantic issuance |
+| production lexical legacy surface | 239 occurrences / 127 files | `src` + `crates` Rust, excluding tests and `#[cfg(test)]`; census only, not a reader count |
+| compile env save/set/restore | 5 functions / 4 route families | Rust transport/static/ny-llvmc plus C route helper; no runtime hook registry |
+| JSON-v0 `boxcall` ingress | 1 | `module.rs`; `call`/`mir_call` remain pre-publication freeze paths |
+| test-only Dynamic Loop-PHI residue | 1,009 LOC / 4 files | no production caller; canary inventory only |
+
+The finite boundary is:
+
+```text
+canonical/compatibility MIR ingress + compile profile
+  -> LegacyCallV0 constructors/reissuer/readers/egress
+  -> selected artifact reject or compatibility terminal
+
+test-only Dynamic Loop-PHI files
+  -> production-caller census terminal
+```
+
+Included are `src/mir`, `src/runner`, selected
+`crates/nyash-llvm-compiler`, and the related `lang/c-abi` route. Excluded are
+the canonical `MirInstruction::Call` definition, ordinary test fixtures,
+unrelated startup/runtime environment state, runtime hook registries, future
+VM/WASM parity, and production Dynamic Loop canary code.
+
+This reconcile corrects the old labels: direct production constructors are
+three, not four; the llvmlite-era projection is a reader/projection; and the
+old 202/208-reader and 990-LOC figures are stale for this boundary. The row
+does not authorize LegacyCallV0 deletion, a reader migration, or a caller-zero
+claim.
+
+### Reopen triggers
+
+Reopen the census if a selected canonical backend consumes `LegacyCallV0`, a
+new non-test constructor or reissuer appears, JSON-v0 reaccepts `call` or
+`mir_call`, a compile-profile save/set/restore helper is added, the Dynamic
+Loop-PHI fixtures gain a production caller, or any inventory path/count drifts.
+
+### R7 design acceptance
+
+Close this row only after the pinned inventory, includes/excludes, authority
+and non-authority, and the named reopen triggers above are recorded together.
+No R7 deletion, compatibility retirement, or performance claim is evidence for
+this design row.
+
+## Historical D0 closeout (2026-08-20)
+
+The source census was complete at the historical pinned worktree HEAD: 25 literal
 mentions, with 3 JSON-v0 compatibility producers, 1 canonicalizer input, 2
 production reject/analysis consumers, 3 non-executable contract/comment
 references, and 16 test-only fixtures/assertions. No selected-native producer
 outside the canonicalizer input and no unreachable production row were found.
+This historical snapshot is superseded by the 2026-09-10 reconcile above.
 
 The next bounded row is therefore:
 
