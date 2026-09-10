@@ -134,6 +134,14 @@ The first DirectAccum edge is currently evidenced by the route-selection test
 session/lowering tests. This evidence does not close the generic Ready bridge
 or the row's full 0/1/multiple-iteration acceptance matrix.
 
+The physicalizer audit confirms the edge meaning for the eventual consumer:
+`After` reaches the initial `h_0` when the header false edge is taken without a
+backedge, and reaches the next-header generation after a preceding backedge.
+No explicit, named zero-iteration production fixture was found in the current
+test inventory. The generic Ready implementation must therefore add that
+fixture from the same valid graph as the one- and multiple-iteration cases;
+physicalizer behavior alone is supporting evidence, not acceptance evidence.
+
 ## Exclusive delete-set and non-claims
 
 After production cutover, this row may delete only the selected source Loop
