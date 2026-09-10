@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0"
-current_execution_cohort = "callable_loop_ordinary_bridge_r0_design_stop"
-current_design_stop = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0"
-current_blocker_token = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0: ParkedSealed__NoCallableNoneCaller; retain the non-callable/legacy owners and reopen only on the recorded callable-scope or exclusive-delete-set trigger."
+current_execution_row = "MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-S0"
+current_execution_cohort = "mir_ssa_local_materialize_boxshape_s0_design_stop"
+current_design_stop = "MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-S0"
+current_blocker_token = "MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-S0: guard/manifest path inventory and exact private move before implementation; preserve LocalSSA order and caller set."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Census closed as ParkedSealed__NoCallableNoneCaller: retain raw_loop_child_entry callable_handoff=None for its ledger-free Script/module owner and retain the separate legacy port. Reopen only on the named callable-scope or exclusive-delete-set trigger; do not edit code, add a fallback, or reopen the shared legacy route during design_stop."
+guard_followup = "Read-only inventory for MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-S0: enumerate exact materialize_local_v1 and local.rs guard/manifest anchors, then prove the private move keeps the existing LocalSSA caller set, failure order, and no semantic authority change. Do not edit code, weaken guards, or add a fallback during design_stop."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -44,8 +44,11 @@ shared route has a separate legacy port owner, so no callable-exclusive
 delete-set exists. Reopen only on the recorded trigger. The negative-test
 base and named-reject rule are already closed and reusable; do not create a
 duplicate task.
+The next bounded design row is the independent
+`MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-S0` private LocalSSA move; it has no Loop
+or physical backend scope.
 """
-next_design_card = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0"
+next_design_card = "MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-S0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

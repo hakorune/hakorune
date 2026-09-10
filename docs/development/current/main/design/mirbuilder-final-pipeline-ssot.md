@@ -32,16 +32,15 @@ Related:
   to the parsed v1 bridge; escaped declared schemas stop before v0. The V4
   receiver-identity coverage now uses a valid normal/fault base and a named
   receiver-only mismatch proof.
-- **Next ordered task:** keep the callable Loop ordinary bridge parked after
-  the old-edge ownership census. `callable_handoff=None` is a ledger-free
-  Script/module owner, and the shared JoinIR route also has a separate legacy
-  port owner, so no callable-exclusive delete-set is proven. Reopen only when
-  a real callable scope reaches `None` or a source-backed replacement gives
-  that edge an exclusive delete-set. The physical-program module-borrow and
-  mutation-specific negative-test rows are closed; no implementation is
-  authorized by this pointer. Constructor/Array execution and retirement
-  evidence belongs to their owner SSOTs; no lifecycle V2 waiting state is
-  implied.
+- **Next ordered task:** the callable Loop ordinary bridge is parked after the
+  old-edge ownership census, so the next bounded work is the independent
+  LocalSSA physical split `MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-S0`. The Loop
+  `callable_handoff=None` branch remains a ledger-free Script/module owner and
+  the shared JoinIR route has a separate legacy port owner; reopen that bridge
+  only when its recorded trigger fires. The LocalSSA slice changes file
+  placement only: no source authority, route, failure order, or production
+  caller changes. Constructor/Array execution and retirement evidence belongs
+  to their owner SSOTs; no lifecycle V2 waiting state is implied.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -816,6 +815,49 @@ M7/R7 frontier is healthy; do not add a per-candidate guard, receipt, or card.
 | `MIRBUILDER-EMITTER-FANOUT-S0` | ParkedSealed | `unified_emitter.rs` hops cross profile gating, lookup/map replay, recursion restoration, receipt/error conversion, and the physical Call writer; frame-count reduction alone has old-edge delta 0. Reopen only with one contract-preserving owner and a finite delete-set | no flattening, authority move, receipt/port/guard/test addition, or bypass of typed failure/legacy profile |
 | `MIRBUILDER-DEAD-ANNOTATION-RETIRE-S0` | landed / bounded repeats only | caller-zero `_family_is_route_typed` helper, `dead_code` allowance, and unused import removed at `33b69f3e9e`; repeat only with a new compiler-proven caller-zero private asset | no broad purge, visibility widening, or semantic rewrite |
 | `LANG-FASTMEM-SOURCE-FATE-D0` | ParkedSealed | finite census found 26 `fastmem` Proof/Test regions and 82 executable `mem.assume*` calls, with Product `.hako` callers=0 but parser/AST/Program-JSON/normal-script transport still live; eventual bounded rows are `FASTMEM-V0-SYNTAX-RET0` and `FASTMEM-ASSUME-RET0` | keep `MirInstruction::MemOp`, region metadata, verifier, access-plan, JSON transport, and LLVM lowering; no immediate source/parser deletion or MemOp removal |
+
+##### `MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-S0` (design accepted; implementation next)
+
+Decision: move the private `materialize_local_v1()` implementation from the
+near-limit `src/mir/builder/ssa/local.rs` into one existing LocalSSA sibling
+module. This is a physical BoxShape refactor only. The façade, `LocalKind`, all
+production callers, and the existing LocalSSA owner remain unchanged.
+
+Source authority + canonical owner: `MirBuilder::function_state` and the
+existing LocalSSA materialization owner. The moved function reads the same
+cache, pin/PHI map, type/origin context, definition scan, and failure policy;
+it commits metadata/cache only after successful MIR emission.
+
+Non-authority: AST/source names, runtime tags, backend/C state, finalization,
+new ValueId indexes, route selection, fallback/retry, or a new semantic
+receipt. The sibling module must call the existing `analysis`, `copy_type`,
+`post_success`, and error owners rather than reimplement them.
+
+Fail-fast boundary: preserve the exact order
+`cache -> block -> pin/PHI redirect -> definition/dominance -> forwarding ->
+post-success preparation -> emission -> metadata/cache commit`. Contract,
+block-creation, and instruction-emission failures retain their existing
+policy and diagnostics; no post-failure state may be committed.
+
+Smallest next slice: perform a read-only guard/manifest path inventory, then
+move only the function body to `src/mir/builder/ssa/local/materialize.rs` and
+leave `local.rs` as the façade and exports. Recursive Select/Copy calls return
+to that same private function. No caller, test fixture, guard weakening, or
+semantic behavior change is part of this row.
+
+Acceptance: one definition of `materialize_local_v1`, `local.rs` below 760
+lines, the new sibling below 760, every touched source/check below 800, the
+existing LocalSSA focused suites and forwarding guards green, and
+`git diff --check` plus the current-state pointer guard green. The exclusive
+delete-set is the old function body and now-unused façade imports; all
+LocalSSA callers and neighboring authority modules remain.
+
+The worker audit found direct callers only inside the existing LocalSSA owner
+(`ensure_inner`, checked wrapper, and Select/Copy recursion). A read-only path
+census found six exact `materialize_local_v1` anchors and broader path anchors
+in existing guards/manifests; those references must be retargeted or retained
+by owner, never deleted to make the split pass. This row is independent of the
+parked callable Loop bridge and does not authorize Loop/OBJ/EXE work.
 
 ### Evidence reuse and repayment
 
