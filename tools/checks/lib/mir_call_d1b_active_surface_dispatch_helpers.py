@@ -29,6 +29,65 @@ T3_PLAN_CANON_FILES = (
     "src/mir/builder/control_flow/plan/canon/generic_loop/types.rs",
     "src/mir/builder/control_flow/plan/canon/mod.rs",
 )
+
+GENERIC_EXPORT_POSITIVE_PROOF_R0_ROW = (
+    "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0"
+)
+
+
+def check_generic_export_positive_proof_r0(
+    state: dict, root: Path, api
+) -> None:
+    """Keep the generic compatibility proof row on its existing card/owners."""
+    row = GENERIC_EXPORT_POSITIVE_PROOF_R0_ROW
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        api.fail(f"{row} requires fast or closeout work_mode")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} is not selected by CURRENT_STATE")
+    if state.get("latest_card_path") != str(api.PERFORMANCE_CARD_REL):
+        api.fail(f"{row} requires the performance card as owner")
+    if state.get("current_execution_design") != str(api.PERFORMANCE_CARD_REL):
+        api.fail(f"{row} performance card pointer drifted")
+    if state.get("next_execution_card_path") != str(api.PERFORMANCE_CARD_REL):
+        api.fail(f"{row} card path drifted")
+    if state.get("work_mode") == "fast":
+        if state.get("next_execution_card") != row:
+            api.fail(f"{row} fast next_execution_card drifted")
+    elif not str(state.get("next_execution_card", "")).startswith("none"):
+        api.fail(f"{row} closeout must clear next_execution_card")
+    stop = state.get("current_design_stop")
+    if not isinstance(stop, str) or not stop.startswith(row):
+        api.fail(f"{row} current_design_stop is missing")
+
+    card = (root / api.PERFORMANCE_CARD_REL).read_text(encoding="utf-8")
+    for token in (
+        f"## `{row}` selected",
+        f"## `{row}` closeout",
+        "c1467583fe",
+        "scan_legacy_call_need_flags",
+        "[freeze:contract][pure-first/legacy-op-call]",
+        "Global/print",
+        "rc == 0",
+    ):
+        if token not in card:
+            api.fail(f"{row} card evidence is missing: {token}")
+
+    for rel in (
+        "lang/c-abi/shims/hako_llvmc_ffi_mir_call_prepass.inc",
+        "lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc",
+        "lang/c-abi/tests/published_rows_preartifact_test.c",
+    ):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    test_source = (root / "lang/c-abi/tests/published_rows_preartifact_test.c").read_text(
+        encoding="utf-8"
+    )
+    if "test_selected_rejects_legacy_call_and_generic_compat_succeeds" not in test_source:
+        api.fail(f"{row} focused test owner is missing the structured-callee proof")
+    print(f"[{api.TAG}] row={row} delegated=generic-export-positive-proof")
 LEGACY_PHI_CANDIDATE_ROW = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
 LEGACY_PHI_CANDIDATE_FILES = (
     "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs",

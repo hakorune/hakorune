@@ -1,10 +1,10 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, PHI analysis batch I0, LocalSSA self-cache reuse I0, C invocation-driver arity repair R0, and LocalSSA guard path repair R0 closed; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; prepared-operand D0 remains deferred
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, variable-read accessor S0, PHI analysis batch I0, LocalSSA self-cache reuse I0, C invocation-driver arity repair R0, LocalSSA guard path repair R0, and generic-export positive proof R0 closed; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; prepared-operand D0 remains deferred
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0
+NextCard: MIR-R7-LEGACY-CENSUS-RECONCILE-D0
 ---
 
 ## `MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0` selected (2026-09-10)
@@ -46,6 +46,43 @@ reachability-only assertion, plus any minimal duplicate declaration-needed
 branch required solely for this existing legacy `Global/print` compatibility
 surface. The shared dispatcher and selected strict route remain outside the
 delete-set.
+
+## `MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0` closeout (2026-09-10)
+
+Implementation evidence: `c1467583fe` keeps the existing generic dispatcher
+and adds only `scan_legacy_call_need_flags()` in the existing MIR-call
+prepass. It reuses `classify_mir_call_global_surface()` and
+`apply_mir_call_need_kind()` so a structured legacy `Global/print` call
+publishes the declaration need already required by the existing emitter. The
+focused fixture now supplies a real structured callee and asserts the generic
+export returns `rc == 0`, no error, and an object. The selected pure-first call
+uses the same document and still rejects before artifact creation with
+`[freeze:contract][pure-first/legacy-op-call]`; the nested metadata string
+case remains accepted. No second dispatcher, route, receipt, fallback, retry,
+or guard was added.
+
+Focused evidence:
+
+```text
+bash tools/build_hako_llvmc_ffi.sh
+  -> shared library built successfully
+cc -Wall -Wextra -Ilang/c-abi/include -Iplugins/nyash-json-plugin/c/yyjson \
+  lang/c-abi/tests/published_rows_preartifact_test.c \
+  plugins/nyash-json-plugin/c/yyjson/yyjson.c \
+  -Ltarget/release -lhako_llvmc_ffi \
+  -Wl,-rpath,$PWD/target/release -o /tmp/published_rows_preartifact_test
+/tmp/published_rows_preartifact_test
+  -> intrinsic array allocation entry/nested and rejection: PASS
+  -> published peek/take and coordinate tests: PASS
+python3 lang/c-abi/tests/static_v2_session_test.py \
+  target/release/libhako_llvmc_ffi.so
+  -> static V2 session capture/error/cancel/compile: ok
+```
+
+`git diff --check` and `bash tools/checks/current_state_pointer_guard.sh`
+also pass. This closes the proof-quality row only. The public generic ABI
+remains compatibility-owned, and no generic caller-zero, legacy retirement,
+backend parity, or OBJ/EXE result claim is made.
 
 ## `MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0` closeout (2026-09-10)
 

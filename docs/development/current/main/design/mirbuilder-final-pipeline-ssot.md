@@ -721,22 +721,26 @@ zero claim for the public generic ABI.
 I0 acceptance is bounded to the finite entries above: all active Boundary and
 Static V2 fixtures use canonical `mir_call` (or no call); a strict legacy
 instruction fails before artifact creation with the named terminal; the same
-document through the generic compatibility export reaches its existing legacy
-terminal without the strict named stop. The preflight must not reject metadata
-keys or nested data containing the word `call`, and it must not scan raw JSON
-text. No new generic negative-test taxonomy is opened; reuse the existing
-valid-base/mutation proof rule only for the selected strict negative.
+document through the generic compatibility export uses its structured
+`Global/print` callee and succeeds with `rc == 0` and an object. The preflight
+must not reject metadata keys or nested data containing the word `call`, and it
+must not scan raw JSON text. No new generic negative-test taxonomy is opened;
+reuse the existing valid-base/mutation proof rule only for the selected strict
+negative.
 
 I0 closeout evidence (2026-09-10): the invocation-local profile and strict
 instruction preflight are implemented in the existing C transport. The focused
 `published_rows_preartifact_test.c` proves (1) selected pure-first rejects a
 legacy `op:"call"` before object creation with the named terminal, (2) the
-public generic export follows its existing compatibility terminal without that
-strict error, and (3) a nested metadata `call` string is not treated as an
-instruction. `bash tools/build_hako_llvmc_ffi.sh`, the focused C test, and
-`tests/static_v2_session_test.py` pass. This is a selected-C ingress Stop
-closeout only; it does not claim generic caller-zero, backend parity, or
-OBJ/EXE result completion.
+public generic export accepts the same document with a structured
+`Global/print` callee and returns `rc == 0` with an object, and (3) a nested
+metadata `call` string is not treated as an instruction. The existing
+`MirCallNeedFlags` owner now observes the legacy Global print declaration need;
+no dispatcher or semantic route was added. `bash tools/build_hako_llvmc_ffi.sh`,
+the focused C test, and
+`tests/static_v2_session_test.py target/release/libhako_llvmc_ffi.so` pass.
+This is a selected-C ingress and generic-compatibility proof only; it does not
+claim generic caller-zero, backend parity, or OBJ/EXE result completion.
 
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 

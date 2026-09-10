@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0"
-current_execution_cohort = "mir_c_generic_export_positive_proof_r0"
-current_design_stop = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0 is selected: prove the existing generic compatibility owner with one structured-callee legacy call; do not weaken acceptance or open a second route."
-current_blocker_token = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0: use the existing Global print compatibility dispatcher and need-flag owner; selected pure-first still rejects legacy op=call before dispatch."
+current_execution_cohort = "mir_c_generic_export_positive_proof_r0_closeout"
+current_design_stop = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0 implementation is complete; record the callee-backed rc=0 evidence and synchronize the pointer before selecting the R7 census row."
+current_blocker_token = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0 closeout: structured Global/print compatibility succeeds through the existing dispatcher; strict pure-first legacy op=call remains a named pre-artifact reject."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0: existing focused C test and pointer/active-surface guards must remain green; no new guard."
+guard_followup = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0 closeout: focused C test, static V2 session test, pointer guard, and diff check passed; no new guard."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -43,10 +43,13 @@ whole-pipeline claim is made. The prepared-operand D0 census identified the
 typed issuers and mutation boundaries; a persistent definition index remains
 deferred. The bounded self-cache implementation is landed at
 `6383fe6a96`; it only reuses the existing cache after successful
-materialization and is now in closeout.
+materialization and is now in closeout. The generic compatibility positive
+proof is landed at `c1467583fe`: structured legacy `Global/print` reaches
+`rc == 0` with an object while selected pure-first keeps its named reject; no
+generic caller-zero claim is made.
 """
 next_design_card = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0"
-next_execution_card = "MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0"
+next_execution_card = "none__closeout_mir_c_generic_export_positive_proof_r0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -64,5 +67,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 is still open; M7-S write-only source/MIR/OBJ/EXE/reject evidence is closed; llvmlite remains explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/callee/FieldGet/schema/Loop evidence landed; Pair exit30 green. Receiver R0=0cd9ccec70, physical-program retirement=7a31b48b75, mutation proof=5a117a96a2; Loop is ParkedSealed__NoCallableNoneCaller. LocalSSA, selected-C, Dynamic JSON, emit-clone, debug-policy, lazy-payload, postprocess-walk, refresh-counter, and variable-read rows are closed with focused evidence. Method-handler policy split landed at a173e5456c; PHI analysis batch I0 landed at 7b7f6860c3 with invocation-local sharing only; LocalSSA self-cache I0 landed at 6383fe6a96. C focused-driver arity repair landed at d5658dc759 after all three direct driver compiles passed. LocalSSA guard path repair landed at a9389ede13 after the path-aware COPY-UNKNOWN0 guard passed. Lookup facade remains ParkedSealed__NoExclusiveDeleteSet; prepared-operand definition index remains deferred."
+  "2026-09-10: Receiver/callee/FieldGet/schema evidence and Pair exit30 are recorded. Loop remains ParkedSealed__NoCallableNoneCaller. LocalSSA, selected-C, Dynamic JSON, emit-clone, debug-policy, lazy-payload, postprocess, refresh-counter, variable-read, method-handler split, PHI batch, and self-cache rows are closed. C driver arity d5658dc759, LocalSSA guard a9389ede13, and generic compatibility positive c1467583fe (structured Global/print rc=0 object; strict pure-first legacy call named reject) are recorded. Lookup facade and prepared-operand definition index remain deferred.",
 ]

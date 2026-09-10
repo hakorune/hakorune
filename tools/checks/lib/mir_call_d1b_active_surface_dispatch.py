@@ -6,6 +6,7 @@ from pathlib import Path
 
 from mir_call_d1b_active_surface_dispatch_helpers import (
     check_boxshape_maintenance,
+    check_generic_export_positive_proof_r0, GENERIC_EXPORT_POSITIVE_PROOF_R0_ROW,
     check_legacy_reader_stop_r0,
     check_t3_cleanup,
     T3_CLEANUP_ROW,
@@ -522,6 +523,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_delegated_published_view_c_transport_boxshape_row(state, root, row)
     elif row == api.PRINT_PRODUCER_COVERAGE_S0_ROW:
         api.check_delegated_print_producer_coverage_row(state, root, row)
+    elif row == GENERIC_EXPORT_POSITIVE_PROOF_R0_ROW:
+        check_generic_export_positive_proof_r0(state, root, api)
     elif row == api.POST_GROUP_B_READER_CENSUS_C0_ROW:
         _check_r6_post_group_b_reader_census_c0(state, root, api)
     elif row == CANONICAL_ROUTE_METADATA_RESTORE_R0_ROW:

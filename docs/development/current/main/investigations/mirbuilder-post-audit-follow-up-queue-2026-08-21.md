@@ -66,8 +66,8 @@ Order for the next edge-health window is fixed as:
 
 ```text
 driver arity compile repair (landed `d5658dc759`)
-  -> path-aware LocalSSA guard repair
-  -> callee-backed generic-export positive proof (or explicit reclassification)
+  -> path-aware LocalSSA guard repair (landed `a9389ede13`)
+  -> callee-backed generic-export positive proof (landed `c1467583fe`)
   -> R7 writer/reader/env/boxcall and test-only Loop-PHI census reconciliation
 ```
 
@@ -82,7 +82,7 @@ second move/clone row.
 | Row | Owner / terminal | Production caller | Exclusive delete-set | Acceptance |
 | --- | --- | --- | --- | --- |
 | `MIR-C-INVOCATION-DRIVER-ARITY-REPAIR-R0` | **Landed `d5658dc759`**; `lang/c-abi/tests` / direct C driver compile | `static_v2_execution_driver.c`, `allocation_config_capture_driver.c`, `named_query_driver.c` | stale three-argument `hako_llvmc_invocation_init` call sites only | all three focused drivers compile against the four-argument declaration; no runtime or ABI semantic change |
-| `MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0` | selected C compatibility test owner / rc==0 positive terminal | existing generic-export fixture | non-callee fixture or weakened reachability-only assertion, only after proof review | valid callee-backed generic export succeeds, or the requirement is explicitly reclassified before closeout; no silent weakening |
+| `MIR-C-GENERIC-EXPORT-POSITIVE-PROOF-R0` | **Landed `c1467583fe`**; selected C compatibility test owner / rc==0 positive terminal | existing generic-export fixture | non-callee fixture or weakened reachability-only assertion | structured-callee `Global/print` generic export succeeds with `rc == 0` and an object; strict pure-first keeps its named pre-artifact reject; no silent weakening |
 | `MIR-LOCAL-SSA-GUARD-PATH-REPAIR-R0` | **Landed `a9389ede13`**; `tools/checks` / path-aware guard | existing LocalSSA split guard | stale path literals in the registered guard only | guard resolves the landed owner path and passes against the current split; no LocalSSA semantic edit |
 | `MIR-R7-LEGACY-CENSUS-RECONCILE-D0` | final-pipeline SSOT / inventory terminal | R7 writer/reader/env census and test-only Loop PHI inventory | stale counts and unregistered test-only inventory rows only | finite boundary records writer/env/boxcall/reader counts with includes/excludes and names a reopen trigger; no R7 deletion claim |
 
