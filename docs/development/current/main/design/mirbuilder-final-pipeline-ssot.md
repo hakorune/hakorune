@@ -1217,6 +1217,17 @@ Facts/Recipe issuer, generic fallback, AST/name/ordinal/ValueId join,
 production switch, or backend work is permitted until that relation and its
 caller are explicit.
 
+S0-D1 six-line brief:
+
+```text
+Decision: keep body-only-rebind and every other Outside disposition terminal until one source-aware handoff reaches the existing normalizer exactly once.
+Source authority + canonical issuer: CallableSemanticLoweringState and CallableLoopSourceProjectionV1 issue grouped binding/class/(site, role) rows; RawInvocationSourceContextV1 supplies location/lineage; the existing GenericLoop Facts issuer remains the sole shape/policy issuer.
+Non-authority: Outside diagnostic arrays, cloned GenericLoop AST/Facts, names, ordinals, ValueIds, Builder maps, LoopRouteContext route selection, and the legacy retry continuation.
+Fail-fast boundary: owner/site/lineage, grouped coverage, one final RecipeOnly/ExitAllowed policy, one front-selected terminal route, and pre-effect consumption must close before CorePlan composition or Builder mutation; nested and unsupported Outside shapes reject typed.
+Smallest next slice: accept one private move-only relation at PreparedLocatedRawLoopChildEntryV1, consume it through a named normalizer seam, and prove the callable old-bypass edge that R0 can delete.
+Non-claims: no new Facts/Recipe issuer, body-only admission, nested-loop support, fallback/retry, publication, backend, performance work, or production cutover.
+```
+
 Task order authority for this Loop remainder:
 
 ```text
