@@ -1,55 +1,36 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
-current_design_stop = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0: the strict/dev boxcall owner is already closed; select another finite M7-S owner only when its caller set and exclusive delete-set are independently proven."
-current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0 design_stop: NoSafeSlice__NoRemainingUnsharedM7SOwner; release boxcall callers still share the parser and the test-only remapper has no production terminal."
-guard_followup = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0 design stop: do not duplicate the landed strict/dev boxcall Stop or delete shared LegacyCallV0; reopen on an isolatable caller or supported replacement."
+work_mode = "fast"
+current_execution_row = "MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0"
+current_execution_cohort = "mir_callable_loop_phi_value_binding_r0"
+current_design_stop = "none"
+current_blocker_token = "MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0: connect the existing source schedule to the canonical Binding SSA/PHI owner; named generation/edge rejects must occur before Builder effects."
+guard_followup = "MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0: keep R7 parked independently; do not add a second BindingRef issuer, name fallback, or manual-ledger positive fixture."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-active_lane = "MirBuilder Call completion and legacy retirement"
+active_lane = "MirBuilder callable Loop value binding"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
-latest_card = "mir-call-compatibility-retire-r7-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mir-callable-loop-phi-value-binding-r0-2026-09-11.md"
+latest_card = "mir-callable-loop-phi-value-binding-r0"
+latest_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-value-binding-r0-2026-09-11.md"
 latest_card_summary = """
-Closed focused rows include receiver/FieldGet/schema evidence, selected-C and
-Dynamic JSON, emit-clone/debug-policy/lazy-payload, postprocess/refresh,
-variable-read, and the method-handler split (`a173e5456c`). The PHI analysis
-batch I0 is closed at `7b7f6860c3`: one invocation-local analysis is shared by
-repair consumers, with no persistent cache or semantic PHI change. The lookup
-facade remains `ParkedSealed__NoExclusiveDeleteSet`; `Some` retains retry
-rejection and `None` retains compatibility. Callable Loop PHI generation and
-local-completion remain queued pre-consumer rows; no generic caller-zero or
-whole-pipeline claim is made. The prepared-operand D0 census identified the
-typed issuers and mutation boundaries; a persistent definition index remains
-deferred. The bounded self-cache implementation is landed at
-`6383fe6a96`; it only reuses the existing cache after successful materialization
-and is now in closeout. The generic compatibility positive proof is landed at
-`c1467583fe`: structured legacy `Global/print` reaches `rc == 0` with an object
-while selected pure-first keeps its named reject; no generic caller-zero claim
-is made.
-R7 census reconcile is landed at `ba8c88f85f` for
-`MIR-R7-LEGACY-CENSUS-RECONCILE-D0` with
-current counts and reopen triggers recorded in the linked census card; no
-LegacyCallV0 deletion or caller-zero claim is made.
-The observation-only R7 manifest was resynchronized after the selected typed
-admission change: the current production-scope snapshot is 243/127 Legacy
-rows, 5 env routes, 4 Loop-PHI files, and 252 independent rows. The selected
-normal named reject and corridor guard remain passing; no LegacyCallV0
-retirement claim is made. The R7 owner-unit retirement design is now recorded in
-`mir-call-compatibility-retire-r7-d0-2026-09-11.md`; its strict/dev JSON-v0
-`boxcall` owner is already closed, while the aggregate remains in design stop
-until another finite M7-S owner can be isolated.
+The R7 compatibility-retirement family is parked at
+`NoSafeSlice__NoRemainingUnsharedM7SOwner`; its strict/dev boxcall Stop is
+closed and the env route pair belongs to existing Task 3. The PHI value-flow
+contract is recorded in `docs/reference/mir/loop-recipe-contract.md:1227`,
+with CallableSemanticLoweringState as source authority and canonical Binding
+SSA/PHI as the sole physical issuer. The selected
+`MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0` uses the existing raw Ready production
+edge and has no new semantic issuer, fallback, or OBJ/EXE claim. The following
+local-completion and guard-cleanup rows remain queued in their recorded order.
 """
-next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-next_execution_card = "none__MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+next_design_card = "none"
+next_execution_card = "MIR-CALLABLE-LOOP-PHI-VALUE-BINDING-R0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-value-binding-r0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
