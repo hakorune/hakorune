@@ -216,6 +216,10 @@ pub(crate) enum FinalizedRootResultAbiV1 {
 }
 
 impl NewLocalCommitV1 {
+    pub(super) const fn object(&self) -> CanonicalObjectIdV1 {
+        self.object
+    }
+
     pub(super) fn construction(&self) -> &super::ConstructionEligibilityV1 {
         &self.construction
     }

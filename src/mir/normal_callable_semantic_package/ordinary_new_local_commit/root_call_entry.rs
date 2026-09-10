@@ -298,6 +298,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if !values.is_empty() || row.argument_sites().iter().next().is_some() {
                     return Err(freeze("instance-call-arguments"));
                 }
+                let receiver = self.resolve_instance_receiver(owner, row)?;
                 let MirInstruction::Invoke {
                     operation:
                         InvokeOperation::Call {
@@ -309,17 +310,21 @@ impl OrdinaryNewClaimLedgerV1 {
                 else {
                     return Err(freeze("instance-call-shape"));
                 };
+                if let crate::mir::definitions::Callee::SameModuleInstance {
+                    receiver: actual_receiver,
+                    ..
+                } = &call.callee
+                {
+                    if *actual_receiver != receiver {
+                        return Err(freeze("instance-call-receiver"));
+                    }
+                }
                 if *call
                     != crate::mir::definitions::MirCall::new(
                         None,
                         crate::mir::definitions::Callee::SameModuleInstance {
                             key: row.target().clone(),
-                            receiver: match &call.callee {
-                                crate::mir::definitions::Callee::SameModuleInstance {
-                                    receiver, ..
-                                } => *receiver,
-                                _ => return Err(freeze("instance-call-target")),
-                            },
+                            receiver,
                         },
                         Vec::new(),
                     )
@@ -380,6 +385,47 @@ impl OrdinaryNewClaimLedgerV1 {
             &mapped(invoke)?,
             &mapped(projection)?,
         )?;
+        Ok(())
+    }
+
+    fn resolve_instance_receiver(
+        &self,
+        owner: FunctionOwnerIdV1,
+        row: &crate::mir::normal_callable_semantic_package::RootInstanceCallDispositionRowV1,
+    ) -> Result<ValueId, String> {
+        if row.receiver_initializer().owner() != owner
+            || row.receiver_binding().owner() != owner
+        {
+            return Err(freeze("instance-call-receiver-owner"));
+        }
+        let commits = self.local_commits.borrow();
+        let local = commits
+            .get(row.receiver_initializer())
+            .ok_or_else(|| freeze("instance-call-new-local-missing"))?;
+        if !local.installs(row.receiver_binding()) {
+            return Err(freeze("instance-call-new-local-binding"));
+        }
+        let object = local
+            .ordinary_object()
+            .ok_or_else(|| freeze("instance-call-new-local-kind"))?;
+        if object != row.receiver_object() {
+            return Err(freeze("instance-call-receiver-object"));
+        }
+        local
+            .local()
+            .ok_or_else(|| freeze("instance-call-new-local-value"))
+    }
+
+    #[cfg(test)]
+    pub(crate) fn resolve_root_instance_receiver_for_test(
+        &self,
+        owner: FunctionOwnerIdV1,
+        row: &crate::mir::normal_callable_semantic_package::RootInstanceCallDispositionRowV1,
+        actual: ValueId,
+    ) -> Result<(), String> {
+        if self.resolve_instance_receiver(owner, row)? != actual {
+            return Err(freeze("instance-call-receiver"));
+        }
         Ok(())
     }
 }

@@ -15,6 +15,132 @@ fn root_instance_call_uses_selected_result_contract() {
 }
 
 #[test]
+fn root_instance_call_retains_initializer_and_claim_object_identity() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { left: i64 right: i64
+        birth(left, right) { me.left = left me.right = right }
+        sum(): i64 { return me.left + me.right } }
+        static box Main { main() {
+        local first = new Pair(1, 2)
+        local second = new Pair(3, 4)
+        return second.sum() } }",
+    )
+    .expect("two same-typed receiver source");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let owner = ledger.root_completion_for_test().owner();
+    let call_site = ledger
+        .call_source_completion()
+        .expect("root call relation")
+        .1
+        .call_site()
+        .clone();
+    let row = ledger
+        .take_root_instance_call(owner, &call_site)
+        .expect("take source row")
+        .expect("instance call row");
+    let claims = ledger.pending_claims_for_test();
+    let claim = claims
+        .get(row.receiver_initializer())
+        .expect("initializer claim remains source-owned");
+    assert_eq!(row.receiver_initializer().owner(), owner);
+    assert_eq!(row.receiver_binding().owner(), owner);
+    assert_eq!(row.receiver_object(), claim.object());
+}
+
+#[test]
+fn root_instance_call_rejects_emitted_receiver_mutation() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { birth() { } sum(): i64 { return 30 } }
+        static box Main { main() {
+        local first = new Page()
+        local second = new Page()
+        return second.sum() } }",
+    )
+    .expect("two same-typed receiver source");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let owner = ledger.root_completion_for_test().owner();
+    let claim_rows = ledger.pending_claims_for_test();
+    let claims = claim_rows.values().collect::<Vec<_>>();
+    assert_eq!(claims.len(), 2);
+    let sites = claims.iter().map(|claim| claim.site().clone()).collect::<Vec<_>>();
+    let declarations = sites
+        .iter()
+        .map(|site| {
+            let declaration = package
+                .batch()
+                .declarations()
+                .find(|row| row.owner() == owner)
+                .expect("root declaration");
+            package
+                .batch()
+                .with_lowering_input(declaration.batch_slot(), |input| {
+                    input
+                        .function()
+                        .expression_source()
+                        .initializers()
+                        .find(|row| row.initializer_site() == Some(site.site()))
+                        .map(|row| (row.binding(), row.declaration_site().clone()))
+                })
+                .expect("lowering input")
+                .expect("local declaration")
+        })
+        .collect::<Vec<_>>();
+    drop(claims);
+    drop(claim_rows);
+    ledger.register_new_root(owner).expect("root registration");
+    for (index, site) in sites.iter().enumerate() {
+        let claim = ledger
+            .try_take(site, "Page", 0)
+            .expect("claim take")
+            .expect("selected claim");
+        assert!(ledger.prepare_new_emission(&claim).expect("prepare"));
+        ledger.begin_new_emission(site).expect("begin");
+        let initializer = crate::mir::ValueId(100 + index as u32 * 2);
+        let local = crate::mir::ValueId(101 + index as u32 * 2);
+        let block = crate::mir::BasicBlockId::new(index as u32);
+        let binding = crate::mir::MirInstruction::InvokeNormalResult {
+            invoke_block: block,
+            dst: initializer,
+        };
+        ledger
+            .record_new_emission(site, initializer, Vec::new(), None, vec![(block, binding)])
+            .expect("record");
+        ledger
+            .complete_new_expression(site, "Page", initializer)
+            .expect("complete expression");
+        let crate::mir::resolved_semantics::SourceBindingSiteV1::Local {
+            statement,
+            ordinal,
+        } = &declarations[index].1
+        else {
+            panic!("local declaration");
+        };
+        ledger
+            .complete_local_installation(
+                owner,
+                statement.node(),
+                &[(declarations[index].0, *ordinal, initializer, local)],
+            )
+            .expect("complete local");
+    }
+    let call_site = ledger
+        .call_source_completion()
+        .expect("root call relation")
+        .1
+        .call_site()
+        .clone();
+    let row = ledger
+        .take_root_instance_call(owner, &call_site)
+        .expect("take source row")
+        .expect("instance call row");
+    assert_ne!(row.receiver_initializer(), &sites[0]);
+    let error = ledger
+        .resolve_root_instance_receiver_for_test(owner, &row, crate::mir::ValueId(101))
+        .expect_err("emitted receiver mutation must fail at the source/local boundary");
+    assert!(error.contains("instance-call-receiver"), "{error}");
+}
+
+#[test]
 fn root_instance_call_without_result_contract_stays_unavailable() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Page { birth() { } }

@@ -58,6 +58,9 @@ impl LocalCommitV1 {
             Self::Map(row) => row.local(),
         }
     }
+    pub(super) fn ordinary_object(&self) -> Option<CanonicalObjectIdV1> {
+        self.ordinary().map(NewLocalCommitV1::object)
+    }
     pub(super) fn initializer(&self) -> Option<ValueId> {
         match self {
             Self::Ordinary(row) => row.emission.completed_initializer(),

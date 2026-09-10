@@ -20,13 +20,17 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::normal_callable_semantic_package::selected_mapping::
     VerifiedSelectedCallableBatchMapV1;
-use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
+use hakorune_mir_defs::{
+    CanonicalObjectIdV1, CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
+};
 
 #[derive(Debug)]
 pub(crate) struct RootInstanceCallDispositionRowV1 {
     call_site: OwnedExprSiteV1,
     receiver_site: SourceExprSiteV1,
     receiver_binding: BindingRefV1,
+    receiver_initializer: OwnedExprSiteV1,
+    receiver_object: CanonicalObjectIdV1,
     target: CanonicalSameModuleCallableKeyV1,
     target_batch_slot: u32,
     argument_sites: Box<[SourceExprSiteV1]>,
@@ -43,6 +47,14 @@ impl RootInstanceCallDispositionRowV1 {
 
     pub(crate) const fn receiver_binding(&self) -> BindingRefV1 {
         self.receiver_binding
+    }
+
+    pub(crate) fn receiver_initializer(&self) -> &OwnedExprSiteV1 {
+        &self.receiver_initializer
+    }
+
+    pub(crate) const fn receiver_object(&self) -> CanonicalObjectIdV1 {
+        self.receiver_object
     }
 
     pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
@@ -181,6 +193,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if !call.arguments().is_empty() || !terminal.arguments().is_empty() {
             return Err(freeze("root-instance-call-arguments-unsupported"));
         }
+        let receiver_object = claim.object();
         drop(claims);
         let mut rows = self.root_instance_calls.borrow_mut();
         let call_site = OwnedExprSiteV1::new(owner, site.clone());
@@ -191,6 +204,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     call_site,
                     receiver_site: call.receiver_site().clone(),
                     receiver_binding: binding,
+                    receiver_initializer: owned_initializer,
+                    receiver_object,
                     target: target.clone(),
                     target_batch_slot: *target_batch_slot,
                     argument_sites: call
