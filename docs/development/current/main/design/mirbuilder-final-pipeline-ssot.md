@@ -1594,8 +1594,10 @@ claim/object mismatch. Rust finalization then matches the row's exact
 initializer/binding to the existing New local-commit value and rejects a
 receiver `ValueId` substituted from another same-typed object. Physical
 projection emits the prepared receiver-object identity for the ordinary callee;
-V2/V4 reject caller/callee object mismatch before LLVM emission. A missing
-prepared identity remains unavailable.
+the selected V4 invocation gate rejects caller/callee object mismatch before
+LLVM emission. V2 preserves the physical row, receiver shape, and layout
+coherence; it does not issue a second object-identity proof. A missing prepared
+identity remains unavailable.
 
 Bounded task order (the physical I1 design-stop is now open):
 
@@ -1607,8 +1609,9 @@ Bounded task order (the physical I1 design-stop is now open):
 2. **Physical callee identity (I1-D0, current design stop).** In the existing physical program owner,
    prepare one receiver-object identity for each selected ordinary instance
    function from the canonical object membership already used by the module.
-   Carry it through the existing JSON/V2/V4 rows and compare it in the
-   ordinary-call validator. Birth and static-call contracts remain unchanged.
+   Carry it through the existing JSON/V2/V4 rows; the V4 invocation validator
+   compares it at the artifact gate, while V2 validates row shape/layout only.
+   Birth and static-call contracts remain unchanged.
 3. **Consumer cutover (I2).** Switch the selected Pair/Method production
    caller to the prepared identity, remove C's ordinary-call inference path,
    and require the same receiver mismatch negative at the pre-artifact gate.
@@ -1621,7 +1624,8 @@ Bounded task order (the physical I1 design-stop is now open):
    issue a second source fact.
 
 Acceptance for the receiver series is source positive/negative coverage,
-Rust finalization rejection before JSON, V2/V4 rejection before LLVM, and one
+Rust finalization rejection before JSON, V4 identity rejection plus V2
+structural rejection before LLVM, and one
 selected Pair/Method production witness. No alias receiver, argument-bearing
 instance call, dynamic receiver, cache, concurrency, or general performance
 claim is included.
@@ -1715,7 +1719,8 @@ intuition about hot paths.
 
 Fail-fast boundary: missing production caller/profile, mismatched index facts,
 stale validated values, or any before/after result that cannot preserve the
-existing V2/V4 rejection and artifact behavior keeps this row at design stop.
+existing V2 structural and V4 identity rejection plus artifact behavior keeps
+this row at design stop.
 
 Smallest next slice: record a baseline for one selected caller with separate
 scan counts/timings, name the exact duplicated index owner, and decide whether
@@ -1846,7 +1851,7 @@ admission-flow-emission/`llc`/object publication; includes Pair, Bool-first,
 and Bool-second direct and linked invocations; excludes native-array,
 compatibility, and receiver-method ingress.
 
-##### MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-D0 (accepted)
+##### MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-D0 (accepted; I0 landed)
 
 Decision: replace the prior ParkedSealed premise with one bounded existing-owner
 implementation design. Requiring the new emitter and its after-change parity
@@ -1857,10 +1862,16 @@ Non-authority: timing results, pinned-text/legacy emitters, source names, or
 fallback cannot select source meaning or create a second production route.
 Fail-fast boundary: LLVM load/parse/verify/emit and target/layout failures reject
 before the existing atomic object publication; caller cleanup remains mandatory.
-Smallest next slice: `MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-I0` in the
-[existing native-library owner](../investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md#lifecycle-v4-existing-session-cutover).
-Non-claims: design accepted, implementation not started; no MirBuilder/R7,
-whole-library graduation, memory-only transport, or concurrency completion.
+Smallest implementation slice was
+`MIRBUILDER-PHYSICAL-C-LLC-LIBRARY-EMISSION-I0` in the [existing
+native-library owner](../investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md#lifecycle-v4-existing-session-cutover).
+It landed at `720849812b` with the existing session and no second emitter.
+The sole V4 `llc` subprocess and its private spawn/wait/environment plumbing
+are retired; parse/verify/object emission now use the invocation-local LLVM C
+API session. Focused parser/execution, Pair/Bool, Map, NativeArray, PATH-free,
+and cleanup evidence is recorded by the native-library owner.
+Non-claims: whole-library graduation, linker-library replacement, memory-only
+transport, parallel sessions, or general R7 completion.
 
 This is a physical backend task adjoining MirBuilder, not a prerequisite for
 its semantic completion. The previous external-wait explanation is withdrawn.
@@ -1946,7 +1957,8 @@ failed Rust I0.
 
 Decision: carry the selected callee's canonical object definition through the
 existing physical function row and compare it with the borrowed receiver at
-the existing V2/V4 call gate. Do not infer the expected object from the first
+the existing V4 call gate. V2 keeps its structural/layout role and does not
+reissue the identity proof. Do not infer the expected object from the first
 `FieldGet`, runtime handle liveness, runtime type IDs, names, or C text. This
 is a `BoxShape` physical projection; it does not issue a new semantic receipt
 or change the source receiver authority.
@@ -1972,10 +1984,11 @@ Fail-fast boundary: missing or duplicate canonical membership, an instance
 role without exactly one prepared object ID, a static role with an object ID,
 function-row/layout object drift, a receiver-bearing call targeting a
 receiverless row, and a live receiver whose object ID differs from the
-callee's prepared object all reject before LLVM emission. V2 and V4 must use
-the same existing function-row field; the current C V4 inference from the
-first `FieldGet` is retired in the same cutover. Birth receiver checks remain
-unchanged.
+callee's prepared object all reject before LLVM emission. V2 and V4 consume
+the same existing function-row field; V4 is the selected caller/callee object
+identity gate, while V2 remains structural and layout-coherent. The old C V4
+inference from the first `FieldGet` is retired in the same cutover. Birth
+receiver checks remain unchanged.
 
 Smallest next slice: census the existing physical function JSON/V2/V4 row and
 its exact-key tests, then name the one row extension (`receiver_object`,
@@ -1989,7 +2002,8 @@ revision is opened.
 
 Acceptance for I1 is a selected `Pair.sum()` physical positive, a same-type
 wrong-receiver negative, a foreign-object/layout negative, static ordinary
-regression, and V2/V4 rejection before LLVM/object output. The existing
+regression, V4 identity rejection plus V2 structural rejection before
+LLVM/object output. The existing
 receiver lane, atomic publication, cleanup coordinates, and C/LLVM session
 remain the sole consumers.
 
@@ -2024,8 +2038,68 @@ caller/callee mismatch before object output, and the existing Pair direct plus
 linked OBJ/EXE witness returns process exit `30`. Static/root/Birth rows retain
 `receiver_object: null`; no receiver inference, name repair, or compatibility
 retry was added. This closes the selected callee-identity implementation and
-consumer cutover. The next bounded row is the existing FieldGet prepared reuse
-design below.
+consumer cutover. The V2/V4 verifier boundary is recorded below so a future
+standalone V2 caller cannot silently acquire the artifact role.
+
+##### `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-VERIFIER-BOUNDARY-D0` (selected design stop, 2026-09-10)
+
+The supplied audit is partly stale and partly a real contract clarification.
+At the current HEAD, `hako_physical_validate_ordinary_call()` in the V2
+structural parser checks receiver presence, SSA availability, role, and arity,
+but does not compare the receiver's object identity with the callee row. The
+existing `lv4_indexed_flow()` V4 gate does compare the live receiver's
+`object_id` with the callee's prepared `receiver_object`, and this gate runs
+before `hako_lts_open()`, LLVM emission, and object publication. Therefore the
+selected production path has no runtime-accessor or post-object safety hole;
+the remaining issue is that the docs must not describe V2 as an identity
+consumer.
+
+**Decision:** keep the existing invocation-local V4 value index as the sole
+caller/callee object-identity consumer. V2 remains a structural/layout
+consumer of the same published function row. Do not add a second C-side
+identity inference, a `FieldGet` scan, a new JSON field, or a runtime repair
+path. If a direct production/public caller is found that can emit an artifact
+after V2 without entering V4, route that caller through the existing V4 gate
+and reopen this row; do not make the runtime accessor the first rejection
+boundary.
+
+**Source authority + canonical issuer:** the Rust physical-program owner
+issues `receiver_object` from the selected callable key and the existing
+canonical object-membership map. The V4 invocation index borrows that row and
+propagates object identity through existing `new_box`/`copy`/receiver values.
+V2 may validate row/layout coherence and receiver shape, but it cannot issue
+or repair object meaning.
+
+**Non-authority:** actual runtime accessors, first `FieldGet`, names, MIR type
+observations, handle liveness alone, C defaults, JSON serializer inference,
+or a second source resolver.
+
+**Fail-fast boundary:** every artifact-producing caller must reach
+`lv4_indexed_flow()` and reject a same-layout foreign receiver before
+`hako_lts_open()`/`lv4_emit()`. A direct V2 parser caller is not an artifact
+consumer; it must remain structural-only and must not be counted as identity
+evidence.
+
+**Smallest next slice / task order:**
+
+1. Census the public and production callers of
+   `hako_llvmc_validate_published_lifecycle_physical_v2_doc()` and prove that
+   each artifact-producing path continues into `lv4_admit()`.
+2. Keep the existing same-typed foreign-receiver negative at the V4
+   pre-artifact gate; add only a caller-chain assertion if the census finds a
+   bypass. Do not duplicate the object walk in V2.
+3. Correct owner README/reference wording from “V2/V4 identity check” to
+   “V2 structural validation + V4 identity gate”, then close this design row
+   when the bypass census is zero.
+
+**Acceptance:** the selected Pair/Method mismatch remains rejected before
+object output; all artifact callers are shown to pass V4 identity admission;
+static, Birth, and valid instance calls remain green. If a V2 direct artifact
+caller exists, the row stays open until it is routed through the same V4 gate.
+
+**Non-claims:** no V2 index fusion, new physical schema, runtime ABI change,
+parallel compile support, general performance improvement, or arbitrary
+instance-method expansion is included.
 
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-D0`
 
