@@ -258,48 +258,51 @@ impl UnifiedCallEmitterBox {
             receiver,
         } = target
         {
-            let recv_cls = box_type
-                .clone()
-                .or_else(|| {
-                    builder
-                        .function_state
-                        .type_ctx
-                        .value_origin_newbox
-                        .get(&receiver)
-                        .cloned()
+            let box_type = box_type.as_deref();
+            let method = method.as_str();
+            crate::mir::builder::observe::resolve::emit_try_lazy(builder, |builder| {
+                let recv_cls = box_type
+                    .map(str::to_owned)
+                    .or_else(|| {
+                        builder
+                            .function_state
+                            .type_ctx
+                            .value_origin_newbox
+                            .get(&receiver)
+                            .cloned()
+                    })
+                    .or_else(|| {
+                        builder
+                            .function_state
+                            .type_ctx
+                            .value_types
+                            .get(&receiver)
+                            .and_then(|t| {
+                                if matches!(t, crate::mir::MirType::String) {
+                                    Some("StringBox".to_string())
+                                } else {
+                                    None
+                                }
+                            })
+                    })
+                    .unwrap_or_default();
+                // Use indexed candidate lookup (tail → names)
+                let candidates: Vec<String> = lookup
+                    .map(|headers| {
+                        crate::mir::builder::builder_method_index::method_candidates_from_headers(
+                            headers,
+                            method,
+                            arity_for_try,
+                        )
+                    })
+                    .unwrap_or_else(|| builder.method_candidates(method, arity_for_try));
+                serde_json::json!({
+                    "recv_cls": recv_cls,
+                    "method": method,
+                    "arity": arity_for_try,
+                    "candidates": candidates,
                 })
-                .or_else(|| {
-                    builder
-                        .function_state
-                        .type_ctx
-                        .value_types
-                        .get(&receiver)
-                        .and_then(|t| {
-                            if matches!(t, crate::mir::MirType::String) {
-                                Some("StringBox".to_string())
-                            } else {
-                                None
-                            }
-                        })
-                })
-                .unwrap_or_default();
-            // Use indexed candidate lookup (tail → names)
-            let candidates: Vec<String> = lookup
-                .map(|headers| {
-                    crate::mir::builder::builder_method_index::method_candidates_from_headers(
-                        headers,
-                        method,
-                        arity_for_try,
-                    )
-                })
-                .unwrap_or_else(|| builder.method_candidates(method, arity_for_try));
-            let meta = serde_json::json!({
-                "recv_cls": recv_cls,
-                "method": method,
-                "arity": arity_for_try,
-                "candidates": candidates,
             });
-            crate::mir::builder::observe::resolve::emit_try(builder, meta);
         }
 
         // Preserve only the explicit early str-like compatibility route.
@@ -405,16 +408,22 @@ impl UnifiedCallEmitterBox {
             ..
         } = &callee
         {
-            let chosen = format!("{}.{}{}", box_name, method, format!("/{}", arity_for_try));
-            let meta = serde_json::json!({
-                "recv_cls": box_name,
-                "method": method,
-                "arity": arity_for_try,
-                "chosen": chosen,
-                "certainty": format!("{:?}", certainty),
-                "reason": "unified",
-            });
-            crate::mir::builder::observe::resolve::emit_choose(builder, meta);
+            crate::mir::builder::observe::resolve::emit_choose_lazy(
+                builder,
+                *certainty,
+                |_builder| {
+                    let chosen =
+                        format!("{}.{}{}", box_name, method, format!("/{}", arity_for_try));
+                    serde_json::json!({
+                        "recv_cls": box_name,
+                        "method": method,
+                        "arity": arity_for_try,
+                        "chosen": chosen,
+                        "certainty": format!("{:?}", certainty),
+                        "reason": "unified",
+                    })
+                },
+            );
         }
 
         // Validate call arguments

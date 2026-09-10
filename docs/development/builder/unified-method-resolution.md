@@ -32,6 +32,11 @@ Behavior flags (existing)
 - KPI (dev-only):
   - `NYASH_DEBUG_KPI_KNOWN=1` → aggregate Known rate for `resolve.choose`.
   - `NYASH_DEBUG_SAMPLE_EVERY=N` → sample output every N events.
+- `resolve.try` / `resolve.choose` payloads are built lazily behind the
+  existing `src/debug/hub.rs` master/category/sample/sink gate. With debug
+  output disabled, candidate lookup, function/region lookup, timestamps, and
+  JSON construction are skipped; enabled JSON fields and the typed Known KPI
+  remain unchanged.
 
 Retired selector (policy)
 - `NYASH_REWRITE_KNOWN_DEFAULT`, `NYASH_BUILDER_REWRITE_INSTANCE`,
