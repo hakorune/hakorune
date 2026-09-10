@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-VERIFIER-BOUNDARY-D0"
-current_execution_cohort = "mirbuilder_physical_call_receiver_identity_verifier_boundary_d0"
+work_mode = "closeout"
+current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
+current_execution_cohort = "mirbuilder_final_acceptance_scope"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "V4 identity gate must cover every artifact-producing physical caller before hako_lts_open/lv4_emit; V2 remains structural/layout validation and must not duplicate object inference. Untyped storage remains an intentional NoSafeSlice boundary."
+current_blocker_token = "Run the existing finite real-app EXE boundary suite and classify each result against its pinned owner; preserve the V2 structural/V4 identity boundary and do not claim whole-MirBuilder completion from this scope. Untyped storage remains an intentional NoSafeSlice boundary."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -54,10 +54,10 @@ prepared object definition, V2 validates its structural/layout shape, and V4
 compares the receiver object before LLVM emission; Pair direct/linked exit-30
 and a dedicated mismatch rejection are recorded. The V2/V4 boundary wording
 is selected for a caller-chain audit before any further physical change.
-FieldGet prepared-reference reuse I0 landed at `90928e0585`: the existing physical instruction row now owns one projected `CanonicalFieldRefV1`, and admission, layout collection, and JSON consume it. The focused suite is 9/9; C parser/build and Pair direct/linked exit-30 checks remain green. C invocation-index measurement/fusion is already closed and ParkedSealed at D1; untyped object storage remains a parked NoSafeSlice. Whole MirBuilder, R7, general LLVM graduation, parallel sessions, and memory-only transport remain unproven.
+FieldGet prepared-reference reuse I0 landed at `90928e0585`: the existing physical instruction row now owns one projected `CanonicalFieldRefV1`, and admission, layout collection, and JSON consume it. The focused suite is 9/9; C parser/build and Pair direct/linked exit-30 checks remain green. C invocation-index measurement/fusion is already closed and ParkedSealed at D1; untyped object storage remains a parked NoSafeSlice. Whole MirBuilder, R7, general LLVM graduation, parallel sessions, and memory-only transport remain unproven. The fixed real-app EXE boundary suite was rechecked at HEAD `41d3db3076`: 2/11 passed (typed object NewBox plus the explicit unsupported-boundary probe) and 9/11 remain owner-scoped failures. The acceptance row stays open; these reds do not reopen the already-closed V2/V4 verifier boundary.
 """
-next_design_card = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-VERIFIER-BOUNDARY-D0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
@@ -74,5 +74,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver source/local I0 landed at 694f61e253; same-typed receiver substitution rejects before transport. Callee identity I1 landed at f82e0b51af/648eed76dc: the function row carries canonical membership, V2 checks structural/layout shape, V4 rejects object drift before LLVM, and Pair exit 30 is green. FieldGet prepared-reference reuse landed at 90928e0585; one row-owned ref feeds admission/layout/JSON, the focused suite is 9/9, and Pair exit 30 is green. C index fusion is ParkedSealed D1; untyped storage is ParkedSealed/NoSafeSlice. The pointer selects the V2/V4 verifier-boundary design stop."
+  "2026-09-10: receiver source/local I0 landed at 694f61e253; same-typed receiver substitution rejects before transport. Callee identity I1 landed at f82e0b51af/648eed76dc: the function row carries canonical membership, V2 checks structural/layout shape, V4 rejects object drift before LLVM, and Pair exit 30 is green. FieldGet prepared-reference reuse landed at 90928e0585; one row-owned ref feeds admission/layout/JSON, the focused suite is 9/9, and Pair exit 30 is green. The V2/V4 caller-chain census found no artifact bypass: V2 is structural/layout, V4 is the identity gate before hako_lts_open/lv4_emit; the verifier-boundary row is closed. C index fusion is ParkedSealed D1; untyped storage is ParkedSealed/NoSafeSlice. The pointer advances to the existing finite acceptance scope."
 ]

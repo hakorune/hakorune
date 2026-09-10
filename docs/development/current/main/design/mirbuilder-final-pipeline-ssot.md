@@ -995,6 +995,22 @@ case. These are separate slices: no new receipt, RawCompatibility fallback,
 or accepted-source-to-rejection mutation is allowed, and no production
 cutover claim is made while the current-only reds remain.
 
+The same fixed suite was rechecked at current HEAD
+`41d3db3076a23cc16d7b920f96240250dc7b5143` after the V2/V4
+verifier-boundary closeout, using the repository release tool pair. It
+completed in 1.69s with `2/11` passing: `typed_object_newbox_min_exe` and
+the explicit unsupported-boundary probe. The nine failures were
+`typed_object_method_min_exe`, `typed_object_birth_min_exe`,
+`boxtorrent_mini_exe`, `typed_object_untyped_field_min_exe`,
+`binary_trees_exe`, `mimalloc_lite_exe`,
+`json_stream_aggregator_exe_runtime_boundary`, `allocator_stress_exe`, and
+`typed_object_birth_param_min_exe`. Observed terminals remain the existing
+owner-scoped failures: unsupported `Invoke` MIR JSON for method/Birth,
+unsupported declared parameter or loop handoff for the older real-app corpus,
+the untyped-field local-commit drift, and the missing root-call entry for
+Birth parameters. This recheck does not close acceptance or alter the
+existing baseline classification.
+
 ##### `MIRBUILDER-INIT-FIELDS-CANONICAL-PROJECTION-I0`
 
 Decision: legacy `init_fields` names join the existing source declaration
@@ -2041,7 +2057,7 @@ retry was added. This closes the selected callee-identity implementation and
 consumer cutover. The V2/V4 verifier boundary is recorded below so a future
 standalone V2 caller cannot silently acquire the artifact role.
 
-##### `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-VERIFIER-BOUNDARY-D0` (selected design stop, 2026-09-10)
+##### `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-VERIFIER-BOUNDARY-D0` (closed 2026-09-10)
 
 The supplied audit is partly stale and partly a real contract clarification.
 At the current HEAD, `hako_physical_validate_ordinary_call()` in the V2
@@ -2100,6 +2116,21 @@ caller exists, the row stays open until it is routed through the same V4 gate.
 **Non-claims:** no V2 index fusion, new physical schema, runtime ABI change,
 parallel compile support, general performance improvement, or arbitrary
 instance-method expansion is included.
+
+**Caller-chain census closeout (2026-09-10):** The finite boundary covered
+the public V2 validator, the Rust physical transport, the C V4 test drivers,
+and the artifact-producing V4 ingress from its V2 structural check through
+`lv4_admit()` to `hako_lts_open()`/`lv4_emit()` and object publication. The
+only call sites of `hako_llvmc_validate_published_lifecycle_physical_v2_doc()`
+are the V4 compile ingress at
+`lang/c-abi/shims/published_mir/hako_llvmc_ffi_lifecycle_v4_compile.inc:212`
+and the parser-only public wrapper at
+`lang/c-abi/shims/hako_llvmc_ffi_route.inc:486`. The V4 ingress calls
+`lv4_admit()` at line 220 and reaches `hako_lts_open()`/emission only after
+that result is accepted. Rust `capi_transport` and the two C V4 drivers call
+the V4 ingress; no artifact-producing V2 bypass was found. The public V2
+wrapper returns validation status only and is not identity evidence.
+Therefore the row is closed without a second V2 object walk or code change.
 
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-D0`
 
