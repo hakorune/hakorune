@@ -1,6 +1,6 @@
 ---
-Status: Closed design; observation manifest landed at `ba8c88f85f`
-Date: 2026-08-20
+Status: Closed design; observation manifest resynchronized 2026-09-11
+Date: 2026-09-11
 Decision: MIR-CALL-LEGACY-TARGET-CENSUS-D0
 Active row: MIR-R7-LEGACY-CENSUS-RECONCILE-D0
 Parent: docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
@@ -183,7 +183,7 @@ and non-authority, and the named reopen triggers above are recorded together.
 No R7 deletion, compatibility retirement, or performance claim is evidence for
 this design row.
 
-## 2026-09-11 observation manifest closeout
+## 2026-09-11 observation manifest closeout (superseded counts)
 
 The bounded manifest is now materialized at
 `tools/checks/manifests/mir_r7_legacy_census_manifest_v1.json`. Its generator
@@ -211,6 +211,34 @@ Dynamic Loop-PHI files totaling 1,009 lines. `boxcall` and the mechanical
 reissuer are classifications inside the Legacy rows, so they are not counted
 twice. This closes the R7 census design only; GUARD-I0, LegacyCallV0
 retirement, compatibility migration, and caller-zero remain separate rows.
+
+## 2026-09-11 manifest resynchronization
+
+The selected normal admission change added four production-scope
+`LegacyCallV0` observations in the existing `PublishedMirBackendView` owner.
+The prior 239/248 snapshot therefore triggered the documented source-drift
+reopen condition. The observation-only generator and manifest were updated at
+the current HEAD without changing compiler meaning or retirement policy.
+
+The resynchronized boundary is:
+
+```text
+legacy lexical rows: 243 occurrences / 127 files
+compile-environment routes: 5 / 4 families
+test-only Loop-PHI files: 4 / 1009 LOC
+independent manifest rows: 252
+```
+
+Validation:
+
+```text
+python3 tools/checks/mir_r7_legacy_census_manifest.py --write
+python3 tools/checks/mir_r7_legacy_census_manifest.py
+  -> ok rows=252 legacy=243 env=5 loop_phi=4
+```
+
+This is a census repair only. It does not authorize LegacyCallV0 deletion,
+compatibility migration, a new reader, or a caller-zero claim.
 
 ## Historical D0 closeout (2026-08-20)
 

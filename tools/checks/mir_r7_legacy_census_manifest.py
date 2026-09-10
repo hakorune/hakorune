@@ -20,7 +20,7 @@ from typing import Any
 KIND = "MirR7LegacyCensusManifestV1"
 SCHEMA_VERSION = 1
 LEGACY_TOKEN = "LegacyCallV0"
-LEGACY_EXPECTED = 239
+LEGACY_EXPECTED = 243
 LEGACY_FILES_EXPECTED = 127
 ENV_EXPECTED = 5
 LOOP_EXPECTED = 4
@@ -376,7 +376,14 @@ def main() -> int:
     if not isinstance(data, dict):
         fail("manifest root must be an object")
     validate_manifest(root, data)
-    print("[mir-r7-legacy-census] ok rows=248 legacy=239 env=5 loop_phi=4")
+    counts = data["counts"]
+    print(
+        "[mir-r7-legacy-census] ok "
+        f"rows={counts['independent_rows']} "
+        f"legacy={counts['legacy_occurrences']} "
+        f"env={counts['compile_env_routes']} "
+        f"loop_phi={counts['loop_phi_files']}"
+    )
     return 0
 
 

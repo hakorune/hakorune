@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0"
-current_execution_cohort = "mir_call_canonical_corridor_guard_i0"
+current_execution_row = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0"
+current_execution_cohort = "mir_r7_legacy_census_reconcile_d0"
 current_design_stop = ""
-current_blocker_token = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0 closeout: record the selected normal corridor revalidation before opening the R7 retirement design."
-guard_followup = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0 closed at c005e8ddb6: the selected normal corridor guard and named admission evidence pass; compatibility and LegacyCallV0 retirement remain separate."
+current_blocker_token = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 closeout: manifest and linked SSOT are resynchronized; commit/push evidence before opening the R7 retirement design."
+guard_followup = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 reconciled at the current source boundary: 243/127 Legacy, 5 env, 4 Loop-PHI, 252 rows; no retirement claim."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -15,8 +15,8 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
-latest_card = "mir-call-canonical-corridor-guard-i0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-canonical-corridor-guard-i0-2026-08-20.md"
+latest_card = "mir-call-legacy-target-census-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
 latest_card_summary = """
 Closed focused rows include receiver/FieldGet/schema evidence, selected-C and
 Dynamic JSON, emit-clone/debug-policy/lazy-payload, postprocess/refresh,
@@ -38,19 +38,17 @@ R7 census reconcile is landed at `ba8c88f85f` for
 `MIR-R7-LEGACY-CENSUS-RECONCILE-D0` with
 current counts and reopen triggers recorded in the linked census card; no
 LegacyCallV0 deletion or caller-zero claim is made.
-The observation-only R7 manifest is validated at
-`tools/checks/manifests/mir_r7_legacy_census_manifest_v1.json`; its 239/127
-Legacy, 5 env, and 4 Loop-PHI rows are evidence only. Normal typed admission D0
-now uses the existing view owner’s `try_new_selected_normal` predicate. The
-named `SelectedNormalUsesLegacyCallV0` reject, three focused admission tests,
-and canonical corridor guard pass. Guard-I0 is closed as observation-only at
-`c005e8ddb6`; legacy-only selected output remains on its existing route until
-a separate producer cutover, and no LegacyCallV0 retirement claim is made.
-The next step is a finite R7 retirement design audit.
+The observation-only R7 manifest was resynchronized after the selected typed
+admission change: the current production-scope snapshot is 243/127 Legacy
+rows, 5 env routes, 4 Loop-PHI files, and 252 independent rows. The selected
+normal named reject and corridor guard remain passing; no LegacyCallV0
+retirement claim is made. The R7 owner-unit retirement design is now recorded
+in `mir-call-compatibility-retire-r7-d0-2026-09-11.md`; implementation remains
+stopped until one finite M7-S owner is selected.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_execution_card = "none__MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-canonical-corridor-guard-i0-2026-08-20.md"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

@@ -8,14 +8,14 @@
   "counts": {
     "compile_env_families": 4,
     "compile_env_routes": 5,
-    "independent_rows": 248,
+    "independent_rows": 252,
     "legacy_files": 127,
-    "legacy_occurrences": 239,
+    "legacy_occurrences": 243,
     "loop_phi_files": 4,
     "loop_phi_loc": 1009
   },
   "kind": "MirR7LegacyCensusManifestV1",
-  "observed_commit": "b5cb533f213c2f949a047a1a3144790cd51ad55b",
+  "observed_commit": "840ee668bf330816d5a9804a8dbb5aea33ef97c7",
   "rows": [
     {
       "disposition": "production lexical surface",
@@ -989,9 +989,28 @@
     {
       "disposition": "production lexical surface",
       "func_authority": "not_present",
-      "id": "r7.legacy.2ca43c430c071c95",
+      "id": "r7.legacy.743d129fd46fd9db",
       "kind": "legacy_occurrence",
-      "line": 286,
+      "line": 147,
+      "line_text": "SelectedNormalUsesLegacyCallV0 {",
+      "owner": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
+      "path": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
+      "profile": "compatibility_surface",
+      "reachability": "production_scope",
+      "reopen_trigger": "new non-test constructor/reissuer or selected backend consumption",
+      "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
+      "role": "production_surface",
+      "selected_corridor": false,
+      "source_sha256": "7eb77b4bc05efd6b29fe3f80e8b2a9e41a1538b625f505e258ff42c509812526",
+      "symbol": "PublishedMirBackendViewErrorV1",
+      "token": "LegacyCallV0"
+    },
+    {
+      "disposition": "production lexical surface",
+      "func_authority": "not_present",
+      "id": "r7.legacy.2a3a4eb65306fe8c",
+      "kind": "legacy_occurrence",
+      "line": 294,
       "line_text": "MirInstruction::LegacyCallV0 {",
       "owner": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
       "path": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
@@ -1001,8 +1020,65 @@
       "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
       "role": "production_surface",
       "selected_corridor": false,
-      "source_sha256": "5dcf8c5be0bfad2a40e3e3c5bda5a6c5f246ec69c93dd1c9ae531c280c806f7e",
+      "source_sha256": "7eb77b4bc05efd6b29fe3f80e8b2a9e41a1538b625f505e258ff42c509812526",
       "symbol": "try_new",
+      "token": "LegacyCallV0"
+    },
+    {
+      "disposition": "production lexical surface",
+      "func_authority": "not_present",
+      "id": "r7.legacy.bad0dc2c531064ee",
+      "kind": "legacy_occurrence",
+      "line": 440,
+      "line_text": "MirInstruction::LegacyCallV0 { .. } if legacy_site.is_none() => {",
+      "owner": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
+      "path": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
+      "profile": "compatibility_surface",
+      "reachability": "production_scope",
+      "reopen_trigger": "new non-test constructor/reissuer or selected backend consumption",
+      "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
+      "role": "production_surface",
+      "selected_corridor": false,
+      "source_sha256": "7eb77b4bc05efd6b29fe3f80e8b2a9e41a1538b625f505e258ff42c509812526",
+      "symbol": "try_new_selected_normal",
+      "token": "LegacyCallV0"
+    },
+    {
+      "disposition": "production lexical surface",
+      "func_authority": "not_present",
+      "id": "r7.legacy.4bfe8de0f21afc7d",
+      "kind": "legacy_occurrence",
+      "line": 445,
+      "line_text": "PublishedMirBackendViewErrorV1::SelectedNormalUsesLegacyCallV0 {",
+      "owner": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
+      "path": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
+      "profile": "compatibility_surface",
+      "reachability": "production_scope",
+      "reopen_trigger": "new non-test constructor/reissuer or selected backend consumption",
+      "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
+      "role": "production_surface",
+      "selected_corridor": false,
+      "source_sha256": "7eb77b4bc05efd6b29fe3f80e8b2a9e41a1538b625f505e258ff42c509812526",
+      "symbol": "try_new_selected_normal",
+      "token": "LegacyCallV0"
+    },
+    {
+      "disposition": "production lexical surface",
+      "func_authority": "not_present",
+      "id": "r7.legacy.ce6b7f3b5ecda787",
+      "kind": "legacy_occurrence",
+      "line": 461,
+      "line_text": "PublishedMirBackendViewErrorV1::SelectedNormalUsesLegacyCallV0 {",
+      "owner": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
+      "path": "src/mir/compiler/normal_default_pipeline/published_backend_view.rs",
+      "profile": "compatibility_surface",
+      "reachability": "production_scope",
+      "reopen_trigger": "new non-test constructor/reissuer or selected backend consumption",
+      "retire_when": "retain until an explicit replacement reaches caller-zero; do not infer deletion from this census",
+      "role": "production_surface",
+      "selected_corridor": false,
+      "source_sha256": "7eb77b4bc05efd6b29fe3f80e8b2a9e41a1538b625f505e258ff42c509812526",
+      "symbol": "try_new_selected_normal",
       "token": "LegacyCallV0"
     },
     {
@@ -4753,6 +4829,6 @@
       "crates (Rust production scope)",
       "lang/c-abi route (fixed env anchors)"
     ],
-    "scope_sha256": "9cf90580d3457ddf8f6250660c7aafbd27d0bf6634dce40f9910a596fd1dc51c"
+    "scope_sha256": "13cb916d7f24e0d8ee290d22028ec04c508885740f8963ebd6630512c8ac6c6f"
   }
 }
