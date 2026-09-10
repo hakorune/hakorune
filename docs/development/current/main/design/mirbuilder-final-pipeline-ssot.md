@@ -1562,7 +1562,7 @@ The previous Ready I0 claim remains limited to source-row consumption; these
 two checks are reopened prerequisites for the BodyOnly row, not a second Facts
 issuer or a new Loop authority.
 
-##### MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0-D0 (design stop 2026-09-10)
+##### MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0-D0 (design accepted 2026-09-10)
 
 ```text
 Decision: preserve the existing Ready remainder and admit one grouped
@@ -1587,6 +1587,32 @@ Non-claims: no new Facts/Recipe authority, no second semantic receipt, no
           nested loops, no other Outside kind, no callable-None bypass deletion,
           no OBJ/EXE/publication, route retirement, or performance claim.
 ```
+
+The concrete product is a private
+`CallableLoopReadyBodyOnlyProductV1 { ready, body_only }`. `ready` is the
+existing `VerifiedCallableSemanticLoopBindingScheduleV1`; `body_only` is the
+existing owner/loop-scoped `CallableLoopOutsideReasonV1` row group. The
+projection disposition gains one `ReadyWithBodyOnly(product)` arm; the old
+`Ready(schedule)` and typed `Outside(reason)` meanings remain unchanged.
+`PreparedCallableGenericLoopSourceFactsPayloadV1` carries this product as one
+move, and the existing Facts/Recipe issuer stores it in the same source
+receipt. The relation view exposes the borrowed body-only rows for validation;
+it does not issue a second binding relation or route.
+
+The product is accepted only when `ready.owner == body_only.owner`, both match
+the same loop site and root lineage, all body-only rows are
+`BodyRead`/`BodyRebind` pairs, and the existing planner marks the same
+increment binding/step consumed by the normalizer. `finish()` remains the
+ledger's final completeness check. This gives one source product and one
+consumer without reclassifying BodyOnly as a Ready carrier.
+
+D0 closeout: the worker seam audit confirmed one production entry and one
+existing source-aware adapter consumer. The product above is a BoxShape
+transport over the existing issuer and Recipe; it does not add a Facts owner,
+route selector, or backend. Implementation may now begin at the existing raw
+Ready/Outside entry, with relation-owner and planner-increment checks before
+composer/lowerer effects. Other Outside kinds, the callable-None bypass, and
+the shared legacy route remain outside this I0.
 
 Finite census boundary: `CallableLoopSourceProjectionV1::project_disposition`
 through `PreparedLocatedRawLoopChildEntryV1` and the existing source-aware

@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0-D0"
+work_mode = "fast"
+current_execution_row = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0"
 current_execution_cohort = "callable_loop_body_only_rebind_i0"
-current_design_stop = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0-D0"
-current_blocker_token = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0-D0: settle one move-only source product that carries the existing Ready schedule together with grouped BodyRead/BodyRebind rows under the same owner/lineage/policy; keep other Outside kinds terminal, reject before composer/lowerer/Builder effects, and do not add a second Facts/Recipe authority."
+current_design_stop = "none"
+current_blocker_token = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0: implement the accepted private CallableLoopReadyBodyOnlyProductV1 at the existing raw loop entry; preserve the Ready schedule and grouped BodyRead/BodyRebind rows in one move, require relation-owner equality and planner-owned increment classification before composer/lowerer/Builder effects, and keep other Outside kinds, callable-None bypass, fallback/retry, and shared legacy unchanged."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Close the BodyOnlyRebind design stop before code. After acceptance, run focused callable-loop source/normalizer tests, current_state_pointer_guard.sh, and the existing relevant MIR guard. Keep other Outside kinds, the non-callable legacy route, fallback/retry policy, and production artifact routes unchanged."
+guard_followup = "Run focused callable-loop handoff/source-facts/normalizer tests, current_state_pointer_guard.sh, and the existing relevant MIR guard after the BodyOnly implementation. Prove one source product consumes Ready plus BodyRead/BodyRebind once and finishes the ledger. Keep other Outside kinds, the non-callable legacy route, fallback/retry policy, and production artifact routes unchanged."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -39,12 +39,13 @@ The focused real-source adapter test consumes the exact condition/body/rebind
 rows and finishes the ledger. Full package discovery and artifact output remain
 outside that row. The next design stop is BodyOnlyRebind: preserve the Ready
 remainder and grouped body-only rows in one source product before any new
-consumer is opened. Relation-owner equality and planner-owned increment
-classification are explicit prerequisites; the previous adapter evidence does
-not claim either one.
+consumer is opened. The BodyOnly D0 design is now accepted as one private
+`CallableLoopReadyBodyOnlyProductV1 { ready, body_only }`; I0 is the next
+implementation slice. Relation-owner equality and planner-owned increment
+classification remain mandatory pre-effect checks.
 """
-next_design_card = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0-D0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
