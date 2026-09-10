@@ -1,10 +1,10 @@
 ---
-Status: baseline observation complete; snapshot D0/I0 and emit-clone P0 closed; lazy payload design next
+Status: baseline observation complete; snapshot D0/I0 and emit-clone P0 closed; lazy payload P0 selected
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0
+NextCard: MIR-DEBUG-PAYLOAD-LAZY-P0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
