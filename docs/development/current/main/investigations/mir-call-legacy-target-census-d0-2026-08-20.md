@@ -1,5 +1,5 @@
 ---
-Status: Selected design; 2026-09-10 census reconcile pending closeout
+Status: Implementation complete; 2026-09-11 closeout pending
 Date: 2026-08-20
 Decision: MIR-CALL-LEGACY-TARGET-CENSUS-D0
 Active row: MIR-R7-LEGACY-CENSUS-RECONCILE-D0
@@ -182,6 +182,35 @@ Close this row only after the pinned inventory, includes/excludes, authority
 and non-authority, and the named reopen triggers above are recorded together.
 No R7 deletion, compatibility retirement, or performance claim is evidence for
 this design row.
+
+## 2026-09-11 observation manifest closeout
+
+The bounded manifest is now materialized at
+`tools/checks/manifests/mir_r7_legacy_census_manifest_v1.json`. Its generator
+is `tools/checks/mir_r7_legacy_census_manifest.py`; it uses only tracked source
+text and fixed anchors, and it never supplies compiler input or semantic
+authority. Stable row IDs are derived from the row kind, path, line, symbol,
+and token. Per-file SHA-256 anchors and the scope digest detect source drift.
+
+Validation evidence:
+
+```text
+python3 tools/checks/mir_r7_legacy_census_manifest.py --write
+  -> deterministic 248-row manifest
+python3 tools/checks/mir_r7_legacy_census_manifest.py
+  -> ok rows=248 legacy=239 env=5 loop_phi=4
+python3 -m py_compile tools/checks/mir_r7_legacy_census_manifest.py
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+  -> ok
+```
+
+The manifest records 239 Legacy lexical rows across 127 files, five concrete
+compile-environment route rows across four route families, and four test-only
+Dynamic Loop-PHI files totaling 1,009 lines. `boxcall` and the mechanical
+reissuer are classifications inside the Legacy rows, so they are not counted
+twice. This closes the R7 census design only; GUARD-I0, LegacyCallV0
+retirement, compatibility migration, and caller-zero remain separate rows.
 
 ## Historical D0 closeout (2026-08-20)
 

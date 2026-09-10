@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "closeout"
 current_execution_row = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0"
-current_execution_cohort = "mir_r7_legacy_census_reconcile_d0"
-current_design_stop = "R7 D0: reconcile the pinned LegacyCallV0, compile-env, JSON-v0 boxcall, and test-only Loop-PHI inventory at HEAD before any GUARD-I0 or retirement row."
-current_blocker_token = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 design stop: finite inventory only; no deletion, migration, production switch, or caller-zero claim."
+current_execution_cohort = "mir_r7_legacy_census_reconcile_d0_closeout"
+current_design_stop = "R7 D0 observation manifest is complete; record its validation evidence and synchronize the pointer before selecting GUARD-I0."
+current_blocker_token = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 closeout: 248-row manifest is validated; no deletion, migration, production switch, or caller-zero claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 design stop: no new guard; record finite boundary and reopen triggers before GUARD-I0."
+guard_followup = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0 closeout: manifest check, diff check, and pointer guard passed; no permanent guard until GUARD-I0."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -50,9 +50,12 @@ generic caller-zero claim is made.
 R7 census reconcile is selected at `MIR-R7-LEGACY-CENSUS-RECONCILE-D0` with
 current counts and reopen triggers recorded in the linked census card; no
 LegacyCallV0 deletion or caller-zero claim is made.
+The observation-only R7 manifest is validated at
+`tools/checks/manifests/mir_r7_legacy_census_manifest_v1.json`; its 239/127
+Legacy, 5 env, and 4 Loop-PHI rows are evidence only. GUARD-I0 remains next.
 """
-next_design_card = "MIR-R7-LEGACY-CENSUS-RECONCILE-D0"
-next_execution_card = "none__design_stop_mir_r7_legacy_census_reconcile_d0"
+next_design_card = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0"
+next_execution_card = "none__closeout_mir_r7_legacy_census_reconcile_d0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
