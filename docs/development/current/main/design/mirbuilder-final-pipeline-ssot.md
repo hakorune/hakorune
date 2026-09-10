@@ -1566,43 +1566,66 @@ Both focused tests passed with one executed test each and the coverage-only
 series landed at `0d2ea64e9e`. This closes evidence debt only; it does not open
 child physical Add/Unit consumers or change a route.
 
-##### `MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0` (design stop)
+##### `MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0` (design accepted; I0 queued)
 
-Decision: do not add an ordinary-call object-identity check until a
-source-backed receiver-object issuer is named. The existing source relation
-issues the exact callable key and receiver `ValueId`, but it does not issue a
-canonical object identity. C V2/V4 scans and the first `FieldGet` cannot be
-promoted into that authority.
+Decision: the ordinary-call identity fact can be issued by existing source
+authority. Do not create a new semantic receipt or infer identity from C,
+`FieldGet`, names, MIR types, or handle liveness. The exact receiver binding
+already resolves to one initializer; that initializer already owns an
+`OrdinaryNewAdmissionClaimV1` with a canonical object definition.
 
-Source authority + canonical issuer: the existing
-`RootInstanceCallDispositionRowV1` / validated source binding is the candidate
-issuer for the target and receiver. A future bounded design must either
-extend that source-backed relation with an exact receiver-object fact or
-explicitly keep ordinary instance calls unavailable when the fact cannot be
-issued.
+Source authority + canonical issuer: `issue_root_instance_call_dispositions()`
+co-seals the existing `RootInstanceCallDispositionRowV1` with the claim's
+`CanonicalObjectIdV1` and the exact `OwnedExprSiteV1` of the initializer. The
+claim comes from the existing ordinary-box source issuer and has already
+checked destination/binding and construction-object agreement. The canonical
+object is a definition/layout identity, not a runtime allocation identity;
+therefore the initializer site, receiver binding, and emitted local value stay
+part of the same relation.
 
-Non-authority: `root_call_entry`'s self-derived expected receiver, MIR type or
-handle liveness, function names, C V2/V4 receiver scans, JSON defaults, and
-`project_field_get` inference. The current C ordinary-call path checks only a
-live handle; it does not prove caller/callee object identity. No unsafe read was
-observed, but the rejection boundary is too late for a physical admission
-claim.
+Non-authority: `root_call_entry`'s current expected-receiver copy from the
+actual `Call`, C V2/V4 receiver scans, the first `FieldGet`, function names,
+MIR types, defaults, and runtime handle liveness. C may consume a prepared
+callee receiver-object layout, but it must not discover or repair it.
 
-Fail-fast boundary: source/canonical publication must reject receiver binding,
-call key, or object-identity drift before physical JSON and C admission. Once a
-source-backed fact exists, Rust projection, V2/V4 validation, and emission must
-compare the same object identity; a missing fact remains unavailable rather
-than being inferred.
+Fail-fast boundary: source issuance rejects receiver binding rebind,
+initializer absence/duplication, missing New claim, destination drift, or
+claim/object mismatch. Rust finalization then matches the row's exact
+initializer/binding to the existing New local-commit value and rejects a
+receiver `ValueId` substituted from another same-typed object. Physical
+projection emits the prepared receiver-object identity for the ordinary callee;
+V2/V4 reject caller/callee object mismatch before LLVM emission. A missing
+prepared identity remains unavailable.
 
-Smallest next slice: design-only census of the existing source binding and
-field/object catalog to decide whether an exact receiver-object fact can be
-issued without a second semantic authority. If not, record the selected
-unsupported boundary. Only after that decision may a focused positive/negative
-test cover two same-typed objects calling different receivers.
+Bounded task order (implementation remains unstarted while this design-stop is
+open):
 
-Non-claims: no receiver-object receipt, JSON field, C fallback, ordinary-call
-physical consumer change, cache, concurrency, or performance claim is
-authorized by this row.
+1. **Receiver source row (I0).** Extend the existing row with claim object and
+   initializer site; add accessors and replace the actual-Call self-reference
+   in `root_call_entry` with the existing local-commit New binding/value check.
+   Keep allocation-instance identity distinct from the canonical definition
+   ID. Add positive and negative same-typed two-object receiver mutation tests.
+2. **Physical callee identity (I1).** In the existing physical program owner,
+   prepare one receiver-object identity for each selected ordinary instance
+   function from the canonical object membership already used by the module.
+   Carry it through the existing JSON/V2/V4 rows and compare it in the
+   ordinary-call validator. Birth and static-call contracts remain unchanged.
+3. **Consumer cutover (I2).** Switch the selected Pair/Method production
+   caller to the prepared identity, remove C's ordinary-call inference path,
+   and require the same receiver mismatch negative at the pre-artifact gate.
+   Do not claim OBJ/EXE completion until the existing Pair exit-30 witness
+   passes with the new check.
+4. **FieldGet prepared reuse (D0 after I2).** Have the existing physical
+   projection owner compute one `CanonicalFieldRefV1` per admitted `FieldGet`
+   and let admission, layout collection, and JSON consume it. Preserve route,
+   object-membership, slot/layout, and serializer-consistency negatives; do not
+   issue a second source fact.
+
+Acceptance for the receiver series is source positive/negative coverage,
+Rust finalization rejection before JSON, V2/V4 rejection before LLVM, and one
+selected Pair/Method production witness. No alias receiver, argument-bearing
+instance call, dynamic receiver, cache, concurrency, or general performance
+claim is included.
 
 ##### `MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0` (queued after receiver D0)
 

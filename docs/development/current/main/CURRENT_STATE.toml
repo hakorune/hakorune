@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-ORDINARY-CALL-RECEIVER-OBJECT-IDENTITY-D0"
 current_execution_cohort = "mirbuilder_ordinary_call_receiver_object_identity_d0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Ordinary-call receiver object identity D0: C checks handle liveness but no caller/callee object identity, while Rust has no source-backed receiver-object issuer. Design an existing source authority or explicitly keep the shape unavailable; do not infer from MIR, FieldGet, names, or C defaults."
+current_blocker_token = "Ordinary-call receiver object identity D0: existing New claim is the source-backed issuer; taskization is accepted, but implementation remains queued. Extend the existing row and local-commit validation before any C/transport cutover; do not infer from MIR, FieldGet, names, or C defaults."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -44,8 +44,11 @@ release archive's unrelated main collision remains baseline debt. Physical
 V2/V4 index fusion is parked at D1 because the trust owners remain separate
 and no measured delete-set exists. Untyped object storage is
 ParkedSealed/NoSafeSlice because no source-backed storage issuer or dynamic
-tagged ABI exists. The next design stop is ordinary-call receiver object
-identity: no source-backed receiver-object issuer exists yet. Whole MirBuilder,
+tagged ABI exists. The ordinary-call receiver identity design stop is now accepted: the existing New
+claim supplies canonical object definition plus exact initializer/binding. The
+receiver I0, physical callee identity I1, consumer cutover I2, and FieldGet
+prepared-reuse D0 queue are recorded in the north-star card; implementation is
+not started while the pointer remains in design_stop. Whole MirBuilder,
 R7, general LLVM graduation, parallel sessions, and memory-only transport
 remain unproven.
 """
