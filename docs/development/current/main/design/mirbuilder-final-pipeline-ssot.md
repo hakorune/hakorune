@@ -474,6 +474,24 @@ boundaries; this row does not reopen a broad census or remote poll. The global
 MirBuilder goal remains open: this closeout claims only the direct-loader Stop,
 not R7 caller-zero, backend parity, or whole-pipeline completion.
 
+##### Adjacent ingress and coverage queue (2026-09-10)
+
+These are bounded follow-ups discovered after the direct-loader Stop. They are
+not part of the current Loop terminal design stop and must use their existing
+owners rather than opening a second JSON dispatcher or a second receiver
+verifier.
+
+| order | owner / task | bounded change and fail-fast boundary | acceptance / non-claims |
+| --- | --- | --- | --- |
+| 1 | `runner::json_artifact::mir_loader` — `MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0` | Remove the raw `text.contains("\"schema_version\"")` selector. Let the existing parsed top-level `Value`/`json_v1_bridge::try_parse_v1_to_module` decide whether the schema key is absent, supported, or explicitly unsupported, so escaped keys such as `\u0073chema_version` cannot enter v0. Keep the existing no-schema v0 selection and terminal v1 errors. | Add an escaped-key unsupported-schema case and a malformed/absent-key matrix; rejection must occur before `mir_json_v0::parse_mir_v0_to_module`. No new parser, schema revision, or blanket v0 removal. |
+| 2 | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` — `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` | Strengthen the existing same-typed foreign-receiver negative so lifecycle validation succeeds through a complete normal and Fault cleanup graph, then mutate only the callee `receiver_object`. Assert the named V4 receiver-mismatch rejection and absent artifact, rather than accepting any nonzero result. | Positive valid receiver, valid cleanup-on-fault, and object-only mutation negative all execute. Keep V2 structural/V4 identity ownership unchanged; no second object walk or runtime-accessor proof. |
+| 3 | `published_backend_view::physical_program` — `MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0` | After a caller census, remove the unused `PublishedLifecyclePhysicalProgramV1::module` borrow and getter if no downstream consumer remains. Close the getter so later JSON/layout consumers cannot return to the original module through this product. | Existing physical JSON/layout/Pair exit-30 suites stay green and the source remains below the 760 split trigger. No semantic projection, layout authority, or transport change. |
+
+The in-process LLVM C-API cutover is already structurally closed at
+`720849812b`: it reuses the existing session/emitter and removes the V4 `llc`
+child. Its speed delta is intentionally unmeasured here; no performance claim
+or new optimization row follows from that structural result.
+
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 
 Decision: pin the existing selected Dynamic LLVM Boundary exporter to the
@@ -1369,6 +1387,44 @@ capability. The next design must name an existing callback or borrow seam that
 supplies both products for the same owner. It must not add a new semantic
 receipt, reconstruct source identity from AST/name/ordinal/ValueId, or make the
 normalizer consume a relation that is detached from its ledger.
+
+Worker seam audit (read-only, 2026-09-10) fixes the candidate seam without
+opening implementation: `RawInvocationChildPortV1` already owns the active
+`Rc<RefCell<CallableSemanticLoweringState>>`, and `reborrow()` gives a
+short-lived child capability. The Ready entry has one production call to the
+physical adapter. The terminal design must therefore borrow that existing
+ledger from the raw invocation port inside the same callback that borrows the
+Recipe relation; it must not store a second ledger owner or clone the state.
+
+The ledger argument alone is insufficient. The existing normalizer consumes
+`RawLoopPlanExpressionPortV1` and Builder name maps, while the callable ledger
+requires exact source-site reads and assignment rebinds. The bounded design
+must keep the existing `LoopPlanExpressionPortV1` structural child boundary and
+define a private source-aware capability at that boundary:
+
+```text
+AST node + RawInvocationSourceContextV1
+  -> exact SourceNodeSiteV1
+  -> active CallableSemanticLoweringState
+  -> existing exact BindingRef -> ValueId read/rebind accessors
+```
+
+The callback must validate owner, root lineage, loop/condition/body sites,
+BindingRef and role coverage before `RecipeComposer`, `PlanLowerer`, or Builder
+effects. Adding a ledger field only to `GenericLoopV1LoweringContext` is not a
+valid shortcut because that context has no source-site identity and would let
+the normalizer fall back to names for some expression helpers. The bounded
+state sequence is `RelationReady -> LedgerBorrowed -> SourceAwarePortReady ->
+TerminalConsumed`, with `Rejected` before any effect; `Outside` and legacy
+routes remain outside this sequence.
+
+The existing `with_source_relation_view` callback is an observation view and
+is not itself the one-shot proof: an `&self` view can be observed repeatedly.
+The eventual terminal consumer must receive the existing semantic Recipe by
+move, borrow the relation/ledger pair only inside its scoped callback, and
+consume the Recipe exactly once. A passing view test therefore proves
+lineage/row preservation only; it does not authorize a production caller or a
+normalizer cutover.
 
 ##### Acceptance recheck classification (2026-09-10)
 
