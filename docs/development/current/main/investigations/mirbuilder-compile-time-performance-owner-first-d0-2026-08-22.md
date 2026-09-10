@@ -640,6 +640,25 @@ and is not a `FunctionLoweringStateV1` authority.  A future index may update
 only after a successful append and must reject stale use after every enumerated
 mutation; N/2N scan probes are advisory evidence, not a timing gate.
 
+The caller census identifies the existing typed issuers as
+`method_call_terminal.rs::emit_canonical_instance_value_terminal_v1` and the
+selected static/standard `*_with_receipt_v1` terminals.  Their physical path
+converges on `physical_terminal::emit_finalized_generic_call_v1`, then
+`MirBuilder::emit_instruction`, and the shared
+`builder_emit_core::append_instruction_core` mutation point.  The ordinary
+`emit_unified_call`/`emit_unified_call_with_lookup` path remains the legacy
+owner of `finalize_call_operands` and LocalSSA repair; Print's typed
+no-destination terminal is outside prepared operand selection.
+
+The definition-index boundary must account for existing direct/scheduled
+instruction insertion and removal, PHI/edge repair, CFG/block and terminator
+changes, Loop/If/exception/lifecycle block generation, JoinIR rewrite/remap,
+function-session install/take/replace, transaction capture/restore,
+parameter/signature changes, and ValueId remap.  A `current_block` change
+invalidates prepared use-context; clearing `local_ssa_map` or
+`schedule_mat_map` invalidates operands derived from those caches.  A reserved
+destination is not a definition until append succeeds.
+
 ## All-worker surface audit (2026-09-03)
 
 Six read-only workers audited the remaining MirBuilder surface after the

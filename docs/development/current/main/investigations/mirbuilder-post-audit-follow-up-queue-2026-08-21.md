@@ -814,6 +814,28 @@ rebuilt inside field-receiver provenance validation and is not a
 successful append and must reject stale use after any enumerated mutation;
 N/2N scan probes are advisory acceptance evidence, not a timing gate.
 
+The caller census makes the next boundary concrete.  The source-bound
+canonical instance issuer is
+`method_call_terminal.rs::emit_canonical_instance_value_terminal_v1`; the
+selected static/standard `*_with_receipt_v1` terminals are the other typed
+issuers.  They all converge on
+`physical_terminal::emit_finalized_generic_call_v1`, then
+`MirBuilder::emit_instruction`, and finally the shared
+`builder_emit_core::append_instruction_core` mutation point.  The ordinary
+`emit_unified_call`/`emit_unified_call_with_lookup` path remains legacy and
+continues to own `finalize_call_operands` and LocalSSA repair.  Print's typed
+no-destination terminal is separate from prepared operand selection.
+
+Before an I0 index is introduced, its validity boundary must cover these
+existing mutations: direct and scheduled instruction insertion/removal,
+PHI/edge repair, CFG/block and terminator changes, Loop/If/exception/lifecycle
+block generation, JoinIR rewrite/remap, function-session install/take/replace,
+transaction capture/restore, parameter/signature changes, and ValueId remap.
+`current_block` changes invalidate a prepared use-context; clearing
+`local_ssa_map` or `schedule_mat_map` invalidates prepared operands derived
+from those caches.  Reserving a destination with `next_value_id()` is not a
+definition until the append succeeds.
+
 ## `MIR-PHI-ANALYSIS-BATCH-D0`
 
 Current PHI input materialization can construct CFG, definition-map, and

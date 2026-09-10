@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0"
 current_execution_cohort = "mir_local_ssa_prepared_operand_d0_design_stop"
-current_design_stop = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: fix the prepared/legacy Call boundary and enumerate all FunctionLoweringState mutation invalidations before selecting an I0 definition index."
-current_blocker_token = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: typed Call issuer, sole append owner, and stale-index fail-fast boundary are not yet fixed; no implementation permission."
+current_design_stop = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: existing typed issuers and sole append point are identified; select the explicit prepared commit boundary and preserve the enumerated FunctionLoweringState invalidations before I0."
+current_blocker_token = "MIR-LOCAL-SSA-PREPARED-OPERAND-D0 design stop: prepared operand proof and stale-index fail-fast contract are not represented yet; no definition-index implementation permission."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
