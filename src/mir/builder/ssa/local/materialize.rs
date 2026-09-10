@@ -1,0 +1,632 @@
+use crate::mir::builder::MirBuilder;
+use crate::mir::{MirInstruction, ValueId};
+
+use super::analysis::{
+    def_inst_kind, dominated_call_result_root, field_get_alias_root,
+    has_dominated_same_field_set_after_root, same_block_copy_root,
+    value_defined_in_current_function,
+};
+use super::copy_type;
+use super::error::{LocalSsaFailurePolicyV1, LocalSsaMaterializationErrorV1};
+use super::finalize::finalize_compare;
+use super::post_success;
+use super::{arg, strict_planner_required, LocalKind};
+
+pub(super) fn materialize_local_v1(
+    builder: &mut MirBuilder,
+    v: ValueId,
+    kind: LocalKind,
+    forbid_non_pure: bool,
+    failure_policy: LocalSsaFailurePolicyV1,
+) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
+    let bb_opt = builder.function_state.current_block;
+
+    // Get function name and entry block for logging (debug only)
+    // Clone to avoid borrow checker issues with later mutable borrows
+    let (fn_name, fn_entry) = if let Some(func) = builder.function_state.current_function.as_ref() {
+        (func.signature.name.clone(), func.entry_block)
+    } else {
+        ("<unknown>".to_string(), crate::mir::BasicBlockId(0))
+    };
+
+    if let Some(bb) = bb_opt {
+        if crate::config::env::builder_local_ssa_trace() {
+            let ring0 = crate::runtime::get_global_ring0();
+            ring0.log.debug(&format!(
+                "[local-ssa] ensure bb={:?} kind={:?} v=%{}",
+                bb, kind, v.0
+            ));
+        }
+        let key = (bb, v, kind.tag());
+        if let Some(&loc) = builder.function_state.local_ssa_map.get(&key) {
+            if !strict_planner_required() || value_defined_in_current_function(builder, loc) {
+                return Ok(loc);
+            }
+            builder.function_state.local_ssa_map.remove(&key);
+            if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[local-sa:ensure:stale_cache] fn={} entry={:?} bb={:?} kind={:?} v=%{} stale_loc=%{} action=rematerialize",
+                    fn_name, fn_entry, bb, kind, v.0, loc.0
+                ));
+            }
+        }
+
+        // Ensure the current basic block exists in the function before emitting a Copy.
+        // Stage-B 経路などでは current_block が割り当て済みでも、ブロック自体が
+        // function にまだ追加されていない場合があり、そのまま emit_instruction すると
+        // Copy が黙って落ちてしまう。ここで best-effort で作成しておく。
+        // CRITICAL: Check for errors - if block creation fails, return original value.
+        if let Err(e) = builder.ensure_block_exists(bb) {
+            if crate::config::env::builder_local_ssa_trace() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[local-ssa] ensure_block_exists FAILED bb={:?} kind={:?} v=%{} err={}",
+                    bb, kind, v.0, e
+                ));
+            }
+            return failure_policy.resolve(v, LocalSsaMaterializationErrorV1::BlockCreation(e));
+        }
+
+        // CRITICAL FIX: If `v` is from a pinned slot, check if there's a PHI value for that slot
+        // in the current block's variable_ctx.variable_map. If so, use the PHI value directly instead of
+        // emitting a Copy from the old value (which might not be defined in this block).
+        // Try to detect pinned slots for this value and redirect to the latest slot value.
+        // 1) First, look for "__pin$" entries in variable_ctx.variable_map that still point to v.
+        // 2) If not found, consult builder.function_state.pin_slot_names to recover the slot name
+        //    and then look up the current ValueId for that slot.
+        let mut slot_name_opt: Option<String> = None;
+
+        let names_for_v: Vec<String> = builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .iter()
+            .filter(|(k, &vid)| vid == v && k.starts_with("__pin$"))
+            .map(|(k, _)| k.clone())
+            .collect();
+
+        if let Some(first_pin_name) = names_for_v.first() {
+            slot_name_opt = Some(first_pin_name.clone());
+        } else if let Some(name) = builder.function_state.pin_slot_names.get(&v) {
+            slot_name_opt = Some(name.clone());
+        }
+
+        if let Some(slot_name) = slot_name_opt {
+            if let Some(&current_val) = builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .get(&slot_name)
+            {
+                if current_val != v {
+                    // The slot has been updated (likely by a PHI or header rewrite).
+                    // Use the updated value instead of the stale pinned ValueId.
+                    if crate::config::env::builder_local_ssa_trace() {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!(
+                            "[local-ssa] phi-redirect bb={:?} kind={:?} slot={} %{} -> %{}",
+                            bb, kind, slot_name, v.0, current_val.0
+                        ));
+                    }
+                    if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!("[local-sa:ensure:phi_redirect] fn={} entry={:?} bb={:?} kind={:?} slot={} v=%{} current_val=%{}",
+                            fn_name, fn_entry, bb, kind, slot_name, v.0, current_val.0));
+                    }
+                    builder
+                        .function_state
+                        .local_ssa_map
+                        .insert(key, current_val);
+                    // Unconditional trace for phi-redirect cache hit
+                    if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!("[local-sa:ensure:cache_hit] fn={} entry={:?} bb={:?} kind={:?} returning_cached_phi_val=%{}",
+                            fn_name, fn_entry, bb, kind, current_val.0));
+                    }
+                    return Ok(current_val);
+                }
+            }
+        }
+
+        let source_type_entry = post_success::LocalSsaSourceTypeEntryV1::classify(
+            builder.function_state.type_ctx.value_types.get(&v),
+        );
+        let source_origin = builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&v)
+            .cloned();
+        let loc = builder.next_value_id();
+
+        // Unconditional trace to observe all ValueId allocations in ensure()
+        if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+            let ring0 = crate::runtime::get_global_ring0();
+            ring0.log.debug(&format!(
+                "[local-sa:ensure:alloc] fn={} entry={:?} bb={:?} kind={:?} v=%{} loc=%{}",
+                fn_name, fn_entry, bb, kind, v.0, loc.0
+            ));
+        }
+
+        // Removed: [local-sa:ensure:GHOST_v36_input] observation (PHI issue resolved)
+
+        // Find a definition for `v` so we can rematerialize it (pure) or validate dominance (non-pure).
+        // Keep the scan local to avoid additional indexing and reuse the existing walk.
+        let mut def_inst: Option<MirInstruction> = None;
+        let mut def_block: Option<crate::mir::BasicBlockId> = None;
+        let mut def_kind: &'static str = "NotFound";
+        if let Some(func) = builder.function_state.current_function.as_ref() {
+            if func.params.iter().any(|pid| *pid == v) {
+                def_kind = "Param";
+                def_block = Some(func.entry_block);
+            } else {
+                'scan: for (bid, block) in func.blocks.iter() {
+                    for inst in &block.instructions {
+                        if inst.dst_value() == Some(v) {
+                            def_kind = def_inst_kind(inst);
+                            def_block = Some(*bid);
+                            def_inst = Some(inst.clone());
+                            break 'scan;
+                        }
+                    }
+                    if let Some(term) = &block.terminator {
+                        if term.dst_value() == Some(v) {
+                            def_kind = def_inst_kind(term);
+                            def_block = Some(*bid);
+                            def_inst = Some(term.clone());
+                            break 'scan;
+                        }
+                    }
+                }
+            }
+        }
+
+        let non_rematerializable = match &def_inst {
+            Some(MirInstruction::Const { .. }) => false,
+            Some(MirInstruction::BinOp { .. }) => false,
+            Some(MirInstruction::Compare { .. }) => false,
+            Some(MirInstruction::Copy { .. }) => false,
+            Some(MirInstruction::Select { .. }) => false,
+            _ => true,
+        };
+
+        if strict_planner_required() && def_inst.is_none() && def_kind == "NotFound" {
+            let mut varmap_hits: Vec<&str> = builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .iter()
+                .filter_map(|(name, &vid)| if vid == v { Some(name.as_str()) } else { None })
+                .collect();
+            varmap_hits.sort_unstable();
+            if varmap_hits.len() > 3 {
+                varmap_hits.truncate(3);
+            }
+            let varmap_hits_str = if varmap_hits.is_empty() {
+                "[]".to_string()
+            } else {
+                format!("[{}]", varmap_hits.join(","))
+            };
+            let pin = builder
+                .function_state
+                .pin_slot_names
+                .get(&v)
+                .map(|s| s.as_str())
+                .unwrap_or("none");
+            let has_type = builder.function_state.type_ctx.value_types.contains_key(&v);
+            let reserved = builder
+                .function_state
+                .compilation
+                .reserved_value_ids
+                .contains(&v);
+            let next_value_id_hint = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .map(|f| f.next_value_id)
+                .unwrap_or(0);
+            return Err(LocalSsaMaterializationErrorV1::Contract(format!(
+                "[freeze:contract][local_ssa/undefined_source] fn={} bb={:?} kind={:?} v=%{} varmap_hits={} pin={} has_type={} reserved={} next_value_id_hint={}",
+                fn_name,
+                bb,
+                kind,
+                v.0,
+                varmap_hits_str,
+                pin,
+                has_type,
+                reserved,
+                next_value_id_hint
+            )));
+        }
+
+        if kind.can_forward_same_block_field_get_to_consumer()
+            && def_block == Some(bb)
+            && matches!(def_inst, Some(MirInstruction::FieldGet { .. }))
+        {
+            // Same-block FieldGet is already a local definition. For direct
+            // expression consumers, adding another LocalSSA copy only builds
+            // `%field -> copy -> compare/binop` chains. Keep this deliberately
+            // narrow: no cross-block forwarding and no arbitrary copy
+            // coalescing.
+            builder.function_state.local_ssa_map.insert(key, v);
+            return Ok(v);
+        }
+
+        if kind.can_forward_same_block_call_result_to_compare_operand() {
+            if let Some(root) = dominated_call_result_root(builder, v, bb) {
+                // 296x-745: Compare operands may consume an already-materialized
+                // Call result directly when the root Call dominates the use block.
+                // This extends the older same-block-only seam without changing call
+                // execution, variable_map binding, PHI lifecycle, receiver
+                // materialization, or Arg forwarding.
+                builder.function_state.local_ssa_map.insert(key, root);
+                return Ok(root);
+            }
+        }
+
+        if kind.can_forward_field_get_alias_to_consumer() {
+            if let Some(root) = field_get_alias_root(builder, v) {
+                if !has_dominated_same_field_set_after_root(builder, root.block, bb, &root.field) {
+                    // 296x-672: Narrow dominance-aware alias forwarding for
+                    // FieldGet-origin copy chains. This is intentionally not
+                    // arbitrary copy coalescing: only direct expression
+                    // consumers may reuse a root FieldGet value, and any
+                    // visible same-field mutation blocks the forwarding.
+                    builder.function_state.local_ssa_map.insert(key, root.value);
+                    return Ok(root.value);
+                }
+            }
+        }
+
+        if kind.can_forward_same_block_copy_root_to_receiver() {
+            if let Some(root) = same_block_copy_root(builder, v, bb) {
+                // 296x-687: Receiver operands may consume a same-block Copy
+                // root directly when both the Copy chain and root are already
+                // local to this block. Keep Arg forwarding, cross-block/root
+                // chains, helper-name special-cases, variable_map, and PHI
+                // lifecycle closed.
+                builder.function_state.local_ssa_map.insert(key, root);
+                return Ok(root);
+            }
+        }
+
+        if kind.can_forward_same_block_copy_to_receiver()
+            && def_block == Some(bb)
+            && matches!(def_inst, Some(MirInstruction::Copy { .. }))
+        {
+            // Receiver materialization often already has a same-block pin/copy
+            // immediately before Call emission. Reusing that Copy keeps the
+            // receiver block-local without adding another `copy copy` layer.
+            // Keep this limited to receiver operands and same-block Copy defs.
+            builder.function_state.local_ssa_map.insert(key, v);
+            return Ok(v);
+        }
+
+        if forbid_non_pure && non_rematerializable {
+            let fn_name = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .map(|f| f.signature.name.as_str())
+                .unwrap_or("<unknown>");
+            let dominates = if let (Some(func), Some(def_block)) =
+                (builder.function_state.current_function.as_ref(), def_block)
+            {
+                let dominators = crate::mir::verification::utils::compute_dominators(func);
+                dominators.dominates(def_block, bb)
+            } else {
+                false
+            };
+            if dominates {
+                // Non-pure but dominating defs are SSA-safe; allow Copy fallback.
+            } else {
+                let def_block_label = def_block
+                    .map(|b| format!("{:?}", b))
+                    .unwrap_or_else(|| "None".to_string());
+
+                // Diagnostic-only context: help pinpoint how an out-of-scope ValueId leaks into args.
+                // Keep output stable + short: at most 3 variable_map hits.
+                let mut varmap_hits: Vec<&str> = builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .iter()
+                    .filter_map(|(name, &vid)| if vid == v { Some(name.as_str()) } else { None })
+                    .collect();
+                varmap_hits.sort_unstable();
+                if varmap_hits.len() > 3 {
+                    varmap_hits.truncate(3);
+                }
+                let varmap_hits_str = if varmap_hits.is_empty() {
+                    "[]".to_string()
+                } else {
+                    format!("[{}]", varmap_hits.join(","))
+                };
+
+                let pin = builder
+                    .function_state
+                    .pin_slot_names
+                    .get(&v)
+                    .map(|s| s.as_str())
+                    .unwrap_or("none");
+
+                let alloc_context = if def_kind == "NotFound" && def_block.is_none() {
+                    let has_type = builder.function_state.type_ctx.value_types.contains_key(&v);
+                    let has_origin_newbox = builder
+                        .function_state
+                        .type_ctx
+                        .value_origin_newbox
+                        .contains_key(&v);
+                    let reserved = builder
+                        .function_state
+                        .compilation
+                        .reserved_value_ids
+                        .contains(&v);
+                    let next_value_id_hint = builder
+                        .function_state
+                        .current_function
+                        .as_ref()
+                        .map(|f| f.next_value_id)
+                        .unwrap_or(0);
+                    let (def_blocks_has, def_blocks_bb) = if let Some(func) =
+                        builder.function_state.current_function.as_ref()
+                    {
+                        let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
+                        let bb = def_blocks.get(&v).copied();
+                        (bb.is_some(), bb)
+                    } else {
+                        (false, None)
+                    };
+                    let def_blocks_bb = def_blocks_bb
+                        .map(|b| format!("{:?}", b))
+                        .unwrap_or_else(|| "none".to_string());
+                    format!(
+                        " has_type={} has_origin_newbox={} reserved={} next_value_id_hint={} def_blocks_has={} def_blocks_bb={}",
+                        has_type,
+                        has_origin_newbox,
+                        reserved,
+                        next_value_id_hint,
+                        if def_blocks_has { "yes" } else { "no" },
+                        def_blocks_bb
+                    )
+                } else {
+                    String::new()
+                };
+
+                return Err(LocalSsaMaterializationErrorV1::Contract(format!(
+                    "[freeze:contract][local_ssa/non_rematerializable_arg] fn={} bb={:?} kind={:?} v=%{} def_kind={} def_block={} varmap_hits={} pin={}{}",
+                    fn_name,
+                    bb,
+                    kind,
+                    v.0,
+                    def_kind,
+                    def_block_label,
+                    varmap_hits_str,
+                    pin,
+                    alloc_context
+                )));
+            }
+        }
+
+        let materialization = post_success::PreparedLocalSsaPostSuccessV1::classify_materialization(
+            def_inst.as_ref(),
+        );
+        let prepared_physical_copy_type = match materialization {
+            post_success::LocalSsaMaterializationKindV1::PhysicalCopy(_) => Some(
+                copy_type::PreparedLocalSsaPhysicalCopyTypeV1::prepare(
+                    &source_type_entry,
+                    materialization,
+                    builder.function_state.type_ctx.value_types.get(&loc),
+                )
+                .map_err(|error| LocalSsaMaterializationErrorV1::Contract(error.to_string()))?,
+            ),
+            _ => None,
+        };
+        let prepared_post_success = post_success::PreparedLocalSsaPostSuccessV1::prepare(
+            &source_type_entry,
+            source_origin.as_deref(),
+            materialization,
+            kind,
+        );
+
+        // CRITICAL: Check emit_instruction result - if emission fails, return original value
+        // to avoid returning undefined ValueId.
+        let emit_res = match def_inst {
+            Some(MirInstruction::Const { value, .. }) => {
+                builder.emit_instruction(MirInstruction::Const { dst: loc, value })
+            }
+            Some(MirInstruction::BinOp { op, lhs, rhs, .. }) => {
+                let lhs_local = arg(builder, lhs);
+                let rhs_local = arg(builder, rhs);
+                builder.emit_instruction(MirInstruction::BinOp {
+                    dst: loc,
+                    op,
+                    lhs: lhs_local,
+                    rhs: rhs_local,
+                })
+            }
+            Some(MirInstruction::Compare { op, lhs, rhs, .. }) => {
+                let mut lhs_local = lhs;
+                let mut rhs_local = rhs;
+                finalize_compare(builder, &mut lhs_local, &mut rhs_local)
+                    .map_err(LocalSsaMaterializationErrorV1::Contract)?;
+                builder.emit_instruction(MirInstruction::Compare {
+                    dst: loc,
+                    op,
+                    lhs: lhs_local,
+                    rhs: rhs_local,
+                })
+            }
+            Some(MirInstruction::Select {
+                cond,
+                then_val,
+                else_val,
+                ..
+            }) => {
+                let cond_local = materialize_local_v1(
+                    builder,
+                    cond,
+                    LocalKind::Cond,
+                    forbid_non_pure,
+                    failure_policy,
+                )?;
+                let then_local =
+                    materialize_local_v1(builder, then_val, kind, forbid_non_pure, failure_policy)?;
+                let else_local =
+                    materialize_local_v1(builder, else_val, kind, forbid_non_pure, failure_policy)?;
+                builder.emit_instruction(MirInstruction::Select {
+                    dst: loc,
+                    cond: cond_local,
+                    then_val: then_local,
+                    else_val: else_local,
+                })
+            }
+            Some(MirInstruction::Copy { src, .. }) => {
+                let src_local = if src == v {
+                    src
+                } else {
+                    materialize_local_v1(builder, src, kind, forbid_non_pure, failure_policy)?
+                };
+                builder.emit_instruction(MirInstruction::Copy {
+                    dst: loc,
+                    src: src_local,
+                })
+            }
+            _ => {
+                // Fail-fast: check dominance before fallback Copy (strict/dev+planner_required)
+                // Only check for specific def_kind that are known to cause dominance issues
+                // to avoid expensive dominance computation on every fallback Copy.
+                if strict_planner_required() && def_kind == "Call" {
+                    // Debug trace for Call fallback Copy path
+                    if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!("[local-sa:ensure:call_fallback] fn={} entry={:?} bb={:?} kind={:?} v=%{} def_block={:?} def_kind={}",
+                            fn_name, fn_entry, bb, kind, v.0, def_block, def_kind));
+                    }
+                    if let Some(def_b) = def_block {
+                        let dominates =
+                            if let Some(func) = builder.function_state.current_function.as_ref() {
+                                let dominators =
+                                    crate::mir::verification::utils::compute_dominators(func);
+                                dominators.dominates(def_b, bb)
+                            } else {
+                                false
+                            };
+                        if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+                            let ring0 = crate::runtime::get_global_ring0();
+                            ring0.log.debug(&format!("[local-sa:ensure:call_dominance] fn={} bb={:?} def_block={:?} dominates={}",
+                                fn_name, bb, def_b, dominates));
+                        }
+                        if !dominates {
+                            return Err(LocalSsaMaterializationErrorV1::Contract(format!(
+                                "[freeze:contract][local_ssa/non_dominating_copy] fn={} bb={:?} src=%{} def_block={:?} def_kind={}",
+                                fn_name, bb, v.0, def_b, def_kind
+                            )));
+                        }
+                    }
+                }
+                builder.emit_instruction(MirInstruction::Copy { dst: loc, src: v })
+            }
+        };
+
+        if let Err(e) = emit_res {
+            if crate::config::env::builder_local_ssa_trace() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[local-ssa] emit_instruction FAILED bb={:?} kind={:?} v=%{} dst=%{} err={}",
+                    bb, kind, v.0, loc.0, e
+                ));
+            }
+            // Debug trace for emission failure
+            if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!("[local-sa:ensure:fail] fn={} entry={:?} bb={:?} kind={:?} v=%{} loc=%{} returning_v",
+                    fn_name, fn_entry, bb, kind, v.0, loc.0));
+            }
+            // Failed to emit Copy - return original value instead of undefined dst
+            return failure_policy
+                .resolve(v, LocalSsaMaterializationErrorV1::InstructionEmission(e));
+        }
+        if crate::config::env::builder_local_ssa_trace() {
+            let ring0 = crate::runtime::get_global_ring0();
+            ring0.log.debug(&format!(
+                "[local-ssa] copy  bb={:?} kind={:?} %{} -> %{}",
+                bb, kind, v.0, loc.0
+            ));
+        }
+        // Debug trace for emission success
+        if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+            let ring0 = crate::runtime::get_global_ring0();
+            ring0.log.debug(&format!("[local-sa:ensure:success] fn={} entry={:?} bb={:?} kind={:?} v=%{} loc=%{} returning_loc",
+                fn_name, fn_entry, bb, kind, v.0, loc.0));
+        }
+        // Success: COPY0 owns physical-Copy exact facts; C-prime retains
+        // StoredUnknown, origin, receiver fallback, and non-Copy exact facts.
+        if let Some(prepared_physical_copy_type) = prepared_physical_copy_type {
+            prepared_physical_copy_type.commit(loc, &mut builder.function_state.type_ctx);
+        }
+        prepared_post_success.commit(loc, &mut builder.function_state.type_ctx);
+        if let Some(text) = builder
+            .function_state
+            .type_ctx
+            .string_literals
+            .get(&v)
+            .cloned()
+        {
+            builder
+                .function_state
+                .type_ctx
+                .string_literals
+                .insert(loc, text);
+        }
+        if let Some(map_value_type) = builder
+            .function_state
+            .type_ctx
+            .map_value_types
+            .get(&v)
+            .cloned()
+        {
+            builder
+                .function_state
+                .type_ctx
+                .map_value_types
+                .insert(loc, map_value_type);
+        }
+        let literal_facts: Vec<(String, crate::mir::MirType)> = builder
+            .function_state
+            .type_ctx
+            .map_literal_value_types
+            .iter()
+            .filter(|((value_id, _), _)| *value_id == v)
+            .map(|((_, key), ty)| (key.clone(), ty.clone()))
+            .collect();
+        for (key, ty) in literal_facts {
+            builder
+                .function_state
+                .type_ctx
+                .map_literal_value_types
+                .insert((loc, key), ty);
+        }
+        builder
+            .function_state
+            .compilation
+            .propagate_record_local_value(v, loc);
+        builder.function_state.local_ssa_map.insert(key, loc);
+        // Debug trace for newly created loc
+        if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+            let ring0 = crate::runtime::get_global_ring0();
+            ring0.log.debug(&format!("[local-sa:ensure:new_loc] fn={} entry={:?} bb={:?} kind={:?} v=%{} returning_loc=%{}",
+                fn_name, fn_entry, bb, kind, v.0, loc.0));
+        }
+        Ok(loc)
+    } else {
+        // bb is None - no current block, return original value
+        if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+            let ring0 = crate::runtime::get_global_ring0();
+            ring0.log.debug(&format!("[local-sa:ensure:no_bb] fn={} entry={:?} kind={:?} v=%{} returning_v (no current block)",
+                fn_name, fn_entry, kind, v.0));
+        }
+        Ok(v)
+    }
+}
