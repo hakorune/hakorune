@@ -1,5 +1,5 @@
 ---
-Status: accepted design__SingleFunctionSessionPendingDraftSeal
+Status: fast implementation__SessionBridgeLanded__ValueFlowAcceptanceOpen
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0
 Parent: mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11
@@ -106,12 +106,12 @@ the parent's.
 2. Inventory the existing function-session opener, DraftSeal prepare/commit,
    pending restoration, collector admission, and discard terminals. The
    selected entry must have one named owner for all of them.
-3. Replace the nested `capture -> lowerer opens another session` shape with a
+3. [landed at `6c41d0925b`] Replace the nested `capture -> lowerer opens another session` shape with a
    private session-scoped lowering API. The selected cataloged entry opens one
    `CanonicalFunctionLoweringSessionV1`; the lowerer borrows that owner for
    Builder effects and returns only a ready DraftSeal product. It must not open,
    retain, or restore a second function session.
-4. Add the smallest existing-owner terminal that carries the ready DraftSeal
+4. [landed at `6c41d0925b`] Add the smallest existing-owner terminal that carries the ready DraftSeal
    through prepare/commit while the same pending parent context remains held
    until collector admission completes. The selected entry may use the
    existing `PendingFunctionSessionCloseV1`; only its private DraftSeal-to-
