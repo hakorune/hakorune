@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0"
-current_execution_cohort = "callable_loop_ordinary_bridge_design"
-current_design_stop = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0"
-current_blocker_token = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0: design one source-aware port seam for the existing normalizer/JoinIR owner; no production edge, generic fallback, post-walk join, or new semantic receipt until owner/caller/nested boundary/delete-set are closed."
+current_execution_row = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1"
+current_execution_cohort = "callable_loop_ordinary_bridge_source_recipe_design"
+current_design_stop = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1"
+current_blocker_token = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1: the source-aware semantic port must carry grouped callable rows into the existing normalizer exactly once; production consumer and exclusive old-edge delete-set remain unproven, so implementation stays closed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,13 +32,12 @@ latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
 The fixed real-app EXE boundary suite ran at 27d516ee3d and recorded 4/11
-passes with seven existing owner-scoped reds: two untyped-storage stops, three
-exact-usize parameter stops, and two Loop outside-first-cohort stops. The next
-selected row is the existing MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0 design cell;
-the acceptance result does not authorize implementation or whole-pipeline
-completion.
+passes with seven existing owner-scoped reds. A read-only audit of the existing
+MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0 found the source/Facts/Recipe issuer and
+physical adapter, but no production semantic port for grouped callable rows;
+the slice is NoSafeSlice until the existing S0-D1 design closes that handoff.
 """
-next_design_card = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0"
+next_design_card = "MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

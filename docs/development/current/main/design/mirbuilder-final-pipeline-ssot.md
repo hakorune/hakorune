@@ -1198,6 +1198,25 @@ delete-set. It must not add a production edge, reopen `Outside` into the old
 route, infer from names/ordinals/ValueId, or introduce a second Facts/Recipe
 issuer. Implementation remains closed until this design boundary is accepted.
 
+##### MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1 (NoSafeSlice design handoff)
+
+The read-only owner audit closes S0 as `NoSafeSlice` for implementation. The
+existing `CallableGenericLoopSourceFactsIssuerV1` and
+`CallableGenericLoopV1PhysicalAdapterV1` are real owners, but the grouped
+`binding + class + (site, role)` relation is not yet carried by a production
+semantic port into the existing normalizer traversal. The structural lease is
+test-only, and the shared old route still serves non-callable/legacy children;
+there is no exclusive delete-set for removing it here.
+
+The next design slice is the existing S0-D1 boundary: specify one move-only,
+source-aware handoff consumed once by the existing normalizer/JoinIR owner.
+It must preserve owner/site/lineage, Ready policy and pre-effect receipt,
+reject `Outside` and nested unsupported cohorts before Builder effects, and
+name the eventual callable old-bypass edge that can be deleted at R0. No new
+Facts/Recipe issuer, generic fallback, AST/name/ordinal/ValueId join,
+production switch, or backend work is permitted until that relation and its
+caller are explicit.
+
 ##### Acceptance recheck classification (2026-09-10)
 
 The selected physical caller cutover was re-run against the same fixed
