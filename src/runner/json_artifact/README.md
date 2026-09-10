@@ -8,7 +8,7 @@ Public route-family SSOT: `docs/development/current/main/design/json-v0-route-ma
 
 - `mir_loader.rs`
   - mainline `MIR(JSON)` intake
-  - direct v1-first / v0-fallback parse
+  - direct v1-first parse, with v0 selected only when `schema_version` is absent
   - no Program(JSON v0) import-bundle behavior
 - `program_json_v0_loader.rs`
   - compat-only `Program(JSON v0)` intake
@@ -27,6 +27,7 @@ Public route-family SSOT: `docs/development/current/main/design/json-v0-route-ma
 - `Program(JSON v0)` is compat/bootstrap-only and a retire target.
 - `core_executor` is the terminal execution owner after a `MirModule` exists.
 - `--mir-json-file` must stay on the mainline MIR loader.
+- A declared v1 parse error is terminal; it must not be retried through v0.
 - `--json-file` is a compat umbrella intake; only the compat loader may own Program(JSON v0)-specific merge/trace behavior.
 - do not reintroduce Program(JSON v0) import-bundle policy into `core_executor`.
 

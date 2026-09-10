@@ -35,10 +35,7 @@ pub(crate) fn execute_mir_json_text(
     json: &str,
     source_label: &str,
 ) -> Result<i32, String> {
-    let module = crate::runner::json_artifact::parse_direct_mir_json_text_with_v0_fallback(
-        json,
-        source_label,
-    )?;
+    let module = crate::runner::json_artifact::parse_direct_mir_json_text(json, source_label)?;
     if core_direct_requested() {
         return Ok(core_direct_retired());
     }

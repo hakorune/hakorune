@@ -50,11 +50,11 @@ pub(crate) fn load_mir_json_to_module(text: &str) -> Result<Option<crate::mir::M
     mir_loader::load_mir_json_to_module(text)
 }
 
-pub(crate) fn parse_direct_mir_json_text_with_v0_fallback(
+pub(crate) fn parse_direct_mir_json_text(
     text: &str,
     path: &str,
 ) -> Result<crate::mir::MirModule, String> {
-    mir_loader::parse_direct_mir_json_text_with_v0_fallback(text, path)
+    mir_loader::parse_direct_mir_json_text(text, path)
 }
 
 #[cfg(test)]

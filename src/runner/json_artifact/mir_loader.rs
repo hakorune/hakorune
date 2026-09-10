@@ -18,34 +18,18 @@ pub(super) fn load_mir_json_to_module(text: &str) -> Result<Option<MirModule>, S
     Ok(None)
 }
 
-pub(super) fn parse_direct_mir_json_text_with_v0_fallback(
-    text: &str,
-    path: &str,
-) -> Result<MirModule, String> {
-    let looks_like_v0 = looks_like_mir_v0(text);
+pub(super) fn parse_direct_mir_json_text(text: &str, path: &str) -> Result<MirModule, String> {
     match crate::runner::json_v1_bridge::try_parse_v1_to_module(text) {
         Ok(Some(module)) => Ok(module),
         Ok(None) => {
-            if looks_like_v0 {
+            if looks_like_mir_v0(text) {
                 crate::runner::mir_json_v0::parse_mir_v0_to_module(text)
                     .map_err(|error| format!("v0({}): {}", path, error))
             } else {
                 Err(format!("unsupported shape ({})", path))
             }
         }
-        Err(error_v1) => {
-            if looks_like_v0 {
-                match crate::runner::mir_json_v0::parse_mir_v0_to_module(text) {
-                    Ok(module) => Ok(module),
-                    Err(error_v0) => Err(format!(
-                        "v1({}): {}; v0({}): {}",
-                        path, error_v1, path, error_v0
-                    )),
-                }
-            } else {
-                Err(format!("v1({}): {}", path, error_v1))
-            }
-        }
+        Err(error_v1) => Err(format!("v1({}): {}", path, error_v1)),
     }
 }
 
@@ -91,5 +75,58 @@ mod tests {
 
         let result = load_mir_json_to_module(mir_json).expect("mir json should parse");
         assert!(result.is_some());
+    }
+
+    #[test]
+    fn direct_mir_json_rejects_declared_v1_boxcall_without_v0_retry() {
+        let payload = r#"{
+            "schema_version": "1.0",
+            "functions": [{
+                "name": "main",
+                "blocks": [{
+                    "id": 0,
+                    "instructions": [{"op": "boxcall", "box": 0, "method": "run", "args": []}]
+                }]
+            }]
+        }"#;
+
+        let error = super::parse_direct_mir_json_text(payload, "<declared-v1>")
+            .expect_err("declared v1 errors must not re-enter v0");
+        assert!(error.contains("v1(<declared-v1>)"));
+        assert!(error.contains("unsupported"), "unexpected error: {error}");
+    }
+
+    #[test]
+    fn direct_mir_json_rejects_unsupported_declared_schema() {
+        let payload = r#"{
+            "schema_version": "2.0",
+            "functions": [{"name": "main", "blocks": [{"id": 0, "instructions": []}]}]
+        }"#;
+
+        let error = super::parse_direct_mir_json_text(payload, "<schema-2>")
+            .expect_err("unsupported declared schemas must be terminal");
+        assert!(error.contains("unsupported schema_version"));
+    }
+
+    #[test]
+    fn direct_mir_json_rejects_non_string_schema() {
+        let payload = r#"{
+            "schema_version": 1,
+            "functions": [{"name": "main", "blocks": [{"id": 0, "instructions": []}]}]
+        }"#;
+
+        let error = super::parse_direct_mir_json_text(payload, "<schema-type>")
+            .expect_err("non-string schemas must be terminal");
+        assert!(error.contains("expected schema_version string"));
+    }
+
+    #[test]
+    fn direct_mir_json_rejects_malformed_json_before_v0() {
+        let error = super::parse_direct_mir_json_text(
+            r#"{"schema_version":"1.0","functions":["#,
+            "<malformed>",
+        )
+        .expect_err("malformed JSON must not enter v0");
+        assert!(error.contains("invalid JSON"));
     }
 }

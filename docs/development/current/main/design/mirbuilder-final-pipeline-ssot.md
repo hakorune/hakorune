@@ -442,7 +442,7 @@ Ordered tasks inside this existing parent:
    `runner/mod.rs` -> `core_executor::execute_mir_json_text` ->
    `json_artifact` facade -> `mir_loader`. Delete the `Err(error_v1)` retry
    branch and its double-error formatting. Rename the private
-   `parse_direct_mir_json_text_with_v0_fallback` to reflect selection rather
+   `parse_direct_mir_json_text` to reflect selection rather
    than retry, updating its facade/caller and existing guard references.
    Existing owners measure 95/75/210 lines; keep touched sources below 760
    and never exceed 800. No additional parser or semantic product is needed.
@@ -472,12 +472,13 @@ planning closeout; no additional source-authority consultation is required.
 The next action is the bounded Stop, not a fourth broad census or remote poll.
 The global goal remains stopped until the user resumes implementation.
 
-Verification note: the existing M7-S guard checks the final-pipeline design
-file against a 1,000-line ceiling, although that file already has 2,355 lines
-at the audited parent. The pointer guard separately limits the rolling
-workstream to 1,000 lines and passes. On this design pointer,
+Verification note: the M7-S guard applies the source-size ceiling to its
+implementation owners and keeps the final-pipeline design SSOT as the
+canonical long-form design document. The pointer guard separately limits the
+rolling workstream to 1,000 lines and passes. On this design pointer,
 `bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh` was
-executed and fails at that size check. This is newly exposed documentation/
+executed after removing the incorrect final-pipeline size assertion. This is
+documentation/
 guard debt; the parent row was unsupported by that guard, so it is not a
 same-command parent-green regression or a reproduced parent failure.
 Verification preparation is a bounded first task: in the existing guard,

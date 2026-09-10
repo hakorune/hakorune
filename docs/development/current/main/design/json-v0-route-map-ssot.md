@@ -10,7 +10,7 @@ Related:
 - `MIR(JSON)`
   - mainline artifact family
   - preferred public emit/intake surface
-  - current reading: v1-preferred, v0-read-fallback
+  - current reading: v1-preferred, v0 selected only when `schema_version` is absent
 - `Program(JSON v0)`
   - compat/bootstrap-only artifact family
   - retire target

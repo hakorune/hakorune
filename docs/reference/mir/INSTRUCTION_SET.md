@@ -165,6 +165,11 @@ duplicate take rejects rather than returning to compatibility dispatch.
 Selected capability preflight rejects mixed LegacyCallV0, canonical Extern calls
 or residual extern routes before artifact generation; this does not promote
 lifecycle instructions or alter the explicit compatibility profile.
+Direct `--mir-json-file` intake treats a declared `schema_version` as a v1
+claim: a v1 parse error is terminal and is never retried through the v0
+compatibility parser. A schema-absent document may select the existing MIR v0
+compatibility reader; this selection does not authorize declared-v1 legacy
+instructions or change the separate `Program(JSON v0)` intake.
 The selected pipeline retains the source-validated root's exact physical key
 through final verification and commit preparation, then binds its borrowed
 function reference on the same view. This identity does not enable lifecycle

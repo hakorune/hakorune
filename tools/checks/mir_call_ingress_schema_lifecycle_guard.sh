@@ -584,11 +584,11 @@ edge_markers = {
     "src/runner/core_executor.rs": (
         "core_direct_requested",
         "core_direct_retired",
-        "parse_direct_mir_json_text_with_v0_fallback",
+        "parse_direct_mir_json_text",
     ),
     "src/runner/json_artifact/mir_loader.rs": (
         "try_parse_v1_to_module",
-        "parse_direct_mir_json_text_with_v0_fallback",
+        "parse_direct_mir_json_text",
         "parse_mir_v0_to_module",
     ),
     "src/runner/json_artifact/mod.rs": (
