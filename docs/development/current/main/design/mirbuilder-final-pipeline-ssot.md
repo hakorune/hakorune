@@ -29,11 +29,13 @@ Related:
   acceptance is classified. The selected callable-loop BodyOnlyRebind product
   is now consumed by the existing source-aware adapter with relation-owner and
   planner-increment checks. The artifact loader now delegates schema selection
-  to the parsed v1 bridge; escaped declared schemas stop before v0.
-- **Next ordered task:** take the receiver-identity R0 coverage row using its
-  reusable valid normal/fault fixture. Constructor/Array execution and
-  retirement evidence belongs to their owner SSOTs; no lifecycle V2 waiting
-  state is implied.
+  to the parsed v1 bridge; escaped declared schemas stop before v0. The V4
+  receiver-identity coverage now uses a valid normal/fault base and a named
+  receiver-only mismatch proof.
+- **Next ordered task:** take the physical-program module-borrow retirement row
+  through its caller census. Constructor/Array execution and retirement
+  evidence belongs to their owner SSOTs; no lifecycle V2 waiting state is
+  implied.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -488,7 +490,7 @@ verifier.
 | order | owner / task | bounded change and fail-fast boundary | acceptance / non-claims |
 | --- | --- | --- | --- |
 | 1 landed | `runner::json_artifact::mir_loader` — `MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0` | Remove the raw `text.contains("\"schema_version\"")` selector. Let the existing parsed top-level `Value`/`json_v1_bridge::try_parse_v1_to_module` decide whether the schema key is absent, supported, or explicitly unsupported, so escaped keys such as `\u0073chema_version` cannot enter v0. Keep the existing no-schema v0 selection and terminal v1 errors. | Landed at `444822ff80`; focused loader tests are `7/7` green, including escaped-key unsupported schema and no-schema v0 compatibility. The dedicated artifact selector guard passes. No new parser, schema revision, or blanket v0 removal. |
-| 2 (fast open) | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` — `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` | Reuse the existing V4 index/flow identity owner. Build one valid normal+fault cleanup base fixture, propagate stable rejection `published-lifecycle-v4/receiver-object-mismatch`, then mutate only the callee `receiver_object`; assert named rejection and absent artifact. Add the same-typed valid receiver execution at the same boundary. The base fixture is a reusable test asset for later identity negatives, not a one-off. | Positive valid receiver, valid cleanup-on-fault, and object-only mutation negative must execute; mutating only the receiver check must make the negative fail. The dedicated R0 guard and focused C test must pass. Keep V2 structural/V4 identity ownership unchanged; no second object walk or runtime-accessor proof. |
+| 2 landed | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` — `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` | Reuse the existing V4 index/flow identity owner. Build one valid normal+fault cleanup base fixture, propagate stable rejection `published-lifecycle-v4/receiver-object-mismatch`, then mutate only the callee `receiver_object`; assert named rejection and absent artifact. Add the same-typed valid receiver execution at the same boundary. The base fixture is a reusable test asset for later identity negatives, not a one-off. | Landed at `0cd9ccec70`; positive, fault-cleanup base, receiver-only mutation, named mismatch, and absent-artifact checks pass. The dedicated R0 guard passes. Keep V2 structural/V4 identity ownership unchanged; no second object walk or runtime-accessor proof. |
 | 3 | `published_backend_view::physical_program` — `MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0` | After a caller census, remove the unused `PublishedLifecyclePhysicalProgramV1::module` borrow and getter if no downstream consumer remains. Close the getter so later JSON/layout consumers cannot return to the original module through this product. | Existing physical JSON/layout/Pair exit-30 suites stay green and the source remains below the 760 split trigger. No semantic projection, layout authority, or transport change. |
 
 The in-process LLVM C-API cutover is already structurally closed at
@@ -507,12 +509,10 @@ source authority or physical receiver design.
   parsing, and the escaped-key negative proves that raw substring selection is
   gone. The artifact-specific guard pins this contract without creating a
   second parser or compatibility retry.
-* The receiver-identity C negative is not yet isolated evidence: its method
-  fault edge currently reaches `return_fault` without the valid receiver
-  cleanup graph, so lifecycle rejection can happen before the object mismatch
-  check. The coverage row must first make the normal and fault paths valid,
-  then mutate only the callee `receiver_object` and assert the named V4
-  mismatch. A generic nonzero result is not acceptance.
+* The receiver-identity coverage row is closed at `0cd9ccec70`: the shared
+  fixture first compiles with receiver object 8 and valid normal/fault cleanup,
+  then changes only the callee `receiver_object` to 7 and asserts the named V4
+  mismatch with no artifact. The dedicated guard pins this mutation proof.
 
 Negative-test proof rule for the reopened receiver row: a rejection is evidence
 only when a reusable valid normal+fault cleanup base is green, exactly one
@@ -526,11 +526,12 @@ nonzero or unsupported-cohort result does not close the row.
   lookup through JSON.
 
 The selected execution frontier is now
-`MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` in fast mode. The
-artifact schema selector closed at `444822ff80`; this row reuses the existing
-V4 index/flow and only repairs its test discrimination and named receiver
-mismatch propagation. No second identity verifier, object walk, runtime
-accessor, legacy-route deletion, OBJ/EXE, or performance claim is opened.
+`MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` in closeout. The row
+landed at `0cd9ccec70` by reusing the existing V4 index/flow and repairing only
+test discrimination plus named receiver mismatch propagation. The next row is
+the physical-program module-borrow census; no second identity verifier, object
+walk, runtime accessor, legacy-route deletion, OBJ/EXE, or performance claim is
+opened by this closeout.
 
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 
@@ -2753,14 +2754,11 @@ the pre-artifact parser fixture accepts the new schema and rejects an invalid
 root object field, and the existing Pair direct plus linked OBJ/EXE witness
 returns process exit `30`. Static/root/Birth rows retain
 `receiver_object: null`; no receiver inference, name repair, or compatibility
-retry was added. The current dedicated C V4 mismatch fixture is
-non-discriminating because its fault/liveness path can reject before the
-receiver comparison; it is therefore not counted as receiver-identity
-negative evidence. The implementation and consumer cutover are landed, but
-`MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` remains open until a
-valid normal/fault cleanup graph and receiver-only mutation assert the named
-mismatch. The V2/V4 verifier boundary is recorded below so a future standalone
-V2 caller cannot silently acquire the artifact role.
+retry was added. Receiver-identity R0 is now closed at `0cd9ccec70`: the
+positive receiver object 8 compiles with valid normal/fault cleanup, while the
+same fixture with only callee `receiver_object` 7 asserts the named mismatch
+and leaves no artifact. The V2/V4 verifier boundary is recorded below so a
+future standalone V2 caller cannot silently acquire the artifact role.
 
 ##### `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-VERIFIER-BOUNDARY-D0` (closed 2026-09-10)
 

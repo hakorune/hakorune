@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0"
-current_execution_cohort = "receiver_identity_coverage_r0"
+current_execution_cohort = "receiver_identity_coverage_r0_closeout"
 current_design_stop = "none"
-current_blocker_token = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0: reuse the existing V4 index/flow; first make the normal and fault cleanup paths valid, then mutate only callee receiver_object and propagate the named published-lifecycle-v4/receiver-object-mismatch rejection before emission/artifact publication."
+current_blocker_token = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0-CLOSEOUT: record the valid normal/fault fixture, receiver-only mutation, named mismatch, absent-artifact evidence, and dedicated guard; next row is the physical-program module-borrow census."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Build the reusable valid normal/fault V4 fixture, run the positive receiver case, then mutate only callee receiver_object and assert the named mismatch plus absent artifact. Run the focused C V4 test, the existing lifecycle C guard, current_state_pointer_guard.sh, and diff check before closeout. Do not add a second identity walk, runtime accessor, schema, or OBJ/EXE claim."
+guard_followup = "Focused receiver C test passed after C shim rebuild: valid receiver object 8 emits a nonempty object; receiver-only mutation to 7 returns the named mismatch and no artifact. mirbuilder_physical_receiver_identity_r0_guard.sh, current_state_pointer_guard.sh, and diff check are green. Do not add a second identity walk, runtime accessor, schema, or OBJ/EXE claim."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -31,13 +31,14 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The artifact schema-selector Stop is closed at `444822ff80`; the next bounded
-row is receiver-identity R0. The existing V4 index/flow already owns callee
-identity and rejects before LLVM/object publication. This row only makes the
-fixture discriminating: a valid normal+fault cleanup base, a same-typed
-receiver positive, and a one-field callee receiver_object mutation that
-propagates the named mismatch and leaves no artifact. No new verifier, object
-walk, schema, runtime accessor, or OBJ/EXE claim is allowed.
+Receiver-identity R0 is closed at `0cd9ccec70`. The existing V4 index/flow
+remains the sole identity owner. Its reusable fixture first compiles receiver
+object 8 with valid normal/fault cleanup, then mutates only callee
+receiver_object to 7 and asserts the named mismatch with no artifact. Focused C
+test, shim rebuild, dedicated R0 guard, pointer guard, and diff check are green.
+The next bounded row is the physical-program module-borrow census; no new
+verifier, object walk, runtime accessor, schema, OBJ/EXE, or performance claim
+is made here.
 """
 next_design_card = "none"
 next_execution_card = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0"
@@ -58,5 +59,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/local and callee-identity I0/I1 plus FieldGet reuse landed; Pair exit30 is green. Receiver R0 remains open because its C negative is non-discriminating; C index fusion is ParkedSealed. Direct schema Stop/Dynamic egress and Loop source-recipe evidence are landed; BodyOnlyRebind I0 is at 3559464960 with focused Rust gates green. Artifact MIR JSON schema-selector Stop I0 landed at 444822ff80: parsed v1 schema authority, escaped-key terminal before MIR-v0, no-schema v0 compatibility, 7/7 loader tests, and dedicated guard green. The broad ingress guard is a separately classified pointer mismatch. Receiver-identity R0 is next; no OBJ/EXE or whole-pipeline claim."
+  "2026-09-10: receiver/local and callee-identity I0/I1 plus FieldGet reuse landed; Pair exit30 is green. C index fusion is ParkedSealed. Direct schema Stop/Dynamic egress and Loop source-recipe evidence are landed; BodyOnlyRebind I0 is at 3559464960 with focused Rust gates green. Artifact MIR JSON schema-selector Stop I0 landed at 444822ff80 with parsed v1 authority, escaped-key terminal, no-schema v0 compatibility, 7/7 loader tests, and guard green. Receiver-identity R0 landed at 0cd9ccec70: valid receiver/fault-cleanup positive, receiver-only mutation to named mismatch, absent artifact, focused C test and dedicated guard green. The broad ingress guard remains a separately classified pointer mismatch; the next row is physical-program module-borrow census."
 ]
