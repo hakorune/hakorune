@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0"
-current_execution_cohort = "mirbuilder_physical_c_invocation_index_reuse_d0"
+current_execution_row = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
+current_execution_cohort = "mirbuilder_untyped_object_storage_d0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Physical C invocation-index reuse D0: select one production physical caller and one measured hot owner, then decide whether invocation-local validated index facts can be shared without changing V2/V4 checks. Preserve all fail-fast behavior; no global cache, C source inference, or unmeasured performance claim."
+current_blocker_token = "Untyped object storage D0: preserve source-issued init_fields membership, then choose an existing source annotation/migration authority or explicitly stop at a dynamic/opaque tagged ABI design. MIR observation, constant-caller heuristics, receiver names, and C defaults cannot issue storage meaning."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -53,9 +53,9 @@ commit. Physical callee identity I1 and its consumer cutover landed at
 prepared object definition, V2 validates its layout, and V4 compares it before
 LLVM emission; Pair direct/linked exit-30 and a dedicated mismatch rejection
 are recorded.
-FieldGet prepared-reference reuse I0 landed at `90928e0585`: the existing physical instruction row now owns one projected `CanonicalFieldRefV1`, and admission, layout collection, and JSON consume it. The focused suite is 9/9; C parser/build and Pair direct/linked exit-30 checks remain green. The next design stop is invocation-local C index reuse; no speed claim is made. Whole MirBuilder, R7, general LLVM graduation, parallel sessions, and memory-only transport remain unproven.
+FieldGet prepared-reference reuse I0 landed at `90928e0585`: the existing physical instruction row now owns one projected `CanonicalFieldRefV1`, and admission, layout collection, and JSON consume it. The focused suite is 9/9; C parser/build and Pair direct/linked exit-30 checks remain green. C invocation-index measurement/fusion is already closed and ParkedSealed at D1; the next bounded design stop is untyped object storage. Whole MirBuilder, R7, general LLVM graduation, parallel sessions, and memory-only transport remain unproven.
 """
-next_design_card = "MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0"
+next_design_card = "MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0"
 next_execution_card = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -73,5 +73,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: ordinary-call receiver source/local identity I0 landed at 694f61e253. The existing row retains initializer/object identity, finalization derives the receiver from the owner-scoped New local commit, and same-typed two-object receiver substitution is rejected before physical transport. Physical callee identity I1 and consumer cutover landed at f82e0b51af/648eed76dc: canonical object membership is carried through the existing function row, V2/V4 reject object drift before LLVM, and Pair direct/linked exit 30 remains green. FieldGet prepared-reference reuse I0 landed at 90928e0585: the existing physical instruction row now owns one projected CanonicalFieldRefV1, admission/layout/JSON consume it, the focused suite is 9/9, C parser/build pass, and Pair direct/linked exit 30 remains green. The next design stop is invocation-local C index reuse."
+  "2026-09-10: ordinary-call receiver source/local identity I0 landed at 694f61e253. The existing row retains initializer/object identity, finalization derives the receiver from the owner-scoped New local commit, and same-typed two-object receiver substitution is rejected before physical transport. Physical callee identity I1 and consumer cutover landed at f82e0b51af/648eed76dc: canonical object membership is carried through the existing function row, V2/V4 reject object drift before LLVM, and Pair direct/linked exit 30 remains green. FieldGet prepared-reference reuse I0 landed at 90928e0585: the existing physical instruction row now owns one projected CanonicalFieldRefV1, admission/layout/JSON consume it, the focused suite is 9/9, C parser/build pass, and Pair direct/linked exit 30 remains green. C invocation-index measurement/fusion remains ParkedSealed at D1; the next design stop is untyped object storage D0."
 ]

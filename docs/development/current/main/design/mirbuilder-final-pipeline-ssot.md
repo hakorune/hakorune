@@ -2095,7 +2095,7 @@ the selected receiver-lane I0 only. It does not consume the terminal-probe
 integrity queue, authorize generic MIR-JSON `Invoke`, or claim child cleanup,
 arbitrary instance methods, or whole-backend concurrency.
 
-##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (queued)
+##### `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` (ParkedSealed / NoSafeSlice)
 
 The source issuer preserves `init_fields` membership, but canonical layout must
 continue to reject missing storage type. A future row must choose either source
