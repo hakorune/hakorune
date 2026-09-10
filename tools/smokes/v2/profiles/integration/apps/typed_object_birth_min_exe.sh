@@ -2,8 +2,9 @@
 # typed-object-birth-min EXE smoke
 #
 # Contract pin:
-# - MIR emits a user_box_method_routes birth route for Pair.birth/2.
-# - pure-first EXE treats newbox args as allocation-adjacent metadata only.
+# - source enters the selected physical lifecycle V4 owner directly.
+# - generic MIR JSON intentionally rejects lifecycle Invoke and is not an
+#   artifact caller for this cohort.
 # - birth lowers through same-module uniform ABI and consumes TypedObjectPlan.
 # - No compat replay is used as proof.
 
@@ -14,16 +15,14 @@ require_env || exit 2
 
 SMOKE_NAME="typed_object_birth_min_exe"
 APP="$HAKO_ROOT/apps/typed-object-birth-min/main.hako"
-NY_LLVM_C="$HAKO_ROOT/target/release/ny-llvmc"
 RUN_TIMEOUT_SECS="${RUN_TIMEOUT_SECS:-120}"
 TMP_ROOT="${TMPDIR:-/tmp}/hakorune_typed_object_birth_min_$$"
-MIR_OUT="${TMP_ROOT}.mir.json"
 EXE_OUT="${TMP_ROOT}.exe"
 BUILD_LOG="${TMP_ROOT}.build.log"
 RUN_LOG="${TMP_ROOT}.run.log"
 
 cleanup() {
-  rm -f "$MIR_OUT" "$EXE_OUT" "$BUILD_LOG" "$RUN_LOG" 2>/dev/null || true
+  rm -f "$EXE_OUT" "$BUILD_LOG" "$RUN_LOG" 2>/dev/null || true
 }
 trap cleanup EXIT
 
@@ -32,38 +31,20 @@ if [ ! -f "$APP" ]; then
   exit 2
 fi
 
-if [ ! -x "$NY_LLVM_C" ]; then
-  test_skip "$SMOKE_NAME: ny-llvmc missing: $NY_LLVM_C"
+resolve_lifecycle_runtime() {
+  if [ -n "${HAKO_LIFECYCLE_NYRT:-}" ]; then
+    printf '%s' "$HAKO_LIFECYCLE_NYRT"
+  elif [ -n "${NYASH_EMIT_EXE_NYRT:-}" ] && [ -f "$NYASH_EMIT_EXE_NYRT/libnyash_lifecycle_kernel.a" ]; then
+    printf '%s' "$NYASH_EMIT_EXE_NYRT"
+  else
+    printf '%s' "$HAKO_ROOT/target/lifecycle-kernel/release"
+  fi
+}
+
+NYRT_DIR="$(resolve_lifecycle_runtime)"
+if [ ! -f "$NYRT_DIR/libnyash_lifecycle_kernel.a" ]; then
+  test_skip "$SMOKE_NAME: lifecycle runtime archive missing: $NYRT_DIR/libnyash_lifecycle_kernel.a"
   exit 0
-fi
-
-set +e
-NYASH_DISABLE_PLUGINS=1 \
-  timeout "$RUN_TIMEOUT_SECS" \
-  "$HAKO_ROOT/tools/selfhost/selfhost_build.sh" \
-    --in "$APP" \
-    --mir "$MIR_OUT" \
-    >"$BUILD_LOG" 2>&1
-mir_rc=$?
-set -e
-
-if [ "$mir_rc" -ne 0 ]; then
-  echo "[INFO] MIR output tail:"
-  tail -n 120 "$BUILD_LOG" || true
-  test_fail "$SMOKE_NAME: MIR emit failed rc=$mir_rc"
-  exit 1
-fi
-
-if ! grep -Fq '"user_box_method_routes"' "$MIR_OUT"; then
-  cat "$MIR_OUT" >&2
-  test_fail "$SMOKE_NAME: MIR missing user_box_method_routes"
-  exit 1
-fi
-
-if ! grep -Fq '"proof": "typed_user_box_birth_same_module"' "$MIR_OUT"; then
-  cat "$MIR_OUT" >&2
-  test_fail "$SMOKE_NAME: birth route proof missing"
-  exit 1
 fi
 
 set +e
@@ -72,40 +53,47 @@ NYASH_DISABLE_PLUGINS=1 \
   HAKO_BACKEND_COMPILE_RECIPE=pure-first \
   HAKO_BACKEND_COMPAT_REPLAY=none \
   timeout "$RUN_TIMEOUT_SECS" \
-    "$NY_LLVM_C" \
-      --in "$MIR_OUT" \
-      --emit exe \
-      --nyrt "$HAKO_ROOT/target/release" \
-      --out "$EXE_OUT" \
-      >>"$BUILD_LOG" 2>&1
+  "$NYASH_BIN" \
+    --backend mir \
+    --emit-exe "$EXE_OUT" \
+    --emit-exe-nyrt "$NYRT_DIR" \
+    "$APP" \
+    >"$BUILD_LOG" 2>&1
 build_rc=$?
 set -e
 
 if [ "$build_rc" -ne 0 ]; then
-  echo "[INFO] EXE build output tail:"
-  tail -n 160 "$BUILD_LOG" || true
-  test_fail "$SMOKE_NAME: EXE build failed rc=$build_rc"
+  echo "[INFO] EXE output tail:"
+  tail -n 120 "$BUILD_LOG" || true
+  test_fail "$SMOKE_NAME: physical EXE emit failed rc=$build_rc"
   exit 1
 fi
 
-if grep -Fq "unsupported pure shape" "$BUILD_LOG"; then
+if ! grep -Fq 'stage=lifecycle-v4-measure result=ok' "$BUILD_LOG"; then
   echo "[INFO] EXE build output tail:"
   tail -n 160 "$BUILD_LOG" || true
-  test_fail "$SMOKE_NAME: pure-first reported unsupported shape"
+  test_fail "$SMOKE_NAME: lifecycle V4 route trace missing"
   exit 1
 fi
 
-if grep -Fq "compat_replay=harness" "$BUILD_LOG"; then
+if ! grep -Fq 'toolchain=llvm-c-api' "$BUILD_LOG"; then
   echo "[INFO] EXE build output tail:"
   tail -n 160 "$BUILD_LOG" || true
-  test_fail "$SMOKE_NAME: compat replay was used"
+  test_fail "$SMOKE_NAME: LLVM C API physical route missing"
   exit 1
 fi
 
-if ! grep -Fq "mir_call_user_box_birth_same_module_emit" "$BUILD_LOG"; then
+if grep -Fq "unsupported pure shape" "$BUILD_LOG" || grep -Fq "compat_replay=harness" "$BUILD_LOG"; then
   echo "[INFO] EXE build output tail:"
   tail -n 160 "$BUILD_LOG" || true
-  test_fail "$SMOKE_NAME: birth same-module route trace missing"
+  test_fail "$SMOKE_NAME: fallback or unsupported pure shape was used"
+  exit 1
+fi
+
+if ! grep -Fq "EXE written:" "$BUILD_LOG" || [ ! -x "$EXE_OUT" ]; then
+  echo "[INFO] EXE build output tail:"
+  tail -n 160 "$BUILD_LOG" || true
+  test_fail "$SMOKE_NAME: physical EXE artifact missing"
   exit 1
 fi
 
