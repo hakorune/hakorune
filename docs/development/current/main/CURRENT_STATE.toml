@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-I0"
-current_execution_cohort = "mir_ssa_local_materialize_boxshape_i0_closeout"
-current_design_stop = ""
-current_blocker_token = "MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-I0-CLOSEOUT: record the behavior-neutral LocalSSA body move, focused parity evidence, line budgets, and pointer/diff checks; next selection remains separate from this closeout."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-PURE-FIRST-LEGACY-OP-DISPOSITION-D0"
+current_execution_cohort = "m7s_pure_first_legacy_op_disposition_d0"
+current_design_stop = "MIR-CALL-PURE-FIRST-LEGACY-OP-DISPOSITION-D0: selected Boundary pure-first C still accepts legacy op=call through a dispatcher shared with canonical rows; settle the profile gate and finite delete-set before implementation."
+current_blocker_token = "MIR-CALL-PURE-FIRST-LEGACY-OP-DISPOSITION-D0: enumerate Boundary pure-first versus explicit harness callers, prove required legacy rows, and choose one pre-effect Stop or typed consumer; no code or fixture change in this design stop."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,27 +31,18 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-Receiver-identity R0 is closed at `0cd9ccec70` with valid normal/fault fixture,
-receiver-only named mismatch, absent-artifact proof, focused C test, and
-dedicated guard. Physical-program module/getter retirement closed at
-`7a31b48b75` after caller-zero census, with issuance-time module input retained
-and 13 physical-program tests green. The reusable negative-test proof row
-closed at `5a117a96a2` plus guard follow-up `a451f939f8`: receiver and Map
-layout mutations now assert owner-named rejects. The callable Loop ordinary
-bridge old-edge census is now `ParkedSealed__NoCallableNoneCaller`:
-`callable_handoff=None` has a valid ledger-free Script/module owner and the
-shared route has a separate legacy port owner, so no callable-exclusive
-delete-set exists. Reopen only on the recorded trigger. The negative-test
-base and named-reject rule are already closed and reusable; do not create a
-duplicate task.
-The design row was accepted and the selected fast slice
-`MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-I0` is closed at `473c006604`: one private
-LocalSSA implementation move with no Loop or physical backend scope. The body
-hash and focused parity suites are unchanged; preserve the existing
-materialization order, failure policy, caller set, and guard owners.
+Receiver identity, physical-program module/getter retirement, and the reusable
+negative-test proof are closed at `0cd9ccec70`, `7a31b48b75`, and `5a117a96a2`
+with named-reject mutation evidence; do not duplicate that row. The callable
+Loop old-edge census is `ParkedSealed__NoCallableNoneCaller`. LocalSSA
+materialization BoxShape is closed at `473c006604` with unchanged body hash,
+focused parity suites, cargo check, and line/pointer guards. The next design
+stop is the existing M7-S selected C pure-first legacy `op=call` boundary:
+the common dispatcher still accepts legacy fields, so profile separation and
+an exclusive delete-set must be settled before code or fixture changes.
 """
-next_design_card = "none"
-next_execution_card = "MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-I0"
+next_design_card = "MIR-CALL-PURE-FIRST-LEGACY-OP-DISPOSITION-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

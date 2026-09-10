@@ -607,6 +607,60 @@ The negative-test rule remains closed at `5a117a96a2`: use the valid
 normal/fault base as a reusable asset, mutate one field, and assert the named
 reject. No second generic negative-test task or error taxonomy is opened here.
 
+##### MIR-CALL-PURE-FIRST-LEGACY-OP-DISPOSITION-D0 (design stop)
+
+The remaining selected-C ingress finding is a shared compatibility boundary,
+not a new semantic issuer. The default `ny-llvmc` Boundary route reaches
+`hako_llvmc_compile_json_pure_first`; its C `op == "call"` arm still reads the
+legacy callee/name/receiver/args fields and can pass them to the common call
+dispatcher. The same dispatcher also serves canonical `mir_call`, so the
+legacy arm has no exclusive caller-zero delete-set yet.
+
+```text
+Decision: keep the explicit harness compatibility owner, but prevent a selected
+  pure-first product from silently accepting legacy call rows; settle the
+  profile gate and shared-reader deletion boundary before implementation.
+Source authority + canonical issuer: typed published Call rows and the
+  existing selected Boundary profile; C consumes the issued row and never
+  reissues target, receiver, or argument meaning from JSON text.
+Non-authority: op/name strings, registry/header lookup, MIR type, row counts,
+  function order, runtime accessors, generic fallback, and llvm_py behavior.
+Fail-fast boundary: selected pure-first profile and legacy/canonical op
+  classification must be decided before `emit_mir_call_dispatch`, LLVM effect,
+  or object publication; malformed/unsupported rows keep their named terminal.
+Smallest next slice: enumerate the finite Boundary pure-first and explicit
+  harness callers, prove which legacy `op == "call"` rows are required, and
+  choose one existing pre-effect Stop or typed consumer with its shared-reader
+  delete-set. Do not alter the common dispatcher during this design stop.
+Non-claims: no new Call schema, resolver, C fallback, llvm_py retirement,
+  R7 caller-zero, backend parity, or OBJ/EXE acceptance.
+```
+
+Census boundary: `ny-llvmc` Boundary pure-first entry ->
+`hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch_calls.inc` legacy
+`call` arm -> common C call dispatcher -> LLVM/object terminal; includes the
+selected C prepass/body and existing typed-row consumers, excludes explicit
+`llvm_py`/harness compatibility and Rust VM/WASM readers.
+
+Finite disposition states:
+
+```text
+CanonicalTypedRow       -> existing typed consumer; no legacy field lookup
+UnsupportedBeforeArtifact -> named C terminal before dispatch/effect/object
+ExplicitCompatibility    -> explicit harness owner only; never selected product
+MalformedInput            -> existing parser/contract error; no v0 repair
+```
+
+Current status is `CutoverBlockerOpen` because the legacy arm shares its
+dispatcher and physical helpers with canonical callers. The eventual delete
+set is the legacy `op == "call"` extraction/acceptance in the pure-first C
+reader, its shared legacy acceptance helpers, and fixtures/guards owned only by
+that selected compatibility edge; it is not caller-zero at this HEAD. A
+future implementation may be a narrow pre-effect Stop if the finite caller
+inventory proves no selected product depends on the legacy row. Until then,
+keep this row in `design_stop` and do not infer a target from a rejected or
+missing typed row.
+
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 
 Decision: pin the existing selected Dynamic LLVM Boundary exporter to the
