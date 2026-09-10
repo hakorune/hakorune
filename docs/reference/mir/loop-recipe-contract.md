@@ -1256,6 +1256,12 @@ multiple-iteration cases from one valid graph, then mutate one generation or
 edge/publication relation for each negative case; a generic rejection is not
 evidence for this contract.
 
+For iteration `n`, the Header condition and Body reads both consume `h_n`. A
+Body rebind produces `s_n`; the canonical Backedge carries that value into the
+next Header generation `h_(n+1)`, and the false-edge After/Tail reads
+`h_(n+1)`. The later creation of `s_n` never makes it an After value by itself;
+the edge relation is the only proof of that generation transition.
+
 ## Rejection boundary
 
 The following remain typed rejects at this stage:
