@@ -588,6 +588,14 @@ shapes stay on their existing Composer path. The bounded physicalizer uses
 the existing canonical SSA/CFG/PHI and DraftSeal owners and does not issue
 source identity or Binding SSA values of its own.
 
+The selected cataloged edge also owns one
+`CanonicalFunctionLoweringSessionV1` for the whole physicalization. The
+callable lowerer borrows that session and returns a ready DraftSeal; a private
+DraftSeal-to-pending bridge keeps the parent captured through collector
+admission, then the existing pending terminal restores it once. This is a
+session-lifecycle receipt only; the selected module's zero/one/multiple
+iteration acceptance and OBJ/EXE execution remain open.
+
 Focused route-selection and full-canary tests are green. Module publication,
 OBJ/EXE execution, zero/one/multiple iteration acceptance, and legacy
 retirement remain open; this receipt does not promote the broad GenericLoop

@@ -21,7 +21,6 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::{
 };
 use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
-use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::callable_single_loop_source_shapes::{
     SourceCallKindV1, SourceReceiverShapeV1,
@@ -33,13 +32,12 @@ use crate::mir::compiler::loop_physical_prepare::{
 use crate::mir::function::MirParamDecl;
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
-use crate::mir::MirFunction;
 
-pub(in crate::mir::builder::resolved_lowering) fn lower_callable_single_loop_function_draft_v1(
-    builder: &mut MirBuilder,
+pub(in crate::mir::builder) fn lower_callable_single_loop_function_draft_v1(
+    outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
     program: PreparedCallableLoopOperationProgramV1<'_>,
     physical_name: String,
-) -> Result<MirFunction, String> {
+) -> Result<ReadyFunctionDraftSealV1, String> {
     let (source, input_relations, operation_program, prelude_source, tail) = program.into_parts();
     let input = source.input();
     let index = input
@@ -74,9 +72,8 @@ pub(in crate::mir::builder::resolved_lowering) fn lower_callable_single_loop_fun
         .prepare_physical_layout()
         .map_err(|error| format!("[freeze:contract][callable-loop/layout] {error:?}"))?;
 
-    let mut outer = builder.open_resolved_function_draft_seal_session_v1(&physical_name);
-    let lowering = lower_inside_session(
-        &mut outer,
+    lower_inside_session(
+        outer,
         &branded,
         input_relations,
         physical_layout,
@@ -85,26 +82,7 @@ pub(in crate::mir::builder::resolved_lowering) fn lower_callable_single_loop_fun
         terminal,
         completion,
         physical_name,
-    );
-    match lowering {
-        Ok(ready) => {
-            let open = ready.open(outer);
-            let prepared = open
-                .prepare()
-                .map_err(|error| {
-                    format!(
-                        "[freeze:contract][callable-loop/draft-seal] stage={:?} error={:?}",
-                        error.stage(),
-                        error.error()
-                    )
-                })?;
-            Ok(prepared.commit().consume_non_authority_evidence())
-        }
-        Err(error) => {
-            outer.discard_unpublished();
-            Err(error)
-        }
-    }
+    )
 }
 
 #[allow(clippy::too_many_arguments)]

@@ -259,7 +259,7 @@ impl LegacyFunctionPendingSessionV1<'_> {
     }
 }
 
-impl PreparedFunctionSessionCloseV1<'_> {
+impl<'builder> PreparedFunctionSessionCloseV1<'builder> {
     /// Apply one prepared projected function/type payload and then perform the
     /// same infallible extraction/restore terminal.  This is the only session
     /// path that may install a draft-seal projection into the live function
@@ -271,11 +271,33 @@ impl PreparedFunctionSessionCloseV1<'_> {
         self.commit_with_input(Some(input))
     }
 
+    /// Apply one prepared projected function/type payload without restoring
+    /// the captured parent yet.  The returned pending owner keeps the same
+    /// session alive until collector admission has completed.
+    pub(in crate::mir::builder) fn commit_projected_pending(
+        self,
+        input: PreparedFunctionSessionCommitInputV1,
+    ) -> PendingFunctionSessionCloseV1<'builder> {
+        let (session, draft) = self.take_projected(Some(input));
+        PendingFunctionSessionCloseV1 {
+            pending: PendingFunctionPayloadSessionCloseV1::new(session, draft, ()),
+        }
+    }
+
     fn commit_with_input(
-        mut self,
+        self,
         input: Option<PreparedFunctionSessionCommitInputV1>,
     ) -> MirFunction {
-        let mut session = self
+        let (mut session, draft) = self.take_projected(input);
+        session.restore_context();
+        draft
+    }
+
+    fn take_projected(
+        mut self,
+        input: Option<PreparedFunctionSessionCommitInputV1>,
+    ) -> (CanonicalFunctionLoweringSessionV1<'builder>, MirFunction) {
+        let session = self
             .session
             .take()
             .expect("prepared function session close commits once");
@@ -290,8 +312,7 @@ impl PreparedFunctionSessionCloseV1<'_> {
             .take()
             .expect("prepared close validated one installed function");
         debug_assert_eq!(draft.signature.name, self.function_name);
-        session.restore_context();
-        draft
+        (session, draft)
     }
 
     pub(in crate::mir::builder) fn function_name(&self) -> &str {
@@ -489,6 +510,51 @@ mod tests {
         ));
         assert_eq!(draft.signature.name, "draft_seal/0");
         assert_eq!(draft.signature.return_type, MirType::Bool);
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    }
+
+    #[test]
+    fn draft_seal_pending_close_keeps_parent_captured_until_completion() {
+        let mut builder = MirBuilder::new();
+        let session = builder.open_resolved_function_draft_seal_session_v1("draft_pending/0");
+        let product = resolved_product();
+        let owner = product.owner();
+        session
+            .builder
+            .function_state
+            .resolved_binding_state
+            .install(&product)
+            .unwrap();
+        session
+            .builder
+            .function_state
+            .resolved_binding_state
+            .finish(owner)
+            .unwrap();
+        session
+            .builder
+            .enter_function_for_test("draft_pending/0".into());
+
+        let prepared = match session.prepare_draft_seal_close() {
+            Ok(prepared) => prepared,
+            Err(_) => panic!("resolved canonical session should be seal-ready"),
+        };
+        let mut projected = draft("draft_pending/0", 0);
+        projected.signature.return_type = MirType::Bool;
+        let mut projected_types = crate::mir::builder::type_context::TypeContext::new();
+        projected_types.set_type(crate::mir::ValueId::new(7), MirType::Bool);
+        let pending = prepared.commit_projected_pending(PreparedFunctionSessionCommitInputV1::new(
+            projected,
+            projected_types,
+        ));
+        let name = pending
+            .complete_before_restore(|draft| {
+                assert_eq!(draft.signature.return_type, MirType::Bool);
+                Ok::<_, ()>(draft.signature.name)
+            })
+            .unwrap();
+        assert_eq!(name, "draft_pending/0");
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
     }

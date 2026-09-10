@@ -25,19 +25,39 @@ excludes: new source Facts/Recipe issuer, plan-level PHI adapter, local
 The selected production edge is the
 `CallableSingleLoop` branch in
 `NormalCallableSemanticPackagePortAdapterV1::lower_cataloged_static_box_method`.
-The semantic demand and canonical PHI/CFG physicalizer are wired, but this
-edge is not yet accepted as a session-entry implementation. The cataloged
-method currently calls `capture_resolved_function_pending_session_v1`, while
-`callable_lowerer.rs` opens another `CanonicalFunctionLoweringSessionV1`
-before producing `ReadyFunctionDraftSealV1`. That leaves the outer session as
-a pending wrapper around an inner function session and violates this row's
-one-session owner contract, even though existing tests can pass.
+The semantic demand and canonical PHI/CFG physicalizer are wired. The
+session-entry implementation now opens one
+`CanonicalFunctionLoweringSessionV1` at that selected edge, lends it to
+`callable_lowerer.rs`, and moves the prepared DraftSeal into the existing
+pending restoration terminal before collector admission. The session bridge
+is focused-tested, but this row is not fully accepted until the real selected
+module publication path proves zero, one, and multiple iterations without
+manual ledger setup.
 
 `CanonicalSsaFunctionSessionV2` remains a physical SSA/CFG helper inside the
 single function session; it is not a second source authority. The legacy
 `capture_static_box_method_pending_v1` path stays untouched. The generic Ready
 branch in `src/mir/builder/raw_loop_child_port.rs` remains a later consumer and
 must not be opened until this owner boundary is closed.
+
+## Session-entry implementation receipt (2026-09-11)
+
+The selected cataloged CallableSingleLoop edge now owns the complete function
+session lifecycle. `lower_callable_single_loop_function_draft_v1` borrows the
+already-open `CanonicalFunctionLoweringSessionV1` and returns only a ready
+`ReadyFunctionDraftSealV1`; it does not open or restore another session. The
+private DraftSeal bridge prepares and commits that product into
+`PendingFunctionSessionCloseV1` without restoring the captured parent. The
+existing `complete_before_restore` terminal then performs collector admission
+and restores the parent once. Lowerer and DraftSeal failures discard the same
+unpublished owner.
+
+The focused pending-close test proves that the parent remains captured until
+completion and is restored after the terminal runs. Route selection,
+callable production canary, and the exact pending-close test are green. This
+receipt does not claim the full selected-module fixture, zero/one/multiple
+iteration matrix, module publication, or OBJ/EXE execution; those remain the
+next bounded acceptance work.
 
 ## Six-line brief
 

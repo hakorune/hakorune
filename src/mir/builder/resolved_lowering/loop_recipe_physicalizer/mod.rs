@@ -40,7 +40,7 @@ mod tests;
 mod topology;
 
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
-pub(super) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
+pub(in crate::mir::builder) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
 use operation_dispatcher::*;
 use operation_emitter::*;
 use operation_ledger::*;

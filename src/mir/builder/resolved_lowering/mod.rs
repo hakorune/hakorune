@@ -74,6 +74,7 @@ pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_phy
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_pinned_text_physical_entry_draft_seal;
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
+pub(in crate::mir::builder) use loop_recipe_physicalizer::lower_callable_single_loop_function_draft_v1;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;
 #[cfg(test)]
@@ -161,7 +162,10 @@ use crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::{MirFunction, MirModule};
 
-use super::calls::CanonicalFunctionSessionErrorV1;
+use super::calls::{
+    CanonicalFunctionLoweringSessionV1, CanonicalFunctionSessionErrorV1,
+    PendingFunctionSessionCloseV1,
+};
 use super::MirBuilder;
 use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
@@ -173,6 +177,29 @@ use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1}
 pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
     BuilderContract(String),
     DuplicateFunctionPublication { function_name: String },
+}
+
+/// Complete one CallableSingleLoop draft seal without restoring the captured
+/// parent until collector admission has consumed the pending draft.  The
+/// selected cataloged entry owns the function session; this helper only joins
+/// the ready physical result to the existing pending restoration terminal.
+pub(in crate::mir::builder) fn commit_callable_single_loop_ready_to_pending_v1(
+    session: CanonicalFunctionLoweringSessionV1<'_>,
+    ready: ReadyFunctionDraftSealV1,
+) -> Result<PendingFunctionSessionCloseV1<'_>, String> {
+    let open = ready.open(session);
+    let prepared = match open.prepare() {
+        Ok(prepared) => prepared,
+        Err(rejected) => {
+            let stage = rejected.stage();
+            let error = format!("{:?}", rejected.error());
+            rejected.discard();
+            return Err(format!(
+                "[freeze:contract][f1_draft_seal/{stage:?}] {error}"
+            ));
+        }
+    };
+    Ok(prepared.commit_pending())
 }
 
 impl From<String> for CanonicalResolvedBuildErrorV1 {
@@ -368,21 +395,6 @@ impl MirBuilder {
         physical_name: String,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
         self.lower_resolved_direct_accum_function_draft_inner(plan, false, Some(physical_name))
-    }
-
-    /// Consume one source-bound CallableSingleLoop demand through the
-    /// existing canonical SSA/CFG/PHI session.  The profile physicalizer owns
-    /// no route choice or source lookup; it only emits the already co-sealed
-    /// operation product and closes the normal draft seal.
-    pub(in crate::mir::builder) fn lower_resolved_callable_single_loop_function_draft_with_physical_name_v1(
-        &mut self,
-        program: crate::mir::builder::normal_callable_prepared_operation::
-            PreparedCallableLoopOperationProgramV1<'_>,
-        physical_name: String,
-    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::
-            lower_callable_single_loop_function_draft_v1(self, program, physical_name)
-        .map_err(CanonicalResolvedBuildErrorV1::BuilderContract)
     }
 
     pub(in crate::mir) fn lower_resolved_nested_predicate_function_draft(

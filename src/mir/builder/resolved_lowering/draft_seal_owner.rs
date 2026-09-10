@@ -8,7 +8,8 @@
 use crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1;
 use crate::mir::a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptV1;
 use crate::mir::builder::calls::{
-    CanonicalFunctionLoweringSessionV1, PreparedFunctionSessionCloseV1,
+    CanonicalFunctionLoweringSessionV1, PendingFunctionSessionCloseV1,
+    PreparedFunctionSessionCloseV1,
 };
 use crate::mir::builder::module_draft_collector::FunctionDraftKeyV1;
 use crate::mir::builder::{
@@ -510,7 +511,7 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
     }
 }
 
-impl PreparedFunctionDraftSealV1<'_> {
+impl<'builder> PreparedFunctionDraftSealV1<'builder> {
     pub(super) fn commit(self) -> CompletedFunctionDraftV1 {
         let Self {
             completion,
@@ -524,6 +525,23 @@ impl PreparedFunctionDraftSealV1<'_> {
             completion,
             receipt,
         }
+    }
+
+    /// Commit the prepared draft while retaining the captured parent context
+    /// for the collector's admission terminal.  This is the one-session
+    /// counterpart to `commit`: no source or PHI evidence is reissued, and
+    /// `PendingFunctionSessionCloseV1` restores the parent exactly once after
+    /// collection.
+    pub(in crate::mir::builder) fn commit_pending(self) -> PendingFunctionSessionCloseV1<'builder> {
+        let Self {
+            completion,
+            plan,
+            close,
+        } = self;
+        let (input, receipt) = plan.into_commit_parts();
+        drop(completion);
+        drop(receipt);
+        close.commit_projected_pending(input)
     }
 }
 

@@ -2,7 +2,10 @@
 
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
-use super::calls::{LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1};
+use super::calls::{
+    CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1,
+    PendingFunctionSessionCloseV1,
+};
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 use super::module_lowering_invocation::ResolvedChildDraftAdmissionV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
@@ -12,6 +15,9 @@ use super::raw_invocation_source_transport::{
 };
 use super::recursive_child_lowering::{
     normalize_instance_box_method_input_v1, RawInvocationChildPortV1,
+};
+use super::resolved_lowering::{
+    commit_callable_single_loop_ready_to_pending_v1, lower_callable_single_loop_function_draft_v1,
 };
 use super::MirBuilder;
 use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
@@ -242,16 +248,27 @@ impl RawInvocationChildPortV1<'_, '_> {
             function_name.clone(),
             admission.physical_arity(),
         );
-        let pending = builder
-            .capture_resolved_function_pending_session_v1(&function_name.clone(), move |builder| {
-                builder
-                    .lower_resolved_callable_single_loop_function_draft_with_physical_name_v1(
-                        program,
-                        function_name,
-                    )
-                    .map_err(|error| format!("{error:?}"))
-            })
-            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
+        let mut session = builder.open_resolved_function_draft_seal_session_v1(&function_name);
+        let ready = match lower_callable_single_loop_function_draft_v1(
+            &mut session,
+            program,
+            function_name.clone(),
+        ) {
+            Ok(ready) => ready,
+            Err(error) => {
+                session.discard_unpublished();
+                return Err(ModuleLoweringPortChildErrorV1::Session(
+                    CanonicalFunctionSessionErrorV1::Primary(error),
+                ));
+            }
+        };
+        let pending = commit_callable_single_loop_ready_to_pending_v1(session, ready).map_err(
+            |error| {
+                ModuleLoweringPortChildErrorV1::Session(
+                    CanonicalFunctionSessionErrorV1::Primary(error),
+                )
+            },
+        )?;
         self.module_port.complete_resolved_child_with_physical_loan(
             pending,
             resolved,
