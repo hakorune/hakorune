@@ -1,10 +1,10 @@
 ---
-Status: snapshot D0/I0, emit-clone P0, lazy payload P0, and postprocess walk census D0/P0 closed; variable-read accessor S0 closed; lookup-facade S0 is design-stop
+Status: snapshot D0/I0, emit-clone P0, lazy payload P0, postprocess walk census D0/P0, and variable-read accessor S0 closed; lookup-facade S0 is ParkedSealed__NoExclusiveDeleteSet; next PHI analysis batch D0 design-stop
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-CALL-EMIT-LOOKUP-FACADE-RETIRE-S0
+NextCard: MIR-PHI-ANALYSIS-BATCH-D0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
@@ -492,6 +492,76 @@ Smallest next slice:
 Non-claims:
   no code change, new port, receipt, backend route, or semantic Call change.
 ```
+
+### Lookup-facade census closeout (2026-09-10)
+
+The read-only census is complete. The policy facade has three distinct
+contracts and no contract-preserving exclusive delete-set:
+
+```text
+lookup = Some:
+  unified-call profile is selected and a legacy retry is rejected
+
+lookup = None:
+  the existing compatibility path remains permitted
+
+caller surface:
+  global and standard method terminals, plus one header-port test;
+  raw invocation ports can produce either Some or None
+```
+
+`MirBuilder::emit_unified_call_with_lookup` remains the sole owner of these
+policy decisions. `UnifiedCallEmitterBox` is the typed consumer. Deleting the
+facade would either duplicate the profile/retry policy at callers or bypass
+the lookup-present rejection. Direct test calls to the lower-level implementation
+are not a production delete-set and do not justify changing the public seam.
+
+Decision: `ParkedSealed__NoExclusiveDeleteSet`. Keep the facade unchanged until
+a future caller census proves one finite delete-set that preserves both
+`Some` and `None` terminals, diagnostics, recursion behavior, and compatibility
+ownership. No code, new port, receipt, fallback, retry, or semantic Call route
+was opened by this census.
+
+The next bounded design stop is `MIR-PHI-ANALYSIS-BATCH-D0`; it is a separate
+production-reachable PHI analysis concern and must name its mutation boundary
+before any cache or repair deletion is considered.
+
+### `MIR-PHI-ANALYSIS-BATCH-D0` design stop (2026-09-10)
+
+```text
+Decision:
+  Reuse one immutable PHI analysis batch for each mutation-stable function
+  phase; do not cache across a function mutation or change PHI semantics.
+Source authority + canonical issuer:
+  Existing PhiInputMaterializationAnalysis::new(func) owns CFG,
+  predecessor/reachability, definition-block, and dominator facts. The
+  materialization and finalization consumers borrow that batch.
+Non-authority:
+  for_pred, complete_missing_self_carried_phi_inputs, module lifecycle,
+  individual PHI emitters, variable_map, and type hints. They may consume or
+  update physical PHI inputs, but cannot reissue analysis facts.
+Fail-fast boundary:
+  add/remove/replace blocks or terminators, successor changes, parameter or
+  entry changes, and add/remove/replace of an analyzed ValueId definition
+  invalidate the batch. Existing PHI-input updates and append-only
+  rematerialization are allowed only while the analyzed topology/definitions
+  remain unchanged; a new definition requires rebuilding before use.
+Smallest next slice:
+  At materialize_all_phi_inputs, build the batch once after its preconditions,
+  then pass the same batch to self-carry completion and grouped-edge
+  materialization. Audit root finalize versus all-function finalize so one
+  root is not repaired twice in the same mutation-stable phase.
+Non-claims:
+  no PHI meaning change, missing-input policy change, Binding SSA shape
+  expansion, Loop production caller, backend change, or timing gate.
+```
+
+Observed production consumers are `materialize_all_phi_inputs` at JoinIR
+application/module finalization and `for_pred` from builder emission, If join,
+PHI lifecycle, and batch publication. The design is accepted as a bounded
+read-only D0; implementation remains closed until the mutation boundary is
+represented by existing owner state and focused stale-batch rejection is
+defined. No new cache/receipt or second PHI authority is permitted.
 
 ## All-worker surface audit (2026-09-03)
 

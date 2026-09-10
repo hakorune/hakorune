@@ -26,13 +26,13 @@ second health-repair task.
 | `MIR-EMIT-MOVE-COMMIT-R0` | High confidence | `builder_emit.rs` | after debug-policy ownership is fixed; do not overlap a semantic writer row |
 | `MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` | Required before growth | `method_call_handlers.rs` | behavior-neutral split at the publication-ingress policy / legacy prepare-execute boundary; the file is 766 lines |
 | `MIR-UNIFIED-EMITTER-FORWARDER-CENSUS-D0` | Parked design | `unified_emitter.rs` + exact callers | no layer merge until `PermitLegacy` and `RequireGenericReceipt` callers have a finite contract-preserving delete set |
-| `MIR-CALL-EMIT-LOOKUP-FACADE-RETIRE-S0` | Design stop | `MirBuilder` lookup policy + `UnifiedCallEmitterBox` | audit `Some`/`None` lookup policy and retain the facade unless one exclusive delete-set preserves legacy rejection/compatibility terminals |
+| `MIR-CALL-EMIT-LOOKUP-FACADE-RETIRE-S0` | `ParkedSealed__NoExclusiveDeleteSet` | `MirBuilder` lookup policy + `UnifiedCallEmitterBox` | census closed: `Some` and `None` callers have distinct policy terminals; keep the facade until one exclusive delete-set preserves both |
 | `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` | Bounded BoxShape | `variable_read.rs` | move only direct read access to the existing variable owner; do not privatize or clone-rewrite the whole map |
 | `MIR-C-SPEED-EXACT-MODE-CONTRACT-D0` | Separate design | value/ABI + storage/runtime owners | keep safe defaults until generation/lease/lifetime/thread/failure contracts are fixed |
 | `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0` | Candidate cleanup | `mutable_accumulator.rs` test surface | after the active perf row; delete one body-identical test only with baseline inventory update |
 | `MIR-DEBUG-PAYLOAD-LAZY-P0` | Landed `21e85270ac` | unified-call observer ingress | existing DebugHub gate now owns the lazy callback; output/KPI parity evidence is recorded below |
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Medium-High | `builder_emit.rs` + `ssa/local.rs` | design the prepared/legacy boundary and function-owned definition index before implementation |
-| `MIR-PHI-ANALYSIS-BATCH-D0` | Medium-High | PHI materialization/finalization | name a mutation-stable analysis batch before caching or deleting a repair pass |
+| `MIR-PHI-ANALYSIS-BATCH-D0` | Medium-High | existing `PhiInputMaterializationAnalysis::new(func)` + PHI materialization/finalization | name one immutable CFG/definition/dominator batch and invalidate it on topology, successor, parameter/entry, or analyzed-definition mutation before caching or deleting repair work |
 | `MIR-POSTPROCESS-WALK-CENSUS-D0` | Medium | semantic refresh + old/shared finish owners | count actual block/instruction visits and caller classes before one adjacent-wave fusion is considered |
 | `MIR-SEMANTIC-REFRESH-WALK-COUNTERS-P0` | Medium | existing `compile_timing` + semantic refresh owners | add observation-only stage/function/block/instruction counters after the D0 census; no fusion or cache |
 | `NORMAL-ROOT-AST-MOVE-D0` | Medium | normal source package -> root work plan | remove the one production root AST deep clone only after a move/loan boundary is accepted |
