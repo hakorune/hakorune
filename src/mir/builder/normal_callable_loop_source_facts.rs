@@ -217,6 +217,70 @@ pub(in crate::mir::builder) struct CallableGenericLoopV1SemanticRecipeV1<'source
     receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
 }
 
+/// Borrowed source-relation view for the caller-zero bridge row.
+///
+/// Every field is borrowed from the one claimed receipt.  This view exposes
+/// source lineage and grouped pre-effect rows to the future normalizer port,
+/// but it cannot issue a binding, select a route, or publish a physical value.
+/// The higher-ranked callback keeps the view scoped to this observation.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CallableGenericLoopSourceRelationViewV1<'view> {
+    owner: FunctionOwnerIdV1,
+    parent_source: &'view RawInvocationSourceContextV1,
+    condition_source: &'view RawInvocationSourceContextV1,
+    body_source: &'view RawInvocationSourceContextV1,
+    pre_effect: &'view CallableSemanticLoopHandoffPreEffectReceiptV1,
+    facts: &'view CanonicalLoopFacts,
+    generic: &'view GenericLoopV1Facts,
+    selection: &'view RecipeFirstRouteSelectionV1,
+    selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
+    policy: GenericLoopFactsPolicyFrameV1,
+}
+
+impl CallableGenericLoopSourceRelationViewV1<'_> {
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(in crate::mir::builder) fn parent_source(&self) -> &RawInvocationSourceContextV1 {
+        self.parent_source
+    }
+
+    pub(in crate::mir::builder) fn condition_source(&self) -> &RawInvocationSourceContextV1 {
+        self.condition_source
+    }
+
+    pub(in crate::mir::builder) fn body_source(&self) -> &RawInvocationSourceContextV1 {
+        self.body_source
+    }
+
+    pub(in crate::mir::builder) fn pre_effect(
+        &self,
+    ) -> &CallableSemanticLoopHandoffPreEffectReceiptV1 {
+        self.pre_effect
+    }
+
+    pub(in crate::mir::builder) fn facts(&self) -> &CanonicalLoopFacts {
+        self.facts
+    }
+
+    pub(in crate::mir::builder) fn generic(&self) -> &GenericLoopV1Facts {
+        self.generic
+    }
+
+    pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
+        self.selection
+    }
+
+    pub(in crate::mir::builder) fn selected(&self) -> &VerifiedLocatedGenericLoopV1SelectionV1 {
+        self.selected
+    }
+
+    pub(in crate::mir::builder) const fn policy(&self) -> GenericLoopFactsPolicyFrameV1 {
+        self.policy
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableGenericLoopV1SemanticRecipeRejectV1 {
     FactsMissing,
@@ -271,6 +335,36 @@ impl CallableGenericLoopV1SemanticViewV1<'_> {
 }
 
 impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
+    /// Observe the co-sealed source relation without consuming the Recipe.
+    ///
+    /// This is caller-zero infrastructure for the future normalizer port.  A
+    /// consumer must use the existing `with_view`/physical path after this
+    /// callback; this method does not mutate Builder state or reselect a route.
+    pub(in crate::mir::builder) fn with_source_relation_view<R>(
+        &self,
+        use_view: impl for<'view> FnOnce(CallableGenericLoopSourceRelationViewV1<'view>) -> R,
+    ) -> Result<R, CallableGenericLoopV1SemanticRecipeViewRejectV1> {
+        let Some(facts) = self.receipt.outcome.facts.as_ref() else {
+            return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::FactsMissing);
+        };
+        let Some(generic) = facts.facts.generic_loop_v1() else {
+            return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::GenericFactsMissing);
+        };
+        let view = CallableGenericLoopSourceRelationViewV1 {
+            owner: self.receipt.owner,
+            parent_source: self.receipt.parent_source,
+            condition_source: &self.receipt.condition_source,
+            body_source: &self.receipt.body_source,
+            pre_effect: &self.receipt.pre_effect,
+            facts,
+            generic,
+            selection: &self.receipt.selection,
+            selected: &self.receipt.selected,
+            policy: self.receipt.policy,
+        };
+        Ok(use_view(view))
+    }
+
     pub(in crate::mir::builder) fn with_view<R>(
         self,
         use_view: impl for<'view> FnOnce(CallableGenericLoopV1SemanticViewV1<'view>) -> R,

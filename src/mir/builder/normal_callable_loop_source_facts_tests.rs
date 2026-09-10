@@ -227,6 +227,28 @@ fn claimed_facts_move_into_one_higher_ranked_semantic_recipe_view() {
             .expect("claim receipt")
             .into_semantic_recipe()
             .expect("semantic recipe");
+        let relation_observed = recipe
+            .with_source_relation_view(|view| {
+                assert_eq!(view.owner(), source_owner);
+                assert!(view.parent_source().site().is_some());
+                assert!(view.condition_source().is_exact_loop_condition());
+                assert!(view.body_source().is_exact_loop_body_root());
+                assert!(!view.pre_effect().rows().is_empty());
+                assert!(view.facts().facts.generic_loop_v1().is_some());
+                assert!(std::ptr::eq(
+                    view.generic(),
+                    view.facts().facts.generic_loop_v1().unwrap()
+                ));
+                assert_eq!(
+                    view.selection().raw_execution_routes(),
+                    [crate::mir::loop_recipe_contract::route_id::LoopRouteId::GenericLoopV1]
+                );
+                let _selected = view.selected();
+                assert_eq!(view.policy(), policy());
+                true
+            })
+            .expect("source relation view");
+        assert!(relation_observed);
         let observed = recipe
             .with_view(|view| {
                 assert_eq!(view.owner(), source_owner);

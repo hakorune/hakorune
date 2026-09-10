@@ -1231,11 +1231,12 @@ Non-claims: no new Facts/Recipe issuer, body-only admission, nested-loop support
 Task order authority for this Loop remainder:
 
 ```text
-current  MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1  design the move-only
-         source-aware handoff and name the eventual callable old-bypass edge
-next     MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0  caller-zero relation
-         product, only after S0-D1 is accepted
-then     MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0  terminal port with no
+closed   MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1  accepted source-aware
+         handoff design and named callable old-bypass edge
+closed   MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0  caller-zero relation
+         product over the existing source Facts/Recipe receipt
+current  MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0  design the terminal port
+         with no
          PostEffectRetryDebt/fallback/retry continuation
 then     MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0  one non-nested Ready
          normalizer consumer
@@ -1265,9 +1266,64 @@ delete-set for this family. R0 may delete only the callable-`None` bypass in
 `raw_loop_child_entry.rs`, its private helper when caller-zero, and tests or
 guards owned exclusively by that branch. The Legacy port, its delegation, and
 the non-callable compatibility route remain outside this series. This closes
-S0-D1 as a design decision; implementation remains closed at the next
-caller-zero relation row until its private source-located product and one-shot
-consumer contract are explicit.
+S0-D1 as a design decision; its implementation remains closed until the
+relation and terminal contracts are consumed by a later row. The shared
+legacy route is not an implementation permission.
+
+##### MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0 (design accepted)
+
+Decision: reuse the existing move-only chain
+`CallableGenericLoopSourceFactsV1 -> CallableGenericLoopSourceFactsReceiptV1 ->
+CallableGenericLoopV1SemanticRecipeV1` as the relation product. Do not add a
+second semantic receipt or reissue binding facts. The relation's borrowed view
+must expose the already-co-sealed owner, exact parent/condition/body source
+contexts, grouped pre-effect rows, retained final policy, selected GenericLoop
+Facts, and the front-selected route. The view is callback-scoped and cannot
+publish a `ValueId` or re-enter route selection.
+
+The P0 implementation is caller-zero infrastructure: add only the private
+source-relation view and focused ownership/lineage/row-preservation evidence.
+It must not connect the old route, admit `Outside`, mutate Builder state, or
+claim normalizer consumption. The next terminal-port row will consume this
+relation once through the existing normalizer seam.
+
+Acceptance:
+
+```text
+one existing Facts extraction and one existing selected route remain
+owner/site/lineage and grouped rows are borrowed from the same receipt
+RecipeOnly/ExitAllowed policy is not recomputed
+relation view is non-owning, callback-scoped, and non-Clone
+production callers added = 0; legacy route callers changed = 0
+```
+
+Relation P0 implementation closeout (2026-09-10):
+
+`CallableGenericLoopSourceRelationViewV1` and
+`CallableGenericLoopV1SemanticRecipeV1::with_source_relation_view` now expose
+the co-sealed owner, exact parent/condition/body lineage, grouped pre-effect
+rows, selected GenericLoop Facts/route, and retained policy by borrow only.
+The callback-scoped view is non-Clone and cannot mutate Builder, issue a
+physical value, or reselect a route. The focused recipe test observes these
+relations before the existing physical view consumes the same Recipe.
+
+The production caller census remains zero for `with_source_relation_view`;
+`CallableGenericLoopSourceFactsIssuerV1::issue_once` still has its one Ready
+caller, and both legacy `lower_loop_or_freeze_v1` callers are unchanged. The
+source file is 669 lines, below the 800-line hard stop. Evidence passed:
+
+```text
+cargo test --profile quick --lib normal_callable_loop_source_facts::tests  # 8 passed
+rust_mirbuilder_callable_loop_source_facts_issuer_p0_guard.sh              # ok
+rust_mirbuilder_callable_loop_generic_facts_policy_p0_guard.sh             # ok
+rust_mirbuilder_callable_loop_outside_disposition_p0_guard.sh               # ok
+current_state_pointer_guard.sh + git diff --check                            # ok
+```
+
+The next design row is
+`MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0`: decide the one-shot terminal
+consumer over this relation, with production callers still at zero and no
+normalizer, route, Outside, fallback, or legacy switch in the design stop.
 
 ##### Acceptance recheck classification (2026-09-10)
 
