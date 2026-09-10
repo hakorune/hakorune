@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0"
-current_execution_cohort = "selected_dynamic_canonical_json_egress_stop"
+current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
+current_execution_cohort = "fixed_real_apps_exe_boundary"
 current_design_stop = "none"
-current_blocker_token = "MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0 landed at e2bb3b8b91: selected Dynamic JSON egress is pinned to explicit CanonicalV1, while generic compatibility emitters remain unchanged. Select the existing fixed acceptance scope next; do not claim R7 caller-zero or whole MirBuilder completion."
+current_blocker_token = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE: run the existing real-app EXE boundary manifest exactly, record each expected/observed result and source/script hash, and keep known reds with their existing owners; do not widen into a whole-repository green claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
