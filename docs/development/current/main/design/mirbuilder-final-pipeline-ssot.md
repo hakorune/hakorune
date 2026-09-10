@@ -32,13 +32,16 @@ Related:
   to the parsed v1 bridge; escaped declared schemas stop before v0. The V4
   receiver-identity coverage now uses a valid normal/fault base and a named
   receiver-only mismatch proof.
-- **Next ordered task:** keep the callable Loop ordinary bridge at its
-  old-edge ownership design stop. The physical-program module-borrow and
-  mutation-specific negative-test rows are closed; the next implementation is
-  not authorized until the ledger-bearing versus ledger-free Loop callers and
-  an exclusive delete-set are proven. Constructor/Array execution and
-  retirement evidence belongs to their owner SSOTs; no lifecycle V2 waiting
-  state is implied.
+- **Next ordered task:** keep the callable Loop ordinary bridge parked after
+  the old-edge ownership census. `callable_handoff=None` is a ledger-free
+  Script/module owner, and the shared JoinIR route also has a separate legacy
+  port owner, so no callable-exclusive delete-set is proven. Reopen only when
+  a real callable scope reaches `None` or a source-backed replacement gives
+  that edge an exclusive delete-set. The physical-program module-borrow and
+  mutation-specific negative-test rows are closed; no implementation is
+  authorized by this pointer. Constructor/Array execution and retirement
+  evidence belongs to their owner SSOTs; no lifecycle V2 waiting state is
+  implied.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -575,6 +578,35 @@ The existing worker audit confirms one direct `None` branch and one shared
 legacy port, but it does not prove that the branch is callable-only. This
 design stop therefore treats a callable old-edge delete-set as unproven until
 the ledger-bearing and ledger-free constructors are separated by evidence.
+
+##### Loop old-edge census closeout (2026-09-10)
+
+The read-only census closes this design dependency as
+`ParkedSealed__NoCallableNoneCaller`; it does not authorize a branch deletion.
+
+```text
+production entry: RawInvocationChildPortV1::lower_loop
+callable Ready: callable ledger -> existing source Facts/Recipe ->
+                CallableGenericLoopV1PhysicalAdapterV1::lower
+callable None: no production caller observed; the ledger-free path is owned by
+               existing Script/module invocation construction
+legacy owner: RawLegacyChildLoweringPortV1 independently reaches the shared
+              lower_loop_or_freeze_v1 compatibility route
+terminal: Ready is consumed once; Outside remains a typed terminal; None keeps
+          its existing non-callable owner
+non-authority: the absence of a ledger, names, ordinals, ValueIds, tests, or
+               a generic fallback
+delete-set: empty/unproven for the callable cohort; deleting None would remove
+             a valid non-callable owner, while the shared route is not exclusive
+reopen trigger: a real callable scope reaches None, or a source-backed
+                non-callable replacement proves a finite exclusive delete-set
+acceptance: retain the branch, keep the existing BodyOnly relation-owner and
+             planner-increment checks, and do not add a fallback/retry/adapter
+```
+
+The negative-test rule remains closed at `5a117a96a2`: use the valid
+normal/fault base as a reusable asset, mutate one field, and assert the named
+reject. No second generic negative-test task or error taxonomy is opened here.
 
 ##### MIR-CALL-JSON-EGRESS-SELECTED-DYNAMIC-CANONICAL-STOP-R0
 
@@ -1341,9 +1373,9 @@ closed   MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0  callback-scoped terminal
          contract over the moved Recipe relation plus active callable ledger
 closed   MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0  design one non-nested Ready
          source-aware LoopPlanExpressionPort consumer
-current  MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0  first admitted Outside cohort
-final    MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0  production cutover and old
-         bypass caller-zero
+closed   MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0  first admitted Outside cohort
+parked   MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0  no callable-only `None` caller
+         or exclusive old-edge delete-set; reopen only by the census trigger
 ```
 
 The earlier source-Facts issuer, policy-frame, grouped Outside-row, and Ready
