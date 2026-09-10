@@ -1,10 +1,10 @@
 ---
-Status: Design stop — owner-unit retirement boundary
+Status: Design stop — first owner-unit is already closed; next owner unresolved
 Date: 2026-09-11
 Decision: MIR-CALL-COMPATIBILITY-RETIRE-R7-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
-ProductionCaller: none selected; existing compatibility callers remain
-ReplacementCell: one existing compatibility owner per selected row
+ProductionCaller: strict/dev selfhost and stage1 ingress already stopped; release compatibility remains
+ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
 ---
 
 # MIR-CALL-COMPATIBILITY-RETIRE-R7-D0
@@ -30,9 +30,9 @@ artifact creation; explicit compatibility ingress keeps its existing terminal
 until a replacement is switched. No writer or shared carrier is deleted while
 an in-scope reader or re-entry remains reachable.
 
-Smallest next slice: choose one existing M7-S compatibility owner from the
-finite manifest, record its caller set and exclusive delete-set, then decide
-Stop/Promote/Delete without changing Call meaning or adding a second resolver.
+Smallest next slice: select another existing M7-S owner only if its caller set
+and exclusive delete-set are independent of the shared release parser. The
+strict/dev `boxcall` Stop itself is already closed; do not duplicate it.
 
 Non-claims: no aggregate R7 deletion, `func`/`Option<Callee>` removal, JSON-v0
 retirement, VM/WASM parity, environment global removal, Loop-PHI production,
@@ -97,10 +97,32 @@ reopening the census:
 | `src/runner/mir_json_v0/module.rs` `boxcall` arm | `json_artifact::mir_loader`, `selfhost::stage_a_route`, `stage_a_compat_bridge`, and `stage1_bridge::stub_emit::parse`; compatibility parser currently produces `LegacyCallV0`, while strict/dev has a named pre-effect stop | not yet exclusive: release/v0 compatibility and strict/dev ingress share the parser and the `LegacyCallV0` carrier | **Select first as an existing M7-S reader-stop owner.** Keep release compatibility; stop only the strict/dev outer ingress with its existing terminal. Promote is not allowed because JSON `receiver`/`box_name` is not a source-backed typed issuer. Delete waits for release caller-zero. |
 | `src/mir/joinir_id_remapper.rs` Legacy arm | merge/rewriter and test/reference callers only; no production terminal | no production delete-set and no semantic consumer | **Park as test/reference cleanup.** It is not a safe first M7-S production owner. |
 
-The next bounded design handoff is therefore the existing generic
+The first bounded owner is the existing generic
 `MIR-CALL-LEGACY-READER-STOP-R0` row, scoped to the strict/dev outer ingress
-around the JSON-v0 `boxcall` reader. This selection does not authorize code
-changes yet: the fast row must name the exact caller, stable stop reason,
-positive compatibility preservation, one-point mutation negative, and the
-exclusive strict/dev edge to remove. No second parser, source-identity
-reconstruction, or aggregate `LegacyCallV0` deletion is permitted.
+around the JSON-v0 `boxcall` reader. Its exact boundary is
+`stage_a_route::try_capture_stage_a_module` and
+`stage_a_compat_bridge::resolve_program_payload_to_mir` through
+`selfhost::json::parse_mir_json_v0_line`; the stage1 stub parser is an
+additional caller of the same stop helper. The stable terminal is
+`[freeze:contract][callsite-retire:legacy-boxcall]`, before
+`mir_json_v0::parse_mir_v0_to_module` can reach `module.rs` and before a
+`MirModule` is mutated. This Stop is already implemented at `4e1d6f92fb` and
+is covered by the existing strict/dev named-reject and release compatibility
+tests. The exclusive old edge for this row is the strict/dev call from that
+helper into the v0 module parser; release/v0 callers keep their compatibility
+edge until a later caller-zero row.
+
+The existing acceptance is sufficient for this focused owner: a valid
+compatibility base parses in release mode and still produces the existing
+`LegacyCallV0`; the same base with exactly one `op: "boxcall"` mutation under
+strict/dev returns the named terminal. No Program(JSON) or backend retry is
+counted as proof. The row does not delete the shared `boxcall` parser arm,
+promote JSON `box_name` or `receiver` into source identity, or remove
+`LegacyCallV0` globally.
+
+The follow-up candidate audit found no second safe M7-S production owner:
+`joinir_id_remapper.rs` is test/reference-only, while the remaining release
+`boxcall` callers share the parser and have no exclusive delete-set. Keep the
+aggregate R7 row in design stop with
+`NoSafeSlice__NoRemainingUnsharedM7SOwner`; reopen when a caller can be
+isolated or a supported replacement is selected.

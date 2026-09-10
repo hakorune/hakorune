@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
-current_design_stop = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0: first owner-unit is selected; hand off to existing MIR-CALL-LEGACY-READER-STOP-R0 only after exact strict/dev caller, terminal, mutation evidence, and exclusive delete-set are recorded."
-current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0 design_stop: module.rs boxcall is selected as the first owner-unit; no implementation or aggregate LegacyCallV0 deletion until the bounded stop contract is recorded."
-guard_followup = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0 design stop: selected owner is strict/dev JSON-v0 boxcall ingress; preserve release compatibility and forbid a second resolver or aggregate delete."
+current_design_stop = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0: the strict/dev boxcall owner is already closed; select another finite M7-S owner only when its caller set and exclusive delete-set are independently proven."
+current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0 design_stop: NoSafeSlice__NoRemainingUnsharedM7SOwner; release boxcall callers still share the parser and the test-only remapper has no production terminal."
+guard_followup = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0 design stop: do not duplicate the landed strict/dev boxcall Stop or delete shared LegacyCallV0; reopen on an isolatable caller or supported replacement."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -43,9 +43,9 @@ admission change: the current production-scope snapshot is 243/127 Legacy
 rows, 5 env routes, 4 Loop-PHI files, and 252 independent rows. The selected
 normal named reject and corridor guard remain passing; no LegacyCallV0
 retirement claim is made. The R7 owner-unit retirement design is now recorded in
-`mir-call-compatibility-retire-r7-d0-2026-09-11.md`; the first bounded owner is
-the strict/dev JSON-v0 `boxcall` ingress, while implementation remains stopped
-until its exact M7-S stop contract is recorded.
+`mir-call-compatibility-retire-r7-d0-2026-09-11.md`; its strict/dev JSON-v0
+`boxcall` owner is already closed, while the aggregate remains in design stop
+until another finite M7-S owner can be isolated.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_execution_card = "none__MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
