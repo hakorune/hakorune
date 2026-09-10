@@ -630,6 +630,16 @@ adapter, and finishes the same ledger after one condition read, one body read,
 and one body rebind. This proves the selected Rust adapter seam only; it does
 not claim full package discovery, OBJ/EXE output, or loop route retirement.
 
+The next selected boundary is `MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0`, currently
+in design stop. The existing projection separates `Ready` from `Outside` and
+can observe a body-only cohort while retaining a valid Ready remainder. The
+design must therefore carry both through one move-only source product with the
+same owner, lineage, and policy, then consume the existing BodyRead and
+BodyRebind rows through the source-aware adapter. Other Outside kinds, the
+non-callable legacy route, fallback/retry, and artifact output remain terminal
+or out of scope; no implementation permission follows until the SSOT design
+row closes.
+
 The selected `MIR-CALLABLE-LOOP-READY-CLAIM-I0` keeps the aggregate in place as
 `CallableGenericLoopSourceFactsV1` and exposes one private `claim_all()` move.
 That move retains `CallableSemanticLoopHandoffPreEffectReceiptV1` inside a

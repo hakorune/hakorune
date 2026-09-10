@@ -25,11 +25,13 @@ Related:
 - **Current decision:** the final pipeline remains one-way, and canonical MIR
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** canonical Call and explicit legacy ingress
-  are separated; fixed acceptance is classified and a direct-loader retry
-  remains to be retired before schema-wide removal.
-- **Next ordered task:** retire the direct MIR loader's declared-schema error
-  retry through the existing M7-S owner. Constructor/Array execution and retirement
-  evidence belongs to their owner SSOTs; no lifecycle V2 waiting state is implied.
+  are separated; the direct-loader schema-error retry is retired and the fixed
+  acceptance is classified. The artifact loader's parsed-top-level schema
+  selection remains a separate queued boundary.
+- **Next ordered task:** close the selected callable-loop BodyOnlyRebind design
+  stop, then take the artifact-loader schema selector through its existing
+  owner. Constructor/Array execution and retirement evidence belongs to their
+  owner SSOTs; no lifecycle V2 waiting state is implied.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -484,7 +486,7 @@ verifier.
 | order | owner / task | bounded change and fail-fast boundary | acceptance / non-claims |
 | --- | --- | --- | --- |
 | 1 | `runner::json_artifact::mir_loader` — `MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0` | Remove the raw `text.contains("\"schema_version\"")` selector. Let the existing parsed top-level `Value`/`json_v1_bridge::try_parse_v1_to_module` decide whether the schema key is absent, supported, or explicitly unsupported, so escaped keys such as `\u0073chema_version` cannot enter v0. Keep the existing no-schema v0 selection and terminal v1 errors. | Add an escaped-key unsupported-schema case and a malformed/absent-key matrix; rejection must occur before `mir_json_v0::parse_mir_v0_to_module`. No new parser, schema revision, or blanket v0 removal. |
-| 2 | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` — `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` | Strengthen the existing same-typed foreign-receiver negative so lifecycle validation succeeds through a complete normal and Fault cleanup graph, then mutate only the callee `receiver_object`. Assert the named V4 receiver-mismatch rejection and absent artifact, rather than accepting any nonzero result. | Positive valid receiver, valid cleanup-on-fault, and object-only mutation negative all execute. Keep V2 structural/V4 identity ownership unchanged; no second object walk or runtime-accessor proof. |
+| 2 (high / reopened) | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` — `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` | The current negative is non-discriminating because the fault/liveness path rejects before the receiver comparison. Build a valid normal path and a valid fault cleanup graph first, then mutate only the callee `receiver_object`; assert the named V4 receiver-mismatch rejection and absent artifact, rather than accepting any nonzero result. Add the same-typed valid receiver execution at the same boundary. | Positive valid receiver, valid cleanup-on-fault, and object-only mutation negative all execute; mutation of the receiver check alone must make the negative fail. Keep V2 structural/V4 identity ownership unchanged; no second object walk or runtime-accessor proof. |
 | 3 | `published_backend_view::physical_program` — `MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0` | After a caller census, remove the unused `PublishedLifecyclePhysicalProgramV1::module` borrow and getter if no downstream consumer remains. Close the getter so later JSON/layout consumers cannot return to the original module through this product. | Existing physical JSON/layout/Pair exit-30 suites stay green and the source remains below the 760 split trigger. No semantic projection, layout authority, or transport change. |
 
 The in-process LLVM C-API cutover is already structurally closed at
@@ -517,12 +519,13 @@ receiver design.
   remaining owner. This row does not authorize a new projection or a module
   lookup through JSON.
 
-The selected execution frontier remains
-`MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0` in design_stop. Its next bounded
-implementation must pair the moved source Recipe relation with a short-lived
-borrow of the existing callable ledger inside one callback. The structural
-`LoopPlanExpressionPortV1` navigation remains the port; `&self` observation is
-not a one-shot guarantee. One-shot consumption is the move into the callback,
+The selected execution frontier is now
+`MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0` in design_stop. The preceding Ready
+port implementation landed at `3867539488`: its bounded consumer pairs the
+moved source Recipe relation with a short-lived borrow of the existing callable
+ledger inside one callback. The structural `LoopPlanExpressionPortV1`
+navigation remains the port; `&self` observation is not a one-shot guarantee.
+One-shot consumption is the move into the callback,
 which must reject missing/foreign sites before the existing composer or
 lowerer mutates the builder. No production caller, legacy-route deletion,
 artifact cutover, or performance claim is opened by this reconciliation.
@@ -1290,9 +1293,9 @@ closed   MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0  caller-zero relation
          product over the existing source Facts/Recipe receipt
 closed   MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0  callback-scoped terminal
          contract over the moved Recipe relation plus active callable ledger
-current  MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0  design one non-nested Ready
+closed   MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0  design one non-nested Ready
          source-aware LoopPlanExpressionPort consumer
-then     MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0  first admitted Outside cohort
+current  MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0  first admitted Outside cohort
 final    MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0  production cutover and old
          bypass caller-zero
 ```
@@ -1468,7 +1471,7 @@ The terminal row is therefore closed as design-only infrastructure with
 production callers still at zero. The next design row is the first ordinary
 Ready normalizer consumer below.
 
-##### MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0 (design stop)
+##### MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0 (design closed 2026-09-10)
 
 ```text
 Decision: thread one source-aware expression capability through the existing
@@ -1531,7 +1534,7 @@ Only the already-selected nonnested `RecipeOnly` first cohort is admitted;
 reject/old-route cases. This closes the design dependency without opening
 production cutover beyond the existing Ready caller.
 
-##### `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-I0` (selected)
+##### `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-I0` (closed 2026-09-10)
 
 Implement the closed port at the existing raw Ready -> physical adapter edge.
 Keep the current Facts/Recipe issuer, composer, verifier, lowerer, root scope,
@@ -1551,6 +1554,64 @@ physical adapter, and finishes the same ledger after the exact condition-read,
 body-read, and body-rebind rows. This is Rust adapter evidence only; package
 discovery, OBJ/EXE output, route retirement, and performance remain outside
 the acceptance claim.
+
+That adapter evidence does not establish two integrity properties now required
+before the next Loop consumer: equality between the moved relation owner and
+the active ledger owner, and reuse of the planner's increment classification.
+The previous Ready I0 claim remains limited to source-row consumption; these
+two checks are reopened prerequisites for the BodyOnly row, not a second Facts
+issuer or a new Loop authority.
+
+##### MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0-D0 (design stop 2026-09-10)
+
+```text
+Decision: preserve the existing Ready remainder and admit one grouped
+          BodyOnlyRebind cohort through the same source-aware consumer; do not
+          relabel Outside or mix body-only rows into a Ready carrier implicitly.
+Source authority + canonical issuer: CallableSemanticLoweringState and
+          CallableLoopSourceProjectionV1 issue the existing owner/lineage and
+          (site, role) rows; the existing GenericLoop Facts issuer remains the
+          sole shape/policy issuer; RawInvocationSourceContextV1 owns lineage.
+Non-authority: Outside diagnostic arrays alone, AST/name/ordinal/ValueId
+          inference, Builder maps, LoopRouteContext, a second Facts/Recipe
+          issuer, a second semantic receipt, or legacy fallback/retry.
+Fail-fast boundary: before RecipeComposer/PlanLowerer/Builder effects, validate
+          owner, loop/condition/body lineage, the Ready remainder, complete
+          BodyRead/BodyRebind coverage, duplicate/foreign/missing rows, nested
+          sites, and policy drift. Other Outside kinds remain typed terminals.
+Smallest next slice: extend the existing source projection disposition with
+          one move-only composite carrying the Ready schedule and grouped
+          body-only rows, then consume both through the existing source-aware
+          adapter for one nonnested positive fixture and strict ledger finish.
+Non-claims: no new Facts/Recipe authority, no second semantic receipt, no
+          nested loops, no other Outside kind, no callable-None bypass deletion,
+          no OBJ/EXE/publication, route retirement, or performance claim.
+```
+
+Finite census boundary: `CallableLoopSourceProjectionV1::project_disposition`
+through `PreparedLocatedRawLoopChildEntryV1` and the existing source-aware
+adapter, including the active callable ledger and current BodyOnly rows;
+excludes other Outside kinds, `RawLegacyChildLoweringPortV1`, the shared
+`lower_loop_or_freeze_v1` path, publication, and backend artifacts.
+
+The current disposition is exclusive `Ready` or `Outside`, and the Outside
+branch can discard a valid Ready remainder. A direct rename would either lose
+source ownership or silently widen the admitted carrier, so the next product
+must be a move-only composite. The first positive fixture has one carrier and
+one body-only binding; it consumes the BodyRead and BodyRebind rows exactly
+once before `finish()`. Foreign, duplicate, missing, nested, unlocated, and
+policy-drift rows reject before effects. The body-only terminal helper is
+deleted only after its real caller reaches zero; shared legacy remains outside
+this row.
+
+Two integrity conditions are part of this design stop, before the next consumer
+is admitted. The composite's relation owner must equal the active callable
+ledger owner; a matching loop/site alone is insufficient. The increment binding
+and step must be consumed from the existing planner classification, rather than
+being rediscovered by a first-match predicate in the composer. A relation-owner
+mismatch or planner/consumer increment disagreement rejects before Recipe
+composition and Builder mutation. The planner remains the sole owner of that
+classification; this row adds no second loop fact or route selector.
 
 ##### Acceptance recheck classification (2026-09-10)
 
@@ -2556,10 +2617,10 @@ NewBox -> Birth(Unit) -> SameModuleInstance(Pair.sum/0, receiver %11)
        -> InvokeNormalResult -> HomeRelease -> Return
 ```
 
-This closes the Rust source/lifecycle I0. The selected physical caller still
-needs the callee's prepared object definition to be compared with the borrowed
-receiver before LLVM emission; that is the next I1 design boundary, not a
-failed Rust I0.
+This closes the Rust source/lifecycle I0. The selected physical callee-identity
+implementation was subsequently landed in I1, while its receiver-mismatch
+coverage remains a separate reopened R0 task; the historical I0 evidence must
+not be read as physical identity coverage.
 
 ##### `MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1-D0` (design accepted; I1 selected)
 
@@ -2641,13 +2702,17 @@ keeping call helpers and object projection in adjacent private modules.
 
 Evidence: the physical JSON suite is `9/9` green, the C shim rebuild is green,
 the pre-artifact parser fixture accepts the new schema and rejects an invalid
-root object field, the dedicated C V4 fixture rejects a valid-layout
-caller/callee mismatch before object output, and the existing Pair direct plus
-linked OBJ/EXE witness returns process exit `30`. Static/root/Birth rows retain
+root object field, and the existing Pair direct plus linked OBJ/EXE witness
+returns process exit `30`. Static/root/Birth rows retain
 `receiver_object: null`; no receiver inference, name repair, or compatibility
-retry was added. This closes the selected callee-identity implementation and
-consumer cutover. The V2/V4 verifier boundary is recorded below so a future
-standalone V2 caller cannot silently acquire the artifact role.
+retry was added. The current dedicated C V4 mismatch fixture is
+non-discriminating because its fault/liveness path can reject before the
+receiver comparison; it is therefore not counted as receiver-identity
+negative evidence. The implementation and consumer cutover are landed, but
+`MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` remains open until a
+valid normal/fault cleanup graph and receiver-only mutation assert the named
+mismatch. The V2/V4 verifier boundary is recorded below so a future standalone
+V2 caller cannot silently acquire the artifact role.
 
 ##### `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-VERIFIER-BOUNDARY-D0` (closed 2026-09-10)
 
