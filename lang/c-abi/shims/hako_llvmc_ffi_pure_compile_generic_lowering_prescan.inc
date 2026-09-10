@@ -269,6 +269,8 @@
             if (dst && kind && (!strcmp(kind, "check") || !strcmp(kind, "Check"))) {
               set_type(dst, T_I64);
             }
+          } else if (strcmp(op, "call")==0) {
+            scan_legacy_call_need_flags(ins, &needs);
           } else if (strcmp(op, "phi")==0) {
             #include "hako_llvmc_ffi_pure_compile_generic_phi_prescan.inc"
           } else if (strcmp(op, "mir_call")==0) {

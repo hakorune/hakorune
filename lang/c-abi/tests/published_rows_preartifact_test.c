@@ -215,12 +215,13 @@ static void test_same_module_prepass_uses_published_row(void) {
 extern int hako_llvmc_compile_json_pure_first(const char*, const char*, char**);
 extern int hako_llvmc_compile_json(const char*, const char*, char**);
 
-static void test_selected_pure_first_rejects_legacy_call_only(void) {
+static void test_selected_rejects_legacy_call_and_generic_compat_succeeds(void) {
   const char *legacy_call_body =
       "{\"functions\":[{\"name\":\"main\",\"params\":[],"
       "\"metadata\":{},\"blocks\":[{\"id\":0,\"instructions\":["
       "{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":30}},"
-      "{\"op\":\"call\",\"args\":[]},{\"op\":\"ret\",\"value\":1}]}]}]}";
+      "{\"op\":\"call\",\"callee\":{\"type\":\"Global\",\"name\":\"print\"},"
+      "\"args\":[1]},{\"op\":\"ret\",\"value\":1}]}]}]}";
   const char *nested_call_text_body =
       "{\"functions\":[{\"name\":\"main\",\"params\":[],"
       "\"metadata\":{\"note\":{\"op\":\"call\"}},"
@@ -244,12 +245,11 @@ static void test_selected_pure_first_rejects_legacy_call_only(void) {
   free(error);
   error = NULL;
 
-  /* The public generic export keeps its compatibility owner and terminal. */
+  /* The public generic export keeps its compatibility owner and succeeds. */
   setenv("HAKO_BACKEND_COMPILE_RECIPE", "pure-first", 1);
   rc = hako_llvmc_compile_json(input, output, &error);
-  assert(rc != 0 && error &&
-      !strstr(error, "[freeze:contract][pure-first/legacy-op-call]") &&
-      access(output, F_OK) != 0);
+  assert(rc == 0 && error == NULL && access(output, F_OK) == 0);
+  assert(unlink(output) == 0);
   free(error);
   error = NULL;
 
@@ -426,7 +426,7 @@ int main(int argc, char **argv) {
   test_prepass_peek_and_emitter_take();
   test_array_row_rejects_second_take();
   test_same_module_prepass_uses_published_row();
-  test_selected_pure_first_rejects_legacy_call_only();
+  test_selected_rejects_legacy_call_and_generic_compat_succeeds();
   test_missing_global_rows_cannot_use_legacy_names();
   puts("published peek/take and coordinate tests: PASS");
   if (argc == 1) return 0;

@@ -62,3 +62,21 @@
         }
 
       }
+
+      /* The generic compatibility profile still accepts the historical
+       * top-level `call` shape.  Reuse the same Global surface vocabulary as
+       * the emitter so declaration needs are observed without reopening a
+       * second route or inferring a target from its name. */
+      auto void scan_legacy_call_need_flags(
+          yyjson_val* ins,
+          struct MirCallNeedFlags* needs) {
+        yyjson_val* cal = ins ? yyjson_obj_get(ins, "callee") : NULL;
+        const char* ctype = cal ? read_str(cal, "type") : NULL;
+        const char* mname = cal ? read_str(cal, "name") : NULL;
+        if (!(needs && ctype && !strcmp(ctype, "Global"))) return;
+        if (classify_mir_call_global_surface(mname) ==
+            HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT) {
+          apply_mir_call_need_kind(
+              needs, HAKO_LLVMC_MIR_CALL_NEED_PRINTF);
+        }
+      }
