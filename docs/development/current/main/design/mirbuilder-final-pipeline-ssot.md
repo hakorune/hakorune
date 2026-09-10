@@ -1642,20 +1642,45 @@ green. The focused test must execute one or more tests and the source/module
 README or reference receipt must record the boundary. After this row, the
 pointer moves to the physical callee identity I1 design/implementation gate.
 
-##### `MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0` (queued after receiver D0)
+##### `MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0` (accepted 2026-09-10)
 
-After the receiver identity decision, inspect the existing physical projection
-owner for one `CanonicalFieldRefV1` per admitted `FieldGet`. The physical
-admission check, referenced-layout collection, and JSON encoder must consume
-that same prepared row instead of rebuilding box/slot identity three times.
-Keep route, object membership, slot, and layout rejection at the physical
-owner. This is a `BoxShape` reuse task only if the existing owner can produce
-the row without issuing new source meaning; otherwise return to design stop.
+Implementation row: `MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-I0`.
 
-Acceptance will compare positive FieldGet projection and missing-route,
-foreign-object, slot/layout, and serializer-consistency negatives. No source
-resolver re-entry, C-side inference, generic fallback, new semantic receipt,
-or measured speed claim is included.
+**Decision:** the existing physical projection owner prepares one
+`CanonicalFieldRefV1` for each admitted `FieldGet` and stores it on the existing
+`PublishedLifecyclePhysicalInstructionRefV1` row. Physical admission,
+referenced-layout collection, and JSON encoding consume that prepared value;
+they do not rebuild object/slot identity.
+
+**Source authority + canonical issuer:** finalized `MirInstruction::FieldGet`,
+the already-issued `TypedObjectExactSlotRoute` route decision, and
+`canonical_object_membership` are the source-bound inputs. The existing
+physical projection owner is the sole issuer: it validates route cardinality,
+operation, storage, field, receiver object, and slot, then emits the canonical
+field reference once while issuing the physical row.
+
+**Non-authority:** C or JSON inference, the first runtime-looking field
+operation, layout/type metadata re-issuance, a field reference without
+membership proof, route repair, and any source resolver re-entry.
+
+**Fail-fast boundary:** `issue_function_with_module()` rejects missing or
+drifting route/object/slot information before the physical program is
+published. Physical ABI layout construction retains its layout-drift checks;
+JSON and C only consume and validate the prepared row and wire/layout
+integrity.
+
+**Smallest implementation slice:** add an optional prepared field reference and
+accessor to the existing physical instruction row; project it once for each
+instruction/terminator; make admission, referenced-object collection, and JSON
+encoding read the row. No new semantic receipt, C-side inference, fallback, or
+transport route is introduced.
+
+**Acceptance:** `Pair.sum()` shows the same prepared object/slot in the physical
+row, referenced layout, and JSON; missing route, foreign membership,
+slot/layout drift, and serializer-consistency negatives reject before artifact
+emission; existing Pair direct/linked exit-30 plus static/root/Birth coverage
+remain green. This row makes no claim about C index fusion, concurrency,
+compile-time speed, dynamic fields, or LLVM performance.
 
 ##### MIRBUILDER-PHYSICAL-C-INVOCATION-INDEX-REUSE-D0
 

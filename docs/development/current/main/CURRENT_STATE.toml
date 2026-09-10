@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0"
-current_execution_cohort = "mirbuilder_physical_fieldref_prepared_reuse_d0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-I0"
+current_execution_cohort = "mirbuilder_physical_fieldref_prepared_reuse_i0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Physical FieldGet prepared reuse D0: make the existing physical projection owner prepare one CanonicalFieldRefV1 per admitted FieldGet, then let admission, layout collection, and JSON consume it. Preserve route/object/slot/layout fail-fast checks; no new semantic receipt, C inference, or fallback."
+current_blocker_token = "Physical FieldGet prepared reuse I0: make the existing physical projection owner prepare one CanonicalFieldRefV1 per admitted FieldGet and let admission, layout collection, and JSON consume the existing row. Preserve route/object/slot/layout fail-fast checks; no new semantic receipt, C inference, or fallback."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -57,8 +57,8 @@ Whole MirBuilder,
 R7, general LLVM graduation, parallel sessions, and memory-only transport
 remain unproven.
 """
-next_design_card = "MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-I0"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
