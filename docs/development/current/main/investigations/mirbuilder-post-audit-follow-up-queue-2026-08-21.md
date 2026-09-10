@@ -88,14 +88,15 @@ second move/clone row.
 | `MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0` | **Revalidated 2026-09-11 (`c005e8ddb6`)**; existing corridor guard | normal typed corridor | guard-only assertions after normal admission closes | selected normal corridor guard passes with named mixed-shape admission and focused positive/negative evidence; no LegacyCallV0 retirement or compatibility claim |
 | `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` | **Design stop; strict/dev owner already closed 2026-09-11**; [owner-unit retirement card](./mir-call-compatibility-retire-r7-d0-2026-09-11.md) | existing M7-S compatibility owners | strict/dev JSON-v0 `boxcall` ingress is closed at the existing Stop; release compatibility remains live and shared | no second unshared production owner is currently available; keep `NoSafeSlice__NoRemainingUnsharedM7SOwner` until a caller or replacement can be isolated; no aggregate LegacyCallV0 deletion or second resolver |
 
-## 2026-09-10 callable Loop bridge findings (queued, not selected)
+## 2026-09-10 callable Loop bridge findings (I0 active; follow-up rows queued)
 
 The review of the source-bound callable Loop consumer found two correctness
 conditions that must be closed before a production normalizer/physical
 consumer is opened. They are not a new source authority and do not reopen the
-already-designed structural lease. The current Loop source-facts/ready edges
-remain caller-zero or explicitly parked; these rows become selectable only
-when a named production consumer is chosen.
+already-designed structural lease. The generic Loop source-facts/Ready edges
+remain caller-zero or explicitly parked. The selected session-entry I0 only
+establishes the canonical physical session; it does not claim a production
+normalizer/consumer cutover.
 
 | Row | Priority | Owner / terminal | Production caller | Acceptance |
 | --- | --- | --- | --- | --- |
