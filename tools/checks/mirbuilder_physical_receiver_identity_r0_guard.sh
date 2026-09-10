@@ -17,8 +17,10 @@ for file in "$STATE" "$TEST" "$FLOW" "$ADMISSION"; do
   [[ -f "$file" ]] || fail "required owner missing: ${file#$ROOT_DIR/}"
 done
 
-grep -Fq 'current_execution_row = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0"' "$STATE" \
-  || fail "receiver identity R0 is not the selected row"
+if ! grep -Fq 'current_execution_row = "MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0"' "$STATE" \
+  && ! grep -Fq 'current_execution_row = "MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0"' "$STATE"; then
+  fail "receiver identity evidence is not selected or covered by the negative-test proof row"
+fi
 grep -Fq 'json_template, 8u' "$TEST" || fail "valid receiver positive is missing"
 grep -Fq 'json_template, 7u' "$TEST" || fail "receiver-only mutation is missing"
 grep -Fq 'assert(rc == 0)' "$TEST" || fail "positive receiver compile assertion is missing"
