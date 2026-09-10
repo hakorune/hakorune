@@ -41,6 +41,31 @@ fn root_instance_call_without_result_contract_stays_unavailable() {
 }
 
 #[test]
+fn root_instance_call_without_result_contract_is_owner_scoped_in_inverse_order() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { birth() { } }
+        box Pair { left: i64 right: i64
+        birth(left, right) { me.left = left me.right = right }
+        sum() { return me.left + me.right } }
+        static box Main {
+        helper() { local page = new Page() local m = %{\"v\" => 1} return 30 }
+        main() { local pair = new Pair(10, 20) return pair.sum() } }",
+    )
+    .expect("inverse declaration order keeps the missing result contract unavailable");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let root_owner = ledger.root_completion_for_test().owner();
+    assert!(ledger.root_instance_call_expected(root_owner));
+    let child_owner = package
+        .batch()
+        .declarations()
+        .find(|declaration| declaration.owner() != root_owner)
+        .map(|declaration| declaration.owner())
+        .expect("inverse-order child owner");
+    assert!(!ledger.root_instance_call_expected(child_owner));
+    assert!(ledger.root_instance_call_is_empty());
+}
+
+#[test]
 fn pair_i64_add_return_is_issued_from_completion_and_existing_field_reads() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Pair { left: i64 right: i64
@@ -178,7 +203,12 @@ fn ordinary_child_literal_relation_is_borrowed_by_owner() {
     let relation = ledger
         .terminal_integer_literal_return_for_owner(owner)
         .expect("ordinary child literal relation");
-    let completion = ledger.completion_index.get(&owner).unwrap().as_ref().unwrap();
+    let completion = ledger
+        .completion_index
+        .get(&owner)
+        .unwrap()
+        .as_ref()
+        .unwrap();
     assert_eq!(relation.owner(), owner);
     assert_eq!(relation.value(), 30);
     assert_eq!(completion.explicit_site(), Some(relation.return_site()));
