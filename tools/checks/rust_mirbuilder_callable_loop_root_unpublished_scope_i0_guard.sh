@@ -32,7 +32,7 @@ for pattern_file in \
   "$LIFECYCLE|with_builder_and_pinned_text_invocation_binding_and_callable_loop_scope" \
   "$POST_INSTALL|callable_loop_root_scope" \
   "$ROOT_LOWER|callable_loop_root_scope.validate_collector" \
-  "$ROOT_LOWER|new_with_cleanup_exit_policy_and_callable_loop_scope" \
+  "$ROOT_LOWER|new_with_cleanup_exit_policy_and_callable_loop_scope_and_direct_call_loan" \
   "$RAW_PORT|self.callable_loop_root_scope.as_deref_mut" \
   "$RAW_ENTRY|lower_v1_with_root_scope" \
   "$RAW_ENTRY|callable-loop/root-scope/missing" \
@@ -62,7 +62,7 @@ if [[ "$adapter_callers" -ne 1 ]]; then
 fi
 
 root_scope_ctor_calls="$(rg --glob '*.rs' -F -o \
-  -- 'new_with_cleanup_exit_policy_and_callable_loop_scope(' "$ROOT_DIR/src/mir/builder" \
+  -- 'new_with_cleanup_exit_policy_and_callable_loop_scope_and_direct_call_loan(' "$ROOT_DIR/src/mir/builder" \
   | wc -l | tr -d '[:space:]')"
 if [[ "$root_scope_ctor_calls" -ne 2 ]]; then
   guard_fail "$TAG" "root-scoped raw port constructor must have one definition and one root caller; found $root_scope_ctor_calls"
@@ -86,8 +86,9 @@ inside && /Some\(CallableLoopBindingProjectionDispositionV1::Outside/ { exit }
 if rg -n -- 'lower_loop_or_freeze_v1|lower_non_callable_loop_legacy_v1|retry|fallback' <<<"$ready_branch"; then
   guard_fail "$TAG" "Ready branch still has a legacy/fallback route"
 fi
-if ! rg -q -- 'CallableGenericLoopV1PhysicalAdapterV1::lower\(builder, root_scope, recipe\)' <<<"$ready_branch"; then
-  guard_fail "$TAG" "Ready branch does not consume the scoped physical adapter"
+if ! rg -q -- 'CallableGenericLoopV1PhysicalAdapterV1::lower\(' <<<"$ready_branch" \
+  || ! rg -q -- 'callable_ledger' <<<"$ready_branch"; then
+  guard_fail "$TAG" "Ready branch does not consume the scoped source-aware physical adapter"
 fi
 
 if rg -n -- 'CanonicalFunctionLoweringSessionV1|ModuleLoweringInvocationV1' \

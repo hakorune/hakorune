@@ -71,14 +71,20 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             admission_observation,
         )?;
         match self.callable_loop_root_scope.as_deref_mut() {
-            Some(root_scope) => prepared.lower_v1_with_root_scope(
-                builder,
-                &function_name,
-                debug,
-                in_static_box,
-                policy,
-                root_scope,
-            ),
+            Some(root_scope) => {
+                let callable_ledger = self.callable_ledger.as_ref().ok_or_else(|| {
+                    "[freeze:contract][raw-loop-child-entry/callable-ledger-missing]".to_owned()
+                })?;
+                prepared.lower_v1_with_root_scope_and_callable_ledger(
+                    builder,
+                    &function_name,
+                    debug,
+                    in_static_box,
+                    policy,
+                    root_scope,
+                    callable_ledger,
+                )
+            }
             None => prepared.lower_v1(builder, &function_name, debug, in_static_box, policy),
         }
     }

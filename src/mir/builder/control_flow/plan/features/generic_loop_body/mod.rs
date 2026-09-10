@@ -19,8 +19,9 @@ mod v1;
 
 pub(in crate::mir::builder) use carrier_orchestration::{
     orchestrate_generic_loop_v1_carriers, orchestrate_generic_loop_v1_carriers_from_targets,
-    GenericLoopV1CarrierOrchestration,
+    orchestrate_generic_loop_v1_carriers_with_body, GenericLoopV1CarrierOrchestration,
 };
+pub(in crate::mir::builder) use carriers::prepare_generic_loop_v1_carriers;
 pub(in crate::mir::builder) use cleanup::{
     apply_generic_loop_v1_fallthrough_cleanup, apply_generic_loop_v1_fallthrough_cleanup_input,
 };

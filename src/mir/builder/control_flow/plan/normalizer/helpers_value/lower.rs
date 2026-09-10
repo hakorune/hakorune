@@ -19,6 +19,9 @@ impl super::super::PlanNormalizer {
 
         match ast {
             ASTNode::Variable { name, .. } => {
+                if let Some(value_id) = port.exact_source_variable_value(&input)? {
+                    return Ok((value_id, vec![]));
+                }
                 if let Some(value_id) = Self::lookup_variable_value(builder, phi_bindings, name) {
                     Ok((value_id, vec![]))
                 } else {
@@ -26,6 +29,9 @@ impl super::super::PlanNormalizer {
                 }
             }
             ASTNode::Me { .. } | ASTNode::This { .. } => {
+                if let Some(value_id) = port.exact_source_variable_value(&input)? {
+                    return Ok((value_id, vec![]));
+                }
                 let bound_me = Self::lookup_variable_value(builder, phi_bindings, "me");
                 if let Some(value_id) = bound_me {
                     Ok((value_id, vec![]))
@@ -587,7 +593,9 @@ impl super::super::PlanNormalizer {
                         Self::lower_value_input(port, value, builder, phi_bindings)?;
                     effects.append(&mut value_effects);
                     effects.push(CoreEffectPlan::MapLiteralEntryWrite {
-                        receiver: map_id, key: key_id, value: value_id,
+                        receiver: map_id,
+                        key: key_id,
+                        value: value_id,
                     });
                 }
                 Ok((map_id, effects))

@@ -91,6 +91,22 @@ impl RawInvocationSourceContextV1 {
         }
     }
 
+    /// Project only the source context for one body statement.  The source
+    /// port uses this without taking ownership of the AST node; an unlocated
+    /// compatibility result is rejected instead of becoming a name fallback.
+    pub(in crate::mir::builder) fn body_statement_context(
+        &self,
+        statement: &ASTNode,
+        index: usize,
+    ) -> Result<Self, String> {
+        let (_, context) = Self::from_transport(self.body_statement(statement.clone(), index));
+        context
+            .site()
+            .is_some()
+            .then_some(context)
+            .ok_or_else(|| "[freeze:contract][raw-invocation/body-statement-unlocated]".to_owned())
+    }
+
     pub(in crate::mir::builder) fn shares_root_lineage(
         &self,
         other: &RawInvocationSourceContextV1,

@@ -5,15 +5,17 @@
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1};
+use crate::mir::ValueId;
 
 use super::CoreCallSourceV1;
 
-mod sealed {
-    pub trait Sealed {}
+pub(in crate::mir::builder) mod sealed {
+    pub(in crate::mir::builder) trait Sealed {}
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum LoopPlanExpressionPortErrorV1 {
+    Source(String),
     BodyIndexOutOfBounds { index: usize, len: usize },
     ExpressionRoleParentMismatch,
     ExpressionRoleHasNoSyntaxNode,
@@ -109,6 +111,33 @@ pub(in crate::mir::builder) trait LoopPlanExpressionPortV1:
     ) -> Result<CoreCallSourceV1, LoopPlanExpressionPortErrorV1>
     where
         Self: 'input;
+
+    /// Optional exact source binding projection.  Raw/legacy ports return
+    /// `None` and retain their existing variable-map behavior.  A source-aware
+    /// port returns `Some` or an error, so the normalizer cannot fall back to
+    /// a name after an exact site has been admitted.
+    fn exact_source_variable_value<'input>(
+        &self,
+        _input: &Self::ExprInput<'input>,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Self: 'input,
+    {
+        Ok(None)
+    }
+
+    /// Optional exact source assignment commit.  `true` means the source
+    /// ledger consumed the rebind; `false` preserves raw/legacy behavior.
+    fn exact_source_assignment_rebind<'input>(
+        &self,
+        _target: &Self::ExprInput<'input>,
+        _value: ValueId,
+    ) -> Result<bool, String>
+    where
+        Self: 'input,
+    {
+        Ok(false)
+    }
 }
 
 #[derive(Debug, Default)]
@@ -244,7 +273,7 @@ impl LoopPlanExpressionPortV1 for RawLoopPlanExpressionPortV1 {
     }
 }
 
-fn raw_child_expr(
+pub(in crate::mir::builder) fn raw_child_expr(
     parent: &ASTNode,
     role: ExprChildRoleV1,
 ) -> Result<&ASTNode, LoopPlanExpressionPortErrorV1> {
@@ -259,7 +288,7 @@ fn raw_child_expr(
     }
 }
 
-fn raw_child_body(
+pub(in crate::mir::builder) fn raw_child_body(
     parent: &ASTNode,
     role: BodyChildRoleV1,
 ) -> Result<&[ASTNode], LoopPlanExpressionPortErrorV1> {

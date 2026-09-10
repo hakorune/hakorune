@@ -34,6 +34,7 @@ where
             let (value_id, contract_effect) =
                 loop_body_lowering::local_contract_reassignment_effect(builder, name, value_id)?;
             effects.extend(contract_effect);
+            port.exact_source_assignment_rebind(&target, value_id)?;
             Ok((Some((name.clone(), value_id)), effects))
         }
         ASTNode::FieldAccess { field, .. } => {

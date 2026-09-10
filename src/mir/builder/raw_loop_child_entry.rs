@@ -26,6 +26,9 @@ use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::parser::CallableMethodSourceObservationV1;
 
+#[path = "raw_loop_child_entry/ledger_bridge.rs"]
+mod ledger_bridge;
+
 /// Exact child-entry result for one raw Loop syntax surface.
 ///
 /// `NoChildFunctionEntry` is deliberately narrow: it says only that the
@@ -168,6 +171,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             in_static_box,
             policy,
             None,
+            None,
         )
     }
 
@@ -187,6 +191,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             in_static_box,
             policy,
             Some(callable_loop_root_scope),
+            None,
         )
     }
 
@@ -198,6 +203,13 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         in_static_box: bool,
         policy: GenericLoopFactsPolicyFrameV1,
         mut callable_loop_root_scope: Option<&mut UnpublishedCallableLoopRootScopeV1>,
+        callable_ledger: Option<
+            &std::rc::Rc<
+                std::cell::RefCell<
+                    super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
+                >,
+            >,
+        >,
     ) -> Result<ValueId, String> {
         let Self {
             parent_source,
@@ -275,7 +287,15 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 let root_scope = callable_loop_root_scope.as_deref_mut().ok_or_else(|| {
                     "[freeze:contract][callable-loop/root-scope/missing]".to_owned()
                 })?;
-                CallableGenericLoopV1PhysicalAdapterV1::lower(builder, root_scope, recipe)
+                let callable_ledger = callable_ledger.ok_or_else(|| {
+                    "[freeze:contract][callable-loop/callable-ledger/missing]".to_owned()
+                })?;
+                CallableGenericLoopV1PhysicalAdapterV1::lower(
+                    builder,
+                    root_scope,
+                    recipe,
+                    callable_ledger,
+                )
             }
             Some(CallableLoopBindingProjectionDispositionV1::Outside(reason)) => {
                 lower_outside_callable_loop_v1(reason)

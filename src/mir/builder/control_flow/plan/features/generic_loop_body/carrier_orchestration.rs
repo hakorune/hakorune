@@ -110,7 +110,7 @@ where
     orchestrate_generic_loop_v1_carriers_with_body(builder, carrier_state, lower_body)
 }
 
-fn orchestrate_generic_loop_v1_carriers_with_body<LowerBody>(
+pub(in crate::mir::builder) fn orchestrate_generic_loop_v1_carriers_with_body<LowerBody>(
     builder: &mut MirBuilder,
     carrier_state: GenericLoopV1CarrierState,
     lower_body: LowerBody,

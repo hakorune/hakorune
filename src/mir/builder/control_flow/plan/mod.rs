@@ -35,7 +35,7 @@ mod core;
 mod domain;
 mod effect;
 mod exit;
-mod expression_port;
+pub(in crate::mir::builder) mod expression_port;
 mod located_loop;
 mod located_loop_error;
 

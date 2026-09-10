@@ -609,6 +609,18 @@ raw-root lineage; it does not claim opaque parser-invocation identity. A
 parser witness must be added in a separate design slice before stronger
 identity claims are allowed.
 
+The first Ready source-aware consumer is now wired through the existing raw
+invocation edge. `CallableLoopSourceExpressionPortV1` borrows the active
+`CallableSemanticLoweringState` for the adapter callback and pairs each
+condition/body input with its existing `RawInvocationSourceContextV1` site.
+Variable reads and assignment rebinds use the ledger's exact site accessors;
+an unlocated or missing site is a terminal contract error before the
+composer, lowerer, or Builder effects. The moved semantic Recipe is consumed
+once through `with_source_relation_view_once`; the observation-only view stays
+available for diagnostics and does not authorize a second consumer. The
+selected slice remains non-nested `RecipeOnly` Ready: Outside, legacy,
+fallback/retry, OBJ/EXE, and route retirement are not claimed here.
+
 The selected `MIR-CALLABLE-LOOP-READY-CLAIM-I0` keeps the aggregate in place as
 `CallableGenericLoopSourceFactsV1` and exposes one private `claim_all()` move.
 That move retains `CallableSemanticLoopHandoffPreEffectReceiptV1` inside a

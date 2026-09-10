@@ -235,6 +235,8 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceRelationViewV1<'view
     selection: &'view RecipeFirstRouteSelectionV1,
     selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
     policy: GenericLoopFactsPolicyFrameV1,
+    debug: bool,
+    in_static_box: bool,
 }
 
 impl CallableGenericLoopSourceRelationViewV1<'_> {
@@ -278,6 +280,14 @@ impl CallableGenericLoopSourceRelationViewV1<'_> {
 
     pub(in crate::mir::builder) const fn policy(&self) -> GenericLoopFactsPolicyFrameV1 {
         self.policy
+    }
+
+    pub(in crate::mir::builder) const fn debug(&self) -> bool {
+        self.debug
+    }
+
+    pub(in crate::mir::builder) const fn in_static_box(&self) -> bool {
+        self.in_static_box
     }
 }
 
@@ -361,6 +371,42 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
             selection: &self.receipt.selection,
             selected: &self.receipt.selected,
             policy: self.receipt.policy,
+            debug: self.receipt.debug,
+            in_static_box: self.receipt.in_static_box,
+        };
+        Ok(use_view(view))
+    }
+
+    /// Consume the Recipe once for its source-aware physical consumer.
+    ///
+    /// Unlike `with_source_relation_view`, this method moves the Recipe into
+    /// the callback boundary.  The callback receives only a borrow of the
+    /// already co-sealed receipt, so it cannot retain or reissue source
+    /// authority after the physical adapter returns.
+    pub(in crate::mir::builder) fn with_source_relation_view_once<R>(
+        self,
+        use_view: impl for<'view> FnOnce(CallableGenericLoopSourceRelationViewV1<'view>) -> R,
+    ) -> Result<R, CallableGenericLoopV1SemanticRecipeViewRejectV1> {
+        let Self { receipt } = self;
+        let Some(facts) = receipt.outcome.facts.as_ref() else {
+            return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::FactsMissing);
+        };
+        let Some(generic) = facts.facts.generic_loop_v1() else {
+            return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::GenericFactsMissing);
+        };
+        let view = CallableGenericLoopSourceRelationViewV1 {
+            owner: receipt.owner,
+            parent_source: receipt.parent_source,
+            condition_source: &receipt.condition_source,
+            body_source: &receipt.body_source,
+            pre_effect: &receipt.pre_effect,
+            facts,
+            generic,
+            selection: &receipt.selection,
+            selected: &receipt.selected,
+            policy: receipt.policy,
+            debug: receipt.debug,
+            in_static_box: receipt.in_static_box,
         };
         Ok(use_view(view))
     }
