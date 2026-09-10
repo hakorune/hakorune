@@ -1,10 +1,10 @@
 ---
-Status: baseline observation complete; snapshot D0 accepted; I0 implementation selected
+Status: baseline observation complete; snapshot D0/I0 and emit-clone P0 closed; lazy payload design next
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
-NextCard: MIR-BUILDER-EMIT-CLONE-SHAPE-P0
+NextCard: MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0
 ---
 
 # MIRBuilder compile-time performance owner-first D0
@@ -528,16 +528,29 @@ Any production emitter outside the finite reader boundary, a changed alias or
 default, a need for live environment rereads, or a request to include DebugHub
 or backend consumers returns the work to design_stop instead of widening I0.
 
-### I0 closeout evidence (2026-09-03)
+### I0 closeout evidence (2026-09-03, revalidated 2026-09-10)
 
 The one `CompilationContext` snapshot is installed by both invocation forms;
 the normal/raw and canonical session tests each preserve independent policy
 values across an ambient environment flip. The selected reader census remains
 free of direct process-environment reads, and the Builder module README records
-the ownership boundary. The two post-audit gate repairs below are included in
-this closeout so the next family is not opened on a broken feature build or an
-inactive stable dispatch gate. Whole-library health is still a separately
-classified known-red baseline, not a green claim.
+the ownership boundary. The implementation is recorded at `4ba9293900` and
+was revalidated on the current branch with:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib module_invocation_session_p0  # 16 passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib module_session_borrow_p0_tests # 3 passed
+python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .                    # passed
+python3 tools/checks/lib/mir_call_d1b_active_surface_dispatch.py .                 # passed
+selected builder_emit/calls/receiver process-env scan                             # 0 direct reads
+git diff --check + current_state_pointer_guard.sh                                   # passed
+```
+
+The two post-audit gate repairs below are included in the original closeout so
+the next family is not opened on a broken feature build or an inactive stable
+dispatch gate. Whole-library health is still a separately classified known-red
+baseline, not a green claim. DebugHub payload construction, observer OnceLock
+state, and other non-selected environment readers remain outside I0.
 
 ## Post-audit follow-up queue (2026-09-03)
 
