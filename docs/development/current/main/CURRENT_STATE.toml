@@ -52,8 +52,10 @@ commit. Physical callee identity I1 and its consumer cutover landed at
 `f82e0b51af`/`648eed76dc`: the existing physical function row carries the
 prepared object definition, V2 validates its structural/layout shape, and V4
 compares the receiver object before LLVM emission; Pair direct/linked exit-30
-and a dedicated mismatch rejection are recorded. The V2/V4 boundary wording
-is selected for a caller-chain audit before any further physical change.
+and a dedicated mismatch rejection are recorded. The finite V2/V4 caller-chain
+census found no artifact bypass: V2 is structural/layout validation and V4 is
+the identity gate before `hako_lts_open()`/`lv4_emit()`; the boundary row is
+closed.
 FieldGet prepared-reference reuse I0 landed at `90928e0585`: the existing physical instruction row now owns one projected `CanonicalFieldRefV1`, and admission, layout collection, and JSON consume it. The focused suite is 9/9; C parser/build and Pair direct/linked exit-30 checks remain green. C invocation-index measurement/fusion is already closed and ParkedSealed at D1; untyped object storage remains a parked NoSafeSlice. Whole MirBuilder, R7, general LLVM graduation, parallel sessions, and memory-only transport remain unproven. The fixed real-app EXE boundary suite was rechecked at HEAD `41d3db3076`: 2/11 passed (typed object NewBox plus the explicit unsupported-boundary probe) and 9/11 remain owner-scoped failures. The acceptance row stays open; these reds do not reopen the already-closed V2/V4 verifier boundary.
 """
 next_design_card = "none"
