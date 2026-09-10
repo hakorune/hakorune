@@ -1970,6 +1970,26 @@ the existing function row is the consumer. The selected I1 implementation may
 now change only that row, its JSON/V2 validation, and the invocation-local V4
 index/flow. No new semantic receipt or second source resolver is permitted.
 
+I1 implementation closeout (2026-09-10, `f82e0b51af`, `648eed76dc`): the
+existing `OrdinaryI64` physical function row now carries a nullable
+`receiver_object` projected from canonical object membership. Rust JSON emits
+the field once; the V2 parser requires the same exact row shape and checks that
+an instance identity names an existing layout. V4 seeds its invocation-local
+receiver value from that field and compares the caller's live handle against
+the callee object before LLVM/session work; the old first-`FieldGet` inference
+path is removed. The physical program stays under the 800-line hard stop by
+keeping call helpers and object projection in adjacent private modules.
+
+Evidence: the physical JSON suite is `9/9` green, the C shim rebuild is green,
+the pre-artifact parser fixture accepts the new schema and rejects an invalid
+root object field, the dedicated C V4 fixture rejects a valid-layout
+caller/callee mismatch before object output, and the existing Pair direct plus
+linked OBJ/EXE witness returns process exit `30`. Static/root/Birth rows retain
+`receiver_object: null`; no receiver inference, name repair, or compatibility
+retry was added. This closes the selected callee-identity implementation and
+consumer cutover. The next bounded row is the existing FieldGet prepared reuse
+design below.
+
 ##### `MIRBUILDER-INVOKE-LIFECYCLE-ROOT-METHOD-CALL-PHYSICAL-RECEIVER-LANE-D0`
 
 Decision: accept one bounded physical projection using the existing lifecycle

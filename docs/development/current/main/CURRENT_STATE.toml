@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1"
-current_execution_cohort = "mirbuilder_ordinary_call_callee_object_identity_i1"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0"
+current_execution_cohort = "mirbuilder_physical_fieldref_prepared_reuse_d0"
 current_design_stop = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-current_blocker_token = "Ordinary-call callee object identity I1: project the existing canonical object membership into the physical function row, validate the receiver_object wire field, and reject caller/callee mismatch in V4 before LLVM emission. No new semantic receipt, C inference, or fallback."
+current_blocker_token = "Physical FieldGet prepared reuse D0: make the existing physical projection owner prepare one CanonicalFieldRefV1 per admitted FieldGet, then let admission, layout collection, and JSON consume it. Preserve route/object/slot/layout fail-fast checks; no new semantic receipt, C inference, or fallback."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -48,15 +48,17 @@ tagged ABI exists. The ordinary-call receiver identity design stop is now accept
 claim supplies canonical object definition plus exact initializer/binding. Rust
 receiver I0 landed at `694f61e253`; it retains the initializer/object in the
 source row and validates the emitted receiver against the owner-scoped local
-commit. The physical callee identity I1 is now the selected implementation row:
-the existing physical function row carries the prepared object definition and
-V4 compares it before LLVM emission. Consumer cutover I2 and FieldGet
-prepared-reuse D0 remain queued. Whole MirBuilder,
+commit. Physical callee identity I1 and its consumer cutover landed at
+`f82e0b51af`/`648eed76dc`: the existing physical function row carries the
+prepared object definition, V2 validates its layout, and V4 compares it before
+LLVM emission; Pair direct/linked exit-30 and a dedicated mismatch rejection
+are recorded. The next design stop is FieldGet prepared-reference reuse.
+Whole MirBuilder,
 R7, general LLVM graduation, parallel sessions, and memory-only transport
 remain unproven.
 """
-next_design_card = "none"
-next_execution_card = "MIRBUILDER-ORDINARY-CALL-CALLEE-OBJECT-IDENTITY-I1"
+next_design_card = "MIRBUILDER-PHYSICAL-FIELDREF-PREPARED-REUSE-D0"
+next_execution_card = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
@@ -73,5 +75,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: ordinary-call receiver source/local identity I0 landed at 694f61e253. The existing row retains initializer/object identity, finalization derives the receiver from the owner-scoped New local commit, and same-typed two-object receiver substitution is rejected before physical transport. Physical callee identity I1-D0 is the next design stop."
+  "2026-09-10: ordinary-call receiver source/local identity I0 landed at 694f61e253. The existing row retains initializer/object identity, finalization derives the receiver from the owner-scoped New local commit, and same-typed two-object receiver substitution is rejected before physical transport. Physical callee identity I1 and consumer cutover landed at f82e0b51af/648eed76dc: canonical object membership is carried through the existing function row, V2/V4 reject object drift before LLVM, and Pair direct/linked exit 30 remains green. FieldGet prepared-reference reuse D0 is the next design stop."
 ]
