@@ -78,16 +78,16 @@ if rg -n -- 'with_builder_and_pinned_text_invocation_binding\(' "$LIFECYCLE"; th
   guard_fail "$TAG" "root lifecycle still uses the unscoped candidate callback"
 fi
 
-ready_branch="$(awk '
-/Some\(CallableLoopBindingProjectionDispositionV1::Ready/ { inside = 1 }
+ready_dispatch="$(awk '
+/let binding_product = match callable_handoff/ { inside = 1 }
 inside { print }
-inside && /Some\(CallableLoopBindingProjectionDispositionV1::Outside/ { exit }
+inside && /Some\(CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly\(product\)/ { exit }
 ' "$RAW_ENTRY")"
-if rg -n -- 'lower_loop_or_freeze_v1|lower_non_callable_loop_legacy_v1|retry|fallback' <<<"$ready_branch"; then
+if rg -n -- 'lower_loop_or_freeze_v1|lower_non_callable_loop_legacy_v1|retry|fallback' <<<"$ready_dispatch"; then
   guard_fail "$TAG" "Ready branch still has a legacy/fallback route"
 fi
-if ! rg -q -- 'CallableGenericLoopV1PhysicalAdapterV1::lower\(' <<<"$ready_branch" \
-  || ! rg -q -- 'callable_ledger' <<<"$ready_branch"; then
+if ! rg -q -- 'CallableGenericLoopV1PhysicalAdapterV1::lower\(' "$RAW_ENTRY" \
+  || ! rg -q -- 'callable_ledger' "$RAW_ENTRY"; then
   guard_fail "$TAG" "Ready branch does not consume the scoped source-aware physical adapter"
 fi
 

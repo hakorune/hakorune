@@ -26,12 +26,14 @@ Related:
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** canonical Call and explicit legacy ingress
   are separated; the direct-loader schema-error retry is retired and the fixed
-  acceptance is classified. The artifact loader's parsed-top-level schema
+  acceptance is classified. The selected callable-loop BodyOnlyRebind product
+  is now consumed by the existing source-aware adapter with relation-owner and
+  planner-increment checks. The artifact loader's parsed-top-level schema
   selection remains a separate queued boundary.
-- **Next ordered task:** close the selected callable-loop BodyOnlyRebind design
-  stop, then take the artifact-loader schema selector through its existing
-  owner. Constructor/Array execution and retirement evidence belongs to their
-  owner SSOTs; no lifecycle V2 waiting state is implied.
+- **Next ordered task:** close the BodyOnlyRebind I0 evidence row, then take the
+  artifact-loader schema selector through its existing owner. Constructor/Array
+  execution and retirement evidence belongs to their owner SSOTs; no lifecycle
+  V2 waiting state is implied.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -479,14 +481,14 @@ not R7 caller-zero, backend parity, or whole-pipeline completion.
 ##### Adjacent ingress and coverage queue (2026-09-10)
 
 These are bounded follow-ups discovered after the direct-loader Stop. They are
-not part of the current Loop terminal design stop and must use their existing
+not part of the current Loop terminal cohort and must use their existing
 owners rather than opening a second JSON dispatcher or a second receiver
 verifier.
 
 | order | owner / task | bounded change and fail-fast boundary | acceptance / non-claims |
 | --- | --- | --- | --- |
 | 1 | `runner::json_artifact::mir_loader` — `MIR-ARTIFACT-MIR-JSON-TOPLEVEL-SCHEMA-STOP-I0` | Remove the raw `text.contains("\"schema_version\"")` selector. Let the existing parsed top-level `Value`/`json_v1_bridge::try_parse_v1_to_module` decide whether the schema key is absent, supported, or explicitly unsupported, so escaped keys such as `\u0073chema_version` cannot enter v0. Keep the existing no-schema v0 selection and terminal v1 errors. | Add an escaped-key unsupported-schema case and a malformed/absent-key matrix; rejection must occur before `mir_json_v0::parse_mir_v0_to_module`. No new parser, schema revision, or blanket v0 removal. |
-| 2 (high / reopened) | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` — `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` | The current negative is non-discriminating because the fault/liveness path rejects before the receiver comparison. Build a valid normal path and a valid fault cleanup graph first, then mutate only the callee `receiver_object`; assert the named V4 receiver-mismatch rejection and absent artifact, rather than accepting any nonzero result. Add the same-typed valid receiver execution at the same boundary. | Positive valid receiver, valid cleanup-on-fault, and object-only mutation negative all execute; mutation of the receiver check alone must make the negative fail. Keep V2 structural/V4 identity ownership unchanged; no second object walk or runtime-accessor proof. |
+| 2 (high / reopened) | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` — `MIRBUILDER-PHYSICAL-CALL-RECEIVER-IDENTITY-COVERAGE-R0` | The current negative is non-discriminating because the fault/liveness path rejects before the receiver comparison. Build one reusable valid normal+fault cleanup base fixture, add stable named rejection `published-lifecycle-v4/receiver-object-mismatch`, then mutate only the callee `receiver_object`; assert that named rejection and absent artifact. Add the same-typed valid receiver execution at the same boundary. The base fixture is a reusable test asset for later identity negatives, not a one-off. | Positive valid receiver, valid cleanup-on-fault, and object-only mutation negative all execute; mutating only the receiver check must make the negative fail. Keep V2 structural/V4 identity ownership unchanged; no second object walk or runtime-accessor proof. |
 | 3 | `published_backend_view::physical_program` — `MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0` | After a caller census, remove the unused `PublishedLifecyclePhysicalProgramV1::module` borrow and getter if no downstream consumer remains. Close the getter so later JSON/layout consumers cannot return to the original module through this product. | Existing physical JSON/layout/Pair exit-30 suites stay green and the source remains below the 760 split trigger. No semantic projection, layout authority, or transport change. |
 
 The in-process LLVM C-API cutover is already structurally closed at
@@ -1609,10 +1611,10 @@ consumer without reclassifying BodyOnly as a Ready carrier.
 D0 closeout: the worker seam audit confirmed one production entry and one
 existing source-aware adapter consumer. The product above is a BoxShape
 transport over the existing issuer and Recipe; it does not add a Facts owner,
-route selector, or backend. Implementation may now begin at the existing raw
-Ready/Outside entry, with relation-owner and planner-increment checks before
-composer/lowerer effects. Other Outside kinds, the callable-None bypass, and
-the shared legacy route remain outside this I0.
+route selector, or backend. This design authorization was consumed by the I0
+implementation below; relation-owner and planner-increment checks remain
+before composer/lowerer effects. Other Outside kinds, the callable-None bypass,
+and the shared legacy route remain outside this I0.
 
 Finite census boundary: `CallableLoopSourceProjectionV1::project_disposition`
 through `PreparedLocatedRawLoopChildEntryV1` and the existing source-aware
@@ -1620,12 +1622,12 @@ adapter, including the active callable ledger and current BodyOnly rows;
 excludes other Outside kinds, `RawLegacyChildLoweringPortV1`, the shared
 `lower_loop_or_freeze_v1` path, publication, and backend artifacts.
 
-The current disposition is exclusive `Ready` or `Outside`, and the Outside
-branch can discard a valid Ready remainder. A direct rename would either lose
-source ownership or silently widen the admitted carrier, so the next product
-must be a move-only composite. The first positive fixture has one carrier and
-one body-only binding; it consumes the BodyRead and BodyRebind rows exactly
-once before `finish()`. Foreign, duplicate, missing, nested, unlocated, and
+At D0, the disposition was exclusive `Ready` or `Outside`, and the Outside
+branch could discard a valid Ready remainder. A direct rename would either
+lose source ownership or silently widen the admitted carrier, so the I0
+product is a move-only composite. Its positive fixture has one carrier and one
+body-only binding; it consumes the BodyRead and BodyRebind rows exactly once
+before `finish()`. Foreign, duplicate, missing, nested, unlocated, and
 policy-drift rows reject before effects. The body-only terminal helper is
 deleted only after its real caller reaches zero; shared legacy remains outside
 this row.
@@ -1638,6 +1640,26 @@ being rediscovered by a first-match predicate in the composer. A relation-owner
 mismatch or planner/consumer increment disagreement rejects before Recipe
 composition and Builder mutation. The planner remains the sole owner of that
 classification; this row adds no second loop fact or route selector.
+
+##### MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0 (implementation evidence 2026-09-10)
+
+`CallableLoopReadyBodyOnlyProductV1` now carries the existing Ready schedule
+and grouped `BodyRead`/`BodyRebind` rows through the existing raw entry and
+source-aware Facts/Recipe issuer. The physical adapter checks the moved
+relation owner against the active callable ledger before opening the composer,
+and the composer consumes the planner-issued `increment_index` rather than
+re-deriving an increment by first-match syntax search. The source product is
+consumed once and the real callable ledger finishes after the condition read,
+body read, and body rebind. The implementation is fixed at commit
+`3559464960`.
+
+Focused evidence is `normal_callable_loop --lib` (19 tests) and
+`raw_loop_child_entry --lib` (8 tests), including
+`source_aware_adapter_consumes_real_callable_ledger_once` and
+`physical_adapter_rejects_relation_owner_mismatch_before_builder_effect`.
+This closes the selected Rust BodyOnly adapter seam only. It does not claim
+package discovery, publication, OBJ/EXE, loop route retirement, the receiver
+identity R0 fixture, or performance improvement.
 
 ##### Acceptance recheck classification (2026-09-10)
 

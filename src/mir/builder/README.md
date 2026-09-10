@@ -630,15 +630,22 @@ adapter, and finishes the same ledger after one condition read, one body read,
 and one body rebind. This proves the selected Rust adapter seam only; it does
 not claim full package discovery, OBJ/EXE output, or loop route retirement.
 
-The next selected boundary is `MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0`, currently
-in design stop. The existing projection separates `Ready` from `Outside` and
-can observe a body-only cohort while retaining a valid Ready remainder. The
-design must therefore carry both through one move-only source product with the
-same owner, lineage, and policy, then consume the existing BodyRead and
-BodyRebind rows through the source-aware adapter. Other Outside kinds, the
-non-callable legacy route, fallback/retry, and artifact output remain terminal
-or out of scope; no implementation permission follows until the SSOT design
-row closes.
+The selected boundary `MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0` is implemented
+through one private `CallableLoopReadyBodyOnlyProductV1`. It carries the
+existing Ready remainder and grouped BodyRead/BodyRebind rows from the source
+projection into the same Facts/Recipe issuer; it does not create a second
+Facts owner, route selector, or semantic receipt. The physical adapter rejects
+a relation-owner mismatch before composer/lowerer/Builder effects, and the
+composer consumes the planner-issued increment position rather than searching
+the source body again. The real callable-ledger positive finishes after the
+condition read, body read, and body rebind; a dedicated owner-mismatch test
+proves the pre-effect terminal.
+
+Focused evidence is `normal_callable_loop --lib` (19 tests) and
+`raw_loop_child_entry --lib` (8 tests). Other Outside kinds, the non-callable
+legacy route, fallback/retry, package publication, OBJ/EXE, and route
+retirement remain out of scope. The next production cutover still requires the
+separate R0 caller/retirement decision.
 
 The selected `MIR-CALLABLE-LOOP-READY-CLAIM-I0` keeps the aggregate in place as
 `CallableGenericLoopSourceFactsV1` and exposes one private `claim_all()` move.

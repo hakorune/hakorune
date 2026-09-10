@@ -86,13 +86,13 @@ guard_expect_fixed_in_file "$TAG" "CallableGenericLoopV1PhysicalAdapterV1::lower
   "Ready must connect to the named physical adapter"
 guard_expect_fixed_in_file "$TAG" "ready_rejection_stops_before_builder_effect" "$TESTS" \
   "Ready rejection must have effect-zero focused evidence"
-guard_expect_fixed_in_file "$TAG" "outside_terminal_rejects_before_builder_effect" "$RAW_ENTRY" \
+guard_expect_fixed_in_file "$TAG" "body_only_product_rejects_before_builder_effect_when_facts_are_absent" "$RAW_ENTRY" \
   "Outside terminal must have effect-zero focused evidence"
 guard_expect_fixed_in_file "$TAG" "into_semantic_recipe" "$RAW_ENTRY" \
   "Ready must not return to the old lowerer"
 guard_expect_fixed_in_file "$TAG" "claim_all()" "$RAW_ENTRY" \
   "Ready must claim the source product exactly once"
-guard_expect_fixed_in_file "$TAG" "None => lower_non_callable_loop_legacy_v1" "$RAW_ENTRY" \
+guard_expect_fixed_in_file "$TAG" "None => return lower_non_callable_loop_legacy_v1" "$RAW_ENTRY" \
   "legacy JoinIR must be named as the non-callable lane"
 guard_expect_fixed_in_file "$TAG" "fn lower_non_callable_loop_legacy_v1" "$RAW_ENTRY" \
   "old JoinIR entry must remain outside the Ready branch"
@@ -201,8 +201,8 @@ if [[ "$planner_calls" -ne 1 ]]; then
   guard_fail "$TAG" "issuer must have exactly one route-neutral planner call; found $planner_calls"
 fi
 claim_calls="$(rg -F -o -- 'claim_all()' "$TESTS" | wc -l | tr -d '[:space:]')"
-if [[ "$claim_calls" -ne 4 ]]; then
-  guard_fail "$TAG" "focused evidence must cover four one-shot source-facts claims; found $claim_calls"
+if [[ "$claim_calls" -ne 5 ]]; then
+  guard_fail "$TAG" "focused evidence must cover five one-shot source-facts claims; found $claim_calls"
 fi
 lease_definitions="$(rg -F -o -- 'with_existing_structural_port<R>' "$STRUCTURAL_PORT" | wc -l | tr -d '[:space:]')"
 lease_tests="$(rg -F -o -- 'with_existing_structural_port(&context' "$STRUCTURAL_PORT_TESTS" | wc -l | tr -d '[:space:]')"

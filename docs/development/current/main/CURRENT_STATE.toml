@@ -1,10 +1,10 @@
 date = "2026-09-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0"
-current_execution_cohort = "callable_loop_body_only_rebind_i0"
+current_execution_cohort = "callable_loop_body_only_rebind_i0_closeout"
 current_design_stop = "none"
-current_blocker_token = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0: implement the accepted private CallableLoopReadyBodyOnlyProductV1 at the existing raw loop entry; preserve the Ready schedule and grouped BodyRead/BodyRebind rows in one move, require relation-owner equality and planner-owned increment classification before composer/lowerer/Builder effects, and keep other Outside kinds, callable-None bypass, fallback/retry, and shared legacy unchanged."
+current_blocker_token = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0-CLOSEOUT: record the landed CallableLoopReadyBodyOnlyProductV1 evidence and focused gates; preserve relation-owner equality and planner-owned increment classification, and keep other Outside kinds, callable-None bypass, fallback/retry, shared legacy, and OBJ/EXE unchanged."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Run focused callable-loop handoff/source-facts/normalizer tests, current_state_pointer_guard.sh, and the existing relevant MIR guard after the BodyOnly implementation. Prove one source product consumes Ready plus BodyRead/BodyRebind once and finishes the ledger. Keep other Outside kinds, the non-callable legacy route, fallback/retry policy, and production artifact routes unchanged."
+guard_followup = "Record the focused callable-loop handoff/source-facts/raw-entry gates already run for BodyOnly I0, then run current_state_pointer_guard.sh and the existing relevant MIR guard before closeout commit/push. Keep other Outside kinds, the non-callable legacy route, fallback/retry policy, receiver-identity R0, and production artifact routes unchanged."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -32,17 +32,14 @@ latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
 The Ready-port implementation is closed in the final-pipeline SSOT at
-`3867539488`. Its private source-aware expression port pairs
-RawInvocationSourceContextV1 sites with the existing callable ledger
-read_variable/rebind accessors, borrowed once from the raw invocation callback.
-The focused real-source adapter test consumes the exact condition/body/rebind
-rows and finishes the ledger. Full package discovery and artifact output remain
-outside that row. The next design stop is BodyOnlyRebind: preserve the Ready
-remainder and grouped body-only rows in one source product before any new
-consumer is opened. The BodyOnly D0 design is now accepted as one private
-`CallableLoopReadyBodyOnlyProductV1 { ready, body_only }`; I0 is the next
-implementation slice. Relation-owner equality and planner-owned increment
-classification remain mandatory pre-effect checks.
+`3867539488`. The BodyOnly D0 design is implemented at `3559464960` as one
+private `CallableLoopReadyBodyOnlyProductV1 { ready, body_only }`. Its raw entry
+and existing source-aware Facts/Recipe issuer consume the product once; the
+physical adapter rejects relation-owner mismatch before effects, and the
+composer consumes planner-owned increment classification. Focused Loop (19)
+and raw-entry (8) tests are green. Closeout records these Rust adapter proofs;
+package discovery, OBJ/EXE, route retirement, receiver-identity R0, and
+performance remain outside the claim.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0"
@@ -63,5 +60,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 still open; no whole-lib baseline change. M7-S array_element_write_published_c_cutover_i0 also landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: receiver/local I0, callee identity I1 implementation and FieldGet prepared-reference reuse landed; Pair exit30 is green. Receiver identity coverage R0 is reopened because the existing C negative is non-discriminating until valid normal/fault cleanup is isolated. C index fusion remains ParkedSealed D1. Direct MIR JSON schema-error Stop and selected Dynamic CanonicalV1 egress landed; fixed real-app acceptance at 27d516ee3d is 4/11 with seven owner-scoped reds. Loop ordinary bridge S0-D1 is accepted as design with only the callable-None bypass eligible for later deletion; the source-recipe relation P0 borrowed view and focused evidence landed at 3867539488 with 18/18 focused tests green. BodyOnlyRebind is now the selected design stop; relation-owner equality and planner-owned increment reuse remain prerequisites; no OBJ/EXE or R0 claim."
+  "2026-09-10: receiver/local I0, callee identity I1 implementation and FieldGet prepared-reference reuse landed; Pair exit30 is green. Receiver identity coverage R0 is reopened because the existing C negative is non-discriminating until valid normal/fault cleanup is isolated. C index fusion remains ParkedSealed D1. Direct MIR JSON schema-error Stop and selected Dynamic CanonicalV1 egress landed; fixed real-app acceptance at 27d516ee3d is 4/11 with seven owner-scoped reds. Loop ordinary bridge S0-D1 is accepted as design with only the callable-None bypass eligible for later deletion; the source-recipe relation P0 borrowed view and focused evidence landed at 3867539488 with 18/18 focused tests green. BodyOnlyRebind I0 implementation landed at 3559464960 with planner increment reuse, relation-owner pre-effect rejection, 19 callable-loop tests and 8 raw-entry tests green. Closeout records Rust adapter evidence only; no OBJ/EXE, route retirement, receiver R0, or performance claim."
 ]
