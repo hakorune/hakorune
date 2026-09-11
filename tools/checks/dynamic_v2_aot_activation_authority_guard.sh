@@ -806,8 +806,10 @@ LINK_FFI="$ROOT_DIR/crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs"
 LINK_C_HEADER="$ROOT_DIR/lang/c-abi/include/hako_aot.h"
 LINK_C_IMPL="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
 LINK_ROUTE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
+LINK_INTERNAL="$ROOT_DIR/lang/c-abi/shims/hako_aot_internal.h"
+LINK_AOT="$ROOT_DIR/lang/c-abi/shims/hako_aot_shared_impl.inc"
 LINK_SMOKE="$ROOT_DIR/tools/checks/dynamic_v2_w6_explicit_link_abi_smoke.sh"
-guard_require_files "$TAG" "$LINK_FFI" "$LINK_C_HEADER" "$LINK_C_IMPL" "$LINK_ROUTE" "$LINK_SMOKE"
+guard_require_files "$TAG" "$LINK_FFI" "$LINK_C_HEADER" "$LINK_C_IMPL" "$LINK_ROUTE" "$LINK_INTERNAL" "$LINK_AOT" "$LINK_SMOKE"
 if [[ ! -x "$LINK_SMOKE" ]]; then
   guard_fail "$TAG" "W6-D explicit-link smoke must be executable"
 fi
@@ -820,13 +822,26 @@ fi
 if [[ "$(rg -n '^static int forward_link_obj_to_aot_v2\(' "$LINK_ROUTE" | wc -l | tr -d '[:space:]')" != 1 ]]; then
   guard_fail "$TAG" "versioned link forwarder must have one issuer"
 fi
+if [[ "$(rg -n '^HAKO_AOT_INTERNAL_LINK int hako_aot_link_obj_for_llvmc\(' "$LINK_AOT" | wc -l | tr -d '[:space:]')" != 1 ]]; then
+  guard_fail "$TAG" "private direct link seam must have one owner"
+fi
+if [[ "$(rg -n 'hako_aot_link_obj_for_llvmc\(' "$LINK_ROUTE" | wc -l | tr -d '[:space:]')" != 2 ]]; then
+  guard_fail "$TAG" "both FFI link forwarders must consume the private seam"
+fi
+if rg -n 'hako_llvmc_set_env_value\("HAKO_AOT_USE_FFI"|hako_aot_link_obj\(obj_in|hako_aot_link_obj_v2\(' "$LINK_ROUTE"; then
+  guard_fail "$TAG" "FFI link forwarders must not mutate env or re-enter public AOT dispatch"
+fi
+guard_expect_fixed_in_file "$TAG" "HAKO_AOT_LINK_INVOCATION_COMPAT_V1" "$LINK_INTERNAL" \
+  "private seam must expose an explicit v1 compatibility mode"
+guard_expect_fixed_in_file "$TAG" "HAKO_AOT_LINK_INVOCATION_EXPLICIT_V2" "$LINK_INTERNAL" \
+  "private seam must expose an explicit v2 archive mode"
 guard_expect_fixed_in_file "$TAG" 'runtime_archive_path' "$LINK_C_HEADER" \
   "explicit archive path must be part of the C ABI"
 if rg -n -F 'hako_llvmc_link_obj\0' "$LINK_FFI" || \
    rg -n -F 'NYASH_EMIT_EXE_NYRT' "$LINK_FFI"; then
   guard_fail "$TAG" "selected Rust Boundary link path must not use legacy symbol or archive env override"
 fi
-for file in "$LINK_FFI" "$LINK_C_HEADER" "$LINK_C_IMPL" "$LINK_ROUTE"; do
+for file in "$LINK_FFI" "$LINK_C_HEADER" "$LINK_C_IMPL" "$LINK_ROUTE" "$LINK_INTERNAL" "$LINK_AOT"; do
   lines=$(wc -l < "$file" | tr -d '[:space:]')
   if (( lines >= 800 )); then
     guard_fail "$TAG" "W6-D link boundary reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"

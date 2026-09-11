@@ -22,6 +22,7 @@
 // hako_aot.h provides hako_aot_compile_json / hako_aot_link_obj
 #include "../include/hako_aot.h"
 #include "../include/hako_llvmc_ffi.h"
+#include "hako_aot_internal.h"
 #include "hako_json_v1.h"
 #include "yyjson.h"
 #if !defined(_WIN32)

@@ -255,3 +255,50 @@ are represented in the same invocation-owned contract. Until those two
 authority points and their failure/cleanup evidence are accepted, the current
 R7 disposition remains `NoSafeSlice__NoRemainingUnsharedM7SOwner` and no code
 or route change is authorized.
+
+### Task 3 responsibility split and link seam admission (2026-09-12)
+
+The source audit separates two mutable-state responsibilities that were
+previously written as one Task 3 row:
+
+| bounded owner | mutable state | current boundary | disposition |
+| --- | --- | --- | --- |
+| Link direct seam I0 | `HAKO_AOT_USE_FFI` route selection | `hako_llvmc_ffi_route.inc` -> the existing `hako_aot_link_obj_with_archive` body | selected for implementation |
+| Compile options I1 | recipe, replay and opt-level values | Rust transport / C compile ingress / `HakoLlvmcInvocation` | design dependency; not opened here |
+
+This is a responsibility split, not a concurrency claim. The link slice has
+one existing physical link body, an explicit v2 archive, and a v1 compatibility
+resolution that can be performed once at the private boundary. It does not
+consume or reinterpret MIR/source facts. The compile-options row remains
+separate because its Rust environment overrides and C environment reads have
+different ingress owners and cannot be deleted by changing the link wrapper.
+
+The accepted I0 boundary is:
+
+```text
+Decision:
+  Replace both FFI link save/set/restore wrappers with one private
+  invocation-owned direct seam; retain public v1/v2 ABI dispatch and dlsym.
+Source authority + canonical issuer:
+  v2 caller supplies the explicit runtime archive; v1 compatibility resolves
+  its existing runtime archive once; the seam calls the existing link body.
+Non-authority:
+  HAKO_AOT_USE_FFI, dlsym re-entry, and public symbol names cannot select or
+  mutate the private direct link after the request has been admitted.
+Fail-fast boundary:
+  Invalid object/executable/archive inputs reject before linker effects;
+  v1/v2 mode is explicit; link failure keeps existing diagnostics and cleanup.
+Smallest next slice:
+  Add the hidden cross-translation-unit seam, route v1/v2 FFI forwarders to it,
+  and prove valid/missing/failure plus unset/empty/present env preservation.
+Non-claims:
+  Compile-options ownership, concurrent compilation, public ABI retirement,
+  LegacyCallV0 retirement, new MIR receipt, and whole R7 completion.
+```
+
+I0 exclusive delete-set: the two `HAKO_AOT_USE_FFI` save/set/restore helpers
+in `hako_llvmc_ffi_route.inc` and their route calls to public AOT dispatch. The
+public `hako_aot_link_obj(_v2)` functions, their dlsym compatibility behavior,
+the v1 archive compatibility resolution, and the existing link body remain
+owned and retained. I1 must later co-seal compile options before any Rust
+transport environment override or C compile environment read is retired.

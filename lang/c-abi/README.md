@@ -387,6 +387,7 @@ Each selected slice must retire its own replaced production edge:
    rows/options, failure cleanup and environment preservation. No lock was found
    in the inspected Rust llvm_codegen owner; global serialization and actual races
    are unproven. Do not claim concurrent compilation support before this closes.
+
 4. Unify kernel hook registration in `hako_forward_bridge.rs`. Rust dot-name
    exports currently write Rust atomics and C globals; underscore C registration
    writes only C globals, so Rust dispatch does not observe that registration.
@@ -401,6 +402,13 @@ Each selected slice must retire its own replaced production edge:
 5. Later, shrink kernel's dependency on root `nyash-rust` along actual config,
    Box and handle consumers. Measure build dependencies and retained symbols;
    the Cargo dependency alone does not prove compiler code is in the final EXE.
+
+The first bounded sub-slice of Task 3 is now selected as
+`MIR-CALL-LINK-DIRECT-SEAM-I0`: the two FFI link wrappers no longer need to
+mutate `HAKO_AOT_USE_FFI`; they call the existing single AOT link body via one
+hidden invocation-mode seam. This closes only link-route state. Compile
+recipe/replay/opt-level ownership remains a separate I1 design dependency,
+and public v1/v2 AOT compatibility remains retained.
 
 Runtime inventory boundary: tracked hook declarations/definitions/direct symbol
 references -> callback invocation, including kernel, canary, headers, tests and

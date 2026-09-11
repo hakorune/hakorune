@@ -1,6 +1,8 @@
 // hako_aot_shared_impl.inc
 // Shared source-truth for AOT compile/link helpers.
 
+#include "hako_aot_internal.h"
+
 static int hako_aot_set_err(char** err_out, const char* msg) {
   if (err_out) {
     if (msg) {
@@ -684,10 +686,11 @@ static int hako_aot_link_obj_with_archive(
   return hako_aot_finish_success_command(logpath);
 }
 
-int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* extra_ldflags, char** err_out) {
-  if (hako_aot_use_ffi()) {
-    return hako_aot_try_ffi_link(obj_path, exe_path, extra_ldflags, err_out);
-  }
+static int hako_aot_link_obj_with_compat_archive(
+    const char* obj_path,
+    const char* exe_path,
+    const char* extra_ldflags,
+    char** err_out) {
   if (!obj_path || !*obj_path || !exe_path || !*exe_path) {
     hako_set_last_error("VALIDATION");
     return hako_aot_set_err(err_out, "invalid args");
@@ -703,13 +706,53 @@ int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* ex
     return hako_aot_set_err(err_out, "libhako_kernel.a not found (NYASH_EMIT_EXE_NYRT)");
   }
   char runtime_archive[1024];
-  const char* lib = hako_aot_resolve_runtime_archive(runtime_archive, sizeof(runtime_archive), dir);
+  const char* lib = hako_aot_resolve_runtime_archive(
+      runtime_archive, sizeof(runtime_archive), dir);
   if (!lib) {
     hako_set_last_error("NOT_FOUND");
     return hako_aot_set_err(err_out, "libhako_kernel.a not found (NYASH_EMIT_EXE_NYRT)");
   }
   return hako_aot_link_obj_with_archive(
       obj_path, exe_path, lib, extra_ldflags, err_out);
+}
+
+#if defined(_WIN32)
+#define HAKO_AOT_INTERNAL_LINK
+#else
+#define HAKO_AOT_INTERNAL_LINK __attribute__((visibility("hidden")))
+#endif
+
+HAKO_AOT_INTERNAL_LINK int hako_aot_link_obj_for_llvmc(
+    const char* obj_path,
+    const char* exe_path,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    enum hako_aot_link_invocation_mode mode,
+    char** err_out) {
+  switch (mode) {
+    case HAKO_AOT_LINK_INVOCATION_COMPAT_V1:
+      return hako_aot_link_obj_with_compat_archive(
+          obj_path, exe_path, extra_ldflags, err_out);
+    case HAKO_AOT_LINK_INVOCATION_EXPLICIT_V2:
+      return hako_aot_link_obj_with_archive(
+          obj_path, exe_path, runtime_archive_path, extra_ldflags, err_out);
+    default:
+      hako_set_last_error("VALIDATION");
+      return hako_aot_set_err(err_out, "invalid AOT link invocation mode");
+  }
+}
+
+int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* extra_ldflags, char** err_out) {
+  if (hako_aot_use_ffi()) {
+    return hako_aot_try_ffi_link(obj_path, exe_path, extra_ldflags, err_out);
+  }
+  return hako_aot_link_obj_for_llvmc(
+      obj_path,
+      exe_path,
+      NULL,
+      extra_ldflags,
+      HAKO_AOT_LINK_INVOCATION_COMPAT_V1,
+      err_out);
 }
 
 int hako_aot_link_obj_v2(
@@ -722,6 +765,11 @@ int hako_aot_link_obj_v2(
     return hako_aot_try_ffi_link_v2(
         obj_path, exe_path, runtime_archive_path, extra_ldflags, err_out);
   }
-  return hako_aot_link_obj_with_archive(
-      obj_path, exe_path, runtime_archive_path, extra_ldflags, err_out);
+  return hako_aot_link_obj_for_llvmc(
+      obj_path,
+      exe_path,
+      runtime_archive_path,
+      extra_ldflags,
+      HAKO_AOT_LINK_INVOCATION_EXPLICIT_V2,
+      err_out);
 }
