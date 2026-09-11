@@ -1,5 +1,5 @@
 ---
-Status: active__NoSafeSlice__GenericG0ProductionTerminal__2026-09-11
+Status: closed__DecisionRecorded__GenericG0ProductionTerminal__2026-09-11
 Task: LOOP-G0-PRODUCTION-TERMINAL-D0
 Date: 2026-09-11
 Priority: define the existing package terminal and retirement boundary before implementation
@@ -45,6 +45,19 @@ resolved-owner header. `open_physical` therefore uses the existing
 non-callable single owner. The missing G0 arm must preserve this mapping and
 return one unpublished draft to the existing collect/complete/drain path.
 
+The terminal has two intentionally separate source-backed views that must be
+co-sealed by the one G0 issuer, not reissued downstream:
+
+| view | sole responsibility | forbidden use |
+| --- | --- | --- |
+| `VerifiedGenericG0TopLevelDeclarationHeaderV1` | G0 semantic declaration facts needed to prepare the exact physical shell and entry lanes | package identity or manifest authoring |
+| `VerifiedResolvedOwnerHeaderV1` | package identity, `CanonicalDrainManifestV1::single`, and the `BindingSsaTrivial` lifecycle | reconstructing G0 Recipe/ABI/effect or re-reading physical MIR |
+
+The bridge is not complete until the same plan issuer proves owner, source
+identity, canonical name, and explicit-parameter arity agree between these
+views. A lowerer may consume both only through that co-sealed plan; it may not
+call either header issuer a second time.
+
 `generic_g0_physical_emitter_session` is not that terminal: it is a test-only
 preflight helper and discards its outer draft. Promoting it would create a
 second physical owner and hide publication incompleteness. It remains outside
@@ -75,6 +88,35 @@ must remain the only manifest producer; and the G0 `consume_parts` arm must
 move its one draft into the same `LoweredCanonicalPlanV1::Single` owner shape
 used by the existing Loop arms.
 
+The one production G0 lowerer should be a sibling of the existing
+`callable_lowerer` under `resolved_lowering/loop_recipe_physicalizer`. It may
+consume `PreparedGenericG0PhysicalEmitterAdmissionV1` and the existing common
+segment allocator/dispatcher, but the current
+`generic_g0_physical_emitter_session` remains a test-only preflight helper and
+must not become the production terminal. The implementation must extract or
+reuse one lowerer so focused tests and the production caller share the same
+physical execution path; it must return the normal `MirFunction` draft and
+`ReadyFunctionDraftSealV1` evidence consumed by `lower_single`.
+
+## Header and terminal Decision boundary
+
+The accepted terminal Decision is therefore:
+
+```text
+G0 semantic declaration facts + source Recipe/JoinSig/Completion
+  -> one co-sealed G0 plan with lifecycle header
+  -> existing BindingSsaTrivial Single continuation
+  -> one G0 physical lowerer -> MirFunction draft
+  -> existing Single collect -> complete -> prepare_drain -> drain
+  -> existing finalization -> postprocess -> external commit -> publish_once
+```
+
+This is a single physical owner and a single publication route. The G0
+physical shell facts are not a second terminal, and the package lifecycle
+header is not a second semantic source. If the co-seal cannot be represented
+without independently reconstructing either header, the implementation must
+return to `NoSafeSlice` rather than add a second continuation variant.
+
 The production terminal must never call the test session, create a G0-specific
 token, publish directly, or retry into `route_loop`/ordinary A+. A source
 rejection, header mismatch, manifest mismatch, lower rejection, or collect
@@ -87,27 +129,74 @@ The old-edge inventory is finite for this card:
 
 | edge | current authority | deletion condition |
 | --- | --- | --- |
-| `raw_loop_child_port.rs` -> `lower_loop_or_freeze_v1` | raw/legacy loop ingress | G0 source selection is exclusive and the negative guard proves non-G0 does not enter it |
-| `routing.rs::route_loop` -> `route_entry::router::route_loop` | legacy route scheduler | the selected G0 production caller no longer reaches the route and the source-to-exe negative proves no re-entry |
-| GenericLoopV0/V1 registry execution rows | legacy registry observer | the canonical G0 terminal owns the same accepted profile and the selected registry rows are caller-zero |
+| `route_entry/registry::ENTRIES` GenericLoopV0/V1 rows | legacy Generic registry selection/dispatch | canonical G0 owns the exact accepted profile and non-G0 users of both IDs are caller-zero |
+| `route_entry/registry/handlers.rs` Generic wrappers plus `handlers/generic.rs` | legacy Generic execution handlers | no selected production path dispatches these handlers; the negative guard proves no re-entry |
+| Generic `LoopRouteId`/entry-key references in `selection.rs`, `loop_preflight.rs`, predicates, and registry dispatch | legacy Generic identity and selection vocabulary | all production references are retired or explicitly classified as test/census history in the same retirement series |
 | `generic_g0_physical_emitter_session` | test-only preflight helper | retain for focused source tests unless a separate cleanup card proves it is caller-zero and removable |
 
-No broad legacy-router deletion is authorized by this card. The first three
-rows may be retired only in the same cutover series that proves the canonical
-caller and acceptance; the test helper is not an implementation shortcut.
+No broad legacy-router deletion is authorized by this card. In particular,
+the following are outside this G0 delete set and must remain until their own
+profiles are cut over: `routing::lower_loop_or_freeze_v1`,
+`MirBuilder::try_cf_loop_joinir`, `route_entry::router::route_loop`,
+`raw_loop_child_port.rs`, and `raw_loop_child_entry.rs`. The test helper is
+also not an implementation shortcut.
+
+## Finite terminal state table
+
+| state | sole issuer/owner | effect | allowed next state | fallback policy |
+| --- | --- | --- | --- | --- |
+| `G0ShapeCandidate` | canonical preflight G0 probe | none | co-sealed G0 plan | no ordinary fallback after source-integrity failure |
+| `G0ShapeDeclined` | canonical preflight G0 probe | none | existing ordinary preflight | ordinary profile only; never legacy route retry |
+| `G0SourceUnresolved` | G0 source/handoff issuer | none | typed `Unresolved`/`NoSafeSlice` terminal | no A+ or legacy substitution |
+| `G0SourceRejected` | G0 source/handoff issuer | none | typed rejection terminal | no retry or route re-entry |
+| `G0PlanBound` | `SourceBoundCanonicalPackageV1::bind` | token only; no Builder/session | `open_physical` | no second bind |
+| `G0LoweringRejected` | G0 lowerer plus outer unpublished session | unpublished Builder state | discard terminal | no same-session repair/retry |
+| `G0SingleCollected` | existing `collect_single` | unpublished collector | existing complete/drain | no alternate collector |
+| `G0Published` | existing external commit/publication owner | one published module | terminal | no duplicate publication |
 
 ## Design acceptance
 
 Close this card only when the tracked Decision records:
 
 1. the exact G0 enum/consumer arms and one `BindingSsaTrivial` terminal;
-2. the header, single continuation, manifest, draft, and completion lineage;
+2. the header co-seal, single continuation, manifest, draft, and completion lineage;
 3. the pre-bind rejection and unpublished-discard behavior for every failure;
 4. the no-reentry/no-second-owner guard boundary;
-5. the exact old-edge delete set with caller-zero conditions; and
+5. the exact Generic-only old-edge delete set with caller-zero conditions; and
 6. the next bounded issuer implementation card with positive/negative,
    guard, README/reference, and source-to-exe acceptance requirements.
 
 Until then this remains a design stop. No code, fixture, `Verified*`/
 `Prepared*` semantic receipt, route switch, fallback, or production-complete
 claim may be issued from this card.
+
+## Decision recorded
+
+The terminal design is accepted with the following bounded implementation
+order. The first implementation card issues the canonical G0 plan and wires
+it to the existing `BindingSsaTrivial` source-bound package; the physical
+lowerer and production source-to-exe terminal remain a later card. This keeps
+the issuer, package lifecycle, and physical owner from becoming one oversized
+change.
+
+The I0 acceptance tuple is fixed:
+
+1. one source-backed G0 issuer produces `CanonicalLoopFamilyPlanV1::GenericG0`
+   from the already co-sealed handoff and carries the declaration view plus
+   lifecycle identity without a second header issuer;
+2. `ExactCanonicalPreflightPlanV1::Loop` and the existing package map the plan
+   to `BindingSsaTrivial` and `CanonicalSourceContinuationV1::Single`;
+3. owner, origin/source kind, canonical name, and explicit parameter arity
+   mismatch reject before `bind`, session opening, or route dispatch;
+4. positive, non-G0 decline, source-integrity rejection, and no-reentry tests
+   cover the issuer/package boundary; a reusable guard proves one issuer and
+   no test-session or legacy-route call;
+5. the module README and the canonical Loop design reference record the same
+   source-to-package mapping and explicitly defer physical publication to the
+   next terminal card; and
+6. no source-to-exe success is claimed until the subsequent physical-terminal
+   card proves `lower -> collect -> complete -> drain -> publish_once` with
+   both success and zero-publication rejection evidence.
+
+The next bounded card is
+`mirbuilder-loop-g0-canonical-issuer-i0-2026-09-11.md`.
