@@ -66,6 +66,70 @@ and its exact lifecycle mapping. That is semantic design work, not a
 BoxShape-only edit; this card remains a design stop until the mapping is
 accepted.
 
+## Canonical package mapping review
+
+The package choice is now narrowed to one admissible shape:
+
+```text
+ResolvedFunctionLoweringInputV1
+  -> canonical G0 preflight issuer
+  -> CanonicalLoopFamilyPlanV1::GenericG0
+  -> ExactCanonicalPreflightPlanV1::Loop
+  -> SourceBoundCanonicalPackageV1
+  -> one unpublished Generic physical terminal
+  -> existing collect/complete/drain owner
+```
+
+The separate-package option is rejected. It would duplicate the package
+bind/open/lower/collect/complete lifecycle and require a second route or
+continuation authority. Reusing `DirectAccum` or `NestedPredicate` is also
+rejected: those variants carry different source products and lower through
+different Builder consumers; relabeling one would split or re-pair the G0
+source parent and physical input. The existing Callable adapter is excluded
+for the same reason: its source Facts and Recipe are not the Generic G0
+products.
+
+The intended external lifecycle is the existing
+`CanonicalSourceRouteV1::BindingSsaTrivial` /
+`ModuleInvocationFamilyV1::BindingSsaTrivial` mapping, with no new G0 token.
+That mapping is conditional, not yet proven: the future canonical G0 plan
+must co-seal the owner header, drain manifest, one source-bound token, and the
+Generic physical completion so that the existing single-owner completion path
+does not infer or rebuild any relation. If that correspondence cannot be
+proved, the design returns to `NoSafeSlice`; a new token is not a shortcut.
+
+The future plan payload may reuse the existing
+`issue_generic_g0_source_parent_v1` product, but its canonical preflight
+issuer must receive the same `ResolvedFunctionLoweringInputV1` source context
+and issue the G0 selection/parent as one lineage. The current
+`CanonicalLoopFamilySelectionV1` is evidence, not a permission to call the
+test-only cohort/session wrappers from production. The production terminal
+must be an arm of `SourceBoundCanonicalPackageV1::consume_parts` that returns
+an unpublished canonical draft to the existing collector; the current
+`generic_g0_physical_emitter_session` callback, which always discards its
+outer draft, is only a mechanical preflight aid until that owner contract is
+closed.
+
+The old-edge deletion set is deliberately not accepted yet. Candidate edges
+to classify at the next slice are the raw-child handoff
+(`raw_loop_child_port.rs`), `routing.rs::route_loop` /
+`route_entry::router::route_loop`, and the GenericLoopV0/V1 registry execution
+rows. They may be deleted only after the new caller is G0-exclusive and the
+same commit proves that non-G0 rows do not enter the deleted edge. No broad
+legacy-router deletion is implied by this card.
+
+### Design-stop exit evidence
+
+Implementation is still forbidden until the next card records all of these:
+
+1. the exact canonical G0 source selector and single issuer boundary;
+2. the plan payload and proof of `BindingSsaTrivial` header/manifest/lifecycle
+   compatibility;
+3. the production terminal's unpublished-draft and typed-rejection contract;
+4. one source-to-exe positive, one pre-effect negative, and a no-split/re-pair
+   guard; and
+5. an exclusive G0 old-edge delete set with caller-zero evidence.
+
 ## Finite state table
 
 | state | owner | effect | allowed next state | legacy route |

@@ -5,7 +5,7 @@ current_execution_row = "LOOP-PRECUTOVER-AUTHORITY-G0-D0"
 current_execution_cohort = "mirbuilder_loop_precutover_authority_g0_d0"
 current_design_stop = "open__LoopPrecutoverAuthorityG0__2026-09-11"
 current_blocker_token = "NoSafeSlice__GenericG0ProductionCallerSwitchMissing"
-guard_followup = "design_stop: the existing Generic G0 source parent is caller-zero and the legacy route remains selected. Name one real production caller, replacement edge, typed terminal, lineage-preserving handoff, and exclusive old-edge delete-set before implementation."
+guard_followup = "design_stop: G0 is narrowed to a GenericG0 variant inside the existing source-bound package with the existing BindingSsaTrivial lifecycle, but issuer/header/manifest/terminal compatibility and the exclusive old-edge delete-set remain unproven before implementation."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -25,7 +25,10 @@ the all-family shared receipt, while Callable-only I0 remains caller-zero.
 The G0 caller census confirms zero non-test callers for the existing source
 parent; only the old route, a distinct Callable adapter, and a canonical
 package terminal exist. The active design stop must choose the canonical G0
-package mapping before any route or physical effect is opened.
+package mapping before any route or physical effect is opened. The mapping
+review rejects a separate package and selects an explicit GenericG0 plan
+variant in the existing package, while keeping issuer, lifecycle compatibility,
+unpublished terminal, and exclusive delete-set evidence open.
 """
 next_design_card = "LOOP-PRECUTOVER-AUTHORITY-G0-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-precutover-authority-g0-d0-2026-09-11.md"
