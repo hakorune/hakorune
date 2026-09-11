@@ -182,3 +182,37 @@ success/failure plus unset/empty/present restoration, overlapping invocations,
 and non-recursive v1/v2 link evidence. Keep
 `NoSafeSlice__NoRemainingUnsharedM7SOwner`; no source, fixture, route switch,
 or new receipt is authorized until that design is accepted.
+
+### Co-sealed Task 3 design boundary (2026-09-12)
+
+The consulted design review accepts the following boundary, while keeping the
+implementation row unopened:
+
+```text
+Decision:
+  Published v2 is a retained consumer, not an isolated deletion owner.
+  Co-seal v1/v2 selection, dlsym re-entry, and public C ABI first.
+Source authority + canonical issuer:
+  One invocation-owned link contract issues route state and archive together;
+  v2 borrows the published/Boundary explicit archive and v1 keeps its current
+  compatibility contract. C exports and dlsym functions consume, not issue.
+Non-authority:
+  v2 never derives an archive from NYASH_EMIT_EXE_NYRT; ambient env values,
+  symbol names, and runtime-dir strings cannot override explicit v2 input.
+Fail-fast boundary:
+  Reject invalid/conflicting input before env mutation, dlsym, or link effects;
+  preserve unset/empty/present environment states and reject or isolate nesting.
+Smallest next slice:
+  Assign owner/retain/delete dispositions for both Rust v2 callers, the v1/v2
+  C route pair, shared AOT dispatch, dlsym re-entry, and public C ABI.
+Non-claims:
+  No new MIR receipt, route switch, deletion, concurrency, or LegacyCallV0
+  retirement is authorized by this design boundary.
+```
+
+The future acceptance must cover v1/v2 success, invalid and missing archive
+rejection before effects, link-failure cleanup, unset/empty/present restoration,
+overlapping or nested invocation isolation/rejection, one non-recursive dlsym
+handoff, and retained public ABI behavior. The current exclusive delete-set is
+still empty; keep `NoSafeSlice__NoRemainingUnsharedM7SOwner` until those owner
+assignments are concrete.
