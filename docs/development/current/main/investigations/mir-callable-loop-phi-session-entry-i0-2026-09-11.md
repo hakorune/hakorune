@@ -1,5 +1,5 @@
 ---
-Status: fast__SourceIndexHeaderPreludeHandoffI0
+Status: closed__SelectedCallableSingleLoopI0Acceptance__2026-09-11
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0
 Parent: mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11
@@ -7,7 +7,7 @@ Parent: mir-callable-loop-phi-canonical-session-bridge-d0-2026-09-11
 
 # MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0
 
-Active execution row: `MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-PRELUDE-HANDOFF-I0`.
+Closed execution row: `MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-PRELUDE-HANDOFF-I0`.
 
 ## Boundary
 
@@ -32,9 +32,9 @@ session-entry implementation now opens one
 `CanonicalFunctionLoweringSessionV1` at that selected edge, lends it to
 `callable_lowerer.rs`, and moves the prepared DraftSeal into the existing
 pending restoration terminal before collector admission. The session bridge
-is focused-tested, but this row is not fully accepted until the real selected
-module publication path proves zero, one, and multiple iterations without
-manual ledger setup.
+is focused-tested. The bounded row is accepted after the real selected module
+publication path proved the zero, one, and multiple bound shapes without
+manual ledger setup and reached the existing physical-ABI-input terminal.
 
 The PHI value-flow contract is already recorded in
 `docs/reference/mir/loop-recipe-contract.md:1227` and is not missing a second
@@ -496,3 +496,19 @@ existing `issue_lifecycle_physical_abi_input()` terminal with an I64 root
 result. This is compile-time selected-module publication/physical-ABI-input
 evidence only; backend OBJ/EXE execution, process exit, generic Loop, and
 legacy retirement remain open.
+
+### Bounded I0 closeout (2026-09-11)
+
+The selected CallableSingleLoop I0 is closed within its declared boundary.
+The accepted evidence is one source-unit resolver index/header handoff for the
+eligible FreeStatic roots, source-bound condition/body/After relation, the
+canonical session's positive and mutation-discriminating negative canaries,
+and selected module publication reaching the existing physical-ABI-input
+terminal. The local Copy projection is also validated on the same Pair-root
+fixture.
+
+The closeout does not claim backend OBJ/EXE execution or process exit, broad
+GenericLoop promotion, body-local completion, guard cleanup, declared-instance
+Method admission, or legacy Composer retirement. The next bounded design task
+is `MIR-CALLABLE-LOOP-PHI-GENERIC-REWIRE-R0`; it must first name one
+source-bound Binding SSA handoff and an exclusive old-Composer delete set.
