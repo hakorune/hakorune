@@ -22,9 +22,10 @@ The fixed real-app EXE acceptance scope is closed as a finite 3/11 pass and
 8/11 separately owned baseline/infra handoff; it is not a whole-MirBuilder
 completion claim. The Loop semantic-program audit closed as NoSafeSlice for
 the all-family shared receipt, while Callable-only I0 remains caller-zero.
-The active design stop now names the missing Generic production caller,
-replacement edge, typed terminal, lineage proof, and exclusive old-edge
-delete-set. No route or physical effect is opened in this stop.
+The G0 caller census confirms zero non-test callers for the existing source
+parent; only the old route, a distinct Callable adapter, and a canonical
+package terminal exist. The active design stop must choose the canonical G0
+package mapping before any route or physical effect is opened.
 """
 next_design_card = "LOOP-PRECUTOVER-AUTHORITY-G0-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-precutover-authority-g0-d0-2026-09-11.md"
