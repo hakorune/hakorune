@@ -1,7 +1,8 @@
 static int hako_llvmc_emit_userbox_point_add_micro_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
-    long long ops) {
+    long long ops,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -52,7 +53,7 @@ static int hako_llvmc_emit_userbox_point_add_micro_ir(
   hako_llvmc_emit_entry_alias_if_needed(f, selection);
 
   fclose(f);
-  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   remove(llpath);
   return rc == 0 ? 0 : -1;
 }

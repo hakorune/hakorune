@@ -78,7 +78,8 @@ static int hako_llvmc_userbox_flag_pointf_route_shape_ok(
 
 static int hako_llvmc_consume_userbox_flag_pointf_local_scalar_route(
     const char* json_in,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   struct hako_llvmc_userbox_route_context ctx;
   const char* kind = NULL;
   const char* box_name = NULL;
@@ -180,7 +181,8 @@ static int hako_llvmc_consume_userbox_flag_pointf_local_scalar_route(
           "exact_match",
           extra);
     }
-    rc = hako_llvmc_emit_userbox_flag_local_bool_ir(obj_out, &ctx.selection);
+    rc = hako_llvmc_emit_userbox_flag_local_bool_ir(
+        obj_out, &ctx.selection, options);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
@@ -207,7 +209,8 @@ static int hako_llvmc_consume_userbox_flag_pointf_local_scalar_route(
     rc = hako_llvmc_emit_userbox_pointf_local_f64_ir(
         obj_out,
         &ctx.selection,
-        payload_f64);
+        payload_f64,
+        options);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }

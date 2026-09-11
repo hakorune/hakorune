@@ -53,7 +53,8 @@ static int hako_llvmc_userbox_loop_micro_shape_ok(
 
 static int hako_llvmc_consume_userbox_loop_micro_route(
     const char* json_in,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   struct hako_llvmc_userbox_route_context ctx;
   const char* kind = NULL;
   const char* box_name = NULL;
@@ -144,7 +145,8 @@ static int hako_llvmc_consume_userbox_loop_micro_route(
     rc = hako_llvmc_emit_userbox_point_add_micro_ir(
         obj_out,
         &ctx.selection,
-        ops);
+        ops,
+        options);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
@@ -167,7 +169,8 @@ static int hako_llvmc_consume_userbox_loop_micro_route(
         obj_out,
         &ctx.selection,
         ops,
-        flip_at);
+        flip_at,
+        options);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }

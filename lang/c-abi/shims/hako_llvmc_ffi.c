@@ -30,6 +30,7 @@
 #endif
 
 #include "hako_llvmc_ffi_common.inc"
+#include "hako_llvmc_ffi_physical_options.inc"
 #include "hako_llvmc_ffi_typed_object_root_lookup.inc"
 #include "hako_llvmc_ffi_named_allocation_select.inc"
 #include "hako_llvmc_ffi_named_allocation_outcomes.inc"

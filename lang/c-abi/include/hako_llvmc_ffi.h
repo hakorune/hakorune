@@ -104,6 +104,29 @@ typedef struct hako_llvmc_published_static_frame_v2 {
 #define HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT 1u
 #define HAKO_LLVMC_PUBLISHED_ROW_FLAG_INDEX_PRESENT 2u
 
+/* Versioned physical compile options.  These values select tools and
+ * compatibility routing only; MIR/source meaning remains in the published
+ * rows and the existing C lowering owner. */
+#define HAKO_LLVMC_PHYSICAL_CONTRACT_REVISION 1u
+#define HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT 0u
+#define HAKO_LLVMC_PHYSICAL_PROFILE_BOUNDARY_PURE_FIRST 1u
+#define HAKO_LLVMC_PHYSICAL_PROFILE_STATIC_V2 2u
+#define HAKO_LLVMC_PHYSICAL_PROFILE_EXPLICIT_HARNESS 3u
+
+typedef struct hako_llvmc_physical_contract_v1 {
+  uint32_t revision;
+  uint32_t byte_size;
+  uint32_t ingress_profile;
+  uint32_t flags;
+  const char* compile_recipe;
+  const char* compat_replay;
+  const char* opt_level;
+  const char* opt_tool_path;
+  const char* llc_tool_path;
+  const char* llc_flags;
+  const char* llvmc_path;
+} hako_llvmc_physical_contract_v1;
+
 /* Physical-program.v2 field storage tag, independent of source value kind. */
 #define HAKO_LLVMC_LIFECYCLE_STORAGE_I64 1u
 
@@ -143,6 +166,9 @@ enum NamedAllocationConsumer {
 /* Retained static V2: open owns a parsed copy; query never activates rows.
  * The opaque invocation stays at its final address until close. */
 typedef struct HakoLlvmcInvocation hako_llvmc_static_invocation_v2;
+int hako_llvmc_compile_json_with_options_v1(
+    const char* json_in, const char* obj_out,
+    const hako_llvmc_physical_contract_v1* contract, char** err_out);
 int hako_llvmc_static_open_v2(const char* bytes, size_t length,
     hako_llvmc_static_invocation_v2** out, char** error);
 int hako_llvmc_static_query_v2(hako_llvmc_static_invocation_v2* invocation,

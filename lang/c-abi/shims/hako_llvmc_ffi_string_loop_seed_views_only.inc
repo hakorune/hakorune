@@ -1,7 +1,8 @@
 
 static int hako_llvmc_consume_substring_views_only_micro_route(
     const char* json_in,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   yyjson_read_err rerr;
   yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
   yyjson_val* root;
@@ -81,7 +82,8 @@ static int hako_llvmc_consume_substring_views_only_micro_route(
     int rc = hako_llvmc_emit_substring_views_only_exit_len_ir(
         obj_out,
         &selection,
-        source_len);
+        source_len,
+        options);
     yyjson_doc_free(doc);
     return rc;
   }

@@ -5,7 +5,8 @@ static int hako_llvmc_emit_concat_const_suffix_micro_ir(
     long long text_len,
     const char* suffix,
     long long suffix_len,
-    long long ops) {
+    long long ops,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -56,14 +57,15 @@ static int hako_llvmc_emit_concat_const_suffix_micro_ir(
   hako_llvmc_emit_entry_alias_if_needed(f, selection);
 
   fclose(f);
-  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   remove(llpath);
   return rc == 0 ? 0 : -1;
 }
 
 static int hako_llvmc_consume_concat_const_suffix_micro_route(
     const char* json_in,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   yyjson_read_err rerr;
   yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
   yyjson_val* root;
@@ -159,7 +161,8 @@ static int hako_llvmc_consume_concat_const_suffix_micro_route(
         seed_len,
         suffix,
         suffix_len,
-        ops);
+        ops,
+        options);
     yyjson_doc_free(doc);
     return rc;
   }

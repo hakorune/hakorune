@@ -74,7 +74,8 @@ static int hako_llvmc_sum_variant_tag_route_kind_layout_ok(
 
 static int hako_llvmc_consume_sum_variant_tag_seed_route(
     const char* json_in,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   yyjson_read_err rerr;
   yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
   yyjson_val* root;
@@ -178,7 +179,8 @@ static int hako_llvmc_consume_sum_variant_tag_seed_route(
   rc = hako_llvmc_emit_variant_tag_local_i64_ir(
       obj_out,
       &selection,
-      variant_tag);
+      variant_tag,
+      options);
   yyjson_doc_free(doc);
   return rc;
 }

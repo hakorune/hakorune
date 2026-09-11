@@ -1,3 +1,15 @@
+struct HakoLlvmcPhysicalOptions;
+static int hako_llvmc_physical_options_is_explicit(
+    const struct HakoLlvmcPhysicalOptions* options);
+static const char* hako_llvmc_opt_level_for(
+    const struct HakoLlvmcPhysicalOptions* options);
+static const char* hako_llvmc_llc_flags_for(
+    const struct HakoLlvmcPhysicalOptions* options);
+static const char* hako_llvmc_compat_replay_for(
+    const struct HakoLlvmcPhysicalOptions* options);
+static const char* hako_llvmc_resolve_explicit_tool(
+    const struct HakoLlvmcPhysicalOptions* options, int opt_tool);
+
 typedef struct hako_llvmc_entry_rune_selection {
   const char* symbol;
   const char* callconv;
@@ -114,8 +126,9 @@ static void hako_llvmc_warn_legacy_capi_pure_alias_once(void) {
           "'HAKO_BACKEND_COMPILE_RECIPE=pure-first'\n");
 }
 
-static int compat_harness_replay_enabled(void) {
-  const char* replay = hako_llvmc_backend_compat_replay();
+static int compat_harness_replay_enabled(
+    const struct HakoLlvmcPhysicalOptions* options) {
+  const char* replay = hako_llvmc_compat_replay_for(options);
   if (replay && replay[0]) {
     return strcmp(replay, "harness") == 0;
   }
@@ -409,14 +422,19 @@ static int hako_llvmc_tool_exists(const char* tool) {
   return 0;
 }
 
+static const char* hako_llvmc_resolve_tool_default(
+    const char* primary, const char* fallback) {
+  if (hako_llvmc_tool_exists(primary)) return primary;
+  if (fallback && hako_llvmc_tool_exists(fallback)) return fallback;
+  return NULL;
+}
+
 static const char* hako_llvmc_resolve_tool(const char* env_key, const char* primary, const char* fallback) {
   const char* configured = env_key ? getenv(env_key) : NULL;
   if (configured && configured[0] && hako_llvmc_tool_exists(configured)) {
     return configured;
   }
-  if (hako_llvmc_tool_exists(primary)) return primary;
-  if (fallback && hako_llvmc_tool_exists(fallback)) return fallback;
-  return NULL;
+  return hako_llvmc_resolve_tool_default(primary, fallback);
 }
 
 static const char* hako_llvmc_llc_flags(void) {
@@ -435,8 +453,9 @@ static const char* hako_llvmc_opt_level(void) {
   return "0";
 }
 
-static const char* hako_llvmc_mem2reg_opt_passes(void) {
-  const char* level = hako_llvmc_opt_level();
+static const char* hako_llvmc_mem2reg_opt_passes(
+    const struct HakoLlvmcPhysicalOptions* options) {
+  const char* level = hako_llvmc_opt_level_for(options);
   if (level && level[0] == '3') return "always-inline,default<O3>";
   if (level && level[0] == '2') return "always-inline,default<O2>";
   if (level && level[0] == '1') return "always-inline,default<O1>";
@@ -445,7 +464,8 @@ static const char* hako_llvmc_mem2reg_opt_passes(void) {
 
 static int hako_llvmc_mem2reg_canonicalize_and_llc(
     const char* llpath,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char canon_ll[1024];
   char opt_err[1024];
   char cmd[2048];
@@ -482,10 +502,14 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
     return -1;
   }
 
-  opt_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18");
-  llc_tool = hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc", "llc-18");
-  llc_flags = hako_llvmc_llc_flags();
-  opt_passes = hako_llvmc_mem2reg_opt_passes();
+  opt_tool = hako_llvmc_physical_options_is_explicit(options)
+      ? hako_llvmc_resolve_explicit_tool(options, 1)
+      : hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18");
+  llc_tool = hako_llvmc_physical_options_is_explicit(options)
+      ? hako_llvmc_resolve_explicit_tool(options, 0)
+      : hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc", "llc-18");
+  llc_flags = hako_llvmc_llc_flags_for(options);
+  opt_passes = hako_llvmc_mem2reg_opt_passes(options);
   if (!opt_tool) {
     hako_llvmc_emit_route_trace("mem2reg", "fail", "opt-missing", llpath);
     return -1;

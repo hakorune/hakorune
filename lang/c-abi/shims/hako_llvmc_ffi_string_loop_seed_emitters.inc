@@ -6,7 +6,8 @@ static int hako_llvmc_emit_substring_concat_loop_ir(
     long long loop_bound,
     const char* middle,
     long long middle_len,
-    long long split) {
+    long long split,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -106,7 +107,7 @@ static int hako_llvmc_emit_substring_concat_loop_ir(
 
   fclose(f);
   {
-    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   }
   remove(llpath);
   return rc == 0 ? 0 : -1;
@@ -117,7 +118,8 @@ static int hako_llvmc_emit_substring_concat_len_ir(
     const hako_llvmc_entry_rune_selection* selection,
     long long loop_bound,
     long long seed_len,
-    long long middle_len) {
+    long long middle_len,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -174,7 +176,7 @@ static int hako_llvmc_emit_substring_concat_len_ir(
 
   fclose(f);
   {
-    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   }
   remove(llpath);
   return rc == 0 ? 0 : -1;
@@ -185,7 +187,8 @@ static int hako_llvmc_emit_substring_concat_len_closed_form_ir(
     const hako_llvmc_entry_rune_selection* selection,
     long long loop_bound,
     long long seed_len,
-    long long middle_len) {
+    long long middle_len,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -223,7 +226,7 @@ static int hako_llvmc_emit_substring_concat_len_closed_form_ir(
 
   fclose(f);
   {
-    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   }
   remove(llpath);
   return rc == 0 ? 0 : -1;
@@ -232,7 +235,8 @@ static int hako_llvmc_emit_substring_concat_len_closed_form_ir(
 static int hako_llvmc_emit_substring_views_only_exit_len_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
-    long long source_len) {
+    long long source_len,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -262,7 +266,7 @@ static int hako_llvmc_emit_substring_views_only_exit_len_ir(
 
   fclose(f);
   {
-    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   }
   remove(llpath);
   return rc == 0 ? 0 : -1;

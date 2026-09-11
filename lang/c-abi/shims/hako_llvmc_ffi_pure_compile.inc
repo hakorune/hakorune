@@ -192,6 +192,10 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
   int ptfb_contract_bound = 0;
   memset(&ptfb_census, 0, sizeof(ptfb_census));
   hako_llvmc_ptfb_session_zero(&ptfb_session);
+  if (hako_llvmc_physical_options_is_explicit(&invocation->options) &&
+      strcmp(hako_llvmc_compile_recipe_for(&invocation->options), "pure-first") != 0) {
+    return set_err_owned(err_out, "[freeze:contract][compile-options/recipe-unconsumed]");
+  }
   struct HakoLlvmcPureUnsupportedShapeDiagnostic pure_unsupported_diag;
   hako_llvmc_pure_unsupported_shape_init(&pure_unsupported_diag);
 #define note_pure_unsupported_shape_detail(...) \
@@ -255,6 +259,7 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
           obj_out,
           exact_seed_tag,
           exact_seed_selected_value,
+          &invocation->options,
           err_out);
     }
   }
@@ -328,8 +333,10 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
             "selected Dynamic C1 physical predecessor projection is inconsistent");
       }
       if (!ptfc_selected &&
-          (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
-           hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0)) {
+          (hako_llvmc_match_indexof_line_text_state_residence_fn(
+               fn0, obj_out, &invocation->options) == 0 ||
+           hako_llvmc_match_indexof_leaf_text_state_residence_fn(
+               fn0, obj_out, &invocation->options) == 0)) {
         if (ptfb_contract_bound) {
           return set_err_owned(
               err_out,
@@ -536,7 +543,7 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
         err_out,
         "contract-bound module cannot use compatibility replay");
   }
-  if (compat_harness_replay_enabled()) {
+  if (compat_harness_replay_enabled(&invocation->options)) {
     return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
   }
   hako_llvmc_emit_route_replay("none", "unsupported_pure_shape");
@@ -586,6 +593,49 @@ static int compile_json_pure_first_selected(
       obj_out,
       err_out,
       HAKO_LLVMC_INGRESS_BOUNDARY_PURE_FIRST);
+}
+
+static int compile_json_with_options_profile(
+    const char* json_in,
+    const char* obj_out,
+    const hako_llvmc_physical_contract_v1* contract,
+    char** err_out) {
+  yyjson_doc* document;
+  struct HakoLlvmcPhysicalOptions options = {0};
+  struct HakoLlvmcInvocation invocation;
+  int rc;
+  if (!json_in || !obj_out || !contract) {
+    return set_err_owned(err_out, "[freeze:contract][compile-options/input]");
+  }
+  if (hako_llvmc_physical_options_copy(
+          &options, contract, err_out) != 0) {
+    return -1;
+  }
+  document = hako_json_v1_read_owned_file(json_in, err_out);
+  if (!document) {
+    hako_llvmc_physical_options_destroy(&options);
+    return -1;
+  }
+  hako_llvmc_invocation_init(
+      &invocation,
+      document,
+      hako_llvmc_capture_allocation_config(),
+      HAKO_LLVMC_INGRESS_BOUNDARY_PURE_FIRST);
+  /* The options copy is the only value that may cross into lowering. */
+  invocation.options = options;
+  options = (struct HakoLlvmcPhysicalOptions){0};
+  rc = compile_doc_compat_pure(&invocation, json_in, obj_out, err_out);
+  hako_llvmc_invocation_destroy(&invocation);
+  return rc;
+}
+
+__attribute__((visibility("default")))
+int hako_llvmc_compile_json_with_options_v1(
+    const char* json_in,
+    const char* obj_out,
+    const hako_llvmc_physical_contract_v1* contract,
+    char** err_out) {
+  return compile_json_with_options_profile(json_in, obj_out, contract, err_out);
 }
 
 __attribute__((visibility("default")))

@@ -1,7 +1,8 @@
 static int hako_llvmc_emit_variant_tag_local_i64_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
-    long long tag_value) {
+    long long tag_value,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -31,7 +32,7 @@ static int hako_llvmc_emit_variant_tag_local_i64_ir(
   hako_llvmc_emit_entry_alias_if_needed(f, selection);
 
   fclose(f);
-  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   remove(llpath);
   return rc == 0 ? 0 : -1;
 }
@@ -39,7 +40,8 @@ static int hako_llvmc_emit_variant_tag_local_i64_ir(
 static int hako_llvmc_emit_variant_project_local_i64_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
-    long long payload_value) {
+    long long payload_value,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -69,7 +71,7 @@ static int hako_llvmc_emit_variant_project_local_i64_ir(
   hako_llvmc_emit_entry_alias_if_needed(f, selection);
 
   fclose(f);
-  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   remove(llpath);
   return rc == 0 ? 0 : -1;
 }
@@ -101,7 +103,8 @@ static void hako_llvmc_emit_entry_alias_if_needed_typed(
 static int hako_llvmc_emit_variant_project_local_f64_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
-    double payload_value) {
+    double payload_value,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -131,7 +134,7 @@ static int hako_llvmc_emit_variant_project_local_f64_ir(
   hako_llvmc_emit_entry_alias_if_needed_typed(f, selection, "double");
 
   fclose(f);
-  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   remove(llpath);
   return rc == 0 ? 0 : -1;
 }
@@ -139,7 +142,8 @@ static int hako_llvmc_emit_variant_project_local_f64_ir(
 static int hako_llvmc_emit_variant_project_local_handle_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
-    const char* string_literal) {
+    const char* string_literal,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   size_t slen;
@@ -180,7 +184,7 @@ static int hako_llvmc_emit_variant_project_local_handle_ir(
   hako_llvmc_emit_entry_alias_if_needed(f, selection);
 
   fclose(f);
-  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   remove(llpath);
   return rc == 0 ? 0 : -1;
 }

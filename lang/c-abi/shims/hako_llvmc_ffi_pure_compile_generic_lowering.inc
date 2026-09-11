@@ -619,13 +619,15 @@
       } else if (hako_llvmc_published_call_rows_active()) {
         /* Selected typed rows use one emitter, not the legacy optional
          * TargetMachine probe followed by an error-triggered retry. */
-        rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+        rc = hako_llvmc_mem2reg_canonicalize_and_llc(
+            llpath, obj_out, &invocation->options);
       } else {
         #include "hako_llvmc_ffi_pure_compile_legacy_capi_emit.inc"
       }
 
       if (!ptfb_contract_bound && !hako_llvmc_published_call_rows_active() && rc != 0) {
-        rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+        rc = hako_llvmc_mem2reg_canonicalize_and_llc(
+            llpath, obj_out, &invocation->options);
       }
       remove(llpath);
       free_owned_str_consts();

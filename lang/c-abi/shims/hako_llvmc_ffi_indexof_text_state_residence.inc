@@ -7,7 +7,8 @@ static int hako_llvmc_emit_indexof_text_state_residence_ir(
     const char* line_seed,
     long long line_seed_len,
     const char* none_seed,
-    long long none_seed_len) {
+    long long none_seed_len,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -121,7 +122,7 @@ static int hako_llvmc_emit_indexof_text_state_residence_ir(
 
   fclose(f);
   {
-    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+    rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   }
   remove(llpath);
   return rc == 0 ? 0 : -1;
@@ -285,7 +286,8 @@ static int hako_llvmc_match_indexof_text_state_residence_fn(
     const char* expected_proof,
     int require_flip,
     const char* trace_stage,
-    const char* trace_extra) {
+    const char* trace_extra,
+    const struct HakoLlvmcPhysicalOptions* options) {
   hako_llvmc_entry_rune_selection selection;
   hako_llvmc_indexof_state_residence_payload route;
 
@@ -324,12 +326,14 @@ static int hako_llvmc_match_indexof_text_state_residence_fn(
       route.line_seed,
       route.line_seed_len,
       route.none_seed,
-      route.none_seed_len);
+      route.none_seed_len,
+      options);
 }
 
 static int hako_llvmc_match_indexof_leaf_text_state_residence_fn(
     yyjson_val* fn,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   return hako_llvmc_match_indexof_text_state_residence_fn(
       fn,
       obj_out,
@@ -337,12 +341,14 @@ static int hako_llvmc_match_indexof_leaf_text_state_residence_fn(
       "kilo_leaf_array_string_indexof_const_10block",
       0,
       "indexof_leaf_text_state_residence",
-      "kilo_leaf_array_string_indexof_const mir_route_plan");
+      "kilo_leaf_array_string_indexof_const mir_route_plan",
+      options);
 }
 
 static int hako_llvmc_match_indexof_line_text_state_residence_fn(
     yyjson_val* fn,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   return hako_llvmc_match_indexof_text_state_residence_fn(
       fn,
       obj_out,
@@ -350,5 +356,6 @@ static int hako_llvmc_match_indexof_line_text_state_residence_fn(
       "kilo_micro_indexof_line_15block",
       1,
       "indexof_line_text_state_residence",
-      "kilo_micro_indexof_line mir_route_plan");
+      "kilo_micro_indexof_line mir_route_plan",
+      options);
 }

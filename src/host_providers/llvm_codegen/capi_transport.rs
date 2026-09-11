@@ -8,6 +8,138 @@ use super::transport_io;
 use super::transport_paths;
 use super::Opts;
 
+const COMPILE_OPTIONS_SYMBOL: &[u8] = b"hako_llvmc_compile_json_with_options_v1\0";
+
+#[repr(C)]
+struct PhysicalCompileContractCRowV1 {
+    revision: u32,
+    byte_size: u32,
+    ingress_profile: u32,
+    flags: u32,
+    compile_recipe: *const std::os::raw::c_char,
+    compat_replay: *const std::os::raw::c_char,
+    opt_level: *const std::os::raw::c_char,
+    opt_tool_path: *const std::os::raw::c_char,
+    llc_tool_path: *const std::os::raw::c_char,
+    llc_flags: *const std::os::raw::c_char,
+    llvmc_path: *const std::os::raw::c_char,
+}
+
+struct OwnedPhysicalCompileContract {
+    compile_recipe: CString,
+    compat_replay: CString,
+    opt_level: CString,
+    opt_tool_path: Option<CString>,
+    llc_tool_path: Option<CString>,
+    llc_flags: Option<CString>,
+}
+
+impl OwnedPhysicalCompileContract {
+    fn from_request(
+        compile_recipe: Option<&str>,
+        compat_replay: Option<&str>,
+        opts: &Opts,
+    ) -> Result<Self, String> {
+        let compile_recipe = compile_recipe
+            .filter(|value| *value == "pure-first")
+            .ok_or_else(|| "[freeze:contract][compile-options/recipe] expected pure-first".to_string())?;
+        let compat_replay = compat_replay
+            .filter(|value| *value == "none")
+            .ok_or_else(|| "[freeze:contract][compile-options/replay] expected none".to_string())?;
+        let opt_level = explicit_opt_level(opts)?;
+        validate_opt_level(&opt_level)?;
+        let opt_tool_path = option_env("NYASH_NY_LLVM_OPT_TOOL")?;
+        let llc_tool_path = option_env("NYASH_NY_LLVM_LLC_TOOL")?;
+        let llc_flags = option_env("NYASH_NY_LLVM_LLC_FLAGS")?;
+        validate_tool_path(opt_tool_path.as_deref(), "opt")?;
+        validate_tool_path(llc_tool_path.as_deref(), "llc")?;
+        Ok(Self {
+            compile_recipe: cstring(compile_recipe, "compile recipe")?,
+            compat_replay: cstring(compat_replay, "compat replay")?,
+            opt_level: cstring(&opt_level, "opt level")?,
+            opt_tool_path: opt_tool_path
+                .as_deref()
+                .map(|value| cstring(value, "opt tool"))
+                .transpose()?,
+            llc_tool_path: llc_tool_path
+                .as_deref()
+                .map(|value| cstring(value, "llc tool"))
+                .transpose()?,
+            llc_flags: llc_flags
+                .as_deref()
+                .map(|value| cstring(value, "llc flags"))
+                .transpose()?,
+        })
+    }
+
+    fn row(&self) -> PhysicalCompileContractCRowV1 {
+        fn pointer(value: Option<&CString>) -> *const std::os::raw::c_char {
+            value.map_or(std::ptr::null(), |value| value.as_ptr())
+        }
+        PhysicalCompileContractCRowV1 {
+            revision: 1,
+            byte_size: std::mem::size_of::<PhysicalCompileContractCRowV1>() as u32,
+            ingress_profile: 1,
+            flags: 0,
+            compile_recipe: self.compile_recipe.as_ptr(),
+            compat_replay: self.compat_replay.as_ptr(),
+            opt_level: self.opt_level.as_ptr(),
+            opt_tool_path: pointer(self.opt_tool_path.as_ref()),
+            llc_tool_path: pointer(self.llc_tool_path.as_ref()),
+            llc_flags: pointer(self.llc_flags.as_ref()),
+            llvmc_path: std::ptr::null(),
+        }
+    }
+}
+
+fn cstring(value: &str, label: &str) -> Result<CString, String> {
+    CString::new(value).map_err(|_| format!("[freeze:contract][compile-options/{label}] NUL"))
+}
+
+fn option_env(name: &str) -> Result<Option<String>, String> {
+    std::env::var(name)
+        .map(|value| (!value.is_empty()).then_some(value))
+        .or_else(|error| {
+            if error == std::env::VarError::NotPresent {
+                Ok(None)
+            } else {
+                Err(format!("[freeze:contract][compile-options/{name}] invalid UTF-8"))
+            }
+        })
+}
+
+fn explicit_opt_level(opts: &Opts) -> Result<String, String> {
+    if let Some(level) = opts.opt_level.as_deref() {
+        return Ok(level.to_string());
+    }
+    let hako = std::env::var("HAKO_LLVM_OPT_LEVEL").ok();
+    let nyash = std::env::var("NYASH_LLVM_OPT_LEVEL").ok();
+    match (hako, nyash) {
+        (Some(left), Some(right)) if left != right => Err(
+            "[freeze:contract][compile-options/opt-level-alias-conflict]".to_string(),
+        ),
+        (Some(level), _) | (_, Some(level)) => Ok(level),
+        (None, None) => Ok("0".to_string()),
+    }
+}
+
+fn validate_opt_level(level: &str) -> Result<(), String> {
+    if level.len() == 1 && matches!(level.as_bytes()[0], b'0'..=b'3') {
+        Ok(())
+    } else {
+        Err("[freeze:contract][compile-options/opt-level] expected 0..3".to_string())
+    }
+}
+
+fn validate_tool_path(path: Option<&str>, label: &str) -> Result<(), String> {
+    let Some(path) = path else { return Ok(()); };
+    if which::which(path).is_ok() {
+        Ok(())
+    } else {
+        Err(format!("[freeze:contract][compile-options/{label}-tool] not found"))
+    }
+}
+
 #[repr(C)]
 struct LifecycleTargetSessionCRowV2 {
     revision: u32,
@@ -56,6 +188,58 @@ fn load_ffi_library() -> Result<libloading::Library, String> {
 }
 
 #[cfg(feature = "plugins")]
+fn compile_via_capi_with_options(
+    json_in: &Path,
+    obj_out: &Path,
+    compile_recipe: Option<&str>,
+    compat_replay: Option<&str>,
+    opts: &Opts,
+) -> Result<(), String> {
+    use std::os::raw::{c_char, c_int, c_void};
+
+    extern "C" {
+        fn free(ptr: *mut c_void);
+    }
+
+    let owned = OwnedPhysicalCompileContract::from_request(
+        compile_recipe,
+        compat_replay,
+        opts,
+    )?;
+    let contract = owned.row();
+    unsafe {
+        let lib = load_ffi_library()?;
+        type CompileFn = unsafe extern "C" fn(
+            *const c_char,
+            *const c_char,
+            *const PhysicalCompileContractCRowV1,
+            *mut *mut c_char,
+        ) -> c_int;
+        let func: libloading::Symbol<CompileFn> = lib
+            .get(COMPILE_OPTIONS_SYMBOL)
+            .map_err(|e| format!("dlsym failed for explicit compile options: {e}"))?;
+        let cin = CString::new(json_in.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid json path".to_string())?;
+        let cout = CString::new(obj_out.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid out path".to_string())?;
+        let mut err_ptr: *mut c_char = std::ptr::null_mut();
+        let rc = func(cin.as_ptr(), cout.as_ptr(), &contract, &mut err_ptr);
+        if rc != 0 {
+            let msg = if err_ptr.is_null() {
+                "compile failed".to_string()
+            } else {
+                CStr::from_ptr(err_ptr).to_string_lossy().into_owned()
+            };
+            if !err_ptr.is_null() {
+                free(err_ptr as *mut c_void);
+            }
+            return Err(msg);
+        }
+        transport_io::ensure_backend_artifact_written(obj_out, "object")
+    }
+}
+
+#[cfg(feature = "plugins")]
 pub(super) fn compile_via_capi(
     json_in: &Path,
     obj_out: &Path,
@@ -64,6 +248,15 @@ pub(super) fn compile_via_capi(
     compat_replay: Option<&str>,
     opts: &Opts,
 ) -> Result<(), String> {
+    if compile_recipe == Some("pure-first") && compat_replay == Some("none") {
+        return compile_via_capi_with_options(
+            json_in,
+            obj_out,
+            compile_recipe,
+            compat_replay,
+            opts,
+        );
+    }
     use std::os::raw::{c_char, c_int, c_void};
 
     extern "C" {

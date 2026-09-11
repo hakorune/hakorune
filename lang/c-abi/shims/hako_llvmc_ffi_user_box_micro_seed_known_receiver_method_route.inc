@@ -145,7 +145,8 @@ static int hako_llvmc_userbox_known_receiver_method_route_shape_ok(
 
 static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
     const char* json_in,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   struct hako_llvmc_userbox_route_context ctx;
   yyjson_val* method_fn;
   yyjson_val* leaf_method_fn = NULL;
@@ -274,7 +275,7 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
      * the full 2,000,000-iteration result.
      */
     rc = hako_llvmc_emit_userbox_counter_step_micro_ir(
-        obj_out, &ctx.selection, ops, base_i64 + delta_i64);
+        obj_out, &ctx.selection, ops, base_i64 + delta_i64, options);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
@@ -339,7 +340,7 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
      * micro result rather than the one-step leaf value.
      */
     rc = hako_llvmc_emit_userbox_counter_step_micro_ir(
-        obj_out, &ctx.selection, ops, base_i64 + delta_i64);
+        obj_out, &ctx.selection, ops, base_i64 + delta_i64, options);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
@@ -373,7 +374,7 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           extra);
     }
     rc = hako_llvmc_emit_userbox_counter_step_micro_ir(
-        obj_out, &ctx.selection, ops, step_i64);
+        obj_out, &ctx.selection, ops, step_i64, options);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
@@ -397,7 +398,7 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           extra);
     }
     rc = hako_llvmc_emit_userbox_point_sum_local_i64_ir(
-        obj_out, &ctx.selection, x_i64, y_i64);
+        obj_out, &ctx.selection, x_i64, y_i64, options);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }
@@ -442,7 +443,7 @@ static int hako_llvmc_consume_userbox_known_receiver_method_seed_route(
           extra);
     }
     rc = hako_llvmc_emit_userbox_point_sum_micro_ir(
-        obj_out, &ctx.selection, ops, sum_i64);
+        obj_out, &ctx.selection, ops, sum_i64, options);
     hako_llvmc_userbox_route_context_close(&ctx);
     return rc;
   }

@@ -9,7 +9,8 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
     long long ops,
     long long store_len,
     long long next_text_window_start,
-    long long next_text_window_len) {
+    long long next_text_window_len,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -113,14 +114,15 @@ static int hako_llvmc_emit_array_string_store_micro_ir(
   hako_llvmc_emit_entry_alias_if_needed(f, selection);
 
   fclose(f);
-  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   remove(llpath);
   return rc == 0 ? 0 : -1;
 }
 
 static int hako_llvmc_consume_array_string_store_micro_route(
     const char* json_in,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   yyjson_read_err rerr;
   yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
   yyjson_val* root;
@@ -225,7 +227,8 @@ static int hako_llvmc_consume_array_string_store_micro_route(
       ops,
       store_len,
       next_text_window_start,
-      next_text_window_len);
+      next_text_window_len,
+      options);
   yyjson_doc_free(doc);
   return rc;
 }

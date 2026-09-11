@@ -73,7 +73,8 @@ static int hako_llvmc_sum_project_route_kind_layout_ok(
 
 static int hako_llvmc_consume_sum_variant_project_seed_route(
     const char* json_in,
-    const char* obj_out) {
+    const char* obj_out,
+    const struct HakoLlvmcPhysicalOptions* options) {
   yyjson_read_err rerr;
   yyjson_doc* doc = yyjson_read_file(json_in, 0, NULL, &rerr);
   yyjson_val* root;
@@ -193,11 +194,14 @@ static int hako_llvmc_consume_sum_variant_project_seed_route(
   }
 
   if (hako_llvmc_str_eq(payload_kind, "i64")) {
-    rc = hako_llvmc_emit_variant_project_local_i64_ir(obj_out, &selection, payload_i64);
+    rc = hako_llvmc_emit_variant_project_local_i64_ir(
+        obj_out, &selection, payload_i64, options);
   } else if (hako_llvmc_str_eq(payload_kind, "f64")) {
-    rc = hako_llvmc_emit_variant_project_local_f64_ir(obj_out, &selection, payload_f64);
+    rc = hako_llvmc_emit_variant_project_local_f64_ir(
+        obj_out, &selection, payload_f64, options);
   } else if (hako_llvmc_str_eq(payload_kind, "string") && payload_string) {
-    rc = hako_llvmc_emit_variant_project_local_handle_ir(obj_out, &selection, payload_string);
+    rc = hako_llvmc_emit_variant_project_local_handle_ir(
+        obj_out, &selection, payload_string, options);
   } else {
     rc = -1;
   }

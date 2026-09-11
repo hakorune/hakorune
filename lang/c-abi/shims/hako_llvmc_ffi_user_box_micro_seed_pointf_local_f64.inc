@@ -1,7 +1,8 @@
 static int hako_llvmc_emit_userbox_pointf_local_f64_ir(
     const char* obj_out,
     const hako_llvmc_entry_rune_selection* selection,
-    double payload_value) {
+    double payload_value,
+    const struct HakoLlvmcPhysicalOptions* options) {
   char llpath[1024];
   FILE* f;
   int rc;
@@ -32,7 +33,7 @@ static int hako_llvmc_emit_userbox_pointf_local_f64_ir(
   hako_llvmc_userbox_emit_entry_alias_if_needed_typed(f, selection, "double");
 
   fclose(f);
-  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
+  rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out, options);
   remove(llpath);
   return rc == 0 ? 0 : -1;
 }

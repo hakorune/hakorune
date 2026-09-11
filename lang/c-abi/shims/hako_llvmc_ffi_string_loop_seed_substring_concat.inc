@@ -1,7 +1,8 @@
 static int hako_llvmc_consume_substring_concat_loop_ascii_route(
     const char* json_in,
     const char* obj_out,
-    long long selected_value) {
+    long long selected_value,
+    const struct HakoLlvmcPhysicalOptions* options) {
   yyjson_read_err rerr;
   yyjson_doc* doc;
   yyjson_val* root;
@@ -79,7 +80,8 @@ static int hako_llvmc_consume_substring_concat_loop_ascii_route(
         &selection,
         loop_bound,
         seed_len,
-        middle_len);
+        middle_len,
+        options);
     yyjson_doc_free(doc);
     return rc;
   }
@@ -100,7 +102,8 @@ static int hako_llvmc_consume_substring_concat_loop_ascii_route(
           loop_bound,
           middle,
           middle_len,
-          split);
+          split,
+          options);
     yyjson_doc_free(doc);
     return rc;
   }
