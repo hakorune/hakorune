@@ -216,3 +216,24 @@ overlapping or nested invocation isolation/rejection, one non-recursive dlsym
 handoff, and retained public ABI behavior. The current exclusive delete-set is
 still empty; keep `NoSafeSlice__NoRemainingUnsharedM7SOwner` until those owner
 assignments are concrete.
+
+### Task 3 caller disposition matrix (2026-09-12)
+
+The current source-backed assignment is now explicit and is intentionally not a
+deletion set:
+
+| owner | current callers / terminal | disposition |
+| --- | --- | --- |
+| Selected published v2 | `published_mir_object.rs:150` and Boundary's `boundary_driver_ffi.rs:105` -> `capi_transport::link_via_capi_v2` -> `hako_llvmc_link_obj_v2` | retain as consumers; the explicit archive remains caller-owned and the route state must become invocation-owned |
+| v1 compatibility callers | `handlers/externals.rs:305`, `handlers/calls/global.rs:296`, `compat_codegen_receiver.rs:168`, and the kernel surrogate `llvm_backend_surrogate.rs:91` -> `link_object_capi` -> `hako_llvmc_link_obj` | retain until each compatibility caller has a named replacement or stop terminal |
+| Public AOT ABI | `hako_aot_link_obj` / `hako_aot_link_obj_v2` in `hako_aot_shared_impl.inc`, including external callers | retain; public ABI caller-zero is not observable from the repository |
+| FFI dynamic re-entry | `hako_aot_try_ffi_link` / `_v2` dlsym the matching `hako_llvmc_link_obj` exports | retain as an explicit compatibility terminal until an internal direct-link boundary is proven |
+| C FFI exports and route wrappers | `hako_llvmc_link_obj` / `_v2` in `hako_llvmc_ffi_pure_compile.inc` plus the two save/set/restore wrappers | retain the exports; the wrapper mutation is the future deletion candidate only after the shared direct-link boundary is co-sealed |
+
+The remaining design decision is therefore narrow: define a private
+invocation-owned direct-link boundary callable by the FFI translation unit,
+while preserving the public v1/v2 ABI and its explicit compatibility behavior.
+That boundary must carry the v2 archive and v1 compatibility resolution as one
+link contract; it must not expose a new source or MIR authority. Until this
+private boundary and its caller/retention proof are accepted, the matrix does
+not authorize code, fixture, route, or deletion work.
