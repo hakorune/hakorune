@@ -1,5 +1,5 @@
 ---
-Status: design_stop__CallableGenericLoopComposerCanonicalRewireAuthority
+Status: closed__NoSafeSlice__GenericRewireDemandMissing__2026-09-11
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-PHI-GENERIC-REWIRE-D0
 Parent: mir-callable-loop-phi-session-entry-i0-2026-09-11
@@ -132,3 +132,34 @@ The old GenericLoop Composer has no deletion set yet. Its deletion requires
 the new consumer to be production-connected, the selected GenericLoop matrix
 to pass, and all selected callers to be caller-zero. Generic G0, Dynamic,
 non-callable, nested, and compatibility routes are outside that set.
+
+## Caller census conclusion (2026-09-11)
+
+The exact production GenericLoopV1 caller is:
+
+```text
+route_generic_loop_v1
+  -> RecipeComposer::compose_generic_loop_v1_recipe
+  -> generic_loop_pipeline::apply_generic_loop_v1_pipeline
+  -> GenericLoopV1 carrier/body/condition/step orchestration
+  -> CorePlan
+  -> PlanVerifier::verify
+  -> PlanLowerer::lower
+```
+
+`GenericLoopV1Facts` contributes source syntax, body policy, carrier role, and
+step placement. `PlanBuildOutcome` contributes only optional Facts and a
+structural `recipe_contract`, which is normally `None` for this route. The
+Composer allocates the physical-looking skeleton and transports
+`phi_bindings`, `carrier_step_phis`, `CorePhiInfo`, and `variable_map`; none is
+a claimed operation/effect/continuation demand and none can be paired with
+`CallableSemanticLoweringState` after the fact.
+
+The existing common demand requires one complete source-bound Core,
+operation/effect evidence, and JoinSig-derived After continuation before a
+canonical session opens. The census found no builder-free product supplying
+those rows for this broad caller. Therefore this family closes as
+`NoSafeSlice__GenericRewireDemandMissing`; the old Composer remains an
+explicit compatibility owner and is not deleted or promoted. The next
+independent bounded row is
+`MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0`.

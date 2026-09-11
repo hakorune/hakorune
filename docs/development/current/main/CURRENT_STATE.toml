@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALLABLE-LOOP-PHI-GENERIC-REWIRE-D0"
-current_execution_cohort = "mir_callable_loop_phi_generic_rewire_design_d0"
-current_design_stop = "open__CallableGenericLoopComposerCanonicalRewireAuthority__2026-09-11"
-current_blocker_token = "semantic_authority_missing__CallableGenericLoopComposerCanonicalRewire"
-guard_followup = "MIR-CALLABLE-LOOP-PHI-GENERIC-REWIRE-D0: design stop. Census one exact GenericLoop caller from Facts/Recipe claim through physical terminal; identify whether complete operation/effect/continuation demand already exists before Builder effects. GenericLoopV1Facts, variable_map, phi_bindings, carrier_step_phis, CorePhiInfo, names, and latest-value ordering are non-authority. Do not add code, fixture, semantic receipt, RawInvocationChildPort field, fallback, production switch, or old-Composer deletion until one source-bound Binding SSA handoff and exclusive delete set are accepted."
+work_mode = "fast"
+current_execution_row = "MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0"
+current_execution_cohort = "mir_callable_loop_local_completion_handoff_r0"
+current_design_stop = "closed__NoSafeSlice__GenericRewireDemandMissing__2026-09-11"
+current_blocker_token = "none__CallableLoopLocalCompletionHandoffDesignAccepted"
+guard_followup = "MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0: fast implementation. Use the existing CallableSemanticLoweringState::record_completed_local as the sole source completion publisher through one CallableLoopSourceExpressionPortV1 capability. Connect only generic_loop_body/direct_associated.rs Local handling; update current_bindings only after completion succeeds. Keep raw/compatibility map behavior, no manual ledger fixture, no second issuer, no fallback, no nested/Dynamic/Composer retirement, and prove no-manual-ledger positive plus missing-publication negative for bounds 0/1/3."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -14,26 +14,26 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-rewire-d0-2026-09-11.md"
-latest_card = "mir-callable-loop-phi-generic-rewire-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-rewire-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mir-callable-loop-local-completion-d0-2026-09-11.md"
+latest_card = "mir-callable-loop-local-completion-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-callable-loop-local-completion-d0-2026-09-11.md"
 latest_card_summary = """
 The selected CallableSingleLoop I0 is closed within its bounded source-unit
 resolver index/header, FreeStatic prelude, canonical session/PHI relation,
-mutation reject, and compile-time module physical-ABI-input boundary. It does
-not claim OBJ/EXE execution, process exit, broad GenericLoop promotion,
-body-local completion, guard cleanup, Method admission, or legacy retirement.
-The current design stop is `MIR-CALLABLE-LOOP-PHI-GENERIC-REWIRE-D0`: the broad
-GenericLoop route still has Facts/Recipe versus Composer-local value authority
-split. First audit one exact caller and prove/refute a builder-free complete
-operation/effect/continuation handoff to canonical Binding SSA. No code,
-fixture, new receipt, fallback, production switch, or old-Composer deletion is
-permitted before that authority and delete set are accepted.
+mutation reject, and compile-time module physical-ABI-input boundary. The
+broad GenericLoop rewire is closed for this window as
+NoSafeSlice__GenericRewireDemandMissing: its Facts/Recipe do not provide a
+complete neutral operation/effect/continuation demand, so the old Composer is
+not promoted or deleted. The current fast row is
+MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0: connect one exact callable Local
+completion to the existing ledger publisher, then prove no-manual-ledger
+positive/negative evidence for bounds 0/1/3. No nested/Dynamic/OBJ/EXE or
+legacy-retirement claim is open.
 """
-next_design_card = "MIR-CALLABLE-LOOP-PHI-GENERIC-REWIRE-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-rewire-d0-2026-09-11.md"
-next_execution_card = "none__CallableGenericLoopComposerCanonicalRewireAuthorityDesignNotAccepted"
-next_execution_card_path = "docs/development/current/main/investigations/mir-callable-loop-phi-generic-rewire-d0-2026-09-11.md"
+next_design_card = "none__CallableLoopLocalCompletionHandoffDesignAccepted"
+next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-local-completion-d0-2026-09-11.md"
+next_execution_card = "MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-callable-loop-local-completion-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
