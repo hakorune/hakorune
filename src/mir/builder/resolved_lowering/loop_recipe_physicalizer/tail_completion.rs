@@ -5,6 +5,8 @@
 //! binding through canonical identity, validates the declared trivial ABI,
 //! and consumes the existing Completion/return ledgers once.
 
+use super::operation_dispatcher::CompletedLoopOperationDispatchV1;
+use super::operation_dispatcher::LoopOperationDispatchReceiptV1;
 use super::operation_type::ensure_provisional_value_class;
 use super::recursive_after::ReadyLoopAfterContinuationV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
@@ -44,6 +46,24 @@ pub(super) struct ReadyCallableLoopProfileCloseV1 {
     read_count: usize,
     write_count: usize,
     condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
+}
+
+/// Derive the callable profile from the completed dispatch that production
+/// actually emitted.  The close contract still checks the expected profile,
+/// but it must receive observed counts rather than a duplicated literal.
+pub(super) fn profile_counts_from_dispatch(
+    completed: &CompletedLoopOperationDispatchV1,
+) -> (usize, usize, usize, usize) {
+    let mut counts = (completed.operation_count(), 0, 0, 0);
+    for receipt in completed.receipts() {
+        match receipt {
+            LoopOperationDispatchReceiptV1::Pure(_) => counts.1 += 1,
+            LoopOperationDispatchReceiptV1::Read(_)
+            | LoopOperationDispatchReceiptV1::CarrierSeed(_) => counts.2 += 1,
+            LoopOperationDispatchReceiptV1::Write(_) => counts.3 += 1,
+        }
+    }
+    counts
 }
 
 impl ReadyCallableLoopProfileCloseV1 {
@@ -188,4 +208,18 @@ pub(super) fn consume_callable_tail_completion_v1(
             condition_key,
         },
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{profile_counts_from_dispatch, CompletedLoopOperationDispatchV1};
+
+    #[test]
+    fn profile_counts_use_observed_dispatch_operation_count() {
+        let completed = CompletedLoopOperationDispatchV1 {
+            operation_count: 3,
+            receipts: Vec::new().into_boxed_slice(),
+        };
+        assert_eq!(profile_counts_from_dispatch(&completed), (3, 0, 0, 0));
+    }
 }

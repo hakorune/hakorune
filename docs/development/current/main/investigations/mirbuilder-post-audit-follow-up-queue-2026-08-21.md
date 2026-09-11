@@ -114,6 +114,7 @@ normalizer/consumer cutover is claimed.
 | `MIR-CALLABLE-LOOP-PHI-GENERIC-REWIRE-R0` | High (after the selected CallableSingleLoop I0) | existing generic Loop composer + `CallableSemanticLoweringState` / Binding SSA owner | old Composer header registration and source reads currently use different value authorities and generation order | for each BindingRef, header/body/exit use the canonical generation (`h_n`/`s_n`) from the existing ledger/carrier; name map is observation only; 0/1/multiple iteration positives and one-point PHI-generation mutation reject before physical effects; no second PHI issuer or old Composer production cutover |
 | `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0` | High | `generic_loop_body/direct_associated.rs` + existing local completion publisher | future source-bound Loop normalizer | a body `local` publishes its completed `ValueId` into the callable ledger before the next source read; the positive fixture performs no manual pre-registration; missing publication has a named fail-fast terminal; 0/1/multiple-iteration cases cover initialization and update |
 | `MIR-CALLABLE-LOOP-GUARD-SELECTION-CLEANUP-R0` | Medium | `tools/checks/guard_rows.toml` and four Loop guards | guard profiles only | permanent guards assert structural invariants and remain valid when `current_execution_row` advances; temporary task selection is not encoded as four mutually exclusive current-row predicates; no successor-row guard proliferation |
+| `MIR-CALLABLE-LOOP-PROFILE-COVERAGE-REAL-OBSERVATION-R0` | High | `loop_recipe_physicalizer/callable_lowerer.rs` + `tail_completion.rs` | selected CallableSingleLoop profile close | profile close receives counts derived from the completed dispatch; a changed dispatch count must reach the named coverage reject; no hard-coded production tuple, duplicate counting owner, semantic or runtime change |
 
 Required order when the Loop consumer is selected:
 
@@ -137,6 +138,22 @@ cutover claim is made by these queued rows.
 The following findings are independent of the selected source-index/header
 handoff. They are queued so an observed fix is not mistaken for a closed PHI
 or LocalSSA production claim.
+
+### `MIR-CALLABLE-LOOP-PROFILE-COVERAGE-REAL-OBSERVATION-R0`
+
+The selected callable profile close previously received the literal tuple
+`(7, 4, 2, 1)` from the production lowerer. Its close check compared that
+tuple with the same expected constants, so the production path did not
+observe the dispatch it had just emitted. The canary counted receipts, but the
+production defense was therefore tautological.
+
+Decision: derive the tuple once from the existing
+`CompletedLoopOperationDispatchV1` before it is moved into After completion;
+the existing profile close remains the named expected-shape boundary. Share
+that helper with the canary so there is one counting owner. Acceptance is a
+variable operation-count focused test plus the selected Callable Loop and
+canary positives. This changes no source meaning, runtime ABI, or dispatch
+shape and does not claim module/OBJ/EXE completion.
 
 ### `MIR-LOCAL-SSA-LEGACY-FAILURE-CACHE-R0`
 

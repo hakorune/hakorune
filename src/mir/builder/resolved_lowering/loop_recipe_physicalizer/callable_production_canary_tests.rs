@@ -13,7 +13,7 @@ use super::callable_canary::materialize_callable_prelude_v1;
 use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
-use super::tail_completion::consume_callable_tail_completion_v1;
+use super::tail_completion::{consume_callable_tail_completion_v1, profile_counts_from_dispatch};
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::builder::normal_callable_semantic_source::{
     PreparedCallableLoopIngressV1, VerifiedNormalCallableSourceIngressReceiptV1,
@@ -384,27 +384,7 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         return Err("late_failure_discarded".into());
     }
     let completed = completed.map_err(|error| format!("operation dispatch: {error:?}"))?;
-    let profile_counts = {
-        let mut counts = (0, 0, 0, 0);
-        for receipt in completed.dispatch.receipts() {
-            match receipt {
-                super::operation_dispatcher::LoopOperationDispatchReceiptV1::Pure(_) => {
-                    counts.1 += 1
-                }
-                super::operation_dispatcher::LoopOperationDispatchReceiptV1::Read(_) => {
-                    counts.2 += 1
-                }
-                super::operation_dispatcher::LoopOperationDispatchReceiptV1::CarrierSeed(_) => {
-                    counts.2 += 1
-                }
-                super::operation_dispatcher::LoopOperationDispatchReceiptV1::Write(_) => {
-                    counts.3 += 1
-                }
-            }
-        }
-        counts.0 = completed.dispatch.operation_count();
-        counts
-    };
+    let profile_counts = profile_counts_from_dispatch(&completed.dispatch);
     let prepared_after = prepare_recursive_after_v1(completed, outer.builder_view())
         .map_err(|error| format!("After preflight: {error:?}"))?;
     let ready = prepared_after

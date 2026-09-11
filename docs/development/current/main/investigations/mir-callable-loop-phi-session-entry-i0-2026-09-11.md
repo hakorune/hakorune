@@ -422,3 +422,18 @@ The structural assertion was moved to
 stays below the 760-line design target. The receipt still does not claim
 generic Composer value-flow, body-local ledger completion, stale/wrong-edge/
 unsealed selected-session mutations, module/OBJ/EXE, or Pair exit.
+
+### Profile coverage observation receipt (2026-09-11)
+
+The selected callable lowerer no longer supplies a hard-coded profile tuple to
+the existing profile-close owner. It derives operation, pure, read, and write
+counts from the completed dispatch before that product is moved into After
+completion. The canary uses the same helper, so the production and canary
+paths share one observation owner. A focused test with a three-operation
+dispatch confirms that the observed count is returned rather than the old
+`(7, 4, 2, 1)` literal.
+
+This closes the tautological production coverage check only. It does not claim
+that the selected profile accepts a changed operation family, nor does it
+close stale/wrong-edge/unsealed mutation helpers, module/OBJ/EXE publication,
+Pair exit, generic Loop, or LocalSSA follow-up rows.
