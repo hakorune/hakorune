@@ -121,6 +121,18 @@ It must not contain:
 The neutral layout owns placement only. Generic or S6C authority remains in a
 family binding outside the layout.
 
+The common recursive After consumer also remains neutral about how a Predicate
+condition operand was computed. It consumes the explicit
+`LoopPhysicalTransferV1::Predicate` relation and the existing verified Bool
+operation receipt; it does not scan for the first `CompareI64.left` or require
+that operand to be a direct Read. A Callable owner may separately cross-check
+its prepared header Read row against the existing dispatcher
+`CanonicalBindingReadReceiptV1` and pass that receipt to Tail/Completion. This
+keeps computed-left conditions in the common algebra while keeping Callable
+header binding authority profile-local. The current Callable profile requires
+exactly one header `CompareI64`; that fixed profile rule is not a common After
+selection rule.
+
 ## Exact consumption and fresh-session law
 
 Before function/session effect:

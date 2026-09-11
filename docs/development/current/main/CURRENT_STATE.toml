@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "LOOP-COMMON-AFTER-CONDITION-RELATION-D0"
-current_execution_cohort = "mirbuilder_loop_common_after_condition_relation_d0"
-current_design_stop = "closed__GenericG0PolicyModeAuthority__2026-09-11"
-current_blocker_token = "LOOP-COMMON-AFTER-CONDITION-RELATION-D0"
-guard_followup = "design_stop: make common After consume the existing explicit Predicate relation; move Callable-specific header binding validation to the Callable owner before opening implementation."
+work_mode = "fast"
+current_execution_row = "LOOP-G0-PRODUCTION-TERMINAL-I1"
+current_execution_cohort = "mirbuilder_loop_g0_production_terminal_i1"
+current_design_stop = "closed__LoopCommonAfterConditionRelation__2026-09-11"
+current_blocker_token = "LOOP-G0-PRODUCTION-TERMINAL-I1"
+guard_followup = "fast: connect one Generic G0 physical lowerer to the existing Single completion/publication spine; keep LocalSSA cache, measurement-off cost, and view re-scan separate."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-callable-loop-argument-phi-correction-i0-2026-09-11.md"
-latest_card = "mirbuilder-callable-loop-argument-phi-correction-i0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-callable-loop-argument-phi-correction-i0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-g0-production-terminal-i1-2026-09-11.md"
+latest_card = "mirbuilder-loop-g0-production-terminal-i1"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-production-terminal-i1-2026-09-11.md"
 latest_card_summary = """
 The fixed real-app EXE acceptance scope is closed as a finite 3/11 pass,
 seven separately owned baseline boundaries, and one FFI-environment boundary;
@@ -34,15 +34,17 @@ guard, and Generic-only old-edge retirement set. The mode-authority census
 closed on the existing canonical invocation snapshot plus verified-complete
 G0 source handoff. G0 I0 landed the source-backed issuer and
 BindingSsaTrivial/Single handoff. The Callable caller/callee-index and
-PHI-backedge correction is closed with focused evidence. The current design
-stop separates common After's explicit Predicate relation from Callable
-header-binding validation. G0 physical lowering and source-to-exe acceptance
-remain later cards.
+PHI-backedge correction is closed with focused evidence. The common After
+design stop is closed: explicit Predicate relation remains common, while
+Callable header-binding validation moves to the Callable Tail owner. The
+current bounded I0 implements that split and is closed with focused
+Callable/Generic evidence. G0 physical lowering is now the active bounded card;
+source-to-exe acceptance remains later.
 """
-next_design_card = "LOOP-COMMON-AFTER-CONDITION-RELATION-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-common-after-condition-relation-d0-2026-09-11.md"
-next_execution_card = "none__LOOP-COMMON-AFTER-CONDITION-RELATION-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-common-after-condition-relation-d0-2026-09-11.md"
+next_design_card = "none__GenericG0ProductionTerminalI1"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-production-terminal-i1-2026-09-11.md"
+next_execution_card = "LOOP-G0-PRODUCTION-TERMINAL-I1"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-production-terminal-i1-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

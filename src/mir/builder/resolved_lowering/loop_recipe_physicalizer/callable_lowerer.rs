@@ -10,7 +10,10 @@ use super::callable_canary::materialize_callable_prelude_v1;
 use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
-use super::tail_completion::{consume_callable_tail_completion_v1, profile_counts_from_dispatch};
+use super::tail_completion::{
+    consume_callable_tail_completion_v1, validate_callable_header_read_relation_v1,
+    profile_counts_from_dispatch,
+};
 use super::topology::ReadyLoopEntryV1;
 use super::{LoopOperationDispatchServicesV1, LoopOperationValueLedgerV1, LoopPhysicalServicesV1};
 use crate::ast::ASTNode;
@@ -212,6 +215,8 @@ fn lower_inside_session<'builder>(
             plan.emit_all(values, &mut services)
                 .map_err(|error| format!("[freeze:contract][callable-loop/dispatch] {error:?}"))?
         };
+        let header_current = validate_callable_header_read_relation_v1(&completed)
+            .map_err(|error| format!("[freeze:contract][callable-loop/header-read] {error:?}"))?;
         let profile_counts = profile_counts_from_dispatch(&completed.dispatch);
         let prepared_after = prepare_recursive_after_v1(completed, builder)
             .map_err(|error| format!("[freeze:contract][callable-loop/after-preflight] {error:?}"))?;
@@ -225,6 +230,7 @@ fn lower_inside_session<'builder>(
             .map_err(|error| format!("[freeze:contract][callable-loop/after] {error:?}"))?;
         let terminal_receipt = consume_callable_tail_completion_v1(
             ready_after,
+            header_current,
             profile_counts,
             condition_key,
             &tail,

@@ -1,5 +1,5 @@
 ---
-Status: active__DesignStop__LoopCommonAfterConditionRelation__2026-09-11
+Status: closed__DesignStop__LoopCommonAfterConditionRelation__2026-09-11
 Task: LOOP-COMMON-AFTER-CONDITION-RELATION-D0
 Date: 2026-09-11
 Priority: remove Callable-specific condition Read inference from common After
@@ -41,6 +41,26 @@ No code, fixture, fallback, production switch, or new semantic `Verified*` or
 `Prepared*` receipt is authorized by this D0. The next implementation row may
 open only after the exact transport of the existing relation and the existing
 Callable read receipt is named without composing two independent authorities.
+
+## Finite relation state table
+
+| state | authority / issuer | pre-effect behavior | terminal / fallback |
+| --- | --- | --- | --- |
+| `PredicateReady` | JoinSig `physical_transfer::bind_predicate` and existing prepared physical layout | common After validates the existing condition result and emits the already-bound branch relation | continue to existing After continuation; no fallback |
+| `PredicateMissingOrInvalid` | JoinSig/layout binder; common After retains a typed defensive check | reject before operation emission when the source/layout product is malformed | typed reject; no retry or alternate transfer |
+| `PredicateDuplicateOrMisplaced` | existing common After validation over layout, dispatch, and value ledger | reject the unpublished function session before Tail completion | typed reject and whole-candidate discard; no repair |
+| `CallableHeaderReadReady` | existing prepared Callable read row plus dispatch `Read` receipt | Callable owner verifies binding, owner, and single-predecessor relation before Tail completion | continue to existing Tail/Completion; no new receipt |
+| `CallableHeaderReadUnavailableOrMismatch` | Callable source/physical cross-check at the existing Tail boundary | reject before Tail completion and publication | typed reject and whole-candidate discard; no fallback |
+| `ComputedConditionLeft` | common Predicate relation remains authoritative; Callable source profile remains its own shape owner | common After does not search for a Read derived from `CompareI64.left` | common path may continue; unsupported Callable shape rejects at its owner |
+
+**Census boundary:** JoinSig transfer binder -> prepared physical layout ->
+common After -> Callable Tail/Completion; includes the selected root Predicate
+and its existing Callable header-read consumer, and excludes nested-loop
+family expansion, G0 physical lowering, backend publication, and source-to-exe.
+
+This Decision closes the materialization-relation design stop. The bounded I0
+implementation is authorized in
+`mirbuilder-loop-common-after-condition-relation-i0-2026-09-11.md`.
 
 ## Worker consultation and evidence
 

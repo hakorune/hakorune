@@ -9,12 +9,15 @@ use super::operation_dispatcher::CompletedLoopOperationDispatchV1;
 use super::operation_dispatcher::LoopOperationDispatchReceiptV1;
 use super::operation_type::ensure_provisional_value_class;
 use super::recursive_after::ReadyLoopAfterContinuationV1;
-use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use super::segment_dispatcher::CompletedLoopSegmentProgramV1;
+use crate::mir::builder::resolved_lowering::canonical_ssa::{
+    CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::callable_single_loop_recipe_coseal::VerifiedCallableTailV1;
 use crate::mir::compiler::loop_physical_prepare::VerifiedCallableTerminalCompatibilityV1;
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
-use crate::mir::loop_recipe_contract::LoopValueClassV1;
+use crate::mir::loop_recipe_contract::{LoopOperationV1, LoopValueClassV1};
 use crate::mir::resolved_semantics::ResolvedExitSiteV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
@@ -22,6 +25,11 @@ use crate::mir::{BasicBlockId, MirType, ValueId};
 pub(super) enum CallableTailCompletionRejectV1 {
     OwnerMismatch,
     TailBindingMismatch,
+    HeaderConditionMissing,
+    HeaderConditionDuplicate,
+    HeaderReadMissing,
+    HeaderReadDuplicate,
+    HeaderBindingMismatch,
     CurrentBlockMismatch {
         expected: BasicBlockId,
         found: BasicBlockId,
@@ -34,6 +42,67 @@ pub(super) enum CallableTailCompletionRejectV1 {
     },
     Completion(String),
     Identity(String),
+}
+
+/// Borrow the existing Callable header-read relation from the complete
+/// dispatch.  The source binding comes from the prepared read row; the
+/// physical identity comes only from the matching dispatcher receipt.
+pub(super) fn validate_callable_header_read_relation_v1(
+    completed: &CompletedLoopSegmentProgramV1,
+) -> Result<CanonicalBindingReadReceiptV1, CallableTailCompletionRejectV1> {
+    let condition_inputs = completed
+        .layout
+        .program()
+        .operation_rows()
+        .iter()
+        .filter_map(|row| match row.operation() {
+            LoopOperationV1::CompareI64 { left, .. } => Some(left),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    let condition_input = match condition_inputs.as_slice() {
+        [condition] => *condition,
+        [] => return Err(CallableTailCompletionRejectV1::HeaderConditionMissing),
+        _ => return Err(CallableTailCompletionRejectV1::HeaderConditionDuplicate),
+    };
+    let read_rows = completed
+        .layout
+        .program()
+        .read_binding_rows()
+        .map_err(|_| CallableTailCompletionRejectV1::HeaderReadMissing)?;
+    let matching_rows = read_rows
+        .iter()
+        .filter(|row| row.result() == condition_input)
+        .collect::<Vec<_>>();
+    let source_row = match matching_rows.as_slice() {
+        [row] => *row,
+        [] => return Err(CallableTailCompletionRejectV1::HeaderReadMissing),
+        _ => return Err(CallableTailCompletionRejectV1::HeaderReadDuplicate),
+    };
+    let matching_reads = completed
+        .dispatch
+        .receipts()
+        .iter()
+        .filter_map(|receipt| match receipt {
+            LoopOperationDispatchReceiptV1::Read(read) if read.result() == condition_input => {
+                Some(*read)
+            }
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    let read = match matching_reads.as_slice() {
+        [read] => read,
+        [] => return Err(CallableTailCompletionRejectV1::HeaderReadMissing),
+        _ => return Err(CallableTailCompletionRejectV1::HeaderReadDuplicate),
+    };
+    let canonical = read.canonical();
+    if canonical.owner() != completed.layout.program().demand().context().owner()
+        || read.item() != source_row.item()
+        || canonical.binding() != source_row.source_binding()
+    {
+        return Err(CallableTailCompletionRejectV1::HeaderBindingMismatch);
+    }
+    Ok(canonical)
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -125,6 +194,7 @@ impl ReadyCallableTailCompletionV1 {
 /// No new CFG/SSA owner is created and no source meaning is rediscovered.
 pub(super) fn consume_callable_tail_completion_v1(
     ready: ReadyLoopAfterContinuationV1,
+    header_current: CanonicalBindingReadReceiptV1,
     profile_counts: (usize, usize, usize, usize),
     condition_key: crate::mir::loop_recipe_contract::LoopValueKeyV1,
     tail: &VerifiedCallableTailV1,
@@ -141,7 +211,9 @@ pub(super) fn consume_callable_tail_completion_v1(
         return Err(CallableTailCompletionRejectV1::TailBindingMismatch);
     }
     let after = ready.root_after();
-    let header_current = ready.header_current();
+    if header_current.owner() != owner {
+        return Err(CallableTailCompletionRejectV1::HeaderBindingMismatch);
+    }
     let current = builder.function_state.current_block.ok_or(
         CallableTailCompletionRejectV1::CurrentBlockMismatch {
             expected: after,

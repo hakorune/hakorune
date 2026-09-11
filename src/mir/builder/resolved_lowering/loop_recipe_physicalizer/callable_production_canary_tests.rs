@@ -13,7 +13,10 @@ use super::callable_canary::materialize_callable_prelude_v1;
 use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
-use super::tail_completion::{consume_callable_tail_completion_v1, profile_counts_from_dispatch};
+use super::tail_completion::{
+    consume_callable_tail_completion_v1, validate_callable_header_read_relation_v1,
+    profile_counts_from_dispatch,
+};
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::builder::normal_callable_semantic_source::{
     PreparedCallableLoopIngressV1, VerifiedNormalCallableSourceIngressReceiptV1,
@@ -58,6 +61,8 @@ struct CanaryReceipt {
 enum CallableLoopMutationV1 {
     None,
     DuplicateCondition,
+    MissingHeaderRead,
+    DuplicateHeaderRead,
     StaleGeneration,
     WrongEdgePredecessor,
     UnsealedPublication,
@@ -443,7 +448,69 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
         }
         return Err("late_failure_discarded".into());
     }
-    let completed = completed.map_err(|error| format!("operation dispatch: {error:?}"))?;
+    let mut completed = completed.map_err(|error| format!("operation dispatch: {error:?}"))?;
+    if matches!(
+        mutation,
+        CallableLoopMutationV1::MissingHeaderRead | CallableLoopMutationV1::DuplicateHeaderRead
+    ) {
+        let condition_input = match completed
+            .layout
+            .program()
+            .operation_rows()
+            .iter()
+            .find_map(|row| match row.operation() {
+                LoopOperationV1::CompareI64 { left, .. } => Some(left),
+                _ => None,
+            })
+        {
+            Some(condition) => condition,
+            None => {
+                drop(session);
+                outer.discard_unpublished();
+                return Err("callable header condition missing before mutation".to_owned());
+            }
+        };
+        let header_read = match completed
+            .dispatch
+            .receipts()
+            .iter()
+            .find_map(|receipt| match receipt {
+                super::operation_dispatcher::LoopOperationDispatchReceiptV1::Read(read)
+                    if read.result() == condition_input => Some(*read),
+                _ => None,
+            })
+        {
+            Some(read) => read,
+            None => {
+                drop(session);
+                outer.discard_unpublished();
+                return Err("callable header Read missing before mutation".to_owned());
+            }
+        };
+        let mut receipts = completed.dispatch.receipts.to_vec();
+        match mutation {
+            CallableLoopMutationV1::MissingHeaderRead => receipts.retain(|receipt| {
+                !matches!(
+                    receipt,
+                    super::operation_dispatcher::LoopOperationDispatchReceiptV1::Read(read)
+                        if read.result() == condition_input
+                )
+            }),
+            CallableLoopMutationV1::DuplicateHeaderRead => receipts.push(
+                super::operation_dispatcher::LoopOperationDispatchReceiptV1::Read(header_read),
+            ),
+            _ => unreachable!("header-read mutation was checked above"),
+        }
+        completed.dispatch.receipts = receipts.into_boxed_slice();
+    }
+    let header_current = match validate_callable_header_read_relation_v1(&completed) {
+        Ok(receipt) => receipt,
+        Err(error) => {
+            drop(session);
+            outer.discard_unpublished();
+            return Err(format!("header Read relation: {error:?}"));
+        }
+    };
     let profile_counts = profile_counts_from_dispatch(&completed.dispatch);
     let prepared_after = prepare_recursive_after_v1(completed, outer.builder_view())
         .map_err(|error| format!("After preflight: {error:?}"))?;
@@ -455,14 +522,14 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
             &mut session.phis,
         )
         .map_err(|error| format!("After: {error:?}"))?;
-    if let Err(error) = assert_loop_add_backedge(outer.builder_view(), ready.header_current()) {
+    if let Err(error) = assert_loop_add_backedge(outer.builder_view(), header_current) {
         drop(session);
         outer.discard_unpublished();
         return Err(error);
     }
     match mutation {
         CallableLoopMutationV1::StaleGeneration => {
-            let header = ready.header_current();
+            let header = header_current;
             let block = outer
                 .builder_view_mut_for_lowering()
                 .function_state
@@ -489,7 +556,7 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
             }
         }
         CallableLoopMutationV1::WrongEdgePredecessor => {
-            let header = ready.header_current().physical_block();
+            let header = header_current.physical_block();
             let block = outer
                 .builder_view_mut_for_lowering()
                 .function_state
@@ -509,10 +576,13 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
         }
         CallableLoopMutationV1::None
         | CallableLoopMutationV1::DuplicateCondition
+        | CallableLoopMutationV1::MissingHeaderRead
+        | CallableLoopMutationV1::DuplicateHeaderRead
         | CallableLoopMutationV1::UnsealedPublication => {}
     }
     let terminal_receipt = match consume_callable_tail_completion_v1(
         ready,
+        header_current,
         profile_counts,
         condition_key,
         &tail,
@@ -602,6 +672,17 @@ fn callable_production_canary_discards_late_failure_and_reruns_fresh() {
 
 #[test]
 fn callable_production_canary_rejects_selected_session_mutations() {
+    for mutation in [
+        CallableLoopMutationV1::MissingHeaderRead,
+        CallableLoopMutationV1::DuplicateHeaderRead,
+    ] {
+        let error = run_canary(mutation).expect_err("header Read mutation must reject");
+        assert!(
+            error.contains("HeaderReadMissing") || error.contains("HeaderReadDuplicate"),
+            "{error}"
+        );
+    }
+
     let error = run_canary(CallableLoopMutationV1::StaleGeneration)
         .expect_err("stale generation must reject");
     assert!(error.contains("read_relation_input"), "{error}");

@@ -5,16 +5,14 @@
 //! identity SSA, and existing PHI transaction; it owns no second graph or
 //! retry path.
 
-use super::operation_dispatcher::LoopOperationDispatchReceiptV1;
 use super::segment_dispatcher::CompletedLoopSegmentProgramV1;
 use super::segment_topology::LoopPhysicalSegmentBlockReceiptV1;
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
-use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalBindingReadReceiptV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
-    LoopPhysicalTargetV1, LoopPhysicalTransferV1, LoopValueClassV1,
+    LoopPhysicalTargetV1, LoopPhysicalTransferV1, LoopValueClassV1, LoopValueKeyV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
@@ -31,7 +29,6 @@ pub(super) enum RecursiveAfterRejectV1 {
     MissingRootAfter(BasicBlockId),
     TargetMissing,
     ConditionMissing,
-    ConditionReadMissing,
     ConditionDuplicate(crate::mir::loop_recipe_contract::LoopValueKeyV1),
     ConditionOwnerMismatch,
     ConditionClassMismatch,
@@ -53,7 +50,6 @@ pub(super) struct ReadyLoopAfterContinuationV1 {
     owner: FunctionOwnerIdV1,
     root_after: BasicBlockId,
     predecessors: Box<[BasicBlockId]>,
-    header_current: CanonicalBindingReadReceiptV1,
 }
 
 impl ReadyLoopAfterContinuationV1 {
@@ -68,16 +64,11 @@ impl ReadyLoopAfterContinuationV1 {
     pub(super) const fn predecessor_count(&self) -> usize {
         self.predecessors.len()
     }
-
-    pub(super) const fn header_current(&self) -> CanonicalBindingReadReceiptV1 {
-        self.header_current
-    }
 }
 
 pub(super) struct PreparedRecursiveAfterV1 {
     program: CompletedLoopSegmentProgramV1,
     conditions: BTreeMap<crate::mir::loop_recipe_contract::LoopValueKeyV1, ValueId>,
-    header_current: CanonicalBindingReadReceiptV1,
 }
 
 pub(super) fn prepare_recursive_after_v1(
@@ -105,29 +96,6 @@ pub(super) fn prepare_recursive_after_v1(
         .as_ref()
         .ok_or(RecursiveAfterRejectV1::TargetFunctionMissing)?;
     let root_after = program.segment_receipt.root_after();
-    let condition_input = program
-        .layout
-        .program()
-        .operation_rows()
-        .iter()
-        .find_map(|row| match row.operation() {
-            crate::mir::loop_recipe_contract::LoopOperationV1::CompareI64 { left, .. } => {
-                Some(left)
-            }
-            _ => None,
-        })
-        .ok_or(RecursiveAfterRejectV1::ConditionReadMissing)?;
-    let header_current = program
-        .dispatch
-        .receipts()
-        .iter()
-        .find_map(|receipt| match receipt {
-            LoopOperationDispatchReceiptV1::Read(read) if read.result() == condition_input => {
-                Some(read.canonical())
-            }
-            _ => None,
-        })
-        .ok_or(RecursiveAfterRejectV1::ConditionReadMissing)?;
     ensure_open_block(function, root_after)?;
     let mut conditions = BTreeMap::new();
     for segment in program.layout.segments() {
@@ -137,7 +105,7 @@ pub(super) fn prepare_recursive_after_v1(
             .ok_or(RecursiveAfterRejectV1::TargetMissing)?;
         ensure_open_block(function, source)?;
         validate_transfer(&program.segment_receipt, segment.transfer())?;
-        if let LoopPhysicalTransferV1::Predicate { condition, .. } = segment.transfer() {
+        if let Some(condition) = predicate_condition_key(segment.transfer()) {
             if !program.dispatch.contains_result(condition) {
                 return Err(RecursiveAfterRejectV1::ConditionMissing);
             }
@@ -157,8 +125,14 @@ pub(super) fn prepare_recursive_after_v1(
     Ok(PreparedRecursiveAfterV1 {
         conditions,
         program,
-        header_current,
     })
+}
+
+fn predicate_condition_key(transfer: LoopPhysicalTransferV1) -> Option<LoopValueKeyV1> {
+    match transfer {
+        LoopPhysicalTransferV1::Predicate { condition, .. } => Some(condition),
+        _ => None,
+    }
 }
 
 impl PreparedRecursiveAfterV1 {
@@ -217,7 +191,6 @@ impl PreparedRecursiveAfterV1 {
             owner,
             root_after,
             predecessors: after.predecessors().to_vec().into_boxed_slice(),
-            header_current: self.header_current,
         })
     }
 }
@@ -419,5 +392,35 @@ mod tests {
         )
         .expect_err("missing transfer target must reject");
         assert_eq!(error, RecursiveAfterRejectV1::TargetMissing);
+    }
+
+    #[test]
+    fn recursive_after_uses_explicit_predicate_for_computed_condition_left() {
+        let computed_left = LoopValueKeyV1::new(21);
+        let condition = LoopValueKeyV1::new(22);
+        let (_, true_target, _) = receipt();
+        let operation = crate::mir::loop_recipe_contract::LoopOperationV1::CompareI64 {
+            op: crate::mir::loop_recipe_contract::LoopCompareI64OpV1::Less,
+            left: computed_left,
+            right: LoopValueKeyV1::new(23),
+            result: condition,
+        };
+        let crate::mir::loop_recipe_contract::LoopOperationV1::CompareI64 {
+            left,
+            result,
+            ..
+        } = operation
+        else {
+            unreachable!("computed-left canary must remain a CompareI64");
+        };
+        assert_ne!(left, result);
+        assert_eq!(
+            predicate_condition_key(LoopPhysicalTransferV1::Predicate {
+                condition: result,
+                on_true: true_target,
+                on_false: LoopPhysicalTargetV1::OpenRootAfter,
+            }),
+            Some(result)
+        );
     }
 }

@@ -766,6 +766,20 @@ single-Tail completion canary is not a substitute for the method's inner and
 final returns; those must merge into one function exit before the sole
 Completion claim and DraftSeal Return.
 
+### Common After condition relation I0 (2026-09-11)
+
+`LOOP-COMMON-AFTER-CONDITION-RELATION-I0` removes the common After module's
+inference from the first `CompareI64.left`. Common After now consumes only the
+explicit `LoopPhysicalTransferV1::Predicate` relation and its existing verified
+Bool operation receipt, so a computed condition operand such as `(i + 1)` is
+not required to be a direct Read. Callable-specific header validation remains
+at the Callable owner: it cross-checks the prepared Read row with the existing
+dispatcher `CanonicalBindingReadReceiptV1` and passes that receipt explicitly to
+Tail/Completion. The current Callable profile requires exactly one header
+`CompareI64`; that fixed profile rule is not a common After selection rule. No
+second Recipe, Read, SSA, PHI, or publication owner is introduced; missing or
+mismatched relations reject the unpublished session.
+
 ## Common Predicate/carrier I0 (2026-08-08)
 
 `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` is closed. The neutral After receipt
