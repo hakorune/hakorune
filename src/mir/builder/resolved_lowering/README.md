@@ -500,26 +500,28 @@ use the consuming terminal, including the previously missing DirectAccum CFG
 finish. The one non-V2 constructor remains an explicit, non-growing
 compatibility debt. The focused session, resolved-lowering, and draft tests,
 the canonical finish guard, and the current-state pointer guard are green.
-The caller-zero Loop physicalization/DraftSeal canary is closed; production
-selection remains closed at the next docs-only
+The historical caller-zero Loop physicalization/DraftSeal canary is closed.
+The bounded CallableSingleLoop lowerer is now production-connected from
+`normal_cataloged_box_method_lowering.rs`; broader GenericLoop production
+selection and legacy retirement remain closed at the next docs-only
 `CALLABLE-LOOP-PRODUCTION-EDGE-D0` stop.
 
-The caller-zero topology slice is landed as historical test-only evidence
-behind the `loop_recipe_physicalizer/` directory facade. It consumed one
+The topology slice was first landed as caller-zero evidence behind the
+`loop_recipe_physicalizer/` directory facade. Its canonical owners are now
+reused by the bounded CallableSingleLoop production consumer. It consumed one
 move-only common boundary and one session-local `ReadyLoopEntryV1`, borrowed
 the existing canonical CFG service, and allocated the old recursive
-header/body/step/After blocks. That P0 topology shape is not the current R3
-Callable physical boundary.
+header/body/step/After blocks. That P0 topology shape is not a license to
+open the broader GenericLoop physical boundary.
 
-This is not a production physicalizer or selector. It emits no operation MIR,
-Return, DraftSeal, publication, retry, fallback, or legacy deletion. The
-DirectAccum binding port remains profile-specific and must not be reused as
-the common port; no second CFG/SSA/PHI owner is allowed. The historical
-passive `LOOP-RECIPE-OPERATION-EFFECT-S0` product issues an item-keyed
-exact source/effect ledger before operation emission is opened. The product is
-test-only, moves the verified Core once, and emits no operation MIR, Return,
-DraftSeal, selector, retry, fallback, or production route. The callable
-adapter is now closed as a separate source-evidence receipt. The Generic G0
+The historical topology canary is not a standalone production selector and
+does not open retry, fallback, or legacy deletion. The bounded CallableSingleLoop
+consumer is the named production route and emits its operation/CFG/DraftSeal
+products through the existing owners. The DirectAccum binding port remains
+profile-specific and must not be reused as the common port; no second
+CFG/SSA/PHI owner is allowed. The historical passive
+`LOOP-RECIPE-OPERATION-EFFECT-S0` product still issues an item-keyed exact
+source/effect ledger before operation emission is opened. The Generic G0
 anchor ledger is also closed: its 15 item keys are issued before source facts
 are dropped, with item 3 matching the child-entry carrier relation.
 Cross-profile parity is also closed as a diagnostic-only receipt; it compares
@@ -534,10 +536,11 @@ canonical BindingSSA/PHI owner, validates explicit entry requirements, and
 returns distinct logical/physical receipts. Pre-claim rejects are typed;
 claim/read/type/receipt failures terminate the unpublished function session as
 one discard transaction. No single-operation demand extraction was added.
-Full operation physicalization, production activation, carrier seeds,
-selector, retry/fallback retirement, and legacy deletion remain closed until a
-named production caller switch is authorized. Continuation, Tail, and the
-bounded caller-zero DraftSeal seam are landed but remain test-only.
+Full GenericLoop operation physicalization, carrier seeds, selector,
+retry/fallback retirement, and legacy deletion remain closed until a named
+production caller switch is authorized. Continuation, Tail, and the bounded
+DraftSeal seam are already consumed by the selected CallableSingleLoop route;
+they do not authorize the broader GenericLoop switch.
 
 The current bounded preparation slice adds a private Prepared-product
 move-only handoff, complete WriteBinding projection, typed pure leaf bridges
@@ -545,14 +548,15 @@ for Const/Binary/Compare, exact logical-to-physical operation target receipts
 (all validated before the first leaf effect),
 and phase-separated physical dispatch errors. The focused fixture proves a
 Const -> Binary -> Compare chain without introducing a second CFG/SSA/PHI
-owner. The callable Prelude adapter is now landed as caller-zero evidence:
+owner. The callable Prelude adapter is now part of the selected
+CallableSingleLoop production route:
 exact resolver-backed argument bindings are read through canonical identity,
 the external Prelude result is emitted through the shared direct-call emitter,
 and the Loop initializer is materialized from its exact source site into a
 separate `ReadyLoopEntryV1` binding/value. The Prelude result local is not the
 Loop input and is never used as an implicit entry value. The
 `CALLABLE-LOOP-AFTER-CLOSURE-P0` and `CALLABLE-LOOP-TAIL-COMPLETION-P0` rows
-are now bounded caller-zero seams. The
+are bounded seams reused by the selected CallableSingleLoop route. The
 latter reads the exact Tail binding through canonical identity, validates the
 declared trivial ABI, claims `tail.value_site()` before the non-claiming
 `read_entry_receipt`, and claims Completion/return coverage once. The sealed
@@ -562,14 +566,15 @@ terminal block, and After predecessor. The later finish step must consume it
 through a non-no-op `finish_profile_close` closure. The bounded DraftSeal
 canary consumes that evidence through the typed finish terminal and existing
 DraftSeal prepare/commit, producing one `CompletedFunctionDraftV1` without
-collector/module publication. The common physicalizer deliberately stops
-before Tail, ABI, Completion, Return, and DraftSeal; the caller-zero profile
-adapter owns that handoff. This separation is now exercised end-to-end by the
-closeout receipt below. Production selection and legacy retirement remain
-later bounded work.
+collector/module publication. The common GenericLoop physicalizer still stops
+before Tail, ABI, Completion, Return, and DraftSeal; the selected
+CallableSingleLoop adapter owns that handoff in its production path. This
+separation is now exercised end-to-end by the closeout receipt below. Broader
+production selection and legacy retirement remain later bounded work.
 
 The bounded `CALLABLE-LOOP-AFTER-CLOSURE-P0` slice is now landed as a
-caller-zero continuation proof. It uses the real Prelude receipt, emits the
+continuation proof reused by the selected production consumer. It uses the
+real Prelude receipt, emits the
 complete seven-operation Callable schedule (`Pure=4`, `Read=2`, `Write=1`),
 then emits the fixed preheader/header/body/step/After edges and seals CFG and
 BindingSSA in backedge-safe order. An unsealed `Unknown` PHI is typed only by
@@ -621,8 +626,9 @@ retirement remain open.
 
 ### Callable full physical canary closeout (2026-08-08)
 
-`CALLABLE-LOOP-PHYSICAL-CANARY-P0` is now closed as caller-zero evidence. The
-test-only bridge starts from the exact resolved-module input and its existing
+`CALLABLE-LOOP-PHYSICAL-CANARY-P0` is now closed as historical canary evidence.
+The selected production bridge starts from the exact resolved-module input and
+its existing
 resolver ledger, so S2 full-demand preparation, Prelude, topology, all five
 operation families, sealed After, Tail/Completion, the sole
 `finish_for_draft_seal` terminal, and DraftSeal prepare/commit all use one
