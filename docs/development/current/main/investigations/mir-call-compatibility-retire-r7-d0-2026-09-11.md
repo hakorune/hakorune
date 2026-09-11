@@ -237,3 +237,21 @@ That boundary must carry the v2 archive and v1 compatibility resolution as one
 link contract; it must not expose a new source or MIR authority. Until this
 private boundary and its caller/retention proof are accepted, the matrix does
 not authorize code, fixture, route, or deletion work.
+
+### Private direct-link seam decision (2026-09-12)
+
+The source audit identifies `hako_aot_link_obj_with_archive` as the existing
+single direct-link body. A future implementation may expose only a private,
+invocation-owned seam from the FFI translation unit to that body; it must not
+add a second physicalizer or a public third C ABI. The public
+`hako_aot_link_obj(_v2)` dispatch and its dlsym compatibility behavior remain
+retained, while the FFI route is the only candidate caller for the private
+direct seam.
+
+The design is not implementation-ready yet. The seam must co-seal the v2
+explicit archive with the v1 compatibility archive resolution, and must state
+how the Rust/C compile options currently carried through process environment
+are represented in the same invocation-owned contract. Until those two
+authority points and their failure/cleanup evidence are accepted, the current
+R7 disposition remains `NoSafeSlice__NoRemainingUnsharedM7SOwner` and no code
+or route change is authorized.
