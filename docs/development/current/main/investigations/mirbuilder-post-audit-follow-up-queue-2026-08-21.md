@@ -111,6 +111,7 @@ normalizer/consumer cutover is claimed.
 | `MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-HANDOFF-D0` | **Accepted design 2026-09-11; implementation successor active** | [`session-entry I0 card`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md) | existing `FunctionSemanticResolverSessionV1` source-unit index is the sole issuer; eligible selected roots receive exact index/header, nested owners remain unindexed; CallableSingleLoop is FreeStatic-only for this row | reuse one resolver index without per-row duplication; preserve `VerifiedCallableFunctionLoweringInputV1::issue` and `MissingPreludeTarget`; Method prefixes are explicit outside-shape until a declared-instance target owner exists; no name/method-selector/catalog-key repair, physical-signature substitute, main-only index sharing, second issuer, fallback, or production switch |
 | `MIR-CALLABLE-LOOP-PHI-SOURCE-INDEX-HEADER-PRELUDE-HANDOFF-I0` | **High (implementation active after accepted D0)** | [`session-entry I0 card`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md); [`source index/header D0`](./mirbuilder-post-audit-follow-up-queue-2026-08-21.md) | batch handoff from the existing resolver index/header owner into the selected non-AppMain root, plus explicit FreeStatic prefix admission | owner-matched header and target arrive before physical effects; nested owners stay unindexed; valid non-AppMain FreeStatic caller has no manual ledger setup; Method returns named outside disposition; positive/negative acceptance precedes production switch; no new issuer/receipt, fallback, or OBJ/EXE claim |
 | `MIR-CALLABLE-LOOP-PHI-SESSION-ENTRY-I0` | High (session bridge structurally landed; blocked by source-index/header/prelude-target handoff) | [`session-entry I0 card`](./mir-callable-loop-phi-session-entry-i0-2026-09-11.md); [`generic semantic-demand D0`](./mir-callable-loop-phi-generic-semantic-demand-d0-2026-09-11.md) | selected static-callable entry will own one session; `RawInvocationChildPortV1::lower_loop` remains the scoped consumer | after the source index/header/prelude-target owner is closed, accept one bounded source-bound handoff to `PreparedLoopOperationProgramV1`; then connect canonical block-scoped SSA/PHI/CFG/seal relations with no manual ledger injection; no local-completion, backend/OBJ/EXE, fallback, or R7 claim |
+| `MIR-CALLABLE-LOOP-PHI-ARTIFACT-EMISSION-LOCAL-COPY-DRIFT-R0` | High (discovered by selected module artifact probe; not active) | `ordinary_new_local_commit` emission validation / finalized root handoff | selected source-backed module with a Pair root allocation and a CallableSingleLoop child reaches lifecycle physical-input issuance | preserve the existing source-owned local Copy relation and reject only a mutated source/value with the named `emission-local-copy-drift`; the valid graph must reach physical input before OBJ/EXE; no name repair, fallback, or new local/Loop issuer; use the existing Pair/Loop fixture as the acceptance base |
 | `MIR-CALLABLE-LOOP-PHI-GENERIC-REWIRE-R0` | High (after the selected CallableSingleLoop I0) | existing generic Loop composer + `CallableSemanticLoweringState` / Binding SSA owner | old Composer header registration and source reads currently use different value authorities and generation order | for each BindingRef, header/body/exit use the canonical generation (`h_n`/`s_n`) from the existing ledger/carrier; name map is observation only; 0/1/multiple iteration positives and one-point PHI-generation mutation reject before physical effects; no second PHI issuer or old Composer production cutover |
 | `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0` | High | `generic_loop_body/direct_associated.rs` + existing local completion publisher | future source-bound Loop normalizer | a body `local` publishes its completed `ValueId` into the callable ledger before the next source read; the positive fixture performs no manual pre-registration; missing publication has a named fail-fast terminal; 0/1/multiple-iteration cases cover initialization and update |
 | `MIR-CALLABLE-LOOP-GUARD-SELECTION-CLEANUP-R0` | Medium | `tools/checks/guard_rows.toml` and four Loop guards | guard profiles only | permanent guards assert structural invariants and remain valid when `current_execution_row` advances; temporary task selection is not encoded as four mutually exclusive current-row predicates; no successor-row guard proliferation |
@@ -1109,6 +1110,27 @@ Acceptance:
 - pushed branch commits and integration result recorded;
 - `CURRENT_STATE.toml` pointer, active card, and branch status agree;
 - no claim that `main` is closed before the integration actually lands.
+
+## `MIR-CALLABLE-LOOP-PHI-ARTIFACT-EMISSION-LOCAL-COPY-DRIFT-R0`
+
+The selected module artifact probe was attempted after the resolver-index,
+session-entry, condition-bound, receiver, and compile-time PHI value-flow
+receipts were green. A source with a Pair root allocation, a CallableSingleLoop
+child, and a direct child call reached the existing published lifecycle
+boundary but stopped at the named
+`[freeze:contract][ordinary-new/local-commit/emission-local-copy-drift]`.
+An earlier source without a root allocation stopped at
+`artifact-root-completion-unavailable`; that fixture was discarded because it
+did not satisfy the root completion contract.
+
+Decision: keep this row outside the active pointer and use the existing
+`ordinary_new_local_commit` owner as the next artifact prerequisite. The fix
+must retain the source-issued local Copy relation and let the valid Pair-plus-
+Loop graph reach `issue_lifecycle_physical_abi_input()`. A one-point mutation
+of the Copy source/value must still produce the named drift rejection before
+any OBJ/EXE effect. Do not repair from a name, latest ledger value, or physical
+MIR; do not claim Loop execution or Pair exit30 until the valid graph reaches
+both direct and linked artifacts.
 
 ## Global stop rules
 

@@ -437,3 +437,23 @@ This closes the tautological production coverage check only. It does not claim
 that the selected profile accepts a changed operation family, nor does it
 close stale/wrong-edge/unsealed mutation helpers, module/OBJ/EXE publication,
 Pair exit, generic Loop, or LocalSSA follow-up rows.
+
+### Selected module artifact probe receipt (2026-09-11)
+
+The selected module artifact probe was attempted after the resolver-index,
+session-entry, condition-bound, receiver, and compile-time PHI value-flow
+receipts were green. A source with a Pair root allocation, a CallableSingleLoop
+child, and a direct child call reached the existing published lifecycle
+boundary but stopped at the named
+`[freeze:contract][ordinary-new/local-commit/emission-local-copy-drift]`.
+An earlier source without a root allocation stopped at
+`artifact-root-completion-unavailable`; that fixture was discarded because it
+did not satisfy the root completion contract.
+
+This is a prerequisite finding, not an OBJ/EXE result. The next bounded owner
+is the existing `ordinary_new_local_commit` emission validation and finalized
+root handoff. It must preserve the source-issued local Copy relation, let the
+valid Pair-plus-Loop graph reach `issue_lifecycle_physical_abi_input()`, and
+keep a one-point Copy source/value mutation as the named drift rejection before
+any artifact effect. No name repair, latest-value substitution, or physical MIR
+inference is allowed; Loop execution and Pair exit30 remain unclaimed.
