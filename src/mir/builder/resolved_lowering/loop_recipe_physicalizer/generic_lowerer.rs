@@ -5,12 +5,13 @@
 //! only materializes those products into the existing unpublished function
 //! session and returns through the existing Single draft/commit lifecycle.
 
+use super::operation_ledger::LoopOperationValueLedgerV1;
 use super::operation_type::ensure_provisional_value_class;
 use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
 use super::topology::ready_loop_entry_from_canonical_rows;
-use super::{LoopOperationDispatchServicesV1, LoopOperationValueLedgerV1, LoopPhysicalServicesV1};
+use super::{LoopOperationDispatchServicesV1, LoopPhysicalServicesV1};
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalSsaFunctionSessionV2,
 };

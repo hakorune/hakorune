@@ -1,23 +1,21 @@
-//! Private leaf operation emission for the Loop physicalizer canary.
+//! Private leaf operation emission for the Loop physicalizer.
 //!
-//! This module consumes only a prepared operation and an exact physical block
-//! receipt. It delegates Const emission and type publication to the existing
-//! Builder owner; it does not own Recipe, CFG, SSA, PHI, or function lifecycle.
+//! This module consumes only a prepared operation and an exact segment target.
+//! It delegates Const emission and type publication to the existing Builder
+//! owner; it does not own Recipe, CFG, SSA, PHI, or function lifecycle.
 
 use super::operation_ledger::LoopOperationValueLedgerV1;
-use super::operation_target::{LoopOperationTargetRejectV1, VerifiedLoopOperationTargetBlockV1};
+use super::operation_target::VerifiedLoopOperationTargetBlockV1;
 use super::operation_type::{ensure_provisional_value_class, expected_mir_type};
 pub(super) use super::pure_operation_emitter::{
-    emit_prepared_operation_v1, emit_prepared_pure_operation_at_target_v1,
-    emit_prepared_pure_operation_v1, LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1,
-    LoopOperationServicesV1, PreparedLoopOperationEmissionV1,
+    emit_prepared_pure_operation_at_target_v1, LoopOperationEmissionReceiptV1,
+    LoopOperationEmissionRejectV1, LoopOperationServicesV1, PreparedLoopOperationEmissionV1,
 };
-use super::topology::{LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1, ReadyLoopEntryV1};
+use super::topology::{LoopPhysicalBlockRoleV1, ReadyLoopEntryV1};
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     CanonicalBindingReadReceiptV1, ResolvedSsaIdentityStateV2,
 };
-use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
     LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueClassV1, LoopValueKeyV1,
     PreparedLoopReadBindingRowV1, PreparedLoopWriteBindingRowV1,
@@ -183,107 +181,6 @@ impl<'a, 'source> CanonicalBindingReadServicesV1<'a, 'source> {
     }
 }
 
-pub(super) fn map_target_reject(
-    error: LoopOperationTargetRejectV1,
-) -> LoopOperationEmissionRejectV1 {
-    match error {
-        LoopOperationTargetRejectV1::EntryOwnerMismatch => {
-            LoopOperationEmissionRejectV1::EntryOwnerMismatch
-        }
-        LoopOperationTargetRejectV1::ReceiptOwnerMismatch => {
-            LoopOperationEmissionRejectV1::ReceiptOwnerMismatch
-        }
-        LoopOperationTargetRejectV1::PreheaderMismatch => {
-            LoopOperationEmissionRejectV1::PreheaderMismatch
-        }
-        LoopOperationTargetRejectV1::PlacementMissing { loop_key, role } => {
-            LoopOperationEmissionRejectV1::PlacementMissing { loop_key, role }
-        }
-        LoopOperationTargetRejectV1::LogicalPlacementMissing { loop_key, block } => {
-            LoopOperationEmissionRejectV1::LogicalPlacementMissing { loop_key, block }
-        }
-        LoopOperationTargetRejectV1::PlacementMismatch {
-            by_role,
-            by_logical_block,
-        } => LoopOperationEmissionRejectV1::PlacementMismatch {
-            by_role,
-            by_logical_block,
-        },
-        LoopOperationTargetRejectV1::SegmentPlacementMissing(segment) => {
-            LoopOperationEmissionRejectV1::SegmentPlacementMissing(segment)
-        }
-        LoopOperationTargetRejectV1::TargetFunctionMissing => {
-            LoopOperationEmissionRejectV1::TargetFunctionMissing
-        }
-        LoopOperationTargetRejectV1::PreheaderMissing(block) => {
-            LoopOperationEmissionRejectV1::PreheaderMissing(block)
-        }
-        LoopOperationTargetRejectV1::TargetBlockMissing(block) => {
-            LoopOperationEmissionRejectV1::TargetBlockMissing(block)
-        }
-        LoopOperationTargetRejectV1::TargetBlockTerminated(block) => {
-            LoopOperationEmissionRejectV1::TargetBlockTerminated(block)
-        }
-    }
-}
-
-fn issue_target_for_read(
-    prepared: &PreparedLoopReadBindingEmissionV1,
-    entry: &ReadyLoopEntryV1,
-    block_receipt: &LoopPhysicalBlockReceiptV1,
-    builder: &MirBuilder,
-) -> Result<VerifiedLoopOperationTargetBlockV1, LoopReadBindingEmissionRejectV1> {
-    let target = VerifiedLoopOperationTargetBlockV1::issue(
-        prepared.owner(),
-        prepared.item(),
-        prepared.expected_loop(),
-        prepared.logical_block(),
-        prepared.expected_role(),
-        entry,
-        block_receipt,
-    )
-    .map_err(|error| LoopReadBindingEmissionRejectV1::PreClaim(map_target_reject(error)))?;
-    target
-        .validate_function(builder)
-        .map_err(|error| LoopReadBindingEmissionRejectV1::PreClaim(map_target_reject(error)))?;
-    Ok(target)
-}
-
-fn issue_target_for_write(
-    prepared: &PreparedLoopWriteBindingEmissionV1,
-    entry: &ReadyLoopEntryV1,
-    block_receipt: &LoopPhysicalBlockReceiptV1,
-    builder: &MirBuilder,
-) -> Result<VerifiedLoopOperationTargetBlockV1, LoopWriteBindingEmissionRejectV1> {
-    let target = VerifiedLoopOperationTargetBlockV1::issue(
-        prepared.owner(),
-        prepared.item(),
-        prepared.expected_loop(),
-        prepared.logical_block(),
-        prepared.expected_role(),
-        entry,
-        block_receipt,
-    )
-    .map_err(|error| LoopWriteBindingEmissionRejectV1::PreClaim(map_target_reject(error)))?;
-    target
-        .validate_function(builder)
-        .map_err(|error| LoopWriteBindingEmissionRejectV1::PreClaim(map_target_reject(error)))?;
-    Ok(target)
-}
-
-/// Emit one Expr/SourceRead leaf after all source/effect/placement checks.
-/// After the canonical claim starts, every error is terminal to the caller's
-/// unpublished function session; this leaf never owns that discard.
-pub(super) fn emit_prepared_read_binding_v1(
-    prepared: &PreparedLoopReadBindingEmissionV1,
-    entry: &ReadyLoopEntryV1,
-    block_receipt: &LoopPhysicalBlockReceiptV1,
-    services: &mut CanonicalBindingReadServicesV1<'_, '_>,
-) -> Result<ReadBindingEmissionReceiptV1, LoopReadBindingEmissionRejectV1> {
-    let target = issue_target_for_read(prepared, entry, block_receipt, services.builder)?;
-    emit_prepared_read_binding_at_target_v1(prepared, target, entry, services)
-}
-
 pub(super) fn emit_prepared_read_binding_at_target_v1(
     prepared: &PreparedLoopReadBindingEmissionV1,
     target: VerifiedLoopOperationTargetBlockV1,
@@ -429,20 +326,6 @@ impl WriteBindingEmissionReceiptV1 {
     pub(super) const fn physical_value(self) -> ValueId {
         self.physical_value
     }
-}
-
-/// Emit one source-bound assignment through the canonical identity owner.
-/// The value map is only an operation-schedule transport; BindingSSA remains
-/// the sole assignment authority.
-pub(super) fn emit_prepared_write_binding_v1(
-    prepared: &PreparedLoopWriteBindingEmissionV1,
-    state: &LoopOperationValueLedgerV1,
-    entry: &ReadyLoopEntryV1,
-    block_receipt: &LoopPhysicalBlockReceiptV1,
-    services: &mut CanonicalBindingReadServicesV1<'_, '_>,
-) -> Result<WriteBindingEmissionReceiptV1, LoopWriteBindingEmissionRejectV1> {
-    let target = issue_target_for_write(prepared, entry, block_receipt, services.builder)?;
-    emit_prepared_write_binding_at_target_v1(prepared, target, state, services)
 }
 
 pub(super) fn emit_prepared_write_binding_at_target_v1(

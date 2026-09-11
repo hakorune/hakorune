@@ -1,11 +1,11 @@
 //! Exact logical-to-physical target receipt for one prepared operation.
 //!
-//! The receipt is a private proof object, not a CFG owner. Topology issues it
-//! from the existing block receipt; leaves consume it instead of recomputing
-//! role/logical placement independently.
+//! The receipt is a private proof object, not a CFG owner. The segment
+//! dispatcher issues it from the segment receipt; leaves consume it instead
+//! of recomputing placement independently.
 
 use super::segment_topology::LoopPhysicalSegmentBlockReceiptV1;
-use super::topology::{LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1, ReadyLoopEntryV1};
+use super::topology::{LoopPhysicalBlockRoleV1, ReadyLoopEntryV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
     LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopPhysicalSegmentKeyV1,
@@ -29,18 +29,6 @@ pub(super) enum LoopOperationTargetRejectV1 {
     EntryOwnerMismatch,
     ReceiptOwnerMismatch,
     PreheaderMismatch,
-    PlacementMissing {
-        loop_key: LoopNodeKeyV1,
-        role: LoopPhysicalBlockRoleV1,
-    },
-    LogicalPlacementMissing {
-        loop_key: LoopNodeKeyV1,
-        block: LoopBlockKeyV1,
-    },
-    PlacementMismatch {
-        by_role: BasicBlockId,
-        by_logical_block: BasicBlockId,
-    },
     SegmentPlacementMissing(LoopPhysicalSegmentKeyV1),
     TargetFunctionMissing,
     PreheaderMissing(BasicBlockId),
@@ -79,50 +67,6 @@ impl VerifiedLoopOperationTargetBlockV1 {
             role,
             preheader: entry.preheader(),
             physical_block,
-        })
-    }
-
-    pub(super) fn issue(
-        owner: FunctionOwnerIdV1,
-        item: LoopItemKeyV1,
-        loop_key: LoopNodeKeyV1,
-        logical_block: LoopBlockKeyV1,
-        role: LoopPhysicalBlockRoleV1,
-        entry: &ReadyLoopEntryV1,
-        block_receipt: &LoopPhysicalBlockReceiptV1,
-    ) -> Result<Self, LoopOperationTargetRejectV1> {
-        if entry.owner() != owner {
-            return Err(LoopOperationTargetRejectV1::EntryOwnerMismatch);
-        }
-        if block_receipt.owner() != owner {
-            return Err(LoopOperationTargetRejectV1::ReceiptOwnerMismatch);
-        }
-        if block_receipt.preheader() != entry.preheader() {
-            return Err(LoopOperationTargetRejectV1::PreheaderMismatch);
-        }
-        let by_role = block_receipt
-            .lookup(loop_key, role)
-            .ok_or(LoopOperationTargetRejectV1::PlacementMissing { loop_key, role })?;
-        let by_logical = block_receipt
-            .lookup_logical(loop_key, logical_block)
-            .ok_or(LoopOperationTargetRejectV1::LogicalPlacementMissing {
-                loop_key,
-                block: logical_block,
-            })?;
-        if by_role != by_logical {
-            return Err(LoopOperationTargetRejectV1::PlacementMismatch {
-                by_role,
-                by_logical_block: by_logical,
-            });
-        }
-        Ok(Self {
-            owner,
-            item,
-            loop_key,
-            logical_block,
-            role,
-            preheader: entry.preheader(),
-            physical_block: by_role,
         })
     }
 

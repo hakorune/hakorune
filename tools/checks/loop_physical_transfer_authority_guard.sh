@@ -23,12 +23,14 @@ MAIN_ROLE="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/selected_role.
 MAIN_CATALOG="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/source_backed.rs"
 MAIN_EXPANSION="$ROOT_DIR/src/mir/builder/main_expansion.rs"
 MAIN_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+MAIN_INSTALL_PORT="$ROOT_DIR/src/mir/normal_callable_semantic_package/install/lowering_port.rs"
 MAIN_MAPPING="$ROOT_DIR/src/mir/normal_callable_semantic_package/selected_mapping.rs"
 MAIN_DECLS="$ROOT_DIR/src/mir/builder/decls.rs"
 MAIN_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
 MAIN_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 PHYSICAL_HEADER="$ROOT_DIR/src/mir/normal_callable_semantic_package/physical_header.rs"
 COMPLETION_SEED="$ROOT_DIR/src/mir/normal_callable_semantic_package/completion_seed.rs"
+ORDINARY_NEW_COSEAL="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs"
 RESULT_CONTRACT="$ROOT_DIR/src/mir/normal_callable_semantic_package/result_contract.rs"
 S6C_CHILD="$ROOT_DIR/src/mir/normal_callable_semantic_package/s6c_child.rs"
 TEXT_FORMAL_ABI="$ROOT_DIR/src/runtime/text_formal_abi.rs"
@@ -46,8 +48,9 @@ guard_require_files "$TAG" "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" \
 guard_require_files "$TAG" "$PHYSICAL_INPUT"
 guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE"
 guard_require_files "$TAG" "$MAIN_ROLE" "$MAIN_CATALOG" "$MAIN_EXPANSION" "$MAIN_INSTALL" \
-  "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" "$MAIN_ADAPTER"
-guard_require_files "$TAG" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$RESULT_CONTRACT" "$S6C_CHILD"
+  "$MAIN_INSTALL_PORT" "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" "$MAIN_ADAPTER"
+guard_require_files "$TAG" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$ORDINARY_NEW_COSEAL" \
+  "$RESULT_CONTRACT" "$S6C_CHILD"
 guard_require_files "$TAG" "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" \
   "$TEXT_FORMAL_HEADER" "$TEXT_FORMAL_EXPORT"
 guard_require_files "$TAG" "$TEXT_FORMAL_CALL_LIFETIME" "$TEXT_FORMAL_CALL_FACADE" \
@@ -72,8 +75,8 @@ guard_expect_fixed_in_file "$TAG" \
   "operation_physical_demand_ledger" "$V1_DEMAND" \
   "V1 prepared demand must retain one complete source/effect ledger"
 guard_expect_fixed_in_file "$TAG" \
-  "let ledger = program.ledger()" "$V1_DISPATCH" \
-  "V1 physical dispatcher must borrow the complete ledger"
+  "state: &mut LoopOperationValueLedgerV1" "$V1_DISPATCH" \
+  "V1 physical dispatcher must receive the complete value ledger"
 guard_expect_fixed_in_file "$TAG" \
   "let ledger = program.ledger()" "$V1_SEGMENT_DISPATCH" \
   "segment dispatcher must borrow the complete ledger"
@@ -108,7 +111,7 @@ guard_expect_fixed_in_file "$TAG" \
   "with_text_eq_leaf" "$S6C_SITE" \
   "S6C TextEq site must borrow the retained leaf"
 guard_expect_fixed_in_file "$TAG" \
-  "with_main_static_child_lowering_input" "$MAIN_INSTALL" \
+  "with_main_static_child_lowering_input" "$MAIN_INSTALL_PORT" \
   "Main static children must use the role-bearing scoped Port loan"
 guard_expect_fixed_in_file "$TAG" \
   "lower_app_main_static_child" "$MAIN_LIFECYCLE" \
@@ -117,7 +120,7 @@ guard_expect_fixed_in_file "$TAG" \
   "dynamic_eligible_batch_slot" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
   "Main static-child rows must be filtered before Dynamic admission"
 guard_expect_fixed_in_file "$TAG" \
-  "verify_function_completion_v1" "$COMPLETION_SEED" \
+  "verify_function_completion_v1" "$ORDINARY_NEW_COSEAL" \
   "callable Completion seed must use the sole Completion issuer"
 guard_expect_fixed_in_file "$TAG" \
   "issue_callable_result_contract_cohort_v1" "$RESULT_CONTRACT" \
@@ -251,7 +254,6 @@ for forbidden in \
   'ReadyCallableLoopProfileCloseV1' \
   'profile_counts' \
   '(7, 4, 2, 1)' \
-  'condition_key' \
   'into_profile_close' \
   'ExactTrivialReturnAbiV1' \
   'VerifiedCallableTailV1'
@@ -308,7 +310,7 @@ done
 
 PHYSICALIZER_DIR="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer"
 legacy_topology_callers="$(rg -l --glob '*.rs' 'physicalize_topology_v1\(' "$PHYSICALIZER_DIR" | grep -v '/topology.rs' || true)"
-if [[ -n "$legacy_topology_callers" && "$legacy_topology_callers" != "$PHYSICALIZER_DIR/tests.rs" ]]; then
+if [[ -n "$legacy_topology_callers" ]]; then
   guard_fail "$TAG" "legacy fixed-topology entry gained a non-test caller: $legacy_topology_callers"
 fi
 if rg -n --glob '*.rs' -F 'physicalize_topology_for_operation_demand_v1(' "$PHYSICALIZER_DIR" \
@@ -323,7 +325,9 @@ do
   while IFS= read -r caller; do
     [[ -z "$caller" ]] && continue
     case "$caller" in
+      "$PHYSICALIZER_DIR/callable_lowerer.rs"|\
       "$PHYSICALIZER_DIR/callable_production_canary_tests.rs"|\
+      "$PHYSICALIZER_DIR/generic_lowerer.rs"|\
       "$PHYSICALIZER_DIR/generic_production_canary_tests.rs") ;;
       *) guard_fail "$TAG" "segment physical route gained an unexpected caller: $caller" ;;
     esac
@@ -334,6 +338,25 @@ if [[ -n "$segment_target_callers" ]]; then
   guard_fail "$TAG" "segment target issuer gained an unexpected caller: $segment_target_callers"
 fi
 
+for forbidden in \
+  'LoopPhysicalBlockReceiptV1' \
+  'LoopPhysicalBlockRowV1' \
+  'LoopPhysicalBlockReceiptRejectV1' \
+  'physicalize_topology_v1' \
+  'physicalize_topology_for_operation_demand_v1' \
+  'VerifiedLoopOperationTargetBlockV1::issue(' \
+  'prepare_loop_operation_dispatch_v1' \
+  'emit_prepared_operation_family_v1' \
+  'emit_prepared_operation_v1(' \
+  'emit_prepared_pure_operation_v1(' \
+  'emit_prepared_read_binding_v1(' \
+  'emit_prepared_write_binding_v1('
+do
+  if rg -n --glob '*.rs' -F -- "$forbidden" "$PHYSICALIZER_DIR" >/dev/null 2>&1; then
+    guard_fail "$TAG" "retired fixed-route symbol remains in the physicalizer: $forbidden"
+  fi
+done
+
 if rg -n -F -- '.zip(' "$V2_DEMAND" >/dev/null 2>&1; then
   guard_fail "$TAG" "V2 physical demand pairs independent arrays by storage order"
 fi
@@ -342,7 +365,7 @@ for file in "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" "$LEDGER" "$V1_D
   "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT" \
   "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE" "$MAIN_ROLE" "$MAIN_CATALOG" \
   "$MAIN_EXPANSION" "$MAIN_INSTALL" "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" \
-  "$MAIN_ADAPTER" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD" \
+  "$MAIN_INSTALL_PORT" "$MAIN_ADAPTER" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD" \
   "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" "$TEXT_FORMAL_CALL_LIFETIME" \
   "$TEXT_FORMAL_CALL_FACADE" "$TEXT_FORMAL_EXPORT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

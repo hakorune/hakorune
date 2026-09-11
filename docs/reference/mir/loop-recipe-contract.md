@@ -979,12 +979,12 @@ bridge remains a later row.
 ## ConstI64 leaf-emitter S0 receipt (2026-08-07)
 
 `LOOP-RECIPE-OPERATION-EMITTER-CONST-S0` is now closed as a private,
-test-only leaf-emitter canary. A prepared `ConstI64` operation is checked
-against the exact owner, preheader, logical Loop/Block, physical role, and
-un-terminated destination block in `LoopPhysicalBlockReceiptV1`. The emitter
-delegates to the existing canonical Builder Const/type-fact path and returns
-one physical `ValueId` receipt; it does not infer placement from
-`current_block`.
+test-only leaf-emitter canary. At that historical boundary, a prepared
+`ConstI64` operation was checked against the exact owner, preheader, logical
+Loop/Block, physical role, and un-terminated destination block in the then
+current `LoopPhysicalBlockReceiptV1`. The emitter delegates to the existing
+canonical Builder Const/type-fact path and returns one physical `ValueId`
+receipt; it does not infer placement from `current_block`.
 
 Focused evidence proves exact one-instruction placement, typed owner/placement
 rejects before emission, a harness-only post-emission failure with whole
@@ -1017,8 +1017,9 @@ function session and must be discarded as one transaction.
 This receipt opens no other operation, carrier seed, full Loop physicalizer,
 continuation/Tail, Return/Completion, DraftSeal, selector, retry/fallback,
 production route, legacy deletion, or performance claim. The production
-replacement row remains open until a named caller switch and old-edge
-retirement are landed.
+replacement row was later cut over to the segment-keyed production route;
+`LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0` records retirement of the fixed
+logical-placement edge.
 
 ## Full operation demand P0 receipt (2026-08-07)
 
@@ -1040,6 +1041,11 @@ topology and pre-allocation entry rejection remain unchanged, and no operation
 shape, physical block receipt, emitter, session, selector, or legacy route is
 opened.
 
+This is a historical 2026-08-07 module layout receipt. The fixed topology
+fixtures and their `tests.rs` observer were deleted by R0; the current facade
+keeps shared services while segment modules own the production placement
+route.
+
 ## Physical block receipt P0 (2026-08-07)
 
 The topology canary now owns one private `LoopPhysicalBlockReceiptV1` issued
@@ -1050,6 +1056,12 @@ physical mapping; no second CFG/SSA/PHI owner or implicit `current_block`
 placement is introduced. The focused receipt checks preserve nested Generic G0
 allocation and reject incomplete entry before allocation. Operation emission,
 session/Completion, selection, fallback, and legacy deletion remain closed.
+
+This is a historical 2026-08-07 receipt. `LOOP-PHYSICAL-TOPOLOGY-
+RETIREMENT-R0` deleted this fixed-role receipt and its caller-zero fixtures on
+2026-09-12. The current physical route uses the segment allocation and
+segment-keyed dispatcher receipts described below; this historical receipt is
+not a current selector or compatibility fallback.
 
 ## Callable source-shape split receipt (2026-08-07)
 
@@ -1639,6 +1651,10 @@ no physical allocation or operation emission; production selection,
 retry/fallback retirement, collector/publication changes, and broad legacy
 deletion remain closed.
 
+The preceding sentence records the 2026-08-08 canary boundary. The later
+Generic G0 production terminal consumes the segment route; it does not revive
+the fixed-role topology described by the historical receipts.
+
 ## Common Predicate/carrier I0 receipt (2026-08-08; Decision: accepted)
 
 `LOOP-COMMON-PREDICATE-CARRIER-I0-R0` supersedes the earlier temporary
@@ -1691,7 +1707,27 @@ publication policy, backend parity, or broad legacy retirement. The S6A design
 is now accepted, its common initialized-local input-set prerequisite is closed,
 and the bounded resolver-backed source observer slice is landed. Generic
 parameter inputs remain a separate contract. This reference must be updated
-after each implementation and again after production cutover.
+after each implementation and again after production cutover. The production
+cutover is recorded in the dated Generic G0 production terminal receipt; this
+historical canary remains test-only evidence.
+
+## Fixed-role topology retirement R0 (2026-09-12)
+
+The post-cutover caller census found no production consumer for the old
+fixed-role topology, logical-block target issuer, or dispatcher/emitter
+wrappers. R0 deletes those symbols and their disconnected test fixtures. The
+remaining production path is the segment route: Callable and Generic lowerers
+consume the prepared physical layout, `segment_allocator` allocates one block
+per segment plus root After, and `segment_dispatcher` issues each operation
+target from the exact segment receipt.
+
+`ReadyLoopEntryV1`, shared physical services, canonical CFG/SSA/PHI owners,
+and at-target leaf emitters remain shared by that route. R0 therefore retires
+an old BoxShape without introducing a new Recipe, JoinSig, physical owner,
+selector, fallback, retry, or backend claim. The transfer-authority guard now
+checks fixed-route symbol absence and the explicit Callable/Generic segment
+consumer set. This section supersedes the historical fixed-role receipts but
+does not rewrite their dated implementation records.
 
 ## M8 S6A design decision (2026-08-08)
 

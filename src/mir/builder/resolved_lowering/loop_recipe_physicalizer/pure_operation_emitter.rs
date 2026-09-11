@@ -1,14 +1,12 @@
 //! Pure operation leaves for the caller-zero Loop physicalizer.
 //!
 //! This module owns the existing ConstI64/BinaryI64/CompareI64 emission
-//! behavior. It deliberately keeps the pre-S0 result-type and ledger checks;
-//! the later canonical Compare row will replace those checks in its own
-//! prepared path.
+//! behavior for an already-issued segment target. It deliberately keeps the
+//! result-type and ledger checks at the leaf boundary.
 
-use super::operation_emitter::map_target_reject;
 use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
 use super::operation_target::VerifiedLoopOperationTargetBlockV1;
-use super::topology::{LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1, ReadyLoopEntryV1};
+use super::topology::LoopPhysicalBlockRoleV1;
 use crate::mir::builder::emission::constant;
 use crate::mir::builder::emission::loop_operation;
 use crate::mir::builder::MirBuilder;
@@ -110,26 +108,6 @@ impl PreparedLoopOperationEmissionV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum LoopOperationEmissionRejectV1 {
-    EntryOwnerMismatch,
-    ReceiptOwnerMismatch,
-    PreheaderMismatch,
-    TargetFunctionMissing,
-    PreheaderMissing(BasicBlockId),
-    TargetBlockMissing(BasicBlockId),
-    PlacementMissing {
-        loop_key: LoopNodeKeyV1,
-        role: LoopPhysicalBlockRoleV1,
-    },
-    LogicalPlacementMissing {
-        loop_key: LoopNodeKeyV1,
-        block: LoopBlockKeyV1,
-    },
-    PlacementMismatch {
-        by_role: BasicBlockId,
-        by_logical_block: BasicBlockId,
-    },
-    SegmentPlacementMissing(crate::mir::loop_recipe_contract::LoopPhysicalSegmentKeyV1),
-    TargetBlockTerminated(BasicBlockId),
     ValueMissing(LoopValueKeyV1),
     ValueAlreadyPublished(LoopValueKeyV1),
     UnsupportedOperation,
@@ -175,56 +153,6 @@ impl<'a> LoopOperationServicesV1<'a> {
     pub(super) fn new(builder: &'a mut MirBuilder) -> Self {
         Self { builder }
     }
-}
-
-pub(super) fn emit_prepared_operation_v1(
-    prepared: PreparedLoopOperationEmissionV1,
-    entry: &ReadyLoopEntryV1,
-    block_receipt: &LoopPhysicalBlockReceiptV1,
-    services: &mut super::topology::LoopPhysicalServicesV1<'_>,
-) -> Result<LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1> {
-    let mut state = LoopOperationValueLedgerV1::default();
-    let mut operation_services = LoopOperationServicesV1::new(services.builder);
-    emit_prepared_pure_operation_v1(
-        prepared,
-        &mut state,
-        entry,
-        block_receipt,
-        &mut operation_services,
-    )
-}
-
-fn issue_target_for_pure(
-    prepared: PreparedLoopOperationEmissionV1,
-    entry: &ReadyLoopEntryV1,
-    block_receipt: &LoopPhysicalBlockReceiptV1,
-    builder: &MirBuilder,
-) -> Result<VerifiedLoopOperationTargetBlockV1, LoopOperationEmissionRejectV1> {
-    let target = VerifiedLoopOperationTargetBlockV1::issue(
-        prepared.owner(),
-        prepared.item(),
-        prepared.expected_loop(),
-        prepared.expected_block(),
-        prepared.expected_role(),
-        entry,
-        block_receipt,
-    )
-    .map_err(map_target_reject)?;
-    target
-        .validate_function(builder)
-        .map_err(map_target_reject)?;
-    Ok(target)
-}
-
-pub(super) fn emit_prepared_pure_operation_v1(
-    prepared: PreparedLoopOperationEmissionV1,
-    state: &mut LoopOperationValueLedgerV1,
-    entry: &ReadyLoopEntryV1,
-    block_receipt: &LoopPhysicalBlockReceiptV1,
-    services: &mut LoopOperationServicesV1<'_>,
-) -> Result<LoopOperationEmissionReceiptV1, LoopOperationEmissionRejectV1> {
-    let target = issue_target_for_pure(prepared, entry, block_receipt, services.builder)?;
-    emit_prepared_pure_operation_at_target_v1(prepared, target, state, services)
 }
 
 pub(super) fn emit_prepared_pure_operation_at_target_v1(

@@ -6,6 +6,7 @@
 
 #![cfg(test)]
 
+use super::operation_ledger::LoopOperationValueLedgerV1;
 use super::operation_type::ensure_provisional_value_class;
 use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
@@ -16,7 +17,7 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalSsaFunctionSessionV2,
 };
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
-    LoopOperationDispatchServicesV1, LoopOperationValueLedgerV1, LoopPhysicalServicesV1,
+    LoopOperationDispatchServicesV1, LoopPhysicalServicesV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::generic_g0_physical_prepare::{

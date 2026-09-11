@@ -501,24 +501,25 @@ finish. The one non-V2 constructor remains an explicit, non-growing
 compatibility debt. The focused session, resolved-lowering, and draft tests,
 the canonical finish guard, and the current-state pointer guard are green.
 The historical caller-zero Loop physicalization/DraftSeal canary is closed.
-The bounded CallableSingleLoop lowerer is now production-connected from
-`normal_cataloged_box_method_lowering.rs`; broader GenericLoop production
-selection and legacy retirement remain closed at the next docs-only
-`CALLABLE-LOOP-PRODUCTION-EDGE-D0` stop.
+The bounded CallableSingleLoop lowerer is production-connected from
+`normal_cataloged_box_method_lowering.rs`, and the later bounded Generic G0
+lowerer is production-connected through the normal package terminal. Broader
+GenericLoop selection and legacy retirement were closed at that historical
+stop and are now superseded by the current segment-route receipt below.
 
 The topology slice was first landed as caller-zero evidence behind the
-`loop_recipe_physicalizer/` directory facade. Its canonical owners are now
-reused by the bounded CallableSingleLoop production consumer. It consumed one
-move-only common boundary and one session-local `ReadyLoopEntryV1`, borrowed
-the existing canonical CFG service, and allocated the old recursive
-header/body/step/After blocks. That P0 topology shape is not a license to
-open the broader GenericLoop physical boundary.
+`loop_recipe_physicalizer/` directory facade. Its shared entry/service owners
+were reused by the bounded CallableSingleLoop production consumer, while the
+old recursive header/body/step/After allocation route was later retired by
+R0. The current route allocates exact R1 segments and root After through the
+segment allocator; it does not reopen the historical fixed topology.
 
 The historical topology canary is not a standalone production selector and
 does not open retry, fallback, or legacy deletion. The bounded CallableSingleLoop
-consumer is the named production route and emits its operation/CFG/DraftSeal
-products through the existing owners. The DirectAccum binding port remains
-profile-specific and must not be reused as the common port; no second
+and Generic G0 consumers are the named production routes and emit their
+operation/CFG/DraftSeal products through the existing owners. The DirectAccum
+binding port remains profile-specific and must not be reused as the common
+port; no second
 CFG/SSA/PHI owner is allowed. The historical passive
 `LOOP-RECIPE-OPERATION-EFFECT-S0` product still issues an item-keyed exact
 source/effect ledger before operation emission is opened. The Generic G0
@@ -536,6 +537,8 @@ canonical BindingSSA/PHI owner, validates explicit entry requirements, and
 returns distinct logical/physical receipts. Pre-claim rejects are typed;
 claim/read/type/receipt failures terminate the unpublished function session as
 one discard transaction. No single-operation demand extraction was added.
+The fixed logical-to-physical block receipt in this historical paragraph was
+retired by R0; current production consumes exact segment-keyed targets.
 Full GenericLoop operation physicalization, carrier seeds, selector,
 retry/fallback retirement, and legacy deletion remain closed until a named
 production caller switch is authorized. Continuation, Tail, and the bounded
@@ -846,6 +849,23 @@ header. The legacy `generic_g0_physical_emitter_session` remains test-only.
 The focused suite and I1 guard cover the positive publication terminal and
 late prepared-commit rejection with no publication. Source-to-exe and wider
 Loop-family activation are later cards.
+
+## Fixed-role topology retirement R0 (2026-09-12)
+
+`LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0` removes the superseded fixed
+`Header/Body/Step/After` physical route after its caller-zero census. The old
+topology receipt, logical-block target issuer, dispatcher preparation wrappers,
+and their disconnected test fixtures are deleted. They are not compatibility
+fallbacks and have no current Rust caller.
+
+The production route is now explicit: Callable and Generic lowerers allocate
+the `PreparedLoopPhysicalLayoutV1` segment blocks, the segment dispatcher
+issues targets by exact segment key, and the existing canonical CFG/SSA/PHI
+owners perform the physical effects. Shared entry transport and at-target
+leaf emitters remain because this route consumes them. The transfer-authority
+guard proves old fixed-route symbol absence, the known production consumers,
+and the sub-800-line source boundary. This R0 changes no Recipe, JoinSig,
+physical-layout meaning, selector, publication, or backend scope.
 
 ## Common V2 S6C TextEq operand issuer I0 (2026-08-18)
 

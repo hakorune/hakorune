@@ -7,6 +7,7 @@
 //! physical owner.
 
 use super::callable_canary::materialize_callable_prelude_v1;
+use super::operation_ledger::LoopOperationValueLedgerV1;
 use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
@@ -15,7 +16,7 @@ use super::tail_completion::{
     profile_counts_from_dispatch,
 };
 use super::topology::ReadyLoopEntryV1;
-use super::{LoopOperationDispatchServicesV1, LoopOperationValueLedgerV1, LoopPhysicalServicesV1};
+use super::{LoopOperationDispatchServicesV1, LoopPhysicalServicesV1};
 use crate::ast::ASTNode;
 use crate::mir::builder::normal_callable_prepared_operation::
     PreparedCallableLoopOperationProgramV1;

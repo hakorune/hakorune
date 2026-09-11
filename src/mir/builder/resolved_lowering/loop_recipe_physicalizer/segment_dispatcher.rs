@@ -1,4 +1,4 @@
-//! Segment-aware Callable operation dispatcher for the R2 cutover.
+//! Segment-aware Loop operation dispatcher for the current production route.
 //!
 //! This is a thin orchestration layer over the existing leaf dispatcher.  It
 //! consumes the complete R1 physical layout, builds one item-to-segment index

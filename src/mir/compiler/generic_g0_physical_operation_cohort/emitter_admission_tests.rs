@@ -1,6 +1,6 @@
 use super::{
-    issue_generic_g0_physical_emitter_admission_with_missing_carrier_for_test,
     issue_generic_g0_physical_emitter_admission_v1,
+    issue_generic_g0_physical_emitter_admission_with_missing_carrier_for_test,
 };
 use crate::mir::compiler::generic_g0_source_parent::issue_generic_g0_source_parent_v1;
 use crate::mir::loop_route_policy::generic_source_unit_and_selection_for_test;
@@ -82,12 +82,11 @@ fn rejects_missing_carrier_entry_before_lowerer_publication() {
     let parent = issue_generic_g0_source_parent_v1(input, selection)
         .expect("source parent for carrier mutation");
 
-    let error = match issue_generic_g0_physical_emitter_admission_with_missing_carrier_for_test(
-        parent,
-    ) {
-        Ok(_) => panic!("missing carrier entry must reject at admission"),
-        Err(error) => error,
-    };
+    let error =
+        match issue_generic_g0_physical_emitter_admission_with_missing_carrier_for_test(parent) {
+            Ok(_) => panic!("missing carrier entry must reject at admission"),
+            Err(error) => error,
+        };
     assert_eq!(
         error,
         super::GenericG0PhysicalEmitterAdmissionRejectV1::EntryCoverageMismatch
@@ -124,7 +123,6 @@ fn admission_source_has_no_physical_state_or_legacy_adapter_surface() {
         "BasicBlockId",
         "CanonicalSsaFunctionSessionV2",
         "ReadyLoopEntryV1",
-        "LoopPhysicalBlockReceiptV1",
         "PreparedGenericG0PhysicalFunctionSkeletonV1",
         "GenericG0PhysicalEntryAdmissionV1",
         "into_parts",

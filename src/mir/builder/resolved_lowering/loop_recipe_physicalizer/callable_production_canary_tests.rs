@@ -2,7 +2,7 @@
 //!
 //! This harness is intentionally test-only.  It proves the one-way bridge
 //! from normal-callable S2 full demand through the existing Prelude, common
-//! topology/operation physicalizer, After, Tail/Completion, and DraftSeal.
+//! segment allocator/dispatcher, After, Tail/Completion, and DraftSeal.
 //! The late-failure case proves that a partially emitted unpublished function
 //! is discarded and that a fresh request, rather than a same-session retry,
 //! succeeds.
@@ -10,6 +10,7 @@
 #![cfg(test)]
 
 use super::callable_canary::materialize_callable_prelude_v1;
+use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
 use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
@@ -25,7 +26,7 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
 };
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
-    LoopOperationDispatchServicesV1, LoopOperationValueLedgerV1, LoopPhysicalServicesV1,
+    LoopOperationDispatchServicesV1, LoopPhysicalServicesV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
@@ -399,15 +400,14 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
             .map_err(|error| format!("dispatch preflight: {error:?}"))?;
     let mut values = LoopOperationValueLedgerV1::default();
     if mutation == CallableLoopMutationV1::DuplicateCondition {
-        let existing = crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::
-            LoopOperationValueReceiptV1::new(
-                owner,
-                condition_key,
-                LoopValueClassV1::Bool,
-                LoopItemKeyV1::new(99),
-                condition_block,
-                crate::mir::ValueId::new(999),
-            );
+        let existing = LoopOperationValueReceiptV1::new(
+            owner,
+            condition_key,
+            LoopValueClassV1::Bool,
+            LoopItemKeyV1::new(99),
+            condition_block,
+            crate::mir::ValueId::new(999),
+        );
         values
             .publish(existing)
             .map_err(|error| format!("seed ledger: {error:?}"))?;

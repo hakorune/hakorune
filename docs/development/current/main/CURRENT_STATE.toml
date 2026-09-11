@@ -1,10 +1,10 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0"
-current_execution_cohort = "mirbuilder_loop_g0_normal_package_function_consumer_i0"
-current_blocker_token = "LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0"
-guard_followup = "closeout: record the bounded normal-package Generic G0 consumer evidence and synchronize the pointer before commit/push."
+current_execution_row = "LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0"
+current_execution_cohort = "mirbuilder_loop_physical_topology_retirement_r0"
+current_blocker_token = "LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0"
+guard_followup = "closeout: fixed-role Loop route is retired; record evidence and commit/push the synchronized card and pointer."
 current_design_stop = ""
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -14,22 +14,19 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-g0-normal-package-function-consumer-i0-2026-09-11.md"
-latest_card = "mirbuilder-loop-g0-normal-package-function-consumer-i0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-normal-package-function-consumer-i0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/loop-physical-topology-retirement-r0-2026-09-12.md"
+latest_card = "loop-physical-topology-retirement-r0"
+latest_card_path = "docs/development/current/main/investigations/loop-physical-topology-retirement-r0-2026-09-12.md"
 latest_card_summary = """
-The fixed real-app EXE acceptance scope is closed as a finite 3/11 pass,
-seven separately owned baseline boundaries, and one FFI-environment boundary;
-it is not a whole-MirBuilder completion claim. The Loop semantic-program audit closed as NoSafeSlice for
-the all-family shared receipt, while Callable-only I0 remains caller-zero.
-The G0 caller census confirms zero non-test callers for the existing source
-parent; only the old route, a distinct Callable adapter, and a canonical
-package terminal exist. The package mapping review is closed: G0 will be an
-explicit GenericG0 variant inside the existing package with the existing
-BindingSsaTrivial lifecycle. The real preflight caller boundary is named, and
+The fixed real-app EXE acceptance scope is closed as a finite 3/11 pass, seven separately owned baseline boundaries, and one FFI-environment boundary;
+it is not a whole-MirBuilder completion claim. The Loop semantic-program audit
+closed as NoSafeSlice for the all-family shared receipt, while Callable-only I0
+remains caller-zero. The G0 caller census confirms zero non-test callers for
+the existing source parent; only the old route, a distinct Callable adapter,
+and a canonical package terminal exist. The package mapping review is closed:
+G0 will be an explicit GenericG0 variant inside the existing package with the existing BindingSsaTrivial lifecycle. The real preflight caller boundary is named, and
 the G0-specific handoff issuer plus NumericTarget::host authority are settled.
-The terminal design is closed with one declaration-header/lifecycle-header
-co-seal, existing package terminal, unpublished completion path, no-reentry
+The terminal design is closed with one declaration-header/lifecycle-header co-seal, existing package terminal, unpublished completion path, no-reentry
 guard, and Generic-only old-edge retirement set. The mode-authority census
 closed on the existing canonical invocation snapshot plus verified-complete
 G0 source handoff. G0 I0 landed the source-backed issuer and
@@ -52,13 +49,17 @@ exact selected-input loan, explicit route, pending canonical child session,
 existing Single publication, 76 focused Generic tests, and the reusable I0
 guard green. The positive top-level FreeFunction publishes `generic_g0/2`
 with two physical lanes; declared-instance three-lane and source-to-EXE rows
-remain outside scope. The next bounded design card is intentionally not yet
-selected.
+remain outside scope. Fixed-role Loop topology retirement R0 is closed: old
+receipts/issuers/wrappers and disconnected tests are deleted; the
+Callable/Generic segment route is sole, 22 physicalizer tests and transfer/
+pointer guards pass. Direct wrong-target mutation remains a bounded non-claim
+because item-to-segment relation is not owned by the current receipt; outside
+R0.
 """
-next_design_card = "none__GenericG0NormalPackageFunctionConsumer__PendingNextSelection"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-normal-package-function-consumer-i0-2026-09-11.md"
-next_execution_card = "none__GenericG0NormalPackageFunctionConsumer__PendingNextSelection"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-normal-package-function-consumer-i0-2026-09-11.md"
+next_design_card = "none__LoopPhysicalTopologyRetirement__PendingNextSelection"
+next_design_card_path = "docs/development/current/main/investigations/loop-physical-topology-retirement-r0-2026-09-12.md"
+next_execution_card = "none__LoopPhysicalTopologyRetirement__PendingNextSelection"
+next_execution_card_path = "docs/development/current/main/investigations/loop-physical-topology-retirement-r0-2026-09-12.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
