@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE-R0"
 current_execution_cohort = "mirbuilder_final_acceptance_scope_r0"
-current_design_stop = "accepted__MirBuilderFinalAcceptanceScope__2026-09-11"
-current_blocker_token = "open__MirBuilderFinalAcceptanceScopePending"
-guard_followup = "fast: execute only the existing fixed real-app EXE acceptance manifest; record source/script hashes and classify results without fixture, source, backend, retry, or production-scope changes."
+current_design_stop = "closed__MirBuilderFinalAcceptanceScope__2026-09-11"
+current_blocker_token = "none__MirBuilderFinalAcceptanceScopeClosed"
+guard_followup = "closeout: MIRBUILDER-FINAL-ACCEPTANCE-SCOPE-R0 is recorded as a finite 3/11 pass, 8/11 separately owned baseline/infra handoff. Preserve the fixed manifest; no fixture rewrite, retry, backend expansion, or whole-MirBuilder claim."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -32,13 +32,13 @@ repair/drop and missing loop carriers reject at their existing owners, with
 focused positive/negative evidence. The bounded canonical_ssa BoxShape slice
 is now landed: existing S6C cursor/residence state is isolated behind a private
 child with no meaning, caller, V1/V2, backend, GenericLoop, dynamic-origin,
-OBJ/EXE, or legacy-retirement change. The current selected work is the
-existing fixed real-app EXE acceptance scope only; its result remains a finite
-handoff and not a whole-MirBuilder completion claim.
+OBJ/EXE, or legacy-retirement change. The fixed real-app EXE acceptance scope
+is now recorded as 3/11 pass and 8/11 separately owned baseline/infra handoff;
+it is not a whole-MirBuilder completion claim.
 """
-next_design_card = "none__MirBuilderFinalAcceptanceScopeSelected"
+next_design_card = "none__MirBuilderFinalAcceptanceScopeClosed"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-final-acceptance-scope-d0-2026-09-11.md"
-next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE-R0"
+next_execution_card = "none__MirBuilderFinalAcceptanceScopeClosed"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-final-acceptance-scope-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

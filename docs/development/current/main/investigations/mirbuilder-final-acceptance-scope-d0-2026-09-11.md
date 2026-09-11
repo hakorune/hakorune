@@ -1,5 +1,5 @@
 ---
-Status: accepted__MirBuilderFinalAcceptanceScope__2026-09-11
+Status: closed__MirBuilderFinalAcceptanceScope__2026-09-11
 Date: 2026-09-11
 Decision: MIRBUILDER-FINAL-ACCEPTANCE-SCOPE-D0
 Parent: mirbuilder-canonical-ssa-s6c-state-boxshape-d0-2026-09-11
@@ -51,7 +51,48 @@ add a fixture, create a parallel ledger/guard, or rerun through another backend.
 The result is a finite acceptance handoff to convergence, not a production
 completion claim.
 
-## R0 execution receipt
+## R0 execution receipt (2026-09-11)
 
-Pending the exact manifest run. No code, fixture, or backend change is selected
-by this card.
+The exact manifest was executed with the repository's existing runner. The
+runner file and `selfhost_build.sh` were invoked through `bash` because the
+workspace checkout exposed tracked-100755 files as mode 664; the latter and
+`emit_mir_route.sh` were temporarily made executable for the run and restored
+to mode 664 afterward. No file mode change is present in the commit.
+
+Environment: `rust_vm_dynamic`, default backend, dynamic plugins, release
+`hakorune` and release `ny-llvmc`, sequential suite execution (`Jobs: 1`). The
+runner completed 11 entries: 3 passed, 8 failed. The unsupported-boundary probe
+passed. All eight failures are existing named owner/baseline boundaries from
+the parent acceptance record; no current-change red was identified.
+
+| entry | result | observed terminal | source SHA-256 | smoke SHA-256 |
+| --- | --- | --- | --- | --- |
+| `json_stream_aggregator_exe_runtime_boundary` | fail | `callable-loop/route-not-front-selected` (`GenericLoopV1NotSelected`) | `b5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370` | `fa378922fc21740551d54f8f1e453b08c9b119edb6b7eda591e05e31951c5e08` |
+| `typed_object_newbox_min_exe` | fail | FFI library not found | `80b07fe145e5fe61b2d326620fd5b1929c452124e3fe5c5528d4aeb96be54a7b` | `014f30f18f30f1fb4759f074cd53eefca99553d1520fafad9db745402ae98d0f` |
+| `typed_object_birth_param_min_exe` | fail | `ordinary-new/local-commit/root-call-entry-missing` | `6c9feec4c2bbaab48be2f3c71f07e0fcff0fd686b36b1aec387f298fa36ca7b7` | `bb98b3149a2c3e66e19d2aa5b6fe837a5c94057773844e8c65d1c56b1577c50e` |
+| `boxtorrent_mini_exe` | fail | `ParameterContract/UnsupportedDeclaredType` | `0c22fe686c826f718889e6ac1ff96ff3f8a3ff22628401c4d7f93d75ebbf1ae7` | `2d8f1f7e41b5f496a1992cbfb4cff19a79999ae17ebdd158060e463521aa3b4d` |
+| `binary_trees_exe` | fail | callable-semantic incomplete consumption | `27de7bedca3e05bfb9facbbc5417ac1eb623a720b53c150b42e0e8646f12fa1c` | `4fe22d3a4bc1fd4350be090eb0a26783ed103bdcfc5dabf31a00a73ff69feecc` |
+| `real_apps_exe_boundary_probe` | pass | exact unsupported boundary | n/a | `489c6f28bd174962d21c2631dd0c79b172c379a77c90410e80d684aa3cade33d` |
+| `mimalloc_lite_exe` | fail | `ParameterContract/UnsupportedDeclaredType` | `63f688bef954d29ef91930e861b0721293789c4e74af2c6f1dae25b6ed84b772` | `03009535b3a11929aa1f8ccfd386b2bcc388af161888dcfd7bf91968d6552871` |
+| `allocator_stress_exe` | fail | `ParameterContract/UnsupportedDeclaredType` | `9ce97be74bbe747d95d40ef0471ed44c4043b5be3f3dd9143a2b12954ef8f94f` | `42ccf8ba637c4a8c82a226342d2ec66b9249688f64986d1b279e4e7bc2db44cb` |
+| `typed_object_method_min_exe` | pass | exit 30 | `f6e962309f166f4d2cc8993c4c388ec45d7ab3173e70b1641d9389fbe22ee16d` | `5e1e6ab7dc806cddaad18abf03b0273665385ecfdbfca8bb9ab03e442b35e451` |
+| `typed_object_birth_min_exe` | pass | exit 30 | `bbd957398d16ae9e77c1b2bd3c510e8b6ba03c694d97ed14807f8ffe320aa0a4` | `610d8f506261942b78196a47a78c3ebd7bb0e3c82836bea3f3a6f744a7678ef1` |
+| `typed_object_untyped_field_min_exe` | fail | MIR JSON unsupported terminator `Invoke` | `456e7de7f583b9cbc36f3b5abfb479fd64baec822259631a581ce68f442febdb` | `3239bcf7ec156cd8830346c036a08b76226b76fcff5e9871ede82bc0c6308eeb` |
+
+Manifest SHA-256:
+`92ad589d44a51c28ed66cd31064851b229419408ed8de4610e4fbcbac32806e1`.
+Runner SHA-256:
+`eb829d6ab7c062974adc912428622dbb9dccf602fa8991197298b16865b88ee0`.
+The direct helper hashes are `selfhost_build.sh`
+`9f5519c18dc292995dcbae28af7532a5bb71f7b9052e868ec73e03c11b9fc691` and
+`emit_mir_route.sh`
+`8352041abdd43bc306c601264c2e567216c14596aacdd06d03ddc0f6048508d9`.
+The generated release tool hashes were `hakorune`
+`8779319d24381e8169b6acbc994cbf4818afd7ee7f4fd8f8b952c0e51cf8d02f` and
+`ny-llvmc`
+`fd4a23b1dc61cad419f1f400a6d07183d0f93b73bfe554cdb94a8f93b019cfd6`.
+
+The fixed acceptance scope is therefore complete as a finite evidence handoff
+with 3/11 current observed passes and 8/11 separately owned baseline/infra
+boundaries. It does not close those owners or claim production cutover or
+whole-MirBuilder completion.
