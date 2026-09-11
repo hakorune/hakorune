@@ -1,5 +1,5 @@
 ---
-Status: Implementation task — source-backed G0 helper backend reach
+Status: closed__ImplementationAccepted__G0HelperBackendReach__2026-09-12
 Date: 2026-09-12
 Decision: LOOP-G0-HELPER-BACKEND-REACH-I1
 Parent: mirbuilder-loop-g0-helper-backend-reach-d0-2026-09-12.md
@@ -13,43 +13,76 @@ NextCard: none__G0HelperBackendReach__PendingCloseout
 Change:
   Make the focused normal-package G0 witness call `generic_g0(0, 0)` from
   `Main.main`, and assert the existing source-backed Global Call selects
-  `generic_g0/2` in the lifecycle physical program and ABI input.
+  `generic_g0/2` in the lifecycle physical program and helper body.
 
 Contract:
   Reuse `VerifiedNormalCallableSemanticPackageV1`, the existing G0 consumer,
-  `PublishedMirBackendView::try_new`, `collect_ordinary_calls`, and the Single
-  lifecycle. The Call relation and canonical definition table are the only
-  helper membership authority; no module-name scan, AST re-resolution,
-  synthetic Call, new receipt, second issuer, fallback, or retry.
+  `PublishedMirBackendView::try_new`, `collect_ordinary_calls`, the existing
+  physical-program issuer, and the Single G0 lowering lifecycle. The Call
+  relation and canonical definition table are the only helper membership
+  authority; no module-name scan, AST re-resolution, synthetic Call, new
+  receipt, second issuer, fallback, or retry.
 
 Done:
-  Focused normal-package positive proves root plus `generic_g0/2` physical
-  membership and exact two-argument integer ABI; the existing ignored EXE
-  witness runs to exit `3` when selected FFI, lifecycle kernel, ny-llvmc, and
-  LLVM18 are available. Missing/foreign definition or Call relation rejects
-  before artifact publication. Run the reusable current-state guard and
-  focused tests with one Cargo process.
+  Focused normal-package positive proves exactly root plus the source-called
+  `generic_g0/2` in the physical program and exact two-argument integer ABI;
+  it also observes the helper body `Compare` and `Add` operations. The
+  existing typed static EXE witness was exercised as an ignored test and
+  skipped because LLVM18 is unavailable; it is not an EXE success claim.
+  Missing/foreign definition or Call relation rejects before artifact
+  publication. The selected production Loop paths reuse the one preflight
+  `BuilderInvocationConfigV1` snapshot when opening their physical session;
+  no second environment/import/plugin-signature snapshot is taken there.
 
 Stop:
   Return to design if the existing Global Call cannot issue the exact
-  `free_function("generic_g0", 2)` relation, if physical ABI membership needs
-  a new owner, or if the runtime witness requires Pair/entry behavior unrelated
-  to the helper Call.
+  `free_function("generic_g0", 2)` relation, if physical-program membership
+  needs a new owner, or if the runtime witness requires Pair/entry behavior
+  unrelated to the helper Call.
 
 ## Exact acceptance
 
 - Positive: the source-backed package contains the G0 loop and
   `Main.main { return generic_g0(0, 0) }`; the physical program has exactly the
   selected root and the called `generic_g0/2` helper, with two helper lanes and
-  integer result; the lifecycle ABI input retains the same membership.
+  integer result. The ignored EXE witness uses the same selected view and
+  existing static emitter when its external toolchain is available.
 - Negative: the existing physical membership/definition or Call-to-definition
   relation mutation rejects before LLVM/C artifact output; no module presence
   assertion may substitute for this check.
 - EXE: when the already-required environment is present, the existing typed
-  emitter runs the witness and the executable exits `3`. LLVM18 unavailable is
-  an explicit skip, never a success claim.
+  static emitter runs the witness and the executable exits `3`. LLVM18
+  unavailable is an explicit skip, never a success claim.
 - Guard: no `source_ast()` re-resolution, module-name selection, synthetic
   Call, route-loop entry, test-only emitter, fallback/retry, or second issuer.
+- Configuration: `compile_resolved_first_family` reads the canonical config
+  once for G0 policy and passes that same value through the selected physical
+  invocation; the compatibility wrapper snapshots only for older direct test
+  callers.
+
+## Implementation evidence and classification (2026-09-12)
+
+- `CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo check --profile quick --lib`:
+  pass. The workspace's existing warning inventory remains informational.
+- `CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib
+  --no-run`: pass; the test binary was built with one Cargo/rustc process.
+- The focused normal-package physical-reach test: pass. It observes exactly
+  one root `Invoke(Call)` to the canonical `generic_g0/2`, its two integer
+  lanes, and helper `Compare`/`Add` body operations.
+- The same-module free-function `Invoke(I64)` verifier regression: pass.
+- The ignored static EXE witness was selected and run by the test binary, but
+  skipped because LLVM18 is unavailable. No runtime success is claimed.
+- `published_consumer_runs_once_and_propagates_failure_without_retry`: known
+  baseline red; the same `calls = 0` versus `1` failure reproduces with the
+  pre-change test binary, so it is not evidence against this slice.
+- `tools/checks/rust_mirbuilder_generic_g0_normal_package_consumer_i0_guard.sh`,
+  `tools/checks/current_state_pointer_guard.sh`, and `git diff --check`: pass.
+
+The config handoff is behavior-preserving: selected first-family production
+cutovers receive the already-captured invocation config, while old direct test
+helpers retain their compatibility snapshot wrapper. The obsolete pure
+operation expected loop/block/role fields and unreachable `PreheaderSeed`
+entry branch were removed; current segment receipt/target validation remains.
 
 ## Scope boundary
 

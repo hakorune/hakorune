@@ -75,6 +75,31 @@ fn exact_formals(
 }
 
 impl AppMainDirectCallDispositionLoanV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn is_i64_call(
+        &self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        site: &OwnedExprSiteV1,
+    ) -> bool {
+        if site.owner() != self.owner || input.owner() != self.owner {
+            return false;
+        }
+        let Some(AppMainDirectCallDispositionSlotV1::Ready(row)) = self.rows.get(site) else {
+            return false;
+        };
+        row.emission.target().signature().result() == ExactTrivialScalarAbiV1::I64
+            && input
+                .function()
+                .direct_call_target(site.site())
+                .is_some_and(|target| target.callable() == row.emission.target().callable())
+            && input
+                .function()
+                .direct_call_observations()
+                .any(|(observed_site, observation)| {
+                    observed_site == site.site()
+                        && observation.argument_sites() == row.argument_sites()
+                })
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn has_map_target(
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,

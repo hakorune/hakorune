@@ -29,7 +29,8 @@ as a `PublishedFreeFunctionCallRef`; the existing
 `collect_ordinary_calls`, `ordinary_callable_key`, and the canonical definition
 table. This is the sole selected-program membership path.
 
-The bounded fixture shape is:
+The bounded fixture shape is deliberately free of ordinary `new` so the
+existing root source contract remains independent from the helper Call:
 
 ```text
 static function generic_g0(i: i64, j: i64): i64 { <existing G0 loop> }
@@ -39,11 +40,12 @@ static box Main { main() { return generic_g0(0, 0) } }
 `generic_g0/2` is therefore selected by the source Call, not by module-name
 presence. Its two logical arguments match the two physical formal lanes and
 its integer result is the existing ordinary-call ABI. For the current loop
-body, the runtime oracle is exit code `3`; the prior Pair exit `30` is not a
-G0 execution claim and must not be reused for this witness.
+body, the runtime oracle is exit code `3`. The prior Pair exit `30` remains a
+separate lifecycle witness and is not a G0 execution claim.
 
-The next implementation may change only the focused acceptance fixture/test
-and assertions around the existing issuer/emitter. It may not add a source
+The next implementation may change the focused acceptance fixture/assertions,
+pass the already-captured invocation config into the existing physical owner,
+and remove behavior-neutral dead Loop metadata. It may not add a source
 resolver, semantic receipt, module scan, synthetic Call, second issuer,
 fallback, or backend route.
 
@@ -59,7 +61,8 @@ runtime/EXE oracle once a legitimate selected program is defined.
 It excludes module-wide function discovery, a synthetic root-to-helper Call,
 changing the current I0 fixture only to manufacture reach, a test-only
 physical emitter, backend fallback/retry, a new semantic `Verified*` or
-`Prepared*` product, and any deletion or retirement. The I0 evidence remains
+`Prepared*` product, and any semantic deletion or retirement. Behavior-neutral
+dead metadata cleanup remains allowed. The I0 evidence remains
 exactly package publication plus root-EXE coexistence; its root returns 30 and
 does not call `generic_g0/2`. The LLVM18-unavailable run was skipped, not a
 helper execution success.
@@ -74,7 +77,9 @@ present in the module therefore does not place it in LLVM input. The current
 fixture's `Main` has no G0 Call, so no legitimate runtime route exists within
 this boundary.
 
-The source-backed G0 chain is reusable once the admission is designed:
+At D0 time the fixture's `Main` had no G0 Call, so no legitimate runtime route
+existed within this boundary. The source-backed G0 chain is reusable once the
+admission is designed:
 `src/mir/builder/normal_callable_semantic_loan_port/generic_g0.rs`, existing
 `generic_g0_recipe`, `VerifiedGenericRecipeProductG0`,
 `GenericG0PhysicalOperationCohortV1`,

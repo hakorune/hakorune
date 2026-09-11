@@ -24,6 +24,7 @@ use super::source_bound_package::{
     CanonicalPhysicalOpenErrorV1, CanonicalPlanLoweringErrorV1, ExactCanonicalPreflightPlanV1,
     SourceBindingErrorV1,
 };
+use crate::mir::builder::BuilderInvocationConfigV1;
 use crate::mir::builder::CanonicalPhysicalCollectionErrorV1;
 use crate::mir::builder::resolved_lowering::CanonicalResolvedBuildErrorV1;
 use super::{MirCompileResult, MirCompiler};
@@ -31,9 +32,9 @@ use super::{MirCompileResult, MirCompiler};
 pub(super) fn compile_generic_g0_source_bound(
     compiler: &mut MirCompiler,
     plan: CanonicalGenericG0PlanV1<'_>,
-    source_file: Option<&str>,
+    config: BuilderInvocationConfigV1,
 ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-    let prepared = prepare_generic_g0_source_bound(compiler, plan, source_file)?;
+    let prepared = prepare_generic_g0_source_bound(compiler, plan, config)?;
     Ok(compiler.commit_prepared_module(prepared))
 }
 
@@ -46,7 +47,8 @@ pub(in crate::mir) fn compile_generic_g0_source_bound_with_prepared_failure_for_
     plan: CanonicalGenericG0PlanV1<'_>,
     source_file: Option<&str>,
 ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-    let prepared = prepare_generic_g0_source_bound(compiler, plan, source_file)?;
+    let config = BuilderInvocationConfigV1::snapshot_for_canonical(&compiler.builder, source_file);
+    let prepared = prepare_generic_g0_source_bound(compiler, plan, config)?;
     drop(prepared);
     Err(CanonicalLoweringErrorV1::BuilderContract {
         detail: "generic_g0/test_injected_prepared_commit_failure".to_owned(),
@@ -56,7 +58,7 @@ pub(in crate::mir) fn compile_generic_g0_source_bound_with_prepared_failure_for_
 fn prepare_generic_g0_source_bound<'source>(
     compiler: &mut MirCompiler,
     plan: CanonicalGenericG0PlanV1<'source>,
-    source_file: Option<&str>,
+    config: BuilderInvocationConfigV1,
 ) -> Result<PreparedModuleExternalCommitV1<'source>, CanonicalLoweringErrorV1> {
     let header = plan
         .seal_resolved_owner_header_v1()
@@ -68,7 +70,7 @@ fn prepare_generic_g0_source_bound<'source>(
         ))
         .map_err(|rejected| map_source_binding_error(rejected.error().clone()))?;
     let finalized = compiler
-        .begin_canonical_invocation(package, source_file, module_name)
+        .begin_canonical_invocation_with_config(package, config, module_name)
         .map_err(|rejected| map_physical_open_error(rejected.into_error()))?
         .lower()
         .map_err(|rejected| map_physical_lower_error(rejected.into_error()))?

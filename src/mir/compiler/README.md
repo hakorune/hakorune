@@ -807,6 +807,18 @@ positive package test and missing-policy negative test are green. This I0 does
 not claim cataloged method cutover, all-family Loop coverage, backend parity,
 or source-to-exe success.
 
+### Generic G0 helper backend reach I1 (2026-09-12)
+
+The normal-package acceptance witness now calls the source-backed top-level
+`generic_g0/2` from `Main.main`. Its positive assertion issues the existing
+physical program and checks the exact root `Invoke(Call)` relation, the
+helper's two integer lanes, and the helper body `Compare`/`Add` operations.
+This proves physical-program reach and typed body admission; module presence
+alone is not sufficient. The ignored static EXE witness uses the same selected
+view and existing emitter, but LLVM18 is unavailable on the current host, so
+the run is recorded as skipped rather than successful. This row does not
+claim runtime execution, backend parity, or whole-MIRBuilder completion.
+
 ## Generic G0 storage/lane source projection I0
 
 `generic_g0_storage_lane_source.rs` retains one parent-owned source row after

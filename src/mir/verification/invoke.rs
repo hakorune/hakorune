@@ -141,6 +141,14 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
                     (
+                        Callee::Global(
+                            target @ Global::SameModule(SameModule::FreeFunction { .. }),
+                        ),
+                        ResultKind::I64,
+                    ) => target
+                        .arity()
+                        .is_some_and(|arity| arity as usize == call.args.len()),
+                    (
                         Callee::SameModuleInstance { key, .. },
                         ResultKind::I64,
                     ) => key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod

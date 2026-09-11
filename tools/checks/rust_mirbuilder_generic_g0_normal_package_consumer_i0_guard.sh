@@ -13,7 +13,7 @@ RESOLVED="$ROOT_DIR/src/mir/builder/resolved_lowering/mod.rs"
 LOWERER="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/generic_lowerer.rs"
 TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline_loop_tests.rs"
 ROUTE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port/canonical_route_tests.rs"
-CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-loop-g0-normal-package-function-consumer-i0-2026-09-11.md"
+CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-loop-g0-helper-backend-reach-i1-2026-09-12.md"
 COMPILER_README="$ROOT_DIR/src/mir/compiler/README.md"
 BUILDER_README="$ROOT_DIR/src/mir/builder/README.md"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
@@ -39,13 +39,19 @@ guard_expect_fixed_in_file "$TAG" "lower_resolved_generic_g0_function_pending_v1
 guard_expect_fixed_in_file "$TAG" "commit_resolved_pending" "$ADMISSION" \
   "publication must remain on the existing collector terminal"
 guard_expect_fixed_in_file "$TAG" "normal_package_routes_top_level_generic_g0_through_existing_terminal" "$TESTS" \
-  "the normal package positive acceptance must stay visible"
-guard_expect_fixed_in_file "$TAG" "normal_package_generic_g0_reaches_existing_exe_emitter" "$TESTS" \
+  "the normal package physical-reach acceptance must stay visible"
+guard_expect_fixed_in_file "$TAG" "normal_package_generic_g0_helper_reaches_existing_exe_emitter" "$TESTS" \
   "the source-to-EXE acceptance witness must stay visible"
+guard_expect_fixed_in_file "$TAG" "assert_generic_g0_physical_reach" "$TESTS" \
+  "the acceptance must inspect selected physical reach, not module presence"
+guard_expect_fixed_in_file "$TAG" "InvokeOperation::Call" "$TESTS" \
+  "the acceptance must inspect the source-backed root Call"
 guard_expect_fixed_in_file "$TAG" "generic_g0_selection_rejects_missing_policy_mode" "$ROUTE_TESTS" \
   "invalid policy mode must have a focused negative acceptance"
-guard_expect_fixed_in_file "$TAG" "LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0" "$CARD" \
-  "the active I0 card must remain the documentation anchor"
+guard_expect_fixed_in_file "$TAG" "LOOP-G0-HELPER-BACKEND-REACH-I1" "$CARD" \
+  "the active I1 card must remain the documentation anchor"
+guard_expect_fixed_in_file "$TAG" "unavailable is an explicit skip" "$CARD" \
+  "the card must distinguish unavailable EXE evidence from success"
 guard_expect_fixed_in_file "$TAG" "Generic G0 normal-package function consumer I0" "$COMPILER_README" \
   "the compiler README must describe the I0 terminal"
 guard_expect_fixed_in_file "$TAG" 'Generic G0 top-level `FreeFunction`' "$BUILDER_README" \

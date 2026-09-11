@@ -155,7 +155,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             return Ok(None);
         };
         let Some(row) = loan
-            .take_terminal_lifecycle(ledger, owner, &site)
+            .take_terminal(ledger, owner, &site)
             .map_err(|error| format!("[freeze:contract][terminal-call/{error:?}]"))?
         else {
             return Ok(None);

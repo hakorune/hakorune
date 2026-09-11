@@ -1,10 +1,10 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "LOOP-G0-HELPER-BACKEND-REACH-I1"
 current_execution_cohort = "loop_g0_helper_backend_reach_i1"
 current_blocker_token = "LOOP-G0-HELPER-BACKEND-REACH-I1"
-guard_followup = "fast: prove source-backed Main -> generic_g0 Global Call membership through the existing physical-program issuer and lifecycle ABI."
+guard_followup = "closeout: record source-backed Main -> generic_g0/2 physical reach; EXE remains skipped when LLVM18 is unavailable."
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -31,14 +31,10 @@ methods, all-family selection, and source-to-EXE helper claims remain outside
 scope. Callable caller/callee indices, PHI backedge, and common-After ownership
 split are closed with focused evidence.
 Fixed-role Loop topology retirement R0 is closed; the Callable/Generic segment
-route is sole and its 22-test/transfer/pointer evidence is green. G0
-package/publication plus root-EXE coexistence I0 reused the existing source,
-callback, and emitter; its ignored witness was skipped because LLVM18 is
-unavailable, not successfully run. The old I0 Main did not call G0, so helper
-backend/runtime remained unclaimed. The accepted I1 witness now uses the
-existing source-backed `Main.main -> generic_g0(0, 0)` Global Call and is the
-current bounded implementation row; Call/R7, backend parity, and all-family
-completion remain unclaimed.
+route is sole and its 22-test/transfer/pointer evidence is green. G0 I0 had
+root-EXE coexistence only; I1 now uses the source-backed
+`Main.main -> generic_g0(0, 0)` Global Call for physical reach. Call/R7,
+backend parity, and all-family completion remain unclaimed.
 Call/R7 link direct seam I0 landed at fc19313028 with focused guard and C
 smoke. Compile-options I1A landed at 454e49b755 for the Boundary pure-first
 CAPI edge: one Rust admission normalization, a versioned default-visible C
@@ -48,15 +44,21 @@ guard are green; the existing named compatibility smoke remains an uncounted
 host Traceback baseline red. Static-open, harness, AOT compatibility, and
 published-row globals remain explicit follow-up edges; release compatibility
 is retained.
-The G0 helper backend reach design stop is accepted. The existing source-backed
-Global Call relation `Main.main -> generic_g0(0, 0)` is the sole membership
-authority; the next fast slice updates the focused witness and proves root plus
-`generic_g0/2` physical/ABI membership, with EXE exit `3` only when LLVM18 is
-available.
+The G0 helper backend reach design stop is accepted and its I1 implementation
+is closed. The existing source-backed Global Call relation
+`Main.main -> generic_g0(0, 0)` is the sole membership authority. The focused
+positive observes exactly the root Invoke(Call) to `generic_g0/2`, two integer
+helper lanes, and helper Compare/Add body operations. The static EXE witness
+uses the same selected view but was skipped because LLVM18 is unavailable;
+runtime success is unclaimed. Selected first-family production cutovers now
+reuse the single preflight BuilderInvocationConfigV1 snapshot. Obsolete pure
+operation expected-location fields and unreachable PreheaderSeed handling are
+removed. Whole-MIRBuilder completion, backend parity, and runtime execution
+remain unclaimed.
 """
 next_design_card = "none__G0HelperBackendReach__PendingNextDesign"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-helper-backend-reach-i1-2026-09-12.md"
-next_execution_card = "LOOP-G0-HELPER-BACKEND-REACH-I1"
+next_execution_card = "none__G0HelperBackendReach__PendingCloseout"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-helper-backend-reach-i1-2026-09-12.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

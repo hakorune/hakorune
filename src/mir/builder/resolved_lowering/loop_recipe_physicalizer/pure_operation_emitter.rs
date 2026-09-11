@@ -6,13 +6,12 @@
 
 use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
 use super::operation_target::VerifiedLoopOperationTargetBlockV1;
-use super::topology::LoopPhysicalBlockRoleV1;
 use crate::mir::builder::emission::constant;
 use crate::mir::builder::emission::loop_operation;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
-    LoopBinaryI64OpV1, LoopBlockKeyV1, LoopCompareI64OpV1, LoopItemKeyV1, LoopNodeKeyV1,
-    LoopOperationV1, LoopValueClassV1, LoopValueKeyV1,
+    LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopItemKeyV1, LoopOperationV1, LoopValueClassV1,
+    LoopValueKeyV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
@@ -22,9 +21,6 @@ pub(super) struct PreparedLoopOperationEmissionV1 {
     owner: FunctionOwnerIdV1,
     item: LoopItemKeyV1,
     operation: LoopOperationV1,
-    expected_loop: LoopNodeKeyV1,
-    expected_block: LoopBlockKeyV1,
-    expected_role: LoopPhysicalBlockRoleV1,
 }
 
 impl PreparedLoopOperationEmissionV1 {
@@ -32,9 +28,6 @@ impl PreparedLoopOperationEmissionV1 {
     pub(super) const fn const_i64_for_canary(
         owner: FunctionOwnerIdV1,
         item: LoopItemKeyV1,
-        expected_loop: LoopNodeKeyV1,
-        expected_block: LoopBlockKeyV1,
-        expected_role: LoopPhysicalBlockRoleV1,
         result: LoopValueKeyV1,
         value: i64,
     ) -> Self {
@@ -42,9 +35,6 @@ impl PreparedLoopOperationEmissionV1 {
             owner,
             item,
             operation: LoopOperationV1::ConstI64 { result, value },
-            expected_loop,
-            expected_block,
-            expected_role,
         }
     }
 
@@ -52,17 +42,11 @@ impl PreparedLoopOperationEmissionV1 {
         owner: FunctionOwnerIdV1,
         item: LoopItemKeyV1,
         operation: LoopOperationV1,
-        expected_loop: LoopNodeKeyV1,
-        expected_block: LoopBlockKeyV1,
-        expected_role: LoopPhysicalBlockRoleV1,
     ) -> Self {
         Self {
             owner,
             item,
             operation,
-            expected_loop,
-            expected_block,
-            expected_role,
         }
     }
 
@@ -71,18 +55,8 @@ impl PreparedLoopOperationEmissionV1 {
         owner: FunctionOwnerIdV1,
         item: LoopItemKeyV1,
         operation: LoopOperationV1,
-        expected_loop: LoopNodeKeyV1,
-        expected_block: LoopBlockKeyV1,
-        expected_role: LoopPhysicalBlockRoleV1,
     ) -> Self {
-        Self::from_operation(
-            owner,
-            item,
-            operation,
-            expected_loop,
-            expected_block,
-            expected_role,
-        )
+        Self::from_operation(owner, item, operation)
     }
 
     pub(super) const fn owner(self) -> FunctionOwnerIdV1 {
@@ -91,18 +65,6 @@ impl PreparedLoopOperationEmissionV1 {
 
     pub(super) const fn item(self) -> LoopItemKeyV1 {
         self.item
-    }
-
-    pub(super) const fn expected_loop(self) -> LoopNodeKeyV1 {
-        self.expected_loop
-    }
-
-    pub(super) const fn expected_block(self) -> LoopBlockKeyV1 {
-        self.expected_block
-    }
-
-    pub(super) const fn expected_role(self) -> LoopPhysicalBlockRoleV1 {
-        self.expected_role
     }
 }
 

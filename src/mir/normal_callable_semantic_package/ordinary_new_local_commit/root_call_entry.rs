@@ -102,9 +102,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         if matches!(&row, RootCallDispositionV1::Direct(_)) {
             if let RootCallDispositionV1::Direct(direct) = &row {
-                direct
-                    .lifecycle_emission()
-                    .map_err(|_| freeze("call-source-mismatch"))?;
+                let _ = direct.physical_emission();
             }
         }
         let mut pending = self.root_local_call_bindings.borrow_mut();
@@ -290,8 +288,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let expected = match row {
             RootCallDispositionV1::Direct(row) => row
-                .lifecycle_emission()
-                .map_err(|_| freeze("call-source-mismatch"))?
+                .physical_emission()
                 .materialize_call(None, values)
                 .map_err(|_| freeze("call-projection-failed"))?,
             RootCallDispositionV1::Instance(row) => {

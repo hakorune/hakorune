@@ -391,6 +391,19 @@ impl MirCompiler {
             &self.builder,
             source_file,
         );
+        self.begin_canonical_invocation_with_config(package, config, module_name)
+    }
+
+    /// Open the physical owner with the config already captured by its
+    /// preflight ingress. Selected first-family routes use this handoff so
+    /// policy, imports, plugin signatures, and debug settings cannot be
+    /// re-read between admission and lowering.
+    pub(in crate::mir) fn begin_canonical_invocation_with_config<'a>(
+        &mut self,
+        package: SourceBoundCanonicalPackageV1<'a>,
+        config: BuilderInvocationConfigV1,
+        module_name: String,
+    ) -> Result<CanonicalPhysicalInvocationV1<'a>, RejectedCanonicalPhysicalOpenV1<'a>> {
         package.open_physical(&self.builder, config, module_name)
     }
 
@@ -567,21 +580,21 @@ impl MirCompiler {
                 return resolved_direct_accum_cutover::compile_direct_accum_source_bound(
                     self,
                     plan,
-                    source_file,
+                    config,
                 );
             }
             CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(plan)) => {
                 return resolved_nested_predicate_cutover::compile_nested_predicate_source_bound(
                     self,
                     plan,
-                    source_file,
+                    config,
                 );
             }
             CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) => {
                 return resolved_generic_g0_cutover::compile_generic_g0_source_bound(
                     self,
                     plan,
-                    source_file,
+                    config,
                 );
             }
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {

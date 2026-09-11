@@ -21,7 +21,6 @@ use super::operation_emitter::{
 };
 use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
 use super::operation_target::{LoopOperationTargetRejectV1, VerifiedLoopOperationTargetBlockV1};
-use super::topology::ReadyLoopEntryV1;
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
@@ -143,7 +142,6 @@ pub(super) fn emit_prepared_operation_family_at_target_v1<'source>(
     prepared: PreparedLoopOperationDispatchV1,
     target: VerifiedLoopOperationTargetBlockV1,
     state: &mut LoopOperationValueLedgerV1,
-    entry: &ReadyLoopEntryV1,
     services: &mut LoopOperationDispatchServicesV1<'_, 'source>,
 ) -> Result<LoopOperationDispatchReceiptV1, LoopOperationDispatchRejectV1> {
     match prepared {
@@ -164,9 +162,8 @@ pub(super) fn emit_prepared_operation_family_at_target_v1<'source>(
                 identity: services.identity,
                 phis: services.phis,
             };
-            let receipt =
-                emit_prepared_read_binding_at_target_v1(&prepared, target, entry, &mut identity)
-                    .map_err(LoopOperationDispatchRejectV1::Read)?;
+            let receipt = emit_prepared_read_binding_at_target_v1(&prepared, target, &mut identity)
+                .map_err(LoopOperationDispatchRejectV1::Read)?;
             state
                 .publish(LoopOperationValueReceiptV1::new(
                     receipt.owner(),

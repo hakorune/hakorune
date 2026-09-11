@@ -13,7 +13,7 @@ use super::operation_dispatcher::{
     PreparedLoopOperationDispatchV1,
 };
 use super::operation_emitter::{
-    LoopReadEntryRequirementV1, PreparedLoopOperationEmissionV1, PreparedLoopReadBindingEmissionV1,
+    PreparedLoopOperationEmissionV1, PreparedLoopReadBindingEmissionV1,
     PreparedLoopWriteBindingEmissionV1,
 };
 use super::operation_ledger::LoopOperationValueLedgerV1;
@@ -68,7 +68,6 @@ impl PreparedLoopSegmentOperationDispatchPlanV1 {
                 row.clone(),
                 *target,
                 &mut state,
-                &entry,
                 services,
             )
             .map_err(map_dispatch_reject)?;
@@ -159,7 +158,6 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
                             owner,
                             source,
                             role,
-                            LoopReadEntryRequirementV1::CanonicalLive,
                         ),
                     )
                 } else if let Some(source) = carrier_rows.get(&row.item()) {
@@ -186,9 +184,6 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
                         owner,
                         row.item(),
                         row.operation(),
-                        row.owner_loop(),
-                        row.block(),
-                        role,
                     ),
                 )
             }
@@ -223,9 +218,6 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
                         owner,
                         row.item(),
                         row.operation(),
-                        row.owner_loop(),
-                        row.block(),
-                        role,
                     ),
                 )
             }

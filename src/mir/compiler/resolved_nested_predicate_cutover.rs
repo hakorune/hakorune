@@ -12,13 +12,14 @@ use super::module_postprocess::ModulePostprocessOwnerV1;
 use super::nested_predicate_profile::CanonicalNestedPredicatePlanV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompileResult, MirCompiler};
+use crate::mir::builder::BuilderInvocationConfigV1;
 
 pub(super) fn compile_nested_predicate_source_bound(
     compiler: &mut MirCompiler,
     plan: CanonicalNestedPredicatePlanV1<'_>,
-    source_file: Option<&str>,
+    config: BuilderInvocationConfigV1,
 ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-    let prepared = prepare_nested_predicate_source_bound(compiler, plan, source_file)?;
+    let prepared = prepare_nested_predicate_source_bound(compiler, plan, config)?;
     Ok(compiler.commit_prepared_module(prepared))
 }
 
@@ -42,7 +43,8 @@ pub(in crate::mir) fn compile_nested_predicate_source_bound_with_prepared_failur
             reason: "nested_predicate_test_requires_nested_plan",
         });
     };
-    let prepared = prepare_nested_predicate_source_bound(compiler, plan, source_file)?;
+    let config = BuilderInvocationConfigV1::snapshot_for_canonical(&compiler.builder, source_file);
+    let prepared = prepare_nested_predicate_source_bound(compiler, plan, config)?;
     drop(prepared);
     Err(CanonicalLoweringErrorV1::BuilderContract {
         detail: "nested_predicate/test_injected_prepared_commit_failure".into(),
@@ -52,7 +54,7 @@ pub(in crate::mir) fn compile_nested_predicate_source_bound_with_prepared_failur
 fn prepare_nested_predicate_source_bound<'source>(
     compiler: &mut MirCompiler,
     plan: CanonicalNestedPredicatePlanV1<'source>,
-    source_file: Option<&str>,
+    config: BuilderInvocationConfigV1,
 ) -> Result<PreparedModuleExternalCommitV1<'source>, CanonicalLoweringErrorV1> {
     let header = plan
         .seal_resolved_owner_header_v1()
@@ -64,7 +66,7 @@ fn prepare_nested_predicate_source_bound<'source>(
         ))
         .map_err(|rejected| bridge_error("source_binding", rejected.error()))?;
     let finalized = compiler
-        .begin_canonical_invocation(package, source_file, module_name)
+        .begin_canonical_invocation_with_config(package, config, module_name)
         .map_err(|rejected| bridge_error("physical_open", rejected.error()))?
         .lower()
         .map_err(|rejected| bridge_error("physical_lower", rejected.error()))?

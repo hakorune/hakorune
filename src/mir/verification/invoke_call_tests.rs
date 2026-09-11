@@ -55,6 +55,33 @@ fn i64_call_has_one_normal_projection_and_shared_operand_rewrite() {
 }
 
 #[test]
+fn same_module_free_function_i64_call_uses_source_arity_contract() {
+    let mut function = call_function();
+    let MirInstruction::Invoke {
+        operation:
+            InvokeOperation::Call {
+                call,
+                result: ResultKind::I64,
+            },
+        ..
+    } = function
+        .blocks
+        .get_mut(&BasicBlockId::new(1))
+        .unwrap()
+        .terminator
+        .as_mut()
+        .unwrap()
+    else {
+        unreachable!()
+    };
+    call.callee = Callee::Global(
+        hakorune_mir_defs::CanonicalGlobalTargetV1::new_free_function("helper".into(), 1)
+            .unwrap(),
+    );
+    MirVerifier::new().verify_function(&function).unwrap();
+}
+
+#[test]
 fn same_module_instance_i64_call_uses_receiver_and_source_arity_contract() {
     let mut function = call_function();
     let MirInstruction::Invoke {

@@ -572,7 +572,8 @@ fn validate_instruction_with_context(
             } | MirInstruction::BinOp {
                 op: BinaryOp::Add,
                 ..
-            } | MirInstruction::Copy { .. }
+            } | MirInstruction::Compare { .. }
+                | MirInstruction::Copy { .. }
                 | MirInstruction::Phi { .. }
                 | MirInstruction::ObjectFieldGet { .. }
                 | MirInstruction::Invoke {

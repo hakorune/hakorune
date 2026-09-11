@@ -1,12 +1,84 @@
 use super::*;
+use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
+use crate::mir::{Callee, MirInstruction};
 use std::path::Path;
 use std::process::Command;
 
 fn generic_g0_source() -> &'static str {
     concat!(
         "static function generic_g0(i: i64, j: i64): i64 { loop(i < 3) { loop(j < 3) { j = j + 1 } i = i + 1 } return j }\n",
-        include_str!("../../../apps/typed-object-birth-min/main.hako")
+        "static box Main { main() { return generic_g0(0, 0) } }\n"
     )
+}
+
+fn assert_generic_g0_physical_reach(
+    view: &crate::mir::function::PublishedMirBackendView<'_>,
+) -> Result<(), String> {
+    let program = view.issue_lifecycle_physical_program()?;
+    let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::free_function("generic_g0", 2);
+    let helper = program
+        .functions()
+        .iter()
+        .find(|function| function.role().ordinary_target() == Some(&key))
+        .ok_or_else(|| "generic_g0/2 is absent from the physical program".to_owned())?;
+    assert_eq!(helper.name(), "generic_g0/2");
+    assert_eq!(helper.params().len(), 2);
+    assert!(!helper.role().has_receiver());
+    let target = Callee::Global(key.canonical_global_target_v1().unwrap());
+    let root_calls = program.functions()[0]
+        .blocks()
+        .iter()
+        .flat_map(|block| {
+            block
+                .instructions()
+                .iter()
+                .copied()
+                .chain(std::iter::once(block.terminator()))
+        })
+        .filter(|row| {
+            matches!(
+                row.instruction(),
+                MirInstruction::Invoke {
+                    operation: InvokeOperation::Call {
+                        call,
+                        result: InvokeCallResultKind::I64,
+                    },
+                    ..
+                } if call.callee == target && call.args.len() == 2 && call.dst.is_none()
+            )
+        })
+        .count();
+    assert_eq!(root_calls, 1);
+    let mut helper_instructions = helper
+        .blocks()
+        .iter()
+        .flat_map(|block| {
+            block
+                .instructions()
+                .iter()
+                .copied()
+                .chain(std::iter::once(block.terminator()))
+        });
+    assert!(helper_instructions
+        .clone()
+        .any(|row| matches!(row.instruction(), MirInstruction::Compare { .. })));
+    assert!(helper_instructions.any(|row| matches!(
+        row.instruction(),
+        MirInstruction::BinOp {
+            op: crate::mir::BinaryOp::Add,
+            ..
+        }
+    )));
+    assert_eq!(program.functions().len(), 2);
+    assert_eq!(
+        program
+            .functions()
+            .iter()
+            .filter(|function| function.role().ordinary_target().is_some())
+            .count(),
+        1
+    );
+    Ok(())
 }
 
 #[test]
@@ -15,35 +87,31 @@ fn normal_package_routes_top_level_generic_g0_through_existing_terminal() {
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let source = generic_g0_source();
         let mut compiler = MirCompiler::with_options(false);
-        let result = compiler
-            .compile_normal(published_request(source))
+        let mut callbacks = 0;
+        compiler
+            .compile_normal_with_published(published_request(source), |view, verification| {
+                callbacks += 1;
+                assert!(verification.is_ok(), "{verification:?}");
+                assert!(view.module().functions.contains_key("generic_g0/2"));
+                assert_generic_g0_physical_reach(view)
+            })
             .expect("normal package Generic G0 compile");
-        let function = result
-            .module
-            .functions
-            .get("generic_g0/2")
-            .expect("top-level Generic G0 definition");
-        assert_eq!(function.signature.params.len(), 2);
-        assert!(function
-            .blocks
-            .values()
-            .flat_map(|block| block.all_instructions())
-            .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. })));
+        assert_eq!(callbacks, 1);
     });
 }
 
 #[test]
-#[ignore = "requires selected FFI, LLVM18, target/release/ny-llvmc, and lifecycle kernel"]
-fn normal_package_generic_g0_reaches_existing_exe_emitter() {
+#[ignore = "requires selected FFI, LLVM18, target/release/ny-llvmc, and target/release/libnyash_kernel.a"]
+fn normal_package_generic_g0_helper_reaches_existing_exe_emitter() {
     crate::test_support::with_env_vars(
         &[
             ("NYASH_MACRO_DISABLE", Some("1")),
             ("NYASH_NY_LLVM_COMPILER", Some("target/release/ny-llvmc")),
         ],
         || {
-            let runtime = Path::new("target/lifecycle-kernel/release");
+            let runtime = Path::new("target/release");
             let required_files = [
-                runtime.join("libnyash_lifecycle_kernel.a"),
+                runtime.join("libnyash_kernel.a"),
                 Path::new("target/release/ny-llvmc").to_path_buf(),
                 Path::new("target/release/libhako_llvmc_ffi.so").to_path_buf(),
             ];
@@ -71,6 +139,7 @@ fn normal_package_generic_g0_reaches_existing_exe_emitter() {
                         callbacks += 1;
                         assert!(verification.is_ok(), "{verification:?}");
                         assert!(view.module().functions.contains_key("generic_g0/2"));
+                        assert_generic_g0_physical_reach(view)?;
                         let emitted = crate::host_providers::llvm_codegen::emit_published_view_exe(
                             view,
                             executable.to_str().expect("UTF-8 executable path"),
@@ -84,7 +153,7 @@ fn normal_package_generic_g0_reaches_existing_exe_emitter() {
                             .env("HAKO_NYRT_PLUGIN_HOST", "off")
                             .output()
                             .map_err(|error| error.to_string())?;
-                        assert_eq!(output.status.code(), Some(30), "{output:?}");
+                        assert_eq!(output.status.code(), Some(3), "{output:?}");
                         Ok::<(), String>(())
                     },
                 )

@@ -38,6 +38,10 @@ enum AppMainCallExecutionV1 {
 mod lifecycle;
 
 impl AppMainDirectCallDispositionRowV1 {
+    pub(crate) fn physical_emission(&self) -> &VerifiedCanonicalDirectCallEmissionV1 {
+        &self.emission
+    }
+
     pub(crate) fn lifecycle_emission(
         &self,
     ) -> Result<&VerifiedCanonicalDirectCallEmissionV1, AppMainDirectCallLoanErrorV1> {
@@ -97,6 +101,19 @@ impl AppMainDirectCallDispositionLoanV1 {
         owner: FunctionOwnerIdV1,
         return_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     ) -> Result<Option<AppMainDirectCallDispositionRowV1>, AppMainDirectCallLoanErrorV1> {
+        let Some(row) = self.take_terminal(ledger, owner, return_site)? else {
+            return Ok(None);
+        };
+        row.lifecycle_emission()?;
+        Ok(Some(row))
+    }
+
+    pub(crate) fn take_terminal(
+        &mut self,
+        ledger: &super::OrdinaryNewClaimLedgerV1,
+        owner: FunctionOwnerIdV1,
+        return_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> Result<Option<AppMainDirectCallDispositionRowV1>, AppMainDirectCallLoanErrorV1> {
         let Some((completion, terminal)) = ledger.call_source_completion() else {
             return Ok(None);
         };
@@ -108,9 +125,8 @@ impl AppMainDirectCallDispositionLoanV1 {
         {
             return Err(AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch);
         }
-        let row = self.take_once(owner, terminal.call_site().clone())?;
-        row.lifecycle_emission()?;
-        Ok(Some(row))
+        self.take_once(owner, terminal.call_site().clone())
+            .map(Some)
     }
     pub(crate) fn from_rows(
         owner: FunctionOwnerIdV1,

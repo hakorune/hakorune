@@ -20,9 +20,7 @@ pub(in crate::mir::builder) fn emit(
     owner: FunctionOwnerIdV1,
     row: AppMainDirectCallDispositionRowV1,
 ) -> Result<ValueId, String> {
-    let emission = row
-        .lifecycle_emission()
-        .map_err(|_| freeze("call-source-mismatch"))?;
+    let emission = row.physical_emission();
     let block = builder
         .function_state
         .current_block

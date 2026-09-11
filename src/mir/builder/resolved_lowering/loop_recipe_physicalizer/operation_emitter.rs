@@ -11,7 +11,7 @@ pub(super) use super::pure_operation_emitter::{
     emit_prepared_pure_operation_at_target_v1, LoopOperationEmissionReceiptV1,
     LoopOperationEmissionRejectV1, LoopOperationServicesV1, PreparedLoopOperationEmissionV1,
 };
-use super::topology::{LoopPhysicalBlockRoleV1, ReadyLoopEntryV1};
+use super::topology::LoopPhysicalBlockRoleV1;
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     CanonicalBindingReadReceiptV1, ResolvedSsaIdentityStateV2,
@@ -22,12 +22,6 @@ use crate::mir::loop_recipe_contract::{
 };
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, SourceExprSiteV1};
 use crate::mir::{BasicBlockId, ValueId};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum LoopReadEntryRequirementV1 {
-    PreheaderSeed,
-    CanonicalLive,
-}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct PreparedLoopReadBindingEmissionV1 {
@@ -40,7 +34,6 @@ pub(super) struct PreparedLoopReadBindingEmissionV1 {
     logical_block: LoopBlockKeyV1,
     expected_loop: LoopNodeKeyV1,
     expected_role: LoopPhysicalBlockRoleV1,
-    entry_requirement: LoopReadEntryRequirementV1,
     class: LoopValueClassV1,
 }
 
@@ -49,7 +42,6 @@ impl PreparedLoopReadBindingEmissionV1 {
         owner: FunctionOwnerIdV1,
         row: &PreparedLoopReadBindingRowV1,
         expected_role: LoopPhysicalBlockRoleV1,
-        entry_requirement: LoopReadEntryRequirementV1,
     ) -> Self {
         Self {
             owner,
@@ -61,7 +53,6 @@ impl PreparedLoopReadBindingEmissionV1 {
             logical_block: row.block(),
             expected_loop: row.owner_loop(),
             expected_role,
-            entry_requirement,
             class: row.class(),
         }
     }
@@ -71,9 +62,8 @@ impl PreparedLoopReadBindingEmissionV1 {
         owner: FunctionOwnerIdV1,
         row: &PreparedLoopReadBindingRowV1,
         expected_role: LoopPhysicalBlockRoleV1,
-        entry_requirement: LoopReadEntryRequirementV1,
     ) -> Self {
-        Self::from_row(owner, row, expected_role, entry_requirement)
+        Self::from_row(owner, row, expected_role)
     }
 
     pub(super) const fn result(&self) -> LoopValueKeyV1 {
@@ -108,7 +98,6 @@ impl PreparedLoopReadBindingEmissionV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum LoopReadBindingEmissionRejectV1 {
     PreClaim(LoopOperationEmissionRejectV1),
-    EntryBindingMissing(BindingRefV1),
     SourceBindingMismatch,
     CanonicalRead(String),
     CanonicalReceiptMismatch,
@@ -184,23 +173,12 @@ impl<'a, 'source> CanonicalBindingReadServicesV1<'a, 'source> {
 pub(super) fn emit_prepared_read_binding_at_target_v1(
     prepared: &PreparedLoopReadBindingEmissionV1,
     target: VerifiedLoopOperationTargetBlockV1,
-    entry: &ReadyLoopEntryV1,
     services: &mut CanonicalBindingReadServicesV1<'_, '_>,
 ) -> Result<ReadBindingEmissionReceiptV1, LoopReadBindingEmissionRejectV1> {
     let by_role = target.physical_block();
     if prepared.source_binding.owner() != prepared.owner {
         return Err(LoopReadBindingEmissionRejectV1::SourceBindingMismatch);
     }
-    if matches!(
-        prepared.entry_requirement,
-        LoopReadEntryRequirementV1::PreheaderSeed
-    ) && !entry.contains_binding(prepared.source_binding)
-    {
-        return Err(LoopReadBindingEmissionRejectV1::EntryBindingMissing(
-            prepared.source_binding,
-        ));
-    }
-
     let canonical = services
         .claim_and_read(&prepared.source_site, prepared.source_binding, by_role)
         .map_err(LoopReadBindingEmissionRejectV1::CanonicalRead)?;
