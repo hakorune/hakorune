@@ -1,10 +1,10 @@
 ---
-Status: active__Implementation__GenericG0CanonicalIssuer__2026-09-11
+Status: closed__NoSafeSlice__GenericG0PolicyModeAuthorityMissing__2026-09-11
 Task: LOOP-G0-CANONICAL-ISSUER-I0
 Date: 2026-09-11
 Priority: issue one source-backed Generic G0 plan and bind it to the existing Single package lifecycle
 Parent: mirbuilder-loop-g0-production-terminal-d0-2026-09-11
-NextCard: LOOP-G0-PRODUCTION-TERMINAL-I1
+NextCard: LOOP-G0-POLICY-MODE-AUTHORITY-D0
 ---
 
 # Generic G0 canonical issuer I0
@@ -111,3 +111,17 @@ guard result, source-size result, README/reference update, commit SHA, and
 pushed remote state. If physical lowering or source-to-exe evidence is still
 missing, leave `LOOP-G0-PRODUCTION-TERMINAL-I1` as the next active card and do
 not claim MIRBuilder or Generic G0 production completion.
+
+## Entry audit outcome
+
+I0 was not started. The entry audit found that the required policy mode and
+coverage authority are not production-backed: the compiler handoff module and
+compiler source-attempt adapter are `cfg(test)`, while the existing
+`GenericG0PolicyContextV1` receives `Release | Strict | StrictPlannerRequired`
+and `Complete | Incomplete` only through that observation path. Selecting
+`Release`/`Complete` in production would be an invented default and would
+silently bypass the explicit-mode contract in the Loop observation SSOT.
+
+The row is therefore closed as a design stop and handed to
+`mirbuilder-loop-g0-policy-mode-authority-d0-2026-09-11.md`. No code, fixture,
+route switch, semantic receipt, or physical effect was changed by I0.
