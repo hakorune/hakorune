@@ -40,8 +40,9 @@ Related:
   compile-options I1: one call-owned Rust/C contract for recipe, replay,
   opt-level, tool paths and harness values, normalized once by Rust and owned
   by `HakoLlvmcInvocation`. Release compatibility and public v1/v2 ABI remain
-  retained; the explicit versioned C entries and all production caller/delete
-  sets still require co-sealed acceptance before implementation.
+  retained. Its first bounded implementation edge is
+  `MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A`: Boundary pure-first only, with
+  static V2/harness/AOT compatibility explicitly deferred to the same owner.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

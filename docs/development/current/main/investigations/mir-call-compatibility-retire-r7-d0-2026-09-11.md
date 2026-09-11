@@ -411,3 +411,40 @@ unsupported tool/value, replay/profile mismatch, duplicate/unconsumed rows,
 and nested/published-row overlap. Until the finite production caller set is
 co-sealed against that gate, `NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority`
 and `work_mode = design_stop` remain authoritative.
+
+### MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A (selected implementation slice)
+
+The contract shape is accepted for one bounded production edge. This opens the
+explicit Boundary pure-first caller only; it does not claim that static V2,
+explicit harness, AOT compatibility, or the public generic ABI have already
+switched.
+
+```text
+Decision: add the versioned physical-options contract and switch the selected
+  Boundary pure-first CAPI caller to it; preserve all other compatibility edges.
+Source authority + canonical issuer: existing Rust Opts plus one admission
+  adapter normalize request/env aliases once; HakoLlvmcInvocation owns the C copy.
+Non-authority: MIR/Recipe meaning, public three-argument symbols, dlsym, and
+  ambient C getenv do not issue a new option meaning for this edge.
+Fail-fast boundary: contract revision/size/profile, recipe/replay, opt aliases,
+  and configured tool values reject before C lowering or output publication.
+Smallest next slice: header contract, invocation-owned copy, explicit compile
+  entry, Boundary pure-first caller, and focused positive/negative/restore guard.
+Non-claims: static-open adoption, harness/AOT propagation, public ABI removal,
+  concurrent compile, published-row global retirement, or whole R7 closure.
+```
+
+I1A retains the existing C lowering body and only threads its options through
+the selected generic/pattern physical terminal. The C entry is
+default-visible because Rust `dlsym` cannot call a hidden symbol. Its contract
+uses fixed-width integers and borrowed `const char*` inputs; C deep-copies the
+strings into the invocation and clears them at destruction. `Opts` remains the
+Rust request owner, with no new semantic receipt or settings layer.
+
+The I1A delete-set is deliberately limited to the selected Boundary caller's
+`set_var/remove_var` and restoration wrapper plus its old three-argument symbol
+lookup. The public C compatibility export and all unselected environment
+readers remain until their own explicit caller switch. Acceptance is one
+explicit pure-first/none success, invalid revision/profile and conflicting
+alias negatives before object effects, fake-tool/flag propagation, and
+unset/empty/present environment preservation on both success and failure.
