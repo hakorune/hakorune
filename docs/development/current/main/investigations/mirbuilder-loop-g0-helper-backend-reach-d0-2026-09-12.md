@@ -1,9 +1,9 @@
 ---
-Status: Design stop — source-backed helper reach authority is unresolved
+Status: closed__DecisionAccepted__G0HelperBackendReach__2026-09-12
 Date: 2026-09-12
 Decision: LOOP-G0-HELPER-BACKEND-REACH-D0
 Parent: mirbuilder-loop-g0-source-to-exe-acceptance-i0-2026-09-12.md
-NextCard: none__G0HelperBackendReach__PendingAuthorityDecision
+NextCard: LOOP-G0-HELPER-BACKEND-REACH-I1
 ---
 
 # Generic G0 helper backend reach D0
@@ -11,13 +11,41 @@ NextCard: none__G0HelperBackendReach__PendingAuthorityDecision
 ## Six-line brief
 
 ```text
-Decision: keep this row at design_stop / NoSafeSlice until a source-backed selected-program membership and call authority is named; do not synthesize a Call or scan the module by name.
+Decision: accept one bounded backend-reach implementation through the existing source-backed Global Call and physical-program issuer; do not synthesize a Call or scan the module by name.
 Source authority + canonical issuer: existing VerifiedFinalCallableProgramSourceV1 -> NormalRootExecutionConsumerV1 -> VerifiedNormalCallableSemanticPackageV1 -> existing physical-program issuer, with the existing G0 selector/Recipe/Single owner reused after admission.
 Non-authority: module function-name scans, source_ast() re-resolution, MIR/backend metadata, runner entry choice, test-only emitters, synthetic Calls, fallback, retry, and a second semantic receipt.
 Fail-fast boundary: source owner/forest/header, selected-program membership, G0 policy, and helper ABI/call relation must be co-sealed before LLVM/C artifact construction or runtime execution.
-Smallest next slice: decide whether an existing source-backed Call-bearing program can legitimately select generic_g0/2, or whether the source/Call authority must be expanded in a separate Call/R7 row; then name the exact physical-program input and runtime oracle.
-Non-claims: no helper LLVM-input reach, helper runtime result, LLVM18 success, backend parity, new fixture, Call/R7 completion, legacy retirement, or whole-MIRBuilder completion.
+Smallest next slice: use the existing normal-package `Callee::Global` form with `Main.main -> generic_g0(0, 0)`; assert exact root/helper physical membership and use the existing EXE route with result `3` when LLVM18 is available.
+Non-claims: no all-family Loop reach, backend parity, LLVM18 success on unavailable hosts, Call/R7 completion, legacy retirement, or whole-MIRBuilder completion.
 ```
+
+## Decision accepted
+
+The source-backed Call authority is now concrete. The parser/resolver and
+normal callable publisher already issue a `Callee::Global` for a top-level
+FreeFunction call. `PublishedMirBackendView::try_new` records the same relation
+as a `PublishedFreeFunctionCallRef`; the existing
+`issue_lifecycle_physical_program` then consumes the root's typed Call through
+`collect_ordinary_calls`, `ordinary_callable_key`, and the canonical definition
+table. This is the sole selected-program membership path.
+
+The bounded fixture shape is:
+
+```text
+static function generic_g0(i: i64, j: i64): i64 { <existing G0 loop> }
+static box Main { main() { return generic_g0(0, 0) } }
+```
+
+`generic_g0/2` is therefore selected by the source Call, not by module-name
+presence. Its two logical arguments match the two physical formal lanes and
+its integer result is the existing ordinary-call ABI. For the current loop
+body, the runtime oracle is exit code `3`; the prior Pair exit `30` is not a
+G0 execution claim and must not be reused for this witness.
+
+The next implementation may change only the focused acceptance fixture/test
+and assertions around the existing issuer/emitter. It may not add a source
+resolver, semantic receipt, module scan, synthetic Call, second issuer,
+fallback, or backend route.
 
 ## Bounded census
 
@@ -65,5 +93,7 @@ The reusable guard must reject module-name re-search, `source_ast()`
 re-resolution, synthetic Call creation, route-loop entry, test-only emitter
 use, fallback/retry, and a second issuer/receipt.
 
-This card authorizes only the next design decision. It does not authorize code,
-fixture, production switch, backend route, or semantic receipt changes.
+This card authorizes the bounded I1 implementation in
+`mirbuilder-loop-g0-helper-backend-reach-i1-2026-09-12.md`. It does not
+authorize all-family reach, backend parity, or a second semantic/physical
+owner.
