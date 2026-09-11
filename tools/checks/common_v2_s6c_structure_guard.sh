@@ -22,6 +22,9 @@ files=(
   "$ROOT_DIR/src/mir/builder/resolved_lowering/physical_entry_draftseal.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_exit.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_ingress.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/README.md"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/s6c_state.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/residence_lifecycle.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
@@ -226,6 +229,10 @@ guard_expect_fixed_in_file "$TAG" 'emit_pinned_text_residence_finish' "$cfg_sess
   "canonical CFG must own the Residence Finish writer"
 
 ssa_lifecycle="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/residence_lifecycle.rs"
+canonical_ssa_readme="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/README.md"
+canonical_ssa_session="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
+s6c_state="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/s6c_state.rs"
+physical_entry_boundary="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/physical_entry_boundary.rs"
 guard_expect_fixed_in_file "$TAG" 'finish_blocks' "$ssa_lifecycle" \
   "canonical session must reject duplicate Finish placement per exit"
 if rg -n 'finish_emitted' "$ssa_lifecycle"; then
@@ -233,6 +240,19 @@ if rg -n 'finish_emitted' "$ssa_lifecycle"; then
 fi
 if rg -n 'Arc<|RawPointer|ValueId|\*const|\*mut|MirInstruction|StringBox' "$ssa_lifecycle"; then
   guard_fail "$TAG" "canonical lifecycle session must not own runtime/raw-value authorities"
+fi
+guard_expect_fixed_in_file "$TAG" 'CanonicalSsaFunctionSessionV2' "$canonical_ssa_readme" \
+  "canonical_ssa README must name the sole session owner"
+guard_expect_fixed_in_file "$TAG" 'mod s6c_state;' "$canonical_ssa_session" \
+  "canonical session must retain the private S6C state child"
+guard_expect_fixed_in_file "$TAG" 'CanonicalSsaS6cStateV1' "$s6c_state" \
+  "canonical S6C state must have one named storage child"
+if rg -n 'self\.(deferred_s6c_cursor_blocks|pinned_text_residence)' \
+  "$physical_entry_boundary" "$ssa_lifecycle"; then
+  guard_fail "$TAG" "S6C lifecycle children must not access moved parent fields directly"
+fi
+if rg -n '^#\[path = ' "$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/mod.rs"; then
+  guard_fail "$TAG" "canonical_ssa facade must not use path glue"
 fi
 
 draftseal_ingress="$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_ingress.rs"

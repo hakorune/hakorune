@@ -50,6 +50,8 @@ mod physical_entry_stamp;
 mod pinned_text_plan;
 #[path = "session/residence_lifecycle.rs"]
 mod residence_lifecycle;
+#[path = "session/s6c_state.rs"]
+mod s6c_state;
 #[path = "session/s6c_textref_plan.rs"]
 mod s6c_textref_plan;
 #[path = "session/segment_scope.rs"]
@@ -103,12 +105,11 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalSsaFunctionSessio
     physical_entry_sidecar: Option<PhysicalTextEntryLaneSidecarV1>,
     physical_entry_execution: Option<physical_entry_boundary::PhysicalEntryExecutionBoundaryV1>,
     physical_entry_seal_deferred: bool,
-    deferred_s6c_cursor_blocks: Option<[BasicBlockId; 5]>,
+    s6c_state: s6c_state::CanonicalSsaS6cStateV1,
     physical_entry_stamp: Option<PhysicalFunctionEntryCohortStampV1>,
     generic_entry_adopted: bool,
     segment_block_brand: SegmentBlockAllocationBrandV1,
     segment_blocks_issued: bool,
-    pinned_text_residence: Option<residence_lifecycle::PinnedTextResidenceLifecycleStateV1>,
 }
 
 /// One-shot evidence that a profile-specific ledger has closed before the
@@ -331,12 +332,11 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             physical_entry_sidecar: None,
             physical_entry_execution: None,
             physical_entry_seal_deferred: false,
-            deferred_s6c_cursor_blocks: None,
+            s6c_state: s6c_state::CanonicalSsaS6cStateV1::new(),
             physical_entry_stamp: None,
             generic_entry_adopted: false,
             segment_block_brand: SegmentBlockAllocationBrandV1::new(),
             segment_blocks_issued: false,
-            pinned_text_residence: None,
         })
     }
 
@@ -389,12 +389,11 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             physical_entry_sidecar: None,
             physical_entry_execution: None,
             physical_entry_seal_deferred: false,
-            deferred_s6c_cursor_blocks: None,
+            s6c_state: s6c_state::CanonicalSsaS6cStateV1::new(),
             physical_entry_stamp: None,
             generic_entry_adopted: false,
             segment_block_brand: SegmentBlockAllocationBrandV1::new(),
             segment_blocks_issued: false,
-            pinned_text_residence: None,
         })
     }
 

@@ -31,7 +31,7 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         builder: &mut MirBuilder,
         carrier: PreparedPinnedTextResidenceLifecycleV1,
     ) -> Result<PinnedTextResidenceFinishCapabilityV1, String> {
-        if self.pinned_text_residence.is_some() {
+        if self.s6c_state.pinned_text_residence().is_some() {
             return Err("pinned-Text Residence Enter was already emitted".to_owned());
         }
         if carrier.plan().owner() != self.owner {
@@ -63,10 +63,11 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
                 carrier,
             )
             .map_err(|error| error.to_string())?;
-        self.pinned_text_residence = Some(PinnedTextResidenceLifecycleStateV1 {
-            residence,
-            finish_blocks: BTreeSet::new(),
-        });
+        self.s6c_state
+            .set_pinned_text_residence(PinnedTextResidenceLifecycleStateV1 {
+                residence,
+                finish_blocks: BTreeSet::new(),
+            });
         Ok(capability)
     }
 
@@ -83,8 +84,8 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .current_block
             .ok_or_else(|| "Residence Finish requires a selected canonical block".to_owned())?;
         let state = self
-            .pinned_text_residence
-            .as_ref()
+            .s6c_state
+            .pinned_text_residence()
             .ok_or_else(|| "Residence Finish has no admitted Enter".to_owned())?;
         if state.residence != residence {
             return Err("Residence Finish provenance differs from Enter".to_owned());
@@ -103,11 +104,10 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
             .emit_pinned_text_residence_finish(function, current, residence)
             .map_err(|error| error.to_string())?;
         let state = self
-            .pinned_text_residence
-            .as_mut()
+            .s6c_state
+            .pinned_text_residence_mut()
             .expect("Residence state was checked above");
         state.finish_blocks.insert(current);
         Ok(())
     }
-
 }

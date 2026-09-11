@@ -144,7 +144,11 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         if !self.physical_entry_seal_deferred {
             return Err("S6C cursor seal deferral requires a deferred physical entry".to_owned());
         }
-        if self.deferred_s6c_cursor_blocks.replace(blocks).is_some() {
+        if self
+            .s6c_state
+            .replace_deferred_cursor_blocks(blocks)
+            .is_some()
+        {
             return Err("S6C cursor seals were already deferred".to_owned());
         }
         Ok(())
@@ -155,8 +159,8 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         builder: &mut MirBuilder,
     ) -> Result<(), String> {
         let [body, continuation, condition, then_block, after] = self
-            .deferred_s6c_cursor_blocks
-            .take()
+            .s6c_state
+            .take_deferred_cursor_blocks()
             .ok_or_else(|| "S6C cursor seals were not deferred".to_owned())?;
         for block in [body, continuation, condition, then_block, after] {
             let function = builder

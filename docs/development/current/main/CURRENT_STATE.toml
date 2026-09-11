@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-CANONICAL-SSA-S6C-STATE-BOXSHAPE-R0"
 current_execution_cohort = "mirbuilder_canonical_ssa_s6c_state_boxshape_r0"
-current_design_stop = "accepted__CanonicalSsaS6cStateBoxShape__2026-09-11"
-current_blocker_token = "open__CanonicalSsaS6cStateBoxShapeImplementation"
-guard_followup = "fast: isolate only the existing canonical_ssa S6C cursor/residence state behind a private child; preserve CanonicalSsaFunctionSessionV2, existing callers, error boundaries, and all semantic/physical authorities."
+current_design_stop = "closed__CanonicalSsaS6cStateBoxShape__2026-09-11"
+current_blocker_token = "none__CanonicalSsaS6cStateBoxShapeClosed"
+guard_followup = "closeout: MIRBUILDER-CANONICAL-SSA-S6C-STATE-BOXSHAPE-R0 is implemented and evidence-backed. Preserve the sole CanonicalSsaFunctionSessionV2 owner; no semantic, caller, backend, GenericLoop, dynamic-origin, or legacy-retirement expansion is selected."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -29,14 +29,14 @@ MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0 is landed with no-manual-ledger
 positive evidence for bounds 0/1/3 and a named omission negative. The
 follow-up MIRBUILDER-FAILOPEN-REJECT-GATES-R0 is closed: PHI incoming
 repair/drop and missing loop carriers reject at their existing owners, with
-focused positive/negative evidence. The current bounded BoxShape slice only
-isolates existing canonical_ssa S6C state; it does not alter meaning, callers,
-V1/V2 contracts, dynamic-origin locals, OBJ/EXE, GenericLoop promotion, or
-legacy retirement.
+focused positive/negative evidence. The bounded canonical_ssa BoxShape slice
+is now landed: existing S6C cursor/residence state is isolated behind a private
+child with no meaning, caller, V1/V2, backend, GenericLoop, dynamic-origin,
+OBJ/EXE, or legacy-retirement change. These broader items remain non-claims.
 """
-next_design_card = "none__CanonicalSsaS6cStateBoxShapeAccepted"
+next_design_card = "none__CanonicalSsaS6cStateBoxShapeClosed"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-canonical-ssa-s6c-state-boxshape-d0-2026-09-11.md"
-next_execution_card = "MIRBUILDER-CANONICAL-SSA-S6C-STATE-BOXSHAPE-R0"
+next_execution_card = "none__CanonicalSsaS6cStateBoxShapeClosed"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-canonical-ssa-s6c-state-boxshape-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

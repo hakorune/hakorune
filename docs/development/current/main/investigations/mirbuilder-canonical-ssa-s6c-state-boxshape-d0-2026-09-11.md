@@ -78,3 +78,25 @@ A read-only worker audit confirmed this is a BoxShape-only slice with an
 existing owner and no `NoSafeSlice`. It identified the two fields above as the
 smallest isolated state, while recommending that S6C meaning, callers, and the
 V1/V2 contracts remain untouched. The audit did not edit files or run Cargo.
+
+## R0 implementation receipt (2026-09-11)
+
+`CanonicalSsaFunctionSessionV2` now stores the existing S6C cursor-seal and
+pinned-Text lifecycle state through the private `session/s6c_state.rs` child.
+The two lifecycle children use storage accessors, while duplicate and missing
+state checks retain their original owner methods and error text. No caller,
+semantic product, physical CFG/SSA/PHI operation, or V1/V2 contract changed.
+
+`canonical_ssa/README.md` records the owner, caller, and must-not boundary. The
+common S6C structure guard now requires the README/child, checks the session
+facade, rejects direct moved-field access from lifecycle children, and includes
+the canonical session in the below-800-line inventory.
+
+Evidence is green: targeted rustfmt, `common_v2_s6c_structure_guard.sh`, and
+`current_state_pointer_guard.sh`; canonical SSA tests 10/10; common S6C cursor
+tests 7/7; canonical CFG Residence tests 4/4; and the targeted library compile
+with `cargo test --profile quick --lib
+'mir::builder::resolved_lowering::canonical_ssa' --no-run --jobs 2`.
+The compile produced the known whole-library warning baseline (493 warnings)
+and no compile error. The repository-wide formatting check remains outside
+this slice because of unrelated pre-existing drift.
