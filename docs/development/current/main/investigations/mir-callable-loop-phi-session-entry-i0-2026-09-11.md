@@ -483,3 +483,16 @@ path, late-failure discard plus fresh rerun, and stale-generation,
 wrong-predecessor, and unsealed-publication mutations. These are selected
 session relation receipts only. Generic Loop value flow, module/OBJ/EXE
 execution, and legacy retirement remain open.
+
+### Selected module publication recheck (2026-09-11)
+
+The existing selected production fixtures were rerun after the session
+relation guard landed. `normal_ingress_routes_app_main_static_loop_child_through_callable_consumer`
+passes for bounds `0`, `1`, and `3` without manual ledger setup and observes
+the selected helper's bound, PHI, and `h_n -> s_n -> h_(n+1)` shape.
+`optimized_pair_root_with_callable_loop_child_reaches_physical_abi` also
+passes with the Pair root plus CallableSingleLoop child and reaches the
+existing `issue_lifecycle_physical_abi_input()` terminal with an I64 root
+result. This is compile-time selected-module publication/physical-ABI-input
+evidence only; backend OBJ/EXE execution, process exit, generic Loop, and
+legacy retirement remain open.
