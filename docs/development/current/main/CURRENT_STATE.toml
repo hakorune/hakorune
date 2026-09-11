@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "design_stop: link direct seam I0 landed at fc19313028; compile-options I1 is NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority and remains the next Task 3 authority decision."
+guard_followup = "design_stop: link direct seam I0 landed at fc19313028; compile-options I1 now has a candidate versioned Rust/C invocation contract, but remains NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority until caller/delete-set and pre-effect acceptance are co-sealed."
 current_design_stop = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -39,9 +39,12 @@ in the selected root physical program, so helper backend/runtime, Call/R7,
 backend parity, and all-family completion stay unclaimed. The next G0 item is
 `LOOP-G0-HELPER-BACKEND-REACH-D0`.
 Call/R7 link direct seam I0 landed at fc19313028 with focused guard and C
-smoke. Compile-options I1 is
-`NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority` and remains the
-design stop; release compatibility is retained.
+smoke. Compile-options I1 has a candidate versioned default-visible C contract
+owned by `HakoLlvmcInvocation`, one Rust admission normalization, static-open
+ingress, and child-local subprocess propagation. Its caller/delete-set and
+pre-effect acceptance are not co-sealed, so
+`NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority` remains the design
+stop; release compatibility is retained.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"

@@ -37,9 +37,11 @@ Related:
 - **Next ordered task:** the existing
   `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop resumes after its bounded
   link direct seam I0 landed at `fc19313028`. The next decision is
-  compile-options I1: one call-owned Rust/C contract for recipe, replay and
-  opt-level ingress. Release compatibility and public v1/v2 ABI remain
-  retained; no I1 implementation is selected yet.
+  compile-options I1: one call-owned Rust/C contract for recipe, replay,
+  opt-level, tool paths and harness values, normalized once by Rust and owned
+  by `HakoLlvmcInvocation`. Release compatibility and public v1/v2 ABI remain
+  retained; the explicit versioned C entries and all production caller/delete
+  sets still require co-sealed acceptance before implementation.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

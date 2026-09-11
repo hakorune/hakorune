@@ -337,3 +337,77 @@ unset/empty/present restoration on success and failure; and overlap isolation
 or pre-mutation rejection. This row is separate from the already-landed link
 direct seam I0 and from the Builder-level duplicate snapshot cleanup recorded
 in the G0 acceptance card.
+
+### Compile-options contract consultation (2026-09-12)
+
+The independent read-only consultation confirms the same stop and fixes the
+candidate boundary precisely enough for the next authority decision. The
+contract is physical invocation state, not a new MIR/Recipe receipt:
+
+```c
+#define HAKO_LLVMC_PHYSICAL_CONTRACT_REVISION 1u
+
+typedef struct hako_llvmc_physical_contract_v1 {
+  uint32_t revision;
+  uint32_t byte_size;
+  uint32_t ingress_profile;
+  uint32_t flags;
+  const char* compile_recipe;
+  const char* compat_replay;
+  const char* opt_level;
+  const char* opt_tool_path;
+  const char* llc_tool_path;
+  const char* llc_flags;
+  const char* llvmc_path;
+} hako_llvmc_physical_contract_v1;
+```
+
+Rust keeps the existing `Opts` request and one admission adapter resolves it
+once, including `HAKO_LLVM_OPT_LEVEL` versus `NYASH_LLVM_OPT_LEVEL`: one value
+is accepted, equal aliases are accepted, conflicting aliases reject, and an
+unset value normalizes to the existing default. The adapter owns the live
+`CString`s for the synchronous call. C validates revision/size/profile/flags,
+deep-copies strings into `HakoLlvmcInvocation`, and consumes only that copy;
+Rust enums, `String`, `Vec`, and `Option` do not cross the ABI.
+
+The explicit default-visible C entries are the only selected ingress for new
+production callers:
+
+```c
+int hako_llvmc_compile_json_with_options_v1(
+    const char* json_in, const char* obj_out,
+    const hako_llvmc_physical_contract_v1* contract, char** err_out);
+int hako_llvmc_static_open_v2_with_options(
+    const char* bytes, size_t length,
+    const hako_llvmc_physical_contract_v1* contract,
+    hako_llvmc_static_invocation_v2** out, char** error);
+```
+
+The public three-argument compile exports, AOT compile exports, link v1/v2,
+and the explicit harness export remain compatibility surfaces. They adapt into
+the same invocation owner where applicable; they are not deleted or treated as
+new option authorities. AOT link and `HAKO_AOT_USE_FFI` remain in the landed I0
+boundary. Static V2 receives options at open, so its existing save/set/restore
+RAII is not retained as a second authority. Subprocess and harness callers get
+child-local explicit values from the adapter; parent-process environment is
+never mutated.
+
+The finite I1 caller disposition is: retain artifact/error handling and the
+existing static query/frame/compile/close flow; delete only the three Rust
+temporary environment overrides, the static settings RAII, Boundary FFI
+`with_env_override`, duplicate compatibility option reads, and explicit C
+`getenv` reads after their callers use the contract. Keep link-only environment
+handling, public ABI symbols, external compatibility behavior, and published
+call-row globals outside this delete-set. A truly hidden symbol is not a Rust
+`dlsym` ingress; any Rust caller needs a default-visible versioned symbol in the
+FFI library header.
+
+The opening gate is now explicit but not yet passed: prove explicit
+pure-first/none, harness, static V2, and v1 compatibility; fake tool/path and
+flag propagation; C/Rust `revision`, `byte_size`, `sizeof`, and offset
+agreement; success/failure preservation for unset/empty/present environment;
+and pre-effect rejection for bad revision/size/profile/flags, alias conflict,
+unsupported tool/value, replay/profile mismatch, duplicate/unconsumed rows,
+and nested/published-row overlap. Until the finite production caller set is
+co-sealed against that gate, `NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority`
+and `work_mode = design_stop` remain authoritative.
