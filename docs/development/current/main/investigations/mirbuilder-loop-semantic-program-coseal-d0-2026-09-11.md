@@ -1,10 +1,10 @@
 ---
-Status: active__NoSafeSlice__LoopSemanticProgramCoSeal__2026-09-11
+Status: closed__NoSafeSlice__LoopSemanticProgramCoSeal__2026-09-11
 Task: LOOP-SEMANTIC-PROGRAM-COSEAL-R0
 Date: 2026-09-11
 Priority: close the missing source-relation and entry-coverage design before any shared semantic receipt
 Parent: mirbuilder-final-acceptance-scope-d0-2026-09-11
-NextCard: receipt-authority design review
+NextCard: mirbuilder-loop-precutover-authority-g0-d0-2026-09-11
 ---
 
 # Loop semantic-program co-seal D0
@@ -19,6 +19,11 @@ Fail-fast boundary: reject before a shared semantic receipt can be issued when s
 Smallest next slice: design the exact source-backed issuer and receipt contract for LoopNode/source, item/carrier, context, and complete entry coverage.
 Non-claims: no new Verified*/Prepared* product, production selection or switch, physical cutover, fallback, retry, or legacy deletion.
 ```
+
+Census boundary: Callable/Generic/Dynamic/M8/M9 source-parent issuers -> the
+first production selection/switch/delete terminal; includes family issuer,
+semantic consumer, and old-route boundaries; excludes unrelated Call/R7,
+backend, parser, and post-Loop publication cleanup.
 
 ## Worker-audited authority census
 
@@ -55,13 +60,27 @@ structural shape, not source identity. Adding a guessed aggregate, default
 receipt, or physical projection would create a second semantic authority, so
 this row remains `NoSafeSlice` in `design_stop`.
 
+## Independent worker premise audit
+
+Two independent read-only audits agree that the Callable-only BoxShape is
+already complete, while the all-family shared receipt is not safely issuable.
+The missing source relations and complete-entry coverage are not present as
+one source-backed parent for every admitted family. Generic's source parent
+and physical `entry_coverage_ok` remain local products, and Dynamic's V2
+envelope must not be coerced into a shared V1 product.
+
+The audits identify the next bounded design boundary as
+`LOOP-PRECUTOVER-AUTHORITY-G0`: use the existing Generic source parent and
+name one real production caller, replacement edge, fail-fast terminal, and
+exclusive old-edge deletion set. This is a design handoff, not permission to
+rewire `route_loop` or open a physical session.
+
 ## Required next Decision
 
-The next design-only review must name, for each admitted family, the source
-issuer and exact consumer for the four missing relation groups. It must also
-record cardinality, lineage/frame/version checks, duplicate/foreign/missing
-negative cases, the first production switch, typed terminal, and the finite
-old-edge deletion set. Until that Decision is accepted, do not add a shared
+The successor design-only review must name the Generic production caller and
+replacement edge, prove that the existing source parent reaches the selected
+terminal without split/re-pair ingress, and list the finite old-edge deletion
+set. Until that Decision is accepted, do not add a shared
 `VerifiedLoopSemanticProgramV1`, alter `route_loop`, widen Callable, or open
 M10b/M11/M12.
 

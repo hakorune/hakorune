@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "LOOP-SEMANTIC-PROGRAM-COSEAL-R0"
-current_execution_cohort = "mirbuilder_loop_semantic_program_coseal_r0"
-current_design_stop = "open__LoopSemanticProgramCoSeal__2026-09-11"
-current_blocker_token = "NoSafeSlice__LoopSemanticProgramSharedReceiptUnsealed"
-guard_followup = "design_stop: Callable-only semantic-program I0 is already caller-zero, but the all-family row lacks source-backed LoopNode/item-carrier/context/entry-coverage receipts and a production switch/delete-set. Record the receipt authority Decision before any code or new semantic product."
+current_execution_row = "LOOP-PRECUTOVER-AUTHORITY-G0-D0"
+current_execution_cohort = "mirbuilder_loop_precutover_authority_g0_d0"
+current_design_stop = "open__LoopPrecutoverAuthorityG0__2026-09-11"
+current_blocker_token = "NoSafeSlice__GenericG0ProductionCallerSwitchMissing"
+guard_followup = "design_stop: the existing Generic G0 source parent is caller-zero and the legacy route remains selected. Name one real production caller, replacement edge, typed terminal, lineage-preserving handoff, and exclusive old-edge delete-set before implementation."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -14,22 +14,22 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-semantic-program-coseal-d0-2026-09-11.md"
-latest_card = "mirbuilder-loop-semantic-program-coseal-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-semantic-program-coseal-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-precutover-authority-g0-d0-2026-09-11.md"
+latest_card = "mirbuilder-loop-precutover-authority-g0-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-precutover-authority-g0-d0-2026-09-11.md"
 latest_card_summary = """
 The fixed real-app EXE acceptance scope is closed as a finite 3/11 pass and
 8/11 separately owned baseline/infra handoff; it is not a whole-MirBuilder
-completion claim. The next Loop semantic-program audit confirms that the
-Callable-only I0 is already caller-zero, while the all-family co-seal remains
-NoSafeSlice until source-backed LoopNode/item-carrier/context/entry-coverage
-receipts, same-parent family issuers, and a production switch/delete-set are
-named. No shared semantic receipt or production route is opened in this stop.
+completion claim. The Loop semantic-program audit closed as NoSafeSlice for
+the all-family shared receipt, while Callable-only I0 remains caller-zero.
+The active design stop now names the missing Generic production caller,
+replacement edge, typed terminal, lineage proof, and exclusive old-edge
+delete-set. No route or physical effect is opened in this stop.
 """
-next_design_card = "LOOP-SEMANTIC-PROGRAM-COSEAL-R0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-semantic-program-coseal-d0-2026-09-11.md"
+next_design_card = "LOOP-PRECUTOVER-AUTHORITY-G0-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-precutover-authority-g0-d0-2026-09-11.md"
 next_execution_card = "none__MirBuilderFinalAcceptanceScopeClosed"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-semantic-program-coseal-d0-2026-09-11.md"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-precutover-authority-g0-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
