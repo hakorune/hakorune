@@ -1,8 +1,9 @@
 # Cargo configuration for Nyash project
 
 [build]
-# Use 24 threads by default for all cargo builds
-jobs = 24
+# Keep normal development builds modest on memory-constrained hosts.
+# Override with CARGO_BUILD_JOBS=1 for a large first build or under pressure.
+jobs = 2
 
 [target.x86_64-unknown-linux-gnu]
 # Use clang as the linker driver and lld for faster linking.
