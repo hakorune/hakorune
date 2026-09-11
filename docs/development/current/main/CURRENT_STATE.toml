@@ -5,7 +5,7 @@ current_execution_row = "LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0"
 current_execution_cohort = "mirbuilder_loop_g0_source_to_exe_publication_d0"
 current_blocker_token = "LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0"
 guard_followup = "design_stop: I1 hardening is closed; resolve the named normal-package to G0 source handoff before source-to-exe implementation."
-current_design_stop = "D0: no existing lossless normal-package to ResolvedModuleLoweringInputV1 handoff is named; design the single authority, consumer, rejection boundary, and finite acceptance first."
+current_design_stop = "D0: the normal package has a lossless function-level loan, but no module-level ResolvedModuleLoweringInputV1 handoff; design the function-level G0 consumer, policy-mode authority, rejection boundary, and finite acceptance first."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -43,8 +43,9 @@ Single terminal publishes non-main MIR with logical/physical arity separated,
 74 focused Generic G0 tests and a reusable guard green. Its hardening is
 also closed: typed reject identity, computed-left real-path proof, and
 producer/dispatch carrier-missing rejection are recorded before source-to-
-exe publication. D0 remains a design stop because the normal-package to G0
-resolved-source handoff has no existing lossless issuer.
+exe publication. D0 remains a design stop because only the lossless
+function-level package loan exists; the G0 module ingress still lacks the
+explicitly selected consumer and policy-mode handoff.
 No new receipt or backend route is authorized.
 """
 next_design_card = "LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0"
