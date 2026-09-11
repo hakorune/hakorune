@@ -32,13 +32,12 @@ Related:
   `18f2162e0d`; the segment route is sole for the admitted Callable/Generic
   physical cohort. These are bounded rows, not all-family or source-to-EXE
   completion.
-- **Next ordered task:** `MIR-CALL-LINK-DIRECT-SEAM-I0` is the bounded first
-  implementation cell under the existing `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0`
-  design after G0 source-to-EXE acceptance I0 closed with its local LLVM18
-  toolchain boundary recorded. It retires only the two FFI
-  `HAKO_AOT_USE_FFI` mutation helpers through the existing AOT link body.
-  Compile-options ownership remains a separate Task 3 design dependency;
-  release compatibility and public v1/v2 ABI remain retained.
+- **Next ordered task:** the existing
+  `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop resumes after its bounded
+  link direct seam I0 landed at `fc19313028`. The next decision is
+  compile-options I1: one call-owned Rust/C contract for recipe, replay and
+  opt-level ingress. Release compatibility and public v1/v2 ABI remain
+  retained; no I1 implementation is selected yet.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

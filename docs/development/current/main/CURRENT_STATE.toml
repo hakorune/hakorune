@@ -1,11 +1,11 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-LINK-DIRECT-SEAM-I0"
-current_execution_cohort = "mir_call_link_direct_seam_i0"
-current_blocker_token = "MIR-CALL-LINK-DIRECT-SEAM-I0"
-guard_followup = "closeout: focused link-seam guard, C smoke, pointer guard, and known broad-guard baseline classification are recorded; commit and push I0."
-current_design_stop = ""
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
+current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
+current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
+guard_followup = "design_stop: link direct seam I0 landed at fc19313028; compile-options I1 remains the next Task 3 authority decision."
+current_design_stop = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-link-direct-seam-i0-2026-09-12.md"
-latest_card = "mir-call-link-direct-seam-i0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-link-direct-seam-i0-2026-09-12.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+latest_card = "mir-call-compatibility-retire-r7-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
 The fixed real-app EXE acceptance scope is closed as a finite 3/11 pass, seven separately owned baseline boundaries, and one FFI-environment boundary;
 it is not a whole-MirBuilder completion claim. The Loop semantic-program audit
@@ -54,12 +54,12 @@ receipts/issuers/wrappers and disconnected tests are deleted; the
   pointer guards pass. Source-to-EXE acceptance I0 reused the existing source,
   package callback, and EXE emitter; its ignored witness passed with the local
   LLVM18 toolchain-unavailable skip. Main does not call G0, so helper runtime
-  result, Call/R7, backend parity, and all-family completion stay unclaimed. The selected boundary is Call/R7 link direct seam I0: the two FFI link save/set/restore helpers are the exclusive implementation target; compile options remain a separate Task 3 design dependency and release compatibility is retained.
+  result, Call/R7, backend parity, and all-family completion stay unclaimed. Call/R7 link direct seam I0 landed at fc19313028 with focused guard and C smoke; compile-options I1 is now the design stop, and release compatibility is retained.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "MIR-CALL-LINK-DIRECT-SEAM-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-link-direct-seam-i0-2026-09-12.md"
+next_execution_card = "none__MIR-CALL-COMPATIBILITY-RETIRE-R7-I1__CompileOptionsDesign"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
