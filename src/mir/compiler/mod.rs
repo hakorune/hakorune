@@ -563,10 +563,12 @@ impl MirCompiler {
                     source_file,
                 );
             }
-            CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(_plan)) => {
-                return Err(CanonicalLoweringErrorV1::CapabilityNotActivated {
-                    boundary: "generic_g0_production_terminal",
-                });
+            CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) => {
+                return resolved_generic_g0_cutover::compile_generic_g0_source_bound(
+                    self,
+                    plan,
+                    source_file,
+                );
             }
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
                 let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);

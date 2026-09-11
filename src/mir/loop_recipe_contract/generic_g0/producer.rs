@@ -105,6 +105,35 @@ impl VerifiedGenericRecipeProductG0 {
             .prepare_all()
     }
 
+    /// Production physical ingress that preserves the Generic tail beside
+    /// the neutral operation program.  The common physicalizer consumes only
+    /// the neutral continuation; the Generic lowerer consumes the tail later.
+    pub(crate) fn into_prepared_operation_program_and_tail(
+        self,
+    ) -> Result<
+        (
+            PreparedLoopOperationProgramV1,
+            VerifiedGenericG0TailCapabilityV1,
+        ),
+        LoopOperationPhysicalDemandRejectV1,
+    > {
+        let Self {
+            operation_effect,
+            after,
+            context,
+            target: _,
+        } = self;
+        let (after_binding, tail) = after.into_physical_parts();
+        let continuation = VerifiedLoopContinuationContractV1::from_after(
+            operation_effect.core().owner(),
+            after_binding,
+        );
+        let program =
+            VerifiedLoopOperationPhysicalDemandV1::issue(context, operation_effect, continuation)
+                .and_then(|demand| demand.prepare_all())?;
+        Ok((program, tail))
+    }
+
     /// Legacy topology-only split retained for the caller-zero observation
     /// adapter.  Production consumers must take the complete operation
     /// program/cohort; this boundary is not a physical-owner ingress.

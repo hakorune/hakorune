@@ -156,7 +156,7 @@ mod tests;
 mod void_tests;
 
 use crate::mir::compiler::capability::{
-    CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1,
+    CanonicalCurrentAPlusPlanV1, CanonicalGenericG0PlanV1, CanonicalTrivialBindingSsaPlanV1,
 };
 use crate::mir::compiler::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use crate::mir::function::MirParamDecl;
@@ -402,6 +402,23 @@ impl MirBuilder {
         plan: crate::mir::compiler::nested_predicate_profile::CanonicalNestedPredicatePlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
         nested_predicate_lowerer::lower_nested_predicate_function_draft(self, plan)
+    }
+
+    pub(in crate::mir) fn lower_resolved_generic_g0_function_draft(
+        &mut self,
+        plan: CanonicalGenericG0PlanV1<'_>,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        let admission = crate::mir::compiler::generic_g0_physical_operation_cohort::
+            issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
+                plan.into_source_parent(),
+            )
+            .map_err(|error| {
+                CanonicalResolvedBuildErrorV1::BuilderContract(format!(
+                    "[freeze:contract][generic-g0/admission] {error:?}"
+                ))
+            })?;
+        loop_recipe_physicalizer::lower_generic_g0_function_draft_v1(self, admission)
+            .map_err(CanonicalResolvedBuildErrorV1::BuilderContract)
     }
 
     #[cfg(test)]

@@ -700,10 +700,32 @@ Exact prose and superseded stops are historical. The durable result is:
 | final LLVM module closure | landed caller-zero immediately before sole trusted emit |
 | real candidate link/run correctness | landed offline evidence; production ABI unchanged |
 | final IR / linked assembly structural zero | landed offline evidence; compiler never consumes it |
-| production | closed |
+| production | selected Dynamic plus bounded Generic G0 terminal; wider families/source-to-exe closed |
 
-The current production selector remains selected-Dynamic. Generic G0 and S6C
-lifecycle candidates are caller-zero evidence until an explicit cutover row.
+The current Dynamic selector remains selected-Dynamic for its bounded lane.
+Generic G0 now has one bounded source-bound production terminal through the
+existing Single lifecycle, while S6C lifecycle candidates remain caller-zero
+evidence. Generic G0 source-to-exe acceptance, backend parity, all-family Loop
+selection, and legacy retirement remain separate decisions.
+
+### Generic G0 production terminal I1 (2026-09-11)
+
+The marked Generic G0 source plan is now consumed by one production physical
+lowerer and the existing Single collect/complete/drain path. The lowerer
+consumes the source-owned admission, canonical entry rows, prepared layout,
+operation program, Completion, and Generic Tail inside one unpublished
+function transaction. It does not call the historical test-only emitter
+session, re-enter `route_loop`, infer MIR identity/ABI/arity, or publish
+directly. Finalization, postprocess, external commit, and `publish_once` remain
+the existing module owners.
+
+The logical header remains `generic_g0/2`; the declared-instance physical
+signature has three lanes (receiver plus two explicit parameters). Physical
+arity is carried as a source-owned storage-lane relation into the existing
+Single collector and drain manifest, so logical identity and physical ABI are
+not conflated. Focused evidence is 72/72 Generic G0 tests, including a late
+prepared-commit drop that leaves no module published. This is a bounded
+production compiler terminal, not source-to-exe or whole-MIRBuilder evidence.
 
 ## Evidence and reusable guards
 

@@ -49,6 +49,16 @@ impl<'a> CanonicalGenericG0PlanV1<'a> {
         &self.source_parent
     }
 
+    pub(crate) fn into_source_parent(self) -> VerifiedGenericG0SourceParentV1<'a> {
+        self.source_parent
+    }
+
+    pub(crate) fn physical_callable_lane_count(&self) -> u32 {
+        self.source_parent
+            .storage_lane()
+            .physical_callable_lane_count()
+    }
+
     pub(crate) fn seal_resolved_owner_header_v1(
         &self,
     ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {

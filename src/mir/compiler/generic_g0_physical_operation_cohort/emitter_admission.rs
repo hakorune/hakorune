@@ -31,7 +31,7 @@ use crate::mir::compiler::generic_g0_source_parent::{
 };
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::loop_recipe_contract::{
-    LoopPhysicalLayoutRejectV1, PreparedLoopPhysicalLayoutV1,
+    LoopPhysicalLayoutRejectV1, PreparedLoopPhysicalLayoutV1, VerifiedGenericG0TailCapabilityV1,
 };
 use crate::mir::loop_route_policy::CanonicalLoopFamilySelectionV1;
 use crate::mir::numeric_substrate::NumericTarget;
@@ -133,6 +133,7 @@ pub(crate) struct PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
     shell_plan: PreparedGenericG0FunctionShellPlanV1,
     control: PreparedGenericG0EntryControlFactsV1,
     completion: VerifiedFunctionCompletionV1,
+    tail: VerifiedGenericG0TailCapabilityV1,
 }
 
 /// One-way handoff consumed by the unpublished session preflight.  The
@@ -145,6 +146,7 @@ pub(crate) struct PreparedGenericG0PhysicalEmitterSessionPreflightV1<'source> {
     shell_plan: PreparedGenericG0FunctionShellPlanV1,
     control: PreparedGenericG0EntryControlFactsV1,
     completion: VerifiedFunctionCompletionV1,
+    tail: Option<VerifiedGenericG0TailCapabilityV1>,
 }
 
 pub(crate) struct GenericG0PhysicalEmitterAdmissionRefV1<'loan, 'source> {
@@ -232,6 +234,12 @@ impl<'source> PreparedGenericG0PhysicalEmitterSessionPreflightV1<'source> {
     ) -> Result<VerifiedResolvedFunctionIfControlV1, String> {
         self.control.take_outer_if()
     }
+
+    pub(crate) fn take_tail(&mut self) -> VerifiedGenericG0TailCapabilityV1 {
+        self.tail
+            .take()
+            .expect("session preflight tail is consumed once")
+    }
 }
 
 impl<'source> PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
@@ -245,6 +253,7 @@ impl<'source> PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
             shell_plan: self.shell_plan,
             control: self.control,
             completion: self.completion,
+            tail: Some(self.tail),
         }
     }
 
@@ -279,6 +288,13 @@ pub(crate) fn issue_generic_g0_physical_emitter_admission_v1<'source>(
 {
     let parent = issue_generic_g0_source_parent_v1(input, selection)
         .map_err(GenericG0PhysicalEmitterAdmissionRejectV1::SourceParent)?;
+    issue_generic_g0_physical_emitter_admission_from_source_parent_v1(parent)
+}
+
+pub(crate) fn issue_generic_g0_physical_emitter_admission_from_source_parent_v1<'source>(
+    parent: super::super::generic_g0_source_parent::VerifiedGenericG0SourceParentV1<'source>,
+) -> Result<PreparedGenericG0PhysicalEmitterAdmissionV1<'source>, GenericG0PhysicalEmitterAdmissionRejectV1>
+{
     let descriptors = issue_generic_g0_physical_function_entry_input_v1(
         parent.borrow_for_physical_emitter(),
     )
@@ -326,6 +342,7 @@ fn seal_admission<'source>(
         storage_lane,
         completion,
         target,
+        tail,
     } = cohort;
     let mapping_count = {
         let mapping = issue_generic_g0_physical_operation_mapping_from_program_v1(&program)
@@ -446,5 +463,6 @@ fn seal_admission<'source>(
         shell_plan,
         control,
         completion,
+        tail,
     })
 }

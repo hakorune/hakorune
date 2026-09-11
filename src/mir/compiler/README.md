@@ -742,8 +742,9 @@ callback lends that row; it does not re-scan AST or reconstruct a header from
 This remains a source projection, but its co-sealed products are now consumed
 by the production Generic G0 canonical issuer/package I0 below. Result ABI,
 receiver/lane layout, function effect, Completion, skeleton/session,
-CFG/SSA/PHI, Text, physical lowering, fallback, retry, and publication remain
-outside I0.
+CFG/SSA/PHI, Text, and physical lowering remain outside this source-projection
+section; the bounded physical terminal is documented below. Fallback, retry,
+and alternate publication remain outside the route.
 
 ## Generic G0 canonical issuer/package I0
 
@@ -758,10 +759,30 @@ The issuer co-seals `CanonicalGenericG0PlanV1` with the existing
 `VerifiedResolvedOwnerHeaderV1`; `ExactCanonicalPreflightPlanV1::Loop` maps
 it to `CanonicalSourceRouteV1::BindingSsaTrivial`, the existing
 `ModuleInvocationFamilyV1::BindingSsaTrivial`, and one `Single` continuation.
-Package binding may seal that lifecycle header once, while physical
-`consume_parts` returns the typed `GenericG0NotActivated` stop until the next
-physical-terminal card. No G0 token, continuation, route-loop re-entry,
-test-session call, or alternate publication path is introduced.
+Package binding seals that lifecycle header once; the physical consumer carries
+the same plan into the bounded Generic G0 production terminal below. No G0
+token, continuation, route-loop re-entry, test-session call, or alternate
+publication path is introduced.
+
+### Generic G0 production terminal I1 (2026-09-11)
+
+`resolved_generic_g0_cutover.rs` is the one production source-bound switch for
+the marked Generic G0 shape. It consumes the existing Generic admission through
+`loop_recipe_physicalizer/generic_lowerer.rs`, then reuses the existing
+`Single` collect/complete/drain, finalization, postprocess, external-commit,
+and `publish_once` lifecycle. The lowerer consumes the co-sealed source parent,
+operation program, entry rows, layout, control, Completion, and Generic Tail;
+it does not re-infer source facts, ABI, identity, or control from MIR.
+
+Logical source identity remains `generic_g0/2`, while the physical signature
+has three `i64` lanes for the declared-instance fixture (receiver, `i`, `j`).
+The physical arity is carried as an explicit relation from the source-owned
+storage-lane projection into the existing `Single` collector/manifest; the
+logical header is not rewritten. The old
+`generic_g0_physical_emitter_session` remains `cfg(test)` evidence and is not
+promoted. Focused Generic G0 tests cover 72/72 positive and negative cases,
+including late prepared-commit drop with no published module. This slice does
+not claim source-to-exe, backend parity, all Loop families, or legacy removal.
 
 ## Generic G0 storage/lane source projection I0
 

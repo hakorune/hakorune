@@ -2,8 +2,8 @@
 //!
 //! `topology` owns the recursive block skeleton, `operation_emitter` owns the
 //! private operation leaf seams, and each focused test module owns its own
-//! evidence. The bounded CallableSingleLoop consumer is production-connected;
-//! broader GenericLoop physicalization remains closed.
+//! evidence. The bounded CallableSingleLoop and Generic G0 consumers are
+//! production-connected; broader GenericLoop physicalization remains closed.
 
 mod callable_canary;
 #[cfg(test)]
@@ -16,6 +16,7 @@ mod compare_i64_writer;
 mod compare_i64_writer_tests;
 #[cfg(test)]
 mod compare_result_ledger;
+mod generic_lowerer;
 #[cfg(test)]
 mod generic_production_canary_tests;
 mod operation_dispatcher;
@@ -41,6 +42,7 @@ mod topology;
 
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 pub(in crate::mir::builder) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
+pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_v1;
 use operation_dispatcher::*;
 use operation_emitter::*;
 use operation_ledger::*;

@@ -1,4 +1,4 @@
-Status: active__Implementation__GenericG0ProductionTerminal__2026-09-11
+Status: closed__Implementation__GenericG0ProductionTerminal__2026-09-11
 Task: LOOP-G0-PRODUCTION-TERMINAL-I1
 Date: 2026-09-11
 Priority: connect one Generic G0 physical lowerer to the existing Single completion/publication spine
@@ -43,6 +43,46 @@ design stop and name the missing issuer; do not add a default or fallback.
 Existing separate follow-ups remain open and are not silently folded into I1:
 the LocalSSA failure cache, measurement-off compile cost, and view re-scan;
 the G0 production connection itself is also not claimed by I0.
+
+## Implementation and closeout evidence
+
+I1 is implemented within the authorized cells. The production compiler now
+switches the marked Generic G0 plan into one source-bound cutover, consumes the
+existing Generic physical admission in a production lowerer, and returns via
+the existing Single collect/complete/drain, finalization, postprocess,
+external-commit, and `publish_once` lifecycle. The old
+`generic_g0_physical_emitter_session` remains `cfg(test)` only.
+
+The source header keeps logical symbol `generic_g0/2`; the declared-instance
+fixture physically contains three `i64` lanes (receiver, `i`, `j`). The
+source-owned storage-lane projection supplies the explicit physical arity to
+the existing Single collector and drain manifest. No MIR/name/arity inference,
+route-loop re-entry, direct publication, fallback, retry, or second owner was
+introduced.
+
+Focused evidence:
+
+```text
+CARGO_PROFILE_DEV_DEBUG=0 CARGO_INCREMENTAL=0 cargo test -j1 generic_g0 --lib
+72 passed; 0 failed
+CARGO_PROFILE_DEV_DEBUG=0 CARGO_INCREMENTAL=0 cargo check -j2
+passed (existing warning baseline only)
+bash tools/checks/rust_mirbuilder_generic_g0_production_terminal_i1_guard.sh
+passed
+bash tools/checks/current_state_pointer_guard.sh
+passed
+git diff --check
+passed
+source sizes: generic_lowerer.rs 215, resolved_generic_g0_cutover.rs 78,
+source_bound_package.rs 704, source_bound_package_generic_g0.rs 89,
+generic_g0_capability_tests.rs 126
+```
+
+The positive test asserts one published function with logical name `/2` and
+three physical parameter lanes. The negative test drops the prepared external
+commit product and verifies that the builder has no current module/function/
+entry state. This closes I1 only; source-to-exe acceptance, backend parity,
+all-family Loop activation, and legacy retirement remain unclaimed.
 
 ## Fixed terminal mapping
 

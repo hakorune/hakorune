@@ -10,13 +10,14 @@ mod emitter_admission;
 mod emitter_admission_tests;
 
 pub(crate) use emitter_admission::{
+    issue_generic_g0_physical_emitter_admission_from_source_parent_v1,
     issue_generic_g0_physical_emitter_admission_v1,
     GenericG0PhysicalEmitterAdmissionRejectV1, PreparedGenericG0PhysicalEmitterAdmissionV1,
 };
 
 use crate::mir::loop_recipe_contract::{
     LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
-    VerifiedGenericRecipeProductG0,
+    VerifiedGenericG0TailCapabilityV1, VerifiedGenericRecipeProductG0,
 };
 use crate::mir::loop_route_policy::CanonicalLoopFamilySelectionV1;
 use crate::mir::numeric_substrate::NumericTarget;
@@ -64,6 +65,7 @@ pub(crate) struct GenericG0PhysicalOperationCohortV1<'source> {
     storage_lane: VerifiedGenericG0StorageLaneSourceProjectionV1,
     completion: VerifiedFunctionCompletionV1,
     target: NumericTarget,
+    tail: VerifiedGenericG0TailCapabilityV1,
 }
 
 impl<'source> GenericG0PhysicalOperationCohortV1<'source> {
@@ -79,8 +81,8 @@ impl<'source> GenericG0PhysicalOperationCohortV1<'source> {
         completion: VerifiedFunctionCompletionV1,
     ) -> Result<Self, GenericG0PhysicalOperationCohortRejectV1> {
         let target = product.target();
-        let program = product
-            .into_prepared_operation_program()
+        let (program, tail) = product
+            .into_prepared_operation_program_and_tail()
             .map_err(GenericG0PhysicalOperationCohortRejectV1::Program)?;
         let context = program.demand().context();
         if context.owner() != input.owner()
@@ -116,6 +118,7 @@ impl<'source> GenericG0PhysicalOperationCohortV1<'source> {
             storage_lane,
             completion,
             target,
+            tail,
         })
     }
 

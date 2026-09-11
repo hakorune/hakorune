@@ -46,6 +46,7 @@ static NEXT_COMPILER_DOMAIN: AtomicU64 = AtomicU64::new(1);
 pub(super) enum SourceBindingErrorV1 {
     DomainExhausted,
     OrdinalExhausted,
+    PhysicalArityOverflow,
     Header(ResolvedOwnerHeaderSealErrorV1),
 }
 
@@ -62,6 +63,7 @@ pub(in crate::mir) enum CanonicalSourceContinuationV1<'a> {
     Single {
         header: VerifiedResolvedOwnerHeaderV1,
         policy: ModuleInvocationPolicyV1,
+        physical_arity: usize,
     },
     Callable {
         source: &'a VerifiedResolvedCallableModuleV1,
@@ -73,7 +75,6 @@ pub(in crate::mir) enum CanonicalSourceContinuationV1<'a> {
 pub(in crate::mir) enum CanonicalPlanLoweringErrorV1 {
     Single(CanonicalResolvedBuildErrorV1),
     Callable(CallableModuleTransactionErrorV1),
-    GenericG0NotActivated,
 }
 
 #[derive(Debug)]
@@ -273,18 +274,30 @@ impl<'a> LoweredCanonicalPhysicalInvocationV1<'a> {
         match lowered {
             LoweredCanonicalPlanV1::Single {
                 token,
-                continuation: CanonicalSourceContinuationV1::Single { header, policy },
+                continuation: CanonicalSourceContinuationV1::Single {
+                    header,
+                    policy,
+                    physical_arity,
+                },
                 draft,
-            } => match physical.collect_single(&header, draft) {
+            } => match physical.collect_single(&header, physical_arity, draft) {
                 Ok(physical) => Ok(CollectedCanonicalPhysicalInvocationV1::Single {
                     token,
-                    continuation: CanonicalSourceContinuationV1::Single { header, policy },
+                    continuation: CanonicalSourceContinuationV1::Single {
+                        header,
+                        policy,
+                        physical_arity,
+                    },
                     session,
                     physical,
                 }),
                 Err(rejected) => Err(RejectedCanonicalPhysicalCollectionInvocationV1 {
                     token,
-                    continuation: CanonicalSourceContinuationV1::Single { header, policy },
+                    continuation: CanonicalSourceContinuationV1::Single {
+                        header,
+                        policy,
+                        physical_arity,
+                    },
                     session,
                     callable_capability: None,
                     physical: rejected,
@@ -446,13 +459,17 @@ impl<'a> CanonicalSourceContinuationV1<'a> {
         brand: ModuleInvocationBrandV1,
     ) -> Result<CanonicalDrainManifestV1, CanonicalDrainManifestErrorV1> {
         match self {
-            Self::Single { header, policy } => Ok(CanonicalDrainManifestV1::single(
+            Self::Single {
+                header,
+                policy,
+                physical_arity,
+            } => Ok(CanonicalDrainManifestV1::single(
                 brand,
                 *policy,
                 CanonicalDrainRowV1::new(
                     CanonicalDrainIdentityV1::ResolvedOwner(header.owner()),
                     header.symbol().as_mir_name().into(),
-                    header.arity(),
+                    *physical_arity,
                 ),
             )),
             Self::Callable { source, policy } => {
@@ -554,12 +571,12 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                 continuation,
                 builder.lower_resolved_nested_predicate_function_draft(plan),
             ),
-            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(_plan)) => {
-                Err(RejectedCanonicalLoweringV1 {
+            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) => {
+                lower_single(
                     token,
                     continuation,
-                    error: CanonicalPlanLoweringErrorV1::GenericG0NotActivated,
-                })
+                    builder.lower_resolved_generic_g0_function_draft(plan),
+                )
             }
             ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
                 match builder.lower_acyclic_callable_drafts(plan) {

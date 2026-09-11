@@ -649,8 +649,10 @@ R2 is closed as an adapter receipt only. R3-I0 now allocates one block per R1
 segment plus one root After (no Step), retains the complete segment program,
 preflights and emits every entry/transfer once through canonical
 CFG/identity/PhiTxn, and returns the neutral After continuation used by the
-existing Tail/Completion/DraftSeal path. Physical G0, selector, collector,
-retry/fallback, and legacy retirement remain closed.
+existing Tail/Completion/DraftSeal path. The historical canary does not own
+the Generic G0 production selector or collector; the bounded I1 production
+terminal below now consumes its separate source-parent admission. Retry,
+fallback, and legacy retirement remain closed.
 
 ## Generic G0 exact-ingress I0 receipt (2026-08-08)
 
@@ -661,8 +663,9 @@ entry/tail provenance, preserves G0's post-loop read and I64 ABI in
 `VerifiedGenericG0TailCapabilityV1`, and proves all fifteen Recipe members
 through common `prepare_all` with no Builder effect. It does not own AST,
 resolver, CFG/SSA/PHI, physical IDs, Completion, DraftSeal, selector,
-fallback/retry, or publication. Physical G0 and production cutover remain
-closed.
+fallback/retry, or publication. The production G0 cutover is a separate
+source-bound compiler owner; this ingress remains a test-only pre-effect
+receipt.
 
 ## Full operation demand P0
 
@@ -792,10 +795,12 @@ coverage and condition-key checks stay in the profile wrapper.
 It delegates to canonical identity `read_entry_receipt` and never fabricates
 an expression site, re-resolves a name, or creates a G0-specific SSA owner.
 The focused Callable suite is 25/25 and the source files touched by this row
-remain below 800 lines. The next row is the test-only G0 I1 canary; production
-selection, retry/fallback retirement, and legacy deletion remain closed.
+remain below 800 lines. The G0 I1 canary below is historical caller-zero
+evidence; its production selection is owned by the source-bound compiler
+terminal documented after the canary. Retry/fallback retirement and legacy
+deletion remain closed.
 
-## Generic G0 I1 caller-zero canary (2026-08-08)
+## Generic G0 I1 caller-zero canary (historical, 2026-08-08)
 
 `LOOP-CALLER-ZERO-PARITY-G0-I1-R0` is closed as a `cfg(test)` profile
 harness. The exact compiler-side G0 ingress is split once into the complete
@@ -815,9 +820,32 @@ replays the same semantic shape. The carrier leaf uses the shared provisional
 type publication contract for unsealed PHI values; it owns no type, SSA, CFG,
 Tail, selector, retry, fallback, collector, or publication authority.
 
-This is caller-zero evidence only. M8/M9, production selection, M10b/M11/M12,
-and broad legacy retirement remain closed. The next row is the design-only
-top-down audit `LOOP-CALLER-ZERO-PARITY-G0-POST-I1-AUDIT-D0`.
+This remains caller-zero evidence only and is not the production lowerer. The
+current production terminal consumes the same semantic products through the
+separate source-parent admission below. M8/M9, source-to-exe acceptance,
+backend parity, and broad legacy retirement remain closed.
+
+## Generic G0 production terminal I1 (2026-09-11)
+
+`generic_lowerer.rs` is the one production physical consumer for the bounded
+Generic G0 profile. It consumes `PreparedGenericG0PhysicalEmitterAdmissionV1`
+inside the existing unpublished function transaction, adopts the resolver-
+issued receiver/parameter lanes, reads entry values through canonical identity,
+emits the prepared operation/layout program, consumes the neutral recursive
+After plus Generic Tail, and closes through the existing
+`finish_profile_close -> ReadyFunctionDraftSealV1` seam. The enclosing
+source-bound compiler route then uses the existing Single collector,
+completion, drain manifest, finalization, postprocess, external commit, and
+`publish_once` path.
+
+The source header and MIR symbol keep logical arity 2 (`generic_g0/2`), while
+the declared-instance physical signature has three `i64` lanes. That physical
+arity is carried from the source-owned storage-lane projection to the existing
+Single collector; it is never inferred from MIR or used to rewrite the source
+header. The legacy `generic_g0_physical_emitter_session` remains test-only.
+The focused suite and I1 guard cover the positive publication terminal and
+late prepared-commit rejection with no publication. Source-to-exe and wider
+Loop-family activation are later cards.
 
 ## Common V2 S6C TextEq operand issuer I0 (2026-08-18)
 

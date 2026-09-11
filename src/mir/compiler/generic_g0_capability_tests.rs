@@ -67,29 +67,50 @@ fn marked_generic_g0_rejects_invalid_policy_mode_without_fallback() {
 }
 
 #[test]
-fn i0_package_seals_header_then_stops_before_physical_lowering() {
+fn production_generic_g0_reaches_single_publication_terminal() {
+    let unit = resolved_g0();
+    let mut compiler = super::MirCompiler::with_options(false);
+    let result = compiler
+        .compile_resolved(unit.lowering_input(), Some("generic_g0.hako"))
+        .expect("Generic G0 source-bound compilation");
+
+    assert!(result.verification_result.is_ok());
+    assert_eq!(result.module.functions.len(), 1);
+    let function = result
+        .module
+        .get_function("generic_g0/2")
+        .expect("logical source symbol remains generic_g0/2");
+    assert_eq!(function.signature.name, "generic_g0/2");
+    assert_eq!(function.signature.params.len(), 3);
+    assert_eq!(function.params.len(), 3);
+}
+
+#[test]
+fn generic_g0_prepared_commit_failure_discards_unpublished_module() {
     let unit = resolved_g0();
     let plan = super::generic_g0_capability::verify_with_generic_g0_mode_v1(
         &unit,
-        Some(GenericG0PolicyModeV1::Strict),
+        Some(GenericG0PolicyModeV1::Release),
     )
     .expect("generic G0 plan");
-    let plan = ExactCanonicalPreflightPlanV1::from_first_family(plan);
-    assert_eq!(
-        plan.route(),
-        super::source_bound_plan::CanonicalSourceRouteV1::BindingSsaTrivial
-    );
-
-    let mut compiler = super::MirCompiler::new();
-    let package = compiler
-        .bind_canonical_source(plan)
-        .expect("source package binds");
-    let rejected = match compiler.lower_canonical_source(package, None) {
-        Ok(_) => panic!("I0 must stop before physical lowering"),
-        Err(rejected) => rejected,
+    let CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) = plan else {
+        panic!("expected Generic G0 loop plan")
     };
+    let mut compiler = super::MirCompiler::with_options(false);
+
+    let error = super::resolved_generic_g0_cutover::
+        compile_generic_g0_source_bound_with_prepared_failure_for_test(
+            &mut compiler,
+            plan,
+            Some("generic_g0-failed.hako"),
+        )
+        .expect_err("prepared commit failure must be terminal");
     assert!(matches!(
-        rejected.error(),
-        super::source_bound_package::CanonicalPlanLoweringErrorV1::GenericG0NotActivated
+        error,
+        super::CanonicalLoweringErrorV1::BuilderContract { detail }
+            if detail.contains("generic_g0/test_injected_prepared_commit_failure")
     ));
+    assert!(compiler.builder.current_module.is_none());
+    assert!(compiler.builder.current_function_name().is_none());
+    assert!(compiler.builder.current_function_entry_block().is_none());
 }
