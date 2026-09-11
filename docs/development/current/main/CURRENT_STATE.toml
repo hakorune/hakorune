@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-CANONICAL-SSA-S6C-STATE-BOXSHAPE-R0"
-current_execution_cohort = "mirbuilder_canonical_ssa_s6c_state_boxshape_r0"
-current_design_stop = "closed__CanonicalSsaS6cStateBoxShape__2026-09-11"
-current_blocker_token = "none__CanonicalSsaS6cStateBoxShapeClosed"
-guard_followup = "closeout: MIRBUILDER-CANONICAL-SSA-S6C-STATE-BOXSHAPE-R0 is implemented and evidence-backed. Preserve the sole CanonicalSsaFunctionSessionV2 owner; no semantic, caller, backend, GenericLoop, dynamic-origin, or legacy-retirement expansion is selected."
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE-R0"
+current_execution_cohort = "mirbuilder_final_acceptance_scope_r0"
+current_design_stop = "accepted__MirBuilderFinalAcceptanceScope__2026-09-11"
+current_blocker_token = "open__MirBuilderFinalAcceptanceScopePending"
+guard_followup = "fast: execute only the existing fixed real-app EXE acceptance manifest; record source/script hashes and classify results without fixture, source, backend, retry, or production-scope changes."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-canonical-ssa-s6c-state-boxshape-d0-2026-09-11.md"
-latest_card = "mirbuilder-canonical-ssa-s6c-state-boxshape-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-canonical-ssa-s6c-state-boxshape-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-final-acceptance-scope-d0-2026-09-11.md"
+latest_card = "mirbuilder-final-acceptance-scope-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-final-acceptance-scope-d0-2026-09-11.md"
 latest_card_summary = """
 The selected CallableSingleLoop I0 is closed within its bounded source-unit
 resolver index/header, FreeStatic prelude, canonical session/PHI relation,
@@ -32,12 +32,14 @@ repair/drop and missing loop carriers reject at their existing owners, with
 focused positive/negative evidence. The bounded canonical_ssa BoxShape slice
 is now landed: existing S6C cursor/residence state is isolated behind a private
 child with no meaning, caller, V1/V2, backend, GenericLoop, dynamic-origin,
-OBJ/EXE, or legacy-retirement change. These broader items remain non-claims.
+OBJ/EXE, or legacy-retirement change. The current selected work is the
+existing fixed real-app EXE acceptance scope only; its result remains a finite
+handoff and not a whole-MirBuilder completion claim.
 """
-next_design_card = "none__CanonicalSsaS6cStateBoxShapeClosed"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-canonical-ssa-s6c-state-boxshape-d0-2026-09-11.md"
-next_execution_card = "none__CanonicalSsaS6cStateBoxShapeClosed"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-canonical-ssa-s6c-state-boxshape-d0-2026-09-11.md"
+next_design_card = "none__MirBuilderFinalAcceptanceScopeSelected"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-final-acceptance-scope-d0-2026-09-11.md"
+next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE-R0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-final-acceptance-scope-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
