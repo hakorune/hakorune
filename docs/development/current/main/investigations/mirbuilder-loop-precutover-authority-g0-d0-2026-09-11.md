@@ -1,10 +1,10 @@
 ---
-Status: active__NoSafeSlice__LoopPrecutoverAuthorityG0__2026-09-11
+Status: closed__DecisionRecorded__LoopPrecutoverAuthorityG0__2026-09-11
 Task: LOOP-PRECUTOVER-AUTHORITY-G0-D0
 Date: 2026-09-11
 Priority: name one real Generic production caller and its exclusive cutover boundary
 Parent: mirbuilder-loop-semantic-program-coseal-d0-2026-09-11
-NextCard: Generic production caller Decision
+NextCard: LOOP-G0-CANONICAL-PREFLIGHT-ISSUER-D0
 ---
 
 # Loop pre-cutover authority G0 D0
@@ -118,9 +118,24 @@ rows. They may be deleted only after the new caller is G0-exclusive and the
 same commit proves that non-G0 rows do not enter the deleted edge. No broad
 legacy-router deletion is implied by this card.
 
-### Design-stop exit evidence
+## Decision outcome
 
-Implementation is still forbidden until the next card records all of these:
+The real production caller boundary is now named:
+
+```text
+MirCompiler::compile_resolved
+  -> compile_resolved_first_family
+  -> CanonicalLoweringPreflightV1::verify
+  -> future CanonicalLoopFamilyPlanV1::GenericG0 arm
+```
+
+This closes the package-mapping decision only. It does not claim a caller
+switch, a physical result, or old-route retirement. The next card owns the
+source selector and single issuer needed to make the named arm real.
+
+### Design-stop exit evidence carried forward
+
+Implementation remains forbidden until the next card records all of these:
 
 1. the exact canonical G0 source selector and single issuer boundary;
 2. the plan payload and proof of `BindingSsaTrivial` header/manifest/lifecycle
