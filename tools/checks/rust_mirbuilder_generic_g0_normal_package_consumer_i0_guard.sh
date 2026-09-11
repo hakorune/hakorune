@@ -40,6 +40,8 @@ guard_expect_fixed_in_file "$TAG" "commit_resolved_pending" "$ADMISSION" \
   "publication must remain on the existing collector terminal"
 guard_expect_fixed_in_file "$TAG" "normal_package_routes_top_level_generic_g0_through_existing_terminal" "$TESTS" \
   "the normal package positive acceptance must stay visible"
+guard_expect_fixed_in_file "$TAG" "normal_package_generic_g0_reaches_existing_exe_emitter" "$TESTS" \
+  "the source-to-EXE acceptance witness must stay visible"
 guard_expect_fixed_in_file "$TAG" "generic_g0_selection_rejects_missing_policy_mode" "$ROUTE_TESTS" \
   "invalid policy mode must have a focused negative acceptance"
 guard_expect_fixed_in_file "$TAG" "LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0" "$CARD" \

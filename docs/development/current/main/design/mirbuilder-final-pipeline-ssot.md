@@ -26,21 +26,18 @@ Related:
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** canonical Call and explicit legacy ingress
   are separated; the direct-loader schema-error retry is retired and the fixed
-  acceptance is classified. The selected callable-loop BodyOnlyRebind product
-  is now consumed by the existing source-aware adapter with relation-owner and
-  planner-increment checks. The artifact loader now delegates schema selection
-  to the parsed v1 bridge; escaped declared schemas stop before v0. The V4
-  receiver-identity coverage now uses a valid normal/fault base and a named
-  receiver-only mismatch proof.
-- **Next ordered task:** the callable Loop ordinary bridge is parked after the
-  old-edge ownership census, so the next bounded work is the independent
-  LocalSSA physical split `MIR-SSA-LOCAL-MATERIALIZE-BOXSHAPE-S0`. The Loop
-  `callable_handoff=None` branch remains a ledger-free Script/module owner and
-  the shared JoinIR route has a separate legacy port owner; reopen that bridge
-  only when its recorded trigger fires. The LocalSSA slice changes file
-  placement only: no source authority, route, failure order, or production
-  caller changes. Constructor/Array execution and retirement evidence belongs
-  to their owner SSOTs; no lifecycle V2 waiting state is implied.
+  acceptance is classified. LocalSSA materialization was split at
+  `473c006604`, the normal-package Generic G0 consumer now reaches the existing
+  Single publication terminal, and fixed-role Loop topology was retired at
+  `18f2162e0d`; the segment route is sole for the admitted Callable/Generic
+  physical cohort. These are bounded rows, not all-family or source-to-EXE
+  completion.
+- **Next ordered task:** `LOOP-G0-SOURCE-TO-EXE-ACCEPTANCE-I0` reuses the
+  existing normal-package source and publication callback to exercise the
+  existing EXE emitter when its explicit runtime archive is available. Main does
+  not call the helper, so the row proves root/publication reachability only;
+  Call/R7, new fixtures, backend parity, and all-family Loop selection remain
+  separate.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

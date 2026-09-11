@@ -23,18 +23,19 @@ Related:
   meaning through exact V1/V2 projections; neither projection authorizes a
   second physicalizer or V2-to-V1 coercion.
 - **Current implementation status:** source-to-Recipe S6C products, installed
-  child/header prerequisites, package physical-signature map, caller-zero Text
-  residence/backend transport, common V2 pre-session transport, canonical
-  session admission/session-open canary, physical-entry/layout/After/branch
-  canaries, and the receipt-owned Bool/Compare materializer are closed as
-  caller-zero slices. The all-family source-parent/co-seal boundary, Generic
-  G0 source-parent BoxShape, and same-cohort source-view BoxShape are accepted.
-  A-prime Text lifecycle and production selection remain parked.
-- **Next ordered task:** `LOOP-PRECUTOVER-AUTHORITY-G0` remains
-  `ParkedSealed__ProductionCallerAndDeleteSetMissing`. The source-parent and
-  canonical issuer exist as caller-zero material, but no production caller,
-  switch target, or exclusive old-edge delete-set has been identified. Do not
-  open a G0-I0 implementation from the cfg(test) ingress.
+  child/header prerequisites, common V2 pre-session transport, canonical
+  session admission, physical-entry/layout/After/branch canaries, and the
+  receipt-owned Bool/Compare materializer remain closed in their bounded rows.
+  Generic G0 now has a source-backed normal-package function consumer, an
+  existing Single physical/publication terminal, and fixed-role topology
+  retirement at `18f2162e0d`; the Callable/Generic segment route is sole for
+  that admitted cohort. All-family source co-seal, backend parity, and broad
+  production selection remain separate.
+- **Next ordered task:** `LOOP-G0-SOURCE-TO-EXE-ACCEPTANCE-I0` reuses the
+  existing normal-package source and publication callback to exercise the
+  existing EXE emitter with its explicit runtime archive. Main does not call
+  the helper, so this row proves root/publication reachability only; no Call/R7
+  route, new fixture, or all-family migration is opened.
 - **Reopen condition:** complete the recorded M10 semantic/transfer/session
   prerequisites and M8/M9 coverage, then name one unchanged production
   caller, its replacement path, fail-fast terminal, and exclusive deletion

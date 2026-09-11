@@ -1,10 +1,19 @@
 use super::*;
+use std::path::Path;
+use std::process::Command;
+
+fn generic_g0_source() -> &'static str {
+    concat!(
+        "static function generic_g0(i: i64, j: i64): i64 { loop(i < 3) { loop(j < 3) { j = j + 1 } i = i + 1 } return j }\n",
+        include_str!("../../../apps/typed-object-birth-min/main.hako")
+    )
+}
 
 #[test]
 fn normal_package_routes_top_level_generic_g0_through_existing_terminal() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        let source = "static function generic_g0(i: i64, j: i64): i64 { loop(i < 3) { loop(j < 3) { j = j + 1 } i = i + 1 } return j } static box Main { main() { return 0 } }";
+        let source = generic_g0_source();
         let mut compiler = MirCompiler::with_options(false);
         let result = compiler
             .compile_normal(published_request(source))
@@ -21,6 +30,68 @@ fn normal_package_routes_top_level_generic_g0_through_existing_terminal() {
             .flat_map(|block| block.all_instructions())
             .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. })));
     });
+}
+
+#[test]
+#[ignore = "requires selected FFI, LLVM18, target/release/ny-llvmc, and lifecycle kernel"]
+fn normal_package_generic_g0_reaches_existing_exe_emitter() {
+    crate::test_support::with_env_vars(
+        &[
+            ("NYASH_MACRO_DISABLE", Some("1")),
+            ("NYASH_NY_LLVM_COMPILER", Some("target/release/ny-llvmc")),
+        ],
+        || {
+            let runtime = Path::new("target/lifecycle-kernel/release");
+            let required_files = [
+                runtime.join("libnyash_lifecycle_kernel.a"),
+                Path::new("target/release/ny-llvmc").to_path_buf(),
+                Path::new("target/release/libhako_llvmc_ffi.so").to_path_buf(),
+            ];
+            let llvm18_available = ["llvm-config-18", "llc-18", "opt-18"]
+                .into_iter()
+                .all(|tool| {
+                    Command::new(tool)
+                        .arg("--version")
+                        .output()
+                        .is_ok_and(|output| output.status.success())
+                });
+            if required_files.iter().any(|path| !path.is_file()) || !llvm18_available {
+                eprintln!("EXE acceptance environment unavailable; witness skipped");
+                return;
+            }
+            crate::runtime::ring0::ensure_global_ring0_initialized();
+            let directory = tempfile::tempdir().expect("EXE acceptance temp directory");
+            let executable = directory.path().join("generic-g0");
+            let mut compiler = MirCompiler::with_options(true);
+            let mut callbacks = 0;
+            compiler
+                .compile_normal_with_published(
+                    published_request(generic_g0_source()),
+                    |view, verification| {
+                        callbacks += 1;
+                        assert!(verification.is_ok(), "{verification:?}");
+                        assert!(view.module().functions.contains_key("generic_g0/2"));
+                        let emitted = crate::host_providers::llvm_codegen::emit_published_view_exe(
+                            view,
+                            executable.to_str().expect("UTF-8 executable path"),
+                            runtime.to_str(),
+                            None,
+                        )
+                        .map_err(|error| format!("exe={error}"))?;
+                        assert!(emitted, "the existing typed EXE route must own publication");
+                        let output = Command::new(&executable)
+                            .env("NYASH_NYRT_SILENT_RESULT", "1")
+                            .env("HAKO_NYRT_PLUGIN_HOST", "off")
+                            .output()
+                            .map_err(|error| error.to_string())?;
+                        assert_eq!(output.status.code(), Some(30), "{output:?}");
+                        Ok::<(), String>(())
+                    },
+                )
+                .expect("normal-package Generic G0 EXE acceptance");
+            assert_eq!(callbacks, 1);
+        },
+    );
 }
 
 #[test]
