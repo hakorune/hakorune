@@ -162,3 +162,23 @@ link success without recursive FFI selection. It does not claim concurrent
 compilation or LegacyCallV0 retirement. Until that owner is selected with its
 full delete-set, the route pair remains `ParkedSealed__Task3Owner` and the
 R7 aggregate stays at `NoSafeSlice__NoRemainingUnsharedM7SOwner`.
+
+### Task 3 owner audit (2026-09-12)
+
+A second read-only worker audit rechecked this candidate against the owner-unit
+entry contract without reopening the census. The candidate remains a design
+candidate, not an implementation row: v2 has an explicit archive authority,
+but v1 still resolves `NYASH_EMIT_EXE_NYRT`, and both routes select through the
+process-global `HAKO_AOT_USE_FFI`; those inputs are not yet one call-owned
+issuer. The known v1 callers, v2 published-object caller, `dlsym` re-entry and
+public C ABI must receive explicit owner/retain dispositions before a deletion
+set can be named.
+
+The audit also found that the current save/set/restore wrapper treats an empty
+`HAKO_AOT_USE_FFI` value as unset. That is a concrete acceptance case, not
+permission to patch the wrapper in this design-stop row. The missing proof set
+is therefore bounded to call-owned authority, caller/retention assignment, and
+success/failure plus unset/empty/present restoration, overlapping invocations,
+and non-recursive v1/v2 link evidence. Keep
+`NoSafeSlice__NoRemainingUnsharedM7SOwner`; no source, fixture, route switch,
+or new receipt is authorized until that design is accepted.
