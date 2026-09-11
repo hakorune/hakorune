@@ -1,10 +1,10 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A"
 current_execution_cohort = "mir_call_compatibility_retire_r7_i1a"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A"
-guard_followup = "fast: R7-I1A selected after the versioned invocation-owned compile-options design; Boundary pure-first CAPI edge only, static/harness/AOT compatibility retained for follow-up slices."
+guard_followup = "closeout: R7-I1A landed at 454e49b755; Boundary pure-first compile-options evidence is recorded, while static/harness/AOT compatibility and aggregate R7 remain follow-up selections."
 current_design_stop = "resolved__MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A__2026-09-12"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -39,11 +39,14 @@ in the selected root physical program, so helper backend/runtime, Call/R7,
 backend parity, and all-family completion stay unclaimed. The next G0 item is
 `LOOP-G0-HELPER-BACKEND-REACH-D0`.
 Call/R7 link direct seam I0 landed at fc19313028 with focused guard and C
-smoke. Compile-options I1A is selected for the Boundary pure-first CAPI edge:
-one Rust admission normalization, a versioned default-visible C contract, and
-`HakoLlvmcInvocation` ownership. Static-open, harness, AOT compatibility, and
-published-row globals remain explicit follow-up edges; release compatibility is
-retained.
+smoke. Compile-options I1A landed at 454e49b755 for the Boundary pure-first
+CAPI edge: one Rust admission normalization, a versioned default-visible C
+contract, invocation-owned C state, and generic/exact-seed/pattern option
+propagation. Its focused fake-tool smoke, C build, Rust check, and pointer
+guard are green; the existing named compatibility smoke remains an uncounted
+host Traceback baseline red. Static-open, harness, AOT compatibility, and
+published-row globals remain explicit follow-up edges; release compatibility
+is retained.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"

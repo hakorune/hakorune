@@ -448,3 +448,37 @@ readers remain until their own explicit caller switch. Acceptance is one
 explicit pure-first/none success, invalid revision/profile and conflicting
 alias negatives before object effects, fake-tool/flag propagation, and
 unset/empty/present environment preservation on both success and failure.
+
+### R7-I1A closeout (2026-09-12)
+
+Implementation landed at `454e49b755` and is pushed on
+`codex/birth-definition-publication`. The selected Boundary pure-first CAPI
+caller now resolves one Rust-owned request adapter, passes a versioned
+default-visible contract to `hako_llvmc_compile_json_with_options_v1`, and
+lets `HakoLlvmcInvocation` own the copied C strings through lowering. The
+existing generic, exact-seed, and indexOf pattern terminals consume that same
+invocation option pointer; explicit unset `llc_flags` is an empty value and
+cannot inherit ambient flags. The old environment-mutating three-argument
+path remains only for unselected compatibility callers.
+
+Observed acceptance:
+
+- `CC=cc bash tools/build_hako_llvmc_ffi.sh` passed.
+- `bash tools/checks/llvm_compile_options_contract_smoke.sh` passed for the
+  generic fixture and an exact-seed fixture, including fake opt/llc tool and
+  flag propagation, ambient-state preservation, explicit unset-flags, and
+  pre-effect revision rejection.
+- `CARGO_BUILD_JOBS=1 cargo check -p nyash-rust --features plugins -j1`
+  passed with the repository's existing warning baseline.
+- `bash tools/checks/current_state_pointer_guard.sh` and `git diff --check`
+  passed.
+- `llvm_hako_aot_ffi_admission_smoke.sh` remains a named baseline red: the
+  existing named direct compatibility call still returns only the host
+  `Traceback` marker. It is not counted as I1A evidence or a compiler
+  regression claim.
+
+Scope is closed only for this Boundary pure-first compile-options edge.
+Static V2, explicit harness, AOT compatibility, public ABI retirement,
+published-row globals, concurrent compilation, and aggregate R7 caller-zero
+remain open follow-up rows. The next selection must name one such row before
+editing it; no whole-R7 completion is claimed.
