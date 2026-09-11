@@ -69,63 +69,11 @@ pub(in crate::mir::builder) fn apply_if_joins(
         caller = Some(format!("{}:{}:{}", loc.file(), loc.line(), loc.column()));
     }
 
-    let (release_def_blocks, release_dominators) = if strict_planner_required_debug {
-        (None, None)
-    } else if let Some(func) = builder.function_state.current_function.as_ref() {
-        (
-            Some(crate::mir::verification::utils::compute_def_blocks(func)),
-            Some(crate::mir::verification::utils::compute_dominators(func)),
-        )
-    } else {
-        (None, None)
-    };
-
     for join in joins {
         let mut then_in = join.then_val;
         let mut else_in = join.else_val;
-        let mut then_reaches_merge_local = then_reaches_merge;
-        let mut else_reaches_merge_local = else_reaches_merge;
-
-        if let (Some(def_blocks), Some(dominators)) =
-            (release_def_blocks.as_ref(), release_dominators.as_ref())
-        {
-            let fallback_incoming =
-                |incoming: &mut ValueId,
-                 branch_reaches_merge: &mut bool,
-                 pred: Option<BasicBlockId>| {
-                    let Some(pred) = pred else {
-                        *branch_reaches_merge = false;
-                        return;
-                    };
-                    let incoming_ok = def_blocks
-                        .get(incoming)
-                        .copied()
-                        .map(|def_bb| dominators.dominates(def_bb, pred))
-                        .unwrap_or(false);
-                    if incoming_ok {
-                        return;
-                    }
-                    if let Some(pre_val) = join.pre_val {
-                        let pre_ok = def_blocks
-                            .get(&pre_val)
-                            .copied()
-                            .map(|def_bb| dominators.dominates(def_bb, pred))
-                            .unwrap_or(false);
-                        if pre_ok {
-                            *incoming = pre_val;
-                            return;
-                        }
-                    }
-                    *branch_reaches_merge = false;
-                };
-
-            if then_reaches_merge_local {
-                fallback_incoming(&mut then_in, &mut then_reaches_merge_local, then_end_bb);
-            }
-            if else_reaches_merge_local {
-                fallback_incoming(&mut else_in, &mut else_reaches_merge_local, else_end_bb);
-            }
-        }
+        let then_reaches_merge_local = then_reaches_merge;
+        let else_reaches_merge_local = else_reaches_merge;
 
         let mut inputs: Vec<(BasicBlockId, ValueId)> = Vec::new();
         let mut then_pred = None;
@@ -399,8 +347,135 @@ pub(in crate::mir::builder) fn apply_if_joins(
 
 #[cfg(test)]
 mod tests {
-    use super::should_log_carry_reset_to_init;
-    use crate::mir::ValueId;
+    use super::{apply_if_joins, should_log_carry_reset_to_init};
+    use crate::mir::builder::control_flow::plan::CoreIfJoin;
+    use crate::mir::{
+        BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, MirBuilder, MirInstruction,
+        ValueId,
+    };
+
+    fn join(pre_val: ValueId, then_val: ValueId, else_val: ValueId, dst: ValueId) -> CoreIfJoin {
+        CoreIfJoin {
+            name: "value".to_owned(),
+            dst,
+            pre_val: Some(pre_val),
+            then_val,
+            else_val,
+        }
+    }
+
+    #[test]
+    fn apply_if_joins_rejects_reaching_branch_without_predecessor() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("if_join_missing_pred/0".to_owned());
+        let pre = builder.alloc_value_for_test();
+        let then_value = builder.alloc_value_for_test();
+        let else_value = builder.alloc_value_for_test();
+        let dst = builder.alloc_value_for_test();
+
+        let error = apply_if_joins(
+            &mut builder,
+            &[join(pre, then_value, else_value, dst)],
+            true,
+            false,
+            None,
+            None,
+        )
+        .expect_err("a reaching branch without a predecessor must reject");
+
+        assert!(
+            error.contains("Missing then end block"),
+            "unexpected error: {error}"
+        );
+    }
+
+    #[test]
+    fn apply_if_joins_does_not_replace_non_dominating_incoming_with_pre_value() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("if_join_no_pre_fallback/0".to_owned());
+        let entry = builder.current_block_for_test().expect("entry block");
+        let then_bb = BasicBlockId::new(1);
+        let else_bb = BasicBlockId::new(2);
+        let merge_bb = BasicBlockId::new(3);
+        let condition = builder.alloc_value_for_test();
+        let pre = builder.alloc_value_for_test();
+        let bad_incoming = builder.alloc_value_for_test();
+        let dst = builder.alloc_value_for_test();
+
+        {
+            let function = builder
+                .function_state
+                .current_function
+                .as_mut()
+                .expect("function");
+            function.add_block(BasicBlock::new(then_bb));
+            function.add_block(BasicBlock::new(else_bb));
+            function.add_block(BasicBlock::new(merge_bb));
+            function
+                .get_block_mut(entry)
+                .expect("entry")
+                .add_instruction(MirInstruction::Const {
+                    dst: condition,
+                    value: ConstValue::Integer(1),
+                });
+            function
+                .get_block_mut(entry)
+                .expect("entry")
+                .add_instruction(MirInstruction::Const {
+                    dst: pre,
+                    value: ConstValue::Integer(0),
+                });
+            function
+                .get_block_mut(entry)
+                .expect("entry")
+                .set_terminator(MirInstruction::Branch {
+                    condition,
+                    then_bb,
+                    else_bb,
+                    then_edge_args: None,
+                    else_edge_args: None,
+                });
+            function
+                .get_block_mut(then_bb)
+                .expect("then")
+                .set_terminator(MirInstruction::Jump {
+                    target: merge_bb,
+                    edge_args: None,
+                });
+            function
+                .get_block_mut(else_bb)
+                .expect("else")
+                .add_instruction(MirInstruction::call(
+                    Some(bad_incoming),
+                    Callee::Extern("non_rematerializable".to_owned()),
+                    Vec::new(),
+                    EffectMask::PURE,
+                ));
+            function
+                .get_block_mut(else_bb)
+                .expect("else")
+                .set_terminator(MirInstruction::Jump {
+                    target: merge_bb,
+                    edge_args: None,
+                });
+        }
+        builder.function_state.current_block = Some(merge_bb);
+
+        let error = apply_if_joins(
+            &mut builder,
+            &[join(pre, bad_incoming, pre, dst)],
+            true,
+            true,
+            Some(then_bb),
+            Some(else_bb),
+        )
+        .expect_err("a non-rematerializable incoming must reject");
+
+        assert!(
+            error.contains("non_rematerializable"),
+            "unexpected error: {error}"
+        );
+    }
 
     #[test]
     fn carry_reset_logs_when_one_branch_resets_and_other_carries_pre() {

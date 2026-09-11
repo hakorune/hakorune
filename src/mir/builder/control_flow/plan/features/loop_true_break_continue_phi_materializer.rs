@@ -36,14 +36,16 @@ impl LoopTrueBreakContinuePhiMaterializer {
     pub(in crate::mir::builder) fn prepare(
         builder: &mut MirBuilder,
         carrier_vars: &[String],
-        _error_prefix: &str,
+        error_prefix: &str,
     ) -> Result<Self, String> {
         let mut carrier_inits = BTreeMap::new();
         let mut carrier_phis = BTreeMap::new();
         let mut carrier_step_phis = BTreeMap::new();
         for var in carrier_vars {
             let Some(&init_val) = builder.function_state.variable_ctx.variable_map.get(var) else {
-                continue;
+                return Err(format!(
+                    "{error_prefix}: carrier initial value missing for {var}"
+                ));
             };
             let ty = builder
                 .function_state
@@ -183,5 +185,25 @@ mod tests {
 
         assert_eq!(closure.phis().len(), 2);
         assert_eq!(closure.final_values(), [("i".to_string(), ValueId(8))]);
+    }
+
+    #[test]
+    fn prepare_rejects_carrier_missing_from_variable_map() {
+        let mut builder = MirBuilder::new();
+
+        let result = LoopTrueBreakContinuePhiMaterializer::prepare(
+            &mut builder,
+            &["missing".to_owned()],
+            "loop_true_break_continue",
+        );
+
+        let error = match result {
+            Ok(_) => panic!("missing carrier must reject before PHI allocation"),
+            Err(error) => error,
+        };
+        assert_eq!(
+            error,
+            "loop_true_break_continue: carrier initial value missing for missing"
+        );
     }
 }

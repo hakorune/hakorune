@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-FAILOPEN-REJECT-GATES-R0"
 current_execution_cohort = "mirbuilder_failopen_reject_gates_r0"
-current_design_stop = "accepted__MirBuilderFailopenRejectGates__2026-09-11"
-current_blocker_token = "open__IfJoinDominanceRepairAndMissingLoopCarrier"
-guard_followup = "fast: MIRBUILDER-FAILOPEN-REJECT-GATES-R0 is accepted as a reject-only slice. Preserve the existing CoreIfJoin, phi_input_materializer, and variable_map authorities; close the two fail-open paths with focused positive/negative evidence before closeout."
+current_design_stop = "closed__MirBuilderFailopenRejectGates__2026-09-11"
+current_blocker_token = "none__MirBuilderFailopenRejectGatesClosed"
+guard_followup = "closeout: MIRBUILDER-FAILOPEN-REJECT-GATES-R0 is implemented and evidence-backed. Preserve the existing CoreIfJoin, phi_input_materializer, and variable_map authorities; no broader GenericLoop, dynamic-origin, or canonical_ssa BoxShape work is selected."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -26,15 +26,15 @@ NoSafeSlice__GenericRewireDemandMissing: its Facts/Recipe do not provide a
 complete neutral operation/effect/continuation demand, so the old Composer is
 not promoted or deleted. The bounded
 MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0 is landed with no-manual-ledger
-positive evidence for bounds 0/1/3 and a named omission negative. The active
-follow-up is the accepted reject-only
-MIRBUILDER-FAILOPEN-REJECT-GATES-R0 for PHI incoming repair/drop and missing
-loop carriers. Dynamic-origin locals, canonical_ssa BoxShape cleanup,
-OBJ/EXE, and legacy retirement remain non-claims.
+positive evidence for bounds 0/1/3 and a named omission negative. The
+follow-up MIRBUILDER-FAILOPEN-REJECT-GATES-R0 is now closed: PHI incoming
+repair/drop and missing loop carriers reject at their existing owners, with
+focused positive/negative evidence. Dynamic-origin locals, canonical_ssa
+BoxShape cleanup, OBJ/EXE, and legacy retirement remain non-claims.
 """
-next_design_card = "none__MirBuilderFailopenRejectGatesAccepted"
+next_design_card = "none__MirBuilderFailopenRejectGatesClosed"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-post-r0-failopen-audit-d0-2026-09-11.md"
-next_execution_card = "MIRBUILDER-FAILOPEN-REJECT-GATES-R0"
+next_execution_card = "none__MirBuilderFailopenRejectGatesClosed"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-post-r0-failopen-audit-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

@@ -31,6 +31,11 @@ Pipeline:
 - loop pipelines:
   - loop_true_break_continue: `features/loop_true_break_continue_pipeline.rs`
   - loop_cond_break_continue: `features/loop_cond_break_continue_pipeline.rs`
+- `if_join::apply_if_joins` preserves every reaching `CoreIfJoin` incoming and
+  delegates edge repair only to `ssa::phi_input_materializer::for_pred`;
+  `pre_val` substitution and branch dropping are forbidden.
+- LoopTrueBreakContinue carrier preparation rejects a carrier missing from
+  `variable_ctx.variable_map` before allocating any carrier PHI destination.
 - scan/split pipelines:
   - scan_with_init: `features/scan_with_init_pipeline.rs` + `features/scan_with_init_ops.rs`
   - split_scan: `features/split_scan_pipeline.rs` + `features/split_scan_ops.rs`

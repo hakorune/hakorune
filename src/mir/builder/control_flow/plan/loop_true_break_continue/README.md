@@ -18,6 +18,14 @@ multiple `if(cond) break/continue` and effect statements.
 - Facts are implemented in `src/mir/builder/control_flow/plan/loop_cond/true_break_continue.rs`
 - Nested-loop condition helpers live in `src/mir/builder/control_flow/plan/loop_cond/true_break_continue_helpers.rs`
 
+## Fail-fast carrier boundary
+
+`LoopTrueBreakContinuePhiMaterializer::prepare` reads each carrier's initial
+value from `variable_ctx.variable_map`. A missing entry is rejected with the
+route error prefix before carrier or step PHI destinations are allocated. The
+later `carrier_phis`/`final_values` maps are products, not completeness
+authority, and the route has no silent carrier omission.
+
 ## Vocabulary
 
 ### GeneralIfElseExit (Phase 29bq selfhost unblock)

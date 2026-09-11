@@ -7,7 +7,7 @@ See also: `src/mir/builder/control_flow/plan/LEGACY_V0_BOUNDARY.md`
 
 前提:
 - release default は不変
-- strict/dev + `HAKO_JOINIR_PLANNER_REQUIRED=1` のときだけ受理範囲を増やす（silent fallback なし）
+- strict/dev + `HAKO_JOINIR_PLANNER_REQUIRED=1` のときだけ受理範囲を増やす。受理経路は全モードで PHI incoming の置換/除外と carrier 欠落の silent fallback を持たない
 - no AST rewrite（見かけ等価の式変形・コード移動は禁止。analysis-only view は可）
 
 ## Daily entry (fast)

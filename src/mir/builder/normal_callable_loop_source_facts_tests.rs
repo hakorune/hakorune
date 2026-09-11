@@ -471,7 +471,7 @@ fn source_aware_adapter_consumes_real_callable_ledger_once_for_bound(bound: i64)
     let syntax =
         CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax");
     let mut resolver =
-        FunctionSemanticResolverSessionV1::new(9201 + bound as u64).expect("resolver");
+        FunctionSemanticResolverSessionV1::new(9201 + bound as u32).expect("resolver");
     let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
         .resolve_selected_callable_forests(&[syntax.function()])
         .expect("source forest")
