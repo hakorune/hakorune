@@ -442,18 +442,29 @@ Pair exit, generic Loop, or LocalSSA follow-up rows.
 
 The selected module artifact probe was attempted after the resolver-index,
 session-entry, condition-bound, receiver, and compile-time PHI value-flow
-receipts were green. A source with a Pair root allocation, a CallableSingleLoop
-child, and a direct child call reached the existing published lifecycle
-boundary but stopped at the named
-`[freeze:contract][ordinary-new/local-commit/emission-local-copy-drift]`.
-An earlier source without a root allocation stopped at
+receipts were green. The first Pair-plus-Loop source reached the existing
+published lifecycle boundary but exposed the named
+`[freeze:contract][ordinary-new/local-commit/emission-local-copy-drift]` at
+finishing. An earlier source without a root allocation stopped at
 `artifact-root-completion-unavailable`; that fixture was discarded because it
-did not satisfy the root completion contract.
+did not satisfy the root completion contract. The Copy projection receipt
+below closes the former boundary without widening source authority.
 
-This is a prerequisite finding, not an OBJ/EXE result. The next bounded owner
-is the existing `ordinary_new_local_commit` emission validation and finalized
-root handoff. It must preserve the source-issued local Copy relation, let the
-valid Pair-plus-Loop graph reach `issue_lifecycle_physical_abi_input()`, and
-keep a one-point Copy source/value mutation as the named drift rejection before
-any artifact effect. No name repair, latest-value substitution, or physical MIR
-inference is allowed; Loop execution and Pair exit30 remain unclaimed.
+### Ordinary-New local Copy projection receipt (2026-09-11)
+
+The existing `ordinary_new_local_commit` owner now captures the source-issued
+`result -> local` Copy pair and its source block alongside the existing
+PhysicalBoundary. Root and selected-child finishing use that same projection
+to check the exact source pair after block contraction. A mutated, duplicated,
+or missing Copy remains a named `emission-local-copy-drift`; the only accepted
+omission is the pre-existing boundary permission for an unused, removable Copy.
+No latest-value scan, name repair, or physical-MIR inference was added.
+
+The real selected module fixture now contains a Pair root and a
+CallableSingleLoop child, compiles with optimization enabled, observes the
+child PHI value-flow, and reaches `issue_lifecycle_physical_abi_input()` with
+an I64 root result. The artifact root handoff positive, CallableSingleLoop
+production positive, physical-boundary omission guard, ordinary-New emission
+drift negatives, and Pair terminal relation positive all pass on the same
+test binary. This closes the bounded local-Copy finishing owner; it does not
+claim module/OBJ/EXE execution, generic Loop, or Pair exit30.

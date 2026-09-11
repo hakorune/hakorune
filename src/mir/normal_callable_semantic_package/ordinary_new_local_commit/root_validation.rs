@@ -23,7 +23,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let observation = self.finalized_root_observation(owner);
         self.validate_root_cleanup_shape(owner, function)?;
         let bindings = self.lifecycle_bindings(owner)?;
-        let boundary = super::physical_boundary::PhysicalBoundary::capture(function, &bindings)?;
+        let copies = self.source_local_copies(owner)?;
+        let boundary = super::physical_boundary::PhysicalBoundary::capture_with_source_copies(
+            function, &bindings, &copies,
+        )?;
         *state = RootNewValidation::Checked(owner, boundary);
         Ok(observation)
     }
@@ -257,6 +260,35 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(super) fn source_local_copies(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<(ValueId, ValueId)>, String> {
+        let mut result = Vec::new();
+        for row in self
+            .local_commits
+            .borrow()
+            .values()
+            .filter(|row| row.binding().owner() == owner)
+        {
+            let LocalCommitV1::Ordinary(row) = row else {
+                continue;
+            };
+            let NewEmissionProgress::Emitted {
+                result: emitted, ..
+            } = &row.emission
+            else {
+                continue;
+            };
+            let local = row
+                .emission
+                .local()
+                .ok_or_else(|| freeze("source-copy-local-unavailable"))?;
+            result.push((local, *emitted));
+        }
+        Ok(result)
+    }
+
     pub(super) fn lifecycle_bindings(
         &self,
         owner: FunctionOwnerIdV1,

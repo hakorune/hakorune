@@ -1,7 +1,7 @@
 //! Validation of recorded physical New emission remains owned by local commit.
 
-use crate::mir::instruction::InvokeCallResultKind;
 use super::*;
+use crate::mir::instruction::InvokeCallResultKind;
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn validate_new_emissions(
@@ -60,16 +60,23 @@ impl OrdinaryNewClaimLedgerV1 {
                         }
                         self.validate_argument_definition(function, source, emitted.value)?;
                     }
-                    let mut copies = function
-                        .blocks
-                        .values()
-                        .flat_map(|block| block.all_instructions())
-                        .filter(|instruction| {
-                            matches!(instruction, MirInstruction::Copy { dst, .. } if *dst == local)
-                        });
-                    if !matches!(copies.next(), Some(MirInstruction::Copy { src, .. }) if src == result)
-                        || copies.next().is_some()
-                    {
+                    let copy_valid = match projection {
+                        Some(projection) => {
+                            projection.check_source_local_copy(function, local, *result)?
+                        }
+                        None => {
+                            let mut copies = function
+                                .blocks
+                                .values()
+                                .flat_map(|block| block.all_instructions())
+                                .filter(|instruction| {
+                                    matches!(instruction, MirInstruction::Copy { dst, .. } if *dst == local)
+                                });
+                            matches!(copies.next(), Some(MirInstruction::Copy { src, .. }) if src == result)
+                                && copies.next().is_none()
+                        }
+                    };
+                    if !copy_valid {
                         return Err(freeze("emission-local-copy-drift"));
                     }
                     let expected_reclaim = match (&row.birth_target, &row.construction) {

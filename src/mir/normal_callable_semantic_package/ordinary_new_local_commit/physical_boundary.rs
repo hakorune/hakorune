@@ -27,16 +27,27 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
     incoming: Incoming,
     removable_constants: BTreeSet<ValueId>,
     removable_copies: BTreeSet<ValueId>,
+    source_copies: BTreeMap<ValueId, (BasicBlockId, MirInstruction)>,
 }
 
 pub(super) struct FinishedBindings {
     destinations: BTreeMap<BasicBlockId, BasicBlockId>,
     recorded: Vec<(BasicBlockId, MirInstruction)>,
     sequences: BTreeMap<BasicBlockId, (Vec<MirInstruction>, MirInstruction)>,
+    removable_copies: BTreeSet<ValueId>,
+    source_copies: BTreeMap<ValueId, (BasicBlockId, MirInstruction)>,
 }
 
 impl PhysicalBoundary {
     pub(super) fn capture(function: &MirFunction, bindings: &Bindings) -> Result<Self, String> {
+        Self::capture_with_source_copies(function, bindings, &[])
+    }
+
+    pub(super) fn capture_with_source_copies(
+        function: &MirFunction,
+        bindings: &Bindings,
+        copies: &[(ValueId, ValueId)],
+    ) -> Result<Self, String> {
         let used = used_values(function);
         let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
         let mut definitions = BTreeMap::<ValueId, usize>::new();
@@ -136,11 +147,36 @@ impl PhysicalBoundary {
         if consumed != nodes.len() {
             return Err(fault("cycle"));
         }
+        let mut source_copies = BTreeMap::new();
+        for (local, result) in copies {
+            let expected = MirInstruction::Copy {
+                dst: *local,
+                src: *result,
+            };
+            let matches: Vec<_> = function
+                .blocks
+                .values()
+                .flat_map(|block| {
+                    block
+                        .all_instructions()
+                        .filter(|instruction| *instruction == &expected)
+                        .map(|_| block.id)
+                })
+                .collect();
+            if matches.len() != 1 {
+                return Err(fault("source-copy"));
+            }
+            source_copies.insert(*local, (matches[0], expected));
+            if !used.contains(local) && definitions.get(local) == Some(&1) {
+                removable_copies.insert(*local);
+            }
+        }
         Ok(Self {
             nodes,
             incoming: incoming(function, &ids),
             removable_constants,
             removable_copies,
+            source_copies,
         })
     }
 
@@ -193,6 +229,8 @@ impl PhysicalBoundary {
             destinations,
             recorded: Vec::new(),
             sequences: expected,
+            removable_copies: self.removable_copies.clone(),
+            source_copies: self.source_copies.clone(),
         })
     }
 
@@ -259,6 +297,51 @@ impl FinishedBindings {
     }
     pub(super) fn recorded(&self) -> &Bindings {
         &self.recorded
+    }
+
+    /// Check the source-issued local Copy against the same finished
+    /// projection used by lifecycle bindings. A DCE omission is accepted only
+    /// when the captured boundary explicitly marked that Copy removable and
+    /// the final function still has no use of its destination.
+    pub(super) fn check_source_local_copy(
+        &self,
+        function: &MirFunction,
+        local: ValueId,
+        result: ValueId,
+    ) -> Result<bool, String> {
+        let Some((source_block, expected)) = self.source_copies.get(&local) else {
+            return Ok(false);
+        };
+        let MirInstruction::Copy { src, .. } = expected else {
+            return Ok(false);
+        };
+        if *src != result {
+            return Ok(false);
+        }
+        let Some(destination) = self.destinations.get(source_block).copied().or_else(|| {
+            function
+                .blocks
+                .contains_key(source_block)
+                .then_some(*source_block)
+        }) else {
+            return Ok(
+                self.removable_copies.contains(&local) && !used_values(function).contains(&local)
+            );
+        };
+        let actual = function
+            .blocks
+            .get(&destination)
+            .ok_or_else(|| fault("missing-copy-block"))?;
+        let surviving_count = actual
+            .all_instructions()
+            .filter(|instruction| *instruction == expected)
+            .count();
+        if surviving_count == 1 {
+            return Ok(true);
+        }
+        Ok(surviving_count == 0
+            && self.removable_copies.contains(&local)
+            && !used_values(function).contains(&local))
     }
     fn instruction(&self, mut instruction: MirInstruction) -> MirInstruction {
         if let MirInstruction::InvokeNormalResult { invoke_block, .. } = &mut instruction {

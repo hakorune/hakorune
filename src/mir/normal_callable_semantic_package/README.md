@@ -475,6 +475,15 @@ projection now carries the exact ordinary I64 Call and its existing cleanup
 coordinates; ordinary Map installation and C ABI emission remain explicit
 Stops.
 
+Ordinary-New local installation emits a source-issued `result -> local` Copy
+outside the lifecycle binding list. Finalized root and selected-child capture
+therefore retain each emitted local/result pair with its source block in the
+same PhysicalBoundary. Finishing checks that exact pair through the existing
+block projection; a source mutation, duplicate, or foreign Copy is rejected.
+The only omission accepted is the boundary's existing one-way DCE permission
+for an unused Copy, and the final destination must remain unused. No latest
+ValueId, name lookup, or final-MIR reclassification can satisfy this check.
+
 | Relation | Dedicated consumption and retained result |
 | --- | --- |
 | TerminalI64AddReturnV1 | Exact owner/Return/Add and ordered two qualifying FieldRead sites; reserve once, consume receivers/reads in order, emit Add, pass the exact result through cleanup/Return. |

@@ -132,3 +132,36 @@ fn normal_ingress_routes_app_main_static_loop_child_through_callable_consumer() 
         }
     });
 }
+
+#[test]
+fn optimized_pair_root_with_callable_loop_child_reaches_physical_abi() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let source = "function to_i64(value: i64): i64 { return value } box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return pair.left + pair.right } int_to_str(n: i64): i64 { local value = to_i64(n) local i = 0 loop(i < 3) { i = i + 1 } return value } }";
+        let mut compiler = MirCompiler::new();
+        compiler
+            .compile_normal_with_published(published_request(source), |view, verification| {
+                assert!(verification.is_ok(), "{verification:?}");
+                let helper = view
+                    .module()
+                    .functions
+                    .get("Main.int_to_str/1")
+                    .expect("selected loop child");
+                assert!(helper
+                    .blocks
+                    .values()
+                    .flat_map(|block| block.all_instructions())
+                    .any(|instruction| matches!(
+                        instruction,
+                        crate::mir::MirInstruction::Phi { .. }
+                    )));
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                assert_eq!(
+                    input.entry().root_result(),
+                    published_backend_view::CompiledEntryRootResultV1::I64
+                );
+                Ok::<(), String>(())
+            })
+            .expect("optimized Pair-plus-Loop module must reach physical ABI");
+    });
+}
