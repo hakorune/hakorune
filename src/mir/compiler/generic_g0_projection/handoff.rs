@@ -1,6 +1,6 @@
-//! Caller-zero Generic G0 source-to-policy handoff.
+//! Canonical Generic G0 source-to-policy handoff.
 //!
-//! This is the sole test-only issuer that co-seals the typed G0 source bundle
+//! This is the sole issuer that co-seals the typed G0 source bundle
 //! with the resolver window brand and function-tail completion relation. It
 //! consumes one exact `ResolvedFunctionLoweringInputV1`; it retains no AST or
 //! source-view object after the handoff is issued.
@@ -34,7 +34,7 @@ pub(crate) enum GenericG0PolicyHandoffIssueV1 {
 /// The source-attempt adapter may request a temporary lease for old focused
 /// fixtures, but it must not become a second resolver-window owner. The
 /// canonical path passes an already-issued lease to the adapter instead.
-pub(crate) fn issue_generic_g0_window_for_test(
+pub(crate) fn issue_generic_g0_window_lease_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     root_site: &SourceStmtSiteV1,
 ) -> Option<VerifiedLoopFamilyWindowLeaseV1> {
@@ -52,7 +52,7 @@ pub(crate) fn issue_generic_g0_policy_handoff_v1(
     let source_bundle = issue_generic_g0_source_type_bundle_v1(input)
         .map_err(GenericG0PolicyHandoffIssueV1::Source)?;
     let root_site = source_bundle.structural().root_loop().clone();
-    let window_lease = issue_generic_g0_window_for_test(input, &root_site)
+    let window_lease = issue_generic_g0_window_lease_v1(input, &root_site)
         .ok_or(GenericG0PolicyHandoffIssueV1::Window)?;
     finish_generic_g0_policy_handoff_v1(input, source_bundle, &window_lease, target)
 }

@@ -76,6 +76,7 @@ pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
 #[cfg(test)]
 pub(crate) mod generic_g0_observation;
+pub(in crate::mir) mod generic_g0_capability;
 #[cfg(test)]
 pub(crate) mod generic_g0_physical_prepare;
 #[allow(dead_code)]
@@ -210,6 +211,8 @@ mod resolved_nested_predicate_cutover;
 pub(in crate::mir) mod selected_dynamic_w6_activation;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_bound_package;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_bound_package_generic_g0;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_bound_plan;
 #[allow(dead_code)]

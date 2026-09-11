@@ -5,6 +5,7 @@ use super::resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
 use super::{CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1};
+use crate::mir::compiler::generic_g0_source_parent::VerifiedGenericG0SourceParentV1;
 
 /// Semantic Loop-family envelope. Each variant carries one sealed
 /// source/body product; the external lifecycle remains BindingSsaTrivial.
@@ -12,6 +13,7 @@ use super::{CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1};
 pub(crate) enum CanonicalLoopFamilyPlanV1<'a> {
     DirectAccum(CanonicalDirectAccumPlanV1<'a>),
     NestedPredicate(CanonicalNestedPredicatePlanV1<'a>),
+    GenericG0(CanonicalGenericG0PlanV1<'a>),
 }
 
 impl<'a> CanonicalLoopFamilyPlanV1<'a> {
@@ -21,7 +23,41 @@ impl<'a> CanonicalLoopFamilyPlanV1<'a> {
         match self {
             Self::DirectAccum(plan) => plan.input(),
             Self::NestedPredicate(plan) => plan.input(),
+            Self::GenericG0(plan) => plan.source_input(),
         }
+    }
+}
+
+/// Source-backed Generic G0 capability carried by the existing Loop envelope.
+/// The lifecycle family remains `BindingSsaTrivial`; no new physical route is
+/// introduced by this semantic plan.
+#[derive(Debug)]
+pub(crate) struct CanonicalGenericG0PlanV1<'a> {
+    source_parent: VerifiedGenericG0SourceParentV1<'a>,
+}
+
+impl<'a> CanonicalGenericG0PlanV1<'a> {
+    pub(crate) fn new(source_parent: VerifiedGenericG0SourceParentV1<'a>) -> Self {
+        Self { source_parent }
+    }
+
+    pub(crate) fn source_input(&self) -> ResolvedFunctionLoweringInputV1<'a> {
+        self.source_parent.source_input()
+    }
+
+    pub(crate) fn source_parent(&self) -> &VerifiedGenericG0SourceParentV1<'a> {
+        &self.source_parent
+    }
+
+    pub(crate) fn seal_resolved_owner_header_v1(
+        &self,
+    ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
+        VerifiedResolvedOwnerHeaderV1::seal_input(
+            CanonicalFirstFamilyPlanBrandV1::from_family(
+                ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa,
+            ),
+            self.source_input(),
+        )
     }
 }
 

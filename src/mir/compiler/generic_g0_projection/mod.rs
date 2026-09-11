@@ -27,7 +27,6 @@ use crate::mir::resolved_semantics::{
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::LocatedStmtV1;
 
-#[cfg(test)]
 pub(crate) mod handoff;
 mod numeric;
 pub(crate) use crate::mir::loop_structural_facts::generic_g0::{

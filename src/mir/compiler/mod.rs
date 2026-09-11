@@ -43,6 +43,8 @@ mod generic_g0_numeric_projection_tests;
 #[cfg(test)]
 mod generic_g0_observation_tests;
 #[cfg(test)]
+mod generic_g0_capability_tests;
+#[cfg(test)]
 mod generic_g0_projection_tests;
 #[cfg(test)]
 mod generic_g0_source_parent_tests;
@@ -112,7 +114,7 @@ mod source_bound_package_p0;
 mod source_view_tests;
 use crate::mir::builder::BuilderInvocationConfigV1;
 use capability::{
-    CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1, CanonicalLoweringPreflightV1,
+    CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1,
 };
 pub(in crate::mir) use lowering_input::LegacyModuleLoweringInputV1;
 pub use lowering_input::{
@@ -535,7 +537,11 @@ impl MirCompiler {
         if self.builder.repl_mode {
             return Err(CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind);
         }
-        let plan = CanonicalLoweringPreflightV1::verify(input.source_unit())?;
+        let config = BuilderInvocationConfigV1::snapshot_for_canonical(&self.builder, source_file);
+        let plan = generic_g0_capability::verify_with_generic_g0_mode_v1(
+            input.source_unit(),
+            config.generic_g0_policy_mode_v1(),
+        )?;
 
         let stage_start = Instant::now();
         // The sealed whole-unit plan is matched exactly once after preflight
@@ -556,6 +562,11 @@ impl MirCompiler {
                     plan,
                     source_file,
                 );
+            }
+            CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(_plan)) => {
+                return Err(CanonicalLoweringErrorV1::CapabilityNotActivated {
+                    boundary: "generic_g0_production_terminal",
+                });
             }
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
                 let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);

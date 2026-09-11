@@ -170,6 +170,26 @@ impl BuilderInvocationConfigV1 {
         self.emit_debug_policy
     }
 
+    /// Project the one invocation-owned policy snapshot used by the
+    /// source-backed Generic G0 issuer.  An invalid planner-only combination
+    /// is deliberately rejected instead of being normalized to a default.
+    pub(in crate::mir) fn generic_g0_policy_mode_v1(
+        &self,
+    ) -> Option<crate::mir::loop_route_policy::GenericG0PolicyModeV1> {
+        use crate::mir::loop_route_policy::GenericG0PolicyModeV1;
+        let policy = self.emit_debug_policy;
+
+        match (
+            policy.joinir_strict_enabled(),
+            policy.joinir_planner_required_enabled(),
+        ) {
+            (false, false) => Some(GenericG0PolicyModeV1::Release),
+            (true, false) => Some(GenericG0PolicyModeV1::Strict),
+            (true, true) => Some(GenericG0PolicyModeV1::StrictPlannerRequired),
+            (false, true) => None,
+        }
+    }
+
     pub(in crate::mir::builder) fn using_import_boxes(&self) -> &HashMap<String, String> {
         &self.using_import_boxes
     }

@@ -19,7 +19,7 @@ use crate::mir::builder::normal_callable_semantic_source::{
     PreparedCallableLoopIngressV1, VerifiedNormalCallableSourceIngressReceiptV1,
 };
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
-    finish_profile_close, CanonicalSsaFunctionSessionV2,
+    finish_profile_close, CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
 };
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
     LoopOperationDispatchServicesV1, LoopOperationValueLedgerV1, LoopPhysicalServicesV1,
@@ -77,14 +77,17 @@ fn integer(value: i64) -> ASTNode {
     }
 }
 
-fn function(name: &str, body: Vec<ASTNode>) -> ASTNode {
+fn function(name: &str, params: &[&str], body: Vec<ASTNode>) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name: name.into(),
-        params: vec!["n".into()],
-        param_decls: vec![ParamDecl {
-            name: "n".into(),
-            declared_type_name: Some("i64".into()),
-        }],
+        params: params.iter().map(|param| (*param).into()).collect(),
+        param_decls: params
+            .iter()
+            .map(|param| ParamDecl {
+                name: (*param).into(),
+                declared_type_name: Some("i64".into()),
+            })
+            .collect(),
         return_type_name: Some("i64".into()),
         body,
         uses: Vec::new(),
@@ -101,12 +104,13 @@ fn loop_program() -> ASTNode {
         statements: vec![
             function(
                 "int_to_str",
+                &["unused", "value"],
                 vec![
                     ASTNode::Local {
                         variables: vec!["value".into()],
                         initial_values: vec![Some(Box::new(ASTNode::FunctionCall {
                             name: "to_i64".into(),
-                            arguments: vec![variable("n")],
+                            arguments: vec![variable("value")],
                             span: Span::unknown(),
                         }))],
                         declared_type_names: vec![Some("i64".into())],
@@ -145,6 +149,7 @@ fn loop_program() -> ASTNode {
             ),
             function(
                 "to_i64",
+                &["n"],
                 vec![ASTNode::Return {
                     value: Some(Box::new(variable("n"))),
                     span: Span::unknown(),
@@ -166,7 +171,53 @@ fn exact_module(program: ASTNode) -> VerifiedResolvedCallableModuleV1 {
 }
 
 fn canonical_key() -> CanonicalCallableKeyV1 {
-    CanonicalCallableKeyV1::free_static_for_test("int_to_str", 1)
+    CanonicalCallableKeyV1::free_static_for_test("int_to_str", 2)
+}
+
+fn assert_loop_add_backedge(
+    builder: &MirBuilder,
+    header: CanonicalBindingReadReceiptV1,
+) -> Result<(), String> {
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| "selected function disappeared before PHI check".to_owned())?;
+    let add = function
+        .blocks
+        .iter()
+        .find_map(|(block, block_data)| {
+            block_data.instructions.iter().find_map(|instruction| {
+                matches!(
+                    instruction,
+                    crate::mir::MirInstruction::BinOp {
+                        op: crate::mir::BinaryOp::Add,
+                        ..
+                    }
+                )
+                .then(|| match instruction {
+                    crate::mir::MirInstruction::BinOp { dst, .. } => (*block, *dst),
+                    _ => unreachable!("matched only Add BinOp"),
+                })
+            })
+        })
+        .ok_or_else(|| "loop Add result missing before PHI check".to_owned())?;
+    let header_phi = function
+        .get_block(header.physical_block())
+        .and_then(|block| {
+            block.instructions.iter().find_map(|instruction| match instruction {
+                crate::mir::MirInstruction::Phi { dst, inputs, .. }
+                    if *dst == header.physical_value() => Some(inputs),
+                _ => None,
+            })
+        })
+        .ok_or_else(|| "header PHI missing before PHI check".to_owned())?;
+    if !header_phi.contains(&add) {
+        return Err(format!(
+            "header PHI does not receive loop Add backedge: add={add:?} phi={header_phi:?}"
+        ));
+    }
+    Ok(())
 }
 
 fn logical_product(
@@ -303,7 +354,7 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
         &branded,
         &input_relations,
         &prelude,
-        "int_to_str/1",
+        "int_to_str/2",
     )
     .map_err(|error| format!("Prelude materialization: {error}"))?;
     assert_eq!(input_relations.rows().len(), 1);
@@ -404,6 +455,11 @@ fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String>
             &mut session.phis,
         )
         .map_err(|error| format!("After: {error:?}"))?;
+    if let Err(error) = assert_loop_add_backedge(outer.builder_view(), ready.header_current()) {
+        drop(session);
+        outer.discard_unpublished();
+        return Err(error);
+    }
     match mutation {
         CallableLoopMutationV1::StaleGeneration => {
             let header = ready.header_current();

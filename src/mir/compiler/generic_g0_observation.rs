@@ -8,7 +8,7 @@
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::generic_g0_projection::handoff::{
-    issue_generic_g0_policy_handoff_with_window_v1, issue_generic_g0_window_for_test,
+    issue_generic_g0_policy_handoff_with_window_v1, issue_generic_g0_window_lease_v1,
     GenericG0PolicyHandoffIssueV1,
 };
 use super::generic_g0_projection::{
@@ -35,7 +35,7 @@ pub(crate) fn issue_generic_g0_source_attempt_for_test<'source>(
     mode: Option<GenericG0ObservationModeV1>,
     coverage: GenericG0ObservationCoverageV1,
 ) -> VerifiedGenericG0SourceAttemptV1 {
-    let window_lease = match issue_generic_g0_window_for_test(input, loop_stmt.site()) {
+    let window_lease = match issue_generic_g0_window_lease_v1(input, loop_stmt.site()) {
         Some(lease) => lease,
         None => {
             let identity = GenericG0SourceIdentityV1::new(

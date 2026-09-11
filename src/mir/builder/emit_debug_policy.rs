@@ -41,6 +41,14 @@ impl BuilderEmitDebugPolicySnapshotV1 {
         self.joinir_debug
     }
 
+    pub(in crate::mir::builder) const fn joinir_strict_enabled(self) -> bool {
+        self.joinir_strict
+    }
+
+    pub(in crate::mir::builder) const fn joinir_planner_required_enabled(self) -> bool {
+        self.joinir_planner_required
+    }
+
     pub(in crate::mir::builder) const fn local_ssa_trace(self) -> bool {
         self.local_ssa_trace
     }

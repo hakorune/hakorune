@@ -137,7 +137,8 @@ mod generic_g0;
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
 
 pub(crate) use generic_g0_demand::{
-    issue_generic_g0_recipe_demand_v1, GenericG0RecipeDemandIssueV1,
+    issue_generic_g0_recipe_demand_from_observation_v1, issue_generic_g0_recipe_demand_v1,
+    GenericG0RecipeDemandIssueV1,
 };
 
 #[allow(unused_imports)]

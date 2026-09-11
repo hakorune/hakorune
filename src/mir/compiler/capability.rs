@@ -35,9 +35,10 @@ mod function_role_policy;
 mod normal_main_binding;
 mod resolved_owner_header;
 mod trivial_plan;
+mod validation_errors;
 pub(crate) use first_family_plan::{
     seal_direct_accum_owner_header_v1, CanonicalFirstFamilyPlanBrandV1, CanonicalFirstFamilyPlanV1,
-    CanonicalLoopFamilyPlanV1,
+    CanonicalGenericG0PlanV1, CanonicalLoopFamilyPlanV1,
 };
 use function_role_policy::{CanonicalFunctionRolePolicyV1, DirectCallAdmissionV1};
 pub(in crate::mir) use normal_main_binding::bind_sealed_normal_main_parts_v1;
@@ -45,6 +46,7 @@ pub(crate) use resolved_owner_header::{
     ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
 pub(crate) use trivial_plan::CanonicalTrivialBindingSsaPlanV1;
+use validation_errors::{source_navigation, unsupported};
 
 #[derive(Debug)]
 pub(crate) struct CanonicalCurrentAPlusPlanV1<'a> {
@@ -147,6 +149,13 @@ impl CanonicalLoweringPreflightV1 {
                 plan.input().source().root(),
                 "nested_predicate_not_normal_main",
             ),
+            CanonicalFirstFamilyPlanV1::Loop(
+                super::capability::CanonicalLoopFamilyPlanV1::GenericG0(plan),
+            ) => unsupported(
+                "root",
+                plan.source_input().source().root(),
+                "generic_g0_not_normal_main",
+            ),
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
             CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
                 let (function, ..) = plan.into_parts();
@@ -182,6 +191,13 @@ impl CanonicalLoweringPreflightV1 {
                 "root",
                 plan.input().source().root(),
                 "nested_predicate_not_normal_main_direct_call",
+            ),
+            CanonicalFirstFamilyPlanV1::Loop(
+                super::capability::CanonicalLoopFamilyPlanV1::GenericG0(plan),
+            ) => unsupported(
+                "root",
+                plan.source_input().source().root(),
+                "generic_g0_not_normal_main_direct_call",
             ),
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
             CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
@@ -730,22 +746,4 @@ fn verify_product_shape(
         );
     }
     Ok(())
-}
-
-fn source_navigation(error: impl ToString) -> CanonicalLoweringErrorV1 {
-    CanonicalLoweringErrorV1::SourceNavigation {
-        detail: error.to_string(),
-    }
-}
-
-fn unsupported<T>(
-    site: impl Into<String>,
-    node: &ASTNode,
-    reason: &'static str,
-) -> Result<T, CanonicalLoweringErrorV1> {
-    Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
-        site: site.into(),
-        actual: node.node_type(),
-        reason,
-    })
 }

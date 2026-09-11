@@ -3242,6 +3242,8 @@ CANONICAL-FUNCTION-FINISH-TERMINAL-R0
   -> LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0
   -> caller-zero LOOP-PHYSICAL-PREPARE-P0
   -> Generic G0 prepare parity
+  -> Generic G0 canonical issuer/package I0
+  -> Generic G0 physical terminal I1
   -> common physicalizer / caller-zero canary
   -> production selection
   -> Loop/M8 JOINIR-LOOP-ALL19-PORTABLE-RECIPE0-S6

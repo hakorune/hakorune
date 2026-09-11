@@ -62,13 +62,16 @@ to mode 664 afterward. No file mode change is present in the commit.
 Environment: `rust_vm_dynamic`, default backend, dynamic plugins, release
 `hakorune` and release `ny-llvmc`, sequential suite execution (`Jobs: 1`). The
 runner completed 11 entries: 3 passed, 8 failed. The unsupported-boundary probe
-passed. All eight failures are existing named owner/baseline boundaries from
-the parent acceptance record; no current-change red was identified.
+passed. Seven failures reproduce existing named owner/baseline boundaries from
+the parent acceptance record. `typed_object_newbox_min_exe` instead stopped at
+the environment boundary because the FFI library was not found; its earlier
+success is not comparable in this run, and this observation does not establish
+a compiler regression.
 
 | entry | result | observed terminal | source SHA-256 | smoke SHA-256 |
 | --- | --- | --- | --- | --- |
 | `json_stream_aggregator_exe_runtime_boundary` | fail | `callable-loop/route-not-front-selected` (`GenericLoopV1NotSelected`) | `b5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370` | `fa378922fc21740551d54f8f1e453b08c9b119edb6b7eda591e05e31951c5e08` |
-| `typed_object_newbox_min_exe` | fail | FFI library not found | `80b07fe145e5fe61b2d326620fd5b1929c452124e3fe5c5528d4aeb96be54a7b` | `014f30f18f30f1fb4759f074cd53eefca99553d1520fafad9db745402ae98d0f` |
+| `typed_object_newbox_min_exe` | fail (infra) | FFI library not found; earlier pass not comparable | `80b07fe145e5fe61b2d326620fd5b1929c452124e3fe5c5528d4aeb96be54a7b` | `014f30f18f30f1fb4759f074cd53eefca99553d1520fafad9db745402ae98d0f` |
 | `typed_object_birth_param_min_exe` | fail | `ordinary-new/local-commit/root-call-entry-missing` | `6c9feec4c2bbaab48be2f3c71f07e0fcff0fd686b36b1aec387f298fa36ca7b7` | `bb98b3149a2c3e66e19d2aa5b6fe837a5c94057773844e8c65d1c56b1577c50e` |
 | `boxtorrent_mini_exe` | fail | `ParameterContract/UnsupportedDeclaredType` | `0c22fe686c826f718889e6ac1ff96ff3f8a3ff22628401c4d7f93d75ebbf1ae7` | `2d8f1f7e41b5f496a1992cbfb4cff19a79999ae17ebdd158060e463521aa3b4d` |
 | `binary_trees_exe` | fail | callable-semantic incomplete consumption | `27de7bedca3e05bfb9facbbc5417ac1eb623a720b53c150b42e0e8646f12fa1c` | `4fe22d3a4bc1fd4350be090eb0a26783ed103bdcfc5dabf31a00a73ff69feecc` |
@@ -93,6 +96,7 @@ The generated release tool hashes were `hakorune`
 `fd4a23b1dc61cad419f1f400a6d07183d0f93b73bfe554cdb94a8f93b019cfd6`.
 
 The fixed acceptance scope is therefore complete as a finite evidence handoff
-with 3/11 current observed passes and 8/11 separately owned baseline/infra
-boundaries. It does not close those owners or claim production cutover or
-whole-MirBuilder completion.
+with 3/11 current observed passes, seven separately owned baseline boundaries,
+and one FFI-environment boundary. It does not close those owners, infer a
+compiler regression from the unavailable FFI library, or claim production
+cutover or whole-MirBuilder completion.

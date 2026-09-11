@@ -9,6 +9,7 @@ use crate::mir::loop_route_policy::{
     CanonicalLoopFamilySelectionV1, GenericG0CoverageV1, GenericG0ObservationEvidenceV1,
     GenericG0PolicyContextV1, GenericG0PolicyModeV1, GenericG0PolicyProfileV1,
     LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1, LoopFamilyTagV1,
+    VerifiedGenericFamilyObservationG0,
 };
 use crate::mir::loop_structural_facts::generic_g0::{
     GenericG0SourceBrandV1, VerifiedGenericG0PolicyHandoffV1, VerifiedGenericG0PostLoopReadV1,
@@ -100,6 +101,42 @@ pub(crate) fn issue_generic_g0_recipe_demand_v1(
     verify_evidence(&evidence, &window_lease, mode, coverage)?;
 
     let (handoff, policy_context) = observation.into_parts();
+    issue_generic_g0_recipe_demand_from_parts(
+        window_lease,
+        mode,
+        coverage,
+        handoff,
+        policy_context,
+    )
+}
+
+/// Production G0 ingress for the source-backed issuer.  Unlike the legacy
+/// caller-zero selector path, this consumes the already policy-checked
+/// observation and its resolver lease directly; no synthetic five-row window
+/// or selector evidence is created.
+pub(crate) fn issue_generic_g0_recipe_demand_from_observation_v1(
+    observation: VerifiedGenericFamilyObservationG0,
+    window_lease: VerifiedLoopFamilyWindowLeaseV1,
+) -> Result<VerifiedGenericRecipeDemandG0, GenericG0RecipeDemandIssueV1> {
+    let (handoff, policy_context) = observation.into_parts();
+    let mode = map_policy_mode(policy_context.mode());
+    let coverage = map_policy_coverage(policy_context.coverage());
+    issue_generic_g0_recipe_demand_from_parts(
+        window_lease,
+        mode,
+        coverage,
+        handoff,
+        policy_context,
+    )
+}
+
+fn issue_generic_g0_recipe_demand_from_parts(
+    window_lease: VerifiedLoopFamilyWindowLeaseV1,
+    mode: LoopFamilyAdmissionModeV1,
+    coverage: LoopFamilyAdmissionCoverageV1,
+    handoff: VerifiedGenericG0PolicyHandoffV1,
+    policy_context: GenericG0PolicyContextV1,
+) -> Result<VerifiedGenericRecipeDemandG0, GenericG0RecipeDemandIssueV1> {
     verify_policy_context(&policy_context, &window_lease, mode, coverage)?;
     if !handoff.brand().matches_window(&window_lease) {
         return Err(GenericG0RecipeDemandIssueV1::LeaseBrandMismatch);

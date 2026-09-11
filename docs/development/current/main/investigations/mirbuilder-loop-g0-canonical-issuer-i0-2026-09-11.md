@@ -1,10 +1,10 @@
 ---
-Status: active__Implementation__GenericG0CanonicalIssuer__2026-09-11
+Status: closed__Implementation__GenericG0CanonicalIssuer__2026-09-11
 Task: LOOP-G0-CANONICAL-ISSUER-I0
 Date: 2026-09-11
 Priority: issue one source-backed Generic G0 plan and bind it to the existing Single package lifecycle
 Parent: mirbuilder-loop-g0-production-terminal-d0-2026-09-11
-NextCard: LOOP-G0-POLICY-MODE-AUTHORITY-D0
+NextCard: MIR-CALLABLE-LOOP-ARGUMENT-PHI-CORRECTION-I0
 ---
 
 # Generic G0 canonical issuer I0
@@ -104,6 +104,44 @@ the reusable structural guard, `git diff --check`, pointer guard, and source
 size counts. Cargo commands are serialized and use the repository quick
 profile with at most two jobs on the 16 GiB development machine.
 
+## Implementation and closeout evidence
+
+I0 is implemented within the authorized cells. The production compiler now
+projects the invocation snapshot into the exact G0 policy mode, issues the
+source-backed `CanonicalGenericG0PlanV1`, and carries it through the existing
+`BindingSsaTrivial`/`Single` package mapping. Package lowering stops with the
+typed `GenericG0NotActivated` result; no physical owner or publication route
+was opened.
+
+Changed implementation cells are `generic_g0_capability.rs`,
+`capability/first_family_plan.rs`, `generic_g0_source_parent.rs`,
+`generic_g0_result_abi.rs`, `loop_recipe_contract/generic_g0_demand.rs`,
+`source_bound_package.rs` and its G0 sealing sibling, plus the canonical
+compiler entry, invocation-policy snapshot accessors, module registry, and
+focused exhaustive-match test. The promoted handoff is still the only source
+handoff issuer; the observation adapter and physical emitter session remain
+test-only where their contracts require it.
+
+Focused acceptance:
+
+```text
+CARGO_PROFILE_DEV_DEBUG=0 CARGO_INCREMENTAL=0 cargo test -j1 generic_g0 --lib
+71 passed; 0 failed
+cargo check -j2
+passed (existing warning baseline only)
+bash tools/checks/current_state_pointer_guard.sh
+passed
+git diff --check
+passed
+source sizes: source_bound_package.rs 687, capability.rs 749,
+generic_g0_capability.rs 152, generic_g0_source_parent.rs 573
+```
+
+The next priority card is
+`MIR-CALLABLE-LOOP-ARGUMENT-PHI-CORRECTION-I0`; the G0 physical terminal,
+completion drain, source-to-exe acceptance, old-edge retirement, and whole
+MIRBuilder completion remain unclaimed.
+
 ## Closeout requirements
 
 Close I0 only with changed-file inventory, positive/negative test results,
@@ -114,9 +152,9 @@ not claim MIRBuilder or Generic G0 production completion.
 
 ## Entry audit outcome
 
-The entry audit initially found the missing mode authority. That stop is now
+The entry audit initially found the missing mode authority. That stop was
 closed by `mirbuilder-loop-g0-policy-mode-authority-d0-2026-09-11.md`:
 `BuilderInvocationConfigV1::snapshot_for_canonical` is the one invocation
 policy snapshot, its explicit strict/planner projection supplies G0 mode, and
-the source projector supplies `Complete` only after verified coverage. I0 is
-reopened with that tuple; no code or physical effect has yet been changed.
+the source projector supplies `Complete` only after verified coverage. I0
+implemented that tuple and stopped before physical lowering.

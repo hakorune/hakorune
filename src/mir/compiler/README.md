@@ -588,7 +588,7 @@ the MethodCall remains a typed `MissingPreludeTarget` negative. The common
 physicalizer/session design stop is now closed; its Prelude argument receipt
 prerequisite is recorded below.
 
-## Callable Prelude argument receipt P0 (caller-zero)
+## Callable Prelude argument receipt P0
 
 `LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` is closed as a pre-effect source-to-boundary
 receipt. `callable_single_loop_prelude_arguments.rs` issues one move-only,
@@ -596,9 +596,12 @@ AST-free `VerifiedCallablePreludeArgumentListV1` from the resolver-backed
 `FreeStatic` call site. The first profile admits only direct local parameter
 variables with exact `i64` representation; literals, nested expressions,
 upvars, foreign bindings, arity mismatches, and unsupported ABI shapes remain
-typed `NoSafeSlice` dispositions. The prepared Prelude owns the list exactly
-once and exposes it only to the future outer materializer; the common Loop
-physicalizer will receive only the resulting private entry receipt.
+typed `NoSafeSlice` dispositions. Caller parameter types are checked with the
+caller binding's `Parameter { index }`; callee parameter types are checked with
+the call argument's ordered `ordinal`. These indices are never interchanged.
+The prepared Prelude owns the list exactly once and exposes it only to the
+outer materializer; the common Loop physicalizer receives only the resulting
+private entry receipt.
 
 The focused prepare suite checks ordinal, binding owner, and ABI. This row does
 not reread AST by name, open Builder/MIR/physical lowering, or add a selector,
@@ -606,6 +609,10 @@ retry, fallback, or production caller. The next bounded row is
 `LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0`.
 Its four-block execution brief is kept in the active workstream card and the
 common physical-demand SSOT; do not open a production caller from this README.
+
+The production canary also checks that the loop-body `Add` destination is the
+exact `(backedge block, ValueId)` input of the header induction PHI. This is a
+structural invariant check, not a new physical owner or a source-name lookup.
 
 The topology/After-only canary is now landed in the test-only
 `resolved_lowering::loop_recipe_physicalizer` module. It consumes the neutral
@@ -674,10 +681,10 @@ does not call a selector, Recipe, Builder, MIR, retry, fallback, or production
 route. Its 12 focused tests are part of the row guard; ambiguous source lookup
 and binding evidence remains unresolved rather than being guessed.
 
-## Generic G0 policy handoff I0/R0 (caller-zero implementation)
+## Generic G0 policy handoff I0/R0
 
-The compiler-side `generic_g0_projection::handoff` test adapter now issues the
-sole source-projector co-seal `VerifiedGenericG0PolicyHandoffV1`. It retains
+The compiler-side `generic_g0_projection::handoff` is the sole source-projector
+co-seal issuer for `VerifiedGenericG0PolicyHandoffV1`. It retains
 an opaque resolver/source brand borrowed from the canonical selector window,
 the typed S0C bundle, exact role `BindingRef`s, numeric target, and post-loop
 return relation as one AST-free move-only product. The handoff does not retain
@@ -686,12 +693,13 @@ does not downgrade to a bare bundle or reread source. The former
 candidate-envelope witness remains cfg(test)-only evidence and is not wrapped
 or paired after the fact.
 
-Focused G0 observation/policy tests and the shared caller-zero guard are
-green. The production source-parent row consumes this handoff only through
-the selected Generic source cohort; it still has no physical, Builder/MIR,
-retry, fallback, or legacy-retirement claim.
+The `generic_g0_observation.rs` adapter remains test-only evidence. Focused G0
+observation/policy tests and the shared caller-zero guard are green. The
+production source-parent row consumes this handoff through the canonical G0
+issuer; it still has no physical, Builder/MIR, retry, fallback, or
+legacy-retirement claim.
 
-## Generic G0 demand S3 I0/R0 (caller-zero implementation)
+## Generic G0 demand S3 I0/R0
 
 The selector-to-demand issuer consumes `Selected(Generic)` by value and
 retains one canonical window lease, the borrowed handoff brand, the typed
@@ -731,13 +739,29 @@ signature metadata, then stores one private non-`Clone`
 callback lends that row; it does not re-scan AST or reconstruct a header from
 `/N`, MIR parameter length, or S6C storage facts.
 
-This I0 is a source projection only. Result ABI, receiver/lane layout,
-function effect, Completion, skeleton/session, CFG/SSA/PHI, lifecycle, Text,
-route, fallback, retry, and production caller remain closed by the active
-physical-entry design stop. The source-only projection I0 is landed; the next
-design stop is one same-cohort Generic physical-entry input issuer. No
-skeleton, lane adoption, or session effect is authorized until that issuer is
-named.
+This remains a source projection, but its co-sealed products are now consumed
+by the production Generic G0 canonical issuer/package I0 below. Result ABI,
+receiver/lane layout, function effect, Completion, skeleton/session,
+CFG/SSA/PHI, Text, physical lowering, fallback, retry, and publication remain
+outside I0.
+
+## Generic G0 canonical issuer/package I0
+
+`generic_g0_capability::verify_with_generic_g0_mode_v1` is the production
+preflight caller for the exact marked G0 root. It takes the immutable
+`BuilderInvocationConfigV1::snapshot_for_canonical` projection once for mode,
+requires the source handoff to prove `Complete`, and declines known non-G0
+shapes to the existing preflight. It does not read the environment, infer a
+mode, rescan AST after projection, or fall back after a G0 integrity failure.
+
+The issuer co-seals `CanonicalGenericG0PlanV1` with the existing
+`VerifiedResolvedOwnerHeaderV1`; `ExactCanonicalPreflightPlanV1::Loop` maps
+it to `CanonicalSourceRouteV1::BindingSsaTrivial`, the existing
+`ModuleInvocationFamilyV1::BindingSsaTrivial`, and one `Single` continuation.
+Package binding may seal that lifecycle header once, while physical
+`consume_parts` returns the typed `GenericG0NotActivated` stop until the next
+physical-terminal card. No G0 token, continuation, route-loop re-entry,
+test-session call, or alternate publication path is introduced.
 
 ## Generic G0 storage/lane source projection I0
 

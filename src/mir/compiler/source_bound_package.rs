@@ -16,8 +16,7 @@ use super::canonical_drain_manifest::{
     CanonicalDrainRowV1,
 };
 use super::capability::{
-    CanonicalLoopFamilyPlanV1, ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1,
-    VerifiedResolvedOwnerHeaderV1,
+    CanonicalLoopFamilyPlanV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
 use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use super::source_bound_plan::{family_for_route_v1, route_for_family_v1};
@@ -74,6 +73,7 @@ pub(in crate::mir) enum CanonicalSourceContinuationV1<'a> {
 pub(in crate::mir) enum CanonicalPlanLoweringErrorV1 {
     Single(CanonicalResolvedBuildErrorV1),
     Callable(CallableModuleTransactionErrorV1),
+    GenericG0NotActivated,
 }
 
 #[derive(Debug)]
@@ -81,6 +81,12 @@ pub(in crate::mir) struct RejectedCanonicalLoweringV1<'a> {
     token: ModuleInvocationTokenV1,
     continuation: CanonicalSourceContinuationV1<'a>,
     error: CanonicalPlanLoweringErrorV1,
+}
+
+impl RejectedCanonicalLoweringV1<'_> {
+    pub(in crate::mir) fn error(&self) -> &CanonicalPlanLoweringErrorV1 {
+        &self.error
+    }
 }
 
 #[derive(Debug)]
@@ -478,7 +484,7 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
         issuer: &mut InvocationIdentityIssuerV1,
         plan: ExactCanonicalPreflightPlanV1<'a>,
     ) -> Result<Self, RejectedCanonicalSourceBindingV1<'a>> {
-        let continuation = match Self::seal_continuation(&plan) {
+        let continuation = match super::source_bound_package_generic_g0::seal_continuation(&plan) {
             Ok(continuation) => continuation,
             Err(error) => return Err(RejectedCanonicalSourceBindingV1 { plan, error }),
         };
@@ -492,91 +498,6 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
             plan,
             continuation,
         })
-    }
-
-    fn seal_continuation(
-        plan: &ExactCanonicalPreflightPlanV1<'a>,
-    ) -> Result<CanonicalSourceContinuationV1<'a>, SourceBindingErrorV1> {
-        match plan {
-            ExactCanonicalPreflightPlanV1::APlus(plan) => {
-                let header = plan
-                    .seal_resolved_owner_header_v1()
-                    .map_err(SourceBindingErrorV1::Header)?;
-                debug_assert_eq!(
-                    header.family(),
-                    ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus
-                );
-                Ok(CanonicalSourceContinuationV1::Single {
-                    header,
-                    policy: ModuleInvocationPolicyV1::policy_for_family(
-                        ModuleInvocationFamilyV1::CanonicalAPlus,
-                    ),
-                })
-            }
-            ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan) => {
-                let header = plan
-                    .seal_resolved_owner_header_v1()
-                    .map_err(SourceBindingErrorV1::Header)?;
-                debug_assert_eq!(
-                    header.family(),
-                    ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
-                );
-                Ok(CanonicalSourceContinuationV1::Single {
-                    header,
-                    policy: ModuleInvocationPolicyV1::policy_for_family(
-                        ModuleInvocationFamilyV1::BindingSsaTrivial,
-                    ),
-                })
-            }
-            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::DirectAccum(plan)) => {
-                let header = plan
-                    .seal_resolved_owner_header_v1()
-                    .map_err(SourceBindingErrorV1::Header)?;
-                debug_assert_eq!(
-                    header.family(),
-                    ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
-                );
-                Ok(CanonicalSourceContinuationV1::Single {
-                    header,
-                    policy: ModuleInvocationPolicyV1::policy_for_family(
-                        ModuleInvocationFamilyV1::BindingSsaTrivial,
-                    ),
-                })
-            }
-            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(
-                plan,
-            )) => {
-                let header = plan
-                    .seal_resolved_owner_header_v1()
-                    .map_err(SourceBindingErrorV1::Header)?;
-                debug_assert_eq!(
-                    header.family(),
-                    ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
-                );
-                Ok(CanonicalSourceContinuationV1::Single {
-                    header,
-                    policy: ModuleInvocationPolicyV1::policy_for_family(
-                        ModuleInvocationFamilyV1::BindingSsaTrivial,
-                    ),
-                })
-            }
-            ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
-                Ok(CanonicalSourceContinuationV1::Callable {
-                    source: plan.module(),
-                    policy: ModuleInvocationPolicyV1::policy_for_family(
-                        ModuleInvocationFamilyV1::BindingSsaAcyclic,
-                    ),
-                })
-            }
-            ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan) => {
-                Ok(CanonicalSourceContinuationV1::Callable {
-                    source: plan.module(),
-                    policy: ModuleInvocationPolicyV1::policy_for_family(
-                        ModuleInvocationFamilyV1::BindingSsaRecursive,
-                    ),
-                })
-            }
-        }
     }
 
     pub(crate) fn route(&self) -> CanonicalSourceRouteV1 {
@@ -633,6 +554,13 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                 continuation,
                 builder.lower_resolved_nested_predicate_function_draft(plan),
             ),
+            ExactCanonicalPreflightPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(_plan)) => {
+                Err(RejectedCanonicalLoweringV1 {
+                    token,
+                    continuation,
+                    error: CanonicalPlanLoweringErrorV1::GenericG0NotActivated,
+                })
+            }
             ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
                 match builder.lower_acyclic_callable_drafts(plan) {
                     Ok(drafts) => Ok(LoweredCanonicalPlanV1::Callable {

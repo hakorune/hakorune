@@ -79,6 +79,9 @@ impl VerifiedCallablePreludeArgumentListV1 {
         let ASTNode::FunctionCall { arguments, .. } = expression.node() else {
             return Err(PreludeArgumentRejectV1::CallKindUnsupported);
         };
+        let ASTNode::FunctionDeclaration { param_decls, .. } = input.source().root() else {
+            return Err(PreludeArgumentRejectV1::SourceNavigation);
+        };
         if arguments.len() != prelude.call().argument_count() as usize
             || arguments.len() != header.signature().arity()
         {
@@ -110,7 +113,14 @@ impl VerifiedCallablePreludeArgumentListV1 {
             let BindingKindV1::Parameter { index } = record.kind() else {
                 return Err(PreludeArgumentRejectV1::BindingKindUnsupported);
             };
-            if header.signature().params().get(index as usize)
+            if param_decls
+                .get(index as usize)
+                .and_then(|declaration| declaration.declared_type_name.as_deref())
+                != Some("i64")
+            {
+                return Err(PreludeArgumentRejectV1::AbiUnsupported);
+            }
+            if header.signature().params().get(ordinal as usize)
                 != Some(&ExactTrivialScalarAbiV1::I64)
             {
                 return Err(PreludeArgumentRejectV1::AbiUnsupported);
