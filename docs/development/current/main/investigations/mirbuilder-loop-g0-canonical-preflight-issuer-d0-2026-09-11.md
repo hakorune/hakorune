@@ -1,10 +1,10 @@
 ---
-Status: active__NoSafeSlice__GenericG0CanonicalPreflightIssuer__2026-09-11
+Status: closed__DecisionRecorded__GenericG0CanonicalPreflightIssuer__2026-09-11
 Task: LOOP-G0-CANONICAL-PREFLIGHT-ISSUER-D0
 Date: 2026-09-11
 Priority: define one source-backed G0 selector and issuer before implementation
 Parent: mirbuilder-loop-precutover-authority-g0-d0-2026-09-11
-NextCard: Generic G0 production terminal Decision
+NextCard: LOOP-G0-PRODUCTION-TERMINAL-D0
 ---
 
 # Generic G0 canonical preflight issuer D0
@@ -12,7 +12,7 @@ NextCard: Generic G0 production terminal Decision
 ## Six-line brief
 
 ```text
-Decision: design one G0 source selector inside canonical preflight; do not edit code or activate a route yet.
+Decision: accept the G0-specific handoff issuer (B) inside canonical preflight; do not edit code or activate a route yet.
 Source authority + canonical issuer: VerifiedResolvedSourceUnitV1 -> ResolvedFunctionLoweringInputV1 with the existing NumericTarget::host provider; one issuer must co-seal G0 source Facts, selection evidence, Recipe/JoinSig product, and the plan payload.
 Non-authority: route_loop, raw-loop route IDs, MIR observations, physical admission/session, test-only handoff helpers, and target guesses from physical output.
 Fail-fast boundary: source projection/selection/issuer rejection must happen before SourceBoundCanonicalPackageV1::bind and any Builder/session/artifact effect.
@@ -63,23 +63,27 @@ The canonical issuer (design name:
 `ResolvedFunctionLoweringInputV1` and issue one move-only G0 plan payload. Its
 internal stages may reuse the existing source projection, numeric facts,
 policy, and the source parent's header/effect/ABI/storage/completion
-sub-issuers, but no sibling may be re-issued after the plan is selected:
+sub-issuers, but no sibling may be re-issued after the plan is selected. The
+accepted shape is the G0-specific handoff option (B), not promotion of the
+common five-row selector:
 
 ```text
 FunctionSourceViewV1 + VerifiedResolvedFunctionV1
   -> Generic G0 source/type/structural facts
   -> explicit target from an existing canonical target authority
-  -> G0 policy candidate and complete family-selection evidence
+  -> NumericTarget::host() + G0 policy candidate
   -> one G0-specific source-selection/parent co-seal
   -> CanonicalGenericG0PlanV1 (design name)
 ```
 
-If the existing `issue_generic_g0_source_parent_v1` is retained, the design
-must show how its `CanonicalLoopFamilySelectionV1` parameter is produced from
-this same source issuer without synthetic family rows. Otherwise its input
-contract must be narrowed to the G0-specific handoff in the same bounded
-semantic change. Either choice has one named issuer; neither choice may
-re-enter `route_loop`.
+`issue_generic_g0_policy_handoff_v1` already has the required source/type,
+numeric, target, window, and completion co-seal, but is currently test-only.
+The implementation slice must promote/rehouse that existing contract at the
+canonical production issuer boundary, then narrow
+`issue_generic_g0_source_parent_v1` and the G0 demand/ABI consumers to accept
+that same G0-specific handoff. A fabricated or partially filled
+`CanonicalLoopFamilySelectionV1` is not an adapter. There is one named
+issuer, one handoff, and one parent lineage; none may re-enter `route_loop`.
 
 The plan must become `CanonicalLoopFamilyPlanV1::GenericG0` and then
 `ExactCanonicalPreflightPlanV1::Loop`. It must retain enough source-backed
@@ -87,15 +91,22 @@ header, completion, ABI, storage, entry, and Recipe/JoinSig lineage for the
 existing `BindingSsaTrivial` continuation to be proven, without making
 `CanonicalLoopFamilySelectionV1` a second source authority.
 
-The selector must define all outcomes for the finite family window:
+The selector must define all outcomes for the finite G0 source profile:
 
 - G0 candidate only: issue the G0 plan;
-- another canonical family candidate: decline G0 and preserve that family;
-- overlap: reject before package binding;
-- incomplete source/mode/coverage/target: remain `NoSafeSlice` or reject at
-  the typed source boundary, never default to A+ or the legacy loop route;
-- no candidate: use the existing whole-unit negative proof only after its
-  family coverage is actually sealed.
+- another already-selected canonical family: decline G0 and preserve that
+  family;
+- G0 overlap or conflicting source identity: reject before package binding;
+- source navigation, missing facts, or unsealed mode/coverage: remain
+  `Unresolved`/`NoSafeSlice` at the typed source boundary;
+- frame, structural, numeric, or target mismatch: `Rejected` at the typed
+  source boundary;
+- no G0 shape: decline and let the existing ordinary whole-unit proof decide.
+
+These outcomes are source outcomes, not a reason to create a synthetic
+whole-family row. Shape mismatch is the only case that may continue to the
+ordinary profile; every source-integrity failure is a typed rejection before
+package binding.
 
 The target decision is closed for this profile: use the existing
 `NumericTarget::host()` provider at the source issuer boundary, record it as
@@ -126,13 +137,32 @@ target, or issuer-integrity failure must reject at the source boundary rather
 than silently become A+ or the legacy route. A later all-family selector may
 reuse the same G0 facts, but it is not part of this bounded issuer slice.
 
-The G0 plan must therefore carry a G0-specific source-selection witness
-issued by the same canonical preflight issuer, or change the existing source
-parent's input contract to consume the already co-sealed
-`VerifiedGenericG0PolicyHandoffV1`. Passing a fabricated or partially filled
-`CanonicalLoopFamilySelectionV1` just to satisfy
-`issue_generic_g0_source_parent_v1` is forbidden. The common selector remains
-test/census vocabulary until every row has a source-backed production issuer.
+The G0 plan must therefore carry the already co-sealed
+`VerifiedGenericG0PolicyHandoffV1` (or its productionized equivalent) from
+the same canonical preflight issuer. The common selector remains
+test/census vocabulary until every row has a source-backed production issuer;
+it is not promoted to satisfy the G0 parent API.
+
+## Accepted BindingSsaTrivial lifecycle correspondence
+
+The package mapping is now explicit and reuses the existing single-owner
+lifecycle:
+
+| G0 semantic product | existing package/physical authority | required correspondence |
+| --- | --- | --- |
+| `CanonicalLoopFamilyPlanV1::GenericG0` | `ExactCanonicalPreflightPlanV1::Loop` | the plan is the sole G0-to-package payload; no parallel package branch |
+| G0 declaration header | `ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa` | `seal_continuation` creates `CanonicalSourceContinuationV1::Single` from the same header |
+| G0 completion/owner rows | `CanonicalDrainManifestV1::single` | the manifest is projected from that retained continuation, not from physical MIR |
+| G0 package token | `ModuleInvocationFamilyV1::BindingSsaTrivial` | `bind`/`open_physical` use the existing non-callable single-family policy |
+| G0 draft and completion | existing single lower/collect/complete/drain owner | the future G0 `consume_parts` arm returns one unpublished draft into this owner; it does not publish or discard through the test session |
+
+The first four rows are already the behavior of the existing package
+machinery for Loop plans: `route_for_family_v1` maps the Loop family to
+`BindingSsaTrivial`, `seal_continuation` creates the single header/policy
+continuation, and `project_drain_manifest` is the only manifest producer.
+The final row is the bounded implementation obligation owned by the next
+production-terminal card; it is not delegated to a new G0 token or physical
+observer.
 
 ## Fail-fast and non-reentry contract
 
@@ -142,7 +172,29 @@ Builder/session mutation. It must not call `route_loop`, inspect physical MIR,
 or use the current `generic_g0_physical_emitter_session` callback as a
 production terminal. Existing `CanonicalLoweringErrorV1` mapping may be
 reused only after the source rejection is classified; a generic string or
-ordinary A+ result is not a substitute for a missing G0 issuer.
+ordinary A+ result is not a substitute for a missing G0 issuer. The G0
+handoff, parent, and plan are one move-only chain; demand/ABI consumers may
+borrow that chain but may not reselect or reissue its source facts.
+
+## Decision outcome
+
+The design uncertainty is closed as option B:
+
+1. `CanonicalLoweringPreflightV1` owns the G0 probe after
+   `NestedPredicate` and `DirectAccum`, before ordinary Trivial/A+.
+2. The probe uses one productionized G0-specific policy handoff, with
+   `NumericTarget::host()` as its target authority; the common five-row
+   selector is not promoted.
+3. The handoff is consumed by the G0 parent, demand, ABI, and plan through
+   one move-only lineage. No fabricated `CanonicalLoopFamilySelectionV1`,
+   second source walk, or route observer is permitted.
+4. All source-integrity failures reject before package binding or physical
+   effect; only an exact shape mismatch declines to ordinary verification.
+
+This closes the preflight issuer design slice. It does not claim the G0 arm
+is implemented, the production terminal is connected, the old route is at
+caller zero, or MIRBuilder is complete. The next card owns the remaining
+terminal/manifest/acceptance design before implementation permission.
 
 ## Acceptance for this design card
 
@@ -152,7 +204,8 @@ The card can close only when the tracked Decision names:
    `NestedPredicate > DirectAccum > G0 > ordinary` order;
 2. the canonical `NumericTarget::host()` target authority and its
    cross-target boundary;
-3. the one issuer boundary and the exact G0 plan payload;
+3. the one issuer boundary and the exact G0 plan payload, including the
+   G0-specific handoff consumed by parent/demand/ABI;
 4. the `BindingSsaTrivial` header/manifest/continuation correspondence;
 5. the pre-effect rejection owner and no-reentry guard; and
 6. the next production-terminal card, without opening physical effects here.

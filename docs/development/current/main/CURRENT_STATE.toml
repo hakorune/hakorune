@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "LOOP-G0-CANONICAL-PREFLIGHT-ISSUER-D0"
-current_execution_cohort = "mirbuilder_loop_g0_canonical_preflight_issuer_d0"
-current_design_stop = "open__GenericG0CanonicalPreflightIssuer__2026-09-11"
-current_blocker_token = "NoSafeSlice__GenericG0CanonicalIssuerMissing"
-guard_followup = "design_stop: the real compile_resolved -> compile_resolved_first_family boundary and existing NumericTarget::host authority are named, but the source-backed G0 selector, single issuer, and pre-effect rejection remain unproven before implementation."
+current_execution_row = "LOOP-G0-PRODUCTION-TERMINAL-D0"
+current_execution_cohort = "mirbuilder_loop_g0_production_terminal_d0"
+current_design_stop = "open__GenericG0ProductionTerminal__2026-09-11"
+current_blocker_token = "NoSafeSlice__GenericG0ProductionTerminalMissing"
+guard_followup = "design_stop: the G0-specific handoff issuer and NumericTarget::host authority are settled, but the existing package terminal, unpublished completion path, no-reentry guard, and exclusive old-edge retirement set remain to be proven before implementation."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-g0-canonical-preflight-issuer-d0-2026-09-11.md"
-latest_card = "mirbuilder-loop-g0-canonical-preflight-issuer-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-canonical-preflight-issuer-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-g0-production-terminal-d0-2026-09-11.md"
+latest_card = "mirbuilder-loop-g0-production-terminal-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-production-terminal-d0-2026-09-11.md"
 latest_card_summary = """
 The fixed real-app EXE acceptance scope is closed as a finite 3/11 pass and
 8/11 separately owned baseline/infra handoff; it is not a whole-MirBuilder
@@ -27,14 +27,15 @@ parent; only the old route, a distinct Callable adapter, and a canonical
 package terminal exist. The package mapping review is closed: G0 will be an
 explicit GenericG0 variant inside the existing package with the existing
 BindingSsaTrivial lifecycle. The real preflight caller boundary is named, and
-the active design stop now resolves the missing source selector, single issuer,
-and pre-effect rejection before any route or
-physical effect is opened.
+the G0-specific handoff issuer plus NumericTarget::host authority are settled.
+The active design stop now resolves the existing package terminal, unpublished
+completion path, no-reentry guard, and old-edge retirement set before any route
+or physical effect is opened.
 """
-next_design_card = "LOOP-G0-CANONICAL-PREFLIGHT-ISSUER-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-canonical-preflight-issuer-d0-2026-09-11.md"
+next_design_card = "LOOP-G0-PRODUCTION-TERMINAL-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-production-terminal-d0-2026-09-11.md"
 next_execution_card = "none__MirBuilderFinalAcceptanceScopeClosed"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-precutover-authority-g0-d0-2026-09-11.md"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-production-terminal-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
