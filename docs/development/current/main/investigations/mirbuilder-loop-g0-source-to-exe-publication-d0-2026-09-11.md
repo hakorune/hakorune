@@ -11,11 +11,11 @@ NextCard: none__GenericG0SourceToExePublicationDecisionPending
 ## Six-line brief
 
 ```text
-Decision: design_stop / NoSafeSlice; I1 reaches non-main MIR publication, but the existing source-to-EXE root/entry ingress is not yet named.
-Source authority + canonical issuer: ResolvedFunctionLoweringInputV1 -> verify_with_generic_g0_mode_v1 -> CanonicalGenericG0PlanV1; the next design must identify the existing root/entry issuer.
-Non-authority: route_loop, generic_g0_physical_emitter_session, MIR observation, PublishedMirBackendView, ny-llvmc, and real-app manifest/runner cannot issue G0 selection or root/entry meaning.
+Decision: design_stop / NoSafeSlice; normal ingress and root owners are named, but no existing lossless handoff reaches the G0 resolved-source input.
+Source authority + canonical issuer: VerifiedFinalCallableProgramSourceV1 -> NormalRootExecutionConsumerV1 -> VerifiedNormalCallableSemanticPackageV1; G0 separately requires VerifiedResolvedSourceUnitV1 -> ResolvedModuleLoweringInputV1 -> verify_with_generic_g0_mode_v1.
+Non-authority: route_loop, generic_g0_physical_emitter_session, MIR observation, PublishedMirBackendView, ny-llvmc, and real-app manifest/runner cannot bridge the two products or issue G0/root-entry meaning.
 Fail-fast boundary: source/G0 selection -> executable root/entry acceptance -> I1 lower/collect/complete/drain/publish_once -> backend admission; reject before artifact on any missing relation, with no fallback/retry/re-entry.
-Smallest next slice: read-only census and Decision naming the existing normal-source ingress, root/entry owner, finite fixture, existing manifest, and selfhost_build_exe.sh connection; no implementation yet.
+Smallest next slice: resolve or explicitly design the one lossless normal-package -> G0 resolved-source handoff and its finite acceptance fixture; no adapter, receipt, route, or fixture is authorized before that Decision.
 Non-claims: no source-to-EXE success, EXE result, backend parity, G0 root support, real-app improvement, all-family switch, legacy retirement, or whole-MIRBuilder completion.
 ```
 
@@ -33,17 +33,41 @@ function through the existing Single lifecycle and keeps logical `generic_g0/2`
 separate from its three declared-instance physical lanes. This D0 must not
 reopen that owner or infer a root/entry from MIR, backend metadata, or a fixture.
 
+The normal source chain is now named precisely:
+`VerifiedFinalCallableProgramSourceV1` is consumed once by
+`NormalRootExecutionConsumerV1::consume_once`, then issued as
+`VerifiedNormalCallableSemanticPackageV1`. The package's App Main relation
+validator is the existing source-side root owner; runtime entry selection is
+`select_entry_function`, and the `ny-llvmc` boundary accepts only `main` or
+`ny_main`. The two-stage `selfhost_build.sh --exe` route is
+`hakorune --backend mir --emit-mir-json -> ny-llvmc`.
+
+The G0 chain instead starts at `VerifiedResolvedSourceUnitV1`/
+`ResolvedModuleLoweringInputV1` and enters `compile_resolved`.
+`compile_resolved` is not called by the normal runner chain, and the census
+found no existing lossless product handoff between these chains. The direct
+`hakorune --emit-exe` path through `PublishedMirBackendView` is a separate
+production route, so it cannot be promoted as that handoff. The existing
+11-row real-app EXE manifest is a boundary inventory, not G0 source-to-EXE
+acceptance evidence.
+
 ## Worker consultation and stop evidence
 
-The read-only design consultation on 2026-09-11 found no named existing issuer
-that carries a normal source compilation into a Generic G0 executable root and
-entry. It identified the existing backend chain above, but `ny-llvmc` and
-`PublishedMirBackendView` are non-authorities for G0 selection and entry
-meaning. Existing Loop acceptance is owned by individual binary-tree/json-
-stream smoke boundaries and cannot be assumed to cover this G0 function.
+The read-only design consultation on 2026-09-11 confirmed the primary census:
+the normal root/entry owners and backend chain are identifiable, but no named
+existing issuer carries the normal package into a Generic G0 executable root
+and entry. It also confirmed that `ny-llvmc` and `PublishedMirBackendView`
+are non-authorities for G0 selection and cannot repair the missing relation.
+Existing Loop acceptance is owned by individual binary-tree/json-stream smoke
+boundaries and cannot be assumed to cover this G0 function.
 
-Until the existing owner and its finite acceptance fixture are named, do not
-add a `Verified*`/`Prepared*` receipt, root adapter, backend route, fallback,
-or source-to-EXE fixture. A later design Decision may authorize one existing
-owner handoff only if it preserves the I1 publication route and fails before
-artifact creation when the root/entry relation is absent.
+## D0 decision (2026-09-11)
+
+The existing owners are named, but the required materialization relation is
+missing. Keep `work_mode = design_stop`: do not add a
+`Verified*`/`Prepared*` receipt, root adapter, backend route, fallback, or
+source-to-EXE fixture. The next design slice must either identify an existing
+lossless handoff into `ResolvedModuleLoweringInputV1` or define that handoff's
+single authority, consumer, rejection boundary, and finite acceptance before
+implementation. It must preserve the existing I1 publication route and reject
+before artifact creation when the root/entry relation is absent.

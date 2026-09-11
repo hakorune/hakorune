@@ -5,7 +5,7 @@ current_execution_row = "LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0"
 current_execution_cohort = "mirbuilder_loop_g0_source_to_exe_publication_d0"
 current_design_stop = "open__GenericG0SourceToExePublication__2026-09-11"
 current_blocker_token = "LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0"
-guard_followup = "design_stop: identify the existing normal-source ingress and root/entry acceptance owner; no code, new receipt, or backend route until settled."
+guard_followup = "design_stop: normal ingress/root owners are named but the lossless handoff to ResolvedModuleLoweringInputV1 is missing; no code, new receipt, or backend route until settled."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -41,8 +41,9 @@ current bounded I0 implements that split and is closed with focused
 Callable/Generic evidence. G0 physical lowering I1 is closed: one production
 Single terminal publishes non-main MIR with logical/physical arity separated,
 72/72 Generic G0 tests and a reusable guard green. Source-to-exe publication
-is now a design stop because the normal-source executable root/entry issuer is
-not yet named; no new receipt or backend route is authorized.
+is now a design stop because normal ingress/root owners are named but no
+lossless handoff to ResolvedModuleLoweringInputV1/Generic G0 exists; no new
+receipt or backend route is authorized.
 """
 next_design_card = "LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-source-to-exe-publication-d0-2026-09-11.md"
