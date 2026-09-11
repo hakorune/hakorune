@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "design_stop: link direct seam I0 landed at fc19313028; compile-options I1 remains the next Task 3 authority decision."
+guard_followup = "design_stop: link direct seam I0 landed at fc19313028; compile-options I1 is NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority and remains the next Task 3 authority decision."
 current_design_stop = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,43 +18,30 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-compatibility-retire-r7-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
-The fixed real-app EXE acceptance scope is closed as a finite 3/11 pass, seven separately owned baseline boundaries, and one FFI-environment boundary;
-it is not a whole-MirBuilder completion claim. The Loop semantic-program audit
-closed as NoSafeSlice for the all-family shared receipt, while Callable-only I0
-remains caller-zero. The G0 caller census confirms zero non-test callers for
-the existing source parent; only the old route, a distinct Callable adapter,
-and a canonical package terminal exist. The package mapping review is closed:
-G0 will be an explicit GenericG0 variant inside the existing package with the existing BindingSsaTrivial lifecycle. The real preflight caller boundary is named, and
-the G0-specific handoff issuer plus NumericTarget::host authority are settled.
-The terminal design is closed with one declaration-header/lifecycle-header co-seal, existing package terminal, unpublished completion path, no-reentry
-guard, and Generic-only old-edge retirement set. The mode-authority census
-closed on the existing canonical invocation snapshot plus verified-complete
-G0 source handoff. G0 I0 landed the source-backed issuer and
-BindingSsaTrivial/Single handoff. The Callable caller/callee-index and
-PHI-backedge correction is closed with focused evidence. The common After
-design stop is closed: explicit Predicate relation remains common, while
-Callable header-binding validation moves to the Callable Tail owner. The
-current bounded I0 implements that split and is closed with focused
-Callable/Generic evidence. G0 physical lowering I1 is closed: one production
-Single terminal publishes non-main MIR with logical/physical arity separated,
-74 focused Generic G0 tests and a reusable guard green. Its hardening is
-also closed: typed reject identity, computed-left real-path proof, and
-producer/dispatch carrier-missing rejection are recorded before source-to-
-exe publication. D0 accepted the existing function-level package loan as the
-sole normal G0 consumer seam. I0 owns only the top-level FreeFunction consumer
-and its focused fail-fast evidence; cataloged methods and all-family/source-
-to-EXE claims remain outside scope. No new receipt or backend route is
-authorized. The normal-package Generic G0 consumer I0 is now closed with exact selected-input loan, explicit route, pending canonical child session,
-  existing Single publication, 76 focused Generic tests, and the reusable I0 guard green.
-  The positive top-level FreeFunction publishes `generic_g0/2`
-with two physical lanes; declared-instance three-lane and helper runtime rows
-remain outside scope. Fixed-role Loop topology retirement R0 is closed: old
-receipts/issuers/wrappers and disconnected tests are deleted; the
-  Callable/Generic segment route is sole, 22 physicalizer tests and transfer/
-  pointer guards pass. Source-to-EXE acceptance I0 reused the existing source,
-  package callback, and EXE emitter; its ignored witness passed with the local
-  LLVM18 toolchain-unavailable skip. Main does not call G0, so helper runtime
-  result, Call/R7, backend parity, and all-family completion stay unclaimed. Call/R7 link direct seam I0 landed at fc19313028 with focused guard and C smoke; compile-options I1 is now the design stop, and release compatibility is retained.
+The fixed real-app EXE scope is a finite 3/11 pass with seven named baseline
+boundaries and one FFI-environment boundary; it is not whole-MirBuilder
+completion. The Loop semantic-program audit is `NoSafeSlice` for the shared
+all-family receipt; Callable-only I0 remains caller-zero.
+G0 is an explicit GenericG0 variant in the existing package and
+BindingSsaTrivial/Single lifecycle. Its source issuer, NumericTarget::host,
+physical lowering hardening, typed rejects, computed-left proof, and
+producer/dispatch carrier rejection are closed with focused evidence. The
+normal-package consumer owns only the top-level FreeFunction; cataloged
+methods, all-family selection, and source-to-EXE helper claims remain outside
+scope. Callable caller/callee indices, PHI backedge, and common-After ownership
+split are closed with focused evidence.
+Fixed-role Loop topology retirement R0 is closed; the Callable/Generic segment
+route is sole and its 22-test/transfer/pointer evidence is green. G0
+package/publication plus root-EXE coexistence I0 reused the existing source,
+callback, and emitter; its ignored witness was skipped because LLVM18 is
+unavailable, not successfully run. Main does not call G0 and the helper is not
+in the selected root physical program, so helper backend/runtime, Call/R7,
+backend parity, and all-family completion stay unclaimed. The next G0 item is
+`LOOP-G0-HELPER-BACKEND-REACH-D0`.
+Call/R7 link direct seam I0 landed at fc19313028 with focused guard and C
+smoke. Compile-options I1 is
+`NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority` and remains the
+design stop; release compatibility is retained.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"

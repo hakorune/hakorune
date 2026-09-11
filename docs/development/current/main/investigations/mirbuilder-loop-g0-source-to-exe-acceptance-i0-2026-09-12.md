@@ -1,9 +1,9 @@
-Status: closed__Implementation__GenericG0SourceToExeAcceptance__2026-09-12
+Status: closed__PackageAndRootExeCoexistenceOnly__2026-09-12
 Task: LOOP-G0-SOURCE-TO-EXE-ACCEPTANCE-I0
 Date: 2026-09-12
-Priority: prove the existing normal-package Generic G0 publication reaches the existing EXE emitter
+Priority: classify normal-package Generic G0 publication plus root-EXE coexistence; helper-body backend reach remains open
 Parent: mirbuilder-loop-g0-source-to-exe-publication-d0-2026-09-11.md
-NextCard: none__GenericG0SourceToExeAcceptance__PendingCloseout
+NextCard: LOOP-G0-HELPER-BACKEND-REACH-D0__DesignStop
 ---
 
 # Generic G0 source-to-EXE acceptance I0
@@ -11,7 +11,7 @@ NextCard: none__GenericG0SourceToExeAcceptance__PendingCloseout
 ## Six-line brief
 
 ```text
-Decision: extend the existing normal-package loop test with one opt-in source-to-EXE acceptance witness; do not add a source fixture, semantic receipt, or Call route.
+Decision: extend the existing normal-package loop test with one opt-in package/publication and root-EXE coexistence witness; do not add a source fixture, semantic receipt, or Call route.
 Source authority + canonical issuer: VerifiedFinalCallableProgramSourceV1 -> NormalRootExecutionConsumerV1 -> VerifiedNormalCallableSemanticPackageV1 -> existing Generic G0 function consumer and Single publication lifecycle.
 Non-authority: package.source_ast() re-resolution, route_loop, MIR/backend metadata, test-only emitter sessions, executable runtime result of the helper body, fallback, retry, and a second issuer.
 Fail-fast boundary: selected package key, source owner/forest/header, G0 policy mode, published verification, and existing EXE emitter admission must fail before a partial artifact is retained.
@@ -65,10 +65,12 @@ and is outside this card.
 ## Acceptance evidence
 
 - Positive Rust path: existing `generic_g0` focused test remains green.
-- Positive EXE path: the ignored acceptance witness reaches the existing emitter
-  and executes `Main.main/0` with exit code 30 when the explicit runtime and
-  LLVM18 toolchain are available. On this host it passed as an environment-gated
-  skip because `llvm-config-18`, `llc-18`, and `opt-18` are unavailable.
+- Positive root-EXE coexistence path: the ignored acceptance witness reaches the
+  existing emitter and executes `Main.main/0` with exit code 30 when the
+  explicit runtime and LLVM18 toolchain are available. `Main.main/0` does not
+  call `generic_g0/2`, so this is not G0 helper backend or runtime evidence.
+  On this host the witness was skipped, not run, because `llvm-config-18`,
+  `llc-18`, and `opt-18` are unavailable.
 - Guard: no source AST re-resolution, route-loop entry, test-only emitter
   session, fallback, or helper-body runtime claim is added.
 - Environment: the lifecycle archive and FFI were prepared locally; the missing
@@ -78,10 +80,35 @@ and is outside this card.
 ## Closeout
 
 Closeout evidence: the focused `generic_g0` test passed; the ignored witness
-passed with the explicit environment-unavailable skip; the Generic G0 source
+was explicitly skipped at the environment-unavailable boundary; the Generic G0 source
 guard, physical-transfer guard, current-state/pointer guard, and
 `git diff --check` passed. The witness command was
 `CARGO_BUILD_JOBS=1 cargo test --profile quick -j1
 normal_package_generic_g0_reaches_existing_exe_emitter -- --ignored --nocapture`.
 The synchronized card, test, SSOT mirrors, guard, and `CURRENT_STATE.toml` are
 ready for commit and push.
+
+## Feedback reconciliation (2026-09-12)
+
+The EXE witness is now classified precisely. The source-backed focused test
+proves that `generic_g0/2` is generated and present in the published normal
+package. The ignored EXE test proves only that this package can coexist with
+the existing `Main.main/0` executable path and that that root returns 30 when
+the external environment is available. The physical program selected for that
+root does not contain a call to `generic_g0/2`; the LLVM18-missing run is an
+environment skip, not an execution success.
+
+The deferred bounded task is
+`LOOP-G0-HELPER-BACKEND-REACH-D0`: name one source-backed selected-program
+membership/call authority, then prove that the helper is present in the
+backend input and exercise its runtime result. It must not make this test
+invent a Call edge, substitute a test-only root, or issue a second semantic
+receipt. Until that design is accepted, helper-body backend/runtime reach is
+an open acceptance item rather than a claim of this I0 row.
+
+The same audit confirmed a separate BoxShape cleanup candidate in the
+single-function `compile_resolved` ingress: the G0 policy check snapshots
+`BuilderInvocationConfigV1` and `begin_canonical_invocation` snapshots it
+again. The next implementation slice should move the first snapshot into the
+existing physical invocation/session instead of adding a settings layer or a
+receipt; imports, plugin signatures, and debug policy must be captured once.

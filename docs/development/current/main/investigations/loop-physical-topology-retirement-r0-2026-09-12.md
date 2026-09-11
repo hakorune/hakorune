@@ -122,3 +122,21 @@ non-claim: `issue_for_segment` receives an item and a segment receipt, but the
 current segment receipt does not own the item-to-segment relation. Adding that
 relation would be a new semantic/physical receipt outside this retirement
 slice, so no unsafe synthetic negative was added.
+
+## Post-retirement cleanup census (2026-09-12)
+
+The retired-route follow-up is a behavior-neutral T0 candidate, not part of
+this closed R0. `PreparedLoopOperationEmissionV1` still carries
+`expected_loop`, `expected_block`, and `expected_role`, but the segment
+dispatcher/leaf path consumes the issued segment target and no caller uses the
+matching getters. `LoopReadEntryRequirementV1::PreheaderSeed` has no current
+constructor/use; the live path uses only `CanonicalLive`, leaving its
+entry-membership branch as residue.
+
+The next cleanup may remove only those fields, constructor arguments, getters,
+the unused enum variant/branch, and stale imports. It must retain segment
+placement validation and the transfer guard, and prove zero references,
+focused physicalizer tests, source-size limits, and pointer/diff guards. No
+Recipe, relation, selector, or new negative is needed. The current
+`design_stop` forbids implementing this T0 until it is selected as the active
+bounded row.

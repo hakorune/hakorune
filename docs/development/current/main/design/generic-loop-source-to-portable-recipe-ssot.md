@@ -2,11 +2,13 @@
 
 Status: `Generic G0 demand S3/S4, source-backed normal-package function consumer I0, bounded physical/publication terminal I1, topology retirement R0, raw structured carrier/result publication I0/R0, callable handoff/source/map, RECIPE-COSEAL-D0-r1, bounded RECIPE-COSEAL-I0-R0 caller-zero implementation, CANONICAL-FUNCTION-FINISH-TERMINAL-R0 for the three V2 session lowerers, LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0, Builder-free full-demand/preflight P0, topology split/receipt P0, and ConstI64 leaf-emitter S0 are closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted; source-to-EXE acceptance and all-family production activation remain bounded/open`
 
-Current row: G0 source-to-EXE acceptance I0 is closed with its local LLVM18
-toolchain boundary recorded after the source-backed normal-package function
-consumer and fixed-role topology retirement. Main does not call the G0 helper,
-so helper runtime results, backend parity, and all-family production selection
-remain unauthorized. The global next boundary is the existing
+Current row: G0 package/publication plus root-EXE coexistence I0 is closed with
+its local LLVM18 toolchain boundary recorded after the source-backed
+normal-package function consumer and fixed-role topology retirement. The
+ignored EXE witness was skipped on this host because LLVM18 tools are missing;
+it does not prove a real execution. Main does not call the G0 helper, so the
+helper's backend input membership/runtime result, backend parity, and all-family
+production selection remain unauthorized. The global next boundary is the existing
 `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop; Loop resumes only after that
 handoff.
 

@@ -302,3 +302,38 @@ public `hako_aot_link_obj(_v2)` functions, their dlsym compatibility behavior,
 the v1 archive compatibility resolution, and the existing link body remain
 owned and retained. I1 must later co-seal compile options before any Rust
 transport environment override or C compile environment read is retired.
+
+### Compile-options I1 audit (2026-09-12)
+
+The next Task 3 row is not implementation-ready. A read-only owner audit found
+multiple production option ingress points: Rust `Opts` and environment defaults,
+`capi_transport.rs`, `static_invocation.rs`, Boundary FFI, compatibility
+receivers/surrogates, subprocess environments, C FFI route/common readers, the
+static-V2 ingress, AOT harnesses, and process-global published call rows. The
+current `HakoLlvmcInvocation` is a physical-lifetime owner candidate, but it
+does not carry these options; `HakoLlvmcAllocationConfig` and
+`HakoLlvmcIngressProfile` are not substitutes.
+
+The audit decision is
+`NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority`. In particular,
+the three Rust temporary environment mutation sites cannot be retired by a
+static-only change while generic C, Boundary, static V2, AOT, compatibility,
+and subprocess callers still read ambient state. The published call-row global
+is a separate authority problem and is not silently included in this row.
+
+```text
+Decision: Compile-options I1 is a design stop until one cross-boundary owner is accepted.
+Source authority + canonical issuer: one Rust admission adapter normalizes the existing options; HakoLlvmcInvocation owns the physical contract.
+Non-authority: MIR/source/Recipe meaning, public C ABI, dlsym, and ambient getenv readers issue no new option meaning.
+Fail-fast boundary: conflict, unsupported value, nested/re-entry, and unconsumed-row checks precede env mutation, dlsym, and compile.
+Smallest next slice: co-seal the invocation-owned compile-options contract with every production caller and its delete/retain set.
+Non-claims: no implementation, fallback, concurrent-compile guarantee, or published-row-global retirement is authorized here.
+```
+
+Required acceptance before opening I1 is explicit-options success for
+pure-first/none, harness, static V2, and v1 compatibility; conflict,
+unsupported-value, duplicate/unconsumed-row rejection before effects; complete
+unset/empty/present restoration on success and failure; and overlap isolation
+or pre-mutation rejection. This row is separate from the already-landed link
+direct seam I0 and from the Builder-level duplicate snapshot cleanup recorded
+in the G0 acceptance card.

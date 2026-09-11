@@ -30,8 +30,10 @@ Related:
   `473c006604`, the normal-package Generic G0 consumer now reaches the existing
   Single publication terminal, and fixed-role Loop topology was retired at
   `18f2162e0d`; the segment route is sole for the admitted Callable/Generic
-  physical cohort. These are bounded rows, not all-family or source-to-EXE
-  completion.
+  physical cohort. The separate G0 EXE witness is only package/publication plus
+  existing `Main.main/0` root coexistence; Main does not call the helper and
+  the local LLVM18-missing run was skipped. These are bounded rows, not
+  helper-body backend/runtime, all-family, or source-to-EXE completion.
 - **Next ordered task:** the existing
   `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop resumes after its bounded
   link direct seam I0 landed at `fc19313028`. The next decision is
