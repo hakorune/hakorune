@@ -43,7 +43,7 @@ use crate::mir::module_invocation_policy::ModuleInvocationPolicyV1;
 static NEXT_COMPILER_DOMAIN: AtomicU64 = AtomicU64::new(1);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum SourceBindingErrorV1 {
+pub(in crate::mir) enum SourceBindingErrorV1 {
     DomainExhausted,
     OrdinalExhausted,
     PhysicalArityOverflow,
@@ -150,6 +150,10 @@ impl<'a> RejectedCanonicalPhysicalOpenV1<'a> {
     pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalOpenErrorV1 {
         &self.error
     }
+
+    pub(in crate::mir) fn into_error(self) -> CanonicalPhysicalOpenErrorV1 {
+        self.error
+    }
 }
 
 #[derive(Debug)]
@@ -171,6 +175,10 @@ pub(in crate::mir) struct RejectedCanonicalPhysicalLoweringV1<'a> {
 impl RejectedCanonicalPhysicalLoweringV1<'_> {
     pub(in crate::mir) fn error(&self) -> &CanonicalPlanLoweringErrorV1 {
         &self.rejected.error
+    }
+
+    pub(in crate::mir) fn into_error(self) -> CanonicalPlanLoweringErrorV1 {
+        self.rejected.error
     }
 }
 
@@ -373,6 +381,10 @@ impl CollectedCanonicalPhysicalInvocationV1<'_> {
 impl RejectedCanonicalPhysicalCollectionInvocationV1<'_> {
     pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalCollectionErrorV1 {
         self.physical.error()
+    }
+
+    pub(in crate::mir) fn into_error(self) -> CanonicalPhysicalCollectionErrorV1 {
+        self.physical.into_error()
     }
 }
 

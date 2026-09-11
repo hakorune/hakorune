@@ -24,7 +24,9 @@ use super::generic_g0_source_parent::{
     issue_generic_g0_source_parent_from_observation_v1, GenericG0SourceParentRejectV1,
 };
 use super::located::LocatedStmtV1;
-use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
+use super::lowering_input::{
+    CanonicalGenericG0BoundaryErrorV1, CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1,
+};
 use super::nested_predicate_profile::{
     probe_nested_predicate_source_unit_v1, NestedPredicateSourceUnitProbeV1,
 };
@@ -140,11 +142,11 @@ fn generic_g0_root_marker(
 }
 
 fn map_handoff_error(error: GenericG0PolicyHandoffIssueV1) -> CanonicalLoweringErrorV1 {
-    resolved_region_error(format!("source_handoff={error:?}"))
+    CanonicalLoweringErrorV1::GenericG0(CanonicalGenericG0BoundaryErrorV1::PolicyHandoff(error))
 }
 
 fn map_source_parent_error(error: GenericG0SourceParentRejectV1) -> CanonicalLoweringErrorV1 {
-    resolved_region_error(format!("source_parent={error:?}"))
+    CanonicalLoweringErrorV1::GenericG0(CanonicalGenericG0BoundaryErrorV1::SourceParent(error))
 }
 
 fn resolved_region_error(detail: String) -> CanonicalLoweringErrorV1 {

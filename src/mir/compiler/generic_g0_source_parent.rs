@@ -172,6 +172,17 @@ impl<'source> VerifiedGenericG0SourceParentV1<'source> {
         &self.entries
     }
 
+    /// Test-only mutation seam for the producer/dispatch handoff. Dropping a
+    /// carrier entry must be rejected by admission before a lowerer can see a
+    /// draft or publish physical state.
+    #[cfg(test)]
+    pub(crate) fn drop_carrier_entry_for_test(&mut self) -> bool {
+        let mut entries = std::mem::take(&mut self.entries).into_vec();
+        let removed = entries.pop().is_some();
+        self.entries = entries.into_boxed_slice();
+        removed
+    }
+
     pub(crate) fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
         self.body_shape
     }

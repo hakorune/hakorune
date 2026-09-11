@@ -772,7 +772,9 @@ the marked Generic G0 shape. It consumes the existing Generic admission through
 `Single` collect/complete/drain, finalization, postprocess, external-commit,
 and `publish_once` lifecycle. The lowerer consumes the co-sealed source parent,
 operation program, entry rows, layout, control, Completion, and Generic Tail;
-it does not re-infer source facts, ABI, identity, or control from MIR.
+it does not re-infer source facts, ABI, identity, or control from MIR. The
+cutover preserves source-parent, cohort, admission, and lowerer rejects as
+typed Generic G0 boundary stages; it does not collapse them into debug strings.
 
 Logical source identity remains `generic_g0/2`, while the physical signature
 has three `i64` lanes for the declared-instance fixture (receiver, `i`, `j`).
@@ -780,9 +782,11 @@ The physical arity is carried as an explicit relation from the source-owned
 storage-lane projection into the existing `Single` collector/manifest; the
 logical header is not rewritten. The old
 `generic_g0_physical_emitter_session` remains `cfg(test)` evidence and is not
-promoted. Focused Generic G0 tests cover 72/72 positive and negative cases,
-including late prepared-commit drop with no published module. This slice does
-not claim source-to-exe, backend parity, all Loop families, or legacy removal.
+promoted. The focused `generic_g0` suite currently has 74 passing tests,
+including a real completed-dispatch/`prepare_recursive_after_v1` computed-left
+case, carrier-entry loss rejected at admission, and late prepared-commit drop
+with no published module. This slice does not claim source-to-exe, backend
+parity, all Loop families, or legacy removal.
 
 ## Generic G0 storage/lane source projection I0
 

@@ -124,6 +124,18 @@ pub(in crate::mir) struct RejectedCanonicalDrainV1<'a> {
     pub(in crate::mir) error: CanonicalDrainPrepareErrorV1,
 }
 
+impl RejectedCanonicalPhysicalCompletionV1<'_> {
+    pub(in crate::mir) fn into_error(self) -> CanonicalPhysicalCompletionErrorV1 {
+        self.error
+    }
+}
+
+impl RejectedCanonicalDrainV1<'_> {
+    pub(in crate::mir) fn into_error(self) -> CanonicalDrainPrepareErrorV1 {
+        self.error
+    }
+}
+
 fn same_brand(
     token: &ModuleInvocationTokenV1,
     session: &ModuleBuilderInvocationSessionV1,

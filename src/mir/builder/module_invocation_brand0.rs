@@ -163,6 +163,10 @@ impl RejectedCanonicalPhysicalCollectionV1 {
     pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalCollectionErrorV1 {
         &self.error
     }
+
+    pub(in crate::mir) fn into_error(self) -> CanonicalPhysicalCollectionErrorV1 {
+        self.error
+    }
 }
 
 #[derive(Debug)]

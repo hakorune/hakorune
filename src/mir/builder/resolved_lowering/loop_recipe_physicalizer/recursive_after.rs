@@ -394,33 +394,4 @@ mod tests {
         assert_eq!(error, RecursiveAfterRejectV1::TargetMissing);
     }
 
-    #[test]
-    fn recursive_after_uses_explicit_predicate_for_computed_condition_left() {
-        let computed_left = LoopValueKeyV1::new(21);
-        let condition = LoopValueKeyV1::new(22);
-        let (_, true_target, _) = receipt();
-        let operation = crate::mir::loop_recipe_contract::LoopOperationV1::CompareI64 {
-            op: crate::mir::loop_recipe_contract::LoopCompareI64OpV1::Less,
-            left: computed_left,
-            right: LoopValueKeyV1::new(23),
-            result: condition,
-        };
-        let crate::mir::loop_recipe_contract::LoopOperationV1::CompareI64 {
-            left,
-            result,
-            ..
-        } = operation
-        else {
-            unreachable!("computed-left canary must remain a CompareI64");
-        };
-        assert_ne!(left, result);
-        assert_eq!(
-            predicate_condition_key(LoopPhysicalTransferV1::Predicate {
-                condition: result,
-                on_true: true_target,
-                on_false: LoopPhysicalTargetV1::OpenRootAfter,
-            }),
-            Some(result)
-        );
-    }
 }

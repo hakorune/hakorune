@@ -12,9 +12,12 @@ COMPILER="$ROOT_DIR/src/mir/compiler/mod.rs"
 PACKAGE="$ROOT_DIR/src/mir/compiler/source_bound_package.rs"
 G0_PACKAGE="$ROOT_DIR/src/mir/compiler/source_bound_package_generic_g0.rs"
 ADMISSION="$ROOT_DIR/src/mir/compiler/generic_g0_physical_operation_cohort/emitter_admission.rs"
+ADMISSION_TESTS="$ROOT_DIR/src/mir/compiler/generic_g0_physical_operation_cohort/emitter_admission_tests.rs"
 COHORT="$ROOT_DIR/src/mir/compiler/generic_g0_physical_operation_cohort.rs"
 PLAN="$ROOT_DIR/src/mir/compiler/capability/first_family_plan.rs"
 TESTS="$ROOT_DIR/src/mir/compiler/generic_g0_capability_tests.rs"
+AFTER_TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/generic_production_canary_tests.rs"
+RECURSIVE_AFTER="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/recursive_after.rs"
 CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-loop-g0-production-terminal-i1-2026-09-11.md"
 README="$ROOT_DIR/src/mir/compiler/README.md"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
@@ -23,7 +26,8 @@ SELF_SCRIPT="tools/checks/rust_mirbuilder_generic_g0_production_terminal_i1_guar
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$LOWERER" "$RESOLVED_MOD" "$CUTOVER" "$COMPILER" \
-  "$PACKAGE" "$G0_PACKAGE" "$ADMISSION" "$COHORT" "$PLAN" "$TESTS" "$CARD" \
+  "$PACKAGE" "$G0_PACKAGE" "$ADMISSION" "$ADMISSION_TESTS" "$COHORT" "$PLAN" "$TESTS" \
+  "$AFTER_TESTS" "$RECURSIVE_AFTER" "$CARD" \
   "$README" "$INDEX"
 
 guard_expect_fixed_in_file "$TAG" "lower_generic_g0_function_draft_v1" "$LOWERER" \
@@ -48,6 +52,18 @@ guard_expect_fixed_in_file "$TAG" "tail: VerifiedGenericG0TailCapabilityV1" "$CO
   "the source-owned cohort must retain the Generic tail"
 guard_expect_fixed_in_file "$TAG" "issue_generic_g0_physical_emitter_admission_from_source_parent_v1" "$ADMISSION" \
   "the production path must use the source-parent admission issuer"
+guard_expect_fixed_in_file "$TAG" "entry_coverage_ok" "$ADMISSION" \
+  "admission must pin carrier-entry coverage before the lowerer"
+guard_expect_fixed_in_file "$TAG" "EntryCoverageMismatch" "$ADMISSION" \
+  "missing carrier-entry coverage must have a typed reject"
+guard_expect_fixed_in_file "$TAG" "rejects_missing_carrier_entry_before_lowerer_publication" "$ADMISSION_TESTS" \
+  "focused tests must prove producer/dispatch carrier loss rejects at admission"
+guard_expect_fixed_in_file "$TAG" "generic_g0_computed_condition_left_reaches_real_recursive_after" "$AFTER_TESTS" \
+  "focused tests must exercise computed-left through the real After path"
+guard_expect_fixed_in_file "$TAG" "prepare_recursive_after_v1(completed" "$AFTER_TESTS" \
+  "computed-left evidence must call the real recursive After preparer"
+guard_expect_fixed_in_file "$TAG" "CanonicalGenericG0BoundaryErrorV1" "$CUTOVER" \
+  "the production cutover must preserve typed Generic G0 stage identity"
 guard_expect_fixed_in_file "$TAG" "generic_g0_prepared_commit_failure_discards_unpublished_module" "$TESTS" \
   "focused tests must prove zero-publication late failure"
 guard_expect_fixed_in_file "$TAG" "function.signature.params.len(), 3" "$TESTS" \
@@ -61,6 +77,16 @@ guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" \
 
 if ! rg -U -q -- '#\[cfg\(test\)\]\nmod generic_g0_physical_emitter_session;' "$RESOLVED_MOD"; then
   guard_fail "$TAG" "the legacy Generic emitter session must remain test-only"
+fi
+
+if rg -n -F -- 'bridge_error' "$CUTOVER" >/dev/null 2>&1; then
+  guard_fail "$TAG" "production Generic G0 cutover still contains the debug-string bridge_error"
+fi
+if rg -n -F -- 'format!("generic_g0/' "$CUTOVER" >/dev/null 2>&1; then
+  guard_fail "$TAG" "production Generic G0 cutover still formats typed rejects into stage strings"
+fi
+if rg -n -F -- 'recursive_after_uses_explicit_predicate_for_computed_condition_left' "$RECURSIVE_AFTER" >/dev/null 2>&1; then
+  guard_fail "$TAG" "computed-left evidence must not remain a tautological helper-only test"
 fi
 
 production_session_refs="$({
@@ -91,7 +117,7 @@ if [[ "$commit_count" -ne 1 ]]; then
   guard_fail "$TAG" "Generic G0 cutover must have exactly one commit edge; found $commit_count"
 fi
 
-for file in "$LOWERER" "$CUTOVER" "$PACKAGE" "$G0_PACKAGE" "$ADMISSION" "$COHORT" "$PLAN" "$TESTS"; do
+for file in "$LOWERER" "$CUTOVER" "$PACKAGE" "$G0_PACKAGE" "$ADMISSION" "$ADMISSION_TESTS" "$COHORT" "$PLAN" "$TESTS" "$AFTER_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "Generic G0 terminal source reached the 800-line hard boundary: ${file#"$ROOT_DIR/"}=$lines"

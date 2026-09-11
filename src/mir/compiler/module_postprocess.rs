@@ -191,6 +191,10 @@ impl<'a> RejectedModulePostprocessV1<'a> {
         &self.error
     }
 
+    pub(in crate::mir) fn into_error(self) -> ModulePostprocessErrorV1 {
+        self.error
+    }
+
     pub(in crate::mir) fn discard(self) {
         let Self {
             input,

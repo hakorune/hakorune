@@ -295,6 +295,24 @@ pub(crate) fn issue_generic_g0_physical_emitter_admission_from_source_parent_v1<
     parent: super::super::generic_g0_source_parent::VerifiedGenericG0SourceParentV1<'source>,
 ) -> Result<PreparedGenericG0PhysicalEmitterAdmissionV1<'source>, GenericG0PhysicalEmitterAdmissionRejectV1>
 {
+    issue_generic_g0_physical_emitter_admission_from_source_parent_with_options(parent, false)
+}
+
+#[cfg(test)]
+pub(crate) fn issue_generic_g0_physical_emitter_admission_with_missing_carrier_for_test<'source>(
+    parent: super::super::generic_g0_source_parent::VerifiedGenericG0SourceParentV1<'source>,
+) -> Result<PreparedGenericG0PhysicalEmitterAdmissionV1<'source>, GenericG0PhysicalEmitterAdmissionRejectV1>
+{
+    issue_generic_g0_physical_emitter_admission_from_source_parent_with_options(parent, true)
+}
+
+fn issue_generic_g0_physical_emitter_admission_from_source_parent_with_options<'source>(
+    parent: super::super::generic_g0_source_parent::VerifiedGenericG0SourceParentV1<'source>,
+    drop_carrier_entry: bool,
+) -> Result<PreparedGenericG0PhysicalEmitterAdmissionV1<'source>, GenericG0PhysicalEmitterAdmissionRejectV1>
+{
+    #[cfg(test)]
+    let mut parent = parent;
     let descriptors = issue_generic_g0_physical_function_entry_input_v1(
         parent.borrow_for_physical_emitter(),
     )
@@ -318,6 +336,12 @@ pub(crate) fn issue_generic_g0_physical_emitter_admission_from_source_parent_v1<
     let control = issue_generic_g0_entry_control_facts_v1(&parent_ref)
         .map_err(GenericG0PhysicalEmitterAdmissionRejectV1::Control)?;
     drop(parent_ref);
+    #[cfg(not(test))]
+    let _ = drop_carrier_entry;
+    #[cfg(test)]
+    if drop_carrier_entry {
+        parent.drop_carrier_entry_for_test();
+    }
 
     let cohort = parent
         .into_physical_operation_cohort()

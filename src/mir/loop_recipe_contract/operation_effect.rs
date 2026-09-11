@@ -192,6 +192,12 @@ impl VerifiedLoopOperationEffectProductV1 {
         &self.evidence
     }
 
+    #[cfg(test)]
+    pub(crate) fn replace_outer_condition_with_computed_left_for_test(&mut self) -> bool {
+        self.core
+            .replace_outer_condition_with_computed_left_for_test()
+    }
+
     pub(crate) fn into_parts(
         self,
     ) -> (

@@ -173,10 +173,15 @@ use if_recipe_adapter::{admit_trivial_if_recipe_v1, produce_trivial_if_physical_
 use lowerer::CanonicalFunctionLowererV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
     BuilderContract(String),
     DuplicateFunctionPublication { function_name: String },
+    GenericG0Admission(
+        crate::mir::compiler::generic_g0_physical_operation_cohort::
+            GenericG0PhysicalEmitterAdmissionRejectV1,
+    ),
+    GenericG0Lowerer(String),
 }
 
 /// Complete one CallableSingleLoop draft seal without restoring the captured
@@ -412,13 +417,9 @@ impl MirBuilder {
             issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
                 plan.into_source_parent(),
             )
-            .map_err(|error| {
-                CanonicalResolvedBuildErrorV1::BuilderContract(format!(
-                    "[freeze:contract][generic-g0/admission] {error:?}"
-                ))
-            })?;
+            .map_err(CanonicalResolvedBuildErrorV1::GenericG0Admission)?;
         loop_recipe_physicalizer::lower_generic_g0_function_draft_v1(self, admission)
-            .map_err(CanonicalResolvedBuildErrorV1::BuilderContract)
+            .map_err(CanonicalResolvedBuildErrorV1::GenericG0Lowerer)
     }
 
     #[cfg(test)]

@@ -184,6 +184,12 @@ impl VerifiedLoopCoreProductV1 {
         &self.effect_relations
     }
 
+    #[cfg(test)]
+    pub(crate) fn replace_outer_condition_with_computed_left_for_test(&mut self) -> bool {
+        self.recipe
+            .replace_outer_condition_with_computed_left_for_test()
+    }
+
     pub(super) fn into_parts(
         self,
     ) -> (

@@ -235,6 +235,20 @@ fn map_canonical_build_error(error: CanonicalResolvedBuildErrorV1) -> CanonicalL
         CanonicalResolvedBuildErrorV1::DuplicateFunctionPublication { function_name } => {
             CanonicalLoweringErrorV1::DuplicateFunctionPublication { function_name }
         }
+        CanonicalResolvedBuildErrorV1::GenericG0Admission(error) => {
+            CanonicalLoweringErrorV1::GenericG0(
+                super::compiler::lowering_input::CanonicalGenericG0BoundaryErrorV1::Admission(
+                    error,
+                ),
+            )
+        }
+        CanonicalResolvedBuildErrorV1::GenericG0Lowerer(detail) => {
+            CanonicalLoweringErrorV1::GenericG0(
+                super::compiler::lowering_input::CanonicalGenericG0BoundaryErrorV1::Lowerer(
+                    detail,
+                ),
+            )
+        }
     }
 }
 

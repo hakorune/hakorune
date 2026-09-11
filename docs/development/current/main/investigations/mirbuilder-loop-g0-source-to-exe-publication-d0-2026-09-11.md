@@ -28,10 +28,12 @@ I1 publication, and backend admission. It excludes new semantic receipts, a
 new backend route, route-loop recovery, the test-only emitter session, and
 broad real-app/whole-MIRBuilder claims.
 
-The I1 production terminal is already closed: it publishes one non-main MIR
-function through the existing Single lifecycle and keeps logical `generic_g0/2`
-separate from its three declared-instance physical lanes. This D0 must not
-reopen that owner or infer a root/entry from MIR, backend metadata, or a fixture.
+The I1 production terminal and its 2026-09-11 hardening acceptance are closed:
+the production implementation publishes one non-main MIR function through the
+existing Single lifecycle, and 74 focused Generic tests plus its reusable guard
+are green. Logical `generic_g0/2` remains separate from its three
+declared-instance physical lanes. This D0 must not reopen that owner or infer a
+root/entry from MIR, backend metadata, or a fixture.
 
 The normal source chain is now named precisely:
 `VerifiedFinalCallableProgramSourceV1` is consumed once by
@@ -64,7 +66,8 @@ boundaries and cannot be assumed to cover this G0 function.
 ## D0 decision (2026-09-11)
 
 The existing owners are named, but the required materialization relation is
-missing. Keep `work_mode = design_stop`: do not add a
+missing. I1 hardening is closed and source-to-exe work remains the next design
+boundary. Keep `work_mode = design_stop`: do not add a
 `Verified*`/`Prepared*` receipt, root adapter, backend route, fallback, or
 source-to-EXE fixture. The next design slice must either identify an existing
 lossless handoff into `ResolvedModuleLoweringInputV1` or define that handoff's

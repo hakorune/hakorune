@@ -84,6 +84,18 @@ pub(in crate::mir) struct RejectedCanonicalFinalizationV1<'a> {
     pub(in crate::mir) error: CanonicalFinalizationErrorV1,
 }
 
+impl RejectedCanonicalFinalizationV1<'_> {
+    pub(in crate::mir) fn into_error(self) -> CanonicalFinalizationErrorV1 {
+        self.error
+    }
+}
+
+impl RejectedCanonicalFinalizerV1<'_> {
+    pub(in crate::mir) fn into_error(self) -> CanonicalFinalizationErrorV1 {
+        self.error
+    }
+}
+
 impl<'a> CanonicalDrainedInvocationV1<'a> {
     /// Consume the drained owner and prepare a route-specific finalization
     /// input.  Builder readiness is checked before any finalizer work.

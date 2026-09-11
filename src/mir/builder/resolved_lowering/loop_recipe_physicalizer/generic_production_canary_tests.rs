@@ -312,15 +312,25 @@ fn consume_g0_tail(
 }
 
 fn run_canary(inject_late_failure: bool) -> Result<G0CanaryReceipt, String> {
+    run_canary_with_options(inject_late_failure, false)
+}
+
+fn run_canary_with_options(
+    inject_late_failure: bool,
+    computed_condition_left: bool,
+) -> Result<G0CanaryReceipt, String> {
     let (unit, selection) = generic_source_unit_and_selection_for_test();
     let input = unit
         .root_function_input()
         .map_err(|error| error.to_string())?;
-    let product = crate::mir::loop_recipe_contract::produce_generic_g0_recipe_v1(
+    let mut product = crate::mir::loop_recipe_contract::produce_generic_g0_recipe_v1(
         issue_generic_g0_recipe_demand_v1(selection)
             .map_err(|error| format!("G0 demand: {error:?}"))?,
     )
     .map_err(|error| format!("G0 product: {error:?}"))?;
+    if computed_condition_left && !product.replace_outer_condition_with_computed_left_for_test() {
+        return Err("G0 computed-left producer mutation was not applied".into());
+    }
     let prepared = issue_generic_g0_loop_ingress_v1(Some(input), product)
         .map_err(|error| format!("G0 ingress: {error:?}"))?;
     let (generic_input, program, tail, _target) = prepared.into_parts();
@@ -392,6 +402,19 @@ fn run_canary(inject_late_failure: bool) -> Result<G0CanaryReceipt, String> {
     if condition_keys.len() != 2 || condition_keys[0] == condition_keys[1] {
         outer.discard_unpublished();
         return Err("G0 root/child predicate values are not distinct".into());
+    }
+    if computed_condition_left {
+        let outer_left = physical_layout.program().operation_rows().iter().find_map(
+            |row| match row.operation() {
+                LoopOperationV1::CompareI64 { result, left, .. }
+                    if result == condition_keys[0] => Some(left),
+                _ => None,
+            },
+        );
+        if outer_left != Some(crate::mir::loop_recipe_contract::LoopValueKeyV1::new(3)) {
+            outer.discard_unpublished();
+            return Err("G0 computed-left mutation did not reach dispatch".into());
+        }
     }
     let plan = try_after_session!(prepare_loop_segment_operation_dispatch_v1(
         physical_layout,
@@ -566,4 +589,12 @@ fn generic_g0_late_failure_discards_and_fresh_session_replays() {
     let first = run_canary(false).expect("fresh G0 session after discard");
     let second = run_canary(false).expect("second fresh G0 session");
     assert_eq!(first, second);
+}
+
+#[test]
+fn generic_g0_computed_condition_left_reaches_real_recursive_after() {
+    let receipt = run_canary_with_options(false, true)
+        .expect("computed-left mutation must use the real G0 dispatch and After path");
+    assert_eq!(receipt.condition_count, 2);
+    assert_eq!(receipt.tail_abi, ExactTrivialReturnAbiV1::I64);
 }

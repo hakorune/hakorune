@@ -85,6 +85,12 @@ impl VerifiedGenericRecipeProductG0 {
         self.target
     }
 
+    #[cfg(test)]
+    pub(crate) fn replace_outer_condition_with_computed_left_for_test(&mut self) -> bool {
+        self.operation_effect
+            .replace_outer_condition_with_computed_left_for_test()
+    }
+
     /// Consume the complete Generic operation product into the neutral
     /// Builder-free program.  This is the production ownership transition;
     /// the old demand-part split remains test-only below.

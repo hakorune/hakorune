@@ -36,6 +36,42 @@ impl VerifiedLoopRecipeV1 {
     pub(crate) fn into_recipe(self) -> LoopRecipeV1 {
         self.0
     }
+
+    /// Test-only producer mutation used to exercise the real dispatch/After
+    /// path with a computed CompareI64 operand. The production verifier has
+    /// already sealed this recipe; the seam models a malformed handoff after
+    /// that seal and must never be available to production consumers.
+    #[cfg(test)]
+    pub(crate) fn replace_outer_condition_with_computed_left_for_test(&mut self) -> bool {
+        let mut replaced_constant = false;
+        let mut replaced_compare = false;
+        for row in &mut self.0.items {
+            match &mut row.item {
+                LoopRecipeItemV1::Operation {
+                    operation: LoopOperationV1::ConstI64 { result, .. },
+                } if row.key == LoopItemKeyV1::new(1) && *result == LoopValueKeyV1::new(3) => {
+                    row.item = LoopRecipeItemV1::Operation {
+                        operation: LoopOperationV1::BinaryI64 {
+                            op: super::schema::LoopBinaryI64OpV1::Add,
+                            left: LoopValueKeyV1::new(2),
+                            right: LoopValueKeyV1::new(2),
+                            result: LoopValueKeyV1::new(3),
+                        },
+                    };
+                    replaced_constant = true;
+                }
+                LoopRecipeItemV1::Operation {
+                    operation: LoopOperationV1::CompareI64 { left, right, .. },
+                } if row.key == LoopItemKeyV1::new(2) => {
+                    *left = LoopValueKeyV1::new(3);
+                    *right = LoopValueKeyV1::new(2);
+                    replaced_compare = true;
+                }
+                _ => {}
+            }
+        }
+        replaced_constant && replaced_compare
+    }
 }
 
 /// Artifact whose recipe and source wire claim are structurally valid.
