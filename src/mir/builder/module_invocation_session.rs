@@ -176,18 +176,7 @@ impl BuilderInvocationConfigV1 {
     pub(in crate::mir) fn generic_g0_policy_mode_v1(
         &self,
     ) -> Option<crate::mir::loop_route_policy::GenericG0PolicyModeV1> {
-        use crate::mir::loop_route_policy::GenericG0PolicyModeV1;
-        let policy = self.emit_debug_policy;
-
-        match (
-            policy.joinir_strict_enabled(),
-            policy.joinir_planner_required_enabled(),
-        ) {
-            (false, false) => Some(GenericG0PolicyModeV1::Release),
-            (true, false) => Some(GenericG0PolicyModeV1::Strict),
-            (true, true) => Some(GenericG0PolicyModeV1::StrictPlannerRequired),
-            (false, true) => None,
-        }
+        self.emit_debug_policy.generic_g0_policy_mode_v1()
     }
 
     pub(in crate::mir::builder) fn using_import_boxes(&self) -> &HashMap<String, String> {

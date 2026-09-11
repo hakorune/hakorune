@@ -49,6 +49,19 @@ impl BuilderEmitDebugPolicySnapshotV1 {
         self.joinir_planner_required
     }
 
+    pub(in crate::mir::builder) const fn generic_g0_policy_mode_v1(
+        self,
+    ) -> Option<crate::mir::loop_route_policy::GenericG0PolicyModeV1> {
+        use crate::mir::loop_route_policy::GenericG0PolicyModeV1;
+
+        match (self.joinir_strict, self.joinir_planner_required) {
+            (false, false) => Some(GenericG0PolicyModeV1::Release),
+            (true, false) => Some(GenericG0PolicyModeV1::Strict),
+            (true, true) => Some(GenericG0PolicyModeV1::StrictPlannerRequired),
+            (false, true) => None,
+        }
+    }
+
     pub(in crate::mir::builder) const fn local_ssa_trace(self) -> bool {
         self.local_ssa_trace
     }

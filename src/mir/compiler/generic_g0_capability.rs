@@ -66,8 +66,25 @@ pub(crate) fn probe_generic_g0_source_unit_v1(
     mode: Option<GenericG0PolicyModeV1>,
 ) -> Result<GenericG0SourceUnitProbe<'_>, CanonicalLoweringErrorV1> {
     let input = unit.root_function_input()?;
+    match probe_generic_g0_function_v1(input, mode)? {
+        Some(plan) => Ok(GenericG0SourceUnitProbe::Candidate(
+            CanonicalFirstFamilyPlanV1::Loop(
+                super::capability::CanonicalLoopFamilyPlanV1::GenericG0(plan),
+            ),
+        )),
+        None => Ok(GenericG0SourceUnitProbe::NotCandidate(input)),
+    }
+}
+
+/// Probe one exact package-borrowed function input for the production G0
+/// shape. The normal package uses this sibling directly; it must not rebuild a
+/// `VerifiedResolvedSourceUnitV1` merely to reach the existing issuer.
+pub(crate) fn probe_generic_g0_function_v1<'source>(
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    mode: Option<GenericG0PolicyModeV1>,
+) -> Result<Option<CanonicalGenericG0PlanV1<'source>>, CanonicalLoweringErrorV1> {
     let Some((root_loop, _tail)) = generic_g0_root_marker(input)? else {
-        return Ok(GenericG0SourceUnitProbe::NotCandidate(input));
+        return Ok(None);
     };
     let Some(mode) = mode else {
         return Err(CanonicalLoweringErrorV1::CapabilityNotActivated {
@@ -105,13 +122,7 @@ pub(crate) fn probe_generic_g0_source_unit_v1(
         window_lease,
     )
     .map_err(map_source_parent_error)?;
-    Ok(GenericG0SourceUnitProbe::Candidate(
-        CanonicalFirstFamilyPlanV1::Loop(
-            super::capability::CanonicalLoopFamilyPlanV1::GenericG0(
-                CanonicalGenericG0PlanV1::new(parent),
-            ),
-        ),
-    ))
+    Ok(Some(CanonicalGenericG0PlanV1::new(parent)))
 }
 
 fn generic_g0_root_marker(

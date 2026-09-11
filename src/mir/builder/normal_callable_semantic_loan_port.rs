@@ -45,6 +45,8 @@ mod main_root;
 mod ordinary_new;
 #[path = "normal_callable_semantic_loan_port/canonical_route.rs"]
 mod canonical_route;
+#[path = "normal_callable_semantic_loan_port/generic_g0.rs"]
+mod generic_g0;
 pub(super) use canonical_route::{
     classify_canonical_callable_route, try_prepare_callable_single_loop_program_v1,
     CanonicalCallableRouteV1,
@@ -540,22 +542,17 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        let key = SelectedNormalCallableKeyV1::TopLevel(admission.source_key().clone());
-        self.with_callable_source_scope(key, |inner, transport| {
-            inner
-                .lower_normal_top_level_function_with_source_v1(
-                    builder,
-                    admission,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    body,
-                    uses,
-                    attrs,
-                    transport,
-                )
-                .map_err(|error| error.to_string())
-        })
+        generic_g0::lower_normal_top_level_function(
+            self,
+            builder,
+            admission,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -613,7 +610,10 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     return Ok(());
                 }
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
-                let canonical_route = classify_canonical_callable_route(selected.source())?;
+                let canonical_route = classify_canonical_callable_route(
+                    selected.source(),
+                    builder.comp_ctx.emit_debug_policy().generic_g0_policy_mode_v1(),
+                )?;
                 let target_capability = target_binding.map(|binding| binding.target_capability());
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
@@ -647,6 +647,10 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             target_capability,
                         )
                         .map_err(|error| error.to_string()),
+                    CanonicalCallableRouteV1::GenericG0(_) => Err(
+                        "[freeze:contract][mir/callable-generic-g0/cataloged-method-outside-i0]"
+                            .to_owned(),
+                    ),
                     CanonicalCallableRouteV1::Outside => {
                         with_selected_source_scope(
                             inner,
@@ -720,36 +724,5 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
 mod map_dependency_tests;
 
 #[cfg(test)]
-mod canonical_route_tests {
-    use super::{classify_canonical_callable_route, CanonicalCallableRouteV1};
-    use crate::mir::compiler::{
-        callable_single_loop_static_fixture_tests::static_fixture_for_test,
-        direct_accum_projection::direct_accum_function_for_test,
-        VerifiedResolvedSourceUnitV1,
-    };
-
-    #[test]
-    fn direct_accum_selection_uses_the_canonical_route() {
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(direct_accum_function_for_test())
-            .expect("DirectAccum fixture must resolve");
-        let input = unit.root_function_input().expect("root function input");
-        let route = classify_canonical_callable_route(input).expect("canonical preflight");
-        assert!(matches!(route, CanonicalCallableRouteV1::DirectAccum(_)));
-    }
-
-    #[test]
-    fn callable_single_loop_selection_uses_the_source_bound_route() {
-        let module = static_fixture_for_test();
-        let header = module
-            .source()
-            .catalog()
-            .index()
-            .resolve_free_static_source_call("int_to_str", 1)
-            .expect("int_to_str header");
-        let input = module
-            .function_input(header.source_key())
-            .expect("int_to_str input");
-        let route = classify_canonical_callable_route(input).expect("canonical preflight");
-        assert!(matches!(route, CanonicalCallableRouteV1::CallableSingleLoop(_)));
-    }
-}
+#[path = "normal_callable_semantic_loan_port/canonical_route_tests.rs"]
+mod canonical_route_tests;

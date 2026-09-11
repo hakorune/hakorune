@@ -422,6 +422,23 @@ impl MirBuilder {
             .map_err(CanonicalResolvedBuildErrorV1::GenericG0Lowerer)
     }
 
+    pub(in crate::mir::builder) fn lower_resolved_generic_g0_function_pending_v1(
+        &mut self,
+        function_name: &str,
+        plan: CanonicalGenericG0PlanV1<'_>,
+    ) -> Result<PendingFunctionSessionCloseV1<'_>, CanonicalFunctionSessionErrorV1> {
+        let admission = crate::mir::compiler::generic_g0_physical_operation_cohort::
+            issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
+                plan.into_source_parent(),
+            )
+            .map_err(|error| CanonicalFunctionSessionErrorV1::Primary(format!("{error:?}")))?;
+        loop_recipe_physicalizer::lower_generic_g0_function_draft_pending_v1(
+            self,
+            function_name,
+            admission,
+        )
+    }
+
     #[cfg(test)]
     pub(in crate::mir) fn lower_resolved_direct_accum_function_draft_with_seal_failure_for_test(
         &mut self,

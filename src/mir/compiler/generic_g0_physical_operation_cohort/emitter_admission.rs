@@ -136,6 +136,12 @@ pub(crate) struct PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
     tail: VerifiedGenericG0TailCapabilityV1,
 }
 
+impl<'source> PreparedGenericG0PhysicalEmitterAdmissionV1<'source> {
+    pub(crate) fn symbol(&self) -> &CanonicalCallableSymbolV1 {
+        self.shell_plan.symbol()
+    }
+}
+
 /// One-way handoff consumed by the unpublished session preflight.  The
 /// source siblings remain together; only narrow field borrows and one-shot
 /// control extraction are exposed to that later owner.

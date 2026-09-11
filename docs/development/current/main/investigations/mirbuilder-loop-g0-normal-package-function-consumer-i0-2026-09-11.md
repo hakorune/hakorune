@@ -1,11 +1,11 @@
 # LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0
 
-Status: active implementation row
+Status: closed__Implementation__GenericG0NormalPackageConsumer__2026-09-12
 Task: LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0
 Date: 2026-09-11
 Priority: connect one normal package function to the existing Generic G0 physical/publication owner
 Parent: mirbuilder-loop-g0-source-to-exe-publication-d0-2026-09-11.md
-NextCard: none__GenericG0NormalPackageFunctionConsumer__PendingEvidence
+NextCard: none__GenericG0NormalPackageFunctionConsumer__PendingNextSelection
 ---
 
 # Generic G0 normal-package function consumer I0
@@ -80,8 +80,23 @@ root modes, backend changes, and real-app/whole-MIRBuilder claims.
 - Guard: the normal consumer contains no `package.source_ast()` re-resolution,
   no test-only emitter-session call, no route-loop entry, and no fallback arm
   for a marked Generic G0 selection.
-- Focused tests run with one Cargo process and `-j2`; red results are recorded
+- Focused tests run with one Cargo process and `-j1` for the 16GiB development
+  profile; red results are recorded
   as current-change, baseline, or informational before closeout.
+
+## Implementation evidence (2026-09-12)
+
+- `CARGO_BUILD_JOBS=2 cargo check --profile quick -j2`: passed; the existing
+  workspace emitted 1,827 warnings and no errors.
+- `CARGO_BUILD_JOBS=1 cargo test --profile quick -j1 'generic_g0' -- --nocapture`:
+  passed, 76 tests, including the normal-package positive and missing-policy
+  negative cases.
+- The positive package case publishes `generic_g0/2` with two physical `i64`
+  parameters and reaches the existing Single terminal; no receiver lane is
+  expected for a top-level FreeFunction.
+- The source-bound declared-instance Generic fixture remains the separate
+  three-lane I1 scope. This card does not claim cataloged method cutover,
+  all-family Loop coverage, backend parity, or source-to-exe success.
 
 ## Documentation and closeout
 

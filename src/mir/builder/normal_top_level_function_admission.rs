@@ -12,6 +12,7 @@ use super::module_draft_collector::{FunctionDraftKeyV1, ModuleDraftAdmissionErro
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::mir::compiler::capability::CanonicalGenericG0PlanV1;
 use crate::mir::MirBuilder;
 
 /// One declaration occurrence in the source-order Program statement vector.
@@ -181,5 +182,37 @@ impl RawInvocationChildPortV1<'_, '_> {
                 },
             )?;
         self.commit_normal_top_level_function_pending_v1(pending, admission)
+    }
+
+    /// Consume one source-bound Generic G0 plan through the canonical
+    /// resolved-child collector. The raw body arguments are intentionally not
+    /// accepted here: the plan's exact source input is the sole body owner.
+    pub(in crate::mir::builder) fn lower_normal_top_level_function_with_canonical_generic_g0_plan_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: NormalTopLevelFunctionDraftAdmissionV1,
+        plan: CanonicalGenericG0PlanV1<'_>,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        let source_name_and_arity = match plan.source_input().source().root() {
+            ASTNode::FunctionDeclaration { name, params, .. } => (name, params.len()),
+            _ => return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch),
+        };
+        if source_name_and_arity.0 != admission.source_key().declared_name()
+            || source_name_and_arity.1 != admission.physical_arity()
+        {
+            return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
+        }
+        let function_name = admission.physical_symbol().to_owned();
+        let resolved = super::module_lowering_invocation::ResolvedChildDraftAdmissionV1::
+            cataloged_box_method(
+                plan.source_input().owner(),
+                admission.canonical_key().clone(),
+                function_name.clone(),
+                admission.physical_arity(),
+            );
+        let pending = builder
+            .lower_resolved_generic_g0_function_pending_v1(&function_name, plan)
+            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
+        self.module_port.commit_resolved_pending(pending, resolved)
     }
 }

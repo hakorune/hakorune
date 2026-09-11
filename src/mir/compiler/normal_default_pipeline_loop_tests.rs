@@ -1,6 +1,29 @@
 use super::*;
 
 #[test]
+fn normal_package_routes_top_level_generic_g0_through_existing_terminal() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let source = "static function generic_g0(i: i64, j: i64): i64 { loop(i < 3) { loop(j < 3) { j = j + 1 } i = i + 1 } return j } static box Main { main() { return 0 } }";
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler
+            .compile_normal(published_request(source))
+            .expect("normal package Generic G0 compile");
+        let function = result
+            .module
+            .functions
+            .get("generic_g0/2")
+            .expect("top-level Generic G0 definition");
+        assert_eq!(function.signature.params.len(), 2);
+        assert!(function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. })));
+    });
+}
+
+#[test]
 fn normal_ingress_routes_app_main_static_loop_child_through_callable_consumer() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

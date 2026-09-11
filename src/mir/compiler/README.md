@@ -788,6 +788,25 @@ case, carrier-entry loss rejected at admission, and late prepared-commit drop
 with no published module. This slice does not claim source-to-exe, backend
 parity, all Loop families, or legacy removal.
 
+### Generic G0 normal-package function consumer I0 (2026-09-12)
+
+The normal package now has one bounded Generic G0 consumer for a selected
+top-level `FreeFunction`. `NormalCallableSemanticPackagePortAdapterV1` lends
+the exact `ResolvedFunctionLoweringInputV1` through
+`with_selected_lowering_input`; the function-level probe selects the explicit
+`CanonicalCallableRouteV1::GenericG0` arm and rejects an invalid invocation
+policy before the legacy source route. No source-unit reconstruction or
+`source_ast()` re-resolution is part of this edge.
+
+The selected plan is admitted by the existing Generic physical cohort, lowered
+through one pending canonical child session, and committed by the existing
+`commit_resolved_pending`/Single collector lifecycle. A top-level static
+FreeFunction keeps two physical `i64` lanes (no receiver); the three-lane
+declared-instance source-bound fixture remains the I1 scope. The focused
+positive package test and missing-policy negative test are green. This I0 does
+not claim cataloged method cutover, all-family Loop coverage, backend parity,
+or source-to-exe success.
+
 ## Generic G0 storage/lane source projection I0
 
 `generic_g0_storage_lane_source.rs` retains one parent-owned source row after

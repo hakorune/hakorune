@@ -43,6 +43,7 @@ mod topology;
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 pub(in crate::mir::builder) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_v1;
+pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_pending_v1;
 use operation_dispatcher::*;
 use operation_emitter::*;
 use operation_ledger::*;
