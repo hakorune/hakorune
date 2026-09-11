@@ -3,7 +3,7 @@ Task: LOOP-G0-PRODUCTION-TERMINAL-I1-HARDENING-R0
 Date: 2026-09-11
 Priority: repair the selected I1 acceptance gaps before source-to-exe publication
 Parent: mirbuilder-loop-g0-canonical-issuer-i0-2026-09-11
-NextCard: LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0
+NextCard: LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0
 ---
 
 # Generic G0 production terminal I1

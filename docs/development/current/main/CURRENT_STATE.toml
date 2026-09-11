@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0"
-current_execution_cohort = "mirbuilder_loop_g0_source_to_exe_publication_d0"
-current_blocker_token = "LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0"
-guard_followup = "design_stop: I1 hardening is closed; resolve the named normal-package to G0 source handoff before source-to-exe implementation."
-current_design_stop = "D0: the normal package has a lossless function-level loan, but no module-level ResolvedModuleLoweringInputV1 handoff; design the function-level G0 consumer, policy-mode authority, rejection boundary, and finite acceptance first."
+work_mode = "fast"
+current_execution_row = "LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0"
+current_execution_cohort = "mirbuilder_loop_g0_normal_package_function_consumer_i0"
+current_blocker_token = "LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0"
+guard_followup = "fast: implement the bounded normal-package function-level Generic G0 consumer and prove its fail-fast publication boundary."
+current_design_stop = ""
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-g0-source-to-exe-publication-d0-2026-09-11.md"
-latest_card = "mirbuilder-loop-g0-source-to-exe-publication-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-source-to-exe-publication-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-g0-normal-package-function-consumer-i0-2026-09-11.md"
+latest_card = "mirbuilder-loop-g0-normal-package-function-consumer-i0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-normal-package-function-consumer-i0-2026-09-11.md"
 latest_card_summary = """
 The fixed real-app EXE acceptance scope is closed as a finite 3/11 pass,
 seven separately owned baseline boundaries, and one FFI-environment boundary;
@@ -43,15 +43,16 @@ Single terminal publishes non-main MIR with logical/physical arity separated,
 74 focused Generic G0 tests and a reusable guard green. Its hardening is
 also closed: typed reject identity, computed-left real-path proof, and
 producer/dispatch carrier-missing rejection are recorded before source-to-
-exe publication. D0 remains a design stop because only the lossless
-function-level package loan exists; the G0 module ingress still lacks the
-explicitly selected consumer and policy-mode handoff.
-No new receipt or backend route is authorized.
+exe publication. D0 accepted the existing function-level package loan as the
+sole normal G0 consumer seam. I0 owns only the top-level FreeFunction consumer
+and its focused fail-fast evidence; cataloged methods and all-family/source-
+to-EXE claims remain outside scope. No new receipt or backend route is
+authorized.
 """
-next_design_card = "LOOP-G0-SOURCE-TO-EXE-PUBLICATION-D0"
+next_design_card = "none__GenericG0NormalPackageFunctionConsumer__PendingEvidence"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-source-to-exe-publication-d0-2026-09-11.md"
-next_execution_card = "none__GenericG0SourceToExePublicationDecisionPending"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-source-to-exe-publication-d0-2026-09-11.md"
+next_execution_card = "LOOP-G0-NORMAL-PACKAGE-FUNCTION-CONSUMER-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-normal-package-function-consumer-i0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
