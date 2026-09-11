@@ -54,6 +54,15 @@ struct CanaryReceipt {
     write_count: usize,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CallableLoopMutationV1 {
+    None,
+    DuplicateCondition,
+    StaleGeneration,
+    WrongEdgePredecessor,
+    UnsealedPublication,
+}
+
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.into(),
@@ -241,7 +250,7 @@ fn setup_function<'a>(
     (outer, session)
 }
 
-fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
+fn run_canary(mutation: CallableLoopMutationV1) -> Result<CanaryReceipt, String> {
     let module = exact_module(loop_program());
     let exact_key = canonical_key();
     let exact_input = module
@@ -333,7 +342,7 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         prepare_loop_segment_operation_dispatch_v1(physical_layout, make_entry(), segment_receipt)
             .map_err(|error| format!("dispatch preflight: {error:?}"))?;
     let mut values = LoopOperationValueLedgerV1::default();
-    if seed_duplicate_condition {
+    if mutation == CallableLoopMutationV1::DuplicateCondition {
         let existing = crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::
             LoopOperationValueReceiptV1::new(
                 owner,
@@ -355,7 +364,7 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         );
         plan.emit_all(values, &mut services)
     };
-    if seed_duplicate_condition {
+    if mutation == CallableLoopMutationV1::DuplicateCondition {
         let error = match completed {
             Ok(_) => {
                 drop(session);
@@ -395,7 +404,58 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
             &mut session.phis,
         )
         .map_err(|error| format!("After: {error:?}"))?;
-    let terminal_receipt = consume_callable_tail_completion_v1(
+    match mutation {
+        CallableLoopMutationV1::StaleGeneration => {
+            let header = ready.header_current();
+            let block = outer
+                .builder_view_mut_for_lowering()
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| "selected function disappeared before mutation".to_owned())?
+                .get_block_mut(header.physical_block())
+                .ok_or_else(|| "selected header block disappeared before mutation".to_owned())?;
+            let changed = block.instructions.iter_mut().find_map(|instruction| {
+                let crate::mir::MirInstruction::Phi { dst, .. } = instruction else {
+                    return None;
+                };
+                (*dst == header.physical_value()).then(|| {
+                    *dst = crate::mir::ValueId::new(u32::MAX);
+                })
+            });
+            if changed.is_none() {
+                let detail = format!("header={header:?} block={block:?}");
+                drop(session);
+                outer.discard_unpublished();
+                return Err(format!(
+                    "stale-generation mutation had no canonical header PHI: {detail}"
+                ));
+            }
+        }
+        CallableLoopMutationV1::WrongEdgePredecessor => {
+            let header = ready.header_current().physical_block();
+            let block = outer
+                .builder_view_mut_for_lowering()
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| "selected function disappeared before mutation".to_owned())?
+                .get_block_mut(ready.root_after())
+                .ok_or_else(|| "selected After block disappeared before mutation".to_owned())?;
+            if !block.predecessors.remove(&header) {
+                drop(session);
+                outer.discard_unpublished();
+                return Err("wrong-edge mutation found no canonical predecessor".to_owned());
+            }
+            block
+                .predecessors
+                .insert(crate::mir::BasicBlockId::new(u32::MAX));
+        }
+        CallableLoopMutationV1::None
+        | CallableLoopMutationV1::DuplicateCondition
+        | CallableLoopMutationV1::UnsealedPublication => {}
+    }
+    let terminal_receipt = match consume_callable_tail_completion_v1(
         ready,
         profile_counts,
         condition_key,
@@ -403,17 +463,51 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
         &terminal,
         outer.builder_view_mut_for_lowering(),
         &mut session,
-    )
-    .map_err(|error| format!("Tail/Completion: {error:?}"))?;
+    ) {
+        Ok(receipt) => receipt,
+        Err(error) => {
+            let detail = format!("Tail/Completion: {error:?}");
+            if matches!(
+                mutation,
+                CallableLoopMutationV1::StaleGeneration
+                    | CallableLoopMutationV1::WrongEdgePredecessor
+            ) {
+                drop(session);
+                outer.discard_unpublished();
+            }
+            return Err(detail);
+        }
+    };
     let terminal_block = terminal_receipt.block();
     let profile_close = terminal_receipt.into_profile_close();
     let canonical_close = finish_profile_close(owner, terminal_block, || {
         profile_close.finish(owner, terminal_block)
     })
     .map_err(|error| format!("profile close: {error:?}"))?;
-    let ready_draft = session
+    if mutation == CallableLoopMutationV1::UnsealedPublication {
+        let function = outer
+            .builder_view_mut_for_lowering()
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "selected function disappeared before seal mutation".to_owned())?;
+        function
+            .get_block_mut(terminal_block)
+            .ok_or_else(|| "selected terminal block disappeared before seal mutation".to_owned())?
+            .sealed = false;
+    }
+    let ready_draft = match session
         .finish_for_draft_seal(outer.builder_view_mut_for_lowering(), canonical_close)
-        .map_err(|error| format!("DraftSeal finish: {error:?}"))?;
+    {
+        Ok(ready) => ready,
+        Err(error) => {
+            let detail = format!("DraftSeal finish: {error:?}");
+            if mutation == CallableLoopMutationV1::UnsealedPublication {
+                outer.discard_unpublished();
+            }
+            return Err(detail);
+        }
+    };
     let open_draft = ready_draft.open(outer);
     let prepared = open_draft
         .prepare()
@@ -429,7 +523,7 @@ fn run_canary(seed_duplicate_condition: bool) -> Result<CanaryReceipt, String> {
 
 #[test]
 fn callable_production_canary_runs_s2_to_draft_seal() {
-    let receipt = run_canary(false).expect("P0 callable production canary");
+    let receipt = run_canary(CallableLoopMutationV1::None).expect("P0 callable production canary");
     assert_eq!(
         (
             receipt.operation_count,
@@ -443,8 +537,31 @@ fn callable_production_canary_runs_s2_to_draft_seal() {
 
 #[test]
 fn callable_production_canary_discards_late_failure_and_reruns_fresh() {
-    let error = run_canary(true).expect_err("late duplicate must reject");
+    let error = run_canary(CallableLoopMutationV1::DuplicateCondition)
+        .expect_err("late duplicate must reject");
     assert_eq!(error, "late_failure_discarded");
-    let receipt = run_canary(false).expect("fresh request after discard");
+    let receipt = run_canary(CallableLoopMutationV1::None).expect("fresh request after discard");
+    assert_eq!(receipt.operation_count, 7);
+}
+
+#[test]
+fn callable_production_canary_rejects_selected_session_mutations() {
+    let error = run_canary(CallableLoopMutationV1::StaleGeneration)
+        .expect_err("stale generation must reject");
+    assert!(error.contains("read_relation_input"), "{error}");
+
+    let error = run_canary(CallableLoopMutationV1::WrongEdgePredecessor)
+        .expect_err("wrong predecessor must reject");
+    assert!(error.contains("read_relation_predecessor"), "{error}");
+
+    let error = run_canary(CallableLoopMutationV1::UnsealedPublication)
+        .expect_err("unsealed publication must reject");
+    assert!(
+        error.contains("canonical CFG seal witness disagrees"),
+        "{error}"
+    );
+
+    let receipt = run_canary(CallableLoopMutationV1::None)
+        .expect("fresh request after selected-session mutation discard");
     assert_eq!(receipt.operation_count, 7);
 }

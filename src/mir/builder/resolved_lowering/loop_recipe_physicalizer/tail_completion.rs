@@ -141,6 +141,7 @@ pub(super) fn consume_callable_tail_completion_v1(
         return Err(CallableTailCompletionRejectV1::TailBindingMismatch);
     }
     let after = ready.root_after();
+    let header_current = ready.header_current();
     let current = builder.function_state.current_block.ok_or(
         CallableTailCompletionRejectV1::CurrentBlockMismatch {
             expected: after,
@@ -182,6 +183,15 @@ pub(super) fn consume_callable_tail_completion_v1(
             }
         })?;
     }
+
+    let after_current = session
+        .identity
+        .read_entry_receipt(builder, &mut session.phis, after, header_current.binding())
+        .map_err(CallableTailCompletionRejectV1::Identity)?;
+    session
+        .identity
+        .verify_single_predecessor_read_relation(builder, after_current, header_current)
+        .map_err(CallableTailCompletionRejectV1::Identity)?;
 
     session
         .completion

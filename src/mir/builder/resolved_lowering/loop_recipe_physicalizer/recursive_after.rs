@@ -5,10 +5,12 @@
 //! identity SSA, and existing PHI transaction; it owns no second graph or
 //! retry path.
 
+use super::operation_dispatcher::LoopOperationDispatchReceiptV1;
 use super::segment_dispatcher::CompletedLoopSegmentProgramV1;
 use super::segment_topology::LoopPhysicalSegmentBlockReceiptV1;
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
+use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalBindingReadReceiptV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
@@ -29,6 +31,7 @@ pub(super) enum RecursiveAfterRejectV1 {
     MissingRootAfter(BasicBlockId),
     TargetMissing,
     ConditionMissing,
+    ConditionReadMissing,
     ConditionDuplicate(crate::mir::loop_recipe_contract::LoopValueKeyV1),
     ConditionOwnerMismatch,
     ConditionClassMismatch,
@@ -50,6 +53,7 @@ pub(super) struct ReadyLoopAfterContinuationV1 {
     owner: FunctionOwnerIdV1,
     root_after: BasicBlockId,
     predecessors: Box<[BasicBlockId]>,
+    header_current: CanonicalBindingReadReceiptV1,
 }
 
 impl ReadyLoopAfterContinuationV1 {
@@ -64,11 +68,16 @@ impl ReadyLoopAfterContinuationV1 {
     pub(super) const fn predecessor_count(&self) -> usize {
         self.predecessors.len()
     }
+
+    pub(super) const fn header_current(&self) -> CanonicalBindingReadReceiptV1 {
+        self.header_current
+    }
 }
 
 pub(super) struct PreparedRecursiveAfterV1 {
     program: CompletedLoopSegmentProgramV1,
     conditions: BTreeMap<crate::mir::loop_recipe_contract::LoopValueKeyV1, ValueId>,
+    header_current: CanonicalBindingReadReceiptV1,
 }
 
 pub(super) fn prepare_recursive_after_v1(
@@ -96,6 +105,29 @@ pub(super) fn prepare_recursive_after_v1(
         .as_ref()
         .ok_or(RecursiveAfterRejectV1::TargetFunctionMissing)?;
     let root_after = program.segment_receipt.root_after();
+    let condition_input = program
+        .layout
+        .program()
+        .operation_rows()
+        .iter()
+        .find_map(|row| match row.operation() {
+            crate::mir::loop_recipe_contract::LoopOperationV1::CompareI64 { left, .. } => {
+                Some(left)
+            }
+            _ => None,
+        })
+        .ok_or(RecursiveAfterRejectV1::ConditionReadMissing)?;
+    let header_current = program
+        .dispatch
+        .receipts()
+        .iter()
+        .find_map(|receipt| match receipt {
+            LoopOperationDispatchReceiptV1::Read(read) if read.result() == condition_input => {
+                Some(read.canonical())
+            }
+            _ => None,
+        })
+        .ok_or(RecursiveAfterRejectV1::ConditionReadMissing)?;
     ensure_open_block(function, root_after)?;
     let mut conditions = BTreeMap::new();
     for segment in program.layout.segments() {
@@ -125,6 +157,7 @@ pub(super) fn prepare_recursive_after_v1(
     Ok(PreparedRecursiveAfterV1 {
         conditions,
         program,
+        header_current,
     })
 }
 
@@ -184,6 +217,7 @@ impl PreparedRecursiveAfterV1 {
             owner,
             root_after,
             predecessors: after.predecessors().to_vec().into_boxed_slice(),
+            header_current: self.header_current,
         })
     }
 }

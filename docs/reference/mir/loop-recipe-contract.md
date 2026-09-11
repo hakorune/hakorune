@@ -1264,6 +1264,17 @@ path, or `h_(n+1)` after a preceding Backedge. The later creation of `s_n`
 never makes it an After value by itself; the edge relation is the only proof of
 that generation transition.
 
+For the selected CallableSingleLoop physical boundary, a sealed `After` block
+with exactly one canonical predecessor may directly inherit the predecessor's
+`ValueId`; no synthetic PHI is required when the two canonical read receipts
+carry the same defined value. If the `After` read has a distinct `ValueId`, the
+canonical Binding SSA owner must prove exactly one PHI in `After` with the
+matching predecessor and input value. The selected session canary covers the
+positive direct-inheritance case and mutation rejects for stale generation,
+wrong predecessor, and unsealed publication. This evidence is limited to the
+selected session boundary and does not claim generic Loop, module, OBJ, or EXE
+acceptance.
+
 ## Rejection boundary
 
 The following remain typed rejects at this stage:

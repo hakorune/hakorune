@@ -468,3 +468,18 @@ production positive, physical-boundary omission guard, ordinary-New emission
 drift negatives, and Pair terminal relation positive all pass on the same
 test binary. This closes the bounded local-Copy finishing owner; it does not
 claim module/OBJ/EXE execution, generic Loop, or Pair exit30.
+
+### Selected session After relation receipt (2026-09-11)
+
+The selected physicalizer now transports the canonical Header read inside the
+existing `ReadBindingEmissionReceiptV1` and consumes one canonical read at
+`After`. The verifier requires one predecessor edge and defined values for
+both reads. A direct one-predecessor inheritance of the same `ValueId` is
+accepted; a distinct target value requires one exact PHI input for that edge.
+No physical-field reconstruction or second Binding SSA issuer is introduced.
+
+`callable_production_canary` is green for the positive session-to-DraftSeal
+path, late-failure discard plus fresh rerun, and stale-generation,
+wrong-predecessor, and unsealed-publication mutations. These are selected
+session relation receipts only. Generic Loop value flow, module/OBJ/EXE
+execution, and legacy retirement remain open.

@@ -601,6 +601,24 @@ OBJ/EXE execution, zero/one/multiple iteration acceptance, and legacy
 retirement remain open; this receipt does not promote the broad GenericLoop
 profile.
 
+### CallableSingleLoop canonical After relation (2026-09-11)
+
+The selected physicalizer transports the canonical Header read through the
+existing `ReadBindingEmissionReceiptV1`; it does not reconstruct a second
+Binding SSA receipt from physical fields. Tail/Completion reads the same
+binding at `After` and requires exactly one canonical predecessor edge. When
+the one-predecessor block directly inherits the predecessor's `ValueId`, the
+existing SSA generation is the proof. When it has a distinct target `ValueId`,
+the canonical owner must prove exactly one PHI with the matching predecessor
+and input value. Missing value definitions, stale generation, wrong edge, and
+unsealed publication are named rejects before draft publication.
+
+The focused `callable_production_canary` suite is 3/3 green: the positive
+session-to-DraftSeal path, late-failure discard plus fresh rerun, and selected
+stale/wrong-edge/unsealed mutations. This closes only the selected session
+relation guard; generic Loop value flow, module/OBJ/EXE execution, and legacy
+retirement remain open.
+
 ### Callable full physical canary closeout (2026-08-08)
 
 `CALLABLE-LOOP-PHYSICAL-CANARY-P0` is now closed as caller-zero evidence. The

@@ -119,24 +119,21 @@ pub(super) enum LoopReadBindingEmissionRejectV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct ReadBindingEmissionReceiptV1 {
-    owner: FunctionOwnerIdV1,
     item: LoopItemKeyV1,
-    binding: BindingRefV1,
     result: LoopValueKeyV1,
     logical_block: LoopBlockKeyV1,
-    physical_block: BasicBlockId,
-    physical_value: ValueId,
+    canonical: CanonicalBindingReadReceiptV1,
 }
 
 impl ReadBindingEmissionReceiptV1 {
     pub(super) const fn owner(self) -> FunctionOwnerIdV1 {
-        self.owner
+        self.canonical.owner()
     }
     pub(super) const fn item(self) -> LoopItemKeyV1 {
         self.item
     }
     pub(super) const fn binding(self) -> BindingRefV1 {
-        self.binding
+        self.canonical.binding()
     }
     pub(super) const fn result(self) -> LoopValueKeyV1 {
         self.result
@@ -145,10 +142,14 @@ impl ReadBindingEmissionReceiptV1 {
         self.logical_block
     }
     pub(super) const fn physical_block(self) -> BasicBlockId {
-        self.physical_block
+        self.canonical.physical_block()
     }
     pub(super) const fn physical_value(self) -> ValueId {
-        self.physical_value
+        self.canonical.physical_value()
+    }
+
+    pub(super) const fn canonical(self) -> CanonicalBindingReadReceiptV1 {
+        self.canonical
     }
 }
 
@@ -319,13 +320,10 @@ pub(super) fn emit_prepared_read_binding_at_target_v1(
     )
     .map_err(|_| LoopReadBindingEmissionRejectV1::ResultTypeMismatch)?;
     Ok(ReadBindingEmissionReceiptV1 {
-        owner: prepared.owner,
         item: prepared.item,
-        binding: prepared.source_binding,
         result: prepared.result,
         logical_block: prepared.logical_block,
-        physical_block: by_role,
-        physical_value: canonical.physical_value(),
+        canonical,
     })
 }
 

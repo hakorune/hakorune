@@ -225,9 +225,9 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
     }
 
     /// Verify the existing one-predecessor SSA edge used by a profile's
-    /// terminal read.  The target read may have a distinct PHI ValueId from
-    /// its predecessor; the authority here is the sealed PHI input relation,
-    /// not raw ValueId equality.
+    /// terminal read. The target may directly inherit its predecessor's
+    /// ValueId or use a distinct PHI ValueId; the authority is the sealed edge
+    /// and PHI relation, not an unconstrained latest-value lookup.
     pub(in crate::mir::builder::resolved_lowering) fn verify_single_predecessor_read_relation(
         &self,
         builder: &MirBuilder,
@@ -254,6 +254,23 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         let target_block = function.get_block(target.physical_block).ok_or_else(|| {
             "[freeze:contract][canonical_binding_ssa/read_relation_target]".to_owned()
         })?;
+        if target_block.predecessors.len() != 1
+            || !target_block
+                .predecessors
+                .contains(&predecessor.physical_block)
+        {
+            return Err(
+                "[freeze:contract][canonical_binding_ssa/read_relation_predecessor]".to_owned(),
+            );
+        }
+        if !function_defines_value(function, predecessor.physical_value)
+            || !function_defines_value(function, target.physical_value)
+        {
+            return Err("[freeze:contract][canonical_binding_ssa/read_relation_input]".to_owned());
+        }
+        if target.physical_value == predecessor.physical_value {
+            return Ok(());
+        }
         verify_single_predecessor_phi(
             target_block,
             target.physical_value,
@@ -350,6 +367,14 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         }
         Ok(())
     }
+}
+
+fn function_defines_value(function: &crate::mir::MirFunction, value: ValueId) -> bool {
+    function.blocks.values().any(|block| {
+        block
+            .all_instructions()
+            .any(|instruction| instruction.dst_value() == Some(value))
+    })
 }
 
 fn verify_single_predecessor_phi(
