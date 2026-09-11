@@ -32,12 +32,11 @@ Related:
   `18f2162e0d`; the segment route is sole for the admitted Callable/Generic
   physical cohort. These are bounded rows, not all-family or source-to-EXE
   completion.
-- **Next ordered task:** `LOOP-G0-SOURCE-TO-EXE-ACCEPTANCE-I0` reuses the
-  existing normal-package source and publication callback to exercise the
-  existing EXE emitter when its explicit runtime archive is available. Main does
-  not call the helper, so the row proves root/publication reachability only;
-  Call/R7, new fixtures, backend parity, and all-family Loop selection remain
-  separate.
+- **Next ordered task:** `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` is the existing
+  design stop after G0 source-to-EXE acceptance I0 closed with its local LLVM18
+  toolchain boundary recorded. Strict/dev LegacyCallV0 reader stop is closed,
+  but release compatibility still shares the parser and has no independently
+  owned delete-set; no Call/R7 implementation or Loop-wide selection is opened.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

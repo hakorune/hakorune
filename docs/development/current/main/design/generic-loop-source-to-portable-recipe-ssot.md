@@ -2,12 +2,13 @@
 
 Status: `Generic G0 demand S3/S4, source-backed normal-package function consumer I0, bounded physical/publication terminal I1, topology retirement R0, raw structured carrier/result publication I0/R0, callable handoff/source/map, RECIPE-COSEAL-D0-r1, bounded RECIPE-COSEAL-I0-R0 caller-zero implementation, CANONICAL-FUNCTION-FINISH-TERMINAL-R0 for the three V2 session lowerers, LOOP-PHYSICAL-PREPARE-DESIGN-CORRECTION-R0, Builder-free full-demand/preflight P0, topology split/receipt P0, and ConstI64 leaf-emitter S0 are closed; the reviewed post-co-seal Prepared-product/fresh-session/typed-finish/DraftSeal architecture is accepted; source-to-EXE acceptance and all-family production activation remain bounded/open`
 
-Current row: `LOOP-G0-SOURCE-TO-EXE-ACCEPTANCE-I0` is the selected bounded
-acceptance row after the source-backed normal-package function consumer and
-fixed-role topology retirement. It reuses the existing source, Single
-publication lifecycle, and EXE emitter. Main does not call the G0 helper, so
-helper runtime results, Call/R7, new fixtures, all-family parity, and broad
-production selection remain unauthorized.
+Current row: G0 source-to-EXE acceptance I0 is closed with its local LLVM18
+toolchain boundary recorded after the source-backed normal-package function
+consumer and fixed-role topology retirement. Main does not call the G0 helper,
+so helper runtime results, backend parity, and all-family production selection
+remain unauthorized. The global next boundary is the existing
+`MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop; Loop resumes only after that
+handoff.
 
 Design task:
 `docs/development/current/main/investigations/joinir-loop-m8-loopv0-recurrence-s6a-d0-task-2026-08-08.md`
