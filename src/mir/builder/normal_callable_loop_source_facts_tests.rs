@@ -22,8 +22,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     CallableFunctionSyntaxViewV1, FunctionOwnerIssuerV1, FunctionSemanticResolverSessionV1,
-    ResolveSelectedCallableForestsOutcomeV1, SourceBindingSiteV1, SourceBodyKindV1,
-    SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
+    ResolveSelectedCallableForestsOutcomeV1, SourceBodyKindV1, SourcePathSegmentV1, SourcePathV1,
 };
 use crate::parser::NyashParser;
 use hakorune_mir_core::BindingId;
@@ -157,7 +156,8 @@ fn policy() -> GenericLoopFactsPolicyFrameV1 {
     GenericLoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true)
 }
 
-fn real_callable_ledger_for_owner_mismatch_test() -> CallableSemanticLoweringState {
+fn real_callable_ledger_for_owner_mismatch_test(
+) -> (CallableSemanticLoweringState, Vec<String>, Vec<ASTNode>) {
     let program = NyashParser::parse_from_string(
         "function ledger_owner(i, limit) { loop(i < limit) { local tmp = 0; tmp = tmp + 1; i = i + 1 } }",
     )
@@ -166,6 +166,10 @@ fn real_callable_ledger_for_owner_mismatch_test() -> CallableSemanticLoweringSta
         panic!("source loop must be a program")
     };
     let function = statements.remove(0);
+    let (params, body) = match &function {
+        ASTNode::FunctionDeclaration { params, body, .. } => (params.clone(), body.clone()),
+        _ => panic!("source loop must be a function"),
+    };
     let syntax =
         CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax");
     let mut resolver = FunctionSemanticResolverSessionV1::new(9202).expect("resolver");
@@ -188,7 +192,11 @@ fn real_callable_ledger_for_owner_mismatch_test() -> CallableSemanticLoweringSta
         &projection,
     )
     .expect("source lowering input");
-    CallableSemanticLoweringState::from_exact_source(input).expect("callable ledger")
+    (
+        CallableSemanticLoweringState::from_exact_source(input).expect("callable ledger"),
+        params,
+        body,
+    )
 }
 
 #[test]
@@ -444,11 +452,10 @@ fn ready_source_facts_requires_the_unpublished_root_scope_before_physical_loweri
     });
 }
 
-#[test]
-fn source_aware_adapter_consumes_real_callable_ledger_once() {
-    let program = NyashParser::parse_from_string(
-        "function caller(i, limit) { loop(i < limit) { local tmp = 0; tmp = tmp + 1; i = i + 1 } }",
-    )
+fn source_aware_adapter_consumes_real_callable_ledger_once_for_bound(bound: i64) {
+    let program = NyashParser::parse_from_string(&format!(
+        "function caller(i) {{ loop(i < {bound}) {{ local tmp = 0; tmp = tmp + 1; i = i + 1 }} }}"
+    ))
     .expect("source loop parses");
     let crate::ast::ASTNode::Program { mut statements, .. } = program else {
         panic!("source loop must be a program")
@@ -463,7 +470,8 @@ fn source_aware_adapter_consumes_real_callable_ledger_once() {
     };
     let syntax =
         CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax");
-    let mut resolver = FunctionSemanticResolverSessionV1::new(9201).expect("resolver");
+    let mut resolver =
+        FunctionSemanticResolverSessionV1::new(9201 + bound as u64).expect("resolver");
     let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
         .resolve_selected_callable_forests(&[syntax.function()])
         .expect("source forest")
@@ -484,19 +492,6 @@ fn source_aware_adapter_consumes_real_callable_ledger_once() {
     )
     .expect("source lowering input");
     let owner = input.owner();
-    let local_statement = SourceStmtSiteV1::from_node(
-        SourcePathV1::root_body(0)
-            .child(SourcePathSegmentV1::LoopBody(0))
-            .node(),
-    );
-    let local_binding = forest
-        .owner(owner)
-        .expect("source owner")
-        .declaration_binding(&SourceBindingSiteV1::Local {
-            statement: local_statement.clone(),
-            ordinal: 0,
-        })
-        .expect("local binding");
     let mut state =
         CallableSemanticLoweringState::from_exact_source(input).expect("callable ledger");
     let loop_site = SourcePathV1::root_body(0).node();
@@ -565,15 +560,6 @@ fn source_aware_adapter_consumes_real_callable_ledger_once() {
     let entry = PreparedCallableEntryValuesV1::instance_method(&builder, params.len())
         .expect("entry values");
     state.install_entry_values(&entry).expect("entry install");
-    state
-        .install_single_local_for_test(
-            local_statement.node(),
-            local_binding,
-            0,
-            crate::mir::ValueId::new(90),
-            crate::mir::ValueId::new(91),
-        )
-        .expect("local materialization");
     let ledger = Rc::new(RefCell::new(state));
     let mut root_scope = UnpublishedCallableLoopRootScopeV1::for_test();
     let value = CallableGenericLoopV1PhysicalAdapterV1::lower(
@@ -597,9 +583,61 @@ fn source_aware_adapter_consumes_real_callable_ledger_once() {
 }
 
 #[test]
+fn source_aware_adapter_consumes_real_callable_ledger_once() {
+    for bound in [0, 1, 3] {
+        source_aware_adapter_consumes_real_callable_ledger_once_for_bound(bound);
+    }
+}
+
+#[test]
+fn callable_loop_local_completion_missing_publication_rejects_before_read() {
+    let (mut state, params, body) = real_callable_ledger_for_owner_mismatch_test();
+    let mut builder = MirBuilder::new();
+    builder
+        .create_method_skeleton("ledger_owner".into(), "LedgerOwner", &params, &body)
+        .expect("function skeleton");
+    builder
+        .setup_method_params("LedgerOwner", &params)
+        .expect("function params");
+    for value in builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("current function")
+        .params
+        .iter()
+        .skip(1)
+        .copied()
+    {
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(value, crate::mir::MirType::Integer);
+    }
+    let entry = PreparedCallableEntryValuesV1::instance_method(&builder, params.len())
+        .expect("entry values");
+    state.install_entry_values(&entry).expect("entry install");
+    let local_read_site = SourcePathV1::root_body(0)
+        .child(SourcePathSegmentV1::LoopBody(1))
+        .child(SourcePathSegmentV1::Value)
+        .child(SourcePathSegmentV1::Lhs)
+        .node();
+
+    let error = state
+        .read_variable(&local_read_site)
+        .expect_err("a local read must not bypass completion publication");
+    assert!(
+        error.contains("variable-before-materialization"),
+        "unexpected local-completion omission error: {error}"
+    );
+}
+
+#[test]
 fn physical_adapter_rejects_relation_owner_mismatch_before_builder_effect() {
     let relation_owner = owner();
-    let ledger = Rc::new(RefCell::new(real_callable_ledger_for_owner_mismatch_test()));
+    let (state, _, _) = real_callable_ledger_for_owner_mismatch_test();
+    let ledger = Rc::new(RefCell::new(state));
     with_prepared(relation_owner, generic_loop(), |_, prepared| {
         let payload = prepared
             .into_callable_generic_loop_source_facts_payload(

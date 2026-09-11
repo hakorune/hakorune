@@ -120,7 +120,7 @@ where
 
 pub(in crate::mir::builder) fn lower_local_statement_input<'input, P>(
     port: &P,
-    statement: P::StmtInput<'input>,
+    statement: &P::StmtInput<'input>,
     builder: &mut MirBuilder,
     phi_bindings: &BTreeMap<String, ValueId>,
     error_prefix: &str,

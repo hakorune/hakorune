@@ -61,6 +61,13 @@ the already-lowered initializer `ValueId`, and the newly published local
 SSA/PHI policy; the callable-scoped origin state matches this receipt against
 the resolver-issued formal-to-local relation.
 
+The callable Loop source port now constructs this same receipt from the shared
+plan's initializer values at the exact Local statement site. The direct body
+normalizer consumes that capability before publishing its observation-only
+`current_bindings` entry. This adds no physical Local copy and leaves raw and
+compatibility Local paths unchanged; omission is rejected as
+`variable-before-materialization` before the next source read.
+
 The same completed-local terminal also discharges selected ordinary-New
 installation obligations. The callable state supplies exact destination
 BindingRefs; the package claim ledger checks them against the result recorded

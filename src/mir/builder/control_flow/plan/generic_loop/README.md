@@ -77,6 +77,22 @@ Policy frame boundary (MIR-CALLABLE-LOOP-GENERIC-FACTS-POLICY-P0):
 - This P0 adds no callable source relation, Outside consumer, route switch,
   fallback, retry, or production caller.
 
+## Callable source Local completion handoff R0
+
+The selected callable source port supplies one optional Local completion
+capability to the shared direct body normalizer. The Local arm lowers
+initializer expressions first, calls the capability at the exact statement
+site, and updates `current_bindings` only after the existing callable ledger
+accepts `CompletedLocalStatementV1`. The callable port reuses the plan's
+initializer `ValueId`s as local values and preserves source ordinal order; it
+does not create a physical copy, a second ledger, or a new semantic receipt.
+
+Raw and compatibility ports keep the default map-only behavior. A missing
+completion publication is a pre-read `variable-before-materialization` error;
+the focused callable source test covers literal bounds `0`, `1`, and `3` plus
+that negative boundary. Nested/Dynamic loops, Composer retirement, fallback,
+and production package publication remain outside this row.
+
 Related docs:
 - `docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md`
 - `docs/development/current/main/design/compiler-expressivity-first-policy.md`

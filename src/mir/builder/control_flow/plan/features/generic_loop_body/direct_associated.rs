@@ -170,11 +170,16 @@ where
         ASTNode::Local { .. } => {
             let (inits, effects) = lower_local_statement_input(
                 port,
-                statement,
+                &statement,
                 builder,
                 current_bindings,
                 error_prefix,
             )?;
+            let completion_values = inits.iter().map(|(_, value)| *value).collect::<Vec<_>>();
+            // A source-aware port must publish the exact local completion
+            // before the next source BindingRef read. Raw ports return
+            // false and keep the legacy logical map behavior.
+            let _ = port.exact_source_local_completion(&statement, &completion_values)?;
             for (name, value) in inits {
                 publish_defined_binding(builder, current_bindings, name, value);
             }

@@ -635,11 +635,30 @@ fallback/retry, OBJ/EXE, and route retirement are not claimed here.
 The focused production-adapter evidence is
 `source_aware_adapter_consumes_real_callable_ledger_once` in
 `normal_callable_loop_source_facts_tests.rs`. It resolves a real callable
-source forest, installs the existing instance-entry values and local
-materialization, issues the source Facts/Recipe once, runs the named physical
-adapter, and finishes the same ledger after one condition read, one body read,
-and one body rebind. This proves the selected Rust adapter seam only; it does
-not claim full package discovery, OBJ/EXE output, or loop route retirement.
+source forest, installs only the existing instance-entry values, issues the
+source Facts/Recipe once, and lets the source Local arm publish completion
+through the borrowed port before the next BindingRef read. The same test
+covers literal loop bounds `0`, `1`, and `3`, then finishes the ledger after
+the condition/body reads and rebind. This proves the selected Rust adapter
+seam only; it does not claim full package discovery, OBJ/EXE output, or loop
+route retirement.
+
+### Callable Loop Local completion handoff R0
+
+`direct_associated.rs` invokes one optional source-port completion capability
+immediately after Local initializer lowering and before updating the logical
+`current_bindings` map. The callable port derives the exact
+`SourceNodeSiteV1`, builds the existing `CompletedLocalStatementV1` in source
+ordinal order, and calls `CallableSemanticLoweringState::record_completed_local`
+once. It reuses the initializer `ValueId` as the plan-local value because this
+slice does not own a physical Local copy. Raw and compatibility ports retain
+their map-only behavior through the default `false` capability.
+
+`callable_loop_local_completion_missing_publication_rejects_before_read` is
+the named negative guard: a source read without completion publication stops
+at `variable-before-materialization` before physical lowering. This row does
+not open nested/Dynamic loops, a second semantic receipt, Composer retirement,
+fallback, or OBJ/EXE publication.
 
 The selected boundary `MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0` is implemented
 through one private `CallableLoopReadyBodyOnlyProductV1`. It carries the

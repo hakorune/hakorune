@@ -466,6 +466,16 @@ impl CompletedLocalBindingV1 {
 }
 
 impl CompletedLocalStatementV1 {
+    pub(in crate::mir::builder) fn from_parts(
+        result: ValueId,
+        bindings: Vec<CompletedLocalBindingV1>,
+    ) -> Self {
+        Self {
+            result,
+            bindings: bindings.into_boxed_slice(),
+        }
+    }
+
     pub(in crate::mir::builder) const fn result(&self) -> ValueId {
         self.result
     }

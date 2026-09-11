@@ -406,7 +406,7 @@ where
         ASTNode::Local { .. } => {
             let (inits, mut init_effects) = lower_local_statement_input(
                 port,
-                statement,
+                &statement,
                 builder,
                 current_bindings,
                 error_prefix,

@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0"
 current_execution_cohort = "mir_callable_loop_local_completion_handoff_r0"
 current_design_stop = "closed__NoSafeSlice__GenericRewireDemandMissing__2026-09-11"
-current_blocker_token = "none__CallableLoopLocalCompletionHandoffDesignAccepted"
-guard_followup = "MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0: fast implementation. Use the existing CallableSemanticLoweringState::record_completed_local as the sole source completion publisher through one CallableLoopSourceExpressionPortV1 capability. Connect only generic_loop_body/direct_associated.rs Local handling; update current_bindings only after completion succeeds. Keep raw/compatibility map behavior, no manual ledger fixture, no second issuer, no fallback, no nested/Dynamic/Composer retirement, and prove no-manual-ledger positive plus missing-publication negative for bounds 0/1/3."
+current_blocker_token = "none__CallableLoopLocalCompletionHandoffClosed"
+guard_followup = "closeout: MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0 is implemented and evidence-backed. Preserve the existing record_completed_local authority, raw/compatibility map behavior, and all non-claims; keep the bounded commit/push and pointer synchronization as the only remaining closeout work."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -24,15 +24,16 @@ mutation reject, and compile-time module physical-ABI-input boundary. The
 broad GenericLoop rewire is closed for this window as
 NoSafeSlice__GenericRewireDemandMissing: its Facts/Recipe do not provide a
 complete neutral operation/effect/continuation demand, so the old Composer is
-not promoted or deleted. The current fast row is
-MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0: connect one exact callable Local
-completion to the existing ledger publisher, then prove no-manual-ledger
-positive/negative evidence for bounds 0/1/3. No nested/Dynamic/OBJ/EXE or
-legacy-retirement claim is open.
+not promoted or deleted. The bounded
+MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0 is now closed: the callable
+Local arm publishes through the existing ledger before the next source read,
+with no-manual-ledger positive evidence for bounds 0/1/3 and a named omission
+negative. No nested/Dynamic/OBJ/EXE or legacy-retirement claim is open; no next
+implementation row is selected until a new bounded design decision.
 """
-next_design_card = "none__CallableLoopLocalCompletionHandoffDesignAccepted"
+next_design_card = "none__CallableLoopLocalCompletionHandoffClosed"
 next_design_card_path = "docs/development/current/main/investigations/mir-callable-loop-local-completion-d0-2026-09-11.md"
-next_execution_card = "MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0"
+next_execution_card = "none__CallableLoopLocalCompletionHandoffClosed"
 next_execution_card_path = "docs/development/current/main/investigations/mir-callable-loop-local-completion-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

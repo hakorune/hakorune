@@ -1,5 +1,5 @@
 ---
-Status: accepted_design__CallableLoopLocalCompletionHandoff__2026-09-11
+Status: closed__CallableLoopLocalCompletionHandoff__2026-09-11
 Date: 2026-09-11
 Decision: MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-D0
 Parent: mir-callable-loop-phi-generic-rewire-d0-2026-09-11
@@ -93,3 +93,29 @@ One read-only worker independently confirmed the caller chain, the missing
 production completion, the manual-test limitation, and the one-site bounded
 slice. Its result is advisory; this card's ownership decision and acceptance
 boundary are the controlling design authority.
+
+## R0 implementation receipt (2026-09-11)
+
+The accepted slice is implemented through the default-false
+`LoopPlanExpressionPortV1::exact_source_local_completion` capability. Only
+`generic_loop_body/direct_associated.rs` invokes it. The callable source port
+derives the exact located statement site, reuses the existing
+`CompletedLocalStatementV1` with source-ordinal rows, and calls
+`CallableSemanticLoweringState::record_completed_local` before publishing the
+observation-only `current_bindings` update. Raw and compatibility ports are
+unchanged. The existing plan value is used as the local value because this
+slice does not own a physical Local copy.
+
+Acceptance evidence:
+
+- `source_aware_adapter_consumes_real_callable_ledger_once` passes for literal
+  bounds `0`, `1`, and `3` without `install_single_local_for_test`.
+- `callable_loop_local_completion_missing_publication_rejects_before_read`
+  proves the named `variable-before-materialization` boundary when publication
+  is omitted.
+- The focused Rust compile succeeds; the 492 whole-library warnings are known
+  baseline debt and are not caused by this slice.
+
+No production switch beyond the selected source-aware adapter, package/OBJ/EXE
+acceptance, nested/Dynamic support, fallback/retry, Composer retirement, or
+legacy deletion is claimed.

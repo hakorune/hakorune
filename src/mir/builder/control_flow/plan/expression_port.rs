@@ -138,6 +138,20 @@ pub(in crate::mir::builder) trait LoopPlanExpressionPortV1:
     {
         Ok(false)
     }
+
+    /// Optional exact source local completion. A source-aware port consumes
+    /// the completed values at the exact statement site; raw ports retain
+    /// their existing map-only lowering.
+    fn exact_source_local_completion<'input>(
+        &self,
+        _statement: &Self::StmtInput<'input>,
+        _values: &[ValueId],
+    ) -> Result<bool, String>
+    where
+        Self: 'input,
+    {
+        Ok(false)
+    }
 }
 
 #[derive(Debug, Default)]

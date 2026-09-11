@@ -15,6 +15,7 @@ use crate::mir::builder::control_flow::plan::{
 };
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
+use crate::mir::builder::stmts::{CompletedLocalBindingV1, CompletedLocalStatementV1};
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, SourceExprSiteV1,
 };
@@ -372,6 +373,46 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
         }
         let site = Self::exact_site(Self::source_of_expr(target))?;
         self.ledger.borrow_mut().rebind(&site, value)?;
+        Ok(true)
+    }
+
+    fn exact_source_local_completion<'input>(
+        &self,
+        statement: &Self::StmtInput<'input>,
+        values: &[ValueId],
+    ) -> Result<bool, String>
+    where
+        Self: 'input,
+    {
+        let ASTNode::Local { variables, .. } = self.stmt_syntax(statement) else {
+            return Ok(false);
+        };
+        if variables.len() != values.len() {
+            return Err("[freeze:contract][callable-loop/local-completion-shape]".to_owned());
+        }
+        let source = match statement {
+            CallableLoopSourceStmtInputV1::Located { source, .. } => Some(source),
+            CallableLoopSourceStmtInputV1::Synthetic(_) => None,
+        };
+        let site = Self::exact_site(source)?;
+        let result = values
+            .last()
+            .copied()
+            .ok_or_else(|| "[freeze:contract][callable-loop/local-completion-empty]".to_owned())?;
+        let bindings = values
+            .iter()
+            .enumerate()
+            .map(|(ordinal, value)| {
+                let ordinal = u32::try_from(ordinal).map_err(|_| {
+                    "[freeze:contract][callable-loop/local-completion-ordinal-overflow]".to_owned()
+                })?;
+                Ok(CompletedLocalBindingV1::new(ordinal, *value, *value))
+            })
+            .collect::<Result<Vec<_>, String>>()?;
+        let completed = CompletedLocalStatementV1::from_parts(result, bindings);
+        self.ledger
+            .borrow_mut()
+            .record_completed_local(&site, &completed)?;
         Ok(true)
     }
 }

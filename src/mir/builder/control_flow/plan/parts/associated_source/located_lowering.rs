@@ -225,7 +225,7 @@ impl<'view, 'plan: 'view>
             ASTNode::Local { .. } if matches!(self.policy, LocatedBlockPolicyV1::ExitAllowed) => {
                 let (inits, effects) = lower_local_statement_input(
                     port,
-                    source,
+                    &source,
                     self.builder,
                     self.current_bindings,
                     self.error_prefix,

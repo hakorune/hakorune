@@ -1,5 +1,23 @@
 # Portable Loop Recipe Contract
 
+## Callable source Local completion handoff — `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0`
+
+Decision: implemented for the selected callable GenericLoop source edge. The
+source Local arm lowers initializer values, then uses the existing
+`CallableSemanticLoweringState::record_completed_local` publisher through one
+`CallableLoopSourceExpressionPortV1` capability before the next exact
+`BindingRefV1` read. The resolver-issued `SourceNodeSiteV1` and binding rows
+remain the only semantic authority; `current_bindings` is observation-only.
+
+The handoff reuses the existing `CompletedLocalStatementV1` and the plan's
+initializer `ValueId`s in source ordinal order. Raw/compatibility ports return
+the default `false` and retain map-only behavior. Missing publication rejects
+at `variable-before-materialization` before physical lowering. Focused source
+adapter evidence covers literal bounds `0`, `1`, and `3`, plus the omission
+negative. This receipt does not claim nested/Dynamic loops, new Facts/Recipe
+meaning, Composer deletion, fallback/retry, package discovery, OBJ/EXE, or
+runtime publication.
+
 ## Explicit typed Recipe V2 wire — `LOOP-RECIPE-V2-TYPED-SCHEMA-CALLSLOT-I0`
 
 Decision: accepted — V2 is an explicit schema boundary; V1 is not silently
