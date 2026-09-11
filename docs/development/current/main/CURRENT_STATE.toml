@@ -1,11 +1,11 @@
 date = "2026-09-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "LOOP-G0-POLICY-MODE-AUTHORITY-D0"
-current_execution_cohort = "mirbuilder_loop_g0_policy_mode_authority_d0"
-current_design_stop = "open__GenericG0PolicyModeAuthority__2026-09-11"
-current_blocker_token = "NoSafeSlice__GenericG0PolicyModeAuthorityMissing"
-guard_followup = "design_stop: the G0 terminal and issuer/package mapping are recorded, but no production authority issues GenericG0 mode and loop-window coverage; do not invent Release/Complete before reopening I0."
+work_mode = "fast"
+current_execution_row = "LOOP-G0-CANONICAL-ISSUER-I0"
+current_execution_cohort = "mirbuilder_loop_g0_canonical_issuer_i0"
+current_design_stop = "closed__GenericG0PolicyModeAuthority__2026-09-11"
+current_blocker_token = "LOOP-G0-CANONICAL-ISSUER-I0"
+guard_followup = "fast: use the one BuilderInvocationConfigV1 canonical policy snapshot plus verified-complete G0 source handoff to issue the GenericG0 plan and existing BindingSsaTrivial/Single package handoff; no second snapshot or semantic owner."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder callable Loop value binding"
@@ -30,15 +30,16 @@ BindingSsaTrivial lifecycle. The real preflight caller boundary is named, and
 the G0-specific handoff issuer plus NumericTarget::host authority are settled.
 The terminal design is closed with one declaration-header/lifecycle-header
 co-seal, existing package terminal, unpublished completion path, no-reentry
-guard, and Generic-only old-edge retirement set. The I0 entry audit is now a
-design stop because production GenericG0 mode/coverage authority is absent;
-Release/Complete must not be guessed. The next bounded action is the
-mode-authority census before reopening issuer implementation.
+guard, and Generic-only old-edge retirement set. The mode-authority census
+closed on the existing canonical invocation snapshot plus verified-complete
+G0 source handoff. I0 now owns only the source-backed GenericG0 issuer and
+BindingSsaTrivial/Single handoff; physical lowering and source-to-exe
+publication remain a later terminal card.
 """
-next_design_card = "LOOP-G0-POLICY-MODE-AUTHORITY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-policy-mode-authority-d0-2026-09-11.md"
-next_execution_card = "none__GenericG0PolicyModeAuthorityDecisionPending"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-policy-mode-authority-d0-2026-09-11.md"
+next_design_card = "none__GenericG0PolicyModeAuthorityDecisionClosed"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-canonical-issuer-i0-2026-09-11.md"
+next_execution_card = "LOOP-G0-CANONICAL-ISSUER-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-canonical-issuer-i0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

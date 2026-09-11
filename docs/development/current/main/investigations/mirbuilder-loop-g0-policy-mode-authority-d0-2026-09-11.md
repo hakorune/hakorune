@@ -1,5 +1,5 @@
 ---
-Status: active__NoSafeSlice__GenericG0PolicyModeAuthority__2026-09-11
+Status: closed__DecisionRecorded__GenericG0PolicyModeAuthority__2026-09-11
 Task: LOOP-G0-POLICY-MODE-AUTHORITY-D0
 Date: 2026-09-11
 Priority: identify the production authority for Generic G0 mode and loop-window coverage before issuer implementation
@@ -80,3 +80,38 @@ Reopen `LOOP-G0-CANONICAL-ISSUER-I0` only after a tracked Decision records:
 Until then this is a design stop. Do not use the goal blocker for this single
 newly discovered authority gap; return to it only if the same unresolved
 provider premise recurs after the required census.
+
+## Decision recorded
+
+The existing invocation-policy snapshot is the authority; no new environment
+reader or semantic mode owner is needed:
+
+```text
+BuilderInvocationConfigV1::snapshot_for_canonical
+  -> immutable BuilderEmitDebugPolicySnapshotV1
+  -> explicit GenericG0PolicyModeV1 projection
+  -> canonical G0 preflight issuer
+```
+
+The projection is exact and rejects the inconsistent combination
+`planner_required=true` with `strict=false`; it maps only
+`(!strict,!planner_required) -> Release`, `(strict,!planner_required) -> Strict`,
+and `(strict,planner_required) -> StrictPlannerRequired`. G0 policy does not
+read the environment directly and does not choose a default mode.
+
+`Complete` coverage is issued by the productionized G0 source projector only
+after its existing structural/type/numeric handoff has verified the finite
+source coverage. A missing or opaque source fact remains a typed unresolved or
+rejected source outcome; it is never converted into `Complete`.
+
+The one issuer therefore co-seals the invocation mode snapshot, complete G0
+source handoff, owner/origin/source-kind/site/frame, `NumericTarget::host`,
+declaration header, and lifecycle identity before Recipe demand or package
+bind. I0 may promote the existing handoff module and add this explicit mode
+projection, but must keep the policy consumer environment-free and must not
+issue a second window lease/header/continuation.
+
+The design stop is closed. Reopen
+`LOOP-G0-CANONICAL-ISSUER-I0` with this authority tuple; if the exact snapshot
+cannot be threaded without taking a second snapshot or introducing a new
+semantic owner, return to `NoSafeSlice`.
