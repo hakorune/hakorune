@@ -1,22 +1,22 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A"
-current_execution_cohort = "mir_call_compatibility_retire_r7_i1a"
-current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A"
-guard_followup = "closeout: R7-I1A landed at 454e49b755; Boundary pure-first compile-options evidence is recorded, while static/harness/AOT compatibility and aggregate R7 remain follow-up selections."
-current_design_stop = "resolved__MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A__2026-09-12"
+work_mode = "design_stop"
+current_execution_row = "LOOP-G0-HELPER-BACKEND-REACH-D0"
+current_execution_cohort = "loop_g0_helper_backend_reach_d0"
+current_blocker_token = "LOOP-G0-HELPER-BACKEND-REACH-D0"
+guard_followup = "design_stop: G0 helper backend reach has no safe slice until source-backed selected-program membership/call authority is named; package publication and root EXE coexistence do not prove helper reach."
+current_design_stop = "LOOP-G0-HELPER-BACKEND-REACH-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-active_lane = "MirBuilder Call compatibility retirement"
+active_lane = "MirBuilder Loop G0 helper backend reach"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-compatibility-retire-r7-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-g0-helper-backend-reach-d0-2026-09-12.md"
+latest_card = "mirbuilder-loop-g0-helper-backend-reach-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-helper-backend-reach-d0-2026-09-12.md"
 latest_card_summary = """
 The fixed real-app EXE scope is a finite 3/11 pass with seven named baseline
 boundaries and one FFI-environment boundary; it is not whole-MirBuilder
@@ -47,11 +47,16 @@ guard are green; the existing named compatibility smoke remains an uncounted
 host Traceback baseline red. Static-open, harness, AOT compatibility, and
 published-row globals remain explicit follow-up edges; release compatibility
 is retained.
+The next selected row is G0 helper backend reach D0. A read-only worker
+confirmed NoSafeSlice: the current physical-program issuer emits root plus
+actual callees, while Main does not call generic_g0/2. The D0 card records the
+authority decision required before any helper LLVM/runtime claim; no code or
+fixture change is authorized in this design_stop.
 """
-next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+next_design_card = "LOOP-G0-HELPER-BACKEND-REACH-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-helper-backend-reach-d0-2026-09-12.md"
+next_execution_card = "none__LOOP-G0-HELPER-BACKEND-REACH-D0__DesignStopNotAccepted"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-g0-helper-backend-reach-d0-2026-09-12.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
