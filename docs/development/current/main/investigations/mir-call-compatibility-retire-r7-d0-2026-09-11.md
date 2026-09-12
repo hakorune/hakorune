@@ -1,5 +1,5 @@
 ---
-Status: Active — G0 scalar CFG physical consumer; residual compatibility remains open
+Status: Active — R7 design stop; shared invocation-owned compatibility admission remains unresolved
 Date: 2026-09-11
 Decision: MIR-CALL-COMPATIBILITY-RETIRE-R7-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -11,12 +11,12 @@ ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
 
 ## Six-line brief
 
-Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; aggregate R7 remains open.
-Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
-Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
-Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
-Smallest next slice: recover scalar local Call source/consumer agreement below; the unclaimed-New Stop is accepted but deferred.
-Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach or performance claim.
+Decision: co-seal one invocation-owned physical compatibility admission before another R7 owner selection.
+Source authority + canonical issuer: each existing explicit physical entry request, normalized once by the shared admission adapter; C-side `HakoLlvmcInvocation` owns the copied contract.
+Non-authority: MIR/Recipe meaning, profile names alone, ambient environment, provider reachability, public ABI names, and test-only emitters issue no new semantics.
+Fail-fast boundary: entry/profile -> contract layout -> recipe/replay/provider/tool/alias -> input/path/re-entry -> copied invocation -> child/provider/lowering -> artifact publication.
+Smallest next slice: complete the finite issuer/terminal/retained-caller matrix and identify a real non-empty caller-specific delete-set with pre-effect rejection obligations.
+Non-claims: no code, fixture, fallback, route switch, public ABI deletion, concurrency guarantee, LLVM18 runtime evidence, semantic receipt, or aggregate R7/MirBuilder completion.
 
 ## Finite boundary and state table
 
