@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "design_stop: R7 remains NoSafeSlice__NoRemainingUnsharedM7SOwner after the read-only owner audit. The next design deliverable is one shared invocation-owned compatibility admission matrix covering issuer, field-level terminals, retained public/external callers, pre-effect rejection, and a non-empty caller-specific delete-set; no code, fixture, fallback, or route switch before acceptance."
+guard_followup = "design_stop: the AOT direct-harness child-env I0 is closed, but R7 remains NoSafeSlice__NoRemainingUnsharedM7SOwner. The next design deliverable is one shared invocation-owned compatibility admission matrix covering issuer, field-level terminals, retained public/external callers, pre-effect rejection, and a non-empty caller-specific delete-set; no further code, fixture, fallback, or route switch before acceptance."
 current_design_stop = "NoSafeSlice__NoRemainingUnsharedM7SOwner"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -48,7 +48,7 @@ helper lanes, and helper Compare/Add body operations. The static EXE witness
 uses the same selected view; empty-site ABI, declared contracts and physical
 Compare/PHI/CFG now reach LLVM18/EXE3. First-family cutovers reuse one snapshot;
 Pure expected-location fields and PreheaderSeed were removed at 537e5e20fe; Read/Write/Carrier metadata is a separate cleanup candidate.
-Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, and Boundary llc unset/empty policy are closed; remaining shared compatibility owners have no safe exclusive delete-set.
+Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, Boundary llc unset/empty policy, and AOT direct-harness child-env I0 are closed; remaining shared compatibility owners have no safe exclusive delete-set.
 LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
 are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
 18 focused Rust tests pass, including source-called G0 EXE3; C regressions pass.

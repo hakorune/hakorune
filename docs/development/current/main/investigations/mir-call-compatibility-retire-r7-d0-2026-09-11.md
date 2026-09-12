@@ -376,6 +376,54 @@ the current AOT named-harness and child settings remain retained. The worker
 consultation for this premise was `pending/cancelled` after the available
 wait budget and produced no conclusion; that is not rejection evidence.
 
+### MIR-CALL-AOT-DIRECT-HARNESS-CHILD-ENV-I0 (accepted 2026-09-12)
+
+The primary source review resolves the remaining design dependency as one
+behavior-preserving Stop/Delete slice:
+
+```text
+Decision: remove direct-harness parent environment mutation and pass the same effective opt-level pair only to the existing child command.
+Source authority + canonical issuer: the validated `hako_aot_compile_json_compat_harness` invocation captures the inherited HAKO/NYASH values once; the existing `hako_aot_build_compile_command` remains the sole child-command issuer.
+Non-authority: MIR/Recipe meaning, public AOT/C ABI names, `hako_llvmc` profile admission, Python/Rust semantic ownership, and `HAKO_CAPI_TM` do not change.
+Fail-fast boundary: argument validation -> local env capture -> bounded command construction -> child launch -> existing object/error terminal; command construction failure launches no child.
+Smallest next slice: delete `hako_aot_ensure_default_opt_env` and its two parent `setenv` calls, add a shell/platform-scoped env prefix to the existing command, and prove parent-state and child-value preservation.
+Non-claims: no public ABI removal, harness/provider retirement, recipe/replay change, process-wide concurrency guarantee, backend parity, LLVM18 evidence, or aggregate R7 completion.
+```
+
+The captured pair is `HAKO = inherited HAKO or "0"` and `NYASH = inherited
+NYASH or "0"`, including present-but-empty values. This exactly preserves the
+current helper's child input; `harness_driver` keeps its existing NYASH-first
+selection and the Python harness keeps its existing parsing/default behavior.
+The env prefix is command-scoped through the existing `system()` boundary and
+is not a second compiler or semantic route. The caller-specific delete-set is
+the helper plus both parent mutations; the public AOT named-harness entry,
+`ny-llvmc --driver harness`, child settings, and object/error terminal remain.
+
+Acceptance is the existing AOT direct-harness positive plus a source-backed
+child probe for both-unset, HAKO-only, NYASH-only, both-present, and empty
+values; each case must observe the preserved child pair, unchanged parent
+environment, no child on command-construction failure, and the existing
+generic/AOT replay rejection. The selected code/test/README/guard changes are
+one bounded I0; no fallback or retry is allowed.
+
+### AOT direct-harness child-env I0 verification (2026-09-12)
+
+The bounded implementation is present in the existing AOT shared issuer:
+`hako_aot_ensure_default_opt_env` and both parent `setenv` calls are deleted;
+the captured pair is shell/platform-quoted into the same `system()` command.
+The existing route guard now requires this seam and rejects the deleted parent
+mutation. The AOT admission smoke contains the temporary child probe and
+command-construction negative. Its probe contract was executed against the
+built `libhako_llvmc_ffi.so`: all five pair cases preserved child values and
+parent state, and the overflow case produced no child or object.
+
+The full smoke's pre-existing real named-direct positive is currently red in
+this host because `/home/tomoaki/.local/bin/python3` has no `llvmlite`
+(`ModuleNotFoundError`); that is known explicit-compat environment debt, not a
+failure of this I0. The same failure reproduces with the direct `ny-llvmc`
+command, while the new child-env probe passes independently. No Cargo build or
+thermal/concurrency claim is made here.
+
 The canonical issuer is the existing physical request at each explicit entry;
 the shared adapter may normalize its transport fields once, but it must not
 issue a new MIR or Recipe product. C-side `HakoLlvmcInvocation` remains the

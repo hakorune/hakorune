@@ -97,8 +97,14 @@ need_fixed "$C_COMMON" 'if (!hako_llvmc_route_trace_enabled()) return;' \
   "C trace must remain diagnostic-only and default-off"
 need_fixed "$CAPI_ROUTE" '\"%s\" --driver harness --in' \
   "CAPI child-command owner drifted"
-need_fixed "$AOT" '\"%s\" --driver harness --in' \
-  "generic AOT child-command owner drifted"
+need_fixed "$AOT" 'env_prefix ? env_prefix : ""' \
+  "generic AOT child-command env seam drifted"
+need_fixed "$AOT_GENERIC" 'hako_aot_build_direct_harness_env_prefix' \
+  "generic AOT child environment owner missing"
+if rg -n 'hako_aot_ensure_default_opt_env|setenv\("HAKO_LLVM_OPT_LEVEL"|setenv\("NYASH_LLVM_OPT_LEVEL"' \
+  "$AOT" "$AOT_GENERIC"; then
+  fail "direct AOT harness still mutates the parent opt-level environment"
+fi
 need_fixed "$CAPI_ROUTE" '"child"' "CAPI child observation producer missing"
 need_fixed "$CAPI_ROUTE" '"driver=harness"' "CAPI child observation shape drifted"
 need_fixed "$AOT" 'hako_aot_emit_child_trace(' \

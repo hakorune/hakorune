@@ -60,6 +60,11 @@ Automatic pure-core replay and its two private adapters are retired; unsupported
 or emitter-failure tails use the existing unsupported terminal with lane=none,
 even for direct-core test callers carrying ambient harness. Log/command/status/object order,
 first-line errors, child settings and the public C/AOT symbols are unchanged.
+The AOT direct named-harness entry captures the inherited
+`HAKO_LLVM_OPT_LEVEL`/`NYASH_LLVM_OPT_LEVEL` pair for the child command using a
+command-scoped environment prefix and never mutates the parent. Missing values
+remain child-side `0`; present empty/nonempty values and the existing NYASH-first
+selection remain unchanged.
 The options smoke covers direct/AOT re-entry and failure ordering, plus the
 private ownership test's copy lifetime, OOM and delegated-field rejection.
 

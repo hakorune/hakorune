@@ -440,6 +440,9 @@ Replay admission
 - `hako_aot_compile_json_compat_harness` is the versioned, explicit
   compatibility/oracle keep entry. It is not a production fallback and must
   remain separately censused for the staged llvmlite G1/G2/G3 retirement.
+  Its direct named-harness child receives the captured opt-level pair through a
+  command-scoped environment prefix; the parent process is not mutated, while
+  missing values still reach the child as `0`.
 
 Physical compile-options admission
 - `hako_llvmc_compile_json_with_options_v1` accepts Generic profile 0 for the

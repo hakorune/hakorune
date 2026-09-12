@@ -5,13 +5,66 @@ static int hako_aot_use_ffi(void) {
   return hako_aot_env_truthy(getenv("HAKO_AOT_USE_FFI"));
 }
 
-static void hako_aot_ensure_default_opt_env(void) {
-  if (!getenv("HAKO_LLVM_OPT_LEVEL")) {
-    setenv("HAKO_LLVM_OPT_LEVEL", "0", 1);
+static int hako_aot_append_env_prefix_text(
+    char* buffer, size_t buffer_len, size_t* used, const char* text) {
+  size_t text_len;
+  if (!buffer || !used || !text || *used >= buffer_len) return -1;
+  text_len = strlen(text);
+  if (text_len >= buffer_len - *used) return -1;
+  memcpy(buffer + *used, text, text_len);
+  *used += text_len;
+  buffer[*used] = '\0';
+  return 0;
+}
+
+#if !defined(_WIN32)
+static int hako_aot_append_posix_env_value(
+    char* buffer, size_t buffer_len, size_t* used, const char* value) {
+  const char* cursor;
+  if (hako_aot_append_env_prefix_text(buffer, buffer_len, used, "'") != 0)
+    return -1;
+  for (cursor = value ? value : ""; *cursor; cursor++) {
+    if (*cursor == '\'' &&
+        hako_aot_append_env_prefix_text(buffer, buffer_len, used, "'\\''") != 0)
+      return -1;
+    if (*cursor != '\'' && *used + 1 >= buffer_len) return -1;
+    if (*cursor != '\'') buffer[(*used)++] = *cursor;
+    if (*cursor != '\'') buffer[*used] = '\0';
   }
-  if (!getenv("NYASH_LLVM_OPT_LEVEL")) {
-    setenv("NYASH_LLVM_OPT_LEVEL", "0", 1);
-  }
+  return hako_aot_append_env_prefix_text(buffer, buffer_len, used, "'");
+}
+#endif
+
+static int hako_aot_build_direct_harness_env_prefix(
+    char* buffer, size_t buffer_len) {
+  const char* hako = getenv("HAKO_LLVM_OPT_LEVEL");
+  const char* nyash = getenv("NYASH_LLVM_OPT_LEVEL");
+  size_t used = 0;
+  int written;
+  if (!buffer || buffer_len == 0) return -1;
+  buffer[0] = '\0';
+  /* Preserve the old helper's child pair without mutating the parent. */
+  hako = hako ? hako : "0";
+  nyash = nyash ? nyash : "0";
+#if defined(_WIN32)
+  written = snprintf(buffer, buffer_len,
+                     "set \"HAKO_LLVM_OPT_LEVEL=%s\" && "
+                     "set \"NYASH_LLVM_OPT_LEVEL=%s\" && ",
+                     hako, nyash);
+  if (written <= 0 || (size_t)written >= buffer_len)
+    return -1;
+  return 0;
+#else
+  if (hako_aot_append_env_prefix_text(
+          buffer, buffer_len, &used, "HAKO_LLVM_OPT_LEVEL=") != 0 ||
+      hako_aot_append_posix_env_value(buffer, buffer_len, &used, hako) != 0 ||
+      hako_aot_append_env_prefix_text(
+          buffer, buffer_len, &used, " NYASH_LLVM_OPT_LEVEL=") != 0 ||
+      hako_aot_append_posix_env_value(buffer, buffer_len, &used, nyash) != 0 ||
+      hako_aot_append_env_prefix_text(buffer, buffer_len, &used, " ") != 0)
+    return -1;
+  return 0;
+#endif
 }
 
 #if !defined(_WIN32)

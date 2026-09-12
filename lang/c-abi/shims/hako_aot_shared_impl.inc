@@ -139,6 +139,7 @@ static int hako_aot_build_link_log_path(char* log_path, size_t log_path_len) {
 static int hako_aot_build_compile_command(
     char* cmd,
     size_t cmd_len,
+    const char* env_prefix,
     const char* llvmc,
     const char* mir_json_path,
     const char* obj_path,
@@ -148,7 +149,8 @@ static int hako_aot_build_compile_command(
   int n = snprintf(
       cmd,
       cmd_len,
-      "\"%s\" --driver harness --in \"%s\" --emit obj --out \"%s\" 2> \"%s\"",
+      "%s\"%s\" --driver harness --in \"%s\" --emit obj --out \"%s\" 2> \"%s\"",
+      env_prefix ? env_prefix : "",
       llvmc,
       mir_json_path,
       obj_path,
@@ -518,12 +520,16 @@ static int hako_aot_compile_json_direct_harness(
     const char* mir_json_path,
     const char* obj_path,
     char** err_out) {
-  hako_aot_ensure_default_opt_env();
   const char* llvmc = getenv("NYASH_NY_LLVM_COMPILER");
   if (!llvmc || !*llvmc) llvmc = "target/release/ny-llvmc";
   if (!hako_aot_file_exists(llvmc)) {
     hako_set_last_error("NOT_FOUND");
     return hako_aot_set_err(err_out, "ny-llvmc not found (NYASH_NY_LLVM_COMPILER)");
+  }
+  char env_prefix[2048];
+  if (hako_aot_build_direct_harness_env_prefix(env_prefix, sizeof(env_prefix)) != 0) {
+    hako_set_last_error("VALIDATION");
+    return hako_aot_set_err(err_out, "command too long");
   }
   char logpath[1024];
   if (hako_aot_build_compile_log_path(logpath, sizeof(logpath)) != 0) {
@@ -531,7 +537,8 @@ static int hako_aot_compile_json_direct_harness(
     return hako_aot_set_err(err_out, "command too long");
   }
   char cmd[4096];
-  if (hako_aot_build_compile_command(cmd, sizeof(cmd), llvmc, mir_json_path, obj_path, logpath) != 0) {
+  if (hako_aot_build_compile_command(
+          cmd, sizeof(cmd), env_prefix, llvmc, mir_json_path, obj_path, logpath) != 0) {
     hako_set_last_error("VALIDATION");
     return hako_aot_set_err(err_out, "command too long");
   }
