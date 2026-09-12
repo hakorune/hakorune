@@ -1,5 +1,5 @@
 ---
-Status: selected__Fast__R7GenericG0PendingDraftSeal__2026-09-12
+Status: closed__Fast__R7GenericG0PendingDraftSeal__2026-09-12
 Task: MIR-CALL-COMPATIBILITY-RETIRE-R7-GENERIC-G0-PENDING-DRAFT-SEAL-I0
 Date: 2026-09-12
 Parent: mir-call-compatibility-retire-r7-generic-g0-pending-draft-seal-d0-2026-09-12.md
@@ -64,3 +64,44 @@ owner or adding an adapter.
 Record the changed-file inventory, focused positive/negative results, exact
 typed stage/payload observation, restoration/fresh-session result, guard and
 pointer output, source-size maximum, commit SHA, and pushed remote state here.
+
+## I0 closeout evidence
+
+Implementation landed at `cfac081b7b` and is pushed to
+`hakorune/codex/birth-definition-publication`. The changed-file inventory is:
+`docs/tools/check-scripts-index.md`,
+`src/mir/builder/calls/function_session.rs`,
+`src/mir/builder/calls/function_session/terminal.rs`,
+`src/mir/builder/raw_root_physical/callable_main_terminal.rs`,
+`src/mir/builder/raw_root_physical/child_terminal.rs`,
+`src/mir/builder/resolved_lowering/loop_recipe_physicalizer/generic_lowerer.rs`,
+`src/mir/builder/resolved_lowering/mod.rs`, and the new
+`tools/checks/rust_mirbuilder_r7_generic_g0_pending_draft_seal_guard.sh`.
+
+`CARGO_BUILD_JOBS=2 cargo test --profile quick --lib generic_g0` passed with
+78 passed, 0 failed, and 1 ignored. The existing normal-package Generic G0
+caller still reaches the existing terminal, and the physical canary reaches
+DraftSeal. The admission negative
+`rejects_missing_carrier_entry_before_lowerer_publication` and the typed
+session-variant test both passed; the exact session test was 1/1.
+
+The exact DraftSeal test
+`callable_pending_draft_seal_rejection_keeps_typed_error_and_restores_parent`
+passed 1/1. It observed stage `Exit` and the original
+`FunctionDraftSealErrorV1::ExitBlockAlreadyTerminated`, with no current
+function/block after rejection and a fresh child session starting afterward.
+
+The Generic G0 pending guard, prior Callable pending guard, Generic G0 normal
+package consumer guard, current-state pointer guard, and `git diff --check`
+passed. The largest changed Rust source is
+`src/mir/builder/resolved_lowering/mod.rs` at 734 lines; all changed Rust
+sources remain below the 760-line trigger and 800-line hard stop. The full
+workspace `cargo fmt --all -- --check` remains a known baseline red: the same
+command on parent `65bc6b7750` produced 594 diff blocks, so no unrelated
+formatting debt was folded into this slice.
+
+`CURRENT_STATE.toml` is synchronized to `closeout` and still points at this
+closed card. No concrete next Call/R7 owner-unit currently has an exclusive
+delete-set; the next implementation pointer therefore remains unselected
+under the existing `NoSafeSlice` rule. This slice claims neither aggregate
+R7 closure nor whole-MirBuilder completion.
