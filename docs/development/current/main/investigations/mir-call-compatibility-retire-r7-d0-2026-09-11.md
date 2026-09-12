@@ -1,5 +1,5 @@
 ---
-Status: Active — R7 design stop; shared invocation-owned compatibility admission remains unresolved
+Status: Active — R7 invocation-owned legacy TargetMachine capture I0
 Date: 2026-09-11
 Decision: MIR-CALL-COMPATIBILITY-RETIRE-R7-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -11,12 +11,12 @@ ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
 
 ## Six-line brief
 
-Decision: co-seal one invocation-owned physical compatibility admission before another R7 owner selection.
-Source authority + canonical issuer: each existing explicit physical entry request, normalized once by the shared admission adapter; C-side `HakoLlvmcInvocation` owns the copied contract.
-Non-authority: MIR/Recipe meaning, profile names alone, ambient environment, provider reachability, public ABI names, and test-only emitters issue no new semantics.
-Fail-fast boundary: entry/profile -> contract layout -> recipe/replay/provider/tool/alias -> input/path/re-entry -> copied invocation -> child/provider/lowering -> artifact publication.
-Smallest next slice: complete the finite issuer/terminal/retained-caller matrix and identify a real non-empty caller-specific delete-set with pre-effect rejection obligations.
-Non-claims: no code, fixture, fallback, route switch, public ABI deletion, concurrency guarantee, LLVM18 runtime evidence, semantic receipt, or aggregate R7/MirBuilder completion.
+Decision: capture the retained legacy TargetMachine selector and opt level in the existing invocation owner before legacy lowering.
+Source authority + canonical issuer: the eligible compile invocation captures `HAKO_CAPI_TM` and HAKO-first/NYASH-fallback opt-level values once; the existing legacy emitter consumes those scalars.
+Non-authority: MIR/Recipe meaning, profile names alone, ambient values after capture, provider reachability, public ABI names, and test-only emitters issue no new semantics.
+Fail-fast boundary: entry/profile -> contract/replay/pinned census -> invocation capture -> provider/lowering -> artifact publication; typed/contract-bound and published-row routes bypass the legacy capture.
+Smallest next slice: add invocation-owned scalar capture, delete the three legacy-emitter `getenv` reads, and prove selector precedence, mutation-after-capture, retained fallback, and no new public ABI.
+Non-claims: no public ABI deletion, probe/fallback deletion, concurrency guarantee, LLVM18 claim, published-row migration, semantic receipt, or aggregate R7/MirBuilder completion.
 
 ## Finite boundary and state table
 
@@ -45,11 +45,12 @@ future VM/WASM parity, and test-only Loop-PHI residue except as inventory.
 ## Acceptance for the next owner-unit row
 
 Before implementation, the selected owner must have one source-backed issuer,
-one real production caller set, one named terminal/consumer, and one exclusive
-delete-set. The row must preserve the existing compatibility behavior or stop
-it before effect, and the same series must remove its old edge after the
-replacement or terminal is proven. Positive evidence covers the supported
-caller; a one-point mutation negative identifies the owner-specific reject.
+one real production caller set, one named terminal/consumer, and one exact
+old-edge delete-set. Several callers may retain a shared owner: migration moves
+the selected caller to the invocation state first, then deletes only its old
+edge after replacement behavior is proven. The delete-set need not cover the
+whole shared file or public ABI. Positive evidence covers the supported caller;
+a one-point mutation negative identifies the owner-specific reject.
 
 R7 aggregate closure requires all in-scope production writers, reissuers,
 readers, re-entry paths, and environment routes to be caller-zero, with no
@@ -892,3 +893,79 @@ census observed_commit is provenance, not by itself source drift; regenerate
 only against actual manifest anchors/hashes. Normal bounded selection and
 implementation may share a commit under the implementation-coupled commit law;
 that permission never overrides an unresolved design_stop.
+
+### MIR-CALL-LEGACY-TM-INVOCATION-CAPTURE-I0 (selected 2026-09-12)
+
+Hegel's read-only worker review closed the design gap without reopening the
+whole census. The existing `HakoLlvmcInvocation` is the private lifetime owner
+for every selected compile entry, while the legacy CAPI probe remains a shared
+compatibility terminal. Shared callers therefore retain the owner; this row
+deletes only the emitter's ambient reads after migration.
+
+```text
+Decision: capture the legacy TargetMachine admission in HakoLlvmcInvocation and consume it from the existing emitter.
+Source authority + canonical issuer: an eligible compile execution captures HAKO_CAPI_TM and HAKO-first/NYASH-fallback opt level once after root/profile/pinned-census gates.
+Non-authority: MIR/Recipe meaning, public ABI, provider reachability, typed published rows, and profile labels do not issue a new semantic product.
+Fail-fast boundary: root/profile/census rejection -> invocation capture -> existing probe -> existing opt/llc fallback -> artifact terminal.
+Smallest next slice: add two private scalars, bypass capture for contract-bound/published-row routes, remove the emitter's three getenv reads, and add a source-backed mutation-after-capture test.
+Non-claims: no public ABI deletion, TargetMachine/probe fallback deletion, published-row migration, concurrency guarantee, backend parity, or aggregate R7/MirBuilder closure.
+```
+
+Capture semantics are fixed to the current emitter: `HAKO_CAPI_TM` is enabled
+only when present with first byte `1`; the opt level selects HAKO when that key
+is present (including empty), otherwise NYASH when present, otherwise `0`;
+first byte `1/2/3` maps to that level and every other value maps to `0`.
+Typed/contract-bound and published-row lowering does not capture or consult this
+legacy state. Probe failure still enters the existing opt/llc path exactly once;
+successful probe still publishes directly. The public exports and the
+`HAKO_CAPI_TM` compatibility keep remain retained.
+
+Implementation task order:
+
+1. Add invocation-owned `legacy_capi_tm_enabled` and normalized opt-level
+   scalars; reset them on every execution and capture only after the existing
+   root, legacy-op, and pinned-text gates.
+2. Replace the legacy emitter's three environment reads with those scalars,
+   retaining its non-Windows guard, dynamic symbol checks, cleanup, and
+   existing failure fallback.
+3. Extend the existing C route smoke/driver and reusable route guard for
+   unset, empty, HAKO/NYASH precedence, suffix normalization, environment
+   mutation after capture, typed-row bypass, and no new public symbol.
+4. Update `lang/c-abi/README.md` with the private ownership boundary; no public
+   ABI reference change is required because the exported contract is retained.
+
+Done requires the focused driver and C smoke, route/census/pointer guards,
+source-size and diff checks, with any real-app red classified as baseline or
+environment evidence. The host RAM replacement is outside this code row:
+until installed and validated, development builds use one build and at most
+two compiler jobs; swap changes remain a separate measured host task.
+
+### MIR-CALL-LEGACY-TM-INVOCATION-CAPTURE-I0 closeout (2026-09-12)
+
+Implementation is complete in the existing private invocation owner. The legacy
+emitter no longer reads `HAKO_CAPI_TM`, `HAKO_LLVM_OPT_LEVEL`, or
+`NYASH_LLVM_OPT_LEVEL`; the captured state is reset per invocation, bypassed
+for contract-bound/published-row lowering, and consumed by the existing
+non-Windows probe. Public exports, the explicit probe, cleanup, and opt/llc
+fallback remain unchanged.
+
+Observed acceptance:
+
+- `llvm_compile_options_contract_smoke.sh` passed, including the new C capture
+  driver for unset, empty, precedence, suffix, mutation-after-capture, and
+  non-legacy reset cases.
+- `llvm_codegen_route_identity_guard.sh`,
+  `llvm_llvmlite_production_census_guard.py`,
+  `current_state_pointer_guard.sh`, and `git diff --check` passed.
+- The focused C build completed. Changed source units remain below the 800-line
+  hard stop (`invocation.inc` 89 lines; legacy emitter 124 lines).
+- A direct real-LLVM probe reached the existing LLVM14 opaque-pointer/opt
+  failure and produced no object. This is `known baseline/environment debt`,
+  not a current-change failure; the private capture driver and route smoke are
+  the accepted evidence for this transport slice.
+
+This closes only the legacy selector capture row. The next design boundary is
+the separate global published-call-row lifecycle: define invocation ownership,
+re-entry behavior, and the exact caller-specific old-edge delete-set before
+changing its consumer. No public ABI deletion, concurrency claim, or aggregate
+R7/MirBuilder completion is implied.

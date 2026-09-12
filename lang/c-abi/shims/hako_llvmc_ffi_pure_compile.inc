@@ -264,6 +264,10 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
     }
   }
 
+  hako_llvmc_invocation_capture_legacy_capi(
+      invocation,
+      !ptfb_contract_bound && !hako_llvmc_published_call_rows_active());
+
   /* Selected Dynamic must not fall through to a no-parameter or harness lane. */
   do {
     yyjson_val* signature_root = document_root;

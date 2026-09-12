@@ -72,6 +72,15 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
         str(root / "lang/c-abi/tests/physical_options_ownership_test.c"),
         "-o", str(ownership)], check=True)
     subprocess.run([str(ownership)], check=True)
+    capture = temp / "legacy-capi-invocation-capture"
+    subprocess.run(["cc", "-std=gnu11", "-O2",
+        "-I" + str(root / "plugins/nyash-json-plugin/c/yyjson"),
+        str(root / "lang/c-abi/tests/legacy_capi_invocation_capture_test.c"),
+        str(root / "lang/c-abi/shims/hako_aot.c"),
+        str(root / "lang/c-abi/shims/hako_json_v1.c"),
+        str(root / "plugins/nyash-json-plugin/c/yyjson/yyjson.c"),
+        "-ldl", "-o", str(capture)], check=True)
+    subprocess.run([str(capture)], check=True)
     opt_log = temp / "opt.args"
     llc_log = temp / "llc.args"
     scripts = {}

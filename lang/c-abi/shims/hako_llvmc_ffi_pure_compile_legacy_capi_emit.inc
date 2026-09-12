@@ -3,8 +3,7 @@
       // second TargetMachine.
 #if !defined(_WIN32)
       {
-        const char* tm = getenv("HAKO_CAPI_TM");
-        if (tm && tm[0]=='1') {
+        if (invocation->legacy_capi.target_machine_enabled) {
           typedef void* (*p_LLVMContextCreate)(void);
           typedef void  (*p_LLVMContextDispose)(void*);
           typedef void* (*p_LLVMCreateMemoryBufferWithContentsOfFile)(const char*, char**);
@@ -99,12 +98,9 @@
                 if (emsg) f_LLVMDisposeMessage(emsg);
                 goto TM_MOD;
               }
-              const char* ol = getenv("HAKO_LLVM_OPT_LEVEL");
-              if (!ol) ol = getenv("NYASH_LLVM_OPT_LEVEL");
-              if (!ol) ol = "0";
-              int opt = (ol[0]=='3')?3:(ol[0]=='2')?2:(ol[0]=='1')?1:0;
               void* tmachine = f_LLVMCreateTargetMachine(
-                  tgt, triple, "", "", opt, /*Reloc*/0, /*CodeModel*/0);
+                  tgt, triple, "", "", invocation->legacy_capi.opt_level,
+                  /*Reloc*/0, /*CodeModel*/0);
               if (!tmachine) goto TM_MOD;
               if (f_LLVMTargetMachineEmitToFile(
                       tmachine, mod, (char*)obj_out, /*Object*/1, &emsg)) {

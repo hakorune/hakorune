@@ -21,6 +21,9 @@ AOT="$ROOT/lang/c-abi/shims/hako_aot_shared_impl.inc"
 AOT_GENERIC="$ROOT/lang/c-abi/shims/hako_aot_generic_ffi_compile.inc"
 C_COMMON="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
 CAPI_ROUTE="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
+CAPI_INVOCATION="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_invocation.inc"
+LEGACY_EMITTER="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_legacy_capi_emit.inc"
+CAPI_CAPTURE_TEST="$ROOT/lang/c-abi/tests/legacy_capi_invocation_capture_test.c"
 NYLLVM_README="$ROOT/crates/nyash-llvm-compiler/README.md"
 HARNESS_SCRIPT="$ROOT/tools/run_llvm_harness.sh"
 FAST_SMOKE="$ROOT/.github/workflows/fast-smoke.yml"
@@ -47,6 +50,7 @@ need_fixed() {
 
 for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGIN" "$AOT" \
   "$RUNNER_EXEC" "$C_COMMON" "$CAPI_ROUTE" \
+  "$CAPI_INVOCATION" "$LEGACY_EMITTER" "$CAPI_CAPTURE_TEST" \
   "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
   need_file "$file"
 done
@@ -159,6 +163,20 @@ need_fixed "$CAPI_ROUTE" 'hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt
   "public Generic opt-tool capture missing"
 need_fixed "$CAPI_ROUTE" 'hako_llvmc_llc_flags()' \
   "public Generic llc-flag capture missing"
+need_fixed "$CAPI_INVOCATION" 'hako_llvmc_invocation_capture_legacy_capi' \
+  "legacy CAPI invocation capture owner missing"
+need_fixed "$CAPI_INVOCATION" 'struct HakoLlvmcLegacyCapiState' \
+  "legacy CAPI invocation state missing"
+need_fixed "$CAPI_CAPTURE_TEST" 'mutation-after-capture' \
+  "legacy CAPI capture mutation proof missing"
+python3 - "$LEGACY_EMITTER" <<'PY'
+import pathlib
+import sys
+text = pathlib.Path(sys.argv[1]).read_text()
+assert 'getenv(' not in text, 'legacy emitter still reads ambient environment'
+assert 'invocation->legacy_capi.target_machine_enabled' in text
+assert 'invocation->legacy_capi.opt_level' in text
+PY
 if rg -n 'compile_json_via_pure_first_lane|compile_json_compat_pure\(' "$CAPI_ROUTE"; then
   fail "public Generic route still has the retired private wrapper"
 fi

@@ -79,6 +79,12 @@ Pure-first invocation ownership
   `HakoLlvmcInvocation`. The adapter preserves the legacy recipe/alias/replay
   admission, tool fallback, first-character opt-level behavior, and effective
   llc flags; it does not create a second semantic authority.
+- The retained legacy `HAKO_CAPI_TM` probe is admitted only after the existing
+  root/profile/pinned-census gates. Its selector and HAKO-first/NYASH-fallback
+  opt level are copied into private invocation scalars; the emitter does not
+  reread ambient environment state. Contract-bound and published-row lanes
+  bypass this compatibility capture, while probe failure keeps the existing
+  opt/llc fallback.
 - The selected `hako_llvmc_compile_json_pure_first` entry continues to use the
   Boundary profile helper. Both entries initialize the invocation at its final
   address; do not copy it because outcomes borrows its config.
