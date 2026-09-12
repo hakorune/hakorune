@@ -6,10 +6,18 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TAG="llvm-hako-aot-ffi-admission-smoke"
+MODE="${1:-all}"
+case "$MODE" in
+  all|child-env) ;;
+  *)
+    echo "usage: $0 [all|child-env]" >&2
+    exit 2
+    ;;
+esac
 
 bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
-ROOT="$ROOT" python3 - <<'PY'
+MODE="$MODE" ROOT="$ROOT" python3 - <<'PY'
 import ctypes
 import json
 import os
@@ -17,7 +25,9 @@ import pathlib
 import tempfile
 
 root = pathlib.Path(os.environ["ROOT"])
-lib = ctypes.CDLL(str(root / "target/release/libhako_llvmc_ffi.so"))
+mode = os.environ["MODE"]
+lib_name = "hako_llvmc_ffi.dll" if os.name == "nt" else "libhako_llvmc_ffi.so"
+lib = ctypes.CDLL(str(root / "target/release" / lib_name))
 for name in (
     "hako_aot_compile_json",
     "hako_aot_compile_json_compat_harness",
@@ -66,74 +76,38 @@ def call(name, env, out, exact_opt_env=False):
         os.environ.clear()
         os.environ.update(old)
 
-with tempfile.TemporaryDirectory(prefix="hako-aot-ffi-admission-") as temp:
-    out = pathlib.Path(temp)
-    rc, exists, message, _, _ = call(
-        "hako_aot_compile_json",
-        {"HAKO_AOT_USE_FFI": "0", "HAKO_BACKEND_COMPAT_REPLAY": "harness"},
-        out / "generic-direct.o",
-    )
-    if rc == 0 or exists or "aot-compat-admission-required" not in message:
-        raise SystemExit("generic direct AOT inherited harness replay")
-
-    rc, exists, message, _, _ = call(
-        "hako_aot_compile_json_compat_harness",
-        {"HAKO_AOT_USE_FFI": "0", "HAKO_BACKEND_COMPAT_REPLAY": "none"},
-        out / "named-direct.o",
-    )
-    if rc != 0 or not exists:
-        raise SystemExit(f"named direct compatibility lane failed: {message}")
-
-    rc, exists, message, _, _ = call(
-        "hako_aot_compile_json",
-        {
-            "HAKO_AOT_USE_FFI": "1",
-            "HAKO_BACKEND_COMPILE_RECIPE": "pure-first",
-            "HAKO_BACKEND_COMPAT_REPLAY": "harness",
-        },
-        out / "generic-ffi-replay.o",
-    )
-    if rc == 0 or exists or "aot-compat-admission-required" not in message:
-        raise SystemExit("generic FFI AOT inherited harness replay")
-
-    rc, exists, message, _, _ = call(
-        "hako_aot_compile_json_compat_harness",
-        {"HAKO_AOT_USE_FFI": "1", "HAKO_BACKEND_COMPAT_REPLAY": "none"},
-        out / "named-ffi.o",
-    )
-    if rc != 0 or not exists:
-        raise SystemExit(f"named FFI compatibility lane failed: {message}")
-
-    rc, exists, message, _, _ = call(
-        "hako_llvmc_compile_json",
-        {"HAKO_BACKEND_COMPILE_RECIPE": "pure-first", "HAKO_BACKEND_COMPAT_REPLAY": "harness"},
-        out / "generic-capi-replay.o",
-    )
-    if rc == 0 or exists or "generic-capi-compat-admission-required" not in message:
-        raise SystemExit("generic C ABI inherited harness replay")
-
-    rc, exists, message, _, _ = call(
-        "hako_llvmc_compile_json_compat_harness",
-        {"HAKO_BACKEND_COMPAT_REPLAY": "none"},
-        out / "named-capi.o",
-    )
-    if rc != 0 or not exists:
-        raise SystemExit(f"named C ABI compatibility lane failed: {message}")
-
-    probe = pathlib.Path(temp) / "child_env_probe.py"
+def run_child_env_checks(temp, out):
     record = pathlib.Path(temp) / "child_env.json"
-    probe.write_text(
-        "#!/usr/bin/env python3\n"
-        "import json, os, pathlib, sys\n"
-        "pathlib.Path(os.environ['HAKO_AOT_CHILD_ENV_RECORD']).write_text(\n"
-        "    json.dumps({'hako': os.environ.get('HAKO_LLVM_OPT_LEVEL'),\n"
-        "               'nyash': os.environ.get('NYASH_LLVM_OPT_LEVEL')}),\n"
-        "    encoding='utf-8')\n"
-        "out = pathlib.Path(sys.argv[sys.argv.index('--out') + 1])\n"
-        "out.write_bytes(b'probe')\n",
-        encoding="utf-8",
-    )
-    probe.chmod(0o755)
+    if os.name == "nt":
+        probe = pathlib.Path(temp) / "child_env_probe.cmd"
+        probe.write_text(
+            "@echo off\r\n"
+            "set \"OUT=\"\r\n"
+            ":next\r\n"
+            "if \"%~1\"==\"--out\" set \"OUT=%~2\"\r\n"
+            "if \"%~1\"==\"\" goto done\r\n"
+            "shift\r\n"
+            "goto next\r\n"
+            ":done\r\n"
+            "> \"%HAKO_AOT_CHILD_ENV_RECORD%\" echo {\"hako\":\"%HAKO_LLVM_OPT_LEVEL%\",\"nyash\":\"%NYASH_LLVM_OPT_LEVEL%\"}\r\n"
+            "> \"%OUT%\" echo probe\r\n",
+            encoding="utf-8",
+            newline="",
+        )
+    else:
+        probe = pathlib.Path(temp) / "child_env_probe.py"
+        probe.write_text(
+            "#!/usr/bin/env python3\n"
+            "import json, os, pathlib, sys\n"
+            "pathlib.Path(os.environ['HAKO_AOT_CHILD_ENV_RECORD']).write_text(\n"
+            "    json.dumps({'hako': os.environ.get('HAKO_LLVM_OPT_LEVEL'),\n"
+            "               'nyash': os.environ.get('NYASH_LLVM_OPT_LEVEL')}),\n"
+            "    encoding='utf-8')\n"
+            "out = pathlib.Path(sys.argv[sys.argv.index('--out') + 1])\n"
+            "out.write_bytes(b'probe')\n",
+            encoding="utf-8",
+        )
+        probe.chmod(0o755)
     probe_env = {
         "HAKO_AOT_USE_FFI": "0",
         "HAKO_BACKEND_COMPAT_REPLAY": "none",
@@ -195,6 +169,66 @@ with tempfile.TemporaryDirectory(prefix="hako-aot-ffi-admission-") as temp:
         or after != before
     ):
         raise SystemExit("command construction error launched a child or changed the parent")
+
+with tempfile.TemporaryDirectory(prefix="hako-aot-ffi-admission-") as temp:
+    out = pathlib.Path(temp)
+    run_child_env_checks(temp, out)
+    if mode == "child-env":
+        print("[llvm-hako-aot-ffi-admission-smoke] ok (child opt env, parent preservation, and no-child command error passed)")
+        raise SystemExit(0)
+    print("[llvm-hako-aot-ffi-admission-smoke] child-env preflight passed")
+
+    rc, exists, message, _, _ = call(
+        "hako_aot_compile_json",
+        {"HAKO_AOT_USE_FFI": "0", "HAKO_BACKEND_COMPAT_REPLAY": "harness"},
+        out / "generic-direct.o",
+    )
+    if rc == 0 or exists or "aot-compat-admission-required" not in message:
+        raise SystemExit("generic direct AOT inherited harness replay")
+
+    rc, exists, message, _, _ = call(
+        "hako_aot_compile_json_compat_harness",
+        {"HAKO_AOT_USE_FFI": "0", "HAKO_BACKEND_COMPAT_REPLAY": "none"},
+        out / "named-direct.o",
+    )
+    if rc != 0 or not exists:
+        raise SystemExit(f"named direct compatibility lane failed: {message}")
+
+    rc, exists, message, _, _ = call(
+        "hako_aot_compile_json",
+        {
+            "HAKO_AOT_USE_FFI": "1",
+            "HAKO_BACKEND_COMPILE_RECIPE": "pure-first",
+            "HAKO_BACKEND_COMPAT_REPLAY": "harness",
+        },
+        out / "generic-ffi-replay.o",
+    )
+    if rc == 0 or exists or "aot-compat-admission-required" not in message:
+        raise SystemExit("generic FFI AOT inherited harness replay")
+
+    rc, exists, message, _, _ = call(
+        "hako_aot_compile_json_compat_harness",
+        {"HAKO_AOT_USE_FFI": "1", "HAKO_BACKEND_COMPAT_REPLAY": "none"},
+        out / "named-ffi.o",
+    )
+    if rc != 0 or not exists:
+        raise SystemExit(f"named FFI compatibility lane failed: {message}")
+
+    rc, exists, message, _, _ = call(
+        "hako_llvmc_compile_json",
+        {"HAKO_BACKEND_COMPILE_RECIPE": "pure-first", "HAKO_BACKEND_COMPAT_REPLAY": "harness"},
+        out / "generic-capi-replay.o",
+    )
+    if rc == 0 or exists or "generic-capi-compat-admission-required" not in message:
+        raise SystemExit("generic C ABI inherited harness replay")
+
+    rc, exists, message, _, _ = call(
+        "hako_llvmc_compile_json_compat_harness",
+        {"HAKO_BACKEND_COMPAT_REPLAY": "none"},
+        out / "named-capi.o",
+    )
+    if rc != 0 or not exists:
+        raise SystemExit(f"named C ABI compatibility lane failed: {message}")
 
 print("[llvm-hako-aot-ffi-admission-smoke] ok (replay gates, child opt env, parent preservation, and no-child command error passed)")
 PY

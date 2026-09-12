@@ -36,23 +36,21 @@ static int hako_aot_append_posix_env_value(
 #endif
 
 static int hako_aot_build_direct_harness_env_prefix(
-    char* buffer, size_t buffer_len) {
-  const char* hako = getenv("HAKO_LLVM_OPT_LEVEL");
-  const char* nyash = getenv("NYASH_LLVM_OPT_LEVEL");
+    char* buffer,
+    size_t buffer_len,
+    const struct HakoAotDirectHarnessEnv* child_env) {
+  const char* hako;
+  const char* nyash;
   size_t used = 0;
-  int written;
-  if (!buffer || buffer_len == 0) return -1;
+  if (!buffer || buffer_len == 0 || !child_env) return -1;
   buffer[0] = '\0';
-  /* Preserve the old helper's child pair without mutating the parent. */
-  hako = hako ? hako : "0";
-  nyash = nyash ? nyash : "0";
+  hako = child_env->hako_opt_level;
+  nyash = child_env->nyash_opt_level;
 #if defined(_WIN32)
-  written = snprintf(buffer, buffer_len,
-                     "set \"HAKO_LLVM_OPT_LEVEL=%s\" && "
-                     "set \"NYASH_LLVM_OPT_LEVEL=%s\" && ",
-                     hako, nyash);
-  if (written <= 0 || (size_t)written >= buffer_len)
-    return -1;
+  /* Windows receives the pair through CreateProcess, never through `set`. */
+  (void)hako;
+  (void)nyash;
+  (void)used;
   return 0;
 #else
   if (hako_aot_append_env_prefix_text(

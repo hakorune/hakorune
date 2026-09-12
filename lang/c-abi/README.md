@@ -27,6 +27,7 @@ Layout
   - `hako_aot.h` — canonical AOT compile/link header
 - `shims/hako_llvmc_*` — compiler transport and physical LLVM backend
 - `shims/hako_aot_generic_ffi_compile.inc` — AOT Generic FFI transport through the versioned physical-options entry
+- `shims/hako_aot_child_process.inc` — direct-harness child environment/process boundary; Windows uses an explicit environment block so unset and empty values remain distinct
 - `shims/hako_kernel.c` — libc-backed canary; not the production Rust kernel
 - `shims/hako_forward_registry_shared_impl.inc` — callback registry currently
   included by both the Rust kernel's C translation unit and the separate canary

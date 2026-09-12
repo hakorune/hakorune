@@ -19,6 +19,8 @@ PROVIDER="$ROOT/src/host_providers/llvm_codegen/provider_keep.rs"
 PLUGIN="$ROOT/src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs"
 AOT="$ROOT/lang/c-abi/shims/hako_aot_shared_impl.inc"
 AOT_GENERIC="$ROOT/lang/c-abi/shims/hako_aot_generic_ffi_compile.inc"
+AOT_CHILD="$ROOT/lang/c-abi/shims/hako_aot_child_process.inc"
+AOT_SMOKE="$ROOT/tools/checks/llvm_hako_aot_ffi_admission_smoke.sh"
 C_COMMON="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
 CAPI_ROUTE="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
 CAPI_INVOCATION="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_invocation.inc"
@@ -58,6 +60,8 @@ need_file "$SELECTED_BUNDLE"
 need_file "$BOUNDARY_FFI"
 need_file "$BOUNDARY_DEFAULTS"
 need_file "$AOT_GENERIC"
+need_file "$AOT_CHILD"
+need_file "$AOT_SMOKE"
 need_file "$STAGE1_BUILD"
 need_file "$STAGE1_CONTRACT"
 need_file "$SELFHOST_README"
@@ -105,8 +109,22 @@ need_fixed "$AOT" 'env_prefix ? env_prefix : ""' \
   "generic AOT child-command env seam drifted"
 need_fixed "$AOT_GENERIC" 'hako_aot_build_direct_harness_env_prefix' \
   "generic AOT child environment owner missing"
-if rg -n 'hako_aot_ensure_default_opt_env|setenv\("HAKO_LLVM_OPT_LEVEL"|setenv\("NYASH_LLVM_OPT_LEVEL"' \
-  "$AOT" "$AOT_GENERIC"; then
+need_fixed "$AOT" '#include "hako_aot_child_process.inc"' \
+  "generic AOT process-boundary include missing"
+need_fixed "$AOT_CHILD" 'CreateProcessA' \
+  "Windows AOT child process boundary missing"
+need_fixed "$AOT_CHILD" 'GetEnvironmentStringsA' \
+  "Windows AOT inherited environment capture missing"
+need_fixed "$AOT_CHILD" 'NAME= remains distinct' \
+  "Windows AOT empty environment contract missing"
+need_fixed "$AOT_SMOKE" 'MODE="${1:-all}"' \
+  "AOT child-env standalone mode missing"
+need_fixed "$AOT_SMOKE" 'run_child_env_checks(temp, out)' \
+  "AOT child-env check must run before real compatibility lanes"
+need_fixed "$AOT_SMOKE" 'mode == "child-env"' \
+  "AOT child-env early-exit mode missing"
+if rg -n 'hako_aot_ensure_default_opt_env|setenv\("HAKO_LLVM_OPT_LEVEL"|setenv\("NYASH_LLVM_OPT_LEVEL"|set "HAKO_LLVM_OPT_LEVEL=|set "NYASH_LLVM_OPT_LEVEL=' \
+  "$AOT" "$AOT_GENERIC" "$AOT_CHILD"; then
   fail "direct AOT harness still mutates the parent opt-level environment"
 fi
 need_fixed "$CAPI_ROUTE" '"child"' "CAPI child observation producer missing"

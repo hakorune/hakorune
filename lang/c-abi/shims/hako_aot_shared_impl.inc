@@ -3,6 +3,7 @@
 
 #include "hako_aot_internal.h"
 #include "../include/hako_llvmc_ffi.h"
+#include "hako_aot_child_process.inc"
 
 static int hako_aot_set_err(char** err_out, const char* msg) {
   if (err_out) {
@@ -253,10 +254,11 @@ static int hako_aot_run_command_or_project_fail(
 static int hako_aot_run_compile_command_or_project_fail(
     const char* cmd,
     const char* artifact_path,
+    const struct HakoAotDirectHarnessEnv* child_env,
     char** err_out,
     const char* log_path,
     const char* fallback) {
-  int rc = system(cmd);
+  int rc = hako_aot_run_direct_harness_process(cmd, child_env);
   hako_aot_emit_child_trace(
       (rc == 0 && hako_aot_file_exists(artifact_path)) ? "success" : "failure");
   if (rc != 0) {
@@ -526,8 +528,11 @@ static int hako_aot_compile_json_direct_harness(
     hako_set_last_error("NOT_FOUND");
     return hako_aot_set_err(err_out, "ny-llvmc not found (NYASH_NY_LLVM_COMPILER)");
   }
+  struct HakoAotDirectHarnessEnv child_env;
+  hako_aot_capture_direct_harness_env(&child_env);
   char env_prefix[2048];
-  if (hako_aot_build_direct_harness_env_prefix(env_prefix, sizeof(env_prefix)) != 0) {
+  if (hako_aot_build_direct_harness_env_prefix(
+          env_prefix, sizeof(env_prefix), &child_env) != 0) {
     hako_set_last_error("VALIDATION");
     return hako_aot_set_err(err_out, "command too long");
   }
@@ -544,7 +549,7 @@ static int hako_aot_compile_json_direct_harness(
   }
   (void)hako_aot_write_command_seed(logpath, cmd);
   if (hako_aot_run_compile_command_or_project_fail(
-          cmd, obj_path, err_out, logpath, "COMPILE_FAILED") != 0) {
+          cmd, obj_path, &child_env, err_out, logpath, "COMPILE_FAILED") != 0) {
     return -1;
   }
   return hako_aot_finish_compile_success(obj_path, err_out, logpath);

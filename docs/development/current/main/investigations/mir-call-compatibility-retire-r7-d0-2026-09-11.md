@@ -1,7 +1,7 @@
 ---
-Status: Active — R7 published-row invocation ownership design stop
-Date: 2026-09-11
-Decision: MIR-CALL-COMPATIBILITY-RETIRE-R7-D0
+Status: Active — R7 AOT direct-harness child-env I1 Windows proof
+Date: 2026-09-12
+Decision: MIR-CALL-AOT-DIRECT-HARNESS-CHILD-ENV-I1
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: strict/dev selfhost and stage1 ingress already stopped; release compatibility remains
 ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
@@ -11,12 +11,12 @@ ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
 
 ## Six-line brief
 
-Decision: co-seal published-call-row state with the existing compile invocation before another R7 implementation row.
-Source authority + canonical issuer: the existing typed Rust frame rows remain the sole row product; one invocation-owned ledger normalizes their borrow and consumption state.
-Non-authority: global storage, symbol names, profile labels, MIR/Recipe meaning, provider reachability, public ABI names, and test-only direct callers issue no semantics.
-Fail-fast boundary: frame/layout/row validation -> invocation binding/re-entry -> site peek/take -> residual finish -> cleanup/publication.
-Smallest next slice: map every row consumer and thread one invocation-owned state pointer through begin/active/peek/take/finish/end, including nested and failure paths.
-Non-claims: no code, public ABI deletion, concurrency guarantee, semantic row expansion, fallback, backend parity, or aggregate R7/MirBuilder completion.
+Decision: repair direct-harness option transport at the process boundary before the queued published-row owner design.
+Source authority + canonical issuer: the existing AOT invocation captures the effective HAKO/NYASH pair; the existing compile command remains the sole child-command issuer.
+Non-authority: MIR/Recipe meaning, public ABI names, profile labels, provider reachability, and test-only callers issue no semantics.
+Fail-fast boundary: argument validation -> local capture -> bounded command/env-block construction -> child launch -> existing object/error terminal.
+Smallest next slice: run the independent `child-env` smoke on Windows and close only after empty `NAME=` is observed in the child.
+Non-claims: no published-row implementation, public ABI deletion, provider retirement, concurrency guarantee, backend parity, or aggregate R7/MirBuilder completion.
 
 ## Finite boundary and state table
 
@@ -349,7 +349,10 @@ one owner/terminal/delete-set co-seal: until a row names a non-empty
 caller-specific delete-set, remain `NoSafeSlice__NoRemainingUnsharedM7SOwner`
 and keep `next_execution_card = none__R7NextOwner__DesignStop`.
 
-### AOT direct-harness environment premise audit (read-only, 2026-09-12)
+### AOT direct-harness environment premise audit (pre-I1, 2026-09-12)
+
+This subsection records the pre-fix I0 source; the I1 review repair below is
+the current contract.
 
 The exact-source check found a caller-specific old edge, but not yet a safe
 deletion. `hako_aot_ensure_default_opt_env` is called only by
@@ -377,53 +380,30 @@ the current AOT named-harness and child settings remain retained. The worker
 consultation for this premise was `pending/cancelled` after the available
 wait budget and produced no conclusion; that is not rejection evidence.
 
-### MIR-CALL-AOT-DIRECT-HARNESS-CHILD-ENV-I0 (accepted 2026-09-12)
+### MIR-CALL-AOT-DIRECT-HARNESS-CHILD-ENV-I1 (review repair, 2026-09-12)
 
-The primary source review resolves the remaining design dependency as one
-behavior-preserving Stop/Delete slice:
+The review found a real Windows defect in I0: `set "NAME="` deletes the
+variable, so present-empty and unset were not distinct. I1 changes only the
+process-launch boundary. The invocation captures `HAKO = inherited HAKO or
+"0"` and `NYASH = inherited NYASH or "0"` once. POSIX retains the existing
+quoted command prefix; Windows copies the inherited environment block,
+replaces or inserts canonical `NAME=value` entries, and launches the existing
+`cmd.exe /C` command with `CreateProcessA`. An empty value is therefore passed
+as `NAME=` and is never expressed as a `set` command. MIR, Recipe, public AOT/C
+ABI, provider ownership, and child semantics are unchanged.
 
-```text
-Decision: remove direct-harness parent environment mutation and pass the same effective opt-level pair only to the existing child command.
-Source authority + canonical issuer: the validated `hako_aot_compile_json_compat_harness` invocation captures the inherited HAKO/NYASH values once; the existing `hako_aot_build_compile_command` remains the sole child-command issuer.
-Non-authority: MIR/Recipe meaning, public AOT/C ABI names, `hako_llvmc` profile admission, Python/Rust semantic ownership, and `HAKO_CAPI_TM` do not change.
-Fail-fast boundary: argument validation -> local env capture -> bounded command construction -> child launch -> existing object/error terminal; command construction failure launches no child.
-Smallest next slice: delete `hako_aot_ensure_default_opt_env` and its two parent `setenv` calls, add a shell/platform-scoped env prefix to the existing command, and prove parent-state and child-value preservation.
-Non-claims: no public ABI removal, harness/provider retirement, recipe/replay change, process-wide concurrency guarantee, backend parity, LLVM18 evidence, or aggregate R7 completion.
-```
+The existing AOT admission smoke now runs the child-env probe first and accepts
+`all` (default) or the independent `child-env` mode. It covers both-unset,
+HAKO-only, NYASH-only, both-present, both-empty, parent preservation, and the
+no-child command-construction negative. On this Linux host, the C build,
+route guard, and standalone `child-env` mode pass. The default smoke reaches
+the known named-direct compatibility red afterward because this host's Python
+has no `llvmlite`; that is baseline environment debt. Windows runtime proof is
+still pending on a Windows host, so I1 remains open until that command is run.
 
-The captured pair is `HAKO = inherited HAKO or "0"` and `NYASH = inherited
-NYASH or "0"`, including present-but-empty values. This exactly preserves the
-current helper's child input; `harness_driver` keeps its existing NYASH-first
-selection and the Python harness keeps its existing parsing/default behavior.
-The env prefix is command-scoped through the existing `system()` boundary and
-is not a second compiler or semantic route. The caller-specific delete-set is
-the helper plus both parent mutations; the public AOT named-harness entry,
-`ny-llvmc --driver harness`, child settings, and object/error terminal remain.
-
-Acceptance is the existing AOT direct-harness positive plus a source-backed
-child probe for both-unset, HAKO-only, NYASH-only, both-present, and empty
-values; each case must observe the preserved child pair, unchanged parent
-environment, no child on command-construction failure, and the existing
-generic/AOT replay rejection. The selected code/test/README/guard changes are
-one bounded I0; no fallback or retry is allowed.
-
-### AOT direct-harness child-env I0 verification (2026-09-12)
-
-The bounded implementation is present in the existing AOT shared issuer:
-`hako_aot_ensure_default_opt_env` and both parent `setenv` calls are deleted;
-the captured pair is shell/platform-quoted into the same `system()` command.
-The existing route guard now requires this seam and rejects the deleted parent
-mutation. The AOT admission smoke contains the temporary child probe and
-command-construction negative. Its probe contract was executed against the
-built `libhako_llvmc_ffi.so`: all five pair cases preserved child values and
-parent state, and the overflow case produced no child or object.
-
-The full smoke's pre-existing real named-direct positive is currently red in
-this host because `/home/tomoaki/.local/bin/python3` has no `llvmlite`
-(`ModuleNotFoundError`); that is known explicit-compat environment debt, not a
-failure of this I0. The same failure reproduces with the direct `ny-llvmc`
-command, while the new child-env probe passes independently. No Cargo build or
-thermal/concurrency claim is made here.
+No public ABI removal, harness/provider retirement, recipe/replay change,
+process-wide concurrency guarantee, backend parity, LLVM18 evidence, or
+aggregate R7 completion is claimed.
 
 The canonical issuer is the existing physical request at each explicit entry;
 the shared adapter may normalize its transport fields once, but it must not
@@ -970,7 +950,7 @@ re-entry behavior, and the exact caller-specific old-edge delete-set before
 changing its consumer. No public ABI deletion, concurrency claim, or aggregate
 R7/MirBuilder completion is implied.
 
-### MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0 (design stop, 2026-09-12)
+### MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0 (queued design stop, 2026-09-12)
 
 The current source fact is finite: `hako_llvmc_published_call_rows` stores the
 borrowed row pointer, count, mode, and `used[1024]`; all production consumers
@@ -987,4 +967,5 @@ set naming the old global reads/writes. Preserve borrowed Rust row lifetime,
 typed kind/coordinate validation, duplicate-take rejection, zero-row V2
 behavior, and cleanup on every pre-artifact failure. Acceptance is one closed
 Decision plus focused re-entry/cleanup/row-consumption negatives; until then
-`work_mode = design_stop` and `next_execution_card = none__PublishedRows__DesignStop`.
+After AOT child-env I1 Windows proof, this remains the next design stop; until
+then the active pointer is the bounded I1 verification above.
