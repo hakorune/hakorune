@@ -50,7 +50,7 @@ impl OwnedPhysicalCompileContract {
         validate_opt_level(&opt_level)?;
         let opt_tool_path = option_env("NYASH_NY_LLVM_OPT_TOOL")?;
         let llc_tool_path = option_env("NYASH_NY_LLVM_LLC_TOOL")?;
-        let llc_flags = option_env("NYASH_NY_LLVM_LLC_FLAGS")?;
+        let llc_flags = option_env_preserve_empty("NYASH_NY_LLVM_LLC_FLAGS")?;
         validate_tool_path(opt_tool_path.as_deref(), "opt")?;
         validate_tool_path(llc_tool_path.as_deref(), "llc")?;
         Ok(Self {
@@ -103,6 +103,18 @@ fn cstring(value: &str, label: &str) -> Result<CString, String> {
 fn option_env(name: &str) -> Result<Option<String>, String> {
     std::env::var(name)
         .map(|value| (!value.is_empty()).then_some(value))
+        .or_else(|error| {
+            if error == std::env::VarError::NotPresent {
+                Ok(None)
+            } else {
+                Err(format!("[freeze:contract][compile-options/{name}] invalid UTF-8"))
+            }
+        })
+}
+
+fn option_env_preserve_empty(name: &str) -> Result<Option<String>, String> {
+    std::env::var(name)
+        .map(Some)
         .or_else(|error| {
             if error == std::env::VarError::NotPresent {
                 Ok(None)

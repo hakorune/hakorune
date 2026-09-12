@@ -1,10 +1,10 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-BOUNDARY-LLC-FLAGS-I0"
 current_execution_cohort = "mir_call_boundary_llc_flags_i0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-BOUNDARY-LLC-FLAGS-I0"
-guard_followup = "Static NULL 85a16bccfa and M7S matrix c01e1b5d2e pushed. Boundary llc policy accepted: C admission captures default for unset, preserves explicit empty; Rust preserves empty/unset. I0 implementation pending; require unset/empty/value/mutation and pre-effect negatives, options smoke, C/static/route/pointer/size gates."
+guard_followup = "Boundary llc policy I0 verified: C options smoke, main plugin check33.19s, standalone CLI check0.40s, static/route/pointer guards and diff pass. Unset captures default, empty stays no-flags, explicit value is owned; no Generic/Static/Harness change. Commit/push closeout next; typed diagnostics and ambient helper remain separate."
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -39,7 +39,7 @@ propagation. Its focused fake-tool smoke, C build, Rust check, and pointer
 guard are green; the existing named compatibility smoke remains an uncounted
 host Traceback baseline red. Static V2 open I0 passes the accepted
 physical-options contract through production open/query/compile/close with
-fake-tool/pre-effect evidence; LLVM14 skips legacy LLVM18 object compile (no runtime claim). AOT Generic now uses profile-0 physical options; named harness, public C, and published-row globals remain.
+fake-tool/pre-effect evidence; original LLVM14/default-tool run skipped the legacy object portion; later explicit LLVM18-path session passes it. AOT Generic now uses profile-0 physical options; named harness, public C, and published-row globals remain.
 The G0 helper backend reach and EXE acceptance are verified without skip.
 The existing source-backed Global Call relation
 `Main.main -> generic_g0(0, 0)` is the sole membership authority. The focused
@@ -48,7 +48,7 @@ helper lanes, and helper Compare/Add body operations. The static EXE witness
 uses the same selected view; empty-site ABI, declared contracts and physical
 Compare/PHI/CFG now reach LLVM18/EXE3. First-family cutovers reuse one snapshot;
 Pure expected-location fields and PreheaderSeed were removed at 537e5e20fe; Read/Write/Carrier metadata is a separate cleanup candidate.
-Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, and public Generic C profile-0 options bridge I0 are closed; remaining shared compatibility owners have no safe exclusive delete-set.
+Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, and Boundary llc unset/empty policy are closed; remaining shared compatibility owners have no safe exclusive delete-set.
 LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
 are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
 18 focused Rust tests pass, including source-called G0 EXE3; C regressions pass.

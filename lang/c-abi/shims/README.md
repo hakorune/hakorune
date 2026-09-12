@@ -26,6 +26,9 @@ ingress is retired; explicit generic compatibility and checked lifecycle V4
 remain separate owners.
 The explicit-options entry rejects a NULL contract before parsing or allocating
 an invocation; NULL is accepted only by the three-argument compatibility entry.
+For Boundary profile1, an unset `llc_flags` captures the existing effective
+default (`-O3 -mcpu=native`) during options admission; an explicit empty string
+means no flags. The captured value is invocation-owned and is not reread.
 The stage error order and remaining source selection boundary are in the
 collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
 Static V2 carries the strict invocation profile: an instruction-level legacy

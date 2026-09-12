@@ -55,7 +55,7 @@ impl OwnedPhysicalCompileContract {
         validate_opt_level(&opt_level)?;
         let opt_tool_path = optional_environment_value("NYASH_NY_LLVM_OPT_TOOL")?;
         let llc_tool_path = optional_environment_value("NYASH_NY_LLVM_LLC_TOOL")?;
-        let llc_flags = optional_environment_value("NYASH_NY_LLVM_LLC_FLAGS")?;
+        let llc_flags = environment_value("NYASH_NY_LLVM_LLC_FLAGS")?;
         Ok(Self {
             compile_recipe: cstring(recipe, "compile recipe")?,
             compat_replay: cstring(replay, "compat replay")?,

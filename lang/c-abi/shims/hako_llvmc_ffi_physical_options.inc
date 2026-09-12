@@ -45,6 +45,7 @@ static int hako_llvmc_physical_options_copy_admitted(
     char** error) {
   struct HakoLlvmcPhysicalOptions copy = {0};
   const char* level;
+  const char* effective_llc_flags;
   if (!destination || !contract) {
     return set_err_owned(error, "[freeze:contract][compile-options/null]");
   }
@@ -91,16 +92,21 @@ static int hako_llvmc_physical_options_copy_admitted(
   if (contract->llc_tool_path && !hako_llvmc_tool_exists(contract->llc_tool_path)) {
     return set_err_owned(error, "[freeze:contract][compile-options/llc-tool]");
   }
+  effective_llc_flags = contract->llc_flags;
+  if (!effective_llc_flags &&
+      contract->ingress_profile == HAKO_LLVMC_PHYSICAL_PROFILE_BOUNDARY_PURE_FIRST) {
+    effective_llc_flags = hako_llvmc_llc_flags();
+  }
   copy.compile_recipe = hako_llvmc_duplicate_option(contract->compile_recipe);
   copy.opt_level = hako_llvmc_duplicate_option(level);
   copy.opt_tool_path = hako_llvmc_duplicate_option(contract->opt_tool_path);
   copy.llc_tool_path = hako_llvmc_duplicate_option(contract->llc_tool_path);
-  copy.llc_flags = hako_llvmc_duplicate_option(contract->llc_flags);
+  copy.llc_flags = hako_llvmc_duplicate_option(effective_llc_flags);
   copy.explicit_contract = 1;
   if (!copy.compile_recipe || !copy.opt_level ||
       (contract->opt_tool_path && !copy.opt_tool_path) ||
       (contract->llc_tool_path && !copy.llc_tool_path) ||
-      (contract->llc_flags && !copy.llc_flags)) {
+      (effective_llc_flags && !copy.llc_flags)) {
     hako_llvmc_physical_options_destroy(&copy);
     return set_err_owned(error, "[freeze:contract][compile-options/oom]");
   }
