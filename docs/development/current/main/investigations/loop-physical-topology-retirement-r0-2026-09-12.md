@@ -140,4 +140,8 @@ not relabeled as a fresh run for the later cleanup.
 
 Read/Write/Carrier expected metadata still exists in the respective leaf
 owners and remains a separate candidate. No additional deletion is authorized
-here, and the Pure-only absence claim does not cover those owners.
+here, and the Pure-only absence claim does not cover those owners. The owning
+`src/mir/builder/resolved_lowering/README.md` now describes this route as
+segment-keyed physical layout dispatch rather than the retired fixed-edge
+sequence; this is documentation-only reconciliation and does not add a new
+physical authority.
