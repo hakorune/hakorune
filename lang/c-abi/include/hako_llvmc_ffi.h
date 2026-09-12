@@ -171,6 +171,8 @@ int hako_llvmc_compile_json_with_options_v1(
     const hako_llvmc_physical_contract_v1* contract, char** err_out);
 int hako_llvmc_static_open_v2(const char* bytes, size_t length,
     hako_llvmc_static_invocation_v2** out, char** error);
+/* Explicit-options entry: contract must be non-NULL; use the entry above for
+ * the compatibility path that intentionally owns ambient settings. */
 int hako_llvmc_static_open_v2_with_options(const char* bytes, size_t length,
     const hako_llvmc_physical_contract_v1* contract,
     hako_llvmc_static_invocation_v2** out, char** error);

@@ -99,6 +99,11 @@ int hako_llvmc_static_open_v2_with_options(
     const char* bytes, size_t length,
     const hako_llvmc_physical_contract_v1* contract,
     hako_llvmc_static_invocation_v2** out, char** error) {
+  if (!out)
+    return set_err_owned(error, "[freeze:contract][static-v2/open-output]");
+  *out = NULL;
+  if (!contract)
+    return set_err_owned(error, "[freeze:contract][static-v2/options-null]");
   return hako_llvmc_static_open_v2_with_contract(bytes, length, contract, out, error);
 }
 

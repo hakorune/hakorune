@@ -24,8 +24,10 @@ fi
 rg -q 'hako_llvmc_static_open_v2_with_contract' "$C"
 rg -q 'hako_llvmc_physical_options_copy\(&options, contract, error\)' "$C"
 rg -q 'hako_llvmc_static_open_v2_with_options' "$HEADER"
+rg -q 'static-v2/options-null' "$C"
 rg -q 'HAKO_LLVMC_PHYSICAL_PROFILE_STATIC_V2' "$OPTIONS"
 rg -q 'open_with_options' "$TEST"
+rg -q 'static-v2/options-null' "$TEST"
 
 for file in "$RUST" "$CONTRACT" "$C" "$OPTIONS" "$HEADER" "$TEST"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

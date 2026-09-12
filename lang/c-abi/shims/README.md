@@ -24,6 +24,8 @@ compatibility ingress for callers that still own ambient settings. Rust closes
 C before unloading the Library, including planner failure. Public V1 file
 ingress is retired; explicit generic compatibility and checked lifecycle V4
 remain separate owners.
+The explicit-options entry rejects a NULL contract before parsing or allocating
+an invocation; NULL is accepted only by the three-argument compatibility entry.
 The stage error order and remaining source selection boundary are in the
 collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
 Static V2 carries the strict invocation profile: an instruction-level legacy

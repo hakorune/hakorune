@@ -149,6 +149,14 @@ with tempfile.TemporaryDirectory(prefix="hako-static-contract-") as directory:
         close(handle)
 os.environ.clear()
 os.environ.update(saved)
+for null_body in (body_bytes, b"{"):
+    before = os.environ.copy()
+    handle, error = c.c_void_p(1), c.c_void_p()
+    rc = open_with_options(null_body, len(null_body), None,
+                           c.byref(handle), c.byref(error))
+    null_message = message(error)
+    assert rc != 0 and not handle.value and "static-v2/options-null" in null_message, null_message
+    assert os.environ == before
 for bad_contract, expected in [
     (Contract(1, c.sizeof(Contract), 1, 0, b"pure-first", b"none", b"0",
               None, None, None, None), "static-v2/profile"),
