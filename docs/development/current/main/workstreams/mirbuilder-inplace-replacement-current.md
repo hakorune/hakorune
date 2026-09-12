@@ -758,7 +758,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
   reproduce/classify first, emit one expectation TSV/refresh guard second, then
   tombstone stale per-script thresholds. Exact 334 is observation, never a
   production ceiling; A④ sentinel/non-growth and D ledger/index rows remain
-  parked until their owners/evidence are registered.
+  parked until their owners/evidence are registered; child `MIRBUILDER-WARNING-BASELINE-REFRESH-I0` separately classifies lib/lib-test lint/file/owner/role before one caller-zero unused-import cohort; 1793/523 are not a zero-warning claim, and suppression/blanket-allow/semantic deletion remain forbidden.
 - performance, mimalloc, llvmlite, Hako converter, Loop/M8/M9, and physical-type
   follow-ups until `CURRENT_STATE.toml` reselects them.
 - broad Context/metadata/port/barrel cleanup until Call R7.

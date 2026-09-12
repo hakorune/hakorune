@@ -731,6 +731,13 @@ T5-D7  MIRBUILDER-WARNING-SURFACE-CENSUS-R0
   semantic owner decision and the full focused ceremony. Record exact-HEAD
   diagnostics; blanket allow removal and warning-driven semantic edits remain
   forbidden.
+  I0/MIRBUILDER-WARNING-BASELINE-REFRESH-I0 refreshes the current
+  nyash-rust/plugins/quick lib and lib-test surfaces separately. The observed
+  2026-09-12 values are lib=1793 and lib-test=523 (255 duplicates); they are
+  evidence to reconcile, not a zero-warning target. Classify each diagnostic by
+  lint code, file:line, owner, and production/test/compat/generated role before
+  selecting one caller-zero unused-import cohort. No suppression, bulk
+  #[allow] change, visibility widening, or semantic deletion is authorized.
 
 T5-D8  MIRBUILDER-PHYSICAL-STRUCTURE-CLEANUP-D0
   after cutover, compact stale docs/mirrors/archive and split near-limit

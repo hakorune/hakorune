@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "design_stop: co-seal the next shared compatibility owner and exclusive delete-set after public Generic profile-0 options bridge I0; LLVM18 remains externally sudo-blocked."
+guard_followup = "design_stop: co-seal the next shared compatibility owner and exclusive delete-set after public Generic profile-0 options bridge I0; LLVM18 is installed, while the named G0 EXE witness remains open at the existing lifecycle physical-ABI/site contract."
 current_design_stop = "open__MIR-CALL-COMPATIBILITY-RETIRE-R7-D0__2026-09-12"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -20,18 +20,14 @@ latest_card_path = "docs/development/current/main/investigations/mir-call-compat
 latest_card_summary = """
 The fixed real-app EXE scope is a finite 3/11 pass with seven named baseline
 boundaries and one FFI-environment boundary; it is not whole-MirBuilder
-completion. The Loop semantic-program audit is `NoSafeSlice` for the shared
-all-family receipt; Callable-only I0 remains caller-zero.
+completion. The Loop semantic-program audit is `NoSafeSlice`; Callable-only I0 remains caller-zero.
 G0 is an explicit GenericG0 variant in the existing package and
-BindingSsaTrivial/Single lifecycle. Its source issuer, NumericTarget::host,
-physical lowering hardening, typed rejects, computed-left proof, and
-producer/dispatch carrier rejection are closed with focused evidence. The
-normal-package consumer owns only the top-level FreeFunction; cataloged
-methods, all-family selection, and source-to-EXE helper claims remain outside
-scope. Callable caller/callee indices, PHI backedge, and common-After ownership
-split are closed with focused evidence.
-Fixed-role Loop topology retirement R0 is closed; the Callable/Generic segment
-route is sole and its 22-test/transfer/pointer evidence is green. G0 I0 had
+BindingSsaTrivial/Single lifecycle. Its source issuer, physical lowering,
+typed rejects, computed-left proof, producer/dispatch carrier rejection, and
+normal-package FreeFunction consumer are closed; cataloged methods, all-family
+selection, and source-to-EXE helper claims remain outside scope. Callable
+indices, PHI backedge, and common-After ownership split are also closed.
+Fixed-role Loop topology retirement R0 is closed; the Callable/Generic segment route is sole and its 22-test/transfer/pointer evidence is green. G0 I0 had
 root-EXE coexistence only; I1 now uses the source-backed
 `Main.main -> generic_g0(0, 0)` Global Call for physical reach. Call/R7,
 backend parity, and all-family completion remain unclaimed.
@@ -49,12 +45,16 @@ is closed. The existing source-backed Global Call relation
 `Main.main -> generic_g0(0, 0)` is the sole membership authority. The focused
 positive observes exactly the root Invoke(Call) to `generic_g0/2`, two integer
 helper lanes, and helper Compare/Add body operations. The static EXE witness
-uses the same selected view but was skipped because LLVM18 is unavailable;
+uses the same selected view and now reaches the typed EXE route under LLVM18, but stops before object/link at `published-lifecycle-physical-abi/site-missing`;
 runtime success is unclaimed. Selected first-family cutovers reuse one snapshot;
 obsolete Loop expected-location/PreheaderSeed handling is queued for T0 cleanup.
 Whole-MIRBuilder completion, backend parity, and runtime execution unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, and public Generic C profile-0 options bridge I0 are closed; remaining shared compatibility owners have no safe exclusive delete-set.
-LLVM18 installation is blocked on external sudo permission; the host has
-LLVM14 only, so LLVM18 object/EXE evidence remains open.
+LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
+are verified and the corrected G0 EXE witness stops at
+`published-lifecycle-physical-abi/site-missing`.
+Warning follow-up is `MIRBUILDER-WARNING-SURFACE-CENSUS-R0` /
+`MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; observed `lib=1793`, `lib test=523
+(255 duplicates)` are separate, non-zero-warning baselines.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"

@@ -766,11 +766,11 @@ Observed acceptance:
 
 This closes only `MIR-CALL-NY-LLVMC-BOUNDARY-COMPILE-OPTIONS-I0`. The next
 R7 decision stop must select the remaining shared compatibility owner and a
-non-empty caller-specific delete-set. LLVM18 remains an environment-only task
-blocked by external sudo permission; no LLVM18 object/EXE runtime evidence is
-claimed.
+non-empty caller-specific delete-set. At this pre-installation checkpoint,
+LLVM18 was an environment-only task blocked by external sudo permission; no
+LLVM18 object/EXE runtime evidence was claimed.
 
-### LLVM18 environment follow-up (blocked 2026-09-12)
+### LLVM18 environment follow-up (pre-installation checkpoint, superseded)
 
 The host check found Ubuntu 22.04 with only LLVM14.0.0 and no Jammy archive
 candidate for LLVM18. The environment-only installation task is
@@ -1051,3 +1051,28 @@ Observed acceptance:
 This closes only `MIR-CALL-PUBLIC-C-GENERIC-OPTIONS-I0`. Public ABI,
 `HAKO_CAPI_TM`, named compatibility/provider, Static V2, link, backend parity,
 aggregate R7, and whole-MIRBuilder completion remain unclaimed.
+
+### LLVM18 installation and witness classification (2026-09-12)
+
+The environment-only task `LLVM18-TOOLCHAIN-INSTALL-I0` is now verified:
+`llvm-config-18`, `llc-18`, `opt-18`, `clang-18`, and `ld.lld-18` report
+LLVM18.1.8, `/usr/lib/llvm-18/include/llvm-c/Core.h` exists, and LLVM14 remains
+side-by-side. The stale witness name in the task was corrected to the actual
+test `normal_package_generic_g0_helper_reaches_existing_exe_emitter`.
+
+The corrected ignored test ran one test and reached the existing typed EXE
+route. It did not produce an object or executable: after a temporary generated
+output link exposed the lifecycle archive at its canonical
+`target/lifecycle-kernel/release` location, the route rejected with
+`[freeze:contract][published-lifecycle-physical-abi/site-missing]`. The
+temporary link was removed. This is classified as an existing lifecycle
+physical-ABI/site contract and test runtime-path blocker, not an LLVM18
+installation failure; LLVM18 object/EXE success and helper runtime execution
+remain unclaimed.
+
+The same `-j1` Rust acceptance build observed `nyash-rust (lib)=1793` warnings
+and `nyash-rust (lib test)=523` warnings (255 duplicates). These are separate
+target observations. The warning follow-up is taskized under the existing
+`MIRBUILDER-WARNING-SURFACE-CENSUS-R0` owner as
+`MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; no warning suppression or semantic
+cleanup is authorized by this R7 design-stop card.

@@ -1,6 +1,6 @@
 # LLVM18 toolchain installation task
 
-Status: `blocked__ExternalSudoPermission__2026-09-12`
+Status: `verified__LLVM18Toolchain__G0WitnessClassified__2026-09-12`
 Task: `LLVM18-TOOLCHAIN-INSTALL-I0`
 Date: `2026-09-12`
 Priority: restore the named LLVM18 object/EXE acceptance environment
@@ -22,8 +22,10 @@ Non-claims: no compiler semantic change, backend parity, whole-MIRBuilder comple
 
 This is an environment-only task. It must not add a repository fallback, change
 the selected backend, or make an LLVM18 check appear green when the tools are
-absent. The host is currently Ubuntu 22.04 with LLVM14.0.0 at
-`/usr/lib/llvm-14`; the Ubuntu Jammy archive has no `llvm-18` candidate.
+absent. The host is Ubuntu 22.04 with LLVM14.0.0 at `/usr/lib/llvm-14` and
+LLVM18.1.8 at `/usr/lib/llvm-18`, installed side-by-side from the official
+`apt.llvm.org` Jammy route. LLVM14 remains installed and usable; the versioned
+LLVM18 tools are the explicit acceptance surface.
 
 The repository's existing CI recipe is the installation source:
 
@@ -41,18 +43,36 @@ links. If the host policy does not permit `sudo`, stop at the named external
 dependency and record the exact missing permission; do not emulate LLVM18 with
 LLVM14.
 
-## Preflight result (2026-09-12)
+## Pre-install preflight result (historical, 2026-09-12)
 
-The host is `x86_64` Ubuntu `22.04`; LLVM14.0.0 remains installed at
-`/usr/lib/llvm-14`. `llvm-config-18`, `llc-18`, `opt-18`, `clang-18`,
-`ld.lld-18`, and `/usr/lib/llvm-18` are absent, and Jammy has no apt candidate
-for `llvm-18`, `clang-18`, or `lld-18`. The CI installer was not run because
-the session is UID 1000 and `sudo -n -v` reports `sudo: a password is
-required`. This is an external permission blocker; LLVM14 remains the usable
-toolchain and no LLVM18 runtime claim is made.
+The host was `x86_64` Ubuntu `22.04`; LLVM14.0.0 remained installed at
+`/usr/lib/llvm-14`. Before the external installation, the session was UID 1000
+and `sudo -n -v` reported `sudo: a password is required`. This historical
+blocker is superseded by the host package installation recorded below.
 
-Resume the installation block above after sudo access is granted, then record
-the versioned tool/header/prefix checks below.
+The apt.llvm.org installation was performed outside Git. Its unrelated
+GitHub-CLI repository `EXPKEYSIG` warning was not changed by this task.
+
+## Post-install verification (2026-09-12)
+
+The required versioned tools and C API surface are present in the same host
+environment used for the witness:
+
+```text
+llvm-config-18 --version       -> 18.1.8
+llc-18 --version               -> Ubuntu LLVM version 18.1.8
+opt-18 --version               -> Ubuntu LLVM version 18.1.8
+clang-18 --version             -> Ubuntu clang version 18.1.8
+ld.lld-18 --version            -> Ubuntu LLD 18.1.8
+llvm-config-18 --prefix        -> /usr/lib/llvm-18
+llvm-config-18 --includedir    -> /usr/lib/llvm-18/include
+llvm-config-18 --libdir        -> /usr/lib/llvm-18/lib
+header                         -> /usr/lib/llvm-18/include/llvm-c/Core.h
+```
+
+`llvm-config-18 --libs --system-libs` exposes `-lLLVM-18`. The task's
+`LLVM_SYS_180_PREFIX="$(llvm-config-18 --prefix)"` form is valid for the
+LLVM-dependent Rust command.
 
 ## Preflight and acceptance
 
@@ -92,7 +112,7 @@ creating a new fixture or route:
 ```bash
 CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 RUST_MIN_STACK=16777216 \
   cargo test -p nyash-rust --features plugins --profile quick -j1 \
-  normal_package_generic_g0_reaches_existing_exe_emitter -- --ignored --nocapture
+  normal_package_generic_g0_helper_reaches_existing_exe_emitter -- --ignored --nocapture
 ```
 
 Record separately:
@@ -105,11 +125,35 @@ An LLVM18 installation removes only the environment skip. It does not turn the
 existing root/EXE coexistence witness into helper execution evidence unless the
 selected physical program actually contains and executes the helper call.
 
+## Witness result (2026-09-12)
+
+- The first invocation used the stale test name from this card and correctly
+  ran zero tests (`7898 filtered out`); it is not acceptance evidence.
+- The corrected named witness ran one ignored test after the LLVM18 toolchain,
+  FFI library, `ny-llvmc`, and both runtime archives were checked. The first
+  attempt exposed a path mismatch: the test hardcodes
+  `target/release/libnyash_lifecycle_kernel.a`, while the existing archive is
+  at `target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a`.
+- A temporary generated-output symlink was used only to continue the unchanged
+  witness. It then reached the existing typed EXE route and failed before
+  object/link publication with
+  `[freeze:contract][published-lifecycle-physical-abi/site-missing]`.
+  The temporary symlink was removed; the Git worktree is clean of that change.
+- Therefore LLVM18 availability is verified, but LLVM18 object emission,
+  executable exit status, and helper runtime execution remain unclaimed. The
+  remaining blocker is the existing lifecycle physical-ABI/site contract (and
+  the test's runtime-path assumption), not LLVM18 installation.
+- The same `-j1` Rust build completed successfully and exposed the warning
+  baseline separately: `nyash-rust (lib)=1793`; `nyash-rust (lib test)=523`,
+  including 255 duplicates. Warning reduction is owned by
+  `MIRBUILDER-WARNING-SURFACE-CENSUS-R0` and its
+  `MIRBUILDER-WARNING-BASELINE-REFRESH-I0` child; these counts are not a
+  zero-warning claim.
+
 ## Closeout requirements
 
-Close this task only after the installation is verified in the same shell used
-for acceptance, the LLVM18-dependent G0 witness has a classified result, and
-the result is recorded in its owning acceptance card. The host package state
-is not committed to Git. If installation fails, retain the task as an explicit
-environment blocker with command output and leave LLVM14 as the usable host
-toolchain.
+The installation portion is closed after verification in the same shell used
+for acceptance, and the LLVM18-dependent G0 witness is retained as a
+classified, still-open acceptance result in this card. The host package state
+is not committed to Git. LLVM14 remains the usable side-by-side toolchain for
+the existing non-LLVM18 lanes.

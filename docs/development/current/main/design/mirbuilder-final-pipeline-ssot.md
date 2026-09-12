@@ -32,13 +32,15 @@ Related:
   `18f2162e0d`; the segment route is sole for the admitted Callable/Generic
   physical cohort. The G0 I1 witness now uses the source-backed
   `Main.main -> generic_g0(0, 0)` Call and observes `generic_g0/2` in the same
-  physical view; its static EXE witness was skipped because LLVM18 is missing.
-  These are bounded rows, not helper runtime success, all-family, or
-  source-to-EXE completion.
+  physical view; LLVM18.1.8 is now installed side-by-side with LLVM14. The
+  corrected static EXE witness reaches the existing typed EXE route but stops
+  before object/link at `published-lifecycle-physical-abi/site-missing`, so
+  LLVM18 object/EXE and helper runtime success remain unclaimed. These are
+  bounded rows, not all-family or source-to-EXE completion.
 - **Next ordered task:** the selected static V2 open I0 now passes the existing
   invocation-owned physical-options contract through the production
   open/query/compile/close lifecycle; its focused C/Rust/guard evidence and
-  LLVM18-unavailable skip are recorded. Resume the R7 design stop to select the
+  LLVM18 witness classification is recorded. Resume the R7 design stop to select the
   next retained compatibility owner (harness, AOT, or public ABI boundary)
   with its caller, terminal, and exclusive delete-set before implementation;
   release compatibility and public v1/v2 ABI remain retained.
