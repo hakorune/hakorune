@@ -532,3 +532,32 @@ ambient environment behavior. Explicit harnesses must not fall back to the
 generic route. Decision remains
 `NoSafeSlice__NoRemainingUnsharedM7SOwner`; no code, fixture, route switch,
 new receipt, or fallback is authorized.
+
+### R7 retained-caller matrix (2026-09-12)
+
+The production census is now fixed to four retained boundary groups. This is a
+design inventory, not an implementation permission; the paths below are the
+caller/terminal evidence that prevents a profile-only cutover.
+
+| group | current owner and terminal | named callers / re-entry | retain/delete disposition |
+| --- | --- | --- | --- |
+| Rust codegen ingress | `compat_codegen_receiver.rs:52,96` -> `route.rs:179,186` -> `provider_keep.rs:95,127`; ordinary Boundary and named harness both end at the existing provider/object terminal | backend extern dispatch, loader-cold, hostbridge, global/externals; the same llvmlite provider is also selected by ambient keep | retain shared provider; no provider delete-set until the named harness and ambient keep have separate owners or one explicit shared contract |
+| C compile and AOT compile | `hako_llvmc_ffi_route.inc:440,459,488`; `hako_aot_shared_impl.inc:585,601`; generic, pure-first, and named harness terminals remain distinct | AOT dlsym at `hako_aot_shared_impl.inc:413,434`, public C callers, and direct harness callers | retain all public symbols and the AOT FFI split; delete no compile export while dlsym/public callers remain reachable |
+| AOT link | `hako_aot_shared_impl.inc:725-768` dispatches compatibility v1 and explicit v2 into the existing link body | `hako_llvmc_ffi_route.inc:357,372`, public `hako_aot_link_obj`, public `hako_aot_link_obj_v2`, and FFI dlsym re-entry | retain v1/v2 ABI and shared dispatch; no wrapper/body deletion until archive authority and `HAKO_AOT_USE_FFI` callers are co-sealed |
+| ambient physical selectors | C common/AOT readers (`hako_llvmc_ffi_common.inc:65,112`, `hako_aot_shared_impl.inc:119,529`) plus the retained Rust compatibility transport (`capi_transport.rs:282-340`) | generic compatibility, AOT, subprocess/tool selection, and legacy external entry points | delete only caller-specific reads/temporary mutation after explicit invocation state reaches every caller; link-only env and public compatibility remain retained |
+
+The matrix's six-line decision is:
+
+```text
+Decision: keep the four groups as separate owner candidates; do not promote a profile-only harness cutover.
+Source authority + canonical issuer: each existing caller's accepted physical request; C exports/dlsym consume it.
+Non-authority: symbol names, ambient env, provider reachability, and public ABI names do not issue new semantics.
+Fail-fast boundary: reject profile/recipe/replay/tool/symbol/input conflicts before env mutation, dlsym, or artifact effect.
+Smallest next slice: accept one group-specific owner/terminal/delete row only after its retained callers and exact delete-set are named.
+Non-claims: no shared-provider retirement, public ABI removal, AOT route switch, concurrent isolation, or LegacyCallV0 deletion.
+```
+
+This closes the finite design census but leaves the implementation gate open:
+the current matrix has no non-empty exclusive delete-set. `work_mode` therefore
+remains `design_stop`; a future I0 must name one of these groups and its
+caller-specific delete-set in the same card before editing code.
