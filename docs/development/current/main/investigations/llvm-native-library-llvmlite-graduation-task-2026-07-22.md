@@ -1102,8 +1102,9 @@ Fail-fast: any unclassified caller, native-failure retry, or automatic child pat
   blocks G1. Acceptance: `llvmlite-production-ingress-census-v0.json` has
   production=0, explicit keep roots enumerated, positive/negative evidence per row,
   and one reusable guard; child observation ordinary=0, compat=1, replay=0;
-  direct keep/debug/smoke roots are enumerated; `LegacyAmbientKeep` and
-  harness-or-fallback remain explicit G1 inputs; no route behavior, source
+  direct keep/debug/smoke roots are enumerated; the Rust `LegacyAmbientKeep`
+  branch is a caller-zero R7 I0 deletion candidate, while harness-or-fallback
+  remain explicit G1 inputs; no route behavior, source
   deletion, G2/G3, or new semantic/backend authority.
 ## 7. Later retirement
 

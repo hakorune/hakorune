@@ -33,7 +33,6 @@ pub struct Opts {
 /// policy and keeps ordinary env.codegen calls away from ambient keep lanes.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum CodegenRouteRequestV1 {
-    LegacyAmbientKeep,
     BoundaryPureFirst,
     ExplicitHarnessCompat,
 }

@@ -247,112 +247,15 @@ fn compile_via_capi_with_options(
 pub(super) fn compile_via_capi(
     json_in: &Path,
     obj_out: &Path,
-    compile_symbol: &[u8],
-    compile_recipe: Option<&str>,
-    compat_replay: Option<&str>,
     opts: &Opts,
 ) -> Result<(), String> {
-    if compile_recipe == Some("pure-first") && compat_replay == Some("none") {
-        return compile_via_capi_with_options(
-            json_in,
-            obj_out,
-            compile_recipe,
-            compat_replay,
-            opts,
-        );
-    }
-    use std::os::raw::{c_char, c_int, c_void};
-
-    extern "C" {
-        fn free(ptr: *mut c_void);
-    }
-
-    unsafe {
-        let lib = load_ffi_library()?;
-        type CompileFn =
-            unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_char) -> c_int;
-        let func: libloading::Symbol<CompileFn> = lib
-            .get(compile_symbol)
-            .map_err(|e| format!("dlsym failed for requested compile symbol: {}", e))?;
-        let cin = CString::new(json_in.to_string_lossy().as_bytes())
-            .map_err(|_| "invalid json path".to_string())?;
-        let cout = CString::new(obj_out.to_string_lossy().as_bytes())
-            .map_err(|_| "invalid out path".to_string())?;
-        let mut err_ptr: *mut c_char = std::ptr::null_mut();
-        let prev_recipe = std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok();
-        let prev_replay = std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok();
-        let prev_hako_opt = std::env::var("HAKO_LLVM_OPT_LEVEL").ok();
-        let prev_nyash_opt = std::env::var("NYASH_LLVM_OPT_LEVEL").ok();
-        if let Some(value) = compile_recipe.as_deref() {
-            std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", value);
-        } else {
-            std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE");
-        }
-        if let Some(value) = compat_replay.as_deref() {
-            std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", value);
-        } else {
-            std::env::remove_var("HAKO_BACKEND_COMPAT_REPLAY");
-        }
-        if let Some(level) = opts.opt_level.as_ref() {
-            std::env::set_var("HAKO_LLVM_OPT_LEVEL", level);
-            std::env::set_var("NYASH_LLVM_OPT_LEVEL", level);
-        } else {
-            if crate::config::env::llvm_opt_level_envs().0.is_none() {
-                std::env::set_var("HAKO_LLVM_OPT_LEVEL", "0");
-            }
-            if crate::config::env::llvm_opt_level_envs().1.is_none() {
-                std::env::set_var("NYASH_LLVM_OPT_LEVEL", "0");
-            }
-        }
-
-        if crate::config::env::cabi_trace() {
-            let (hako_opt, nyash_opt) = crate::config::env::llvm_opt_level_envs();
-            llvm_emit_debug!(
-                "[llvmemit/capi/enter] HAKO_LLVM_OPT_LEVEL={:?} NYASH_LLVM_OPT_LEVEL={:?}",
-                hako_opt,
-                nyash_opt
-            );
-        }
-
-        let rc = func(
-            cin.as_ptr(),
-            cout.as_ptr(),
-            &mut err_ptr as *mut *mut c_char,
-        );
-        if let Some(v) = prev_recipe {
-            std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", v);
-        } else {
-            std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE");
-        }
-        if let Some(v) = prev_replay {
-            std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", v);
-        } else {
-            std::env::remove_var("HAKO_BACKEND_COMPAT_REPLAY");
-        }
-        if let Some(v) = prev_hako_opt {
-            std::env::set_var("HAKO_LLVM_OPT_LEVEL", v);
-        } else {
-            std::env::remove_var("HAKO_LLVM_OPT_LEVEL");
-        }
-        if let Some(v) = prev_nyash_opt {
-            std::env::set_var("NYASH_LLVM_OPT_LEVEL", v);
-        } else {
-            std::env::remove_var("NYASH_LLVM_OPT_LEVEL");
-        }
-        if rc != 0 {
-            let msg = if !err_ptr.is_null() {
-                CStr::from_ptr(err_ptr).to_string_lossy().to_string()
-            } else {
-                "compile failed".to_string()
-            };
-            if !err_ptr.is_null() {
-                free(err_ptr as *mut c_void);
-            }
-            return Err(msg);
-        }
-        transport_io::ensure_backend_artifact_written(obj_out, "object")?;
-        Ok(())
-    }
+    compile_via_capi_with_options(
+        json_in,
+        obj_out,
+        opts.compile_recipe.as_deref(),
+        opts.compat_replay.as_deref(),
+        opts,
+    )
 }
 
 #[cfg(feature = "plugins")]
@@ -430,23 +333,13 @@ pub(super) fn compile_published_lifecycle_physical_v4(
 
 pub(super) fn compile_via_capi_keep(
     mir_json: &str,
-    compile_symbol: &[u8],
-    compile_recipe: Option<&str>,
-    compat_replay: Option<&str>,
     opts: &Opts,
 ) -> Result<PathBuf, String> {
     normalize::validate_backend_mir_shape(mir_json)?;
     let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
     let out_path = transport_paths::resolve_backend_object_output(opts);
     transport_io::ensure_backend_output_parent(&out_path);
-    compile_via_capi(
-        &in_path,
-        &out_path,
-        compile_symbol,
-        compile_recipe,
-        compat_replay,
-        opts,
-    )?;
+    compile_via_capi(&in_path, &out_path, opts)?;
     Ok(out_path)
 }
 
@@ -462,9 +355,6 @@ pub(super) fn compile_published_lifecycle_physical_v4(
 pub(super) fn compile_via_capi(
     _json_in: &Path,
     _obj_out: &Path,
-    _compile_symbol: &[u8],
-    _compile_recipe: Option<&str>,
-    _compat_replay: Option<&str>,
     _opts: &Opts,
 ) -> Result<(), String> {
     Err("capi not available (plugins feature disabled)".into())

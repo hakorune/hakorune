@@ -1,13 +1,10 @@
 use std::path::PathBuf;
 
 use super::capi_transport::compile_via_capi_keep;
-use super::defaults::COMPILE_SYMBOL_DEFAULT;
 use super::ll_emit_compare_driver::mir_json_to_object_hako_ll_compare;
 use super::normalize::validate_backend_mir_shape;
-use super::provider_keep::{mir_json_to_object_llvmlite, mir_json_to_object_ny_llvmc};
+use super::provider_keep::mir_json_to_object_llvmlite;
 use super::{CodegenRouteRequestV1, Opts};
-
-const COMPILE_SYMBOL_PURE_FIRST: &[u8] = b"hako_llvmc_compile_json_pure_first\0";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum HakoLlBridgeLane {
@@ -146,7 +143,7 @@ pub(super) fn try_compile_via_capi_keep(
     if !(crate::config::env::llvm_use_capi() && crate::config::env::extern_provider_c_abi()) {
         return Ok(None);
     }
-    match compile_via_capi_keep_internal(mir_json, opts) {
+    match compile_via_capi_keep(mir_json, opts) {
         Ok(out_path) => Ok(Some(out_path)),
         Err(e) => {
             llvm_emit_error!("[llvmemit/capi/failed] {}", e);
@@ -155,37 +152,13 @@ pub(super) fn try_compile_via_capi_keep(
     }
 }
 
-fn compile_via_capi_keep_internal(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
-    let compile_recipe = opts.compile_recipe.clone();
-    let compat_replay = opts.compat_replay.clone();
-    let compile_symbol = compile_symbol_for_keep_recipe(compile_recipe.as_deref());
-    match compile_via_capi_keep(
-        mir_json,
-        compile_symbol,
-        compile_recipe.as_deref(),
-        compat_replay.as_deref(),
-        opts,
-    ) {
-        Ok(out_path) => Ok(out_path),
-        Err(e) => Err(e),
-    }
-}
-
 pub(super) fn try_compile_via_explicit_provider_keep(
     mir_json: &str,
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
     match opts.route_request {
-        CodegenRouteRequestV1::ExplicitHarnessCompat => {
-            return mir_json_to_object_llvmlite(mir_json, opts).map(Some);
-        }
-        CodegenRouteRequestV1::BoundaryPureFirst => return Ok(None),
-        CodegenRouteRequestV1::LegacyAmbientKeep => {}
-    }
-    match crate::config::env::llvm_emit_provider().as_deref() {
-        Some("llvmlite") => mir_json_to_object_llvmlite(mir_json, opts).map(Some),
-        Some("ny-llvmc") => mir_json_to_object_ny_llvmc(mir_json, opts).map(Some),
-        _ => Ok(None),
+        CodegenRouteRequestV1::ExplicitHarnessCompat => mir_json_to_object_llvmlite(mir_json, opts).map(Some),
+        CodegenRouteRequestV1::BoundaryPureFirst => Ok(None),
     }
 }
 
@@ -194,7 +167,7 @@ pub(super) fn try_compile_via_boundary_default(
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
     validate_route_request(opts)?;
-    match compile_via_capi_keep_internal(mir_json, opts) {
+    match compile_via_capi_keep(mir_json, opts) {
         Ok(out_path) => Ok(Some(out_path)),
         Err(error) if capi_boundary_unavailable(&error) => Ok(None),
         Err(error) => {
@@ -205,16 +178,7 @@ pub(super) fn try_compile_via_boundary_default(
 }
 
 pub(super) fn boundary_default_unavailable_tag() -> String {
-    "[llvmemit/capi/default-unavailable] build libhako_llvmc_ffi.so or set HAKO_LLVM_EMIT_PROVIDER=llvmlite".into()
-}
-
-fn compile_symbol_for_keep_recipe(recipe: Option<&str>) -> &'static [u8] {
-    // Keep lanes may still reuse the historical generic export.
-    // Daily pure-first callers should already be explicit before reaching here.
-    match recipe {
-        Some("pure-first") => COMPILE_SYMBOL_PURE_FIRST,
-        _ => COMPILE_SYMBOL_DEFAULT,
-    }
+    "[llvmemit/capi/default-unavailable] build libhako_llvmc_ffi.so or call the explicit compatibility harness entry".into()
 }
 
 fn capi_boundary_unavailable(error: &str) -> bool {
@@ -226,7 +190,6 @@ fn capi_boundary_unavailable(error: &str) -> bool {
 
 fn validate_route_request(opts: &Opts) -> Result<(), String> {
     match opts.route_request {
-        CodegenRouteRequestV1::LegacyAmbientKeep => Ok(()),
         CodegenRouteRequestV1::BoundaryPureFirst => {
             if opts.compile_recipe.as_deref() != Some("pure-first") {
                 return Err(
@@ -259,28 +222,10 @@ fn validate_route_request(opts: &Opts) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::{
-        compile_symbol_for_keep_recipe, hako_ll_bridge_lane, llvm_route_trace_enabled,
-        required_hako_ll_context_field, validate_route_request, CodegenRouteRequestV1,
-        HakoLlBridgeLane, COMPILE_SYMBOL_DEFAULT, COMPILE_SYMBOL_PURE_FIRST,
+        hako_ll_bridge_lane, llvm_route_trace_enabled, required_hako_ll_context_field,
+        validate_route_request, CodegenRouteRequestV1, HakoLlBridgeLane,
     };
     use crate::host_providers::llvm_codegen::defaults::boundary_default_object_opts;
-
-    #[test]
-    fn keep_recipe_prefers_pure_first_symbol_when_explicit() {
-        assert_eq!(
-            compile_symbol_for_keep_recipe(Some("pure-first")),
-            COMPILE_SYMBOL_PURE_FIRST
-        );
-    }
-
-    #[test]
-    fn keep_recipe_uses_generic_symbol_for_missing_or_compat_values() {
-        assert_eq!(compile_symbol_for_keep_recipe(None), COMPILE_SYMBOL_DEFAULT);
-        assert_eq!(
-            compile_symbol_for_keep_recipe(Some("harness")),
-            COMPILE_SYMBOL_DEFAULT
-        );
-    }
 
     #[test]
     fn hako_ll_bridge_lane_stays_explicit() {

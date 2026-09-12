@@ -569,3 +569,84 @@ can be consumed by the harness, generic/v1 AOT, and ambient-selector callers;
 the current contract has only Boundary/Static issuers. Until that authority is
 co-sealed with retained public/external assets and a non-empty caller-specific
 delete-set, the R7 decision remains unchanged.
+
+### MIR-CALL-RUST-CAPI-AMBIENT-RETIRE-I0 (selected 2026-09-12)
+
+The focused owner audit opens one behavior-neutral Delete row inside the Rust
+transport only. `CodegenRouteRequestV1::LegacyAmbientKeep` has zero current
+constructors; the only production constructors are Boundary or Explicit
+Harness. Every CAPI route validates first, Boundary requires
+`pure-first/none`, and Explicit Harness returns before the generic CAPI probe.
+Therefore the non-explicit branch in `capi_transport.rs` is caller-zero in the
+current repository.
+
+```text
+Decision: delete the caller-zero Rust non-explicit CAPI transport branch.
+Source authority + canonical issuer: existing explicit Opts route request and its physical-options admission.
+Non-authority: public C exports, AOT dlsym, llvmlite provider selection, and external ABI names are retained consumers.
+Fail-fast boundary: route validation and explicit-options admission remain before dlsym, env mutation, and artifact effect.
+Smallest next slice: remove the old Rust branch/selector and update its route census/guard in one I0.
+Non-claims: no public C ABI removal, AOT or provider retirement, concurrent isolation, or aggregate R7 closure.
+```
+
+The exact old-edge delete-set is the three-argument dlsym plus environment
+save/set/restore in `capi_transport.rs`, the `compile_symbol` plumbing used
+only by that branch, `LegacyAmbientKeep`, the Rust-side
+`compile_symbol_for_keep_recipe`/unused symbol constants and tests, and the
+caller-zero Rust `ny-llvmc` provider helper. Retain
+`compile_via_capi_with_options`, `hako_llvmc_compile_json_with_options_v1`,
+the public generic/pure-first C exports, AOT dlsym, and the explicit llvmlite
+provider helper. The separate `ny-llvmc` crate/driver remains the mainline
+Boundary owner; this row removes only the old host-provider subprocess helper.
+The existing route-identity guard and llvmlite production census must be
+changed from expecting the old branch to proving its absence and classifying
+the route as caller-zero.
+
+I0 acceptance is: Boundary `pure-first/none` still reaches the explicit
+options entry; Explicit Harness still bypasses CAPI and reaches the named
+provider; invalid recipe/replay still rejects before effects; missing CAPI
+still returns the existing unavailable terminal; the updated route guard,
+census guard, source-size bound, `git diff --check`, and focused Rust route
+tests pass. This row retains all C/AOT/public callers and does not claim R7
+wide retirement.
+
+### Rust ambient transport I0 closeout (2026-09-12)
+
+The caller-zero Rust non-explicit CAPI branch is retired. The typed
+`BoundaryPureFirst` request now reaches only
+`compile_via_capi_with_options`; `ExplicitHarnessCompat` reaches the existing
+llvmlite provider directly, and no Rust route selects the removed
+`ny-llvmc` subprocess helper or mutates compile-recipe/replay environment
+variables. Public C exports, AOT dlsym, the separate `ny-llvmc` crate/driver,
+and the explicit llvmlite compatibility provider remain retained consumers.
+
+Observed acceptance:
+
+- focused Rust route tests: 5 passed, 0 failed;
+- `cargo check -p nyash-rust --features plugins --profile quick -j1`: passed
+  with the repository warning baseline and no new `provider_keep` warning;
+- `llvm_codegen_route_identity_guard.sh`: passed;
+- `llvm_llvmlite_production_census_guard.py`: passed (`rows=37`,
+  `automatic_python_ingress=0`, `native_retry=0`, `keep_roots=26`);
+- `current_state_pointer_guard.sh`, JSON validation, and `git diff --check`:
+  passed.
+
+The host preflight still reports Ubuntu 22.04 with LLVM14.0.0 only, so no
+LLVM18 object/EXE runtime evidence is claimed. The follow-up environment task
+`LLVM18-TOOLCHAIN-INSTALL-I0` is registered at
+`docs/development/current/main/investigations/llvm18-toolchain-installation-task-2026-09-12.md`.
+It uses the existing CI `apt.llvm.org` recipe and keeps LLVM14 side-by-side.
+
+This closes only the Rust caller-zero transport row. The remaining C/AOT,
+public, harness, provider, and aggregate R7 rows remain open by design.
+
+### LLVM18 environment follow-up (queued 2026-09-12)
+
+The host check found Ubuntu 22.04 with only LLVM14.0.0 and no Jammy archive
+candidate for LLVM18. The environment-only installation task is
+`LLVM18-TOOLCHAIN-INSTALL-I0` at
+`docs/development/current/main/investigations/llvm18-toolchain-installation-task-2026-09-12.md`.
+It uses the existing CI `apt.llvm.org` recipe, keeps LLVM14 installed
+side-by-side, and requires versioned tool/header/prefix verification before
+rerunning the named G0 object/EXE witness. This task does not authorize a
+backend switch, a fallback, or a semantic MirBuilder change.

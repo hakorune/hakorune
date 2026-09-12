@@ -1,27 +1,22 @@
 use std::path::PathBuf;
+#[cfg(feature = "llvmlite-compat")]
 use std::process::Command;
 
+#[cfg(feature = "llvmlite-compat")]
 use super::normalize;
+#[cfg(feature = "llvmlite-compat")]
 use super::transport_io;
+#[cfg(feature = "llvmlite-compat")]
 use super::transport_paths;
 use super::Opts;
 
+#[cfg(feature = "llvmlite-compat")]
 fn prepare_provider_io(mir_json: &str, opts: &Opts) -> Result<(PathBuf, PathBuf), String> {
     normalize::validate_backend_mir_shape(mir_json)?;
     let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
     let out_path = transport_paths::resolve_backend_object_output(opts);
     transport_io::ensure_backend_output_parent(&out_path);
     Ok((in_path, out_path))
-}
-
-fn resolve_ny_llvmc() -> PathBuf {
-    if let Some(s) = crate::config::env::ny_llvm_compiler_path() {
-        return PathBuf::from(s);
-    }
-    if let Ok(p) = which::which("ny-llvmc") {
-        return p;
-    }
-    PathBuf::from("target/release/ny-llvmc")
 }
 
 #[cfg(feature = "llvmlite-compat")]
@@ -52,43 +47,6 @@ fn resolve_llvmlite_harness() -> Option<PathBuf> {
         return Some(p2);
     }
     None
-}
-
-pub(super) fn mir_json_to_object_ny_llvmc(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
-    let (in_path, out_path) = prepare_provider_io(mir_json, opts)?;
-    let ny_llvmc = resolve_ny_llvmc();
-    if !ny_llvmc.exists() {
-        let tag = format!("[llvmemit/ny-llvmc/not-found] path={}", ny_llvmc.display());
-        llvm_emit_error!("{}", tag);
-        return Err(tag);
-    }
-
-    let mut cmd = Command::new(&ny_llvmc);
-    cmd.arg("--in")
-        .arg(&in_path)
-        .arg("--emit")
-        .arg("obj")
-        .arg("--out")
-        .arg(&out_path);
-    if let Some(nyrt) = opts.nyrt.as_ref() {
-        cmd.arg("--nyrt").arg(nyrt);
-    }
-    if let Some(level) = opts.opt_level.as_ref() {
-        cmd.env("HAKO_LLVM_OPT_LEVEL", level);
-        cmd.env("NYASH_LLVM_OPT_LEVEL", level);
-    }
-
-    let status = cmd
-        .status()
-        .map_err(|e| format!("[llvmemit/spawn/error] {}", e))?;
-    if !status.success() {
-        let code = status.code().unwrap_or(1);
-        let tag = format!("[llvmemit/ny-llvmc/failed status={}]", code);
-        llvm_emit_error!("{}", tag);
-        return Err(tag);
-    }
-    transport_io::ensure_backend_artifact_written(&out_path, "object")?;
-    Ok(out_path)
 }
 
 #[cfg(feature = "llvmlite-compat")]

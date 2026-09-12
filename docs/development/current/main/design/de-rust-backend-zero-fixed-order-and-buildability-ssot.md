@@ -39,7 +39,7 @@ Related:
   1. keep the daily `.hako` owner explicit at `lang/src/shared/backend/llvm_backend_box.hako`
   2. explicitize caller-side `compile_recipe` / `compat_replay` where behavior stays unchanged
   3. remove `requested_compile_recipe` / `requested_compat_replay` from `src/host_providers/llvm_codegen/route.rs`
-  4. re-evaluate `compile_symbol_for_recipe()` default branching after caller proof
+  4. after caller proof, remove only the caller-zero Rust symbol selector; retain the public C generic export
 
 ### 2. Compat keep reduction
 
@@ -98,7 +98,7 @@ Related:
 - Do not mix backend-zero order changes with kernel migration refactors.
 - Do not turn buildability into a separate authority that can override owner cutover.
 - Do not silently delete Rust build routes while the migration is still in flight.
-- Do not remove the last `compile_symbol_for_recipe()` default branch while compat keep lanes still need the generic export.
+- Do not remove the public C generic export while compat keep lanes still need it; a caller-zero Rust selector may be removed after proof.
 
 ## 5. Practical Acceptance
 

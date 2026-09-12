@@ -65,9 +65,15 @@ boundary_line="$(rg -n 'route::try_compile_via_boundary_default' "$ROUTE_ENTRY" 
 [[ "$capi_line" -lt "$provider_line" && "$provider_line" -lt "$boundary_line" ]] || \
   fail "route precedence drifted: expected CAPI -> explicit provider -> Boundary"
 
-# Pin actual selectors, not descriptive names or NYASH_LLVM_USE_HARNESS labels.
-need_fixed "$ROUTE" 'Some("llvmlite") => mir_json_to_object_llvmlite' "explicit llvmlite selector missing"
-need_fixed "$ROUTE" 'Some("ny-llvmc") => mir_json_to_object_ny_llvmc' "explicit ny-llvmc selector missing"
+# Pin the typed request boundary, not descriptive names or ambient provider
+# labels. The caller-zero ny-llvmc provider helper must not re-enter here.
+need_fixed "$ROUTE" 'CodegenRouteRequestV1::ExplicitHarnessCompat => mir_json_to_object_llvmlite' \
+  "explicit llvmlite request route missing"
+need_fixed "$ROUTE" 'CodegenRouteRequestV1::BoundaryPureFirst => Ok(None)' \
+  "Boundary request must not enter the explicit provider keep"
+if rg -n 'mir_json_to_object_ny_llvmc|Some\("ny-llvmc"\) =>' "$ROUTE" "$PROVIDER"; then
+  fail "caller-zero Rust ny-llvmc provider selector is still present"
+fi
 need_fixed "$PROVIDER" 'tools/llvmlite_harness.py' "Python harness owner missing"
 need_fixed "$AOT" '--driver harness' "generic C -> hako_aot harness selector missing"
 
@@ -107,14 +113,14 @@ for field in request_id entry_family driver export recipe compat_replay python_c
   need_fixed "$CARD" "\`$field\`" "OBSERVE0-R0 field missing: $field"
 done
 
-# F0 closes the requested-symbol fallback. A missing pure-first symbol must
-# fail at the CAPI lookup rather than silently entering the generic harness
-# ingress. The generic recipe/no-recipe route remains a later G1 row.
-if rg -Fq -- 'or_else(|_| lib.get(defaults::COMPILE_SYMBOL_DEFAULT))' "$CAPI"; then
-  fail "CAPI requested-symbol fallback is still present"
+# F0 closes the Rust transport's caller-zero ambient branch. Boundary callers
+# use the versioned options entry; named harness callers bypass CAPI. Public C
+# exports and the AOT dlsym surface remain separate compatibility owners.
+if rg -n 'compile_symbol|std::env::(set_var|remove_var)' "$CAPI"; then
+  fail "caller-zero Rust CAPI symbol/env branch is still present"
 fi
-need_fixed "$CAPI" '.get(compile_symbol)' \
-  "CAPI requested-symbol lookup missing"
+need_fixed "$CAPI" 'compile_via_capi_with_options' \
+  "explicit Rust CAPI options transport missing"
 need_fixed "$CAPI_ROUTE" 'hako_llvmc_require_pure_first_recipe' \
   "generic C recipe gate missing"
 need_fixed "$CAPI_ROUTE" 'generic-capi-recipe-required' \

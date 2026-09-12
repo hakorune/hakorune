@@ -52,7 +52,7 @@ ROW_EVIDENCE = {
         ("src/host_providers/llvm_codegen/defaults.rs", "CodegenRouteRequestV1::BoundaryPureFirst"),
         ("src/host_providers/llvm_codegen/defaults.rs", 'compile_recipe: Some("pure-first".to_string())'),
         ("src/host_providers/llvm_codegen/defaults.rs", 'compat_replay: Some("none".to_string())'),
-        ("src/host_providers/llvm_codegen/route.rs", "CodegenRouteRequestV1::LegacyAmbientKeep => Ok(())"),
+        ("src/host_providers/llvm_codegen/route.rs", "compile_via_capi_keep(mir_json, opts)"),
     ),
     "hako-aot-generic": (
         ("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_reject_ambient_harness_replay"),
@@ -193,6 +193,16 @@ ROW_EVIDENCE = {
     ),
 }
 
+ROW_ABSENCE_EVIDENCE = {
+    "route-default-legacy-ambient": (
+        ("src/host_providers/llvm_codegen.rs", "LegacyAmbientKeep"),
+        ("src/host_providers/llvm_codegen/route.rs", "LegacyAmbientKeep"),
+        ("src/host_providers/llvm_codegen/capi_transport.rs", "compile_symbol"),
+        ("src/host_providers/llvm_codegen/provider_keep.rs", "mir_json_to_object_ny_llvmc"),
+        ("src/host_providers/llvm_codegen/capi_transport.rs", 'std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE"'),
+    ),
+}
+
 
 def main() -> int:
     if not MANIFEST.is_file():
@@ -275,6 +285,10 @@ def main() -> int:
     for row_id, evidence in ROW_EVIDENCE.items():
         for path, needle in evidence:
             need(path, needle, f"row {row_id} source evidence")
+    for row_id, evidence in ROW_ABSENCE_EVIDENCE.items():
+        for path, needle in evidence:
+            if needle in source(path):
+                fail(f"row {row_id} retired evidence remains: {path} contains {needle!r}")
 
     # Source-backed selectors and child boundaries. These are deliberately
     # exact strings; labels and environment names alone cannot satisfy G0.

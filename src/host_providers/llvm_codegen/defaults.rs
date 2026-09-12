@@ -2,8 +2,6 @@ use std::path::PathBuf;
 
 use super::{CodegenRouteRequestV1, Opts};
 
-pub(super) const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
-
 fn ffi_library_filenames() -> &'static [&'static str] {
     if cfg!(target_os = "windows") {
         &["hako_llvmc_ffi.dll", "libhako_llvmc_ffi.dll"]

@@ -41,14 +41,14 @@
     },
     {
       "id": "route-default-legacy-ambient",
-      "class": "automatic_boundary",
-      "automatic_production": true,
-      "python_child": "zero",
+      "class": "zero_consumer_candidate",
+      "automatic_production": false,
+      "python_child": "none",
       "native_retry": false,
-      "owner": "src/host_providers/llvm_codegen/defaults.rs",
-      "selector": "CodegenRouteRequestV1::BoundaryPureFirst",
-      "positive_evidence": "default object opts explicitly select BoundaryPureFirst with pure-first/none",
-      "negative_evidence": "named Stage1 compat caller must explicitly select ExplicitHarnessCompat"
+      "owner": "src/host_providers/llvm_codegen/route.rs",
+      "selector": "LegacyAmbientKeep (caller-zero; retired Rust transport branch)",
+      "positive_evidence": "no current constructor or route can reach the non-explicit CAPI branch",
+      "negative_evidence": "Boundary validates pure-first/none and Explicit Harness bypasses CAPI"
     },
     {
       "id": "hako-aot-generic",
