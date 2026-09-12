@@ -100,8 +100,10 @@ workspace `cargo fmt --all -- --check` remains a known baseline red: the same
 command on parent `65bc6b7750` produced 594 diff blocks, so no unrelated
 formatting debt was folded into this slice.
 
-`CURRENT_STATE.toml` is synchronized to `closeout` and still points at this
-closed card. No concrete next Call/R7 owner-unit currently has an exclusive
-delete-set; the next implementation pointer therefore remains unselected
-under the existing `NoSafeSlice` rule. This slice claims neither aggregate
-R7 closure nor whole-MirBuilder completion.
+At closeout, `CURRENT_STATE.toml` was synchronized to `closeout` for this
+closed card. It now advances to the existing R7 D0 design stop:
+`NoSafeSlice__NoRemainingUnsharedM7SOwner`. The next implementation remains
+unselected because no concrete Call/R7 owner-unit has an exclusive delete-set;
+the next design deliverable is the shared invocation-owned compatibility
+admission matrix already specified by that D0. This slice claims neither
+aggregate R7 closure nor whole-MirBuilder completion.
