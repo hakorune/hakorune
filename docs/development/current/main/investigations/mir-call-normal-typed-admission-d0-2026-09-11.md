@@ -1,5 +1,5 @@
 ---
-Status: Bounded implementation complete — closeout pending
+Status: closed__Fast__MirCallNormalTypedAdmission__2026-09-11
 Date: 2026-09-11
 Decision: MIR-CALL-NORMAL-TYPED-ADMISSION-D0
 Parent: docs/development/current/main/investigations/mir-call-canonical-corridor-guard-i0-2026-08-20.md

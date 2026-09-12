@@ -1,5 +1,5 @@
 ---
-Status: selected implementation slice
+Status: closed__Fast__MirCallLinkDirectSeam__2026-09-12
 Date: 2026-09-12
 Decision: MIR-CALL-LINK-DIRECT-SEAM-I0
 Parent: `docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md`
