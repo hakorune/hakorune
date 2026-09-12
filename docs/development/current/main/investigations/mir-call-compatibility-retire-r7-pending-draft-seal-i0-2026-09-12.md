@@ -1,5 +1,5 @@
 ---
-Status: selected__Fast__R7PendingDraftSeal__2026-09-12
+Status: closed__Fast__R7PendingDraftSeal__2026-09-12
 Task: MIR-CALL-COMPATIBILITY-RETIRE-R7-PENDING-DRAFT-SEAL-I0
 Date: 2026-09-12
 Parent: mir-call-compatibility-retire-r7-pending-draft-seal-d0-2026-09-12.md
@@ -49,3 +49,29 @@ the other DraftSeal bridge.
 
 This card does not close all R7 diagnostic bridges, Generic G0 pending, the
 warning baseline, backend parity, or whole-MIRBuilder completion.
+
+## I0 closeout evidence
+
+Implementation landed at `5042110b6d`. The DraftSeal owner now consumes the
+rejected live session before issuing the owned typed
+`DiscardedFunctionDraftSealErrorV1`; the CallableSingleLoop pending helper
+transports it as `CanonicalFunctionSessionErrorV1::DraftSeal`, and the
+cataloged-box-method caller preserves that variant without a Debug-string
+bridge. The existing collector terminal and parent restoration contract are
+unchanged. Generic G0 pending and the non-pending DraftSeal bridge remain
+separate.
+
+The focused `completion_draft_seal_tests` suite passed 12/12, including
+`callable_pending_draft_seal_rejection_keeps_typed_error_and_restores_parent`
+with exact stage/inner-error matching, unpublished-state checks, and fresh
+session reuse. The final exact filtered test passed 1/1. `cargo check -p
+nyash-rust --features plugins --profile quick -j1` passed with the warning
+baseline at lib=1806; warnings remain tracked by
+`MIRBUILDER-WARNING-SURFACE-CENSUS-R0` /
+`MIRBUILDER-WARNING-BASELINE-REFRESH-I0`.
+
+The pending DraftSeal guard, the prior typed cutover guard, current-state
+pointer guard, targeted rustfmt checks, `git diff --check`, and source-size
+checks passed. All changed Rust sources remain below 800 lines; the largest
+is `draft_seal_owner.rs` at 753 lines. No whole-R7, Generic G0 pending,
+backend parity, or whole-MIRBuilder completion claim is made.

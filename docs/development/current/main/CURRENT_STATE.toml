@@ -1,10 +1,10 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-PENDING-DRAFT-SEAL-I0"
 current_execution_cohort = "mir_call_pending_draft_seal_i0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-PENDING-DRAFT-SEAL-I0"
-guard_followup = "Pending DraftSeal D0 accepted the existing owner-preserving discard terminal. I0 is limited to the CallableSingleLoop pending helper and cataloged-box-method caller; Generic G0 pending and the other DraftSeal bridge remain separate."
+guard_followup = "Pending DraftSeal I0 landed at 5042110b6d: CallableSingleLoop retains typed stage/inner errors through session transport, rejection restores the parent, focused 12/12 tests and guards pass. Closeout now; Generic G0 pending and the other DraftSeal bridge remain separate, and warning cleanup stays tracked."
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -53,11 +53,11 @@ LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
 are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
 18 focused Rust tests pass, including source-called G0 EXE3; C regressions pass.
 Warning follow-up is `MIRBUILDER-WARNING-SURFACE-CENSUS-R0` /
-`MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; observed `lib=1793`, `lib test=523
-(255 duplicates)` are separate, non-zero-warning baselines.
+`MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; observed `lib=1806`, `lib test=533
+(265 duplicates)` are separate, non-zero-warning baselines.
 """
-next_design_card = "none"
-next_design_card_path = "none"
+next_design_card = "none__R7PendingDraftSeal__ImplementationSelected"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-pending-draft-seal-i0-2026-09-12.md"
 next_execution_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-PENDING-DRAFT-SEAL-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-pending-draft-seal-i0-2026-09-12.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
