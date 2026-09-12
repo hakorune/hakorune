@@ -482,3 +482,33 @@ Static V2, explicit harness, AOT compatibility, public ABI retirement,
 published-row globals, concurrent compilation, and aggregate R7 caller-zero
 remain open follow-up rows. The next selection must name one such row before
 editing it; no whole-R7 completion is claimed.
+
+### Static V2 open I0 closeout (2026-09-12)
+
+The selected static owner landed at `0bae5fdd9c` and is pushed. The existing
+published-MIR Rust caller now passes the accepted physical-options contract to
+`hako_llvmc_static_open_v2_with_options`; the old Rust settings save/set/
+restore seam is deleted. C copies the contract into the existing invocation
+owner, while the public three-argument static entry remains compatibility-only.
+The focused session test covers explicit open/query/compile/close with fake
+tool/path/flag propagation, ambient recipe isolation, pre-effect revision/
+size/profile/flags rejection, and the existing malformed/cleanup order. The
+host's LLVM14 causes the legacy LLVM18 object portion to report a skip; this is
+not runtime or executable evidence. `mir_call_static_v2_open_contract_guard.sh`,
+the Boundary options smoke, C build, Rust check, and pointer guard pass.
+
+### Post-static owner audit (2026-09-12)
+
+One independent read-only audit rechecked the remaining production caller set
+after static I0. It found no unshared next owner-unit: Rust/C explicit harness,
+generic/v1 AOT compatibility, public AOT link/dlsym, and residual C/AOT ambient
+option readers retain shared callers or externally observable compatibility.
+The physical contract currently admits only the Boundary/Static profiles and
+`compat_replay=none`, so switching one compatibility subset would leave the
+other readers and public re-entry without an exclusive delete-set.
+
+Decision: keep `NoSafeSlice__NoRemainingUnsharedM7SOwner` and
+`work_mode = design_stop`. The next design slice is a co-sealed owner/retain/
+delete matrix for those remaining callers, with pre-effect contract/replay/
+tool rejection, environment preservation, and explicit non-claims. No code,
+fixture, route switch, new receipt, or fallback is authorized by this audit.
