@@ -1,5 +1,5 @@
 ---
-Status: selected__DesignStop__R7M7SOwnerMatrix__2026-09-12
+Status: closed__DecisionAccepted__R7M7SOwnerMatrix__2026-09-12
 Task: MIR-CALL-COMPATIBILITY-RETIRE-R7-M7S-OWNER-MATRIX-D0
 Date: 2026-09-12
 Parent: mir-call-compatibility-retire-r7-d0-2026-09-11.md
@@ -42,3 +42,23 @@ Loop selection, warning census, and external backend parity.
 The audit must remain read-only: no code, fixture, route activation, fallback,
 new semantic receipt, Cargo build, worktree, or git mutation. A worker report
 is evidence for one Decision, not implementation permission.
+
+## Read-only owner decision
+
+McClintock's finite audit returned the following dispositions:
+
+| owner | canonical caller / terminal | disposition |
+|---|---|---|
+| Generic 0 | public C/AOT v1 -> existing pre-effect options admission | Promote landed; shared core retained |
+| Boundary 1 | Rust `OwnedPhysicalCompileContract` -> existing C lowering | design stop: llc policy unresolved |
+| Static 2 | published static Rust -> Static V2 lifecycle | closed; NULL correction `85a16bccfa` |
+| Harness 3 | named C/AOT harness -> existing child terminal | retain; shared/provider callers remain |
+| Public/AOT/link | exported ABI, dlsym and link dispatcher | retain; no exclusive delete-set |
+| Rust provider | explicit route -> llvmlite provider | retain; caller-zero absent |
+| bridge errors | `direct_accum`/`nested_predicate`/pending | separate typed-diagnostic slice |
+| ambient helper | `backend_codegen_request_defaults` | repo callers zero; external API unresolved |
+
+Decision: `NoSafeSlice__M7SNoRemainingUnsharedDeleteSet`. The selected finite
+boundary is exhausted for this matrix; Boundary profile1 llc policy is the
+next design stop. No code, fixture, route, fallback, receipt or Cargo change
+was made by the audit.
