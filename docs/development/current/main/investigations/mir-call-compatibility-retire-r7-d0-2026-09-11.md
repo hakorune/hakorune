@@ -737,7 +737,7 @@ switch plus old-edge retirement, with no fallback or retry.
 
 ### Boundary compile-options I0 closeout (2026-09-12)
 
-The production `ny-llvmc` Boundary caller now reaches the existing versioned
+Implementation landed in commit `36d7fc784f`. The production `ny-llvmc` Boundary caller now reaches the existing versioned
 options entry with one invocation-owned Rust row. The old Rust three-argument
 lookup, symbol selector, and process-environment save/set/restore path are
 absent; public C generic/pure-first/harness exports, AOT dlsym, explicit
