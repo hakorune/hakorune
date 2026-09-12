@@ -47,7 +47,7 @@ canonical/compatibility MIR ingress + compile profile
 ```
 
 Included: the current manifest's 243 production lexical rows across 127 files,
-five compile-environment route anchors across four families, and the known
+four compile-environment route anchors across four families, and the known
 compatibility ingress families. Excluded: canonical typed `Call` definition,
 ordinary tests, unrelated runtime/startup environment, runtime hook registry,
 future VM/WASM parity, and test-only Loop-PHI residue except as inventory.
@@ -82,8 +82,8 @@ legacy input, or an external caller cannot be assigned to an owner.
 
 The read-only owner audit found the R7 aggregate is not yet safe to open as an
 implementation row. The current manifest must first be reconciled to the
-selected admission source change (243/127 Legacy, five environment anchors,
-four test-only Loop-PHI files, 252 rows). After that, select one owner-unit
+selected admission source change (243/127 Legacy, four environment anchors,
+four test-only Loop-PHI files, 251 rows). After that, select one owner-unit
 Stop/Promote/Delete from the existing M7-S inventory; do not repeat the broad
 census or delete the shared schema early.
 
