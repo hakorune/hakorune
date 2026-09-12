@@ -1,10 +1,10 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "fast: G0 declared-signature publication is verified (16 Rust tests); unchanged EXE now stops at physical-json/instruction-unsupported. Implement the accepted Compare/scalar-PHI/exact-state-CFG/shared-edge-label mapping in existing V4, then rerun unchanged source-called EXE3. R7 remains open."
+guard_followup = "closeout: G0 source-called EXE3 passes without skip; Compare/scalar-PHI/exact-state CFG and shared edge labels replace old V4 recursion. 18 Rust tests and C scalar/Map/Fault regressions pass. Finish docs/guards/commit/push, then select the next existing R7 owner-unit; aggregate retirement remains open."
 current_design_stop = "closed_for_G0DeclaredSignaturePublication__2026-09-12"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -25,7 +25,7 @@ G0 is an explicit GenericG0 variant in the existing package and
 BindingSsaTrivial/Single lifecycle. Its source issuer, physical lowering,
 typed rejects, computed-left proof, producer/dispatch carrier rejection, and
 normal-package FreeFunction consumer are closed; cataloged methods, all-family
-selection, and source-to-EXE helper claims remain outside scope. Callable
+selection remain outside scope; source-called G0 EXE3 is verified. Callable
 indices, PHI backedge, and common-After ownership split are also closed.
 Fixed-role Loop topology retirement R0 is closed; the Callable/Generic segment route is sole and its 22-test/transfer/pointer evidence is green. G0 I0 had
 root-EXE coexistence only; I1 now uses the source-backed
@@ -40,18 +40,18 @@ guard are green; the existing named compatibility smoke remains an uncounted
 host Traceback baseline red. Static V2 open I0 passes the accepted
 physical-options contract through production open/query/compile/close with
 fake-tool/pre-effect evidence; LLVM14 skips legacy LLVM18 object compile (no runtime claim). AOT Generic now uses profile-0 physical options; named harness, public C, and published-row globals remain.
-The G0 helper backend reach implementation is landed; its EXE acceptance
-remains open. The existing source-backed Global Call relation
+The G0 helper backend reach and EXE acceptance are verified without skip.
+The existing source-backed Global Call relation
 `Main.main -> generic_g0(0, 0)` is the sole membership authority. The focused
 positive observes exactly the root Invoke(Call) to `generic_g0/2`, two integer
 helper lanes, and helper Compare/Add body operations. The static EXE witness
-uses the same selected view; empty-site ABI and source-declared entry/return contracts now pass, but EXE stops before object/link at `published-lifecycle-physical-json/instruction-unsupported`;
-runtime success is unclaimed. Selected first-family cutovers reuse one snapshot;
+uses the same selected view; empty-site ABI, declared contracts and physical
+Compare/PHI/CFG now reach LLVM18/EXE3. First-family cutovers reuse one snapshot;
 obsolete Loop expected-location/PreheaderSeed handling is queued for T0 cleanup.
-Whole-MIRBuilder completion, backend parity, and runtime execution unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, and public Generic C profile-0 options bridge I0 are closed; remaining shared compatibility owners have no safe exclusive delete-set.
+Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, and public Generic C profile-0 options bridge I0 are closed; remaining shared compatibility owners have no safe exclusive delete-set.
 LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
 are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
-16 focused Rust tests pass; downstream JSON/CFG execution remains open.
+18 focused Rust tests pass, including source-called G0 EXE3; C regressions pass.
 Warning follow-up is `MIRBUILDER-WARNING-SURFACE-CENSUS-R0` /
 `MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; observed `lib=1793`, `lib test=523
 (255 duplicates)` are separate, non-zero-warning baselines.

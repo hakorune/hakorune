@@ -1,4 +1,4 @@
-/* Physical obligations on supplied DAG edges. Live storage is not a source Home. */
+/* Exact physical obligations on supplied CFG edges. Not a source Home. */
 enum { LV4_INDEXED_SAFE_MUTEX = 1, LV4_LIVE = 1, LV4_TRANSFER_BASE = 2 };
 enum { LV4_FLOW_RECEIVER_MISMATCH = -2 };
 
@@ -13,9 +13,16 @@ static int lv4_indexed_live(hako_lv4_function_index* fn, uint32_t id, int kind,
 static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
     yyjson_val* block, uint16_t* state, int faulted, int birth) {
   yyjson_val* rows = yyjson_obj_get(block, "instructions");
+  int after_phi = 0;
   if (in->measurement) in->measurement->v4_flow_rows += yyjson_arr_size(rows);
   for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
     yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
+    if (lv4_is(ins, "op", "phi")) {
+      hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "dst"));
+      if (after_phi || !value || (value->kind != LV4_I64 && value->kind != LV4_BOOL)) return 0;
+      continue;
+    }
+    after_phi = 1;
     if (lv4_is(ins, "op", "fault_frame_enter")) {
       if (lv4_u(block, "id") != lv4_u(fn->function, "entry") || ri || faulted) return 0;
     } else if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "const_bool") ||
@@ -29,7 +36,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           source->kind != LV4_HANDLE && source->kind != LV4_TAGGED)) return 0;
       if (source->kind == LV4_HANDLE && !lv4_indexed_live(fn, source->id,
           LV4_HANDLE, state, 0, 0)) return 0;
-    } else if (lv4_is(ins, "op", "add")) {
+    } else if (lv4_is(ins, "op", "add") || lv4_is(ins, "op", "compare")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
       if (!lhs || !rhs || lhs->kind != LV4_I64 || rhs->kind != LV4_I64) return 0;
@@ -53,29 +60,42 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
   return 1;
 }
 
-static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
-    const uint16_t* incoming, int faulted, uint16_t* saved,
-    signed char* faults, unsigned char* active) {
+typedef struct {
+  uint16_t* states;
+  signed char faults[256];
+  size_t queue[256], head, tail, count, entry;
+} hako_lv4_worklist;
+
+static int lv4_indexed_deliver(hako_lv4_worklist* work, size_t target,
+    const uint16_t* state, int faulted) {
+  if (target >= work->count || target == work->entry) return 0;
+  uint16_t* saved = work->states + target * work->count;
+  if (work->faults[target] >= 0)
+    return work->faults[target] == faulted &&
+        !memcmp(saved, state, work->count * sizeof(*state));
+  if (work->tail >= work->count) return 0;
+  memcpy(saved, state, work->count * sizeof(*state));
+  work->faults[target] = (signed char)faulted;
+  work->queue[work->tail++] = target;
+  return 1;
+}
+
+static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi,
+    hako_lv4_worklist* work) {
   hako_lv4_function_index* fn = &in->index[fi];
   yyjson_val* blocks = hako_physical_blocks(fn->function);
   yyjson_val* block = yyjson_arr_get(blocks, bi);
   yyjson_val* term = lv4_term(block);
   size_t count = fn->block_count;
-  int next_result;
+  int faulted = work->faults[bi];
   if (in->measurement) in->measurement->v4_flow_blocks++;
   uint16_t state[256], normal[256];
-  if (active[bi]) return 0;
-  if (faults[bi] >= 0)
-    return faults[bi] == faulted && !memcmp(saved + bi * count, incoming, count * sizeof(*state));
-  memcpy(state, incoming, count * sizeof(*state));
-  memcpy(saved + bi * count, incoming, count * sizeof(*state));
-  faults[bi] = (signed char)faulted; active[bi] = 1;
+  memcpy(state, work->states + bi * count, count * sizeof(*state));
   int birth = lv4_is(fn->function, "role", "birth_unit");
   int ordinary = lv4_is(fn->function, "role", "ordinary_i64");
   if (!lv4_indexed_rows(in, fn, block, state, faulted, birth)) return 0;
   if (lv4_is(term, "op", "return") || lv4_is(term, "op", "return_fault")) {
     for (size_t i = 0; i < count; i++) if (state[i]) return 0;
-    active[bi] = 0;
     if (lv4_is(term, "op", "return_fault")) return faulted;
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
     return !faulted && result && result->kind == (birth ? LV4_UNIT : LV4_I64);
@@ -92,7 +112,7 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
       yyjson_val* callee = (target < in->index_count) ? in->index[target].function : NULL;
       yyjson_val* receiver = yyjson_obj_get(call, "receiver");
       int callee_has_receiver = callee && yyjson_is_uint(yyjson_obj_get(callee, "receiver"));
-      if (fi || faulted || !target || target >= in->index_count ||
+      if (fi || faulted || state[bi] || !target || target >= in->index_count ||
           !lv4_is(callee, "role", "ordinary_i64") ||
           (callee_has_receiver != (receiver && !yyjson_is_null(receiver))) ||
           yyjson_arr_size(args) != yyjson_arr_size(yyjson_obj_get(in->index[target].function, "params"))) return 0;
@@ -169,18 +189,18 @@ static int lv4_indexed_flow(const hako_lv4_input* in, size_t fi, size_t bi,
       if (map_end) for (size_t i = 0; i < count; i++)
         if (state[i] == value->origin + LV4_TRANSFER_BASE) normal[i] = state[i] = 0;
     } else return 0;
+  } else if (lv4_is(term, "op", "branch")) {
+    hako_lv4_value* condition = lv4_index_value(fn, lv4_u(term, "condition"));
+    if (!condition || condition->kind != LV4_BOOL) return 0;
   } else if (!lv4_is(term, "op", "jump")) return 0;
   yyjson_val* edges = yyjson_obj_get(block, "edges");
   for (size_t ei = 0; ei < yyjson_arr_size(edges); ei++) {
     yyjson_val* edge = yyjson_arr_get(edges, ei);
     hako_lv4_block* next = lv4_index_block(fn, lv4_u(edge, "target"));
     if (!next || !yyjson_is_null(yyjson_obj_get(edge, "args"))) return 0;
-    next_result = lv4_indexed_flow(in, fi, next->ordinal,
-        ei ? state : normal, ei ? failed : faulted, saved, faults, active);
-    if (next_result == LV4_FLOW_RECEIVER_MISMATCH) return next_result;
-    if (!next_result) return 0;
+    if (!lv4_indexed_deliver(work, next->ordinal,
+        ei ? state : normal, ei ? failed : faulted)) return 0;
   }
-  active[bi] = 0;
   return 1;
 }
 
@@ -212,9 +232,9 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* fn = &in->index[fi];
     size_t count = fn->block_count, frames = 0;
-    uint16_t initial[256] = {0}; unsigned char active[256] = {0}; signed char faults[256];
+    hako_lv4_worklist work = {0};
     if (lv4_is(fn->function, "role", "birth_unit") && !fn->receiver_object_set) return 0;
-    memset(faults, -1, sizeof(faults));
+    memset(work.faults, -1, sizeof(work.faults));
     hako_lv4_block* entry = lv4_index_block(fn, lv4_u(fn->function, "entry"));
     for (size_t bi = 0; bi < count; bi++) {
       yyjson_val* rows = yyjson_obj_get(fn->blocks[bi].block, "instructions");
@@ -234,16 +254,21 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
     }
     /* Root initializes its frame. A Birth with no frame uses may omit the
        borrowed-frame projection; SSA validation still rejects undefined uses. */
-    if (!entry || frames > 1 || (!fi && frames != 1)) return 0;
-    uint16_t* saved = calloc(count * count, sizeof(*saved));
-    if (!saved) return 0;
-    int valid = lv4_indexed_flow(in, fi, entry->ordinal, initial, 0, saved, faults, active);
-    if (valid == LV4_FLOW_RECEIVER_MISMATCH) {
-      free(saved);
-      return valid;
+    if (!entry || frames > 1 || (!fi && frames != 1) ||
+        hako_physical_predecessor_count(fn->function, entry->id)) return 0;
+    work.count = count; work.entry = entry->ordinal;
+    work.states = calloc(count * count, sizeof(*work.states));
+    if (!work.states) return 0;
+    work.faults[work.entry] = 0;
+    work.queue[work.tail++] = work.entry;
+    int valid = 1;
+    while (valid == 1 && work.head < work.tail) {
+      size_t bi = work.queue[work.head++];
+      valid = lv4_indexed_flow_block(in, fi, bi, &work);
     }
-    for (size_t bi = 0; valid && bi < count; bi++) if (faults[bi] < 0) valid = 0;
-    free(saved);
+    free(work.states);
+    if (valid == LV4_FLOW_RECEIVER_MISMATCH) return valid;
+    for (size_t bi = 0; valid && bi < count; bi++) if (work.faults[bi] < 0) valid = 0;
     if (!valid) return 0;
   }
   return 1;

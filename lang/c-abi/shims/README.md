@@ -105,6 +105,15 @@ link dlsym remain separate compatibility owners.
   is InvalidContract. Tagged Copy preserves both lanes.
   Empty Birth may omit an unused borrowed-frame projection; root still owns
   exactly one frame entry and SSA rejects any undefined frame use.
+- Indexed scalar CFGs consume signed I64 Compare and leading I64/Bool PHIs.
+  Copy/PHI equality components require one consistent defining kind; resources
+  keep exact Copy provenance and cannot enter PHIs. The exact-entry-state
+  worklist visits blocks once and rejects unequal Fault/resource backedges,
+  unreachable blocks and entry backedges. Branch requires Bool. Physical edges
+  entering PHI blocks share forwarding labels across ordinary/object/Map
+  emission, including expanded Fault branches. Native admission is unchanged.
+  The physical V4 execution test covers scalar EXE3, Bool PHI, signed boundary
+  comparisons and resource-state negatives; source-called G0 EXE is separate.
 - V4 retains the selected LLVM18 target session through preamble/layout checking,
   LLVM C API PIC object emission and atomic same-directory object publication.
   Failure cleans temporary artifacts; no generic flags or compatibility retry.
@@ -133,8 +142,13 @@ link dlsym remain separate compatibility owners.
 - `.inc` files consume MIR-owned metadata and emit backend calls.
 - Indexed Map physical-consumer verification uses
   `python3 lang/c-abi/tests/published_map_physical_execution_test.py RUNTIME_ARCHIVE`
-  after the C build. The explicit archive must export the V2 runtime descriptor;
-  the driver reads its actual Map/key/outcome storage geometry. Synthetic physical
+  after the C build. The explicit archive must export the V2 runtime descriptor
+  and omit process `main`, because the C probes own their entry. Use the
+  `nyash_kernel` lifecycle-core dependency archive, not the enclosing
+  `nyash_lifecycle_kernel` or default legacy-entry archive. The dependency is
+  produced under the lifecycle target's `release/deps/libnyash_kernel-*.a`;
+  resolve the actual build's filename explicitly rather than passing a glob.
+  The driver reads its actual Map/key/outcome storage geometry. Synthetic physical
   inputs cover empty/duplicate/NUL keys, reversed block order, checked Fault
   disposal, invalid-status traps and pre-artifact lifetime rejection. InstallValue
   adds explicit I64/Bool payloads (including Copy chains/reuse) and mixed Home

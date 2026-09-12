@@ -155,7 +155,7 @@ static yyjson_val* hako_physical_instruction_dst(yyjson_val* instruction) {
   if (!op) return NULL;
   if (strcmp(op, "const_i64") == 0 || strcmp(op, "const_f64_bits") == 0 ||
       strcmp(op, "const_bool") == 0 || strcmp(op, "const_string") == 0 ||
-      strcmp(op, "const_unit") == 0 || strcmp(op, "add") == 0 ||
+      strcmp(op, "const_unit") == 0 || strcmp(op, "add") == 0 || strcmp(op, "compare") == 0 ||
       strcmp(op, "copy") == 0 || strcmp(op, "phi") == 0 ||
       strcmp(op, "object_field_get") == 0 || strcmp(op, "invoke_normal_result") == 0 ||
       strcmp(op, "fault_frame_enter") == 0)
@@ -597,6 +597,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   static const char* const const_i64[] = {"op", "dst", "value"};
   static const char* const const_unit[] = {"op", "dst"};
   static const char* const binary[] = {"op", "dst", "lhs", "rhs"};
+  static const char* const compare[] = {"op", "dst", "lhs", "rhs", "predicate"};
   static const char* const copy[] = {"op", "dst", "src"};
   static const char* const phi[] = {"op", "dst", "inputs"};
   static const char* const field_get[] = {"op", "dst", "base", "object_id", "field_ordinal"};
@@ -634,6 +635,17 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   if (!strcmp(op, "const_string")) return hako_physical_exact_keys(instruction, const_i64, 3) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && yyjson_is_str(yyjson_obj_get(instruction, "value"));
   if (!strcmp(op, "const_unit")) return hako_physical_exact_keys(instruction, const_unit, 2) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a);
   if (!strcmp(op, "add")) return hako_physical_exact_keys(instruction, binary, 4) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) && hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) && hako_physical_value_available_at(function, b, current_block, current_index) && hako_physical_value_available_at(function, c, current_block, current_index);
+  if (!strcmp(op, "compare")) {
+    const char* p = yyjson_get_str(yyjson_obj_get(instruction, "predicate"));
+    return p && (!strcmp(p, "eq") || !strcmp(p, "ne") || !strcmp(p, "slt") ||
+        !strcmp(p, "sle") || !strcmp(p, "sgt") || !strcmp(p, "sge")) &&
+        hako_physical_exact_keys(instruction, compare, 5) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) &&
+        hako_physical_value_available_at(function, b, current_block, current_index) &&
+        hako_physical_value_available_at(function, c, current_block, current_index);
+  }
   if (!strcmp(op, "copy")) return hako_physical_exact_keys(instruction, copy, 3) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "src"), &b) && hako_physical_value_available_at(function, b, current_block, current_index);
   if (!strcmp(op, "phi")) {
     yyjson_val* inputs = yyjson_obj_get(instruction, "inputs"); size_t i;

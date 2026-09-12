@@ -222,6 +222,18 @@ fn encode_instruction(
             lhs,
             rhs,
         } => json!({ "op": "add", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
+        MirInstruction::Compare { dst, op, lhs, rhs } => {
+            let predicate = match op {
+                crate::mir::CompareOp::Eq => "eq",
+                crate::mir::CompareOp::Ne => "ne",
+                crate::mir::CompareOp::Lt => "slt",
+                crate::mir::CompareOp::Le => "sle",
+                crate::mir::CompareOp::Gt => "sgt",
+                crate::mir::CompareOp::Ge => "sge",
+            };
+            json!({ "op": "compare", "dst": value(dst), "lhs": value(lhs),
+                "rhs": value(rhs), "predicate": predicate })
+        }
         MirInstruction::Copy { dst, src } => {
             json!({ "op": "copy", "dst": value(dst), "src": value(src) })
         }

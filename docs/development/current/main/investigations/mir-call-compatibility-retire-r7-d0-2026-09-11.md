@@ -15,8 +15,8 @@ Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; ag
 Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
 Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
 Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
-Smallest next slice: accepted Compare/scalar-PHI/CFG physical consumer below; source declaration publication is verified.
-Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach, OBJ/EXE completion or performance claim.
+Smallest next slice: close out verified scalar CFG/EXE3 below, then select the next existing R7 owner-unit.
+Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach or performance claim.
 
 ## Finite boundary and state table
 
@@ -944,26 +944,12 @@ its current observation is lib=1793 / lib-test=523 (255 duplicates).
 Boundary: selected physical program -> ABI issuance/JSON -> C V4 admission
 and emission; includes root, called helper, every block and terminator;
 excludes unselected backends and source-shape expansion.
-Pauli confirmed empty checked-site rejection in Rust and C; ordinary Call
-issues no checked site. Existing finalization/collector supply the storage
-profile and empty definitions without defaults; epilogue site 0 is representable.
-Popper's read-only design audit replaces recursive type/active-revisit policy
-with finite kind-equality components and exact-state worklist propagation.
-Each block is processed once; every incoming edge must agree on Fault and all
-resource obligations. Existing physical-v2 dominance/PHI-edge validation stays
-sole. PHI emission needs physical-edge forwarding labels shared by Map emission.
-Primary source check: recursive_after consumes segment transfers through
-canonical_cfg's Jump/Branch writers, which issue no edge args. No PHI/edge
-correspondence may be invented in C. CompareI64 currently maps Less/LessEqual/
-Equal to MIR Lt/Le/Eq. Accepted Compare/PHI/flow contract is now in
-`docs/reference/abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2`.
-Kierkegaard's read-only audit closed runtime reuse: placement init writes a new
-lifetime after matched dispose; existing Map emission disposes Normal/Fault
-bookkeeping. Keep exact slot provenance, no stale borrow/result publication,
-and no live overwrite. This does not prove cyclic execution or bounded memory.
-Open implementation inventory is now Compare transport,
-PHI kinds/layout, and Branch/backedge flow/emission. Empty-site acceptance alone
-is not G0 execution; unchanged source-called EXE exit 3 remains the terminal.
+Accepted audits: Pauli (empty sites), Popper (kind equality, exact-state CFG,
+shared incoming labels) and Kierkegaard (matched-dispose runtime reuse).
+Durable contract: `docs/reference/abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2`.
+Existing physical-v2 SSA/dominance remains sole; canonical_cfg already issues
+G0 edges without arguments. No C source reconstruction or bounded-memory claim.
+Implementation and source-called EXE3 evidence are recorded below.
 
 ### Empty checked-site admission (verified 2026-09-12)
 
@@ -984,16 +970,18 @@ physical ABI1/JSON9 pass (16 total). G0/R7/pointer/diff guards pass; warnings523
 Unchanged EXE now rejects at physical-json/instruction-unsupported before object;
 dependency evidence only, not execution. Temporary runtime alias removed.
 
-### Existing V4 scalar CFG consumer (accepted; next)
+### Existing V4 scalar CFG consumer (verified; closeout)
 
-Change: extend sole physical JSON/parser/V4 index/flow/emission route; replace
-recursive kind resolution and acyclic-only scheduling, not source membership.
-Contract: consume the accepted ABI-reference Compare, scalar-PHI, exact-state
-worklist and shared physical-edge-label mapping. Preserve runtime lifetime,
-Normal/Fault, numeric/receiver gates, native scope and per-checked-site rejects.
-Done: source G0 EXE3; existing C parser/V4 regression tests plus signed Compare,
-PHI/backedge/layout/type and unequal resource/Fault-state negatives; guards/docs.
-Stop: missing source relation, unknown runtime lifetime or ambiguous PHI edge;
-no CFG/source reconstruction or fallback. R7/whole-MIRBuilder remain unclaimed.
-Preparation `0e30d908d5`: parser 783->746, site owner41, identical moved body;
-C build/parser positive+negatives and G0/R7/pointer guards passed; no ABI change.
+Change: existing JSON/parser/V4 now consumes Compare/scalar PHI/Branch. Kind
+equality and exact-state worklist replace recursion; shared incoming labels
+cover ordinary/object/Map synthetic edges. Source/Recipe authority is unchanged.
+Evidence: unchanged source-called G0 EXE3 without skip (2.24s; repeat 2.18s);
+18 Rust tests pass, one jobs1 build14m54s, warnings523 unchanged. C scalar/Bool/
+mutual PHI, signed extremes, tagged-Fault and Map-to-PHI execution pass; malformed
+relations/types and unequal resource/Fault backedges reject. Existing Pair/Map
+regressions pass, including 26 Map negatives; G0/R7/pointer/diff guards green.
+Map probes require the no-entry lifecycle-core dependency archive; passing an
+entry archive caused driver-main collision before admission, not a code red.
+Source EXE uses the actual lifecycle archive directory, no temporary alias.
+Next: commit/push this slice, then select the next R7 owner-unit. Aggregate R7,
+all-family Loop and parity remain open; no source widening or fallback.

@@ -816,11 +816,11 @@ The normal-package acceptance witness now calls the source-backed top-level
 `generic_g0/2` from `Main.main`. Its positive assertion issues the existing
 physical program and checks the exact root `Invoke(Call)` relation, the
 helper's two integer lanes, and the helper body `Compare`/`Add` operations.
-This proves physical-program reach and typed body admission; module presence
-alone is not sufficient. The ignored static EXE witness uses the same selected
-view and existing emitter, but LLVM18 is unavailable on the current host, so
-the run is recorded as skipped rather than successful. This row does not
-claim runtime execution, backend parity, or whole-MIRBuilder completion.
+Module presence alone is not sufficient. Under LLVM18, the ignored static EXE
+witness now uses that same selected view and existing emitter to execute the
+called G0 body with exit3, without a skip or runtime archive alias. Physical
+JSON preserves six signed Compare predicates; V4 consumes scalar PHIs and the
+supplied CFG. This is not backend parity or whole-MIRBuilder completion.
 
 ## Generic G0 storage/lane source projection I0
 

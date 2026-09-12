@@ -238,7 +238,7 @@ ABI does not change runtime/plugin ABIs or the live static compiler transport v1
 
 ### Selected lifecycle physical program v2
 
-Decision (2026-09-12; scalar CFG consumer implementation pending): extend the
+Decision (2026-09-12; scalar CFG consumer verified): extend the
 existing physical-v2/V4 route, not source membership or the runtime Fault ABI.
 The retained source/Recipe and physical-program issuer remain authoritative.
 An empty checked-operation set is valid; its process-result epilogue site is 0.

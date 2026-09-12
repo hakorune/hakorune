@@ -170,7 +170,7 @@ fn normal_package_generic_g0_rejects_declared_contract_drift() {
 }
 
 #[test]
-#[ignore = "requires selected FFI, LLVM18, target/release/ny-llvmc, and target/release/libnyash_kernel.a"]
+#[ignore = "requires selected FFI, LLVM18, target/release/ny-llvmc, and lifecycle-kernel archive"]
 fn normal_package_generic_g0_helper_reaches_existing_exe_emitter() {
     crate::test_support::with_env_vars(
         &[
@@ -178,9 +178,9 @@ fn normal_package_generic_g0_helper_reaches_existing_exe_emitter() {
             ("NYASH_NY_LLVM_COMPILER", Some("target/release/ny-llvmc")),
         ],
         || {
-            let runtime = Path::new("target/release");
+            let runtime = Path::new("target/lifecycle-kernel/release");
             let required_files = [
-                runtime.join("libnyash_kernel.a"),
+                runtime.join("libnyash_lifecycle_kernel.a"),
                 Path::new("target/release/ny-llvmc").to_path_buf(),
                 Path::new("target/release/libhako_llvmc_ffi.so").to_path_buf(),
             ];

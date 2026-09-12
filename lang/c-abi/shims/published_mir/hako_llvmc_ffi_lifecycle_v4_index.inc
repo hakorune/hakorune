@@ -2,7 +2,8 @@
 typedef struct {
   uint32_t id, object_id;
   yyjson_val* instruction;
-  int kind, origin, resolving;
+  int kind, origin;
+  size_t kind_parent;
 } hako_lv4_value;
 
 typedef struct {
@@ -75,15 +76,13 @@ static int lv4_operation_result(yyjson_val* op) {
   return LV4_BAD;
 }
 
-static int lv4_index_resolve(hako_lv4_function_index* fn, hako_lv4_value* value) {
-  yyjson_val* ins;
-  if (!value || value->resolving) return 0;
+static int lv4_index_seed(hako_lv4_function_index* fn, hako_lv4_value* value) {
+  yyjson_val* ins = value->instruction;
   if (value->kind != LV4_BAD) return 1;
-  value->resolving = 1;
-  ins = value->instruction;
   if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "add") ||
       lv4_is(ins, "op", "object_field_get")) value->kind = LV4_I64;
-  else if (lv4_is(ins, "op", "const_bool")) value->kind = LV4_BOOL;
+  else if (lv4_is(ins, "op", "const_bool") || lv4_is(ins, "op", "compare"))
+    value->kind = LV4_BOOL;
   else if (lv4_is(ins, "op", "const_f64_bits")) value->kind = LV4_F64;
   else if (lv4_is(ins, "op", "const_unit")) value->kind = LV4_UNIT;
   else if (lv4_is(ins, "op", "const_string")) value->kind = LV4_TEXT;
@@ -95,16 +94,74 @@ static int lv4_index_resolve(hako_lv4_function_index* fn, hako_lv4_value* value)
     value->kind = lv4_operation_result(op);
     value->origin = (int)block->ordinal;
     if (lv4_is(op, "kind", "new_box")) value->object_id = lv4_u(op, "object_id");
-  } else if (lv4_is(ins, "op", "copy")) {
-    hako_lv4_value* source = lv4_index_value(fn, lv4_u(ins, "src"));
-    if (!lv4_index_resolve(fn, source) || source->kind == LV4_MAP ||
-        source->kind == LV4_KEY || source->kind == LV4_OUTCOME) return 0;
-    value->kind = source->kind;
+  }
+  return value->kind != LV4_BAD || lv4_is(ins, "op", "copy") || lv4_is(ins, "op", "phi");
+}
+
+static size_t lv4_kind_root(hako_lv4_function_index* fn, size_t index) {
+  while (fn->values[index].kind_parent != index) {
+    size_t parent = fn->values[index].kind_parent;
+    fn->values[index].kind_parent = fn->values[parent].kind_parent;
+    index = fn->values[index].kind_parent;
+  }
+  return index;
+}
+
+static int lv4_kind_unify(hako_lv4_function_index* fn, size_t index, uint32_t id) {
+  hako_lv4_value* other = lv4_index_value(fn, id);
+  if (!other) return 0;
+  size_t left = lv4_kind_root(fn, index);
+  size_t right = lv4_kind_root(fn, (size_t)(other - fn->values));
+  if (left == right) return 1;
+  int a = fn->values[left].kind, b = fn->values[right].kind;
+  if (a != LV4_BAD && b != LV4_BAD && a != b) return 0;
+  fn->values[right].kind_parent = left;
+  fn->values[left].kind = a != LV4_BAD ? a : b;
+  return 1;
+}
+
+static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn) {
+  for (size_t i = 0; i < fn->value_count; i++) {
+    fn->values[i].kind_parent = i;
+    if (in->measurement) in->measurement->v4_index_resolves++;
+    if (!lv4_index_seed(fn, &fn->values[i])) return 0;
+  }
+  for (size_t i = 0; i < fn->value_count; i++) {
+    yyjson_val* ins = fn->values[i].instruction;
+    if (lv4_is(ins, "op", "copy")) {
+      if (!lv4_kind_unify(fn, i, lv4_u(ins, "src"))) return 0;
+    } else if (lv4_is(ins, "op", "phi")) {
+      yyjson_val* inputs = yyjson_obj_get(ins, "inputs");
+      for (size_t j = 0; j < yyjson_arr_size(inputs); j++)
+        if (!lv4_kind_unify(fn, i, lv4_u(yyjson_arr_get(inputs, j), "value"))) return 0;
+    }
+  }
+  for (size_t i = 0; i < fn->value_count; i++) {
+    hako_lv4_value* value = &fn->values[i];
+    value->kind = fn->values[lv4_kind_root(fn, i)].kind;
+    if (value->kind == LV4_BAD) return 0;
+    if (lv4_is(value->instruction, "op", "phi") &&
+        value->kind != LV4_I64 && value->kind != LV4_BOOL) return 0;
+  }
+  /* Equality determines kind only. Resource identity follows the exact Copy
+   * source chain, never a PHI component or an arithmetic use. */
+  for (size_t i = 0; i < fn->value_count; i++) {
+    hako_lv4_value* value = &fn->values[i];
+    if (!lv4_is(value->instruction, "op", "copy")) continue;
+    if (value->kind == LV4_MAP || value->kind == LV4_KEY || value->kind == LV4_OUTCOME)
+      return 0;
+    if (value->kind == LV4_I64 || value->kind == LV4_BOOL) continue;
+    hako_lv4_value* source = value;
+    size_t steps = 0;
+    while (lv4_is(source->instruction, "op", "copy")) {
+      if (++steps > fn->value_count) return 0;
+      source = lv4_index_value(fn, lv4_u(source->instruction, "src"));
+      if (!source) return 0;
+    }
     value->origin = source->origin;
     value->object_id = source->object_id;
   }
-  value->resolving = 0;
-  return value->kind != LV4_BAD;
+  return 1;
 }
 
 static void lv4_index_close(hako_lv4_input* in) {
@@ -191,11 +248,7 @@ static int lv4_index_open(hako_lv4_input* in) {
       if (fn->values[i-1].id == fn->values[i].id) return 0;
     for (size_t i = 1; i < fn->block_count; i++)
       if (fn->blocks[i-1].id == fn->blocks[i].id) return 0;
-    for (size_t i = 0; i < fn->value_count; i++)
-      {
-        if (in->measurement) in->measurement->v4_index_resolves++;
-        if (!lv4_index_resolve(fn, &fn->values[i])) return 0;
-      }
+    if (!lv4_index_kinds(in, fn)) return 0;
   }
   return 1;
 }

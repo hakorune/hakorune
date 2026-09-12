@@ -1,3 +1,19 @@
+/* A physical edge owns one LLVM predecessor even when its implementation
+ * expands into several status/cleanup blocks. Native admission has no PHIs. */
+static int lv4_edge_label(char label[64], const hako_lv4_input* in, size_t fi,
+    uint32_t source, size_t ordinal, uint32_t target) {
+  if (!in->native) {
+    hako_lv4_block* block = lv4_index_block(&in->index[fi], target);
+    yyjson_val* first = block ? yyjson_arr_get(yyjson_obj_get(block->block, "instructions"), 0) : NULL;
+    if (lv4_is(yyjson_obj_get(first, "instruction"), "op", "phi")) {
+      snprintf(label, 64, "edge_%u_%zu", source, ordinal);
+      return 1;
+    }
+  }
+  snprintf(label, 64, "bb%u", target);
+  return 0;
+}
+
 #include "hako_llvmc_ffi_lifecycle_v4_map_emit.inc"
 /* LLVM text emission from the admitted physical graph. No generic dispatcher. */
 static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
@@ -64,6 +80,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     yyjson_val* rows = yyjson_obj_get(block, "instructions");
     yyjson_val* term = lv4_term(block);
     uint32_t b = lv4_u(block, "id");
+    char normal_label[64], fault_label[64];
+    yyjson_val* edges = yyjson_obj_get(block, "edges");
+    lv4_edge_label(normal_label, in, fi, b, 0, lv4_u(yyjson_arr_get(edges, 0), "target"));
+    lv4_edge_label(fault_label, in, fi, b, 1, lv4_u(yyjson_arr_get(edges, 1), "target"));
     fprintf(f, "bb%u:\n", b);
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
@@ -96,6 +116,28 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%k%u = add i32 0, %%k%u\n", dst, src);
       } else if (lv4_is(ins, "op", "add")) {
         fprintf(f, "  %%v%u = add i64 %%v%u, %%v%u\n", dst, lv4_u(ins, "lhs"), lv4_u(ins, "rhs"));
+      } else if (lv4_is(ins, "op", "compare")) {
+        fprintf(f, "  %%cmp%u = icmp %s i64 %%v%u, %%v%u\n"
+            "  %%v%u = zext i1 %%cmp%u to i64\n", dst,
+            yyjson_get_str(yyjson_obj_get(ins, "predicate")),
+            lv4_u(ins, "lhs"), lv4_u(ins, "rhs"), dst, dst);
+      } else if (lv4_is(ins, "op", "phi")) {
+        yyjson_val* inputs = yyjson_obj_get(ins, "inputs");
+        fprintf(f, "  %%v%u = phi i64 ", dst);
+        for (size_t pi = 0; pi < yyjson_arr_size(inputs); pi++) {
+          yyjson_val* input = yyjson_arr_get(inputs, pi);
+          uint32_t pred = lv4_u(input, "block");
+          hako_lv4_block* predecessor = lv4_index_block(&in->index[fi], pred);
+          yyjson_val* incoming = yyjson_obj_get(predecessor->block, "edges");
+          size_t ordinal = 0;
+          while (ordinal < yyjson_arr_size(incoming) &&
+              lv4_u(yyjson_arr_get(incoming, ordinal), "target") != b) ordinal++;
+          if (ordinal == yyjson_arr_size(incoming)) return 0;
+          char label[64];
+          lv4_edge_label(label, in, fi, pred, ordinal, b);
+          fprintf(f, "%s[ %%v%u, %%%s ]", pi ? ", " : "", lv4_u(input, "value"), label);
+        }
+        fprintf(f, "\n");
       } else if (lv4_is(ins, "op", "invoke_normal_result")) {
         int kind = lv4_input_type(in, fn, dst);
         const char* storage = kind == LV4_MAP ? "map" : kind == LV4_KEY ? "key" : kind == LV4_OUTCOME ? "outcome" : NULL;
@@ -115,7 +157,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       /* const_unit has no lane; unused text is eliminated, never materialized as zero. */
     }
     if (lv4_is(term, "op", "jump")) {
-      fprintf(f, "  br label %%bb%u\n", lv4_u(term, "target"));
+      fprintf(f, "  br label %%%s\n", normal_label);
+    } else if (lv4_is(term, "op", "branch")) {
+      fprintf(f, "  %%branch%u = icmp ne i64 %%v%u, 0\n"
+          "  br i1 %%branch%u, label %%%s, label %%%s\n",
+          b, lv4_u(term, "condition"), b, normal_label, fault_label);
     } else if (lv4_is(term, "op", "return_fault")) {
       fprintf(f, "  br label %%fault\n");
     } else if (lv4_is(term, "op", "return")) {
@@ -148,7 +194,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       yyjson_val* op = yyjson_obj_get(term, "operation");
       unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
       if (hako_physical_map_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) {
-        lv4_map_emit_operation(f, in, term, b, fi);
+        lv4_map_emit_operation(f, in, term, b, fi, normal_label, fault_label);
         continue;
       }
       if (lv4_is(op, "kind", "field_set") &&
@@ -158,9 +204,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%store_int%u = icmp eq i32 %%k%u, 1\n"
             "  br i1 %%store_int%u, label %%store%u, label %%type_fault%u\ntype_fault%u:\n"
             "  %%type_status%u = call i32 @\"nyash.fault.record_static_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 1, i64 2)\n"
-            "  switch i32 %%type_status%u, label %%invalid [ i32 1, label %%bb%u ]\nstore%u:\n",
+            "  switch i32 %%type_status%u, label %%invalid [ i32 1, label %%%s ]\nstore%u:\n",
             b,value,b,b,b,b,b,NYRT_FAULT_REASON_FIELD_TYPE_MISMATCH_V1,site,
-            b,lv4_u(term,"fault"),b);
+            b,fault_label,b);
       }
       if (lv4_is(op, "kind", "array_append") && lv4_is(op, "representation", "bool"))
         fprintf(f, "  %%bool%u = trunc i64 %%v%u to i32\n", b, lv4_u(op, "value"));
@@ -211,8 +257,18 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             in->profile, site, lv4_u(op, "value"), (long long)lv4_type_id(in, op));
       }
       }
-      fprintf(f, "  switch i32 %%status%u, label %%invalid [ i32 0, label %%bb%u i32 1, label %%bb%u ]\n",
-          b, lv4_u(term, "normal"), lv4_u(term, "fault"));
+      fprintf(f, "  switch i32 %%status%u, label %%invalid [ i32 0, label %%%s i32 1, label %%%s ]\n",
+          b, normal_label, fault_label);
+    }
+  }
+  for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
+    yyjson_val* block = yyjson_arr_get(blocks, bi);
+    yyjson_val* edges = yyjson_obj_get(block, "edges");
+    for (size_t ei = 0; ei < yyjson_arr_size(edges); ei++) {
+      uint32_t target = lv4_u(yyjson_arr_get(edges, ei), "target");
+      char label[64];
+      if (lv4_edge_label(label, in, fi, lv4_u(block, "id"), ei, target))
+        fprintf(f, "%s:\n  br label %%bb%u\n", label, target);
     }
   }
   if (!in->native) fprintf(f, "map_invalid:\n  call void @llvm.trap()\n  unreachable\n");

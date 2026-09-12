@@ -204,6 +204,24 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
     assert run([exe], env=env).returncode == 30
     print("reversed block document order -> linked EXE30")
+    # MapEnd expands bookkeeping before its normal edge. Its scalar PHI must
+    # consume the shared physical-edge label, not the original block label.
+    phi_return = program(["a"])
+    blocks = phi_return["functions"][0]["blocks"]
+    terminal = next(b for b in blocks if b["terminator"]["instruction"]["op"] == "return")
+    predecessors = [b["id"] for b in blocks
+                    if any(e["target"] == terminal["id"] for e in b["edges"])]
+    value_id = max(r["instruction"].get("dst", 0) for b in blocks for r in b["instructions"]) + 1
+    terminal["instructions"].insert(0, dict(index=0, instruction=dict(op="phi", dst=value_id,
+        inputs=[dict(block=pred, value=1) for pred in predecessors])))
+    for index, row in enumerate(terminal["instructions"]):
+        row["index"] = index
+    terminal["terminator"] = dict(index=len(terminal["instructions"]),
+                                  instruction=dict(op="return", value=value_id))
+    compile_input(phi_return)
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    assert run([exe], env=env).returncode == 30
+    print("Map bookkeeping -> shared edge label -> scalar PHI -> EXE30")
     compile_input(mixed_program())
     checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
     assert run([exe], env=env).returncode == 30

@@ -77,6 +77,25 @@ fn unannotated_pair_issues_tagged_input_from_retained_contract() {
 }
 
 #[test]
+fn serializer_preserves_signed_compare_predicates() {
+    use crate::mir::CompareOp;
+    for (op, predicate) in [
+        (CompareOp::Eq, "eq"), (CompareOp::Ne, "ne"),
+        (CompareOp::Lt, "slt"), (CompareOp::Le, "sle"),
+        (CompareOp::Gt, "sgt"), (CompareOp::Ge, "sge"),
+    ] {
+        let instruction = MirInstruction::Compare {
+            dst: ValueId::new(7), op, lhs: ValueId::new(2), rhs: ValueId::new(5),
+        };
+        let encoded = encode_instruction(
+            None, &instruction, &BTreeMap::new(), 0, None, None, &BTreeMap::new(),
+        ).expect("physical signed comparison");
+        assert_eq!(encoded, json!({"op": "compare", "dst": 7, "lhs": 2,
+            "rhs": 5, "predicate": predicate}));
+    }
+}
+
+#[test]
 fn serializer_rejects_nonissued_instruction_vocabulary() {
     let instruction = MirInstruction::Const {
         dst: ValueId::new(0),

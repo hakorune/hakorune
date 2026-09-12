@@ -9,13 +9,14 @@ static void lv4_map_bookkeeping(FILE* f, const char* name, const char* pointer,
       block, step, block, step, block, step);
 }
 
-static void lv4_map_dispatch(FILE* f, yyjson_val* term, uint32_t block) {
-  fprintf(f, "  switch i32 %%status%u, label %%map_invalid [ i32 0, label %%bb%u i32 1, label %%bb%u ]\n",
-      block, lv4_u(term, "normal"), lv4_u(term, "fault"));
+static void lv4_map_dispatch(FILE* f, uint32_t block,
+    const char* normal, const char* fault) {
+  fprintf(f, "  switch i32 %%status%u, label %%map_invalid [ i32 0, label %%%s i32 1, label %%%s ]\n",
+      block, normal, fault);
 }
 
 static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
-    yyjson_val* term, uint32_t b, size_t fi) {
+    yyjson_val* term, uint32_t b, size_t fi, const char* normal, const char* fault) {
   yyjson_val* op = yyjson_obj_get(term, "operation");
   unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
   int make_map = lv4_is(op, "kind", "map_new");
@@ -54,16 +55,16 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   if (!make_map && !make_key && !install) {
     lv4_map_bookkeeping(f, end_map ? "storage_dispose" : "outcome_dispose", "v",
         lv4_u(op, end_map ? "map" : "outcome"), b, 1);
-    lv4_map_dispatch(f, term, b);
+    lv4_map_dispatch(f, b, normal, fault);
     return;
   }
   if (install) lv4_map_bookkeeping(f, "key_dispose", "v", lv4_u(op, "key"), b, 1);
   fprintf(f, "  %%map_normal%u = icmp eq i32 %%status%u, 0\n"
-      "  br i1 %%map_normal%u, label %%bb%u, label %%map_failed%u\nmap_failed%u:\n",
-      b, b, b, lv4_u(term, "normal"), b, b);
+      "  br i1 %%map_normal%u, label %%%s, label %%map_failed%u\nmap_failed%u:\n",
+      b, b, b, normal, b, b);
   lv4_map_bookkeeping(f, make_map ? "storage_dispose" : make_key ? "key_dispose" : "outcome_dispose",
       make_map ? "map" : make_key ? "key" : "outcome", b, b, 2);
-  fprintf(f, "  br label %%bb%u\n", lv4_u(term, "fault"));
+  fprintf(f, "  br label %%%s\n", fault);
 }
 
 static void lv4_map_alloca(FILE* f, yyjson_val* op, uint32_t b,

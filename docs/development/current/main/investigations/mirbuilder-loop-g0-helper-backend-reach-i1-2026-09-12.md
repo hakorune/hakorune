@@ -1,9 +1,9 @@
 ---
-Status: implementation_landed__EXEAcceptanceOpen__2026-09-12
+Status: verified__SourceCalledEXE3__2026-09-12
 Date: 2026-09-12
 Decision: LOOP-G0-HELPER-BACKEND-REACH-I1
 Parent: mirbuilder-loop-g0-helper-backend-reach-d0-2026-09-12.md
-NextCard: existing physical JSON and V4 scalar CFG consumer; see R7 current card
+NextCard: existing R7 owner-unit selection; see R7 current card
 ---
 
 # Generic G0 helper backend reach I1
@@ -28,7 +28,7 @@ Done:
   `generic_g0/2` in the physical program and exact two-argument integer ABI;
   it also observes the helper body `Compare` and `Add` operations. The
   existing typed EXE witness must emit and run the helper with exit code 3.
-  This acceptance remains open at the physical JSON instruction-vocabulary boundary.
+  This acceptance is verified under LLVM18 without skip.
   Missing/foreign definition or Call relation rejects before artifact
   publication. The selected production Loop paths reuse the one preflight
   `BuilderInvocationConfigV1` snapshot when opening their physical session;
@@ -77,8 +77,8 @@ Stop:
   object emission. The existing archive was temporarily exposed from
   `target/lifecycle-kernel/release` at the test's hardcoded `target/release`
   path; the link was removed afterwards. Physical membership assertions
-  passed before this rejection; LLVM generation and exit code 3 are unproven.
-  This is acceptance debt, not evidence of a regression caused by the later
+  passed before this historical rejection; the latest evidence below supersedes it.
+  This was acceptance debt, not evidence of a regression caused by the later
   documentation-only commit. See the LLVM18 installation task for commands.
 - `published_consumer_runs_once_and_propagates_failure_without_retry`: known
   baseline red; the same `calls = 0` versus `1` failure reproduces with the
@@ -92,17 +92,17 @@ helpers retain their compatibility snapshot wrapper. The obsolete pure
 operation expected loop/block/role fields and unreachable `PreheaderSeed`
 entry branch remain as a later behavior-neutral Loop T0 cleanup candidate;
 current segment receipt/target validation remains. This cleanup is outside the
-landed G0 I1 implementation; its EXE acceptance is still open.
+landed G0 I1 implementation; its EXE acceptance is now verified.
 
 ## Scope boundary
 
-Latest dependency check (2026-09-12): source-declared parameter and return
-metadata, canonical carriers and full Rust lifecycle capability now pass.
-G0 source/mutation2, capability4 and retained physical ABI/JSON10 pass (16 total).
-The unchanged ignored EXE witness runs under LLVM18 and now rejects at
-`published-lifecycle-physical-json/instruction-unsupported`, before object/link.
-The temporary runtime archive alias was removed. This supersedes the earlier
-site-missing and parameter-count observations; exit3 remains open.
+Latest acceptance (2026-09-12): the unchanged source-called G0 witness executes
+through physical JSON, V4, LLVM18 object/link and the existing lifecycle runtime
+with exit3 (2.24s; repeat with success output2.18s, no skip). The test uses the
+actual lifecycle archive directory, without an alias. G0 source/mutation2,
+capability4, physical ABI1/JSON10 and EXE1 pass: 18 Rust tests. One jobs1 build
+took14m54s; warnings523 unchanged. C scalar/Map/Fault regressions and guards pass.
+This supersedes site-missing, parameter-count and instruction-unsupported stops.
 
 This row proves only source-backed G0 helper reach through the existing
 ordinary Global Call. It does not widen G0 to cataloged methods, all-family
