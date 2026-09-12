@@ -30,19 +30,17 @@ Related:
   `473c006604`, the normal-package Generic G0 consumer now reaches the existing
   Single publication terminal, and fixed-role Loop topology was retired at
   `18f2162e0d`; the segment route is sole for the admitted Callable/Generic
-  physical cohort. The separate G0 EXE witness is only package/publication plus
-  existing `Main.main/0` root coexistence; Main does not call the helper and
-  the local LLVM18-missing run was skipped. These are bounded rows, not
-  helper-body backend/runtime, all-family, or source-to-EXE completion.
-- **Next ordered task:** the existing
-  `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop resumes after its bounded
-  link direct seam I0 landed at `fc19313028`. The next decision is
-  compile-options I1: one call-owned Rust/C contract for recipe, replay,
-  opt-level, tool paths and harness values, normalized once by Rust and owned
-  by `HakoLlvmcInvocation`. Release compatibility and public v1/v2 ABI remain
-  retained. Its first bounded implementation edge is
-  `MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A`: Boundary pure-first only, with
-  static V2/harness/AOT compatibility explicitly deferred to the same owner.
+  physical cohort. The G0 I1 witness now uses the source-backed
+  `Main.main -> generic_g0(0, 0)` Call and observes `generic_g0/2` in the same
+  physical view; its static EXE witness was skipped because LLVM18 is missing.
+  These are bounded rows, not helper runtime success, all-family, or
+  source-to-EXE completion.
+- **Next ordered task:** resume the existing
+  `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop after link direct seam I0
+  and Boundary pure-first compile-options I1A landed. Select one retained
+  compatibility owner (static V2, harness, AOT, or public ABI boundary) with
+  its caller, terminal, and exclusive delete-set before implementation;
+  release compatibility and public v1/v2 ABI remain retained.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
