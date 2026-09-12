@@ -1,11 +1,11 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "design_stop: empty-site ABI is verified; unchanged G0 EXE now reaches lifecycle_parameter_entry_capability_missing/ordinary-parameter-count. Resolve source-issued G0 parameter metadata publication before the accepted downstream V4 CFG implementation. Preserve residual R7 compatibility; exit3 remains open."
-current_design_stop = "open__G0ParameterContractPublication__2026-09-12"
+guard_followup = "fast: G0 declared-signature publication is verified (16 Rust tests); unchanged EXE now stops at physical-json/instruction-unsupported. Implement the accepted Compare/scalar-PHI/exact-state-CFG/shared-edge-label mapping in existing V4, then rerun unchanged source-called EXE3. R7 remains open."
+current_design_stop = "closed_for_G0DeclaredSignaturePublication__2026-09-12"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -45,20 +45,20 @@ remains open. The existing source-backed Global Call relation
 `Main.main -> generic_g0(0, 0)` is the sole membership authority. The focused
 positive observes exactly the root Invoke(Call) to `generic_g0/2`, two integer
 helper lanes, and helper Compare/Add body operations. The static EXE witness
-uses the same selected view; empty-site ABI now passes, but EXE stops before object/link at `lifecycle_parameter_entry_capability_missing/ordinary-parameter-count`;
+uses the same selected view; empty-site ABI and source-declared entry/return contracts now pass, but EXE stops before object/link at `published-lifecycle-physical-json/instruction-unsupported`;
 runtime success is unclaimed. Selected first-family cutovers reuse one snapshot;
 obsolete Loop expected-location/PreheaderSeed handling is queued for T0 cleanup.
 Whole-MIRBuilder completion, backend parity, and runtime execution unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, and public Generic C profile-0 options bridge I0 are closed; remaining shared compatibility owners have no safe exclusive delete-set.
 LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
-are verified. G0 ABI empty-site and ten retained ABI/JSON tests pass;
-its parameter-contract publication and downstream CFG execution remain open.
+are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
+16 focused Rust tests pass; downstream JSON/CFG execution remains open.
 Warning follow-up is `MIRBUILDER-WARNING-SURFACE-CENSUS-R0` /
 `MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; observed `lib=1793`, `lib test=523
 (255 duplicates)` are separate, non-zero-warning baselines.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none__G0ParameterContractPublication__DesignStop"
+next_execution_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

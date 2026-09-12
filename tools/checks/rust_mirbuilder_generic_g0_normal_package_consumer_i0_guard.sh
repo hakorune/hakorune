@@ -46,6 +46,10 @@ guard_expect_fixed_in_file "$TAG" "assert_generic_g0_physical_reach" "$TESTS" \
   "the acceptance must inspect selected physical reach, not module presence"
 guard_expect_fixed_in_file "$TAG" "InvokeOperation::Call" "$TESTS" \
   "the acceptance must inspect the source-backed root Call"
+guard_expect_fixed_in_file "$TAG" "set_current_function_declared_signature" "$LOWERER" \
+  "G0 must retain source declarations through the existing metadata setter"
+guard_expect_fixed_in_file "$TAG" "normal_package_generic_g0_rejects_declared_contract_drift" "$TESTS" \
+  "source-backed carrier removal and drift must reject before encoding"
 guard_expect_fixed_in_file "$TAG" "generic_g0_selection_rejects_missing_policy_mode" "$ROUTE_TESTS" \
   "invalid policy mode must have a focused negative acceptance"
 guard_expect_fixed_in_file "$TAG" "LOOP-G0-HELPER-BACKEND-REACH-I1" "$CARD" \

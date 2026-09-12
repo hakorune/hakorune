@@ -1,6 +1,4 @@
-use super::capability::{
-    CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1,
-};
+use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1};
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
 use super::source_bound_plan::ExactCanonicalPreflightPlanV1;
 use crate::ast::ASTNode;
@@ -45,11 +43,14 @@ fn production_preflight_issues_generic_g0_plan_with_trivial_lifecycle() {
     let CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) = plan else {
         panic!("expected Generic G0 loop plan")
     };
-    assert_eq!(plan.source_parent().declaration_header().name(), "generic_g0");
     assert_eq!(
-        ExactCanonicalPreflightPlanV1::from_first_family(
-            CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)),
-        )
+        plan.source_parent().declaration_header().name(),
+        "generic_g0"
+    );
+    assert_eq!(
+        ExactCanonicalPreflightPlanV1::from_first_family(CanonicalFirstFamilyPlanV1::Loop(
+            CanonicalLoopFamilyPlanV1::GenericG0(plan)
+        ),)
         .route(),
         super::source_bound_plan::CanonicalSourceRouteV1::BindingSsaTrivial
     );
@@ -83,6 +84,31 @@ fn production_generic_g0_reaches_single_publication_terminal() {
     assert_eq!(function.signature.name, "generic_g0/2");
     assert_eq!(function.signature.params.len(), 3);
     assert_eq!(function.params.len(), 3);
+    let declarations = &function.metadata.declared_param_decls;
+    assert_eq!(declarations.len(), 3);
+    assert!(declarations[0].implicit_receiver);
+    assert_eq!(declarations[0].declared_type_name, None);
+    assert!(function
+        .signature
+        .params
+        .iter()
+        .all(|ty| *ty == crate::mir::MirType::Integer));
+    assert_eq!(function.metadata.parameter_entry_contracts.len(), 2);
+    for (index, contract) in function
+        .metadata
+        .parameter_entry_contracts
+        .iter()
+        .enumerate()
+    {
+        assert_eq!(contract.formal_parameter_index, index + 1);
+        assert_eq!(contract.source_parameter_index, index);
+        assert_eq!(contract.parameter_value_id, function.params[index + 1]);
+    }
+    assert_eq!(
+        function.metadata.declared_return_type_name.as_deref(),
+        Some("i64")
+    );
+    assert!(function.metadata.return_exit_contract.is_some());
 }
 
 #[test]

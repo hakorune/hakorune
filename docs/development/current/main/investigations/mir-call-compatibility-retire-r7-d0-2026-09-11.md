@@ -1,5 +1,5 @@
 ---
-Status: Design stop — G0 parameter-contract publication; residual compatibility remains open
+Status: Active — G0 scalar CFG physical consumer; residual compatibility remains open
 Date: 2026-09-11
 Decision: MIR-CALL-COMPATIBILITY-RETIRE-R7-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -15,7 +15,7 @@ Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; ag
 Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
 Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
 Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
-Smallest next slice: source-backed G0 parameter-contract publication; reuse the accepted downstream V4 CFG design.
+Smallest next slice: accepted Compare/scalar-PHI/CFG physical consumer below; source declaration publication is verified.
 Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach, OBJ/EXE completion or performance claim.
 
 ## Finite boundary and state table
@@ -932,15 +932,9 @@ This closes the bounded bridge only; aggregate R7 remains open.
 
 ### LLVM18 installation and witness classification (2026-09-12)
 
-`161aff97f6`: LLVM18.1.8 tool/header/prefix checks passed. The corrected
-G0 witness ran at `3d3b118ccf` and rejected before object emission with
-`[freeze:contract][published-lifecycle-physical-abi/site-missing]`.
-The runtime archive exists under `target/lifecycle-kernel/release`; the
-test's hardcoded `target/release` alias was temporary and has been removed.
-Commands and detailed evidence belong to
-`llvm18-toolchain-installation-task-2026-09-12.md`; the G0 acceptance owner
-is `mirbuilder-loop-g0-helper-backend-reach-i1-2026-09-12.md`.
-LLVM18 availability is verified; helper execution and EXE exit 3 remain open.
+`161aff97f6`: LLVM18.1.8 checks passed; initial G0 EXE at `3d3b118ccf` rejected
+at site-missing. Commands remain in `llvm18-toolchain-installation-task-2026-09-12.md`;
+latest acceptance is in `mirbuilder-loop-g0-helper-backend-reach-i1-2026-09-12.md`.
 
 Warning follow-up remains with `MIRBUILDER-WARNING-SURFACE-CENSUS-R0`;
 its current observation is lib=1793 / lib-test=523 (255 duplicates).
@@ -967,26 +961,39 @@ Kierkegaard's read-only audit closed runtime reuse: placement init writes a new
 lifetime after matched dispose; existing Map emission disposes Normal/Fault
 bookkeeping. Keep exact slot provenance, no stale borrow/result publication,
 and no live overwrite. This does not prove cyclic execution or bounded memory.
-Open implementation inventory is now G0 parameter metadata, Compare transport,
+Open implementation inventory is now Compare transport,
 PHI kinds/layout, and Branch/backedge flow/emission. Empty-site acceptance alone
 is not G0 execution; unchanged source-called EXE exit 3 remains the terminal.
 
 ### Empty checked-site admission (verified 2026-09-12)
 
-Change: remove Rust/C nonempty-set rejection; the sole physical issuer and
-parser retain site ownership. No synthetic operation, fallback or new receipt.
-Contract: zero checked operations -> empty sites plus epilogue site0; checked
-operations -> required unique sites disjoint from the required epilogue site.
-Malformed/missing/duplicate sites -> existing pre-artifact reject, no retry.
-Done: existing source G0 physical test asserts empty ABI, C parser covers empty
-positive and missing/collision negatives; focused guards and README/reference.
-Stop: missing source/runtime authority or changed checked-site classification.
-Evidence: jobs1 quick Rust build 14m42s; source G0 ABI1 + physical ABI1 + JSON9
-pass; C build/parser and G0/R7/pointer guards pass; lib-test warnings523 unchanged.
-Unchanged ignored EXE test now stops at lifecycle parameter-entry
-`ordinary-parameter-count function=generic_g0/2`, before JSON/object/link.
-This is dependency evidence, not EXE success; temporary runtime alias removed.
-Next: source-issued G0 declared/entry metadata must satisfy the existing gate;
-do not synthesize it from MIR. Then resume accepted Compare/PHI/CFG emission.
+`80ebbb1ef7`: Rust/C admit zero checked sites plus epilogue site0; per-operation
+required/unique/disjoint checks remain. No synthetic operation or new receipt.
+Source ABI1 + physical ABI1/JSON9, C parser/build and guards passed. EXE then
+exposed ordinary-parameter-count; the following publication fix supersedes it.
+Carson's audit confirmed that absent return declaration+carrier passes validation:
+source preservation must be asserted separately. Existing DraftSeal owns refresh.
+
+### G0 declared-signature publication (verified 2026-09-12)
+
+Shared draft/pending lowerer now transports descriptor source declarations and
+Completion result through the existing setter/DraftSeal issuers; physical
+receiver i64 remains unannotated. No backend repair or second contract issuer.
+Jobs1 quick build 14m44s; G0 source1 + mutation1 (four cases) + capability4 +
+physical ABI1/JSON9 pass (16 total). G0/R7/pointer/diff guards pass; warnings523.
+Unchanged EXE now rejects at physical-json/instruction-unsupported before object;
+dependency evidence only, not execution. Temporary runtime alias removed.
+
+### Existing V4 scalar CFG consumer (accepted; next)
+
+Change: extend sole physical JSON/parser/V4 index/flow/emission route; replace
+recursive kind resolution and acyclic-only scheduling, not source membership.
+Contract: consume the accepted ABI-reference Compare, scalar-PHI, exact-state
+worklist and shared physical-edge-label mapping. Preserve runtime lifetime,
+Normal/Fault, numeric/receiver gates, native scope and per-checked-site rejects.
+Done: source G0 EXE3; existing C parser/V4 regression tests plus signed Compare,
+PHI/backedge/layout/type and unequal resource/Fault-state negatives; guards/docs.
+Stop: missing source relation, unknown runtime lifetime or ambiguous PHI edge;
+no CFG/source reconstruction or fallback. R7/whole-MIRBuilder remain unclaimed.
 Preparation `0e30d908d5`: parser 783->746, site owner41, identical moved body;
 C build/parser positive+negatives and G0/R7/pointer guards passed; no ABI change.

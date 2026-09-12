@@ -24,6 +24,26 @@ fn assert_generic_g0_physical_reach(
     assert_eq!(helper.name(), "generic_g0/2");
     assert_eq!(helper.params().len(), 2);
     assert!(!helper.role().has_receiver());
+    let function = &view.module().functions["generic_g0/2"];
+    assert_eq!(function.metadata.declared_param_decls.len(), 2);
+    for (declaration, name) in function
+        .metadata
+        .declared_param_decls
+        .iter()
+        .zip(["i", "j"])
+    {
+        assert_eq!(declaration.name, name);
+        assert_eq!(declaration.declared_type_name.as_deref(), Some("i64"));
+        assert!(!declaration.implicit_receiver);
+    }
+    assert_eq!(function.metadata.parameter_entry_contracts.len(), 2);
+    assert_eq!(
+        function.metadata.declared_return_type_name.as_deref(),
+        Some("i64")
+    );
+    assert!(function.metadata.return_exit_contract.is_some());
+    crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(function)?;
+    crate::mir::type_contracts::return_exit::validate_return_exit_contract(function)?;
     let target = Callee::Global(key.canonical_global_target_v1().unwrap());
     let root_calls = program.functions()[0]
         .blocks()
@@ -49,16 +69,13 @@ fn assert_generic_g0_physical_reach(
         })
         .count();
     assert_eq!(root_calls, 1);
-    let mut helper_instructions = helper
-        .blocks()
-        .iter()
-        .flat_map(|block| {
-            block
-                .instructions()
-                .iter()
-                .copied()
-                .chain(std::iter::once(block.terminator()))
-        });
+    let mut helper_instructions = helper.blocks().iter().flat_map(|block| {
+        block
+            .instructions()
+            .iter()
+            .copied()
+            .chain(std::iter::once(block.terminator()))
+    });
     assert!(helper_instructions
         .clone()
         .any(|row| matches!(row.instruction(), MirInstruction::Compare { .. })));
@@ -98,10 +115,57 @@ fn normal_package_routes_top_level_generic_g0_through_existing_terminal() {
                 assert!(input.diagnostic_sites().is_empty());
                 assert_eq!(input.process_result_site(), 0);
                 assert!(input.layouts().is_empty());
+                crate::mir::backend_capability::enforce_published_lifecycle_backend_supported(
+                    view, &input,
+                )?;
                 Ok::<(), String>(())
             })
             .expect("normal package Generic G0 compile");
         assert_eq!(callbacks, 1);
+    });
+}
+
+#[test]
+fn normal_package_generic_g0_rejects_declared_contract_drift() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        MirCompiler::with_options(false)
+            .compile_normal_with_published(published_request(generic_g0_source()), |view, _| {
+                assert_generic_g0_physical_reach(view)?;
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                for (mutation, expected) in [
+                    "ordinary-parameter-count",
+                    "parameter_contract_carrier_missing",
+                    "parameter_contract_row_drift",
+                    "return_contract_carrier_missing",
+                ]
+                .into_iter()
+                .enumerate()
+                {
+                    let mut module = view.module().clone();
+                    let function = module.functions.get_mut("generic_g0/2").unwrap();
+                    match mutation {
+                        0 => {
+                            function.metadata.declared_param_decls.clear();
+                            function.metadata.parameter_entry_contracts.clear();
+                        }
+                        1 => function.metadata.parameter_entry_contracts.clear(),
+                        2 => function.metadata.parameter_entry_contracts[0].source_parameter_name
+                            = "foreign".to_owned(),
+                        3 => function.metadata.return_exit_contract = None,
+                        _ => unreachable!(),
+                    }
+                    let result = if mutation == 3 {
+                        crate::mir::return_exit_backend_capability::enforce_lifecycle_return_exit_backend_supported(&module, &input)
+                    } else {
+                        crate::mir::parameter_entry_backend_capability::enforce_lifecycle_parameter_entry_backend_supported(&module, &input)
+                    };
+                    let error = result.expect_err("contract mutation must reject before encoding");
+                    assert!(error.contains(expected), "mutation={mutation}: {error}");
+                }
+                Ok::<(), String>(())
+            })
+            .expect("source-backed G0 metadata negatives");
     });
 }
 

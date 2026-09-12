@@ -287,6 +287,17 @@ the accepted semantics, not a new ABI or Call-schema decision.
 
 ## Source Entry and Physical Entry
 
+Decision (2026-09-12): the bounded Generic G0 consumer preserves the source
+parameter declarations from its co-sealed entry descriptors and the result
+declaration from its retained Completion in the unpublished function metadata.
+The existing declared-signature setter transports them; DraftSeal's parameter-
+entry and return-exit issuers produce the executable carriers. Physical i64
+receiver storage does not become a source i64 annotation. An absent result
+annotation remains distinct from explicit Void and Annotated; a physical
+Integer signature cannot restore a dropped declaration. Publication tests must
+assert both declarations and carriers, including the return pair, because
+downstream validation legitimately accepts an unannotated declaration's absence.
+
 Entry selection produces a typed source-entry result:
 
 ```text

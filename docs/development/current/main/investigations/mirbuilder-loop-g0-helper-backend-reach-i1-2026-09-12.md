@@ -3,7 +3,7 @@ Status: implementation_landed__EXEAcceptanceOpen__2026-09-12
 Date: 2026-09-12
 Decision: LOOP-G0-HELPER-BACKEND-REACH-I1
 Parent: mirbuilder-loop-g0-helper-backend-reach-d0-2026-09-12.md
-NextCard: G0 parameter-contract publication boundary; see R7 current card
+NextCard: existing physical JSON and V4 scalar CFG consumer; see R7 current card
 ---
 
 # Generic G0 helper backend reach I1
@@ -28,7 +28,7 @@ Done:
   `generic_g0/2` in the physical program and exact two-argument integer ABI;
   it also observes the helper body `Compare` and `Add` operations. The
   existing typed EXE witness must emit and run the helper with exit code 3.
-  This acceptance remains open at the lifecycle parameter-entry contract boundary.
+  This acceptance remains open at the physical JSON instruction-vocabulary boundary.
   Missing/foreign definition or Call relation rejects before artifact
   publication. The selected production Loop paths reuse the one preflight
   `BuilderInvocationConfigV1` snapshot when opening their physical session;
@@ -96,12 +96,13 @@ landed G0 I1 implementation; its EXE acceptance is still open.
 
 ## Scope boundary
 
-Latest dependency check (2026-09-12): empty checked-site ABI now passes its
-source G0 assertion plus ten retained ABI/JSON tests. The unchanged ignored
-EXE witness runs under LLVM18 but rejects before JSON/object/link with
-`lifecycle_parameter_entry_capability_missing`, reason
-`ordinary-parameter-count function=generic_g0/2`. The temporary archive alias
-was removed. This supersedes the earlier site-missing observation; exit3 remains open.
+Latest dependency check (2026-09-12): source-declared parameter and return
+metadata, canonical carriers and full Rust lifecycle capability now pass.
+G0 source/mutation2, capability4 and retained physical ABI/JSON10 pass (16 total).
+The unchanged ignored EXE witness runs under LLVM18 and now rejects at
+`published-lifecycle-physical-json/instruction-unsupported`, before object/link.
+The temporary runtime archive alias was removed. This supersedes the earlier
+site-missing and parameter-count observations; exit3 remains open.
 
 This row proves only source-backed G0 helper reach through the existing
 ordinary Global Call. It does not widen G0 to cataloged methods, all-family

@@ -846,6 +846,11 @@ the declared-instance physical signature has three `i64` lanes. That physical
 arity is carried from the source-owned storage-lane projection to the existing
 Single collector; it is never inferred from MIR or used to rewrite the source
 header. The legacy `generic_g0_physical_emitter_session` remains test-only.
+The production lowerer separately passes descriptor-owned source declarations
+and Completion-owned result declaration through the existing declared-signature
+setter. DraftSeal refreshes entry/return carriers before publication. Receiver
+i64 storage is not a source annotation; omission of a return declaration and
+its carrier together is caught by source-backed preservation assertions.
 The focused suite and I1 guard cover the positive publication terminal and
 late prepared-commit rejection with no publication. Source-to-exe and wider
 Loop-family activation are later cards.

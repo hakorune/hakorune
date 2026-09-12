@@ -12,20 +12,21 @@ use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
 use super::topology::ready_loop_entry_from_canonical_rows;
 use super::{LoopOperationDispatchServicesV1, LoopPhysicalServicesV1};
-use crate::mir::builder::resolved_lowering::canonical_ssa::{
-    finish_profile_close, CanonicalSsaFunctionSessionV2,
-};
 use crate::mir::builder::calls::{
     CanonicalFunctionLoweringSessionV1, CanonicalFunctionSessionErrorV1,
     PendingFunctionSessionCloseV1,
 };
-use crate::mir::builder::MirBuilder;
+use crate::mir::builder::resolved_lowering::canonical_ssa::{
+    finish_profile_close, CanonicalSsaFunctionSessionV2,
+};
 use crate::mir::builder::resolved_lowering::ReadyFunctionDraftSealV1;
+use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::generic_g0_physical_function_entry_input::GenericG0PhysicalLaneRoleV1;
 use crate::mir::compiler::generic_g0_physical_operation_cohort::PreparedGenericG0PhysicalEmitterAdmissionV1;
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::loop_recipe_contract::{LoopValueClassV1, VerifiedGenericG0TailCapabilityV1};
+use crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1;
 use crate::mir::resolved_semantics::ResolvedExitSiteV1;
 use crate::mir::MirFunction;
 
@@ -113,17 +114,37 @@ fn lower_generic_g0_function_ready_v1<'builder, 'source>(
             .iter()
             .map(|descriptor| MirParamDecl {
                 name: descriptor.diagnostic_name().to_owned(),
-                declared_type_name: Some("i64".to_owned()),
+                declared_type_name: descriptor.source_declared_type_name().map(str::to_owned),
                 implicit_receiver: descriptor.role()
                     == GenericG0PhysicalLaneRoleV1::InstanceReceiver,
             })
             .collect::<Vec<_>>();
+        // Callable lanes and source annotations are distinct projections.
+        // In particular, the existing receiver lane is i64 but unannotated.
+        let physical_param_decls = param_decls
+            .iter()
+            .cloned()
+            .map(|mut declaration| {
+                declaration.declared_type_name = Some("i64".to_owned());
+                declaration
+            })
+            .collect::<Vec<_>>();
         draft.create_resolved_function_skeleton(
             function_name,
-            &param_decls,
+            &physical_param_decls,
             Some(preflight.shell_plan().result_abi().source_type_name()),
             preflight.shell_plan().effects().effect_mask(),
         )?;
+        let declared_return = match preflight
+            .completion()
+            .function_exit_contract()
+            .declared_result()
+        {
+            DeclaredFunctionResultContractV1::Unannotated => None,
+            DeclaredFunctionResultContractV1::Void => Some("void".to_owned()),
+            DeclaredFunctionResultContractV1::Annotated(name) => Some(name.to_string()),
+        };
+        draft.set_current_function_declared_signature(param_decls, declared_return);
 
         let mut session = CanonicalSsaFunctionSessionV2::new_generic(
             input,
@@ -175,9 +196,8 @@ fn lower_generic_g0_function_ready_v1<'builder, 'source>(
                 .emit_all(LoopOperationValueLedgerV1::default(), &mut services)
                 .map_err(|error| format!("[freeze:contract][generic-g0/dispatch] {error:?}"))?
         };
-        let prepared_after = prepare_recursive_after_v1(completed, draft).map_err(|error| {
-            format!("[freeze:contract][generic-g0/after-preflight] {error:?}")
-        })?;
+        let prepared_after = prepare_recursive_after_v1(completed, draft)
+            .map_err(|error| format!("[freeze:contract][generic-g0/after-preflight] {error:?}"))?;
         let ready_after = prepared_after
             .emit_and_seal(
                 draft,
