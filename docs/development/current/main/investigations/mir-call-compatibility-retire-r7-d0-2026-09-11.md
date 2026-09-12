@@ -512,3 +512,23 @@ Decision: keep `NoSafeSlice__NoRemainingUnsharedM7SOwner` and
 delete matrix for those remaining callers, with pre-effect contract/replay/
 tool rejection, environment preservation, and explicit non-claims. No code,
 fixture, route switch, new receipt, or fallback is authorized by this audit.
+
+### Explicit-harness follow-up audit (2026-09-12)
+
+A second independent read-only audit confirms that the explicit harness is not
+an isolated next I0. The Rust explicit-harness route reaches the existing
+`mir_json_to_object_llvmlite` provider, which also serves the ambient llvmlite
+compatibility route; selecting the harness therefore does not produce a
+provider caller-zero/delete-set. The C/AOT harness, generic/v1 AOT entry, and
+public AOT link/dlsym entries likewise have distinct external or public
+callers, so they cannot be coalesced by extending the current physical profile
+alone.
+
+The current physical contract still admits only Boundary/Static profiles and
+`compat_replay = none`. Before any I0, the design must co-seal the owner,
+terminal, retained callers, exact delete-set, and pre-effect rejection for
+contract/replay/tool/symbol/input errors while preserving the AOT FFI split and
+ambient environment behavior. Explicit harnesses must not fall back to the
+generic route. Decision remains
+`NoSafeSlice__NoRemainingUnsharedM7SOwner`; no code, fixture, route switch,
+new receipt, or fallback is authorized.
