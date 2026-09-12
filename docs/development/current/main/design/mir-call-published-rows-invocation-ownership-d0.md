@@ -1,7 +1,11 @@
 # Published-row invocation ownership D0
 
 Date: 2026-09-13  
-Status: Decision accepted; implementation is bounded to `MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0`.
+Status: Decision implemented at `8fe3f00a6c`; retained ownership contract.
+
+I0 is closed with WSL/Linux evidence. Current task selection belongs only to
+`../CURRENT_STATE.toml` and its active card; the I0 tasks below document the
+implemented contract and do not reopen implementation.
 
 ## Decision
 

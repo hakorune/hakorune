@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
-current_execution_cohort = "mir_call_compatibility_retire_r7_published_rows_ownership_i0"
-current_blocker_token = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
-guard_followup = "closeout: MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0 implementation and focused evidence are complete. Commit/push the invocation-owned ledger and retain public ABI, MIR, Recipe, fallback, and backend-parity boundaries. Host RAM replacement remains external; cap build jobs at 1-2 until validated."
-current_design_stop = "none__accepted__MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-FAST-INVOCATION-CAPTURE-D0"
+current_execution_cohort = "mir_call_compatibility_retire_r7_fast_capture_d0"
+current_blocker_token = "MIR-CALL-FAST-INVOCATION-CAPTURE-D0"
+guard_followup = "design_stop: FAST capture D0 accepted; user requested design/task organization only. I0 is ready in the active card for a subsequent implementation task. Published-row I0 closed at 8fe3f00a6c with WSL/Linux evidence; Windows AOT I1 proof remains revision-scoped to 59e9a30b1f. One Cargo process, jobs 1-2 until RAM validated."
+current_design_stop = "DesignOnlyHandoff__FastCaptureDecisionAccepted"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,46 +18,30 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-compatibility-retire-r7-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
-The fixed real-app EXE scope is a finite 3/11 pass with seven named baseline boundaries and one FFI-environment boundary; it is not whole-MirBuilder
-completion. The Loop semantic-program audit is `NoSafeSlice`; Callable-only I0 remains caller-zero.
-G0 is an explicit GenericG0 variant in the existing package and
-BindingSsaTrivial/Single lifecycle. Its source issuer, physical lowering,
-typed rejects, computed-left proof, producer/dispatch carrier rejection, and
-normal-package FreeFunction consumer are closed; cataloged methods, all-family
-selection remain outside scope; source-called G0 EXE3 is verified. Callable
-indices, PHI backedge, and common-After ownership split are also closed.
-Fixed-role Loop topology retirement R0 is closed; the Callable/Generic segment route is sole and its 22-test/transfer/pointer evidence is green. G0 I0 had
-root-EXE coexistence only; I1 now uses the source-backed
-`Main.main -> generic_g0(0, 0)` Global Call for physical reach. Call/R7,
-backend parity, and all-family completion remain unclaimed.
-Call/R7 link direct seam I0 landed at fc19313028 with focused guard and C
-smoke. Compile-options I1A landed at 454e49b755 for the Boundary pure-first
-CAPI edge: one Rust admission normalization, a versioned default-visible C
-contract, invocation-owned C state, and generic/exact-seed/pattern option
-propagation. Its focused fake-tool smoke, C build, Rust check, and pointer
-guard are green; the existing named compatibility smoke remains an uncounted
-host Traceback baseline red. Static V2 open I0 passes the accepted
-physical-options contract through production open/query/compile/close with
-fake-tool/pre-effect evidence; original LLVM14/default-tool run skipped the legacy object portion; later explicit LLVM18-path session passes it. AOT Generic now uses profile-0 physical options; named harness, public C, and published-row globals remain.
-The G0 helper backend reach and EXE acceptance are verified without skip.
-The existing source-backed Global Call relation
-`Main.main -> generic_g0(0, 0)` is the sole membership authority. The focused
-positive observes exactly the root Invoke(Call) to `generic_g0/2`, two integer
-helper lanes, and helper Compare/Add body operations. The static EXE witness
-uses the same selected view; empty-site ABI, declared contracts and physical
-Compare/PHI/CFG now reach LLVM18/EXE3. First-family cutovers reuse one snapshot;
-Pure expected-location fields and PreheaderSeed were removed at 537e5e20fe; Read/Write/Carrier metadata is a separate cleanup candidate.
-Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, Boundary llc unset/empty policy, and legacy TargetMachine invocation capture I0 are closed. AOT direct-harness child-env I1 is closed with native Windows and Linux proof. Published-row invocation ownership I0 is closed with invocation-owned ledger and focused WSL/Linux evidence; public/external retirement remains separate.
-LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
-are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
-18 focused Rust tests pass, including source-called G0 EXE3; C regressions pass.
-Warning follow-up is `MIRBUILDER-WARNING-SURFACE-CENSUS-R0` /
-`MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; observed `lib=1806`, `lib test=533
-(265 duplicates)` are separate, non-zero-warning baselines.
+R7 remains an owner-local migration toward the sole source/Facts/Recipe/
+physical/publication pipeline. Aggregate legacy schema retirement is open.
+Boundary, Static, Rust/AOT/public Generic options and named compiler-path
+ownership are closed; automatic replay and unused replay storage are retired.
+Legacy TargetMachine selector capture is closed at 47e83a224e.
+AOT child-env I1 has native Windows and Linux proof at 59e9a30b1f.
+Published-row I0 at 8fe3f00a6c removes the process-global ledger and passes one
+invocation owner through Static V2, prepass/emission/residual and cleanup.
+Its WSL/Linux focused C, lifetime/query/formal cases and jobs1 Cargo check
+passed; it has no new native Windows execution evidence.
+FAST capture D0 is accepted: one compile-entry sample of NYASH_LLVM_FAST,
+three existing consumers, exact truth-value preservation, and old helper
+deletion. I0 is ready but not started under this design-only request.
+Source-called G0 LLVM18/EXE3, scalar local/terminal Call and empty-Home Plain
+cleanup have their recorded bounded acceptance. No whole-MirBuilder or
+backend-parity claim follows. Named llvmlite environment debt and legacy
+census anchor drift retain their separate classifications.
+Non-Loop snapshot reacquisition and unused Read/Write/Carrier information
+remain deferred cleanup candidates in their existing owners.
+Warning baseline lib=1806; RAM validation pending, Cargo jobs stay at 1-2.
 """
-next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
+next_design_card = "MIR-CALL-FAST-INVOCATION-CAPTURE-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none__R7NextOwner__DesignStop"
+next_execution_card = "none__DesignOnlyHandoff"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
