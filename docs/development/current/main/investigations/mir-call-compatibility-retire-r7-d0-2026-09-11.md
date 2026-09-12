@@ -561,3 +561,11 @@ This closes the finite design census but leaves the implementation gate open:
 the current matrix has no non-empty exclusive delete-set. `work_mode` therefore
 remains `design_stop`; a future I0 must name one of these groups and its
 caller-specific delete-set in the same card before editing code.
+
+The owner-selection consultation also records that AOT link is already closed
+by the prior direct-seam I0 and is not a next candidate. The single remaining
+cross-group gap is an invocation-owned physical compatibility admission that
+can be consumed by the harness, generic/v1 AOT, and ambient-selector callers;
+the current contract has only Boundary/Static issuers. Until that authority is
+co-sealed with retained public/external assets and a non-empty caller-specific
+delete-set, the R7 decision remains unchanged.

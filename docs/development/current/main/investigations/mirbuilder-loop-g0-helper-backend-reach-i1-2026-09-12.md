@@ -82,7 +82,9 @@ The config handoff is behavior-preserving: selected first-family production
 cutovers receive the already-captured invocation config, while old direct test
 helpers retain their compatibility snapshot wrapper. The obsolete pure
 operation expected loop/block/role fields and unreachable `PreheaderSeed`
-entry branch were removed; current segment receipt/target validation remains.
+entry branch remain as a later behavior-neutral Loop T0 cleanup candidate;
+current segment receipt/target validation remains. This cleanup is outside the
+closed G0 I1 implementation.
 
 ## Scope boundary
 

@@ -52,9 +52,9 @@ helper lanes, and helper Compare/Add body operations. The static EXE witness
 uses the same selected view but was skipped because LLVM18 is unavailable;
 runtime success is unclaimed. Selected first-family production cutovers now
 reuse the single preflight BuilderInvocationConfigV1 snapshot. Obsolete pure
-operation expected-location fields and unreachable PreheaderSeed handling are
-removed. Whole-MIRBuilder completion, backend parity, and runtime execution
-remain unclaimed.
+operation expected-location fields and unreachable PreheaderSeed handling
+remain queued for a later behavior-neutral Loop T0 cleanup; segment placement
+validation remains. Whole-MIRBuilder completion, backend parity, and runtime execution remain unclaimed.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
