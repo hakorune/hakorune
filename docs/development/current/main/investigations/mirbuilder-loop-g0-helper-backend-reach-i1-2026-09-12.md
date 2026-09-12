@@ -1,9 +1,9 @@
 ---
-Status: closed__ImplementationAccepted__G0HelperBackendReach__2026-09-12
+Status: implementation_landed__EXEAcceptanceOpen__2026-09-12
 Date: 2026-09-12
 Decision: LOOP-G0-HELPER-BACKEND-REACH-I1
 Parent: mirbuilder-loop-g0-helper-backend-reach-d0-2026-09-12.md
-NextCard: none__G0HelperBackendReach__PendingCloseout
+NextCard: existing physical-ABI diagnostic-site contract review; see R7 current card
 ---
 
 # Generic G0 helper backend reach I1
@@ -27,8 +27,8 @@ Done:
   Focused normal-package positive proves exactly root plus the source-called
   `generic_g0/2` in the physical program and exact two-argument integer ABI;
   it also observes the helper body `Compare` and `Add` operations. The
-  existing typed static EXE witness was exercised as an ignored test and
-  skipped because LLVM18 is unavailable; it is not an EXE success claim.
+  existing typed EXE witness must emit and run the helper with exit code 3.
+  This acceptance remains open at the physical-ABI diagnostic-site boundary.
   Missing/foreign definition or Call relation rejects before artifact
   publication. The selected production Loop paths reuse the one preflight
   `BuilderInvocationConfigV1` snapshot when opening their physical session;
@@ -70,8 +70,16 @@ Stop:
   one root `Invoke(Call)` to the canonical `generic_g0/2`, its two integer
   lanes, and helper `Compare`/`Add` body operations.
 - The same-module free-function `Invoke(I64)` verifier regression: pass.
-- The ignored static EXE witness was selected and run by the test binary, but
-  skipped because LLVM18 is unavailable. No runtime success is claimed.
+- Before installation the ignored EXE witness skipped for missing LLVM18.
+  At `3d3b118ccf`, after LLVM18.1.8 installation, the corrected named test
+  `normal_package_generic_g0_helper_reaches_existing_exe_emitter` ran once
+  and rejected at `published-lifecycle-physical-abi/site-missing` before
+  object emission. The existing archive was temporarily exposed from
+  `target/lifecycle-kernel/release` at the test's hardcoded `target/release`
+  path; the link was removed afterwards. Physical membership assertions
+  passed before this rejection; LLVM generation and exit code 3 are unproven.
+  This is acceptance debt, not evidence of a regression caused by the later
+  documentation-only commit. See the LLVM18 installation task for commands.
 - `published_consumer_runs_once_and_propagates_failure_without_retry`: known
   baseline red; the same `calls = 0` versus `1` failure reproduces with the
   pre-change test binary, so it is not evidence against this slice.
@@ -84,7 +92,7 @@ helpers retain their compatibility snapshot wrapper. The obsolete pure
 operation expected loop/block/role fields and unreachable `PreheaderSeed`
 entry branch remain as a later behavior-neutral Loop T0 cleanup candidate;
 current segment receipt/target validation remains. This cleanup is outside the
-closed G0 I1 implementation.
+landed G0 I1 implementation; its EXE acceptance is still open.
 
 ## Scope boundary
 

@@ -11,32 +11,12 @@ ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
 
 ## Six-line brief
 
-Decision: Design the R7 retirement as finite owner-unit Stop/Promote/Delete
-rows. Do not open aggregate `LegacyCallV0` deletion until every selected
-writer, reissuer, reader, re-entry, and environment route has an owner and a
-caller-zero proof.
-
-Source authority + canonical issuer: canonical `MirInstruction::Call(MirCall)`
-and its typed `Callee` own native meaning. Existing `LegacyCallV0` producers,
-reissuers, readers, and compatibility terminals are classified from the
-resynchronized observation manifest and their real callers.
-
-Non-authority: lexical counts, `func`, `ValueId::INVALID`, names, generic
-reachability, test-only Loop-PHI files, and the observation manifest itself.
-They classify evidence but never issue or repair a call target.
-
-Fail-fast boundary: selected native admission rejects mixed legacy input before
-artifact creation; explicit compatibility ingress keeps its existing terminal
-until a replacement is switched. No writer or shared carrier is deleted while
-an in-scope reader or re-entry remains reachable.
-
-Smallest next slice: select another existing M7-S owner only if its caller set
-and exclusive delete-set are independent of the shared release parser. The
-strict/dev `boxcall` Stop itself is already closed; do not duplicate it.
-
-Non-claims: no aggregate R7 deletion, `func`/`Option<Callee>` removal, JSON-v0
-retirement, VM/WASM parity, environment global removal, Loop-PHI production,
-OBJ/EXE completion, or performance result.
+Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; aggregate R7 remains open.
+Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
+Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
+Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
+Smallest next slice: resolve the shared compatibility design and the newly observed G0 acceptance dependency below; do not repeat the closed boxcall Stop.
+Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach, OBJ/EXE completion or performance claim.
 
 ## Finite boundary and state table
 
@@ -770,18 +750,10 @@ non-empty caller-specific delete-set. At this pre-installation checkpoint,
 LLVM18 was an environment-only task blocked by external sudo permission; no
 LLVM18 object/EXE runtime evidence was claimed.
 
-### LLVM18 environment follow-up (pre-installation checkpoint, superseded)
+### LLVM18 environment follow-up (superseded)
 
-The host check found Ubuntu 22.04 with only LLVM14.0.0 and no Jammy archive
-candidate for LLVM18. The environment-only installation task is
-`LLVM18-TOOLCHAIN-INSTALL-I0` at
-`docs/development/current/main/investigations/llvm18-toolchain-installation-task-2026-09-12.md`.
-It uses the existing CI `apt.llvm.org` recipe, keeps LLVM14 installed
-side-by-side, and requires versioned tool/header/prefix verification before
-rerunning the named G0 object/EXE witness. The session cannot run the recipe:
-UID 1000 has no non-interactive sudo permission (`sudo: a password is
-required`). This task does not authorize a backend switch, a fallback, or a
-semantic MirBuilder change; resume it after the external permission is granted.
+The external sudo blocker is resolved. Current tool and witness evidence is
+in `llvm18-toolchain-installation-task-2026-09-12.md` and the closeout below.
 
 ### MIR-CALL-AOT-GENERIC-COMPILE-OPTIONS-I0 (selected design 2026-09-12)
 
@@ -874,53 +846,10 @@ provider, aggregate R7, backend parity, and whole-MIRBuilder completion remain
 open by design. The next R7 decision stop must select another finite owner
 with a non-empty delete-set.
 
-### Public C Generic compile ingress disposition (design stop 2026-09-12)
+### Public C Generic compile ingress disposition (superseded)
 
-The read-only public-ingress audit selected Stop / retain, not an immediate
-options-ABI cutover. The public three-argument
-hako_llvmc_compile_json is an externally consumable compatibility ABI; its
-current Generic profile intentionally keeps compile_doc_compat_pure and
-ambient tool fallback semantics. The existing options contract is stricter
-and cannot be substituted until its compatibility conversion rules are
-explicitly owned.
-
-    Decision: stop the public C Generic ingress at its existing typed admission and retain its external ABI and Generic lowering.
-    Source authority + canonical issuer: the public three-argument C request plus its existing recipe/alias/replay admission in hako_llvmc_ffi_route.inc.
-    Non-authority: profile labels alone, options defaults, external symbol presence, tests, and a guessed environment snapshot do not redefine public compatibility.
-    Fail-fast boundary: public args -> alias/recipe/replay admission -> existing Generic JSON reader/core -> existing tool/lowering terminals; no fallback from Generic to named harness.
-    Smallest next slice: design the explicit environment-capture/compatibility matrix for recipe, replay (including unknown values), tool fallback, opt level, empty flags, alias, and nested invocation before any public route edit.
-    Non-claims: no public ABI deletion, no Generic options cutover, no shared-core retirement, no fallback/retry change, no new receipt, no LLVM18 evidence, and no R7/MIRBuilder completion.
-
-Census boundary: public hako_llvmc_compile_json -> its existing Generic
-JSON/core terminals; includes the public pure-first wrapper, Generic profile 0
-options caller (already closed through AOT), Boundary profile 1, Static profile
-2, named C/AOT harness, and link v1/v2 as retained neighboring surfaces;
-excludes external callers not visible in the repository, the dedicated Static
-V2 owner, and provider/llvmlite execution.
-
-| issuer / condition | terminal | authority and disposition | fallback |
-| --- | --- | --- | --- |
-| public Generic, pure-first, replay unset/none | existing Generic profile 0 lowering or typed error | retain public ABI, legacy reader, and compile_doc_compat_pure | none to named harness |
-| HAKO_CAPI_PURE=1 | env/hako_capi_pure_retired | retain existing alias reject/diagnostic | none |
-| recipe unset/non-pure-first | generic-capi-recipe-required | retain existing recipe gate | none |
-| replay=harness | generic-capi-compat-admission-required | retain explicit named C harness owner | no implicit replay |
-| unknown replay / empty and present tool or flag values | current ambient compatibility behavior, not yet fully normalized | CutoverBlockerOpen; design conversion rule first | no guessed options mapping |
-| Generic profile 0 options (AOT) | existing options Generic lowering | retain already-closed AOT owner; no public re-entry | none |
-| Boundary 1 / Static 2 / Explicit Harness 3 | existing strict, Static V2, or reject terminals | retain separate physical owners | no profile coercion |
-| public link v1/v2 and AOT link dlsym | existing link terminals | retain; outside compile row | none |
-
-The preceding paragraph records the pre-bridge design-stop baseline. The
-accepted design below supersedes its old route description: the public symbol
-now performs the same admission and then enters the existing Generic profile-0
-options owner. The private `compile_json_compat_pure` wrapper and its route
-edge were retired in that bounded slice; the public ABI, shared core, and
-neighboring compatibility owners remain retained.
-
-Design evidence: Erdos independently audited the public C route, shared-core
-consumers, and environment mismatch without editing, Cargo, fixture, or receipt
-creation. This finding supersedes the earlier broad remaining C/public
-candidate wording only for this public Generic ingress; it does not reopen the
-closed AOT Generic slice.
+The pre-bridge Stop/retain proposal was superseded by the accepted options
+bridge below, landed at `3d3b118ccf`. Git retains the earlier audit and matrix.
 
 ### Residual R7 owner selection audit (design stop 2026-09-12)
 
@@ -1018,61 +947,53 @@ graph. No files, Cargo, fixtures, or receipts were changed by the audit.
 
 ### MIR-CALL-PUBLIC-C-GENERIC-OPTIONS-I0 closeout (2026-09-12)
 
-The bounded implementation is complete. The public
-`hako_llvmc_compile_json` symbol keeps its three-argument ABI and existing
-alias, recipe, and exact-`harness` replay admission. After admission it now
-builds the existing Generic profile-0 physical contract and enters
-`compile_json_with_options_profile`; no new ABI, receipt, semantic layer, or
-fallback was added. The old private `compile_json_compat_pure` wrapper,
-prototype, and call edge are deleted. `compile_json_compat_pure_profile`
-remains for the selected Boundary profile, and `compile_doc_compat_pure`, the
-legacy `HAKO_CAPI_TM` probe, named harness, AOT, Static V2, and link owners are
-retained.
-
-Observed acceptance:
-
-- `bash tools/build_hako_llvmc_ffi.sh`: passed;
-- `llvm_compile_options_contract_smoke.sh`: passed; public Generic reached
-  profile-0 options with unknown replay, valid fake tools, effective flags,
-  and legacy first-character opt-level behavior (`2legacy-suffix`), while
-  recipe/replay/alias rejects produced no artifact;
-- `llvm_codegen_route_identity_guard.sh`,
-  `llvm_llvmlite_production_census_guard.py`,
-  `mir_call_static_v2_open_contract_guard.sh`,
-  `current_state_pointer_guard.sh`,
-  `mir_r7_legacy_census_manifest.py`, and `git diff --check` are the required
-  closeout gates for this row;
-- the document-lifetime and named-query C drivers compile with ASan and the
-  updated public Generic call. Their LLVM14 runtime witness remains a known
-  baseline failure because LLVM14 rejects opaque-pointer IR; LLVM18 object or
-  EXE success is not claimed. Installation remains blocked by external sudo
-  permission as recorded in the LLVM18 installation task.
-
-This closes only `MIR-CALL-PUBLIC-C-GENERIC-OPTIONS-I0`. Public ABI,
-`HAKO_CAPI_TM`, named compatibility/provider, Static V2, link, backend parity,
-aggregate R7, and whole-MIRBuilder completion remain unclaimed.
+`3d3b118ccf`: public Generic retains its ABI/admission and consumes profile-0
+options; the private `compile_json_compat_pure` wrapper/prototype/edge were
+removed. Boundary/shared core, HAKO_CAPI_TM, harness, Static V2 and link remain.
+C build, options smoke (unknown replay, first-character level, flags and
+pre-artifact rejects), route/census/static/pointer/manifest guards passed.
+ASan drivers compiled; their pre-install LLVM14 runtime evidence did not
+prove LLVM18 execution. Current LLVM18 evidence follows below.
+This closes the bounded bridge only; aggregate R7 remains open.
 
 ### LLVM18 installation and witness classification (2026-09-12)
 
-The environment-only task `LLVM18-TOOLCHAIN-INSTALL-I0` is now verified:
-`llvm-config-18`, `llc-18`, `opt-18`, `clang-18`, and `ld.lld-18` report
-LLVM18.1.8, `/usr/lib/llvm-18/include/llvm-c/Core.h` exists, and LLVM14 remains
-side-by-side. The stale witness name in the task was corrected to the actual
-test `normal_package_generic_g0_helper_reaches_existing_exe_emitter`.
+`161aff97f6`: LLVM18.1.8 tool/header/prefix checks passed. The corrected
+G0 witness ran at `3d3b118ccf` and rejected before object emission with
+`[freeze:contract][published-lifecycle-physical-abi/site-missing]`.
+The runtime archive exists under `target/lifecycle-kernel/release`; the
+test's hardcoded `target/release` alias was temporary and has been removed.
+Commands and detailed evidence belong to
+`llvm18-toolchain-installation-task-2026-09-12.md`; the G0 acceptance owner
+is `mirbuilder-loop-g0-helper-backend-reach-i1-2026-09-12.md`.
+LLVM18 availability is verified; helper execution and EXE exit 3 remain open.
 
-The corrected ignored test ran one test and reached the existing typed EXE
-route. It did not produce an object or executable: after a temporary generated
-output link exposed the lifecycle archive at its canonical
-`target/lifecycle-kernel/release` location, the route rejected with
-`[freeze:contract][published-lifecycle-physical-abi/site-missing]`. The
-temporary link was removed. This is classified as an existing lifecycle
-physical-ABI/site contract and test runtime-path blocker, not an LLVM18
-installation failure; LLVM18 object/EXE success and helper runtime execution
-remain unclaimed.
+Warning follow-up remains with `MIRBUILDER-WARNING-SURFACE-CENSUS-R0`;
+its current observation is lib=1793 / lib-test=523 (255 duplicates).
 
-The same `-j1` Rust acceptance build observed `nyash-rust (lib)=1793` warnings
-and `nyash-rust (lib test)=523` warnings (255 duplicates). These are separate
-target observations. The warning follow-up is taskized under the existing
-`MIRBUILDER-WARNING-SURFACE-CENSUS-R0` owner as
-`MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; no warning suppression or semantic
-cleanup is authorized by this R7 design-stop card.
+### G0 acceptance dependency: physical ABI and CFG coverage
+
+Pauli's read-only audit and primary source checks confirm that ordinary
+`Invoke(Call)` selects lifecycle transport but creates no checked site.
+`physical_abi.rs::issue_diagnostic_sites` rejects the empty result; C's
+`hako_physical_checked_sites_unique` independently requires count != 0.
+Existing types can represent an empty set with process-result site 0, but
+admission of it is a contract extension, not a behavior-preserving cleanup.
+
+Boundary: selected physical program -> ABI issuance/JSON -> C V4 admission
+and emission; includes root, called helper, every block and terminator;
+excludes unselected backends and source-shape expansion.
+Open inventory: empty checked-site admission (Rust and C); Compare transport;
+PHI value indexing; Branch and backedge flow/emission. The V4 flow walker
+currently rejects active-block revisits. The exact next runtime reject after
+site issuance remains unobserved; these later gaps are static source evidence.
+
+Decision: keep G0 EXE acceptance open and design this complete bounded CFG
+transport before implementation. Empty-site admission is a prerequisite,
+not the terminal or proof of loop execution. Reuse the retained source/Recipe
+and physical-program issuer; add no synthetic checked operation or source
+receipt. Preserve checked-site coverage/uniqueness, process-site separation,
+target/arity, and Normal/Fault/frame validation. Required terminal remains
+the unchanged source-called G0 executable with exit 3. The next design must
+name one consumer mapping for each inventory item and its pre-artifact
+negative; R7's retained compatibility disposition is unchanged.

@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "design_stop: co-seal the next shared compatibility owner and exclusive delete-set after public Generic profile-0 options bridge I0; LLVM18 is installed, while the named G0 EXE witness remains open at the existing lifecycle physical-ABI/site contract."
+guard_followup = "design_stop: resolve the G0 acceptance dependency's empty-site, Compare, PHI and cyclic-CFG consumer mapping in the current card; preserve the residual R7 compatibility disposition. LLVM18 is installed; exit-3 acceptance remains open."
 current_design_stop = "open__MIR-CALL-COMPATIBILITY-RETIRE-R7-D0__2026-09-12"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -40,8 +40,8 @@ guard are green; the existing named compatibility smoke remains an uncounted
 host Traceback baseline red. Static V2 open I0 passes the accepted
 physical-options contract through production open/query/compile/close with
 fake-tool/pre-effect evidence; LLVM14 skips legacy LLVM18 object compile (no runtime claim). AOT Generic now uses profile-0 physical options; named harness, public C, and published-row globals remain.
-The G0 helper backend reach design stop is accepted and its I1 implementation
-is closed. The existing source-backed Global Call relation
+The G0 helper backend reach implementation is landed; its EXE acceptance
+remains open. The existing source-backed Global Call relation
 `Main.main -> generic_g0(0, 0)` is the sole membership authority. The focused
 positive observes exactly the root Invoke(Call) to `generic_g0/2`, two integer
 helper lanes, and helper Compare/Add body operations. The static EXE witness
