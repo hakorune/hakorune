@@ -1,11 +1,11 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-LEGACY-TM-INVOCATION-CAPTURE-I0"
-current_execution_cohort = "mir_call_compatibility_retire_r7_tm_capture_i0"
-current_blocker_token = "MIR-CALL-LEGACY-TM-INVOCATION-CAPTURE-I0"
-guard_followup = "closeout: MIR-CALL-LEGACY-TM-INVOCATION-CAPTURE-I0 implementation and focused evidence are complete. Commit/push the invocation-owned capture, then select the separate published-row invocation ownership design; retain public ABI/probe/fallback. Host RAM replacement remains external; cap build jobs at 1-2 until validated."
-current_design_stop = "none__accepted__MIR-CALL-LEGACY-TM-INVOCATION-CAPTURE-I0"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0"
+current_execution_cohort = "mir_call_compatibility_retire_r7_published_rows_d0"
+current_blocker_token = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0"
+guard_followup = "design_stop: TM invocation capture I0 is pushed at 47e83a224e. The next bounded design must co-seal published-row invocation ownership, complete consumer pointer threading, re-entry behavior, cleanup, and the exact old global-edge delete-set before code. Host RAM replacement remains external; cap build jobs at 1-2 until validated."
+current_design_stop = "PublishedRows__InvocationOwnershipDesignPending"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -48,7 +48,7 @@ helper lanes, and helper Compare/Add body operations. The static EXE witness
 uses the same selected view; empty-site ABI, declared contracts and physical
 Compare/PHI/CFG now reach LLVM18/EXE3. First-family cutovers reuse one snapshot;
 Pure expected-location fields and PreheaderSeed were removed at 537e5e20fe; Read/Write/Carrier metadata is a separate cleanup candidate.
-Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, Boundary llc unset/empty policy, and AOT direct-harness child-env I0 are closed. The next bounded row captures the retained legacy TargetMachine selector and opt-level in the existing invocation owner; published-row globals and public/external retirement remain separate.
+Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, Boundary llc unset/empty policy, AOT direct-harness child-env I0, and legacy TargetMachine invocation capture I0 are closed. Published-row global ownership is the next design stop; public/external retirement remains separate.
 LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
 are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
 18 focused Rust tests pass, including source-called G0 EXE3; C regressions pass.
@@ -56,9 +56,9 @@ Warning follow-up is `MIRBUILDER-WARNING-SURFACE-CENSUS-R0` /
 `MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; observed `lib=1806`, `lib test=533
 (265 duplicates)` are separate, non-zero-warning baselines.
 """
-next_design_card = "MIR-CALL-LEGACY-TM-INVOCATION-CAPTURE-I0"
+next_design_card = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "MIR-CALL-LEGACY-TM-INVOCATION-CAPTURE-I0"
+next_execution_card = "none__PublishedRows__DesignStop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

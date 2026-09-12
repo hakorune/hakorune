@@ -1,5 +1,5 @@
 ---
-Status: Active — R7 invocation-owned legacy TargetMachine capture I0
+Status: Active — R7 published-row invocation ownership design stop
 Date: 2026-09-11
 Decision: MIR-CALL-COMPATIBILITY-RETIRE-R7-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -11,12 +11,12 @@ ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
 
 ## Six-line brief
 
-Decision: capture the retained legacy TargetMachine selector and opt level in the existing invocation owner before legacy lowering.
-Source authority + canonical issuer: the eligible compile invocation captures `HAKO_CAPI_TM` and HAKO-first/NYASH-fallback opt-level values once; the existing legacy emitter consumes those scalars.
-Non-authority: MIR/Recipe meaning, profile names alone, ambient values after capture, provider reachability, public ABI names, and test-only emitters issue no new semantics.
-Fail-fast boundary: entry/profile -> contract/replay/pinned census -> invocation capture -> provider/lowering -> artifact publication; typed/contract-bound and published-row routes bypass the legacy capture.
-Smallest next slice: add invocation-owned scalar capture, delete the three legacy-emitter `getenv` reads, and prove selector precedence, mutation-after-capture, retained fallback, and no new public ABI.
-Non-claims: no public ABI deletion, probe/fallback deletion, concurrency guarantee, LLVM18 claim, published-row migration, semantic receipt, or aggregate R7/MirBuilder completion.
+Decision: co-seal published-call-row state with the existing compile invocation before another R7 implementation row.
+Source authority + canonical issuer: the existing typed Rust frame rows remain the sole row product; one invocation-owned ledger normalizes their borrow and consumption state.
+Non-authority: global storage, symbol names, profile labels, MIR/Recipe meaning, provider reachability, public ABI names, and test-only direct callers issue no semantics.
+Fail-fast boundary: frame/layout/row validation -> invocation binding/re-entry -> site peek/take -> residual finish -> cleanup/publication.
+Smallest next slice: map every row consumer and thread one invocation-owned state pointer through begin/active/peek/take/finish/end, including nested and failure paths.
+Non-claims: no code, public ABI deletion, concurrency guarantee, semantic row expansion, fallback, backend parity, or aggregate R7/MirBuilder completion.
 
 ## Finite boundary and state table
 
@@ -969,3 +969,22 @@ the separate global published-call-row lifecycle: define invocation ownership,
 re-entry behavior, and the exact caller-specific old-edge delete-set before
 changing its consumer. No public ABI deletion, concurrency claim, or aggregate
 R7/MirBuilder completion is implied.
+
+### MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0 (design stop, 2026-09-12)
+
+The current source fact is finite: `hako_llvmc_published_call_rows` stores the
+borrowed row pointer, count, mode, and `used[1024]`; all production consumers
+reach it through `peek/take/finish`, while Static V2 calls `begin` after its
+invocation `bind` and cleans up at `end`. A second read-only consultation was
+explicitly cancelled after observation timeout; that is not rejection
+evidence. Do not implement from the global census alone.
+
+Required design deliverable: a source-backed issuer/terminal matrix for the
+Static V2 production caller and every generic lowering consumer, a complete
+invocation pointer path for prepass/emission/residual checks, a decision for
+same-invocation re-entry and distinct-invocation overlap, and an exact delete
+set naming the old global reads/writes. Preserve borrowed Rust row lifetime,
+typed kind/coordinate validation, duplicate-take rejection, zero-row V2
+behavior, and cleanup on every pre-artifact failure. Acceptance is one closed
+Decision plus focused re-entry/cleanup/row-consumption negatives; until then
+`work_mode = design_stop` and `next_execution_card = none__PublishedRows__DesignStop`.
