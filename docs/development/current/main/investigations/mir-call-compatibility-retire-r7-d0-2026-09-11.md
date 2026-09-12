@@ -873,3 +873,57 @@ object/EXE runtime claim is made. This closes only
 provider, aggregate R7, backend parity, and whole-MIRBuilder completion remain
 open by design. The next R7 decision stop must select another finite owner
 with a non-empty delete-set.
+
+### Public C Generic compile ingress disposition (design stop 2026-09-12)
+
+The read-only public-ingress audit selected Stop / retain, not an immediate
+options-ABI cutover. The public three-argument
+hako_llvmc_compile_json is an externally consumable compatibility ABI; its
+current Generic profile intentionally keeps compile_doc_compat_pure and
+ambient tool fallback semantics. The existing options contract is stricter
+and cannot be substituted until its compatibility conversion rules are
+explicitly owned.
+
+    Decision: stop the public C Generic ingress at its existing typed admission and retain its external ABI and Generic lowering.
+    Source authority + canonical issuer: the public three-argument C request plus its existing recipe/alias/replay admission in hako_llvmc_ffi_route.inc.
+    Non-authority: profile labels alone, options defaults, external symbol presence, tests, and a guessed environment snapshot do not redefine public compatibility.
+    Fail-fast boundary: public args -> alias/recipe/replay admission -> existing Generic JSON reader/core -> existing tool/lowering terminals; no fallback from Generic to named harness.
+    Smallest next slice: design the explicit environment-capture/compatibility matrix for recipe, replay (including unknown values), tool fallback, opt level, empty flags, alias, and nested invocation before any public route edit.
+    Non-claims: no public ABI deletion, no Generic options cutover, no shared-core retirement, no fallback/retry change, no new receipt, no LLVM18 evidence, and no R7/MIRBuilder completion.
+
+Census boundary: public hako_llvmc_compile_json -> its existing Generic
+JSON/core terminals; includes the public pure-first wrapper, Generic profile 0
+options caller (already closed through AOT), Boundary profile 1, Static profile
+2, named C/AOT harness, and link v1/v2 as retained neighboring surfaces;
+excludes external callers not visible in the repository, the dedicated Static
+V2 owner, and provider/llvmlite execution.
+
+| issuer / condition | terminal | authority and disposition | fallback |
+| --- | --- | --- | --- |
+| public Generic, pure-first, replay unset/none | existing Generic profile 0 lowering or typed error | retain public ABI, legacy reader, and compile_doc_compat_pure | none to named harness |
+| HAKO_CAPI_PURE=1 | env/hako_capi_pure_retired | retain existing alias reject/diagnostic | none |
+| recipe unset/non-pure-first | generic-capi-recipe-required | retain existing recipe gate | none |
+| replay=harness | generic-capi-compat-admission-required | retain explicit named C harness owner | no implicit replay |
+| unknown replay / empty and present tool or flag values | current ambient compatibility behavior, not yet fully normalized | CutoverBlockerOpen; design conversion rule first | no guessed options mapping |
+| Generic profile 0 options (AOT) | existing options Generic lowering | retain already-closed AOT owner; no public re-entry | none |
+| Boundary 1 / Static 2 / Explicit Harness 3 | existing strict, Static V2, or reject terminals | retain separate physical owners | no profile coercion |
+| public link v1/v2 and AOT link dlsym | existing link terminals | retain; outside compile row | none |
+
+The public route's exact current chain is
+hako_llvmc_compile_json -> recipe/alias/replay admission ->
+compile_json_via_pure_first_lane -> compile_json_compat_pure(profile=0) ->
+compile_doc_compat_pure. The apparent delete candidates
+compile_json_via_pure_first_lane and its call edge are not a safe production
+delete-set: the public symbol cannot reach caller-zero from repository evidence,
+and the shared core remains consumed by options and Static V2/test lifetimes.
+The next design slice must resolve, in one table, whether each unset/empty/
+present value is preserved, captured, rejected, or mapped to an existing
+terminal, including unknown replay and tool-resolution failure. Until that
+table and a non-empty caller-specific delete-set exist, keep
+work_mode = design_stop and retain all public C/AOT/harness/link surfaces.
+
+Design evidence: Erdos independently audited the public C route, shared-core
+consumers, and environment mismatch without editing, Cargo, fixture, or receipt
+creation. This finding supersedes the earlier broad remaining C/public
+candidate wording only for this public Generic ingress; it does not reopen the
+closed AOT Generic slice.
