@@ -238,6 +238,17 @@ ABI does not change runtime/plugin ABIs or the live static compiler transport v1
 
 ### Named Harness physical-options ownership
 
+Decision (2026-09-13): direct AOT Harness keeps the inherited option pair,
+defaulting only missing HAKO/NYASH values to `"0"`; present-empty stays empty.
+The Windows process boundary publishes explicit `NAME=` environment entries
+and wraps the already-quoted compile command once for `cmd.exe /D /S /C`.
+The existing 2048-byte option admission buffer bounds the combined Windows
+value lengths to less than 2047 bytes; overflow rejects with `command too long`
+before log, child, or object effects. Parent option environment is unchanged.
+Callers must establish the environment visible to their C runtime before the
+invocation; independent CRT environment caches are not synchronized by the ABI.
+No concurrent environment-mutation guarantee or public ABI change is introduced.
+
 Decision (2026-09-12): the named C Harness export retains its ABI and delegates
 opaque input/settings to the child. It captures only its compiler path into
 the existing physical-options owner through private Harness admission. The

@@ -36,6 +36,23 @@ Layout
   - `hako_aot_shared_impl.inc` — AOT compile/link の shared source truth
   - public path-owner names are `mir_json_path` / `obj_path` / `exe_path` under `hako_aot.h`
 
+Windows direct-harness child-env verification
+- Use native Git Bash and native MinGW-w64 GCC (verified with w64devkit GCC
+  14.2.0), plus native Windows Python (verified with 3.11.8). Keep Git's
+  `/usr/bin` ahead of w64devkit utilities; its `bash` must run these scripts.
+- Run `bash tools/build_hako_llvmc_ffi.sh` then
+  `bash tools/checks/llvm_hako_aot_ffi_admission_smoke.sh child-env`.
+  `CC` selects the compiler executable; `PYTHON` optionally selects Python.
+  Git Bash defaults to `python`, avoiding the WindowsApps `python3` alias.
+- The artifact is `target/release/hako_llvmc_ffi.dll`. WSL/Linux `.so` evidence
+  cannot close Windows validation. No MSVC C port or UCRT linker override is
+  required for this bounded test; Rust's MSVC toolchain is independent.
+- Each Windows DLL caller inherits its test environment at process birth;
+  this preserves empty values without mutating independent CRT caches.
+  A native C child emits null for absent and an empty string for present-empty.
+  The test compares parent Win32/MSVCRT/UCRT option snapshots across the call.
+  This proves serial invocation behavior, not concurrent environment mutation.
+
 Caller-zero pinned-Text lowering fixture
 - `shims/hako_llvmc_ffi_pinned_text_residence_carrier.inc` consumes only the
   Rust-issued `hako.pinned_text_residence_carrier@1` projection together with

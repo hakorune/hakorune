@@ -17,7 +17,10 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
-#if !defined(_WIN32)
+#if defined(_WIN32)
+#include <io.h>
+#include <process.h>
+#else
 #include <unistd.h>
 #endif
 

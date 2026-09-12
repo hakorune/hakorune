@@ -224,7 +224,7 @@ static int hako_aot_run_direct_harness_process(
     free(env_block);
     return -1;
   }
-  written = snprintf(cmdline, cmd_len + 32, "cmd.exe /D /S /C \"\"%s\"\"", cmd);
+  written = snprintf(cmdline, cmd_len + 32, "cmd.exe /D /S /C \"%s\"", cmd);
   if (written <= 0 || (size_t)written >= cmd_len + 32) {
     free(cmdline);
     free(env_block);

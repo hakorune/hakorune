@@ -48,8 +48,9 @@ static int hako_aot_build_direct_harness_env_prefix(
   nyash = child_env->nyash_opt_level;
 #if defined(_WIN32)
   /* Windows receives the pair through CreateProcess, never through `set`. */
-  (void)hako;
-  (void)nyash;
+  /* Preserve the bounded option admission even without a shell prefix. */
+  if (strlen(hako) >= buffer_len || strlen(nyash) >= buffer_len ||
+      strlen(hako) + strlen(nyash) >= buffer_len - 1) return -1;
   (void)used;
   return 0;
 #else

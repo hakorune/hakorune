@@ -15,14 +15,20 @@ case "$MODE" in
     ;;
 esac
 
-bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
+"$BASH" "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
-MODE="$MODE" ROOT="$ROOT" python3 - <<'PY'
+python_cmd=${PYTHON:-python3}
+if [[ -z "${PYTHON:-}" && "$OSTYPE" == msys* ]]; then
+  python_cmd=python
+fi
+MODE="$MODE" ROOT="$ROOT" "$python_cmd" - <<'PY'
 import ctypes
 import json
 import os
 import pathlib
 import tempfile
+import subprocess
+import sys
 
 root = pathlib.Path(os.environ["ROOT"])
 mode = os.environ["MODE"]
@@ -38,7 +44,7 @@ for name in (
     fn.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.POINTER(ctypes.c_void_p)]
     fn.restype = ctypes.c_int
 lib.hako_mem_free.argtypes = [ctypes.c_void_p]
-libc = ctypes.CDLL(None)
+libc = ctypes.CDLL("msvcrt.dll" if os.name == "nt" else None)
 libc.getenv.argtypes = [ctypes.c_char_p]
 libc.getenv.restype = ctypes.c_char_p
 
@@ -56,6 +62,18 @@ def native_env_pair():
     return tuple(values)
 
 def call(name, env, out, exact_opt_env=False):
+    if os.name == "nt":
+        child_env = os.environ.copy()
+        if exact_opt_env:
+            for key in OPT_KEYS:
+                child_env.pop(key, None)
+        child_env.update(env)
+        result = subprocess.run(
+            [sys.executable, str(root / "tools/checks/lib/aot_windows_env_call.py"),
+             str(root / "target/release" / lib_name), name, str(fixture), str(out)],
+            env=child_env, check=True, capture_output=True, text=True,
+        )
+        return json.loads(result.stdout)
     old = os.environ.copy()
     try:
         if exact_opt_env:
@@ -79,21 +97,26 @@ def call(name, env, out, exact_opt_env=False):
 def run_child_env_checks(temp, out):
     record = pathlib.Path(temp) / "child_env.json"
     if os.name == "nt":
-        probe = pathlib.Path(temp) / "child_env_probe.cmd"
-        probe.write_text(
-            "@echo off\r\n"
-            "set \"OUT=\"\r\n"
-            ":next\r\n"
-            "if \"%~1\"==\"--out\" set \"OUT=%~2\"\r\n"
-            "if \"%~1\"==\"\" goto done\r\n"
-            "shift\r\n"
-            "goto next\r\n"
-            ":done\r\n"
-            "> \"%HAKO_AOT_CHILD_ENV_RECORD%\" echo {\"hako\":\"%HAKO_LLVM_OPT_LEVEL%\",\"nyash\":\"%NYASH_LLVM_OPT_LEVEL%\"}\r\n"
-            "> \"%OUT%\" echo probe\r\n",
-            encoding="utf-8",
-            newline="",
-        )
+        probe = pathlib.Path(temp) / "child env probe.exe"
+        subprocess.run([os.environ.get("CC", "cc"),
+                        str(root / "tools/checks/lib/aot_child_env_probe.c"),
+                        "-o", str(probe)], check=True)
+        # Control the observer independently: an absent value must be JSON null,
+        # not the empty string that cmd.exe percent expansion would produce.
+        for values in ({}, dict.fromkeys(OPT_KEYS, "")):
+            control_env = os.environ.copy()
+            for key in OPT_KEYS:
+                control_env.pop(key, None)
+            control_env.update(values)
+            control_env["HAKO_AOT_CHILD_ENV_RECORD"] = str(record)
+            control_out = out / "observer-control.o"
+            subprocess.run([str(probe), "--out", str(control_out)],
+                           env=control_env, check=True)
+            observed = json.loads(record.read_text())
+            assert (observed["hako"], observed["nyash"]) == tuple(values.get(k) for k in OPT_KEYS)
+            record.unlink()
+            control_out.unlink()
+        print("child-env observer: unset=null empty=\"\" control-passed=true")
     else:
         probe = pathlib.Path(temp) / "child_env_probe.py"
         probe.write_text(
@@ -148,6 +171,7 @@ def run_child_env_checks(temp, out):
         actual = (observed.get("hako"), observed.get("nyash"))
         if actual != expected:
             raise SystemExit(f"child opt environment drift: {label}: {actual} != {expected}")
+        print(f"child-env {label}: observed={json.dumps(observed)} parent-preserved=true")
 
     record.unlink(missing_ok=True)
     overflow_out = out / "child-env-command-error.o"
@@ -169,6 +193,7 @@ def run_child_env_checks(temp, out):
         or after != before
     ):
         raise SystemExit("command construction error launched a child or changed the parent")
+    print("child-env overflow: child-started=false parent-preserved=true error=command too long")
 
 with tempfile.TemporaryDirectory(prefix="hako-aot-ffi-admission-") as temp:
     out = pathlib.Path(temp)

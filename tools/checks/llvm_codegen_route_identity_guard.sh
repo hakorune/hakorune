@@ -123,6 +123,10 @@ need_fixed "$AOT_SMOKE" 'run_child_env_checks(temp, out)' \
   "AOT child-env check must run before real compatibility lanes"
 need_fixed "$AOT_SMOKE" 'mode == "child-env"' \
   "AOT child-env early-exit mode missing"
+need_fixed "$AOT_SMOKE" 'aot_child_env_probe.c' \
+  "Windows child observer must distinguish missing from empty"
+need_fixed "$AOT_SMOKE" 'aot_windows_env_call.py' \
+  "Windows DLL parent must receive environment before CRT initialization"
 if rg -n 'hako_aot_ensure_default_opt_env|setenv\("HAKO_LLVM_OPT_LEVEL"|setenv\("NYASH_LLVM_OPT_LEVEL"|set "HAKO_LLVM_OPT_LEVEL=|set "NYASH_LLVM_OPT_LEVEL=' \
   "$AOT" "$AOT_GENERIC" "$AOT_CHILD"; then
   fail "direct AOT harness still mutates the parent opt-level environment"

@@ -1,7 +1,7 @@
 ---
-Status: Active — R7 AOT direct-harness child-env I1 Windows proof
-Date: 2026-09-12
-Decision: MIR-CALL-AOT-DIRECT-HARNESS-CHILD-ENV-I1
+Status: Design stop — R7 published-row invocation ownership; AOT child-env I1 verified
+Date: 2026-09-13
+Decision: MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: strict/dev selfhost and stage1 ingress already stopped; release compatibility remains
 ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
@@ -11,11 +11,11 @@ ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
 
 ## Six-line brief
 
-Decision: repair direct-harness option transport at the process boundary before the queued published-row owner design.
-Source authority + canonical issuer: the existing AOT invocation captures the effective HAKO/NYASH pair; the existing compile command remains the sole child-command issuer.
-Non-authority: MIR/Recipe meaning, public ABI names, profile labels, provider reachability, and test-only callers issue no semantics.
-Fail-fast boundary: argument validation -> local capture -> bounded command/env-block construction -> child launch -> existing object/error terminal.
-Smallest next slice: run the independent `child-env` smoke on Windows and close only after empty `NAME=` is observed in the child.
+Decision: define published-row invocation ownership before changing the global row lifecycle.
+Source authority + canonical issuer: existing borrowed Rust call rows and Static V2 bind/begin are the source-backed starting boundary; canonical invocation ownership remains to be decided.
+Non-authority: global census, cancelled consultation, and AOT child-env proof do not authorize published-row semantics or implementation.
+Fail-fast boundary: preserve typed row/coordinate validation, duplicate-take rejection, and cleanup on every pre-artifact failure.
+Smallest next slice: produce the issuer/terminal matrix, complete invocation pointer path, re-entry/overlap decision, and exact old-edge delete-set described below.
 Non-claims: no published-row implementation, public ABI deletion, provider retirement, concurrency guarantee, backend parity, or aggregate R7/MirBuilder completion.
 
 ## Finite boundary and state table
@@ -398,8 +398,25 @@ HAKO-only, NYASH-only, both-present, both-empty, parent preservation, and the
 no-child command-construction negative. On this Linux host, the C build,
 route guard, and standalone `child-env` mode pass. The default smoke reaches
 the known named-direct compatibility red afterward because this host's Python
-has no `llvmlite`; that is baseline environment debt. Windows runtime proof is
-still pending on a Windows host, so I1 remains open until that command is run.
+has no `llvmlite`; that is baseline environment debt.
+
+Windows verification (2026-09-13, repair based on `eb644eb6ee`): native
+Git Bash `MINGW64_NT-10.0-26200`, w64devkit GCC 14.2.0 targeting
+`x86_64-w64-mingw32`, and Windows Python 3.11.8 pass the independent
+`child-env` command. The generated `target/release/hako_llvmc_ffi.dll` is a
+native x86-64 PE DLL using the compiler's normal MSVCRT configuration. No
+forced UCRT/setjmp override or temporary compiler/Python wrapper is used.
+The repair adds the missing Windows headers, keeps unsupported pinned-Text
+dynamic loading excluded, removes excess cmd quoting, and restores the
+pre-child option-size rejection. The native C observer distinguishes JSON
+null from empty and is independently controlled for both. DLL callers receive
+environment at process birth to avoid Python/MSVCRT cache mismatch.
+Observed pairs are `(0,0)`, `(3,0)`, `(0,1)`, `(3,1)`, and `("", "")`;
+Win32 and both CRT parent option snapshots are unchanged. The 3000-byte
+overflow rejects with `command too long`, with no child record or object.
+Linux rerun, route-identity guard, pointer guard, and diff check also pass.
+This closes I1 with native Windows evidence; the named llvmlite baseline,
+published-row design, and aggregate R7 remain separate.
 
 Separate informational census red: `mir_r7_legacy_census_manifest.py` currently
 reports its pre-existing `capi_transport.rs:247` anchor drift (the source line
@@ -955,7 +972,7 @@ re-entry behavior, and the exact caller-specific old-edge delete-set before
 changing its consumer. No public ABI deletion, concurrency claim, or aggregate
 R7/MirBuilder completion is implied.
 
-### MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0 (queued design stop, 2026-09-12)
+### MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0 (active design stop, 2026-09-13)
 
 The current source fact is finite: `hako_llvmc_published_call_rows` stores the
 borrowed row pointer, count, mode, and `used[1024]`; all production consumers
@@ -971,6 +988,7 @@ same-invocation re-entry and distinct-invocation overlap, and an exact delete
 set naming the old global reads/writes. Preserve borrowed Rust row lifetime,
 typed kind/coordinate validation, duplicate-take rejection, zero-row V2
 behavior, and cleanup on every pre-artifact failure. Acceptance is one closed
-Decision plus focused re-entry/cleanup/row-consumption negatives; until then
-After AOT child-env I1 Windows proof, this remains the next design stop; until
-then the active pointer is the bounded I1 verification above.
+Decision with specified re-entry/cleanup/row-consumption negatives and one
+bounded next implementation slice. No implementation is authorized before that
+Decision. AOT child-env I1 Windows proof is now complete; this is the active
+design stop selected by CURRENT_STATE.

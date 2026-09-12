@@ -24,7 +24,7 @@ if [[ "$uname_s" == "Darwin" ]]; then
   out_name="libhako_llvmc_ffi.dylib"
   link_mode="-dynamiclib"
   extra_linker_flag="-Wl,-install_name,@rpath/libhako_llvmc_ffi.dylib"
-elif [[ "$uname_s" == MINGW* || "$uname_s" == MSYS* || "$uname_s" == CYGWIN* ]]; then
+elif [[ "$uname_s" == MINGW* || "$uname_s" == MSYS* || "$uname_s" == CYGWIN* || "$uname_s" == Windows_NT ]]; then
   out_name="hako_llvmc_ffi.dll"
 fi
 out_path="$OUT_DIR/$out_name"

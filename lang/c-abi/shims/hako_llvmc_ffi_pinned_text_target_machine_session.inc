@@ -90,12 +90,20 @@ static void hako_llvmc_ptfb_session_close(
   if (session->machine && session->dispose_machine) {
     session->dispose_machine(session->machine);
   }
+#if !defined(_WIN32)
   if (session->handle) dlclose(session->handle);
+#endif
   hako_llvmc_ptfb_session_zero(session);
 }
 
 static void* hako_llvmc_ptfb_session_symbol(void* handle, const char* name) {
+#if defined(_WIN32)
+  (void)handle;
+  (void)name;
+  return NULL; /* session_open rejects Windows before symbol lookup. */
+#else
   return handle && name ? dlsym(handle, name) : NULL;
+#endif
 }
 
 static int hako_llvmc_ptfb_session_open(
