@@ -40,9 +40,10 @@ static void hako_llvmc_physical_options_destroy(
   *options = (struct HakoLlvmcPhysicalOptions){0};
 }
 
-static int hako_llvmc_physical_options_copy(
+static int hako_llvmc_physical_options_copy_admitted(
     struct HakoLlvmcPhysicalOptions* destination,
     const hako_llvmc_physical_contract_v1* contract,
+    int named_harness,
     char** error) {
   struct HakoLlvmcPhysicalOptions copy = {0};
   const char* level;
@@ -52,6 +53,22 @@ static int hako_llvmc_physical_options_copy(
   if (contract->revision != HAKO_LLVMC_PHYSICAL_CONTRACT_REVISION ||
       contract->byte_size != sizeof(*contract)) {
     return set_err_owned(error, "[freeze:contract][compile-options/revision-size]");
+  }
+  if (named_harness) {
+    if (contract->ingress_profile != HAKO_LLVMC_PHYSICAL_PROFILE_EXPLICIT_HARNESS ||
+        contract->flags != 0)
+      return set_err_owned(error, "[freeze:contract][compile-options/profile-flags]");
+    /* These fields are delegated to the child, not supplied with defaults. */
+    if (contract->compile_recipe || contract->compat_replay || contract->opt_level ||
+        contract->opt_tool_path || contract->llc_tool_path || contract->llc_flags ||
+        !contract->llvmc_path || !*contract->llvmc_path)
+      return set_err_owned(error, "[freeze:contract][compile-options/harness-fields]");
+    copy.llvmc_path = hako_llvmc_duplicate_option(contract->llvmc_path);
+    if (!copy.llvmc_path)
+      return set_err_owned(error, "[freeze:contract][compile-options/oom]");
+    copy.explicit_contract = 1;
+    *destination = copy;
+    return 0;
   }
   if ((contract->ingress_profile != HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT &&
        contract->ingress_profile != HAKO_LLVMC_PHYSICAL_PROFILE_BOUNDARY_PURE_FIRST &&
@@ -92,6 +109,18 @@ static int hako_llvmc_physical_options_copy(
   }
   *destination = copy;
   return 0;
+}
+
+static int hako_llvmc_physical_options_copy(
+    struct HakoLlvmcPhysicalOptions* destination,
+    const hako_llvmc_physical_contract_v1* contract, char** error) {
+  return hako_llvmc_physical_options_copy_admitted(destination, contract, 0, error);
+}
+
+static int hako_llvmc_physical_options_copy_named_harness(
+    struct HakoLlvmcPhysicalOptions* destination,
+    const hako_llvmc_physical_contract_v1* contract, char** error) {
+  return hako_llvmc_physical_options_copy_admitted(destination, contract, 1, error);
 }
 
 static const char* hako_llvmc_compile_recipe_for(

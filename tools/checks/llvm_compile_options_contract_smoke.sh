@@ -9,8 +9,11 @@ bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
 ROOT="$ROOT" python3 - <<'PY'
 import ctypes
+import json
 import os
 import pathlib
+import subprocess
+import sys
 import tempfile
 
 root = pathlib.Path(os.environ["ROOT"])
@@ -64,6 +67,11 @@ if not exact_fixture.is_file():
 
 with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
     temp = pathlib.Path(temp)
+    ownership = temp / "options-ownership"
+    subprocess.run(["cc", "-std=gnu11", "-O2",
+        str(root / "lang/c-abi/tests/physical_options_ownership_test.c"),
+        "-o", str(ownership)], check=True)
+    subprocess.run([str(ownership)], check=True)
     opt_log = temp / "opt.args"
     llc_log = temp / "llc.args"
     scripts = {}
@@ -288,6 +296,82 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
     if rc == 0 or pure_alias_out.exists() or "hako_capi_pure_retired" not in message:
         raise SystemExit(f"AOT HAKO_CAPI_PURE was not rejected before effects: rc={rc} {message!r}")
 
+    # Named Harness owns only its compiler path. Input and child settings stay
+    # opaque; the public options ingress above must continue rejecting profile3.
+    harness = lib.hako_llvmc_compile_json_compat_harness
+    harness.argtypes = compile_public.argtypes
+    harness.restype = ctypes.c_int
+    aot_harness = lib.hako_aot_compile_json_compat_harness
+    aot_harness.argtypes = compile_public.argtypes
+    aot_harness.restype = ctypes.c_int
+    fake = temp / "fake harness"
+    capture = temp / "harness.json"
+    fake.write_text(
+        f"#!{sys.executable}\nimport json, os, pathlib, sys\n"
+        f"pathlib.Path({str(capture)!r}).write_text(json.dumps([sys.argv[1:], dict(os.environ)]))\n"
+        "mode = os.environ.get('HARNESS_TEST_MODE', '')\n"
+        "if mode == 'fail':\n sys.stderr.write('first child error\\nsecond line\\n'); sys.exit(7)\n"
+        "if mode != 'missing':\n pathlib.Path(sys.argv[sys.argv.index('--out') + 1]).write_bytes(b'object')\n"
+    )
+    fake.chmod(0o755)
+    harness_before = os.environ.copy()
+    os.environ.update({"NYASH_NY_LLVM_COMPILER": str(fake),
+        "HAKO_BACKEND_COMPILE_RECIPE": "wrong-parent-recipe",
+        "HAKO_BACKEND_COMPAT_REPLAY": "unknown",
+        "NYASH_LLVM_OPT_LEVEL": "", "HAKO_LLVM_OPT_LEVEL": "3"})
+    opaque = temp / "malformed.json"
+    opaque.write_text("not JSON")
+    def harness_call(entry, output, input_path=opaque):
+        expected = os.environ.copy()
+        error = ctypes.c_void_p()
+        rc = entry(str(input_path).encode(), str(output).encode(), ctypes.byref(error))
+        message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+        if error.value:
+            lib.hako_mem_free(error)
+        assert os.environ.copy() == expected, "named harness changed parent environment"
+        return rc, message
+    for entry, level in [(entry, level) for entry in [harness, aot_harness]
+                         for level in [None, "", "O3"]]:
+        if level is None:
+            os.environ.pop("NYASH_LLVM_OPT_LEVEL", None)
+        else:
+            os.environ["NYASH_LLVM_OPT_LEVEL"] = level
+        output = temp / "harness.o"
+        rc, message = harness_call(entry, output)
+        assert rc == 0 and output.read_bytes() == b"object", (rc, message)
+        args, child_env = json.loads(capture.read_text())
+        assert args == ["--driver", "harness", "--in", str(opaque), "--emit", "obj", "--out", str(output)]
+        for key in ["NYASH_LLVM_OPT_LEVEL", "HAKO_LLVM_OPT_LEVEL",
+                    "HAKO_BACKEND_COMPILE_RECIPE", "HAKO_BACKEND_COMPAT_REPLAY"]:
+            assert child_env.get(key) == os.environ.get(key), (key, child_env.get(key))
+    os.environ["NYASH_NY_LLVM_COMPILER"] = str(temp / "absent")
+    output.write_bytes(b"sentinel")
+    rc, message = harness_call(harness, output)
+    assert rc != 0 and "ny-llvmc not found" in message and output.read_bytes() == b"sentinel"
+    os.environ["NYASH_NY_LLVM_COMPILER"] = str(fake)
+    for mode, needle in [("fail", "first child error"), ("missing", "finished without object")]:
+        os.environ["HARNESS_TEST_MODE"] = mode
+        rc, message = harness_call(harness, output)
+        assert rc != 0 and needle in message and not output.exists(), (rc, message)
+        assert "second line" not in message
+    os.environ.pop("HARNESS_TEST_MODE")
+    output.write_bytes(b"sentinel")
+    old_tmp = os.environ.get("TMPDIR")
+    os.environ["TMPDIR"] = "/" + "x" * 1100
+    rc, message = harness_call(harness, output)
+    assert rc != 0 and "log path too long" in message and output.read_bytes() == b"sentinel"
+    if old_tmp is None:
+        os.environ.pop("TMPDIR")
+    else:
+        os.environ["TMPDIR"] = old_tmp
+    rc, message = harness_call(harness, output, "x" * 4096)
+    assert rc != 0 and "command too long" in message and output.read_bytes() == b"sentinel"
+    fake.chmod(0o644)
+    rc, message = harness_call(harness, output)
+    assert rc != 0 and "not found (NYASH_NY_LLVM_COMPILER)" not in message and not output.exists()
+    os.environ.clear()
+    os.environ.update(harness_before)
+
     no_flags = Contract(
         1,
         ctypes.sizeof(Contract),
@@ -338,5 +422,5 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
     if rc == 0 or unsupported_out.exists() or "profile" not in message:
         raise SystemExit(f"explicit harness profile was not rejected: rc={rc} {message!r}")
 
-print("[llvm-compile-options-contract-smoke] Boundary/AOT options, profile propagation, restore, and pre-effect reject: ok")
+print("[llvm-compile-options-contract-smoke] Boundary/AOT/Generic options and named-harness ownership/order: ok")
 PY

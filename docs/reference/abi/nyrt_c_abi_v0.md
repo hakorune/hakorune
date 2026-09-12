@@ -236,6 +236,21 @@ reachability/domain validation; no first-caller specialization is permitted.
 Actual signature emission consumes Formal/expanded rows. This private compiler
 ABI does not change runtime/plugin ABIs or the live static compiler transport v1.
 
+### Named Harness physical-options ownership
+
+Decision (2026-09-12): the named C Harness export retains its ABI and delegates
+opaque input/settings to the child. It captures only its compiler path into
+the existing physical-options owner through private Harness admission. The
+public options API continues rejecting Harness profile3; pure routes gain no
+replay admission. Unused pure-tool fields must be null (delegated, not defaulted).
+Compiler existence remains fopen-based: unset/empty uses the existing default,
+but a missing configured path does not fall back. Capture precedes copying;
+the new copy-allocation failure rejects before log/child/artifact effects.
+Then existing log-path, command, output removal, child status/object and
+first-line error ordering is preserved. One executor consumes the owned path;
+the existing replay adapter and public C/AOT entrypoints remain live. This
+does not claim full child-environment capture or process-wide isolation.
+
 ### Selected lifecycle physical program v2
 
 Decision (2026-09-12; scalar CFG consumer verified): extend the

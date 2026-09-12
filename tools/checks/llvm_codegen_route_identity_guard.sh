@@ -181,6 +181,18 @@ need_fixed "$CAPI_ROUTE" 'hako_llvmc_reject_ambient_harness_replay' \
   "generic C ambient replay gate missing"
 need_fixed "$CAPI_ROUTE" 'hako_llvmc_compile_json_compat_harness' \
   "named C compatibility export missing"
+python3 - "$CAPI_ROUTE" <<'PY'
+import pathlib
+import sys
+text = pathlib.Path(sys.argv[1]).read_text()
+executor = text.split('static int compile_json_compat_harness_execute(', 1)[1].split('\n}\n', 1)[0]
+named = text.split('int hako_llvmc_compile_json_compat_harness(', 1)[1].split('\n}\n', 1)[0]
+assert 'getenv(' not in executor, 'harness executor rereads compiler environment'
+assert 'compile_json_compat_harness_keep(' not in named, 'named export reentered ambient adapter'
+assert 'hako_llvmc_physical_options_copy_named_harness(' in named
+assert 'hako_llvmc_physical_options_destroy(&options)' in named
+assert 'return compile_json_compat_harness_keep(json_in, obj_out, err_out);' in text, 'replay adapter retired while live'
+PY
 need_fixed "$STAGE1_CONTRACT" 'stage1_contract_resolve_backend_replay' \
   "Stage1 replay admission helper missing"
 need_fixed "$STAGE1_CONTRACT" 'replay-unadmitted' \

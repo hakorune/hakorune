@@ -15,7 +15,7 @@ Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; ag
 Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
 Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
 Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
-Smallest next slice: close out verified scalar CFG/EXE3 below, then select the next existing R7 owner-unit.
+Smallest next slice: named-harness existing-options premise audit below; G0 landed at `16f87f5eeb`.
 Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach or performance claim.
 
 ## Finite boundary and state table
@@ -983,5 +983,13 @@ regressions pass, including 26 Map negatives; G0/R7/pointer/diff guards green.
 Map probes require the no-entry lifecycle-core dependency archive; passing an
 entry archive caused driver-main collision before admission, not a code red.
 Source EXE uses the actual lifecycle archive directory, no temporary alias.
-Next: commit/push this slice, then select the next R7 owner-unit. Aggregate R7,
-all-family Loop and parity remain open; no source widening or fallback.
+Landed/pushed `16f87f5eeb`; aggregate R7, all-family Loop and parity remain open.
+
+### Named-harness compiler-path ownership (verified; closeout)
+
+Decision: named C export captures compiler path into existing physical-options owner, then one shared executor; delete its ambient-wrapper edge, retain replay adapter.
+Source authority + canonical issuer: named symbol admits Harness; current compiler resolver supplies path; private opaque-harness options arm copies it, without parsed invocation or new receipt.
+Non-authority: profile alone and child settings; unused pure fields are delegated/null, not defaults. Public options must still reject Harness and pure routes remain unchanged.
+Fail-fast boundary: compiler fopen check -> owned copy (new pre-effect OOM reject) -> log path -> command -> remove output/child -> object/status/first-line error; no compiler reread in executor.
+Evidence / next: Ohm mapping implemented; C build and expanded options smoke pass (copy/destroy/OOM, direct/AOT FFI, inherited settings, log/command overflow, nonexec/missing-object/first-line order). Route/pointer guards green; commit/push next.
+Non-claims: no full child-env migration, provider/public-ABI deletion, HAKO_CAPI_TM removal, semantic receipt, concurrency isolation or aggregate R7 closure. OOM addition makes this bounded ownership change non-T0.

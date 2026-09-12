@@ -39,6 +39,20 @@ tool fallback, legacy first-character opt-level behavior, effective llc flags,
 and the explicit `HAKO_CAPI_TM` compat probe; it does not promise process-wide
 environment isolation.
 
+## Named Harness compiler-path ownership
+
+The named C export captures the compiler path once and uses the existing
+physical-options owner through its private opaque-Harness admission. The
+public options entry still rejects profile3. Only the compiler path is copied;
+null pure-tool fields mean delegated child settings, not defaults. Missing
+configured compiler paths retain the fopen-based NOT_FOUND boundary; unset or
+empty selects the existing default. A copy OOM rejects before log/child effects.
+One executor consumes the captured path without rereading its environment;
+the pure-core replay adapter remains live. Log/command/status/object order,
+first-line errors, child settings and the public C/AOT symbols are unchanged.
+The options smoke covers direct/AOT re-entry and failure ordering, plus the
+private ownership test's copy lifetime, OOM and delegated-field rejection.
+
 ## AOT Generic physical options
 
 `hako_aot_generic_ffi_compile.inc` is the sole AOT Generic FFI compile

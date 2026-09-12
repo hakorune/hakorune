@@ -1,15 +1,21 @@
-static int compile_json_compat_harness_keep(const char* json_in, const char* obj_out, char** err_out) {
+static const char* hako_llvmc_capture_harness_compiler(char** err_out) {
   const char* llvmc = getenv("NYASH_NY_LLVM_COMPILER");
+  if (!llvmc || !*llvmc) llvmc = "target/release/ny-llvmc";
+  if (!hako_llvmc_file_exists(llvmc)) {
+    hako_set_last_error("NOT_FOUND");
+    set_err_owned(err_out, "ny-llvmc not found (NYASH_NY_LLVM_COMPILER)");
+    return NULL;
+  }
+  return llvmc;
+}
+
+static int compile_json_compat_harness_execute(const char* llvmc,
+    const char* json_in, const char* obj_out, char** err_out) {
   char log_path[1024];
   char cmd[4096];
   char* first_line;
   int n;
   int rc;
-  if (!llvmc || !*llvmc) llvmc = "target/release/ny-llvmc";
-  if (!hako_llvmc_file_exists(llvmc)) {
-    hako_set_last_error("NOT_FOUND");
-    return set_err_owned(err_out, "ny-llvmc not found (NYASH_NY_LLVM_COMPILER)");
-  }
   if (hako_llvmc_build_harness_log_path(log_path, sizeof(log_path)) != 0) {
     hako_set_last_error("FAILED");
     return set_err_owned(err_out, "hako_llvmc harness log path too long");
@@ -53,6 +59,13 @@ static int compile_json_compat_harness_keep(const char* json_in, const char* obj
     return set_err_owned(err_out, "ny-llvmc harness compile finished without object");
   }
   return set_err_owned(err_out, "ny-llvmc harness compile failed");
+}
+
+/* Existing pure-core replay retains its ambient adapter. */
+static int compile_json_compat_harness_keep(
+    const char* json_in, const char* obj_out, char** err_out) {
+  const char* llvmc = hako_llvmc_capture_harness_compiler(err_out);
+  return llvmc ? compile_json_compat_harness_execute(llvmc, json_in, obj_out, err_out) : -1;
 }
 
 static yyjson_val* hako_llvmc_find_entry_function(yyjson_val* fns) {
@@ -514,5 +527,19 @@ int hako_llvmc_compile_json_compat_harness(
     const char* json_in,
     const char* obj_out,
     char** err_out) {
-  return compile_json_compat_harness_keep(json_in, obj_out, err_out);
+  const char* llvmc = hako_llvmc_capture_harness_compiler(err_out);
+  if (!llvmc) return -1;
+  hako_llvmc_physical_contract_v1 contract = {0};
+  struct HakoLlvmcPhysicalOptions options = {0};
+  contract.revision = HAKO_LLVMC_PHYSICAL_CONTRACT_REVISION;
+  contract.byte_size = sizeof(contract);
+  contract.ingress_profile = HAKO_LLVMC_PHYSICAL_PROFILE_EXPLICIT_HARNESS;
+  contract.llvmc_path = llvmc;
+  if (hako_llvmc_physical_options_copy_named_harness(&options, &contract, err_out) != 0) {
+    hako_set_last_error("FAILED");
+    return -1;
+  }
+  int result = compile_json_compat_harness_execute(options.llvmc_path, json_in, obj_out, err_out);
+  hako_llvmc_physical_options_destroy(&options);
+  return result;
 }
