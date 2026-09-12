@@ -31,8 +31,13 @@ fn production_failure_after_prepare_discards_candidate_and_reuses_compiler() {
         .expect_err("prepared commit failure must be terminal");
     assert!(matches!(
         error,
-        super::CanonicalLoweringErrorV1::BuilderContract { detail }
-            if detail.contains("test_injected_prepared_commit_failure")
+        super::CanonicalLoweringErrorV1::ResolvedCutover(
+            super::lowering_input::CanonicalResolvedCutoverFailureV1::DirectAccum(
+                super::lowering_input::CanonicalResolvedCutoverStageErrorV1::ExternalCommit(
+                    super::external_commit::ExternalCommitPreparationErrorV1::EvidenceMismatch
+                )
+            )
+        )
     ));
     assert_eq!(compiler.builder.loop_candidate_test_fingerprint(), before);
     assert!(compiler.builder.current_module.is_none());

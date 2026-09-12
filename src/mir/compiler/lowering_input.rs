@@ -12,11 +12,11 @@ use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1, VerifiedSemanticOwnerForestV1,
 };
 
-use super::capability::ResolvedOwnerHeaderSealErrorV1;
 use super::canonical_finalization::CanonicalFinalizationErrorV1;
 use super::canonical_physical_completion::{
     CanonicalDrainPrepareErrorV1, CanonicalPhysicalCompletionErrorV1,
 };
+use super::capability::ResolvedOwnerHeaderSealErrorV1;
 use super::external_commit::ExternalCommitPreparationErrorV1;
 use super::generic_g0_physical_operation_cohort::{
     GenericG0PhysicalEmitterAdmissionRejectV1, GenericG0PhysicalOperationCohortRejectV1,
@@ -27,8 +27,8 @@ use super::module_postprocess::ModulePostprocessErrorV1;
 use super::source_bound_package::{
     CanonicalPhysicalOpenErrorV1, CanonicalPlanLoweringErrorV1, SourceBindingErrorV1,
 };
-use crate::mir::builder::CanonicalPhysicalCollectionErrorV1;
 use super::source_projection::VerifiedSourceProjectionV1;
+use crate::mir::builder::CanonicalPhysicalCollectionErrorV1;
 
 #[derive(Debug)]
 struct CanonicalSyntaxOwnerV1 {
@@ -180,6 +180,29 @@ pub(in crate::mir) enum CanonicalGenericG0BoundaryErrorV1 {
     ExternalCommit(ExternalCommitPreparationErrorV1),
 }
 
+/// Transport-only stage classification for the resolved cutover bridges.
+/// The payloads stay owned by their existing rejection authorities.
+#[derive(Debug)]
+pub(in crate::mir) enum CanonicalResolvedCutoverStageErrorV1 {
+    Header(ResolvedOwnerHeaderSealErrorV1),
+    SourceBinding(SourceBindingErrorV1),
+    PhysicalOpen(CanonicalPhysicalOpenErrorV1),
+    PhysicalLower(CanonicalPlanLoweringErrorV1),
+    PhysicalCollection(CanonicalPhysicalCollectionErrorV1),
+    PhysicalCompletion(CanonicalPhysicalCompletionErrorV1),
+    PhysicalDrain(CanonicalDrainPrepareErrorV1),
+    FinalizationPrepare(CanonicalFinalizationErrorV1),
+    Finalization(CanonicalFinalizationErrorV1),
+    Postprocess(ModulePostprocessErrorV1),
+    ExternalCommit(ExternalCommitPreparationErrorV1),
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum CanonicalResolvedCutoverFailureV1 {
+    DirectAccum(CanonicalResolvedCutoverStageErrorV1),
+    NestedPredicate(CanonicalResolvedCutoverStageErrorV1),
+}
+
 /// The outer lowering error is part of the existing public compiler surface;
 /// this stage payload intentionally stays MIR-internal so typed reject owners
 /// are not duplicated as a second public API.
@@ -225,6 +248,7 @@ pub enum CanonicalLoweringErrorV1 {
         function_name: String,
     },
     GenericG0(CanonicalGenericG0BoundaryErrorV1),
+    ResolvedCutover(CanonicalResolvedCutoverFailureV1),
     BuilderContract {
         detail: String,
     },
@@ -297,6 +321,10 @@ impl fmt::Display for CanonicalLoweringErrorV1 {
             Self::GenericG0(error) => write!(
                 formatter,
                 "[freeze:contract][canonical_lowering/generic_g0] stage={error:?}"
+            ),
+            Self::ResolvedCutover(error) => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/resolved_cutover] stage={error:?}"
             ),
             Self::BuilderContract { detail } => write!(
                 formatter,

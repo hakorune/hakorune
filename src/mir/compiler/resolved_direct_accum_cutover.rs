@@ -10,7 +10,10 @@ use super::canonical_finalization::CanonicalModuleFinalizerV1;
 use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use super::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use super::external_commit::PreparedModuleExternalCommitV1;
-use super::lowering_input::{CanonicalLoweringErrorV1, ResolvedModuleLoweringInputV1};
+use super::lowering_input::{
+    CanonicalLoweringErrorV1, CanonicalResolvedCutoverFailureV1,
+    CanonicalResolvedCutoverStageErrorV1, ResolvedModuleLoweringInputV1,
+};
 use super::module_postprocess::ModulePostprocessOwnerV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompileResult, MirCompiler};
@@ -82,33 +85,64 @@ fn prepare_direct_accum_source_bound<'source>(
 ) -> Result<PreparedModuleExternalCommitV1<'source>, CanonicalLoweringErrorV1> {
     let header = plan
         .seal_resolved_owner_header_v1()
-        .map_err(|error| bridge_error("header", error))?;
+        .map_err(|error| bridge_error(CanonicalResolvedCutoverStageErrorV1::Header(error)))?;
     let module_name = header.symbol().as_mir_name().to_owned();
     let package = compiler
         .bind_canonical_source(ExactCanonicalPreflightPlanV1::Loop(
             super::capability::CanonicalLoopFamilyPlanV1::DirectAccum(plan),
         ))
-        .map_err(|rejected| bridge_error("source_binding", rejected.error()))?;
+        .map_err(|rejected| {
+            bridge_error(CanonicalResolvedCutoverStageErrorV1::SourceBinding(
+                rejected.error().clone(),
+            ))
+        })?;
     let finalized = compiler
         .begin_canonical_invocation_with_config(package, config, module_name)
-        .map_err(|rejected| bridge_error("physical_open", rejected.error()))?
+        .map_err(|rejected| {
+            bridge_error(CanonicalResolvedCutoverStageErrorV1::PhysicalOpen(
+                rejected.into_error(),
+            ))
+        })?
         .lower()
-        .map_err(|rejected| bridge_error("physical_lower", rejected.error()))?
+        .map_err(|rejected| {
+            bridge_error(CanonicalResolvedCutoverStageErrorV1::PhysicalLower(
+                rejected.into_error(),
+            ))
+        })?
         .collect()
-        .map_err(|rejected| bridge_error("physical_collect", rejected.error()))?
+        .map_err(|rejected| {
+            bridge_error(CanonicalResolvedCutoverStageErrorV1::PhysicalCollection(
+                rejected.into_error(),
+            ))
+        })?
         .complete()
-        .map_err(|rejected| bridge_error("physical_complete", &rejected.error))?
+        .map_err(|rejected| {
+            bridge_error(CanonicalResolvedCutoverStageErrorV1::PhysicalCompletion(
+                rejected.into_error(),
+            ))
+        })?
         .prepare_drain()
-        .map_err(|rejected| bridge_error("physical_drain", &rejected.error))?
+        .map_err(|rejected| {
+            bridge_error(CanonicalResolvedCutoverStageErrorV1::PhysicalDrain(
+                rejected.into_error(),
+            ))
+        })?
         .drain()
         .prepare_finalization()
-        .map_err(|rejected| bridge_error("finalization_prepare", &rejected.error))?;
-    let finalized = CanonicalModuleFinalizerV1::finalize(finalized)
-        .map_err(|rejected| bridge_error("finalization", &rejected.error))?;
+        .map_err(|rejected| {
+            bridge_error(CanonicalResolvedCutoverStageErrorV1::FinalizationPrepare(
+                rejected.into_error(),
+            ))
+        })?;
+    let finalized = CanonicalModuleFinalizerV1::finalize(finalized).map_err(|rejected| {
+        bridge_error(CanonicalResolvedCutoverStageErrorV1::Finalization(
+            rejected.into_error(),
+        ))
+    })?;
     let processed = run_postprocess(&mut compiler.verifier, compiler.optimize, finalized)?;
     compiler
         .prepare_module_external_commit(processed)
-        .map_err(|error| bridge_error("external_prepare", error))
+        .map_err(|error| bridge_error(CanonicalResolvedCutoverStageErrorV1::ExternalCommit(error)))
 }
 
 /// Test-only late failure after every candidate stage has completed. Dropping
@@ -134,9 +168,11 @@ pub(in crate::mir) fn compile_direct_accum_source_bound_with_prepared_failure_fo
     let config = BuilderInvocationConfigV1::snapshot_for_canonical(&compiler.builder, source_file);
     let prepared = prepare_direct_accum_source_bound(compiler, plan, config)?;
     drop(prepared);
-    Err(CanonicalLoweringErrorV1::BuilderContract {
-        detail: "direct_accum/test_injected_prepared_commit_failure".into(),
-    })
+    Err(bridge_error(
+        CanonicalResolvedCutoverStageErrorV1::ExternalCommit(
+            super::external_commit::ExternalCommitPreparationErrorV1::EvidenceMismatch,
+        ),
+    ))
 }
 
 fn run_postprocess<'source>(
@@ -149,13 +185,15 @@ fn run_postprocess<'source>(
 > {
     ModulePostprocessOwnerV1::new(verifier, optimize)
         .run(finalized)
-        .map_err(|rejected| bridge_error("postprocess", rejected.error()))
+        .map_err(|rejected| {
+            bridge_error(CanonicalResolvedCutoverStageErrorV1::Postprocess(
+                rejected.into_error(),
+            ))
+        })
 }
 
 /// Keep bridge-stage failures inside the existing canonical typed terminal.
 /// No stage can authorize a retry or a legacy route.
-fn bridge_error(stage: &'static str, error: impl std::fmt::Debug) -> CanonicalLoweringErrorV1 {
-    CanonicalLoweringErrorV1::BuilderContract {
-        detail: format!("direct_accum/{stage}: {error:?}"),
-    }
+fn bridge_error(stage: CanonicalResolvedCutoverStageErrorV1) -> CanonicalLoweringErrorV1 {
+    CanonicalLoweringErrorV1::ResolvedCutover(CanonicalResolvedCutoverFailureV1::DirectAccum(stage))
 }
