@@ -402,7 +402,7 @@ fn map_target_without_exact_terminal_arguments_or_cleanup_cannot_remain_scalar()
 }
 
 #[test]
-fn non_map_scalar_call_keeps_its_existing_owner() {
+fn non_map_terminal_call_retains_source_completion_and_scalar_row() {
     let mut package = issue(
         "static box Main { main() { return helper(30) } helper(value: i64): i64 { return value } }",
     )
@@ -410,7 +410,7 @@ fn non_map_scalar_call_keeps_its_existing_owner() {
     assert!(package
         .ordinary_new_claim_ledger
         .call_source_completion()
-        .is_none());
+        .is_some());
     let (owner, site) = package
         .batch()
         .declarations()
@@ -432,6 +432,75 @@ fn non_map_scalar_call_keeps_its_existing_owner() {
         .as_mut()
         .unwrap()
         .take_once(owner, site)
+        .unwrap();
+    assert!(row.into_scalar_emission().is_ok());
+}
+
+#[test]
+fn non_map_local_call_selects_lifecycle_without_reclassifying_terminal() {
+    let mut package = issue(
+        "static box Main { main() { local first = helper(10) return helper(20) }
+         helper(value: i64): i64 { return value } }",
+    )
+    .unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (completion, terminal) = ledger.call_source_completion().unwrap();
+    let owner = completion.owner();
+    let locals = completion.cleanup().root_flow().unwrap().local_calls();
+    assert_eq!(locals.len(), 1);
+    assert_eq!(locals[0].arguments(), &[10]);
+    let loan = package.app_main_direct_call_loan.as_mut().unwrap();
+    let local = loan
+        .take_once(owner, locals[0].site().site().clone())
+        .unwrap();
+    assert!(local.lifecycle_emission().is_ok());
+    assert_eq!(
+        local.into_scalar_emission().err(),
+        Some(AppMainDirectCallLoanErrorV1::LifecycleConsumerMissing)
+    );
+    let terminal = loan.take_once(owner, terminal.call_site().clone()).unwrap();
+    assert!(terminal.into_scalar_emission().is_ok());
+}
+
+#[test]
+fn non_map_local_call_with_prior_home_rejects_instead_of_scalar_fallback() {
+    let result = issue(
+        "box Page {} static box Main {
+         main() { local page = new Page() local first = helper(10) return helper(20) }
+         helper(value: i64): i64 { return value } }",
+    );
+    assert!(
+        matches!(
+            result,
+            Err(
+                super::NormalCallableSemanticPackageIssueV1::AppMainDirectCall {
+                    _error: super::issuer::AppMainDirectCallDispositionIssueV1::Loan(
+                        AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch
+                    ),
+                }
+            )
+        ),
+        "{result:?}"
+    );
+}
+
+#[test]
+fn non_map_local_call_with_plain_return_preserves_scalar() {
+    let mut package = issue(
+        "static box Main { main() { local first = helper(10) return 0 }
+         helper(value: i64): i64 { return value } }",
+    )
+    .unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    assert!(ledger.call_source_completion().is_none());
+    let completion = ledger.root_completion_for_test();
+    let locals = completion.cleanup().root_flow().unwrap().local_calls();
+    assert_eq!(locals.len(), 1, "the source observation remains present");
+    let row = package
+        .app_main_direct_call_loan
+        .as_mut()
+        .unwrap()
+        .take_once(completion.owner(), locals[0].site().site().clone())
         .unwrap();
     assert!(row.into_scalar_emission().is_ok());
 }

@@ -32,6 +32,16 @@ complete source callable inventory
 The resolved function retains only the exact callable identity for that source
 site. Lowering consumes it and does not search again by name.
 
+The bounded App Main local-i64 Call connection consumes that same typed target
+and the caller's existing source-issued local relation. Literal arguments,
+destination and cleanup stay with their original owners; lowering records the
+local Invoke binding required by its terminal Call exit instead of silently
+emitting an unrecorded Scalar Call. Without a terminal Call, the existing Plain
+consumer retains the ordinary Scalar Call and its source observation.
+This compiler connection requires no prior live Homes and changes no source
+call syntax or callee effect contract. Terminal-only and Map-specific admission
+retain their existing respective consumers.
+
 Bare `error` is not a direct FreeStatic provider. It is an unsupported bare
 name and rejects before argument evaluation; qualified providers such as
 `env.console.error` remain separate Extern contracts and are not inferred from

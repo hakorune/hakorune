@@ -697,10 +697,7 @@ Non-claims: no public/provider/HAKO_CAPI_TM removal, new receipt, child-environm
 
 ### Ordinary-new unclaimed-writer premise review
 
-Not Fast path: the parked M3-B rationale couples two compatibility writers,
-but the current entry contract permits caller-local Stop without a successor;
-the exact claim-absent profile/rejection boundary needs independent review.
-This is one premise reset of that finite owner, not a new broad R7 census.
+Premise review: parked M3-B couples two compatibility writers; the entry contract permits caller-local Stop without a successor. Review is finite, not a new broad R7 census.
 
 Decision: caller-local Stop accepted after Meitner's complete-state review; deferred behind the reproduced scalar Call regression.
 Source authority + canonical issuer: existing ordinary-new package claim and Birth recipe; no claim means no canonical target authority.
@@ -750,14 +747,50 @@ but source local observations do not impose that Call-entry obligation on Plain.
 Use `call_source_completion_for_owner` in the non-Map branch; absent terminal
 relation preserves Scalar, present relation validates explicit return and
 returns_value before Lifecycle selection. No Plain payload expansion or weakened
-reject. Finish the initial in-flight build, then apply this guard and add the
-unchanged `local first = helper(10); return 0` regression before final build.
-Latest user audit also requires correcting deleted Loop T0 evidence at
-`537e5e20fe`; llc default policy, typed errors and caller-zero ambient helper
-remain separate follow-ups, not additions to this Call implementation.
-T0 evidence is now corrected in CURRENT_STATE, R0/I1 and the contract README;
-selection provenance remains explicitly missing, not backdated.
+reject. Initial build completed in14m45s: cohort17 and source publication1
+(Static/FreeFunction, optimization off/on) pass; warnings523 unchanged.
+Final build14m43s (warnings523) passed cohort18, source terminal1 (four modes;
+exact argument10/20 and returned-second-result assertions), loan4 and unchanged
+G0 EXE3 in2.21s without skip. Existing cleanup missing-binding mutation1 passes.
+Parent `8624af8352`, byte-identical lifecycle_admission_tests.rs (`cmp`), isolated
+target, jobs1/quick/no incremental: build17m14s, warnings523. Exact tests under
+`mir::compiler::normal_default_pipeline::lifecycle_admission::tests::`:
+- `scalar_local_then_plain_return_preserves_ordinary_call_through_publication`:
+  parent and current both fail `root-cleanup-graph/residual-node` at line104.
+- `scalar_local_then_terminal_call_reaches_published_lifecycle`: parent fails
+  `local-call-binding-sequence`; current passes all four source/optimization cases.
+Parent command: `CARGO_TARGET_DIR=/mnt/workdisk/hako-scalar-parent.64DJMK/target-parent
+CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 RUST_MIN_STACK=16777216 cargo test --profile
+quick --lib <fully-qualified Plain test above> -- --exact`; terminal test uses
+that same built parent binary with its exact name. No implementation edits in parent.
+Classification/allowance: Plain is `known baseline debt`, owner existing
+ordinary_new_admission/selected.rs::emit_root_home_exit_payload. It does not
+block the independently proved local+terminal Call recovery checkpoint; keep
+its failing regression visible and repair next, not ignored or called green.
+No whole-publication completion claim. No unclassified current-change red remains.
+
+### Empty-Home Plain cleanup repair (accepted next bounded slice)
+
+Parfit's finite read-only audit: root-exit capture -> finishing -> FinishedBindings
+-> root/call validation; includes ingress/contraction/pruning, excludes source expansion.
+Decision: correct existing emitter for empty-Home Plain; no acceptance expansion.
+Source authority + canonical issuer: Completion terminal_homes -> begin_root_home_exit -> emit_root_home_exit_payload.
+Non-authority: deleted-block presence, inferred destinations and final-MIR reachability as source meaning.
+Fail-fast boundary: preserve missing-binding, sequence, ingress and Call-entry checks.
+Smallest next slice: omit unused Fault allocation/emission/recording when operations.is_empty() and call.is_none(); retain frame ownership and clean Return/Jump.
+Non-claims: no new receipt, projection filter, callee effect inference or aggregate R7 closure.
+Reason: current emitter records a disconnected ReturnFault in this exact case;
+DCE removes it and projection correctly rejects the residual recorded node.
+Acceptance: unchanged Plain publication test off/on; existing Home cleanup
+missing-binding mutation and Call normal/fault path tests; source terminal/G0
+retention, existing corridor guard and module/reference update. Not implemented yet.
+T0 evidence for deletion at `537e5e20fe` is corrected in CURRENT_STATE, R0/I1
+and the contract README; selection provenance stays missing, not backdated.
+llc policy, typed errors and caller-zero ambient helper remain separate follow-ups.
 Follow-ups: decide Boundary llc-flags default in its existing request owner;
+current C ambient default is `-O3 -mcpu=native` while explicit NULL flags become
+empty; Rust `OwnedPhysicalCompileContract::from_request` captures only the env
+override. This is a confirmed policy difference, not a measured performance loss.
 typed rejects belong to direct_accum/nested_predicate/pending; inspect the
 caller-zero `llvm_provider_flags.rs` helper before deletion. A parent-valued
 census observed_commit is provenance, not by itself source drift; regenerate

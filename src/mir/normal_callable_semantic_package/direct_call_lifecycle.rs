@@ -171,6 +171,37 @@ impl AppMainDirectCallDispositionLoanV1 {
             };
             // Unavailable Map coverage is still Map-owned, never Scalar evidence.
             if !map_owned(batch, row) {
+                let Some(local) = root.local_i64_call_for_owner(self.owner, site.site()) else {
+                    continue;
+                };
+                let Some((caller, terminal)) = root.call_source_completion_for_owner(self.owner)
+                else {
+                    // Plain exits consume the ordinary Scalar Call. Only the
+                    // terminal Call entry owns lifecycle local-binding groups.
+                    continue;
+                };
+                let signature = row.emission.target().signature();
+                if local.owner() != self.owner
+                    || local.site() != site
+                    || local.destination().owner() != self.owner
+                    || local.arguments().len() != row.argument_sites.len()
+                    || signature.arity() != row.argument_sites.len()
+                    || signature.result() != ExactTrivialScalarAbiV1::I64
+                    || signature
+                        .params()
+                        .iter()
+                        .any(|kind| *kind != ExactTrivialScalarAbiV1::I64)
+                    || caller.owner() != self.owner
+                    || caller.explicit_site() != Some(terminal.return_site())
+                    || !caller.returns_value()
+                    || !matches!(caller.cleanup().terminal_homes(), Some(Ok(_)))
+                    || !local.prior_homes().is_empty()
+                {
+                    return Err(reject);
+                }
+                // The original caller relation owns local placement, not Map
+                // membership. Its existing Invoke consumer records the binding.
+                row.execution = AppMainCallExecutionV1::Lifecycle;
                 continue;
             }
             if !exact_formals(batch, parameters, row) {

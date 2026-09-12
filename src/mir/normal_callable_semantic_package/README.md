@@ -157,16 +157,23 @@ installation and Invoke/artifact Stops remain until their actual consumers land.
 ## AppMain terminal Call lifecycle co-seal
 
 Early resolver target/arity validation keeps its existing order. The AppMain
-Home walk also observes a terminal Call to an ordinary Map-owned declaration,
+Home walk also observes a terminal Call to an exact source-declared i64 target,
 even without a local New/Map. It retains only the source return/Call relation
 and exact Integer literal values; target and argument sites remain in the affine
 Call row. Declaration I64 contracts authorize the source result and arguments.
 The original caller Completion owns cleanup and outward propagation.
 
-After ordinary result retention, the same row becomes Lifecycle only when its
-callee I64 result, literal return, formal bindings and complete Map obligations
-match. A Map target with incomplete correspondence rejects before installation;
-it cannot remain Scalar. Non-Map scalar calls keep their existing owner.
+For a Map target, the same row becomes Lifecycle only when its callee I64 result,
+literal return, formal bindings and complete Map obligations match. Incomplete
+Map correspondence rejects before installation; it cannot remain Scalar.
+For a non-Map target, existing exact local and terminal Call relations select
+the same Lifecycle consumer after owner/site/destination, all-i64 argument
+cardinality, explicit return, successful cleanup and empty prior Homes are checked. That consumer
+records the Invoke result binding required by the original caller Completion.
+Without a local or terminal Call relation the row stays Scalar, including
+Plain exits and terminal-only G0;
+the existing terminal return consumer still borrows its source Call relation.
+Neither branch infers callee purity or reissues a target from physical MIR.
 Scalar extraction rejects Lifecycle before argument descent. Ordinary Map
 installation and finalized Call artifact emission remain stopped until the
 Invoke/ABI consumer is connected; source co-seal is not execution evidence.
