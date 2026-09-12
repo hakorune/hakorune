@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0"
-current_execution_cohort = "mir_call_compatibility_retire_r7_published_rows_ownership_d0"
-current_blocker_token = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0"
-guard_followup = "design_stop: I1 child-env passes native Windows with w64devkit GCC14.2/MSVCRT and Python3.11 plus Linux. Define published-row invocation ownership, re-entry/overlap behavior, and old-edge delete-set before implementation. Keep named llvmlite baseline separate. Host RAM replacement remains external; cap build jobs at 1-2 until validated."
-current_design_stop = "PublishedRowsInvocationOwnershipDecisionRequired"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
+current_execution_cohort = "mir_call_compatibility_retire_r7_published_rows_ownership_i0"
+current_blocker_token = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
+guard_followup = "fast: implement only the accepted published-row invocation-owned ledger I0. Preserve borrowed rows, typed validation, duplicate-take rejection, zero-row V2, same-owner re-entry rejection, distinct-owner isolation, and post-begin cleanup. Keep named llvmlite baseline separate. Host RAM replacement remains external; cap build jobs at 1-2 until validated."
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -48,7 +48,7 @@ helper lanes, and helper Compare/Add body operations. The static EXE witness
 uses the same selected view; empty-site ABI, declared contracts and physical
 Compare/PHI/CFG now reach LLVM18/EXE3. First-family cutovers reuse one snapshot;
 Pure expected-location fields and PreheaderSeed were removed at 537e5e20fe; Read/Write/Carrier metadata is a separate cleanup candidate.
-Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, Boundary llc unset/empty policy, and legacy TargetMachine invocation capture I0 are closed. AOT direct-harness child-env I1 is closed with native Windows and Linux proof. Published-row invocation ownership is the next design stop. Public/external retirement remains separate.
+Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, Boundary llc unset/empty policy, and legacy TargetMachine invocation capture I0 are closed. AOT direct-harness child-env I1 is closed with native Windows and Linux proof. Published-row invocation ownership D0 is accepted; I0 is the active bounded implementation slice. Public/external retirement remains separate.
 LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
 are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
 18 focused Rust tests pass, including source-called G0 EXE3; C regressions pass.
@@ -56,10 +56,10 @@ Warning follow-up is `MIRBUILDER-WARNING-SURFACE-CENSUS-R0` /
 `MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; observed `lib=1806`, `lib test=533
 (265 duplicates)` are separate, non-zero-warning baselines.
 """
-next_design_card = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

@@ -1,5 +1,5 @@
 ---
-Status: Design stop — R7 published-row invocation ownership; AOT child-env I1 verified
+Status: Decision accepted — R7 published-row invocation ownership I0 ready; AOT child-env I1 verified
 Date: 2026-09-13
 Decision: MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -11,11 +11,11 @@ ReplacementCell: existing `MIR-CALL-LEGACY-READER-STOP-R0` terminal (landed)
 
 ## Six-line brief
 
-Decision: define published-row invocation ownership before changing the global row lifecycle.
-Source authority + canonical issuer: existing borrowed Rust call rows and Static V2 bind/begin are the source-backed starting boundary; canonical invocation ownership remains to be decided.
-Non-authority: global census, cancelled consultation, and AOT child-env proof do not authorize published-row semantics or implementation.
+Decision: D0 is accepted; move the private published-row ledger to one invocation owner before changing consumers.
+Source authority + canonical issuer: borrowed Rust call rows and Static V2 bind/begin; the full decision is in `docs/development/current/main/design/mir-call-published-rows-invocation-ownership-d0.md`.
+Non-authority: global census, cancelled consultation, and AOT child-env proof do not authorize unrelated published-row semantics or implementation.
 Fail-fast boundary: preserve typed row/coordinate validation, duplicate-take rejection, and cleanup on every pre-artifact failure.
-Smallest next slice: produce the issuer/terminal matrix, complete invocation pointer path, re-entry/overlap decision, and exact old-edge delete-set described below.
+Smallest next slice: `MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0`, explicit owner state plus all listed consumers and focused negatives.
 Non-claims: no published-row implementation, public ABI deletion, provider retirement, concurrency guarantee, backend parity, or aggregate R7/MirBuilder completion.
 
 ## Finite boundary and state table
@@ -972,23 +972,17 @@ re-entry behavior, and the exact caller-specific old-edge delete-set before
 changing its consumer. No public ABI deletion, concurrency claim, or aggregate
 R7/MirBuilder completion is implied.
 
-### MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0 (active design stop, 2026-09-13)
+### MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-D0 (Decision accepted, 2026-09-13)
 
-The current source fact is finite: `hako_llvmc_published_call_rows` stores the
-borrowed row pointer, count, mode, and `used[1024]`; all production consumers
-reach it through `peek/take/finish`, while Static V2 calls `begin` after its
-invocation `bind` and cleans up at `end`. A second read-only consultation was
-explicitly cancelled after observation timeout; that is not rejection
-evidence. Do not implement from the global census alone.
+D0 is closed by the source-backed matrix, pointer path, overlap policy, exact
+delete set, and bounded I0 in
+`docs/development/current/main/design/mir-call-published-rows-invocation-ownership-d0.md`.
+The private ledger becomes an explicit field of `HakoLlvmcInvocation`; the
+same invocation rejects re-entry, while distinct invocation ledgers overlap
+without cross-talk. Borrowed Rust row lifetime, typed validation,
+duplicate-take rejection, zero-row V2, and post-begin failure cleanup remain
+contract requirements. I0 is now the only authorized implementation slice.
 
-Required design deliverable: a source-backed issuer/terminal matrix for the
-Static V2 production caller and every generic lowering consumer, a complete
-invocation pointer path for prepass/emission/residual checks, a decision for
-same-invocation re-entry and distinct-invocation overlap, and an exact delete
-set naming the old global reads/writes. Preserve borrowed Rust row lifetime,
-typed kind/coordinate validation, duplicate-take rejection, zero-row V2
-behavior, and cleanup on every pre-artifact failure. Acceptance is one closed
-Decision with specified re-entry/cleanup/row-consumption negatives and one
-bounded next implementation slice. No implementation is authorized before that
-Decision. AOT child-env I1 Windows proof is now complete; this is the active
-design stop selected by CURRENT_STATE.
+AOT child-env I1 Windows/Linux proof is complete and remains a separate closed
+row. No public ABI deletion, MIR-layer change, backend parity, concurrency
+claim, or aggregate R7/MirBuilder completion is implied.
