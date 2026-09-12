@@ -699,7 +699,78 @@ re-entry. Only after that table contains a non-empty caller-specific delete-set
 may `work_mode` leave `design_stop`. Until then the decision is
 `NoSafeSlice__NoRemainingUnsharedM7SOwner`.
 
-### LLVM18 environment follow-up (queued 2026-09-12)
+### MIR-CALL-NY-LLVMC-BOUNDARY-COMPILE-OPTIONS-I0 (selected 2026-09-12)
+
+The focused source audit found one real production caller with an exclusive
+delete-set: `ny-llvmc`'s default `DriverKind::Boundary` reaches
+`boundary_driver_ffi.rs` through `boundary_driver.rs`, and no other crate
+caller enters that Rust helper. The existing C
+`hako_llvmc_compile_json_with_options_v1` ABI already owns the physical
+options copy/lifetime, so this is an in-place transport replacement rather
+than a new semantic or settings authority.
+
+```text
+Decision: switch the ny-llvmc Boundary compile caller to the existing versioned physical-options C entry.
+Source authority + canonical issuer: the Boundary CLI's one captured physical request, encoded by a private repr(C) ABI mirror of the tracked C contract.
+Non-authority: MIR/Recipe meaning, public C symbol names, AOT dlsym, explicit harness/native drivers, and environment mutation do not issue new semantics.
+Fail-fast boundary: capture/validate recipe, replay, alias, level, and C layout before dlsym or lowering; C repeats contract, tool, input, and artifact checks.
+Smallest next slice: remove Boundary Rust three-argument symbol selection/env override and pass the existing pure-first/none contract with explicit tool values.
+Non-claims: no public C ABI removal, AOT/provider retirement, concurrent guarantee, LLVM18 runtime evidence, new receipt/settings layer, or R7 completion.
+```
+
+Exact delete-set: `CompileFn`, the three-argument `hako_llvmc_compile_json{,_pure_first}`
+lookup, `boundary_compile_symbol` and its constants/tests, the Rust
+`with_env_override` helper and its test, and the Boundary caller's temporary
+recipe/replay environment mutation. Retain the existing public C generic,
+pure-first, and harness exports; C/AOT dlsym; the C lowering; `link_obj_v2`;
+and explicit `--driver harness/native` routes. The private Rust `repr(C)` row
+must match the tracked `hako_llvmc_physical_contract_v1` layout exactly and
+must not become a second authority.
+
+Acceptance is: Boundary normal and dummy object emission pass through the
+options symbol; pure-first/none is the only admitted Boundary pair; conflicting
+recipe/replay or `HAKO_CAPI_PURE` rejects before library/symbol/lowering
+effects; revision/size/profile/flags/tool/input failures retain the existing C
+diagnostics; environment values remain unchanged; and public C/AOT/dlsym
+callers remain source-covered. The implementation is one Boundary caller
+switch plus old-edge retirement, with no fallback or retry.
+
+### Boundary compile-options I0 closeout (2026-09-12)
+
+The production `ny-llvmc` Boundary caller now reaches the existing versioned
+options entry with one invocation-owned Rust row. The old Rust three-argument
+lookup, symbol selector, and process-environment save/set/restore path are
+absent; public C generic/pure-first/harness exports, AOT dlsym, explicit
+harness/native drivers, and `link_obj_v2` remain.
+
+Observed acceptance:
+
+- targeted Rust Boundary tests: 3 passed, 0 failed;
+- `cargo check -p nyash-llvm-compiler --profile quick -j1`: passed;
+- production Boundary normal and `--dummy` object emission passed with
+  explicit fake opt/llc tools; the trace named
+  `hako_llvmc_compile_json_with_options_v1` and both artifacts were written;
+- Boundary recipe, replay, `HAKO_CAPI_PURE`, and opt-level alias conflicts
+  rejected with no artifact;
+- `llvm_compile_options_contract_smoke.sh`,
+  `llvm_codegen_route_identity_guard.sh`,
+  `llvm_llvmlite_production_census_guard.py`,
+  `mir_r7_legacy_census_manifest.py`, and the current-state pointer guard:
+  passed;
+- the broader crate run was `50 passed, 2 failed`: one is the pre-existing
+  LLVM14 opaque-pointer failure, and the other is the existing direct public
+  pure-first fixture's `CheckedCallOut` metadata mismatch; neither enters the
+  changed Rust Boundary caller and neither is claimed as an I0 regression;
+- the workspace-wide format check still reports unrelated baseline drift;
+  the two changed Rust sources pass targeted rustfmt checks.
+
+This closes only `MIR-CALL-NY-LLVMC-BOUNDARY-COMPILE-OPTIONS-I0`. The next
+R7 decision stop must select the remaining shared compatibility owner and a
+non-empty caller-specific delete-set. LLVM18 remains an environment-only task
+blocked by external sudo permission; no LLVM18 object/EXE runtime evidence is
+claimed.
+
+### LLVM18 environment follow-up (blocked 2026-09-12)
 
 The host check found Ubuntu 22.04 with only LLVM14.0.0 and no Jammy archive
 candidate for LLVM18. The environment-only installation task is
@@ -707,5 +778,7 @@ candidate for LLVM18. The environment-only installation task is
 `docs/development/current/main/investigations/llvm18-toolchain-installation-task-2026-09-12.md`.
 It uses the existing CI `apt.llvm.org` recipe, keeps LLVM14 installed
 side-by-side, and requires versioned tool/header/prefix verification before
-rerunning the named G0 object/EXE witness. This task does not authorize a
-backend switch, a fallback, or a semantic MirBuilder change.
+rerunning the named G0 object/EXE witness. The session cannot run the recipe:
+UID 1000 has no non-interactive sudo permission (`sudo: a password is
+required`). This task does not authorize a backend switch, a fallback, or a
+semantic MirBuilder change; resume it after the external permission is granted.

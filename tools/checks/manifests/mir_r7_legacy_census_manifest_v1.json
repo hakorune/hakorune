@@ -6,16 +6,16 @@
     "start": "canonical/compatibility MIR ingress + compile profile"
   },
   "counts": {
-    "compile_env_families": 4,
-    "compile_env_routes": 5,
-    "independent_rows": 252,
+    "compile_env_families": 3,
+    "compile_env_routes": 4,
+    "independent_rows": 251,
     "legacy_files": 127,
     "legacy_occurrences": 243,
     "loop_phi_files": 4,
     "loop_phi_loc": 1009
   },
   "kind": "MirR7LegacyCensusManifestV1",
-  "observed_commit": "840ee668bf330816d5a9804a8dbb5aea33ef97c7",
+  "observed_commit": "dec49b59e00edac7446ac9f51231eb2f16e49cfb",
   "rows": [
     {
       "disposition": "production lexical surface",
@@ -4637,9 +4637,9 @@
     {
       "disposition": "process-scoped environment observation; no semantic authority",
       "func_authority": "configuration_only",
-      "id": "r7.env.9c5a4aca30c8db89",
+      "id": "r7.env.7941529121623c10",
       "kind": "compile_env_route",
-      "line": 59,
+      "line": 247,
       "line_text": "pub(super) fn compile_via_capi(",
       "owner": "src/host_providers/llvm_codegen/capi_transport.rs",
       "path": "src/host_providers/llvm_codegen/capi_transport.rs",
@@ -4649,7 +4649,7 @@
       "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
       "role": "environment_route",
       "selected_corridor": false,
-      "source_sha256": "18bd6cd31fca25d36f90359463858552048ca52cacd6bf5c7f8c130b08f54d05",
+      "source_sha256": "e26c3e1799b721e068a30d378d3202267d702a6080e2c8e9b9088541f6ab143d",
       "symbol": "compile_via_capi",
       "token": "compile-env save/set/restore"
     },
@@ -4668,27 +4668,8 @@
       "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
       "role": "environment_route",
       "selected_corridor": false,
-      "source_sha256": "8c194536c6d07d2f2b5b6af1973c3b7a1b88125e76ae31a6c0a1af16bdf3b40c",
+      "source_sha256": "a1fcb67901cf512682338b0aa639d06628c1ae965ebdc53e198ec5a91c752fb9",
       "symbol": "compile_published_static_v2",
-      "token": "compile-env save/set/restore"
-    },
-    {
-      "disposition": "process-scoped environment observation; no semantic authority",
-      "func_authority": "configuration_only",
-      "id": "r7.env.73b977a185437012",
-      "kind": "compile_env_route",
-      "line": 61,
-      "line_text": "unsafe fn with_compile_symbol<T, F>(action: F) -> Result<T>",
-      "owner": "crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs",
-      "path": "crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs",
-      "profile": "rust_boundary",
-      "reachability": "production_scope",
-      "reopen_trigger": "new save/set/restore helper or route family",
-      "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
-      "role": "environment_route",
-      "selected_corridor": false,
-      "source_sha256": "c21eaa2e1437a28071f92aad3e6d74f802b45af70aa09babf4cd49171cfe6b44",
-      "symbol": "with_compile_symbol",
       "token": "compile-env save/set/restore"
     },
     {
@@ -4706,16 +4687,16 @@
       "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
       "role": "environment_route",
       "selected_corridor": false,
-      "source_sha256": "1cff093c7b1534000f4287911543e266b06230866af88e41e2e92120730f3aa5",
+      "source_sha256": "bbf42a77ffc41c527b99dec60ff35a6327a0c06cb62054d2dc6e2b264e2d9ae9",
       "symbol": "hako_llvmc_forward_link_to_aot_without_ffi",
       "token": "compile-env save/set/restore"
     },
     {
       "disposition": "process-scoped environment observation; no semantic authority",
       "func_authority": "configuration_only",
-      "id": "r7.env.7b33ac30d1ab2a65",
+      "id": "r7.env.8badec94038ec0f1",
       "kind": "compile_env_route",
-      "line": 369,
+      "line": 366,
       "line_text": "static int hako_llvmc_forward_link_to_aot_v2_without_ffi(",
       "owner": "lang/c-abi/shims/hako_llvmc_ffi_route.inc",
       "path": "lang/c-abi/shims/hako_llvmc_ffi_route.inc",
@@ -4725,7 +4706,7 @@
       "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
       "role": "environment_route",
       "selected_corridor": false,
-      "source_sha256": "1cff093c7b1534000f4287911543e266b06230866af88e41e2e92120730f3aa5",
+      "source_sha256": "bbf42a77ffc41c527b99dec60ff35a6327a0c06cb62054d2dc6e2b264e2d9ae9",
       "symbol": "hako_llvmc_forward_link_to_aot_v2_without_ffi",
       "token": "compile-env save/set/restore"
     },
@@ -4829,6 +4810,6 @@
       "crates (Rust production scope)",
       "lang/c-abi route (fixed env anchors)"
     ],
-    "scope_sha256": "13cb916d7f24e0d8ee290d22028ec04c508885740f8963ebd6630512c8ac6c6f"
+    "scope_sha256": "e84f3454b3d8e2fdea63f3182f851962322ade03620883647ddefd77e616550e"
   }
 }

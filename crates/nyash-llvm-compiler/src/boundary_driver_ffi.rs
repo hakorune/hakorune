@@ -11,7 +11,87 @@ extern "C" {
     fn free(ptr: *mut c_void);
 }
 
-type CompileFn = unsafe extern "C" fn(*const c_char, *const c_char, *mut *mut c_char) -> c_int;
+const COMPILE_OPTIONS_SYMBOL: &[u8] = b"hako_llvmc_compile_json_with_options_v1\0";
+const CONTRACT_REVISION: u32 = 1;
+const BOUNDARY_PURE_FIRST_PROFILE: u32 = 1;
+
+#[repr(C)]
+struct PhysicalCompileContractV1 {
+    revision: u32,
+    byte_size: u32,
+    ingress_profile: u32,
+    flags: u32,
+    compile_recipe: *const c_char,
+    compat_replay: *const c_char,
+    opt_level: *const c_char,
+    opt_tool_path: *const c_char,
+    llc_tool_path: *const c_char,
+    llc_flags: *const c_char,
+    llvmc_path: *const c_char,
+}
+
+struct OwnedPhysicalCompileContract {
+    compile_recipe: CString,
+    compat_replay: CString,
+    opt_level: CString,
+    opt_tool_path: Option<CString>,
+    llc_tool_path: Option<CString>,
+    llc_flags: Option<CString>,
+}
+
+impl OwnedPhysicalCompileContract {
+    fn from_environment() -> Result<Self> {
+        let legacy_alias = environment_value("HAKO_CAPI_PURE")?;
+        if legacy_capi_pure_alias_enabled(legacy_alias.as_deref()) {
+            warn_legacy_capi_pure_alias_once();
+            bail!(
+                "[freeze:contract][env/hako_capi_pure_retired] HAKO_CAPI_PURE is retired; use HAKO_BACKEND_COMPILE_RECIPE=pure-first"
+            );
+        }
+        let recipe = environment_value("HAKO_BACKEND_COMPILE_RECIPE")?;
+        let replay = environment_value("HAKO_BACKEND_COMPAT_REPLAY")?;
+        let (recipe, replay) = admit_boundary_route(recipe.as_deref(), replay.as_deref())?;
+        let opt_level = environment_opt_level()?;
+        validate_opt_level(&opt_level)?;
+        let opt_tool_path = optional_environment_value("NYASH_NY_LLVM_OPT_TOOL")?;
+        let llc_tool_path = optional_environment_value("NYASH_NY_LLVM_LLC_TOOL")?;
+        let llc_flags = optional_environment_value("NYASH_NY_LLVM_LLC_FLAGS")?;
+        Ok(Self {
+            compile_recipe: cstring(recipe, "compile recipe")?,
+            compat_replay: cstring(replay, "compat replay")?,
+            opt_level: cstring(&opt_level, "opt level")?,
+            opt_tool_path: optional_cstring(opt_tool_path, "opt tool")?,
+            llc_tool_path: optional_cstring(llc_tool_path, "llc tool")?,
+            llc_flags: optional_cstring(llc_flags, "llc flags")?,
+        })
+    }
+
+    fn row(&self) -> PhysicalCompileContractV1 {
+        fn pointer(value: Option<&CString>) -> *const c_char {
+            value.map_or(std::ptr::null(), |value| value.as_ptr())
+        }
+        PhysicalCompileContractV1 {
+            revision: CONTRACT_REVISION,
+            byte_size: std::mem::size_of::<PhysicalCompileContractV1>() as u32,
+            ingress_profile: BOUNDARY_PURE_FIRST_PROFILE,
+            flags: 0,
+            compile_recipe: self.compile_recipe.as_ptr(),
+            compat_replay: self.compat_replay.as_ptr(),
+            opt_level: self.opt_level.as_ptr(),
+            opt_tool_path: pointer(self.opt_tool_path.as_ref()),
+            llc_tool_path: pointer(self.llc_tool_path.as_ref()),
+            llc_flags: pointer(self.llc_flags.as_ref()),
+            llvmc_path: std::ptr::null(),
+        }
+    }
+}
+
+type CompileOptionsFn = unsafe extern "C" fn(
+    *const c_char,
+    *const c_char,
+    *const PhysicalCompileContractV1,
+    *mut *mut c_char,
+) -> c_int;
 type LinkFnV2 = unsafe extern "C" fn(
     *const c_char,
     *const c_char,
@@ -21,8 +101,7 @@ type LinkFnV2 = unsafe extern "C" fn(
 ) -> c_int;
 
 pub(super) fn emit_object_from_json(input: &Path, out: &Path) -> Result<()> {
-    ensure_output_parent(out);
-    call_compile_symbol(input, out)
+    call_compile_options(input, out)
 }
 
 pub(super) fn link_object_to_exe(
@@ -58,50 +137,6 @@ fn ensure_output_parent(path: &Path) {
     }
 }
 
-unsafe fn with_compile_symbol<T, F>(action: F) -> Result<T>
-where
-    F: FnOnce(CompileFn) -> Result<T>,
-{
-    let lib = open_ffi_library()?;
-    let recipe_env = std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok();
-    let replay_env = std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok();
-    let legacy_capi_pure = std::env::var("HAKO_CAPI_PURE").ok();
-    if legacy_capi_pure_alias_enabled(legacy_capi_pure.as_deref()) {
-        warn_legacy_capi_pure_alias_once();
-        bail!(
-            "[freeze:contract][env/hako_capi_pure_retired] HAKO_CAPI_PURE is retired; use HAKO_BACKEND_COMPILE_RECIPE=pure-first"
-        );
-    }
-    let (compile_recipe, compat_replay) =
-        super::boundary_driver_defaults::boundary_codegen_request_defaults(
-            recipe_env.as_deref(),
-            replay_env.as_deref(),
-        );
-    let compile_symbol = super::boundary_driver_defaults::boundary_compile_symbol(
-        compile_recipe.as_deref(),
-        legacy_capi_pure.as_deref(),
-    );
-    emit_compile_route_trace(
-        compile_recipe.as_deref(),
-        compat_replay.as_deref(),
-        compile_symbol,
-    );
-    let func: CompileFn = *lib
-        .get(compile_symbol)
-        .context("missing symbol hako_llvmc_compile_json{_pure_first}")?;
-    with_env_override(
-        "HAKO_BACKEND_COMPILE_RECIPE",
-        compile_recipe.as_deref(),
-        || {
-            with_env_override(
-                "HAKO_BACKEND_COMPAT_REPLAY",
-                compat_replay.as_deref(),
-                || action(func),
-            )
-        },
-    )
-}
-
 unsafe fn with_link_symbol_v2<T, F>(action: F) -> Result<T>
 where
     F: FnOnce(LinkFnV2) -> Result<T>,
@@ -113,21 +148,28 @@ where
     action(func)
 }
 
-fn call_compile_symbol(input: &Path, out: &Path) -> Result<()> {
+fn call_compile_options(input: &Path, out: &Path) -> Result<()> {
+    let owned = OwnedPhysicalCompileContract::from_environment()?;
+    let contract = owned.row();
     let cin =
         CString::new(input.to_string_lossy().as_bytes()).context("invalid input path for C ABI")?;
     let cout =
         CString::new(out.to_string_lossy().as_bytes()).context("invalid output path for C ABI")?;
+    ensure_output_parent(out);
     let mut err_ptr: *mut c_char = std::ptr::null_mut();
     unsafe {
-        with_compile_symbol(|func| {
-            let rc = func(
-                cin.as_ptr(),
-                cout.as_ptr(),
-                &mut err_ptr as *mut *mut c_char,
-            );
-            interpret_result(rc, err_ptr, out, "object not produced")
-        })
+        let lib = open_ffi_library()?;
+        let func: CompileOptionsFn = *lib
+            .get(COMPILE_OPTIONS_SYMBOL)
+            .context("missing symbol hako_llvmc_compile_json_with_options_v1")?;
+        emit_compile_route_trace("pure-first", "none");
+        let rc = func(
+            cin.as_ptr(),
+            cout.as_ptr(),
+            &contract,
+            &mut err_ptr as *mut *mut c_char,
+        );
+        interpret_result(rc, err_ptr, out, "object not produced")
     }
 }
 
@@ -218,23 +260,6 @@ fn error_string_or(err_ptr: *mut c_char, fallback: &str) -> String {
     }
 }
 
-fn with_env_override<T, F>(key: &str, value: Option<&str>, action: F) -> T
-where
-    F: FnOnce() -> T,
-{
-    let prev = std::env::var(key).ok();
-    match value {
-        Some(value) => std::env::set_var(key, value),
-        None => std::env::remove_var(key),
-    }
-    let result = action();
-    match prev {
-        Some(prev) => std::env::set_var(key, prev),
-        None => std::env::remove_var(key),
-    }
-    result
-}
-
 fn llvm_route_trace_enabled() -> bool {
     matches!(
         std::env::var("NYASH_LLVM_ROUTE_TRACE").ok().as_deref(),
@@ -255,44 +280,89 @@ fn warn_legacy_capi_pure_alias_once() {
     }
 }
 
-fn emit_compile_route_trace(
-    compile_recipe: Option<&str>,
-    compat_replay: Option<&str>,
-    compile_symbol: &[u8],
-) {
+fn emit_compile_route_trace(compile_recipe: &str, compat_replay: &str) {
     if !llvm_route_trace_enabled() {
         return;
     }
-    let symbol = CStr::from_bytes_with_nul(compile_symbol)
-        .ok()
-        .and_then(|value| value.to_str().ok())
-        .unwrap_or("unknown");
     eprintln!(
-        "[llvm-route/select] owner=boundary recipe={} compat_replay={} symbol={}",
-        compile_recipe.unwrap_or("unset"),
-        compat_replay.unwrap_or("unset"),
-        symbol
+        "[llvm-route/select] owner=boundary recipe={} compat_replay={} entry=hako_llvmc_compile_json_with_options_v1",
+        compile_recipe, compat_replay
     );
+}
+
+fn environment_value(name: &str) -> Result<Option<String>> {
+    match std::env::var(name) {
+        Ok(value) => Ok(Some(value)),
+        Err(std::env::VarError::NotPresent) => Ok(None),
+        Err(std::env::VarError::NotUnicode(_)) => {
+            bail!("[freeze:contract][compile-options/{name}] invalid UTF-8")
+        }
+    }
+}
+
+fn optional_environment_value(name: &str) -> Result<Option<String>> {
+    Ok(environment_value(name)?.filter(|value| !value.is_empty()))
+}
+
+fn admit_boundary_route<'a>(
+    recipe: Option<&'a str>,
+    replay: Option<&'a str>,
+) -> Result<(&'a str, &'a str)> {
+    let recipe = recipe.unwrap_or("pure-first");
+    if recipe != "pure-first" {
+        bail!("[freeze:contract][compile-options/recipe] expected pure-first");
+    }
+    let replay = replay.unwrap_or("none");
+    if replay != "none" {
+        bail!("[freeze:contract][compile-options/replay] expected none");
+    }
+    Ok((recipe, replay))
+}
+
+fn environment_opt_level() -> Result<String> {
+    let hako = environment_value("HAKO_LLVM_OPT_LEVEL")?;
+    let nyash = environment_value("NYASH_LLVM_OPT_LEVEL")?;
+    match (hako, nyash) {
+        (Some(left), Some(right)) if left != right => {
+            bail!("[freeze:contract][compile-options/opt-level-alias-conflict]")
+        }
+        (Some(level), _) | (_, Some(level)) => Ok(level),
+        (None, None) => Ok("0".to_string()),
+    }
+}
+
+fn validate_opt_level(level: &str) -> Result<()> {
+    if level.len() == 1 && matches!(level.as_bytes()[0], b'0'..=b'3') {
+        Ok(())
+    } else {
+        bail!("[freeze:contract][compile-options/opt-level] expected 0..3");
+    }
+}
+
+fn cstring(value: &str, label: &str) -> Result<CString> {
+    CString::new(value).with_context(|| format!("[freeze:contract][compile-options/{label}] NUL"))
+}
+
+fn optional_cstring(value: Option<String>, label: &str) -> Result<Option<CString>> {
+    value.map(|value| cstring(&value, label)).transpose()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{llvm_route_trace_enabled, with_env_override};
+    use super::{admit_boundary_route, llvm_route_trace_enabled};
 
     #[test]
-    fn with_env_override_restores_previous_value_after_action() {
-        std::env::set_var("NYASH_BOUNDARY_DRIVER_TEST_ENV", "before");
-        let observed = with_env_override("NYASH_BOUNDARY_DRIVER_TEST_ENV", Some("inside"), || {
-            std::env::var("NYASH_BOUNDARY_DRIVER_TEST_ENV").ok()
-        });
-        assert_eq!(observed.as_deref(), Some("inside"));
+    fn boundary_route_defaults_to_pure_first_and_none() {
         assert_eq!(
-            std::env::var("NYASH_BOUNDARY_DRIVER_TEST_ENV")
-                .ok()
-                .as_deref(),
-            Some("before")
+            admit_boundary_route(None, None).unwrap(),
+            ("pure-first", "none")
         );
-        std::env::remove_var("NYASH_BOUNDARY_DRIVER_TEST_ENV");
+    }
+
+    #[test]
+    fn boundary_route_rejects_compatibility_recipe_and_replay() {
+        assert!(admit_boundary_route(Some("harness"), None).is_err());
+        assert!(admit_boundary_route(None, Some("harness")).is_err());
     }
 
     #[test]

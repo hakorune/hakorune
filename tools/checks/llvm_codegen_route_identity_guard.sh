@@ -11,6 +11,7 @@ INDEX="$ROOT/docs/tools/check-scripts-index.md"
 ROUTE_ENTRY="$ROOT/src/host_providers/llvm_codegen/mir_json_text_object.rs"
 ROUTE="$ROOT/src/host_providers/llvm_codegen/route.rs"
 BOUNDARY_FFI="$ROOT/crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs"
+BOUNDARY_DEFAULTS="$ROOT/crates/nyash-llvm-compiler/src/boundary_driver_defaults.rs"
 RUNNER_EXEC="$ROOT/src/runner/modes/common_util/exec.rs"
 SELECTED_BUNDLE="$ROOT/src/runner/modes/common_util/selected_dynamic_artifact_bundle.rs"
 CAPI="$ROOT/src/host_providers/llvm_codegen/capi_transport.rs"
@@ -49,6 +50,8 @@ for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGI
   need_file "$file"
 done
 need_file "$SELECTED_BUNDLE"
+need_file "$BOUNDARY_FFI"
+need_file "$BOUNDARY_DEFAULTS"
 need_file "$STAGE1_BUILD"
 need_file "$STAGE1_CONTRACT"
 need_file "$SELFHOST_README"
@@ -121,6 +124,21 @@ if rg -n 'compile_symbol|std::env::(set_var|remove_var)' "$CAPI"; then
 fi
 need_fixed "$CAPI" 'compile_via_capi_with_options' \
   "explicit Rust CAPI options transport missing"
+need_fixed "$BOUNDARY_FFI" 'OwnedPhysicalCompileContract' \
+  "Boundary invocation-owned options contract missing"
+need_fixed "$BOUNDARY_FFI" 'hako_llvmc_compile_json_with_options_v1' \
+  "Boundary versioned options entry missing"
+need_fixed "$BOUNDARY_FFI" 'byte_size: std::mem::size_of::<PhysicalCompileContractV1>() as u32' \
+  "Boundary C layout size pin missing"
+need_fixed "$BOUNDARY_FFI" 'llvmc_path: std::ptr::null()' \
+  "Boundary unsupported llvmc path must remain null"
+if rg -n 'CompileFn|with_compile_symbol|call_compile_symbol|with_env_override|boundary_compile_symbol|boundary_codegen_request_defaults|std::env::(set_var|remove_var)\("HAKO_BACKEND_' \
+  "$BOUNDARY_FFI" "$BOUNDARY_DEFAULTS"; then
+  fail "Boundary Rust legacy symbol/env transport is still present"
+fi
+if rg -n 'hako_llvmc_compile_json\\0|hako_llvmc_compile_json_pure_first' "$BOUNDARY_FFI"; then
+  fail "Boundary Rust legacy compile dlsym is still present"
+fi
 need_fixed "$CAPI_ROUTE" 'hako_llvmc_require_pure_first_recipe' \
   "generic C recipe gate missing"
 need_fixed "$CAPI_ROUTE" 'generic-capi-recipe-required' \

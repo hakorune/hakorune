@@ -1,6 +1,6 @@
 # LLVM18 toolchain installation task
 
-Status: `queued__EnvironmentOnly__2026-09-12`
+Status: `blocked__ExternalSudoPermission__2026-09-12`
 Task: `LLVM18-TOOLCHAIN-INSTALL-I0`
 Date: `2026-09-12`
 Priority: restore the named LLVM18 object/EXE acceptance environment
@@ -40,6 +40,19 @@ Ubuntu release. Do not remove LLVM14 or rewrite unversioned `/usr/bin/llvm-*`
 links. If the host policy does not permit `sudo`, stop at the named external
 dependency and record the exact missing permission; do not emulate LLVM18 with
 LLVM14.
+
+## Preflight result (2026-09-12)
+
+The host is `x86_64` Ubuntu `22.04`; LLVM14.0.0 remains installed at
+`/usr/lib/llvm-14`. `llvm-config-18`, `llc-18`, `opt-18`, `clang-18`,
+`ld.lld-18`, and `/usr/lib/llvm-18` are absent, and Jammy has no apt candidate
+for `llvm-18`, `clang-18`, or `lld-18`. The CI installer was not run because
+the session is UID 1000 and `sudo -n -v` reports `sudo: a password is
+required`. This is an external permission blocker; LLVM14 remains the usable
+toolchain and no LLVM18 runtime claim is made.
+
+Resume the installation block above after sudo access is granted, then record
+the versioned tool/header/prefix checks below.
 
 ## Preflight and acceptance
 

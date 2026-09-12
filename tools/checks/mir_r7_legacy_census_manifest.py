@@ -22,7 +22,7 @@ SCHEMA_VERSION = 1
 LEGACY_TOKEN = "LegacyCallV0"
 LEGACY_EXPECTED = 243
 LEGACY_FILES_EXPECTED = 127
-ENV_EXPECTED = 5
+ENV_EXPECTED = 4
 LOOP_EXPECTED = 4
 LOOP_LOC_EXPECTED = 1009
 
@@ -32,11 +32,10 @@ DECL_RE = re.compile(
 )
 
 ENV_ANCHORS = (
-    ("src/host_providers/llvm_codegen/capi_transport.rs", 59, "compile_via_capi", "rust_capi"),
+    ("src/host_providers/llvm_codegen/capi_transport.rs", 247, "compile_via_capi", "rust_capi"),
     ("src/host_providers/llvm_codegen/static_invocation.rs", 6, "compile_published_static_v2", "rust_static"),
-    ("crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs", 61, "with_compile_symbol", "rust_boundary"),
     ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 352, "hako_llvmc_forward_link_to_aot_without_ffi", "c_route"),
-    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 369, "hako_llvmc_forward_link_to_aot_v2_without_ffi", "c_route"),
+    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 366, "hako_llvmc_forward_link_to_aot_v2_without_ffi", "c_route"),
 )
 
 LOOP_FILES = (

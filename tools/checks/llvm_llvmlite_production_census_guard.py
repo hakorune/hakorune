@@ -43,6 +43,8 @@ ROW_EVIDENCE = {
     "ny-llvmc-default-boundary": (
         ("crates/nyash-llvm-compiler/src/main.rs", "default_value_t = DriverKind::Boundary"),
         ("crates/nyash-llvm-compiler/src/main.rs", "DriverKind::Harness"),
+        ("crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs", "hako_llvmc_compile_json_with_options_v1"),
+        ("crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs", "OwnedPhysicalCompileContract"),
     ),
     "env-codegen-ordinary-boundary": (
         ("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "CodegenRouteRequestV1::BoundaryPureFirst"),
@@ -200,6 +202,10 @@ ROW_ABSENCE_EVIDENCE = {
         ("src/host_providers/llvm_codegen/capi_transport.rs", "compile_symbol"),
         ("src/host_providers/llvm_codegen/provider_keep.rs", "mir_json_to_object_ny_llvmc"),
         ("src/host_providers/llvm_codegen/capi_transport.rs", 'std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE"'),
+        ("crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs", "CompileFn"),
+        ("crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs", "with_compile_symbol"),
+        ("crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs", "with_env_override"),
+        ("crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs", "hako_llvmc_compile_json_pure_first"),
     ),
 }
 
