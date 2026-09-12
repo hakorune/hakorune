@@ -654,6 +654,51 @@ owner, terminal, retained callers, exact delete-set, and pre-effect rejection
 for contract/replay/tool/symbol/input errors before any new implementation.
 This audit did not edit code, add fixtures, add receipts, or run Cargo.
 
+### Shared invocation-owned compatibility admission D0 (selected 2026-09-12)
+
+The second independent read-only design consultation accepts one next design
+slice: define a shared invocation-owned physical compatibility contract for
+the remaining callers. This is a design stop, not an implementation grant.
+
+```text
+Decision: co-seal one invocation-owned physical compatibility contract before selecting another R7 implementation row.
+Source authority + canonical issuer: each existing explicit physical entry request, normalized once by one admission adapter; C consumes a deep-copied HakoLlvmcInvocation.
+Non-authority: MIR/Recipe meaning, profile names alone, ambient environment, provider reachability, public ABI names, and test-only emitters issue no new semantics.
+Fail-fast boundary: entry/profile -> revision/size/flags -> recipe/replay/provider/tool/alias -> input/path/re-entry -> contract copy -> child/provider/lowering -> artifact publication.
+Smallest next slice: fix a finite issuer -> terminal -> retained-caller/delete-set matrix and its pre-effect rejection obligations for every remaining compatibility group.
+Non-claims: no code, route switch, fallback, public ABI deletion, concurrent guarantee, LLVM18 runtime evidence, semantic receipt, or R7 completion.
+```
+
+The design boundary is finite and keeps the existing terminals:
+
+| issuer / caller group | current terminal | retained surface | design obligation |
+| --- | --- | --- | --- |
+| Rust `compat_codegen_receiver` and stage1/boundary compatibility | C options entry or explicit llvmlite provider | Rust route, `boundary_driver_ffi`, llvmlite keep | distinguish Boundary, explicit harness, and provider ownership without ambient retry |
+| C generic/pure-first and named harness | `hako_llvmc_ffi_route.inc` terminals | public C compile exports and existing C lowering | carry explicit invocation options while retaining public symbols |
+| generic/v1 AOT and AOT dlsym | `hako_aot_shared_impl.inc` compile/link terminals | AOT v1/v2, dlsym, runtime archive/link split | preserve public re-entry and classify link-only environment separately |
+| C common/AOT ambient selectors | existing tool/provider child selection | compatibility subprocess/tool behavior | isolate invocation-owned options without parent-process mutation or fallback |
+
+The canonical issuer is the existing physical request at each explicit entry;
+the shared adapter may normalize its transport fields once, but it must not
+issue a new MIR or Recipe product. C-side `HakoLlvmcInvocation` remains the
+copy/lifetime owner. All public C ABI, AOT v1/v2, dlsym, `ny-llvmc --driver
+harness`, llvmlite/provider keep, and existing C lowering remain retained until
+a later row names a real caller-specific delete-set.
+
+The counterexample blocking profile-only routing is fixed: Rust explicit
+harness reaches the llvmlite provider, while
+`hako_llvmc_compile_json_compat_harness` reaches `ny-llvmc --driver harness`
+and AOT dlsym can re-enter a third owner. The shared `harness` label therefore
+does not identify a physical terminal.
+
+Design acceptance is a source-backed finite table covering every listed issuer
+and terminal with `fallback=none`, explicit retained/delete disposition, and
+pre-effect negatives for profile/replay/provider/tool/alias conflicts,
+unset/empty/present environment preservation, nested invocation, and dlsym
+re-entry. Only after that table contains a non-empty caller-specific delete-set
+may `work_mode` leave `design_stop`. Until then the decision is
+`NoSafeSlice__NoRemainingUnsharedM7SOwner`.
+
 ### LLVM18 environment follow-up (queued 2026-09-12)
 
 The host check found Ubuntu 22.04 with only LLVM14.0.0 and no Jammy archive
