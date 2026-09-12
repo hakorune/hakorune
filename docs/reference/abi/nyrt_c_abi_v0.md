@@ -238,6 +238,46 @@ ABI does not change runtime/plugin ABIs or the live static compiler transport v1
 
 ### Selected lifecycle physical program v2
 
+Decision (2026-09-12; scalar CFG consumer implementation pending): extend the
+existing physical-v2/V4 route, not source membership or the runtime Fault ABI.
+The retained source/Recipe and physical-program issuer remain authoritative.
+An empty checked-operation set is valid; its process-result epilogue site is 0.
+Every checked operation still requires its site, checked sites remain unique,
+and no checked site may equal the required unsigned `process_result_site`.
+Ordinary Call does not acquire a synthetic checked site. Empty layouts still
+come from the existing canonical definitions and selected storage profile.
+
+Compare transport is `{"op":"compare","dst":D,"lhs":L,"rhs":R,
+"predicate":P}` with exactly those keys and existing u32 SSA references.
+MIR Eq/Ne/Lt/Le/Gt/Ge map to `eq/ne/slt/sle/sgt/sge`; operands must both have
+physical I64 kind. Result has BOOL kind, emitted as `icmp` then `zext i1 to
+i64`. Bool operands, mixed kinds and all other representations reject in V4;
+unknown predicates or missing/foreign operands reject in the physical parser.
+This supplies no implicit conversion and does not authorize a new source shape.
+
+Scalar PHIs may carry I64 or BOOL only. Their leading group uses the existing
+physical predecessor/value relations; no resource provenance is merged. Kind
+equality components must have one consistent defining kind, independent of
+block order; conflicting or unseeded components reject. Branch requires BOOL.
+Non-null edge arguments, duplicate predecessor inputs, entry backedges, and a
+PHI before a required row-zero Normal projection remain rejected.
+
+The indexed flow replacement stores exact block-entry Fault/resource states.
+Unseen blocks enqueue once; equal incoming states need no replay; differing
+states reject, including backedges. Every supplied block must be reachable.
+Existing Normal/Fault transfers and pending-result discharge stay authoritative;
+native-array admission is not widened. This finite analysis does not prove
+runtime termination. Map/key/outcome placement may be reinitialized at the same
+address only after successful matched dispose and expiry of all prior borrows.
+V4 must preserve init/operation/dispose chronology on both Normal and Fault;
+an empty obligation state must not conceal an undisposed placement lifetime.
+Emission uses one forwarding label per physical incoming edge to a PHI block,
+shared by ordinary, object and Map emission, including synthetic Fault branches.
+LLVM labels implement supplied edges and never issue source control meaning.
+Malformed/type/resource failures terminate before target or artifact creation.
+The acceptance terminal is the unchanged source-called G0 executable returning
+3; parser acceptance, source publication and isolated LLVM tests do not prove it.
+
 Decision (2026-09-07): replace the untagged v1 document, retaining one parser
 and one V4 physical consumer. Schema is exactly
 `hako.published-lifecycle-physical-program.v2`. Function keys are exactly

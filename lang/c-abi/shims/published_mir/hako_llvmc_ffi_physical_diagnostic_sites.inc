@@ -37,5 +37,6 @@ static int hako_physical_checked_sites_unique(yyjson_val* functions, uint64_t pr
     }
   }
   free(sites);
-  return count != 0;
+  /* An empty checked set is valid; the required process site remains separate. */
+  return 1;
 }

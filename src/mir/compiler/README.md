@@ -13,6 +13,9 @@ its source-issued Fault edge; unsupported Local/annotation/Unit admission
 remains a named stop.
 Admitted inputs own operation diagnostic ordinals and one `process_result_site`
 for the I64 epilogue; these are physical identities, never source coordinates.
+Ordinary Calls issue no checked-operation site. A retained program with no
+checked operations has an empty site set and epilogue site0, not a synthetic
+Invoke. Profile/definitions and per-checked-operation validation remain required.
 
 Per-New actuals travel inside the existing root-source handoff. Compiled-entry
 matches each physical Birth call to exactly one retained target/receiver/ordered

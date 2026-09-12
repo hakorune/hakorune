@@ -47,6 +47,19 @@ static void rejects_replace(const char* source, const char* needle,
 }
 
 int main(void) {
+  /* No checked operation does not mean no process-result diagnostic site. */
+  const char* empty_sites =
+      "{\"schema\":\"hako.published-lifecycle-physical-program.v2\","
+      "\"fault_abi_version\":1,\"storage_profile\":1,\"process_result_site\":0,"
+      "\"layouts\":[],\"functions\":[{\"name\":\"main\",\"role\":\"root_i64\","
+      "\"receiver\":null,\"receiver_object\":null,\"params\":[],\"entry\":0,\"blocks\":["
+      "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"fault_frame_enter\","
+      "\"dst\":0,\"mode\":\"root_owned\"}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\","
+      "\"dst\":1,\"value\":3}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"return\","
+      "\"value\":1}},\"edges\":[]}]}]}";
+  accepts(empty_sites);
+  rejects_replace(empty_sites, "\"process_result_site\":0,", "", "schema");
+  rejects_replace(empty_sites, "\"process_result_site\":0", "\"process_result_site\":-1", "diagnostic-sites");
   /* This is a complete ABI-bearing physical input, deliberately covering
    * function membership, values, CFG, invoke, layouts and both frame modes. */
   const char* valid =
@@ -76,6 +89,7 @@ int main(void) {
   rejects_replace(valid, "\"lhs\":5", "\"lhs\":7", "function-body");
   rejects_replace(valid, "\"operation\":{\"kind\":\"new_box\",\"object_id\":7,\"site\":0}", "\"operation\":{\"kind\":\"new_box\",\"object_id\":99,\"site\":0}", "function-body");
   rejects_replace(valid, "\"site\":1", "\"site\":0", "diagnostic-sites");
+  rejects_replace(valid, ",\"site\":1", "", "function-body");
   rejects_replace(valid, "\"site\":1", "\"site\":-1", "function-body");
   rejects_replace(valid, "\"mode\":\"root_owned\"", "\"mode\":\"borrowed\"", "function-body");
   rejects_replace(valid, "\"invoke_block\":0", "\"invoke_block\":1", "function-body");

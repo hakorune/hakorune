@@ -319,8 +319,10 @@ Lifecycle invocation ownership
   reaches the raw i64 store; valid Bool records FieldTypeMismatch (103) at the
   existing FieldSet site and follows its Fault edge. Invalid kind/payload is
   InvalidContract. Tagged Copy preserves both lanes; HANDLE is never scalar.
-- `process_result_site` remains distinct from checked-operation sites; out-of-
-  range I64 returns record reason102 after Home cleanup. Runtime frame/descriptor
+- `process_result_site` remains distinct from checked-operation sites; programs
+  without checked operations retain the required epilogue site (issuer ordinal0).
+  Missing/duplicate checked sites and collisions still reject before artifacts.
+  Out-of-range I64 returns record reason102 after Home cleanup. Runtime frame/descriptor
   revisions remain unchanged. The selected session host has source-backed
   EXE/independent OBJ acceptance; generic session-less OBJ stays rejected.
 - Physical field storage uses `HAKO_LLVMC_LIFECYCLE_STORAGE_I64=1` in the

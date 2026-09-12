@@ -96,6 +96,8 @@ link dlsym remain separate compatibility owners.
   layout, Birth, PHI, invoke/frame and CFG references without source-name repair.
   Its private `hako_llvmc_ffi_physical_diagnostic_sites.inc` owns checked-site
   uniqueness and process-site separation; the parser remains its sole caller.
+  Zero checked operations are admitted with the required unsigned process site;
+  missing checked sites, duplicates and process-site collisions still reject.
   V4 separately checks type/cohort coverage. Parser success alone does not prove
   executable input. Explicit receivers are HANDLE; unannotated formals consume
   kind/payload lanes and are checked before the Birth body. Valid Bool used by an

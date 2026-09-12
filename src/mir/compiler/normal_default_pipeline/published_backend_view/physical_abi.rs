@@ -342,9 +342,8 @@ fn issue_diagnostic_sites(
             }
         }
     }
-    if sites.is_empty() {
-        return Err(fault("site-missing"));
-    }
+    // Ordinary Calls may require this ABI without any checked operation.
+    // The root epilogue still owns process-result site zero in that case.
     Ok(sites)
 }
 

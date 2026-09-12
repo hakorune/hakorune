@@ -1,5 +1,5 @@
 ---
-Status: Design stop — parser split verified; scalar CFG and residual compatibility remain open
+Status: Design stop — G0 parameter-contract publication; residual compatibility remains open
 Date: 2026-09-11
 Decision: MIR-CALL-COMPATIBILITY-RETIRE-R7-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -15,7 +15,7 @@ Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; ag
 Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
 Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
 Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
-Smallest next slice: close Compare wire/types and cyclic resource reuse below; do not repeat the closed parser split or boxcall Stop.
+Smallest next slice: source-backed G0 parameter-contract publication; reuse the accepted downstream V4 CFG design.
 Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach, OBJ/EXE completion or performance claim.
 
 ## Finite boundary and state table
@@ -58,15 +58,6 @@ compatibility carriers remain live. Reopen this design if the manifest drifts,
 a new non-test constructor/reissuer appears, a selected native reader consumes
 legacy input, or an external caller cannot be assigned to an owner.
 
-## Worker audit (2026-09-11)
-
-The read-only owner audit found the R7 aggregate is not yet safe to open as an
-implementation row. The current manifest must first be reconciled to the
-selected admission source change (243/127 Legacy, four environment anchors,
-four test-only Loop-PHI files, 251 rows). After that, select one owner-unit
-Stop/Promote/Delete from the existing M7-S inventory; do not repeat the broad
-census or delete the shared schema early.
-
 ### Candidate comparison and first bounded owner
 
 The follow-up audit compared the two remaining concrete candidates without
@@ -77,20 +68,11 @@ reopening the census:
 | `src/runner/mir_json_v0/module.rs` `boxcall` arm | `json_artifact::mir_loader`, `selfhost::stage_a_route`, `stage_a_compat_bridge`, and `stage1_bridge::stub_emit::parse`; compatibility parser currently produces `LegacyCallV0`, while strict/dev has a named pre-effect stop | not yet exclusive: release/v0 compatibility and strict/dev ingress share the parser and the `LegacyCallV0` carrier | **Select first as an existing M7-S reader-stop owner.** Keep release compatibility; stop only the strict/dev outer ingress with its existing terminal. Promote is not allowed because JSON `receiver`/`box_name` is not a source-backed typed issuer. Delete waits for release caller-zero. |
 | `src/mir/joinir_id_remapper.rs` Legacy arm | merge/rewriter and test/reference callers only; no production terminal | no production delete-set and no semantic consumer | **Park as test/reference cleanup.** It is not a safe first M7-S production owner. |
 
-The first bounded owner is the existing generic
-`MIR-CALL-LEGACY-READER-STOP-R0` row, scoped to the strict/dev outer ingress
-around the JSON-v0 `boxcall` reader. Its exact boundary is
-`stage_a_route::try_capture_stage_a_module` and
-`stage_a_compat_bridge::resolve_program_payload_to_mir` through
-`selfhost::json::parse_mir_json_v0_line`; the stage1 stub parser is an
-additional caller of the same stop helper. The stable terminal is
-`[freeze:contract][callsite-retire:legacy-boxcall]`, before
-`mir_json_v0::parse_mir_v0_to_module` can reach `module.rs` and before a
-`MirModule` is mutated. This Stop is already implemented at `4e1d6f92fb` and
-is covered by the existing strict/dev named-reject and release compatibility
-tests. The exclusive old edge for this row is the strict/dev call from that
-helper into the v0 module parser; release/v0 callers keep their compatibility
-edge until a later caller-zero row.
+The strict/dev outer-ingress Stop landed at `4e1d6f92fb`:
+`stage_a_route`, `stage_a_compat_bridge` and stage1 stub callers reach
+`selfhost::json::parse_mir_json_v0_line`, which rejects legacy boxcall before
+the v0 module parser or mutation. Named-reject/release tests cover that edge;
+release/v0 compatibility remains live until its own caller-zero retirement.
 
 The follow-up candidate audit found no second safe M7-S production owner:
 `joinir_id_remapper.rs` is test/reference-only, while the remaining release
@@ -979,20 +961,32 @@ sole. PHI emission needs physical-edge forwarding labels shared by Map emission.
 Primary source check: recursive_after consumes segment transfers through
 canonical_cfg's Jump/Branch writers, which issue no edge args. No PHI/edge
 correspondence may be invented in C. CompareI64 currently maps Less/LessEqual/
-Equal to MIR Lt/Le/Eq. Resource reinitialization inside cycles and the exact
-Compare wire/type contract still require closure before semantic extension.
-Open implementation inventory remains empty-site admission, Compare transport,
+Equal to MIR Lt/Le/Eq. Accepted Compare/PHI/flow contract is now in
+`docs/reference/abi/nyrt_c_abi_v0.md#selected-lifecycle-physical-program-v2`.
+Kierkegaard's read-only audit closed runtime reuse: placement init writes a new
+lifetime after matched dispose; existing Map emission disposes Normal/Fault
+bookkeeping. Keep exact slot provenance, no stale borrow/result publication,
+and no live overwrite. This does not prove cyclic execution or bounded memory.
+Open implementation inventory is now G0 parameter metadata, Compare transport,
 PHI kinds/layout, and Branch/backedge flow/emission. Empty-site acceptance alone
 is not G0 execution; unchanged source-called EXE exit 3 remains the terminal.
 
-### Physical parser split (T0; verified 2026-09-12)
+### Empty checked-site admission (verified 2026-09-12)
 
-Base `8040b8c826`: checked-site validation moved to its private include;
-embedded definition deleted. Parser 783 -> 746 lines; private owner 41 lines.
-One parser/export/V4 caller; schema, errors, nonempty rejection and ABI unchanged.
-`bash tools/build_hako_llvmc_ffi.sh` and the compiled existing
-`published_lifecycle_physical_parser_preartifact_test.c` pass before/after.
-Moved body is byte-identical to base. G0 guard, R7 census (251 rows), pointer
-guard and diff check pass; initial pointer-name mismatch corrected before commit.
-README synced; no reference contract change, fixture or guard added; sunset=n/a.
-Next: seal remaining CFG contracts above, not another split; EXE3 remains open.
+Change: remove Rust/C nonempty-set rejection; the sole physical issuer and
+parser retain site ownership. No synthetic operation, fallback or new receipt.
+Contract: zero checked operations -> empty sites plus epilogue site0; checked
+operations -> required unique sites disjoint from the required epilogue site.
+Malformed/missing/duplicate sites -> existing pre-artifact reject, no retry.
+Done: existing source G0 physical test asserts empty ABI, C parser covers empty
+positive and missing/collision negatives; focused guards and README/reference.
+Stop: missing source/runtime authority or changed checked-site classification.
+Evidence: jobs1 quick Rust build 14m42s; source G0 ABI1 + physical ABI1 + JSON9
+pass; C build/parser and G0/R7/pointer guards pass; lib-test warnings523 unchanged.
+Unchanged ignored EXE test now stops at lifecycle parameter-entry
+`ordinary-parameter-count function=generic_g0/2`, before JSON/object/link.
+This is dependency evidence, not EXE success; temporary runtime alias removed.
+Next: source-issued G0 declared/entry metadata must satisfy the existing gate;
+do not synthesize it from MIR. Then resume accepted Compare/PHI/CFG emission.
+Preparation `0e30d908d5`: parser 783->746, site owner41, identical moved body;
+C build/parser positive+negatives and G0/R7/pointer guards passed; no ABI change.

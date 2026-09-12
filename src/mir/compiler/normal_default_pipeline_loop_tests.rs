@@ -93,7 +93,12 @@ fn normal_package_routes_top_level_generic_g0_through_existing_terminal() {
                 callbacks += 1;
                 assert!(verification.is_ok(), "{verification:?}");
                 assert!(view.module().functions.contains_key("generic_g0/2"));
-                assert_generic_g0_physical_reach(view)
+                assert_generic_g0_physical_reach(view)?;
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                assert!(input.diagnostic_sites().is_empty());
+                assert_eq!(input.process_result_site(), 0);
+                assert!(input.layouts().is_empty());
+                Ok::<(), String>(())
             })
             .expect("normal package Generic G0 compile");
         assert_eq!(callbacks, 1);
