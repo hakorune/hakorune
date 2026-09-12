@@ -330,6 +330,24 @@ The design boundary is finite and keeps the existing terminals:
 | generic/v1 AOT and AOT dlsym | `hako_aot_shared_impl.inc` compile/link terminals | AOT v1/v2, dlsym, runtime archive/link split | preserve public re-entry and classify link-only environment separately |
 | C common/AOT ambient selectors | existing tool/provider child selection | compatibility subprocess/tool behavior | isolate invocation-owned options without parent-process mutation or fallback |
 
+### Field-level source crosswalk (read-only, 2026-09-12)
+
+The source audit fixes the missing design at field level; a profile name alone
+does not establish ownership.
+
+| field | generic public / Boundary | explicit harness / AOT / link | disposition for the next design |
+| --- | --- | --- | --- |
+| entry/profile | `hako_llvmc_ffi_route.inc:460-477` builds Generic; `capi_transport.rs:13-26` carries Boundary | `hako_llvmc_ffi_route.inc:508-529` requires named harness; AOT Generic uses profile 0 | entry-owned; no profile-only merge |
+| recipe/replay | physical copy requires pure-first/none; ambient harness replay is rejected (`route.inc:439-458`) | named harness uses pure-first/harness; AOT checks before dlsym (`aot_shared_impl.inc:546-580`) | retain exact rejects; no ambient fallback |
+| opt/tool/llc flags | Generic contract is assembled at `route.inc:419-436`; Boundary Rust captures its contract (`capi_transport.rs:38-72`) | AOT Generic captures effective values before its C call (`aot_generic_ffi_compile.inc:35+`) | invocation-owned copy; default-flag difference remains unresolved policy |
+| `llvmc_path` | non-harness is NULL and rejected by physical copy (`physical_options.inc:72-87`) | named harness requires a non-empty path (`physical_options.inc:56-70`); AOT owns child/dlsym entry | keep harness boundary distinct |
+| `HAKO_CAPI_TM` / dlsym | legacy TargetMachine probe is an explicit compatibility keep (`pure_compile_legacy_capi_emit.inc:1-7`) | public C, AOT v1/v2, and named-harness dlsym remain externally re-enterable | pre-effect validation plus external retention; no deletion claim |
+
+This crosswalk creates no new authority. It proves that the missing design is
+one owner/terminal/delete-set co-seal: until a row names a non-empty
+caller-specific delete-set, remain `NoSafeSlice__NoRemainingUnsharedM7SOwner`
+and keep `next_execution_card = none__R7NextOwner__DesignStop`.
+
 The canonical issuer is the existing physical request at each explicit entry;
 the shared adapter may normalize its transport fields once, but it must not
 issue a new MIR or Recipe product. C-side `HakoLlvmcInvocation` remains the
