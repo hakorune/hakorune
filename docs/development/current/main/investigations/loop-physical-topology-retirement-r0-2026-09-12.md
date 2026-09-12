@@ -123,20 +123,21 @@ current segment receipt does not own the item-to-segment relation. Adding that
 relation would be a new semantic/physical receipt outside this retirement
 slice, so no unsafe synthetic negative was added.
 
-## Post-retirement cleanup census (2026-09-12)
+## Post-retirement cleanup evidence correction (2026-09-12)
 
-The retired-route follow-up is a behavior-neutral T0 candidate, not part of
-this closed R0. `PreparedLoopOperationEmissionV1` still carries
-`expected_loop`, `expected_block`, and `expected_role`, but the segment
-dispatcher/leaf path consumes the issued segment target and no caller uses the
-matching getters. `LoopReadEntryRequirementV1::PreheaderSeed` has no current
-constructor/use; the live path uses only `CanonicalLive`, leaving its
-entry-membership branch as residue.
+`537e5e20fe` removed the Pure `PreparedLoopOperationEmissionV1` expected
+loop/block/role fields, constructor arguments and getters. It also removed
+`LoopReadEntryRequirementV1` and the unreachable PreheaderSeed read branch;
+the existing segment target and canonical read remain the physical authorities.
+These deletions are already in the tree, not queued future work.
 
-The next cleanup may remove only those fields, constructor arguments, getters,
-the unused enum variant/branch, and stale imports. It must retain segment
-placement validation and the transfer guard, and prove zero references,
-focused physicalizer tests, source-size limits, and pointer/diff guards. No
-Recipe, relation, selector, or new negative is needed. The current
-`design_stop` forbids implementing this T0 until it is selected as the active
-bounded row.
+Evidence gap: that commit bundled this cleanup with G0 I1 while this card
+still required separate active selection. The retained record does not prove
+that selection occurred; this correction records the actual deletion and
+does not retroactively supply authorization. Git retains the prior restriction.
+The G0 I1 evidence owns that commit's checks; R0's earlier 22-test result is
+not relabeled as a fresh run for the later cleanup.
+
+Read/Write/Carrier expected metadata still exists in the respective leaf
+owners and remains a separate candidate. No additional deletion is authorized
+here, and the Pure-only absence claim does not cover those owners.

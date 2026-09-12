@@ -450,8 +450,8 @@ read leaf and is rejected as an unavailable carrier seed. This contract layer
 remains Builder-free; canonical BindingSSA/PHI claims and physical value
 receipts belong only to the private lowering leaf.
 
-The bounded leaf uses an explicit `PreheaderSeed` or `CanonicalLive` entry
-requirement and returns immutable logical/physical placement evidence. Typed
+The bounded leaf consumes the issued segment target and canonical binding read,
+and returns immutable logical/physical placement evidence. Typed
 validation happens before claim; any claim/read/type/receipt failure is a
 terminal unpublished-function failure owned by the outer session transaction.
 The production replacement row, other operations, carrier seeds, full Loop

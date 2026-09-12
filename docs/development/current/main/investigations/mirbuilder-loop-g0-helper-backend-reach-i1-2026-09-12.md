@@ -88,11 +88,13 @@ Stop:
 
 The config handoff is behavior-preserving: selected first-family production
 cutovers receive the already-captured invocation config, while old direct test
-helpers retain their compatibility snapshot wrapper. The obsolete pure
-operation expected loop/block/role fields and unreachable `PreheaderSeed`
-entry branch remain as a later behavior-neutral Loop T0 cleanup candidate;
-current segment receipt/target validation remains. This cleanup is outside the
-landed G0 I1 implementation; its EXE acceptance is now verified.
+helpers retain their compatibility snapshot wrapper. The same `537e5e20fe`
+commit also removed Pure expected loop/block/role fields and the unreachable
+`PreheaderSeed` branch; segment receipt/target validation remains. The earlier
+claim that this cleanup was still queued was incorrect. The R0 card records
+the missing separate-selection evidence without inventing retrospective
+authorization. Read/Write/Carrier metadata is not included in that deletion.
+The G0 EXE acceptance is now verified.
 
 ## Scope boundary
 

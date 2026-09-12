@@ -15,7 +15,7 @@ Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; ag
 Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
 Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
 Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
-Smallest next slice: remove unconsumed replay-option storage after `34d9e409a6`; named ownership `6e5b59c901`, G0 `16f87f5eeb` remain verified.
+Smallest next slice: recover scalar local Call source/consumer agreement below; the unclaimed-New Stop is accepted but deferred.
 Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach or performance claim.
 
 ## Finite boundary and state table
@@ -81,327 +81,25 @@ aggregate R7 row in design stop with
 `NoSafeSlice__NoRemainingUnsharedM7SOwner`; reopen when a caller can be
 isolated or a supported replacement is selected.
 
-### Environment-route candidate reassessment (2026-09-11)
+### Closed link ownership series
 
-The two `hako_llvmc_ffi_route.inc` helpers are included in the R7 observation
-manifest, but they are not an independent R7 owner-unit. They only force
-`HAKO_AOT_USE_FFI=0` around the existing `hako_aot_link_obj` and
-`hako_aot_link_obj_v2` consumers; they do not issue or reclassify a MIR call.
+The private direct-link seam landed at `fc19313028`: v1 compatibility resolves
+its archive once and v2 keeps the caller's explicit archive; both use the
+existing AOT link body without FFI save/set/restore. Public AOT ABI and dlsym
+remain explicit compatibility owners. Link success/failure and unset/empty/
+present environment preservation passed. Compile-options ownership is a
+separate responsibility; historical consultation detail remains in Git.
 
-```text
-Source authority + issuer:
-  v2 = Boundary caller's explicit runtime archive;
-  v1 = existing compatibility link contract.
-Tracked callers:
-  v1 = backend externals/global callers and the kernel compatibility surrogate
-        through link_object_capi;
-  v2 = published_mir_object plus boundary/static-artifact publication through
-        link_object_to_exe_with_archive; focused C tests/guards also call it.
-Terminal:
-  existing VALIDATION / NOT_FOUND / LINK_FAILED and successful executable
-  publication from hako_aot_link_obj(_v2).
-Exclusive delete-set:
-  none while those AOT exports still consult HAKO_AOT_USE_FFI. Removing only
-  the two wrappers would leave the same process-global decision in the shared
-  AOT implementation and would change the v1 compatibility boundary.
-Next owner:
-  existing lang/c-abi README task 3 (invocation-owned physical state/options),
-  including Rust env overrides, the C save/set/restore pair, and the AOT
-  direct-link consumer in one call-owned design.
-```
+### Closed physical-options design
 
-The required acceptance for that existing Task 3 is overlapping distinct
-rows/options, failure cleanup, environment preservation, and explicit v1/v2
-link success without recursive FFI selection. It does not claim concurrent
-compilation or LegacyCallV0 retirement. Until that owner is selected with its
-full delete-set, the route pair remains `ParkedSealed__Task3Owner` and the
-R7 aggregate stays at `NoSafeSlice__NoRemainingUnsharedM7SOwner`.
-
-### Task 3 owner audit (2026-09-12)
-
-A second read-only worker audit rechecked this candidate against the owner-unit
-entry contract without reopening the census. The candidate remains a design
-candidate, not an implementation row: v2 has an explicit archive authority,
-but v1 still resolves `NYASH_EMIT_EXE_NYRT`, and both routes select through the
-process-global `HAKO_AOT_USE_FFI`; those inputs are not yet one call-owned
-issuer. The known v1 callers, v2 published-object caller, `dlsym` re-entry and
-public C ABI must receive explicit owner/retain dispositions before a deletion
-set can be named.
-
-The audit also found that the current save/set/restore wrapper treats an empty
-`HAKO_AOT_USE_FFI` value as unset. That is a concrete acceptance case, not
-permission to patch the wrapper in this design-stop row. The missing proof set
-is therefore bounded to call-owned authority, caller/retention assignment, and
-success/failure plus unset/empty/present restoration, overlapping invocations,
-and non-recursive v1/v2 link evidence. Keep
-`NoSafeSlice__NoRemainingUnsharedM7SOwner`; no source, fixture, route switch,
-or new receipt is authorized until that design is accepted.
-
-### Co-sealed Task 3 design boundary (2026-09-12)
-
-The consulted design review accepts the following boundary, while keeping the
-implementation row unopened:
-
-```text
-Decision:
-  Published v2 is a retained consumer, not an isolated deletion owner.
-  Co-seal v1/v2 selection, dlsym re-entry, and public C ABI first.
-Source authority + canonical issuer:
-  One invocation-owned link contract issues route state and archive together;
-  v2 borrows the published/Boundary explicit archive and v1 keeps its current
-  compatibility contract. C exports and dlsym functions consume, not issue.
-Non-authority:
-  v2 never derives an archive from NYASH_EMIT_EXE_NYRT; ambient env values,
-  symbol names, and runtime-dir strings cannot override explicit v2 input.
-Fail-fast boundary:
-  Reject invalid/conflicting input before env mutation, dlsym, or link effects;
-  preserve unset/empty/present environment states and reject or isolate nesting.
-Smallest next slice:
-  Assign owner/retain/delete dispositions for both Rust v2 callers, the v1/v2
-  C route pair, shared AOT dispatch, dlsym re-entry, and public C ABI.
-Non-claims:
-  No new MIR receipt, route switch, deletion, concurrency, or LegacyCallV0
-  retirement is authorized by this design boundary.
-```
-
-The future acceptance must cover v1/v2 success, invalid and missing archive
-rejection before effects, link-failure cleanup, unset/empty/present restoration,
-overlapping or nested invocation isolation/rejection, one non-recursive dlsym
-handoff, and retained public ABI behavior. The current exclusive delete-set is
-still empty; keep `NoSafeSlice__NoRemainingUnsharedM7SOwner` until those owner
-assignments are concrete.
-
-### Task 3 caller disposition matrix (2026-09-12)
-
-The current source-backed assignment is now explicit and is intentionally not a
-deletion set:
-
-| owner | current callers / terminal | disposition |
-| --- | --- | --- |
-| Selected published v2 | `published_mir_object.rs:150` and Boundary's `boundary_driver_ffi.rs:105` -> `capi_transport::link_via_capi_v2` -> `hako_llvmc_link_obj_v2` | retain as consumers; the explicit archive remains caller-owned and the route state must become invocation-owned |
-| v1 compatibility callers | `handlers/externals.rs:305`, `handlers/calls/global.rs:296`, `compat_codegen_receiver.rs:168`, and the kernel surrogate `llvm_backend_surrogate.rs:91` -> `link_object_capi` -> `hako_llvmc_link_obj` | retain until each compatibility caller has a named replacement or stop terminal |
-| Public AOT ABI | `hako_aot_link_obj` / `hako_aot_link_obj_v2` in `hako_aot_shared_impl.inc`, including external callers | retain; public ABI caller-zero is not observable from the repository |
-| FFI dynamic re-entry | `hako_aot_try_ffi_link` / `_v2` dlsym the matching `hako_llvmc_link_obj` exports | retain as an explicit compatibility terminal until an internal direct-link boundary is proven |
-| C FFI exports and route wrappers | `hako_llvmc_link_obj` / `_v2` in `hako_llvmc_ffi_pure_compile.inc` plus the two save/set/restore wrappers | retain the exports; the wrapper mutation is the future deletion candidate only after the shared direct-link boundary is co-sealed |
-
-The remaining design decision is therefore narrow: define a private
-invocation-owned direct-link boundary callable by the FFI translation unit,
-while preserving the public v1/v2 ABI and its explicit compatibility behavior.
-That boundary must carry the v2 archive and v1 compatibility resolution as one
-link contract; it must not expose a new source or MIR authority. Until this
-private boundary and its caller/retention proof are accepted, the matrix does
-not authorize code, fixture, route, or deletion work.
-
-### Private direct-link seam decision (2026-09-12)
-
-The source audit identifies `hako_aot_link_obj_with_archive` as the existing
-single direct-link body. A future implementation may expose only a private,
-invocation-owned seam from the FFI translation unit to that body; it must not
-add a second physicalizer or a public third C ABI. The public
-`hako_aot_link_obj(_v2)` dispatch and its dlsym compatibility behavior remain
-retained, while the FFI route is the only candidate caller for the private
-direct seam.
-
-The design is not implementation-ready yet. The seam must co-seal the v2
-explicit archive with the v1 compatibility archive resolution, and must state
-how the Rust/C compile options currently carried through process environment
-are represented in the same invocation-owned contract. Until those two
-authority points and their failure/cleanup evidence are accepted, the current
-R7 disposition remains `NoSafeSlice__NoRemainingUnsharedM7SOwner` and no code
-or route change is authorized.
-
-### Task 3 responsibility split and link seam admission (2026-09-12)
-
-The source audit separates two mutable-state responsibilities that were
-previously written as one Task 3 row:
-
-| bounded owner | mutable state | current boundary | disposition |
-| --- | --- | --- | --- |
-| Link direct seam I0 | `HAKO_AOT_USE_FFI` route selection | `hako_llvmc_ffi_route.inc` -> the existing `hako_aot_link_obj_with_archive` body | selected for implementation |
-| Compile options I1 | recipe, replay and opt-level values | Rust transport / C compile ingress / `HakoLlvmcInvocation` | design dependency; not opened here |
-
-This is a responsibility split, not a concurrency claim. The link slice has
-one existing physical link body, an explicit v2 archive, and a v1 compatibility
-resolution that can be performed once at the private boundary. It does not
-consume or reinterpret MIR/source facts. The compile-options row remains
-separate because its Rust environment overrides and C environment reads have
-different ingress owners and cannot be deleted by changing the link wrapper.
-
-The accepted I0 boundary is:
-
-```text
-Decision:
-  Replace both FFI link save/set/restore wrappers with one private
-  invocation-owned direct seam; retain public v1/v2 ABI dispatch and dlsym.
-Source authority + canonical issuer:
-  v2 caller supplies the explicit runtime archive; v1 compatibility resolves
-  its existing runtime archive once; the seam calls the existing link body.
-Non-authority:
-  HAKO_AOT_USE_FFI, dlsym re-entry, and public symbol names cannot select or
-  mutate the private direct link after the request has been admitted.
-Fail-fast boundary:
-  Invalid object/executable/archive inputs reject before linker effects;
-  v1/v2 mode is explicit; link failure keeps existing diagnostics and cleanup.
-Smallest next slice:
-  Add the hidden cross-translation-unit seam, route v1/v2 FFI forwarders to it,
-  and prove valid/missing/failure plus unset/empty/present env preservation.
-Non-claims:
-  Compile-options ownership, concurrent compilation, public ABI retirement,
-  LegacyCallV0 retirement, new MIR receipt, and whole R7 completion.
-```
-
-I0 exclusive delete-set: the two `HAKO_AOT_USE_FFI` save/set/restore helpers
-in `hako_llvmc_ffi_route.inc` and their route calls to public AOT dispatch. The
-public `hako_aot_link_obj(_v2)` functions, their dlsym compatibility behavior,
-the v1 archive compatibility resolution, and the existing link body remain
-owned and retained. I1 must later co-seal compile options before any Rust
-transport environment override or C compile environment read is retired.
-
-### Compile-options I1 audit (2026-09-12)
-
-The next Task 3 row is not implementation-ready. A read-only owner audit found
-multiple production option ingress points: Rust `Opts` and environment defaults,
-`capi_transport.rs`, `static_invocation.rs`, Boundary FFI, compatibility
-receivers/surrogates, subprocess environments, C FFI route/common readers, the
-static-V2 ingress, AOT harnesses, and process-global published call rows. The
-current `HakoLlvmcInvocation` is a physical-lifetime owner candidate, but it
-does not carry these options; `HakoLlvmcAllocationConfig` and
-`HakoLlvmcIngressProfile` are not substitutes.
-
-The audit decision is
-`NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority`. In particular,
-the three Rust temporary environment mutation sites cannot be retired by a
-static-only change while generic C, Boundary, static V2, AOT, compatibility,
-and subprocess callers still read ambient state. The published call-row global
-is a separate authority problem and is not silently included in this row.
-
-```text
-Decision: Compile-options I1 is a design stop until one cross-boundary owner is accepted.
-Source authority + canonical issuer: one Rust admission adapter normalizes the existing options; HakoLlvmcInvocation owns the physical contract.
-Non-authority: MIR/source/Recipe meaning, public C ABI, dlsym, and ambient getenv readers issue no new option meaning.
-Fail-fast boundary: conflict, unsupported value, nested/re-entry, and unconsumed-row checks precede env mutation, dlsym, and compile.
-Smallest next slice: co-seal the invocation-owned compile-options contract with every production caller and its delete/retain set.
-Non-claims: no implementation, fallback, concurrent-compile guarantee, or published-row-global retirement is authorized here.
-```
-
-Required acceptance before opening I1 is explicit-options success for
-pure-first/none, harness, static V2, and v1 compatibility; conflict,
-unsupported-value, duplicate/unconsumed-row rejection before effects; complete
-unset/empty/present restoration on success and failure; and overlap isolation
-or pre-mutation rejection. This row is separate from the already-landed link
-direct seam I0 and from the Builder-level duplicate snapshot cleanup recorded
-in the G0 acceptance card.
-
-### Compile-options contract consultation (2026-09-12)
-
-The independent read-only consultation confirms the same stop and fixes the
-candidate boundary precisely enough for the next authority decision. The
-contract is physical invocation state, not a new MIR/Recipe receipt:
-
-```c
-#define HAKO_LLVMC_PHYSICAL_CONTRACT_REVISION 1u
-
-typedef struct hako_llvmc_physical_contract_v1 {
-  uint32_t revision;
-  uint32_t byte_size;
-  uint32_t ingress_profile;
-  uint32_t flags;
-  const char* compile_recipe;
-  const char* compat_replay;
-  const char* opt_level;
-  const char* opt_tool_path;
-  const char* llc_tool_path;
-  const char* llc_flags;
-  const char* llvmc_path;
-} hako_llvmc_physical_contract_v1;
-```
-
-Rust keeps the existing `Opts` request and one admission adapter resolves it
-once, including `HAKO_LLVM_OPT_LEVEL` versus `NYASH_LLVM_OPT_LEVEL`: one value
-is accepted, equal aliases are accepted, conflicting aliases reject, and an
-unset value normalizes to the existing default. The adapter owns the live
-`CString`s for the synchronous call. C validates revision/size/profile/flags,
-deep-copies strings into `HakoLlvmcInvocation`, and consumes only that copy;
-Rust enums, `String`, `Vec`, and `Option` do not cross the ABI.
-
-The explicit default-visible C entries are the only selected ingress for new
-production callers:
-
-```c
-int hako_llvmc_compile_json_with_options_v1(
-    const char* json_in, const char* obj_out,
-    const hako_llvmc_physical_contract_v1* contract, char** err_out);
-int hako_llvmc_static_open_v2_with_options(
-    const char* bytes, size_t length,
-    const hako_llvmc_physical_contract_v1* contract,
-    hako_llvmc_static_invocation_v2** out, char** error);
-```
-
-The public three-argument compile exports, AOT compile exports, link v1/v2,
-and the explicit harness export remain compatibility surfaces. They adapt into
-the same invocation owner where applicable; they are not deleted or treated as
-new option authorities. AOT link and `HAKO_AOT_USE_FFI` remain in the landed I0
-boundary. Static V2 receives options at open, so its existing save/set/restore
-RAII is not retained as a second authority. Subprocess and harness callers get
-child-local explicit values from the adapter; parent-process environment is
-never mutated.
-
-The finite I1 caller disposition is: retain artifact/error handling and the
-existing static query/frame/compile/close flow; delete only the three Rust
-temporary environment overrides, the static settings RAII, Boundary FFI
-`with_env_override`, duplicate compatibility option reads, and explicit C
-`getenv` reads after their callers use the contract. Keep link-only environment
-handling, public ABI symbols, external compatibility behavior, and published
-call-row globals outside this delete-set. A truly hidden symbol is not a Rust
-`dlsym` ingress; any Rust caller needs a default-visible versioned symbol in the
-FFI library header.
-
-The opening gate is now explicit but not yet passed: prove explicit
-pure-first/none, harness, static V2, and v1 compatibility; fake tool/path and
-flag propagation; C/Rust `revision`, `byte_size`, `sizeof`, and offset
-agreement; success/failure preservation for unset/empty/present environment;
-and pre-effect rejection for bad revision/size/profile/flags, alias conflict,
-unsupported tool/value, replay/profile mismatch, duplicate/unconsumed rows,
-and nested/published-row overlap. Until the finite production caller set is
-co-sealed against that gate, `NoSafeSlice__CompileOptionsNoSingleCrossBoundaryAuthority`
-and `work_mode = design_stop` remain authoritative.
-
-### MIR-CALL-COMPATIBILITY-RETIRE-R7-I1A (selected implementation slice)
-
-The contract shape is accepted for one bounded production edge. This opens the
-explicit Boundary pure-first caller only; it does not claim that static V2,
-explicit harness, AOT compatibility, or the public generic ABI have already
-switched.
-
-```text
-Decision: add the versioned physical-options contract and switch the selected
-  Boundary pure-first CAPI caller to it; preserve all other compatibility edges.
-Source authority + canonical issuer: existing Rust Opts plus one admission
-  adapter normalize request/env aliases once; HakoLlvmcInvocation owns the C copy.
-Non-authority: MIR/Recipe meaning, public three-argument symbols, dlsym, and
-  ambient C getenv do not issue a new option meaning for this edge.
-Fail-fast boundary: contract revision/size/profile, recipe/replay, opt aliases,
-  and configured tool values reject before C lowering or output publication.
-Smallest next slice: header contract, invocation-owned copy, explicit compile
-  entry, Boundary pure-first caller, and focused positive/negative/restore guard.
-Non-claims: static-open adoption, harness/AOT propagation, public ABI removal,
-  concurrent compile, published-row global retirement, or whole R7 closure.
-```
-
-I1A retains the existing C lowering body and only threads its options through
-the selected generic/pattern physical terminal. The C entry is
-default-visible because Rust `dlsym` cannot call a hidden symbol. Its contract
-uses fixed-width integers and borrowed `const char*` inputs; C deep-copies the
-strings into the invocation and clears them at destruction. `Opts` remains the
-Rust request owner, with no new semantic receipt or settings layer.
-
-The I1A delete-set is deliberately limited to the selected Boundary caller's
-`set_var/remove_var` and restoration wrapper plus its old three-argument symbol
-lookup. The public C compatibility export and all unselected environment
-readers remain until their own explicit caller switch. Acceptance is one
-explicit pure-first/none success, invalid revision/profile and conflicting
-alias negatives before object effects, fake-tool/flag propagation, and
-unset/empty/present environment preservation on both success and failure.
+The versioned physical-options contract and Boundary switch landed at
+`454e49b755`; Static, Rust compatibility, AOT Generic, public Generic and named
+harness adoption are recorded below. The public borrowed contract, private
+owned copy, admission ordering and retain boundaries are owned by
+`docs/reference/abi/nyrt_c_abi_v0.md` and `lang/c-abi/README.md`.
+Historical proposal structs and unopened design states remain in Git, not as
+current execution authority. Published-row globals and external ABI retirement
+are separate unresolved responsibilities; no concurrency guarantee is inferred.
 
 ### R7-I1A closeout (2026-09-12)
 
@@ -983,14 +681,86 @@ regressions pass, including 26 Map negatives; G0/R7/pointer/diff guards green.
 Map probes require the no-entry lifecycle-core dependency archive; passing an
 entry archive caused driver-main collision before admission, not a code red.
 Source EXE uses the actual lifecycle archive directory, no temporary alias.
-Landed/pushed `16f87f5eeb`; aggregate R7, all-family Loop and parity remain open.
+Landed/pushed `16f87f5eeb`; unchanged EXE acceptance rerun at `16329a0da2`
+passes in 2.19s (one executed test, no skip). Aggregate R7, all-family Loop
+and parity remain open.
 
-### Harness compiler-path ownership (named landed; replay retirement closeout)
+### Harness compiler-path ownership (closed)
 
 Named ownership landed/pushed `6e5b59c901`: C build/options ownership+OOM/direct+AOT/error-order smoke and route/pointer/census guards pass. Public ABI/replay adapter/child settings retained.
-Decision: automatic replay branch/adapters retired at `34d9e409a6`; delete now-unconsumed private replay storage/copy/free and options lookup, retaining wire validation and ambient public rejection.
+Decision: automatic replay branch/adapters retired at `34d9e409a6`; unconsumed private replay storage/copy/free and options lookup retired at `16329a0da2`, retaining wire validation and ambient public rejection.
 Source authority + canonical issuer: pure-first public and Static reject ambient harness; explicit Generic/Boundary/Static options require none; direct allocation-capture core caller is test-only.
 Non-authority: copied replay bytes and removed options lookup. Finite code census covers physical_options/common/route plus direct ownership test; sole predicate caller supplied NULL; no stored replay consumer remains.
 Fail-fast boundary: preserve public JSON/contract/replay gates and existing unsupported terminal after core cleanup; no child launch after unsupported/emitter failure.
-Evidence / next: prior LLVM18 capture16/no-child negatives and probe retirement landed. C options smoke/ownership test proves one fewer allocation and unchanged recipe/replay reject; route/census/pointer/diff pass, module/reference synchronized. Commit/push; no new route or acceptance shape.
+Evidence: `16329a0da2` is pushed. LLVM18 capture16/no-child negatives and probe retirement passed; C options smoke proves one fewer allocation and unchanged recipe/replay reject; route/census/pointer/diff pass, module/reference synchronized.
 Non-claims: no public/provider/HAKO_CAPI_TM removal, new receipt, child-environment migration, concurrency isolation or aggregate R7 closure.
+
+### Ordinary-new unclaimed-writer premise review
+
+Not Fast path: the parked M3-B rationale couples two compatibility writers,
+but the current entry contract permits caller-local Stop without a successor;
+the exact claim-absent profile/rejection boundary needs independent review.
+This is one premise reset of that finite owner, not a new broad R7 census.
+
+Decision: caller-local Stop accepted after Meitner's complete-state review; deferred behind the reproduced scalar Call regression.
+Source authority + canonical issuer: existing ordinary-new package claim and Birth recipe; no claim means no canonical target authority.
+Non-authority: header lookup, class text, builtin injection and post-argument MIR.
+Fail-fast boundary: the invocation non-direct-local branch must reject parser-covered classes for the exact registered App Main before argument/NewBox effects. Ledger app_main_identity plus Pending/Checked owner, not optional root_completion, identifies that scope.
+Smallest next slice: existing ledger predicate consumed before this branch's `Ok(None)`; retain direct-local claims, foreign/transferred owners, absent ledger/site/owner and uncovered builtins. No change to shared writers.
+Non-claims: no new receipt, source expansion, blanket constructor stop or whole-writer deletion. Static counterexample `box Page { birth() {} } static box Main { main() { return new Page() } }` reaches the old writer; publication/EXE not asserted.
+
+### Priority scalar local Call recovery (accepted)
+
+Not Fast path: the producer now records non-Map i64 local Calls, while the
+affine row still selects Scalar and bypasses lifecycle binding publication;
+the existing caller/return and local-call responsibilities must agree.
+Evidence at unchanged `16329a0da2`: exact existing test
+`mir::normal_callable_semantic_package::direct_call_lifecycle_tests::non_map_scalar_call_keeps_its_existing_owner`
+fails at line410 (unexpected source Completion). This is pre-existing relative
+to this docs-only diff, not a newly introduced failure or a passing baseline.
+User counterexample: `local first = helper(10); return helper(20)`, with
+source-declared i64 helper, must retain its supported source meaning.
+Inspect the existing Completion callback, affine row co-seal and local physical
+consumer; choose one shared admission contract, no new receipt/layer, and
+retain G0 terminal EXE plus Map local/terminal behavior. Independent review is
+limited to this source/consumer mapping; no broad Call census.
+Next separate boundary: explicit `hako_llvmc_static_open_v2_with_options(NULL)`
+must reject before option-validation bypass; public compatibility open remains.
+Direct C recheck at `16329a0da2` confirms NULL returns success and allocates an
+invocation for `{}`; the diagnostic closed that invocation, no artifact emitted.
+
+Change: generalize only the existing non-Map affine-row co-seal branch. An
+exact source-issued local relation selects the existing Lifecycle consumer,
+removing its erroneous dispatch to ordinary Scalar Call without binding record.
+Contract: same loan owner/site/destination, typed all-i64 target and argument
+cardinality, existing terminal Call Completion with matching explicit return,
+successful caller cleanup and no prior Homes. Absent local or terminal Call
+relation keeps Scalar (including Plain/G0 terminal); Map checks remain unchanged.
+Done: source local+terminal helper calls publish with two typed Invokes; retained
+terminal/G0 and Map positives, unsupported prior-Home negative, existing corridor
+guard, module README/reference and one jobs1 focused build. Parent cohort is
+14pass/1fail; the stale no-Completion expectation must be replaced, not suppressed.
+Stop: missing original Completion/target/site relation or new callee ABI meaning.
+Meitner's issuer review and main's physical-consumer review agree: no new receipt,
+callee-purity inference, layer, source callback narrowing or shared writer removal.
+
+Integration refinement accepted after Kuhn's independent consumer review:
+`root_home.rs` rejects pending physical local-call bindings for Plain exit,
+but source local observations do not impose that Call-entry obligation on Plain.
+Use `call_source_completion_for_owner` in the non-Map branch; absent terminal
+relation preserves Scalar, present relation validates explicit return and
+returns_value before Lifecycle selection. No Plain payload expansion or weakened
+reject. Finish the initial in-flight build, then apply this guard and add the
+unchanged `local first = helper(10); return 0` regression before final build.
+Latest user audit also requires correcting deleted Loop T0 evidence at
+`537e5e20fe`; llc default policy, typed errors and caller-zero ambient helper
+remain separate follow-ups, not additions to this Call implementation.
+T0 evidence is now corrected in CURRENT_STATE, R0/I1 and the contract README;
+selection provenance remains explicitly missing, not backdated.
+Follow-ups: decide Boundary llc-flags default in its existing request owner;
+typed rejects belong to direct_accum/nested_predicate/pending; inspect the
+caller-zero `llvm_provider_flags.rs` helper before deletion. A parent-valued
+census observed_commit is provenance, not by itself source drift; regenerate
+only against actual manifest anchors/hashes. Normal bounded selection and
+implementation may share a commit under the implementation-coupled commit law;
+that permission never overrides an unresolved design_stop.

@@ -1,11 +1,11 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "closeout: private replay storage/copy/free and unused options lookup removed after 34d9e409a6. Public wire validation and exact ambient reject preserved. Expanded ownership test proves one fewer pure-options allocation and unchanged rejection; C options smoke/route guard pass. Finish census/pointer/diff and commit/push; R7 remains open."
-current_design_stop = "closed_for_R7AutomaticReplayRetirement__2026-09-12"
+guard_followup = "Scalar local Call correction requires both exact local relation and existing terminal Call Completion; Plain/nonterminal stays Scalar. Initial jobs1 build is live; finish it, add the accepted terminal guard and Plain regression, then rebuild once and run focused Map/G0/source gates. New Stop/static NULL remain separate."
+current_design_stop = "closed_for_ScalarLocalCallTerminalConsumerAgreement"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -47,7 +47,7 @@ positive observes exactly the root Invoke(Call) to `generic_g0/2`, two integer
 helper lanes, and helper Compare/Add body operations. The static EXE witness
 uses the same selected view; empty-site ABI, declared contracts and physical
 Compare/PHI/CFG now reach LLVM18/EXE3. First-family cutovers reuse one snapshot;
-obsolete Loop expected-location/PreheaderSeed handling is queued for T0 cleanup.
+Pure expected-location fields and PreheaderSeed were removed at 537e5e20fe; Read/Write/Carrier metadata is a separate cleanup candidate.
 Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, and public Generic C profile-0 options bridge I0 are closed; remaining shared compatibility owners have no safe exclusive delete-set.
 LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
 are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
