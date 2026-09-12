@@ -34,8 +34,8 @@ DECL_RE = re.compile(
 ENV_ANCHORS = (
     ("src/host_providers/llvm_codegen/capi_transport.rs", 247, "compile_via_capi", "rust_capi"),
     ("src/host_providers/llvm_codegen/static_invocation.rs", 6, "compile_published_static_v2", "rust_static"),
-    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 365, "hako_llvmc_forward_link_to_aot_without_ffi", "c_route"),
-    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 379, "hako_llvmc_forward_link_to_aot_v2_without_ffi", "c_route"),
+    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 358, "hako_llvmc_forward_link_to_aot_without_ffi", "c_route"),
+    ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", 372, "hako_llvmc_forward_link_to_aot_v2_without_ffi", "c_route"),
 )
 
 LOOP_FILES = (

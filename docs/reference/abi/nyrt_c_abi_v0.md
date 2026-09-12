@@ -248,8 +248,16 @@ but a missing configured path does not fall back. Capture precedes copying;
 the new copy-allocation failure rejects before log/child/artifact effects.
 Then existing log-path, command, output removal, child status/object and
 first-line error ordering is preserved. One executor consumes the owned path;
-the existing replay adapter and public C/AOT entrypoints remain live. This
+public named C/AOT entrypoints remain live. This
 does not claim full child-environment capture or process-wide isolation.
+
+Decision (2026-09-12): automatic pure-core replay is retired together with its
+exclusive adapters. Public Generic/pure-first/Static replay rejection and
+explicit-options `none` admission are unchanged. A direct-core unsupported or
+emitter-failure tail now terminates at the existing unsupported diagnostic and
+`lane=none` observation, regardless of ambient replay settings. Earlier physical
+attempts may already have effects; no new rollback or emitter-error taxonomy is
+claimed. Named Harness remains the separate admitted child-execution route.
 
 ### Selected lifecycle physical program v2
 

@@ -3,7 +3,6 @@
 # retired owner locks live in phase29ck-boundary-legacy.txt
 # entry active anchors
 phase29ck_boundary/entry/phase29ck_boundary_forwarder_min.sh
-phase29ck_boundary/entry/phase29ck_boundary_compat_keep_min.sh
 
 # string active shape anchors
 # runtime_data lookup/mutator shape anchors

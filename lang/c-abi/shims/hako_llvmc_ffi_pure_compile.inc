@@ -543,9 +543,6 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
         err_out,
         "contract-bound module cannot use compatibility replay");
   }
-  if (compat_harness_replay_enabled(&invocation->options)) {
-    return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
-  }
   hako_llvmc_emit_route_replay("none", "unsupported_pure_shape");
   emit_pure_unsupported_shape_inventory();
 #undef note_pure_unsupported_shape_detail

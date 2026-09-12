@@ -17,7 +17,6 @@ for rel in "${ARCHIVED_ACTIVE_PATHS[@]}"; do
 done
 
 guard_require_files "$TAG" \
-  "$ROOT_DIR/tools/dev/phase29ck_boundary_explicit_compat_probe.sh" \
   "$ROOT_DIR/tools/dev/phase29ck_boundary_historical_alias_probe.sh" \
   "$ROOT_DIR/tools/dev/phase29ck_stage1_mir_dialect_probe.sh"
 

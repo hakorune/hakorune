@@ -32,7 +32,6 @@ those under `tools/archive/legacy-selfhost/engineering/`.
 | `phase2160_mirbuilder_module_load_probe.sh` | explicit proof keeper | Current phase2160 dehang proof; guarded by `phase216217_normalization_canary_surface_guard.sh`. |
 | `phase29cg_stage2_bootstrap_phi_verify.sh` | explicit compat keeper | Program(JSON)->MIR bridge capsule proof; keep until MIR-first replacement emits full Stage1 env MIR instead of a reduced stub. |
 | `phase29ch_program_json_compat_route_probe.sh` | explicit compat keeper | Supplied Program(JSON) compat proof called by Stage1 exact emit contract smoke. |
-| `phase29ck_boundary_explicit_compat_probe.sh` | explicit compat keeper | Canonical explicit compat replay proof for HAKO_CAPI_PURE boundary. |
 | `phase29ck_boundary_historical_alias_probe.sh` | explicit compat keeper | Historical alias fail-fast proof; remove only after alias retirement contract changes. |
 | `phase29ck_stage1_mir_dialect_probe.sh` | explicit contract keeper | Stage1 MIR dialect contract probe called by current smoke profiles. |
 

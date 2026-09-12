@@ -15,7 +15,7 @@ Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; ag
 Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
 Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
 Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
-Smallest next slice: named-harness existing-options premise audit below; G0 landed at `16f87f5eeb`.
+Smallest next slice: close out automatic-replay retirement below; named ownership landed at `6e5b59c901`, G0 at `16f87f5eeb`.
 Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach or performance claim.
 
 ## Finite boundary and state table
@@ -985,11 +985,12 @@ entry archive caused driver-main collision before admission, not a code red.
 Source EXE uses the actual lifecycle archive directory, no temporary alias.
 Landed/pushed `16f87f5eeb`; aggregate R7, all-family Loop and parity remain open.
 
-### Named-harness compiler-path ownership (verified; closeout)
+### Harness compiler-path ownership (named landed; replay retirement closeout)
 
-Decision: named C export captures compiler path into existing physical-options owner, then one shared executor; delete its ambient-wrapper edge, retain replay adapter.
-Source authority + canonical issuer: named symbol admits Harness; current compiler resolver supplies path; private opaque-harness options arm copies it, without parsed invocation or new receipt.
-Non-authority: profile alone and child settings; unused pure fields are delegated/null, not defaults. Public options must still reject Harness and pure routes remain unchanged.
-Fail-fast boundary: compiler fopen check -> owned copy (new pre-effect OOM reject) -> log path -> command -> remove output/child -> object/status/first-line error; no compiler reread in executor.
-Evidence / next: Ohm mapping implemented; C build and expanded options smoke pass (copy/destroy/OOM, direct/AOT FFI, inherited settings, log/command overflow, nonexec/missing-object/first-line order). Route/pointer guards green; commit/push next.
-Non-claims: no full child-env migration, provider/public-ABI deletion, HAKO_CAPI_TM removal, semantic receipt, concurrency isolation or aggregate R7 closure. OOM addition makes this bounded ownership change non-T0.
+Named ownership landed/pushed `6e5b59c901`: C build/options ownership+OOM/direct+AOT/error-order smoke and route/pointer/census guards pass. Public ABI/replay adapter/child settings retained.
+Decision: Archimedes Stop/Delete accepted: remove pure-core replay branch, compile_json_via_explicit_compat_harness_replay and compile_json_compat_harness_keep; retain named Harness and shared formatter/predicate.
+Source authority + canonical issuer: pure-first public and Static reject ambient harness; explicit Generic/Boundary/Static options require none; direct allocation-capture core caller is test-only.
+Non-authority: named-Harness success and historical replay-positive probes do not prove automatic replay reach. Census excludes concurrent env mutation and interposition.
+Fail-fast boundary: preserve public JSON/contract/replay gates and existing unsupported terminal after core cleanup; no child launch after unsupported/emitter failure.
+Evidence / next: LLVM18 capture16 and unsupported/emitter-failure no-child negatives pass; LLVM14 default opt previously rejected opaque pointers before this boundary. Both obsolete replay-positive probes and suite/dev inventory/presence entries retired; historical prose/shared fixtures retained. Finish guards/commit/push.
+Non-claims: no public/provider/HAKO_CAPI_TM removal, new receipt, child-environment migration, concurrency isolation or aggregate R7 closure.

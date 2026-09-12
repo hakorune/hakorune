@@ -61,13 +61,6 @@ static int compile_json_compat_harness_execute(const char* llvmc,
   return set_err_owned(err_out, "ny-llvmc harness compile failed");
 }
 
-/* Existing pure-core replay retains its ambient adapter. */
-static int compile_json_compat_harness_keep(
-    const char* json_in, const char* obj_out, char** err_out) {
-  const char* llvmc = hako_llvmc_capture_harness_compiler(err_out);
-  return llvmc ? compile_json_compat_harness_execute(llvmc, json_in, obj_out, err_out) : -1;
-}
-
 static yyjson_val* hako_llvmc_find_entry_function(yyjson_val* fns) {
   size_t i;
   yyjson_val* fallback = NULL;
@@ -414,14 +407,6 @@ static int compile_json_with_options_profile(
 struct HakoLlvmcInvocation;
 static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
     const char* json_in, const char* obj_out, char** err_out);
-
-static int compile_json_via_explicit_compat_harness_replay(
-    const char* json_in,
-    const char* obj_out,
-    char** err_out) {
-  hako_llvmc_emit_route_replay("harness", "unsupported_pure_shape");
-  return compile_json_compat_harness_keep(json_in, obj_out, err_out);
-}
 
 static const char* hako_llvmc_generic_compat_opt_level(void) {
   const char* level = hako_llvmc_opt_level();

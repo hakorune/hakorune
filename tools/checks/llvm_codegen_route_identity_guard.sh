@@ -191,7 +191,11 @@ assert 'getenv(' not in executor, 'harness executor rereads compiler environment
 assert 'compile_json_compat_harness_keep(' not in named, 'named export reentered ambient adapter'
 assert 'hako_llvmc_physical_options_copy_named_harness(' in named
 assert 'hako_llvmc_physical_options_destroy(&options)' in named
-assert 'return compile_json_compat_harness_keep(json_in, obj_out, err_out);' in text, 'replay adapter retired while live'
+for retired in ['compile_json_compat_harness_keep', 'compile_json_via_explicit_compat_harness_replay']:
+    assert retired not in text, 'retired automatic replay adapter returned'
+core = pathlib.Path(sys.argv[1]).with_name('hako_llvmc_ffi_pure_compile.inc').read_text()
+assert 'compat_harness_replay_enabled(' not in core, 'pure core can dispatch automatic replay'
+assert 'hako_llvmc_emit_route_replay("none", "unsupported_pure_shape")' in core
 PY
 need_fixed "$STAGE1_CONTRACT" 'stage1_contract_resolve_backend_replay' \
   "Stage1 replay admission helper missing"

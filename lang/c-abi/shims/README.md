@@ -47,11 +47,22 @@ public options entry still rejects profile3. Only the compiler path is copied;
 null pure-tool fields mean delegated child settings, not defaults. Missing
 configured compiler paths retain the fopen-based NOT_FOUND boundary; unset or
 empty selects the existing default. A copy OOM rejects before log/child effects.
-One executor consumes the captured path without rereading its environment;
-the pure-core replay adapter remains live. Log/command/status/object order,
+One executor consumes the captured path without rereading its environment.
+Automatic pure-core replay and its two private adapters are retired; unsupported
+or emitter-failure tails use the existing unsupported terminal with lane=none,
+even for direct-core test callers carrying ambient harness. Log/command/status/object order,
 first-line errors, child settings and the public C/AOT symbols are unchanged.
 The options smoke covers direct/AOT re-entry and failure ordering, plus the
 private ownership test's copy lifetime, OOM and delegated-field rejection.
+
+The retained `allocation_config_capture_test.py DRIVER` checks sixteen captured
+configuration positives and unsupported/emitter-failure no-child negatives
+against `allocation_config_capture_driver.c`. Build that driver with the same
+C sources as the FFI (the driver includes `hako_llvmc_ffi.c` itself), then select
+`NYASH_NY_LLVM_OPT_TOOL=/usr/bin/opt-18` and
+`NYASH_NY_LLVM_LLC_TOOL=/usr/bin/llc-18` on side-by-side LLVM installations.
+The old dev replay-positive probe and integration compat-keep smoke are retired
+with their suite/inventory entries; shared benchmark fixtures remain live.
 
 ## AOT Generic physical options
 

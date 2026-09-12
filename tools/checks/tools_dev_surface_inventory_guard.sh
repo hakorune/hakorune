@@ -18,7 +18,6 @@ EXPECTED_FILES=(
   "phase2160_mirbuilder_module_load_probe.sh"
   "phase29cg_stage2_bootstrap_phi_verify.sh"
   "phase29ch_program_json_compat_route_probe.sh"
-  "phase29ck_boundary_explicit_compat_probe.sh"
   "phase29ck_boundary_historical_alias_probe.sh"
   "phase29ck_stage1_mir_dialect_probe.sh"
 )

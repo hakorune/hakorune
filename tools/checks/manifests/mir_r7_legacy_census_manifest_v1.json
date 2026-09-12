@@ -15,7 +15,7 @@
     "loop_phi_loc": 1009
   },
   "kind": "MirR7LegacyCensusManifestV1",
-  "observed_commit": "16f87f5eebe052cfd87b1a969a6c86b74e29fad7",
+  "observed_commit": "6e5b59c901bed18652c1d6706f428e710afe558a",
   "rows": [
     {
       "disposition": "production lexical surface",
@@ -4675,9 +4675,9 @@
     {
       "disposition": "process-scoped environment observation; no semantic authority",
       "func_authority": "configuration_only",
-      "id": "r7.env.0cad6c67f98437f2",
+      "id": "r7.env.ae3b2c8b9610fa30",
       "kind": "compile_env_route",
-      "line": 365,
+      "line": 358,
       "line_text": "static int hako_llvmc_forward_link_to_aot_without_ffi(",
       "owner": "lang/c-abi/shims/hako_llvmc_ffi_route.inc",
       "path": "lang/c-abi/shims/hako_llvmc_ffi_route.inc",
@@ -4687,16 +4687,16 @@
       "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
       "role": "environment_route",
       "selected_corridor": false,
-      "source_sha256": "2ba16ecc229d17d0f9bc5e7e36ac0a409c1c268a5ffb82d23e9d9e728b6122e4",
+      "source_sha256": "c85b1e6e345c544d20f4ce77c26dfe4bba4ee138060dfc0777a16580ffeba1cf",
       "symbol": "hako_llvmc_forward_link_to_aot_without_ffi",
       "token": "compile-env save/set/restore"
     },
     {
       "disposition": "process-scoped environment observation; no semantic authority",
       "func_authority": "configuration_only",
-      "id": "r7.env.be015fd9e95dc225",
+      "id": "r7.env.f31d32993c278ed3",
       "kind": "compile_env_route",
-      "line": 379,
+      "line": 372,
       "line_text": "static int hako_llvmc_forward_link_to_aot_v2_without_ffi(",
       "owner": "lang/c-abi/shims/hako_llvmc_ffi_route.inc",
       "path": "lang/c-abi/shims/hako_llvmc_ffi_route.inc",
@@ -4706,7 +4706,7 @@
       "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
       "role": "environment_route",
       "selected_corridor": false,
-      "source_sha256": "2ba16ecc229d17d0f9bc5e7e36ac0a409c1c268a5ffb82d23e9d9e728b6122e4",
+      "source_sha256": "c85b1e6e345c544d20f4ce77c26dfe4bba4ee138060dfc0777a16580ffeba1cf",
       "symbol": "hako_llvmc_forward_link_to_aot_v2_without_ffi",
       "token": "compile-env save/set/restore"
     },
@@ -4810,6 +4810,6 @@
       "crates (Rust production scope)",
       "lang/c-abi route (fixed env anchors)"
     ],
-    "scope_sha256": "34c0e311923c9ee2efd65fb109b6e9d0a577d59415418dfb34c754e76b3a74c4"
+    "scope_sha256": "299cb093d4b7ca691659b2558fa62bee958884902c709d9976babe79b66eabc6"
   }
 }

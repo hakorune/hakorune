@@ -47,7 +47,8 @@ with tempfile.TemporaryDirectory(prefix="hakorune-config-") as directory:
     source = work / "input.json"
     source.write_text(json.dumps(body))
     for index, (typed, array, helper) in enumerate(cases):
-        env = dict(os.environ, HAKO_BACKEND_COMPILE_RECIPE="pure-first")
+        env = dict(os.environ, HAKO_BACKEND_COMPILE_RECIPE="pure-first",
+                   HAKO_BACKEND_COMPAT_REPLAY="none")
         for name, value in zip(("HAKO_TYPED_OBJECT_STORE", "HAKO_ARRAY_SLOT_STORE",
                                 "HAKO_TYPED_OBJECT_EXACT_SLOT_HELPER"), (typed, array, helper)):
             if value is None:
@@ -77,3 +78,53 @@ with tempfile.TemporaryDirectory(prefix="hakorune-config-") as directory:
             assert joined.count('@"nyash.object.exact_slot_set_i64_hii"') == 2
             assert joined.count('@"nyash.object.exact_slot_get_i64_hii"') == 2
         print(index, typed, array, helper, "ok")
+
+    # Direct-core negative witnesses, not public/source admission positives.
+    # Both unsupported lowering and failed object emission must stop locally.
+    marker = work / "harness-called"
+    compiler = work / "fake-compiler"
+    compiler.write_text(f"#!{sys.executable}\nimport pathlib, sys\n"
+        f"pathlib.Path({str(marker)!r}).write_text('called')\n"
+        "pathlib.Path(sys.argv[sys.argv.index('--out') + 1]).write_text('object')\n")
+    compiler.chmod(0o755)
+    tool_markers = []
+    tools = {}
+    for name in ["opt", "llc"]:
+        tool_marker = work / (name + "-called")
+        tool_markers.append(tool_marker)
+        tool = work / name
+        tool.write_text(f"#!{sys.executable}\nimport pathlib, shutil, sys\n"
+            f"pathlib.Path({str(tool_marker)!r}).write_text('called')\n" +
+            ("sys.exit(1)\n" if name == "llc" else
+             "out = sys.argv.index('-o')\nshutil.copyfile(sys.argv[-1], sys.argv[out + 1])\n"))
+        tool.chmod(0o755)
+        tools[name] = str(tool)
+    for label, instructions in [
+            ("unsupported", [const, {"op": "newbox", "dst": 2, "type": "UnsupportedReplayBox", "args": []}, ret]),
+            ("emitter-failed", [const, ret])]:
+        source.write_text(json.dumps({"functions": [{"name": "main", "params": [],
+            "blocks": [{"id": 0, "instructions": instructions}]}]}))
+        messages = []
+        for replay in ["none", "harness"]:
+            for path in tool_markers:
+                path.unlink(missing_ok=True)
+            obj, llvm = work / f"{label}-{replay}.o", work / f"{label}-{replay}.ll"
+            env = dict(os.environ, HAKO_BACKEND_COMPILE_RECIPE="pure-first",
+                HAKO_BACKEND_COMPAT_REPLAY=replay, HAKO_CAPI_TM="0",
+                NYASH_LLVM_ROUTE_TRACE="1", NYASH_NY_LLVM_COMPILER=str(compiler),
+                NYASH_NY_LLVM_OPT_TOOL=tools["opt"], NYASH_NY_LLVM_LLC_TOOL=tools["llc"],
+                NYASH_LLVM_OPT_LEVEL="0")
+            result = subprocess.run([sys.argv[1], str(source), str(obj), str(llvm)],
+                                    env=env, text=True, capture_output=True)
+            assert result.returncode != 0, (label, replay, result)
+            assert not marker.exists() and not obj.exists(), (label, replay, result)
+            assert "[llvm-route/replay] lane=none" in result.stderr, result.stderr
+            assert "lane=harness" not in result.stderr and "stage=child" not in result.stderr
+            diagnostic = [line for line in result.stderr.splitlines()
+                          if "unsupported pure shape for current backend recipe" in line]
+            assert diagnostic, result.stderr
+            messages.append(diagnostic)
+            if label == "emitter-failed":
+                assert all(path.exists() for path in tool_markers), result.stderr
+        assert messages[0] == messages[1], (label, messages)
+        print(label, "same unsupported terminal; no automatic child replay")
