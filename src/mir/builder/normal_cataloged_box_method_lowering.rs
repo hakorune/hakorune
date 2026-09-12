@@ -3,13 +3,12 @@
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::calls::{
-    CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1,
-    PendingFunctionSessionCloseV1,
+    CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
 };
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 use super::module_lowering_invocation::ResolvedChildDraftAdmissionV1;
-use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_callable_prepared_operation::PreparedCallableLoopOperationProgramV1;
+use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
@@ -263,13 +262,8 @@ impl RawInvocationChildPortV1<'_, '_> {
                 ));
             }
         };
-        let pending = commit_callable_single_loop_ready_to_pending_v1(session, ready).map_err(
-            |error| {
-                ModuleLoweringPortChildErrorV1::Session(
-                    CanonicalFunctionSessionErrorV1::Primary(error),
-                )
-            },
-        )?;
+        let pending = commit_callable_single_loop_ready_to_pending_v1(session, ready)
+            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
         self.module_port.complete_resolved_child_with_physical_loan(
             pending,
             resolved,
@@ -328,9 +322,14 @@ impl RawInvocationChildPortV1<'_, '_> {
                             builder.finalize_function_draft_with_headers(prepared, headers)
                         })?;
                         if let Some(state) = &child_port.callable_ledger {
-                            state.borrow().validate_finalized_construction_stores(&function)?;
+                            state
+                                .borrow()
+                                .validate_finalized_construction_stores(&function)?;
                             if let Some(news) = &child_port.ordinary_new_claim_ledger {
-                                news.validate_finalized_child_emissions(state.borrow().owner(), &function)?;
+                                news.validate_finalized_child_emissions(
+                                    state.borrow().owner(),
+                                    &function,
+                                )?;
                             }
                         }
                         Ok(function)

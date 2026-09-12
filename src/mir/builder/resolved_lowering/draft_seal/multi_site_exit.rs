@@ -19,7 +19,7 @@ use super::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) enum MultiSiteExitPreparationErrorV1 {
+pub(in crate::mir::builder) enum MultiSiteExitPreparationErrorV1 {
     NoExplicitReturnClaims,
     ExplicitReturnClaimCountNotTwo { actual: usize },
     ExplicitReturnUnitClaim,

@@ -29,7 +29,8 @@ mod draft_seal;
 mod draft_seal_owner;
 pub(in crate::mir::builder) use draft_seal::ReadyFunctionDraftSealV1;
 pub(in crate::mir::builder) use draft_seal_owner::{
-    CompletedCatalogedBoxCallableDraftV1, SelectedDynamicCandidateMetadataV1,
+    CompletedCatalogedBoxCallableDraftV1, DiscardedFunctionDraftSealErrorV1,
+    SelectedDynamicCandidateMetadataV1,
 };
 pub(in crate::mir::builder) mod dynamic_loop_phi;
 mod dynamic_loop_phi_close;
@@ -69,12 +70,12 @@ pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
 pub(in crate::mir::builder) use common_v2_session::{
     issue_common_v2_s6c_text_scalar_equality_leaf_v1, CommonV2S6CTextScalarEqualityLeafShapeV1,
 };
+pub(in crate::mir::builder) use loop_recipe_physicalizer::lower_callable_single_loop_function_draft_v1;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_physical_entry_draft_seal;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_pinned_text_physical_entry_draft_seal;
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
-pub(in crate::mir::builder) use loop_recipe_physicalizer::lower_callable_single_loop_function_draft_v1;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;
 #[cfg(test)]
@@ -191,16 +192,13 @@ pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
 pub(in crate::mir::builder) fn commit_callable_single_loop_ready_to_pending_v1(
     session: CanonicalFunctionLoweringSessionV1<'_>,
     ready: ReadyFunctionDraftSealV1,
-) -> Result<PendingFunctionSessionCloseV1<'_>, String> {
+) -> Result<PendingFunctionSessionCloseV1<'_>, CanonicalFunctionSessionErrorV1> {
     let open = ready.open(session);
     let prepared = match open.prepare() {
         Ok(prepared) => prepared,
         Err(rejected) => {
-            let stage = rejected.stage();
-            let error = format!("{:?}", rejected.error());
-            rejected.discard();
-            return Err(format!(
-                "[freeze:contract][f1_draft_seal/{stage:?}] {error}"
+            return Err(CanonicalFunctionSessionErrorV1::DraftSeal(
+                rejected.into_discarded_error(),
             ));
         }
     };
@@ -468,8 +466,7 @@ impl MirBuilder {
                 "[freeze:contract][direct_accum/root_not_function]".into(),
             ));
         };
-        let function_name =
-            physical_name.unwrap_or_else(|| format!("{}/{}", name, params.len()));
+        let function_name = physical_name.unwrap_or_else(|| format!("{}/{}", name, params.len()));
         let mut session = self.open_resolved_function_draft_seal_session_v1(&function_name);
         let lowering = {
             let builder = session.builder_view_mut_for_lowering();

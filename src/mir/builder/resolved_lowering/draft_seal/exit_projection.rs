@@ -30,7 +30,7 @@ pub(in crate::mir::builder::resolved_lowering) enum PreparedFunctionExitV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) enum FunctionDraftSealPreparationErrorV1 {
+pub(in crate::mir::builder) enum FunctionDraftSealPreparationErrorV1 {
     ExplicitValueOperandMissing,
     MultipleExplicitReturnClaimsUnsupported,
     MultiSite(super::multi_site_exit::MultiSiteExitPreparationErrorV1),

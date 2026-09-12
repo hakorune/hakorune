@@ -88,7 +88,7 @@ pub(super) struct FunctionDraftSealProjectionV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum FunctionDraftSealProjectionErrorV1 {
+pub(in crate::mir::builder) enum FunctionDraftSealProjectionErrorV1 {
     CurrentFunctionMissing,
     ExitBlockMissing { block: BasicBlockId },
     ExitBlockAlreadyTerminated { block: BasicBlockId },

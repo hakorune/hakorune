@@ -7,6 +7,7 @@
 use std::fmt;
 
 use crate::ast::ASTNode;
+use crate::mir::builder::resolved_lowering::DiscardedFunctionDraftSealErrorV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::{FunctionPublicationErrorV1, MirFunction, MirModule};
 
@@ -81,12 +82,13 @@ pub(in crate::mir) enum FunctionDraftPublicationErrorV1 {
     Duplicate(FunctionPublicationErrorV1),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) enum CanonicalFunctionSessionErrorV1 {
     Primary(String),
     Cleanup(String),
     DuringCleanup { primary: String, cleanup: String },
     Publication(FunctionDraftPublicationErrorV1),
+    DraftSeal(DiscardedFunctionDraftSealErrorV1),
 }
 
 impl CanonicalFunctionSessionErrorV1 {
@@ -113,6 +115,7 @@ impl fmt::Display for CanonicalFunctionSessionErrorV1 {
                 "[freeze:contract][canonical_function_session/during_cleanup] primary={primary} cleanup={cleanup}"
             ),
             Self::Publication(error) => error.fmt(formatter),
+            Self::DraftSeal(error) => error.fmt(formatter),
         }
     }
 }

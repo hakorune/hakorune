@@ -5,6 +5,8 @@
 //! return the exact unpublished owner and `commit` is the only operation that
 //! extracts the function or restores the caller context.
 
+use std::fmt;
+
 use crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1;
 use crate::mir::a_prime_i64_physical_receipt::APrimeI64PhysicalReceiptV1;
 use crate::mir::builder::calls::{
@@ -136,8 +138,8 @@ pub(in crate::mir) enum FunctionDraftSealStageV1 {
     SessionClose,
 }
 
-#[derive(Debug)]
-pub(super) enum FunctionDraftSealErrorV1 {
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum FunctionDraftSealErrorV1 {
     Exit {
         _error: FunctionDraftSealPreparationErrorV1,
     },
@@ -153,6 +155,37 @@ pub(super) struct RejectedFunctionDraftSealV1<'builder> {
     owner: OpenFunctionDraftSealV1<'builder>,
     stage: FunctionDraftSealStageV1,
     error: FunctionDraftSealErrorV1,
+}
+
+/// Owned typed rejection after the live DraftSeal owner has been discarded.
+/// The payload is transport evidence only; it cannot reopen the child or
+/// bypass the owner-preserving restoration terminal.
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir) struct DiscardedFunctionDraftSealErrorV1 {
+    stage: FunctionDraftSealStageV1,
+    error: FunctionDraftSealErrorV1,
+}
+
+impl DiscardedFunctionDraftSealErrorV1 {
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn stage(&self) -> FunctionDraftSealStageV1 {
+        self.stage
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn error(&self) -> &FunctionDraftSealErrorV1 {
+        &self.error
+    }
+}
+
+impl fmt::Display for DiscardedFunctionDraftSealErrorV1 {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            formatter,
+            "[freeze:contract][canonical_function_session/draft_seal] stage={:?} error={:?}",
+            self.stage, self.error
+        )
+    }
 }
 
 impl<'builder> OpenFunctionDraftSealV1<'builder> {
@@ -579,6 +612,18 @@ impl RejectedFunctionDraftSealV1<'_> {
         self,
     ) -> crate::mir::builder::calls::CanonicalFunctionSessionRestorationReceiptV1 {
         self.owner.discard_with_restoration_receipt()
+    }
+
+    /// Consume the rejected owner before exposing its typed error. The live
+    /// session is therefore restored exactly once and cannot be retried.
+    pub(in crate::mir::builder) fn into_discarded_error(self) -> DiscardedFunctionDraftSealErrorV1 {
+        let Self {
+            owner,
+            stage,
+            error,
+        } = self;
+        let _receipt = owner.discard_with_restoration_receipt();
+        DiscardedFunctionDraftSealErrorV1 { stage, error }
     }
 
     pub(super) fn discard(self) {
