@@ -57,6 +57,7 @@
       auto int same_module_function_emit_newbox(long long bid, size_t ii, yyjson_val* ins) {
         long long dst = read_int(ins, "dst");
         int intrinsic = hako_llvmc_published_intrinsic_array_take_v1(
+            &invocation->published_call_rows,
             fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins);
         if (intrinsic < 0) return -1;
         if (intrinsic > 0) {

@@ -2,6 +2,7 @@
           if (strcmp(op, "newbox")==0) {
             long long dst = read_int(ins, "dst");
             int intrinsic = hako_llvmc_published_intrinsic_array_take_v1(
+                &invocation->published_call_rows,
                 fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins);
             if (intrinsic < 0) {
               note_pure_unsupported_shape(bid, ii, op, "intrinsic_array_contract", NULL);

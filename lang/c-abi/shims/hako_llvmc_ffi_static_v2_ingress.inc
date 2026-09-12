@@ -38,6 +38,7 @@
         yyjson_val* call = yyjson_obj_get(ins, "mir_call");
         const hako_llvmc_published_static_method_call_v1* selected = NULL;
         int status = hako_llvmc_published_static_method_peek_i64_global_row_v1(
+            &invocation->published_call_rows,
             read_str(fn0, "name"), bid, ii, read_str(yyjson_obj_get(call, "callee"), "type"),
             read_int(ins, "dst"), yyjson_obj_get(call, "args"), &selected);
         if (hako_static_v2_text(yyjson_obj_get(ins, "op"), "mir_call") &&

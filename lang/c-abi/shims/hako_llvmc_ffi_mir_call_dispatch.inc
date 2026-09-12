@@ -197,6 +197,7 @@
               NULL;
           int typed_shape_rc =
               hako_llvmc_published_static_method_take_i64_global_row_v1(
+                  &invocation->published_call_rows,
                   active_function_name,
                   bid,
                   ii,

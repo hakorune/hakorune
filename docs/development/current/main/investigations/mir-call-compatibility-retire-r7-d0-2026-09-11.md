@@ -986,3 +986,34 @@ contract requirements. I0 is now the only authorized implementation slice.
 AOT child-env I1 Windows/Linux proof is complete and remains a separate closed
 row. No public ABI deletion, MIR-layer change, backend parity, concurrency
 claim, or aggregate R7/MirBuilder completion is implied.
+
+### MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0 closeout (2026-09-13)
+
+Implementation is complete in the existing private C owner. The process-global
+published-row object is removed; `HakoLlvmcInvocation` owns the private ledger,
+and Static V2 passes that same owner through prepass, emission, residual
+validation, and post-begin cleanup. Borrowed row pointers remain borrowed;
+typed validation, exact coordinates, duplicate-take rejection, zero-row V2,
+same-owner re-entry rejection, and distinct-owner isolation remain intact.
+The public ABI, MIR/Recipe layers, fallback, and backend parity were not
+changed.
+
+Observed acceptance:
+
+- `bash tools/build_hako_llvmc_ffi.sh` passed on WSL/Linux and produced
+  `target/release/libhako_llvmc_ffi.so`.
+- `published_rows_preartifact_test.c` passed under ASan, including same-owner
+  `rows already active`, distinct-owner overlap, duplicate/unfinished rows,
+  zero-row V2, typed/coordinate validation, and residual pre-artifact rejection
+  with no object.
+- ASan document lifetime and named-query suites passed (`22` lifetime cases,
+  `16` query cases); Static V2 formal cases passed. These are physical
+  ownership/cleanup witnesses, not Windows evidence.
+- `llvm_codegen_route_identity_guard.sh`,
+  `current_state_pointer_guard.sh`, and `git diff --check` passed. Every
+  changed C source unit remains below the 800-line hard stop.
+
+This closes only the invocation-owned published-row lifecycle. Native Windows
+PE/DLL evidence remains the previously closed AOT child-env I1; no new Windows
+claim is made by this WSL implementation run. The next R7 owner remains a
+separate design boundary.

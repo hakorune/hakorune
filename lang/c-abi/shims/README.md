@@ -102,6 +102,10 @@ link dlsym remain separate compatibility owners.
   dispatch is forbidden while these rows are active; non-contract typed
   output selects the existing opt/llc emitter once, never the optional legacy
   TargetMachine probe and retry. Contract-bound output keeps its own emitter.
+  The private borrowed row ledger is owned by `HakoLlvmcInvocation`; every
+  begin/peek/take/active/finish/end operation receives that owner explicitly.
+  Same-owner re-entry retains the existing `rows already active` rejection,
+  while distinct invocation ledgers do not clear or consume one another.
 - Regression: after `bash tools/build_hako_llvmc_ffi.sh`, compile
   `lang/c-abi/tests/published_rows_preartifact_test.c` against
   `target/release/libhako_llvmc_ffi.so` and yyjson (include/link the existing

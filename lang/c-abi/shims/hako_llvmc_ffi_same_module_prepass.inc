@@ -200,6 +200,7 @@
         {
           const hako_llvmc_published_static_method_call_v1* row = NULL;
           int status = hako_llvmc_published_static_method_peek_i64_global_row_v1(
+              &invocation->published_call_rows,
               fn0 ? read_str(fn0, "name") : NULL, bid, ii, ctype, dst, args, &row);
           if (status < 0) return 0;
           if (status > 0) {
@@ -409,6 +410,7 @@
             return 1;
           }
           int intrinsic = hako_llvmc_published_intrinsic_array_peek_v1(
+              &invocation->published_call_rows,
               fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins, NULL);
           if (intrinsic < 0) return 0;
           if (intrinsic > 0) {

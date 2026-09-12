@@ -11,15 +11,16 @@
 enum HakoPublishedCallMode {
   HAKO_PUBLISHED_CALL_INACTIVE, HAKO_PUBLISHED_CALL_V1, HAKO_PUBLISHED_CALL_V2
 };
-static struct {
+struct HakoLlvmcPublishedCallRows {
   enum HakoPublishedCallMode mode;
   const hako_llvmc_published_static_method_call_v1* rows;
   size_t count;
   unsigned char used[1024];
-} hako_llvmc_published_call_rows;
+};
 
-static int hako_llvmc_published_call_rows_active(void) {
-  return hako_llvmc_published_call_rows.mode != HAKO_PUBLISHED_CALL_INACTIVE;
+static int hako_llvmc_published_call_rows_active(
+    const struct HakoLlvmcPublishedCallRows* state) {
+  return state && state->mode != HAKO_PUBLISHED_CALL_INACTIVE;
 }
 
 static int hako_llvmc_published_static_method_symbol_safe(const char* value) {
@@ -33,11 +34,15 @@ static int hako_llvmc_published_static_method_symbol_safe(const char* value) {
 }
 
 static int hako_llvmc_published_call_rows_begin(
+    struct HakoLlvmcPublishedCallRows* state,
     enum HakoPublishedCallMode mode,
     const hako_llvmc_published_static_method_call_v1* rows,
     size_t row_count,
     char** err_out) {
-  if (hako_llvmc_published_call_rows_active())
+  if (!state)
+    return set_err_owned(err_out,
+        "[freeze:contract][published-mir-static-method] missing row owner");
+  if (hako_llvmc_published_call_rows_active(state))
     return set_err_owned(err_out, "[freeze:contract][published-mir-static-method] rows already active");
   if (!((rows && row_count > 0 && row_count <= 1024) ||
         (mode == HAKO_PUBLISHED_CALL_V2 && !rows && row_count == 0))) {
@@ -45,8 +50,7 @@ static int hako_llvmc_published_call_rows_begin(
         err_out,
         "[freeze:contract][published-mir-static-method] empty or oversized typed row set");
   }
-  memset(hako_llvmc_published_call_rows.used, 0,
-         sizeof(hako_llvmc_published_call_rows.used));
+  memset(state->used, 0, sizeof(state->used));
   for (size_t i = 0; i < row_count; i++) {
     const hako_llvmc_published_static_method_call_v1* row = &rows[i];
     int valid_kind =
@@ -85,39 +89,45 @@ static int hako_llvmc_published_call_rows_begin(
       }
     }
   }
-  hako_llvmc_published_call_rows.rows = rows;
-  hako_llvmc_published_call_rows.count = row_count;
-  hako_llvmc_published_call_rows.mode = mode;
+  state->rows = rows;
+  state->count = row_count;
+  state->mode = mode;
   return 0;
 }
 
 static int hako_llvmc_published_static_method_rows_begin(
+    struct HakoLlvmcPublishedCallRows* state,
     const hako_llvmc_published_static_method_call_v1* rows, size_t count, char** err_out) {
-  return hako_llvmc_published_call_rows_begin(HAKO_PUBLISHED_CALL_V1, rows, count, err_out);
+  return hako_llvmc_published_call_rows_begin(
+      state, HAKO_PUBLISHED_CALL_V1, rows, count, err_out);
 }
 
 /* Private V2 call-table activation; no dummy row and no public V2 capability. */
 static int hako_llvmc_published_call_rows_begin_v2(
+    struct HakoLlvmcPublishedCallRows* state,
     const hako_llvmc_published_static_method_call_v1* rows, size_t count, char** err_out) {
-  return hako_llvmc_published_call_rows_begin(HAKO_PUBLISHED_CALL_V2, rows, count, err_out);
+  return hako_llvmc_published_call_rows_begin(
+      state, HAKO_PUBLISHED_CALL_V2, rows, count, err_out);
 }
 
-static void hako_llvmc_published_static_method_rows_end(void) {
-  memset(&hako_llvmc_published_call_rows, 0, sizeof(hako_llvmc_published_call_rows));
+static void hako_llvmc_published_static_method_rows_end(
+    struct HakoLlvmcPublishedCallRows* state) {
+  if (state) memset(state, 0, sizeof(*state));
 }
 
 static const hako_llvmc_published_static_method_call_v1*
     hako_llvmc_published_static_method_peek_row_for_site(
+    const struct HakoLlvmcPublishedCallRows* state,
     const char* function_name,
     long long block_id,
     size_t instruction_index) {
-  if (!hako_llvmc_published_call_rows.rows || !function_name || block_id < 0 ||
+  if (!state || !state->rows || !function_name || block_id < 0 ||
       (unsigned long long)block_id > UINT32_MAX || instruction_index > UINT32_MAX) {
     return NULL;
   }
-  for (size_t i = 0; i < hako_llvmc_published_call_rows.count; i++) {
+  for (size_t i = 0; i < state->count; i++) {
     const hako_llvmc_published_static_method_call_v1* row =
-        &hako_llvmc_published_call_rows.rows[i];
+        &state->rows[i];
     if (row->block_id != (uint32_t)block_id ||
         row->instruction_index != (uint32_t)instruction_index ||
         strcmp(row->function_name, function_name) != 0) {
@@ -138,11 +148,23 @@ enum hako_llvmc_published_static_method_shape_status_v1 {
  * takes a validated row, and a second take is malformed rather than absent
  * (absent would permit a caller to enter generic compatibility handling). */
 static int hako_llvmc_published_static_method_take_row_v1(
+    struct HakoLlvmcPublishedCallRows* state,
     const hako_llvmc_published_static_method_call_v1* row) {
-  size_t index = (size_t)(row - hako_llvmc_published_call_rows.rows);
-  if (hako_llvmc_published_call_rows.used[index])
+  uintptr_t base = 0;
+  uintptr_t target = 0;
+  uintptr_t offset = 0;
+  size_t index = 0;
+  if (!state || !row || !state->rows || !state->count) return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  base = (uintptr_t)state->rows;
+  target = (uintptr_t)row;
+  if (target < base) return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  offset = target - base;
+  if (offset >= state->count * sizeof(*row) || offset % sizeof(*row))
     return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
-  hako_llvmc_published_call_rows.used[index] = 1;
+  index = (size_t)(offset / sizeof(*row));
+  if (state->used[index])
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  state->used[index] = 1;
   return HAKO_LLVMC_PUBLISHED_ROW_READY;
 }
 
@@ -165,6 +187,7 @@ static int hako_llvmc_published_static_method_read_i64_arg_v1(
 }
 
 static int hako_llvmc_published_static_method_peek_i64_global_row_v1(
+    const struct HakoLlvmcPublishedCallRows* state,
     const char* function_name,
     long long block_id,
     size_t instruction_index,
@@ -174,13 +197,13 @@ static int hako_llvmc_published_static_method_peek_i64_global_row_v1(
     const hako_llvmc_published_static_method_call_v1** out_row) {
   const hako_llvmc_published_static_method_call_v1* row =
       hako_llvmc_published_static_method_peek_row_for_site(
-          function_name, block_id, instruction_index);
+          state, function_name, block_id, instruction_index);
   if (out_row) *out_row = NULL;
   if (!row) {
     /* Published Global targets require rows; published Extern is rejected
      * by Rust host admission. Neither absence permits legacy dispatch.
      * Other shapes and explicit generic ingress keep their existing rules. */
-    if (hako_llvmc_published_call_rows_active() && call_type &&
+    if (hako_llvmc_published_call_rows_active(state) && call_type &&
         (!strcmp(call_type, "Global") || !strcmp(call_type, "Extern")))
       return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
     return HAKO_LLVMC_PUBLISHED_ROW_ABSENT;
@@ -217,6 +240,7 @@ static int hako_llvmc_published_static_method_peek_i64_global_row_v1(
 }
 
 static int hako_llvmc_published_static_method_take_i64_global_row_v1(
+    struct HakoLlvmcPublishedCallRows* state,
     const char* function_name,
     long long block_id,
     size_t instruction_index,
@@ -226,10 +250,10 @@ static int hako_llvmc_published_static_method_take_i64_global_row_v1(
     const hako_llvmc_published_static_method_call_v1** out_row) {
   const hako_llvmc_published_static_method_call_v1* row = NULL;
   int status = hako_llvmc_published_static_method_peek_i64_global_row_v1(
-      function_name, block_id, instruction_index, call_type, dst, args, &row);
+      state, function_name, block_id, instruction_index, call_type, dst, args, &row);
   if (out_row) *out_row = NULL;
   if (status != HAKO_LLVMC_PUBLISHED_ROW_READY) return status;
-  status = hako_llvmc_published_static_method_take_row_v1(row);
+  status = hako_llvmc_published_static_method_take_row_v1(state, row);
   if (status == HAKO_LLVMC_PUBLISHED_ROW_READY && out_row) *out_row = row;
   return status;
 }
@@ -251,12 +275,13 @@ static int hako_llvmc_published_mir_read_u32_field_v1(
  * only if this exact site has no typed row. Unknown/ambiguous tags never fall
  * through, including generic ingress without a published session. */
 static int hako_llvmc_published_intrinsic_array_peek_v1(
+    const struct HakoLlvmcPublishedCallRows* state,
     const char* function_name, long long block_id, size_t instruction_index,
     yyjson_val* instruction,
     const hako_llvmc_published_static_method_call_v1** out_row) {
   const hako_llvmc_published_static_method_call_v1* row =
       hako_llvmc_published_static_method_peek_row_for_site(
-          function_name, block_id, instruction_index);
+          state, function_name, block_id, instruction_index);
   yyjson_val* target = yyjson_obj_get(instruction, "target");
   yyjson_val* kind = target ? yyjson_obj_get(target, "kind") : NULL;
   yyjson_val* args = yyjson_obj_get(instruction, "args");
@@ -279,13 +304,14 @@ static int hako_llvmc_published_intrinsic_array_peek_v1(
 }
 
 static int hako_llvmc_published_intrinsic_array_take_v1(
+    struct HakoLlvmcPublishedCallRows* state,
     const char* function_name, long long block_id, size_t instruction_index,
     yyjson_val* instruction) {
   const hako_llvmc_published_static_method_call_v1* row = NULL;
   int status = hako_llvmc_published_intrinsic_array_peek_v1(
-      function_name, block_id, instruction_index, instruction, &row);
+      state, function_name, block_id, instruction_index, instruction, &row);
   return status == HAKO_LLVMC_PUBLISHED_ROW_READY
-      ? hako_llvmc_published_static_method_take_row_v1(row) : status;
+      ? hako_llvmc_published_static_method_take_row_v1(state, row) : status;
 }
 
 static int hako_llvmc_published_mir_read_optional_u32_field_v1(
@@ -315,6 +341,7 @@ static uint32_t hako_llvmc_published_array_write_kind_v1(const char* kind) {
 }
 
 static int hako_llvmc_published_static_method_take_array_write_row_v1(
+    struct HakoLlvmcPublishedCallRows* state,
     const char* function_name,
     long long block_id,
     size_t instruction_index,
@@ -322,7 +349,7 @@ static int hako_llvmc_published_static_method_take_array_write_row_v1(
     const hako_llvmc_published_static_method_call_v1** out_row) {
   const hako_llvmc_published_static_method_call_v1* row =
       hako_llvmc_published_static_method_peek_row_for_site(
-          function_name, block_id, instruction_index);
+          state, function_name, block_id, instruction_index);
   yyjson_val* op_value = instruction ? yyjson_obj_get(instruction, "op") : NULL;
   yyjson_val* kind_value = instruction ? yyjson_obj_get(instruction, "kind") : NULL;
   const char* op = op_value && yyjson_is_str(op_value) ? yyjson_get_str(op_value) : NULL;
@@ -359,7 +386,7 @@ static int hako_llvmc_published_static_method_take_array_write_row_v1(
       hako_llvmc_published_array_write_kind_v1(kind) != row->kind) {
     return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
   }
-  if (hako_llvmc_published_static_method_take_row_v1(row) < 0)
+  if (hako_llvmc_published_static_method_take_row_v1(state, row) < 0)
     return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
   if (out_row) *out_row = row;
   return HAKO_LLVMC_PUBLISHED_ROW_READY;
@@ -413,9 +440,14 @@ static int hako_llvmc_published_static_method_take_array_write_row_v1(
             _array_write_symbol, _array_write_args);                            \
   } while (0)
 
-static int hako_llvmc_published_static_method_rows_finish(char** err_out) {
-  for (size_t i = 0; i < hako_llvmc_published_call_rows.count; i++) {
-    if (!hako_llvmc_published_call_rows.used[i]) {
+static int hako_llvmc_published_static_method_rows_finish(
+    const struct HakoLlvmcPublishedCallRows* state, char** err_out) {
+  if (!state) {
+    return set_err_owned(err_out,
+        "[freeze:contract][published-mir-static-method] missing row owner");
+  }
+  for (size_t i = 0; i < state->count; i++) {
+    if (!state->used[i]) {
       return set_err_owned(
           err_out,
           "[freeze:contract][published-mir-static-method] typed row was not consumed");

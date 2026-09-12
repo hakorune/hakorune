@@ -569,7 +569,8 @@
       fprintf(f, "}\n");
       if (!ptfc_selected) hako_llvmc_emit_entry_alias_if_needed(f, &selection);
       /* All typed rows must be consumed before either object emitter runs. */
-      if (hako_llvmc_published_static_method_rows_finish(err_out) != 0 ||
+      if (hako_llvmc_published_static_method_rows_finish(
+              &invocation->published_call_rows, err_out) != 0 ||
           hako_static_v2_finish(&invocation->static_v2, err_out) != 0) {
         HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         if (llpath[0]) remove(llpath);
@@ -616,7 +617,8 @@
       if (ptfb_contract_bound) {
         rc = hako_llvmc_ptfb_session_emit_object(
             &ptfb_session, llpath, obj_out, err_out);
-      } else if (hako_llvmc_published_call_rows_active()) {
+      } else if (hako_llvmc_published_call_rows_active(
+                     &invocation->published_call_rows)) {
         /* Selected typed rows use one emitter, not the legacy optional
          * TargetMachine probe followed by an error-triggered retry. */
         rc = hako_llvmc_mem2reg_canonicalize_and_llc(
@@ -625,7 +627,9 @@
         #include "hako_llvmc_ffi_pure_compile_legacy_capi_emit.inc"
       }
 
-      if (!ptfb_contract_bound && !hako_llvmc_published_call_rows_active() && rc != 0) {
+      if (!ptfb_contract_bound &&
+          !hako_llvmc_published_call_rows_active(
+              &invocation->published_call_rows) && rc != 0) {
         rc = hako_llvmc_mem2reg_canonicalize_and_llc(
             llpath, obj_out, &invocation->options);
       }

@@ -25,10 +25,11 @@ static int set_err_owned(char **out, const char *message) {
 #include "../shims/published_mir/hako_llvmc_ffi_published_static_method.inc"
 
 static void test_selected_call_activity(void) {
+  struct HakoLlvmcPublishedCallRows state = {0};
   char *error = NULL;
-  assert(!hako_llvmc_published_call_rows_active());
-  assert(hako_llvmc_published_static_method_rows_begin(NULL, 0, &error) != 0);
-  assert(error && !hako_llvmc_published_call_rows_active());
+  assert(!hako_llvmc_published_call_rows_active(&state));
+  assert(hako_llvmc_published_static_method_rows_begin(&state, NULL, 0, &error) != 0);
+  assert(error && !hako_llvmc_published_call_rows_active(&state));
   free(error); error = NULL;
   hako_llvmc_published_static_method_call_v1 row = {0};
   row.function_name = "owner";
@@ -36,35 +37,69 @@ static void test_selected_call_activity(void) {
   row.kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION;
   for (int malformed = 0; malformed < 2; malformed++) {
     assert(hako_llvmc_published_call_rows_begin_v2(
-        malformed ? &row : NULL, malformed ? 0 : 1, &error) != 0);
-    assert(error && !hako_llvmc_published_call_rows_active());
+        &state, malformed ? &row : NULL, malformed ? 0 : 1, &error) != 0);
+    assert(error && !hako_llvmc_published_call_rows_active(&state));
     free(error); error = NULL;
   }
-  assert(hako_llvmc_published_call_rows_begin_v2(NULL, 0, &error) == 0);
-  assert(hako_llvmc_published_call_rows_active());
-  assert(!hako_llvmc_published_static_method_peek_row_for_site("owner", 0, 0));
+  assert(hako_llvmc_published_call_rows_begin_v2(&state, NULL, 0, &error) == 0);
+  assert(hako_llvmc_published_call_rows_active(&state));
+  assert(!hako_llvmc_published_static_method_peek_row_for_site(&state, "owner", 0, 0));
   const char *types[] = {"Global", "Extern"};
   for (size_t i = 0; i < 2; i++) {
     assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
-        "owner", 0, 0, types[i], -1, NULL, NULL) == -1);
+        &state, "owner", 0, 0, types[i], -1, NULL, NULL) == -1);
   }
-  assert(hako_llvmc_published_static_method_rows_finish(&error) == 0);
-  hako_llvmc_published_static_method_rows_end();
-  assert(!hako_llvmc_published_call_rows_active());
-  assert(hako_llvmc_published_call_rows_begin_v2(&row, 1, &error) == 0);
-  assert(hako_llvmc_published_static_method_take_row_v1(&row) == 1);
+  assert(hako_llvmc_published_static_method_rows_finish(&state, &error) == 0);
+  hako_llvmc_published_static_method_rows_end(&state);
+  assert(!hako_llvmc_published_call_rows_active(&state));
+  assert(hako_llvmc_published_call_rows_begin_v2(&state, &row, 1, &error) == 0);
+  assert(hako_llvmc_published_static_method_take_row_v1(&state, &row) == 1);
   /* Failed nested activation preserves both the binding and consumed ledger. */
-  assert(hako_llvmc_published_static_method_rows_begin(&row, 1, &error) != 0);
+  assert(hako_llvmc_published_static_method_rows_begin(&state, &row, 1, &error) != 0);
   assert(error && strstr(error, "rows already active"));
   free(error); error = NULL;
-  assert(hako_llvmc_published_call_rows.rows == &row);
-  assert(hako_llvmc_published_static_method_take_row_v1(&row) == -1);
-  assert(hako_llvmc_published_static_method_rows_finish(&error) == 0);
-  hako_llvmc_published_static_method_rows_end();
-  assert(!hako_llvmc_published_call_rows_active());
+  assert(state.rows == &row);
+  assert(hako_llvmc_published_static_method_take_row_v1(&state, &row) == -1);
+  assert(hako_llvmc_published_static_method_rows_finish(&state, &error) == 0);
+  hako_llvmc_published_static_method_rows_end(&state);
+  assert(!hako_llvmc_published_call_rows_active(&state));
+}
+
+static void test_distinct_owner_overlap_isolation(void) {
+  struct HakoLlvmcPublishedCallRows first = {0};
+  struct HakoLlvmcPublishedCallRows second = {0};
+  hako_llvmc_published_static_method_call_v1 rows[2] = {0};
+  char *error = NULL;
+  rows[0].function_name = "first";
+  rows[0].target_symbol = "first_target";
+  rows[0].kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION;
+  rows[1].function_name = "second";
+  rows[1].target_symbol = "second_target";
+  rows[1].kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION;
+  assert(hako_llvmc_published_static_method_rows_begin(
+      &first, &rows[0], 1, &error) == 0);
+  assert(hako_llvmc_published_static_method_rows_begin(
+      &second, &rows[1], 1, &error) == 0);
+  assert(hako_llvmc_published_call_rows_active(&first));
+  assert(hako_llvmc_published_call_rows_active(&second));
+  assert(hako_llvmc_published_static_method_peek_row_for_site(
+      &first, "first", 0, 0) == &rows[0]);
+  assert(!hako_llvmc_published_static_method_peek_row_for_site(
+      &first, "second", 0, 0));
+  assert(hako_llvmc_published_static_method_peek_row_for_site(
+      &second, "second", 0, 0) == &rows[1]);
+  hako_llvmc_published_static_method_rows_end(&first);
+  assert(!hako_llvmc_published_call_rows_active(&first));
+  assert(hako_llvmc_published_call_rows_active(&second));
+  assert(hako_llvmc_published_static_method_take_row_v1(&second, &rows[1]) == 1);
+  assert(hako_llvmc_published_static_method_rows_finish(&second, &error) == 0);
+  hako_llvmc_published_static_method_rows_end(&second);
+  free(error);
+  puts("published-row owner re-entry and overlap isolation: PASS");
 }
 
 static void test_prepass_peek_and_emitter_take(void) {
+  struct HakoLlvmcPublishedCallRows state = {0};
   hako_llvmc_published_static_method_call_v1 row = {0};
   row.function_name = "renamed_physical_function";
   row.block_id = 7;
@@ -77,56 +112,57 @@ static void test_prepass_peek_and_emitter_take(void) {
   yyjson_val *args = yyjson_doc_get_root(doc);
   char *error = NULL;
   const hako_llvmc_published_static_method_call_v1 *found = NULL;
-  assert(hako_llvmc_published_static_method_rows_begin(&row, 1, &error) == 0);
+  assert(hako_llvmc_published_static_method_rows_begin(&state, &row, 1, &error) == 0);
   for (int i = 0; i < 2; i++) {
     assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
-        row.function_name, 7, 3, "Global", 2, args, &found) == 1);
+        &state, row.function_name, 7, 3, "Global", 2, args, &found) == 1);
     assert(found == &row);
   }
-  assert(hako_llvmc_published_static_method_rows_finish(&error) != 0);
+  assert(hako_llvmc_published_static_method_rows_finish(&state, &error) != 0);
   assert(error && strstr(error, "typed row was not consumed"));
   free(error);
   error = NULL;
   /* Coordinates must not wrap down to the valid u32 row. */
   assert(!hako_llvmc_published_static_method_peek_row_for_site(
-      row.function_name, 4294967303LL, 3));
+      &state, row.function_name, 4294967303LL, 3));
   if (SIZE_MAX > UINT32_MAX)
     assert(!hako_llvmc_published_static_method_peek_row_for_site(
-        row.function_name, 7, (size_t)UINT32_MAX + 4));
-  assert(!hako_llvmc_published_static_method_peek_row_for_site("foreign", 7, 3));
+        &state, row.function_name, 7, (size_t)UINT32_MAX + 4));
+  assert(!hako_llvmc_published_static_method_peek_row_for_site(&state, "foreign", 7, 3));
   assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
-      "missing", 7, 3, "Global", 2, args, &found) == -1);
+      &state, "missing", 7, 3, "Global", 2, args, &found) == -1);
   assert(found == NULL);
   assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
-      "missing", 7, 3, "Global", 2, args, &found) == -1);
+      &state, "missing", 7, 3, "Global", 2, args, &found) == -1);
   assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
-      "missing", 7, 3, "Method", 2, args, &found) == 0);
+      &state, "missing", 7, 3, "Method", 2, args, &found) == 0);
   assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
-      "missing", 7, 3, "Extern", 2, args, &found) == -1);
+      &state, "missing", 7, 3, "Extern", 2, args, &found) == -1);
   assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
-      "missing", 7, 3, "Extern", 2, args, &found) == -1);
+      &state, "missing", 7, 3, "Extern", 2, args, &found) == -1);
   assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
-      row.function_name, 7, 3, "Extern", 2, args, &found) == -1);
+      &state, row.function_name, 7, 3, "Extern", 2, args, &found) == -1);
   assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
-      row.function_name, 7, 3, "Method", 2, args, &found) == -1);
+      &state, row.function_name, 7, 3, "Method", 2, args, &found) == -1);
   assert(found == NULL);
   assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
-      row.function_name, 7, 3, "Global", 2, args, &found) == 1);
+      &state, row.function_name, 7, 3, "Global", 2, args, &found) == 1);
   assert(found == &row);
-  assert(hako_llvmc_published_static_method_rows_finish(&error) == 0);
+  assert(hako_llvmc_published_static_method_rows_finish(&state, &error) == 0);
   assert(hako_llvmc_published_static_method_take_i64_global_row_v1(
-      row.function_name, 7, 3, "Global", 2, args, &found) == -1);
+      &state, row.function_name, 7, 3, "Global", 2, args, &found) == -1);
   assert(found == NULL); /* duplicate is not absence/generic fallback */
-  hako_llvmc_published_static_method_rows_end();
+  hako_llvmc_published_static_method_rows_end(&state);
   assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
-      "missing", 7, 3, "Global", 2, args, &found) == 0);
+      &state, "missing", 7, 3, "Global", 2, args, &found) == 0);
   assert(found == NULL);
   assert(hako_llvmc_published_static_method_peek_i64_global_row_v1(
-      "missing", 7, 3, "Extern", 2, args, &found) == 0);
+      &state, "missing", 7, 3, "Extern", 2, args, &found) == 0);
   yyjson_doc_free(doc);
 }
 
 static void test_array_row_rejects_second_take(void) {
+  struct HakoLlvmcPublishedCallRows state = {0};
   const char *body = "{\"op\":\"array_element_write\",\"kind\":\"push\","
       "\"site_id\":5,\"receiver\":1,\"value\":2}";
   yyjson_doc *doc = yyjson_read(body, strlen(body), 0);
@@ -139,15 +175,15 @@ static void test_array_row_rejects_second_take(void) {
   row.value = 2;
   char *error = NULL;
   const hako_llvmc_published_static_method_call_v1 *found = NULL;
-  assert(hako_llvmc_published_static_method_rows_begin(&row, 1, &error) == 0);
+  assert(hako_llvmc_published_static_method_rows_begin(&state, &row, 1, &error) == 0);
   assert(hako_llvmc_published_static_method_take_array_write_row_v1(
-      row.function_name, 0, 0, yyjson_doc_get_root(doc), &found) == 1);
+      &state, row.function_name, 0, 0, yyjson_doc_get_root(doc), &found) == 1);
   assert(found == &row);
   assert(hako_llvmc_published_static_method_take_array_write_row_v1(
-      row.function_name, 0, 0, yyjson_doc_get_root(doc), &found) == -1);
+      &state, row.function_name, 0, 0, yyjson_doc_get_root(doc), &found) == -1);
   assert(found == NULL);
-  assert(hako_llvmc_published_static_method_rows_finish(&error) == 0);
-  hako_llvmc_published_static_method_rows_end();
+  assert(hako_llvmc_published_static_method_rows_finish(&state, &error) == 0);
+  hako_llvmc_published_static_method_rows_end(&state);
   yyjson_doc_free(doc);
 }
 
@@ -337,6 +373,7 @@ static void test_missing_global_rows_cannot_use_legacy_names(void) {
 }
 
 static void test_intrinsic_array_allocation_rows(void) {
+  struct HakoLlvmcPublishedCallRows state = {0};
   const char *valid = "\"target\":{\"kind\":\"intrinsic_array\"},\"args\":[]";
   const char *bad[] = {
       "\"type\":\"ArrayBox\",\"args\":[]",
@@ -398,13 +435,16 @@ static void test_intrinsic_array_allocation_rows(void) {
       "{\"op\":\"newbox\",\"target\":{\"kind\":\"intrinsic_array\"},\"args\":[],\"dst\":0}",
       strlen("{\"op\":\"newbox\",\"target\":{\"kind\":\"intrinsic_array\"},\"args\":[],\"dst\":0}"), 0);
   assert(doc);
-  assert(hako_llvmc_published_static_method_rows_begin(rows, 2, &error) == 0);
-  assert(hako_llvmc_published_intrinsic_array_peek_v1("main", 0, 0, yyjson_doc_get_root(doc), NULL) == 1);
-  assert(hako_llvmc_published_intrinsic_array_take_v1("main", 0, 0, yyjson_doc_get_root(doc)) == 1);
-  assert(hako_llvmc_published_intrinsic_array_take_v1("main", 0, 0, yyjson_doc_get_root(doc)) == -1);
-  assert(hako_llvmc_published_static_method_rows_finish(&error) != 0);
+  assert(hako_llvmc_published_static_method_rows_begin(&state, rows, 2, &error) == 0);
+  assert(hako_llvmc_published_intrinsic_array_peek_v1(
+      &state, "main", 0, 0, yyjson_doc_get_root(doc), NULL) == 1);
+  assert(hako_llvmc_published_intrinsic_array_take_v1(
+      &state, "main", 0, 0, yyjson_doc_get_root(doc)) == 1);
+  assert(hako_llvmc_published_intrinsic_array_take_v1(
+      &state, "main", 0, 0, yyjson_doc_get_root(doc)) == -1);
+  assert(hako_llvmc_published_static_method_rows_finish(&state, &error) != 0);
   free(error); error = NULL;
-  hako_llvmc_published_static_method_rows_end();
+  hako_llvmc_published_static_method_rows_end(&state);
   for (int field = 0; field < 5; field++) {
     hako_llvmc_published_static_method_call_v1 malformed = rows[0];
     if (field == 0) malformed.flags = 0;
@@ -412,7 +452,8 @@ static void test_intrinsic_array_allocation_rows(void) {
     if (field == 2) malformed.arity = 1;
     if (field == 3) malformed.target_symbol = "ArrayBox";
     if (field == 4) malformed.dst = UINT32_MAX;
-    assert(hako_llvmc_published_static_method_rows_begin(&malformed, 1, &error) != 0);
+    assert(hako_llvmc_published_static_method_rows_begin(
+        &state, &malformed, 1, &error) != 0);
     assert(error); free(error); error = NULL;
   }
   yyjson_doc_free(doc);
@@ -422,6 +463,7 @@ static void test_intrinsic_array_allocation_rows(void) {
 
 int main(int argc, char **argv) {
   test_selected_call_activity();
+  test_distinct_owner_overlap_isolation();
   test_intrinsic_array_allocation_rows();
   test_prepass_peek_and_emitter_take();
   test_array_row_rejects_second_take();

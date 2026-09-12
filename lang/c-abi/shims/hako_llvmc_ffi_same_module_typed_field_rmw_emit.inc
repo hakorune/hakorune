@@ -453,6 +453,7 @@
           const hako_llvmc_published_static_method_call_v1* typed_row = NULL;
           int typed_shape_rc =
               hako_llvmc_published_static_method_take_array_write_row_v1(
+                  &invocation->published_call_rows,
                   active_function_name, bid, ii, ins, &typed_row);
           if (typed_shape_rc < 0) return -1;
           if (typed_shape_rc == 0) return 0;

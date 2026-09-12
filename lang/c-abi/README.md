@@ -221,9 +221,11 @@ Named allocation emission
 - Published-call activity is explicit in the existing row owner. V1 requires
   nonempty rows; private V2 allows NULL/0 without enabling legacy Global/Extern,
   exact-seed routes or failure retry. `published_rows_preartifact_test.c` covers
-  empty/invalid pairs and failed nested activation preserving the ledger.
-  These are call-activity tests, not a complete V2 frame/Map consumer. The storage
-  remains global and does not provide concurrent compilation safety.
+  empty/invalid pairs, failed same-owner activation preserving the ledger, and
+  distinct-owner overlap isolation. The borrowed ledger is private state in
+  `HakoLlvmcInvocation`; its owner is passed explicitly through prepass,
+  emission, and residual checks. These are call-activity tests, not a complete
+  V2 frame/Map consumer, and do not claim general backend/process concurrency.
 - This extraction changes no language or public ABI contract. Prescan is still
   a separate observer; it does not provide allocation admission for the Map frame.
 - Focused reproduction after `bash tools/build_hako_llvmc_ffi.sh`:

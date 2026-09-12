@@ -238,7 +238,8 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
       return -1;
     }
     if (exact_seed_route > 0) {
-      if (hako_llvmc_published_call_rows_active()) {
+      if (hako_llvmc_published_call_rows_active(
+              &invocation->published_call_rows)) {
         return set_err_owned(err_out,
             "[freeze:contract][published-mir-static-method] exact-seed route forbidden for typed rows");
       }
@@ -266,7 +267,9 @@ static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
 
   hako_llvmc_invocation_capture_legacy_capi(
       invocation,
-      !ptfb_contract_bound && !hako_llvmc_published_call_rows_active());
+      !ptfb_contract_bound &&
+          !hako_llvmc_published_call_rows_active(
+              &invocation->published_call_rows));
 
   /* Selected Dynamic must not fall through to a no-parameter or harness lane. */
   do {

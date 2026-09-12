@@ -21,6 +21,7 @@ struct HakoLlvmcInvocation {
   struct PhysicalDefinitionPlan definitions;
   enum HakoLlvmcProgramObservation program_observation;
   struct HakoStaticV2Index static_v2;
+  struct HakoLlvmcPublishedCallRows published_call_rows;
   struct HakoLlvmcLegacyCapiState legacy_capi;
 };
 
@@ -39,6 +40,7 @@ static void hako_llvmc_invocation_init(
 }
 
 static void hako_llvmc_invocation_destroy(struct HakoLlvmcInvocation* invocation) {
+  hako_llvmc_published_static_method_rows_end(&invocation->published_call_rows);
   hako_static_v2_clear(&invocation->static_v2);
   hako_llvmc_physical_options_destroy(&invocation->options);
   named_allocation_outcomes_destroy(&invocation->outcomes);

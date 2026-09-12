@@ -159,6 +159,11 @@ String `FieldGet` is compatibility vocabulary, not an alternate target source.
 Selected published C rows and their CanonicalV1 body projection borrow the same
 final module. Export validates retained contracts without clone/refresh/repair;
 Phi instructions must lead their block so typed site coordinates stay exact.
+The private published-row ledger is invocation-owned and borrowed: Static V2
+begins it on `HakoLlvmcInvocation`, and prepass, emission, residual finish, and
+cleanup receive the same explicit owner. A second begin on that owner rejects;
+separate invocations retain independent ledgers. This is not a public ABI or a
+general process-concurrency guarantee.
 Selected same-module C call prepass only peeks at its published row; emission
 takes it exactly once. Peeks leave residual obligations outstanding, and a
 duplicate take rejects rather than returning to compatibility dispatch.

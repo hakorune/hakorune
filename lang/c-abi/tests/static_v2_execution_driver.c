@@ -69,7 +69,8 @@ int main(int argc, char** argv) {
       HAKO_LLVMC_INGRESS_STATIC_V2);
   char* error = NULL;
   int rc = hako_llvmc_compile_static_v2_retained(&invocation, &frame, argv[3], &error);
-  assert(!invocation.static_v2.frame && !hako_llvmc_published_call_rows_active());
+  assert(!invocation.static_v2.frame &&
+      !hako_llvmc_published_call_rows_active(&invocation.published_call_rows));
   if (error) fprintf(stderr, "%s\n", error);
   free(error);
   hako_llvmc_invocation_destroy(&invocation);

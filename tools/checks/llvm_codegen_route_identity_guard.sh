@@ -24,6 +24,7 @@ AOT_SMOKE="$ROOT/tools/checks/llvm_hako_aot_ffi_admission_smoke.sh"
 C_COMMON="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
 CAPI_ROUTE="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
 CAPI_INVOCATION="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_invocation.inc"
+PUBLISHED_ROWS="$ROOT/lang/c-abi/shims/published_mir/hako_llvmc_ffi_published_static_method.inc"
 LEGACY_EMITTER="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_legacy_capi_emit.inc"
 CAPI_CAPTURE_TEST="$ROOT/lang/c-abi/tests/legacy_capi_invocation_capture_test.c"
 NYLLVM_README="$ROOT/crates/nyash-llvm-compiler/README.md"
@@ -52,7 +53,7 @@ need_fixed() {
 
 for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGIN" "$AOT" \
   "$RUNNER_EXEC" "$C_COMMON" "$CAPI_ROUTE" \
-  "$CAPI_INVOCATION" "$LEGACY_EMITTER" "$CAPI_CAPTURE_TEST" \
+  "$CAPI_INVOCATION" "$PUBLISHED_ROWS" "$LEGACY_EMITTER" "$CAPI_CAPTURE_TEST" \
   "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
   need_file "$file"
 done
@@ -187,6 +188,25 @@ need_fixed "$CAPI_ROUTE" 'hako_llvmc_llc_flags()' \
   "public Generic llc-flag capture missing"
 need_fixed "$CAPI_INVOCATION" 'hako_llvmc_invocation_capture_legacy_capi' \
   "legacy CAPI invocation capture owner missing"
+
+# Published-call rows are a private physical transport owned by one
+# invocation. Keep the old process-global object and zero-argument production
+# accessors out of the route while allowing the focused test's local owners.
+python3 - "$PUBLISHED_ROWS" "$CAPI_INVOCATION" "$ROOT/lang/c-abi/shims" <<'PY'
+import pathlib
+import re
+import sys
+
+published_rows = pathlib.Path(sys.argv[1]).read_text()
+invocation = pathlib.Path(sys.argv[2]).read_text()
+shims = pathlib.Path(sys.argv[3])
+assert "} hako_llvmc_published_call_rows;" not in published_rows
+assert "struct HakoLlvmcPublishedCallRows published_call_rows;" in invocation
+for path in shims.rglob("*.inc"):
+    text = path.read_text()
+    assert re.search(r"hako_llvmc_published_call_rows_active\(\s*\)", text) is None, path
+    assert re.search(r"hako_llvmc_published_static_method_rows_(?:finish|end)\(\s*\)", text) is None, path
+PY
 need_fixed "$CAPI_INVOCATION" 'struct HakoLlvmcLegacyCapiState' \
   "legacy CAPI invocation state missing"
 need_fixed "$CAPI_CAPTURE_TEST" 'mutation-after-capture' \

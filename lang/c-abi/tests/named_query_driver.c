@@ -48,7 +48,8 @@ int main(int argc, char** argv) {
     if (outcome) yyjson_mut_obj_add_uint(response, row, "consumer", outcome->consumer);
     yyjson_mut_arr_append(list, row);
   }
-  assert(!hako_llvmc_published_call_rows_active() && !hako_llvmc_published_call_rows.count);
+  assert(!hako_llvmc_published_call_rows_active(&invocation.published_call_rows) &&
+      !invocation.published_call_rows.count);
   assert(selections == initial_selections && program_reads <= 1);
   char* json = yyjson_mut_write(response, 0, NULL);
   assert(json);
@@ -89,7 +90,8 @@ int main(int argc, char** argv) {
   } else {
     assert(action == 'x' || action == EOF);
   }
-  assert(!hako_llvmc_published_call_rows_active() && !hako_llvmc_published_call_rows.count);
+  assert(!hako_llvmc_published_call_rows_active(&invocation.published_call_rows) &&
+      !invocation.published_call_rows.count);
   assert(selections == initial_selections && program_reads <= 1);
   yyjson_doc_free(requests);
   hako_llvmc_invocation_destroy(&invocation);

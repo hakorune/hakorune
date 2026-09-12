@@ -10,7 +10,9 @@ static int hako_llvmc_compile_static_v2_retained(
   if (hako_static_v2_bind(&invocation->static_v2, invocation->document, frame, error) != 0) return -1;
   int rc = -1;
   char* staging = NULL;
-  if (hako_llvmc_published_call_rows_begin_v2(frame->calls, (size_t)frame->call_count, error) != 0)
+  if (hako_llvmc_published_call_rows_begin_v2(
+          &invocation->published_call_rows,
+          frame->calls, (size_t)frame->call_count, error) != 0)
     goto finish_frame;
   size_t length = strlen(obj_out);
   if (length > SIZE_MAX - 24) {
@@ -34,13 +36,14 @@ static int hako_llvmc_compile_static_v2_retained(
   }
   /* Early optimizer returns may bypass the generic pre-object residual check. */
   rc = compile_doc_compat_pure(invocation, NULL, staging, error);
-  if (rc == 0) rc = hako_llvmc_published_static_method_rows_finish(error);
+  if (rc == 0) rc = hako_llvmc_published_static_method_rows_finish(
+      &invocation->published_call_rows, error);
   if (rc == 0) rc = hako_static_v2_finish(&invocation->static_v2, error);
   if (rc == 0 && rename(staging, obj_out) != 0)
     rc = set_err_owned(error, "[freeze:contract][static-v2/publish]");
 finish_calls:
   if (staging) { remove(staging); free(staging); }
-  hako_llvmc_published_static_method_rows_end();
+  hako_llvmc_published_static_method_rows_end(&invocation->published_call_rows);
 finish_frame:
   hako_static_v2_clear(&invocation->static_v2);
   return rc;

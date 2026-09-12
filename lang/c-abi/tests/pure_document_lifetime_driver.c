@@ -67,11 +67,22 @@ int main(int argc, char** argv) {
     rc = hako_llvmc_compile_json(argv[1], argv[2], &error);
   } else if (!strcmp(argv[3], "selected-empty-v2")) {
     /* Call-activity dependency only; this is not a complete V2 frame entry. */
-    assert(hako_llvmc_published_call_rows_begin_v2(NULL, 0, &error) == 0);
-    rc = hako_llvmc_compile_json(argv[1], argv[2], &error);
-    if (rc == 0) rc = hako_llvmc_published_static_method_rows_finish(&error);
-    hako_llvmc_published_static_method_rows_end();
-    assert(!hako_llvmc_published_call_rows_active());
+    yyjson_doc* document = hako_json_v1_read_owned_file(argv[1], &error);
+    if (!document) {
+      rc = -1;
+    } else {
+      struct HakoLlvmcInvocation invocation;
+      hako_llvmc_invocation_init(&invocation, document,
+          hako_llvmc_capture_allocation_config(), HAKO_LLVMC_INGRESS_GENERIC_COMPAT);
+      assert(hako_llvmc_published_call_rows_begin_v2(
+          &invocation.published_call_rows, NULL, 0, &error) == 0);
+      rc = compile_doc_compat_pure(&invocation, argv[1], argv[2], &error);
+      if (rc == 0) rc = hako_llvmc_published_static_method_rows_finish(
+          &invocation.published_call_rows, &error);
+      hako_llvmc_published_static_method_rows_end(&invocation.published_call_rows);
+      assert(!hako_llvmc_published_call_rows_active(&invocation.published_call_rows));
+      hako_llvmc_invocation_destroy(&invocation);
+    }
   } else {
     hako_llvmc_published_static_method_call_v1 row = {0};
     row.function_name = "main";

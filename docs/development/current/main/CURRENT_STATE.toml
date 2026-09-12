@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_published_rows_ownership_i0"
 current_blocker_token = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
-guard_followup = "fast: implement only the accepted published-row invocation-owned ledger I0. Preserve borrowed rows, typed validation, duplicate-take rejection, zero-row V2, same-owner re-entry rejection, distinct-owner isolation, and post-begin cleanup. Keep named llvmlite baseline separate. Host RAM replacement remains external; cap build jobs at 1-2 until validated."
-current_design_stop = "none"
+guard_followup = "closeout: MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0 implementation and focused evidence are complete. Commit/push the invocation-owned ledger and retain public ABI, MIR, Recipe, fallback, and backend-parity boundaries. Host RAM replacement remains external; cap build jobs at 1-2 until validated."
+current_design_stop = "none__accepted__MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,8 +18,7 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-compatibility-retire-r7-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
-The fixed real-app EXE scope is a finite 3/11 pass with seven named baseline
-boundaries and one FFI-environment boundary; it is not whole-MirBuilder
+The fixed real-app EXE scope is a finite 3/11 pass with seven named baseline boundaries and one FFI-environment boundary; it is not whole-MirBuilder
 completion. The Loop semantic-program audit is `NoSafeSlice`; Callable-only I0 remains caller-zero.
 G0 is an explicit GenericG0 variant in the existing package and
 BindingSsaTrivial/Single lifecycle. Its source issuer, physical lowering,
@@ -48,7 +47,7 @@ helper lanes, and helper Compare/Add body operations. The static EXE witness
 uses the same selected view; empty-site ABI, declared contracts and physical
 Compare/PHI/CFG now reach LLVM18/EXE3. First-family cutovers reuse one snapshot;
 Pure expected-location fields and PreheaderSeed were removed at 537e5e20fe; Read/Write/Carrier metadata is a separate cleanup candidate.
-Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, Boundary llc unset/empty policy, and legacy TargetMachine invocation capture I0 are closed. AOT direct-harness child-env I1 is closed with native Windows and Linux proof. Published-row invocation ownership D0 is accepted; I0 is the active bounded implementation slice. Public/external retirement remains separate.
+Whole-MIRBuilder completion and backend parity remain unclaimed; Rust non-explicit CAPI I0, AOT Generic options I0, public Generic C profile-0 options bridge I0, Boundary llc unset/empty policy, and legacy TargetMachine invocation capture I0 are closed. AOT direct-harness child-env I1 is closed with native Windows and Linux proof. Published-row invocation ownership I0 is closed with invocation-owned ledger and focused WSL/Linux evidence; public/external retirement remains separate.
 LLVM18.1.8 is installed side-by-side with LLVM14; versioned tools/header/prefix
 are verified. G0 declarations/carriers and full Rust lifecycle capability pass;
 18 focused Rust tests pass, including source-called G0 EXE3; C regressions pass.
@@ -56,9 +55,9 @@ Warning follow-up is `MIRBUILDER-WARNING-SURFACE-CENSUS-R0` /
 `MIRBUILDER-WARNING-BASELINE-REFRESH-I0`; observed `lib=1806`, `lib test=533
 (265 duplicates)` are separate, non-zero-warning baselines.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIR-CALL-PUBLISHED-ROWS-INVOCATION-OWNERSHIP-I0"
+next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+next_execution_card = "none__R7NextOwner__DesignStop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -76,5 +75,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 is still open; M7-S write-only source/MIR/OBJ/EXE/reject evidence is closed; llvmlite remains explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: Receiver/callee/FieldGet/schema evidence and Pair exit30 are recorded. Loop remains ParkedSealed__NoCallableNoneCaller. LocalSSA, selected-C, Dynamic JSON, emit-clone, debug-policy, lazy-payload, postprocess, refresh-counter, variable-read, method-handler split, PHI batch, and self-cache rows are closed. C driver arity d5658dc759, LocalSSA guard a9389ede13, and generic compatibility positive c1467583fe (structured Global/print rc=0 object; strict pure-first legacy call named reject) are recorded. Lookup facade and prepared-operand definition index remain deferred.",
+  "2026-09-10: Receiver/callee/FieldGet/schema evidence and Pair exit30 are recorded. Loop remains ParkedSealed__NoCallableNoneCaller. LocalSSA, selected-C, Dynamic JSON, emit-clone, debug-policy, lazy-payload, postprocess, refresh-counter, variable-read, method-handler split, PHI batch, and self-cache rows are closed. C driver arity d5658dc759, LocalSSA guard a9389ede13, and generic compatibility positive c1467583fe (structured Global/print rc=0 object; strict pure-first legacy call named reject) are recorded. Lookup facade and prepared-operand definition index remain deferred. Published-row invocation ownership I0 moves the private borrowed ledger into HakoLlvmcInvocation and passes one explicit owner through Static V2, prepass, emission, residual finish, and cleanup; focused C owner/overlap/duplicate/zero-row/residual tests, ASan document lifetime/query suites, Static V2 formal cases, route/pointer guards, and diff check pass. Native Windows I1 remains a separate closed proof.",
 ]
