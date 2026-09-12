@@ -80,13 +80,9 @@ pub(in crate::mir::builder) fn lower_generic_g0_function_draft_pending_v1<'build
     let prepared = match ready.open(outer).prepare() {
         Ok(prepared) => prepared,
         Err(rejected) => {
-            let detail = format!(
-                "[freeze:contract][generic-g0/draft-seal/{:?}] {:?}",
-                rejected.stage(),
-                rejected.error()
-            );
-            rejected.discard();
-            return Err(CanonicalFunctionSessionErrorV1::Primary(detail));
+            return Err(CanonicalFunctionSessionErrorV1::DraftSeal(
+                rejected.into_discarded_error(),
+            ));
         }
     };
     Ok(prepared.commit_pending())

@@ -429,7 +429,7 @@ impl MirBuilder {
             issue_generic_g0_physical_emitter_admission_from_source_parent_v1(
                 plan.into_source_parent(),
             )
-            .map_err(|error| CanonicalFunctionSessionErrorV1::Primary(format!("{error:?}")))?;
+            .map_err(CanonicalFunctionSessionErrorV1::GenericG0Admission)?;
         loop_recipe_physicalizer::lower_generic_g0_function_draft_pending_v1(
             self,
             function_name,

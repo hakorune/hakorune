@@ -201,6 +201,9 @@ fn map_abort_reason(error: &ModuleLoweringPortChildErrorV1) -> RawExpansionAbort
             _,
         ))
         | ModuleLoweringPortChildErrorV1::Session(CanonicalFunctionSessionErrorV1::DraftSeal(_))
+        | ModuleLoweringPortChildErrorV1::Session(
+            CanonicalFunctionSessionErrorV1::GenericG0Admission(_),
+        )
         | ModuleLoweringPortChildErrorV1::Admission(_)
         | ModuleLoweringPortChildErrorV1::ReceiptBrand(_)
         | ModuleLoweringPortChildErrorV1::InstanceConstructorAbi(_)

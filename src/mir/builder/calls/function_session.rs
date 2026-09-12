@@ -9,6 +9,7 @@ use std::fmt;
 use crate::ast::ASTNode;
 use crate::mir::builder::resolved_lowering::DiscardedFunctionDraftSealErrorV1;
 use crate::mir::builder::MirBuilder;
+use crate::mir::compiler::generic_g0_physical_operation_cohort::GenericG0PhysicalEmitterAdmissionRejectV1;
 use crate::mir::function::{FunctionPublicationErrorV1, MirFunction, MirModule};
 
 use super::context_lifecycle::LoweringContext;
@@ -89,6 +90,7 @@ pub(in crate::mir) enum CanonicalFunctionSessionErrorV1 {
     DuringCleanup { primary: String, cleanup: String },
     Publication(FunctionDraftPublicationErrorV1),
     DraftSeal(DiscardedFunctionDraftSealErrorV1),
+    GenericG0Admission(GenericG0PhysicalEmitterAdmissionRejectV1),
 }
 
 impl CanonicalFunctionSessionErrorV1 {
@@ -116,6 +118,9 @@ impl fmt::Display for CanonicalFunctionSessionErrorV1 {
             ),
             Self::Publication(error) => error.fmt(formatter),
             Self::DraftSeal(error) => error.fmt(formatter),
+            Self::GenericG0Admission(_) => formatter.write_str(
+                "[freeze:contract][canonical_function_session/generic_g0_admission]"
+            ),
         }
     }
 }

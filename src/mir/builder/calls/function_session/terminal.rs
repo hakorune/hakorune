@@ -284,10 +284,7 @@ impl<'builder> PreparedFunctionSessionCloseV1<'builder> {
         }
     }
 
-    fn commit_with_input(
-        self,
-        input: Option<PreparedFunctionSessionCommitInputV1>,
-    ) -> MirFunction {
+    fn commit_with_input(self, input: Option<PreparedFunctionSessionCommitInputV1>) -> MirFunction {
         let (mut session, draft) = self.take_projected(input);
         session.restore_context();
         draft
@@ -357,6 +354,7 @@ mod tests {
     use crate::mir::builder::module_draft_collector::{
         CompletedDraftSignatureViewV1, ModuleDraftCollectorV1,
     };
+    use crate::mir::compiler::generic_g0_physical_operation_cohort::GenericG0PhysicalEmitterAdmissionRejectV1;
     use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType,
@@ -590,5 +588,22 @@ mod tests {
         assert_eq!(builder.next_value_id().0, 0);
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());
+    }
+
+    #[test]
+    fn generic_g0_pending_session_admission_variant_is_typed() {
+        let error = super::super::CanonicalFunctionSessionErrorV1::GenericG0Admission(
+            GenericG0PhysicalEmitterAdmissionRejectV1::CountOverflow,
+        );
+        assert!(matches!(
+            error,
+            super::super::CanonicalFunctionSessionErrorV1::GenericG0Admission(
+                GenericG0PhysicalEmitterAdmissionRejectV1::CountOverflow
+            )
+        ));
+        assert_eq!(
+            error.to_string(),
+            "[freeze:contract][canonical_function_session/generic_g0_admission]"
+        );
     }
 }
