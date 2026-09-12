@@ -46,19 +46,35 @@ finish_frame:
   return rc;
 }
 
-__attribute__((visibility("default")))
-int hako_llvmc_static_open_v2(const char* bytes, size_t length,
+static int hako_llvmc_static_open_v2_with_contract(
+    const char* bytes, size_t length,
+    const hako_llvmc_physical_contract_v1* contract,
     hako_llvmc_static_invocation_v2** out, char** error) {
+  struct HakoLlvmcPhysicalOptions options = {0};
+  int explicit_contract = contract != NULL;
   if (!out) return set_err_owned(error, "[freeze:contract][static-v2/open-output]");
   *out = NULL;
   if (!bytes || !length) return set_err_owned(error, "[freeze:contract][static-v2/open-input]");
-  if (hako_llvmc_reject_ambient_harness_replay(error) != 0) return -1;
+  if (explicit_contract) {
+    if (contract->ingress_profile != HAKO_LLVMC_PHYSICAL_PROFILE_STATIC_V2)
+      return set_err_owned(error, "[freeze:contract][static-v2/profile]");
+    if (hako_llvmc_physical_options_copy(&options, contract, error) != 0)
+      return -1;
+  }
+  if (hako_llvmc_reject_ambient_harness_replay(error) != 0) {
+    hako_llvmc_physical_options_destroy(&options);
+    return -1;
+  }
   yyjson_read_err parse_error;
   yyjson_doc* document = yyjson_read_opts((char*)bytes, length, 0, NULL, &parse_error);
-  if (!document) return set_err_owned(error, "[freeze:contract][static-v2/json]");
+  if (!document) {
+    hako_llvmc_physical_options_destroy(&options);
+    return set_err_owned(error, "[freeze:contract][static-v2/json]");
+  }
   struct HakoLlvmcInvocation* invocation = malloc(sizeof(*invocation));
   if (!invocation) {
     yyjson_doc_free(document);
+    hako_llvmc_physical_options_destroy(&options);
     return set_err_owned(error, "[freeze:contract][static-v2/open-storage]");
   }
   hako_llvmc_invocation_init(
@@ -66,8 +82,24 @@ int hako_llvmc_static_open_v2(const char* bytes, size_t length,
       document,
       hako_llvmc_capture_allocation_config(),
       HAKO_LLVMC_INGRESS_STATIC_V2);
+  invocation->options = options;
+  options = (struct HakoLlvmcPhysicalOptions){0};
   *out = invocation;
   return 0;
+}
+
+__attribute__((visibility("default")))
+int hako_llvmc_static_open_v2(const char* bytes, size_t length,
+    hako_llvmc_static_invocation_v2** out, char** error) {
+  return hako_llvmc_static_open_v2_with_contract(bytes, length, NULL, out, error);
+}
+
+__attribute__((visibility("default")))
+int hako_llvmc_static_open_v2_with_options(
+    const char* bytes, size_t length,
+    const hako_llvmc_physical_contract_v1* contract,
+    hako_llvmc_static_invocation_v2** out, char** error) {
+  return hako_llvmc_static_open_v2_with_contract(bytes, length, contract, out, error);
 }
 
 __attribute__((visibility("default")))

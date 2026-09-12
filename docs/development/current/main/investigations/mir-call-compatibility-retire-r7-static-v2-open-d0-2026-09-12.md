@@ -87,3 +87,31 @@ This row does not retire harness, AOT, public ABI, dlsym, link-only state, or
 published Call-row globals. It does not claim concurrency isolation, backend
 parity, source-to-EXE success, LegacyCallV0 caller-zero, Loop production
 selection, or whole-MIRBuilder completion.
+
+## I0 closeout evidence (2026-09-12)
+
+Passed:
+
+```text
+bash tools/build_hako_llvmc_ffi.sh
+python3 lang/c-abi/tests/static_v2_session_test.py target/release/libhako_llvmc_ffi.so
+bash tools/checks/llvm_compile_options_contract_smoke.sh
+bash tools/checks/mir_call_static_v2_open_contract_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 RUST_MIN_STACK=16777216 \
+  cargo check -p nyash-rust --features plugins --profile quick -j1
+```
+
+The static session test now proves the explicit Static V2 open/query/compile/
+close lifecycle with fake tool/path/flag propagation, ambient recipe isolation,
+and pre-effect revision/size/profile/flags rejection. The existing Boundary
+compile-options smoke retains the generic/exact-seed propagation, environment,
+and pre-effect contract evidence. The new static guard pins the explicit Rust
+symbol, removes the old Rust environment save/restore seam, and keeps the
+C/Rust sources below 800 lines.
+
+The host has LLVM 14, so the legacy compatibility portion of the static
+session test reports an explicit LLVM18 object-compile skip; this is environment
+evidence, not a runtime or executable success claim. No static V2 public
+symbol, harness/AOT compatibility owner, published-row global, or whole-R7
+caller-zero claim is made.

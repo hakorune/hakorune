@@ -454,8 +454,10 @@ Notes
 - Future control hooks (`hako_gc_collect/start/stop`) are defined but gated; do not silently succeed.
  - Platform CRT note: Only `hako_mem_free()` may be used to free memory obtained from any `hako_*` API to avoid CRT boundary issues (Windows msvcrt/ucrt, macOS libc).
 
-Static V2 host verification uses `tests/static_v2_session_test.py LIBRARY`, the
-migrated Named/row/document/query proofs above, and the ignored Rust
+Static V2 host verification uses `tests/static_v2_session_test.py LIBRARY`,
+which runs the explicit Static V2 contract lifecycle with fake tool propagation
+and skips only the legacy object portion when LLVM18 is unavailable. It also
+uses the migrated Named/row/document/query proofs above, and the ignored Rust
 `static_map_source_v2_direct_and_linked_objects` test. Build the quick kernel
 archive for that test; existing Array source regression uses the release archive.
 Both must include `nyash.box.from_i8_string_const_len_v1`. Old archives are not a

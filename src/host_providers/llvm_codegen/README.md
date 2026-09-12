@@ -33,6 +33,9 @@ source cutover remain subsequent consumers of this session input.
 - `capi_transport.rs`
   - explicit CAPI helper split from the legacy transport helper surface
   - compile/link CAPI helpers only
+  - the published Static V2 caller builds one invocation-owned physical-options
+    contract and passes it to `hako_llvmc_static_open_v2_with_options`; it does
+    not mutate or restore process environment settings
 - `runtime_abi_descriptor.rs`
   - reads the target-compiled Fault/status ABI descriptor from the selected
     `libnyash_kernel.a` ELF member section

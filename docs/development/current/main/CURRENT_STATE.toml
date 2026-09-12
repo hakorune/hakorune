@@ -1,11 +1,11 @@
 date = "2026-09-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-STATIC-V2-OPEN-I0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_static_v2_open_i0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-STATIC-V2-OPEN-I0"
-guard_followup = "fast: static V2 open only; pass the accepted physical-options contract through the existing lifecycle and remove its duplicate settings seam."
-current_design_stop = "resolved__MIR-CALL-COMPATIBILITY-RETIRE-R7-STATIC-V2-OPEN-D0__2026-09-12"
+guard_followup = "closeout: static V2 explicit-open guard, C/session smoke, LLVM18 skip classification, Rust check, docs, commit, and push."
+current_design_stop = ""
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -41,8 +41,9 @@ CAPI edge: one Rust admission normalization, a versioned default-visible C
 contract, invocation-owned C state, and generic/exact-seed/pattern option
 propagation. Its focused fake-tool smoke, C build, Rust check, and pointer
 guard are green; the existing named compatibility smoke remains an uncounted
-host Traceback baseline red. Static V2 open is the selected next I0 owner;
-harness, AOT compatibility, and published-row globals remain retained.
+host Traceback baseline red. Static V2 open I0 passes the accepted
+physical-options contract through production open/query/compile/close with
+fake-tool/pre-effect evidence; LLVM14 skips legacy LLVM18 object compile (no runtime claim). Harness, AOT, and published-row globals remain.
 The G0 helper backend reach design stop is accepted and its I1 implementation
 is closed. The existing source-backed Global Call relation
 `Main.main -> generic_g0(0, 0)` is the sole membership authority. The focused
@@ -55,8 +56,8 @@ operation expected-location fields and unreachable PreheaderSeed handling are
 removed. Whole-MIRBuilder completion, backend parity, and runtime execution
 remain unclaimed.
 """
-next_design_card = "none__R7StaticV2Open__DesignAccepted"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-static-v2-open-d0-2026-09-12.md"
+next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 next_execution_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-STATIC-V2-OPEN-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-static-v2-open-d0-2026-09-12.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

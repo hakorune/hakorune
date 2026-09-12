@@ -16,9 +16,14 @@ archive and calls the opaque C ABI directly; neither test proves source cutover.
 ## Static V2 invocation
 
 The selected static host opens bytes once, queries exact Named sites, builds the
-existing frame and compiles the same invocation. Rust closes C before unloading
-the Library, including planner failure. Public V1 file ingress is retired;
-explicit generic compatibility and checked lifecycle V4 remain separate owners.
+existing frame and compiles the same invocation. Its production Rust caller
+passes the invocation-owned physical-options contract to
+`hako_llvmc_static_open_v2_with_options`; it does not save, set, or restore
+process settings. The three-argument `hako_llvmc_static_open_v2` remains the
+compatibility ingress for callers that still own ambient settings. Rust closes
+C before unloading the Library, including planner failure. Public V1 file
+ingress is retired; explicit generic compatibility and checked lifecycle V4
+remain separate owners.
 The stage error order and remaining source selection boundary are in the
 collection SSOT and `docs/reference/abi/nyrt_c_abi_v0.md`.
 Static V2 carries the strict invocation profile: an instruction-level legacy

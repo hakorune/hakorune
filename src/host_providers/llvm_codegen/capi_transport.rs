@@ -72,14 +72,14 @@ impl OwnedPhysicalCompileContract {
         })
     }
 
-    fn row(&self) -> PhysicalCompileContractCRowV1 {
+    fn row_for_profile(&self, ingress_profile: u32) -> PhysicalCompileContractCRowV1 {
         fn pointer(value: Option<&CString>) -> *const std::os::raw::c_char {
             value.map_or(std::ptr::null(), |value| value.as_ptr())
         }
         PhysicalCompileContractCRowV1 {
             revision: 1,
             byte_size: std::mem::size_of::<PhysicalCompileContractCRowV1>() as u32,
-            ingress_profile: 1,
+            ingress_profile,
             flags: 0,
             compile_recipe: self.compile_recipe.as_ptr(),
             compat_replay: self.compat_replay.as_ptr(),
@@ -89,6 +89,10 @@ impl OwnedPhysicalCompileContract {
             llc_flags: pointer(self.llc_flags.as_ref()),
             llvmc_path: std::ptr::null(),
         }
+    }
+
+    fn row(&self) -> PhysicalCompileContractCRowV1 {
+        self.row_for_profile(1)
     }
 }
 

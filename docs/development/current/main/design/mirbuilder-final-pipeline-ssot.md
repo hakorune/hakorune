@@ -35,11 +35,12 @@ Related:
   physical view; its static EXE witness was skipped because LLVM18 is missing.
   These are bounded rows, not helper runtime success, all-family, or
   source-to-EXE completion.
-- **Next ordered task:** resume the existing
-  `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop after link direct seam I0
-  and Boundary pure-first compile-options I1A landed. Select one retained
-  compatibility owner (static V2, harness, AOT, or public ABI boundary) with
-  its caller, terminal, and exclusive delete-set before implementation;
+- **Next ordered task:** the selected static V2 open I0 now passes the existing
+  invocation-owned physical-options contract through the production
+  open/query/compile/close lifecycle; its focused C/Rust/guard evidence and
+  LLVM18-unavailable skip are recorded. Resume the R7 design stop to select the
+  next retained compatibility owner (harness, AOT, or public ABI boundary)
+  with its caller, terminal, and exclusive delete-set before implementation;
   release compatibility and public v1/v2 ABI remain retained.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill

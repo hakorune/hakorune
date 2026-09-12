@@ -53,7 +53,8 @@ static int hako_llvmc_physical_options_copy(
       contract->byte_size != sizeof(*contract)) {
     return set_err_owned(error, "[freeze:contract][compile-options/revision-size]");
   }
-  if (contract->ingress_profile != HAKO_LLVMC_PHYSICAL_PROFILE_BOUNDARY_PURE_FIRST ||
+  if ((contract->ingress_profile != HAKO_LLVMC_PHYSICAL_PROFILE_BOUNDARY_PURE_FIRST &&
+       contract->ingress_profile != HAKO_LLVMC_PHYSICAL_PROFILE_STATIC_V2) ||
       contract->flags != 0) {
     return set_err_owned(error, "[freeze:contract][compile-options/profile-flags]");
   }

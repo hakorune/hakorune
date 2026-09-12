@@ -171,6 +171,9 @@ int hako_llvmc_compile_json_with_options_v1(
     const hako_llvmc_physical_contract_v1* contract, char** err_out);
 int hako_llvmc_static_open_v2(const char* bytes, size_t length,
     hako_llvmc_static_invocation_v2** out, char** error);
+int hako_llvmc_static_open_v2_with_options(const char* bytes, size_t length,
+    const hako_llvmc_physical_contract_v1* contract,
+    hako_llvmc_static_invocation_v2** out, char** error);
 int hako_llvmc_static_query_v2(hako_llvmc_static_invocation_v2* invocation,
     const char* function, size_t length, uint32_t block, uint32_t instruction,
     uint32_t* consumer);

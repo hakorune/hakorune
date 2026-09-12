@@ -8,7 +8,13 @@ pub(in crate::host_providers::llvm_codegen) fn compile_published_static_v2(
 ) -> Result<(), String> {
     use crate::mir::function::{NamedAllocationConsumer as Consumer, PublishedStaticFrameHeaderV2};
     use std::os::raw::{c_char, c_int, c_void};
-    type Open = unsafe extern "C" fn(*const c_char, usize, *mut *mut c_void, *mut *mut c_char) -> c_int;
+    type Open = unsafe extern "C" fn(
+        *const c_char,
+        usize,
+        *const PhysicalCompileContractCRowV1,
+        *mut *mut c_void,
+        *mut *mut c_char,
+    ) -> c_int;
     type Query = unsafe extern "C" fn(*mut c_void, *const c_char, usize, u32, u32, *mut u32) -> c_int;
     type Compile = unsafe extern "C" fn(*mut c_void, *const PublishedStaticFrameHeaderV2, *const c_char, *mut *mut c_char) -> c_int;
     type Close = unsafe extern "C" fn(*mut c_void);
@@ -16,27 +22,12 @@ pub(in crate::host_providers::llvm_codegen) fn compile_published_static_v2(
     impl Drop for Invocation<'_> {
         fn drop(&mut self) { unsafe { (self.close)(self.handle) } }
     }
-    // Existing process settings remain scoped across planning too. This is not
-    // a parallel-compile guarantee; C call rows are still process-global.
-    struct Settings(Vec<(&'static str, Option<std::ffi::OsString>)>);
-    impl Drop for Settings {
-        fn drop(&mut self) {
-            for (name, value) in self.0.iter().rev() {
-                match value { Some(v) => std::env::set_var(name, v), None => std::env::remove_var(name) }
-            }
-        }
-    }
-    let mut settings = Settings(Vec::new());
-    for (name, value, inherit) in [
-        ("HAKO_BACKEND_COMPILE_RECIPE", opts.compile_recipe.as_deref(), false),
-        ("HAKO_BACKEND_COMPAT_REPLAY", opts.compat_replay.as_deref(), false),
-        ("HAKO_LLVM_OPT_LEVEL", opts.opt_level.as_deref(), true),
-        ("NYASH_LLVM_OPT_LEVEL", opts.opt_level.as_deref(), true),
-    ] {
-        if inherit && value.is_none() { continue; }
-        settings.0.push((name, std::env::var_os(name)));
-        match value { Some(v) => std::env::set_var(name, v), None => std::env::remove_var(name) }
-    }
+    let owned = OwnedPhysicalCompileContract::from_request(
+        opts.compile_recipe.as_deref(),
+        opts.compat_replay.as_deref(),
+        opts,
+    )?;
+    let contract = owned.row_for_profile(2);
     unsafe fn result(rc: c_int, error: *mut c_char) -> Result<(), String> {
         extern "C" { fn free(pointer: *mut c_void); }
         let message = if error.is_null() { None } else {
@@ -48,13 +39,24 @@ pub(in crate::host_providers::llvm_codegen) fn compile_published_static_v2(
     }
     unsafe {
         let library = load_ffi_library()?;
-        let open: Open = *library.get(b"hako_llvmc_static_open_v2\0").map_err(|e| e.to_string())?;
+        let open: Open = *library
+            .get(b"hako_llvmc_static_open_v2_with_options\0")
+            .map_err(|e| e.to_string())?;
         let query: Query = *library.get(b"hako_llvmc_static_query_v2\0").map_err(|e| e.to_string())?;
         let compile: Compile = *library.get(b"hako_llvmc_static_compile_v2\0").map_err(|e| e.to_string())?;
         let close: Close = *library.get(b"hako_llvmc_static_close_v2\0").map_err(|e| e.to_string())?;
         let mut handle = std::ptr::null_mut();
         let mut error = std::ptr::null_mut();
-        result(open(body.as_ptr().cast(), body.len(), &mut handle, &mut error), error)?;
+        result(
+            open(
+                body.as_ptr().cast(),
+                body.len(),
+                &contract,
+                &mut handle,
+                &mut error,
+            ),
+            error,
+        )?;
         let invocation = Invocation { handle, close, _library: &library };
         let frame = PublishedStaticMethodCFrameV2::from_view_with_query(view, |name, block, ordinal| {
             let mut consumer = u32::MAX;
