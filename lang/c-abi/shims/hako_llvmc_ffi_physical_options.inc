@@ -2,7 +2,6 @@
  * at admission; these strings are copied before any lowering/effect. */
 struct HakoLlvmcPhysicalOptions {
   char* compile_recipe;
-  char* compat_replay;
   char* opt_level;
   char* opt_tool_path;
   char* llc_tool_path;
@@ -31,7 +30,6 @@ static void hako_llvmc_physical_options_destroy(
     struct HakoLlvmcPhysicalOptions* options) {
   if (!options) return;
   free(options->compile_recipe);
-  free(options->compat_replay);
   free(options->opt_level);
   free(options->opt_tool_path);
   free(options->llc_tool_path);
@@ -94,13 +92,12 @@ static int hako_llvmc_physical_options_copy_admitted(
     return set_err_owned(error, "[freeze:contract][compile-options/llc-tool]");
   }
   copy.compile_recipe = hako_llvmc_duplicate_option(contract->compile_recipe);
-  copy.compat_replay = hako_llvmc_duplicate_option(contract->compat_replay);
   copy.opt_level = hako_llvmc_duplicate_option(level);
   copy.opt_tool_path = hako_llvmc_duplicate_option(contract->opt_tool_path);
   copy.llc_tool_path = hako_llvmc_duplicate_option(contract->llc_tool_path);
   copy.llc_flags = hako_llvmc_duplicate_option(contract->llc_flags);
   copy.explicit_contract = 1;
-  if (!copy.compile_recipe || !copy.compat_replay || !copy.opt_level ||
+  if (!copy.compile_recipe || !copy.opt_level ||
       (contract->opt_tool_path && !copy.opt_tool_path) ||
       (contract->llc_tool_path && !copy.llc_tool_path) ||
       (contract->llc_flags && !copy.llc_flags)) {
@@ -127,12 +124,6 @@ static const char* hako_llvmc_compile_recipe_for(
     const struct HakoLlvmcPhysicalOptions* options) {
   return options && options->explicit_contract
       ? options->compile_recipe : hako_llvmc_backend_compile_recipe();
-}
-
-static const char* hako_llvmc_compat_replay_for(
-    const struct HakoLlvmcPhysicalOptions* options) {
-  return options && options->explicit_contract
-      ? options->compat_replay : hako_llvmc_backend_compat_replay();
 }
 
 static const char* hako_llvmc_opt_level_for(

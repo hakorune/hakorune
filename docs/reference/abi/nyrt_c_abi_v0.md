@@ -258,6 +258,9 @@ emitter-failure tail now terminates at the existing unsupported diagnostic and
 `lane=none` observation, regardless of ambient replay settings. Earlier physical
 attempts may already have effects; no new rollback or emitter-error taxonomy is
 claimed. Named Harness remains the separate admitted child-execution route.
+The borrowed public replay field remains admission-only: pure options require
+`none`, but the private owner no longer allocates or stores a copy that has no
+consumer. Public ambient rejection keeps its existing exact-harness test.
 
 ### Selected lifecycle physical program v2
 

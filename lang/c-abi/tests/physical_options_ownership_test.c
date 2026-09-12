@@ -22,7 +22,6 @@ static int set_err_owned(char** error, const char* message) {
 }
 static int hako_llvmc_tool_exists(const char* path) { return path && *path; }
 static const char* hako_llvmc_backend_compile_recipe(void) { return "pure-first"; }
-static const char* hako_llvmc_backend_compat_replay(void) { return "none"; }
 static const char* hako_llvmc_opt_level(void) { return "0"; }
 static const char* hako_llvmc_llc_flags(void) { return ""; }
 #define malloc option_alloc
@@ -43,7 +42,7 @@ int main(void) {
   assert(hako_llvmc_physical_options_copy_named_harness(&options, &contract, &error) == 0);
   path[0] = 'X';
   assert(!strcmp(options.llvmc_path, "compiler"));
-  assert(!options.compile_recipe && !options.compat_replay && !options.opt_level);
+  assert(!options.compile_recipe && !options.opt_level);
   hako_llvmc_physical_options_destroy(&options);
   assert(allocations == 1 && releases == 1 && !options.llvmc_path);
   fail_allocation = 1;
@@ -58,7 +57,19 @@ int main(void) {
   contract.opt_level = NULL;
   assert(hako_llvmc_physical_options_copy(&options, &contract, &error) != 0);
   assert(strstr(error, "profile-flags"));
-  free(error);
+  free(error); error = NULL;
+  contract.ingress_profile = HAKO_LLVMC_PHYSICAL_PROFILE_BOUNDARY_PURE_FIRST;
+  contract.llvmc_path = NULL;
+  contract.compile_recipe = "pure-first";
+  contract.opt_level = "0";
+  contract.compat_replay = "harness";
+  assert(hako_llvmc_physical_options_copy(&options, &contract, &error) != 0);
+  assert(strstr(error, "recipe-replay") && allocations == 1);
+  free(error); error = NULL;
+  contract.compat_replay = "none";
+  assert(hako_llvmc_physical_options_copy(&options, &contract, &error) == 0);
+  assert(allocations == 3); /* recipe and level only; no dead replay allocation */
+  hako_llvmc_physical_options_destroy(&options);
   assert(allocations == releases);
   return 0;
 }

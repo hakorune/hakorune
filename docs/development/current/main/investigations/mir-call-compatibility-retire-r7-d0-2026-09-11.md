@@ -15,7 +15,7 @@ Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; ag
 Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
 Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
 Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
-Smallest next slice: close out automatic-replay retirement below; named ownership landed at `6e5b59c901`, G0 at `16f87f5eeb`.
+Smallest next slice: remove unconsumed replay-option storage after `34d9e409a6`; named ownership `6e5b59c901`, G0 `16f87f5eeb` remain verified.
 Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach or performance claim.
 
 ## Finite boundary and state table
@@ -988,9 +988,9 @@ Landed/pushed `16f87f5eeb`; aggregate R7, all-family Loop and parity remain open
 ### Harness compiler-path ownership (named landed; replay retirement closeout)
 
 Named ownership landed/pushed `6e5b59c901`: C build/options ownership+OOM/direct+AOT/error-order smoke and route/pointer/census guards pass. Public ABI/replay adapter/child settings retained.
-Decision: Archimedes Stop/Delete accepted: remove pure-core replay branch, compile_json_via_explicit_compat_harness_replay and compile_json_compat_harness_keep; retain named Harness and shared formatter/predicate.
+Decision: automatic replay branch/adapters retired at `34d9e409a6`; delete now-unconsumed private replay storage/copy/free and options lookup, retaining wire validation and ambient public rejection.
 Source authority + canonical issuer: pure-first public and Static reject ambient harness; explicit Generic/Boundary/Static options require none; direct allocation-capture core caller is test-only.
-Non-authority: named-Harness success and historical replay-positive probes do not prove automatic replay reach. Census excludes concurrent env mutation and interposition.
+Non-authority: copied replay bytes and removed options lookup. Finite code census covers physical_options/common/route plus direct ownership test; sole predicate caller supplied NULL; no stored replay consumer remains.
 Fail-fast boundary: preserve public JSON/contract/replay gates and existing unsupported terminal after core cleanup; no child launch after unsupported/emitter failure.
-Evidence / next: LLVM18 capture16 and unsupported/emitter-failure no-child negatives pass; LLVM14 default opt previously rejected opaque pointers before this boundary. Both obsolete replay-positive probes and suite/dev inventory/presence entries retired; historical prose/shared fixtures retained. Finish guards/commit/push.
+Evidence / next: prior LLVM18 capture16/no-child negatives and probe retirement landed. C options smoke/ownership test proves one fewer allocation and unchanged recipe/replay reject; route/census/pointer/diff pass, module/reference synchronized. Commit/push; no new route or acceptance shape.
 Non-claims: no public/provider/HAKO_CAPI_TM removal, new receipt, child-environment migration, concurrency isolation or aggregate R7 closure.

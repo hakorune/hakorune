@@ -48,6 +48,9 @@ null pure-tool fields mean delegated child settings, not defaults. Missing
 configured compiler paths retain the fopen-based NOT_FOUND boundary; unset or
 empty selects the existing default. A copy OOM rejects before log/child effects.
 One executor consumes the captured path without rereading its environment.
+The public contract still validates replay=`none` for pure options, but no
+private replay string is copied or retained after admission. Ambient public
+rejection reads its existing setting directly, not through an unused options lookup.
 Automatic pure-core replay and its two private adapters are retired; unsupported
 or emitter-failure tails use the existing unsupported terminal with lane=none,
 even for direct-core test callers carrying ambient harness. Log/command/status/object order,

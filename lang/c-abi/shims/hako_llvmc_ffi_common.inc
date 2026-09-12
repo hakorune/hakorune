@@ -5,8 +5,6 @@ static const char* hako_llvmc_opt_level_for(
     const struct HakoLlvmcPhysicalOptions* options);
 static const char* hako_llvmc_llc_flags_for(
     const struct HakoLlvmcPhysicalOptions* options);
-static const char* hako_llvmc_compat_replay_for(
-    const struct HakoLlvmcPhysicalOptions* options);
 static const char* hako_llvmc_resolve_explicit_tool(
     const struct HakoLlvmcPhysicalOptions* options, int opt_tool);
 
@@ -126,9 +124,8 @@ static void hako_llvmc_warn_legacy_capi_pure_alias_once(void) {
           "'HAKO_BACKEND_COMPILE_RECIPE=pure-first'\n");
 }
 
-static int compat_harness_replay_enabled(
-    const struct HakoLlvmcPhysicalOptions* options) {
-  const char* replay = hako_llvmc_compat_replay_for(options);
+static int hako_llvmc_ambient_harness_replay_requested(void) {
+  const char* replay = hako_llvmc_backend_compat_replay();
   if (replay && replay[0]) {
     return strcmp(replay, "harness") == 0;
   }

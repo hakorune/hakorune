@@ -448,7 +448,7 @@ static int hako_llvmc_require_pure_first_recipe(char** err_out) {
 }
 
 static int hako_llvmc_reject_ambient_harness_replay(char** err_out) {
-  if (!compat_harness_replay_enabled(NULL)) {
+  if (!hako_llvmc_ambient_harness_replay_requested()) {
     return 0;
   }
   hako_set_last_error("UNSUPPORTED");
