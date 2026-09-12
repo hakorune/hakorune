@@ -131,6 +131,12 @@ fn scalar_local_then_plain_return_preserves_ordinary_call_through_publication() 
                 )),
                 "Plain must not acquire lifecycle local Call bindings"
             );
+            assert!(
+                !instructions
+                    .iter()
+                    .any(|instruction| matches!(instruction, MirInstruction::ReturnFault { .. })),
+                "empty-Home Plain must not publish an orphan Fault terminal"
+            );
         }
     });
 }

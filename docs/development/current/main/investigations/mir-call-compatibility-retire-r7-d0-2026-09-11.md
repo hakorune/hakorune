@@ -741,14 +741,10 @@ Stop: missing original Completion/target/site relation or new callee ABI meaning
 Meitner's issuer review and main's physical-consumer review agree: no new receipt,
 callee-purity inference, layer, source callback narrowing or shared writer removal.
 
-Integration refinement accepted after Kuhn's independent consumer review:
-`root_home.rs` rejects pending physical local-call bindings for Plain exit,
-but source local observations do not impose that Call-entry obligation on Plain.
-Use `call_source_completion_for_owner` in the non-Map branch; absent terminal
-relation preserves Scalar, present relation validates explicit return and
-returns_value before Lifecycle selection. No Plain payload expansion or weakened
-reject. Initial build completed in14m45s: cohort17 and source publication1
-(Static/FreeFunction, optimization off/on) pass; warnings523 unchanged.
+Kuhn's consumer review: Plain rejects pending physical local-call bindings,
+not source local observations. `call_source_completion_for_owner` preserves
+Scalar when absent and validates the original return when present. No Plain
+payload expansion or weakened reject; initial build14m45s, cohort17/source1 pass.
 Final build14m43s (warnings523) passed cohort18, source terminal1 (four modes;
 exact argument10/20 and returned-second-result assertions), loan4 and unchanged
 G0 EXE3 in2.21s without skip. Existing cleanup missing-binding mutation1 passes.
@@ -756,20 +752,20 @@ Parent `8624af8352`, byte-identical lifecycle_admission_tests.rs (`cmp`), isolat
 target, jobs1/quick/no incremental: build17m14s, warnings523. Exact tests under
 `mir::compiler::normal_default_pipeline::lifecycle_admission::tests::`:
 - `scalar_local_then_plain_return_preserves_ordinary_call_through_publication`:
-  parent and current both fail `root-cleanup-graph/residual-node` at line104.
+  parent and Call checkpoint both fail `root-cleanup-graph/residual-node` at line104.
 - `scalar_local_then_terminal_call_reaches_published_lifecycle`: parent fails
   `local-call-binding-sequence`; current passes all four source/optimization cases.
 Parent command: `CARGO_TARGET_DIR=/mnt/workdisk/hako-scalar-parent.64DJMK/target-parent
 CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 RUST_MIN_STACK=16777216 cargo test --profile
 quick --lib <fully-qualified Plain test above> -- --exact`; terminal test uses
 that same built parent binary with its exact name. No implementation edits in parent.
-Classification/allowance: Plain is `known baseline debt`, owner existing
+Call-checkpoint classification/allowance: Plain was `known baseline debt`, owner
 ordinary_new_admission/selected.rs::emit_root_home_exit_payload. It does not
 block the independently proved local+terminal Call recovery checkpoint; keep
 its failing regression visible and repair next, not ignored or called green.
 No whole-publication completion claim. No unclassified current-change red remains.
 
-### Empty-Home Plain cleanup repair (accepted next bounded slice)
+### Empty-Home Plain cleanup repair (verified; closeout)
 
 Parfit's finite read-only audit: root-exit capture -> finishing -> FinishedBindings
 -> root/call validation; includes ingress/contraction/pruning, excludes source expansion.
@@ -779,11 +775,16 @@ Non-authority: deleted-block presence, inferred destinations and final-MIR reach
 Fail-fast boundary: preserve missing-binding, sequence, ingress and Call-entry checks.
 Smallest next slice: omit unused Fault allocation/emission/recording when operations.is_empty() and call.is_none(); retain frame ownership and clean Return/Jump.
 Non-claims: no new receipt, projection filter, callee effect inference or aggregate R7 closure.
-Reason: current emitter records a disconnected ReturnFault in this exact case;
+Reason: pre-repair emitter recorded a disconnected ReturnFault in this exact case;
 DCE removes it and projection correctly rejects the residual recorded node.
 Acceptance: unchanged Plain publication test off/on; existing Home cleanup
 missing-binding mutation and Call normal/fault path tests; source terminal/G0
-retention, existing corridor guard and module/reference update. Not implemented yet.
+retention, existing corridor guard and module/reference update. Call recovery
+checkpoint `ad5730b48d` is pushed; this separate repair resolves its Plain debt.
+Evidence: jobs1 quick build14m44s, warnings523 unchanged. Admission3 (Plain
+off/on plus no-orphan assertion, terminal four modes and foreign/Birth rejects),
+cohort18 (Call normal/fault included), Home missing-binding mutation1 and loan4
+pass. Source-called G0 EXE3 passes in2.27s, one executed/no skip; corridor/census/G0/pointer/diff guards green.
 T0 evidence for deletion at `537e5e20fe` is corrected in CURRENT_STATE, R0/I1
 and the contract README; selection provenance stays missing, not backdated.
 llc policy, typed errors and caller-zero ambient helper remain separate follow-ups.

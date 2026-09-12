@@ -298,7 +298,6 @@ fn emit_root_home_exit_payload(
     let frame = state.borrow_fault_frame(builder)?;
     let mut bindings = Vec::new();
     let mut clean = builder.next_block_id();
-    let mut fault = builder.next_block_id();
     append_block(
         builder,
         clean,
@@ -307,59 +306,64 @@ fn emit_root_home_exit_payload(
         },
         &mut bindings,
     )?;
-    append_block(
-        builder,
-        fault,
-        MirInstruction::ReturnFault { fault_frame: frame },
-        &mut bindings,
-    )?;
     let count = operations.len();
     let mut origins = Vec::with_capacity(count);
-    for (index, origin) in operations.into_iter().rev().enumerate() {
-        let operation = origin.operation().clone();
-        // A clean call's Fault skips its own retry and joins the remaining
-        // fault-pending suffix. Later Normal outcomes cannot clear that Fault.
-        let next_clean = cleanup_step(
+    // Empty-Home Plain has no Fault edge. Do not issue a disconnected terminal
+    // that finishing would remove while its recorded binding stayed live.
+    if !operations.is_empty() || call.is_some() {
+        let mut fault = builder.next_block_id();
+        append_block(
             builder,
-            frame,
-            operation.clone(),
-            clean,
             fault,
+            MirInstruction::ReturnFault { fault_frame: frame },
             &mut bindings,
         )?;
-        let (block, instruction) = bindings
-            .last()
-            .cloned()
-            .ok_or_else(|| freeze("root-home-release-binding-missing"))?;
-        origins.push((origin, block, instruction));
-        if call.is_some() || index + 1 < count {
-            fault = cleanup_step(builder, frame, operation, fault, fault, &mut bindings)?;
+        for (index, origin) in operations.into_iter().rev().enumerate() {
+            let operation = origin.operation().clone();
+            // A clean call's Fault skips its own retry and joins the remaining
+            // fault-pending suffix. Later Normal outcomes cannot clear that Fault.
+            let next_clean = cleanup_step(
+                builder,
+                frame,
+                operation.clone(),
+                clean,
+                fault,
+                &mut bindings,
+            )?;
+            let (block, instruction) = bindings
+                .last()
+                .cloned()
+                .ok_or_else(|| freeze("root-home-release-binding-missing"))?;
+            origins.push((origin, block, instruction));
+            if call.is_some() || index + 1 < count {
+                fault = cleanup_step(builder, frame, operation, fault, fault, &mut bindings)?;
+            }
+            clean = next_clean;
         }
-        clean = next_clean;
-    }
-    origins.reverse();
-    if let Some(call) = call {
-        let (invoke, projection) = terminal_call::emit_ingress(
-            builder,
-            frame,
-            statement_result,
-            clean,
-            fault,
-            call.call,
-            &mut bindings,
-        )?;
-        let frame_binding = fault_frame_binding(builder, state, frame)?;
-        ledger.record_root_call_exit(
-            owner,
-            call.row,
-            call.arguments,
-            invoke,
-            projection,
-            frame_binding,
-            origins,
-            bindings,
-        )?;
-        return Ok(statement_result);
+        origins.reverse();
+        if let Some(call) = call {
+            let (invoke, projection) = terminal_call::emit_ingress(
+                builder,
+                frame,
+                statement_result,
+                clean,
+                fault,
+                call.call,
+                &mut bindings,
+            )?;
+            let frame_binding = fault_frame_binding(builder, state, frame)?;
+            ledger.record_root_call_exit(
+                owner,
+                call.row,
+                call.arguments,
+                invoke,
+                projection,
+                frame_binding,
+                origins,
+                bindings,
+            )?;
+            return Ok(statement_result);
+        }
     }
     let origin = builder
         .function_state

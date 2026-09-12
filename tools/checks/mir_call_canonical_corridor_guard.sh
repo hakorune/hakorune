@@ -132,6 +132,8 @@ require "$ROOT_DIR/src/mir/normal_callable_semantic_package/direct_call_lifecycl
 require "$ROOT_DIR/src/mir/normal_callable_semantic_package/direct_call_lifecycle_tests.rs" "non_map_local_call_with_prior_home_rejects_instead_of_scalar_fallback"
 require "$ROOT_DIR/src/mir/compiler/normal_default_pipeline/lifecycle_admission_tests.rs" "scalar_local_then_terminal_call_reaches_published_lifecycle"
 require "$ROOT_DIR/src/mir/compiler/normal_default_pipeline/lifecycle_admission_tests.rs" "scalar_local_then_plain_return_preserves_ordinary_call_through_publication"
+require "$ROOT_DIR/src/mir/builder/ordinary_new_admission/selected.rs" "if !operations.is_empty() || call.is_some()"
+require "$ROOT_DIR/src/mir/compiler/normal_default_pipeline/lifecycle_admission_tests.rs" "empty-Home Plain must not publish an orphan Fault terminal"
 require "$ORDINARY_NEW_COSEAL" "issue_ordinary_source_cohort_v1"
 require "$ORDINARY_NEW_COSEAL" "OrdinaryNewClaimLedgerV1"
 require "$ORDINARY_NEW_COSEAL" "SourcePathSegmentV1::Initializer"

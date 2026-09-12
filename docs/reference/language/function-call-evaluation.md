@@ -38,6 +38,9 @@ destination and cleanup stay with their original owners; lowering records the
 local Invoke binding required by its terminal Call exit instead of silently
 emitting an unrecorded Scalar Call. Without a terminal Call, the existing Plain
 consumer retains the ordinary Scalar Call and its source observation.
+An empty-Home Plain exit has no cleanup Fault successor to issue; its physical
+emitter preserves the clean exit without an orphan Fault terminal. Home cleanup
+and terminal Call Fault paths remain required, with exact finishing validation.
 This compiler connection requires no prior live Homes and changes no source
 call syntax or callee effect contract. Terminal-only and Map-specific admission
 retain their existing respective consumers.

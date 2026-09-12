@@ -444,6 +444,10 @@ and releases Homes in reverse acquisition order. A cleanup Fault switches to the
 fault-pending suffix; later successful releases cannot restore Normal Return.
 Returned Homes, arbitrary suffixes and other Completion forms are not admitted
 by this cleanup relation.
+For Plain exit with no source-issued Home releases, the existing emitter keeps
+the clean Return/Jump and frame ownership but creates no unused Fault terminal.
+Home releases or terminal Call ingress still require their Fault path. Finishing
+does not discard unmapped recorded bindings to repair an emission mistake.
 
 RootHomeExitProgress retains installed bindings, exact exit site, object ID and
 bound ValueId through emission. The existing ledger indexes this progress by
