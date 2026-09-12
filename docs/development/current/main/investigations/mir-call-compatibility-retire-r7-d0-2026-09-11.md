@@ -544,7 +544,7 @@ caller/terminal evidence that prevents a profile-only cutover.
 | Rust codegen ingress | `compat_codegen_receiver.rs:52,96` -> `route.rs:179,186` -> `provider_keep.rs:95,127`; ordinary Boundary and named harness both end at the existing provider/object terminal | backend extern dispatch, loader-cold, hostbridge, global/externals; the same llvmlite provider is also selected by ambient keep | retain shared provider; no provider delete-set until the named harness and ambient keep have separate owners or one explicit shared contract |
 | C compile and AOT compile | `hako_llvmc_ffi_route.inc:440,459,488`; `hako_aot_shared_impl.inc:585,601`; generic, pure-first, and named harness terminals remain distinct | AOT dlsym at `hako_aot_shared_impl.inc:413,434`, public C callers, and direct harness callers | retain all public symbols and the AOT FFI split; delete no compile export while dlsym/public callers remain reachable |
 | AOT link | `hako_aot_shared_impl.inc:725-768` dispatches compatibility v1 and explicit v2 into the existing link body | `hako_llvmc_ffi_route.inc:357,372`, public `hako_aot_link_obj`, public `hako_aot_link_obj_v2`, and FFI dlsym re-entry | retain v1/v2 ABI and shared dispatch; no wrapper/body deletion until archive authority and `HAKO_AOT_USE_FFI` callers are co-sealed |
-| ambient physical selectors | C common/AOT readers (`hako_llvmc_ffi_common.inc:65,112`, `hako_aot_shared_impl.inc:119,529`) plus the retained Rust compatibility transport (`capi_transport.rs:282-340`) | generic compatibility, AOT, subprocess/tool selection, and legacy external entry points | delete only caller-specific reads/temporary mutation after explicit invocation state reaches every caller; link-only env and public compatibility remain retained |
+| ambient physical selectors | C common/AOT readers (`hako_llvmc_ffi_common.inc:65,112`, `hako_aot_shared_impl.inc:119,529`); the Rust compatibility transport was retired at `7350421205` | generic compatibility, AOT, subprocess/tool selection, and legacy external entry points | delete only caller-specific reads/temporary mutation after explicit invocation state reaches every remaining caller; link-only env and public compatibility remain retained |
 
 The matrix's six-line decision is:
 
@@ -639,6 +639,20 @@ It uses the existing CI `apt.llvm.org` recipe and keeps LLVM14 side-by-side.
 
 This closes only the Rust caller-zero transport row. The remaining C/AOT,
 public, harness, provider, and aggregate R7 rows remain open by design.
+
+### Post-Rust-I0 owner consultation (2026-09-12)
+
+The read-only follow-up audit rechecked the remaining production callers after
+the Rust transport closeout. It found no new standalone owner: C/AOT compile
+and public dlsym callers share public compatibility surfaces, while explicit
+harness and llvmlite/provider callers share retained provider/entry behavior.
+Their exclusive delete-sets are empty under the current physical contract.
+
+Decision remains `NoSafeSlice__NoRemainingUnsharedM7SOwner`; keep
+`work_mode = design_stop`. The next design slice must co-seal one remaining
+owner, terminal, retained callers, exact delete-set, and pre-effect rejection
+for contract/replay/tool/symbol/input errors before any new implementation.
+This audit did not edit code, add fixtures, add receipts, or run Cargo.
 
 ### LLVM18 environment follow-up (queued 2026-09-12)
 
