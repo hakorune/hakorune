@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "design_stop: resolve the public C Generic environment-capture compatibility matrix and caller-specific delete-set after AOT Generic profile 0 cutover; LLVM18 remains externally sudo-blocked."
+guard_followup = "design_stop: co-seal shared invocation-owned compatibility admission and a caller-specific delete-set after AOT Generic profile 0 cutover; LLVM18 remains externally sudo-blocked."
 current_design_stop = "open__MIR-CALL-COMPATIBILITY-RETIRE-R7-D0__2026-09-12"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -52,7 +52,7 @@ helper lanes, and helper Compare/Add body operations. The static EXE witness
 uses the same selected view but was skipped because LLVM18 is unavailable;
 runtime success is unclaimed. Selected first-family cutovers reuse one snapshot;
 obsolete Loop expected-location/PreheaderSeed handling is queued for T0 cleanup.
-Whole-MIRBuilder completion, backend parity, and runtime execution unclaimed; Rust non-explicit CAPI I0 and AOT Generic options I0 are closed; public C is Stop/retain pending its environment matrix, while named compatibility and explicit llvmlite remain.
+Whole-MIRBuilder completion, backend parity, and runtime execution unclaimed; Rust non-explicit CAPI I0 and AOT Generic options I0 are closed; public C is Stop/retain, and the remaining shared compatibility owners have no safe exclusive delete-set.
 LLVM18 installation is blocked on external sudo permission; the host has
 LLVM14 only, so LLVM18 object/EXE evidence remains open.
 """

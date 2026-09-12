@@ -927,3 +927,46 @@ consumers, and environment mismatch without editing, Cargo, fixture, or receipt
 creation. This finding supersedes the earlier broad remaining C/public
 candidate wording only for this public Generic ingress; it does not reopen the
 closed AOT Generic slice.
+
+### Residual R7 owner selection audit (design stop 2026-09-12)
+
+Locke independently rechecked the remaining non-public-Generic candidates
+after the AOT Generic closeout and public Generic disposition. No
+source-visible production owner with a non-empty exclusive delete-set remains
+inside the active Call/R7 boundary.
+
+| issuer / owner | terminal | caller classification | disposition |
+| --- | --- | --- | --- |
+| recipe-aware public pure-first C export | ambient replay reject or existing pure compile result | public ABI; repository direct uses are test-only | retain export and shared lowering; delete-set empty |
+| named C harness and named AOT harness | tool/child/object terminal | AOT dlsym re-entry plus public/test callers | retain export, dlsym, and child; delete-set empty |
+| ExplicitHarnessCompat -> llvmlite provider | provider shape/status/object terminal | hostbridge, loader-cold, Stage1, and ambient keep callers share provider | retain provider/script; delete-set empty |
+| legacy CAPI TargetMachine probe | optional probe, then existing opt/llc path | shared by Generic, pure-first, AOT/Static V2 and direct core tests | retain explicit HAKO_CAPI_TM compat-probe keep; shared fail-fast design is unresolved |
+| link v1/v2 and AOT link dlsym | existing link validation/failure/executable terminals | multiple production callers and public ABI | retain link body, public ABI, and dlsym; delete-set empty |
+
+Census boundary: the remaining Call/R7 compatibility entrypoints from the
+public C/AOT/harness/provider/link ingress through their existing terminal
+errors or artifact publication; includes source-visible production callers,
+public re-entry, test-only direct core users, and the explicit HAKO_CAPI_TM
+keep; excludes caller-zero helper cleanup outside Call/R7, LLVM18 installation,
+and unselected backend parity.
+
+The exact shared gap is an invocation-owned compatibility admission that can
+be consumed by the retained Generic/pure-first, harness, AOT, and ambient
+selector callers without inventing a second semantic authority. The current
+options contract cannot be widened by profile alone: public Generic preserves
+ambient tool fallback and unknown-replay behavior, while the legacy
+TargetMachine probe is explicitly retained by the existing task SSOT. Therefore
+the correct state remains
+NoSafeSlice__NoRemainingUnsharedM7SOwner; no code, fixture, route switch,
+fallback, or new receipt is authorized.
+
+Smallest next slice: co-seal the shared invocation-owned compatibility
+admission's issuer, field-by-field terminal matrix, retained public/external
+callers, and a real caller-specific delete-set. Until that design exists,
+next_execution_card = none__R7NextOwner__DesignStop is intentional and the
+goal remains active rather than claiming R7 or MIRBuilder completion.
+
+Design evidence: Locke's audit was read-only and ran no Cargo, fixture, or
+receipt-producing test. The direct HAKO_CAPI_TM source check also found the
+existing task-pack contract that marks it as an explicit bypass/compat-probe
+keep, so it is not silently reclassified as dead code.
