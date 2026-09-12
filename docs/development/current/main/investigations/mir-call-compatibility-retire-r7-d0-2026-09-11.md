@@ -348,6 +348,34 @@ one owner/terminal/delete-set co-seal: until a row names a non-empty
 caller-specific delete-set, remain `NoSafeSlice__NoRemainingUnsharedM7SOwner`
 and keep `next_execution_card = none__R7NextOwner__DesignStop`.
 
+### AOT direct-harness environment premise audit (read-only, 2026-09-12)
+
+The exact-source check found a caller-specific old edge, but not yet a safe
+deletion. `hako_aot_ensure_default_opt_env` is called only by
+`hako_aot_compile_json_direct_harness` (`hako_aot_generic_ffi_compile.inc:8-15`,
+`hako_aot_shared_impl.inc:517-544`), which launches the named child through
+`system()` (`hako_aot_shared_impl.inc:139-156`). The child contract is not a
+no-op: Rust `harness_driver::propagate_opt_level` gives `NYASH` precedence
+(`harness_driver.rs:50-62`), while the Python harness defaults to O2 when both
+values are absent (`src/llvm_py/build_opts.py:19-40`). The current helper
+therefore changes both the child input and the parent process state.
+
+| parent environment | current child selection | unresolved design obligation |
+| --- | --- | --- |
+| both unset | helper injects HAKO=0 and NYASH=0; child emits O0 | pass the same O0 to the child without parent mutation |
+| HAKO only | helper adds NYASH=0; child selects O0 | preserve observed alias precedence or settle a new policy |
+| NYASH only | helper adds HAKO=0; child selects NYASH | preserve empty-value behavior as well as nonempty values |
+| both present | child selects NYASH, including its empty-value case | define conflict/empty handling before shell/process transport |
+
+Decision: keep the R7 design stop. The non-empty delete-set is the helper and
+its two parent `setenv` calls, but implementation requires one child-only
+environment admission (including POSIX/Windows execution, pre-effect command
+failure, nested invocation, and no parent-state mutation) plus an accepted
+unset/empty/present policy. A helper deletion alone is not behavior-neutral;
+the current AOT named-harness and child settings remain retained. The worker
+consultation for this premise was `pending/cancelled` after the available
+wait budget and produced no conclusion; that is not rejection evidence.
+
 The canonical issuer is the existing physical request at each explicit entry;
 the shared adapter may normalize its transport fields once, but it must not
 issue a new MIR or Recipe product. C-side `HakoLlvmcInvocation` remains the
