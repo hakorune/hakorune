@@ -1,5 +1,5 @@
 ---
-Status: selected__Fast__R7TypedDiagnostics__2026-09-12
+Status: closed__Fast__R7TypedDiagnostics__2026-09-12
 Task: MIR-CALL-COMPATIBILITY-RETIRE-R7-TYPED-DIAGNOSTICS-I0
 Date: 2026-09-12
 Parent: mir-call-compatibility-retire-r7-typed-diagnostics-d0-2026-09-12.md
@@ -49,3 +49,25 @@ No semantic `Verified*`/`Prepared*` receipt, fallback, string parser, broad
 This card does not close the pending `FunctionDraftSealErrorV1` bridge or
 whole R7. The next design slice must decide the owned pending error boundary
 and its session-restoration tests.
+
+## I0 closeout evidence
+
+The production DirectAccum and Nested Predicate cutovers now retain typed
+family, stage, and inner owner errors through
+`CanonicalLoweringErrorV1::ResolvedCutover`. The existing preflight-before-
+builder behavior and late unpublished-candidate discard remain unchanged.
+The source-bound positive paths pass; the DirectAccum hardening suite passes
+2 tests and the Nested Predicate profile suite passes 7 tests, including
+family/stage/payload matching for the late-discard seam.
+
+The reusable typed-diagnostics guard passes, `git diff --check` passes, and
+all changed Rust sources remain below 800 lines (maximum 451). The main
+plugin `cargo check` passes with jobs=1; its 1806 warnings and the test
+target's 533 warnings (265 duplicates) remain the tracked warning-baseline
+follow-up, not a suppression target for this slice. Individual rustfmt checks
+for all changed Rust files pass; the repository-wide format check still
+reports pre-existing unrelated formatting drift and is classified outside
+this change.
+
+The pending `FunctionDraftSeal` Debug-string bridge, unrelated
+`backend_codegen_request_defaults`, and whole R7 completion remain open.
