@@ -202,6 +202,8 @@ ROW_ABSENCE_EVIDENCE = {
         ("src/host_providers/llvm_codegen.rs", "LegacyAmbientKeep"),
         ("src/host_providers/llvm_codegen/route.rs", "LegacyAmbientKeep"),
         ("src/host_providers/llvm_codegen/capi_transport.rs", "compile_symbol"),
+        ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "compile_json_via_pure_first_lane"),
+        ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "compile_json_compat_pure("),
         ("src/host_providers/llvm_codegen/provider_keep.rs", "mir_json_to_object_ny_llvmc"),
         ("src/host_providers/llvm_codegen/capi_transport.rs", 'std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE"'),
         ("crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs", "CompileFn"),
@@ -312,6 +314,9 @@ def main() -> int:
     need("lang/c-abi/shims/hako_aot_generic_ffi_compile.inc", "HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT", "generic AOT profile")
     need("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_compile_json_compat_harness", "named AOT keep")
     need("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "hako_llvmc_compile_json_compat_harness", "named C FFI keep")
+    need("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "compile_json_public_generic_options", "public Generic options bridge")
+    need("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT", "public Generic profile-0 bridge")
+    need("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "hako_llvmc_generic_compat_opt_level", "public Generic opt-level compatibility capture")
     need("src/host_providers/llvm_codegen/provider_keep.rs", "mir_json_to_object_llvmlite", "provider keep owner")
     need("crates/nyash-llvm-compiler/src/harness_driver.rs", 'Command::new("python3")', "explicit harness child")
     need("tools/ny_mir_builder.sh", "NYASH_LLVM_BACKEND=llvmlite", "explicit tool keep")

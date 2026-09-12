@@ -73,10 +73,15 @@ Physical definition plan
   Synthetic physical cases do not establish source-family admission.
 
 Pure-first invocation ownership
-- `compile_json_compat_pure` transfers its parsed document into the private
-  `HakoLlvmcInvocation`, alongside captured config, Named outcomes, program view
-  and definition plan. The wrapper and direct-core config test initialize it at
-  its final address; do not copy it because outcomes borrows its config.
+- The public `hako_llvmc_compile_json` compatibility ABI captures its effective
+  Generic profile-0 physical options through the existing versioned options
+  entry, then transfers its parsed document into the private
+  `HakoLlvmcInvocation`. The adapter preserves the legacy recipe/alias/replay
+  admission, tool fallback, first-character opt-level behavior, and effective
+  llc flags; it does not create a second semantic authority.
+- The selected `hako_llvmc_compile_json_pure_first` entry continues to use the
+  Boundary profile helper. Both entries initialize the invocation at its final
+  address; do not copy it because outcomes borrows its config.
   Core borrows these products, without independent program/plan/config copies.
   Program and plan readers stay at their original positions; mutable function
   cursors remain local. No readiness or public query state is implied.
@@ -98,8 +103,10 @@ Pure-first ingress profiles
   parsed `functions[*].blocks[*].instructions[*].op` fields; it does not scan
   raw JSON text or metadata/nested values containing `call`.
 - The public `hako_llvmc_compile_json` export remains the generic compatibility
-  profile. It retains the existing legacy reader and terminal for external
-  callers; this is not a selected-product caller-zero or retirement claim.
+  ABI and now reaches the existing invocation-owned options owner through a
+  private profile-0 adapter. The external symbol, legacy compatibility
+  terminal, and explicit `HAKO_CAPI_TM` probe remain retained; this is not a
+  public ABI or shared-core retirement claim.
 - The focused physical proof is part of
   `tests/published_rows_preartifact_test.c`. After the selected C build,
   compile/run it with the yyjson implementation. The proof covers a strict

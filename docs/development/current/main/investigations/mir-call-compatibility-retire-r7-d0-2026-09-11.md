@@ -909,18 +909,12 @@ V2 owner, and provider/llvmlite execution.
 | Boundary 1 / Static 2 / Explicit Harness 3 | existing strict, Static V2, or reject terminals | retain separate physical owners | no profile coercion |
 | public link v1/v2 and AOT link dlsym | existing link terminals | retain; outside compile row | none |
 
-The public route's exact current chain is
-hako_llvmc_compile_json -> recipe/alias/replay admission ->
-compile_json_via_pure_first_lane -> compile_json_compat_pure(profile=0) ->
-compile_doc_compat_pure. The apparent delete candidates
-compile_json_via_pure_first_lane and its call edge are not a safe production
-delete-set: the public symbol cannot reach caller-zero from repository evidence,
-and the shared core remains consumed by options and Static V2/test lifetimes.
-The next design slice must resolve, in one table, whether each unset/empty/
-present value is preserved, captured, rejected, or mapped to an existing
-terminal, including unknown replay and tool-resolution failure. Until that
-table and a non-empty caller-specific delete-set exist, keep
-work_mode = design_stop and retain all public C/AOT/harness/link surfaces.
+The preceding paragraph records the pre-bridge design-stop baseline. The
+accepted design below supersedes its old route description: the public symbol
+now performs the same admission and then enters the existing Generic profile-0
+options owner. The private `compile_json_compat_pure` wrapper and its route
+edge were retired in that bounded slice; the public ABI, shared core, and
+neighboring compatibility owners remain retained.
 
 Design evidence: Erdos independently audited the public C route, shared-core
 consumers, and environment mismatch without editing, Cargo, fixture, or receipt
@@ -970,3 +964,90 @@ Design evidence: Locke's audit was read-only and ran no Cargo, fixture, or
 receipt-producing test. The direct HAKO_CAPI_TM source check also found the
 existing task-pack contract that marks it as an explicit bypass/compat-probe
 keep, so it is not silently reclassified as dead code.
+
+### Public C Generic options bridge (design accepted 2026-09-12)
+
+The second read-only audit conditionally approved a bounded bridge for the
+public three-argument Generic C export. The condition is recorded here: the
+bridge must preserve the legacy first-character interpretation of the opt
+level, and the private delete-set must land in the same slice.
+
+```text
+Decision: retain the public Generic ABI and route its private body through the existing invocation-owned options entry.
+Source authority + canonical issuer: public C alias/recipe/replay admission plus existing resolver helpers; the adapter issues no new semantic product.
+Non-authority: profile labels, ambient values after capture, HAKO_CAPI_TM, named harness, AOT/link exports, and tests.
+Fail-fast boundary: alias -> pure-first recipe -> replay=harness reject -> effective compatibility capture -> existing options copy -> JSON/lowering/artifact terminal.
+Smallest next slice: replace the private Generic call with profile-0 options, delete the caller-zero Generic wrapper, and add public-ABI compatibility smoke/guards.
+Non-claims: no public ABI retirement, no legacy CAPI probe removal, no process-global concurrency guarantee, no LLVM18 evidence, and no R7/MIRBuilder completion.
+```
+
+Finite compatibility matrix:
+
+| issuer / input | terminal | disposition | pre-effect obligation |
+| --- | --- | --- | --- |
+| public Generic, alias unset | existing alias admission | retain reject | check `HAKO_CAPI_PURE` before contract construction |
+| recipe unset/non-`pure-first` | `generic-capi-recipe-required` | retain reject | perform the existing recipe gate first |
+| replay exactly `harness` | `generic-capi-compat-admission-required` | retain reject | do not enter JSON/lowering or named replay implicitly |
+| replay unset/empty/unknown | existing no-replay Generic terminal | capture `none` | only exact `harness` is an ambient replay admission today |
+| opt level with first byte `0..3` | existing mem2reg/O0..O3 behavior | capture one-character value | preserve legacy first-character semantics (`1x` remains `1`) |
+| opt level with another first byte | existing effective O0/mem2reg behavior | capture `0` | pass only a contract-valid one-character level |
+| configured tool exists | existing opt/llc terminal | capture resolved path | use `hako_llvmc_resolve_tool`, preserving invalid-configured-path fallback |
+| configured tool missing, default tool absent | existing missing-tool terminal | retain null resolution | options copy, then lowering, must reject before child/artifact |
+| llc flags unset/empty | existing `-O3 -mcpu=native` behavior | capture effective default | never pass explicit NULL and accidentally erase the default |
+| `HAKO_CAPI_TM=1` | retained legacy probe/fallback terminal | retain explicit compat probe | no new TargetMachine or probe authority is introduced |
+| pure-first export, named harness, AOT, Static V2, Boundary, link | existing neighboring terminal | retain | no profile coercion or cross-lane re-entry |
+
+The exact issuer/terminal ownership is:
+
+| issuer | terminal | retain / delete |
+| --- | --- | --- |
+| public `hako_llvmc_compile_json` -> Generic profile-0 options -> `compile_doc_compat_pure` | admission, options copy, JSON/lowering, legacy probe or opt/llc, object/error | retain public ABI, admission, options owner, and shared core; delete private `compile_json_compat_pure` and its route prototype/call edge |
+| public `hako_llvmc_compile_json_pure_first` -> Boundary profile | existing pure-first object/error | retain all existing Boundary/profile helpers |
+| named C/AOT harness, provider, Static V2, link | existing named/Static/link terminals | retain; outside this delete-set |
+
+The adapter is synchronous and invocation-local after the existing options
+copy. It does not mutate the environment and does not claim isolation from
+another thread changing process-global environment variables. The existing
+`HAKO_CAPI_TM` probe remains a deliberate shared compatibility keep, so it is
+not part of this retirement slice.
+
+Design evidence: Erdos returned a conditional approval after checking the
+include order, options-copy pre-effect boundary, unknown replay behavior,
+tool fallback, legacy probe, neighboring callers, and the private caller
+graph. No files, Cargo, fixtures, or receipts were changed by the audit.
+
+### MIR-CALL-PUBLIC-C-GENERIC-OPTIONS-I0 closeout (2026-09-12)
+
+The bounded implementation is complete. The public
+`hako_llvmc_compile_json` symbol keeps its three-argument ABI and existing
+alias, recipe, and exact-`harness` replay admission. After admission it now
+builds the existing Generic profile-0 physical contract and enters
+`compile_json_with_options_profile`; no new ABI, receipt, semantic layer, or
+fallback was added. The old private `compile_json_compat_pure` wrapper,
+prototype, and call edge are deleted. `compile_json_compat_pure_profile`
+remains for the selected Boundary profile, and `compile_doc_compat_pure`, the
+legacy `HAKO_CAPI_TM` probe, named harness, AOT, Static V2, and link owners are
+retained.
+
+Observed acceptance:
+
+- `bash tools/build_hako_llvmc_ffi.sh`: passed;
+- `llvm_compile_options_contract_smoke.sh`: passed; public Generic reached
+  profile-0 options with unknown replay, valid fake tools, effective flags,
+  and legacy first-character opt-level behavior (`2legacy-suffix`), while
+  recipe/replay/alias rejects produced no artifact;
+- `llvm_codegen_route_identity_guard.sh`,
+  `llvm_llvmlite_production_census_guard.py`,
+  `mir_call_static_v2_open_contract_guard.sh`,
+  `current_state_pointer_guard.sh`,
+  `mir_r7_legacy_census_manifest.py`, and `git diff --check` are the required
+  closeout gates for this row;
+- the document-lifetime and named-query C drivers compile with ASan and the
+  updated public Generic call. Their LLVM14 runtime witness remains a known
+  baseline failure because LLVM14 rejects opaque-pointer IR; LLVM18 object or
+  EXE success is not claimed. Installation remains blocked by external sudo
+  permission as recorded in the LLVM18 installation task.
+
+This closes only `MIR-CALL-PUBLIC-C-GENERIC-OPTIONS-I0`. Public ABI,
+`HAKO_CAPI_TM`, named compatibility/provider, Static V2, link, backend parity,
+aggregate R7, and whole-MIRBuilder completion remain unclaimed.

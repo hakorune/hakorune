@@ -145,6 +145,17 @@ need_fixed "$CAPI_ROUTE" 'hako_llvmc_require_pure_first_recipe' \
   "generic C recipe gate missing"
 need_fixed "$CAPI_ROUTE" 'generic-capi-recipe-required' \
   "generic C recipe failure missing"
+need_fixed "$CAPI_ROUTE" 'compile_json_public_generic_options' \
+  "public Generic options bridge missing"
+need_fixed "$CAPI_ROUTE" 'HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT' \
+  "public Generic profile-0 bridge missing"
+need_fixed "$CAPI_ROUTE" 'hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18")' \
+  "public Generic opt-tool capture missing"
+need_fixed "$CAPI_ROUTE" 'hako_llvmc_llc_flags()' \
+  "public Generic llc-flag capture missing"
+if rg -n 'compile_json_via_pure_first_lane|compile_json_compat_pure\(' "$CAPI_ROUTE"; then
+  fail "public Generic route still has the retired private wrapper"
+fi
 if rg -Fq -- 'compile_json_via_default_forwarder' "$CAPI_ROUTE"; then
   fail "generic C export still forwards recipe-unset input to hako_aot"
 fi

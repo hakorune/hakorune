@@ -15,7 +15,7 @@
     "loop_phi_loc": 1009
   },
   "kind": "MirR7LegacyCensusManifestV1",
-  "observed_commit": "dec49b59e00edac7446ac9f51231eb2f16e49cfb",
+  "observed_commit": "a13684cfe92b6a0bf1785e547543d295f9a9752d",
   "rows": [
     {
       "disposition": "production lexical surface",
@@ -4687,7 +4687,7 @@
       "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
       "role": "environment_route",
       "selected_corridor": false,
-      "source_sha256": "bbf42a77ffc41c527b99dec60ff35a6327a0c06cb62054d2dc6e2b264e2d9ae9",
+      "source_sha256": "a80a5328b2095cf290a55e78e3a4a9ff832234b2c25ecfeff07d56a4a7969a86",
       "symbol": "hako_llvmc_forward_link_to_aot_without_ffi",
       "token": "compile-env save/set/restore"
     },
@@ -4706,7 +4706,7 @@
       "retire_when": "replace only after invocation-owned settings preserve route and restoration semantics",
       "role": "environment_route",
       "selected_corridor": false,
-      "source_sha256": "bbf42a77ffc41c527b99dec60ff35a6327a0c06cb62054d2dc6e2b264e2d9ae9",
+      "source_sha256": "a80a5328b2095cf290a55e78e3a4a9ff832234b2c25ecfeff07d56a4a7969a86",
       "symbol": "hako_llvmc_forward_link_to_aot_v2_without_ffi",
       "token": "compile-env save/set/restore"
     },

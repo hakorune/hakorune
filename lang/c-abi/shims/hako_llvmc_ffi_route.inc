@@ -392,8 +392,12 @@ static int forward_link_obj_to_aot_v2(
       obj_in, exe_out, runtime_archive_path, extra_ldflags, err_out);
 }
 
-static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);
 static int compile_json_pure_first_selected(const char* json_in, const char* obj_out, char** err_out);
+static int compile_json_with_options_profile(
+    const char* json_in,
+    const char* obj_out,
+    const hako_llvmc_physical_contract_v1* contract,
+    char** err_out);
 struct HakoLlvmcInvocation;
 static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
     const char* json_in, const char* obj_out, char** err_out);
@@ -406,11 +410,32 @@ static int compile_json_via_explicit_compat_harness_replay(
   return compile_json_compat_harness_keep(json_in, obj_out, err_out);
 }
 
-static int compile_json_via_pure_first_lane(
+static const char* hako_llvmc_generic_compat_opt_level(void) {
+  const char* level = hako_llvmc_opt_level();
+  if (level && level[0] == '1') return "1";
+  if (level && level[0] == '2') return "2";
+  if (level && level[0] == '3') return "3";
+  return "0";
+}
+
+static int compile_json_public_generic_options(
     const char* json_in,
     const char* obj_out,
     char** err_out) {
-  return compile_json_compat_pure(json_in, obj_out, err_out);
+  const hako_llvmc_physical_contract_v1 contract = {
+      HAKO_LLVMC_PHYSICAL_CONTRACT_REVISION,
+      sizeof(hako_llvmc_physical_contract_v1),
+      HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT,
+      0,
+      "pure-first",
+      "none",
+      hako_llvmc_generic_compat_opt_level(),
+      hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18"),
+      hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc", "llc-18"),
+      hako_llvmc_llc_flags(),
+      NULL,
+  };
+  return compile_json_with_options_profile(json_in, obj_out, &contract, err_out);
 }
 
 static int hako_llvmc_require_pure_first_recipe(char** err_out) {
@@ -450,7 +475,7 @@ int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err
   if (hako_llvmc_reject_ambient_harness_replay(err_out) != 0) {
     return -1;
   }
-  return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
+  return compile_json_public_generic_options(json_in, obj_out, err_out);
 }
 
 // Recipe-aware daily callers use this explicit pure-first transport entry so

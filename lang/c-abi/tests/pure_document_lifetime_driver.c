@@ -64,11 +64,11 @@ int main(int argc, char** argv) {
   char* error = NULL;
   int rc;
   if (!strcmp(argv[3], "generic")) {
-    rc = compile_json_compat_pure(argv[1], argv[2], &error);
+    rc = hako_llvmc_compile_json(argv[1], argv[2], &error);
   } else if (!strcmp(argv[3], "selected-empty-v2")) {
     /* Call-activity dependency only; this is not a complete V2 frame entry. */
     assert(hako_llvmc_published_call_rows_begin_v2(NULL, 0, &error) == 0);
-    rc = compile_json_compat_pure(argv[1], argv[2], &error);
+    rc = hako_llvmc_compile_json(argv[1], argv[2], &error);
     if (rc == 0) rc = hako_llvmc_published_static_method_rows_finish(&error);
     hako_llvmc_published_static_method_rows_end();
     assert(!hako_llvmc_published_call_rows_active());

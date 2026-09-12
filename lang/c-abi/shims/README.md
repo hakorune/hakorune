@@ -32,6 +32,12 @@ Static V2 carries the strict invocation profile: an instruction-level legacy
 keeps the compatibility profile for external callers; no generic caller-zero
 claim is made. The same profile check is used by the selected Boundary
 pure-first entry, and nested metadata strings are not scanned as instructions.
+The public three-argument Generic export retains its external compatibility
+ABI and admission order, but its private body captures the effective Generic
+profile-0 options through the existing options owner. Its adapter preserves
+tool fallback, legacy first-character opt-level behavior, effective llc flags,
+and the explicit `HAKO_CAPI_TM` compat probe; it does not promise process-wide
+environment isolation.
 
 ## AOT Generic physical options
 
@@ -442,7 +448,7 @@ Current partitions:
 - `hako_llvmc_ffi_route.inc`
   - harness keep replay, selected-route entry points, forwarders
 - `hako_llvmc_ffi_pure_compile.inc`
-  - `compile_json_compat_pure(...)`, generic walk orchestration, and the remaining exported link surface
+  - Generic/Boundary options-profile document ownership, generic walk orchestration, and the remaining exported link surface
   - now partitioned further into `hako_llvmc_ffi_pure_compile_generic_lowering.inc` and `hako_llvmc_ffi_pure_compile_minimal_paths.inc`
 - `hako_llvmc_ffi_pure_compile_generic_active_walk.inc`
   - lexical child for the generic active function's block/instruction walk;

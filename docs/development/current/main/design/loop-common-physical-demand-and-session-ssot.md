@@ -388,8 +388,8 @@ After the split lands, the next BoxCount stays on the existing selected route:
 
 ```text
 hako_llvmc_compile_json_pure_first
-  -> compile_json_via_pure_first_lane
-  -> compile_json_compat_pure
+  -> compile_json_pure_first_selected
+  -> compile_json_compat_pure_profile(Boundary)
   -> carrier-bound strict preflight
   -> generic lowering
   -> retained LLVM18 target-machine session

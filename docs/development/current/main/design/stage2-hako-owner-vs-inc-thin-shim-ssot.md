@@ -213,5 +213,5 @@ Note:
 - Do not add a third public ABI.
 - Do not force every `.inc` byte into `.hako` before the capability vocabulary is ready.
 - Do not mix this owner/shim cut with the perf-kilo hot-path lane.
-- Do not move `GET` window analyzers, `indexOf` observer analyzers, string producer/use/future-use analysis, or `compile_json_compat_pure(...)` orchestration into `.hako` in this wave.
+- Do not move `GET` window analyzers, `indexOf` observer analyzers, string producer/use/future-use analysis, or the C options-profile orchestration into `.hako` in this wave.
 - Do not use this doc as the replacement-progress ledger; substrate-era progress belongs to `kernel-replacement-axis-ssot.md`.

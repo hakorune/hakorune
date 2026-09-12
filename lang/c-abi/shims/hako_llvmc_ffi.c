@@ -8,8 +8,10 @@
 // Supported seeds still try the pure-first boundary subset here, and
 // unsupported shapes in that lane replay the explicit `--driver harness`
 // keep lane only when `HAKO_BACKEND_COMPAT_REPLAY=harness` is explicit.
-// The generic export requires `HAKO_BACKEND_COMPILE_RECIPE=pure-first`; the
-// recipe-aware pure-first export remains the direct production entry.
+// The generic export requires `HAKO_BACKEND_COMPILE_RECIPE=pure-first` and
+// captures its effective Generic profile-0 options through the existing
+// invocation-owned options entry; the recipe-aware pure-first export remains
+// the direct production entry for the Boundary profile.
 
 #include <stddef.h>
 #include <time.h>

@@ -574,16 +574,6 @@ static int compile_json_compat_pure_profile(
   return rc;
 }
 
-/* Historical generic C ABI remains the explicit compatibility owner. */
-static int compile_json_compat_pure(
-    const char* json_in, const char* obj_out, char** err_out) {
-  return compile_json_compat_pure_profile(
-      json_in,
-      obj_out,
-      err_out,
-      HAKO_LLVMC_INGRESS_GENERIC_COMPAT);
-}
-
 /* Selected Boundary callers receive the strict profile at the existing
  * recipe-aware export; no dispatcher or semantic product is duplicated. */
 static int compile_json_pure_first_selected(

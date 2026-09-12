@@ -39,6 +39,13 @@ compile_with_options.argtypes = [
     ctypes.POINTER(ctypes.c_void_p),
 ]
 compile_with_options.restype = ctypes.c_int
+compile_public = lib.hako_llvmc_compile_json
+compile_public.argtypes = [
+    ctypes.c_char_p,
+    ctypes.c_char_p,
+    ctypes.POINTER(ctypes.c_void_p),
+]
+compile_public.restype = ctypes.c_int
 hako_aot_compile = lib.hako_aot_compile_json
 hako_aot_compile.argtypes = [
     ctypes.c_char_p,
@@ -154,6 +161,70 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
         raise SystemExit(f"generic profile compile failed rc={rc}: {message}")
     if "-generic-contract-flag" not in llc_log.read_text():
         raise SystemExit("generic profile did not consume contract llc flags")
+
+    public_before = os.environ.copy()
+    os.environ.update({
+        "HAKO_BACKEND_COMPILE_RECIPE": "pure-first",
+        "HAKO_BACKEND_COMPAT_REPLAY": "unknown-replay",
+        "NYASH_LLVM_OPT_LEVEL": "2legacy-suffix",
+        "NYASH_NY_LLVM_OPT_TOOL": str(scripts["opt"]),
+        "NYASH_NY_LLVM_LLC_TOOL": str(scripts["llc"]),
+        "NYASH_NY_LLVM_LLC_FLAGS": "-public-effective-flag",
+    })
+    os.environ.pop("HAKO_CAPI_PURE", None)
+    public_expected = os.environ.copy()
+    public_out = temp / "public-generic.o"
+    error = ctypes.c_void_p()
+    rc = compile_public(
+        str(fixture).encode(), str(public_out).encode(), ctypes.byref(error)
+    )
+    message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+    if error.value:
+        lib.hako_mem_free(error)
+    public_after = os.environ.copy()
+    os.environ.clear()
+    os.environ.update(public_before)
+    if rc != 0 or not public_out.is_file():
+        raise SystemExit(f"public Generic options bridge failed rc={rc}: {message}")
+    if "default<O2>" not in opt_log.read_text():
+        raise SystemExit("public Generic bridge did not preserve opt first-character behavior")
+    if "-public-effective-flag" not in llc_log.read_text():
+        raise SystemExit("public Generic bridge did not capture effective llc flags")
+    if public_after != public_expected:
+        raise SystemExit("public Generic bridge changed ambient state")
+
+    def expect_public_reject(label, updates, needle):
+        before = os.environ.copy()
+        os.environ.pop("HAKO_CAPI_PURE", None)
+        os.environ.update(updates)
+        out = temp / ("public-" + label + ".o")
+        error = ctypes.c_void_p()
+        rc = compile_public(
+            str(fixture).encode(), str(out).encode(), ctypes.byref(error)
+        )
+        message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+        if error.value:
+            lib.hako_mem_free(error)
+        os.environ.clear()
+        os.environ.update(before)
+        if rc == 0 or out.exists() or needle not in message:
+            raise SystemExit(f"public {label} admission was not pre-effect: rc={rc} {message!r}")
+
+    expect_public_reject(
+        "recipe-reject",
+        {"HAKO_BACKEND_COMPILE_RECIPE": "ambient-wrong", "HAKO_BACKEND_COMPAT_REPLAY": "none"},
+        "generic-capi-recipe-required",
+    )
+    expect_public_reject(
+        "replay-reject",
+        {"HAKO_BACKEND_COMPILE_RECIPE": "pure-first", "HAKO_BACKEND_COMPAT_REPLAY": "harness"},
+        "generic-capi-compat-admission-required",
+    )
+    expect_public_reject(
+        "alias-reject",
+        {"HAKO_BACKEND_COMPILE_RECIPE": "pure-first", "HAKO_BACKEND_COMPAT_REPLAY": "none", "HAKO_CAPI_PURE": "1"},
+        "hako_capi_pure_retired",
+    )
 
     os.environ.update({
         "HAKO_AOT_USE_FFI": "1",
