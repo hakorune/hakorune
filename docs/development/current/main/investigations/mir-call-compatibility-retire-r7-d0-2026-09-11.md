@@ -401,6 +401,11 @@ the known named-direct compatibility red afterward because this host's Python
 has no `llvmlite`; that is baseline environment debt. Windows runtime proof is
 still pending on a Windows host, so I1 remains open until that command is run.
 
+Separate informational census red: `mir_r7_legacy_census_manifest.py` currently
+reports its pre-existing `capi_transport.rs:247` anchor drift (the source line
+is now the `CStr::from_ptr` error conversion). It is outside I1 and was not
+regenerated as part of this process-boundary repair.
+
 No public ABI removal, harness/provider retirement, recipe/replay change,
 process-wide concurrency guarantee, backend parity, LLVM18 evidence, or
 aggregate R7 completion is claimed.
