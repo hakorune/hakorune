@@ -1,5 +1,5 @@
 ---
-Status: Design stop — first owner-unit is already closed; next owner unresolved
+Status: Design stop — parser split verified; scalar CFG and residual compatibility remain open
 Date: 2026-09-11
 Decision: MIR-CALL-COMPATIBILITY-RETIRE-R7-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -15,7 +15,7 @@ Decision: Retire Call compatibility by finite owner-unit Stop/Promote/Delete; ag
 Source authority + canonical issuer: canonical typed MIR/Callee; existing compatibility issuers and real callers supply the retirement inventory.
 Non-authority: lexical counts, names, func, INVALID, test-only paths and the census manifest cannot issue or repair targets.
 Fail-fast boundary: selected native admission rejects legacy mixing before artifacts; shared carriers remain until their callers close.
-Smallest next slice: resolve the shared compatibility design and the newly observed G0 acceptance dependency below; do not repeat the closed boxcall Stop.
+Smallest next slice: close Compare wire/types and cyclic resource reuse below; do not repeat the closed parser split or boxcall Stop.
 Non-claims: no aggregate schema deletion, backend parity, Loop-wide reach, OBJ/EXE completion or performance claim.
 
 ## Finite boundary and state table
@@ -91,14 +91,6 @@ is covered by the existing strict/dev named-reject and release compatibility
 tests. The exclusive old edge for this row is the strict/dev call from that
 helper into the v0 module parser; release/v0 callers keep their compatibility
 edge until a later caller-zero row.
-
-The existing acceptance is sufficient for this focused owner: a valid
-compatibility base parses in release mode and still produces the existing
-`LegacyCallV0`; the same base with exactly one `op: "boxcall"` mutation under
-strict/dev returns the named terminal. No Program(JSON) or backend retry is
-counted as proof. The row does not delete the shared `boxcall` parser arm,
-promote JSON `box_name` or `receiver` into source identity, or remove
-`LegacyCallV0` globally.
 
 The follow-up candidate audit found no second safe M7-S production owner:
 `joinir_id_remapper.rs` is test/reference-only, while the remaining release
@@ -973,27 +965,34 @@ its current observation is lib=1793 / lib-test=523 (255 duplicates).
 
 ### G0 acceptance dependency: physical ABI and CFG coverage
 
-Pauli's read-only audit and primary source checks confirm that ordinary
-`Invoke(Call)` selects lifecycle transport but creates no checked site.
-`physical_abi.rs::issue_diagnostic_sites` rejects the empty result; C's
-`hako_physical_checked_sites_unique` independently requires count != 0.
-Existing types can represent an empty set with process-result site 0, but
-admission of it is a contract extension, not a behavior-preserving cleanup.
-
 Boundary: selected physical program -> ABI issuance/JSON -> C V4 admission
 and emission; includes root, called helper, every block and terminator;
 excludes unselected backends and source-shape expansion.
-Open inventory: empty checked-site admission (Rust and C); Compare transport;
-PHI value indexing; Branch and backedge flow/emission. The V4 flow walker
-currently rejects active-block revisits. The exact next runtime reject after
-site issuance remains unobserved; these later gaps are static source evidence.
+Pauli confirmed empty checked-site rejection in Rust and C; ordinary Call
+issues no checked site. Existing finalization/collector supply the storage
+profile and empty definitions without defaults; epilogue site 0 is representable.
+Popper's read-only design audit replaces recursive type/active-revisit policy
+with finite kind-equality components and exact-state worklist propagation.
+Each block is processed once; every incoming edge must agree on Fault and all
+resource obligations. Existing physical-v2 dominance/PHI-edge validation stays
+sole. PHI emission needs physical-edge forwarding labels shared by Map emission.
+Primary source check: recursive_after consumes segment transfers through
+canonical_cfg's Jump/Branch writers, which issue no edge args. No PHI/edge
+correspondence may be invented in C. CompareI64 currently maps Less/LessEqual/
+Equal to MIR Lt/Le/Eq. Resource reinitialization inside cycles and the exact
+Compare wire/type contract still require closure before semantic extension.
+Open implementation inventory remains empty-site admission, Compare transport,
+PHI kinds/layout, and Branch/backedge flow/emission. Empty-site acceptance alone
+is not G0 execution; unchanged source-called EXE exit 3 remains the terminal.
 
-Decision: keep G0 EXE acceptance open and design this complete bounded CFG
-transport before implementation. Empty-site admission is a prerequisite,
-not the terminal or proof of loop execution. Reuse the retained source/Recipe
-and physical-program issuer; add no synthetic checked operation or source
-receipt. Preserve checked-site coverage/uniqueness, process-site separation,
-target/arity, and Normal/Fault/frame validation. Required terminal remains
-the unchanged source-called G0 executable with exit 3. The next design must
-name one consumer mapping for each inventory item and its pre-artifact
-negative; R7's retained compatibility disposition is unchanged.
+### Physical parser split (T0; verified 2026-09-12)
+
+Base `8040b8c826`: checked-site validation moved to its private include;
+embedded definition deleted. Parser 783 -> 746 lines; private owner 41 lines.
+One parser/export/V4 caller; schema, errors, nonempty rejection and ABI unchanged.
+`bash tools/build_hako_llvmc_ffi.sh` and the compiled existing
+`published_lifecycle_physical_parser_preartifact_test.c` pass before/after.
+Moved body is byte-identical to base. G0 guard, R7 census (251 rows), pointer
+guard and diff check pass; initial pointer-name mismatch corrected before commit.
+README synced; no reference contract change, fixture or guard added; sunset=n/a.
+Next: seal remaining CFG contracts above, not another split; EXE3 remains open.
