@@ -57,12 +57,14 @@ ROW_EVIDENCE = {
         ("src/host_providers/llvm_codegen/route.rs", "compile_via_capi_keep(mir_json, opts)"),
     ),
     "hako-aot-generic": (
-        ("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_reject_ambient_harness_replay"),
-        ("lang/c-abi/shims/hako_aot_shared_impl.inc", "aot-compat-admission-required"),
+        ("lang/c-abi/shims/hako_aot_generic_ffi_compile.inc", "hako_aot_reject_ambient_harness_replay"),
+        ("lang/c-abi/shims/hako_aot_generic_ffi_compile.inc", "hako_llvmc_compile_json_with_options_v1"),
+        ("lang/c-abi/shims/hako_aot_generic_ffi_compile.inc", "HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT"),
+        ("lang/c-abi/shims/hako_aot_shared_impl.inc", '#include "hako_aot_generic_ffi_compile.inc"'),
     ),
     "hako-aot-named-compat": (
         ("lang/c-abi/include/hako_aot.h", "hako_aot_compile_json_compat_harness"),
-        ("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_reject_ambient_harness_replay"),
+        ("lang/c-abi/shims/hako_aot_generic_ffi_compile.inc", "hako_aot_reject_ambient_harness_replay"),
     ),
     "hako-llvmc-named-compat": (
         ("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "hako_llvmc_compile_json_compat_harness"),
@@ -305,7 +307,9 @@ def main() -> int:
     need("crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs", "select_explicit_harness_compat", "named Stage1 compat admission")
     need("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "CodegenRouteRequestV1::BoundaryPureFirst", "ordinary env.codegen route")
     need("src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs", "CodegenRouteRequestV1::ExplicitHarnessCompat", "named env.codegen keep")
-    need("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_reject_ambient_harness_replay", "generic AOT replay fence")
+    need("lang/c-abi/shims/hako_aot_generic_ffi_compile.inc", "hako_aot_reject_ambient_harness_replay", "generic AOT replay fence")
+    need("lang/c-abi/shims/hako_aot_generic_ffi_compile.inc", "hako_llvmc_compile_json_with_options_v1", "generic AOT options entry")
+    need("lang/c-abi/shims/hako_aot_generic_ffi_compile.inc", "HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT", "generic AOT profile")
     need("lang/c-abi/shims/hako_aot_shared_impl.inc", "hako_aot_compile_json_compat_harness", "named AOT keep")
     need("lang/c-abi/shims/hako_llvmc_ffi_route.inc", "hako_llvmc_compile_json_compat_harness", "named C FFI keep")
     need("src/host_providers/llvm_codegen/provider_keep.rs", "mir_json_to_object_llvmlite", "provider keep owner")

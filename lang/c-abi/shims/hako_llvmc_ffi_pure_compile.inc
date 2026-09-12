@@ -603,9 +603,17 @@ static int compile_json_with_options_profile(
   yyjson_doc* document;
   struct HakoLlvmcPhysicalOptions options = {0};
   struct HakoLlvmcInvocation invocation;
+  enum HakoLlvmcIngressProfile ingress_profile;
   int rc;
   if (!json_in || !obj_out || !contract) {
     return set_err_owned(err_out, "[freeze:contract][compile-options/input]");
+  }
+  if (contract->ingress_profile == HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT) {
+    ingress_profile = HAKO_LLVMC_INGRESS_GENERIC_COMPAT;
+  } else if (contract->ingress_profile == HAKO_LLVMC_PHYSICAL_PROFILE_BOUNDARY_PURE_FIRST) {
+    ingress_profile = HAKO_LLVMC_INGRESS_BOUNDARY_PURE_FIRST;
+  } else {
+    return set_err_owned(err_out, "[freeze:contract][compile-options/profile]");
   }
   if (hako_llvmc_physical_options_copy(
           &options, contract, err_out) != 0) {
@@ -620,7 +628,7 @@ static int compile_json_with_options_profile(
       &invocation,
       document,
       hako_llvmc_capture_allocation_config(),
-      HAKO_LLVMC_INGRESS_BOUNDARY_PURE_FIRST);
+      ingress_profile);
   /* The options copy is the only value that may cross into lowering. */
   invocation.options = options;
   options = (struct HakoLlvmcPhysicalOptions){0};

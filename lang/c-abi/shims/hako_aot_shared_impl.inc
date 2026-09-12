@@ -2,6 +2,7 @@
 // Shared source-truth for AOT compile/link helpers.
 
 #include "hako_aot_internal.h"
+#include "../include/hako_llvmc_ffi.h"
 
 static int hako_aot_set_err(char** err_out, const char* msg) {
   if (err_out) {
@@ -114,19 +115,6 @@ static void* hako_aot_open_ffi_lib(void) {
   return h;
 }
 #endif
-
-static int hako_aot_use_ffi(void) {
-  return hako_aot_env_truthy(getenv("HAKO_AOT_USE_FFI"));
-}
-
-static void hako_aot_ensure_default_opt_env(void) {
-  if (!getenv("HAKO_LLVM_OPT_LEVEL")) {
-    setenv("HAKO_LLVM_OPT_LEVEL", "0", 1);
-  }
-  if (!getenv("NYASH_LLVM_OPT_LEVEL")) {
-    setenv("NYASH_LLVM_OPT_LEVEL", "0", 1);
-  }
-}
 
 static int hako_aot_build_compile_log_path(char* log_path, size_t log_path_len) {
   int n = snprintf(
@@ -403,24 +391,6 @@ static int hako_aot_append_linker_option_keeps(
 }
 
 #if !defined(_WIN32)
-static int hako_aot_try_ffi_compile(const char* mir_json_path, const char* obj_path, char** err_out) {
-  void* h = hako_aot_open_ffi_lib();
-  if (!h) {
-    hako_set_last_error("UNSUPPORTED");
-    return hako_aot_set_err(err_out, "FFI library not found");
-  }
-  typedef int (*ffi_compile_fn)(const char*, const char*, char**);
-  ffi_compile_fn fn = (ffi_compile_fn)dlsym(h, "hako_llvmc_compile_json");
-  if (!fn) {
-    dlclose(h);
-    hako_set_last_error("UNSUPPORTED");
-    return hako_aot_set_err(err_out, "FFI symbol missing: hako_llvmc_compile_json");
-  }
-  int rc = fn(mir_json_path, obj_path, err_out);
-  dlclose(h);
-  return rc;
-}
-
 static int hako_aot_try_ffi_compile_compat_harness(
     const char* mir_json_path,
     const char* obj_path,
@@ -542,16 +512,7 @@ static const char* hako_aot_resolve_nyrt_dir(char* buf, size_t buflen) {
   return NULL;
 }
 
-static int hako_aot_reject_ambient_harness_replay(char** err_out) {
-  const char* replay = getenv("HAKO_BACKEND_COMPAT_REPLAY");
-  if (!replay || !*replay || strcmp(replay, "none") == 0) {
-    return 0;
-  }
-  hako_set_last_error("UNSUPPORTED");
-  return hako_aot_set_err(
-      err_out,
-      "[freeze:route][aot-compat-admission-required] use hako_aot_compile_json_compat_harness");
-}
+#include "hako_aot_generic_ffi_compile.inc"
 
 static int hako_aot_compile_json_direct_harness(
     const char* mir_json_path,
@@ -588,6 +549,12 @@ int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char*
     return hako_aot_set_err(err_out, "invalid args");
   }
   if (hako_aot_use_ffi()) {
+    if (hako_aot_reject_legacy_capi_pure_alias(err_out) != 0) {
+      return -1;
+    }
+    if (hako_aot_require_pure_first_recipe(err_out) != 0) {
+      return -1;
+    }
     if (hako_aot_reject_ambient_harness_replay(err_out) != 0) {
       return -1;
     }

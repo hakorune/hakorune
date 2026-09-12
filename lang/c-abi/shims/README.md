@@ -33,6 +33,17 @@ keeps the compatibility profile for external callers; no generic caller-zero
 claim is made. The same profile check is used by the selected Boundary
 pure-first entry, and nested metadata strings are not scanned as instructions.
 
+## AOT Generic physical options
+
+`hako_aot_generic_ffi_compile.inc` is the sole AOT Generic FFI compile
+transport. After explicit `pure-first/none` and legacy-alias admission, it
+calls `hako_llvmc_compile_json_with_options_v1` with Generic profile 0 and
+passes the effective opt/llc settings in one borrowed contract. The C options
+owner deep-copies those values before reading JSON or lowering. It never
+dlsyms the public three-argument compile export and never falls back to the
+named harness; the named AOT harness, public C exports, Static profile 2, and
+link dlsym remain separate compatibility owners.
+
 ## Responsibility Boundary
 
 - Intrinsic Array allocation uses the existing frame's kind8 exact-site row and

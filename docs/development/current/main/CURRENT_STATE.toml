@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d0"
 current_blocker_token = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D0"
-guard_followup = "design_stop: select the next remaining shared compatibility owner and non-empty delete-set after the Boundary options cutover; LLVM18 remains externally sudo-blocked."
+guard_followup = "design_stop: select the next remaining shared compatibility owner and non-empty delete-set after AOT Generic options profile 0 cutover; LLVM18 remains externally sudo-blocked."
 current_design_stop = "open__MIR-CALL-COMPATIBILITY-RETIRE-R7-D0__2026-09-12"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -43,7 +43,7 @@ propagation. Its focused fake-tool smoke, C build, Rust check, and pointer
 guard are green; the existing named compatibility smoke remains an uncounted
 host Traceback baseline red. Static V2 open I0 passes the accepted
 physical-options contract through production open/query/compile/close with
-fake-tool/pre-effect evidence; LLVM14 skips legacy LLVM18 object compile (no runtime claim). Harness, AOT, and published-row globals remain.
+fake-tool/pre-effect evidence; LLVM14 skips legacy LLVM18 object compile (no runtime claim). AOT Generic now uses profile-0 physical options; named harness, public C, and published-row globals remain.
 The G0 helper backend reach design stop is accepted and its I1 implementation
 is closed. The existing source-backed Global Call relation
 `Main.main -> generic_g0(0, 0)` is the sole membership authority. The focused
@@ -52,7 +52,7 @@ helper lanes, and helper Compare/Add body operations. The static EXE witness
 uses the same selected view but was skipped because LLVM18 is unavailable;
 runtime success is unclaimed. Selected first-family cutovers reuse one snapshot;
 obsolete Loop expected-location/PreheaderSeed handling is queued for T0 cleanup.
-Whole-MIRBuilder completion, backend parity, and runtime execution unclaimed; Rust non-explicit CAPI I0 closed; public C/AOT and explicit llvmlite remain.
+Whole-MIRBuilder completion, backend parity, and runtime execution unclaimed; Rust non-explicit CAPI I0 and AOT Generic options I0 are closed; public C, named compatibility, and explicit llvmlite remain.
 LLVM18 installation is blocked on external sudo permission; the host has
 LLVM14 only, so LLVM18 object/EXE evidence remains open.
 """

@@ -782,3 +782,94 @@ rerunning the named G0 object/EXE witness. The session cannot run the recipe:
 UID 1000 has no non-interactive sudo permission (`sudo: a password is
 required`). This task does not authorize a backend switch, a fallback, or a
 semantic MirBuilder change; resume it after the external permission is granted.
+
+### MIR-CALL-AOT-GENERIC-COMPILE-OPTIONS-I0 (selected design 2026-09-12)
+
+Two independent read-only worker audits selected the remaining AOT Generic
+caller as the next bounded owner. The source-backed exclusive edge is
+`hako_aot_try_ffi_compile` in `lang/c-abi/shims/hako_aot_shared_impl.inc`:
+it alone dlsyms the old three-argument `hako_llvmc_compile_json`. The existing
+versioned `hako_llvmc_compile_json_with_options_v1` contract and the
+invocation-owned C options copy are the physical owner; no new ABI, receipt,
+settings layer, or semantic product is introduced.
+
+```text
+Decision: route AOT Generic FFI compile through the existing versioned physical-options C entry.
+Source authority + canonical issuer: the AOT Generic physical request, encoded once as the tracked C contract with ingress profile GENERIC_COMPAT(0).
+Non-authority: MIR/Recipe meaning, profile labels alone, ambient environment, public ABI names, named harness, link dlsym, and tests issue no new semantics.
+Fail-fast boundary: AOT args/FFI admission -> recipe/replay/pure/level/tool validation -> options symbol -> revision/size/profile/flags/tool copy -> JSON/invocation -> lowering -> artifact.
+Smallest next slice: accept profile 0 in the shared options contract, pass that profile into the existing invocation, and delete only AOT Generic's old compile dlsym/type/call edge.
+Non-claims: no public old-symbol removal, no named-harness or link change, no fallback/retry, no provider retirement, no LLVM18 evidence, and no R7/MIRBuilder completion.
+```
+
+Finite outcome and ownership boundary:
+
+| issuer / input | terminal | retained / deleted | pre-effect obligation |
+| --- | --- | --- | --- |
+| AOT Generic + FFI + `pure-first/none` | existing generic C lowering or its typed error | accept; delete only old AOT compile dlsym edge | reject invalid args, FFI mode, recipe, replay, `HAKO_CAPI_PURE`, level, tool, and alias before dlsym |
+| AOT Generic without FFI | existing `aot-compat-admission-required` terminal | retain; no fallback | do not invoke child or old public compile symbol |
+| AOT Generic invalid contract/profile 3/unknown | existing compile-options contract reject | reject; retain profile 1/2 strict behavior | revision, size, profile, flags, recipe, replay, and tool checks precede JSON/lowering |
+| named AOT harness | existing named harness provider/export | retain; no shared-profile change | keep direct harness route and its explicit compatibility admission |
+| public C generic/pure-first/harness and link v1/v2 | existing public C/link owners | retain; out of scope | source coverage remains; no AOT compile/link re-entry is added |
+
+The exact implementation obligations are: `hako_llvmc_physical_options_copy`
+accepts physical profiles 0/1/2 and rejects 3/unknown; the options compile
+entry maps the validated contract profile to the existing invocation profile
+(0 Generic, 1 Boundary; Static remains a separate retained profile owner);
+and AOT Generic constructs revision 1, `sizeof`-sized, flags-zero,
+`GENERIC_COMPAT(0)`, `pure-first/none` contract data without mutating the
+parent environment. AOT must carry the effective opt level, opt/llc paths,
+and llc flags; a null llc-flags value is an explicit empty value in this
+contract and must not silently restore the old ambient default. The AOT-side
+`HAKO_CAPI_PURE` rejection remains before `dlopen`/`dlsym` because the old
+generic export previously owned that admission.
+
+Exact delete-set: the private AOT generic three-argument typedef, its
+`dlsym(h, "hako_llvmc_compile_json")`, the private call, and the associated
+missing-symbol diagnostic. Retain public
+`hako_llvmc_compile_json{,_pure_first,_compat_harness}`, AOT v1/v2 and named
+harness exports, Boundary/Static options, link dlsym, and direct harness
+environment handling. No fallback or retry is permitted.
+
+Design evidence: Rawls audited the finite AOT caller/delete-set matrix;
+Gibbs independently audited profile-0 plumbing and confirmed that merely
+allowing profile 0 is unsafe unless the contract profile reaches invocation
+initialization and AOT preserves the pure/replay admission. Both audits were
+read-only with no Cargo, fixture, or worktree changes. The implementation may
+start in `fast` mode only after this Decision is recorded.
+
+### AOT Generic compile-options I0 closeout (2026-09-12)
+
+Implementation is complete in the bounded C owner set. AOT Generic FFI now
+constructs the existing revisioned contract with Generic profile 0 and calls
+`hako_llvmc_compile_json_with_options_v1`. The shared options copy admits
+profiles 0/1/2 for their existing owners; the JSON compile entry maps only
+Generic 0 and Boundary 1 into invocation profiles, while Static 2 remains on
+its dedicated V2 entry and Explicit Harness 3 rejects. The old private AOT
+three-argument compile typedef, dlsym, call, and missing-symbol diagnostic are
+deleted. Public C compile exports, AOT named harness, AOT v1/v2, Boundary and
+Static options, and link dlsym remain.
+
+Observed acceptance:
+
+- `bash tools/build_hako_llvmc_ffi.sh`: passed;
+- `llvm_compile_options_contract_smoke.sh`: passed; direct Boundary and
+  Generic profile paths consumed explicit fake opt/llc settings, AOT Generic
+  produced an object through the options symbol, and recipe/replay,
+  `HAKO_CAPI_PURE`, revision, and Explicit Harness profile rejects produced no
+  artifact;
+- `llvm_codegen_route_identity_guard.sh`,
+  `llvm_llvmlite_production_census_guard.py`,
+  `mir_r7_legacy_census_manifest.py`, `current_state_pointer_guard.sh`, and
+  `git diff --check`: passed;
+- source-size bound: `hako_aot_shared_impl.inc` is 742 lines and the new
+  `hako_aot_generic_ffi_compile.inc` is 105 lines, both below the 800-line
+  hard stop. The new include is part of the shared AOT source truth.
+
+The object evidence uses fake tools and therefore claims route/contract
+reachability only; LLVM18 is still unavailable on this host, so no LLVM18
+object/EXE runtime claim is made. This closes only
+`MIR-CALL-AOT-GENERIC-COMPILE-OPTIONS-I0`; public C, named compatibility,
+provider, aggregate R7, backend parity, and whole-MIRBuilder completion remain
+open by design. The next R7 decision stop must select another finite owner
+with a non-empty delete-set.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Focused proof for the Boundary pure-first invocation-owned compile options.
+# Focused proof for the Boundary and AOT Generic invocation-owned options.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -39,6 +39,13 @@ compile_with_options.argtypes = [
     ctypes.POINTER(ctypes.c_void_p),
 ]
 compile_with_options.restype = ctypes.c_int
+hako_aot_compile = lib.hako_aot_compile_json
+hako_aot_compile.argtypes = [
+    ctypes.c_char_p,
+    ctypes.c_char_p,
+    ctypes.POINTER(ctypes.c_void_p),
+]
+hako_aot_compile.restype = ctypes.c_int
 lib.hako_mem_free.argtypes = [ctypes.c_void_p]
 
 fixture = root / "apps/tests/mir_shape_guard/ret_const_min_v1.mir.json"
@@ -122,6 +129,94 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
     if "mem2reg" not in opt_log.read_text():
         raise SystemExit("exact-seed route did not consume contract opt tool")
 
+    generic = Contract(
+        1,
+        ctypes.sizeof(Contract),
+        0,
+        0,
+        b"pure-first",
+        b"none",
+        b"0",
+        str(scripts["opt"]).encode(),
+        str(scripts["llc"]).encode(),
+        b"-generic-contract-flag",
+        None,
+    )
+    generic_out = temp / "generic.o"
+    error = ctypes.c_void_p()
+    rc = compile_with_options(
+        str(fixture).encode(), str(generic_out).encode(), ctypes.byref(generic), ctypes.byref(error)
+    )
+    message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+    if error.value:
+        lib.hako_mem_free(error)
+    if rc != 0 or not generic_out.is_file():
+        raise SystemExit(f"generic profile compile failed rc={rc}: {message}")
+    if "-generic-contract-flag" not in llc_log.read_text():
+        raise SystemExit("generic profile did not consume contract llc flags")
+
+    os.environ.update({
+        "HAKO_AOT_USE_FFI": "1",
+        "HAKO_AOT_FFI_LIB": str(root / "target/release/libhako_llvmc_ffi.so"),
+        "HAKO_BACKEND_COMPILE_RECIPE": "pure-first",
+        "HAKO_BACKEND_COMPAT_REPLAY": "none",
+        "NYASH_LLVM_OPT_LEVEL": "0",
+        "NYASH_NY_LLVM_OPT_TOOL": str(scripts["opt"]),
+        "NYASH_NY_LLVM_LLC_TOOL": str(scripts["llc"]),
+        "NYASH_NY_LLVM_LLC_FLAGS": "-aot-contract-flag",
+    })
+    aot_out = temp / "aot-generic.o"
+    error = ctypes.c_void_p()
+    rc = hako_aot_compile(
+        str(fixture).encode(), str(aot_out).encode(), ctypes.byref(error)
+    )
+    message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+    if error.value:
+        lib.hako_mem_free(error)
+    if rc != 0 or not aot_out.is_file():
+        raise SystemExit(f"AOT generic FFI compile failed rc={rc}: {message}")
+    if "-aot-contract-flag" not in llc_log.read_text():
+        raise SystemExit("AOT generic did not pass llc flags through options")
+
+    os.environ["HAKO_BACKEND_COMPILE_RECIPE"] = "ambient-wrong"
+    recipe_out = temp / "aot-recipe-reject.o"
+    error = ctypes.c_void_p()
+    rc = hako_aot_compile(
+        str(fixture).encode(), str(recipe_out).encode(), ctypes.byref(error)
+    )
+    message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+    if error.value:
+        lib.hako_mem_free(error)
+    os.environ["HAKO_BACKEND_COMPILE_RECIPE"] = "pure-first"
+    if rc == 0 or recipe_out.exists() or "generic-aot-recipe-required" not in message:
+        raise SystemExit(f"AOT recipe was not rejected before effects: rc={rc} {message!r}")
+
+    os.environ["HAKO_BACKEND_COMPAT_REPLAY"] = "harness"
+    replay_out = temp / "aot-replay-reject.o"
+    error = ctypes.c_void_p()
+    rc = hako_aot_compile(
+        str(fixture).encode(), str(replay_out).encode(), ctypes.byref(error)
+    )
+    message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+    if error.value:
+        lib.hako_mem_free(error)
+    os.environ["HAKO_BACKEND_COMPAT_REPLAY"] = "none"
+    if rc == 0 or replay_out.exists() or "aot-compat-admission-required" not in message:
+        raise SystemExit(f"AOT replay was not rejected before effects: rc={rc} {message!r}")
+
+    os.environ["HAKO_CAPI_PURE"] = "1"
+    pure_alias_out = temp / "aot-pure-alias.o"
+    error = ctypes.c_void_p()
+    rc = hako_aot_compile(
+        str(fixture).encode(), str(pure_alias_out).encode(), ctypes.byref(error)
+    )
+    message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+    if error.value:
+        lib.hako_mem_free(error)
+    os.environ.pop("HAKO_CAPI_PURE")
+    if rc == 0 or pure_alias_out.exists() or "hako_capi_pure_retired" not in message:
+        raise SystemExit(f"AOT HAKO_CAPI_PURE was not rejected before effects: rc={rc} {message!r}")
+
     no_flags = Contract(
         1,
         ctypes.sizeof(Contract),
@@ -160,5 +255,17 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
     if rc == 0 or bad_out.exists() or "revision-size" not in message:
         raise SystemExit(f"invalid revision was not rejected before effects: rc={rc} {message!r}")
 
-print("[llvm-compile-options-contract-smoke] explicit options, propagation, restore, and pre-effect reject: ok")
+    unsupported_profile = Contract(1, ctypes.sizeof(Contract), 3, 0, b"pure-first", b"none", b"0", None, None, None, None)
+    unsupported_out = temp / "unsupported-profile.o"
+    error = ctypes.c_void_p()
+    rc = compile_with_options(
+        str(fixture).encode(), str(unsupported_out).encode(), ctypes.byref(unsupported_profile), ctypes.byref(error)
+    )
+    message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+    if error.value:
+        lib.hako_mem_free(error)
+    if rc == 0 or unsupported_out.exists() or "profile" not in message:
+        raise SystemExit(f"explicit harness profile was not rejected: rc={rc} {message!r}")
+
+print("[llvm-compile-options-contract-smoke] Boundary/AOT options, profile propagation, restore, and pre-effect reject: ok")
 PY

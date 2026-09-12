@@ -18,6 +18,7 @@ CAPI="$ROOT/src/host_providers/llvm_codegen/capi_transport.rs"
 PROVIDER="$ROOT/src/host_providers/llvm_codegen/provider_keep.rs"
 PLUGIN="$ROOT/src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs"
 AOT="$ROOT/lang/c-abi/shims/hako_aot_shared_impl.inc"
+AOT_GENERIC="$ROOT/lang/c-abi/shims/hako_aot_generic_ffi_compile.inc"
 C_COMMON="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
 CAPI_ROUTE="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
 NYLLVM_README="$ROOT/crates/nyash-llvm-compiler/README.md"
@@ -52,6 +53,7 @@ done
 need_file "$SELECTED_BUNDLE"
 need_file "$BOUNDARY_FFI"
 need_file "$BOUNDARY_DEFAULTS"
+need_file "$AOT_GENERIC"
 need_file "$STAGE1_BUILD"
 need_file "$STAGE1_CONTRACT"
 need_file "$SELFHOST_README"
@@ -146,8 +148,20 @@ need_fixed "$CAPI_ROUTE" 'generic-capi-recipe-required' \
 if rg -Fq -- 'compile_json_via_default_forwarder' "$CAPI_ROUTE"; then
   fail "generic C export still forwards recipe-unset input to hako_aot"
 fi
-need_fixed "$AOT" 'hako_aot_reject_ambient_harness_replay' \
+need_fixed "$AOT_GENERIC" 'hako_aot_reject_ambient_harness_replay' \
   "generic AOT ambient replay gate missing"
+need_fixed "$AOT_GENERIC" 'hako_llvmc_compile_json_with_options_v1' \
+  "generic AOT options entry missing"
+need_fixed "$AOT_GENERIC" 'HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT' \
+  "generic AOT profile missing"
+need_fixed "$AOT" '#include "hako_aot_generic_ffi_compile.inc"' \
+  "generic AOT transport is not included by the shared owner"
+if rg -n 'dlsym\(h, "hako_llvmc_compile_json"\)|ffi_compile_fn' "$AOT_GENERIC"; then
+  fail "generic AOT old compile dlsym/type is still present"
+fi
+if rg -n 'dlsym\(h, "hako_llvmc_compile_json"\)' "$AOT"; then
+  fail "generic AOT old compile dlsym is still present"
+fi
 need_fixed "$AOT" 'aot-compat-admission-required' \
   "generic AOT replay failure missing"
 need_fixed "$AOT" 'hako_aot_compile_json_compat_harness' \

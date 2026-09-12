@@ -26,6 +26,7 @@ Layout
   - `hako_hostbridge.h` — broader C ABI surface
   - `hako_aot.h` — canonical AOT compile/link header
 - `shims/hako_llvmc_*` — compiler transport and physical LLVM backend
+- `shims/hako_aot_generic_ffi_compile.inc` — AOT Generic FFI transport through the versioned physical-options entry
 - `shims/hako_kernel.c` — libc-backed canary; not the production Rust kernel
 - `shims/hako_forward_registry_shared_impl.inc` — callback registry currently
   included by both the Rust kernel's C translation unit and the separate canary
@@ -423,10 +424,24 @@ whole-repository census or implementation permission for an unclosed mapping.
 
 Replay admission
 - `hako_aot_compile_json` is the generic AOT entry and rejects inherited
-  harness replay before FFI lookup, child spawn, or object creation.
+  harness replay, the retired `HAKO_CAPI_PURE` alias, and non-`pure-first`
+  recipes before FFI lookup, child spawn, or object creation. Its FFI branch
+  passes the existing versioned physical-options contract with Generic profile
+  0; it does not dlsym the public three-argument compile symbol.
 - `hako_aot_compile_json_compat_harness` is the versioned, explicit
   compatibility/oracle keep entry. It is not a production fallback and must
   remain separately censused for the staged llvmlite G1/G2/G3 retirement.
+
+Physical compile-options admission
+- `hako_llvmc_compile_json_with_options_v1` accepts Generic profile 0 for the
+  AOT Generic FFI caller and Boundary profile 1 for the selected Boundary
+  caller. It maps the validated profile into the existing invocation; it does
+  not infer or repair MIR meaning.
+- Static profile 2 remains owned by
+  `hako_llvmc_static_open_v2_with_options`; Explicit Harness profile 3 is
+  rejected by the physical-options contract. AOT Generic carries effective
+  opt/llc tools, opt level, and llc flags in the borrowed contract, which C
+  deep-copies before JSON reading or lowering.
 
 Guards
 - No Rust modules or cargo manifests under `lang/`.
