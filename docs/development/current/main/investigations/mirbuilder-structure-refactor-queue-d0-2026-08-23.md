@@ -93,6 +93,7 @@ The following facts were checked in the current working tree on 2026-08-23:
 | `builder.rs` needs test extraction | 831 lines in the current worktree, with many `#[cfg(test)]` registrations | Valid near-limit BoxShape; split tests only, preserve production barrel and module visibility |
 | `module_lowering_invocation.rs` needs test-home extraction (worker-audited 2026-09-14) | 773 lines: production owner 1-516, inline `#[cfg(test)]` owner 518-773 with 7 tests | Future `MIRBUILDER-INVOCATION-TEST-HOME-R0`: move only the tests to `module_lowering_invocation_tests.rs` via `#[cfg(test)] #[path]`, preserving logical test paths and visibility; do not select until the pointer reopens structure cleanup |
 | `raw_root_eligibility.rs` needs test-home extraction (worker-audited 2026-09-14) | 779 lines: production owner 1-542, inline `#[cfg(test)]` tests 543-779 with 6 tests; four parent test helpers remain required by sibling tests | Future `MIRBUILDER-RAW-ROOT-ELIGIBILITY-TEST-HOME-D0` -> `...-R0`: move only the 6 tests, retain those helpers and `raw_root_eligibility::tests::*` paths via `#[cfg(test)] #[path]`; keep separate from raw-root boundary unification and do not select until the pointer reopens structure cleanup |
+| `compiler/mod.rs` declaration topology needs a near-limit cleanup (worker-audited 2026-09-14) | 770 lines; 48 declarations occupy lines 19-114 (44 test modules plus 4 raw-root production siblings), while the `MirCompiler` body remains one owner | Future `MIRBUILDER-COMPILER-MODULE-TOPOLOGY-D0` -> `...-R0`: census and, if accepted, move only those declarations into `module_registry.in.rs`; keep each sibling as its authority and retain `compiler::tests` in `mod.rs` |
 | `loop_physical_prepare.rs` needs a home before growth | 795 lines and test-only parent registration | Valid prerequisite BoxShape; no semantic changes or production activation |
 | `compiler/tests.rs` is over the hard limit | 849 lines and a test-only owner | Needs a `super`/fixture/filter owner map before the later test-only split |
 | `function/metadata.rs` is over 800 lines | 804 lines and a flat catalog with broad field ownership | Exclude from this queue; line count alone is not a split authority |
@@ -727,6 +728,33 @@ only the two parent `#[path]` declarations changed. No `mod.rs`, re-export,
 alias, shim, issuer, caller, route, or fallback was added. The dedicated
 shelf card records the hashes, focused tests, structure guard, and closeout
 evidence. The current pointer does not select another structure row yet.
+
+#### `MIRBUILDER-COMPILER-MODULE-TOPOLOGY-D0` — future BoxShape candidate
+
+The worker audit found a bounded declaration-only cleanup for
+`src/mir/compiler/mod.rs`. The file is 770 lines, but its semantic
+`MirCompiler` owner is coherent; the near-limit pressure is the 48-module
+declaration block at lines 19–114. This row is a design/task record only while
+the Call/R7 pointer remains parked at `design_stop`.
+
+Six-line brief:
+
+```text
+Decision: preserve the MirCompiler owner and audit declaration topology as a behavior-neutral BoxShape.
+Source authority + canonical issuer: each existing compiler sibling remains its own authority; module_registry.in.rs only declares placement.
+Non-authority: include location, declaration order, filenames, test names, and line counts cannot issue Facts, Recipe, routes, or fallback.
+Fail-fast boundary: preserve each declaration's cfg/visibility/path and keep compiler::tests as the cfg(test) facade; duplicate names or guard drift stops the row.
+Smallest next slice: census 48 declarations (44 test + 4 raw_root production) and freeze the module_registry.in.rs move/guard plan; no code movement in D0.
+Non-claims: no semantic change, production switch, fallback, route change, legacy retirement, or new receipt.
+```
+
+The bounded R0, if the D0 is accepted after pointer reopening, moves only the
+48 declarations from `compiler/mod.rs` into the existing
+`module_registry.in.rs`. The expected shape is `mod.rs` about 674 lines and
+the registry about 348 lines, both below the 760-line design trigger and the
+800-line hard stop. The R0 must preserve the logical module paths,
+`compiler::tests` registration, visibility, and all existing compiler/header
+guards; it must add a reusable uniqueness/line-budget guard before landing.
 
 ## Guard and closeout contract
 
