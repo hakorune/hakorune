@@ -272,8 +272,11 @@ failure are FAILED storage errors before output removal or child effects;
 existing compiler/options rejection, command-too-long ordering, object
 sentinel behavior, first-line errors and null `err_out` remain unchanged. The
 retired PID-only path cannot be shared by overlapping direct-C and AOT-FFI
-calls. Native Windows reservation/close/reopen still requires a native proof;
-POSIX results do not establish that claim.
+calls. Native Windows helper and direct named-C export close/reopen are proven
+by portability-ci run `34751337118` at `a274ac03b3`, including spaced paths and
+success/failure/no-object cleanup. Native Windows CAPI/lifecycle wrapper
+close/reopen remains a separate unproven boundary; POSIX results do not
+establish that claim.
 
 Decision (2026-09-12): automatic pure-core replay is retired together with its
 exclusive adapters. Public Generic/pure-first/Static replay rejection and

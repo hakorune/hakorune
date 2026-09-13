@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
 current_execution_cohort = "mir_call_temp_input_ownership_i0"
 current_blocker_token = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
-guard_followup = "Keep the already-landed temporary-input acceptance evidence explicit: real config capture and synchronized named-harness cleanup are green, controlled POSIX provider/CAPI/lifecycle wrapper matrices are green, portability-ci provider lifetime test passes on Windows in run 34746364126 at efdd976454 (1/1), native Windows harness-log helper reservation/close/reopen passes in run 34748357436 at d610368fae (PASS), and native Windows CAPI/lifecycle close/reopen plus direct harness C-export reopen remain separate pending evidence."
+guard_followup = "Keep the already-landed temporary-input acceptance evidence explicit: real config capture and synchronized named-harness cleanup are green, controlled POSIX provider/CAPI/lifecycle wrapper matrices are green, portability-ci provider lifetime test passes on Windows in run 34746364126 at efdd976454 (1/1), native Windows harness-log helper reservation/close/reopen and direct named-C export input reopen/log cleanup pass in run 34751337118 at a274ac03b3, and native Windows CAPI/lifecycle wrapper close/reopen remain separate pending evidence."
 current_design_stop = "none__accepted__MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -24,9 +24,10 @@ has green controlled POSIX wrapper evidence for real LLVM policy capture cases
 under the environment lock, an overlap barrier for both named harness children
 plus post-completion log absence, and provider/CAPI/lifecycle success and
 failure matrices. The exact provider lifetime test is green on native Windows
-in portability-ci run 34746364126, and the harness-log helper reservation/
-close/reopen fixture is green in run 34748357436. Native Windows CAPI/lifecycle
-close/reopen and direct harness C-export reopen remain pending evidence.
+in portability-ci run 34746364126. The helper reservation/close/reopen and
+direct named-C export input reopen, spaced-path success/failure/no-object, and
+post-call log cleanup are green in run 34751337118 at a274ac03b3. Native
+Windows CAPI/lifecycle wrapper close/reopen remain pending evidence.
 """
 next_design_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"

@@ -74,8 +74,12 @@ the bounded template and command, reserves an exclusive temporary file
 descriptor, and keeps that path until the synchronous child finishes. It reads
 the first error line before best-effort cleanup and removes only its own path;
 the old PID-only name and manual shared-log cleanup are retired. Reservation
-or close failure rejects before object removal or child launch. Linux evidence
-does not establish the native Windows close/reopen claim.
+or close failure rejects before object removal or child launch. The native
+Windows helper and direct named-C export checks both pass in portability-ci
+run `34751337118` at `a274ac03b3`; the latter covers child input reopen,
+success/failure/no-object projection, spaced input/output/TMPDIR paths, and
+post-call log cleanup. This does not establish native Windows CAPI/lifecycle
+wrapper close/reopen.
 
 The retained `allocation_config_capture_test.py DRIVER` checks sixteen captured
 configuration positives and unsupported/emitter-failure no-child negatives

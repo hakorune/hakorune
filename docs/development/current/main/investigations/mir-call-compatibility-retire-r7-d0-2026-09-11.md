@@ -1,5 +1,5 @@
 ---
-Status: Implementation complete — POSIX wrapper matrix strengthened; native Windows proof pending
+Status: Implementation complete — POSIX and native Windows direct-C/helper proof; native Windows CAPI/lifecycle wrapper proof pending
 Date: 2026-09-13
 Decision: MIR-CALL-HARNESS-LOG-OWNERSHIP-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -16,7 +16,7 @@ Source authority + canonical issuer: named C admission and existing PhysicalOpti
 Non-authority: PID, dlsym wrapper, public reachability, and stderr do not issue request meaning.
 Fail-fast boundary: complete compiler/options, path/command validation and log reservation/close before output removal or child launch.
 Smallest next slice: MIR-CALL-HARNESS-LOG-OWNERSHIP-I0, switching the single C harness executor and deleting its PID-only log edge.
-Non-claims: native Windows reservation/reopen, public ABI retirement, whole-compiler thread safety, same-output concurrency, or aggregate R7 completion.
+Non-claims: native Windows CAPI/lifecycle wrapper close/reopen, public ABI retirement, whole-compiler thread safety, same-output concurrency, or aggregate R7 completion.
 
 ## Finite scope and retained owners
 
@@ -469,11 +469,12 @@ existing first-line message before cleanup, preserving null err_out handling.
 
 This repairs invocation isolation; it does not claim resistance to hostile
 filesystem mutation, full environment capture, global thread safety, or safe
-concurrent use of the same obj_out. Native Windows reservation/reopen requires
-its own evidence; Linux green cannot substitute. AOT FFI on Windows retains
-its existing unsupported terminal; the direct C export is the Windows witness.
+concurrent use of the same obj_out. The helper and direct C export require
+separate native evidence; Linux green cannot substitute. AOT FFI on Windows
+retains its existing unsupported terminal; the direct C export is the Windows
+witness for this named route.
 
-## MIR-CALL-HARNESS-LOG-OWNERSHIP-I0 (POSIX and Windows helper proof complete)
+## MIR-CALL-HARNESS-LOG-OWNERSHIP-I0 (POSIX and native Windows direct-C/helper proof complete)
 
 Change:
 1. Add private temporary-log storage in a focused include, wired before route
@@ -508,9 +509,10 @@ Done:
   edge retirement; no new guard entry. Run pointer guard and diff check.
 - In the implementation slice update `lang/c-abi/shims/README.md` and
   `docs/reference/abi/nyrt_c_abi_v0.md#named-harness-physical-options-ownership`.
-  Record platform-scoped results; native Windows helper/C-export close/reopen
-  is required before claiming cross-platform completion. The helper fixture
-  and direct C-export execution are separate evidence boundaries.
+  Record platform-scoped results; native Windows helper and direct C-export
+  close/reopen are separate evidence boundaries and are required before
+  claiming cross-platform completion. CAPI/lifecycle wrapper execution remains
+  a separate pending boundary.
 
 Stop:
 Return to design if exclusive-create/closed-handle ownership cannot be kept
@@ -519,7 +521,14 @@ storage failure, or implementation requires new admission/ABI/fallback.
 Shared callers and public reachability are not stop conditions. POSIX
 implementation and focused evidence are complete; the native Windows helper
 reservation/close/reopen fixture is also covered separately from the direct
-C-export execution boundary.
+C-export execution boundary. The direct C-export execution is now covered by
+`portability-ci` run `34751337118` at `a274ac03b3`: the native Windows Git Bash
+job built the PE DLL with the compiler selected by the GNU-C extension probe,
+compiled a child under a spaced temporary path, and passed success, child
+failure (first-line-only), zero-exit/no-object, and post-call log cleanup.
+The child reopened its input while input/output/TMPDIR paths contained spaces.
+This direct named-export result does not close the native Windows CAPI or
+lifecycle wrapper boundaries.
 
 Implementation evidence (2026-09-13): `build_hako_llvmc_ffi.sh`, the private
 `harness_log_ownership_test.c`, and
@@ -568,7 +577,10 @@ test binary; it produced no test result or failure diagnostic. Rerun
 This proves the provider's native Windows close/reopen lifetime. The CAPI and
 lifecycle wrapper tests remain POSIX-only; their native close/reopen remains a
 separate requirement, so the temporary-input row is not cross-platform
-complete.
+complete. The named direct C export is separately green on native Windows in
+run `34751337118` at `a274ac03b3`, including child input reopen, spaced paths,
+success, first-line failure projection, no-object rejection, and empty
+invocation-owned logs after each call.
 
 ## Closed evidence and contracts
 
