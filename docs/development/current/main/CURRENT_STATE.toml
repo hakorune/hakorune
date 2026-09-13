@@ -22,9 +22,10 @@ The unary type-absence I0 is closed at its owner boundary with focused
 Integer/Float positives and missing/Unknown/nonnumeric rejection. The next
 design stop is MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1: settle one exact
 resolver-to-GenericLoopV1 selection and local BindingRef publication before
-adding production acceptance. Existing source-facts tests are synthetic and a
-different real handoff fixture cannot substitute for that mapping. Temporary-
-input ownership remains implemented with native Windows provider evidence;
+adding production acceptance. Existing source-facts tests are synthetic, and a
+bounded tracked-source audit found no eligible production Loop/unary candidate;
+a new source-backed acceptance design is required before implementation.
+Temporary-input ownership remains implemented with native Windows provider evidence;
 run 34753858020 at c5b01f5448 is the pending one-job provider/CAPI recheck,
 and native Windows lifecycle close/reopen remains unproven.
 """

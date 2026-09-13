@@ -288,6 +288,19 @@ while the older phase backlog only records them as parser-handoff candidates.
 They therefore remain inventory evidence and cannot be promoted as the
 production resolver-to-GenericLoopV1 relation for this card.
 
+A bounded read-only production-source audit (2026-09-13) found no eligible
+replacement candidate. The tracked `.hako`/`.nyash` corpus was reduced from
+3,397 files to 1,587 after excluding tests, fixtures, archives, VM sources,
+proof/probe surfaces, and the phase29bq inventory; comment/string-stripped
+`-identifier` hits were then checked at function scope. The remaining three
+shapes are non-candidates: `apps/lib/std/operators/neg.hako:2` has no Loop and
+is not injected by the selected-normal prelude path, while
+`examples/wasm/05_mini_pong.hako:85,98` uses CanvasLoopBox callback/field
+expressions rather than a language `Loop` with the normal-callable
+`BindingRef` relation. This lexical audit is not an AST census, but it closes
+the current inventory question: no existing production source can be named
+for the required relation without designing a new source-backed acceptance.
+
 ## Reopen / non-claims
 
 Reopen when an existing operand type issuer and a canonical missing-type
