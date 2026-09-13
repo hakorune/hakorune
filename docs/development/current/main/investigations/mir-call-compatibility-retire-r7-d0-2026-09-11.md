@@ -208,6 +208,29 @@ owner, and the exact old edge that becomes caller-zero. Until then, ordinary
 new-writer work, non-Loop snapshot reacquisition, and Read/Write/Carrier
 cleanup remain in their existing owners.
 
+### D1 next design artifact: retained-v0 owner-disposition crosswalk
+
+This is a completion condition for D1, not a new census or implementation
+card. Fill one source-backed row only when an existing production route is
+found; keep the row unresolved when the same shared entry also serves a
+supported caller:
+
+```text
+production caller / source or ingress authority
+-> existing terminal and pre-effect failure
+-> retained v0 callers of the shared owner
+-> exact old edge removable after this disposition
+-> caller-zero and acceptance condition
+```
+
+The row must distinguish schema-absent v0 `boxcall -> LegacyCallV0` callers
+that remain supported from callers that can be stopped or promoted. A valid
+row then permits exactly one owner-local Stop or Promote, focused positive and
+negative acceptance, and deletion of only its named old edge. Until every
+field is source-backed, preserve direct v0 compatibility, JoinIR remappers,
+public/dlsym/provider re-entry, and shared terminals; do not add a fallback,
+second resolver, MIR/Recipe receipt, or blanket `boxcall` rejection.
+
 ## MIR-CALL-FAST-INVOCATION-CAPTURE-D0 (accepted)
 
 Boundary: C compile execution -> generic string lowering and its route
