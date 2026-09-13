@@ -1,5 +1,8 @@
 /* Private invocation-owned harness-log proof; no compiler child is started. */
 #define _GNU_SOURCE
+#if defined(_WIN32)
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -104,12 +107,12 @@ int main(void) {
   strcpy(directory, temp_file);
 #else
   char directory[] = "/tmp/hako-harness-log-test-XXXXXX";
+  assert(mkdtemp(directory));
 #endif
   hako_llvmc_harness_log first = {{0}, 0};
   hako_llvmc_harness_log second = {{0}, 0};
   hako_llvmc_harness_log collision = {{0}, 0};
   hako_llvmc_harness_log close_failed = {{0}, 0};
-  assert(mkdtemp(directory));
   test_tmp_dir = directory;
 
   assert(hako_llvmc_harness_log_build_template(
