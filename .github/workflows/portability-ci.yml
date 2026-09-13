@@ -3,17 +3,6 @@ name: portability-ci
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
-    paths:
-      - 'src/host_providers/llvm_codegen/**'
-      - 'src/test_support.rs'
-      - 'lang/c-abi/**'
-      - 'tools/checks/**'
-      - 'plugins/**'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
-      - '.cargo/**'
-      - 'rust-toolchain*'
-      - '.github/workflows/portability-ci.yml'
   workflow_dispatch:
 
 concurrency:
@@ -21,6 +10,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect Windows portability changes
+    runs-on: ubuntu-latest
+    outputs:
+      windows: ${{ steps.filter.outputs.windows }}
+    steps:
+      - name: Check Windows portability paths
+        id: filter
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            windows:
+              - 'src/host_providers/llvm_codegen/**'
+              - 'src/test_support.rs'
+              - 'lang/c-abi/**'
+              - 'tools/checks/**'
+              - 'Cargo.toml'
+              - 'Cargo.lock'
+              - '.cargo/**'
+              - 'rust-toolchain*'
+              - '.github/workflows/portability-ci.yml'
+
   macos-build:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     name: macOS build (release)
@@ -36,7 +48,8 @@ jobs:
         run: cargo build --release --bin hakorune -q
 
   windows-check:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
+    needs: changes
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.draft == false && needs.changes.outputs.windows == 'true') }}
     name: Windows Rust/provider check
     runs-on: windows-latest
     # The llvmlite-enabled lib test links the full Rust test binary on the
@@ -67,7 +80,8 @@ jobs:
           -- --exact
 
   windows-harness-check:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
+    needs: changes
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.draft == false && needs.changes.outputs.windows == 'true') }}
     name: Windows C harness check
     runs-on: windows-latest
     timeout-minutes: 15
