@@ -3,6 +3,17 @@ name: portability-ci
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+    paths:
+      - 'src/host_providers/llvm_codegen/**'
+      - 'src/test_support.rs'
+      - 'lang/c-abi/**'
+      - 'tools/checks/**'
+      - 'plugins/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.cargo/**'
+      - 'rust-toolchain*'
+      - '.github/workflows/portability-ci.yml'
   workflow_dispatch:
 
 concurrency:
@@ -49,24 +60,6 @@ jobs:
           cargo test --profile quick --features llvmlite-compat --lib
           host_providers::llvm_codegen::provider_keep::tests::provider_wrapper_exercises_missing_tool_invalid_input_child_failure_and_success
           -- --exact
-
-  windows-capi-check:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
-    name: Windows Rust/CAPI lifetime check
-    runs-on: windows-latest
-    # Keep the full llvmlite-enabled test link isolated from the provider
-    # lane so the two expensive acceptance paths can run concurrently.
-    timeout-minutes: 45
-    env:
-      CARGO_BUILD_JOBS: 2
-    steps:
-      - name: Enable Git long paths
-        run: git config --global core.longpaths true
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-      - uses: Swatinem/rust-cache@v2
       - name: Check temporary-input CAPI lifetime
         run: >-
           cargo test --profile quick --features llvmlite-compat --lib
