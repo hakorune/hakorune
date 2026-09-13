@@ -108,8 +108,11 @@ known-type states. Runtime impact for `MissingFact`, `UnknownFact`, and
 
 ## Ordered D0 tasks
 
-1. Inventory the lowering-time producers for the exact unary operand and prove
-   whether they can issue Integer/Float/nonnumeric type facts before this arm.
+1. Inventory the lowering-time producers for the exact unary operand, separating
+   normalizer-owned `Some(Unknown)` from raw terminals with no publication, and
+   prove one installed source-relation path (call initializer -> local binding
+   -> selected loop operand) or prove that every selected producer publishes a
+   type before this arm.
 2. Define the negative matrix for missing, Unknown, and nonnumeric facts,
    including the first fail-fast point and the no-allocation/no-effect rule.
 3. Decide whether the existing normalizer compatibility contract intentionally
@@ -118,6 +121,12 @@ known-type states. Runtime impact for `MissingFact`, `UnknownFact`, and
 4. Only after that Decision, select a one-owner I0 with known Integer/Float
    positive coverage, separate negatives, and the exact deletion or retention
    edge for `unwrap_or(MirType::Integer)`.
+
+D0 exits only when the source relation and canonical issuer (or an explicit
+typed rejection) are named, the selected loop path is traced end to end, and
+the state matrix fixes the no-allocation/no-effect boundary. Until then this
+card remains a design stop; a fixture or owner-only unit test cannot substitute
+for that production-path evidence.
 
 Implementation permission is false in this design stop. No code, fixture,
 fallback, route switch, or guessed semantic receipt may cross the boundary.
