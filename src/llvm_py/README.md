@@ -17,6 +17,7 @@ mainline backend route は `ny-llvm / ny-llvmc` に固定されていて、こ�
 - Python/llvmlite line は explicit opt-in probe/canary keep としてだけ保守する
 - Rust runner の互換入口は `llvmlite-compat` feature の明示有効時だけ到達し、`llvm-boundary` は Python/llvmlite を依存しない
 - `tools/llvmlite_harness.py` は `"[llvmlite-keep]"` tag で keep lane を self-identify する
+- 通常のRust LLVM runnerは実行ごとに既存のprimary/alias/default選択を一度だけsnapshotし、harness/fallback/child NyRT precheckへ同じtransport policyを渡す。これは既存のcompat契約を固定する整理で、llvmlite providerやfallbackの所有者を変更しない
 - compat harness は `llvm_builder.py` CLI を `runpy` で再入せず、narrow library seam を直接呼ぶ
 - W6-EのBoundary artifact receiptとcaller-zero証拠後に、既存の [llvmlite graduation task board](../../docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md) のG1→G2→G3を順に実施する。G1（`LLVMLITE-PROD0-G0`）は自動production ingress=0・native failure→harness retry=0・unsupportedはtyped fail-fast、G2（`LLVMLITE-AUTO0`）は通常build/CI/perfのPython/llvmlite依存=0、G3（`LLVMLITE-KEEP0-RET0`）は独立oracleとfixture/golden保存・zero-or-archived consumer census後のarchive/delete判断とする。ここでは新しい意味論やfallbackを追加しない
 - G3でこのrepoから退役する場合も、独立oracle、fixture/golden、全consumerのzero-or-archiveを確認し、source + artifactをexternal archiveへ保存してから別承認で行う

@@ -21,14 +21,17 @@ impl FallbackExecutorBox {
     ///
     /// Otherwise, executes mock execution that inspects the MIR
     /// and returns a deterministic exit code based on Return instructions.
-    pub fn execute(module: &MirModule) -> Result<i32, LlvmRunError> {
+    pub fn execute(
+        module: &MirModule,
+        policy: &super::LlvmHarnessInvocationPolicyV1,
+    ) -> Result<i32, LlvmRunError> {
         crate::mir::backend_capability::enforce_mir_backend_supported(module, "llvm-mock-fallback")
             .map_err(LlvmRunError::fatal)?;
 
         // Fail-fast: if the user explicitly requested the llvmlite harness
         // but this binary was built without the `llvmlite-compat` feature,
         // do not silently fall back to mock.
-        if crate::config::env::env_bool("NYASH_LLVM_USE_HARNESS") {
+        if policy.primary_request_failfast {
             return Err(LlvmRunError::fatal(
                 "LLVM harness requested (NYASH_LLVM_USE_HARNESS=1), but this binary was built without `--features llvmlite-compat`.\n\
 Fix:\n  cargo build --release -p nyash-rust --features llvm-boundary,llvmlite-compat --bin hakorune\n\

@@ -145,6 +145,7 @@ fn selected_receipt_flag_is_forwarded_to_boundary_command() {
         None,
         Some(std::path::Path::new("receipt.json")),
         None,
+        false,
     )
     .expect("command");
     let args: Vec<_> = cmd

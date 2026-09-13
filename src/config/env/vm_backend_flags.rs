@@ -24,6 +24,19 @@ pub fn llvm_use_harness() -> bool {
     true // legacy default remains ON for surviving harness keep callers
 }
 
+/// Primary-only harness request gate used by the retained fallback contract.
+/// This intentionally does not include the deprecated alias or the default.
+pub fn llvm_harness_primary_requested() -> bool {
+    env_bool("NYASH_LLVM_USE_HARNESS")
+}
+
+/// Preserve the legacy child NyRT-precheck rule for the retained harness.
+/// Unlike boolean selection, only the literal primary value `1` bypasses the
+/// runner-side precheck.
+pub fn llvm_harness_child_nyrt_precheck_bypass() -> bool {
+    std::env::var("NYASH_LLVM_USE_HARNESS").ok().as_deref() == Some("1")
+}
+
 /// Optional dynamic LLVM pipeline report output path.
 ///
 /// This is diagnostic-only and unset by default.

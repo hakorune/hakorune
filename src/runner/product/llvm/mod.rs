@@ -21,6 +21,47 @@ use self::error::LlvmRunError;
 use self::pipeline_plan::LlvmPipelinePlan;
 use self::pipeline_report::{LlvmPipelineReport, PipelineReportBox};
 
+/// One ordinary LLVM compatibility attempt's transport policy.
+///
+/// The three fields preserve three existing contracts which intentionally do
+/// not have the same truth table: selector/default handling, the primary-only
+/// fallback fail-fast gate, and the literal-`1` child NyRT-precheck bypass.
+/// This is private runner transport state, not a semantic MIR product.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct LlvmHarnessInvocationPolicyV1 {
+    harness_selector_enabled: bool,
+    primary_request_failfast: bool,
+    child_nyrt_precheck_bypass: bool,
+}
+
+impl LlvmHarnessInvocationPolicyV1 {
+    fn capture() -> Self {
+        #[cfg(feature = "llvmlite-compat")]
+        let harness_selector_enabled = crate::config::env::llvm_use_harness();
+        #[cfg(not(feature = "llvmlite-compat"))]
+        let harness_selector_enabled = crate::config::env::llvm_harness_primary_requested();
+        Self {
+            harness_selector_enabled,
+            primary_request_failfast: crate::config::env::llvm_harness_primary_requested(),
+            child_nyrt_precheck_bypass:
+                crate::config::env::llvm_harness_child_nyrt_precheck_bypass(),
+        }
+    }
+
+    #[cfg(test)]
+    fn from_snapshots(
+        harness_selector_enabled: bool,
+        primary_request_failfast: bool,
+        child_nyrt_precheck_bypass: bool,
+    ) -> Self {
+        Self {
+            harness_selector_enabled,
+            primary_request_failfast,
+            child_nyrt_precheck_bypass,
+        }
+    }
+}
+
 impl NyashRunner {
     /// Execute LLVM mode (split)
     pub(crate) fn execute_llvm_mode(&self, filename: &str) {
@@ -335,16 +376,17 @@ fn execute_via_harness_or_fallback(
             fallback_reason: "none",
         });
     }
-    match harness_executor::HarnessExecutorBox::try_execute(module) {
+    let policy = LlvmHarnessInvocationPolicyV1::capture();
+    match harness_executor::HarnessExecutorBox::try_execute(module, &policy) {
         Ok(code) => Ok(LlvmExecutionOutcome {
             code,
             backend: "ny_llvmc_exe",
             fallback_used: false,
             fallback_reason: "none",
         }),
-        Err(e) if crate::config::env::env_bool("NYASH_LLVM_USE_HARNESS") => Err(e),
+        Err(e) if policy.primary_request_failfast => Err(e),
         Err(_e) => {
-            let code = fallback_executor::FallbackExecutorBox::execute(module)?;
+            let code = fallback_executor::FallbackExecutorBox::execute(module, &policy)?;
             Ok(LlvmExecutionOutcome {
                 code,
                 backend: "mock",
@@ -393,7 +435,27 @@ fn emit_requested_object_or_exit(
 
 #[cfg(test)]
 mod tests {
-    use super::{decide_pyvm_stage, reject_selected_dynamic_legacy_callsites, PyVmStageDecision};
+    use super::{
+        decide_pyvm_stage, reject_selected_dynamic_legacy_callsites,
+        LlvmHarnessInvocationPolicyV1, PyVmStageDecision,
+    };
+
+    #[test]
+    fn policy_preserves_distinct_legacy_projections() {
+        let default_keep = LlvmHarnessInvocationPolicyV1::from_snapshots(true, false, false);
+        assert!(default_keep.harness_selector_enabled);
+        assert!(!default_keep.primary_request_failfast);
+        assert!(!default_keep.child_nyrt_precheck_bypass);
+
+        let literal_one = LlvmHarnessInvocationPolicyV1::from_snapshots(true, true, true);
+        assert!(literal_one.harness_selector_enabled);
+        assert!(literal_one.primary_request_failfast);
+        assert!(literal_one.child_nyrt_precheck_bypass);
+
+        let boolean_true = LlvmHarnessInvocationPolicyV1::from_snapshots(true, true, false);
+        assert!(boolean_true.primary_request_failfast);
+        assert!(!boolean_true.child_nyrt_precheck_bypass);
+    }
 
     #[test]
     fn selected_without_pyvm_reaches_boundary_stage() {

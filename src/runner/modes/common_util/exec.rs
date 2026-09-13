@@ -41,10 +41,10 @@ fn verify_nyrt_dir(dir: &str) -> Result<(), String> {
 }
 
 #[inline(always)]
-fn skip_nyrt_precheck() -> bool {
+fn ambient_skip_nyrt_precheck() -> bool {
     // Keep default behavior unchanged. Harness/dev route can opt out of
     // runner-side precheck and let ny-llvmc decide its own runtime path.
-    std::env::var("NYASH_LLVM_USE_HARNESS").ok().as_deref() == Some("1")
+    crate::config::env::llvm_harness_child_nyrt_precheck_bypass()
 }
 
 fn default_nyrt_dir() -> String {
@@ -65,10 +65,14 @@ pub(crate) fn selected_dynamic_nyrt_dir() -> Result<String, String> {
     Ok(dir)
 }
 
-fn apply_nyrt_arg(cmd: &mut std::process::Command, nyrt_dir: Option<&str>) -> Result<(), String> {
+fn apply_nyrt_arg(
+    cmd: &mut std::process::Command,
+    nyrt_dir: Option<&str>,
+    skip_precheck: bool,
+) -> Result<(), String> {
     let default_nyrt = default_nyrt_dir();
     let nyrt_dir_final = nyrt_dir.unwrap_or(&default_nyrt);
-    if !skip_nyrt_precheck() {
+    if !skip_precheck {
         verify_nyrt_dir(nyrt_dir_final)?;
         cmd.arg("--nyrt").arg(nyrt_dir_final);
     } else if let Some(explicit_nyrt) = nyrt_dir {
@@ -275,6 +279,7 @@ fn build_ny_llvmc_emit_exe_command(
     extra_libs: Option<&str>,
     receipt_json: Option<&std::path::Path>,
     artifact_bundle: Option<&std::path::Path>,
+    skip_precheck: bool,
 ) -> Result<std::process::Command, String> {
     let mut cmd = std::process::Command::new(ny_llvmc);
     cmd.arg("--in")
@@ -284,7 +289,7 @@ fn build_ny_llvmc_emit_exe_command(
         .arg("--out")
         .arg(exe_out);
     apply_ny_llvmc_driver_arg(&mut cmd)?;
-    apply_nyrt_arg(&mut cmd, nyrt_dir)?;
+    apply_nyrt_arg(&mut cmd, nyrt_dir, skip_precheck)?;
     append_ny_llvmc_extra_libs_arg(&mut cmd, extra_libs);
     if let Some(receipt_json) = receipt_json {
         cmd.arg("--receipt-json").arg(receipt_json);
@@ -348,6 +353,7 @@ fn run_ny_llvmc_emit_exe(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
     receipt_json: Option<&std::path::Path>,
+    explicit_skip_precheck: Option<bool>,
 ) -> Result<(), String> {
     let ny_llvmc = resolve_ny_llvmc();
     if !ny_llvmc.exists() {
@@ -361,6 +367,7 @@ fn run_ny_llvmc_emit_exe(
         extra_libs,
         receipt_json,
         None,
+        explicit_skip_precheck.unwrap_or_else(ambient_skip_nyrt_precheck),
     )?;
     spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
 }
@@ -388,6 +395,7 @@ fn emit_json_and_run_ny_llvmc_emit_exe(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
     receipt_json: Option<&std::path::Path>,
+    explicit_skip_precheck: Option<bool>,
 ) -> Result<(), String> {
     emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
         emit_json,
@@ -395,6 +403,7 @@ fn emit_json_and_run_ny_llvmc_emit_exe(
         nyrt_dir,
         extra_libs,
         receipt_json,
+        explicit_skip_precheck,
     )
     .map(|_| ())
 }
@@ -409,10 +418,18 @@ fn emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
     receipt_json: Option<&std::path::Path>,
+    explicit_skip_precheck: Option<bool>,
 ) -> Result<Option<crate::mir::StaticArtifactReceiptConsumedFenceV1>, String> {
     let json_path = prepare_ny_llvmc_emit_json_path();
     emit_json(&json_path)?;
-    let result = run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs, receipt_json);
+    let result = run_ny_llvmc_emit_exe(
+        &json_path,
+        exe_out,
+        nyrt_dir,
+        extra_libs,
+        receipt_json,
+        explicit_skip_precheck,
+    );
     match result {
         Ok(()) => {
             let consumed_receipt = if let Some(receipt_json) = receipt_json {
@@ -474,6 +491,7 @@ fn run_ny_llvmc_emit_exe_with_bundle(
         extra_libs,
         None,
         Some(std::path::Path::new(bundle_path)),
+        ambient_skip_nyrt_precheck(),
     )?;
     spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
 }
@@ -484,6 +502,35 @@ pub fn ny_llvmc_emit_exe_lib(
     exe_out: &str,
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
+) -> Result<(), String> {
+    ny_llvmc_emit_exe_lib_with_nyrt_policy(module, exe_out, nyrt_dir, extra_libs, None)
+}
+
+/// Emit through the ordinary compatibility harness with an already-captured
+/// child NyRT-precheck policy.
+#[cfg(feature = "llvmlite-compat")]
+pub(crate) fn ny_llvmc_emit_exe_lib_with_harness_policy(
+    module: &nyash_rust::mir::MirModule,
+    exe_out: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+    skip_precheck: bool,
+) -> Result<(), String> {
+    ny_llvmc_emit_exe_lib_with_nyrt_policy(
+        module,
+        exe_out,
+        nyrt_dir,
+        extra_libs,
+        Some(skip_precheck),
+    )
+}
+
+fn ny_llvmc_emit_exe_lib_with_nyrt_policy(
+    module: &nyash_rust::mir::MirModule,
+    exe_out: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+    explicit_skip_precheck: Option<bool>,
 ) -> Result<(), String> {
     if crate::host_providers::llvm_codegen::emit_published_static_method_exe(
         module, exe_out, nyrt_dir, extra_libs,
@@ -502,6 +549,7 @@ pub fn ny_llvmc_emit_exe_lib(
         nyrt_dir,
         extra_libs,
         None,
+        explicit_skip_precheck,
     )
 }
 
@@ -589,6 +637,7 @@ pub fn ny_llvmc_emit_exe_bin(
         exe_out,
         nyrt_dir,
         extra_libs,
+        None,
         None,
     )
 }

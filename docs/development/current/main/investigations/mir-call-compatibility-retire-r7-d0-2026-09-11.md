@@ -1,7 +1,7 @@
 ---
-Status: Design stop — remaining shared compatibility admission
+Status: Design stop — retained compatibility frontier after Rust request I0
 Date: 2026-09-13
-Decision: MIR-CALL-COMPATIBILITY-ADMISSION-D0
+Decision: MIR-CALL-COMPATIBILITY-FRONTIER-PAUSE-D1
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,16 +11,17 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: define the next shared C/AOT compatibility owner after FAST capture I0.
+Decision: close the bounded Rust llvmlite runner transport I0 and keep the
+remaining retained compatibility frontier at an explicit design stop.
 Source authority + canonical issuer: each retained physical request and its existing invocation or process boundary.
 Non-authority: historical task prose, profile names, public symbol presence, and adjacent smoke results.
 Fail-fast boundary: preserve admission, typed row finish, owner cleanup and pre-artifact failure.
-Smallest next slice: MIR-CALL-COMPATIBILITY-ADMISSION-D0; one caller/terminal/delete-set matrix.
+Smallest next slice: none; reopen only when one source-backed caller, terminal, retained-caller set, and old-edge delete-set are named together.
 Non-claims: no aggregate R7 completion, new MIR/Recipe authority, ABI retirement, or general concurrency proof.
 
-The accepted Decision closes the technical mapping. Changing capture time
-creates an execution-state ownership boundary; Hypatia's read-only audit
-identified the three consumers and the primary agent accepted the Decision.
+The accepted I0 closes one behavior-neutral transport boundary. The remaining
+shared C/AOT/provider/public compatibility groups still have no finite
+caller-local deletion tuple, so no new implementation slice is authorized.
 
 ## Finite scope and retained owners
 
@@ -103,6 +104,110 @@ entry condition without manufacturing a new authority or deleting a supported
 caller. The next eligible change must reduce a production old edge in the same
 bounded series.
 
+## MIR-CALL-COMPATIBILITY-RUST-LLVMLITE-REQUEST-D0 (accepted; I0 selected)
+
+The previous frontier audit found no safe deletion of the retained provider or
+public compatibility entry. A separate source audit found one behavior-neutral
+transport boundary inside the existing Rust runner: the ordinary LLVM execution
+entry reads the harness selector again in the harness executor, fallback
+executor, and NyRT precheck helper. Those reads are not a new semantic owner,
+but their different primary/alias/default contracts must not be collapsed.
+
+Boundary: one `NyashRunner::execute_llvm_mode` ordinary compatibility attempt
+from route decision through `HarnessExecutorBox`/`FallbackExecutorBox` to the
+existing `ny_llvmc_emit_exe_lib` child terminal. The selected Dynamic Boundary
+route, `backend=mir` emitter, host-provider `ExplicitHarnessCompat` route,
+named C/AOT harness, and public ABI/dlsym paths are excluded.
+
+Source authority + canonical issuer: `config::env::llvm_use_harness()` remains
+the selector parser (primary, then deprecated alias, then its existing default).
+At the existing `execute_via_harness_or_fallback` decision boundary, a private
+`LlvmHarnessInvocationPolicyV1` snapshots that selector plus the existing raw
+primary fallback gate and the literal-`1` child NyRT-precheck bypass. This is
+one transport request owner with three named compatibility projections; it is
+not a MIR, Recipe, ABI, or `Verified*`/`Prepared*` semantic product.
+
+### Finite policy states
+
+| Existing input state | Captured policy | Existing terminal behavior to preserve |
+| --- | --- | --- |
+| primary present and parsed true (`1`/`true`/`on`) | selector=true, primary-failfast=true; child bypass only for literal `1` | try harness; harness failure is not allowed to fall back |
+| primary present and parsed false (including empty/other text) | selector=false, primary-failfast=false, child bypass=false | harness rejects as not requested; existing mock fallback remains eligible |
+| primary unset, alias present and parsed true | selector=true, primary-failfast=false, child bypass=false | try harness; failure may use the existing fallback policy |
+| primary unset, alias present and parsed false | selector=false, primary-failfast=false, child bypass=false | harness rejects; existing fallback remains eligible |
+| both unset | selector=true from the existing keep-lane default, primary-failfast=false, child bypass=false | try harness; failure may use the existing fallback policy |
+
+The primary key continues to win over the alias. The literal-`1` child
+precheck rule remains distinct from boolean parsing; this preserves current
+`true`/`on` behavior. Debug pipeline reporting remains observation-only and is
+not a route authority.
+
+Exact old-edge delete set for I0:
+
+1. the direct primary `env_bool` fallback decision in `llvm/mod.rs`;
+2. the ambient selector read in `harness_executor.rs` and its duplicate raw
+   selector diagnostic (the captured policy is logged instead);
+3. the direct primary `env_bool` fail-fast check in `fallback_executor.rs`;
+4. the ambient `NYASH_LLVM_USE_HARNESS` read on this harness caller's NyRT
+   precheck path in `common_util/exec.rs`, replaced by an explicit process
+   policy. The ambient behavior for unrelated `backend=mir` and selected
+   Boundary callers remains retained and is outside this delete set.
+
+I0 must not delete `provider_keep`, `CodegenRouteRequestV1`, the public C/AOT
+entry, fallback execution, `llvm_use_harness` itself, or the diagnostic-only
+pipeline report field. No route switch, new fallback, retry, MIR/Recipe change,
+or public ABI change is permitted.
+
+Acceptance: the existing ordinary LLVM runner caller passes one policy through
+harness, fallback, and the harness child emitter; positive and negative
+selector states above retain their current result; the harness child keeps its
+existing explicit arguments, artifact/error cleanup, and NyRT behavior; a
+focused source guard proves the old runner reads are gone while unrelated
+ambient callers remain; quick-profile compilation and the existing focused
+LLVM compatibility smoke are green. This is WSL/Linux evidence unless a later
+revision changes Windows-specific process code; no native Windows claim is
+made by this I0.
+
+## MIR-CALL-COMPATIBILITY-RUST-LLVMLITE-REQUEST-I0 closeout (2026-09-13)
+
+Implemented the accepted transport slice in the existing Rust runner. One
+`LlvmHarnessInvocationPolicyV1` is captured at the ordinary harness/fallback
+decision boundary and passed through harness execution, fallback admission,
+and the child NyRT-precheck path. The primary/alias/default selector, the
+primary-only fallback fail-fast gate, and the literal-`1` child bypass remain
+separate projections. No provider, public ABI, MIR, Recipe, or fallback owner
+was deleted or changed.
+
+Evidence: default quick-profile test compilation passed; the exact policy
+unit test passed; `CARGO_BUILD_JOBS=1 cargo check --profile quick
+--features llvmlite-compat` passed; the focused LLVM options/ownership smoke,
+`llvm_codegen_route_identity_guard.sh`,
+`current_state_pointer_guard.sh`, and `git diff --check` passed. The changed
+Rust sources remain below the 800-line limit. The first focused command used
+an over-specific short filter and ran zero tests; it was corrected by listing
+the binary and rerunning the full test name, which passed 1/1. The global
+`cargo fmt --check` remains informational baseline debt because unrelated
+repository formatting differences are already present; no formatter write was
+performed. This is WSL/Linux evidence; native Windows remains covered only by
+the separate AOT I1 result at `59e9a30b1f`.
+
+## MIR-CALL-COMPATIBILITY-FRONTIER-PAUSE-D1 (accepted design stop)
+
+The Rust llvmlite runner request boundary is now closed, but the remaining
+retained compatibility owners still share supported public entries, provider
+reachability, dlsym re-entry, or terminal bodies. No source-backed finite
+caller/terminal/retained-caller/old-edge deletion tuple is currently available.
+
+Decision: `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet`.
+
+Do not repeat the completed census, invent a new MIR/Recipe receipt, delete a
+shared provider or public ABI, or start published-row implementation from
+this stop. Reopen only from a fresh source-backed relation that identifies a
+single production caller, its terminal, all retained callers of the shared
+owner, and the exact old edge that becomes caller-zero. Until then, ordinary
+new-writer work, non-Loop snapshot reacquisition, and Read/Write/Carrier
+cleanup remain in their existing owners.
+
 ## MIR-CALL-FAST-INVOCATION-CAPTURE-D0 (accepted)
 
 Boundary: C compile execution -> generic string lowering and its route
@@ -150,7 +255,7 @@ before claiming that fixture as acceptance.
 
 ## MIR-CALL-FAST-INVOCATION-CAPTURE-I0 closeout (2026-09-13)
 
-Implemented at the current closeout commit: capture FAST in the existing
+Implemented at the FAST capture closeout revision: capture FAST in the existing
 invocation at compile entry, migrate all three readers atomically, and remove
 the caller-zero ambient helper.
 
@@ -183,7 +288,8 @@ work remain in their existing owners.
 | --- | --- | --- |
 | 1 | FAST capture D0 | accepted above; design and task organization delivered |
 | 2 | FAST capture I0 | closed at the current implementation commit; three readers and the old helper are aligned |
-| 3 | Next shared compatibility D0 | active design stop; choose one finite caller/terminal/delete-set |
+| 3 | Rust llvmlite runner request I0 | closed in this revision; one invocation policy, three existing consumers, and the exact ambient-read delete set above |
+| 4 | Compatibility frontier pause D1 | design stop; no new census and no implementation until a finite caller/terminal/delete-set is source-backed |
 | Deferred | non-Loop snapshot reacquisition | existing perf owner; prove duplicate acquisition and compatible lifetime before reuse |
 | Deferred | Read/Write/Carrier unused information | owning Rust metadata paths; prove zero consumers before behavior-neutral deletion |
 | Deferred | ordinary-new unclaimed writer | existing Birth/ordinary-new owner; retain direct-local, foreign/transferred and uncovered cases |

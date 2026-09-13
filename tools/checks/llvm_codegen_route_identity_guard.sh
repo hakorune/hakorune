@@ -13,6 +13,10 @@ ROUTE="$ROOT/src/host_providers/llvm_codegen/route.rs"
 BOUNDARY_FFI="$ROOT/crates/nyash-llvm-compiler/src/boundary_driver_ffi.rs"
 BOUNDARY_DEFAULTS="$ROOT/crates/nyash-llvm-compiler/src/boundary_driver_defaults.rs"
 RUNNER_EXEC="$ROOT/src/runner/modes/common_util/exec.rs"
+LLVM_RUNNER="$ROOT/src/runner/product/llvm/mod.rs"
+HARNESS_EXECUTOR="$ROOT/src/runner/product/llvm/harness_executor.rs"
+FALLBACK_EXECUTOR="$ROOT/src/runner/product/llvm/fallback_executor.rs"
+LLVM_VM_FLAGS="$ROOT/src/config/env/vm_backend_flags.rs"
 SELECTED_BUNDLE="$ROOT/src/runner/modes/common_util/selected_dynamic_artifact_bundle.rs"
 CAPI="$ROOT/src/host_providers/llvm_codegen/capi_transport.rs"
 PROVIDER="$ROOT/src/host_providers/llvm_codegen/provider_keep.rs"
@@ -53,7 +57,7 @@ need_fixed() {
 }
 
 for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGIN" "$AOT" \
-  "$RUNNER_EXEC" "$C_COMMON" "$CAPI_ROUTE" \
+  "$RUNNER_EXEC" "$LLVM_RUNNER" "$HARNESS_EXECUTOR" "$FALLBACK_EXECUTOR" "$LLVM_VM_FLAGS" "$C_COMMON" "$CAPI_ROUTE" \
   "$CAPI_INVOCATION" "$PUBLISHED_ROWS" "$LEGACY_EMITTER" "$CAPI_CAPTURE_TEST" \
   "$FAST_CAPTURE_TEST" \
   "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
@@ -146,6 +150,26 @@ need_fixed "$RUNNER_EXEC" 'expected none or unset' \
   "selected Dynamic replay boundary drifted"
 need_fixed "$RUNNER_EXEC" 'rejects explicit HAKO_LLVM_EMIT_PROVIDER' \
   "selected Dynamic provider inheritance gate missing"
+need_fixed "$LLVM_RUNNER" 'LlvmHarnessInvocationPolicyV1' \
+  "ordinary LLVM harness invocation policy owner missing"
+need_fixed "$LLVM_RUNNER" 'let policy = LlvmHarnessInvocationPolicyV1::capture();' \
+  "ordinary LLVM harness policy must be captured at the route boundary"
+need_fixed "$HARNESS_EXECUTOR" 'ensure_harness_requested(policy)?' \
+  "harness executor must consume the captured policy"
+need_fixed "$FALLBACK_EXECUTOR" 'if policy.primary_request_failfast' \
+  "fallback executor must consume the captured primary gate"
+need_fixed "$RUNNER_EXEC" 'ny_llvmc_emit_exe_lib_with_harness_policy' \
+  "harness child emitter must receive the captured precheck policy"
+need_fixed "$LLVM_VM_FLAGS" 'pub fn llvm_harness_primary_requested()' \
+  "primary harness gate owner missing"
+need_fixed "$LLVM_VM_FLAGS" 'pub fn llvm_harness_child_nyrt_precheck_bypass()' \
+  "literal-1 child precheck owner missing"
+if rg -n 'env_bool\("NYASH_LLVM_USE_HARNESS"\)' "$LLVM_RUNNER" "$HARNESS_EXECUTOR" "$FALLBACK_EXECUTOR"; then
+  fail "ordinary LLVM runner still rereads the primary harness selector"
+fi
+if rg -n 'std::env::var\("NYASH_LLVM_USE_HARNESS"\)' "$RUNNER_EXEC"; then
+  fail "common executable transport still reads the harness selector directly"
+fi
 need_fixed "$AOT" 'stage=child result=%s reason=ny-llvmc extra=driver=harness' \
   "generic AOT child observation shape drifted"
 need_fixed "$CARD" 'LLVMLITE-ROUTE0-OBSERVE0-R0' "OBSERVE0-R0 row missing"

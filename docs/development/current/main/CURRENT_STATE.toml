@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-COMPATIBILITY-ADMISSION-D0"
-current_execution_cohort = "mir_call_compatibility_retire_r7_shared_admission_d0"
-current_blocker_token = "MIR-CALL-COMPATIBILITY-ADMISSION-D0"
-guard_followup = "design_stop: FAST capture I0 is closed with Linux real-object evidence. The retained C/AOT matrix has no finite caller-specific old-edge delete-set; legacy TargetMachine capture is already closed at 47e83a224e and Windows child-env transport is already covered at 59e9a30b1f. Keep the frontier paused until new source-backed owner/terminal evidence appears; do not repeat the census. One Cargo process, jobs 1-2 until RAM validated."
-current_design_stop = "R7RetainedCapiOwnersNoExclusiveDeleteSet"
+current_execution_row = "MIR-CALL-COMPATIBILITY-FRONTIER-PAUSE-D1"
+current_execution_cohort = "mir_call_compatibility_frontier_pause_d1"
+current_blocker_token = "NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet"
+guard_followup = "design_stop: Rust llvmlite runner request I0 is closed with one invocation policy and preserved primary/alias/default, fallback, and literal-1 NyRT-precheck semantics. Do not repeat the completed census or implement published-row work. Reopen only with a source-backed finite caller/terminal/retained-caller/old-edge delete-set. One Cargo process, jobs 1-2 until RAM validated."
+current_design_stop = "NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -30,11 +30,18 @@ Its WSL/Linux focused C, lifetime/query/formal cases and jobs1 Cargo check
 passed; it has no new native Windows execution evidence.
 FAST capture D0/I0 is closed: one compile-entry sample of NYASH_LLVM_FAST,
 three existing consumers, exact truth-value preservation, old helper deletion,
-and LLVM18 real-object evidence for FAST=0/1. The next shared compatibility
-admission is an accepted frontier pause: the four retained C/AOT groups are
-classified, but none has a finite caller-specific old-edge delete-set. The
-legacy TargetMachine selector is already invocation-owned at 47e83a224e; the
-Windows child-env evidence remains revision-scoped to 59e9a30b1f.
+and LLVM18 real-object evidence for FAST=0/1. The shared compatibility
+admission was first paused because the four retained C/AOT groups had no finite
+caller-specific old-edge delete-set. The bounded Rust llvmlite runner
+transport slice is closed in this revision: one invocation-local policy
+preserves the existing primary/alias/default selector, primary fallback gate,
+and literal-1 child NyRT-precheck rule across the existing harness/fallback
+consumers. The provider, public ABI, MIR, Recipe, and fallback owner remain
+retained. The legacy TargetMachine selector is already invocation-owned at
+47e83a224e; the Windows child-env evidence remains revision-scoped to
+59e9a30b1f. The remaining retained compatibility frontier has no
+source-backed finite caller/terminal/delete-set; do not repeat the census or
+start a new implementation slice.
 Source-called G0 LLVM18/EXE3, scalar local/terminal Call and empty-Home Plain
 cleanup have their recorded bounded acceptance. No whole-MirBuilder or
 backend-parity claim follows. Named llvmlite environment debt and legacy
@@ -43,10 +50,10 @@ Non-Loop snapshot reacquisition and unused Read/Write/Carrier information
 remain deferred cleanup candidates in their existing owners.
 Warning baseline lib=1806; RAM validation pending, Cargo jobs stay at 1-2.
 """
-next_design_card = "MIR-CALL-COMPATIBILITY-ADMISSION-D0"
+next_design_card = "MIR-CALL-COMPATIBILITY-FRONTIER-PAUSE-D1"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none__R7NextOwner__DesignStop"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+next_execution_card = "none__R7RetainedCompatibilityFrontier__DesignStop"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
@@ -63,5 +70,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 is still open; M7-S write-only source/MIR/OBJ/EXE/reject evidence is closed; llvmlite remains explicit compatibility.",
   "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10: Receiver/callee/FieldGet/schema evidence and Pair exit30 are recorded. Loop remains ParkedSealed__NoCallableNoneCaller. LocalSSA, selected-C, Dynamic JSON, emit-clone, debug-policy, lazy-payload, postprocess, refresh-counter, variable-read, method-handler split, PHI batch, and self-cache rows are closed. C driver arity d5658dc759, LocalSSA guard a9389ede13, and generic compatibility positive c1467583fe (structured Global/print rc=0 object; strict pure-first legacy call named reject) are recorded. Lookup facade and prepared-operand definition index remain deferred. Published-row invocation ownership I0 moves the private borrowed ledger into HakoLlvmcInvocation and passes one explicit owner through Static V2, prepass, emission, residual finish, and cleanup; focused C owner/overlap/duplicate/zero-row/residual tests, ASan document lifetime/query suites, Static V2 formal cases, route/pointer guards, and diff check pass. Native Windows I1 remains a separate closed proof.",
+  "2026-09-10/13: Receiver/callee/FieldGet/schema, Pair exit30, and the selected-C/generic compatibility rows are recorded; Loop remains ParkedSealed__NoCallableNoneCaller. Published-row I0 moves the borrowed ledger into HakoLlvmcInvocation with focused ownership, overlap, duplicate, zero-row, residual, lifetime/query, formal, route, pointer, and diff evidence. Native Windows AOT I1 remains a separate closed proof. Rust llvmlite runner request I0 is closed with one invocation policy preserving selector/fallback/NyRT projections; the retained compatibility frontier returns to design stop D1.",
 ]
