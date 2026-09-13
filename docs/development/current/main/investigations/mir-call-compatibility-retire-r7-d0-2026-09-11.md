@@ -1,7 +1,7 @@
 ---
-Status: release-selfhost boxcall D0 resolved Retain; R7 frontier pause
+Status: StringBox source-contract D0 selected; compatibility retained during design
 Date: 2026-09-14
-Decision: MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0
+Decision: MIR-CALL-R7-STRINGBOX-SOURCE-CONTRACT-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,12 +11,12 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: retain the supported JSON-v0 StringBox cohort and resolve the compatibility-entrypoint disposition.
-Source authority + canonical issuer: the existing Program-JSON compatibility producer remains its own textual authority; no canonical source issuer is inferred from method spelling or MIR shape.
-Non-authority: shared-parser reuse, method names, CI status, and a stopped pointer cannot decide migration.
-Fail-fast boundary: declared-schema errors stay terminal; retained schema-absent compatibility keeps its existing terminal.
-Smallest next slice: select another already-inventoried finite R7 owner; none is currently eligible after this Retain.
-Non-claims: no implementation, blanket v0 rejection, source-selfhost lane activation, Windows lifecycle proof, or aggregate R7 retirement.
+Decision: select MIR-CALL-R7-STRINGBOX-SOURCE-CONTRACT-D0; preserve supported compatibility while designing its caller-local successor.
+Source authority + canonical issuer: structured Program-v0 Return/Method/New occurrences and existing CoreMethodContractBox; binding those occurrences to the contract still needs a named issuer.
+Non-authority: textual first-string/name matching, parity shape summaries, legacy MIR, and schema-spelling replacement.
+Fail-fast boundary: producer disposition before MIR publication; declared-schema/direct-loader errors remain terminal without retry.
+Smallest next slice: settle exact membership, result/effect/ABI and one consumer handoff for the existing StringBox cohort.
+Non-claims: no implemented issuer/consumer, I0 permission, shared v0 reader deletion, whole-selfhost activation, or backend parity.
 
 ## Development queue (worker-audited 2026-09-13)
 
@@ -39,7 +39,7 @@ artifact umbrella intake, Stage-A, Program conversion, parser deletion and backe
 | 4 resolved | `MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0` | Retain the phase14/17 StringBox compatibility cohort; shared v0 parser reuse is not treated as boxcall-arm dependence. |
 | 4 resolved | `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` | Retain Global and dynamic Value compatibility; its old-edge delete-set is empty. |
 | 4 resolved | `MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0` | Retain explicit release selfhost/Stage1 boxcall compatibility; its exact delete-set is empty. |
-| 4 next selection | `none__no_eligible_r7_owner_after_release_selfhost_retain` | Keep the R7 frontier paused; do not promote parked rows or repeat the closed census. |
+| 4 selected design | `MIR-CALL-R7-STRINGBOX-SOURCE-CONTRACT-D0` | Close source membership and consumer handoff below; compatibility remains supported and I0 stays conditional. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
 | 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
@@ -287,10 +287,8 @@ selecting another R7 task. Both are retained compatibility, not executable work:
 | `method.rs:517` interpreter singleton fallback | `execute_method_callee` has one production caller (`array_write.rs`) and it always supplies `Some(receiver)`; the canonical static path is `Callee::Global(StaticBoxMethod)`. The `None` branch has no independent production caller or pre-effect terminal. | Retain as `NoSafeSlice`; no exclusive delete-set. Reopen only with a caller-local Stop/migration that names the terminal and removes this edge without deleting the live receiver-present path. |
 | `array_element_write.rs:251` llvmlite projection | `llvmlite_emit_obj_lib -> project_for_legacy_backend -> project_module_to_legacy_calls` is one explicit `llvmlite-compat` object route. Typed-array metadata/instruction drift is rejected before cloning/emission; the consumer has not accepted the V1 operation. | Retain as `NoSafeSlice`; old-edge delete-set is empty. Reopen only after a V1 consumer or explicit caller-local Stop supplies a successor and exact deletion. |
 
-These audits do not select a new card, add a backend, or require Cargo/CI.
-They close the available owner checks for this frontier; the queue remains
-`none__no_eligible_r7_owner_after_release_selfhost_retain` and parked families
-stay sealed.
+These retained rows remain unchanged. Their lack of an executable delete-set
+does not prevent the selected StringBox source-contract design below.
 
 ## Worker-audited native Windows lifecycle gap (2026-09-14)
 
@@ -870,53 +868,51 @@ not change grammar semantics.
 
 ### Collected CI receipt and independent work
 
-- Evidence owner: this I0 card; the completed receipt is retained here for the
-  next closeout/restart checkpoint. No foreground polling or redispatch is
-  needed for this evidence.
-- Run: https://github.com/hakorune/hakorune/actions/runs/34753858020
-  at `c5b01f54483eb8aed70dd23db1b5a0a939afc4a0`. Provider passed; CAPI
-  observer failed at the success assertion after the shared build. This run
-  is the current-change red that the bounded observer repair addresses.
-- Latest revision: `8e7179bb7e` contains the observer/workflow repair, the
-  same-content generated.rs write guard, and its evidence note. Manual run
-  `34759102231` at that SHA completed successfully; provider/CAPI durations
-  and timestamps are recorded above.
-- Required receipt: exact provider and generic CAPI Windows lifetime tests,
-  plus C harness checks. Provider and CAPI shared one `--lib` test build; the
-  recorded step timings are 23m18s and 7s respectively after the shared
-  2m19s `Check hakorune` build step.
-- CAPI observer covers input reopen/bytes and post-return deletion on success
-  and nonzero/null-error return. It does not prove native LLVM execution,
-  mixed-CRT error deallocation, or lifecycle runtime support.
-- Native lifecycle runtime remains outside this observer: its existing session
-  selector accepts `x86_64-unknown-linux-gnu` only. Do not fabricate a Windows
-  session to close the evidence gap.
-- Independent selection note: the A-4 resolver-to-loop relation audit is now
-  closed as a non-blocking follow-up in
-  `mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md`. Its existing
-  owner Stop is complete; the unobserved source relation is not a production
-  acceptance prerequisite and does not block this R7 evidence row.
-  Select another already-inventoried row only when its own entry conditions are
-  closed. Do not redispatch or foreground-poll this completed run.
+Run `34759102231` at `8e7179bb7e` closes the Windows provider/generic CAPI
+receipt; exact timestamps and durations are recorded above. It supersedes the
+observer red from `34753858020`; it does not establish native lifecycle support,
+native LLVM execution, or mixed-CRT error deallocation. The merged provider/CAPI
+job shares the test build. Manual dispatch defaults to `scope=windows`; `full`
+adds macOS/plugin checks. PR path filtering uses the complete PR changed-file
+set, so docs-only commits do not necessarily skip Windows. Closed workflow
+repair and independent A-4/G0 audit detail remain in Git at `9eee6e153d`.
+No foreground polling or redispatch is required before the selected design.
 
-The earlier separate provider/CAPI jobs built the same test binary twice.
-Their split established no speedup; the merged job removes duplicated work,
-not the initial full-library build latency. PR path filtering uses the PR's
-changed-file set, so a later docs-only commit on a PR already changing those
-paths can still run Windows checks; per-push docs skipping is not proven.
+## MIR-CALL-R7-STRINGBOX-SOURCE-CONTRACT-D0 — selected (2026-09-14)
 
-Manual-dispatch scope repair (2026-09-13): `portability-ci.yml` now accepts a
-`scope` choice. The default `windows` scope runs only the Windows Rust/provider,
-Windows C harness, and their required acceptance checks; `full` explicitly
-includes the macOS release and plugin matrix. Pull-request conditions remain
-unchanged. This removes unrelated matrix work from the normal one-off Windows
-receipt without changing the required R7 evidence surface.
+Worker premise reset: an empty Retain delete-set blocks immediate deletion,
+not internal successor design. The family scheduler permits this design in the
+same card. The previous external-pointer wait confused implementation entry
+with retirement completion. Existing compatibility support remains in force.
 
-Independent-row audit (2026-09-13): the apparent G0 helper-backend next card
-and its source-to-EXE I1 are already closed. Their recorded next action is
-R7 owner-unit selection, and no separate Loop implementation row has a closed
-entry tuple while this R7 receipt was pending. The receipt is now collected;
-no disconnected Loop receipt or replacement row is opened from this audit.
+Boundary: the five StringBox producer partitions above -> registry/fallback
+callers -> proposed successor admission -> result or typed rejection. Includes
+both caller configurations; excludes whole-selfhost activation, other producers,
+Windows capability and shared schema removal. This selects design, not I0.
+
+| Order | Design task | Required output / exit |
+| --- | --- | --- |
+| 1 | Exact Program membership | Freeze all five existing partitions, direct-child receiver/arguments, exact arity, empty string, malformed JSON, extra arguments and embedded/opaque subtrees. Distinguish preserved compatibility from the exact migratable subset; do not silently reject current inputs. |
+| 2 | One source-to-contract issuer | Bind actual source occurrences to existing CoreMethodContractBox String rows. Name the sole binding owner and constructor/Home/cleanup, alias, result/failure/effect/ABI contracts; parity scans and MIR shape cannot supply missing facts. |
+| 3 | One consumer handoff | Compare the existing Program bridge with a canonical admission change; choose one complete caller-to-terminal mapping. Direct MIR currently rejects schema 2.0 and v0 call/mir_call, so changing op/schema spelling is not migration. Isolate any unresolved general-ingress dependency explicitly. |
+| 4 | Conditional caller-switch I0 | Freeze one Change/Contract/Done/Stop brief: switch both callers, remove their selected boxcall emitter edges in the same series, and name retained residuals. A length/size-only slice must retain indexOf explicitly. |
+
+Source anchors: `lower_return_method_string_length_box.hako::try_lower` and its
+`_emit_new_stringbox_boxcall0` / `_emit_new_stringbox_boxcall1_string` helpers;
+`registry_authority_box.hako:51`, `fallback_authority_box.hako:110`;
+`lang/src/runtime/meta/core_method_contract_box.hako:295`;
+`src/runner/mir_json_v0/module.rs` boxcall/call arms and
+`src/runner/json_artifact/mir_loader.rs::parse_direct_mir_json_text`.
+`program_json_expr_method_shape_scan.hako` and the New shape scan are parity
+summaries, explicitly not Recipe/route issuers.
+
+D0 closes only when membership, issuer, consumer and planned deletion agree;
+otherwise keep the exact unresolved mapping as internal design work. I0 Done
+must preserve phase14/17 semantic results 3/1 through both callers, classify
+extra/embedded/malformed inputs, observe the new selected producer-to-terminal
+route, preserve v0/v1 rejection precedence and prove no retry. Update syntax
+pins only with the migration; focused existing gates and owning README/reference
+updates belong to that same I0. Source split boundaries remain 760/800 lines.
 
 ## Closed evidence and contracts
 
