@@ -113,7 +113,8 @@ mod tests {
         let empty_bin = workspace.path().join("empty-bin");
         fs::create_dir_all(&tools).expect("provider tools directory");
         fs::create_dir_all(&empty_bin).expect("provider empty bin directory");
-        let interpreter = resolve_python3().expect("Python is required for provider acceptance");
+        let interpreter = crate::test_support::with_process_state_lock(resolve_python3)
+            .expect("Python is required for provider acceptance");
         let interpreter_dir = interpreter
             .parent()
             .expect("provider interpreter has a parent")

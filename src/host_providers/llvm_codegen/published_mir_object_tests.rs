@@ -259,13 +259,15 @@ int hako_llvmc_compile_published_lifecycle_physical_v4(
 "#,
     )
     .expect("write lifecycle stub source");
-    let status = Command::new("cc")
-        .args(["-shared", "-fPIC", "-o"])
-        .arg(&ffi_path)
-        .arg(&source_path)
-        .status()
-        .expect("invoke cc for lifecycle stub");
-    assert!(status.success(), "lifecycle stub build failed");
+    crate::test_support::with_process_state_lock(|| {
+        let status = Command::new("cc")
+            .args(["-shared", "-fPIC", "-o"])
+            .arg(&ffi_path)
+            .arg(&source_path)
+            .status()
+            .expect("invoke cc for lifecycle stub");
+        assert!(status.success(), "lifecycle stub build failed");
+    });
 
     let runtime_archive =
         PathBuf::from("target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a");

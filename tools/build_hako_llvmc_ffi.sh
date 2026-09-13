@@ -20,12 +20,15 @@ uname_s="$(uname -s)"
 out_name="libhako_llvmc_ffi.so"
 link_mode="-shared"
 extra_linker_flag=""
+pic_flags=(-fPIC)
 if [[ "$uname_s" == "Darwin" ]]; then
   out_name="libhako_llvmc_ffi.dylib"
   link_mode="-dynamiclib"
   extra_linker_flag="-Wl,-install_name,@rpath/libhako_llvmc_ffi.dylib"
 elif [[ "$uname_s" == MINGW* || "$uname_s" == MSYS* || "$uname_s" == CYGWIN* || "$uname_s" == Windows_NT ]]; then
   out_name="hako_llvmc_ffi.dll"
+  # Native MSVC-targeting clang rejects the POSIX-only -fPIC flag.
+  pic_flags=()
 fi
 out_path="$OUT_DIR/$out_name"
 
@@ -35,7 +38,7 @@ echo "[build] compiling $out_name ..."
 
 YYJSON_DIR="$ROOT/plugins/nyash-json-plugin/c/yyjson"
 
-"$cc_cmd" -fPIC "$link_mode" \
+"$cc_cmd" "${pic_flags[@]}" "$link_mode" \
   -I"$YYJSON_DIR" \
   ${extra_linker_flag:+$extra_linker_flag} \
   -o "$out_path" \

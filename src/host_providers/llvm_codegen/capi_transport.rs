@@ -549,13 +549,69 @@ exit 0
         let source = path.with_extension("c");
         fs::write(&source, "int unrelated_symbol(void) { return 0; }\n")
             .expect("write missing-symbol library source");
-        let status = Command::new("cc")
-            .args(["-shared", "-fPIC", "-o"])
-            .arg(path)
-            .arg(&source)
-            .status()
-            .expect("invoke cc for missing-symbol library");
-        assert!(status.success(), "missing-symbol library build failed");
+        crate::test_support::with_process_state_lock(|| {
+            let status = Command::new("cc")
+                .args(["-shared", "-fPIC", "-o"])
+                .arg(path)
+                .arg(&source)
+                .status()
+                .expect("invoke cc for missing-symbol library");
+            assert!(status.success(), "missing-symbol library build failed");
+        });
+    }
+
+    fn build_input_observer_library(path: &Path) {
+        let source = path.with_extension("c");
+        fs::write(
+            &source,
+            r#"#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int hako_llvmc_compile_json_with_options_v1(
+    const char* input, const char* output, const void* options, char** error) {
+  const char* record = getenv("HAKO_CAPI_RECORD_PATH");
+  FILE* in;
+  FILE* copy;
+  FILE* out;
+  char path[4096];
+  int n;
+  (void)options;
+  if (!input || !output || !record) return -2;
+  n = snprintf(path, sizeof(path), "%s.path", record);
+  if (n <= 0 || (size_t)n >= sizeof(path)) return -3;
+  copy = fopen(path, "wb");
+  if (!copy) return -4;
+  fputs(input, copy);
+  if (fclose(copy) != 0) return -5;
+  n = snprintf(path, sizeof(path), "%s.input", record);
+  if (n <= 0 || (size_t)n >= sizeof(path)) return -6;
+  in = fopen(input, "rb");
+  copy = fopen(path, "wb");
+  if (!in || !copy) return -7;
+  {
+    int ch;
+    while ((ch = fgetc(in)) != EOF) fputc(ch, copy);
+  }
+  fclose(in);
+  fclose(copy);
+  out = fopen(output, "wb");
+  if (!out) return -8;
+  fputs("capi-observer-object", out);
+  return fclose(out) == 0 ? 0 : -9;
+}
+"#,
+        )
+        .expect("write CAPI input observer source");
+        crate::test_support::with_process_state_lock(|| {
+            let status = Command::new("cc")
+                .args(["-shared", "-fPIC", "-o"])
+                .arg(path)
+                .arg(&source)
+                .status()
+                .expect("invoke cc for CAPI input observer");
+            assert!(status.success(), "CAPI input observer build failed");
+        });
     }
 
     fn capi_opts(out: &Path) -> crate::host_providers::llvm_codegen::Opts {
@@ -586,6 +642,28 @@ exit 0
         )
     }
 
+    fn run_with_capi_env_and_record<R>(
+        ffi: &Path,
+        record: &Path,
+        f: impl FnOnce() -> R,
+    ) -> R {
+        let ffi = ffi.to_string_lossy().into_owned();
+        let record = record.to_string_lossy().into_owned();
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKO_AOT_FFI_LIB", Some(ffi.as_str())),
+                ("HAKO_LLVM_OPT_LEVEL", Some("0")),
+                ("NYASH_LLVM_OPT_LEVEL", None),
+                ("NYASH_NY_LLVM_OPT_TOOL", None),
+                ("NYASH_NY_LLVM_LLC_TOOL", None),
+                ("NYASH_NY_LLVM_LLC_FLAGS", None),
+                ("HAKO_CAPI_TOOL_MODE", None),
+                ("HAKO_CAPI_RECORD_PATH", Some(record.as_str())),
+            ],
+            f,
+        )
+    }
+
     #[test]
     fn capi_production_wrapper_exercises_contract_loader_child_and_success_paths() {
         std::thread::Builder::new()
@@ -601,11 +679,13 @@ exit 0
         let workspace = tempfile::tempdir().expect("CAPI integration tempdir");
         let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let ffi = manifest.join("target/release/libhako_llvmc_ffi.so");
-        let build = Command::new("bash")
-            .arg(manifest.join("tools/build_hako_llvmc_ffi.sh"))
-            .status()
-            .expect("invoke CAPI library build");
-        assert!(build.success(), "CAPI library build failed");
+        crate::test_support::with_process_state_lock(|| {
+            let build = Command::new("bash")
+                .arg(manifest.join("tools/build_hako_llvmc_ffi.sh"))
+                .status()
+                .expect("invoke CAPI library build");
+            assert!(build.success(), "CAPI library build failed");
+        });
         assert!(ffi.is_file(), "missing built CAPI library: {}", ffi.display());
         let mir_json = fs::read_to_string(
             manifest.join("apps/tests/mir_shape_guard/ret_const_min_v1.mir.json"),
@@ -681,5 +761,26 @@ exit 0
             assert_eq!(result, success_output);
             assert!(success_output.is_file());
         });
+
+        // A tiny C ABI observer records the exact owned input path and bytes.
+        // The assertions after the call prove the consumer reopened the file
+        // synchronously and the Rust owner removed it on return.
+        let observer = workspace.path().join("libinput_observer.so");
+        build_input_observer_library(&observer);
+        let observer_record = workspace.path().join("capi-observer-record");
+        let observer_output = workspace.path().join("capi-observer.o");
+        run_with_capi_env_and_record(&observer, &observer_record, || {
+            let result = compile_via_capi_keep(&mir_json, &capi_opts(&observer_output))
+                .expect("CAPI observer success should return an object");
+            assert_eq!(result, observer_output);
+            assert_eq!(fs::read(&observer_output).unwrap(), b"capi-observer-object");
+        });
+        let observer_input_path = fs::read_to_string(observer_record.with_extension("path"))
+            .expect("CAPI observer recorded input path");
+        assert_eq!(
+            fs::read(observer_record.with_extension("input")).unwrap(),
+            mir_json.as_bytes()
+        );
+        assert!(!Path::new(&observer_input_path).exists());
     }
 }

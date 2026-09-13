@@ -117,6 +117,15 @@ pub fn with_env_vars<R>(updates: &[(&'static str, Option<&str>)], f: impl FnOnce
     f()
 }
 
+/// Serialize a test operation that resolves executables or launches tools.
+///
+/// The process-wide environment lock is also needed when a caller does not
+/// mutate variables itself: another test may temporarily change `PATH`.
+pub fn with_process_state_lock<R>(f: impl FnOnce() -> R) -> R {
+    let _config = ScopedTestConfig::apply(&[]);
+    f()
+}
+
 pub fn with_stage3_features<R>(f: impl FnOnce() -> R) -> R {
     with_env_vars(&[("NYASH_FEATURES", Some("stage3"))], f)
 }
