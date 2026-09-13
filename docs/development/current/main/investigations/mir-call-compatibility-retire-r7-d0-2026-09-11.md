@@ -425,6 +425,13 @@ its outside-reader status is unresolved and is not a deletion candidate.
 Deferred llvmlite archive/coverage and non-Loop snapshot/metadata cleanup stay
 with their existing owner cards.
 
+Audit anchors are finite and read-only: the M7-S owner matrix retains
+Harness/Public-AOT/link/provider owners, the direct-link seam card records only
+private FFI forwarding deletion, and `llvm_codegen_route_identity_guard.sh`
+requires the named C/AOT compatibility exports. The Rust public re-export is
+at `src/config/env.rs:131`; no external-reader claim is made from repository
+caller-zero alone.
+
 ## Closed evidence and contracts
 
 Closed detail is available with
