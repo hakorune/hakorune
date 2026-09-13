@@ -1,6 +1,6 @@
 ---
-Status: Implementation selected — Stage-A rejection propagation; direct-input compatibility retained
-Date: 2026-09-13
+Status: Stage-A rejection I0 closed — R7 owner-unit selection design stop; direct-input compatibility retained
+Date: 2026-09-14
 Decision: MIR-CALL-STAGE-A-REJECTION-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
@@ -11,20 +11,20 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: resolve the direct-input D0 as retained schema-absent MIR v0 compatibility, then select MIR-CALL-STAGE-A-REJECTION-I0 for the existing rejection re-entry edges.
+Decision: resolve the direct-input D0 as retained schema-absent MIR v0 compatibility, close the selected Stage-A rejection propagation I0, then select the next R7 owner only when its finite caller/terminal/delete tuple is known.
 Source authority + canonical issuer: existing direct MIR loader and v1 bridge own input admission; no new source meaning is issued.
 Non-authority: strict/dev-only rejection, backend rejection, CI status, and shared-parser reachability do not decide ordinary direct-input compatibility.
 Fail-fast boundary: decide rejection before returning MirModule to the direct core executor; preserve terminal declared-schema errors.
-Smallest next slice: MIR-CALL-STAGE-A-REJECTION-I0, carrying parser rejection to the existing selfhost terminal while preserving absent/unavailable capture fallback.
-Non-claims: no blanket v0 rejection, Stage-A fallback closure before the I0, Windows lifecycle proof, or aggregate R7 retirement.
+Smallest next slice: MIR-CALL-R7-OWNER-UNIT-SELECTION-D0, a design stop for the next source-backed caller/terminal/delete tuple after Stage-A I0.
+Non-claims: no blanket v0 rejection, full Stage-B bootstrap, Windows lifecycle proof, or aggregate R7 retirement.
 
 ## Development queue (worker-audited 2026-09-13)
 
 The earlier seven-task progress summary overstated direct-input and Stage-A
 closure. Landed `26e59acaef` stops declared-v1 error -> v0 retry;
 `4e1d6f92fb` stops strict/dev selfhost boxcall. Direct D0 now records ordinary
-no-schema boxcall as retained compatibility; Stage-A rejection fallback still
-requires the bounded I0 below.
+no-schema boxcall as retained compatibility; Stage-A rejection fallback is
+closed by the bounded I0 recorded below.
 
 Boundary for selected D0: `runner/mod.rs` --mir-json-file ->
 `core_executor::execute_mir_json_text` -> json_artifact forwarding facade ->
@@ -38,7 +38,8 @@ Program conversion, shared-parser deletion and backend execution.
 | 1 resolved | `MIR-CALL-DIRECT-INPUT-BOXCALL-D0` / design | Retain schema-absent MIR v0 compatibility, including ordinary boxcall, on the direct route until each real caller has its own migration/Stop. Declared schema errors remain terminal. No shared parser deletion or new flag is authorized. |
 | 2 conditional | `MIR-CALL-DIRECT-INPUT-BOXCALL-I0` / only after D0 accepts Stop | Reject before module execution; delete this ingress's boxcall-to-legacy construction edge. Prove valid no-schema v0/v1, exact rejection, malformed/schema precedence and retained compatibility. Update loader README and MIR intake reference together. |
 | 3a resolved | `MIR-CALL-STAGE-A-REJECTION-D0` / route, compat bridge and outer caller | Extracted `mir_line` parser errors are terminal. Preserve absent/unavailable/capture failure and no-MIR fallback behavior; do not add new capture classification. |
-| 3b selected | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observe that prohibited Program/Rust/Python fallback never starts. |
+| 3b closed | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observed that prohibited Program/Rust/Python fallback never starts. |
+| 4 selected | `MIR-CALL-R7-OWNER-UNIT-SELECTION-D0` / post-I0 frontier | Choose the next already-inventoried owner only after source authority, terminal, finite callers and exact old-edge deletion are co-sealed; otherwise remain at the frontier stop. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
 | 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
@@ -147,15 +148,15 @@ Finite delete-set for I0:
    Python/default Rust fallback. `dispatch.rs` remains unchanged; an I0 error
    must not return `false` into its default path.
 
-The next slice is `MIR-CALL-STAGE-A-REJECTION-I0`. It changes the two helper
-returns to `Result<Option<ProgramCompatMir>, String>` (or an equivalent
-existing error carrier), handles `Err` at the outer caller, and adds route-level
-positive/negative evidence. It does not classify child exit codes, malformed
+The selected `MIR-CALL-STAGE-A-REJECTION-I0` is recorded below as closed. It
+changed the two helper returns to `Result<Option<ProgramCompatMir>, String>`,
+handled `Err` at the outer caller, and added route-level and source-to-exe
+positive/negative evidence. It did not classify child exit codes, malformed
 stdout without an extracted MIR line, or remove Program compatibility generally.
 
-## MIR-CALL-STAGE-A-REJECTION-I0 implementation status (2026-09-14)
+## MIR-CALL-STAGE-A-REJECTION-I0 closeout (2026-09-14)
 
-The selected I0 is implemented locally: both Stage-A helpers now preserve an
+The selected I0 is closed: both Stage-A helpers now preserve an
 extracted MIR parse error as `Err`, while capture failure, timeout, missing MIR,
 and the existing Program compatibility bridge retain their prior `None`/fallback
 policy. `selfhost.rs` consumes the error at the Stage-A boundary and exits before
@@ -171,9 +172,45 @@ Reject mode emits malformed MIR alongside a concurrent Program line, and the
 test observes the named `[stage-a][mir-rejected]` error; Program-only mode keeps
 absence of MIR as an allowed compatibility input. This closes the bounded
 child-process capture/parse acceptance without widening capture semantics.
+The production outer terminal was then observed with the current quick binary
+(`CARGO_BUILD_JOBS=4 cargo build --profile quick --bin hakorune --features
+vm-reference`, SHA `5e4a5e596c0898ab99c9568e28f412e9b1efe7be`) in isolated
+temporary working trees. In the direct fixture, `compiler.hako` emitted a
+malformed MIR line and a Program line; the input would have printed
+`DEFAULT_FALLBACK_REACHED`, while a Python fallback fixture would create a
+marker. The process returned exit 1 with the named Stage-A rejection and neither
+marker appeared. A second fixture emitted Program first and malformed MIR from
+the Program→MIR compatibility builder; it produced the same exit 1 and no
+fallback markers. These runs cover
+`dispatch -> try_run_selfhost_pipeline -> stage_a_route/compat_bridge ->
+selfhost.rs` and prove the forbidden re-entry paths do not start.
 The test does not claim a full Stage-B source bootstrap: that path still hits
 the known baseline `[raw-loop-child-entry/callable-ledger-missing]`, which is
 outside this I0 and is not a current-change red.
+
+## MIR-CALL-R7-OWNER-UNIT-SELECTION-D0 (design stop, 2026-09-14)
+
+Decision: after the Stage-A I0 closeout, do not invent a new R7 implementation
+owner. The existing retained compatibility groups have no newly source-backed
+finite caller/terminal/delete tuple selected by the current scheduler; the
+previous owner census and its sealed dispositions remain authoritative.
+Source authority + canonical issuer: the selected caller's existing source
+authority and physical terminal must be named together before any R7 action;
+this frontier issues no new semantic product or compatibility receipt.
+Non-authority: a shared public symbol, backend reachability, a parked Loop row,
+CI status, or another broad lexical census cannot select the next owner.
+Fail-fast boundary: no code, fixture, fallback, or production switch is
+permitted until one existing owner can reject, promote, or delete at its own
+named terminal with an exact affected caller set and old edge.
+Smallest next slice: none is executable until that tuple is supplied by an
+already-inventoried source-backed owner; evaluate the existing finite queue once
+per changed premise and return to this stop when no tuple exists.
+Non-claims: no aggregate `LegacyCallV0` retirement, Loop reopen, backend parity,
+new schema, or whole-repository completion.
+
+Census boundary: retained Call compatibility owners -> their existing effect or
+artifact terminal; includes direct JSON ingress, shared C/AOT entries and
+re-entry paths; excludes parked backends, Loop families and unrelated cleanup.
 
 ## Finite scope and retained owners
 

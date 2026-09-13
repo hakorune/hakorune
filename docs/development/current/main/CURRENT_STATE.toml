@@ -1,11 +1,11 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-STAGE-A-REJECTION-I0"
-current_execution_cohort = "stage_a_rejection_propagation_i0"
-current_blocker_token = "MIR-CALL-STAGE-A-REJECTION-I0__outer_terminal_propagation"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-R7-OWNER-UNIT-SELECTION-D0"
+current_execution_cohort = "r7_owner_unit_selection_d0"
+current_blocker_token = "MIR-CALL-R7-OWNER-UNIT-SELECTION-D0__finite_caller_terminal_delete_set_missing"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:10:39Z (22:10:39 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "none__direct_input_d0_and_stage_a_d0_resolved"
+current_design_stop = "MIR-CALL-R7-OWNER-UNIT-SELECTION-D0__finite_caller_terminal_delete_set_missing"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -21,17 +21,17 @@ latest_card_summary = """
 Direct MIR D0 is resolved: schema-absent MIR v0, including boxcall, remains an
 explicit retained compatibility product on --mir-json-file until caller-local
 migrations supply terminals and delete-sets. Declared schema errors remain
-terminal; strict/dev selfhost boxcall Stop is separate. Stage-A D0 is resolved:
-an extracted MIR parser error is terminal through the existing route and outer
-caller, while absent/unavailable capture retains existing fallback behavior.
-The selected implementation carries this error instead of allowing
-Program/Rust/Python re-entry. Temporary-input Windows evidence remains
-asynchronous and does not block this implementation. Aggregate schema
-retirement remains open.
+terminal; strict/dev selfhost boxcall Stop is separate. Stage-A rejection I0 is
+closed: an extracted MIR parser error is terminal through both route helpers and
+the real outer selfhost caller, while absent/unavailable capture retains the
+existing fallback behavior. Isolated source-to-exe fixtures observed exit=1 and
+no Program/Rust/Python fallback markers. The next R7 owner selection has no
+finite caller/terminal/delete tuple yet, so the pointer is a design stop; no
+aggregate schema retirement or parked-lane reopen is claimed.
 """
-next_design_card = "MIR-CALL-STAGE-A-REJECTION-I0"
+next_design_card = "MIR-CALL-R7-OWNER-UNIT-SELECTION-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "MIR-CALL-STAGE-A-REJECTION-I0"
+next_execution_card = "none__design_stop_until_finite_r7_owner_tuple"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
