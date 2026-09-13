@@ -71,6 +71,15 @@ try:
     log_dir = temp_path / "tmp logs with spaces"
     log_dir.mkdir()
 
+    # MinGW-built DLLs may keep libgcc/libwinpthread beside the compiler.
+    # Python 3.8+ does not search that directory for ctypes dependencies by
+    # default, so make the dependency boundary explicit for this witness.
+    dll_dir_handles = []
+    compiler_exe = shutil.which(compiler)
+    if compiler_exe:
+        dll_dir_handles.append(
+            os.add_dll_directory(str(pathlib.Path(compiler_exe).parent)))
+
     lib = ctypes.CDLL(str(library_path))
     harness = lib.hako_llvmc_compile_json_compat_harness
     harness.argtypes = [ctypes.c_char_p, ctypes.c_char_p,
