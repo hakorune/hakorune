@@ -664,8 +664,9 @@ Done:
   `docs/reference/abi/nyrt_c_abi_v0.md#named-harness-physical-options-ownership`.
   Record platform-scoped results; native Windows helper and direct C-export
   close/reopen are separate evidence boundaries and are required before
-  claiming cross-platform completion. CAPI/lifecycle wrapper execution remains
-  a separate pending boundary.
+  claiming cross-platform completion. CAPI/lifecycle wrapper execution was a
+  separate pending boundary at implementation time; the receipt below closes
+  CAPI, while lifecycle remains open.
 
 Stop:
 Return to design if exclusive-create/closed-handle ownership cannot be kept
@@ -703,9 +704,9 @@ and execution in `portability-ci` run `34748357436` at `d610368fae`, printing
 reservation, close/reopen and cleanup evidence. Direct C-export execution on
 Windows remains a separate requirement.
 
-Integration acceptance gap (2026-09-13): the temporary-input I0 owner tests
+Integration acceptance update (2026-09-14): the temporary-input I0 owner tests
 and Rust caller compilation do not by themselves close the three real consumer
-lifetimes. The resulting revision now has controlled Linux wrapper evidence:
+lifetimes. The resulting revision has controlled Linux wrapper evidence:
 `provider_wrapper_exercises_missing_tool_invalid_input_child_failure_and_success`
 passes the real provider executor for missing Python, invalid input, child
 failure, and successful object output; and
@@ -727,13 +728,21 @@ test binary; it produced no test result or failure diagnostic. Rerun
 `34746364126` at `efdd976454` completed the same Windows provider test with
 `running 1 test`, `...provider_wrapper_exercises... ... ok`, and
 `test result: ok. 1 passed; 0 failed` after a 21m15s quick-profile build.
-This proves the provider's native Windows close/reopen lifetime. The CAPI and
-lifecycle wrapper tests remain POSIX-only; their native close/reopen remains a
-separate requirement, so the temporary-input row is not cross-platform
-complete. The named direct C export is separately green on native Windows in
-run `34751337118` at `a274ac03b3`, including child input reopen, spaced paths,
-success, first-line failure projection, no-object rejection, and empty
-invocation-owned logs after each call.
+This proves the provider's native Windows close/reopen lifetime. The subsequent
+manual Windows receipt
+[`34759102231`](https://github.com/hakorune/hakorune/actions/runs/34759102231)
+at `8e7179bb7e7831fb2242d8f1ee536baa3cf605a4` started at
+`2026-09-13T13:10:39Z` (`2026-09-13 22:10:39 JST`) and completed successfully
+at `2026-09-13T13:38:30Z` (`22:38:30 JST`). Its Windows Rust/provider job
+measured 27m25s total: cache restore 8s, `Check hakorune` 2m19s, provider
+lifetime 23m18s PASS, and CAPI lifetime 7s PASS. This closes the native Windows
+provider and generic CAPI temporary-input close/reopen evidence. Native Windows
+lifecycle close/reopen remains a separate requirement, so only that lifecycle
+boundary is still open in the temporary-input row. The named direct C export is
+separately green on native Windows in run `34751337118` at `a274ac03b3`,
+including child input reopen, spaced paths, success, first-line failure
+projection, no-object rejection, and empty invocation-owned logs after each
+call.
 
 The merged run `34753858020` at `c5b01f5448` completed the provider step but
 failed the CAPI observer's success assertion with the null-error message
@@ -761,21 +770,23 @@ respectively, with both tests `1/1` green. The quick `llvmlite-compat` library
 check also passes. This is a build reproducibility optimization only and does
 not change grammar semantics.
 
-### Outstanding CI receipt and independent work
+### Collected CI receipt and independent work
 
-- Evidence owner: this I0 card; collection trigger: the user's existing watcher
-  notification, or the next closeout/restart checkpoint. No foreground polling.
+- Evidence owner: this I0 card; the completed receipt is retained here for the
+  next closeout/restart checkpoint. No foreground polling or redispatch is
+  needed for this evidence.
 - Run: https://github.com/hakorune/hakorune/actions/runs/34753858020
   at `c5b01f54483eb8aed70dd23db1b5a0a939afc4a0`. Provider passed; CAPI
   observer failed at the success assertion after the shared build. This run
   is the current-change red that the bounded observer repair addresses.
 - Latest revision: `8e7179bb7e` contains the observer/workflow repair, the
-  same-content generated.rs write guard, and its evidence note. One manual
-  run `34759102231` was dispatched at this SHA; record its provider/CAPI
-  durations separately after it finishes.
+  same-content generated.rs write guard, and its evidence note. Manual run
+  `34759102231` at that SHA completed successfully; provider/CAPI durations
+  and timestamps are recorded above.
 - Required receipt: exact provider and generic CAPI Windows lifetime tests,
-  plus C harness checks. Provider and CAPI share one `--lib` test build;
-  record their separate build/test durations from the completed logs.
+  plus C harness checks. Provider and CAPI shared one `--lib` test build; the
+  recorded step timings are 23m18s and 7s respectively after the shared
+  2m19s `Check hakorune` build step.
 - CAPI observer covers input reopen/bytes and post-return deletion on success
   and nonzero/null-error return. It does not prove native LLVM execution,
   mixed-CRT error deallocation, or lifecycle runtime support.
@@ -787,9 +798,8 @@ not change grammar semantics.
   `mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md`. Its existing
   owner Stop is complete; the unobserved source relation is not a production
   acceptance prerequisite and does not block this R7 evidence row.
-  While the watcher collects the Windows result, select another already-
-  inventoried row when its own entry conditions are closed. Do not redispatch
-  or foreground-poll this unchanged run.
+  Select another already-inventoried row only when its own entry conditions are
+  closed. Do not redispatch or foreground-poll this completed run.
 
 The earlier separate provider/CAPI jobs built the same test binary twice.
 Their split established no speedup; the merged job removes duplicated work,
@@ -807,9 +817,8 @@ receipt without changing the required R7 evidence surface.
 Independent-row audit (2026-09-13): the apparent G0 helper-backend next card
 and its source-to-EXE I1 are already closed. Their recorded next action is
 R7 owner-unit selection, and no separate Loop implementation row has a closed
-entry tuple while this R7 receipt is pending. The pending CI remains
-asynchronous evidence; no disconnected Loop receipt or replacement row is
-opened from this audit.
+entry tuple while this R7 receipt was pending. The receipt is now collected;
+no disconnected Loop receipt or replacement row is opened from this audit.
 
 ## Closed evidence and contracts
 
