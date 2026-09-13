@@ -23,8 +23,10 @@ and PhysicalOptions already have one owner; the C harness executor now owns a
 unique exclusive diagnostic log per call. Direct C and AOT FFI share the
 executor fix. POSIX helper, overlap/failure smoke, route guard, module README
 and ABI reference are green; native Windows reservation/close/reopen remains
-unclaimed. Temp input I0 remains closed; aggregate R7 remains open. Cargo stays
-one process, quick, at most four jobs.
+unclaimed. The Claude A-3 sentinel note was reconciled as already closed at
+`c2681307dd`, so no duplicate schema task is selected. Temp input I0 remains
+closed; aggregate R7 remains open. Cargo stays one process, quick, at most four
+jobs.
 """
 next_design_card = "MIR-CALL-HARNESS-LOG-OWNERSHIP-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"

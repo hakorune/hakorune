@@ -788,12 +788,12 @@ authorizes code until `CURRENT_STATE.toml` selects it.
    First close it as explicit typed unsupported/arity failure with zero side
    effects; a real spawn implementation needs a separate issuer/ABI decision.
 
-3. `MIR-CALL-V1-FUNC-SENTINEL-R6` — Call schema blocker, not current I0.
-   v1 explicit-callee ingress still writes `func=ValueId::new(0)`, which pollutes
-   `used_values`/JoinIR remap. The R6 cutover must use the canonical constructor,
-   remove the dummy field atomically, and prove Global/Method/Extern/Value inputs
-   do not create a false operand. Do not patch parser/schema files during the
-   private transport row.
+3. `MIR-CALL-V1-FUNC-SENTINEL-R6` — closed by `c2681307dd`; the former
+   current-form warning was stale. v1 rejects Global/Method/Extern/Value and
+   value-style Closure shapes before block or `max_value_id` mutation.
+   Canonical `Call(MirCall)` has mandatory callee/no `func`; legacy `func` stays
+   in explicit `LegacyCallV0`. Focused parser coverage passes and proves block/cursor
+   stability. This closes A-3's dummy edge only; LegacyCallV0 and JoinIR compatibility remapping remain separate.
 
 4. `MIR-REFERENCE-LENGTH-MISSING-METADATA-D0` — reference-only semantics choice.
    Hako reference handlers still turn missing/unsupported `length` metadata into
