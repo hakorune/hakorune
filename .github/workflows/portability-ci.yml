@@ -28,7 +28,10 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     name: Windows check
     runs-on: windows-latest
-    timeout-minutes: 20
+    # The llvmlite-enabled lib test links the full Rust test binary on the
+    # Windows runner; keep the memory-safe job width while allowing that
+    # acceptance command to reach its test body.
+    timeout-minutes: 45
     steps:
       - name: Enable Git long paths
         run: git config --global core.longpaths true
