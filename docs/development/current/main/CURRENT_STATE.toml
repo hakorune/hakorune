@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
-current_execution_cohort = "mir_call_temp_input_ownership_i0"
-current_blocker_token = "ImplementationComplete__TempInputOwnership__CloseoutRecorded"
-guard_followup = "Temporary input ownership I0 implementation and focused evidence are complete in the same R7 card. Keep the invocation-owned TempDir owner, fixed-path deletion, and one-Cargo resource rule; next selection remains the bounded R7 compatibility design stop."
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D1"
+current_execution_cohort = "mir_call_compatibility_retire_r7_d1"
+current_blocker_token = "NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet"
+guard_followup = "R7 D1 design stop: retained C/AOT/provider/public owners have supported readers and no non-empty exclusive old-edge delete set. Pause code, fixtures, fallback, and route changes; reopen only after one source-backed caller-to-terminal tuple is co-sealed."
+current_design_stop = "NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,28 +18,23 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-compatibility-retire-r7-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
-Temporary input ownership D0 is accepted after source inspection and one
-read-only worker audit. The provider and two CAPI preparation sites shared a
-fixed input path; I0 replaces it with invocation-owned TempDir storage retained
-through synchronous consumption and artifact validation.
-Partial-write and early-return cleanup belong to the same scoped owner.
-All three callers switch together; the fixed input-path builder is deleted.
-The generic compare cleanup helper and existing output-path policy remain.
-D1's shared-caller pause is superseded: migration produces caller-zero for
-the selected old edge. Retained v0 boxcall is a separate schema obligation,
-not a prerequisite for this transport ownership repair.
-Implementation is complete; focused ownership and feature checks are recorded in
-the active card. The next R7 compatibility selection remains separate.
-Existing options, published-row and runner policy closeouts remain recorded
-in the active card and Git. Native Windows AOT child-env I1 evidence remains
-revision-scoped to 59e9a30b1f. Aggregate R7 and whole-MirBuilder remain open.
-Fixed real-app acceptance has three passes, seven named source boundaries,
-and one LLVM14 environment boundary. RAM validation is healthy after reboot;
+Temporary input ownership D0/I0 is complete: provider and both CAPI
+preparation sites now retain invocation-owned TempDir input through synchronous
+consumption and artifact validation, with the fixed path removed and focused
+success/failure cleanup evidence recorded. The next R7 compatibility frontier
+is a design stop: named C/AOT harnesses, explicit Rust provider, and public
+link v1/v2 retain supported public or dlsym readers, so the exact exclusive old-
+edge delete set is empty. backend_codegen_request_defaults is repo-caller-zero
+but publicly re-exported and its external readers are unresolved. No code,
+fixture, fallback, or route change is authorized until a source-backed
+caller-to-terminal tuple with a non-empty delete set is co-sealed. Native
+Windows AOT child-env I1 remains revision-scoped to 59e9a30b1f; aggregate R7
+and whole-MirBuilder remain open. RAM validation is healthy after reboot;
 Cargo jobs 1-4 are allowed one process at a time.
 """
-next_design_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-D0"
+next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D1"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
+next_execution_card = "none__R7NextOwner__DesignStop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

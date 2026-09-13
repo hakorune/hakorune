@@ -1,7 +1,7 @@
 ---
-Status: Implementation closed — invocation-owned temporary input
+Status: Design stop — retained C/AOT compatibility frontier (Temp I0 closed)
 Date: 2026-09-13
-Decision: MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 / MIR-CALL-TEMP-INPUT-OWNERSHIP-I0
+Decision: MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 / MIR-CALL-TEMP-INPUT-OWNERSHIP-I0 / MIR-CALL-COMPATIBILITY-RETIRE-R7-D1
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,12 +11,12 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: accept MIR-CALL-TEMP-INPUT-OWNERSHIP-D0; queue one atomic I0 for the shared Rust temporary-input owner.
-Source authority + canonical issuer: existing validated MIR JSON or serialized LifecycleInvocationInputV1; transport_io owns only temporary storage.
-Non-authority: fixed filenames, profile labels, provider presence, or v0 boxcall membership.
-Fail-fast boundary: retain current validation/error ordering; keep input alive through synchronous consumption and artifact validation, then clean only that invocation's input.
-Smallest next slice: MIR-CALL-TEMP-INPUT-OWNERSHIP-I0, migrating the provider and both CAPI preparation sites together.
-Non-claims: no implementation in this design delivery, aggregate R7 retirement, output-path isolation, or whole-compiler concurrency proof.
+Decision: `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet` for R7 D1; Temp input D0/I0 is closed below.
+Source authority + canonical issuer: each explicit C/AOT request or explicit Rust route and its existing owner.
+Non-authority: public symbol reachability, provider presence, historical census, environment names, or closed transport rows.
+Fail-fast boundary: preserve recipe, replay, tool, symbol, and input rejection before child launch, lowering, mutation, or publication.
+Smallest next slice: none until one source-backed caller→terminal relation and non-empty exclusive old-edge delete set are co-sealed.
+Non-claims: no public/dlsym ABI deletion, route/fallback change, llvmlite promotion, compatibility-terminal removal, or aggregate R7 completion.
 
 ## Finite scope and retained owners
 
@@ -397,6 +397,33 @@ default plugin test also passes. Source search shows no remaining call to
 library/provider failure matrix and native Windows close/reopen run remain
 environment evidence for a later acceptance pass; this I0 does not claim
 whole-compiler concurrency safety.
+
+## MIR-CALL-COMPATIBILITY-RETIRE-R7-D1 (design stop; 2026-09-13)
+
+The read-only next-owner audit confirms that the retained C/AOT/provider/public
+frontier still has no safe single-owner cutover. The named candidates are the
+named C/AOT harnesses, the explicit Rust provider, and public link v1/v2. Each
+has supported public or dlsym readers and an existing child/provider/link
+terminal; the exact caller-specific old-edge delete set is empty. The internal
+FFI link forwarding seam is already deleted and must not be counted again.
+
+Decision: `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet`.
+Source authority + canonical issuer: each explicit C/AOT request or explicit
+Rust route, with its existing owner issuing the accepted physical request.
+Non-authority: public symbol reachability, provider presence, historical census,
+environment names, test emitters, and already-closed link/runner/transport rows.
+Fail-fast boundary: preserve recipe, replay, tool, symbol, and input rejection
+before child launch, lowering, environment mutation, or artifact publication.
+Smallest next slice: none; reopen only when one source-backed caller→terminal
+relation and a non-empty exclusive old-edge delete set are co-sealed.
+Non-claims: no public/dlsym ABI deletion, route or fallback change, llvmlite
+promotion, compatibility-terminal removal, or aggregate R7 completion.
+
+The public `backend_codegen_request_defaults` helper is caller-zero inside the
+repository but remains externally reachable through its public re-export;
+its outside-reader status is unresolved and is not a deletion candidate.
+Deferred llvmlite archive/coverage and non-Loop snapshot/metadata cleanup stay
+with their existing owner cards.
 
 ## Closed evidence and contracts
 
