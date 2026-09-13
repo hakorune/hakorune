@@ -526,6 +526,12 @@ pub fn lookup_keyword(word: &str) -> Option<&'static str> {
     push_static_str_slice(&mut code, "SYNTAX_ALLOWED_STATEMENTS", &syntax_statements);
     push_static_str_slice(&mut code, "SYNTAX_ALLOWED_BINOPS", &syntax_binops);
 
-    fs::write(&out_file, code).expect("write generated.rs");
+    let generated = code.as_bytes();
+    let unchanged = fs::read(&out_file)
+        .map(|existing| existing == generated)
+        .unwrap_or(false);
+    if !unchanged {
+        fs::write(&out_file, generated).expect("write generated.rs");
+    }
     println!("cargo:rerun-if-changed={}", grammar_file.display());
 }
