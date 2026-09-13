@@ -1,11 +1,11 @@
-date = "2026-09-13"
+date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-STAGE-A-REJECTION-D0"
-current_execution_cohort = "stage_a_rejection_propagation_design"
-current_blocker_token = "MIR-CALL-STAGE-A-REJECTION-D0__rejection_fallback_policy_unsettled"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-STAGE-A-REJECTION-I0"
+current_execution_cohort = "stage_a_rejection_propagation_i0"
+current_blocker_token = "MIR-CALL-STAGE-A-REJECTION-I0__outer_terminal_propagation"
 guard_followup = "Run 34753858020 at c5b01f5448 completed the merged Windows job: provider passed, while the CAPI observer failed at its success assertion with compile failed. The bounded repair reads Rust-set environment through GetEnvironmentVariableA in the MinGW observer and disables cancellation for manual dispatch; build.rs now skips identical generated.rs writes so the second cargo test can reuse the test binary. Pre-repair run 34756966289 reached the 45-minute timeout after provider passed and CAPI was still rebuilding. Latest run 34759102231 at 8e7179bb7e is the single pending post-repair receipt; record provider/CAPI durations and results when it finishes. Commit b061c407a4 now makes manual portability dispatch default to the Windows acceptance scope, with full matrix opt-in; validate that scope on the next eligible dispatch after the pending receipt. Native Windows lifecycle close/reopen remains unproven."
-current_design_stop = "stage_a_rejection_propagation_and_fallback_policy"
+current_design_stop = "none__direct_input_d0_and_stage_a_d0_resolved"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -21,15 +21,17 @@ latest_card_summary = """
 Direct MIR D0 is resolved: schema-absent MIR v0, including boxcall, remains an
 explicit retained compatibility product on --mir-json-file until caller-local
 migrations supply terminals and delete-sets. Declared schema errors remain
-terminal; strict/dev selfhost boxcall Stop is separate. The next design is
-Stage-A rejection propagation across MIR->Program, opt-in Rust bridge, and
-outer None->Python/default Rust fallback; malformed/rejected MIR must not be
-silently converted. Temporary-input Windows evidence remains asynchronous and
-does not block this design. Aggregate schema retirement remains open.
+terminal; strict/dev selfhost boxcall Stop is separate. Stage-A D0 is resolved:
+an extracted MIR parser error is terminal through the existing route and outer
+caller, while absent/unavailable capture retains existing fallback behavior.
+The selected implementation carries this error instead of allowing
+Program/Rust/Python re-entry. Temporary-input Windows evidence remains
+asynchronous and does not block this implementation. Aggregate schema
+retirement remains open.
 """
-next_design_card = "MIR-CALL-STAGE-A-REJECTION-D0"
+next_design_card = "MIR-CALL-STAGE-A-REJECTION-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-STAGE-A-REJECTION-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

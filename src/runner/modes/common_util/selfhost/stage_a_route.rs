@@ -14,16 +14,27 @@ use super::{
 
 const STAGE_A_COMPILER_ENTRY: &str = "lang/src/compiler/entry/compiler.hako";
 
+fn resolve_captured_mir_line(
+    mir_line: &str,
+) -> Result<stage_a_compat_bridge::ProgramCompatMir, String> {
+    let module = json::parse_mir_json_v0_line(mir_line)
+        .map_err(|e| format!("[stage-a][mir-rejected] {}", e))?;
+    Ok(stage_a_compat_bridge::ProgramCompatMir {
+        module,
+        lane: runtime_route_contract::LANE_DIRECT,
+    })
+}
+
 pub(crate) fn try_capture_stage_a_module(
     exe: &std::path::Path,
     source_name: &str,
     raw_source: &str,
     timeout_ms: u64,
     verbose_level: u8,
-) -> Option<stage_a_compat_bridge::ProgramCompatMir> {
+) -> Result<Option<stage_a_compat_bridge::ProgramCompatMir>, String> {
     let parser_prog = std::path::Path::new(STAGE_A_COMPILER_ENTRY);
     if !parser_prog.exists() {
-        return None;
+        return Ok(None);
     }
 
     child::emit_runtime_route_mode(child::ROUTE_MODE_COMPAT, source_name);
@@ -57,35 +68,24 @@ pub(crate) fn try_capture_stage_a_module(
         &child_env,
     );
 
-    let captured = stage0_capture::run_captured_json_v0_command(cmd, timeout_ms)?;
+    let Some(captured) = stage0_capture::run_captured_json_v0_command(cmd, timeout_ms) else {
+        return Ok(None);
+    };
 
     if let Some(mir_line) = captured.mir_line.as_deref() {
-        match json::parse_mir_json_v0_line(mir_line) {
-            Ok(module) => {
-                return Some(stage_a_compat_bridge::ProgramCompatMir {
-                    module,
-                    lane: runtime_route_contract::LANE_DIRECT,
-                });
-            }
-            Err(e) => {
-                let ring0 = crate::runtime::ring0::get_global_ring0();
-                ring0.log.error(&format!(
-                    "[ny-compiler] mir json parse error (child): {}",
-                    e
-                ));
-            }
-        }
+        return resolve_captured_mir_line(mir_line).map(Some);
     }
 
-    captured.program_line.as_deref().and_then(|program_line| {
-        stage_a_compat_bridge::resolve_program_payload_to_mir(
+    match captured.program_line.as_deref() {
+        Some(program_line) => stage_a_compat_bridge::resolve_program_payload_to_mir(
             exe,
             source_name,
             timeout_ms,
             verbose_level,
             program_line,
-        )
-    })
+        ),
+        None => Ok(None),
+    }
 }
 
 #[cfg(test)]
@@ -96,5 +96,13 @@ mod tests {
             super::STAGE_A_COMPILER_ENTRY,
             "lang/src/compiler/entry/compiler.hako"
         );
+        // Keep the route-level negative witness in this established test so
+        // the fixed lib-test inventory remains stable.
+        let result = super::resolve_captured_mir_line("{invalid");
+        let error = match result {
+            Ok(_) => panic!("captured MIR rejection must propagate"),
+            Err(error) => error,
+        };
+        assert!(error.starts_with("[stage-a][mir-rejected]"), "{error}");
     }
 }

@@ -189,19 +189,29 @@ impl NyashRunner {
             let timeout_ms: u64 = crate::config::env::ny_compiler_timeout_ms();
             // Keep `selfhost.rs` on high-level route sequencing only.
             // mode-A compatibility child spawn/setup and captured payload-family resolution live below.
-            if let Some(resolved) = stage_a_route::try_capture_stage_a_module(
+            match stage_a_route::try_capture_stage_a_module(
                 &exe,
                 source_name,
                 &prepared.raw_code,
                 timeout_ms,
                 verbose_level,
             ) {
-                return accept_stage_a_mir_module(
-                    self,
-                    source_name,
-                    resolved.lane,
-                    resolved.module,
-                );
+                Ok(Some(resolved)) => {
+                    return accept_stage_a_mir_module(
+                        self,
+                        source_name,
+                        resolved.lane,
+                        resolved.module,
+                    );
+                }
+                Ok(None) => {}
+                Err(error) => {
+                    let ring0 = crate::runtime::ring0::get_global_ring0();
+                    ring0
+                        .log
+                        .error(&format!("[ny-compiler] stage-a MIR rejection: {}", error));
+                    std::process::exit(1);
+                }
             }
         }
 

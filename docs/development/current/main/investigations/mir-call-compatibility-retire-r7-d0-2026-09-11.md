@@ -1,7 +1,7 @@
 ---
-Status: Design task resolved — direct-input compatibility retained; Stage-A rejection design selected
+Status: Implementation selected — Stage-A rejection propagation; direct-input compatibility retained
 Date: 2026-09-13
-Decision: MIR-CALL-DIRECT-INPUT-BOXCALL-D0
+Decision: MIR-CALL-STAGE-A-REJECTION-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,19 +11,20 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: resolve MIR-CALL-DIRECT-INPUT-BOXCALL-D0 by retaining schema-absent MIR v0 compatibility; no direct-input Stop I0 is selected.
+Decision: resolve the direct-input D0 as retained schema-absent MIR v0 compatibility, then select MIR-CALL-STAGE-A-REJECTION-I0 for the existing rejection re-entry edges.
 Source authority + canonical issuer: existing direct MIR loader and v1 bridge own input admission; no new source meaning is issued.
 Non-authority: strict/dev-only rejection, backend rejection, CI status, and shared-parser reachability do not decide ordinary direct-input compatibility.
 Fail-fast boundary: decide rejection before returning MirModule to the direct core executor; preserve terminal declared-schema errors.
-Smallest next slice: MIR-CALL-STAGE-A-REJECTION-D0, with ordinary direct boxcall retained until a caller-local migration supplies a terminal and delete-set.
-Non-claims: no code/fixture change, blanket v0 rejection, Stage-A fallback closure, Windows lifecycle proof, or aggregate R7 retirement.
+Smallest next slice: MIR-CALL-STAGE-A-REJECTION-I0, carrying parser rejection to the existing selfhost terminal while preserving absent/unavailable capture fallback.
+Non-claims: no blanket v0 rejection, Stage-A fallback closure before the I0, Windows lifecycle proof, or aggregate R7 retirement.
 
 ## Development queue (worker-audited 2026-09-13)
 
 The earlier seven-task progress summary overstated direct-input and Stage-A
 closure. Landed `26e59acaef` stops declared-v1 error -> v0 retry;
-`4e1d6f92fb` stops strict/dev selfhost boxcall. Neither decides ordinary
-no-schema direct boxcall or closes Stage-A rejection fallback.
+`4e1d6f92fb` stops strict/dev selfhost boxcall. Direct D0 now records ordinary
+no-schema boxcall as retained compatibility; Stage-A rejection fallback still
+requires the bounded I0 below.
 
 Boundary for selected D0: `runner/mod.rs` --mir-json-file ->
 `core_executor::execute_mir_json_text` -> json_artifact forwarding facade ->
@@ -36,8 +37,8 @@ Program conversion, shared-parser deletion and backend execution.
 | --- | --- | --- |
 | 1 resolved | `MIR-CALL-DIRECT-INPUT-BOXCALL-D0` / design | Retain schema-absent MIR v0 compatibility, including ordinary boxcall, on the direct route until each real caller has its own migration/Stop. Declared schema errors remain terminal. No shared parser deletion or new flag is authorized. |
 | 2 conditional | `MIR-CALL-DIRECT-INPUT-BOXCALL-I0` / only after D0 accepts Stop | Reject before module execution; delete this ingress's boxcall-to-legacy construction edge. Prove valid no-schema v0/v1, exact rejection, malformed/schema precedence and retained compatibility. Update loader README and MIR intake reference together. |
-| 3a next | `MIR-CALL-STAGE-A-REJECTION-D0` / route, compat bridge and outer caller | Classify absent/unavailable/capture failure separately from malformed/rejected MIR and accepted MIR; decide retained Program/Rust opt-ins, strict/planner and fallback-flag behavior. |
-| 3b conditional | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observe that prohibited Program/Rust/Python fallback never starts. |
+| 3a resolved | `MIR-CALL-STAGE-A-REJECTION-D0` / route, compat bridge and outer caller | Extracted `mir_line` parser errors are terminal. Preserve absent/unavailable/capture failure and no-MIR fallback behavior; do not add new capture classification. |
+| 3b selected | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observe that prohibited Program/Rust/Python fallback never starts. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
 | 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
@@ -108,9 +109,67 @@ is conditional and is not selected by this decision.
 Acceptance for this D0 is source/doc evidence only: the direct route table,
 `INSTRUCTION_SET.md` no-schema rule, the existing declared-v1 error tests, and
 the retained caller inventory agree. No Cargo or CI run is required. The next
-design slice is `MIR-CALL-STAGE-A-REJECTION-D0`; it must settle whether
-malformed/rejected MIR may reach Program, opt-in Rust, optional Python, or the
-default Rust path before any Stage-A code changes.
+slice is `MIR-CALL-STAGE-A-REJECTION-I0`, whose accepted D0 is recorded below.
+
+## MIR-CALL-STAGE-A-REJECTION-D0 (resolved 2026-09-13)
+
+Decision: an error returned by the existing `parse_mir_json_v0_line` for an
+extracted `mir_line` is terminal for that Stage-A invocation in every mode and
+flag. It must not be converted into a Program payload, an opt-in Rust bridge,
+optional Python, or the default Rust path. Preserve `Ok(Some(module))` and the
+existing `Ok(None)` capture/unavailable behavior.
+
+Source authority + canonical issuer: `stage_a_route` and
+`stage_a_compat_bridge` own the captured payload handoff; `selfhost::json` owns
+MIR v0 parse acceptance/rejection. No new receipt, parser, classifier or
+semantic issuer is introduced.
+
+Non-authority: a concurrent Program line, `NYASH_VM_USE_FALLBACK=1`, `None` or
+`false` return values, child exit status, and a later bridge success cannot
+override an extracted MIR parser error.
+
+Fail-fast boundary: preserve the parser `Err` through both route helpers to the
+outer `selfhost.rs` caller and terminate with the existing nonzero CLI behavior
+before any Program/Rust/Python fallback starts. A missing entry, capture failure,
+timeout, or absent MIR line remains the existing unavailable/absence path.
+
+Finite state boundary: `Unavailable`/`CaptureFailure` -> existing fallback;
+`Absent` with a Program line -> existing Program compatibility policy;
+`ValidMIR` -> existing lane execution; `MalformedOrRejectedMIR` after
+`mir_line` extraction -> terminal error. `stage0_capture` status collapsing and
+stdout extraction are outside this D0.
+
+Finite delete-set for I0:
+
+1. `stage_a_route.rs` MIR parser `Err` -> Program payload re-entry.
+2. `stage_a_compat_bridge.rs` MIR parser `Err` -> Rust Program bridge re-entry.
+3. `selfhost.rs` Stage-A `None` continuation for that rejection -> optional
+   Python/default Rust fallback. `dispatch.rs` remains unchanged; an I0 error
+   must not return `false` into its default path.
+
+The next slice is `MIR-CALL-STAGE-A-REJECTION-I0`. It changes the two helper
+returns to `Result<Option<ProgramCompatMir>, String>` (or an equivalent
+existing error carrier), handles `Err` at the outer caller, and adds route-level
+positive/negative evidence. It does not classify child exit codes, malformed
+stdout without an extracted MIR line, or remove Program compatibility generally.
+
+## MIR-CALL-STAGE-A-REJECTION-I0 implementation status (2026-09-14)
+
+The selected I0 is implemented locally: both Stage-A helpers now preserve an
+extracted MIR parse error as `Err`, while capture failure, timeout, missing MIR,
+and the existing Program compatibility bridge retain their prior `None`/fallback
+policy. `selfhost.rs` consumes the error at the Stage-A boundary and exits before
+optional Python or default Rust dispatch can re-enter.
+
+Focused verification used one quick-profile lib build and ran 30
+`runner::modes::common_util::selfhost::` tests: all 30 passed. This includes the
+existing MIR-positive, strict/dev-negative, and Stage-A payload contract tests;
+the compile also verifies both production call sites use the new error carrier.
+The required child-process route acceptance (a real extracted-MIR rejection plus
+an allowed absence/Program positive) remains open because the current capture
+helper collapses unavailable/timeout outcomes and has no stable injected child
+fixture. Until that observation is added without widening capture semantics, this
+I0 stays selected rather than being marked landed.
 
 ## Finite scope and retained owners
 

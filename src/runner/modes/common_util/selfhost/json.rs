@@ -58,8 +58,8 @@ pub fn parse_mir_json_v0_line(line: &str) -> Result<MirModule, String> {
 /// Resolve mode-A compatibility child payload ownership boundary.
 /// Priority:
 /// 1) valid MIR(JSON v0) -> `MirModule`
-/// 2) Program(JSON v0) (including MIR parse error fallback)
-/// 3) Empty
+/// 2) Program(JSON v0) only when no MIR line was captured
+/// 3) Empty; a captured MIR parse error is terminal
 pub fn resolve_stage_a_payload(
     mir_line: Option<&str>,
     program_line: Option<&str>,
@@ -73,12 +73,6 @@ pub fn resolve_stage_a_payload(
                 };
             }
             Err(err) => {
-                if let Some(program) = program_line {
-                    return StageAPayloadResolution {
-                        payload: StageAPayload::ProgramJson(program.to_string()),
-                        mir_parse_error: Some(err),
-                    };
-                }
                 return StageAPayloadResolution {
                     payload: StageAPayload::Empty,
                     mir_parse_error: Some(err),
@@ -291,15 +285,14 @@ mod tests {
     }
 
     #[test]
+    // Keep the established baseline test name while asserting the revised
+    // terminal-on-captured-MIR contract.
     fn resolve_stage_a_payload_falls_back_to_program_when_mir_invalid() {
         let _lock = env_lock().lock().expect("env lock poisoned");
         let _env = release_mode_env_guard();
         let program = r#"{"version":"0","kind":"Program","source":"foo"}"#;
         let resolved = resolve_stage_a_payload(Some("{invalid"), Some(program));
-        match resolved.payload {
-            StageAPayload::ProgramJson(line) => assert_eq!(line, program),
-            _ => panic!("expected ProgramJson fallback"),
-        }
+        assert!(matches!(resolved.payload, StageAPayload::Empty));
         assert!(
             resolved
                 .mir_parse_error

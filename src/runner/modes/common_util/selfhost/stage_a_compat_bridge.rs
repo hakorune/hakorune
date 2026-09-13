@@ -13,6 +13,15 @@ use super::{json, runtime_route_contract, stage0_capture, stage0_capture_route, 
 const MIR_BUILDER_PROGRAM_PATH: &str = "lang/src/mir/builder/compat/program_json_v0_entry.hako";
 const CHILD_ENV_REMOVE: &[&str] = &["NYASH_USE_NY_COMPILER", "NYASH_CLI_VERBOSE"];
 
+fn resolve_captured_mir_line(mir_line: &str) -> Result<ProgramCompatMir, String> {
+    let module = json::parse_mir_json_v0_line(mir_line)
+        .map_err(|e| format!("[stage-a][mir-rejected] {}", e))?;
+    Ok(ProgramCompatMir {
+        module,
+        lane: runtime_route_contract::LANE_COMPAT_PROGRAM_TO_MIR,
+    })
+}
+
 pub(crate) struct ProgramCompatMir {
     pub(crate) module: MirModule,
     pub(crate) lane: &'static str,
@@ -24,7 +33,7 @@ pub(crate) fn resolve_program_payload_to_mir(
     timeout_ms: u64,
     verbose_level: u8,
     program_line: &str,
-) -> Option<ProgramCompatMir> {
+) -> Result<Option<ProgramCompatMir>, String> {
     // Program(JSON v0) remains an explicit compat-only keep.
     // Do not widen this bridge with unrelated runtime capabilities.
     // Phase D5-min1 contract:
@@ -46,7 +55,7 @@ pub(crate) fn resolve_program_payload_to_mir(
             "[ny-compiler] mirbuilder entry missing: {}",
             mir_builder_prog.display()
         ));
-        return None;
+        return Ok(None);
     }
 
     let envs = [("HAKO_PROGRAM_JSON", program_line)];
@@ -60,23 +69,9 @@ pub(crate) fn resolve_program_payload_to_mir(
         &envs,
     );
 
-    if let Some(mir_line) = stage0_capture::run_captured_json_v0_command(cmd, timeout_ms)
-        .and_then(|captured| captured.mir_line)
-    {
-        match json::parse_mir_json_v0_line(&mir_line) {
-            Ok(module) => {
-                return Some(ProgramCompatMir {
-                    module,
-                    lane: runtime_route_contract::LANE_COMPAT_PROGRAM_TO_MIR,
-                });
-            }
-            Err(e) => {
-                let ring0 = crate::runtime::ring0::get_global_ring0();
-                ring0.log.error(&format!(
-                    "[ny-compiler] mir json parse error (.hako mirbuilder): {}",
-                    e
-                ));
-            }
+    if let Some(captured) = stage0_capture::run_captured_json_v0_command(cmd, timeout_ms) {
+        if let Some(mir_line) = captured.mir_line {
+            return resolve_captured_mir_line(&mir_line).map(Some);
         }
     } else {
         let ring0 = crate::runtime::ring0::get_global_ring0();
@@ -93,17 +88,17 @@ pub(crate) fn resolve_program_payload_to_mir(
     // Explicit compat lane: keep runtime alive via existing Rust bridge
     // only when NYASH_VM_USE_FALLBACK=1 is set.
     match json::parse_json_v0_line(program_line) {
-        Ok(module) => Some(ProgramCompatMir {
+        Ok(module) => Ok(Some(ProgramCompatMir {
             module,
             lane: runtime_route_contract::LANE_COMPAT_RUST_JSON_V0_BRIDGE,
-        }),
+        })),
         Err(e) => {
             let ring0 = crate::runtime::ring0::get_global_ring0();
             ring0.log.error(&format!(
                 "[ny-compiler] json parse error (mode-A compatibility fallback): {}",
                 e
             ));
-            None
+            Ok(None)
         }
     }
 }
@@ -116,5 +111,13 @@ mod tests {
             super::MIR_BUILDER_PROGRAM_PATH,
             "lang/src/mir/builder/compat/program_json_v0_entry.hako"
         );
+        // Keep the bridge-level negative witness in this established test so
+        // the fixed lib-test inventory remains stable.
+        let result = super::resolve_captured_mir_line("{invalid");
+        let error = match result {
+            Ok(_) => panic!("captured MIR rejection must propagate"),
+            Err(error) => error,
+        };
+        assert!(error.starts_with("[stage-a][mir-rejected]"), "{error}");
     }
 }
