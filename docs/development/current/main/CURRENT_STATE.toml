@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0"
-current_execution_cohort = "mirbuilder_normalizer_unary_type_absence_d0"
-current_blocker_token = "DesignStop__UnaryMissingTypeAuthorityAndDisposition"
-guard_followup = "A-4 is the remaining P1 candidate. The exact unary-minus edge at helpers_value/lower.rs:136 still maps a missing operand type to Integer; resolve its source issuer and typed disposition before any I0. A-2 is already covered by unconditional final PHI verification, and A-3 loop diagnostic cleanup is closed."
-current_design_stop = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0__MissingTypeIssuerAndDisposition"
+work_mode = "fast"
+current_execution_row = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
+current_execution_cohort = "mirbuilder_normalizer_unary_type_absence_i0"
+current_blocker_token = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
+guard_followup = "A-4 I0: preserve known Integer/Float unary-minus lowering, reject Missing/Unknown/nonnumeric operands before zero/destination allocation, and delete the unwrap_or(Integer) edge. A-2 is covered by unconditional final PHI verification, and A-3 loop diagnostic cleanup is closed."
+current_design_stop = "none__accepted__MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,19 +18,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-normalizer-unary-type-absence-d0-2026-09-13"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
 latest_card_summary = """
-A-4 is the remaining P1 candidate after the Call-ingress A-3 closure and the
-loop A-3 diagnostic cleanup. The selected design stop is limited to
-PlanNormalizer::lower_value_input unary Minus at helpers_value/lower.rs:136,
-where missing operand type currently becomes Integer before zero/destination
-allocation. The worker found no source-backed issuer or focused missing-type
-proof yet, so D0 must classify known Integer/Float, Unknown, missing, and
-nonnumeric states and choose an explicit issuer or typed rejection. A-2 PHI
-skip is already covered by unconditional final verification. No A-4 I0 is
-selected; Cargo stays one process when a later implementation is accepted.
+A-4 I0 is selected after the D0 authority audit: PlanNormalizer unary Minus
+preserves known Integer/Float and rejects Unknown, missing, and nonnumeric
+operand facts before zero/destination allocation. The source-backed resolver
+relation remains a later acceptance obligation; no type is inferred from it.
+A-2 PHI skip is covered by unconditional final verification, and A-3 loop
+diagnostic cleanup is closed. Cargo stays one process with quick-profile jobs
+limited to 4 for the focused implementation gate.
 """
-next_design_card = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0"
+next_design_card = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
-next_execution_card = "none"
+next_execution_card = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

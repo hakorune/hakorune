@@ -1,5 +1,5 @@
 ---
-Status: Design stop — A-4 authority/disposition unresolved
+Status: Design accepted — typed rejection selected; I0 implementation next
 Date: 2026-09-13
 Decision: MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0
 Parent: docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
@@ -11,11 +11,11 @@ ReplacementCell: unary minus result-type admission
 
 ## Six-line brief
 
-Decision: resolve the unary-minus missing-type path before changing its `Integer` fallback.
-Source authority + canonical issuer: the unary AST operand and the existing lowering-time operand type issuer; no new issuer is available for an absent type yet.
-Non-authority: `type_ctx` `None`/`Unknown`, the integer zero constant, raw Builder unary behavior, runtime values, and VM/backend defaults.
-Fail-fast boundary: after child lowering and before zero/destination allocation or `Sub` effect publication; missing or contradictory type evidence must not allocate a guessed result.
-Smallest next slice: classify known Integer, known Float, Unknown, missing, and nonnumeric operand states, then choose one source-backed issuer or an explicit typed rejection for each.
+Decision: reject missing, Unknown, and nonnumeric unary-minus operands before zero/destination allocation; retain the existing Integer and Float lowering for known typed operands.
+Source authority + canonical issuer: ordinary unary syntax plus the existing lowering-time operand type issuer for known Integer/Float; the existing PlanNormalizer owns the typed rejection for states with no usable numeric fact.
+Non-authority: `type_ctx` absence/Unknown as an inferred numeric class, the integer zero constant, raw Builder unary behavior, runtime values, and VM/backend defaults.
+Fail-fast boundary: after child lowering and before zero/destination allocation or `Sub` effect publication; missing, Unknown, or nonnumeric evidence must not allocate a guessed result.
+Smallest next slice: replace the implicit `None -> Integer` edge with the existing normalizer rejection owner, then add known Integer/Float positives and no-allocation negatives for Unknown, missing, and nonnumeric states.
 Non-claims: no unary language expansion, arithmetic-wide type unification, raw Builder parity, runtime coercion, fallback, retry, or semantic receipt invented from `None`.
 
 ## Finite scope
@@ -41,9 +41,9 @@ by a new default.
 | `ChildError` | operand lowering returns an error | propagate before zero/destination allocation |
 | `KnownInteger` | child issuer publishes `MirType::Integer` | preserve Integer zero and Integer result |
 | `KnownFloat` | child issuer publishes `MirType::Float` | preserve Float zero and Float result |
-| `KnownNonnumeric` | child issuer publishes another concrete type | decide typed reject versus an existing explicit contract; do not infer Integer |
-| `UnknownFact` | child publishes `Some(MirType::Unknown)` | keep distinct from missing; choose an owner or typed reject before allocation |
-| `MissingFact` | `get_type(rhs)` returns `None` | current implicit Integer is the A-4 edge; require source issuer or typed reject |
+| `KnownNonnumeric` | child issuer publishes another concrete type | typed rejection at the normalizer boundary before allocation |
+| `UnknownFact` | child publishes `Some(MirType::Unknown)` | typed rejection at the normalizer boundary before allocation |
+| `MissingFact` | `get_type(rhs)` returns `None` | typed rejection at the normalizer boundary before allocation; delete the implicit Integer edge |
 
 No state in this table is a permission to read a runtime value, source name,
 or another backend's result type. If the required issuer cannot be named, this
@@ -93,13 +93,12 @@ then returns the existing `ValueId` without inventing a type. Thus a shape such
 as `local x = f()` followed by a source-aware loop operand `-x` is a concrete
 `None` candidate if `f()` is admitted by the installed catalog/AppMain route.
 
-This inventory does not yet prove that the candidate reaches the selected
-source-relation → loop-normalizer production path. The preflight route rejects
-raw script/legacy compatibility origins (`calls/function_call_preflight_route.rs:369-383`)
-and requires an installed caller relation for cataloged calls (`:413-424`), so
-old raw-call fixtures are not production evidence. D0 must name one installed
-source relation and follow it through local binding into the selected loop
-operand, or explicitly prove that all selected producers publish a type.
+The inventory does not treat old raw-call fixtures as production evidence. The
+preflight route rejects raw script/legacy compatibility origins
+(`calls/function_call_preflight_route.rs:369-383`) and requires an installed
+caller relation for cataloged calls (`:413-424`). The selected typed rejection
+does not infer a type from that relation; the production relation remains a
+separate acceptance obligation.
 
 ### Selected fallback candidate (static route trace, 2026-09-13)
 
@@ -143,41 +142,63 @@ generic body normalizer (`normal_callable_loop_physical_adapter.rs:31-56`;
 reaches `PlanNormalizer::lower_value_input` and observes `type_ctx.get_type(x)
 == None`.
 
-The remaining unresolved point is source admission: this exact shape still
-needs the installed resolver relation and caller/loop BindingRef chain to be
-observed in one executable acceptance run. Until that evidence exists, the
-candidate cannot choose a typed rejection or a retained compatibility edge,
-and this card remains `NoSafeSlice` under design stop.
+The source admission question is no longer needed to choose between a numeric
+issuer and a fallback: the dynamic-operator SSOT defines only DynamicAdd and
+DynamicLess (`docs/reference/language/dynamic-operators.md:7-30`) and provides
+no unary-minus semantic issuer. The selected loop route is nevertheless
+traced above so the rejection is attached to the real normalizer boundary,
+not to an owner-only fixture. The resolver relation and BindingRef chain still
+remain required for the later production acceptance evidence, but they are not
+used to invent a type for an absent fact.
 
 The static audit found no focused test that directly pins unary-minus with a
 missing operand type. Existing integer/float unary positives cover only the
 known-type states. Runtime impact for `MissingFact`, `UnknownFact`, and
 `KnownNonnumeric` is therefore un-reproduced and must not be claimed.
 
-## Ordered D0 tasks
+## Ordered D0 tasks (completed)
 
 1. Inventory the lowering-time producers for the exact unary operand, separating
-   normalizer-owned `Some(Unknown)` from raw terminals with no publication, and
-   prove one installed source-relation path (call initializer -> local binding
-   -> selected loop operand) or prove that every selected producer publishes a
-   type before this arm.
+   normalizer-owned `Some(Unknown)` from raw terminals with no publication.
 2. Define the negative matrix for missing, Unknown, and nonnumeric facts,
    including the first fail-fast point and the no-allocation/no-effect rule.
-3. Decide whether the existing normalizer compatibility contract intentionally
-   retains `MissingFact -> Integer`, or whether a source-backed issuer and
-   typed rejection replace it. Do not borrow `ops/unary.rs` or Add semantics.
-4. Only after that Decision, select a one-owner I0 with known Integer/Float
-   positive coverage, separate negatives, and the exact deletion or retention
-   edge for `unwrap_or(MirType::Integer)`.
+3. Decide that the existing normalizer has no source-backed unary issuer for
+   those states, so typed rejection replaces `MissingFact -> Integer`. Do not
+   borrow `ops/unary.rs` or Add semantics.
+4. Implement the selected one-owner I0 with known Integer/Float positive
+   coverage, separate Unknown/missing/nonnumeric negatives, and deletion of
+   the exact `unwrap_or(MirType::Integer)` edge.
 
-D0 exits only when the source relation and canonical issuer (or an explicit
-typed rejection) are named, the selected loop path is traced end to end, and
-the state matrix fixes the no-allocation/no-effect boundary. Until then this
-card remains a design stop; a fixture or owner-only unit test cannot substitute
-for that production-path evidence.
+D0 exits with the explicit typed rejection owner, the selected loop path
+traced end to end, and the state matrix fixing the no-allocation/no-effect
+boundary. The production resolver relation remains an acceptance obligation;
+it does not reopen the design decision or authorize a guessed type.
 
-Implementation permission is false in this design stop. No code, fixture,
-fallback, route switch, or guessed semantic receipt may cross the boundary.
+## MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0 (accepted)
+
+Boundary: `PlanNormalizer::lower_value_input` unary Minus after child lowering
+and before zero/destination allocation. The existing type context is the only
+numeric fact source for this route; no new semantic receipt or source walk is
+introduced.
+
+Change the unary-minus match to preserve `MirType::Integer` and
+`MirType::Float`, and return one stable typed normalizer error for
+`None`, `Some(MirType::Unknown)`, and every known nonnumeric type. The child
+value and any effects it legitimately produced remain unchanged; the reject
+must occur before `alloc_typed`, zero `Const`, destination allocation, and
+`BinaryOp::Sub` publication. Delete only the `unwrap_or(MirType::Integer)`
+edge. Raw `ops/unary.rs`, DynamicAdd/Less, VM behavior, and other arithmetic
+remain outside this I0.
+
+Acceptance requires focused owner tests for known Integer and Float results,
+separate Unknown/missing/String/Bool (or equivalent nonnumeric) rejection with
+no post-child allocations/effects, source-size and diff checks, and the
+existing pointer/route guards. A later production acceptance pass must also
+exercise the selected resolver-to-loop source relation; owner-only tests do not
+claim that evidence.
+
+Implementation permission is now enabled only after the current pointer is
+changed to `work_mode = fast` with `MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0`.
 
 ## Reopen / non-claims
 
