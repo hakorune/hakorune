@@ -165,11 +165,15 @@ Focused verification used one quick-profile lib build and ran 30
 `runner::modes::common_util::selfhost::` tests: all 30 passed. This includes the
 existing MIR-positive, strict/dev-negative, and Stage-A payload contract tests;
 the compile also verifies both production call sites use the new error carrier.
-The required child-process route acceptance (a real extracted-MIR rejection plus
-an allowed absence/Program positive) remains open because the current capture
-helper collapses unavailable/timeout outcomes and has no stable injected child
-fixture. Until that observation is added without widening capture semantics, this
-I0 stays selected rather than being marked landed.
+The established `compiler_entry_path_is_stable` test now invokes the real
+`stage0_capture::run_captured_json_v0_command` with a portable child fixture.
+Reject mode emits malformed MIR alongside a concurrent Program line, and the
+test observes the named `[stage-a][mir-rejected]` error; Program-only mode keeps
+absence of MIR as an allowed compatibility input. This closes the bounded
+child-process capture/parse acceptance without widening capture semantics.
+The test does not claim a full Stage-B source bootstrap: that path still hits
+the known baseline `[raw-loop-child-entry/callable-ledger-missing]`, which is
+outside this I0 and is not a current-change red.
 
 ## Finite scope and retained owners
 

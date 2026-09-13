@@ -90,8 +90,32 @@ pub(crate) fn try_capture_stage_a_module(
 
 #[cfg(test)]
 mod tests {
+    use super::stage0_capture;
+
+    const CAPTURE_FIXTURE_TEST: &str =
+        "runner::modes::common_util::selfhost::stage_a_route::tests::compiler_entry_path_is_stable";
+
     #[test]
     fn compiler_entry_path_is_stable() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+
+        // The established test doubles as a portable child-process fixture when
+        // invoked with the private test-only selector. This keeps the fixed
+        // lib-test inventory stable while exercising the real capture plumbing.
+        if let Ok(mode) = std::env::var("HAKO_STAGE_A_CAPTURE_FIXTURE") {
+            match mode.as_str() {
+                "reject" => {
+                    println!(r#"{{"version":0,"kind":"Program","body":[]}}"#);
+                    println!(r#"{{"functions":[{{"name":"main","blocks":[]}}]}}"#);
+                }
+                "program" => {
+                    println!(r#"{{"version":0,"kind":"Program","body":[]}}"#);
+                }
+                other => panic!("unknown Stage-A capture fixture: {other}"),
+            }
+            return;
+        }
+
         assert_eq!(
             super::STAGE_A_COMPILER_ENTRY,
             "lang/src/compiler/entry/compiler.hako"
@@ -104,5 +128,44 @@ mod tests {
             Err(error) => error,
         };
         assert!(error.starts_with("[stage-a][mir-rejected]"), "{error}");
+
+        let exe = std::env::current_exe().expect("test binary path");
+        let capture = |mode: &str| {
+            let mut cmd = std::process::Command::new(&exe);
+            cmd.arg("--exact")
+                .arg(CAPTURE_FIXTURE_TEST)
+                .arg("--nocapture")
+                .env("HAKO_STAGE_A_CAPTURE_FIXTURE", mode);
+            stage0_capture::run_captured_json_v0_command(cmd, 2_000)
+                .expect("fixture child must complete")
+        };
+
+        let rejected = capture("reject");
+        let mir_line = rejected
+            .mir_line
+            .as_deref()
+            .expect("fixture must expose a captured MIR line");
+        assert!(
+            rejected.program_line.is_some(),
+            "a concurrent Program line is required to prove no fallback"
+        );
+        let rejection = match super::resolve_captured_mir_line(mir_line) {
+            Ok(_) => panic!("captured malformed MIR must remain terminal"),
+            Err(error) => error,
+        };
+        assert!(
+            rejection.starts_with("[stage-a][mir-rejected]"),
+            "{rejection}"
+        );
+
+        let program_only = capture("program");
+        assert!(
+            program_only.mir_line.is_none(),
+            "Program-only fixture must not be classified as MIR"
+        );
+        assert!(
+            program_only.program_line.is_some(),
+            "Program-only fixture must remain an allowed compatibility input"
+        );
     }
 }
