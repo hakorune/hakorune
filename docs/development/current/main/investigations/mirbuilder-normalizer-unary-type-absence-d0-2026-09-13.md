@@ -1,5 +1,5 @@
 ---
-Status: Design stop — unary I0 owner evidence green; production relation mapping open
+Status: Owner I0 closed — production relation observation retained as non-blocking follow-up
 Date: 2026-09-13
 Decision: MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0
 Parent: docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
@@ -219,24 +219,25 @@ owner-level evidence only: the resolver-to-loop production relation and the
 separate provider/CAPI/Windows temporary-input evidence remain outside this
 I0 and must not be reported as closed here.
 
-## MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1 (design stop)
+## MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1 (non-blocking follow-up)
 
-Decision: keep the unary type-absence I0 closed at its owner boundary and first
-settle one exact resolver-to-GenericLoopV1 production relation before adding an
-acceptance fixture.
+Decision: keep the unary type-absence I0 closed at its existing Stop boundary.
+The production resolver-to-GenericLoopV1 relation is a separate observation
+follow-up and is not an entry condition for this completed owner fix.
 Source authority + canonical issuer: the normal callable resolver's selected
 source site, `BindingRef` ledger, existing `CallableGenericLoopSourceFactsIssuerV1`,
 and the existing normalizer type-context issuer for the operand value.
 Non-authority: a raw `env.get` result with no local type, hand-built AST/source
 fixtures, a function-level `Outside` classification, or a test-only type insert.
-Fail-fast boundary: selected source admission and `verify_located_generic_loop_v1`
-must prove the exact front route with no overlap before the unary missing-type
-rejection is claimed as a production terminal.
-Smallest next slice: static-audit one source wrapper and caller through canonical
-route selection, exact loop site, local `BindingRef` publication, and operand
-`read_variable` consumption; only then taskize the smallest real acceptance.
-Non-claims: no new source fixture, type inference, route fallback, production
-unary semantic change, or whole normal-callable/backend acceptance.
+Fail-fast boundary: the completed normalizer Stop rejects missing/Unknown/
+nonnumeric type facts before zero/destination allocation; any future source
+observation must retain the existing route and `verify_located_generic_loop_v1`
+boundary.
+Smallest next slice: none for this card. Reopen the observation only when a
+real production source supplies the exact relation; do not manufacture a
+fixture or source solely to satisfy this follow-up.
+Non-claims: no production acceptance, source fixture, type inference, route
+fallback, unary semantic expansion, or whole normal-callable/backend claim.
 
 The finite chain is now explicit. `classify_canonical_callable_route` checks
 DirectAccum, CallableSingleLoop, GenericG0, then the canonical preflight; only
@@ -247,14 +248,15 @@ Recipe is issued. The physical adapter then consumes the selected Recipe through
 `CallableLoopSourceExpressionPortV1`, whose variable read uses the exact source
 site and ledger `read_variable` rather than a spelling lookup.
 
-Two production facts remain unclosed for the candidate `local x = f()` followed
-by unary `-x` in the loop body: the selected source wrapper must be shown to
-reach the front `GenericLoopV1` branch without another route winning, and that
-same source site must publish the local `BindingRef` whose ledger value reaches
-the unary child. Existing source-facts tests fabricate owners/bindings and call
-`lower_for_test`; the handoff fixture uses a different real loop body. Neither
-is evidence for this exact relation. This D1 therefore stops before code,
-fixture, or Cargo work until the two source-backed mappings are named.
+Two production facts remain unobserved for the candidate `local x = f()`
+followed by unary `-x` in the loop body: the selected source wrapper must be
+shown to reach the front `GenericLoopV1` branch without another route winning,
+and that same source site must publish the local `BindingRef` whose ledger
+value reaches the unary child. Existing source-facts tests fabricate
+owners/bindings and call `lower_for_test`; the handoff fixture uses a different
+real loop body. Neither is evidence for this exact relation. These are retained
+as a non-blocking follow-up because the selected action was an existing-owner
+Stop, not a production replacement that adds a new source authority.
 
 Static route review narrows the remaining work. DirectAccum requires a two-
 statement body whose first local is a pair of zero integer literals, so a
@@ -303,9 +305,10 @@ for the required relation without designing a new source-backed acceptance.
 
 ## Reopen / non-claims
 
-Reopen when an existing operand type issuer and a canonical missing-type
-terminal are both named, or when a concrete source counterexample demonstrates
-that the current fallback changes a selected acceptance result. A test-only
-type insertion, runtime inference, or cross-backend parity result is not an
-issuer. This card does not claim that every Integer fallback in the repository
-is covered; the Add and non-Add siblings remain separately owned.
+Reopen the follow-up only when an existing operand type issuer and a canonical
+missing-type terminal are both named in a real source relation, or when a
+concrete source counterexample demonstrates that the current fallback changes a
+selected acceptance result. A test-only type insertion, runtime inference, or
+cross-backend parity result is not an issuer. This card does not claim that
+every Integer fallback in the repository is covered; the Add and non-Add
+siblings remain separately owned.

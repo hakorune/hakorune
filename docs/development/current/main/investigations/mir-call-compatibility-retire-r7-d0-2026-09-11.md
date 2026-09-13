@@ -597,9 +597,14 @@ invocation-owned logs after each call.
 - Native lifecycle runtime remains outside this observer: its existing session
   selector accepts `x86_64-unknown-linux-gnu` only. Do not fabricate a Windows
   session to close the evidence gap.
-- Independent next selection: audit the already-recorded A-4 resolver-to-loop
-  acceptance relation in its unary type-absence card. Pending Windows proof
-  does not block that design audit and does not close temporary-input I0.
+- Independent selection note: the A-4 resolver-to-loop relation audit is now
+  closed as a non-blocking follow-up in
+  `mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md`. Its existing
+  owner Stop is complete; the unobserved source relation is not a production
+  acceptance prerequisite and does not block this R7 evidence row.
+  While the watcher collects the Windows result, select another already-
+  inventoried row when its own entry conditions are closed. Do not redispatch
+  or foreground-poll this unchanged run.
 
 The earlier separate provider/CAPI jobs built the same test binary twice.
 Their split established no speedup; the merged job removes duplicated work,
