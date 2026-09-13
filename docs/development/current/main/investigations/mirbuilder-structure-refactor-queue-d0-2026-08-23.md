@@ -756,6 +756,33 @@ the registry about 348 lines, both below the 760-line design trigger and the
 `compiler::tests` registration, visibility, and all existing compiler/header
 guards; it must add a reusable uniqueness/line-budget guard before landing.
 
+## Source line-budget census receipt — 2026-09-14
+
+Scope is the finite source set returned by `rg --files src -g '*.rs'`; generated
+outputs outside `src/` and documentation are excluded. The current result is
+`0` files at or above 800 lines, with `18` files in the 760–799 trigger band.
+The maximum is `797` lines. The trigger-band paths are:
+
+```text
+mir/compiler/legacy_candidate_session_tests.rs (797)
+mir/builder/control_flow/plan/loop_phi_materializer_tests.rs (797)
+mir/builder/control_flow/joinir/route_entry/registry/generic_accepted_plan_reachability_tests.rs (796)
+mir/shared_loop_source_window_tests.rs (792)
+mir/resolved_semantics/owner_forest_tests.rs (783)
+mir/compiler/raw_root_eligibility.rs (779)
+host_providers/llvm_codegen/published_map_source_tests.rs (778)
+mir/resolved_semantics/tests.rs (775); mir/array_text_observer_region_contract/matcher.rs (775)
+mir/builder/module_lowering_invocation.rs (773); mir/loop_route_policy/family_admission.rs (771)
+mir/loop_structural_facts/variable_accum_recurrence.rs (770); mir/compiler/mod.rs (770)
+mir/compiler/raw_root_plan0.rs (769); mir/resolved_semantics/source_projection_tests.rs (768)
+mir/compiler/raw_root_decl_access.rs (767); mir/normal_callable_semantic_package/issuer.rs (765)
+parser/mod.rs (762)
+```
+
+This is a line-budget observation, not permission to split any row. The
+worker-audited candidates above remain future BoxShape tasks and the current
+Call/R7 pointer remains unchanged.
+
 ## Guard and closeout contract
 
 Every R0 commit must run:
