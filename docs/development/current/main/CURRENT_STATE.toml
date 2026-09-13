@@ -23,8 +23,10 @@ and PhysicalOptions already have one owner; the C harness executor now owns a
 unique exclusive diagnostic log per call. Direct C and AOT FFI share the
 executor fix. POSIX helper, overlap/failure smoke, route guard, module README
 and ABI reference are green; native Windows reservation/close/reopen remains
-unclaimed. The Claude A-3 sentinel note was reconciled as already closed at
-`c2681307dd`, so no duplicate schema task is selected. Temp input I0 remains
+unclaimed. The Claude Call-ingress A-3 note was reconciled as already closed at
+`c2681307dd`; the separate loop A-3 at `loop_true_break_once.rs:319` remains
+queued as `MIR-LOOP-TRUE-BREAK-VALUEID-SENTINEL-I0` for a checked lookup and
+typed freeze. No duplicate Call schema task is selected. Temp input I0 remains
 closed; aggregate R7 remains open. Cargo stays one process, quick, at most four
 jobs.
 """

@@ -788,12 +788,12 @@ authorizes code until `CURRENT_STATE.toml` selects it.
    First close it as explicit typed unsupported/arity failure with zero side
    effects; a real spawn implementation needs a separate issuer/ABI decision.
 
-3. `MIR-CALL-V1-FUNC-SENTINEL-R6` — closed by `c2681307dd`; the former
-   current-form warning was stale. v1 rejects Global/Method/Extern/Value and
-   value-style Closure shapes before block or `max_value_id` mutation.
-   Canonical `Call(MirCall)` has mandatory callee/no `func`; legacy `func` stays
-   in explicit `LegacyCallV0`. Focused parser coverage passes and proves block/cursor
-   stability. This closes A-3's dummy edge only; LegacyCallV0 and JoinIR compatibility remapping remain separate.
+3. `MIR-CALL-V1-FUNC-SENTINEL-R6` (Call ingress) — closed by `c2681307dd`; this is separate from loop A-3.
+   v1 rejects Global/Method/Extern/Value and value-style Closure before block or `max_value_id` mutation.
+   Canonical `Call(MirCall)` has mandatory callee/no `func`; legacy `func` stays in explicit `LegacyCallV0`; focused parser coverage proves block/cursor stability.
+   Real A-3 is `MIR-LOOP-TRUE-BREAK-VALUEID-SENTINEL-I0`; its design card is `docs/development/current/main/investigations/mir-loop-true-break-valueid-sentinel-d0-2026-09-13.md` and its strict check is at `loop_true_break_once.rs:319`.
+   Replace that check's dummy with checked lookup and typed freeze; make no production Call-sentinel claim.
+   JoinIR compatibility remapping and `LegacyCallV0` remain separate.
 
 4. `MIR-REFERENCE-LENGTH-MISSING-METADATA-D0` — reference-only semantics choice.
    Hako reference handlers still turn missing/unsupported `length` metadata into
