@@ -280,6 +280,14 @@ the unary terminal must reject missing type rather than infer `Integer`; one
 real production source case must still demonstrate that this terminal is
 reached through the selected raw Loop handoff.
 
+The tempting unary/call/loop sources under `apps/tests/phase29bq_*` do not
+close that obligation. The current generic-loop disposition ledger records
+these rows as `nonproduction-future-evidence` and `P0-INVENTORY-ONLY`
+(`docs/development/current/main/design/fixtures/generic-loop-legacy-disposition-v1.tsv:370-379`),
+while the older phase backlog only records them as parser-handoff candidates.
+They therefore remain inventory evidence and cannot be promoted as the
+production resolver-to-GenericLoopV1 relation for this card.
+
 ## Reopen / non-claims
 
 Reopen when an existing operand type issuer and a canonical missing-type
