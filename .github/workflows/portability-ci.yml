@@ -72,6 +72,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             throw "harness-log ownership fixture failed"
           }
+      - name: Check direct C harness export on Windows
+        shell: bash
+        run: bash tools/checks/windows_harness_c_export_smoke.sh
 
   plugin-recovery-check:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
