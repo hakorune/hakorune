@@ -128,22 +128,28 @@ impl super::super::PlanNormalizer {
                         .map_err(|error| error.render())?;
                     let (rhs, mut effects) =
                         Self::lower_value_input(port, operand, builder, phi_bindings)?;
-                    let rhs_ty = builder
-                        .function_state
-                        .type_ctx
-                        .get_type(rhs)
-                        .cloned()
-                        .unwrap_or(MirType::Integer);
-                    let (zero_val, zero_ty) = match rhs_ty {
-                        MirType::Float => (ConstValue::Float(0.0), MirType::Float),
-                        _ => (ConstValue::Integer(0), MirType::Integer),
+                    let rhs_ty = builder.function_state.type_ctx.get_type(rhs).cloned();
+                    let (zero_val, result_ty) = match rhs_ty {
+                        Some(MirType::Integer) => (ConstValue::Integer(0), MirType::Integer),
+                        Some(MirType::Float) => (ConstValue::Float(0.0), MirType::Float),
+                        Some(other) => {
+                            return Err(format!(
+                                "[normalizer/unary-minus/type] expected Integer or Float, got {other:?}"
+                            ));
+                        }
+                        None => {
+                            return Err(
+                                "[normalizer/unary-minus/type] expected Integer or Float, got missing"
+                                    .to_owned(),
+                            );
+                        }
                     };
-                    let zero_id = builder.alloc_typed(zero_ty);
+                    let zero_id = builder.alloc_typed(result_ty.clone());
                     effects.push(CoreEffectPlan::Const {
                         dst: zero_id,
                         value: zero_val,
                     });
-                    let dst = builder.alloc_typed(rhs_ty);
+                    let dst = builder.alloc_typed(result_ty);
                     effects.push(CoreEffectPlan::BinOp {
                         dst,
                         lhs: zero_id,

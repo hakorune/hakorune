@@ -1,6 +1,6 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
 current_execution_cohort = "mirbuilder_normalizer_unary_type_absence_i0"
 current_blocker_token = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
@@ -18,13 +18,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-normalizer-unary-type-absence-d0-2026-09-13"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
 latest_card_summary = """
-A-4 I0 is selected after the D0 authority audit: PlanNormalizer unary Minus
-preserves known Integer/Float and rejects Unknown, missing, and nonnumeric
-operand facts before zero/destination allocation. The source-backed resolver
-relation remains a later acceptance obligation; no type is inferred from it.
-A-2 PHI skip is covered by unconditional final verification, and A-3 loop
-diagnostic cleanup is closed. Cargo stays one process with quick-profile jobs
-limited to 4 for the focused implementation gate.
+A-4 I0 is implemented and focused evidence is green: PlanNormalizer unary
+Minus preserves known Integer/Float and rejects Unknown, missing, and
+nonnumeric operand facts before zero/destination allocation. The
+source-backed resolver relation remains a later acceptance obligation; no
+type is inferred from it. A-2 PHI skip is covered by unconditional final
+verification, and A-3 loop diagnostic cleanup is closed. The temporary-input
+R7 card still records provider/CAPI failure-matrix and native Windows
+close/reopen evidence as pending; those are not claimed here.
 """
 next_design_card = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"

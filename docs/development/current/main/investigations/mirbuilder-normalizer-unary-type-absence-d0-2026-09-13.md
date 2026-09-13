@@ -1,5 +1,5 @@
 ---
-Status: Design accepted — typed rejection selected; I0 implementation next
+Status: I0 implementation complete — focused owner evidence green; production relation pending
 Date: 2026-09-13
 Decision: MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0
 Parent: docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
@@ -174,7 +174,7 @@ traced end to end, and the state matrix fixing the no-allocation/no-effect
 boundary. The production resolver relation remains an acceptance obligation;
 it does not reopen the design decision or authorize a guessed type.
 
-## MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0 (accepted)
+## MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0 (complete)
 
 Boundary: `PlanNormalizer::lower_value_input` unary Minus after child lowering
 and before zero/destination allocation. The existing type context is the only
@@ -197,8 +197,27 @@ existing pointer/route guards. A later production acceptance pass must also
 exercise the selected resolver-to-loop source relation; owner-only tests do not
 claim that evidence.
 
-Implementation permission is now enabled only after the current pointer is
-changed to `work_mode = fast` with `MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0`.
+Implementation permission was enabled by the current pointer's
+`work_mode = fast` selection for `MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0`.
+
+### I0 evidence (2026-09-13)
+
+- `unary_minus_preserves_known_integer_and_float_types` passes for both
+  Integer and Float, including the typed zero and `BinaryOp::Sub` plan.
+- `unary_minus_rejects_missing_unknown_and_nonnumeric_before_allocation` passes
+  for missing, `Unknown`, String, and Bool facts; each rejection occurs before
+  the next ValueId changes.
+- `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib unary_minus --
+  --nocapture` passes (4 tests, 0 failed; the other two matches are existing
+  unary coverage).
+- `CARGO_BUILD_JOBS=4 cargo check --profile quick` passes. Repository-wide
+  `cargo fmt -- --check` remains red on pre-existing unrelated files; the two
+  changed Rust files were formatted directly and `git diff --check` is clean.
+
+The module README now records the missing-type rejection boundary. This is
+owner-level evidence only: the resolver-to-loop production relation and the
+separate provider/CAPI/Windows temporary-input evidence remain outside this
+I0 and must not be reported as closed here.
 
 ## Reopen / non-claims
 

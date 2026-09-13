@@ -39,6 +39,14 @@ P0a boundary:
   first located Loop profile. A located consumer must not silently enter those
   raw helpers.
 
+Unary-minus type boundary:
+- The PlanNormalizer preserves unary-minus lowering for operands with a
+  published `MirType::Integer` or `MirType::Float`.
+- A missing, `Unknown`, or nonnumeric operand type is rejected before the zero
+  constant and destination are allocated. This keeps absent type authority from
+  being silently converted to Integer. The raw unary-op path is a separate
+  owner and is not changed by this boundary.
+
 Retired:
 - loop_break.rs: removed in 291x-711; break expansion belongs in ExitMap /
   feature pipelines, not a test-only normalizer shelf.

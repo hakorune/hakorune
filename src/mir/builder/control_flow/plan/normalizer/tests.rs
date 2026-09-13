@@ -1,8 +1,8 @@
 use super::super::parts::var_map_scope::publish_emission_cache;
 use super::PlanNormalizer;
-use crate::ast::{ASTNode, BinaryOperator, FieldDecl, Span};
+use crate::ast::{ASTNode, BinaryOperator, FieldDecl, Span, UnaryOperator};
 use crate::mir::builder::MirBuilder;
-use crate::mir::{Effect, EffectMask, MirType, ValueId};
+use crate::mir::{ConstValue, Effect, EffectMask, MirType, ValueId};
 use std::collections::BTreeMap;
 
 fn var(name: &str) -> ASTNode {
@@ -26,6 +26,14 @@ fn binary(operator: BinaryOperator, lhs: ASTNode, rhs: ASTNode) -> ASTNode {
         operator,
         left: Box::new(lhs),
         right: Box::new(rhs),
+        span: Span::unknown(),
+    }
+}
+
+fn unary_minus(operand: ASTNode) -> ASTNode {
+    ASTNode::UnaryOp {
+        operator: UnaryOperator::Minus,
+        operand: Box::new(operand),
         span: Span::unknown(),
     }
 }
@@ -93,6 +101,76 @@ fn coreplan_add_uses_prepared_string_result_without_widening_subtract() {
         ),
     ] {
         assert_eq!(lower_binary_result_type(operator, lhs, rhs), expected);
+    }
+}
+
+#[test]
+fn unary_minus_preserves_known_integer_and_float_types() {
+    for (operand_type, expected_zero, expected_type) in [
+        (MirType::Integer, ConstValue::Integer(0), MirType::Integer),
+        (MirType::Float, ConstValue::Float(0.0), MirType::Float),
+    ] {
+        let mut builder = MirBuilder::new();
+        let operand = builder.alloc_typed(operand_type);
+        publish_emission_cache(&mut builder, "operand".to_owned(), operand);
+
+        let (result, effects) = PlanNormalizer::lower_value_ast(
+            &unary_minus(var("operand")),
+            &mut builder,
+            &BTreeMap::new(),
+        )
+        .expect("known numeric unary minus should normalize");
+
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(result),
+            Some(&expected_type)
+        );
+        assert!(matches!(
+            effects.as_slice(),
+            [
+                super::CoreEffectPlan::Const { value, .. },
+                super::CoreEffectPlan::BinOp {
+                    dst,
+                    op: crate::mir::BinaryOp::Sub,
+                    rhs,
+                    ..
+                }
+            ] if value == &expected_zero && *dst == result && *rhs == operand
+        ));
+    }
+}
+
+#[test]
+fn unary_minus_rejects_missing_unknown_and_nonnumeric_before_allocation() {
+    for (operand_type, expected) in [
+        (None, "missing"),
+        (Some(MirType::Unknown), "Unknown"),
+        (Some(MirType::String), "String"),
+        (Some(MirType::Bool), "Bool"),
+    ] {
+        let mut builder = MirBuilder::new();
+        let operand = operand_type
+            .map(|ty| builder.alloc_typed(ty))
+            .unwrap_or(ValueId(77));
+        publish_emission_cache(&mut builder, "operand".to_owned(), operand);
+        let next_before = builder.core_ctx.peek_next_value();
+
+        let error = PlanNormalizer::lower_value_ast(
+            &unary_minus(var("operand")),
+            &mut builder,
+            &BTreeMap::new(),
+        )
+        .expect_err("unary minus without a numeric fact must reject");
+
+        assert_eq!(
+            error,
+            format!("[normalizer/unary-minus/type] expected Integer or Float, got {expected}")
+        );
+        assert_eq!(
+            builder.core_ctx.peek_next_value(),
+            next_before,
+            "rejection must precede zero/destination allocation for {expected}"
+        );
     }
 }
 
