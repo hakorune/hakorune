@@ -442,6 +442,9 @@ definitions, header declarations, and C test probes for these compile symbols;
 there is no production Rust/C caller whose old edge can be removed while the
 ABI terminals remain supported. Test probes therefore do not create an I0
 production switch.
+`cargo metadata --no-deps` confirms the root `nyash-rust` package exposes the
+`nyash_rust` rlib and has no `publish = false` restriction (`publish = None`),
+so repository caller-zero cannot establish external-reader zero for the helper.
 
 ## Closed evidence and contracts
 
