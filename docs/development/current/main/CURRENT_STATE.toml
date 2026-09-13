@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-COMPATIBILITY-FRONTIER-PAUSE-D1"
-current_execution_cohort = "mir_call_compatibility_frontier_pause_d1"
-current_blocker_token = "NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet"
-guard_followup = "design_stop: Rust llvmlite runner request I0 is closed with one invocation policy and preserved primary/alias/default, fallback, and literal-1 NyRT-precheck semantics. Do not repeat the completed census or implement published-row work. Reopen only with a source-backed finite caller/terminal/retained-caller/old-edge delete-set. One Cargo process, jobs 1-2 until RAM validated."
-current_design_stop = "NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet"
+work_mode = "closeout"
+current_execution_row = "MIR-CALL-TEMP-INPUT-OWNERSHIP-D0"
+current_execution_cohort = "mir_call_temp_input_ownership_d0"
+current_blocker_token = "DesignAccepted__TempInputOwnership__ImplementationPending"
+guard_followup = "Design/task delivery complete; implementation pending in the same R7 card. Next I0 migrates the provider and two CAPI temporary-input sites to one scoped resource and deletes the fixed input pathname. Preserve output policy and existing route/error contracts. One Cargo process, jobs 1-2."
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,46 +18,27 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-compatibility-retire-r7-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
-R7 remains an owner-local migration toward the sole source/Facts/Recipe/
-physical/publication pipeline. Aggregate legacy schema retirement is open.
-Boundary, Static, Rust/AOT/public Generic options and named compiler-path
-ownership are closed; automatic replay and unused replay storage are retired.
-Legacy TargetMachine selector capture is closed at 47e83a224e.
-AOT child-env I1 has native Windows and Linux proof at 59e9a30b1f.
-Boundary profile1 llc-flags unset/empty ownership is closed at d40b41be34;
-unset captures the effective default once, while explicit empty remains no-flags.
-Published-row I0 at 8fe3f00a6c removes the process-global ledger and passes one
-invocation owner through Static V2, prepass/emission/residual and cleanup.
-Its WSL/Linux focused C, lifetime/query/formal cases and jobs1 Cargo check
-passed; it has no new native Windows execution evidence.
-FAST capture D0/I0 is closed: one compile-entry sample of NYASH_LLVM_FAST,
-three existing consumers, exact truth-value preservation, old helper deletion,
-and LLVM18 real-object evidence for FAST=0/1. The shared compatibility
-admission was first paused because the four retained C/AOT groups had no finite
-caller-specific old-edge delete-set. The bounded Rust llvmlite runner
-transport slice is closed in this revision: one invocation-local policy
-preserves the existing primary/alias/default selector, primary fallback gate,
-and literal-1 child NyRT-precheck rule across the existing harness/fallback
-consumers. The provider, public ABI, MIR, Recipe, and fallback owner remain
-retained. The legacy TargetMachine selector is already invocation-owned at
-47e83a224e; the Windows child-env evidence remains revision-scoped to
-59e9a30b1f. The remaining retained compatibility frontier has no
-source-backed finite caller/terminal/delete-set; do not repeat the census or
-start a new implementation slice.
-Source-called G0 LLVM18/EXE3, scalar local/terminal Call and empty-Home Plain
-cleanup have their recorded bounded acceptance. No whole-MirBuilder or
-backend-parity claim follows. Named llvmlite environment debt and legacy
-census anchor drift retain their separate classifications.
-Non-Loop snapshot reacquisition and unused Read/Write/Carrier information
-remain deferred cleanup candidates in their existing owners. The fixed
-real-app acceptance recheck at abbffb192e is 3/11 with seven named source
-boundaries and one LLVM14 environment boundary; it adds no new unclassified red.
-Warning baseline lib=1806; RAM validation pending, Cargo jobs stay at 1-2.
+Temporary input ownership D0 is accepted after source inspection and one
+read-only worker audit. The provider and two CAPI preparation sites share
+hako_llvm_in.json today; I0 will replace it with invocation-owned TempDir
+storage retained through synchronous consumption and artifact validation.
+Partial-write and early-return cleanup belong to the same scoped owner.
+All three callers switch together; the fixed input-path builder is deleted.
+The generic compare cleanup helper and existing output-path policy remain.
+D1's shared-caller pause is superseded: migration produces caller-zero for
+the selected old edge. Retained v0 boxcall is a separate schema obligation,
+not a prerequisite for this transport ownership repair.
+This is design/task delivery only; implementation and runtime proof are pending.
+Existing options, published-row and runner policy closeouts remain recorded
+in the active card and Git. Native Windows AOT child-env I1 evidence remains
+revision-scoped to 59e9a30b1f. Aggregate R7 and whole-MirBuilder remain open.
+Fixed real-app acceptance has three passes, seven named source boundaries,
+and one LLVM14 environment boundary. RAM validation pending; Cargo jobs 1-2.
 """
-next_design_card = "MIR-CALL-COMPATIBILITY-FRONTIER-PAUSE-D1"
+next_design_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none__R7RetainedCompatibilityFrontier__DesignStop"
-next_execution_card_path = "none"
+next_execution_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

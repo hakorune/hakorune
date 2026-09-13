@@ -1,7 +1,7 @@
 ---
-Status: Design stop — retained compatibility frontier after Rust request I0
+Status: Design accepted — invocation-owned temporary input; implementation pending
 Date: 2026-09-13
-Decision: MIR-CALL-COMPATIBILITY-FRONTIER-PAUSE-D1
+Decision: MIR-CALL-TEMP-INPUT-OWNERSHIP-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,17 +11,12 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: close the bounded Rust llvmlite runner transport I0 and keep the
-remaining retained compatibility frontier at an explicit design stop.
-Source authority + canonical issuer: each retained physical request and its existing invocation or process boundary.
-Non-authority: historical task prose, profile names, public symbol presence, and adjacent smoke results.
-Fail-fast boundary: preserve admission, typed row finish, owner cleanup and pre-artifact failure.
-Smallest next slice: none; reopen only when one source-backed caller, terminal, retained-caller set, and old-edge delete-set are named together.
-Non-claims: no aggregate R7 completion, new MIR/Recipe authority, ABI retirement, or general concurrency proof.
-
-The accepted I0 closes one behavior-neutral transport boundary. The remaining
-shared C/AOT/provider/public compatibility groups still have no finite
-caller-local deletion tuple, so no new implementation slice is authorized.
+Decision: accept MIR-CALL-TEMP-INPUT-OWNERSHIP-D0; queue one atomic I0 for the shared Rust temporary-input owner.
+Source authority + canonical issuer: existing validated MIR JSON or serialized LifecycleInvocationInputV1; transport_io owns only temporary storage.
+Non-authority: fixed filenames, profile labels, provider presence, or v0 boxcall membership.
+Fail-fast boundary: retain current validation/error ordering; keep input alive through synchronous consumption and artifact validation, then clean only that invocation's input.
+Smallest next slice: MIR-CALL-TEMP-INPUT-OWNERSHIP-I0, migrating the provider and both CAPI preparation sites together.
+Non-claims: no implementation in this design delivery, aggregate R7 retirement, output-path isolation, or whole-compiler concurrency proof.
 
 ## Finite scope and retained owners
 
@@ -57,7 +52,11 @@ Aggregate retirement still requires affected production writers, reissuers,
 readers and re-entry paths to reach caller-zero, with no unconsumed replacement
 product. Keep `LegacyCallV0` and shared compatibility assets until then.
 
-## MIR-CALL-COMPATIBILITY-ADMISSION-D0 (accepted frontier pause)
+## MIR-CALL-COMPATIBILITY-ADMISSION-D0 (historical frontier pause)
+
+The pause and selection statements in this section are historical. They are
+superseded by MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 below; they do not select the
+next task or require retained callers to disappear before migration.
 
 The FAST selector capture is closed below. The remaining C/AOT compatibility
 callers share public entries, dlsym re-entry, child/provider paths, or the
@@ -191,61 +190,93 @@ repository formatting differences are already present; no formatter write was
 performed. This is WSL/Linux evidence; native Windows remains covered only by
 the separate AOT I1 result at `59e9a30b1f`.
 
-## MIR-CALL-COMPATIBILITY-FRONTIER-PAUSE-D1 (accepted design stop)
+## MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 (accepted)
 
-The Rust llvmlite runner request boundary is now closed, but the remaining
-retained compatibility owners still share supported public entries, provider
-reachability, dlsym re-entry, or terminal bodies. No source-backed finite
-caller/terminal/retained-caller/old-edge deletion tuple is currently available.
+### Premise correction
 
-Decision: `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet`.
+The former D1 pause and its v0 crosswalk are superseded for task selection.
+Their historical source checks remain in Git at a7ab5afcd3. Shared supported
+callers do not prevent a bounded migration: caller-zero is required at physical
+deletion, and may be produced by the same implementation series. The existing
+current-docs update policy remains authoritative. Missing internal ownership
+design is a design task, not an external wait.
 
-Do not repeat the completed census, invent a new MIR/Recipe receipt, delete a
-shared provider or public ABI, or start published-row implementation from
-this stop. Reopen only from a fresh source-backed relation that identifies a
-single production caller, its terminal, all retained callers of the shared
-owner, and the exact old edge that becomes caller-zero. Until then, ordinary
-new-writer work, non-Loop snapshot reacquisition, and Read/Write/Carrier
-cleanup remain in their existing owners.
+The retained-v0 boxcall disposition remains an independent schema-retirement
+obligation. It is not a prerequisite for repairing CAPI/provider input
+ownership. No blanket rejection or parked-lane reopening follows.
 
-### D1 next design artifact: retained-v0 owner-disposition crosswalk
+### Finite owner and consumers
 
-This is a completion condition for D1, not a new census or implementation
-card. Fill one source-backed row only when an existing production route is
-found; keep the row unresolved when the same shared entry also serves a
-supported caller:
+Boundary: the three Rust temporary-input preparation sites -> synchronous
+child/CAPI return and existing artifact validation. Source inspection and
+Singer's read-only audit agree on this finite set:
 
-```text
-production caller / source or ingress authority
--> existing terminal and pre-effect failure
--> retained v0 callers of the shared owner
--> exact old edge removable after this disposition
--> caller-zero and acceptance condition
-```
+| Caller | Input authority / consumer | Current ownership gap |
+| --- | --- | --- |
+| provider_keep.rs::prepare_provider_io -> mir_json_to_object_llvmlite | validated JSON -> Python harness Command::status | input survives success, missing-tool, spawn and child failures |
+| capi_transport.rs::compile_via_capi_keep | validated JSON -> compile_via_capi -> options-v1 C entry | input survives success and contract/library/symbol/compile failures |
+| capi_transport.rs::compile_published_lifecycle_physical_v4 | serialized LifecycleInvocationInputV1 -> V4 C entry | manual removal targets the shared pathname; write failure precedes cleanup |
 
-The row must distinguish schema-absent v0 `boxcall -> LegacyCallV0` callers
-that remain supported from callers that can be stopped or promoted. A valid
-row then permits exactly one owner-local Stop or Promote, focused positive and
-negative acceptance, and deletion of only its named old edge. Until every
-field is source-backed, preserve direct v0 compatibility, JoinIR remappers,
-public/dlsym/provider re-entry, and shared terminals; do not add a fallback,
-second resolver, MIR/Recipe receipt, or blanket `boxcall` rejection.
+All paths currently call transport_io.rs::prepare_backend_input_json_file.
+transport_paths.rs::build_backend_temp_input_path returns the process-independent
+temporary pathname hako_llvm_in.json. Two live preparations can overwrite one
+another, and V4 can remove another invocation's input. This is source evidence
+of a possible collision, not a measured concurrent-compilation result.
 
-#### D1 source check result (2026-09-13)
+### Resource and failure contract
 
-The bounded source check did not produce a row. The direct loader still routes
-schema-absent `functions`/`blocks` input through v0
-(`src/runner/json_artifact/mir_loader.rs:19-25`), and the v0 parser still
-constructs `LegacyCallV0` for `boxcall`
-(`src/runner/mir_json_v0/module.rs:439-468`). The strict/dev selfhost helper
-has a separate pre-effect `boxcall` stop
-(`src/runner/modes/common_util/selfhost/json.rs:142-147`), while the
-vm-hako subset validates direct `boxcall` input
-(`src/runner/reference/vm_hako/subset_check/mod.rs:289-301`). Thus those
-entries cannot be collapsed into one caller disposition: the supported direct
-v0 caller remains retained, and the strict/dev stop is already closed. No
-source-backed terminal plus exclusive delete-set was found; D1 remains open
-without a new implementation row.
+Use the existing tempfile dependency. The existing transport_io owner returns
+one private, non-Clone owned input containing a unique TempDir and its JSON path.
+Create the file inside that directory; finish writing and close the File before
+returning the owner, allowing native Windows child/CAPI reopening. Consumers
+borrow its path and retain the owner until synchronous child/CAPI consumption
+and the existing artifact check finish. No asynchronous consumer may retain it.
+
+Create the TempDir owner before writing so partial-write errors also drop the
+owned directory. Scope exit releases it on success and every early return.
+Cleanup is best-effort through the resource destructor; it does not mask the
+primary error or turn successful compilation into a new error contract. Tests
+require removal under normal filesystem conditions; OS-level removal failures
+remain outside that guarantee.
+
+Preserve validation order, JSON bytes, route selection, options, public ABI,
+and output-path behavior. Do not remove caller-supplied inputs or outputs.
+The fixed default object output is outside this slice; overlap tests use
+different explicit outputs and prove input isolation only.
+
+### Ordered implementation tasks and finish line
+
+1. In transport_io.rs, replace the unowned PathBuf preparation result with
+   the scoped input resource using TempDir. Reuse the existing write-error
+   category and keep write handles closed before returning the path.
+2. Migrate all three callers above in one I0. Keep each owner alive through
+   its actual terminal and replace V4's manual input removal with scoped
+   cleanup. Preserve feature-disabled and error-order behavior.
+3. Delete build_backend_temp_input_path, the fixed input filename, and the
+   old unowned input return contract after all three sites switch. Retain
+   remove_backend_temp_file: ll_emit_compare_driver still uses it.
+4. Add focused tests in the existing transport/provider test ownership:
+   two live inputs have different paths and exact bytes; dropping either
+   preserves the other; preparation write failure and consumer early returns
+   release their own files; success retains input until consumption completes.
+   Exercise real provider/CAPI wrappers with controlled child/library failure
+   seams, including missing tools, invalid contract, missing symbol, child/C
+   failure, and successful object validation. An owner-only unit test cannot
+   substitute for the three caller lifetime checks.
+5. Check the relevant plugins and llvmlite-compat feature combinations with
+   one quick-profile Cargo process, jobs 1-2; run route/pointer guards and
+   diff check. Update src/host_providers/llvm_codegen/README.md and the affected
+   harness/ABI reference with the input-lifetime contract, then commit/push.
+
+I0 closes only with all three production preparation sites switched, the
+fixed-name input edge removed, and positive/negative lifetime evidence. Native
+Windows close/reopen evidence must be reported separately from Linux evidence.
+No new semantic receipt, route dispatcher, dependency, or per-task guard is
+needed. Current target source files are 28-510 lines; split at 760 and prohibit
+800-line source growth.
+
+This user-requested design delivery stops before code and tests. The bounded
+next implementation is MIR-CALL-TEMP-INPUT-OWNERSHIP-I0 in this same card.
 
 ## MIR-CALL-FAST-INVOCATION-CAPTURE-D0 (accepted)
 
@@ -328,7 +359,8 @@ work remain in their existing owners.
 | 1 | FAST capture D0 | accepted above; design and task organization delivered |
 | 2 | FAST capture I0 | closed at the current implementation commit; three readers and the old helper are aligned |
 | 3 | Rust llvmlite runner request I0 | closed in this revision; one invocation policy, three existing consumers, and the exact ambient-read delete set above |
-| 4 | Compatibility frontier pause D1 | design stop; no new census and no implementation until a finite caller/terminal/delete-set is source-backed |
+| 4 | Temporary input ownership D0 | accepted above; shared-owner premise corrected and three consumers co-scoped |
+| 5 | Temporary input ownership I0 | pending; scoped input, all three caller switches, fixed input path deletion, focused lifetime evidence |
 | Deferred | non-Loop snapshot reacquisition | existing perf owner; prove duplicate acquisition and compatible lifetime before reuse |
 | Deferred | Read/Write/Carrier unused information | owning Rust metadata paths; prove zero consumers before behavior-neutral deletion |
 | Deferred | ordinary-new unclaimed writer | existing Birth/ordinary-new owner; retain direct-local, foreign/transferred and uncovered cases |
