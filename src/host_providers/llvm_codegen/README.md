@@ -51,9 +51,13 @@ source cutover remain subsequent consumers of this session input.
   - CAPI derives JSON and target row from this bound input, owns temporary JSON
     lifetime, and returns the same archive to the EXE linker
 - `transport_paths.rs`
-  - temp-path path resolution helpers only
+  - compare-source and object-output path resolution helpers only
 - `transport_io.rs`
-  - temp-path file I/O helpers only
+  - invocation-owned MIR JSON input (`TempDir` plus closed JSON file)
+  - each provider/CAPI consumer borrows the path while retaining its owner
+    through synchronous consumption and artifact validation
+  - owner drop performs best-effort cleanup on success and every early return;
+    the primary compile error is preserved
 - `ll_tool_driver.rs`
   - thin LLVM tool seam
   - `.ll` text or file -> verifier -> `llc` -> `.o`

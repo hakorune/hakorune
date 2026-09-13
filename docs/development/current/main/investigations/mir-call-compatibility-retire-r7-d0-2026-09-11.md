@@ -1,7 +1,7 @@
 ---
-Status: Design accepted — invocation-owned temporary input; implementation pending
+Status: Implementation closed — invocation-owned temporary input
 Date: 2026-09-13
-Decision: MIR-CALL-TEMP-INPUT-OWNERSHIP-D0
+Decision: MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 / MIR-CALL-TEMP-INPUT-OWNERSHIP-I0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -360,7 +360,7 @@ work remain in their existing owners.
 | 2 | FAST capture I0 | closed at the current implementation commit; three readers and the old helper are aligned |
 | 3 | Rust llvmlite runner request I0 | closed in this revision; one invocation policy, three existing consumers, and the exact ambient-read delete set above |
 | 4 | Temporary input ownership D0 | accepted above; shared-owner premise corrected and three consumers co-scoped |
-| 5 | Temporary input ownership I0 | pending; scoped input, all three caller switches, fixed input path deletion, focused lifetime evidence |
+| 5 | Temporary input ownership I0 | implemented below; scoped input, all three caller switches, fixed input-path edge deleted, focused lifetime evidence |
 | Deferred | non-Loop snapshot reacquisition | existing perf owner; prove duplicate acquisition and compatible lifetime before reuse |
 | Deferred | Read/Write/Carrier unused information | owning Rust metadata paths; prove zero consumers before behavior-neutral deletion |
 | Deferred | ordinary-new unclaimed writer | existing Birth/ordinary-new owner; retain direct-local, foreign/transferred and uncovered cases |
@@ -369,6 +369,30 @@ The deferred cleanup items are not silently part of the C/AOT slice.
 The existing compile-time performance card owns measurement and snapshot
 investigation. Metadata cleanup must preserve source identity and publication
 ownership; it does not authorize a new semantic receipt.
+
+## MIR-CALL-TEMP-INPUT-OWNERSHIP-I0 implementation
+
+The three Rust preparation sites now receive a private `BackendInputJsonFile`
+owner from `transport_io`. It contains a unique `TempDir` and a generated JSON
+`TempPath`; the file handle is closed before the path is passed to a child or
+CAPI. Provider, CAPI options, and lifecycle V4 retain that owner through their
+synchronous consumer and artifact check, so success and every early return
+drop only that invocation's input. The V4 manual removal is gone, while the
+compare driver's unrelated text cleanup helper remains.
+
+The fixed global input-path builder and `hako_llvm_in.json` pathname are deleted.
+JSON bytes, validation/error ordering, route selection, output paths, and public
+ABI remain unchanged. No asynchronous consumer receives the borrowed path.
+
+Focused evidence: `host_providers::llvm_codegen::transport_io::tests::invocation_inputs_are_unique_and_drop_independently`
+passes with jobs 3/4; it proves distinct paths and exact bytes, independent drop
+of one live input, and cleanup after the second owner drops. `CARGO_BUILD_JOBS=4
+cargo check --profile quick --features llvmlite-compat` passes, covering the
+provider feature path; the default plugin test also passes. Source search shows
+no remaining call to `build_backend_temp_input_path` or global
+`hako_llvm_in.json`. The full C library/provider failure matrix and native
+Windows close/reopen run remain environment evidence for a later acceptance
+pass; this I0 does not claim whole-compiler concurrency safety.
 
 ## Closed evidence and contracts
 
@@ -444,7 +468,8 @@ Do not revive its earlier baseline as a current unresolved failure.
 | legacy census `capi_transport.rs:247` anchor | informational census drift recorded before I1; repair from actual source anchors when that observer is selected |
 | pre-install LLVM14 failures/skips | historical environment evidence; no LLVM18 execution inferred from fake tools or skip |
 | compiler warnings | existing nonzero baseline; no zero-warning claim |
-| RAM replacement | host task; one Cargo process, jobs 1–2 until RAM validation |
+| RAM replacement | reboot validation shows about 28GiB total / 20GiB available during jobs-4 check; keep one Cargo process and raise jobs only while this margin holds |
 
-Current documentation checks: pointer guard, diff check and manual active-card
-line budget. No Cargo build is needed for this design/organization change.
+Current checks: pointer guard, diff check, feature check, focused ownership test,
+and manual active-card line budget. Existing compiler warning output remains a
+known baseline; no zero-warning claim.

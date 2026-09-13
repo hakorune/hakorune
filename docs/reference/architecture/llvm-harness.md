@@ -62,6 +62,11 @@ Wiring（Rust 側）
   2) `python3 tools/llvmlite_harness.py --in <mir.json> --out <obj.o>` を起動
   3) 成功後は通常のリンク手順（`libnyash_kernel.a` とリンク）
   - daily runner object emit は current mainline で `ny-llvmc --emit obj` を読む
+- Rust の provider/CAPI 呼出しは MIR JSON を呼出し専用 `TempDir` に書き、
+  Python/CAPI が同期消費して成果物を検証するまで owner を保持する。
+  成功・失敗・早期 return では owner drop が入力を best-effort cleanup する。
+  固定名 `hako_llvm_in.json` を共有せず、呼出し間の入力上書きや誤削除を
+  起こさない。出力パスの契約とエラー順序は従来どおり。
 
 Mainline note
 - current daily/mainline route は `ny-llvmc` の default boundary route だよ。

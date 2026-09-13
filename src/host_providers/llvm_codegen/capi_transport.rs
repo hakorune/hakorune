@@ -321,8 +321,8 @@ pub(super) fn compile_published_lifecycle_physical_v4(
         let func: libloading::Symbol<CompileFn> = lib
             .get(b"hako_llvmc_compile_published_lifecycle_physical_v4\0")
             .map_err(|e| format!("dlsym failed for lifecycle V4 ingress: {e}"))?;
-        let input =
-            CString::new(json_in.to_string_lossy().as_bytes()).map_err(|_| "invalid json path")?;
+        let input = CString::new(json_in.path().to_string_lossy().as_bytes())
+            .map_err(|_| "invalid json path")?;
         let output =
             CString::new(obj_out.to_string_lossy().as_bytes()).map_err(|_| "invalid out path")?;
         let mut error: *mut c_char = std::ptr::null_mut();
@@ -339,7 +339,6 @@ pub(super) fn compile_published_lifecycle_physical_v4(
         }
         transport_io::ensure_backend_artifact_written(obj_out, "object")
     })();
-    transport_io::remove_backend_temp_file(&json_in);
     result
 }
 
@@ -348,10 +347,10 @@ pub(super) fn compile_via_capi_keep(
     opts: &Opts,
 ) -> Result<PathBuf, String> {
     normalize::validate_backend_mir_shape(mir_json)?;
-    let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
+    let input = transport_io::prepare_backend_input_json_file(mir_json)?;
     let out_path = transport_paths::resolve_backend_object_output(opts);
     transport_io::ensure_backend_output_parent(&out_path);
-    compile_via_capi(&in_path, &out_path, opts)?;
+    compile_via_capi(input.path(), &out_path, opts)?;
     Ok(out_path)
 }
 

@@ -11,7 +11,10 @@ use super::transport_paths;
 use super::Opts;
 
 #[cfg(feature = "llvmlite-compat")]
-fn prepare_provider_io(mir_json: &str, opts: &Opts) -> Result<(PathBuf, PathBuf), String> {
+fn prepare_provider_io(
+    mir_json: &str,
+    opts: &Opts,
+) -> Result<(transport_io::BackendInputJsonFile, PathBuf), String> {
     normalize::validate_backend_mir_shape(mir_json)?;
     let in_path = transport_io::prepare_backend_input_json_file(mir_json)?;
     let out_path = transport_paths::resolve_backend_object_output(opts);
@@ -51,7 +54,7 @@ fn resolve_llvmlite_harness() -> Option<PathBuf> {
 
 #[cfg(feature = "llvmlite-compat")]
 pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
-    let (in_path, out_path) = prepare_provider_io(mir_json, opts)?;
+    let (input, out_path) = prepare_provider_io(mir_json, opts)?;
     let py = resolve_python3().ok_or_else(|| {
         let tag = String::from("[llvmemit/llvmlite/python-not-found]");
         llvm_emit_error!("{}", tag);
@@ -66,7 +69,7 @@ pub(super) fn mir_json_to_object_llvmlite(mir_json: &str, opts: &Opts) -> Result
     let status = Command::new(&py)
         .arg(&harness)
         .arg("--in")
-        .arg(&in_path)
+        .arg(input.path())
         .arg("--out")
         .arg(&out_path)
         .status()
