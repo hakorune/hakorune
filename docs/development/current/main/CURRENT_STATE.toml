@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-LOOP-TRUE-BREAK-VALUEID-SENTINEL-I0"
-current_execution_cohort = "mir_loop_true_break_valueid_sentinel_i0"
-current_blocker_token = "ImplementationComplete__LoopTrueBreakValueIdSentinel__EvidenceRecorded"
-guard_followup = "A-3 loop_true_break_once.rs:319 is implemented as a bounded BoxShape cleanup. The strict diagnostic ValueId(0) fallback is gone, checked lookup emits typed freeze, the updated k_exit positive and missing-env negative pass, and Harness Windows proof remains a separate non-claim."
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0"
+current_execution_cohort = "mirbuilder_normalizer_unary_type_absence_d0"
+current_blocker_token = "DesignStop__UnaryMissingTypeAuthorityAndDisposition"
+guard_followup = "A-4 is the remaining P1 candidate. The exact unary-minus edge at helpers_value/lower.rs:136 still maps a missing operand type to Integer; resolve its source issuer and typed disposition before any I0. A-2 is already covered by unconditional final PHI verification, and A-3 loop diagnostic cleanup is closed."
+current_design_stop = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0__MissingTypeIssuerAndDisposition"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,24 +14,24 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-loop-true-break-valueid-sentinel-d0-2026-09-13.md"
-latest_card = "mir-loop-true-break-valueid-sentinel-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-loop-true-break-valueid-sentinel-d0-2026-09-13.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
+latest_card = "mirbuilder-normalizer-unary-type-absence-d0-2026-09-13"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
 latest_card_summary = """
-The loop A-3 correction is implemented as one bounded BoxShape I0. Its
-strict-only `loop_body_args.get(idx).unwrap_or(ValueId(0))` was not a production
-Call argument or source sentinel; it was a hidden diagnostic fallback. The
-existing EnvLayout/collect_env_args relation owns the positional inputs, and
-checked lookup now emits typed freeze. The updated-env positive and reusable
-missing-field negative pass in one quick Cargo process (83/83); source sizes
-remain below the design threshold. The Call-ingress A-3 was already closed at
-`c2681307dd`; A-2 PHI skip is covered by unconditional final verification and
-remains no task. A-4 remains a separate design candidate.
+A-4 is the remaining P1 candidate after the Call-ingress A-3 closure and the
+loop A-3 diagnostic cleanup. The selected design stop is limited to
+PlanNormalizer::lower_value_input unary Minus at helpers_value/lower.rs:136,
+where missing operand type currently becomes Integer before zero/destination
+allocation. The worker found no source-backed issuer or focused missing-type
+proof yet, so D0 must classify known Integer/Float, Unknown, missing, and
+nonnumeric states and choose an explicit issuer or typed rejection. A-2 PHI
+skip is already covered by unconditional final verification. No A-4 I0 is
+selected; Cargo stays one process when a later implementation is accepted.
 """
-next_design_card = "MIR-LOOP-TRUE-BREAK-VALUEID-SENTINEL-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-loop-true-break-valueid-sentinel-d0-2026-09-13.md"
-next_execution_card = "MIR-LOOP-TRUE-BREAK-VALUEID-SENTINEL-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-loop-true-break-valueid-sentinel-d0-2026-09-13.md"
+next_design_card = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
+next_execution_card = "none"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

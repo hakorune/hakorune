@@ -793,7 +793,7 @@ authorizes code until `CURRENT_STATE.toml` selects it.
    Canonical `Call(MirCall)` has mandatory callee/no `func`; legacy `func` stays in explicit `LegacyCallV0`; focused parser coverage proves block/cursor stability.
    Real A-3 is `MIR-LOOP-TRUE-BREAK-VALUEID-SENTINEL-I0`; its design card is `docs/development/current/main/investigations/mir-loop-true-break-valueid-sentinel-d0-2026-09-13.md` and its strict check is at `loop_true_break_once.rs:319`.
    Replace that check's dummy with checked lookup and typed freeze; make no production Call-sentinel claim.
-   JoinIR compatibility remapping and `LegacyCallV0` remain separate.
+   JoinIR compatibility remapping and `LegacyCallV0` remain separate. A-4's unary type-absence design is tracked in `docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md`.
 
 4. `MIR-REFERENCE-LENGTH-MISSING-METADATA-D0` — reference-only semantics choice.
    Hako reference handlers still turn missing/unsupported `length` metadata into
