@@ -644,6 +644,13 @@ not the initial full-library build latency. PR path filtering uses the PR's
 changed-file set, so a later docs-only commit on a PR already changing those
 paths can still run Windows checks; per-push docs skipping is not proven.
 
+Manual-dispatch scope repair (2026-09-13): `portability-ci.yml` now accepts a
+`scope` choice. The default `windows` scope runs only the Windows Rust/provider,
+Windows C harness, and their required acceptance checks; `full` explicitly
+includes the macOS release and plugin matrix. Pull-request conditions remain
+unchanged. This removes unrelated matrix work from the normal one-off Windows
+receipt without changing the required R7 evidence surface.
+
 ## Closed evidence and contracts
 
 Closed detail is available with
