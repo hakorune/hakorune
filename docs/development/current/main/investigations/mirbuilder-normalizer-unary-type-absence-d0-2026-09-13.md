@@ -219,6 +219,43 @@ owner-level evidence only: the resolver-to-loop production relation and the
 separate provider/CAPI/Windows temporary-input evidence remain outside this
 I0 and must not be reported as closed here.
 
+## MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1 (design stop)
+
+Decision: keep the unary type-absence I0 closed at its owner boundary and first
+settle one exact resolver-to-GenericLoopV1 production relation before adding an
+acceptance fixture.
+Source authority + canonical issuer: the normal callable resolver's selected
+source site, `BindingRef` ledger, existing `CallableGenericLoopSourceFactsIssuerV1`,
+and the existing normalizer type-context issuer for the operand value.
+Non-authority: a raw `env.get` result with no local type, hand-built AST/source
+fixtures, a function-level `Outside` classification, or a test-only type insert.
+Fail-fast boundary: selected source admission and `verify_located_generic_loop_v1`
+must prove the exact front route with no overlap before the unary missing-type
+rejection is claimed as a production terminal.
+Smallest next slice: static-audit one source wrapper and caller through canonical
+route selection, exact loop site, local `BindingRef` publication, and operand
+`read_variable` consumption; only then taskize the smallest real acceptance.
+Non-claims: no new source fixture, type inference, route fallback, production
+unary semantic change, or whole normal-callable/backend acceptance.
+
+The finite chain is now explicit. `classify_canonical_callable_route` checks
+DirectAccum, CallableSingleLoop, GenericG0, then the canonical preflight; only
+the final `Outside` branch enters the located raw-loop handoff. That handoff
+calls `CallableGenericLoopSourceFactsIssuerV1::issue_once`, which rejects a
+non-front or overlapping route at `verify_located_generic_loop_v1` before a
+Recipe is issued. The physical adapter then consumes the selected Recipe through
+`CallableLoopSourceExpressionPortV1`, whose variable read uses the exact source
+site and ledger `read_variable` rather than a spelling lookup.
+
+Two production facts remain unclosed for the candidate `local x = f()` followed
+by unary `-x` in the loop body: the selected source wrapper must be shown to
+reach the front `GenericLoopV1` branch without another route winning, and that
+same source site must publish the local `BindingRef` whose ledger value reaches
+the unary child. Existing source-facts tests fabricate owners/bindings and call
+`lower_for_test`; the handoff fixture uses a different real loop body. Neither
+is evidence for this exact relation. This D1 therefore stops before code,
+fixture, or Cargo work until the two source-backed mappings are named.
+
 ## Reopen / non-claims
 
 Reopen when an existing operand type issuer and a canonical missing-type

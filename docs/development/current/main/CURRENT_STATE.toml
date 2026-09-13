@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
-current_execution_cohort = "mir_call_temp_input_ownership_i0"
-current_blocker_token = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
-guard_followup = "Keep the already-landed temporary-input acceptance evidence explicit: real config capture and synchronized named-harness cleanup are green, controlled POSIX provider/CAPI/lifecycle wrapper matrices are green, portability-ci provider lifetime test passes on Windows in run 34746364126 at efdd976454 (1/1), native Windows harness-log helper reservation/close/reopen and direct named-C export input reopen/log cleanup pass in run 34751337118 at a274ac03b3, and native Windows CAPI/lifecycle wrapper close/reopen remain separate pending evidence."
-current_design_stop = "none__accepted__MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
+work_mode = "design_stop"
+current_execution_row = "MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1"
+current_execution_cohort = "mir_normalizer_unary_production_relation_d1"
+current_blocker_token = "MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1"
+guard_followup = "The temporary-input I0 implementation is locally and POSIX-verified; native Windows provider passed in run 34746364126 at efdd976454 (1/1). Native Windows helper/direct named-C proof passed in run 34751337118 at a274ac03b3. Run 34753858020 at c5b01f5448 uses one Windows Rust job with provider then CAPI tests sharing one --lib build; provider passed and the CAPI step was pending at handoff. Reconcile that run when the watcher reports; lifecycle native close/reopen remains unproven."
+current_design_stop = "MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1__source-to-GenericLoopV1-and-BindingRef-mapping-open"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,25 +14,24 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-compatibility-retire-r7-d0-2026-09-11"
-latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
+latest_card = "mirbuilder-normalizer-unary-type-absence-d0-2026-09-13"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
 latest_card_summary = """
-Temporary-input ownership I0 is implemented for provider, CAPI options, and
-lifecycle V4 with unique TempDir inputs and scoped cleanup. This execution
-has green controlled POSIX wrapper evidence for real LLVM policy capture cases
-under the environment lock, an overlap barrier for both named harness children
-plus post-completion log absence, and provider/CAPI/lifecycle success and
-failure matrices. The exact provider lifetime test is green on native Windows
-in portability-ci run 34746364126. The helper reservation/close/reopen and
-direct named-C export input reopen, spaced-path success/failure/no-object, and
-post-call log cleanup are green in run 34751337118 at a274ac03b3. Native
-Windows CAPI/lifecycle wrapper close/reopen remain pending evidence.
+The unary type-absence I0 is closed at its owner boundary with focused
+Integer/Float positives and missing/Unknown/nonnumeric rejection. The next
+design stop is MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1: settle one exact
+resolver-to-GenericLoopV1 selection and local BindingRef publication before
+adding production acceptance. Existing source-facts tests are synthetic and a
+different real handoff fixture cannot substitute for that mapping. Temporary-
+input ownership remains implemented with native Windows provider evidence;
+run 34753858020 at c5b01f5448 is the pending one-job provider/CAPI recheck,
+and native Windows lifecycle close/reopen remains unproven.
 """
-next_design_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+next_design_card = "MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
+next_execution_card = "none__awaiting_MIR-NORMALIZER-UNARY-PRODUCTION-RELATION-D1_design_acceptance"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

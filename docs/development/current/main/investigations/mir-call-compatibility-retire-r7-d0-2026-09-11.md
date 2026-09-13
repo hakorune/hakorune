@@ -582,6 +582,31 @@ run `34751337118` at `a274ac03b3`, including child input reopen, spaced paths,
 success, first-line failure projection, no-object rejection, and empty
 invocation-owned logs after each call.
 
+### Outstanding CI receipt and independent work
+
+- Evidence owner: this I0 card; collection trigger: the user's existing watcher
+  notification, or the next closeout/restart checkpoint. No foreground polling.
+- Run: https://github.com/hakorune/hakorune/actions/runs/34753858020
+  at `c5b01f54483eb8aed70dd23db1b5a0a939afc4a0`. Result not yet reconciled.
+- Required receipt: exact provider and generic CAPI Windows lifetime tests,
+  plus C harness checks. Provider and CAPI share one `--lib` test build;
+  record their separate build/test durations from the completed logs.
+- CAPI observer covers input reopen/bytes and post-return deletion on success
+  and nonzero/null-error return. It does not prove native LLVM execution,
+  mixed-CRT error deallocation, or lifecycle runtime support.
+- Native lifecycle runtime remains outside this observer: its existing session
+  selector accepts `x86_64-unknown-linux-gnu` only. Do not fabricate a Windows
+  session to close the evidence gap.
+- Independent next selection: audit the already-recorded A-4 resolver-to-loop
+  acceptance relation in its unary type-absence card. Pending Windows proof
+  does not block that design audit and does not close temporary-input I0.
+
+The earlier separate provider/CAPI jobs built the same test binary twice.
+Their split established no speedup; the merged job removes duplicated work,
+not the initial full-library build latency. PR path filtering uses the PR's
+changed-file set, so a later docs-only commit on a PR already changing those
+paths can still run Windows checks; per-push docs skipping is not proven.
+
 ## Closed evidence and contracts
 
 Closed detail is available with

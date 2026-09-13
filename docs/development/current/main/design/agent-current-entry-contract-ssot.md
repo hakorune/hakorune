@@ -144,6 +144,28 @@ record owner, evidence, observable reopen trigger, and non-authority. Census
 closes only when the inventory is `Exhausted`, open/reopened blockers are zero,
 and every outside finding is `ParkedSealed`. Parked means classified, not fixed.
 
+### Asynchronous CI evidence
+
+After local focused checks and push, record the CI run URL, tested SHA,
+required checks, evidence owner, and collection trigger in the owning card.
+An outstanding result keeps that acceptance claim open; it does not prevent
+selection/design or implementation of an independent row with satisfied entry
+conditions. Update the current pointer before implementing that successor.
+Dependent cutover and final completion still require their mandatory evidence;
+an observed unclassified red follows the existing recovery rule.
+
+Use one completion notification or an existing user/reviewer watcher. Do not
+poll CI in the foreground while independent authorized work exists. Reconcile
+the exact run/SHA when notified or at the next closeout/restart checkpoint;
+pending, cancellation and silence are neither PASS nor a test failure.
+Do not redispatch unchanged acceptance merely for documentation changes or
+cancel useful evidence runs through repeated cosmetic workflow revisions.
+
+Batch tests with identical target/profile/features in one job to reuse their
+test binary. Splitting runtime filters across runners duplicates compilation;
+it is not a build-speed improvement. Measure build and test time separately
+before selecting a dedicated test target or larger runner.
+
 ### Family-local action scheduler
 
 Verification health and family disposition are independent axes. Evaluate
