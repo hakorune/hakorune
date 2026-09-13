@@ -1,7 +1,7 @@
 ---
-Status: Implementation complete — POSIX and native Windows direct-C/helper proof; native Windows CAPI/lifecycle wrapper proof pending
+Status: Design task selected — direct-input boxcall compatibility; temporary-input Windows evidence remains separate
 Date: 2026-09-13
-Decision: MIR-CALL-HARNESS-LOG-OWNERSHIP-D0
+Decision: MIR-CALL-DIRECT-INPUT-BOXCALL-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,12 +11,69 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: implement MIR-CALL-HARNESS-LOG-OWNERSHIP-I0 under the accepted D0 contract.
-Source authority + canonical issuer: named C admission and existing PhysicalOptions own the request; exclusive file creation establishes temporary log ownership, not source semantics.
-Non-authority: PID, dlsym wrapper, public reachability, and stderr do not issue request meaning.
-Fail-fast boundary: complete compiler/options, path/command validation and log reservation/close before output removal or child launch.
-Smallest next slice: MIR-CALL-HARNESS-LOG-OWNERSHIP-I0, switching the single C harness executor and deleting its PID-only log edge.
-Non-claims: native Windows CAPI/lifecycle wrapper close/reopen, public ABI retirement, whole-compiler thread safety, same-output concurrency, or aggregate R7 completion.
+Decision: select MIR-CALL-DIRECT-INPUT-BOXCALL-D0; compatibility policy is not yet accepted for implementation.
+Source authority + canonical issuer: existing direct MIR loader and v1 bridge own input admission; no new source meaning is issued.
+Non-authority: strict/dev-only rejection, backend rejection, CI status, and shared-parser reachability do not decide ordinary direct-input compatibility.
+Fail-fast boundary: decide rejection before returning MirModule to the direct core executor; preserve terminal declared-schema errors.
+Smallest next slice: decide ordinary no-schema boxcall admission, retained compatibility entries, error precedence, and affected existing callers.
+Non-claims: no code/fixture change, blanket v0 rejection, Stage-A fallback closure, Windows lifecycle proof, or aggregate R7 retirement.
+
+## Development queue (worker-audited 2026-09-13)
+
+The earlier seven-task progress summary overstated direct-input and Stage-A
+closure. Landed `26e59acaef` stops declared-v1 error -> v0 retry;
+`4e1d6f92fb` stops strict/dev selfhost boxcall. Neither decides ordinary
+no-schema direct boxcall or closes Stage-A rejection fallback.
+
+Boundary for selected D0: `runner/mod.rs` --mir-json-file ->
+`core_executor::execute_mir_json_text` -> json_artifact forwarding facade ->
+`mir_loader::parse_direct_mir_json_text` -> module return or named error.
+Includes declared schema, schema absence, actual boxcall instructions, malformed
+input and precedence. Excludes artifact umbrella intake, Stage-A, explicit
+Program conversion, shared-parser deletion and backend execution.
+
+| Order | Task / entry | Observable finish and handoff |
+| --- | --- | --- |
+| 1 selected | `MIR-CALL-DIRECT-INPUT-BOXCALL-D0` / design only | Decide Stop versus retained ordinary compatibility; name retained entries, affected callers/tests, exact error precedence and one caller-specific deletion. Output one accepted implementation brief. |
+| 2 conditional | `MIR-CALL-DIRECT-INPUT-BOXCALL-I0` / only after D0 accepts Stop | Reject before module execution; delete this ingress's boxcall-to-legacy construction edge. Prove valid no-schema v0/v1, exact rejection, malformed/schema precedence and retained compatibility. Update loader README and MIR intake reference together. |
+| 3a design | `MIR-CALL-STAGE-A-REJECTION-D0` / route, compat bridge and outer caller | Classify absent/unavailable/capture failure separately from malformed/rejected MIR and accepted MIR; decide retained Program/Rust opt-ins, strict/planner and fallback-flag behavior. |
+| 3b conditional | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observe that prohibited Program/Rust/Python fallback never starts. |
+| 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
+| 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
+| 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
+| 7 dependent | Call/M9 backend retirement | Each backend's actual successor use, required evidence and caller-zero authorize its retirement. |
+
+D0 implementation-entry checklist:
+
+- Direct owner: `src/runner/json_artifact/mir_loader.rs::parse_direct_mir_json_text`
+  currently sends no-schema input to the shared v0 parser. If Stop is accepted,
+  its caller-specific admission edge is the deletion target; the shared
+  `mir_json_v0/module.rs` boxcall arm remains for retained callers.
+- Retained-boundary crosswalk must name `load_json_artifact_to_module` /
+  `load_mir_json_to_module`, selfhost strict/release parsing, Stage1 stub and
+  emitter roundtrip consumers. Their existence is impact evidence, not an
+  automatic veto or a claim that each is independently supported.
+- Decide ordering for invalid JSON, unsupported/invalid schema, malformed
+  instruction and genuine boxcall; a string containing "boxcall" is not an
+  instruction. Reuse existing parsed admission; no second parser/dispatcher.
+- Reuse `runner::json_artifact::` and `runner::core_executor::tests::` tests
+  for the implementation slice, plus retained caller tests selected by D0.
+  Reuse existing pointer/M7-S guards. D0 itself runs no Cargo or CI.
+
+Stage-A task boundary includes three live transitions:
+`stage_a_route.rs` MIR Err -> captured Program; `stage_a_compat_bridge.rs`
+MIR Err -> opt-in Rust JSON bridge; `runner/selfhost.rs` unresolved Option ->
+optional Python/default Rust path. Returning None on rejection is insufficient.
+Its D0 must name the error propagation contract and retained unavailable-input
+policy before implementation. Acceptance must observe the real route and
+outer caller, prove forbidden fallbacks are not invoked, and retain allowed
+compatibility positives. `resolve_stage_a_payload` helper-only tests cannot
+prove those production transitions closed.
+
+Temporary-input Windows receipt stays in the evidence section below. It does
+not gate these design tasks or an independent implementation with accepted
+entry conditions. This queue does not turn unobserved CI into PASS, and does
+not select Windows lifecycle support as new development work.
 
 ## Finite scope and retained owners
 

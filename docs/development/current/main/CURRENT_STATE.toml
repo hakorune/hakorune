@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
-current_execution_cohort = "mir_call_temp_input_ownership_i0_windows_capi_observer_repair"
-current_blocker_token = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0__windows_CAPI_observer_env_visibility"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-DIRECT-INPUT-BOXCALL-D0"
+current_execution_cohort = "direct_mir_input_boxcall_compatibility_design"
+current_blocker_token = "MIR-CALL-DIRECT-INPUT-BOXCALL-D0__admission_and_error_precedence_unsettled"
 guard_followup = "Run 34753858020 at c5b01f5448 completed the merged Windows job: provider passed, while the CAPI observer failed at its success assertion with compile failed. The bounded repair reads Rust-set environment through GetEnvironmentVariableA in the MinGW observer and disables cancellation for manual dispatch; build.rs now skips identical generated.rs writes so the second cargo test can reuse the test binary. Pre-repair run 34756966289 reached the 45-minute timeout after provider passed and CAPI was still rebuilding. Latest run 34759102231 at 8e7179bb7e is the single pending post-repair receipt; record provider/CAPI durations and results when it finishes. Commit b061c407a4 now makes manual portability dispatch default to the Windows acceptance scope, with full matrix opt-in; validate that scope on the next eligible dispatch after the pending receipt. Native Windows lifecycle close/reopen remains unproven."
-current_design_stop = "none__A-4_owner_I0_closed; D1_relation_nonblocking_followup"
+current_design_stop = "direct_input_boxcall_policy_and_retained_ingress_disposition"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,21 +18,18 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-compatibility-retire-r7-d0-2026-09-11"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
-A-4 unary type-absence I0 is closed at its existing owner Stop boundary with
-focused Integer/Float positives and missing/Unknown/nonnumeric rejection. Its
-resolver-to-GenericLoopV1 relation audit found no eligible production source;
-that observation remains a non-blocking follow-up and does not create a new
-acceptance prerequisite. Temporary-input ownership is locally and POSIX-verified;
-run 34753858020 passed provider but exposed a Windows CAPI observer failure at
-the success assertion. The bounded fixture repair, manual-dispatch policy
-change, and same-content generated.rs write guard are selected for one rerun;
-native Windows lifecycle close/reopen remains unproven. The independent G0
-helper-backend/source-to-EXE audit found both cards already closed, leaving no
-separate Loop implementation row while this R7 receipt is pending.
+Worker-audited development queue selects direct MIR no-schema boxcall admission
+D0. Declared-v1 error-to-v0 retry and strict/dev selfhost boxcall stops are
+landed; ordinary direct boxcall and Stage-A fallback closure are not complete.
+Decide retained compatibility, error precedence and one finite old-edge deletion
+before code. Stage-A next includes MIR rejection to Program, opt-in Rust bridge,
+and None propagation to outer Python/default Rust fallback. Temporary-input
+Windows evidence remains separately pending in guard_followup and the R7 card;
+it does not block this design. Aggregate schema retirement remains open.
 """
-next_design_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
+next_design_card = "MIR-CALL-DIRECT-INPUT-BOXCALL-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
