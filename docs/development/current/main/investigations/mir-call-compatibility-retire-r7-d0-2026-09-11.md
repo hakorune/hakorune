@@ -56,25 +56,52 @@ Aggregate retirement still requires affected production writers, reissuers,
 readers and re-entry paths to reach caller-zero, with no unconsumed replacement
 product. Keep `LegacyCallV0` and shared compatibility assets until then.
 
-## MIR-CALL-COMPATIBILITY-ADMISSION-D0 (design stop)
+## MIR-CALL-COMPATIBILITY-ADMISSION-D0 (accepted frontier pause)
 
 The FAST selector capture is closed below. The remaining C/AOT compatibility
 callers share public entries, dlsym re-entry, child/provider paths, or the
-retained TargetMachine probe. This is not Fast path because the next edge may
-change the owner, terminal, or caller-specific retirement boundary. One
-read-only worker audits the existing retained-caller matrix; the primary
-agent will accept one Decision and one bounded slice.
+retained compatibility terminals. This is not a Fast path: a caller-local
+change would still have to name the owner, terminal, retained callers, and
+exact old-edge deletion together.
 
-Decision: pending source-backed owner/terminal/delete-set review.
-Source authority + canonical issuer: retained physical request at each
-explicit entry; no profile label or ambient value issues new semantics.
+The read-only audit recommendation to move the legacy TargetMachine selector
+was compared with the current checkout and is already closed at `47e83a224e`:
+`hako_llvmc_ffi_invocation.inc` owns the selector/opt-level capture,
+`compile_doc_compat_pure` invokes it, and the legacy emitter consumes only the
+invocation state. The current Windows child transport likewise builds a
+CreateProcess environment block; its option values are not interpolated into
+the `cmd.exe` text. Neither observation opens a new slice.
+
+Decision: `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet`.
+Source authority + canonical issuer: each retained caller's accepted physical
+request and its existing explicit entry; no profile label or ambient value
+issues new semantics.
 Non-authority: public symbol names, provider reachability, test-only emitters,
-and the closed FAST/published-row evidence.
-Fail-fast boundary: reject contract, replay, tool, symbol and input conflicts
-before environment mutation, provider/child launch, or artifact publication.
-Smallest next slice: choose exactly one retained caller group and its old edge.
+stale worker premises, and the closed FAST/published-row/TargetMachine/child-env
+evidence.
+Fail-fast boundary: preserve each existing contract, replay, tool, symbol and
+input rejection before environment mutation, provider/child launch, or artifact
+publication.
+Smallest next slice: none is executable now; reopen this same frontier only
+when a new source-backed caller/terminal relation supplies one finite
+caller-specific old-edge delete-set. Do not repeat the closed census.
 Non-claims: no code, route switch, fallback, public ABI deletion, LLVM parity,
-or aggregate R7 completion before the Decision.
+Windows proof for later revisions, or aggregate R7 completion.
+
+### Finite retained-boundary outcome table
+
+| Outcome | Existing owner / authority | Pre-effect behavior | Allowed action |
+| --- | --- | --- | --- |
+| `ClosedExistingOwner` | invocation/options/child-env owner | existing admission and terminal | retain; no duplicate row |
+| `RetainedCompatibility` | named C/AOT entry, shared provider, or public dlsym ABI | existing compatibility terminal | retain until its callers are co-sealed |
+| `UnresolvedCutover` | no finite caller/terminal/delete tuple | design stop; no effect or artifact | do not implement or invent a receipt |
+| `ParkedOutOfScope` | deferred backend, test-only, or separate owner card | its owner's existing policy | leave parked with its reopen trigger |
+
+This is an explicit frontier pause, not a repository-wide blocker: the known
+retained groups are classified, but none currently meets the Promote/Stop/Delete
+entry condition without manufacturing a new authority or deleting a supported
+caller. The next eligible change must reduce a production old edge in the same
+bounded series.
 
 ## MIR-CALL-FAST-INVOCATION-CAPTURE-D0 (accepted)
 
