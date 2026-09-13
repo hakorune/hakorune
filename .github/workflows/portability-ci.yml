@@ -32,6 +32,8 @@ jobs:
     # Windows runner; keep the memory-safe job width while allowing that
     # acceptance command to reach its test body.
     timeout-minutes: 45
+    env:
+      CARGO_BUILD_JOBS: 2
     steps:
       - name: Enable Git long paths
         run: git config --global core.longpaths true
@@ -43,11 +45,32 @@ jobs:
       - name: Check hakorune
         run: cargo check --bin hakorune -q
       - name: Check temporary-input provider lifetime
-        env:
-          CARGO_BUILD_JOBS: 2
         run: >-
           cargo test --profile quick --features llvmlite-compat --lib
           host_providers::llvm_codegen::provider_keep::tests::provider_wrapper_exercises_missing_tool_invalid_input_child_failure_and_success
+          -- --exact
+
+  windows-capi-check:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
+    name: Windows Rust/CAPI lifetime check
+    runs-on: windows-latest
+    # Keep the full llvmlite-enabled test link isolated from the provider
+    # lane so the two expensive acceptance paths can run concurrently.
+    timeout-minutes: 45
+    env:
+      CARGO_BUILD_JOBS: 2
+    steps:
+      - name: Enable Git long paths
+        run: git config --global core.longpaths true
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Check temporary-input CAPI lifetime
+        run: >-
+          cargo test --profile quick --features llvmlite-compat --lib
+          host_providers::llvm_codegen::capi_transport::windows_integration_tests::capi_windows_wrapper_observes_input_lifetime_on_success_and_failure
           -- --exact
 
   windows-harness-check:

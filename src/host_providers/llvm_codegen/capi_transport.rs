@@ -598,6 +598,7 @@ exit 0
                 ("NYASH_NY_LLVM_LLC_TOOL", llc.as_deref()),
                 ("NYASH_NY_LLVM_LLC_FLAGS", None),
                 ("HAKO_CAPI_TOOL_MODE", mode),
+                ("HAKO_CAPI_OBSERVER_MODE", None),
             ],
             f,
         )
@@ -619,6 +620,7 @@ exit 0
                 ("NYASH_NY_LLVM_LLC_TOOL", None),
                 ("NYASH_NY_LLVM_LLC_FLAGS", None),
                 ("HAKO_CAPI_TOOL_MODE", None),
+                ("HAKO_CAPI_OBSERVER_MODE", None),
                 ("HAKO_CAPI_RECORD_PATH", Some(record.as_str())),
             ],
             f,
@@ -745,3 +747,7 @@ exit 0
         assert!(!Path::new(&observer_input_path).exists());
     }
 }
+
+#[cfg(all(test, feature = "plugins", windows))]
+#[path = "capi_windows_tests.rs"]
+mod windows_integration_tests;

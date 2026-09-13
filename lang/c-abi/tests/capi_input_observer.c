@@ -1,11 +1,15 @@
 /* C ABI fixture that reopens the caller-owned input before returning. */
 #if defined(_WIN32)
 #define _CRT_SECURE_NO_WARNINGS
+#define HAKO_CAPI_OBSERVER_EXPORT __declspec(dllexport)
+#else
+#define HAKO_CAPI_OBSERVER_EXPORT
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-int hako_llvmc_compile_json_with_options_v1(
+HAKO_CAPI_OBSERVER_EXPORT int hako_llvmc_compile_json_with_options_v1(
     const char* input, const char* output, const void* options, char** error) {
   const char* record = getenv("HAKO_CAPI_RECORD_PATH");
   FILE* in;
@@ -33,6 +37,10 @@ int hako_llvmc_compile_json_with_options_v1(
   }
   fclose(in);
   fclose(copy);
+  if (getenv("HAKO_CAPI_OBSERVER_MODE") &&
+      strcmp(getenv("HAKO_CAPI_OBSERVER_MODE"), "fail") == 0) {
+    return -10;
+  }
   out = fopen(output, "wb");
   if (!out) return -8;
   fputs("capi-observer-object", out);
