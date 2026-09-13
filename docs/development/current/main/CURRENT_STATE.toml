@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
-current_execution_cohort = "mirbuilder_normalizer_unary_type_absence_i0"
-current_blocker_token = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
-guard_followup = "A-4 I0: preserve known Integer/Float unary-minus lowering, reject Missing/Unknown/nonnumeric operands before zero/destination allocation, and delete the unwrap_or(Integer) edge. A-2 is covered by unconditional final PHI verification, and A-3 loop diagnostic cleanup is closed."
-current_design_stop = "none__accepted__MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
+current_execution_cohort = "mir_call_temp_input_ownership_i0"
+current_blocker_token = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
+guard_followup = "Strengthen the already-landed temporary-input acceptance evidence: derive the LLVM harness policy through the real config capture path under the env lock, prove both named harness children overlap before release and leave no stale logs, and keep provider/CAPI failure-matrix plus native Windows close/reopen as explicit pending evidence."
+current_design_stop = "none__accepted__MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,23 +14,22 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
-latest_card = "mirbuilder-normalizer-unary-type-absence-d0-2026-09-13"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+latest_card = "mir-call-compatibility-retire-r7-d0-2026-09-11"
+latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
-A-4 I0 is implemented and focused evidence is green: PlanNormalizer unary
-Minus preserves known Integer/Float and rejects Unknown, missing, and
-nonnumeric operand facts before zero/destination allocation. The
-source-backed resolver relation remains a later acceptance obligation; no
-type is inferred from it. A-2 PHI skip is covered by unconditional final
-verification, and A-3 loop diagnostic cleanup is closed. The temporary-input
-R7 card still records provider/CAPI failure-matrix and native Windows
-close/reopen evidence as pending; those are not claimed here.
+Temporary-input ownership I0 is implemented for provider, CAPI options, and
+lifecycle V4 with unique TempDir inputs and scoped cleanup. This execution
+closes the remaining evidence-strengthening slice: real LLVM policy capture
+cases under the environment lock, an overlap barrier for both named harness
+children plus post-completion log absence, and explicit accounting for the
+provider/CAPI failure matrix and native Windows close/reopen proof. The latter
+two remain pending until their environments are available.
 """
-next_design_card = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
-next_execution_card = "MIR-NORMALIZER-UNARY-TYPE-ABSENCE-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-normalizer-unary-type-absence-d0-2026-09-13.md"
+next_design_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+next_execution_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
