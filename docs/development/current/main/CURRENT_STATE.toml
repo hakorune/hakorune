@@ -1,11 +1,11 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-FAST-INVOCATION-CAPTURE-D0"
-current_execution_cohort = "mir_call_compatibility_retire_r7_fast_capture_d0"
-current_blocker_token = "MIR-CALL-FAST-INVOCATION-CAPTURE-D0"
-guard_followup = "design_stop: FAST capture D0 accepted; user requested design/task organization only. I0 is ready in the active card for a subsequent implementation task. Published-row I0 closed at 8fe3f00a6c with WSL/Linux evidence; Windows AOT I1 proof remains revision-scoped to 59e9a30b1f. One Cargo process, jobs 1-2 until RAM validated."
-current_design_stop = "DesignOnlyHandoff__FastCaptureDecisionAccepted"
+current_execution_row = "MIR-CALL-COMPATIBILITY-ADMISSION-D0"
+current_execution_cohort = "mir_call_compatibility_retire_r7_shared_admission_d0"
+current_blocker_token = "MIR-CALL-COMPATIBILITY-ADMISSION-D0"
+guard_followup = "design_stop: FAST capture I0 is closed with Linux real-object evidence. Define one remaining shared C/AOT compatibility owner, terminal, retained callers, and exact delete-set before code. Published-row I0 closed at 8fe3f00a6c; Windows AOT I1 proof remains revision-scoped to 59e9a30b1f. One Cargo process, jobs 1-2 until RAM validated."
+current_design_stop = "SharedCompatibilityAdmissionDecisionRequired"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -28,9 +28,10 @@ Published-row I0 at 8fe3f00a6c removes the process-global ledger and passes one
 invocation owner through Static V2, prepass/emission/residual and cleanup.
 Its WSL/Linux focused C, lifetime/query/formal cases and jobs1 Cargo check
 passed; it has no new native Windows execution evidence.
-FAST capture D0 is accepted: one compile-entry sample of NYASH_LLVM_FAST,
-three existing consumers, exact truth-value preservation, and old helper
-deletion. I0 is ready but not started under this design-only request.
+FAST capture D0/I0 is closed: one compile-entry sample of NYASH_LLVM_FAST,
+three existing consumers, exact truth-value preservation, old helper deletion,
+and LLVM18 real-object evidence for FAST=0/1. The next shared compatibility
+admission remains a design stop.
 Source-called G0 LLVM18/EXE3, scalar local/terminal Call and empty-Home Plain
 cleanup have their recorded bounded acceptance. No whole-MirBuilder or
 backend-parity claim follows. Named llvmlite environment debt and legacy
@@ -39,9 +40,9 @@ Non-Loop snapshot reacquisition and unused Read/Write/Carrier information
 remain deferred cleanup candidates in their existing owners.
 Warning baseline lib=1806; RAM validation pending, Cargo jobs stay at 1-2.
 """
-next_design_card = "MIR-CALL-FAST-INVOCATION-CAPTURE-D0"
+next_design_card = "MIR-CALL-COMPATIBILITY-ADMISSION-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none__DesignOnlyHandoff"
+next_execution_card = "none__R7NextOwner__DesignStop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

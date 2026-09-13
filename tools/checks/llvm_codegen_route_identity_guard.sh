@@ -27,6 +27,7 @@ CAPI_INVOCATION="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_invocation.inc"
 PUBLISHED_ROWS="$ROOT/lang/c-abi/shims/published_mir/hako_llvmc_ffi_published_static_method.inc"
 LEGACY_EMITTER="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_legacy_capi_emit.inc"
 CAPI_CAPTURE_TEST="$ROOT/lang/c-abi/tests/legacy_capi_invocation_capture_test.c"
+FAST_CAPTURE_TEST="$ROOT/lang/c-abi/tests/fast_invocation_capture_test.c"
 NYLLVM_README="$ROOT/crates/nyash-llvm-compiler/README.md"
 HARNESS_SCRIPT="$ROOT/tools/run_llvm_harness.sh"
 FAST_SMOKE="$ROOT/.github/workflows/fast-smoke.yml"
@@ -54,6 +55,7 @@ need_fixed() {
 for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGIN" "$AOT" \
   "$RUNNER_EXEC" "$C_COMMON" "$CAPI_ROUTE" \
   "$CAPI_INVOCATION" "$PUBLISHED_ROWS" "$LEGACY_EMITTER" "$CAPI_CAPTURE_TEST" \
+  "$FAST_CAPTURE_TEST" \
   "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
   need_file "$file"
 done
@@ -211,6 +213,23 @@ need_fixed "$CAPI_INVOCATION" 'struct HakoLlvmcLegacyCapiState' \
   "legacy CAPI invocation state missing"
 need_fixed "$CAPI_CAPTURE_TEST" 'mutation-after-capture' \
   "legacy CAPI capture mutation proof missing"
+need_fixed "$CAPI_INVOCATION" 'hako_llvmc_invocation_capture_fast' \
+  "FAST invocation capture owner missing"
+need_fixed "$FAST_CAPTURE_TEST" 'fast invocation capture: PASS' \
+  "FAST invocation capture proof missing"
+python3 - "$C_COMMON" "$CAPI_INVOCATION" \
+  "$ROOT/lang/c-abi/shims/hako_llvmc_ffi_const_string_hoist.inc" \
+  "$ROOT/lang/c-abi/shims/hako_llvmc_ffi_string_concat_emit_helpers.inc" \
+  "$ROOT/lang/c-abi/shims/hako_llvmc_ffi_string_chain_policy.inc" <<'PY'
+import pathlib
+import sys
+common, invocation, hoist, result, trace = map(pathlib.Path, sys.argv[1:])
+assert 'hako_llvmc_fast_enabled' not in common.read_text()
+assert 'fast_enabled' in invocation.read_text()
+assert 'invocation->fast_enabled' in hoist.read_text()
+assert 'invocation->fast_enabled' in result.read_text()
+assert 'invocation->fast_enabled' in trace.read_text()
+PY
 python3 - "$LEGACY_EMITTER" <<'PY'
 import pathlib
 import sys

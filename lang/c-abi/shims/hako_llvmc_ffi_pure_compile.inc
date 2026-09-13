@@ -182,6 +182,7 @@ static int hako_llvmc_read_exact_seed_backend_route_tag(
 static int compile_doc_compat_pure(struct HakoLlvmcInvocation* invocation,
                                  const char* json_in, const char* obj_out, char** err_out) {
   yyjson_doc* document = invocation->document;
+  hako_llvmc_invocation_capture_fast(invocation);
   const struct NamedAllocationOutcomes* named_outcomes = &invocation->outcomes;
   const struct HakoLlvmcAllocationConfig* allocation_config = &invocation->config;
   // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),

@@ -598,3 +598,7 @@ Rules:
   uncontracted legacy modules only. Contract-bound pinned-Text modules ignore
   it, retain one LLVM-18 C-API TargetMachine session from preflight through
   object emission, and never fall back to external opt/llc.
+- `NYASH_LLVM_FAST` is captured once at `compile_doc_compat_pure` entry in the
+  existing `HakoLlvmcInvocation`. String constant hoisting, constant-result
+  emission, and folded-string route tracing consume that same value. Accepted
+  values are exactly `1`, `on`, `true`, and `yes`; other values are false.

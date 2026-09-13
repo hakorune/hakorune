@@ -12,6 +12,7 @@ import ctypes
 import json
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -81,6 +82,15 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
         str(root / "plugins/nyash-json-plugin/c/yyjson/yyjson.c"),
         "-ldl", "-o", str(capture)], check=True)
     subprocess.run([str(capture)], check=True)
+    fast_capture = temp / "fast-invocation-capture"
+    subprocess.run(["cc", "-std=gnu11", "-O2",
+        "-I" + str(root / "plugins/nyash-json-plugin/c/yyjson"),
+        str(root / "lang/c-abi/tests/fast_invocation_capture_test.c"),
+        str(root / "lang/c-abi/shims/hako_aot.c"),
+        str(root / "lang/c-abi/shims/hako_json_v1.c"),
+        str(root / "plugins/nyash-json-plugin/c/yyjson/yyjson.c"),
+        "-ldl", "-o", str(fast_capture)], check=True)
+    subprocess.run([str(fast_capture)], check=True)
     opt_log = temp / "opt.args"
     llc_log = temp / "llc.args"
     scripts = {}
@@ -430,6 +440,37 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
         lib.hako_mem_free(error)
     if rc == 0 or unsupported_out.exists() or "profile" not in message:
         raise SystemExit(f"explicit harness profile was not rejected: rc={rc} {message!r}")
+
+    real_opt = shutil.which("opt-18")
+    real_llc = shutil.which("llc-18")
+    if real_opt and real_llc:
+        real_fixture = root / "apps/tests/mir_shape_guard/substring_concat_loop_pure_min_v1.mir.json"
+        if not real_fixture.is_file():
+            raise SystemExit(f"missing FAST real-object fixture: {real_fixture}")
+        real_before = os.environ.copy()
+        real_contract = Contract(
+            1, ctypes.sizeof(Contract), 0, 0, b"pure-first", b"none", b"0",
+            real_opt.encode(), real_llc.encode(), b"", None,
+        )
+        try:
+            for fast in ("0", "1"):
+                os.environ["NYASH_LLVM_FAST"] = fast
+                real_out = temp / f"fast-real-{fast}.o"
+                error = ctypes.c_void_p()
+                rc = compile_with_options(
+                    str(real_fixture).encode(), str(real_out).encode(),
+                    ctypes.byref(real_contract), ctypes.byref(error)
+                )
+                message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+                if error.value:
+                    lib.hako_mem_free(error)
+                if rc != 0 or not real_out.is_file() or real_out.stat().st_size == 0:
+                    raise SystemExit(f"FAST={fast} real LLVM object failed: rc={rc} {message}")
+        finally:
+            os.environ.clear()
+            os.environ.update(real_before)
+    else:
+        print("[llvm-compile-options-contract-smoke] real LLVM18 FAST object: SKIP (opt-18/llc-18 unavailable)")
 
 print("[llvm-compile-options-contract-smoke] Boundary/AOT/Generic options and named-harness ownership/order: ok")
 PY

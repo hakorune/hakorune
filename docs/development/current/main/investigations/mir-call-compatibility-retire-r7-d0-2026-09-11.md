@@ -1,7 +1,7 @@
 ---
-Status: Design accepted — FAST invocation capture; design-only handoff
+Status: Design stop — remaining shared compatibility admission
 Date: 2026-09-13
-Decision: MIR-CALL-FAST-INVOCATION-CAPTURE-D0
+Decision: MIR-CALL-COMPATIBILITY-ADMISSION-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,19 +11,16 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: capture the existing C FAST selector once per compile execution in HakoLlvmcInvocation.
-Source authority + canonical issuer: existing NYASH_LLVM_FAST policy, sampled by the private compile-execution owner.
-Non-authority: later ambient reads, profile labels, MIR/Recipe and trace output.
+Decision: define the next shared C/AOT compatibility owner after FAST capture I0.
+Source authority + canonical issuer: each retained physical request and its existing invocation or process boundary.
+Non-authority: historical task prose, profile names, public symbol presence, and adjacent smoke results.
 Fail-fast boundary: preserve admission, typed row finish, owner cleanup and pre-artifact failure.
-Smallest next slice: MIR-CALL-FAST-INVOCATION-CAPTURE-I0; one scalar, three consumers, old helper deletion.
+Smallest next slice: MIR-CALL-COMPATIBILITY-ADMISSION-D0; one caller/terminal/delete-set matrix.
 Non-claims: no aggregate R7 completion, new MIR/Recipe authority, ABI retirement, or general concurrency proof.
 
-This is a design-only handoff. Implementation begins in a subsequent task.
-The accepted Decision closes the technical mapping; the current design stop
-records the requested handoff boundary, not a missing external dependency.
-This required review because changing capture time creates an execution-state
-ownership boundary. Hypatia's read-only audit identified the three consumers;
-the primary agent verified their source and accepted the Decision below.
+The accepted Decision closes the technical mapping. Changing capture time
+creates an execution-state ownership boundary; Hypatia's read-only audit
+identified the three consumers and the primary agent accepted the Decision.
 
 ## Finite scope and retained owners
 
@@ -58,6 +55,26 @@ a requirement to manufacture a new owner or stop all development.
 Aggregate retirement still requires affected production writers, reissuers,
 readers and re-entry paths to reach caller-zero, with no unconsumed replacement
 product. Keep `LegacyCallV0` and shared compatibility assets until then.
+
+## MIR-CALL-COMPATIBILITY-ADMISSION-D0 (design stop)
+
+The FAST selector capture is closed below. The remaining C/AOT compatibility
+callers share public entries, dlsym re-entry, child/provider paths, or the
+retained TargetMachine probe. This is not Fast path because the next edge may
+change the owner, terminal, or caller-specific retirement boundary. One
+read-only worker audits the existing retained-caller matrix; the primary
+agent will accept one Decision and one bounded slice.
+
+Decision: pending source-backed owner/terminal/delete-set review.
+Source authority + canonical issuer: retained physical request at each
+explicit entry; no profile label or ambient value issues new semantics.
+Non-authority: public symbol names, provider reachability, test-only emitters,
+and the closed FAST/published-row evidence.
+Fail-fast boundary: reject contract, replay, tool, symbol and input conflicts
+before environment mutation, provider/child launch, or artifact publication.
+Smallest next slice: choose exactly one retained caller group and its old edge.
+Non-claims: no code, route switch, fallback, public ABI deletion, LLVM parity,
+or aggregate R7 completion before the Decision.
 
 ## MIR-CALL-FAST-INVOCATION-CAPTURE-D0 (accepted)
 
@@ -104,37 +121,42 @@ conditions. Preserve that asymmetry; if a live fixture exposes invalid IR,
 classify it against the parent revision and resolve its owner separately
 before claiming that fixture as acceptance.
 
-## MIR-CALL-FAST-INVOCATION-CAPTURE-I0 (ready; not started)
+## MIR-CALL-FAST-INVOCATION-CAPTURE-I0 closeout (2026-09-13)
 
-Change: capture FAST in the existing invocation at compile entry, migrate all
-three readers atomically, and remove the caller-zero ambient helper.
+Implemented at the current closeout commit: capture FAST in the existing
+invocation at compile entry, migrate all three readers atomically, and remove
+the caller-zero ambient helper.
 
 Contract: one compile execution owns the value. Preserve exact parsing,
 Static suppression, trace gating, typed residual checks, public ABI, existing
 fallback and source/Recipe meaning.
 
-Done: a focused C driver covers accepted/rejected spellings, mutation after
-capture and fresh recapture on repeated execution. Supported constant-string
-fixtures reach the real object terminal with FAST off/on and agree with
-their trace/emission decisions. Retain Static/published-row failure-without-
-artifact checks. Extend `llvm_codegen_route_identity_guard.sh` and the
-existing C contract smoke, and update C README plus the owning reference.
+Evidence: `fast_invocation_capture_test.c` passes accepted values
+`1/on/true/yes`, rejected spellings, mutation-after-capture, and fresh
+recapture. `llvm_compile_options_contract_smoke.sh` passes its existing
+contract cases plus real LLVM18 `opt-18`/`llc-18` object emission for the
+string fixture with FAST=0 and FAST=1. The C build used Ubuntu GCC 13.3.0;
+the focused route and C tests pass. `llvm_codegen_route_identity_guard.sh`,
+`current_state_pointer_guard.sh`, `git diff --check`, and source-size checks
+pass; the largest changed C unit is 660 lines.
 
-Stop: output changes with a stable environment, lost Static suppression,
-new ABI/source meaning, or unclassified failure at the selected terminal.
+The Static V2 suppression, typed residual cleanup, public ABI, source/Recipe
+meaning and existing fallback remain unchanged. This is WSL/Linux evidence;
+the native Windows AOT I1 proof remains the separate revision-scoped result
+at `59e9a30b1f`.
 
-One implementation commit should include the owner/callers, focused tests,
-guard and contract docs. Use WSL/Linux for the focused C build; record the
-compiler/tool versions. Fake-tool wiring alone cannot satisfy the real-object
-criterion. A new native Windows claim requires testing the changed revision.
+Next blocker: choose the remaining shared C/AOT compatibility owner through a
+new design stop with a finite caller/terminal/delete-set. Deferred non-Loop
+snapshot reacquisition, Read/Write/Carrier cleanup, and ordinary-new writer
+work remain in their existing owners.
 
 ## Ordered queue
 
 | Order | Task | Entry / finish condition |
 | --- | --- | --- |
 | 1 | FAST capture D0 | accepted above; design and task organization delivered |
-| 2 | FAST capture I0 | ready for a subsequent implementation task; switch three readers and delete the old helper together |
-| 3 | Closeout | focused evidence, README/reference, stable guards, commit/push and current-pointer synchronization |
+| 2 | FAST capture I0 | closed at the current implementation commit; three readers and the old helper are aligned |
+| 3 | Next shared compatibility D0 | active design stop; choose one finite caller/terminal/delete-set |
 | Deferred | non-Loop snapshot reacquisition | existing perf owner; prove duplicate acquisition and compatible lifetime before reuse |
 | Deferred | Read/Write/Carrier unused information | owning Rust metadata paths; prove zero consumers before behavior-neutral deletion |
 | Deferred | ordinary-new unclaimed writer | existing Birth/ordinary-new owner; retain direct-local, foreign/transferred and uncovered cases |

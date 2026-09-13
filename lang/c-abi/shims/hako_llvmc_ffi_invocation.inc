@@ -22,8 +22,24 @@ struct HakoLlvmcInvocation {
   enum HakoLlvmcProgramObservation program_observation;
   struct HakoStaticV2Index static_v2;
   struct HakoLlvmcPublishedCallRows published_call_rows;
+  int fast_enabled;
   struct HakoLlvmcLegacyCapiState legacy_capi;
 };
+
+static int hako_llvmc_fast_value_enabled(const char* value) {
+  if (!value || !value[0]) return 0;
+  return strcmp(value, "1") == 0 ||
+         strcmp(value, "on") == 0 ||
+         strcmp(value, "true") == 0 ||
+         strcmp(value, "yes") == 0;
+}
+
+static void hako_llvmc_invocation_capture_fast(
+    struct HakoLlvmcInvocation* invocation) {
+  if (!invocation) return;
+  invocation->fast_enabled = hako_llvmc_fast_value_enabled(
+      getenv("NYASH_LLVM_FAST"));
+}
 
 /* Takes document ownership; config is already captured by the invocation caller. */
 static void hako_llvmc_invocation_init(

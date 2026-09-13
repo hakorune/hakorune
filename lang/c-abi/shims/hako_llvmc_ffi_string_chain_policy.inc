@@ -114,7 +114,7 @@
                 rhs);
             hako_llvmc_emit_route_trace(
                 "string_concat_add_route",
-                hako_llvmc_fast_enabled() ? "const_fold_hoisted" : "const_fold_emit",
+                invocation->fast_enabled ? "const_fold_hoisted" : "const_fold_emit",
                 "literal_pair",
                 route_extra);
           }

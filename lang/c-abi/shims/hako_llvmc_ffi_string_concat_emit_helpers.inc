@@ -415,7 +415,7 @@
       auto int emit_string_const_box_result(FILE* f, long long dst) {
         const char* sval = get_str_const(dst);
         if (!sval) return 0;
-        if (hako_llvmc_fast_enabled()) {
+        if (invocation->fast_enabled) {
           finalize_string_concat_result(dst);
           return 1;
         }

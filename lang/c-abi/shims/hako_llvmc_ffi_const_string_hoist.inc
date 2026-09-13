@@ -1,5 +1,5 @@
       auto void emit_hoisted_string_const_defs(FILE* f) {
-        if (!hako_llvmc_fast_enabled() || invocation->static_v2.frame) return;
+        if (!invocation->fast_enabled || invocation->static_v2.frame) return;
         for (size_t sci = 0; sci < str_consts_n; sci++) {
           if (should_skip_hoisted_string_const_box(str_consts[sci].reg)) continue;
           char global[64];
