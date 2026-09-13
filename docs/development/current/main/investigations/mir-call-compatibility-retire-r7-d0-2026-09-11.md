@@ -1,7 +1,7 @@
 ---
-Status: JSON-v0 caller-disposition design selected; Stage-A I0 closed
+Status: JSON-v0 caller-disposition D0 resolved; compat-entrypoint design stop
 Date: 2026-09-14
-Decision: MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0
+Decision: MIR-CALL-R7-COMPAT-ENTRYPOINT-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,27 +11,24 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: construct the JSON-v0 caller migration contract inside R7; missing internal design is not an external wait.
-Source authority + canonical issuer: existing Program-JSON producer and direct MIR admission owners; canonical source issuer correspondence remains to be established before Promote.
-Non-authority: shared-parser use, method names, CI status, and a stopped pointer cannot decide migration or justify indefinite waiting.
-Fail-fast boundary: preserve declared-schema rejection and existing compatibility until the selected caller disposition is accepted.
-Smallest next slice: MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0, bounded to the existing string-method producer and its two callers.
+Decision: retain the supported JSON-v0 StringBox cohort and select the next compatibility-entrypoint design.
+Source authority + canonical issuer: the existing Program-JSON compatibility producer remains its own textual authority; no canonical source issuer is inferred from method spelling or MIR shape.
+Non-authority: shared-parser reuse, method names, CI status, and a stopped pointer cannot decide migration.
+Fail-fast boundary: declared-schema errors stay terminal; retained schema-absent compatibility keeps its existing terminal.
+Smallest next slice: MIR-CALL-R7-COMPAT-ENTRYPOINT-D0, splitting Global and dynamic Value compatibility decisions.
 Non-claims: no implementation, blanket v0 rejection, source-selfhost lane activation, Windows lifecycle proof, or aggregate R7 retirement.
 
 ## Development queue (worker-audited 2026-09-13)
 
-The earlier seven-task progress summary overstated direct-input and Stage-A
-closure. Landed `26e59acaef` stops declared-v1 error -> v0 retry;
-`4e1d6f92fb` stops strict/dev selfhost boxcall. Direct D0 now records ordinary
-no-schema boxcall as retained compatibility; Stage-A rejection fallback is
-closed by the bounded I0 recorded below.
+The earlier seven-task summary overstated direct-input and Stage-A closure.
+`26e59acaef` stops declared-v1 -> v0 retry, `4e1d6f92fb` stops strict/dev
+selfhost boxcall, and the bounded Stage-A I0 below closes rejection fallback.
 
 Boundary for selected D0: `runner/mod.rs` --mir-json-file ->
-`core_executor::execute_mir_json_text` -> json_artifact forwarding facade ->
-`mir_loader::parse_direct_mir_json_text` -> module return or named error.
-Includes declared schema, schema absence, actual boxcall instructions, malformed
-input and precedence. Excludes artifact umbrella intake, Stage-A, explicit
-Program conversion, shared-parser deletion and backend execution.
+`core_executor::execute_mir_json_text` -> json_artifact facade ->
+`mir_loader::parse_direct_mir_json_text` -> module or named error. Includes
+schema presence/absence, boxcall, malformed input and precedence; excludes
+artifact umbrella intake, Stage-A, Program conversion, parser deletion and backend execution.
 
 | Order | Task / entry | Observable finish and handoff |
 | --- | --- | --- |
@@ -39,43 +36,26 @@ Program conversion, shared-parser deletion and backend execution.
 | 2 conditional | `MIR-CALL-DIRECT-INPUT-BOXCALL-I0` / only after D0 accepts Stop | Reject before module execution; delete this ingress's boxcall-to-legacy construction edge. Prove valid no-schema v0/v1, exact rejection, malformed/schema precedence and retained compatibility. Update loader README and MIR intake reference together. |
 | 3a resolved | `MIR-CALL-STAGE-A-REJECTION-D0` / route, compat bridge and outer caller | Extracted `mir_line` parser errors are terminal. Preserve absent/unavailable/capture failure and no-MIR fallback behavior; do not add new capture classification. |
 | 3b closed | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observed that prohibited Program/Rust/Python fallback never starts. |
-| 4 selected design | `MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0` | Resolve the existing string-method producer membership and Preserve/Stop/Retain choice below; construct its caller/terminal/delete tuple internally. |
+| 4 resolved | `MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0` | Retain the phase14/17 StringBox compatibility cohort; shared v0 parser reuse is not treated as boxcall-arm dependence. |
+| 4 next design | `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` | Resolve separate Global and dynamic Value compatibility contracts before any `func`/name-carrier deletion. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
 | 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
 | 7 dependent | Call/M9 backend retirement | Each backend's actual successor use, required evidence and caller-zero authorize its retirement. |
 
-D0 implementation-entry checklist:
+D0 implementation-entry checklist: name the direct loader edge and retained
+`load_json_artifact_to_module`/`load_mir_json_to_module`, selfhost, Stage1 and
+emitter consumers; decide invalid JSON/schema/malformed/genuine-boxcall order
+without substring dispatch; reuse existing parsed admission and tests/guards.
+D0 itself runs no Cargo or CI; a future I0 deletes only its caller-local edge.
 
-- Direct owner: `src/runner/json_artifact/mir_loader.rs::parse_direct_mir_json_text`
-  currently sends no-schema input to the shared v0 parser. If Stop is accepted,
-  its caller-specific admission edge is the deletion target; the shared
-  `mir_json_v0/module.rs` boxcall arm remains for retained callers.
-- Retained-boundary crosswalk must name `load_json_artifact_to_module` /
-  `load_mir_json_to_module`, selfhost strict/release parsing, Stage1 stub and
-  emitter roundtrip consumers. Their existence is impact evidence, not an
-  automatic veto or a claim that each is independently supported.
-- Decide ordering for invalid JSON, unsupported/invalid schema, malformed
-  instruction and genuine boxcall; a string containing "boxcall" is not an
-  instruction. Reuse existing parsed admission; no second parser/dispatcher.
-- Reuse `runner::json_artifact::` and `runner::core_executor::tests::` tests
-  for the implementation slice, plus retained caller tests selected by D0.
-  Reuse existing pointer/M7-S guards. D0 itself runs no Cargo or CI.
+Stage-A task boundary covered three live transitions: route MIR Err -> Program,
+compat bridge MIR Err -> Rust bridge, and selfhost unresolved Option -> Python/
+default Rust. The D0 named the error carrier and unavailable policy; acceptance
+observed outer callers and forbidden fallback absence. Helper-only tests were insufficient.
 
-Stage-A task boundary includes three live transitions:
-`stage_a_route.rs` MIR Err -> captured Program; `stage_a_compat_bridge.rs`
-MIR Err -> opt-in Rust JSON bridge; `runner/selfhost.rs` unresolved Option ->
-optional Python/default Rust path. Returning None on rejection is insufficient.
-Its D0 must name the error propagation contract and retained unavailable-input
-policy before implementation. Acceptance must observe the real route and
-outer caller, prove forbidden fallbacks are not invoked, and retain allowed
-compatibility positives. `resolve_stage_a_payload` helper-only tests cannot
-prove those production transitions closed.
-
-Temporary-input Windows receipt stays in the evidence section below. It does
-not gate these design tasks or an independent implementation with accepted
-entry conditions. This queue does not turn unobserved CI into PASS, and does
-not select Windows lifecycle support as new development work.
+The Windows temporary-input receipt below is evidence only; it does not gate
+these design tasks or select lifecycle support as new work.
 
 ## MIR-CALL-DIRECT-INPUT-BOXCALL-D0 (resolved 2026-09-13)
 
@@ -188,20 +168,13 @@ The test does not claim a full Stage-B source bootstrap: that path still hits
 the known baseline `[raw-loop-child-entry/callable-ledger-missing]`, which is
 outside this I0 and is not a current-change red.
 
-## MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0 (selected design, 2026-09-14)
+## MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0 (resolved 2026-09-14)
 
-Premise reset: the previous owner-selection stop asked for a ready tuple but
-left its internal design unassigned. Asking whether implementation is possible
-without changing a design-stop pointer is circular. The entry policy permits
-resolving the design here and synchronizing the pointer afterwards. No external
-owner, resource or user-only decision has been demonstrated as a dependency.
-The earlier `MIR-CALL-R7-OWNER-UNIT-SELECTION-D0` waiting conclusion is superseded.
-
-Decision: select the existing JSON-v0 string-method caller disposition, preserve
-current compatibility during design, and investigate preservation through an
-existing source issuer first. Stop requires an explicit justified compatibility
-Decision; it is not an easier substitute for the requested source behavior.
-This is R7 impact/design work, not activation of the parked selfhost lane.
+Decision: retain this cohort as an explicit supported compatibility product.
+The phase14/17 pins require `New(StringBox(...)).length` and `indexOf` to keep
+their existing boxcall result, while the textual Program-JSON producer has no
+source-bound canonical issuer for a safe Preserve migration. This is a bounded
+Retain disposition, not aggregate R7 completion or an external wait.
 
 Boundary: Program JSON -> LowerReturnMethodStringLengthBox -> emitted MIR ->
 direct loader -> compatibility result/rejection. Includes both producer callers
@@ -243,31 +216,53 @@ Shared-parser reuse is not boxcall dependence: the concrete emitter tests
 `src/runner/mir_json_emit/tests/` roundtrip ownership/callout operations, not
 boxcall. Preserve them when retiring only that arm. No all-roundtrip claim follows.
 
-Ordered tasks and observable exits:
+Resolved tasks and handoff:
 
-1. **Selected D0:** map the five partitions and two callers to Preserve/Stop/Retain.
-   For Preserve, name the existing source issuer, target and published consumer;
-   for Stop, name a justified rejection and propagation through both callers;
-   for Retain, name the unresolved obligation and next concrete producer task.
-   No external ready-tuple wait. Record counterexample fate and exact affected tests.
-2. **Conditional I0:** after that Decision, switch both caller paths and delete
-   `_emit_new_stringbox_boxcall0` / `_emit_new_stringbox_boxcall1_string` and
-   their selected emission branches when caller-zero; direct-string fate stays explicit.
-3. **Dependent reader retirement:** resolve other actual boxcall cohorts (direct,
-   release selfhost, Rust writer), then retire only the shared construction arm.
-4. **Dependent aggregate R7:** writer/reader/reissuer/re-entry closure before schema deletion.
+1. **D0 closed:** retain both registry/fallback caller paths and all five textual
+   partitions. Keep the phase14/17 pins, classify extra-argument/embedded-string
+   recognition as compatibility behavior, and preserve unaffected v0/v1 precedence.
+2. **Next D0:** `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` separates Global and dynamic
+   Value compatibility entrypoints before any `func`/name-carrier deletion.
+3. **Conditional I0:** only a later accepted Preserve/Stop decision may switch
+   these callers and delete `_emit_new_stringbox_boxcall0`/
+   `_emit_new_stringbox_boxcall1_string`; direct-string fate stays explicit.
+4. **Dependent reader retirement:** resolve direct, release-selfhost and Rust
+   writer cohorts before retiring the shared construction arm or schema.
 
-Acceptance uses existing phase14 length and phase17 indexOf integration scripts
-under `tools/smokes/v2/profiles/integration/joinir/`, their
-`phase29bq_hako_mirbuilder_quick_suite_vm.sh` references and
-`tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_seq_recipe_dto_expanded_return_parity_gate.sh`.
-Check direct/manifest/aggregate/directory discovery before changing pins.
-Both registry and fallback configurations must reach the selected terminal.
-Phase17 exit=1 alone is not success: preserve its empty-output assertion and
-observe the result path plus absence of rejection diagnostics. Include malformed/
-extra-argument negatives, no forbidden retry, retained v0/v1 precedence and
-producer README/MIR reference updates. This delivery is static design evidence;
-implementation, fixture changes, Cargo and CI remain unopened.
+Acceptance uses phase14/17 integration scripts, quick-suite references and the
+Rust parity gate; check discovery before changing pins. Both registry and
+fallback configurations must reach the terminal. Phase17 exit=1 needs its
+empty-output/result and no-rejection assertions. Add malformed/extra-argument
+negatives, no retry, v0/v1 precedence and README/reference updates. This D0 is
+static evidence; implementation, fixtures, Cargo and CI remain unopened.
+
+## MIR-CALL-R7-COMPAT-ENTRYPOINT-D0 (selected design stop, 2026-09-14)
+
+Decision: inspect the existing compatibility facade as two independent contracts:
+Global carries an upstream `CanonicalGlobalTargetV1`, while dynamic Value carries
+only a runtime `ValueId`. Do not collapse either into the generic typed terminal
+until disabled-mode behavior, public reachability and destination semantics are
+settled.
+Source authority + canonical issuer: Global's upstream declaration-backed target
+and Value's existing runtime compatibility input; this facade issues transport,
+not new source meaning.
+Non-authority: public symbol presence alone, method names, `func` sentinel values,
+or a unified-enabled test cannot authorize compatibility deletion.
+Fail-fast boundary: preserve `NYASH_MIR_UNIFIED_CALL=off` behavior and existing
+`LegacyCallV0` readers while the two contracts are classified.
+Smallest next slice: finite caller/terminal/delete design for
+`compat_entrypoints.rs` Global and Value paths, including `dst=None`.
+Non-claims: no code, public API removal, dynamic-call redesign, backend parity,
+or aggregate R7 retirement.
+
+Finite boundary: `emit_unified_call` compatibility facade -> existing
+`emit_global_unified`/`emit_value_unified` -> `LegacyCallV0` or the existing
+`physical_terminal::emit_finalized_generic_call_v1`. Callers include the three
+unified-disabled facade branches, `ordinary_new_admission.rs:104`, and public
+API reachability; tests explicitly assert LegacyCallV0 under disabled mode.
+The design must decide Global and Value separately, name the retained readers,
+and prove a finite old-edge deletion before I0. No source or test edits are
+authorized in this D0.
 
 ## Finite scope and retained owners
 
