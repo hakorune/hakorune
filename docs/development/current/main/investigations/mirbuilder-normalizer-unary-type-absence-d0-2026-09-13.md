@@ -256,6 +256,30 @@ the unary child. Existing source-facts tests fabricate owners/bindings and call
 is evidence for this exact relation. This D1 therefore stops before code,
 fixture, or Cargo work until the two source-backed mappings are named.
 
+Static route review narrows the remaining work. DirectAccum requires a two-
+statement body whose first local is a pair of zero integer literals, so a
+candidate with a call local, a separate carrier local, a Loop, and a final
+Return is outside that probe. CallableSingleLoop can observe the call local,
+but its step observer requires one assignment whose value is a binary update;
+an operand-shaped unary body or a unary assignment value therefore returns a
+typed shape-outside result. GenericG0 requires exactly a root Loop plus a final
+Return, so the preceding locals keep it from winning. The canonical preflight
+then reports an unsupported first-family shape and `classify_canonical_callable_route`
+enters the existing `Outside` handoff. This is a static selection argument for
+the bounded candidate, not yet a production acceptance receipt.
+
+The BindingRef side is already closed at the owner-chain level: shadow
+resolution records the local declaration and every variable source site;
+`CallableSemanticLoweringState::from_exact_source` retains those declaration and
+variable maps; `record_completed_local` publishes the completed value; and
+`CallableLoopSourceExpressionPortV1::exact_source_variable_value` derives the
+unary child site and calls the ledger's exact `read_variable`. The unresolved
+part is the type issuer for an unannotated call result. The current normalizer
+sets `FunctionCall` and ordinary `MethodCall` results to `MirType::Unknown`, so
+the unary terminal must reject missing type rather than infer `Integer`; one
+real production source case must still demonstrate that this terminal is
+reached through the selected raw Loop handoff.
+
 ## Reopen / non-claims
 
 Reopen when an existing operand type issuer and a canonical missing-type
