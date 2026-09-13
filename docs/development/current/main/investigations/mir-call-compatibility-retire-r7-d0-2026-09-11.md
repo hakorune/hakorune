@@ -405,10 +405,10 @@ of one live input, cleanup after the final owner drops, and retention through an
 artifact-consumer error. `CARGO_BUILD_JOBS=4 cargo check --profile quick
 --features llvmlite-compat` passes, covering the provider feature path; the
 default plugin test also passes. Source search shows no remaining call to
-`build_backend_temp_input_path` or global `hako_llvm_in.json`. The full C
-library/provider failure matrix and native Windows close/reopen run remain
-environment evidence for a later acceptance pass; this I0 does not claim
-whole-compiler concurrency safety.
+`build_backend_temp_input_path` or global `hako_llvm_in.json`. The later
+acceptance pass below records the controlled C library/provider/lifecycle
+failure matrix plus native Windows provider lifetime; this I0 still does not
+claim whole-compiler concurrency safety.
 
 ## MIR-CALL-COMPATIBILITY-RETIRE-R7-D1 (resolved)
 
@@ -473,7 +473,7 @@ concurrent use of the same obj_out. Native Windows reservation/reopen requires
 its own evidence; Linux green cannot substitute. AOT FFI on Windows retains
 its existing unsupported terminal; the direct C export is the Windows witness.
 
-## MIR-CALL-HARNESS-LOG-OWNERSHIP-I0 (complete on POSIX; Windows proof pending)
+## MIR-CALL-HARNESS-LOG-OWNERSHIP-I0 (POSIX and Windows helper proof complete)
 
 Change:
 1. Add private temporary-log storage in a focused include, wired before route
@@ -509,15 +509,17 @@ Done:
 - In the implementation slice update `lang/c-abi/shims/README.md` and
   `docs/reference/abi/nyrt_c_abi_v0.md#named-harness-physical-options-ownership`.
   Record platform-scoped results; native Windows helper/C-export close/reopen
-  is required before claiming cross-platform completion.
+  is required before claiming cross-platform completion. The helper fixture
+  and direct C-export execution are separate evidence boundaries.
 
 Stop:
 Return to design if exclusive-create/closed-handle ownership cannot be kept
 through the child, existing error precedence changes beyond the named new
 storage failure, or implementation requires new admission/ABI/fallback.
 Shared callers and public reachability are not stop conditions. POSIX
-implementation and focused evidence are complete; native Windows remains a
-separate proof boundary.
+implementation and focused evidence are complete; the native Windows helper
+reservation/close/reopen fixture is also covered separately from the direct
+C-export execution boundary.
 
 Implementation evidence (2026-09-13): `build_hako_llvmc_ffi.sh`, the private
 `harness_log_ownership_test.c`, and
@@ -532,7 +534,12 @@ output sentinel and unchanged child record, and the existing
 argument/environment contract. `llvm_codegen_route_identity_guard.sh`,
 `current_state_pointer_guard.sh`, and `git diff --check` pass. The compiler
 build emits only the existing AOT path-format warnings. Native Windows
-reservation/close/reopen is not claimed from this Linux run.
+reservation/close/reopen is not claimed from this Linux run. The portable
+`harness_log_ownership_test.c` fixture then passed native Windows compilation
+and execution in `portability-ci` run `34748357436` at `d610368fae`, printing
+`harness log ownership: PASS`; this closes helper-level Windows exclusive
+reservation, close/reopen and cleanup evidence. Direct C-export execution on
+Windows remains a separate requirement.
 
 Integration acceptance gap (2026-09-13): the temporary-input I0 owner tests
 and Rust caller compilation do not by themselves close the three real consumer
@@ -559,9 +566,9 @@ test binary; it produced no test result or failure diagnostic. Rerun
 `running 1 test`, `...provider_wrapper_exercises... ... ok`, and
 `test result: ok. 1 passed; 0 failed` after a 21m15s quick-profile build.
 This proves the provider's native Windows close/reopen lifetime. The CAPI and
-lifecycle wrapper tests remain POSIX-only, and named-harness reservation/
-reopen remains a separate Windows requirement, so the temporary-input row is
-not cross-platform complete.
+lifecycle wrapper tests remain POSIX-only; their native close/reopen remains a
+separate requirement, so the temporary-input row is not cross-platform
+complete.
 
 ## Closed evidence and contracts
 
