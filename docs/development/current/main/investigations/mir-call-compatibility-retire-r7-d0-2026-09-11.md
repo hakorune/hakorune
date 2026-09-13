@@ -1,5 +1,5 @@
 ---
-Status: Implementation complete — POSIX evidence strengthened; provider/CAPI integration and native Windows proof pending
+Status: Implementation complete — POSIX wrapper matrix strengthened; native Windows proof pending
 Date: 2026-09-13
 Decision: MIR-CALL-HARNESS-LOG-OWNERSHIP-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -535,13 +535,23 @@ build emits only the existing AOT path-format warnings. Native Windows
 reservation/close/reopen is not claimed from this Linux run.
 
 Integration acceptance gap (2026-09-13): the temporary-input I0 owner tests
-and Rust caller compilation do not close the three real consumer lifetimes.
-Provider and CAPI success/failure paths still need controlled missing-tool,
-invalid-contract, missing-symbol, child/C-failure, and successful-object checks
-through their production wrappers. Native Windows close/reopen evidence is a
-separate requirement. Until those cases run on the resulting revision, the
-temporary-input row remains focused POSIX evidence and must not be reported as
-integration-complete.
+and Rust caller compilation do not by themselves close the three real consumer
+lifetimes. The resulting revision now has controlled Linux wrapper evidence:
+`provider_wrapper_exercises_missing_tool_invalid_input_child_failure_and_success`
+passes the real provider executor for missing Python, invalid input, child
+failure, and successful object output; and
+`capi_production_wrapper_exercises_contract_loader_child_and_success_paths`
+passes the real CAPI loader for invalid contract, missing tool, missing symbol,
+C child failure, and successful object output. The ignored
+`lifecycle_capi_wrapper_keeps_unique_input_through_success_and_failure` test
+also passes through the lifecycle V4 production wrapper, covering success and
+C failure while checking the serialized input path and bytes during the call
+and cleanup after return. Exact quick-profile results are 1/1, 1/1, and 1/1
+respectively; the lifecycle result ran with `-- --ignored` on a 32 MiB stack
+test thread. These are controlled POSIX/WSL witnesses; native
+Windows close/reopen evidence remains a separate requirement. Until that
+platform result runs on the resulting revision, the temporary-input row is
+POSIX wrapper evidence and must not be reported as cross-platform complete.
 
 ## Closed evidence and contracts
 

@@ -191,3 +191,163 @@ fn assert_runtime_cleanup_probe(
     }
     Ok(())
 }
+
+#[cfg(unix)]
+#[test]
+#[ignore = "requires selected lifecycle runtime and C compiler"]
+fn lifecycle_capi_wrapper_keeps_unique_input_through_success_and_failure() {
+    std::thread::Builder::new()
+        .name("llvm-lifecycle-input-ownership".to_string())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(lifecycle_capi_wrapper_keeps_unique_input_through_success_and_failure_inner)
+        .expect("lifecycle integration thread should start")
+        .join()
+        .expect("lifecycle integration thread should finish");
+}
+
+#[cfg(unix)]
+fn lifecycle_capi_wrapper_keeps_unique_input_through_success_and_failure_inner() {
+    use std::fs;
+    use std::path::PathBuf;
+
+    let workspace = tempfile::tempdir().expect("lifecycle integration tempdir");
+    let source_path = workspace.path().join("lifecycle_stub.c");
+    let ffi_path = workspace.path().join("liblifecycle_stub.so");
+    fs::write(
+        &source_path,
+        r#"#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+static void copy_input(const char* input) {
+  const char* base = getenv("HAKO_LIFECYCLE_RECORD_PATH");
+  if (!base) return;
+  char path[4096];
+  int n = snprintf(path, sizeof(path), "%s.path", base);
+  if (n <= 0 || (size_t)n >= sizeof(path)) return;
+  FILE* p = fopen(path, "wb");
+  if (p) { fputs(input ? input : "", p); fclose(p); }
+  n = snprintf(path, sizeof(path), "%s.input", base);
+  if (n <= 0 || (size_t)n >= sizeof(path)) return;
+  FILE* in = input ? fopen(input, "rb") : NULL;
+  FILE* out = fopen(path, "wb");
+  if (in && out) {
+    int ch;
+    while ((ch = fgetc(in)) != EOF) fputc(ch, out);
+  }
+  if (in) fclose(in);
+  if (out) fclose(out);
+}
+
+int hako_llvmc_compile_published_lifecycle_physical_v4(
+    const char* input, const void* row, const char* output, char** err_out) {
+  (void)row;
+  copy_input(input);
+  if (getenv("HAKO_LIFECYCLE_MODE") &&
+      strcmp(getenv("HAKO_LIFECYCLE_MODE"), "fail") == 0) {
+    const char* message = "controlled lifecycle failure";
+    *err_out = (char*)malloc(strlen(message) + 1);
+    if (*err_out) strcpy(*err_out, message);
+    return 1;
+  }
+  FILE* out = output ? fopen(output, "wb") : NULL;
+  if (!out) return 2;
+  fputs("lifecycle-stub-object", out);
+  fclose(out);
+  return 0;
+}
+"#,
+    )
+    .expect("write lifecycle stub source");
+    let status = Command::new("cc")
+        .args(["-shared", "-fPIC", "-o"])
+        .arg(&ffi_path)
+        .arg(&source_path)
+        .status()
+        .expect("invoke cc for lifecycle stub");
+    assert!(status.success(), "lifecycle stub build failed");
+
+    let runtime_archive =
+        PathBuf::from("target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a");
+    assert!(
+        runtime_archive.is_file(),
+        "missing selected lifecycle archive: {}",
+        runtime_archive.display()
+    );
+    let record = workspace.path().join("lifecycle-record");
+    let ffi_text = ffi_path.to_string_lossy().into_owned();
+    let record_text = record.to_string_lossy().into_owned();
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_vars(
+        &[
+            ("NYASH_MACRO_DISABLE", Some("1")),
+            ("HAKO_AOT_FFI_LIB", Some(ffi_text.as_str())),
+            ("HAKO_LIFECYCLE_RECORD_PATH", Some(record_text.as_str())),
+            ("HAKO_LIFECYCLE_MODE", Some("success")),
+        ],
+        || {
+            let parsed =
+                crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                    include_str!("../../../apps/typed-object-birth-min/main.hako"),
+                    crate::parser::ParserBuildConfig::default(),
+                )
+                .expect("parse lifecycle source");
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                crate::r#macro::transform_normal_callable_program_v1(parsed)
+                    .expect("transform lifecycle source")
+            else {
+                panic!("source-backed lifecycle input required");
+            };
+            let request = NormalCompileRequestV1::for_mir_mode_callable_source(
+                source,
+                None,
+                std::collections::HashMap::new(),
+            );
+            let mut compiler = MirCompiler::with_options(true);
+            compiler
+                .compile_normal_with_published(request, |view, _| -> Result<(), String> {
+                    let physical = view.issue_lifecycle_physical_abi_input()?;
+                    let session = LifecycleRuntimeSessionV1::select(runtime_archive.clone())?;
+                    let input =
+                        super::super::lifecycle_invocation::LifecycleInvocationInputV1::bind(
+                            physical, &session,
+                        )?;
+                    let success_output = workspace.path().join("success.o");
+                    super::super::capi_transport::compile_published_lifecycle_physical_v4(
+                        &input,
+                        &success_output,
+                    )?;
+                    assert!(success_output.is_file());
+                    assert_input_was_consumed_and_dropped(&record);
+
+                    std::env::set_var("HAKO_LIFECYCLE_MODE", "fail");
+                    let failure_output = workspace.path().join("failure.o");
+                    let error =
+                        super::super::capi_transport::compile_published_lifecycle_physical_v4(
+                            &input,
+                            &failure_output,
+                        )
+                        .expect_err("controlled lifecycle C failure must return");
+                    assert!(error.contains("controlled lifecycle failure"), "{error}");
+                    assert!(!failure_output.exists());
+                    assert_input_was_consumed_and_dropped(&record);
+                    Ok(())
+                })
+                .expect("lifecycle wrapper ownership callback");
+        },
+    );
+}
+
+#[cfg(unix)]
+fn assert_input_was_consumed_and_dropped(record: &std::path::Path) {
+    let input_path = std::fs::read_to_string(record.with_extension("path"))
+        .expect("lifecycle C stub recorded input path");
+    assert!(!input_path.is_empty());
+    let bytes =
+        std::fs::read(record.with_extension("input")).expect("lifecycle C stub copied input bytes");
+    assert!(
+        bytes.starts_with(b"{"),
+        "serialized lifecycle input expected"
+    );
+    assert!(!std::path::Path::new(&input_path).exists());
+}

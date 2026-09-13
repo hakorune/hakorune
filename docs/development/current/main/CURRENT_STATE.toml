@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
 current_execution_cohort = "mir_call_temp_input_ownership_i0"
 current_blocker_token = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
-guard_followup = "Strengthen the already-landed temporary-input acceptance evidence: derive the LLVM harness policy through the real config capture path under the env lock, prove both named harness children overlap before release and leave no stale logs, and keep provider/CAPI failure-matrix plus native Windows close/reopen as explicit pending evidence."
+guard_followup = "Keep the already-landed temporary-input acceptance evidence explicit: real config capture and synchronized named-harness cleanup are green, controlled POSIX provider/CAPI/lifecycle wrapper matrices are green, and native Windows close/reopen remains pending evidence."
 current_design_stop = "none__accepted__MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -20,11 +20,11 @@ latest_card_path = "docs/development/current/main/investigations/mir-call-compat
 latest_card_summary = """
 Temporary-input ownership I0 is implemented for provider, CAPI options, and
 lifecycle V4 with unique TempDir inputs and scoped cleanup. This execution
-closes the remaining evidence-strengthening slice: real LLVM policy capture
-cases under the environment lock, an overlap barrier for both named harness
-children plus post-completion log absence, and explicit accounting for the
-provider/CAPI failure matrix and native Windows close/reopen proof. The latter
-two remain pending until their environments are available.
+has green controlled POSIX wrapper evidence for real LLVM policy capture cases
+under the environment lock, an overlap barrier for both named harness children
+plus post-completion log absence, and provider/CAPI/lifecycle success and
+failure matrices. Native Windows close/reopen remains pending until its
+platform environment is available.
 """
 next_design_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"

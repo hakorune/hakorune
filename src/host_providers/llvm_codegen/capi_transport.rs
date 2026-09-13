@@ -507,3 +507,179 @@ pub(super) fn link_via_capi_v2(
 #[path = "static_invocation.rs"]
 mod static_invocation;
 pub(super) use static_invocation::compile_published_static_v2;
+
+#[cfg(all(test, feature = "plugins", unix))]
+mod integration_tests {
+    use super::{compile_via_capi_keep, compile_via_capi_with_options};
+    use crate::host_providers::llvm_codegen::boundary_default_object_opts;
+    use std::fs;
+    use std::os::unix::fs::PermissionsExt;
+    use std::path::{Path, PathBuf};
+    use std::process::Command;
+
+    fn executable(path: &Path, body: &str) {
+        fs::write(path, body).expect("write CAPI test executable");
+        let mut permissions = fs::metadata(path)
+            .expect("CAPI test executable metadata")
+            .permissions();
+        permissions.set_mode(0o755);
+        fs::set_permissions(path, permissions).expect("make CAPI test executable");
+    }
+
+    fn fake_llvm_tool(path: &Path) {
+        executable(
+            path,
+            r#"#!/bin/sh
+out=
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = "-o" ]; then out="$2"; shift 2; continue; fi
+  shift
+done
+case "${HAKO_CAPI_TOOL_MODE:-}" in
+  fail-opt) [ "${0##*/}" = "opt" ] && exit 17 ;;
+  fail-llc) [ "${0##*/}" = "llc" ] && exit 19 ;;
+esac
+[ -n "$out" ] && : > "$out"
+exit 0
+"#,
+        );
+    }
+
+    fn build_missing_symbol_library(path: &Path) {
+        let source = path.with_extension("c");
+        fs::write(&source, "int unrelated_symbol(void) { return 0; }\n")
+            .expect("write missing-symbol library source");
+        let status = Command::new("cc")
+            .args(["-shared", "-fPIC", "-o"])
+            .arg(path)
+            .arg(&source)
+            .status()
+            .expect("invoke cc for missing-symbol library");
+        assert!(status.success(), "missing-symbol library build failed");
+    }
+
+    fn capi_opts(out: &Path) -> crate::host_providers::llvm_codegen::Opts {
+        boundary_default_object_opts(Some(out.to_path_buf()), None, Some("0".into()), None)
+    }
+
+    fn run_with_capi_env<R>(
+        ffi: &Path,
+        opt: Option<&Path>,
+        llc: Option<&Path>,
+        mode: Option<&str>,
+        f: impl FnOnce() -> R,
+    ) -> R {
+        let ffi = ffi.to_string_lossy().into_owned();
+        let opt = opt.map(|path| path.to_string_lossy().into_owned());
+        let llc = llc.map(|path| path.to_string_lossy().into_owned());
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKO_AOT_FFI_LIB", Some(ffi.as_str())),
+                ("HAKO_LLVM_OPT_LEVEL", Some("0")),
+                ("NYASH_LLVM_OPT_LEVEL", None),
+                ("NYASH_NY_LLVM_OPT_TOOL", opt.as_deref()),
+                ("NYASH_NY_LLVM_LLC_TOOL", llc.as_deref()),
+                ("NYASH_NY_LLVM_LLC_FLAGS", None),
+                ("HAKO_CAPI_TOOL_MODE", mode),
+            ],
+            f,
+        )
+    }
+
+    #[test]
+    fn capi_production_wrapper_exercises_contract_loader_child_and_success_paths() {
+        std::thread::Builder::new()
+            .name("llvm-capi-input-ownership".to_string())
+            .stack_size(32 * 1024 * 1024)
+            .spawn(capi_production_wrapper_exercises_contract_loader_child_and_success_paths_inner)
+            .expect("CAPI integration thread should start")
+            .join()
+            .expect("CAPI integration thread should finish");
+    }
+
+    fn capi_production_wrapper_exercises_contract_loader_child_and_success_paths_inner() {
+        let workspace = tempfile::tempdir().expect("CAPI integration tempdir");
+        let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let ffi = manifest.join("target/release/libhako_llvmc_ffi.so");
+        let build = Command::new("bash")
+            .arg(manifest.join("tools/build_hako_llvmc_ffi.sh"))
+            .status()
+            .expect("invoke CAPI library build");
+        assert!(build.success(), "CAPI library build failed");
+        assert!(ffi.is_file(), "missing built CAPI library: {}", ffi.display());
+        let mir_json = fs::read_to_string(
+            manifest.join("apps/tests/mir_shape_guard/ret_const_min_v1.mir.json"),
+        )
+        .expect("read CAPI MIR fixture");
+
+        // Rust-side contract validation runs before dlopen and before any
+        // child can consume the invocation-owned input.
+        let input = workspace.path().join("invalid-contract.json");
+        let invalid_output = workspace.path().join("invalid-contract.o");
+        fs::write(&input, &mir_json).expect("write invalid-contract input");
+        let mut invalid = capi_opts(&invalid_output);
+        invalid.compile_recipe = Some("wrong-recipe".into());
+        let error = compile_via_capi_with_options(
+            &input,
+            &invalid_output,
+            invalid.compile_recipe.as_deref(),
+            invalid.compat_replay.as_deref(),
+            &invalid,
+        )
+        .expect_err("invalid compile recipe must fail before loading CAPI");
+        assert!(error.contains("compile-options/recipe"), "{error}");
+        assert!(!invalid_output.exists());
+
+        // A configured tool that is absent is rejected by the Rust contract
+        // owner before the dynamic library or a child is reached.
+        let missing_tool = workspace.path().join("missing-opt");
+        let missing_output = workspace.path().join("missing-tool.o");
+        run_with_capi_env(&ffi, Some(&missing_tool), None, None, || {
+            let error = compile_via_capi_keep(&mir_json, &capi_opts(&missing_output))
+                .expect_err("missing configured opt must fail");
+            assert!(error.contains("compile-options/opt-tool"), "{error}");
+            assert!(!missing_output.exists());
+        });
+
+        // dlopen succeeds but the production symbol is absent: this proves
+        // the real loader/owner path reaches the missing-symbol terminal.
+        let missing_symbol = workspace.path().join("libmissing_symbol.so");
+        build_missing_symbol_library(&missing_symbol);
+        let symbol_output = workspace.path().join("missing-symbol.o");
+        run_with_capi_env(&missing_symbol, None, None, None, || {
+            let error = compile_via_capi_keep(&mir_json, &capi_opts(&symbol_output))
+                .expect_err("missing CAPI symbol must fail");
+            assert!(
+                error.contains("dlsym failed for explicit compile options"),
+                "{error}"
+            );
+            assert!(!symbol_output.exists());
+        });
+
+        let opt = workspace.path().join("opt");
+        let llc = workspace.path().join("llc");
+        fake_llvm_tool(&opt);
+        fake_llvm_tool(&llc);
+
+        // The C child failure is exercised through compile_via_capi_keep,
+        // with both explicit tools validated and then consumed by the C ABI.
+        let child_output = workspace.path().join("child-failure.o");
+        run_with_capi_env(&ffi, Some(&opt), Some(&llc), Some("fail-opt"), || {
+            let error = compile_via_capi_keep(&mir_json, &capi_opts(&child_output))
+                .expect_err("C child failure must be returned");
+            assert!(!error.trim().is_empty());
+            assert!(!child_output.exists());
+        });
+
+        // Both fake tools create their requested artifacts.  The returned
+        // object proves the CAPI success terminal and the Rust owner drops its
+        // temporary input after this synchronous consumer returns.
+        let success_output = workspace.path().join("success.o");
+        run_with_capi_env(&ffi, Some(&opt), Some(&llc), None, || {
+            let result = compile_via_capi_keep(&mir_json, &capi_opts(&success_output))
+                .expect("CAPI success should return an object");
+            assert_eq!(result, success_output);
+            assert!(success_output.is_file());
+        });
+    }
+}
