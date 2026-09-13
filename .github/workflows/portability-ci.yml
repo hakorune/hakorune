@@ -26,7 +26,7 @@ jobs:
 
   windows-check:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
-    name: Windows check
+    name: Windows Rust/provider check
     runs-on: windows-latest
     # The llvmlite-enabled lib test links the full Rust test binary on the
     # Windows runner; keep the memory-safe job width while allowing that
@@ -49,6 +49,16 @@ jobs:
           cargo test --profile quick --features llvmlite-compat --lib
           host_providers::llvm_codegen::provider_keep::tests::provider_wrapper_exercises_missing_tool_invalid_input_child_failure_and_success
           -- --exact
+
+  windows-harness-check:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
+    name: Windows C harness check
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Enable Git long paths
+        run: git config --global core.longpaths true
+      - uses: actions/checkout@v6
       - name: Check harness log reservation on Windows
         shell: pwsh
         run: |
