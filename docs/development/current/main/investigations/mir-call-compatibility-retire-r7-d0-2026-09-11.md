@@ -292,6 +292,22 @@ They close the available owner checks for this frontier; the queue remains
 `none__no_eligible_r7_owner_after_release_selfhost_retain` and parked families
 stay sealed.
 
+## Worker-audited native Windows lifecycle gap (2026-09-14)
+
+Read-only audit: the production chain is `published_mir_object.rs` ->
+`compile_published_lifecycle_physical_v4` ->
+`hako_llvmc_compile_published_lifecycle_physical_v4`; Windows lifecycle
+session admission is not currently implemented.
+
+```text
+Decision: retain native Windows lifecycle close/reopen as BackendCapabilityMissing.
+Source authority + canonical issuer: target-built lifecycle ABI/archive and LifecycleRuntimeSessionV1::select / hako_lts_open.
+Non-authority: generic Windows CAPI observer, fake DLL, Linux archive, or hand-built Windows session fixture.
+Fail-fast boundary: the Rust selector rejects non-Linux lifecycle triples; C V4 keeps its existing Windows session/platform terminals.
+Smallest next slice: capability D0 for a Windows target ABI/archive, LLVM session loader, and V4 temporary/artifact APIs; then native wrapper I0.
+Non-claims: existing TempDir, provider/CAPI Windows, and generic CAPI receipts do not prove lifecycle Windows completion.
+```
+
 ## Finite scope and retained owners
 
 Boundary: canonical/compatibility ingress -> Call writers/reissuers/readers
