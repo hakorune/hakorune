@@ -49,6 +49,29 @@ jobs:
           cargo test --profile quick --features llvmlite-compat --lib
           host_providers::llvm_codegen::provider_keep::tests::provider_wrapper_exercises_missing_tool_invalid_input_child_failure_and_success
           -- --exact
+      - name: Check harness log reservation on Windows
+        shell: pwsh
+        run: |
+          $compiler = Get-Command clang -ErrorAction SilentlyContinue
+          if (-not $compiler) {
+            $compiler = Get-Command gcc -ErrorAction SilentlyContinue
+          }
+          if (-not $compiler) {
+            throw "a native C compiler (clang or gcc) is required for harness-log acceptance"
+          }
+          $output = Join-Path $env:RUNNER_TEMP "hako-harness-log-ownership.exe"
+          $arguments = @(
+            "-std=c11", "-Wall", "-Wextra", "-Werror",
+            "lang/c-abi/tests/harness_log_ownership_test.c", "-o", $output
+          )
+          & $compiler.Source @arguments
+          if ($LASTEXITCODE -ne 0) {
+            throw "harness-log ownership fixture compilation failed"
+          }
+          & $output
+          if ($LASTEXITCODE -ne 0) {
+            throw "harness-log ownership fixture failed"
+          }
 
   plugin-recovery-check:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
