@@ -552,13 +552,16 @@ test thread. The provider fixture uses the actual discovered Python interpreter
 and a portable temporary harness, so the same caller test is available on
 Windows. The existing `portability-ci` Windows job now invokes that exact test
 path with `CARGO_BUILD_JOBS=2` and a 45-minute job timeout. Run
-`34745493999` at this revision reached the test command but was cancelled by
-the former 20-minute timeout while linking the full Windows lib test binary;
-it produced no test result or failure diagnostic. These recorded results are
-controlled POSIX/WSL witnesses; native Windows close/reopen evidence remains
-a separate requirement. Until a rerun on the resulting revision reports the
-test result, the temporary-input row is POSIX wrapper evidence and must not be
-reported as cross-platform complete.
+`34745493999` at the earlier revision reached the test command but was
+cancelled by the former 20-minute timeout while linking the full Windows lib
+test binary; it produced no test result or failure diagnostic. Rerun
+`34746364126` at `efdd976454` completed the same Windows provider test with
+`running 1 test`, `...provider_wrapper_exercises... ... ok`, and
+`test result: ok. 1 passed; 0 failed` after a 21m15s quick-profile build.
+This proves the provider's native Windows close/reopen lifetime. The CAPI and
+lifecycle wrapper tests remain POSIX-only, and named-harness reservation/
+reopen remains a separate Windows requirement, so the temporary-input row is
+not cross-platform complete.
 
 ## Closed evidence and contracts
 
