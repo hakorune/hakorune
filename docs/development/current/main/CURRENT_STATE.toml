@@ -24,6 +24,8 @@ Boundary, Static, Rust/AOT/public Generic options and named compiler-path
 ownership are closed; automatic replay and unused replay storage are retired.
 Legacy TargetMachine selector capture is closed at 47e83a224e.
 AOT child-env I1 has native Windows and Linux proof at 59e9a30b1f.
+Boundary profile1 llc-flags unset/empty ownership is closed at d40b41be34;
+unset captures the effective default once, while explicit empty remains no-flags.
 Published-row I0 at 8fe3f00a6c removes the process-global ledger and passes one
 invocation owner through Static V2, prepass/emission/residual and cleanup.
 Its WSL/Linux focused C, lifetime/query/formal cases and jobs1 Cargo check
@@ -47,7 +49,9 @@ cleanup have their recorded bounded acceptance. No whole-MirBuilder or
 backend-parity claim follows. Named llvmlite environment debt and legacy
 census anchor drift retain their separate classifications.
 Non-Loop snapshot reacquisition and unused Read/Write/Carrier information
-remain deferred cleanup candidates in their existing owners.
+remain deferred cleanup candidates in their existing owners. The fixed
+real-app acceptance recheck at abbffb192e is 3/11 with seven named source
+boundaries and one LLVM14 environment boundary; it adds no new unclassified red.
 Warning baseline lib=1806; RAM validation pending, Cargo jobs stay at 1-2.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-FRONTIER-PAUSE-D1"
