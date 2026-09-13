@@ -11,16 +11,31 @@ fi
 
 cc_cmd=${CC:-}
 if [[ -z "$cc_cmd" ]]; then
-  if command -v clang >/dev/null 2>&1; then
-    cc_cmd=clang
-  elif command -v gcc >/dev/null 2>&1; then
-    cc_cmd=gcc
-  elif command -v cc >/dev/null 2>&1; then
-    cc_cmd=cc
-  fi
+  # The published shim currently contains GNU C nested functions.  Probe the
+  # candidate rather than assuming clang is interchangeable with gcc: the
+  # native MSVC-targeting clang on hosted Windows rejects that extension.
+  probe_dir="$(mktemp -d "${TMPDIR:-/tmp}/hako-c-compiler-probe.XXXXXX")"
+  trap 'rm -rf "$probe_dir"' EXIT
+  probe_src="$probe_dir/nested.c"
+  probe_obj="$probe_dir/nested.o"
+  cat >"$probe_src" <<'EOF'
+int main(void) {
+  auto int nested(void) { return 0; }
+  return nested();
+}
+EOF
+  for candidate in gcc clang cc; do
+    if command -v "$candidate" >/dev/null 2>&1 &&
+      "$candidate" -std=gnu11 -c "$probe_src" -o "$probe_obj" >/dev/null 2>&1; then
+      cc_cmd="$candidate"
+      break
+    fi
+  done
+  rm -rf "$probe_dir"
+  trap - EXIT
 fi
 if [[ -z "$cc_cmd" ]]; then
-  echo "native C compiler (clang, gcc, or cc) is required" >&2
+  echo "native GNU C compiler (gcc, clang, or cc) is required" >&2
   exit 2
 fi
 
