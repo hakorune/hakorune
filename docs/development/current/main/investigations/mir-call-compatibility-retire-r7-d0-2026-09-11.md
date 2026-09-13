@@ -599,9 +599,11 @@ repair. `build.rs` now compares generated output bytes before writing
 `crates/hakorune_frontend_grammar/src/generated.rs`; identical output keeps
 the file timestamp stable, so a subsequent cargo invocation can reuse the
 already-linked test binary. Local proof compiles the build script, runs it
-twice, and observes an unchanged generated-file timestamp; the quick
-`llvmlite-compat` library check also passes. This is a build reproducibility
-optimization only and does not change grammar semantics.
+twice, and observes an unchanged generated-file timestamp. Two sequential
+identical quick test invocations then took 30.79 seconds and 0.27 seconds,
+respectively, with both tests `1/1` green. The quick `llvmlite-compat` library
+check also passes. This is a build reproducibility optimization only and does
+not change grammar semantics.
 
 ### Outstanding CI receipt and independent work
 
@@ -611,10 +613,9 @@ optimization only and does not change grammar semantics.
   at `c5b01f54483eb8aed70dd23db1b5a0a939afc4a0`. Provider passed; CAPI
   observer failed at the success assertion after the shared build. This run
   is the current-change red that the bounded observer repair addresses.
-- Next revision: `972e183426` contains the observer/workflow repair; the
-  uncommitted follow-up adds the same-content generated.rs write guard. Push it
-  after local checks, let `34756966289` finish, then dispatch one new run and
-  record its provider/CAPI durations separately.
+- Next revision: `ad00cca50c` contains the observer/workflow repair and the
+  same-content generated.rs write guard. Let `34756966289` finish, then
+  dispatch one new run and record its provider/CAPI durations separately.
 - Required receipt: exact provider and generic CAPI Windows lifetime tests,
   plus C harness checks. Provider and CAPI share one `--lib` test build;
   record their separate build/test durations from the completed logs.
