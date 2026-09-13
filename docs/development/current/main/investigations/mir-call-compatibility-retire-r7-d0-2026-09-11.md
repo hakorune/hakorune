@@ -536,8 +536,9 @@ No new semantic receipt, route dispatcher, dependency, or per-task guard is
 needed. Current target source files are 28-510 lines; split at 760 and prohibit
 800-line source growth.
 
-This user-requested design delivery stops before code and tests. The bounded
-next implementation is MIR-CALL-TEMP-INPUT-OWNERSHIP-I0 in this same card.
+This user-requested design delivery was the entry contract for
+`MIR-CALL-TEMP-INPUT-OWNERSHIP-I0`; that implementation and its acceptance
+evidence are recorded below. No second implementation edge is implied here.
 
 ## MIR-CALL-FAST-INVOCATION-CAPTURE-D0 (accepted)
 
