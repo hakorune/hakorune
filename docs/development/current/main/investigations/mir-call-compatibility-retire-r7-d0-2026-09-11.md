@@ -190,6 +190,14 @@ repository formatting differences are already present; no formatter write was
 performed. This is WSL/Linux evidence; native Windows remains covered only by
 the separate AOT I1 result at `59e9a30b1f`.
 
+Acceptance recheck (2026-09-13): `policy_preserves_distinct_legacy_projections`
+currently constructs `LlvmHarnessInvocationPolicyV1` with
+`from_snapshots(...)`. It checks projection fields but does not exercise the
+configuration authority. Therefore it does not prove primary-over-alias
+precedence or the distinct unset, empty, `true`, and `1` interpretations.
+Replacement evidence must call the real capture path under the repository's
+environment-test lock and restore the process environment after each case.
+
 ## MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 (accepted)
 
 ### Premise correction
@@ -485,9 +493,11 @@ Done:
   independent contents/cleanup and exclusive-create collision behavior; inject
   create/close failures and verify cleanup after ownership acquisition.
 - Extend `tools/checks/llvm_compile_options_contract_smoke.sh` to run that test
-  and a barrier-controlled fake-child overlap through direct C plus AOT FFI
-  in the same process, with distinct outputs/err_out and fixed parent env.
-  Observe each first-line diagnostic, unaffected sibling log, and final cleanup.
+  and a synchronized fake-child overlap through direct C plus AOT FFI in the
+  same process, with distinct outputs/err_out and fixed parent env. The
+  synchronization must confirm both children have started before release;
+  after both calls finish, assert that invocation-owned logs leave no stale
+  residuals and that each first-line diagnostic came from its own child.
 - Cover success, child failure, zero-exit/no-object, null err_out, path/command
   overflow, storage failure with output sentinel intact and no child record.
   Keep existing named-harness args/env, opaque-input and failure-order cases.
@@ -509,13 +519,27 @@ separate proof boundary.
 Implementation evidence (2026-09-13): `build_hako_llvmc_ffi.sh`, the private
 `harness_log_ownership_test.c`, and
 `llvm_compile_options_contract_smoke.sh` pass. The smoke covers direct C plus
-AOT FFI overlap in one process, distinct first-line failures, success,
-zero-exit/no-object, null `err_out`, path/command overflow, blocked-TMPDIR
-storage failure with an output sentinel and unchanged child record, and the
-existing argument/environment contract. `llvm_codegen_route_identity_guard.sh`,
-`current_state_pointer_guard.sh`, and `git diff --check` pass. The compiler
-build emits only the existing AOT path-format warnings. Native Windows
-reservation/close/reopen is not claimed from this Linux run.
+AOT FFI calls in one process, but its overlap case uses two threads and a
+`sleep(0.25)` child without a start barrier; serial execution could therefore
+also pass. It is evidence of distinct failure projections only, not proof that
+the children overlapped. A recheck must add the start barrier and post-finish
+stale-log assertion before this acceptance row is considered complete.
+The smoke also covers distinct first-line failures, success, zero-exit/no-object,
+null `err_out`, path/command overflow, blocked-TMPDIR storage failure with an
+output sentinel and unchanged child record, and the existing argument/environment
+contract. `llvm_codegen_route_identity_guard.sh`, `current_state_pointer_guard.sh`,
+and `git diff --check` pass. The compiler build emits only the existing AOT
+path-format warnings. Native Windows reservation/close/reopen is not claimed
+from this Linux run.
+
+Integration acceptance gap (2026-09-13): the temporary-input I0 owner tests
+and Rust caller compilation do not close the three real consumer lifetimes.
+Provider and CAPI success/failure paths still need controlled missing-tool,
+invalid-contract, missing-symbol, child/C-failure, and successful-object checks
+through their production wrappers. Native Windows close/reopen evidence is a
+separate requirement. Until those cases run on the resulting revision, the
+temporary-input row remains focused POSIX evidence and must not be reported as
+integration-complete.
 
 ## Closed evidence and contracts
 
