@@ -651,6 +651,13 @@ includes the macOS release and plugin matrix. Pull-request conditions remain
 unchanged. This removes unrelated matrix work from the normal one-off Windows
 receipt without changing the required R7 evidence surface.
 
+Independent-row audit (2026-09-13): the apparent G0 helper-backend next card
+and its source-to-EXE I1 are already closed. Their recorded next action is
+R7 owner-unit selection, and no separate Loop implementation row has a closed
+entry tuple while this R7 receipt is pending. The pending CI remains
+asynchronous evidence; no disconnected Loop receipt or replacement row is
+opened from this audit.
+
 ## Closed evidence and contracts
 
 Closed detail is available with

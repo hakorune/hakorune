@@ -26,7 +26,9 @@ acceptance prerequisite. Temporary-input ownership is locally and POSIX-verified
 run 34753858020 passed provider but exposed a Windows CAPI observer failure at
 the success assertion. The bounded fixture repair, manual-dispatch policy
 change, and same-content generated.rs write guard are selected for one rerun;
-native Windows lifecycle close/reopen remains unproven.
+native Windows lifecycle close/reopen remains unproven. The independent G0
+helper-backend/source-to-EXE audit found both cards already closed, leaving no
+separate Loop implementation row while this R7 receipt is pending.
 """
 next_design_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
