@@ -294,10 +294,9 @@ stay sealed.
 
 ## Worker-audited native Windows lifecycle gap (2026-09-14)
 
-Read-only audit: the production chain is `published_mir_object.rs` ->
-`compile_published_lifecycle_physical_v4` ->
-`hako_llvmc_compile_published_lifecycle_physical_v4`; Windows lifecycle
-session admission is not currently implemented.
+| state | authority / issuer | pre-effect boundary | terminal / continuation | fallback |
+| --- | --- | --- | --- | --- |
+| NoCandidate | lifecycle ABI/archive and `LifecycleRuntimeSessionV1::select` / `hako_lts_open` (production chain: `published_mir_object.rs` -> `compile_published_lifecycle_physical_v4` -> `hako_llvmc_compile_published_lifecycle_physical_v4`) | Windows lifecycle session admission before V4 effect/artifact | retain existing platform/session terminal; no R7 execution card | no new fallback |
 
 ```text
 Decision: retain native Windows lifecycle close/reopen as BackendCapabilityMissing.
