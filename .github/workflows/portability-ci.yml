@@ -39,6 +39,13 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Check hakorune
         run: cargo check --bin hakorune -q
+      - name: Check temporary-input provider lifetime
+        env:
+          CARGO_BUILD_JOBS: 2
+        run: >-
+          cargo test --profile quick --features llvmlite-compat --lib
+          host_providers::llvm_codegen::provider_keep::tests::provider_wrapper_exercises_missing_tool_invalid_input_child_failure_and_success
+          -- --exact
 
   plugin-recovery-check:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
