@@ -1,7 +1,7 @@
 ---
-Status: Stage-A rejection I0 closed — R7 owner-unit selection design stop; direct-input compatibility retained
+Status: JSON-v0 caller-disposition design selected; Stage-A I0 closed
 Date: 2026-09-14
-Decision: MIR-CALL-STAGE-A-REJECTION-D0
+Decision: MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,12 +11,12 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: resolve the direct-input D0 as retained schema-absent MIR v0 compatibility, close the selected Stage-A rejection propagation I0, then select the next R7 owner only when its finite caller/terminal/delete tuple is known.
-Source authority + canonical issuer: existing direct MIR loader and v1 bridge own input admission; no new source meaning is issued.
-Non-authority: strict/dev-only rejection, backend rejection, CI status, and shared-parser reachability do not decide ordinary direct-input compatibility.
-Fail-fast boundary: decide rejection before returning MirModule to the direct core executor; preserve terminal declared-schema errors.
-Smallest next slice: MIR-CALL-R7-OWNER-UNIT-SELECTION-D0, a design stop for the next source-backed caller/terminal/delete tuple after Stage-A I0.
-Non-claims: no blanket v0 rejection, full Stage-B bootstrap, Windows lifecycle proof, or aggregate R7 retirement.
+Decision: construct the JSON-v0 caller migration contract inside R7; missing internal design is not an external wait.
+Source authority + canonical issuer: existing Program-JSON producer and direct MIR admission owners; canonical source issuer correspondence remains to be established before Promote.
+Non-authority: shared-parser use, method names, CI status, and a stopped pointer cannot decide migration or justify indefinite waiting.
+Fail-fast boundary: preserve declared-schema rejection and existing compatibility until the selected caller disposition is accepted.
+Smallest next slice: MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0, bounded to the existing string-method producer and its two callers.
+Non-claims: no implementation, blanket v0 rejection, source-selfhost lane activation, Windows lifecycle proof, or aggregate R7 retirement.
 
 ## Development queue (worker-audited 2026-09-13)
 
@@ -39,7 +39,7 @@ Program conversion, shared-parser deletion and backend execution.
 | 2 conditional | `MIR-CALL-DIRECT-INPUT-BOXCALL-I0` / only after D0 accepts Stop | Reject before module execution; delete this ingress's boxcall-to-legacy construction edge. Prove valid no-schema v0/v1, exact rejection, malformed/schema precedence and retained compatibility. Update loader README and MIR intake reference together. |
 | 3a resolved | `MIR-CALL-STAGE-A-REJECTION-D0` / route, compat bridge and outer caller | Extracted `mir_line` parser errors are terminal. Preserve absent/unavailable/capture failure and no-MIR fallback behavior; do not add new capture classification. |
 | 3b closed | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observed that prohibited Program/Rust/Python fallback never starts. |
-| 4 selected | `MIR-CALL-R7-OWNER-UNIT-SELECTION-D0` / post-I0 frontier | Choose the next already-inventoried owner only after source authority, terminal, finite callers and exact old-edge deletion are co-sealed; otherwise remain at the frontier stop. |
+| 4 selected design | `MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0` | Resolve the existing string-method producer membership and Preserve/Stop/Retain choice below; construct its caller/terminal/delete tuple internally. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
 | 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
@@ -188,29 +188,86 @@ The test does not claim a full Stage-B source bootstrap: that path still hits
 the known baseline `[raw-loop-child-entry/callable-ledger-missing]`, which is
 outside this I0 and is not a current-change red.
 
-## MIR-CALL-R7-OWNER-UNIT-SELECTION-D0 (design stop, 2026-09-14)
+## MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0 (selected design, 2026-09-14)
 
-Decision: after the Stage-A I0 closeout, do not invent a new R7 implementation
-owner. The existing retained compatibility groups have no newly source-backed
-finite caller/terminal/delete tuple selected by the current scheduler; the
-previous owner census and its sealed dispositions remain authoritative.
-Source authority + canonical issuer: the selected caller's existing source
-authority and physical terminal must be named together before any R7 action;
-this frontier issues no new semantic product or compatibility receipt.
-Non-authority: a shared public symbol, backend reachability, a parked Loop row,
-CI status, or another broad lexical census cannot select the next owner.
-Fail-fast boundary: no code, fixture, fallback, or production switch is
-permitted until one existing owner can reject, promote, or delete at its own
-named terminal with an exact affected caller set and old edge.
-Smallest next slice: none is executable until that tuple is supplied by an
-already-inventoried source-backed owner; evaluate the existing finite queue once
-per changed premise and return to this stop when no tuple exists.
-Non-claims: no aggregate `LegacyCallV0` retirement, Loop reopen, backend parity,
-new schema, or whole-repository completion.
+Premise reset: the previous owner-selection stop asked for a ready tuple but
+left its internal design unassigned. Asking whether implementation is possible
+without changing a design-stop pointer is circular. The entry policy permits
+resolving the design here and synchronizing the pointer afterwards. No external
+owner, resource or user-only decision has been demonstrated as a dependency.
+The earlier `MIR-CALL-R7-OWNER-UNIT-SELECTION-D0` waiting conclusion is superseded.
 
-Census boundary: retained Call compatibility owners -> their existing effect or
-artifact terminal; includes direct JSON ingress, shared C/AOT entries and
-re-entry paths; excludes parked backends, Loop families and unrelated cleanup.
+Decision: select the existing JSON-v0 string-method caller disposition, preserve
+current compatibility during design, and investigate preservation through an
+existing source issuer first. Stop requires an explicit justified compatibility
+Decision; it is not an easier substitute for the requested source behavior.
+This is R7 impact/design work, not activation of the parked selfhost lane.
+
+Boundary: Program JSON -> LowerReturnMethodStringLengthBox -> emitted MIR ->
+direct loader -> compatibility result/rejection. Includes both producer callers
+and their existing pins; excludes other producer families, new backend support,
+shared-parser removal and whole-R7 completion. This is not an exhaustive census
+of all JSON-v0 callers.
+
+Finite owner inventory (paths under `lang/src/mir/builder/` unless qualified):
+
+| Role | Existing owner |
+| --- | --- |
+| Program entry | `compat/program_json_v0_entry.hako::main` |
+| Producer classifier | `internal/lower_return_method_string_length_box.hako::try_lower` |
+| Registry caller | `internal/registry_authority_box.hako::try_lower` |
+| Fallback caller | `internal/fallback_authority_box.hako::_try_boxed_lowerers` |
+| Direct admission | `src/runner/json_artifact/mir_loader.rs::parse_direct_mir_json_text` |
+| Legacy construction | `src/runner/mir_json_v0/module.rs`, `boxcall` arm |
+| Separate retained writer | `src/runner/mir_json_emit/emitters/calls.rs` |
+
+Worker read the full producer classifier. Its observed partitions are textual
+recognition, not proof of exact AST membership:
+
+| Input recognized by existing producer | Current output / terminal | Design obligation |
+| --- | --- | --- |
+| Direct Str/String, empty args, length/size | no-schema `call`; v0 reader rejects | retain explicit disposition; do not use as a working successor |
+| Direct string indexOf | null -> existing caller chain | preserve absence versus rejection distinction |
+| New/StringBox, first string, empty args, length/size | newbox + boxcall + ret | source issuer correspondence for value 3 pin |
+| New/StringBox, indexOf, first string in args | newbox + const + boxcall + ret | source issuer correspondence for value 1 pin; extra args unresolved |
+| Other/missing/unrecognized text | null -> existing caller chain | classify malformed and embedded/opaque subtrees before Stop |
+
+Counterexamples: replacing boxcall with no-schema `call` reaches
+`[freeze:contract][mir-json-v0/legacy-call-stopped]`; spelling is no semantic
+migration. First-string extraction may accept `indexOf("b", extra)` or an
+embedded string without proving exact argument/receiver membership. D0 must
+resolve those cases from source structure, not preserve guessed canonical facts.
+
+Shared-parser reuse is not boxcall dependence: the concrete emitter tests
+`ownership_transport.rs` and `checked_callout_transport.rs` under
+`src/runner/mir_json_emit/tests/` roundtrip ownership/callout operations, not
+boxcall. Preserve them when retiring only that arm. No all-roundtrip claim follows.
+
+Ordered tasks and observable exits:
+
+1. **Selected D0:** map the five partitions and two callers to Preserve/Stop/Retain.
+   For Preserve, name the existing source issuer, target and published consumer;
+   for Stop, name a justified rejection and propagation through both callers;
+   for Retain, name the unresolved obligation and next concrete producer task.
+   No external ready-tuple wait. Record counterexample fate and exact affected tests.
+2. **Conditional I0:** after that Decision, switch both caller paths and delete
+   `_emit_new_stringbox_boxcall0` / `_emit_new_stringbox_boxcall1_string` and
+   their selected emission branches when caller-zero; direct-string fate stays explicit.
+3. **Dependent reader retirement:** resolve other actual boxcall cohorts (direct,
+   release selfhost, Rust writer), then retire only the shared construction arm.
+4. **Dependent aggregate R7:** writer/reader/reissuer/re-entry closure before schema deletion.
+
+Acceptance uses existing phase14 length and phase17 indexOf integration scripts
+under `tools/smokes/v2/profiles/integration/joinir/`, their
+`phase29bq_hako_mirbuilder_quick_suite_vm.sh` references and
+`tools/checks/rust_lifecycle_mirbuilder_programjson_layer4_seq_recipe_dto_expanded_return_parity_gate.sh`.
+Check direct/manifest/aggregate/directory discovery before changing pins.
+Both registry and fallback configurations must reach the selected terminal.
+Phase17 exit=1 alone is not success: preserve its empty-output assertion and
+observe the result path plus absence of rejection diagnostics. Include malformed/
+extra-argument negatives, no forbidden retry, retained v0/v1 precedence and
+producer README/MIR reference updates. This delivery is static design evidence;
+implementation, fixture changes, Cargo and CI remain unopened.
 
 ## Finite scope and retained owners
 

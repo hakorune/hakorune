@@ -1,11 +1,11 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R7-OWNER-UNIT-SELECTION-D0"
-current_execution_cohort = "r7_owner_unit_selection_d0"
-current_blocker_token = "MIR-CALL-R7-OWNER-UNIT-SELECTION-D0__finite_caller_terminal_delete_set_missing"
-guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:10:39Z (22:10:39 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-R7-OWNER-UNIT-SELECTION-D0__finite_caller_terminal_delete_set_missing"
+current_execution_row = "MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0"
+current_execution_cohort = "r7_json_v0_caller_disposition_d0"
+current_blocker_token = "MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0__source_membership_and_compatibility_disposition"
+guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
+current_design_stop = "MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0__source_membership_and_compatibility_disposition"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,20 +18,17 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-compatibility-retire-r7-d0-2026-09-11"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
-Direct MIR D0 is resolved: schema-absent MIR v0, including boxcall, remains an
-explicit retained compatibility product on --mir-json-file until caller-local
-migrations supply terminals and delete-sets. Declared schema errors remain
-terminal; strict/dev selfhost boxcall Stop is separate. Stage-A rejection I0 is
-closed: an extracted MIR parser error is terminal through both route helpers and
-the real outer selfhost caller, while absent/unavailable capture retains the
-existing fallback behavior. Isolated source-to-exe fixtures observed exit=1 and
-no Program/Rust/Python fallback markers. The next R7 owner selection has no
-finite caller/terminal/delete tuple yet, so the pointer is a design stop; no
-aggregate schema retirement or parked-lane reopen is claimed.
+Stage-A rejection I0 and Windows provider/CAPI receipt are closed. R7 now
+selects bounded JSON-v0 string-method caller-disposition design: two existing
+producer callers, five observed classifier partitions, phase14/17 obligations,
+and source-issuer correspondence before any Preserve/Stop/Retain decision.
+Shared-parser reuse is not boxcall-arm dependence. The previous ready-tuple
+external wait premise is withdrawn; missing migration design is internal work.
+This delivery authorizes design only, not implementation or aggregate retirement.
 """
-next_design_card = "MIR-CALL-R7-OWNER-UNIT-SELECTION-D0"
+next_design_card = "MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none__design_stop_until_finite_r7_owner_tuple"
+next_execution_card = "none__design_only_until_json_v0_caller_decision"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
