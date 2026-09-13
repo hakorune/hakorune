@@ -599,16 +599,6 @@ static char* hako_llvmc_read_first_line_owned(const char* path) {
   return out;
 }
 
-static int hako_llvmc_build_harness_log_path(char* log_path, size_t log_path_len) {
-  int n = snprintf(
-      log_path,
-      log_path_len,
-      "%s/hako_llvmc_harness_compile_%ld.log",
-      hako_llvmc_tmp_dir_fallback(),
-      (long)getpid());
-  return (n <= 0 || (size_t)n >= log_path_len) ? -1 : 0;
-}
-
 static int hako_llvmc_ascii_strlen(const char* s, long long* out_len) {
   size_t n = 0;
   if (!s) return 0;

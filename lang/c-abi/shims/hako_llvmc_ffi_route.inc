@@ -11,16 +11,16 @@ static const char* hako_llvmc_capture_harness_compiler(char** err_out) {
 
 static int compile_json_compat_harness_execute(const char* llvmc,
     const char* json_in, const char* obj_out, char** err_out) {
-  char log_path[1024];
+  hako_llvmc_harness_log log = {{0}, 0};
   char cmd[4096];
   char* first_line;
   int n;
   int rc;
-  if (hako_llvmc_build_harness_log_path(log_path, sizeof(log_path)) != 0) {
+  if (hako_llvmc_harness_log_build_template(
+          log.path, sizeof(log.path)) != 0) {
     hako_set_last_error("FAILED");
     return set_err_owned(err_out, "hako_llvmc harness log path too long");
   }
-  remove(log_path);
   n = snprintf(
       cmd,
       sizeof(cmd),
@@ -28,8 +28,26 @@ static int compile_json_compat_harness_execute(const char* llvmc,
       llvmc,
       json_in,
       obj_out,
-      log_path);
+      log.path);
   if (n <= 0 || (size_t)n >= sizeof(cmd)) {
+    hako_set_last_error("FAILED");
+    return set_err_owned(err_out, "hako_llvmc harness compile command too long");
+  }
+  if (hako_llvmc_harness_log_reserve(&log) != 0) {
+    hako_llvmc_harness_log_cleanup(&log);
+    hako_set_last_error("FAILED");
+    return set_err_owned(err_out, "hako_llvmc harness log create failed");
+  }
+  n = snprintf(
+      cmd,
+      sizeof(cmd),
+      "\"%s\" --driver harness --in \"%s\" --emit obj --out \"%s\" 2> \"%s\"",
+      llvmc,
+      json_in,
+      obj_out,
+      log.path);
+  if (n <= 0 || (size_t)n >= sizeof(cmd)) {
+    hako_llvmc_harness_log_cleanup(&log);
     hako_set_last_error("FAILED");
     return set_err_owned(err_out, "hako_llvmc harness compile command too long");
   }
@@ -41,12 +59,12 @@ static int compile_json_compat_harness_execute(const char* llvmc,
       "ny-llvmc",
       "driver=harness");
   if (rc == 0 && hako_llvmc_file_exists(obj_out)) {
-    remove(log_path);
+    hako_llvmc_harness_log_cleanup(&log);
     return 0;
   }
   hako_set_last_error("FAILED");
-  first_line = hako_llvmc_read_first_line_owned(log_path);
-  remove(log_path);
+  first_line = hako_llvmc_read_first_line_owned(log.path);
+  hako_llvmc_harness_log_cleanup(&log);
   if (first_line) {
     if (err_out) {
       *err_out = first_line;

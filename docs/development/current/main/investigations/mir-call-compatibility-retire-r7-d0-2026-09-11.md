@@ -1,5 +1,5 @@
 ---
-Status: Design accepted — named C harness log ownership; implementation pending
+Status: Implementation complete — POSIX evidence green; native Windows proof pending
 Date: 2026-09-13
 Decision: MIR-CALL-HARNESS-LOG-OWNERSHIP-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -11,12 +11,12 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: accept MIR-CALL-HARNESS-LOG-OWNERSHIP-D0; design/task delivery only at user request.
+Decision: implement MIR-CALL-HARNESS-LOG-OWNERSHIP-I0 under the accepted D0 contract.
 Source authority + canonical issuer: named C admission and existing PhysicalOptions own the request; exclusive file creation establishes temporary log ownership, not source semantics.
 Non-authority: PID, dlsym wrapper, public reachability, and stderr do not issue request meaning.
 Fail-fast boundary: complete compiler/options, path/command validation and log reservation/close before output removal or child launch.
 Smallest next slice: MIR-CALL-HARNESS-LOG-OWNERSHIP-I0, switching the single C harness executor and deleting its PID-only log edge.
-Non-claims: no implementation in this delivery, public ABI retirement, whole-compiler thread safety, same-output concurrency, or aggregate R7 completion.
+Non-claims: native Windows reservation/reopen, public ABI retirement, whole-compiler thread safety, same-output concurrency, or aggregate R7 completion.
 
 ## Finite scope and retained owners
 
@@ -361,7 +361,7 @@ work remain in their existing owners.
 | 3 | Rust llvmlite runner request I0 | closed in this revision; one invocation policy, three existing consumers, and the exact ambient-read delete set above |
 | 4 | Temporary input ownership D0 | accepted above; shared-owner premise corrected and three consumers co-scoped |
 | 5 | Temporary input ownership I0 | implemented below; scoped input, all three caller switches, fixed input-path edge deleted, focused lifetime evidence |
-| 6 | Named C harness log ownership I0 | design accepted below; invocation-owned diagnostic log and PID-only edge retirement; not started |
+| 6 | Named C harness log ownership I0 | implemented below; invocation-owned diagnostic log and PID-only edge retired |
 | Deferred | non-Loop snapshot reacquisition | existing perf owner; prove duplicate acquisition and compatible lifetime before reuse |
 | Deferred | Read/Write/Carrier unused information | owning Rust metadata paths; prove zero consumers before behavior-neutral deletion |
 | Deferred | ordinary-new unclaimed writer | existing Birth/ordinary-new owner; retain direct-local, foreign/transferred and uncovered cases |
@@ -462,11 +462,11 @@ concurrent use of the same obj_out. Native Windows reservation/reopen requires
 its own evidence; Linux green cannot substitute. AOT FFI on Windows retains
 its existing unsupported terminal; the direct C export is the Windows witness.
 
-## MIR-CALL-HARNESS-LOG-OWNERSHIP-I0 (queued; not started)
+## MIR-CALL-HARNESS-LOG-OWNERSHIP-I0 (complete on POSIX; Windows proof pending)
 
 Change:
 1. Add private temporary-log storage in a focused include, wired before route
-   consumption; keep common=660 and route=530 current lines below the source
+   consumption; keep common=650 and route=548 current lines below the source
    budget instead of expanding common past the 760-line design threshold.
 2. Switch `compile_json_compat_harness_execute` to that lifetime. Both direct C
    and AOT FFI callers then use it automatically, without another dispatcher.
@@ -496,15 +496,26 @@ Done:
 - In the implementation slice update `lang/c-abi/shims/README.md` and
   `docs/reference/abi/nyrt_c_abi_v0.md#named-harness-physical-options-ownership`.
   Record platform-scoped results; native Windows helper/C-export close/reopen
-  is required before claiming cross-platform completion. Build/tests were not
-  run by this design audit.
+  is required before claiming cross-platform completion.
 
 Stop:
 Return to design if exclusive-create/closed-handle ownership cannot be kept
 through the child, existing error precedence changes beyond the named new
 storage failure, or implementation requires new admission/ABI/fallback.
-Shared callers and public reachability are not stop conditions. User requested
-this delivery to end at design/task organization; I0 remains unimplemented.
+Shared callers and public reachability are not stop conditions. POSIX
+implementation and focused evidence are complete; native Windows remains a
+separate proof boundary.
+
+Implementation evidence (2026-09-13): `build_hako_llvmc_ffi.sh`, the private
+`harness_log_ownership_test.c`, and
+`llvm_compile_options_contract_smoke.sh` pass. The smoke covers direct C plus
+AOT FFI overlap in one process, distinct first-line failures, success,
+zero-exit/no-object, null `err_out`, path/command overflow, blocked-TMPDIR
+storage failure with an output sentinel and unchanged child record, and the
+existing argument/environment contract. `llvm_codegen_route_identity_guard.sh`,
+`current_state_pointer_guard.sh`, and `git diff --check` pass. The compiler
+build emits only the existing AOT path-format warnings. Native Windows
+reservation/close/reopen is not claimed from this Linux run.
 
 ## Closed evidence and contracts
 

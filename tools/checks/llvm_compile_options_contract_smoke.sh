@@ -9,6 +9,7 @@ bash "$ROOT/tools/build_hako_llvmc_ffi.sh" >/dev/null
 
 ROOT="$ROOT" python3 - <<'PY'
 import ctypes
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 import pathlib
@@ -73,6 +74,11 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
         str(root / "lang/c-abi/tests/physical_options_ownership_test.c"),
         "-o", str(ownership)], check=True)
     subprocess.run([str(ownership)], check=True)
+    harness_log = temp / "harness-log-ownership"
+    subprocess.run(["cc", "-std=gnu11", "-Wall", "-Wextra", "-Werror",
+        str(root / "lang/c-abi/tests/harness_log_ownership_test.c"),
+        "-o", str(harness_log)], check=True)
+    subprocess.run([str(harness_log)], check=True)
     capture = temp / "legacy-capi-invocation-capture"
     subprocess.run(["cc", "-std=gnu11", "-O2",
         "-I" + str(root / "plugins/nyash-json-plugin/c/yyjson"),
@@ -326,10 +332,13 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
     fake = temp / "fake harness"
     capture = temp / "harness.json"
     fake.write_text(
-        f"#!{sys.executable}\nimport json, os, pathlib, sys\n"
+        f"#!{sys.executable}\nimport json, os, pathlib, sys, time\n"
         f"pathlib.Path({str(capture)!r}).write_text(json.dumps([sys.argv[1:], dict(os.environ)]))\n"
         "mode = os.environ.get('HARNESS_TEST_MODE', '')\n"
         "if mode == 'fail':\n sys.stderr.write('first child error\\nsecond line\\n'); sys.exit(7)\n"
+        "if mode == 'overlap-fail':\n"
+        " out = pathlib.Path(sys.argv[sys.argv.index('--out') + 1])\n"
+        " sys.stderr.write('overlap:' + out.name + '\\n'); sys.stderr.flush(); time.sleep(0.25); sys.exit(7)\n"
         "if mode != 'missing':\n pathlib.Path(sys.argv[sys.argv.index('--out') + 1]).write_bytes(b'object')\n"
     )
     fake.chmod(0o755)
@@ -373,12 +382,37 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
         rc, message = harness_call(harness, output)
         assert rc != 0 and needle in message and not output.exists(), (rc, message)
         assert "second line" not in message
+    errorless_output = temp / "harness-errorless.o"
+    rc = harness(str(opaque).encode(), str(errorless_output).encode(), None)
+    assert rc != 0 and not errorless_output.exists()
+    os.environ["HARNESS_TEST_MODE"] = "overlap-fail"
+    overlap_outputs = [temp / "overlap-direct.o", temp / "overlap-aot.o"]
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        overlap_results = list(pool.map(
+            lambda item: harness_call(item[0], item[1]),
+            [(harness, overlap_outputs[0]), (aot_harness, overlap_outputs[1])]))
+    for result, overlap_output in zip(overlap_results, overlap_outputs):
+        rc, message = result
+        assert rc != 0 and f"overlap:{overlap_output.name}" in message
+        assert not overlap_output.exists()
     os.environ.pop("HARNESS_TEST_MODE")
     output.write_bytes(b"sentinel")
     old_tmp = os.environ.get("TMPDIR")
     os.environ["TMPDIR"] = "/" + "x" * 1100
     rc, message = harness_call(harness, output)
     assert rc != 0 and "log path too long" in message and output.read_bytes() == b"sentinel"
+    if old_tmp is None:
+        os.environ.pop("TMPDIR")
+    else:
+        os.environ["TMPDIR"] = old_tmp
+    blocked_tmp = temp / "tmp-is-a-file"
+    blocked_tmp.write_text("not a directory")
+    capture_before = capture.read_bytes()
+    os.environ["TMPDIR"] = str(blocked_tmp)
+    output.write_bytes(b"sentinel")
+    rc, message = harness_call(harness, output)
+    assert rc != 0 and "log create failed" in message
+    assert output.read_bytes() == b"sentinel" and capture.read_bytes() == capture_before
     if old_tmp is None:
         os.environ.pop("TMPDIR")
     else:

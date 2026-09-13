@@ -68,6 +68,15 @@ selection remain unchanged.
 The options smoke covers direct/AOT re-entry and failure ordering, plus the
 private ownership test's copy lifetime, OOM and delegated-field rejection.
 
+The named Harness diagnostic log is invocation-owned. The executor preflights
+the bounded template and command, reserves an exclusive temporary file
+(`mkstemp` on POSIX; `_mktemp_s` plus exclusive `_open` on Windows), closes the
+descriptor, and keeps that path until the synchronous child finishes. It reads
+the first error line before best-effort cleanup and removes only its own path;
+the old PID-only name and manual shared-log cleanup are retired. Reservation
+or close failure rejects before object removal or child launch. Linux evidence
+does not establish the native Windows close/reopen claim.
+
 The retained `allocation_config_capture_test.py DRIVER` checks sixteen captured
 configuration positives and unsupported/emitter-failure no-child negatives
 against `allocation_config_capture_driver.c`. Build that driver with the same

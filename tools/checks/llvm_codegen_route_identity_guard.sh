@@ -27,6 +27,7 @@ AOT_CHILD="$ROOT/lang/c-abi/shims/hako_aot_child_process.inc"
 AOT_SMOKE="$ROOT/tools/checks/llvm_hako_aot_ffi_admission_smoke.sh"
 C_COMMON="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_common.inc"
 CAPI_ROUTE="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_route.inc"
+HARNESS_LOG="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_harness_log.inc"
 CAPI_INVOCATION="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_invocation.inc"
 PUBLISHED_ROWS="$ROOT/lang/c-abi/shims/published_mir/hako_llvmc_ffi_published_static_method.inc"
 LEGACY_EMITTER="$ROOT/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_legacy_capi_emit.inc"
@@ -58,7 +59,7 @@ need_fixed() {
 
 for file in "$CARD" "$INDEX" "$ROUTE_ENTRY" "$ROUTE" "$CAPI" "$PROVIDER" "$PLUGIN" "$AOT" \
   "$RUNNER_EXEC" "$LLVM_RUNNER" "$HARNESS_EXECUTOR" "$FALLBACK_EXECUTOR" "$LLVM_VM_FLAGS" "$C_COMMON" "$CAPI_ROUTE" \
-  "$CAPI_INVOCATION" "$PUBLISHED_ROWS" "$LEGACY_EMITTER" "$CAPI_CAPTURE_TEST" \
+  "$CAPI_INVOCATION" "$PUBLISHED_ROWS" "$LEGACY_EMITTER" "$CAPI_CAPTURE_TEST" "$HARNESS_LOG" \
   "$FAST_CAPTURE_TEST" \
   "$NYLLVM_README" "$HARNESS_SCRIPT" "$FAST_SMOKE" "$CABI_README" "$ENV_INVENTORY"; do
   need_file "$file"
@@ -290,6 +291,11 @@ need_fixed "$CAPI_ROUTE" 'hako_llvmc_reject_ambient_harness_replay' \
   "generic C ambient replay gate missing"
 need_fixed "$CAPI_ROUTE" 'hako_llvmc_compile_json_compat_harness' \
   "named C compatibility export missing"
+need_fixed "$HARNESS_LOG" 'hako_llvmc_harness_log_reserve' \
+  "invocation-owned harness log reservation missing"
+if rg -n 'hako_llvmc_build_harness_log_path|remove\(log_path\)' "$C_COMMON" "$CAPI_ROUTE"; then
+  fail "named harness PID-only log owner or manual cleanup is still present"
+fi
 python3 - "$CAPI_ROUTE" <<'PY'
 import pathlib
 import sys
@@ -300,6 +306,9 @@ assert 'getenv(' not in executor, 'harness executor rereads compiler environment
 assert 'compile_json_compat_harness_keep(' not in named, 'named export reentered ambient adapter'
 assert 'hako_llvmc_physical_options_copy_named_harness(' in named
 assert 'hako_llvmc_physical_options_destroy(&options)' in named
+assert 'hako_llvmc_harness_log_reserve' in executor
+assert 'hako_llvmc_harness_log_cleanup' in executor
+assert 'remove(log_path)' not in executor
 for retired in ['compile_json_compat_harness_keep', 'compile_json_via_explicit_compat_harness_replay']:
     assert retired not in text, 'retired automatic replay adapter returned'
 core = pathlib.Path(sys.argv[1]).with_name('hako_llvmc_ffi_pure_compile.inc').read_text()

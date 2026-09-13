@@ -1,10 +1,10 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-HARNESS-LOG-OWNERSHIP-D0"
-current_execution_cohort = "mir_call_harness_log_ownership_d0"
-current_blocker_token = "DesignAccepted__HarnessLogOwnership__UserRequestedDesignOnly"
-guard_followup = "Harness log D0 accepted after one read-only worker and contract review. User requested design/task delivery only; queued I0 replaces the named C executor PID log with exclusive invocation storage. On implementation resume select fast/I0; keep existing admission and public ABI."
+current_execution_row = "MIR-CALL-HARNESS-LOG-OWNERSHIP-I0"
+current_execution_cohort = "mir_call_harness_log_ownership_i0"
+current_blocker_token = "ImplementationComplete__HarnessLogOwnership__NativeWindowsProofOutstanding"
+guard_followup = "Harness log I0 is implemented with POSIX evidence: invocation-owned exclusive storage, PID-edge retirement, overlap/failure smoke, route guard and ABI docs are green. Native Windows reservation/close/reopen remains a separate proof boundary; keep public admission and one Cargo process unchanged."
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -19,15 +19,12 @@ latest_card = "mir-call-compatibility-retire-r7-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
 R7 D1 resolves to a concrete transport ownership slice. Named C admission
-and PhysicalOptions already have one owner; the C harness executor still
-shares a PID-only diagnostic log between same-process calls. Harness log D0
-accepts exclusive-create storage retained through synchronous child/error
-projection, with cleanup before return. Direct C and AOT FFI share that fix.
-I0 tasks cover owner lifecycle, PID-edge deletion, overlap/error-order tests,
-existing guards and module/reference updates. Native Windows proof remains
-required for a cross-platform claim. Design/task delivery ends here at user
-request; no compiler code or fixtures changed. Temp input I0 remains closed;
-aggregate R7 remains open. Cargo stays one process, quick, at most four jobs.
+and PhysicalOptions already have one owner; the C harness executor now owns a
+unique exclusive diagnostic log per call. Direct C and AOT FFI share the
+executor fix. POSIX helper, overlap/failure smoke, route guard, module README
+and ABI reference are green; native Windows reservation/close/reopen remains
+unclaimed. Temp input I0 remains closed; aggregate R7 remains open. Cargo stays
+one process, quick, at most four jobs.
 """
 next_design_card = "MIR-CALL-HARNESS-LOG-OWNERSHIP-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"

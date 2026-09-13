@@ -17,10 +17,14 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #if defined(_WIN32)
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <io.h>
 #include <process.h>
 #else
+#include <fcntl.h>
 #include <unistd.h>
 #endif
 
@@ -35,6 +39,7 @@
 #endif
 
 #include "hako_llvmc_ffi_common.inc"
+#include "hako_llvmc_ffi_harness_log.inc"
 #include "hako_llvmc_ffi_physical_options.inc"
 #include "hako_llvmc_ffi_typed_object_root_lookup.inc"
 #include "hako_llvmc_ffi_named_allocation_select.inc"

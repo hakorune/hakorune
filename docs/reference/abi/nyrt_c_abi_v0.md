@@ -262,6 +262,19 @@ first-line error ordering is preserved. One executor consumes the owned path;
 public named C/AOT entrypoints remain live. This
 does not claim full child-environment capture or process-wide isolation.
 
+Decision (2026-09-13): the named Harness executor owns one diagnostic log per
+invocation. It preflights the existing path/command limits, reserves an
+exclusive temporary path (`mkstemp` on POSIX; `_mktemp_s` and exclusive
+`_open` on Windows), closes the reservation, and lets the child reopen that
+path for stderr. The owned path remains live through status and first-line
+projection, then is cleaned up on every return path. Reservation and close
+failure are FAILED storage errors before output removal or child effects;
+existing compiler/options rejection, command-too-long ordering, object
+sentinel behavior, first-line errors and null `err_out` remain unchanged. The
+retired PID-only path cannot be shared by overlapping direct-C and AOT-FFI
+calls. Native Windows reservation/close/reopen still requires a native proof;
+POSIX results do not establish that claim.
+
 Decision (2026-09-12): automatic pure-core replay is retired together with its
 exclusive adapters. Public Generic/pure-first/Static replay rejection and
 explicit-options `none` admission are unchanged. A direct-core unsupported or
