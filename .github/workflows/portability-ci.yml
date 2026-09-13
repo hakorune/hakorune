@@ -4,6 +4,15 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
   workflow_dispatch:
+    inputs:
+      scope:
+        description: "Manual scope: focused Windows acceptance or the full portability matrix"
+        required: false
+        default: windows
+        type: choice
+        options:
+          - windows
+          - full
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,7 +43,7 @@ jobs:
               - '.github/workflows/portability-ci.yml'
 
   macos-build:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.scope == 'full') || (github.event_name == 'pull_request' && github.event.pull_request.draft == false) }}
     name: macOS build (release)
     runs-on: macos-latest
     timeout-minutes: 20
@@ -49,7 +58,7 @@ jobs:
 
   windows-check:
     needs: changes
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.draft == false && needs.changes.outputs.windows == 'true') }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && (inputs.scope == 'windows' || inputs.scope == 'full')) || (github.event_name == 'pull_request' && github.event.pull_request.draft == false && needs.changes.outputs.windows == 'true') }}
     name: Windows Rust/provider check
     runs-on: windows-latest
     # The llvmlite-enabled lib test links the full Rust test binary on the
@@ -81,7 +90,7 @@ jobs:
 
   windows-harness-check:
     needs: changes
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.draft == false && needs.changes.outputs.windows == 'true') }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && (inputs.scope == 'windows' || inputs.scope == 'full')) || (github.event_name == 'pull_request' && github.event.pull_request.draft == false && needs.changes.outputs.windows == 'true') }}
     name: Windows C harness check
     runs-on: windows-latest
     timeout-minutes: 15
@@ -117,7 +126,7 @@ jobs:
         run: bash tools/checks/windows_harness_c_export_smoke.sh
 
   plugin-recovery-check:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.scope == 'full') || (github.event_name == 'pull_request' && github.event.pull_request.draft == false) }}
     name: Plugin recovery check (${{ matrix.os }} / ${{ matrix.plugin.name }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
