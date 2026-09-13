@@ -384,15 +384,19 @@ The fixed global input-path builder and `hako_llvm_in.json` pathname are deleted
 JSON bytes, validation/error ordering, route selection, output paths, and public
 ABI remain unchanged. No asynchronous consumer receives the borrowed path.
 
-Focused evidence: `host_providers::llvm_codegen::transport_io::tests::invocation_inputs_are_unique_and_drop_independently`
-passes with jobs 3/4; it proves distinct paths and exact bytes, independent drop
-of one live input, and cleanup after the second owner drops. `CARGO_BUILD_JOBS=4
-cargo check --profile quick --features llvmlite-compat` passes, covering the
-provider feature path; the default plugin test also passes. Source search shows
-no remaining call to `build_backend_temp_input_path` or global
-`hako_llvm_in.json`. The full C library/provider failure matrix and native
-Windows close/reopen run remain environment evidence for a later acceptance
-pass; this I0 does not claim whole-compiler concurrency safety.
+Focused evidence:
+`host_providers::llvm_codegen::transport_io::tests::invocation_inputs_are_unique_and_drop_independently`
+and
+`host_providers::llvm_codegen::transport_io::tests::input_survives_consumer_error_until_owner_drop`
+pass with jobs 3/4; they prove distinct paths and exact bytes, independent drop
+of one live input, cleanup after the final owner drops, and retention through an
+artifact-consumer error. `CARGO_BUILD_JOBS=4 cargo check --profile quick
+--features llvmlite-compat` passes, covering the provider feature path; the
+default plugin test also passes. Source search shows no remaining call to
+`build_backend_temp_input_path` or global `hako_llvm_in.json`. The full C
+library/provider failure matrix and native Windows close/reopen run remain
+environment evidence for a later acceptance pass; this I0 does not claim
+whole-compiler concurrency safety.
 
 ## Closed evidence and contracts
 
