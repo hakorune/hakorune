@@ -593,9 +593,12 @@ now cancels only pull-request runs, so one manual dispatch can finish without
 being killed by a later dispatch. No native lifecycle claim is made by this
 repair.
 
-The old manual run `34756966289` at `972e183426` is still running the two
-separate cargo test commands and cannot validate the following build-script
-repair. `build.rs` now compares generated output bytes before writing
+The old manual run `34756966289` at `972e183426` reached the 45-minute job
+timeout. Its provider command finished in `23m44s` and passed (`1 passed`,
+`0.75s` test body); the CAPI command was cancelled at the timeout while the
+second full build was still running, so it produced no CAPI test result and
+cannot validate the following build-script repair. `build.rs` now compares
+generated output bytes before writing
 `crates/hakorune_frontend_grammar/src/generated.rs`; identical output keeps
 the file timestamp stable, so a subsequent cargo invocation can reuse the
 already-linked test binary. Local proof compiles the build script, runs it
@@ -613,9 +616,10 @@ not change grammar semantics.
   at `c5b01f54483eb8aed70dd23db1b5a0a939afc4a0`. Provider passed; CAPI
   observer failed at the success assertion after the shared build. This run
   is the current-change red that the bounded observer repair addresses.
-- Next revision: `ad00cca50c` contains the observer/workflow repair and the
-  same-content generated.rs write guard. Let `34756966289` finish, then
-  dispatch one new run and record its provider/CAPI durations separately.
+- Latest revision: `8e7179bb7e` contains the observer/workflow repair, the
+  same-content generated.rs write guard, and its evidence note. One manual
+  run `34759102231` was dispatched at this SHA; record its provider/CAPI
+  durations separately after it finishes.
 - Required receipt: exact provider and generic CAPI Windows lifetime tests,
   plus C harness checks. Provider and CAPI share one `--lib` test build;
   record their separate build/test durations from the completed logs.
