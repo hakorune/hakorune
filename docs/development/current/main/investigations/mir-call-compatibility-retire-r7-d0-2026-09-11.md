@@ -277,6 +277,21 @@ Non-claims: no code, fixture, fallback change, direct-CLI removal, shared
 reader deletion, or aggregate R7 completion. This D0 is closed by static worker
 evidence; no eligible R7 execution card follows, and parked rows remain sealed.
 
+## Worker-audited retained rows (2026-09-14)
+
+Two remaining-looking rows were checked as bounded design candidates before
+selecting another R7 task. Both are retained compatibility, not executable work:
+
+| Candidate | Finite boundary and evidence | Disposition / reopen trigger |
+| --- | --- | --- |
+| `method.rs:517` interpreter singleton fallback | `execute_method_callee` has one production caller (`array_write.rs`) and it always supplies `Some(receiver)`; the canonical static path is `Callee::Global(StaticBoxMethod)`. The `None` branch has no independent production caller or pre-effect terminal. | Retain as `NoSafeSlice`; no exclusive delete-set. Reopen only with a caller-local Stop/migration that names the terminal and removes this edge without deleting the live receiver-present path. |
+| `array_element_write.rs:251` llvmlite projection | `llvmlite_emit_obj_lib -> project_for_legacy_backend -> project_module_to_legacy_calls` is one explicit `llvmlite-compat` object route. Typed-array metadata/instruction drift is rejected before cloning/emission; the consumer has not accepted the V1 operation. | Retain as `NoSafeSlice`; old-edge delete-set is empty. Reopen only after a V1 consumer or explicit caller-local Stop supplies a successor and exact deletion. |
+
+These audits do not select a new card, add a backend, or require Cargo/CI.
+They close the available owner checks for this frontier; the queue remains
+`none__no_eligible_r7_owner_after_release_selfhost_retain` and parked families
+stay sealed.
+
 ## Finite scope and retained owners
 
 Boundary: canonical/compatibility ingress -> Call writers/reissuers/readers
