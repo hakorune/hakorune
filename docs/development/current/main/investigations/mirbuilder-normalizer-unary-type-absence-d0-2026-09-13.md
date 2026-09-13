@@ -66,6 +66,41 @@ is allowed.
   different String/Float/Other matrix, including its own compatibility
   behavior. It does not authorize unary-minus inference.
 
+### Producer inventory (2026-09-13)
+
+The normalizer's own call arms do not produce `MissingFact`: the method arm
+registers either the known env return type or `MirType::Unknown`
+(`helpers_value/lower.rs:204-215`), and the function/call arms register
+`MirType::Unknown` (`:389-393`, `:487-491`). Untyped formal parameters likewise
+enter the type context as `Some(Unknown)` through the function-signature
+skeleton (`calls/function_lowering.rs:20-28`, `:53-58`) and parameter
+publication (`calls/parameter_setup.rs:253-278`).
+
+There are raw call terminals that allocate a result without publishing a type:
+
+- cataloged raw calls use `next_value_id()` and emit the call at
+  `calls/build.rs:349-362`;
+- an installed AppMain scalar call does the same at
+  `calls/build.rs:156-165`;
+- raw env and standard method terminals return their destination without a
+  local type publication at `calls/method_call_terminal.rs:414-429` and
+  `:444-459`.
+
+When such a result is copied into a local, `variable_stmt.rs:246-256` invokes
+`metadata::propagate`; that helper copies a type only when the source already
+has one (`metadata/propagate.rs:22-30`). The variable arm of the normalizer
+then returns the existing `ValueId` without inventing a type. Thus a shape such
+as `local x = f()` followed by a source-aware loop operand `-x` is a concrete
+`None` candidate if `f()` is admitted by the installed catalog/AppMain route.
+
+This inventory does not yet prove that the candidate reaches the selected
+source-relation → loop-normalizer production path. The preflight route rejects
+raw script/legacy compatibility origins (`calls/function_call_preflight_route.rs:369-383`)
+and requires an installed caller relation for cataloged calls (`:413-424`), so
+old raw-call fixtures are not production evidence. D0 must name one installed
+source relation and follow it through local binding into the selected loop
+operand, or explicitly prove that all selected producers publish a type.
+
 The static audit found no focused test that directly pins unary-minus with a
 missing operand type. Existing integer/float unary positives cover only the
 known-type states. Runtime impact for `MissingFact`, `UnknownFact`, and
