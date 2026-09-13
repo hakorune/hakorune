@@ -1,5 +1,5 @@
 ---
-Status: release-selfhost boxcall D0 design stop
+Status: release-selfhost boxcall D0 resolved Retain; R7 frontier pause
 Date: 2026-09-14
 Decision: MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -15,7 +15,7 @@ Decision: retain the supported JSON-v0 StringBox cohort and resolve the compatib
 Source authority + canonical issuer: the existing Program-JSON compatibility producer remains its own textual authority; no canonical source issuer is inferred from method spelling or MIR shape.
 Non-authority: shared-parser reuse, method names, CI status, and a stopped pointer cannot decide migration.
 Fail-fast boundary: declared-schema errors stay terminal; retained schema-absent compatibility keeps its existing terminal.
-Smallest next slice: decide the release-selfhost boxcall policy at its finite parser boundary.
+Smallest next slice: select another already-inventoried finite R7 owner; none is currently eligible after this Retain.
 Non-claims: no implementation, blanket v0 rejection, source-selfhost lane activation, Windows lifecycle proof, or aggregate R7 retirement.
 
 ## Development queue (worker-audited 2026-09-13)
@@ -38,7 +38,8 @@ artifact umbrella intake, Stage-A, Program conversion, parser deletion and backe
 | 3b closed | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observed that prohibited Program/Rust/Python fallback never starts. |
 | 4 resolved | `MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0` | Retain the phase14/17 StringBox compatibility cohort; shared v0 parser reuse is not treated as boxcall-arm dependence. |
 | 4 resolved | `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` | Retain Global and dynamic Value compatibility; its old-edge delete-set is empty. |
-| 4 selected | `MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0` | Decide release selfhost/Stage1 boxcall Retain versus boxcall-only Stop; callers and terminals are finite. |
+| 4 resolved | `MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0` | Retain explicit release selfhost/Stage1 boxcall compatibility; its exact delete-set is empty. |
+| 4 next selection | `none__no_eligible_r7_owner_after_release_selfhost_retain` | Keep the R7 frontier paused; do not promote parked rows or repeat the closed census. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
 | 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
@@ -237,11 +238,12 @@ empty-output/result and no-rejection assertions. Add malformed/extra-argument
 negatives, no retry, v0/v1 precedence and README/reference updates. This D0 is
 static evidence; implementation, fixtures, Cargo and CI remain unopened.
 
-## MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0 (selected 2026-09-14)
+## MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0 (resolved Retain; R7 frontier pause, 2026-09-14)
 
-Decision: design stop pending an explicit release compatibility policy. The
-existing parser has a finite, source-backed boundary; no implementation is
-authorized until Retain or boxcall-only Stop is accepted.
+Decision: retain explicit release selfhost/Stage1 boxcall compatibility. The
+existing parser has a finite boundary, but the current SSOT names this route as
+an explicit compatibility surface and its release positive is an accepted
+contract. No supported behavior is removed to manufacture an R7 row.
 
 Boundary: `parse_mir_json_v0_line` parses each actual instruction before
 `mir_json_v0::parse_mir_v0_to_module`. Production callers are
@@ -263,24 +265,17 @@ Current contract to preserve while deciding:
 | actual `externcall` | named reject | retained extern projection |
 | other/invalid/missing | existing parser or ordinary error | same |
 
-The detector matches both `boxcall` and `externcall`; deleting the whole
-strict/dev guard would silently change release externcall. A boxcall-only Stop
-must inspect every instruction, preserve malformed-input precedence, and keep
-direct CLI compatibility separate. Stage1 stdout and file reissue are part of
-the boundary and cannot be omitted.
-
-If Stop is accepted, the exact old edge is release admission of actual
-`boxcall` for the three callers above. Acceptance must prove named rejection,
-no Program/Rust/Python re-entry, release externcall/nonlegacy positives,
-malformed-input behavior, mixed `[externcall, boxcall]` rejection, and Stage1
-no-republish/no-output behavior. Update selfhost, Stage1 and MIR-intake docs
-with the code slice. If Retain is accepted, record the compatibility product,
-empty delete-set and reopen trigger instead. Both outcomes stay within the
-existing owner; no new parser, receipt, route, backend or flag is needed.
+The detector matches both `boxcall` and `externcall`; removing the whole
+strict/dev guard would silently change release externcall. The selected
+compatibility product therefore keeps parsed malformed-input precedence,
+Stage1 stdout/file reissue, and direct CLI compatibility. Exact old-edge
+delete-set for this Retain is empty. Reopen only when a caller-local migration
+or explicit Stop policy is accepted; do not add a parser, receipt, route,
+backend or flag.
 
 Non-claims: no code, fixture, fallback change, direct-CLI removal, shared
-reader deletion, or aggregate R7 completion. This D0 is static worker evidence;
-the next execution card remains none until the policy is accepted.
+reader deletion, or aggregate R7 completion. This D0 is closed by static worker
+evidence; no eligible R7 execution card follows, and parked rows remain sealed.
 
 ## Finite scope and retained owners
 

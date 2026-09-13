@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0"
 current_execution_cohort = "r7_release_selfhost_boxcall_d0"
-current_blocker_token = "MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0__release_boxcall_policy_unresolved"
+current_blocker_token = "MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0__no_eligible_r7_owner_after_release_selfhost_retain"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0__release_boxcall_policy_unresolved"
+current_design_stop = "MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0__no_eligible_r7_owner_after_release_selfhost_retain"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -19,14 +19,14 @@ latest_card = "mir-call-compatibility-retire-r7-d0-2026-09-11"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
 Stage-A rejection I0 and the Windows provider/CAPI receipt are closed. The
-JSON-v0 StringBox cohort and Global/dynamic Value compatibility entrypoints
-are retained. A worker found a finite release-selfhost/Stage1 boxcall parser
-boundary; the next design stop decides Retain versus boxcall-only Stop. No
-code, fallback, shared-reader deletion, or aggregate R7 retirement is open.
+JSON-v0 StringBox cohort, Global/dynamic Value entrypoints, and explicit
+release-selfhost/Stage1 boxcall compatibility are retained. Their finite
+delete-sets are empty, so no eligible R7 execution owner remains. No code,
+fallback, shared-reader deletion, or aggregate R7 retirement is open.
 """
 next_design_card = "MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none__release_boxcall_policy_pending"
+next_execution_card = "none__no_eligible_r7_owner_after_release_selfhost_retain"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
