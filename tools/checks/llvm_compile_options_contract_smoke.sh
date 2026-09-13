@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 root = pathlib.Path(os.environ["ROOT"])
 lib = ctypes.CDLL(str(root / "target/release/libhako_llvmc_ffi.so"))
@@ -331,6 +332,9 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
     aot_harness.restype = ctypes.c_int
     fake = temp / "fake harness"
     capture = temp / "harness.json"
+    overlap_barrier = temp / "harness-overlap-barrier"
+    overlap_barrier.mkdir()
+    overlap_release = overlap_barrier / "release"
     fake.write_text(
         f"#!{sys.executable}\nimport json, os, pathlib, sys, time\n"
         f"pathlib.Path({str(capture)!r}).write_text(json.dumps([sys.argv[1:], dict(os.environ)]))\n"
@@ -338,7 +342,13 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
         "if mode == 'fail':\n sys.stderr.write('first child error\\nsecond line\\n'); sys.exit(7)\n"
         "if mode == 'overlap-fail':\n"
         " out = pathlib.Path(sys.argv[sys.argv.index('--out') + 1])\n"
-        " sys.stderr.write('overlap:' + out.name + '\\n'); sys.stderr.flush(); time.sleep(0.25); sys.exit(7)\n"
+        f" marker = pathlib.Path({str(overlap_barrier)!r}) / (out.name + '.started')\n"
+        " marker.write_text('started')\n"
+        f" release = pathlib.Path({str(overlap_release)!r})\n"
+        " deadline = time.monotonic() + 10\n"
+        " while not release.exists() and time.monotonic() < deadline: time.sleep(0.01)\n"
+        " if not release.exists(): sys.stderr.write('overlap barrier timeout\\n'); sys.exit(8)\n"
+        " sys.stderr.write('overlap:' + out.name + '\\n'); sys.stderr.flush(); sys.exit(7)\n"
         "if mode != 'missing':\n pathlib.Path(sys.argv[sys.argv.index('--out') + 1]).write_bytes(b'object')\n"
     )
     fake.chmod(0o755)
@@ -387,14 +397,45 @@ with tempfile.TemporaryDirectory(prefix="hako-options-contract-") as temp:
     assert rc != 0 and not errorless_output.exists()
     os.environ["HARNESS_TEST_MODE"] = "overlap-fail"
     overlap_outputs = [temp / "overlap-direct.o", temp / "overlap-aot.o"]
-    with ThreadPoolExecutor(max_workers=2) as pool:
-        overlap_results = list(pool.map(
-            lambda item: harness_call(item[0], item[1]),
-            [(harness, overlap_outputs[0]), (aot_harness, overlap_outputs[1])]))
+    overlap_markers = [
+        overlap_barrier / (output.name + ".started") for output in overlap_outputs
+    ]
+    overlap_tmp = temp / "overlap-tmp"
+    overlap_tmp.mkdir()
+    old_tmp_overlap = os.environ.get("TMPDIR")
+    os.environ["TMPDIR"] = str(overlap_tmp)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures = [
+                pool.submit(harness_call, entry, output)
+                for entry, output in [
+                    (harness, overlap_outputs[0]),
+                    (aot_harness, overlap_outputs[1]),
+                ]
+            ]
+            deadline = time.monotonic() + 10
+            barrier_ready = True
+            while not all(marker.exists() for marker in overlap_markers):
+                if time.monotonic() >= deadline:
+                    barrier_ready = False
+                    break
+                time.sleep(0.01)
+            overlap_release.write_text("release")
+            overlap_results = [future.result() for future in futures]
+            if not barrier_ready:
+                raise SystemExit("overlap children did not both start before release")
+    finally:
+        overlap_release.touch()
+        if old_tmp_overlap is None:
+            os.environ.pop("TMPDIR", None)
+        else:
+            os.environ["TMPDIR"] = old_tmp_overlap
     for result, overlap_output in zip(overlap_results, overlap_outputs):
         rc, message = result
         assert rc != 0 and f"overlap:{overlap_output.name}" in message
         assert not overlap_output.exists()
+    assert all(marker.exists() for marker in overlap_markers)
+    assert not list(overlap_tmp.iterdir()), "overlap left stale harness logs"
     os.environ.pop("HARNESS_TEST_MODE")
     output.write_bytes(b"sentinel")
     old_tmp = os.environ.get("TMPDIR")

@@ -1,5 +1,5 @@
 ---
-Status: Implementation complete — POSIX evidence green; native Windows proof pending
+Status: Implementation complete — POSIX evidence strengthened; provider/CAPI integration and native Windows proof pending
 Date: 2026-09-13
 Decision: MIR-CALL-HARNESS-LOG-OWNERSHIP-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -191,12 +191,15 @@ performed. This is WSL/Linux evidence; native Windows remains covered only by
 the separate AOT I1 result at `59e9a30b1f`.
 
 Acceptance recheck (2026-09-13): `policy_preserves_distinct_legacy_projections`
-currently constructs `LlvmHarnessInvocationPolicyV1` with
-`from_snapshots(...)`. It checks projection fields but does not exercise the
-configuration authority. Therefore it does not prove primary-over-alias
-precedence or the distinct unset, empty, `true`, and `1` interpretations.
-Replacement evidence must call the real capture path under the repository's
-environment-test lock and restore the process environment after each case.
+now calls `LlvmHarnessInvocationPolicyV1::capture()` under the shared
+environment-test lock. Its table covers both-unset, primary-empty with an
+alias present, primary `true`, primary literal `1`, and alias-only input; it
+asserts primary-over-alias precedence, the llvmlite default/alias selector
+projection, the primary-only fail-fast projection, and the literal-`1`
+child-precheck projection. The default build and the `llvmlite-compat`
+feature build each pass the exact test; the deprecated-alias warning in the
+feature run is expected. Environment state is restored by the lock-backed
+test helper after every case.
 
 ## MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 (accepted)
 
@@ -519,18 +522,17 @@ separate proof boundary.
 Implementation evidence (2026-09-13): `build_hako_llvmc_ffi.sh`, the private
 `harness_log_ownership_test.c`, and
 `llvm_compile_options_contract_smoke.sh` pass. The smoke covers direct C plus
-AOT FFI calls in one process, but its overlap case uses two threads and a
-`sleep(0.25)` child without a start barrier; serial execution could therefore
-also pass. It is evidence of distinct failure projections only, not proof that
-the children overlapped. A recheck must add the start barrier and post-finish
-stale-log assertion before this acceptance row is considered complete.
-The smoke also covers distinct first-line failures, success, zero-exit/no-object,
+AOT FFI calls in one process. Its overlap case now waits for both fake-child
+marker files before releasing either child, then checks each first-line
+diagnostic and verifies that the dedicated temporary-log directory is empty
+after both calls finish. Serial execution cannot satisfy that barrier. The
+smoke also covers distinct first-line failures, success, zero-exit/no-object,
 null `err_out`, path/command overflow, blocked-TMPDIR storage failure with an
-output sentinel and unchanged child record, and the existing argument/environment
-contract. `llvm_codegen_route_identity_guard.sh`, `current_state_pointer_guard.sh`,
-and `git diff --check` pass. The compiler build emits only the existing AOT
-path-format warnings. Native Windows reservation/close/reopen is not claimed
-from this Linux run.
+output sentinel and unchanged child record, and the existing
+argument/environment contract. `llvm_codegen_route_identity_guard.sh`,
+`current_state_pointer_guard.sh`, and `git diff --check` pass. The compiler
+build emits only the existing AOT path-format warnings. Native Windows
+reservation/close/reopen is not claimed from this Linux run.
 
 Integration acceptance gap (2026-09-13): the temporary-input I0 owner tests
 and Rust caller compilation do not close the three real consumer lifetimes.
