@@ -561,48 +561,9 @@ exit 0
     }
 
     fn build_input_observer_library(path: &Path) {
-        let source = path.with_extension("c");
-        fs::write(
-            &source,
-            r#"#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-int hako_llvmc_compile_json_with_options_v1(
-    const char* input, const char* output, const void* options, char** error) {
-  const char* record = getenv("HAKO_CAPI_RECORD_PATH");
-  FILE* in;
-  FILE* copy;
-  FILE* out;
-  char path[4096];
-  int n;
-  (void)options;
-  if (!input || !output || !record) return -2;
-  n = snprintf(path, sizeof(path), "%s.path", record);
-  if (n <= 0 || (size_t)n >= sizeof(path)) return -3;
-  copy = fopen(path, "wb");
-  if (!copy) return -4;
-  fputs(input, copy);
-  if (fclose(copy) != 0) return -5;
-  n = snprintf(path, sizeof(path), "%s.input", record);
-  if (n <= 0 || (size_t)n >= sizeof(path)) return -6;
-  in = fopen(input, "rb");
-  copy = fopen(path, "wb");
-  if (!in || !copy) return -7;
-  {
-    int ch;
-    while ((ch = fgetc(in)) != EOF) fputc(ch, copy);
-  }
-  fclose(in);
-  fclose(copy);
-  out = fopen(output, "wb");
-  if (!out) return -8;
-  fputs("capi-observer-object", out);
-  return fclose(out) == 0 ? 0 : -9;
-}
-"#,
-        )
-        .expect("write CAPI input observer source");
+        let source = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("lang/c-abi/tests/capi_input_observer.c");
+        assert!(source.is_file(), "missing CAPI input observer source");
         crate::test_support::with_process_state_lock(|| {
             let status = Command::new("cc")
                 .args(["-shared", "-fPIC", "-o"])
