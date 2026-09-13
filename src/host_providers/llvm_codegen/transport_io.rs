@@ -67,7 +67,7 @@ pub(super) fn ensure_backend_artifact_written(path: &Path, kind: &str) -> Result
 
 #[cfg(test)]
 mod tests {
-    use super::prepare_backend_input_json_file;
+    use super::{ensure_backend_artifact_written, prepare_backend_input_json_file};
     use std::fs;
 
     #[test]
@@ -83,5 +83,18 @@ mod tests {
         assert_eq!(fs::read(&second_path).unwrap(), b"{\"id\":2}");
         drop(second);
         assert!(!second_path.exists());
+    }
+
+    #[test]
+    fn input_survives_consumer_error_until_owner_drop() {
+        let input = prepare_backend_input_json_file("{\"id\":3}").unwrap();
+        let input_path = input.path().to_path_buf();
+        let output_dir = tempfile::tempdir().unwrap();
+        let result =
+            ensure_backend_artifact_written(&output_dir.path().join("missing.o"), "object");
+        assert!(result.is_err());
+        assert_eq!(fs::read(&input_path).unwrap(), b"{\"id\":3}");
+        drop(input);
+        assert!(!input_path.exists());
     }
 }
