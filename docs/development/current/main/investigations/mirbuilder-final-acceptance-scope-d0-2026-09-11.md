@@ -100,3 +100,35 @@ with 3/11 current observed passes, seven separately owned baseline boundaries,
 and one FFI-environment boundary. It does not close those owners, infer a
 compiler regression from the unavailable FFI library, or claim production
 cutover or whole-MirBuilder completion.
+
+## Current-host recheck (2026-09-13, HEAD `2376958aa3`)
+
+The exact owner-pack command was re-run at the current branch head after
+restoring the executable bit on the two tracked helper scripts. Both
+`tools/selfhost/selfhost_build.sh` and
+`tools/smokes/v2/lib/emit_mir_route.sh` are `100755` in HEAD and its parent;
+the WSL worktree had exposed them as mode `664`. Restoring the local bits
+produced no Git diff and was an environment repair, not a source change.
+
+The fixed eleven-entry manifest again produced 3 passes and 8 failures.
+Passing entries were `typed_object_method_min_exe`,
+`typed_object_birth_min_exe`, and `real_apps_exe_boundary_probe`. Seven
+failures reached their existing named owner boundaries: `json_stream_aggregator_exe_runtime_boundary`
+and `binary_trees_exe` reached Loop handoff failures;
+`typed_object_birth_param_min_exe` and `typed_object_untyped_field_min_exe`
+reached the existing canonical init/storage boundary; and `boxtorrent_mini_exe`,
+`mimalloc_lite_exe`, and `allocator_stress_exe` reached the existing callable
+`usize` boundary. These are stable known baseline/source-boundary results,
+not current-change failures.
+
+`typed_object_newbox_min_exe` was the eighth failure. Selfhost MIR emission
+completed, then the installed Ubuntu LLVM 14 `opt` rejected opaque-pointer IR
+(`ptr`); this is an environment/toolchain boundary. The run used the existing
+`rust_vm_dynamic`/dynamic-plugin configuration, sequential `Jobs: 1`, GCC
+11.4.0, LLVM `opt`/`llc` 14.0.0, and Python 3.11.13. Preflight also reported
+that the LLVM backend was unavailable in this build and Python `llvmlite` was
+not installed. No failure reached a changed Rust runner path, and no
+unclassified red was opened.
+
+This recheck supplements the closed R0 receipt; it does not reopen the fixed
+manifest, change accepted source programs, or claim a green 11/11 suite.
