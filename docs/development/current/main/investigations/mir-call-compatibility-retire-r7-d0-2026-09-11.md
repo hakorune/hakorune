@@ -1,7 +1,7 @@
 ---
-Status: JSON-v0 and compat-entrypoint D0 resolved; R7 owner selection stop
+Status: release-selfhost boxcall D0 design stop
 Date: 2026-09-14
-Decision: MIR-CALL-R7-COMPAT-ENTRYPOINT-D0
+Decision: MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -15,7 +15,7 @@ Decision: retain the supported JSON-v0 StringBox cohort and resolve the compatib
 Source authority + canonical issuer: the existing Program-JSON compatibility producer remains its own textual authority; no canonical source issuer is inferred from method spelling or MIR shape.
 Non-authority: shared-parser reuse, method names, CI status, and a stopped pointer cannot decide migration.
 Fail-fast boundary: declared-schema errors stay terminal; retained schema-absent compatibility keeps its existing terminal.
-Smallest next slice: co-seal Global and dynamic Value compatibility, then select an eligible R7 owner.
+Smallest next slice: decide the release-selfhost boxcall policy at its finite parser boundary.
 Non-claims: no implementation, blanket v0 rejection, source-selfhost lane activation, Windows lifecycle proof, or aggregate R7 retirement.
 
 ## Development queue (worker-audited 2026-09-13)
@@ -38,7 +38,7 @@ artifact umbrella intake, Stage-A, Program conversion, parser deletion and backe
 | 3b closed | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observed that prohibited Program/Rust/Python fallback never starts. |
 | 4 resolved | `MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0` | Retain the phase14/17 StringBox compatibility cohort; shared v0 parser reuse is not treated as boxcall-arm dependence. |
 | 4 resolved | `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` | Retain Global and dynamic Value compatibility; its old-edge delete-set is empty. |
-| 4 next selection | `none__no_eligible_r7_owner_after_compat_retain` | Select only an already-inventoried owner with a finite caller, terminal and delete-set; parked rows remain parked. |
+| 4 selected | `MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0` | Decide release selfhost/Stage1 boxcall Retain versus boxcall-only Stop; callers and terminals are finite. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
 | 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
@@ -237,35 +237,50 @@ empty-output/result and no-rejection assertions. Add malformed/extra-argument
 negatives, no retry, v0/v1 precedence and README/reference updates. This D0 is
 static evidence; implementation, fixtures, Cargo and CI remain unopened.
 
-## MIR-CALL-R7-COMPAT-ENTRYPOINT-D0 (resolved Retain; no eligible R7 owner, 2026-09-14)
+## MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0 (selected 2026-09-14)
 
-Decision: retain both existing compatibility contracts. Global carries an upstream
-`CanonicalGlobalTargetV1`; dynamic Value carries only a runtime `ValueId`. The
-facade remains transport and does not infer source meaning or collapse into the
-generic typed terminal.
-Source authority + canonical issuer: Global's upstream declaration-backed target
-and Value's existing runtime compatibility input; this facade issues transport,
-not new source meaning.
-Non-authority: public symbol presence alone, method names, `func` sentinel values,
-or a unified-enabled test cannot authorize compatibility deletion.
-Fail-fast boundary: preserve `NYASH_MIR_UNIFIED_CALL=off`, existing
-`LegacyCallV0` readers, and `dst=None` behavior. Global's `dst=None` continues
-to allocate the compatibility result; Value preserves an optional destination.
-Exact old-edge delete-set: empty; public reachability and disabled-mode tests
-keep both entrypoints retained. No eligible R7 Stop/Promote/Delete row follows.
-Non-claims: no code, public API removal, dynamic-call redesign, backend parity,
-or aggregate R7 retirement.
+Decision: design stop pending an explicit release compatibility policy. The
+existing parser has a finite, source-backed boundary; no implementation is
+authorized until Retain or boxcall-only Stop is accepted.
 
-Finite boundary: `emit_unified_call` compatibility facade -> existing
-`emit_global_unified`/`emit_value_unified` -> `LegacyCallV0` or the existing
-`physical_terminal::emit_finalized_generic_call_v1`. Callers include the three
-unified-disabled facade branches, `ordinary_new_admission.rs:104`, and public
-API reachability; tests explicitly assert LegacyCallV0 under disabled mode.
-Retained readers are the existing `LegacyCallV0` Global/Value consumers and
-the public `UnifiedCallEmitterBox` surface; disabled-mode tests are acceptance
-evidence. No source or test edits are authorized after this Retain decision.
-Reopen only on a new source-backed caller or accepted compatibility policy that
-provides a finite old-edge deletion; do not promote parked rows here.
+Boundary: `parse_mir_json_v0_line` parses each actual instruction before
+`mir_json_v0::parse_mir_v0_to_module`. Production callers are
+`selfhost/stage_a_route.rs:20`, `selfhost/stage_a_compat_bridge.rs:17`, and
+`stage1_bridge/stub_emit/parse.rs:42`; test-only `resolve_stage_a_payload`
+is excluded. Stage-A errors already terminate at `[stage-a][mir-rejected]`;
+Stage1 returns 98 before writeback.
+
+Source authority + canonical issuer: parsed MIR instruction `op` plus the
+existing release admission policy; the detector/parser owns acceptance. The
+facade, method spelling, first legacy match, and fallback flag do not issue
+meaning. Release Stage-A is explicit opt-in through `NYASH_VM_USE_FALLBACK=1`.
+
+Current contract to preserve while deciding:
+
+| Input | strict/dev | release |
+| --- | --- | --- |
+| actual `boxcall` | named reject | `LegacyCallV0` compatibility |
+| actual `externcall` | named reject | retained extern projection |
+| other/invalid/missing | existing parser or ordinary error | same |
+
+The detector matches both `boxcall` and `externcall`; deleting the whole
+strict/dev guard would silently change release externcall. A boxcall-only Stop
+must inspect every instruction, preserve malformed-input precedence, and keep
+direct CLI compatibility separate. Stage1 stdout and file reissue are part of
+the boundary and cannot be omitted.
+
+If Stop is accepted, the exact old edge is release admission of actual
+`boxcall` for the three callers above. Acceptance must prove named rejection,
+no Program/Rust/Python re-entry, release externcall/nonlegacy positives,
+malformed-input behavior, mixed `[externcall, boxcall]` rejection, and Stage1
+no-republish/no-output behavior. Update selfhost, Stage1 and MIR-intake docs
+with the code slice. If Retain is accepted, record the compatibility product,
+empty delete-set and reopen trigger instead. Both outcomes stay within the
+existing owner; no new parser, receipt, route, backend or flag is needed.
+
+Non-claims: no code, fixture, fallback change, direct-CLI removal, shared
+reader deletion, or aggregate R7 completion. This D0 is static worker evidence;
+the next execution card remains none until the policy is accepted.
 
 ## Finite scope and retained owners
 
@@ -303,54 +318,15 @@ product. Keep `LegacyCallV0` and shared compatibility assets until then.
 
 ## MIR-CALL-COMPATIBILITY-ADMISSION-D0 (historical frontier pause)
 
-The pause and selection statements in this section are historical. They are
-superseded by MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 below; they do not select the
-next task or require retained callers to disappear before migration.
-
-The FAST selector capture is closed below. The remaining C/AOT compatibility
-callers share public entries, dlsym re-entry, child/provider paths, or the
-retained compatibility terminals. This is not a Fast path: a caller-local
-change would still have to name the owner, terminal, retained callers, and
-exact old-edge deletion together.
-
-The read-only audit recommendation to move the legacy TargetMachine selector
-was compared with the current checkout and is already closed at `47e83a224e`:
-`hako_llvmc_ffi_invocation.inc` owns the selector/opt-level capture,
-`compile_doc_compat_pure` invokes it, and the legacy emitter consumes only the
-invocation state. The current Windows child transport likewise builds a
-CreateProcess environment block; its option values are not interpolated into
-the `cmd.exe` text. Neither observation opens a new slice.
-
-Decision: `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet`.
-Source authority + canonical issuer: each retained caller's accepted physical
-request and its existing explicit entry; no profile label or ambient value
-issues new semantics.
-Non-authority: public symbol names, provider reachability, test-only emitters,
-stale worker premises, and the closed FAST/published-row/TargetMachine/child-env
-evidence.
-Fail-fast boundary: preserve each existing contract, replay, tool, symbol and
-input rejection before environment mutation, provider/child launch, or artifact
-publication.
-Smallest next slice: none is executable now; reopen this same frontier only
-when a new source-backed caller/terminal relation supplies one finite
-caller-specific old-edge delete-set. Do not repeat the closed census.
-Non-claims: no code, route switch, fallback, public ABI deletion, LLVM parity,
-Windows proof for later revisions, or aggregate R7 completion.
-
-### Finite retained-boundary outcome table
-
-| Outcome | Existing owner / authority | Pre-effect behavior | Allowed action |
-| --- | --- | --- | --- |
-| `ClosedExistingOwner` | invocation/options/child-env owner | existing admission and terminal | retain; no duplicate row |
-| `RetainedCompatibility` | named C/AOT entry, shared provider, or public dlsym ABI | existing compatibility terminal | retain until its callers are co-sealed |
-| `UnresolvedCutover` | no finite caller/terminal/delete tuple | design stop; no effect or artifact | do not implement or invent a receipt |
-| `ParkedOutOfScope` | deferred backend, test-only, or separate owner card | its owner's existing policy | leave parked with its reopen trigger |
-
-This is an explicit frontier pause, not a repository-wide blocker: the known
-retained groups are classified, but none currently meets the Promote/Stop/Delete
-entry condition without manufacturing a new authority or deleting a supported
-caller. The next eligible change must reduce a production old edge in the same
-bounded series.
+The pause and selection statements here are historical and are superseded by
+the owner-specific rows above and below. FAST capture, TargetMachine capture,
+published rows, child environment, and the C/AOT compatibility frontier were
+closed or retained at their recorded commits; their shared callers are not a
+new task. The old outcome was
+`NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet`: preserve existing
+entry/terminal contracts and reopen only with a finite caller/terminal/delete
+tuple. Closed detail remains in Git; do not repeat that census or promote a
+parked row.
 
 ## MIR-CALL-COMPATIBILITY-RUST-LLVMLITE-REQUEST-D0 (accepted; I0 selected)
 
