@@ -1,5 +1,5 @@
 ---
-Status: Design accepted — I0 queued, not selected
+Status: Implementation complete — focused quick evidence green
 Date: 2026-09-13
 Decision: MIR-LOOP-TRUE-BREAK-VALUEID-SENTINEL-D0
 Parent: docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
@@ -49,7 +49,7 @@ The present defect is therefore a hidden diagnostic fallback, not an observed
 production miscompile. If a future length invariant breaks, the fabricated zero
 could hide the mismatch or report an unrelated old-value match.
 
-## Accepted I0 task
+## I0 task and closeout
 
 1. Delete only the `unwrap_or(ValueId(0))` edge at `loop_true_break_once.rs:319`.
 2. Use the existing `error_tags::freeze_with_hint` style and the same
@@ -63,8 +63,21 @@ could hide the mismatch or report an unrelated old-value match.
    under the one-Cargo-process/quick-profile rule; classify unrelated warning
    debt as baseline only after the parent command reproduces it.
 
-The I0 is a BoxShape/fail-fast cleanup. It may be selected only after
-`CURRENT_STATE.toml` points to it. It must not be combined with the separate
+### Evidence (2026-09-13)
+
+- `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normalized_shadow::`
+  passed 83/83 tests, including the updated-env `k_exit` positive and the
+  missing-field helper negative.
+- The command generated 533 existing compiler warnings and no test failures;
+  these remain known baseline warning debt and were not suppressed or rewritten.
+- `loop_true_break_once.rs` is 626 lines and
+  `common/normalized_helpers.rs` is 193 lines, both below the 760-line design
+  threshold.
+- `current_state_pointer_guard.sh` and `git diff --check` pass. The source
+  search contains no `unwrap_or(ValueId(0))` in this route.
+
+The I0 is a BoxShape/fail-fast cleanup selected by `CURRENT_STATE.toml`. It
+must not be combined with the separate
 `ValueId(0)` void-return contract, PHI alias sealing, Call schema retirement,
 or backend parity work.
 

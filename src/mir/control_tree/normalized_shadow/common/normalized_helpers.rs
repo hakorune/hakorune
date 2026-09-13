@@ -147,6 +147,16 @@ mod tests {
     }
 
     #[test]
+    fn test_collect_env_args_reports_missing_field() {
+        let mut env = BTreeMap::new();
+        env.insert("a".to_string(), ValueId(1));
+        let fields = vec!["a".to_string(), "b".to_string()];
+
+        let error = NormalizedHelperBox::collect_env_args(&fields, &env).unwrap_err();
+        assert_eq!(error, "Missing env variable: b");
+    }
+
+    #[test]
     fn test_is_bool_true_literal() {
         let true_lit = ASTNode::Literal {
             value: crate::ast::LiteralValue::Bool(true),

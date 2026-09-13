@@ -316,7 +316,15 @@ impl LoopTrueBreakOnceBuilderBox {
                             )
                         })?;
 
-                    let passed = loop_body_args.get(idx).copied().unwrap_or(ValueId(0));
+                    let passed = loop_body_args.get(idx).copied().ok_or_else(|| {
+                        error_tags::freeze_with_hint(
+                            "phase131/loop_true/env_missing",
+                            &format!(
+                                "loop_body args missing positional entry for updated '{target_name}' at index {idx}"
+                            ),
+                            "ensure collect_env_args preserves one argument per env field",
+                        )
+                    })?;
                     if passed == before {
                         return Err(error_tags::freeze_with_hint(
                             "phase131/env_not_propagated",

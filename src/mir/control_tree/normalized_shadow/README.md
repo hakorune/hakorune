@@ -16,10 +16,12 @@ path.
 - Dev-only lowering only; keep strict guard behavior explicit.
 - Do not add hidden fallback or by-name heuristics.
 - Shape acceptance must come from StepTree contracts, not a second local judgment.
+- `loop_true_break_once` checks updated environment arguments through the
+  `EnvLayout`/`collect_env_args` relation; missing positions freeze explicitly
+  and never use `ValueId(0)` as a diagnostic fallback.
 
 ## Responsibilities
 
 - if-only and other selected normalized shadow routes
 - parity and capability checks
 - dev pipeline helpers for verification and debug
-
