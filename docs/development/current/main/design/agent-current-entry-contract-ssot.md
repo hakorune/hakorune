@@ -184,6 +184,32 @@ Every `Promote`, `Stop`, or `Delete` row must reduce at least one production
 old edge in the same bounded series; row, docs, guard, receipt, and test counts
 are not progress metrics.
 
+The operational sequence for a stopped candidate is:
+
+1. Scope the stop to the selected responsibility and state the missing fact.
+   Apply the entry/retirement table; do not require migration outputs at entry.
+2. If the missing fact is an internal design decision, resolve it in the same
+   card. Name the competing choices and the evidence that distinguishes them;
+   use the worker contract for difficult design, then integrate one Decision.
+3. If this candidate has no safe action, evaluate the next already-inventoried
+   candidate in the authorized task order. Do not reopen parked lanes or
+   promote a family-local stop into a whole-goal stop. Update the pointer
+   before implementing an accepted successor.
+4. If no candidate is ready, apply the premise-reset circuit breaker below.
+   Audit the entry condition itself, including whether shared callers, public
+   reachability, or missing implementation were mistaken for external blockers.
+5. Use an external wait only for the concrete dependency required by the
+   entry/retirement contract. Record the needed decision and owner; follow the
+   session's repeated-blocker threshold for goal status.
+
+At turn close, distinguish a changed implementation or decision, evidence that
+changes the next action, a verified live-process wait, and no progress. Repeated
+searches, new evidence anchors for the same conclusion, and docs-only commits
+are not renewed progress and do not reset the same-blocker count. Keep the
+current conclusion compact; replace an invalid premise instead of appending
+another confirmation. A partial text search never proves production caller-zero
+across function pointers, dlsym, Rust symbol loaders, or external callers.
+
 ### Improvement backlog admission
 
 The backlog is navigation, not implementation permission. Open at most one
@@ -737,16 +763,9 @@ When `CURRENT_STATE.toml` or the active task-order SSOT marks the current
 blocker as a selection, design, consultation, or policy-boundary step, agents
 must not silently continue into implementation.
 
-Instead, first produce a compact design-stop brief:
-
-```text
-source authority
-non-authority
-fail-fast boundary
-candidate slices
-recommended next slice
-explicit non-claims
-```
+Use the six-line brief in the [90-second routing card](#90-second-routing-card)
+and the [family scheduler](#family-local-action-scheduler). This section does
+not define another brief format or a separate selection procedure.
 
 Do not promote a lower-level green fact into a higher-level policy claim. For
 example, CoreContext generator scalarization does not prove

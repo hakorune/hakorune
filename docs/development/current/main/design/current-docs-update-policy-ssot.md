@@ -98,12 +98,26 @@ names the exact old responsibility/edge; it need not cover the entire shared
 file or schema. Do not delete supported callers merely to manufacture zero.
 Keep selected old-edge retirement in the same bounded series.
 
+Public API retention and caller-local migration are separate decisions. `pub`,
+a public re-export, and exported C symbols establish reachability; absent
+`publish = false` only means publication is not disabled in the manifest. Neither
+proves actual external use or a stability promise. Conversely,
+repository search alone cannot prove that external users are absent. Record
+observed callers, promised compatibility, and unknown readers separately;
+unknown readers constrain whole-API deletion, not unrelated internal migration.
+A planned delete-set may be the shared owner's old implementation edge after
+all affected callers switch together; it need not be private to one caller.
+
 `design_stop` pauses code/fixture/production changes while the missing design
 is resolved. Name the specific uncertainty and close it in the existing owner
 card, using one independent worker for difficult design. Missing internal
 implementation is not an external dependency. If a parked row requires its
 own outputs to reopen, correct that premise rather than repeat its census.
-External wait requires a concrete dependency outside the authorized work.
+External wait requires a concrete dependency outside the authorized work,
+the decision or resource needed from its owner, and why no authorized internal
+step can resolve it. Apply the [family scheduler](agent-current-entry-contract-ssot.md#family-local-action-scheduler)
+before escalating; an unimplemented design or hypothetical external user is
+not sufficient evidence of such a dependency.
 
 Once the design is accepted, select the bounded implementation in
 `CURRENT_STATE.toml` when implementation is within the user's requested scope;
@@ -579,7 +593,8 @@ Docs-first means contract-first. It does not mean docs-only iteration can keep
 the active blocker open indefinitely.
 
 After a docs-only decision, consultation summary, frontier refresh, or design
-stop, the next active blocker must be one of:
+stop, apply the [family scheduler](agent-current-entry-contract-ssot.md#family-local-action-scheduler).
+The next action must change the design decision or lead to one of:
 
 - implementation or generated artifact materialization;
 - executable Hako projector / verifier / guard work;

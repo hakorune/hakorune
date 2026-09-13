@@ -1,5 +1,5 @@
 ---
-Status: Design stop — retained C/AOT compatibility frontier (Temp I0 closed)
+Status: Design stop — R7 D1 premise correction; external-wait inference withdrawn
 Date: 2026-09-13
 Decision: MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 / MIR-CALL-TEMP-INPUT-OWNERSHIP-I0 / MIR-CALL-COMPATIBILITY-RETIRE-R7-D1
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -11,12 +11,12 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet` for R7 D1; Temp input D0/I0 is closed below.
-Source authority + canonical issuer: each explicit C/AOT request or explicit Rust route and its existing owner.
-Non-authority: public symbol reachability, provider presence, historical census, environment names, or closed transport rows.
-Fail-fast boundary: preserve recipe, replay, tool, symbol, and input rejection before child launch, lowering, mutation, or publication.
-Smallest next slice: none until one source-backed caller→terminal relation and non-empty exclusive old-edge delete set are co-sealed.
-Non-claims: no public/dlsym ABI deletion, route/fallback change, llvmlite promotion, compatibility-terminal removal, or aggregate R7 completion.
+Decision: withdraw the R7 D1 whole-frontier external-wait inference; retain Temp I0 closeout.
+Source authority + canonical issuer: each explicit C/AOT request or Rust route and its existing owner; transport changes issue no new semantics.
+Non-authority: public reachability, publication metadata, partial lexical searches, or a worker's candidate verdict.
+Fail-fast boundary: retain existing admission and failure contracts during design; no compiler switch is selected by this policy correction.
+Smallest next slice: R7 D1 premise audit of the named AOT-to-C harness call, distinguishing retained ABI from replaceable internal responsibility.
+Non-claims: no accepted implementation candidate, public ABI retirement, external-reader absence, or aggregate R7 completion.
 
 ## Finite scope and retained owners
 
@@ -398,53 +398,40 @@ library/provider failure matrix and native Windows close/reopen run remain
 environment evidence for a later acceptance pass; this I0 does not claim
 whole-compiler concurrency safety.
 
-## MIR-CALL-COMPATIBILITY-RETIRE-R7-D1 (design stop; 2026-09-13)
+## MIR-CALL-COMPATIBILITY-RETIRE-R7-D1 (premise correction)
 
-The read-only next-owner audit confirms that the retained C/AOT/provider/public
-frontier still has no safe single-owner cutover. The named candidates are the
-named C/AOT harnesses, the explicit Rust provider, and public link v1/v2. Each
-has supported public or dlsym readers and an existing child/provider/link
-terminal; the exact caller-specific old-edge delete set is empty. The internal
-FFI link forwarding seam is already deleted and must not be counted again.
+The previous `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet` audit did
+not prove that the whole frontier requires an external decision. Its candidate
+search result is not exhaustive migration evidence. Repeated anchor-only
+follow-ups did not change the next action and must not be repeated.
 
-Decision: `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet`.
-Source authority + canonical issuer: each explicit C/AOT request or explicit
-Rust route, with its existing owner issuing the accepted physical request.
-Non-authority: public symbol reachability, provider presence, historical census,
-environment names, test emitters, and already-closed link/runner/transport rows.
-Fail-fast boundary: preserve recipe, replay, tool, symbol, and input rejection
-before child launch, lowering, environment mutation, or artifact publication.
-Smallest next slice: none; reopen only when one source-backed caller→terminal
-relation and a non-empty exclusive old-edge delete set are co-sealed.
-Non-claims: no public/dlsym ABI deletion, route or fallback change, llvmlite
-promotion, compatibility-terminal removal, or aggregate R7 completion.
+Observed boundary: `hako_aot_compile_json_compat_harness` ->
+`hako_aot_try_ffi_compile_compat_harness` -> dlsym-loaded
+`hako_llvmc_compile_json_compat_harness` ->
+`compile_json_compat_harness_execute` -> child/error/artifact.
+This names one production indirect caller, contradicting the earlier inference
+of no production Rust/C callers from direct-call text search. Includes this
+named FFI branch; excludes direct AOT child, Generic options, Rust provider,
+public link, and external callers. This is not a caller-zero census.
 
-The public `backend_codegen_request_defaults` helper is caller-zero inside the
-repository but remains externally reachable through its public re-export;
-its outside-reader status is unresolved and is not a deletion candidate.
-Deferred llvmlite archive/coverage and non-Loop snapshot/metadata cleanup stay
-with their existing owner cards.
+The public headers and exports establish API reachability. The Rust helper
+`backend_codegen_request_defaults` is publicly re-exported; Cargo publication
+metadata establishes neither actual external use nor a compatibility promise.
+External readers remain unknown. Preserve supported public contracts while
+checking internal migration; unknown readers do not prohibit that design work.
 
-Audit anchors are finite and read-only: the M7-S owner matrix retains
-Harness/Public-AOT/link/provider owners, the direct-link seam card records only
-private FFI forwarding deletion, and `llvm_codegen_route_identity_guard.sh`
-requires the named C/AOT compatibility exports. The Rust public re-export is
-at `src/config/env.rs:131`; no external-reader claim is made from repository
-caller-zero alone.
+Next design action: for the named boundary above, compare who admits the
+request, captures options, owns their lifetime, launches the child, and reports
+failure. Determine whether a concrete duplicate internal responsibility can be
+removed using an existing owner while retaining both public entries. If none
+exists, record that candidate's disposition and apply the existing scheduler;
+do not infer that every retained family is blocked. No new implementation or
+ABI change is accepted by this operating-rule correction.
 
-The public boundary is also explicit in `lang/c-abi/include/hako_aot.h:32-48`
-and `lang/c-abi/include/hako_llvmc_ffi.h:169-171`. AOT reaches the named C
-harness through dlsym at `hako_aot_shared_impl.inc:408`, while the C export is
-defined at `hako_llvmc_ffi_route.inc:511`; these are retained compatibility
-terminals, not removable internal forwarding helpers.
-The focused non-archive/non-target caller search finds only the public
-definitions, header declarations, and C test probes for these compile symbols;
-there is no production Rust/C caller whose old edge can be removed while the
-ABI terminals remain supported. Test probes therefore do not create an I0
-production switch.
-`cargo metadata --no-deps` confirms the root `nyash-rust` package exposes the
-`nyash_rust` rlib and has no `publish = false` restriction (`publish = None`),
-so repository caller-zero cannot establish external-reader zero for the helper.
+Apply [entry/retirement conditions](../design/current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions)
+and the [family scheduler](../design/agent-current-entry-contract-ssot.md#family-local-action-scheduler).
+A shared owner may migrate all affected callers together; deleting the entire
+public owner is a different finish condition from retiring its old internal edge.
 
 ## Closed evidence and contracts
 

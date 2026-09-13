@@ -23,6 +23,22 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 - 大規模移動はmanifestと参照closureなしには行わない。archive policyの
   bounded batch/resolver/stub手順を満たす場合だけ物理整理を進める。
 
+## Operational rule map
+
+| Question | Sole rule owner |
+| --- | --- |
+| Where do I start? | local ignored `AGENTS.md`; tracked entry contract below |
+| What is selected now? | `CURRENT_STATE.toml` and its active card; state, not reusable policy |
+| When may migration start, and when may old code be deleted? | [Entry and retirement conditions](design/current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions) |
+| What follows NoSafeSlice or an internal design gap? | [Family-local action scheduler](design/agent-current-entry-contract-ssot.md#family-local-action-scheduler) |
+| When do I use a worker or reset a repeated premise? | [Worker contract](design/agent-current-entry-contract-ssot.md#worker-consultation-contract) / [premise reset](design/agent-current-entry-contract-ssot.md#premise-reset-circuit-breaker) |
+| What counts as a useful documentation update? | [Docs loop breaker](design/current-docs-update-policy-ssot.md#docs-loop-breaker-policy) |
+| Where should a document live? | this file |
+
+`CURRENT_TASK.md`, restart/Now mirrors, and local `AGENTS.md` route to these
+owners. They do not add independent stop conditions. Current cards apply the
+rules to evidence; a card's mistaken inference does not override the rules.
+
 ## Current Ownership Contract
 
 - `AGENTS.md`

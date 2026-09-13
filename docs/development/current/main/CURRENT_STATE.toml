@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D1"
 current_execution_cohort = "mir_call_compatibility_retire_r7_d1"
-current_blocker_token = "NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet"
-guard_followup = "R7 D1 design stop: retained C/AOT/provider/public owners have supported readers and no non-empty exclusive old-edge delete set. Pause code, fixtures, fallback, and route changes; reopen only after one source-backed caller-to-terminal tuple is co-sealed."
-current_design_stop = "NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet"
+current_blocker_token = "R7D1__InternalResponsibilityPremiseAudit"
+guard_followup = "Operating rules corrected: apply entry/retirement conditions and the family scheduler. D1 next examines the named AOT-to-C harness internal responsibility; public reachability alone is not an external blocker. No implementation candidate is accepted by this policy-only change."
+current_design_stop = "R7D1__InternalResponsibilityPremiseAudit"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,19 +18,16 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-compatibility-retire-r7-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
 latest_card_summary = """
-Temporary input ownership D0/I0 is complete: provider and both CAPI
-preparation sites now retain invocation-owned TempDir input through synchronous
-consumption and artifact validation, with the fixed path removed and focused
-success/failure cleanup evidence recorded. The next R7 compatibility frontier
-is a design stop: named C/AOT harnesses, explicit Rust provider, and public
-link v1/v2 retain supported public or dlsym readers, so the exact exclusive old-
-edge delete set is empty. backend_codegen_request_defaults is repo-caller-zero
-but publicly re-exported and its external readers are unresolved. No code,
-fixture, fallback, or route change is authorized until a source-backed
-caller-to-terminal tuple with a non-empty delete set is co-sealed. Native
-Windows AOT child-env I1 remains revision-scoped to 59e9a30b1f; aggregate R7
-and whole-MirBuilder remain open. RAM validation is healthy after reboot;
-Cargo jobs 1-4 are allowed one process at a time.
+Temporary input ownership I0 remains closed with focused lifetime and feature
+checks. R7 D1's whole-frontier external-wait inference is withdrawn: public
+exports and Cargo publication metadata do not prove actual external readers,
+and direct-call search missed the named AOT-to-C harness dlsym caller.
+The next design action is a premise audit of admission, option capture,
+lifetime, child launch and failure ownership along that named branch.
+Apply the existing family scheduler if no internal migration is found.
+This operating-rule correction accepts no compiler or public ABI change.
+Aggregate R7 and whole-MirBuilder remain open. Cargo remains one process
+at a time, quick profile, up to four jobs while memory margin permits.
 """
 next_design_card = "MIR-CALL-COMPATIBILITY-RETIRE-R7-D1"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
