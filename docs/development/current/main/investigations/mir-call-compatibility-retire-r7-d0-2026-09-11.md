@@ -1,5 +1,5 @@
 ---
-Status: JSON-v0 caller-disposition D0 resolved; compat-entrypoint design stop
+Status: JSON-v0 and compat-entrypoint D0 resolved; R7 owner selection stop
 Date: 2026-09-14
 Decision: MIR-CALL-R7-COMPAT-ENTRYPOINT-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -11,11 +11,11 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: retain the supported JSON-v0 StringBox cohort and select the next compatibility-entrypoint design.
+Decision: retain the supported JSON-v0 StringBox cohort and resolve the compatibility-entrypoint disposition.
 Source authority + canonical issuer: the existing Program-JSON compatibility producer remains its own textual authority; no canonical source issuer is inferred from method spelling or MIR shape.
 Non-authority: shared-parser reuse, method names, CI status, and a stopped pointer cannot decide migration.
 Fail-fast boundary: declared-schema errors stay terminal; retained schema-absent compatibility keeps its existing terminal.
-Smallest next slice: MIR-CALL-R7-COMPAT-ENTRYPOINT-D0, splitting Global and dynamic Value compatibility decisions.
+Smallest next slice: co-seal Global and dynamic Value compatibility, then select an eligible R7 owner.
 Non-claims: no implementation, blanket v0 rejection, source-selfhost lane activation, Windows lifecycle proof, or aggregate R7 retirement.
 
 ## Development queue (worker-audited 2026-09-13)
@@ -37,7 +37,8 @@ artifact umbrella intake, Stage-A, Program conversion, parser deletion and backe
 | 3a resolved | `MIR-CALL-STAGE-A-REJECTION-D0` / route, compat bridge and outer caller | Extracted `mir_line` parser errors are terminal. Preserve absent/unavailable/capture failure and no-MIR fallback behavior; do not add new capture classification. |
 | 3b closed | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observed that prohibited Program/Rust/Python fallback never starts. |
 | 4 resolved | `MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0` | Retain the phase14/17 StringBox compatibility cohort; shared v0 parser reuse is not treated as boxcall-arm dependence. |
-| 4 next design | `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` | Resolve separate Global and dynamic Value compatibility contracts before any `func`/name-carrier deletion. |
+| 4 resolved | `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` | Retain Global and dynamic Value compatibility; its old-edge delete-set is empty. |
+| 4 next selection | `none__no_eligible_r7_owner_after_compat_retain` | Select only an already-inventoried owner with a finite caller, terminal and delete-set; parked rows remain parked. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
 | 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
@@ -236,22 +237,22 @@ empty-output/result and no-rejection assertions. Add malformed/extra-argument
 negatives, no retry, v0/v1 precedence and README/reference updates. This D0 is
 static evidence; implementation, fixtures, Cargo and CI remain unopened.
 
-## MIR-CALL-R7-COMPAT-ENTRYPOINT-D0 (selected design stop, 2026-09-14)
+## MIR-CALL-R7-COMPAT-ENTRYPOINT-D0 (resolved Retain; no eligible R7 owner, 2026-09-14)
 
-Decision: inspect the existing compatibility facade as two independent contracts:
-Global carries an upstream `CanonicalGlobalTargetV1`, while dynamic Value carries
-only a runtime `ValueId`. Do not collapse either into the generic typed terminal
-until disabled-mode behavior, public reachability and destination semantics are
-settled.
+Decision: retain both existing compatibility contracts. Global carries an upstream
+`CanonicalGlobalTargetV1`; dynamic Value carries only a runtime `ValueId`. The
+facade remains transport and does not infer source meaning or collapse into the
+generic typed terminal.
 Source authority + canonical issuer: Global's upstream declaration-backed target
 and Value's existing runtime compatibility input; this facade issues transport,
 not new source meaning.
 Non-authority: public symbol presence alone, method names, `func` sentinel values,
 or a unified-enabled test cannot authorize compatibility deletion.
-Fail-fast boundary: preserve `NYASH_MIR_UNIFIED_CALL=off` behavior and existing
-`LegacyCallV0` readers while the two contracts are classified.
-Smallest next slice: finite caller/terminal/delete design for
-`compat_entrypoints.rs` Global and Value paths, including `dst=None`.
+Fail-fast boundary: preserve `NYASH_MIR_UNIFIED_CALL=off`, existing
+`LegacyCallV0` readers, and `dst=None` behavior. Global's `dst=None` continues
+to allocate the compatibility result; Value preserves an optional destination.
+Exact old-edge delete-set: empty; public reachability and disabled-mode tests
+keep both entrypoints retained. No eligible R7 Stop/Promote/Delete row follows.
 Non-claims: no code, public API removal, dynamic-call redesign, backend parity,
 or aggregate R7 retirement.
 
@@ -260,9 +261,11 @@ Finite boundary: `emit_unified_call` compatibility facade -> existing
 `physical_terminal::emit_finalized_generic_call_v1`. Callers include the three
 unified-disabled facade branches, `ordinary_new_admission.rs:104`, and public
 API reachability; tests explicitly assert LegacyCallV0 under disabled mode.
-The design must decide Global and Value separately, name the retained readers,
-and prove a finite old-edge deletion before I0. No source or test edits are
-authorized in this D0.
+Retained readers are the existing `LegacyCallV0` Global/Value consumers and
+the public `UnifiedCallEmitterBox` surface; disabled-mode tests are acceptance
+evidence. No source or test edits are authorized after this Retain decision.
+Reopen only on a new source-backed caller or accepted compatibility policy that
+provides a finite old-edge deletion; do not promote parked rows here.
 
 ## Finite scope and retained owners
 
