@@ -223,8 +223,8 @@ Resolved tasks and handoff:
 1. **D0 closed:** retain both registry/fallback caller paths and all five textual
    partitions. Keep the phase14/17 pins, classify extra-argument/embedded-string
    recognition as compatibility behavior, and preserve unaffected v0/v1 precedence.
-2. **Next D0:** `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` separates Global and dynamic
-   Value compatibility entrypoints before any `func`/name-carrier deletion.
+2. **Resolved handoff:** `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` retained Global and
+   dynamic Value compatibility; its old-edge delete-set is empty.
 3. **Conditional I0:** only a later accepted Preserve/Stop decision may switch
    these callers and delete `_emit_new_stringbox_boxcall0`/
    `_emit_new_stringbox_boxcall1_string`; direct-string fate stays explicit.
