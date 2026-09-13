@@ -101,6 +101,54 @@ old raw-call fixtures are not production evidence. D0 must name one installed
 source relation and follow it through local binding into the selected loop
 operand, or explicitly prove that all selected producers publish a type.
 
+### Selected fallback candidate (static route trace, 2026-09-13)
+
+The bounded source shape below is the first concrete candidate for a missing
+operand type; it is a route trace, not an acceptance fixture:
+
+```text
+local i = 0
+local x = env.get("KEY")
+loop (i < 1) {
+  print(-x)
+  i = i + 1
+}
+return i
+```
+
+For a cataloged static method, the normal callable adapter first tries
+DirectAccum, `CallableSingleLoop`, Generic G0, and the canonical trivial
+preflight (`normal_callable_semantic_loan_port/canonical_route.rs:41-74`).
+This body has two loop-body statements, so it is outside the
+`CallableSingleLoop` body-arity shape (`callable_single_loop_syntax_facts.rs:432-440`),
+and its root has more than the two statements admitted by Generic G0
+(`compiler/generic_g0_capability.rs:128-152`). The selected `Outside` branch
+therefore keeps the exact source transport and enters
+`lower_normal_cataloged_static_box_method_with_source_v1`
+(`normal_callable_semantic_loan_port.rs:654-672`), which calls the existing
+port-aware raw body driver (`normal_cataloged_box_method_lowering.rs:52-80`;
+`port_aware_function_draft_impl.rs:62-79`).
+
+Within that body, the root `env.get` initializer uses the raw env terminal,
+which allocates the result without a type publication
+(`calls/method_call_terminal.rs:414-429`); local copy/metadata propagation
+preserves the absent type (`stmts/variable_stmt.rs:250-256`;
+`metadata/propagate.rs:22-30`). The loop entry still has a source-backed
+callable handoff because `x` is a body read while `i` has both a condition read
+and a body rebind; the handoff projector only parks a binding that is rebound
+without a condition read (`normal_callable_loop_handoff.rs:243-358`). The
+source-backed GenericLoopV1 adapter then lowers the loop body through the
+generic body normalizer (`normal_callable_loop_physical_adapter.rs:31-56`;
+`control_flow/plan/features/generic_loop_body/v1.rs:104-138`), where `print(-x)`
+reaches `PlanNormalizer::lower_value_input` and observes `type_ctx.get_type(x)
+== None`.
+
+The remaining unresolved point is source admission: this exact shape still
+needs the installed resolver relation and caller/loop BindingRef chain to be
+observed in one executable acceptance run. Until that evidence exists, the
+candidate cannot choose a typed rejection or a retained compatibility edge,
+and this card remains `NoSafeSlice` under design stop.
+
 The static audit found no focused test that directly pins unary-minus with a
 missing operand type. Existing integer/float unary positives cover only the
 known-type states. Runtime impact for `MissingFact`, `UnknownFact`, and
