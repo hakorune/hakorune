@@ -1,7 +1,7 @@
 ---
-Status: Design stop — R7 D1 premise correction; external-wait inference withdrawn
+Status: Design accepted — named C harness log ownership; implementation pending
 Date: 2026-09-13
-Decision: MIR-CALL-TEMP-INPUT-OWNERSHIP-D0 / MIR-CALL-TEMP-INPUT-OWNERSHIP-I0 / MIR-CALL-COMPATIBILITY-RETIRE-R7-D1
+Decision: MIR-CALL-HARNESS-LOG-OWNERSHIP-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,12 +11,12 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: withdraw the R7 D1 whole-frontier external-wait inference; retain Temp I0 closeout.
-Source authority + canonical issuer: each explicit C/AOT request or Rust route and its existing owner; transport changes issue no new semantics.
-Non-authority: public reachability, publication metadata, partial lexical searches, or a worker's candidate verdict.
-Fail-fast boundary: retain existing admission and failure contracts during design; no compiler switch is selected by this policy correction.
-Smallest next slice: R7 D1 premise audit of the named AOT-to-C harness call, distinguishing retained ABI from replaceable internal responsibility.
-Non-claims: no accepted implementation candidate, public ABI retirement, external-reader absence, or aggregate R7 completion.
+Decision: accept MIR-CALL-HARNESS-LOG-OWNERSHIP-D0; design/task delivery only at user request.
+Source authority + canonical issuer: named C admission and existing PhysicalOptions own the request; exclusive file creation establishes temporary log ownership, not source semantics.
+Non-authority: PID, dlsym wrapper, public reachability, and stderr do not issue request meaning.
+Fail-fast boundary: complete compiler/options, path/command validation and log reservation/close before output removal or child launch.
+Smallest next slice: MIR-CALL-HARNESS-LOG-OWNERSHIP-I0, switching the single C harness executor and deleting its PID-only log edge.
+Non-claims: no implementation in this delivery, public ABI retirement, whole-compiler thread safety, same-output concurrency, or aggregate R7 completion.
 
 ## Finite scope and retained owners
 
@@ -361,6 +361,7 @@ work remain in their existing owners.
 | 3 | Rust llvmlite runner request I0 | closed in this revision; one invocation policy, three existing consumers, and the exact ambient-read delete set above |
 | 4 | Temporary input ownership D0 | accepted above; shared-owner premise corrected and three consumers co-scoped |
 | 5 | Temporary input ownership I0 | implemented below; scoped input, all three caller switches, fixed input-path edge deleted, focused lifetime evidence |
+| 6 | Named C harness log ownership I0 | design accepted below; invocation-owned diagnostic log and PID-only edge retirement; not started |
 | Deferred | non-Loop snapshot reacquisition | existing perf owner; prove duplicate acquisition and compatible lifetime before reuse |
 | Deferred | Read/Write/Carrier unused information | owning Rust metadata paths; prove zero consumers before behavior-neutral deletion |
 | Deferred | ordinary-new unclaimed writer | existing Birth/ordinary-new owner; retain direct-local, foreign/transferred and uncovered cases |
@@ -398,40 +399,112 @@ library/provider failure matrix and native Windows close/reopen run remain
 environment evidence for a later acceptance pass; this I0 does not claim
 whole-compiler concurrency safety.
 
-## MIR-CALL-COMPATIBILITY-RETIRE-R7-D1 (premise correction)
+## MIR-CALL-COMPATIBILITY-RETIRE-R7-D1 (resolved)
 
-The previous `NoSafeSlice__RetainedCapiOwnersNoExclusiveDeleteSet` audit did
-not prove that the whole frontier requires an external decision. Its candidate
-search result is not exhaustive migration evidence. Repeated anchor-only
-follow-ups did not change the next action and must not be repeated.
+Worker premise: this was not Fast path because the named AOT-to-C harness
+branch had no settled responsibility/delete-set mapping. One read-only worker
+examined admission, options, lifetime, execution and failure; the primary
+checked existing README/reference and acceptance contracts. The worker's
+report is integrated into the Decision below, not treated as implementation.
 
-Observed boundary: `hako_aot_compile_json_compat_harness` ->
-`hako_aot_try_ffi_compile_compat_harness` -> dlsym-loaded
-`hako_llvmc_compile_json_compat_harness` ->
-`compile_json_compat_harness_execute` -> child/error/artifact.
-This names one production indirect caller, contradicting the earlier inference
-of no production Rust/C callers from direct-call text search. Includes this
-named FFI branch; excludes direct AOT child, Generic options, Rust provider,
-public link, and external callers. This is not a caller-zero census.
+Admission is already singular: the AOT FFI wrapper validates input, loads the
+named symbol and retains the library during its synchronous call. The C export
+captures/deep-copies the compiler path once through existing PhysicalOptions.
+There is no reason to add an options layer or delete a supported public entry.
 
-The public headers and exports establish API reachability. The Rust helper
-`backend_codegen_request_defaults` is publicly re-exported; Cargo publication
-metadata establishes neither actual external use nor a compatibility promise.
-External readers remain unknown. Preserve supported public contracts while
-checking internal migration; unknown readers do not prohibit that design work.
+A concrete old shared edge remains inside that consumer:
+`hako_llvmc_build_harness_log_path` in `hako_llvmc_ffi_common.inc` produces
+`hako_llvmc_harness_compile_<pid>.log`. Its sole caller is
+`compile_json_compat_harness_execute` in `hako_llvmc_ffi_route.inc`, which
+removes that path before the child and on its success/failure paths. Two live
+calls in one process can therefore truncate, read or remove each other's log,
+even with different object paths. This is a source-backed ownership defect;
+no runtime overlap reproduction is claimed in this design delivery.
 
-Next design action: for the named boundary above, compare who admits the
-request, captures options, owns their lifetime, launches the child, and reports
-failure. Determine whether a concrete duplicate internal responsibility can be
-removed using an existing owner while retaining both public entries. If none
-exists, record that candidate's disposition and apply the existing scheduler;
-do not infer that every retained family is blocked. No new implementation or
-ABI change is accepted by this operating-rule correction.
+## MIR-CALL-HARNESS-LOG-OWNERSHIP-D0 (accepted)
 
-Apply [entry/retirement conditions](../design/current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions)
-and the [family scheduler](../design/agent-current-entry-contract-ssot.md#family-local-action-scheduler).
-A shared owner may migrate all affected callers together; deleting the entire
-public owner is a different finish condition from retiring its old internal edge.
+Boundary: named C export (direct or via AOT FFI) -> existing compiler/options
+capture -> C harness executor -> synchronous child -> object/error projection
+-> log cleanup. Includes both callers sharing this executor. Excludes direct
+AOT child execution, Generic/pure-first/Static compilation, llc/link logs,
+Rust input storage, external-reader inventory and child-internal semantics.
+
+Reuse the existing executor and request owners. A private log storage helper
+owns a bounded path and an ownership flag; it issues no semantic receipt.
+POSIX uses `mkstemp` then `close`. Windows uses `_mktemp_s` for a candidate
+and `_open` with `_O_CREAT | _O_EXCL | _O_WRONLY | _O_BINARY`, then `_close`.
+Candidate generation alone is not ownership: only exclusive create succeeds.
+Windows collisions retry finitely on EEXIST; other failures terminate. Neither
+platform falls back to the PID-only name. Keep the reserved empty file until
+the child reopens it for stderr, so no unlink/recreate gap is introduced.
+
+Preserve existing TMPDIR selection and 1024-byte path / 4096-byte command
+budgets. Preflight the template and command length before reservation; the
+substituted suffix has fixed length. Reformat using the reserved path before
+launch. New create/close failures are explicit FAILED storage errors before
+object removal or child effects. Mark ownership immediately after creation so
+close/format failures clean up the reserved path. Cleanup is idempotent and
+best effort; its failure never overwrites the primary diagnostic. Copy the
+existing first-line message before cleanup, preserving null err_out handling.
+
+| Stage/outcome | Required behavior / terminal |
+| --- | --- |
+| compiler/options rejection | existing error; no log reservation, child or object removal |
+| path/command overflow | existing length error; existing object sentinel remains |
+| exclusive create/close failure | explicit log-storage error; no child or object removal; release any owned path |
+| reserved log, final command rejection | cleanup owned log; retain existing object |
+| child zero exit with object | success; cleanup only this log |
+| child nonzero or zero exit without object | existing first-line/fallback diagnostic; cleanup only this log |
+
+This repairs invocation isolation; it does not claim resistance to hostile
+filesystem mutation, full environment capture, global thread safety, or safe
+concurrent use of the same obj_out. Native Windows reservation/reopen requires
+its own evidence; Linux green cannot substitute. AOT FFI on Windows retains
+its existing unsupported terminal; the direct C export is the Windows witness.
+
+## MIR-CALL-HARNESS-LOG-OWNERSHIP-I0 (queued; not started)
+
+Change:
+1. Add private temporary-log storage in a focused include, wired before route
+   consumption; keep common=660 and route=530 current lines below the source
+   budget instead of expanding common past the 760-line design threshold.
+2. Switch `compile_json_compat_harness_execute` to that lifetime. Both direct C
+   and AOT FFI callers then use it automatically, without another dispatcher.
+3. Delete `hako_llvmc_build_harness_log_path` and the executor's three manual
+   `remove(log_path)` sites. Keep shared tmp selection/first-line reader and
+   unrelated log builders. AOT wrapper and public headers need no change.
+
+Contract:
+One invocation owns one diagnostic log through child completion and diagnostic
+copy. Preserve opaque JSON forwarding, exact child args/settings, public
+profile3 rejection, compiler/options ownership, error precedence and output
+policy. Only temporary-log allocation adds a new pre-effect failure boundary.
+
+Done:
+- A focused private helper test holds two logs alive in one process, verifies
+  independent contents/cleanup and exclusive-create collision behavior; inject
+  create/close failures and verify cleanup after ownership acquisition.
+- Extend `tools/checks/llvm_compile_options_contract_smoke.sh` to run that test
+  and a barrier-controlled fake-child overlap through direct C plus AOT FFI
+  in the same process, with distinct outputs/err_out and fixed parent env.
+  Observe each first-line diagnostic, unaffected sibling log, and final cleanup.
+- Cover success, child failure, zero-exit/no-object, null err_out, path/command
+  overflow, storage failure with output sentinel intact and no child record.
+  Keep existing named-harness args/env, opaque-input and failure-order cases.
+- Update the existing `llvm_codegen_route_identity_guard.sh` for selected PID
+  edge retirement; no new guard entry. Run pointer guard and diff check.
+- In the implementation slice update `lang/c-abi/shims/README.md` and
+  `docs/reference/abi/nyrt_c_abi_v0.md#named-harness-physical-options-ownership`.
+  Record platform-scoped results; native Windows helper/C-export close/reopen
+  is required before claiming cross-platform completion. Build/tests were not
+  run by this design audit.
+
+Stop:
+Return to design if exclusive-create/closed-handle ownership cannot be kept
+through the child, existing error precedence changes beyond the named new
+storage failure, or implementation requires new admission/ABI/fallback.
+Shared callers and public reachability are not stop conditions. User requested
+this delivery to end at design/task organization; I0 remains unimplemented.
 
 ## Closed evidence and contracts
 
