@@ -92,24 +92,14 @@ pub(super) fn mir_json_to_object_llvmlite(
     Err("[llvmemit/llvmlite/compat-disabled] build with --features llvmlite-compat for the explicit compatibility lane".to_string())
 }
 
-#[cfg(all(test, feature = "llvmlite-compat", unix))]
+#[cfg(all(test, feature = "llvmlite-compat"))]
 mod tests {
-    use super::mir_json_to_object_llvmlite;
+    use super::{mir_json_to_object_llvmlite, resolve_python3};
     use crate::host_providers::llvm_codegen::boundary_default_object_opts;
     use std::fs;
-    use std::os::unix::fs::PermissionsExt;
     use std::path::{Path, PathBuf};
 
     const MIR_JSON: &str = r#"{"functions":[],"blocks":[]}"#;
-
-    fn executable(path: &Path, body: &str) {
-        fs::write(path, body).expect("write provider test executable");
-        let mut permissions = fs::metadata(path)
-            .expect("provider test executable metadata")
-            .permissions();
-        permissions.set_mode(0o755);
-        fs::set_permissions(path, permissions).expect("make provider test executable");
-    }
 
     fn provider_opts(out: &Path) -> crate::host_providers::llvm_codegen::Opts {
         boundary_default_object_opts(Some(out.to_path_buf()), None, None, None)
@@ -120,42 +110,46 @@ mod tests {
         let workspace = tempfile::tempdir().expect("provider integration tempdir");
         let root = workspace.path().join("hako-root");
         let tools = root.join("tools");
-        let bin = workspace.path().join("bin");
         let empty_bin = workspace.path().join("empty-bin");
         fs::create_dir_all(&tools).expect("provider tools directory");
-        fs::create_dir_all(&bin).expect("provider bin directory");
         fs::create_dir_all(&empty_bin).expect("provider empty bin directory");
+        let interpreter = resolve_python3().expect("Python is required for provider acceptance");
+        let interpreter_dir = interpreter
+            .parent()
+            .expect("provider interpreter has a parent")
+            .to_path_buf();
         fs::write(
             tools.join("llvmlite_harness.py"),
-            "# controlled provider fixture\n",
+            r#"import os
+import pathlib
+import sys
+
+args = iter(sys.argv[1:])
+input_path = None
+output_path = None
+for arg in args:
+    if arg == "--in":
+        input_path = pathlib.Path(next(args))
+    elif arg == "--out":
+        output_path = pathlib.Path(next(args))
+if input_path is None or output_path is None:
+    raise SystemExit(61)
+record = pathlib.Path(os.environ["HAKO_PROVIDER_RECORD_PATH"])
+(record.with_suffix(".path")).write_text(str(input_path), encoding="utf-8")
+(record.with_suffix(".input")).write_bytes(input_path.read_bytes())
+if os.environ.get("HAKO_PROVIDER_MODE") == "fail":
+    raise SystemExit(23)
+if os.environ.get("HAKO_PROVIDER_MODE") == "success":
+    output_path.write_bytes(b"provider-object")
+    raise SystemExit(0)
+raise SystemExit(61)
+"#,
         )
         .expect("provider harness fixture");
 
         let record = workspace.path().join("provider-record");
-        let interpreter = bin.join("python3");
-        executable(
-            &interpreter,
-            r#"#!/bin/sh
-in_path=
-out_path=
-while [ "$#" -gt 0 ]; do
-  if [ "$1" = "--in" ]; then in_path="$2"; shift 2; continue; fi
-  if [ "$1" = "--out" ]; then out_path="$2"; shift 2; continue; fi
-  shift
-done
-printf '%s' "$in_path" > "${HAKO_PROVIDER_RECORD_PATH}.path"
-/bin/cp "$in_path" "${HAKO_PROVIDER_RECORD_PATH}.input"
-case "${HAKO_PROVIDER_MODE:-}" in
-  success) : > "$out_path"; exit 0 ;;
-  fail) exit 23 ;;
-  no-object) exit 0 ;;
-  *) exit 61 ;;
-esac
-"#,
-        );
-
         let root_text = root.to_string_lossy().into_owned();
-        let bin_text = bin.to_string_lossy().into_owned();
+        let interpreter_dir_text = interpreter_dir.to_string_lossy().into_owned();
         let empty_bin_text = empty_bin.to_string_lossy().into_owned();
         let record_text = record.to_string_lossy().into_owned();
 
@@ -181,7 +175,7 @@ esac
         // tool discovery or child execution.
         crate::test_support::with_env_vars(
             &[
-                ("PATH", Some(bin_text.as_str())),
+                ("PATH", Some(interpreter_dir_text.as_str())),
                 ("HAKO_ROOT", Some(root_text.as_str())),
                 ("HAKO_PROVIDER_RECORD_PATH", Some(record_text.as_str())),
                 ("HAKO_PROVIDER_MODE", Some("success")),
@@ -200,7 +194,7 @@ esac
         // owner must remove that exact path after the wrapper returns.
         crate::test_support::with_env_vars(
             &[
-                ("PATH", Some(bin_text.as_str())),
+                ("PATH", Some(interpreter_dir_text.as_str())),
                 ("HAKO_ROOT", Some(root_text.as_str())),
                 ("HAKO_PROVIDER_RECORD_PATH", Some(record_text.as_str())),
                 ("HAKO_PROVIDER_MODE", Some("fail")),
@@ -225,7 +219,7 @@ esac
         // invocation-owned input is gone only after the child returned.
         crate::test_support::with_env_vars(
             &[
-                ("PATH", Some(bin_text.as_str())),
+                ("PATH", Some(interpreter_dir_text.as_str())),
                 ("HAKO_ROOT", Some(root_text.as_str())),
                 ("HAKO_PROVIDER_RECORD_PATH", Some(record_text.as_str())),
                 ("HAKO_PROVIDER_MODE", Some("success")),

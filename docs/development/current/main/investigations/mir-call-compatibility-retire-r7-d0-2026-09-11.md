@@ -548,7 +548,9 @@ also passes through the lifecycle V4 production wrapper, covering success and
 C failure while checking the serialized input path and bytes during the call
 and cleanup after return. Exact quick-profile results are 1/1, 1/1, and 1/1
 respectively; the lifecycle result ran with `-- --ignored` on a 32 MiB stack
-test thread. These are controlled POSIX/WSL witnesses; native
+test thread. The provider fixture uses the actual discovered Python interpreter
+and a portable temporary harness, so the same caller test is available on
+Windows. These recorded results are controlled POSIX/WSL witnesses; native
 Windows close/reopen evidence remains a separate requirement. Until that
 platform result runs on the resulting revision, the temporary-input row is
 POSIX wrapper evidence and must not be reported as cross-platform complete.
