@@ -894,7 +894,7 @@ Windows capability and shared schema removal. This selects design, not I0.
 | --- | --- | --- |
 | 1 | Exact Program membership | Freeze all five existing partitions, direct-child receiver/arguments, exact arity, empty string, malformed JSON, extra arguments and embedded/opaque subtrees. Distinguish preserved compatibility from the exact migratable subset; do not silently reject current inputs. |
 | 2 | One source-to-contract issuer | Bind actual source occurrences to existing CoreMethodContractBox String rows. Name the sole binding owner and constructor/Home/cleanup, alias, result/failure/effect/ABI contracts; parity scans and MIR shape cannot supply missing facts. |
-| 3 | One consumer handoff | Compare the existing Program bridge with a canonical admission change; choose one complete caller-to-terminal mapping. Direct MIR currently rejects schema 2.0 and v0 call/mir_call, so changing op/schema spelling is not migration. Isolate any unresolved general-ingress dependency explicitly. |
+| 3 | One consumer handoff | Compare the existing Program bridge with a canonical admission change; choose one complete caller-to-terminal mapping. `json_v0_bridge` can issue canonical `MirInstruction::Call` only after its separate Program-v0 Rust ingress, while the Hako `MirBuilderBox` contract still returns MIR(JSON v0); direct MIR rejects schema 2.0 and v0 call/mir_call, so changing op/schema spelling is not migration. Isolate any unresolved general-ingress dependency explicitly. |
 | 4 | Conditional caller-switch I0 | Freeze one Change/Contract/Done/Stop brief: switch both callers, remove their selected boxcall emitter edges in the same series, and name retained residuals. A length/size-only slice must retain indexOf explicitly. |
 
 Source anchors: `lower_return_method_string_length_box.hako::try_lower` and its
@@ -903,6 +903,8 @@ Source anchors: `lower_return_method_string_length_box.hako::try_lower` and its
 `lang/src/runtime/meta/core_method_contract_box.hako:295`;
 `src/runner/mir_json_v0/module.rs` boxcall/call arms and
 `src/runner/json_artifact/mir_loader.rs::parse_direct_mir_json_text`.
+`src/runner/json_v0_bridge/lowering/expr/call_ops.rs` is a separate Rust
+Program-v0 ingress comparison, not the Hako output consumer.
 `program_json_expr_method_shape_scan.hako` and the New shape scan are parity
 summaries, explicitly not Recipe/route issuers.
 
