@@ -1,5 +1,5 @@
 ---
-Status: I0 implementation complete — focused owner evidence green; production relation pending
+Status: Design stop — unary I0 owner evidence green; production relation mapping open
 Date: 2026-09-13
 Decision: MIR-NORMALIZER-UNARY-TYPE-ABSENCE-D0
 Parent: docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
