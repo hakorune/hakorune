@@ -1,7 +1,7 @@
 Status: if_control R0 complete; dynamic aggregate NoSafeSlice; Script direct-static shelf R0 complete; later BoxShape candidates recorded
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0`
+Current row: `CURRENT_STATE.toml` (Call/R7 frontier; this structure queue is not selected)
 ---
 
 # MirBuilder structure refactor queue D0
