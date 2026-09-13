@@ -1,5 +1,5 @@
 ---
-Status: Design task selected — direct-input boxcall compatibility; temporary-input Windows evidence remains separate
+Status: Design task resolved — direct-input compatibility retained; Stage-A rejection design selected
 Date: 2026-09-13
 Decision: MIR-CALL-DIRECT-INPUT-BOXCALL-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -11,11 +11,11 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: select MIR-CALL-DIRECT-INPUT-BOXCALL-D0; compatibility policy is not yet accepted for implementation.
+Decision: resolve MIR-CALL-DIRECT-INPUT-BOXCALL-D0 by retaining schema-absent MIR v0 compatibility; no direct-input Stop I0 is selected.
 Source authority + canonical issuer: existing direct MIR loader and v1 bridge own input admission; no new source meaning is issued.
 Non-authority: strict/dev-only rejection, backend rejection, CI status, and shared-parser reachability do not decide ordinary direct-input compatibility.
 Fail-fast boundary: decide rejection before returning MirModule to the direct core executor; preserve terminal declared-schema errors.
-Smallest next slice: decide ordinary no-schema boxcall admission, retained compatibility entries, error precedence, and affected existing callers.
+Smallest next slice: MIR-CALL-STAGE-A-REJECTION-D0, with ordinary direct boxcall retained until a caller-local migration supplies a terminal and delete-set.
 Non-claims: no code/fixture change, blanket v0 rejection, Stage-A fallback closure, Windows lifecycle proof, or aggregate R7 retirement.
 
 ## Development queue (worker-audited 2026-09-13)
@@ -34,9 +34,9 @@ Program conversion, shared-parser deletion and backend execution.
 
 | Order | Task / entry | Observable finish and handoff |
 | --- | --- | --- |
-| 1 selected | `MIR-CALL-DIRECT-INPUT-BOXCALL-D0` / design only | Decide Stop versus retained ordinary compatibility; name retained entries, affected callers/tests, exact error precedence and one caller-specific deletion. Output one accepted implementation brief. |
+| 1 resolved | `MIR-CALL-DIRECT-INPUT-BOXCALL-D0` / design | Retain schema-absent MIR v0 compatibility, including ordinary boxcall, on the direct route until each real caller has its own migration/Stop. Declared schema errors remain terminal. No shared parser deletion or new flag is authorized. |
 | 2 conditional | `MIR-CALL-DIRECT-INPUT-BOXCALL-I0` / only after D0 accepts Stop | Reject before module execution; delete this ingress's boxcall-to-legacy construction edge. Prove valid no-schema v0/v1, exact rejection, malformed/schema precedence and retained compatibility. Update loader README and MIR intake reference together. |
-| 3a design | `MIR-CALL-STAGE-A-REJECTION-D0` / route, compat bridge and outer caller | Classify absent/unavailable/capture failure separately from malformed/rejected MIR and accepted MIR; decide retained Program/Rust opt-ins, strict/planner and fallback-flag behavior. |
+| 3a next | `MIR-CALL-STAGE-A-REJECTION-D0` / route, compat bridge and outer caller | Classify absent/unavailable/capture failure separately from malformed/rejected MIR and accepted MIR; decide retained Program/Rust opt-ins, strict/planner and fallback-flag behavior. |
 | 3b conditional | `MIR-CALL-STAGE-A-REJECTION-I0` / accepted D0 | Propagate rejection through the outer caller and delete each accepted bypass in the same series; observe that prohibited Program/Rust/Python fallback never starts. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
@@ -74,6 +74,43 @@ Temporary-input Windows receipt stays in the evidence section below. It does
 not gate these design tasks or an independent implementation with accepted
 entry conditions. This queue does not turn unobserved CI into PASS, and does
 not select Windows lifecycle support as new development work.
+
+## MIR-CALL-DIRECT-INPUT-BOXCALL-D0 (resolved 2026-09-13)
+
+Decision: retain schema-absent MIR v0 compatibility on `--mir-json-file`,
+including ordinary `boxcall`, until each real producer/consumer is switched or
+stopped in its own bounded series. A declared `schema_version` remains a v1
+claim: unsupported, non-string, malformed or rejected v1 input is terminal and
+never re-enters v0. The existing strict/dev selfhost `boxcall` Stop remains a
+separate outer compatibility boundary.
+
+Source authority + canonical issuer: the existing parsed v1 bridge and direct
+MIR loader own input classification; the existing v0 parser is the retained
+compatibility product. No new semantic issuer, flag, parser or dispatcher is
+introduced.
+
+Non-authority: raw substring checks, backend/VM rejection, strict/dev-only
+helpers, fixture names, and a test's observed legacy shape cannot decide the
+ordinary direct contract.
+
+Fail-fast boundary: declared schema errors return from
+`parse_direct_mir_json_text` before a `MirModule` reaches
+`core_executor::execute_mir_json_text`. Schema absence selects the existing v0
+reader; a v0 `boxcall` is retained compatibility until a caller-local Stop or
+Promote row supplies its own terminal and delete-set.
+
+The direct D0 has no safe shared-parser delete-set. The active phase14/phase17
+MIR-builder compatibility pins and the generic v0 execution helper still use
+the direct route; moving or deleting them belongs to their caller rows. The
+shared `mir_json_v0/module.rs` `boxcall` arm therefore remains. Direct Stop I0
+is conditional and is not selected by this decision.
+
+Acceptance for this D0 is source/doc evidence only: the direct route table,
+`INSTRUCTION_SET.md` no-schema rule, the existing declared-v1 error tests, and
+the retained caller inventory agree. No Cargo or CI run is required. The next
+design slice is `MIR-CALL-STAGE-A-REJECTION-D0`; it must settle whether
+malformed/rejected MIR may reach Program, opt-in Rust, optional Python, or the
+default Rust path before any Stage-A code changes.
 
 ## Finite scope and retained owners
 
