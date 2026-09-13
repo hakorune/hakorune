@@ -1,3 +1,9 @@
+/* Reuse the existing direct-harness process boundary.  In particular,
+ * Windows runs the command through an explicit CreateProcessA(cmd.exe /S /C)
+ * wrapper so quoted compiler paths remain intact when the invocation-owned
+ * input, output, or log directory contains spaces. */
+#include "hako_aot_child_process.inc"
+
 static const char* hako_llvmc_capture_harness_compiler(char** err_out) {
   const char* llvmc = getenv("NYASH_NY_LLVM_COMPILER");
   if (!llvmc || !*llvmc) llvmc = "target/release/ny-llvmc";
@@ -16,6 +22,7 @@ static int compile_json_compat_harness_execute(const char* llvmc,
   char* first_line;
   int n;
   int rc;
+  struct HakoAotDirectHarnessEnv child_env;
   if (hako_llvmc_harness_log_build_template(
           log.path, sizeof(log.path)) != 0) {
     hako_set_last_error("FAILED");
@@ -52,7 +59,8 @@ static int compile_json_compat_harness_execute(const char* llvmc,
     return set_err_owned(err_out, "hako_llvmc harness compile command too long");
   }
   remove(obj_out);
-  rc = system(cmd);
+  hako_aot_capture_direct_harness_env(&child_env);
+  rc = hako_aot_run_direct_harness_process(cmd, &child_env);
   hako_llvmc_emit_route_trace(
       "child",
       (rc == 0 && hako_llvmc_file_exists(obj_out)) ? "success" : "failure",
