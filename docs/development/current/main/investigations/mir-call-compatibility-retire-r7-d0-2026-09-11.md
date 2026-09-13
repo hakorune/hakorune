@@ -437,6 +437,11 @@ and `lang/c-abi/include/hako_llvmc_ffi.h:169-171`. AOT reaches the named C
 harness through dlsym at `hako_aot_shared_impl.inc:408`, while the C export is
 defined at `hako_llvmc_ffi_route.inc:511`; these are retained compatibility
 terminals, not removable internal forwarding helpers.
+The focused non-archive/non-target caller search finds only the public
+definitions, header declarations, and C test probes for these compile symbols;
+there is no production Rust/C caller whose old edge can be removed while the
+ABI terminals remain supported. Test probes therefore do not create an I0
+production switch.
 
 ## Closed evidence and contracts
 
