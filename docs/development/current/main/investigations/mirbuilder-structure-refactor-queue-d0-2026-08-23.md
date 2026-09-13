@@ -1,4 +1,4 @@
-Status: if_control R0 complete; dynamic aggregate NoSafeSlice; Script direct-static B-prime R0 selected
+Status: if_control R0 complete; dynamic aggregate NoSafeSlice; Script direct-static shelf R0 complete; later BoxShape candidates recorded
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
 Current row: `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0`
@@ -74,7 +74,7 @@ series:
 | --- | --- | --- |
 | `#6 if_control.rs` analyzer/use-ledger/product split | Safe BoxShape; landed as `7c9ea5944f` with one logical facade and one product/verifier authority | Complete; no follow-up move |
 | `#7 dynamic_full_body_recipe` vocabulary move | Literal compiler-to-Builder relocation rejected. The Recipe/Facts/semantic-program owner is already compiler-side, and the production edge is one-way for this module | Replace with the boundary-shape D0 below; no direct move |
-| `#8 normal_script/direct_static/` consolidation | The broad move is rejected. A narrowed B-prime moves only the byte-identical Recipe and claim-ledger atoms plus test siblings; all other owner flows stay put | Design complete; bounded `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0` selected |
+| `#8 normal_script/direct_static/` consolidation | The broad move is rejected. A narrowed B-prime moved only the byte-identical Recipe and claim-ledger atoms plus test siblings; all other owner flows stay put | Complete at `8b24ea3fbc` / `5c1822e948`; later BoxShape candidates remain unselected |
 
 The review therefore selects one dependency-boundary design task, not a
 repository-wide shelving pass. The second-stage rows (`normal_*`, `module_*`,
@@ -720,12 +720,13 @@ caller cardinalities, parent path edits, hard stops, guards, and the three
 commit sequence are frozen in
 [`mirbuilder-script-direct-static-semantic-shelf-r0-2026-08-23.md`](./mirbuilder-script-direct-static-semantic-shelf-r0-2026-08-23.md).
 
-#### `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0` — selected next
+#### `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0` — complete
 
-Move the four frozen files byte-identically and change only the two parent
-`#[path]` declarations. Do not create `mod.rs`, re-exports, aliases, shims, a
-new issuer, or any caller/route/fallback change. Any preservation failure is
-`NoSafeSlice` before code is committed.
+The four frozen files moved byte-identically in the two atom commits above;
+only the two parent `#[path]` declarations changed. No `mod.rs`, re-export,
+alias, shim, issuer, caller, route, or fallback was added. The dedicated
+shelf card records the hashes, focused tests, structure guard, and closeout
+evidence. The current pointer does not select another structure row yet.
 
 ## Guard and closeout contract
 
