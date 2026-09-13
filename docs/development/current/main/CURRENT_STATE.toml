@@ -1,10 +1,10 @@
 date = "2026-09-13"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
-current_execution_cohort = "mir_call_temp_input_ownership_i0"
-current_blocker_token = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0__pending_native_windows_CAPI_lifecycle_evidence"
-guard_followup = "The temporary-input I0 implementation is locally and POSIX-verified; native Windows provider passed in run 34746364126 at efdd976454 (1/1). Native Windows helper/direct named-C proof passed in run 34751337118 at a274ac03b3. Run 34753858020 at c5b01f5448 uses one Windows Rust job with provider then CAPI tests sharing one --lib build; provider passed and the CAPI step was pending at handoff. Reconcile that run when the watcher reports; lifecycle native close/reopen remains unproven."
+current_execution_cohort = "mir_call_temp_input_ownership_i0_windows_capi_observer_repair"
+current_blocker_token = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0__windows_CAPI_observer_env_visibility"
+guard_followup = "Run 34753858020 at c5b01f5448 completed the merged Windows job: provider passed, while the CAPI observer failed at its success assertion with compile failed. The bounded repair reads Rust-set environment through GetEnvironmentVariableA in the MinGW observer and disables cancellation for manual dispatch; do one dispatch after push and let it finish. Native Windows lifecycle close/reopen remains unproven."
 current_design_stop = "none__A-4_owner_I0_closed; D1_relation_nonblocking_followup"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -22,11 +22,11 @@ A-4 unary type-absence I0 is closed at its existing owner Stop boundary with
 focused Integer/Float positives and missing/Unknown/nonnumeric rejection. Its
 resolver-to-GenericLoopV1 relation audit found no eligible production source;
 that observation remains a non-blocking follow-up and does not create a new
-acceptance prerequisite. Temporary-input ownership remains implemented with
-native Windows provider evidence; run 34753858020 at c5b01f5448 is the pending
-one-job provider/CAPI recheck, and native Windows lifecycle close/reopen remains
-unproven. Keep the watcher asynchronous and continue only independently ready
-rows.
+acceptance prerequisite. Temporary-input ownership is locally and POSIX-verified;
+run 34753858020 passed provider but exposed a Windows CAPI observer failure at
+the success assertion. The bounded fixture repair and manual-dispatch policy
+change are selected for one rerun; native Windows lifecycle close/reopen remains
+unproven.
 """
 next_design_card = "MIR-CALL-TEMP-INPUT-OWNERSHIP-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"

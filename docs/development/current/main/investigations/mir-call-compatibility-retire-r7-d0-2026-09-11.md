@@ -582,12 +582,25 @@ run `34751337118` at `a274ac03b3`, including child input reopen, spaced paths,
 success, first-line failure projection, no-object rejection, and empty
 invocation-owned logs after each call.
 
+The merged run `34753858020` at `c5b01f5448` completed the provider step but
+failed the CAPI observer's success assertion with the null-error message
+`compile failed` at `capi_windows_tests.rs:105`. This is a current-change test
+failure, not a lifetime pass. The observer fixture used `getenv` from a MinGW
+DLL loaded into the Rust test process; the bounded repair reads the Windows
+process environment through `GetEnvironmentVariableA`, preserving the same
+Rust-set variables and record contract. The workflow concurrency expression
+now cancels only pull-request runs, so one manual dispatch can finish without
+being killed by a later dispatch. No native lifecycle claim is made by this
+repair.
+
 ### Outstanding CI receipt and independent work
 
 - Evidence owner: this I0 card; collection trigger: the user's existing watcher
   notification, or the next closeout/restart checkpoint. No foreground polling.
 - Run: https://github.com/hakorune/hakorune/actions/runs/34753858020
-  at `c5b01f54483eb8aed70dd23db1b5a0a939afc4a0`. Result not yet reconciled.
+  at `c5b01f54483eb8aed70dd23db1b5a0a939afc4a0`. Provider passed; CAPI
+  observer failed at the success assertion after the shared build. This run
+  is the current-change red that the bounded observer repair addresses.
 - Required receipt: exact provider and generic CAPI Windows lifetime tests,
   plus C harness checks. Provider and CAPI share one `--lib` test build;
   record their separate build/test durations from the completed logs.
