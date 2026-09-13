@@ -304,7 +304,7 @@ Decision: retain native Windows lifecycle close/reopen as BackendCapabilityMissi
 Source authority + canonical issuer: target-built lifecycle ABI/archive and LifecycleRuntimeSessionV1::select / hako_lts_open.
 Non-authority: generic Windows CAPI observer, fake DLL, Linux archive, or hand-built Windows session fixture.
 Fail-fast boundary: the Rust selector rejects non-Linux lifecycle triples; C V4 keeps its existing Windows session/platform terminals.
-Smallest next slice: `MIR-CALL-WINDOWS-LIFECYCLE-CAPABILITY-D0` evaluates the existing `x86_64-pc-windows-msvc` target for ABI/archive, LLVM session loader, and V4 temporary/artifact APIs; then `MIR-CALL-WINDOWS-LIFECYCLE-OWNERSHIP-I0`.
+Smallest next slice: `MIR-CALL-WINDOWS-LIFECYCLE-CAPABILITY-D0` evaluates MSVC `.lib`/COFF descriptor tools, `LoadLibraryA`/`GetProcAddress`, and `_open`/`_close` V4 paths for `x86_64-pc-windows-msvc`; then `MIR-CALL-WINDOWS-LIFECYCLE-OWNERSHIP-I0`.
 Non-claims: existing TempDir, provider/CAPI Windows, and generic CAPI receipts do not prove lifecycle Windows completion.
 ```
 
