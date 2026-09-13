@@ -231,6 +231,22 @@ field is source-backed, preserve direct v0 compatibility, JoinIR remappers,
 public/dlsym/provider re-entry, and shared terminals; do not add a fallback,
 second resolver, MIR/Recipe receipt, or blanket `boxcall` rejection.
 
+#### D1 source check result (2026-09-13)
+
+The bounded source check did not produce a row. The direct loader still routes
+schema-absent `functions`/`blocks` input through v0
+(`src/runner/json_artifact/mir_loader.rs:19-25`), and the v0 parser still
+constructs `LegacyCallV0` for `boxcall`
+(`src/runner/mir_json_v0/module.rs:439-468`). The strict/dev selfhost helper
+has a separate pre-effect `boxcall` stop
+(`src/runner/modes/common_util/selfhost/json.rs:142-147`), while the
+vm-hako subset validates direct `boxcall` input
+(`src/runner/reference/vm_hako/subset_check/mod.rs:289-301`). Thus those
+entries cannot be collapsed into one caller disposition: the supported direct
+v0 caller remains retained, and the strict/dev stop is already closed. No
+source-backed terminal plus exclusive delete-set was found; D1 remains open
+without a new implementation row.
+
 ## MIR-CALL-FAST-INVOCATION-CAPTURE-D0 (accepted)
 
 Boundary: C compile execution -> generic string lowering and its route
