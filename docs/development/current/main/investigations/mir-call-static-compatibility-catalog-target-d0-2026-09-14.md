@@ -1,11 +1,11 @@
 ---
-Status: accepted__design_stop__2026-09-14
+Status: ParkedSealed__NoSafeSlice__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0
 Date: 2026-09-14
 Priority: recover the qualified static helper boundary exposed after raw-loop compatibility recovery
 Parent: mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md
-NextCard: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0
-Implementation permission: false until the catalog issuer and compatibility result terminal are accepted
+NextCard: none__ParkedSealed__reopen_on_source_handoff_or_catalog_issuer
+Implementation permission: false; reopen only after a source/site handoff or an accepted catalog-only issuer design
 ---
 
 # Static compatibility catalog target D0
@@ -123,3 +123,31 @@ next D0 must either prove a same-module, same-brand catalog issuer plus a
 complete compatibility result/publication terminal, or seal this cohort as
 `NoSafeSlice`/Retain. The StringBox lowerer remains outside this row until that
 choice is accepted.
+
+## D0 resolution — ParkedSealed / NoSafeSlice
+
+The finite audit is closed with the existing static retirement terminal. The
+compatibility ingress has no source/site handoff: `RawLegacyChildLoweringPortV1`
+reports static publication as `Unavailable`. The sealed
+`VerifiedSameModuleCallableDeclarationCatalogV1` can enumerate a declaration
+key, but it does not issue the source relation, receiver/brand lineage, result
+catalog, or publication handle required by
+`StaticResultPublicationOwnerV1`, whose existing key is source-site bound.
+Therefore no complete target-only issuer or result terminal exists in the
+current authority graph.
+
+The bounded caller inventory is the 16 Hako sites listed above (including the
+`index_of` self-call). Every site reaches the ordinary static receiver route
+and then the existing pre-effect
+`[freeze:contract][static-call/legacy-fallback-retired]` terminal. The old
+generic-fallback edge is already retired; this D0 has no exclusive production
+delete-set and must not add an owner-name allowlist, retry, synthetic source
+site, compatibility ledger, or new receipt. Hako registry/fallback callers,
+`indexOf`, and the StringBox lowerer remain retained compatibility owners.
+
+This is a family-local `ParkedSealed` disposition, not a repository-wide stop.
+Reopen only when an existing source-owned handoff supplies same-module,
+same-brand source/site and result/publication data, or a separately accepted
+catalog-only issuer design names those products and a finite old-edge deletion
+tuple. The phase14/16/17 StringBox smokes remain known baseline evidence at
+this terminal and do not claim dynamic StringBox acceptance.

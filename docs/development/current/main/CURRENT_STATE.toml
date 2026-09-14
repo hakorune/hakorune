@@ -1,11 +1,11 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
-current_execution_cohort = "static_compatibility_catalog_target_d0"
-current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__issuer_boundary_and_finite_census"
+current_execution_row = "MIR-CALL-WINDOWS-LIFECYCLE-CAPABILITY-D0"
+current_execution_cohort = "windows_lifecycle_capability_d0"
+current_blocker_token = "MIR-CALL-WINDOWS-LIFECYCLE-CAPABILITY-D0__target_loader_and_temp_owner"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0__accepted_2026-09-14"
+current_design_stop = "MIR-CALL-WINDOWS-LIFECYCLE-CAPABILITY-D0__accepted_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,22 +14,21 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
-latest_card = "mir-call-static-compatibility-catalog-target-d0-2026-09-14"
-latest_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-windows-lifecycle-capability-d0-2026-09-14.md"
+latest_card = "mir-call-windows-lifecycle-capability-d0-2026-09-14"
+latest_card_path = "docs/development/current/main/investigations/mir-call-windows-lifecycle-capability-d0-2026-09-14.md"
 latest_card_summary = """
-The bounded raw-loop compatibility recovery I0 is closed and its three route
-tests pass. The rebuilt Program(JSON v0) StringBox smokes now cross the former
-scope/ledger terminal but stop at the existing
-`static-call/legacy-fallback-retired` ParserStringUtilsBox.starts_with/3
-boundary. A worker audit found one Hako owner and 16 direct callers, but no
-source/site handoff for the compatibility root. This design-stop D0 must prove
-an exact catalog issuer and compatibility result terminal or seal the cohort
-as NoSafeSlice/Retain. StringBox dynamic membership, source-artifact transport,
-backend parity, and whole-R7 caller-zero remain outside this D0.
+The static compatibility catalog cohort is ParkedSealed/NoSafeSlice: its
+compatibility root has no source/site handoff or complete catalog-only result
+issuer, and all 16 bounded StringBox callers terminate at the existing static
+retirement boundary. The next capability design stop inventories the separate
+native Windows lifecycle gap: target-built COFF/descriptor admission, LLVM DLL
+loading, ABI/session ownership, and V4 temporary-file cleanup. Provider/CAPI
+Windows evidence does not claim lifecycle support; no implementation or
+fallback is authorized until the capability matrix is accepted.
 """
-next_design_card = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
+next_design_card = "MIR-CALL-WINDOWS-LIFECYCLE-CAPABILITY-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-windows-lifecycle-capability-d0-2026-09-14.md"
 next_execution_card = "none__await_design_decision"
 next_execution_card_path = "none__await_design_decision"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
