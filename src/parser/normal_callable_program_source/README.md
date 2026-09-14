@@ -61,6 +61,18 @@ one-read/one-parse receipt. It is transported from the parser handoff rather
 than reconstructed from the transformed AST. The canonical normal-file front
 door retains the same non-Clone handoff through source-plan classification.
 
+For text-merged normal input, the source preparation owner also issues one
+`MergedSourceLineageV1`. It records the root/import edge rows, canonical paths,
+DFS order, parent relation, alias binding, and contiguous global/local ranges.
+`PreparedSourceWithImports` transports that product beside the compatibility
+alias map; the normal materializer attaches it to the same parser invocation
+witness before publishing the source-backed product. Downstream Builder/MIR
+code does not reconstruct import identity from AST, names, paths, or
+`LineSpan` diagnostics. Duplicate canonical coverage and range gaps/overlaps
+are rejected by the merge owner. This is the A0-2 transport slice only; static
+parent co-seal, source admission, fallback retirement, and old-edge deletion
+remain separate rows.
+
 Non-authority:
 
 - names, arity, spans, ordinals, and AST addresses never recreate identity;

@@ -499,7 +499,8 @@ impl NormalFileSourceReceiptV1 {
 fn discard_lineage_issue_at_named_terminal(error: NormalParserSourceLineageErrorV1) {
     match error {
         NormalParserSourceLineageErrorV1::InvalidReadParseReceipt
-        | NormalParserSourceLineageErrorV1::EmptySourceIdentity => {}
+        | NormalParserSourceLineageErrorV1::EmptySourceIdentity
+        | NormalParserSourceLineageErrorV1::ParserInvocationMissing => {}
     }
 }
 

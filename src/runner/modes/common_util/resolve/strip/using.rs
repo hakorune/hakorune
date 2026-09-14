@@ -1,5 +1,7 @@
 use crate::runner::NyashRunner;
 
+use super::import_lineage::ImportLineageEdgeV1;
+
 /// Collect using targets and strip using lines (no inlining).
 /// Returns (cleaned_source, prelude_paths, imports) where:
 /// - `prelude_paths` are resolved file paths for the default text-merge route
@@ -33,7 +35,24 @@ pub fn collect_using_and_strip(
         ));
     }
     let plan = plan_using_strip(runner, code, filename)?;
-    Ok(apply_using_strip_plan(plan))
+    let (cleaned, paths, imports, _edges) = apply_using_strip_plan(plan);
+    Ok((cleaned, paths, imports))
+}
+
+pub(crate) fn collect_using_and_strip_with_edges(
+    runner: &NyashRunner,
+    code: &str,
+    filename: &str,
+) -> Result<
+    (
+        String,
+        Vec<String>,
+        std::collections::HashMap<String, String>,
+        Vec<ImportLineageEdgeV1>,
+    ),
+    String,
+> {
+    Ok(apply_using_strip_plan(plan_using_strip(runner, code, filename)?))
 }
 
 struct UsingStripPlan {
@@ -41,6 +60,7 @@ struct UsingStripPlan {
     kept_len: usize,
     prelude_paths: Vec<String>,
     imports: std::collections::HashMap<String, String>,
+    edges: Vec<ImportLineageEdgeV1>,
 }
 
 fn apply_using_strip_plan(
@@ -49,6 +69,7 @@ fn apply_using_strip_plan(
     String,
     Vec<String>,
     std::collections::HashMap<String, String>,
+    Vec<ImportLineageEdgeV1>,
 ) {
     let mut out = String::with_capacity(plan.kept_len + 64);
     for line in plan.kept_lines {
@@ -62,7 +83,7 @@ fn apply_using_strip_plan(
         with_marker.push_str(&out);
         out = with_marker;
     }
-    (out, plan.prelude_paths, plan.imports)
+    (out, plan.prelude_paths, plan.imports, plan.edges)
 }
 
 fn plan_using_strip(
@@ -79,6 +100,7 @@ fn plan_using_strip(
     let mut kept_lines: Vec<String> = Vec::new();
     let mut kept_len: usize = 0;
     let mut prelude_paths: Vec<String> = Vec::new();
+    let mut edges: Vec<ImportLineageEdgeV1> = Vec::new();
     // Duplicate-using detection (same target imported multiple times or alias rebound): error in all profiles
     use std::collections::HashMap;
     let mut seen_paths: HashMap<String, (String, usize)> = HashMap::new(); // canon_path -> (alias/label, first_line)
@@ -239,6 +261,15 @@ fn plan_using_strip(
                     &target_unquoted,
                     prelude_paths.last().expect("path just pushed"),
                 )?;
+                record_import_edge(
+                    &mut edges,
+                    filename,
+                    line_no,
+                    &target_unquoted,
+                    prelude_paths.last().expect("path just pushed"),
+                    alias_name.as_deref(),
+                    &imports,
+                );
                 continue;
             }
             // Resolve namespaces/packages
@@ -301,6 +332,15 @@ fn plan_using_strip(
                         &target_unquoted,
                         prelude_paths.last().expect("path just pushed"),
                     )?;
+                    record_import_edge(
+                        &mut edges,
+                        filename,
+                        line_no,
+                        &target_unquoted,
+                        prelude_paths.last().expect("path just pushed"),
+                        alias_name.as_deref(),
+                        &imports,
+                    );
                     continue;
                 }
 
@@ -347,6 +387,15 @@ fn plan_using_strip(
                         &target_unquoted,
                         prelude_paths.last().expect("path just pushed"),
                     )?;
+                    record_import_edge(
+                        &mut edges,
+                        filename,
+                        line_no,
+                        &target_unquoted,
+                        prelude_paths.last().expect("path just pushed"),
+                        alias_name.as_deref(),
+                        &imports,
+                    );
                 }
                 // 2) named packages
                 else if let Some(pkg) = using_ctx.packages.get(&name) {
@@ -421,6 +470,15 @@ fn plan_using_strip(
                                 &target_unquoted,
                                 prelude_paths.last().expect("path just pushed"),
                             )?;
+                            record_import_edge(
+                                &mut edges,
+                                filename,
+                                line_no,
+                                &target_unquoted,
+                                prelude_paths.last().expect("path just pushed"),
+                                alias_name.as_deref(),
+                                &imports,
+                            );
                         }
                     }
                 } else {
@@ -561,6 +619,15 @@ fn plan_using_strip(
                                 &target_unquoted,
                                 prelude_paths.last().expect("path just pushed"),
                             )?;
+                            record_import_edge(
+                                &mut edges,
+                                filename,
+                                line_no,
+                                &target_unquoted,
+                                prelude_paths.last().expect("path just pushed"),
+                                alias_name.as_deref(),
+                                &imports,
+                            );
                         }
                     }
                     Err(e) => return Err(format!("{}:{}: using: {}", filename, line_no, e)),
@@ -576,7 +643,30 @@ fn plan_using_strip(
         kept_len,
         prelude_paths,
         imports,
+        edges,
     })
+}
+
+fn record_import_edge(
+    edges: &mut Vec<ImportLineageEdgeV1>,
+    origin: &str,
+    source_line: usize,
+    requested: &str,
+    resolved: &str,
+    alias: Option<&str>,
+    imports: &std::collections::HashMap<String, String>,
+) {
+    let binding = using_alias_key(alias, requested)
+        .and_then(|key| imports.get(&key).cloned())
+        .map(String::into_boxed_str);
+    edges.push(ImportLineageEdgeV1 {
+        origin: origin.to_owned().into_boxed_str(),
+        source_line,
+        requested: requested.to_owned().into_boxed_str(),
+        resolved: resolved.to_owned().into_boxed_str(),
+        alias: alias.map(str::to_owned).map(String::into_boxed_str),
+        binding,
+    });
 }
 
 /// Layer 2 alias split:

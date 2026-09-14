@@ -1,11 +1,15 @@
 use crate::runner::NyashRunner;
 
 use super::prelude::{resolve_normal_prelude_paths_profiled, resolve_prelude_paths_profiled};
-use super::using::collect_using_and_strip;
+use super::import_lineage::{
+    ImportLineageEdgeV1, MergedSourceLineageV1, MergedSourceSegmentV1,
+};
+use super::using::{collect_using_and_strip, collect_using_and_strip_with_edges};
 
 struct TextMergePlan {
     merged: String,
     imports: std::collections::HashMap<String, String>,
+    lineage: MergedSourceLineageV1,
 }
 
 /// Legacy/compatibility helper: merge prelude ASTs with the main AST into a single Program node.
@@ -73,6 +77,23 @@ pub fn merge_normal_prelude_text_with_imports(
     Ok((plan.merged, plan.imports))
 }
 
+pub(crate) fn merge_prelude_text_with_imports_and_lineage(
+    runner: &NyashRunner,
+    source: &str,
+    filename: &str,
+    selected_normal: bool,
+) -> Result<
+    (
+        String,
+        std::collections::HashMap<String, String>,
+        MergedSourceLineageV1,
+    ),
+    String,
+> {
+    let plan = plan_text_merge(runner, source, filename, selected_normal)?;
+    Ok((plan.merged, plan.imports, plan.lineage))
+}
+
 fn plan_text_merge(
     runner: &NyashRunner,
     source: &str,
@@ -82,8 +103,8 @@ fn plan_text_merge(
     let trace = crate::config::env::resolve_trace();
 
     // First pass: collect and resolve prelude paths
-    let (cleaned_main, _prelude_paths_direct, main_imports) =
-        collect_using_and_strip(runner, source, filename)?;
+    let (cleaned_main, _prelude_paths_direct, main_imports, main_edges) =
+        collect_using_and_strip_with_edges(runner, source, filename)?;
     let discover = if selected_normal {
         resolve_normal_prelude_paths_profiled
     } else {
@@ -97,18 +118,62 @@ fn plan_text_merge(
     let mut expanded: Vec<String> = Vec::new();
     let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut imports = main_imports;
+    let root_path = canonize(filename);
+    let mut parent_paths: std::collections::HashMap<String, Option<String>> =
+        std::collections::HashMap::new();
+    let mut lineage_edges = main_edges;
     for p in prelude_paths_profiled.iter() {
-        dfs_text_with_imports(runner, p, &mut expanded, &mut seen, &mut imports)?;
+        // The resolver returns a transitive closure, while this DFS expands
+        // that closure itself.  Skip a path already emitted by this same
+        // traversal; duplicate edges encountered inside a file still fail in
+        // `dfs_text_with_imports`.
+        if seen.contains(&canonize(p)) {
+            continue;
+        }
+        dfs_text_with_imports(
+            runner,
+            p,
+            Some(&root_path),
+            &mut expanded,
+            &mut seen,
+            &mut imports,
+            &mut parent_paths,
+            &mut lineage_edges,
+        )?;
     }
     let prelude_paths = &expanded;
     // Record for enriched diagnostics (parse error context)
     crate::runner::modes::common_util::resolve::set_last_merged_preludes(prelude_paths.clone());
 
     if prelude_paths.is_empty() {
-        // No using statements, return original
+        let root_lines = source.lines().count();
+        let segment = MergedSourceSegmentV1 {
+            source: filename.to_owned().into_boxed_str(),
+            canonical_path: root_path.clone().into_boxed_str(),
+            parent: None,
+            dfs_ordinal: 0,
+            global_start_line: 1,
+            global_line_count: root_lines,
+            local_start_line: 1,
+            local_line_count: root_lines,
+        };
+        let lineage = MergedSourceLineageV1::issue(
+            root_path.into_boxed_str(),
+            vec![segment],
+            canonicalize_edges(lineage_edges),
+        )
+        .map_err(|error| format!("[using/lineage][{:?}]", error))?;
+        crate::runner::modes::common_util::resolve::set_last_text_merge_line_spans(vec![
+            crate::runner::modes::common_util::resolve::LineSpan {
+                file: filename.to_string(),
+                start_line: 1,
+                line_count: root_lines,
+            },
+        ]);
         return Ok(TextMergePlan {
             merged: source.to_string(),
             imports,
+            lineage,
         });
     }
 
@@ -123,6 +188,7 @@ fn plan_text_merge(
     // Build merged text: preludes first, then main source
     let mut merged = String::new();
     let mut spans: Vec<crate::runner::modes::common_util::resolve::LineSpan> = Vec::new();
+    let mut segments: Vec<MergedSourceSegmentV1> = Vec::new();
     let mut current_line: usize = 1;
 
     // Add preludes in DFS order
@@ -159,13 +225,29 @@ fn plan_text_merge(
         merged.push('\n');
 
         let added = cleaned.lines().count();
+        let global_count = added.saturating_add(1);
+        let canonical_path = canonize(path);
+        segments.push(MergedSourceSegmentV1 {
+            source: path.clone().into_boxed_str(),
+            canonical_path: canonical_path.into_boxed_str(),
+            parent: parent_paths
+                .get(path)
+                .cloned()
+                .flatten()
+                .map(String::into_boxed_str),
+            dfs_ordinal: segments.len() as u32,
+            global_start_line: current_line,
+            global_line_count: global_count,
+            local_start_line: 1,
+            local_line_count: added,
+        });
         if added > 0 {
             spans.push(crate::runner::modes::common_util::resolve::LineSpan {
                 file: path.clone(),
                 start_line: current_line,
                 line_count: added,
             });
-            current_line += added + 1; // +1 for extra '\n'
+            current_line += global_count; // +1 for extra '\n'
         } else {
             current_line += 1;
         }
@@ -179,6 +261,16 @@ fn plan_text_merge(
             file: "<prelude/main-boundary>".to_string(),
             start_line: current_line,
             line_count: boundary_lines,
+        });
+        segments.push(MergedSourceSegmentV1 {
+            source: "<prelude/main-boundary>".into(),
+            canonical_path: "<prelude/main-boundary>".into(),
+            parent: None,
+            dfs_ordinal: segments.len() as u32,
+            global_start_line: current_line,
+            global_line_count: boundary_lines,
+            local_start_line: 1,
+            local_line_count: boundary_lines,
         });
         current_line += boundary_lines;
     }
@@ -195,6 +287,16 @@ fn plan_text_merge(
     }
     merged.push_str(&cleaned_main_norm);
     let main_lines = cleaned_main_norm.lines().count();
+    segments.push(MergedSourceSegmentV1 {
+        source: filename.to_string().into_boxed_str(),
+        canonical_path: root_path.clone().into_boxed_str(),
+        parent: None,
+        dfs_ordinal: segments.len() as u32,
+        global_start_line: current_line,
+        global_line_count: main_lines,
+        local_start_line: 1,
+        local_line_count: main_lines,
+    });
     if main_lines > 0 {
         spans.push(crate::runner::modes::common_util::resolve::LineSpan {
             file: filename.to_string(),
@@ -221,9 +323,17 @@ fn plan_text_merge(
 
     crate::runner::modes::common_util::resolve::set_last_text_merge_line_spans(spans);
 
+    let lineage = MergedSourceLineageV1::issue(
+        root_path.into_boxed_str(),
+        segments,
+        canonicalize_edges(lineage_edges),
+    )
+    .map_err(|error| format!("[using/lineage][{:?}]", error))?;
+
     Ok(TextMergePlan {
         merged: normalize_text_for_inline(&merged),
         imports,
+        lineage,
     })
 }
 
@@ -237,27 +347,50 @@ fn canonize(p: &str) -> String {
 fn dfs_text_with_imports(
     runner: &NyashRunner,
     path: &str,
+    parent: Option<&str>,
     out: &mut Vec<String>,
     seen: &mut std::collections::HashSet<String>,
     imports: &mut std::collections::HashMap<String, String>,
+    parent_paths: &mut std::collections::HashMap<String, Option<String>>,
+    lineage_edges: &mut Vec<ImportLineageEdgeV1>,
 ) -> Result<(), String> {
     let key = canonize(path);
     if !seen.insert(key.clone()) {
         return Ok(());
     }
+    parent_paths.insert(key.clone(), parent.map(str::to_owned));
     // Phase 90-A: fs 系移行
     let ring0 = crate::runtime::ring0::get_global_ring0();
     let src = ring0
         .fs
         .read_to_string(std::path::Path::new(path))
         .map_err(|e| format!("using: failed to read '{}': {}", path, e))?;
-    let (_cleaned, nested, nested_imports) = collect_using_and_strip(runner, &src, path)?;
+    let (_cleaned, nested, nested_imports, edges) =
+        collect_using_and_strip_with_edges(runner, &src, path)?;
     merge_imports(imports, nested_imports, path)?;
+    lineage_edges.extend(edges);
     for n in nested.iter() {
-        dfs_text_with_imports(runner, n, out, seen, imports)?;
+        dfs_text_with_imports(
+            runner,
+            n,
+            Some(&key),
+            out,
+            seen,
+            imports,
+            parent_paths,
+            lineage_edges,
+        )?;
     }
     out.push(key);
     Ok(())
+}
+
+fn canonicalize_edges(mut edges: Vec<ImportLineageEdgeV1>) -> Vec<ImportLineageEdgeV1> {
+    for edge in &mut edges {
+        edge.origin = canonize(&edge.origin).into_boxed_str();
+        edge.resolved = canonize(&edge.resolved).into_boxed_str();
+    }
+    edges
 }
 
 fn merge_imports(

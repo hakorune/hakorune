@@ -23,12 +23,18 @@ impl NyashRunner {
                     process::exit(1);
                 }
             };
+        let crate::runner::modes::common_util::source_hint::PreparedSourceWithImports {
+            code: prepared_code,
+            imports: prepared_imports,
+            lineage: prepared_lineage,
+        } = prepared;
 
         let transformed = match crate::runner::modes::common_util::normal_callable::
-            materialize_normal_callable_program_with_identity_v1(
-                &prepared.code,
+            materialize_normal_callable_program_with_identity_and_lineage_v1(
+                &prepared_code,
                 self.parser_build_config(),
                 filename,
+                prepared_lineage,
             )
         {
             Ok(transformed) => transformed,
@@ -38,7 +44,7 @@ impl NyashRunner {
             ) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(
                     filename,
-                    &prepared.code,
+                    &prepared_code,
                     &e,
                 );
                 process::exit(1);
@@ -71,7 +77,7 @@ impl NyashRunner {
                 NormalCompileRequestV1::for_mir_mode_callable_source(
                     source,
                     Some(filename),
-                    prepared.imports,
+                    prepared_imports,
                 )
             }
             crate::runner::modes::common_util::normal_callable::
@@ -79,7 +85,7 @@ impl NyashRunner {
                 NormalCompileRequestV1::for_mir_mode_compatibility(
                     origin,
                     Some(filename),
-                    prepared.imports,
+                    prepared_imports,
                 ),
         };
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);

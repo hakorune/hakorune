@@ -15,6 +15,7 @@ use crate::parser::{
     NormalParserSourceLineageErrorV1, NormalParserSourceLineageV1, ParseError,
     ParserBuildConfig, VerifiedFinalCallableProgramSourceV1,
 };
+use crate::runner::modes::common_util::resolve::MergedSourceLineageV1;
 use crate::r#macro::{
     transform_normal_callable_program_with_policy_v1, NormalCallableTransformOutcomeV1,
     NormalCallableTransformRejectV1, NormalMacroPolicyV1,
@@ -51,6 +52,34 @@ pub(crate) fn materialize_normal_callable_program_with_identity_v1(
     build_config: ParserBuildConfig,
     source_identity: impl Into<Box<str>>,
 ) -> Result<NormalCallableMaterializationOutcomeV1, NormalCallableMaterializationErrorV1> {
+    materialize_normal_callable_program_with_identity_and_optional_lineage_v1(
+        input,
+        build_config,
+        source_identity,
+        None,
+    )
+}
+
+pub(crate) fn materialize_normal_callable_program_with_identity_and_lineage_v1(
+    input: impl Into<String>,
+    build_config: ParserBuildConfig,
+    source_identity: impl Into<Box<str>>,
+    merged_source_lineage: MergedSourceLineageV1,
+) -> Result<NormalCallableMaterializationOutcomeV1, NormalCallableMaterializationErrorV1> {
+    materialize_normal_callable_program_with_identity_and_optional_lineage_v1(
+        input,
+        build_config,
+        source_identity,
+        Some(merged_source_lineage),
+    )
+}
+
+fn materialize_normal_callable_program_with_identity_and_optional_lineage_v1(
+    input: impl Into<String>,
+    build_config: ParserBuildConfig,
+    source_identity: impl Into<Box<str>>,
+    merged_source_lineage: Option<MergedSourceLineageV1>,
+) -> Result<NormalCallableMaterializationOutcomeV1, NormalCallableMaterializationErrorV1> {
     let input = input.into();
     let source_digest = CanonicalSourceBytesDigestV1::from_utf8_bytes(input.as_bytes());
     let source_lineage = NormalParserSourceLineageV1::issue(
@@ -62,6 +91,11 @@ pub(crate) fn materialize_normal_callable_program_with_identity_v1(
         1,
     )
     .map_err(NormalCallableMaterializationErrorV1::SourceLineage)?;
+    let source_lineage = if let Some(lineage) = merged_source_lineage {
+        source_lineage.with_merged_source_lineage(lineage)
+    } else {
+        source_lineage
+    };
     let policy = NormalMacroPolicyV1::capture();
     let product =
         crate::parser::string_postpass_entry::parse_with_callable_parameter_source_policy(
@@ -78,6 +112,13 @@ pub(crate) fn materialize_normal_callable_program_with_identity_v1(
         .map_err(NormalCallableMaterializationErrorV1::Transform)?;
     Ok(match transformed {
         NormalCallableTransformOutcomeV1::SourceBacked(source) => {
+            let invocation = source
+                .parser_invocation_witness()
+                .cloned()
+                .ok_or(NormalCallableMaterializationErrorV1::SourceLineage(
+                    NormalParserSourceLineageErrorV1::ParserInvocationMissing,
+                ))?;
+            let source_lineage = source_lineage.co_seal_parser_invocation(invocation);
             NormalCallableMaterializationOutcomeV1::SourceBacked(
                 source.with_source_lineage(source_lineage),
             )
@@ -94,8 +135,9 @@ pub(crate) fn materialize_normal_callable_program_with_identity_v1(
 #[cfg(test)]
 mod tests {
     use super::{
-        materialize_normal_callable_program_v1, NormalCallableMaterializationErrorV1,
-        NormalCallableMaterializationOutcomeV1,
+        materialize_normal_callable_program_v1,
+        materialize_normal_callable_program_with_identity_and_lineage_v1,
+        NormalCallableMaterializationErrorV1, NormalCallableMaterializationOutcomeV1,
     };
     use crate::r#macro::NormalCallableTransformCompatibilityV1;
 
@@ -112,6 +154,29 @@ mod tests {
         let lineage = source.source_lineage().expect("parser lineage");
         assert_eq!(lineage.source_identity(), "<selected-normal>");
         assert_eq!(lineage.receipt_counts(), (1, 1));
+        source.discard_at_named_root_execution_terminal();
+    }
+
+    #[test]
+    fn merged_lineage_is_co_sealed_to_the_parser_invocation() {
+        let lineage = crate::runner::modes::common_util::resolve::MergedSourceLineageV1::root_only(
+            "static box Scan { run() { return 1 } }",
+            "scan.hako",
+        )
+        .expect("root lineage");
+        let outcome = materialize_normal_callable_program_with_identity_and_lineage_v1(
+            "static box Scan { run() { return 1 } }",
+            crate::parser::ParserBuildConfig::default(),
+            "scan.hako",
+            lineage,
+        )
+        .expect("lineage-aware source");
+        let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = outcome else {
+            panic!("lineage-aware source must stay source-backed")
+        };
+        let source_lineage = source.source_lineage().expect("source lineage");
+        assert_eq!(source_lineage.merged_source_lineage().unwrap().segments().len(), 1);
+        assert!(source_lineage.parser_invocation_witness().is_some());
         source.discard_at_named_root_execution_terminal();
     }
 

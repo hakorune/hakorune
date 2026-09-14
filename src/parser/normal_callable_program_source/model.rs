@@ -1,6 +1,7 @@
 use crate::ast::ASTNode;
 use crate::mir::CanonicalSourceBytesDigestV1;
 use hakorune_frontend_parser::parser::GrammarProfile;
+use crate::runner::modes::common_util::resolve::MergedSourceLineageV1;
 
 use super::super::callable_contract_syntax::CallableContractSourceDispositionV1;
 use super::super::callable_parameter_source::{
@@ -53,6 +54,8 @@ pub(crate) struct NormalParserSourceLineageV1 {
     utf8_len: usize,
     read_count: u8,
     parse_count: u8,
+    merged_source_lineage: Option<MergedSourceLineageV1>,
+    parser_invocation: Option<super::super::callable_parameter_source::ParserInvocationWitnessV1>,
     _seal: NormalParserSourceLineageSealV1,
 }
 
@@ -63,6 +66,7 @@ pub(crate) struct NormalParserSourceLineageSealV1;
 pub(crate) enum NormalParserSourceLineageErrorV1 {
     InvalidReadParseReceipt,
     EmptySourceIdentity,
+    ParserInvocationMissing,
 }
 
 impl NormalParserSourceLineageV1 {
@@ -88,8 +92,28 @@ impl NormalParserSourceLineageV1 {
             utf8_len,
             read_count,
             parse_count,
+            merged_source_lineage: None,
+            parser_invocation: None,
             _seal: NormalParserSourceLineageSealV1,
         })
+    }
+
+    pub(crate) fn with_merged_source_lineage(
+        mut self,
+        lineage: MergedSourceLineageV1,
+    ) -> Self {
+        debug_assert!(self.merged_source_lineage.is_none());
+        self.merged_source_lineage = Some(lineage);
+        self
+    }
+
+    pub(crate) fn co_seal_parser_invocation(
+        mut self,
+        invocation: super::super::callable_parameter_source::ParserInvocationWitnessV1,
+    ) -> Self {
+        debug_assert!(self.parser_invocation.is_none());
+        self.parser_invocation = Some(invocation);
+        self
     }
 
     pub(crate) fn source_identity(&self) -> &str {
@@ -110,6 +134,16 @@ impl NormalParserSourceLineageV1 {
 
     pub(crate) const fn receipt_counts(&self) -> (u8, u8) {
         (self.read_count, self.parse_count)
+    }
+
+    pub(crate) fn merged_source_lineage(&self) -> Option<&MergedSourceLineageV1> {
+        self.merged_source_lineage.as_ref()
+    }
+
+    pub(crate) fn parser_invocation_witness(
+        &self,
+    ) -> Option<&super::super::callable_parameter_source::ParserInvocationWitnessV1> {
+        self.parser_invocation.as_ref()
     }
 }
 
@@ -322,6 +356,12 @@ impl VerifiedFinalCallableProgramSourceV1 {
 
     pub(crate) fn source_lineage(&self) -> Option<&NormalParserSourceLineageV1> {
         self.source_lineage.as_ref()
+    }
+
+    pub(crate) fn parser_invocation_witness(
+        &self,
+    ) -> Option<&super::super::callable_parameter_source::ParserInvocationWitnessV1> {
+        self.source_authority.invocation_witness()
     }
 
     pub(crate) fn ast(&self) -> &ASTNode {

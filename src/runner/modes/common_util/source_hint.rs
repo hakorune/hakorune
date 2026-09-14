@@ -1,9 +1,11 @@
 use crate::runner::NyashRunner;
 use std::collections::HashMap;
+use crate::runner::modes::common_util::resolve;
 
 pub(crate) struct PreparedSourceWithImports {
     pub(crate) code: String,
     pub(crate) imports: HashMap<String, String>,
+    pub(crate) lineage: crate::runner::modes::common_util::resolve::MergedSourceLineageV1,
 }
 
 fn normalize_source_for_parser(code: &str, filename: &str) -> String {
@@ -65,6 +67,7 @@ fn prepare_source_with_imports_impl(
     selected_normal: bool,
 ) -> Result<PreparedSourceWithImports, String> {
     let mut imports = HashMap::new();
+    let mut lineage = None;
     let mut prepared = if crate::config::env::enable_using() {
         use crate::runner::modes::common_util::resolve;
         let discover = if selected_normal {
@@ -76,15 +79,21 @@ fn prepare_source_with_imports_impl(
             Ok((_, prelude_paths)) => {
                 if !prelude_paths.is_empty() {
                     use crate::runner::modes::common_util::resolve;
-                    let merge = if selected_normal {
-                        resolve::merge_normal_prelude_text_with_imports
-                    } else {
-                        resolve::merge_prelude_text_with_imports
-                    };
-                    let (merged, merged_imports) = merge(runner, code, filename)?;
+                    let (merged, merged_imports, merged_lineage) =
+                        resolve::merge_prelude_text_with_imports_and_lineage(
+                            runner,
+                            code,
+                            filename,
+                            selected_normal,
+                        )?;
                     imports = merged_imports;
+                    lineage = Some(merged_lineage);
                     merged
                 } else {
+                    lineage = Some(
+                        resolve::MergedSourceLineageV1::root_only(code, filename)
+                            .map_err(|error| format!("[using/lineage][{:?}]", error))?,
+                    );
                     code.to_string()
                 }
             }
@@ -100,6 +109,13 @@ fn prepare_source_with_imports_impl(
         code.to_string()
     };
 
+    if lineage.is_none() {
+        lineage = Some(
+            resolve::MergedSourceLineageV1::root_only(code, filename)
+                .map_err(|error| format!("[using/lineage][{:?}]", error))?,
+        );
+    }
+
     prepared = if selected_normal {
         crate::runner::modes::common_util::resolve::preexpand_at_local(&prepared)
     } else {
@@ -109,6 +125,7 @@ fn prepare_source_with_imports_impl(
     Ok(PreparedSourceWithImports {
         code: prepared,
         imports,
+        lineage: lineage.expect("source lineage issued above"),
     })
 }
 

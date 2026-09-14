@@ -46,8 +46,14 @@ fn normal_preparation_preserves_local_with_and_without_prelude() {
                         prepared.imports.get("NestedAlias").map(String::as_str),
                         Some("Nested")
                     );
+                    assert_eq!(prepared.lineage.segments().len(), 3);
+                    assert_eq!(prepared.lineage.edges().len(), 2);
+                    assert_eq!(prepared.lineage.segments()[0].dfs_ordinal, 0);
+                    assert_eq!(prepared.lineage.segments()[2].global_start_line > 0, true);
                 } else {
                     assert_eq!(prepared.code, source);
+                    assert_eq!(prepared.lineage.segments().len(), 1);
+                    assert!(prepared.lineage.edges().is_empty());
                 }
                 assert!(!prepared.code.contains("static box StringifyOperator"));
                 assert!(!prepared.code.contains("static box CompareOperator"));

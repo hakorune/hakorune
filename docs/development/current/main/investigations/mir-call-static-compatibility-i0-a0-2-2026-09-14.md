@@ -1,5 +1,5 @@
 ---
-Status: selected__fast__2026-09-14
+Status: selected__closeout__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-I0-A0-2
 Date: 2026-09-14
 Priority: typed merged-source lineage transport and parser-brand co-seal
@@ -73,3 +73,27 @@ The row is ready for `fast` implementation. If the parser attach point becomes
 multiple competing issuers, exact segment coverage cannot be proven by the
 merge owner, or aliases/paths must be reconstructed downstream, return to
 `design_stop` as `NoSafeSlice` instead of widening this task.
+
+## Implementation checkpoint — 2026-09-14
+
+A0-2 is implemented as one typed transport slice. The merge owner now issues
+`MergedSourceLineageV1` rows from its existing DFS, including root/import edges,
+canonical paths, aliases/bindings, parent links, DFS ordinal, and global/local
+line ranges. `PreparedSourceWithImports` carries the product beside the retained
+runtime alias map. The selected normal materializer passes it through the
+parser-branded source handoff and co-seals the parser invocation witness.
+
+Focused evidence:
+
+- `runner::modes::common_util::source_hint::normal_tests::normal_preparation_preserves_local_with_and_without_prelude`
+- `runner::modes::common_util::normal_callable::tests::merged_lineage_is_co_sealed_to_the_parser_invocation`
+- `runner::modes::common_util::resolve::strip::import_lineage::tests::lineage_accepts_exact_root_and_nested_coverage`
+- `runner::modes::common_util::resolve::strip::import_lineage::tests::lineage_rejects_duplicate_and_gap`
+- `cargo check --profile quick -j4` and `cargo test --profile quick --lib --no-run` completed successfully.
+- `git diff --check` and `tools/checks/current_state_pointer_guard.sh` are green.
+
+The repository-wide formatter check still reports pre-existing formatting
+drift outside this slice; it is recorded as baseline tooling debt rather than a
+current-change failure. This checkpoint does not claim A1 static-parent
+co-seal, source-admission switching, fallback restoration, legacy-edge
+deletion, Windows lifecycle proof, or R7 completion.

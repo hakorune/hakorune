@@ -78,12 +78,18 @@ impl NyashRunner {
                     report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
                 }
             };
+        let crate::runner::modes::common_util::source_hint::PreparedSourceWithImports {
+            code: prepared_code,
+            imports: prepared_imports,
+            lineage: prepared_lineage,
+        } = prepared;
 
         let materialized = match crate::runner::modes::common_util::normal_callable::
-            materialize_normal_callable_program_with_identity_v1(
-                &prepared.code,
+            materialize_normal_callable_program_with_identity_and_lineage_v1(
+                &prepared_code,
                 self.parser_build_config(),
                 filename,
+                prepared_lineage,
             )
         {
             Ok(materialized) => materialized,
@@ -93,7 +99,7 @@ impl NyashRunner {
             ) => {
                 crate::runner::modes::common_util::diag::print_parse_error_with_context(
                     filename,
-                    &prepared.code,
+                    &prepared_code,
                     &e,
                 );
                 report::emit_error_and_exit(LlvmRunError::fatal(format!("Parse error: {}", e)));
@@ -133,7 +139,7 @@ impl NyashRunner {
             match compile_options::CompileOptionsBox::compile_normal_callable_with_published(
                 materialized,
                 Some(filename),
-                prepared.imports,
+                prepared_imports,
                 pipeline_plan.compile_options,
                 |view, _verification| {
                     if crate::runner::modes::common_util::exec::selected_dynamic_aot_metadata_present(view.module())? {
@@ -162,7 +168,7 @@ impl NyashRunner {
             compile_options::CompileOptionsBox::compile_normal_callable(
                 materialized,
                 Some(filename),
-                prepared.imports,
+                prepared_imports,
                 pipeline_plan.compile_options,
             )
         };
