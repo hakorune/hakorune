@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0"
 current_execution_cohort = "r7_stringbox_source_issuer_d0"
-current_blocker_token = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0__source_bound_occurrence_issuer_and_canonical_admission_unsettled"
+current_blocker_token = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0__source_product_crosswalk_and_canonical_admission_unsettled"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0__source_bound_occurrence_issuer_and_canonical_admission_unsettled"
+current_design_stop = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0__source_product_crosswalk_and_canonical_admission_unsettled"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -20,11 +20,12 @@ latest_card_path = "docs/development/current/main/investigations/mir-call-compat
 latest_card_summary = """
 Retained compatibility prevents immediate R7 deletion, not internal design.
 Select a source-issuer child slice for the StringBox Program-JSON cohort:
-AST/Program-v0 lowering is only a structured entrance and no existing issuer
-binds StringBox membership to CoreMethodContractBox. The sole successor
-consumer candidate is source-enriched `Stage1ProgramJsonModuleHandoff` into
-canonical admission; registry/fallback and env.mirbuilder remain compatibility.
-No implementation or blanket compatibility Stop is selected.
+the single Rust Stage1 AST parse/lower transaction can issue Program-v0 and a
+source-only product, but the one-to-one output crosswalk and enriched
+`Stage1ProgramJsonModuleHandoff` API are not yet defined. The sole successor
+consumer candidate remains that handoff into canonical admission; registry/
+fallback and env.mirbuilder remain compatibility. No implementation or
+blanket compatibility Stop is selected.
 """
 next_design_card = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
