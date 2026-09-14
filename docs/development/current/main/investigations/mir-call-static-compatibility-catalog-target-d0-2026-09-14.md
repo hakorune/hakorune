@@ -3,7 +3,7 @@ Status: selected__source_admission_design__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0
 Date: 2026-09-14
 Parent: mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md
-NextCard: none__resolve_mixed_cohort_source_authority
+NextCard: none__mixed_source_co_seal_design
 Implementation permission: false; user reopened design and taskization only
 ---
 
@@ -16,7 +16,7 @@ Decision: design source-backed admission through existing package/publication ow
 Source authority + canonical issuer: parser lineage and transformed source admitted by the normal materializer/package; ScriptDirectStaticCallLookupIssuerV1 issues target/result publication from that package.
 Non-authority: AST possession, ScriptRoot location, names/arity, declaration existence, MIR, numeric sites, test results and Windows capability.
 Fail-fast boundary: missing source/target/result relations reject before argument descent or MIR effects; compatibility cannot borrow a fabricated publication owner.
-Smallest next slice: pin the failing compiler invocation and its source-classification reason, then decide its complete source-window admission in this D0.
+Smallest next slice: define A0/A1 for one parser-brand merged invocation: the mixed source-admission contract and finite static-parent co-seal relations.
 Non-claims: no implementation permission, restored fallback, source widening, StringBox dynamic acceptance, Windows support or R7 closure.
 ```
 
@@ -171,6 +171,58 @@ explicit source-backed sub-cohort with finite include/exclude relations and a
 retained compatibility partition. A name allowlist, AST rewrite, MIR
 inference, or generic fallback re-entry cannot fill the gap.
 
+## Task 2b result — one authority boundary selected
+
+The read-only design comparison selected **A: admit the entire merged
+invocation as one source-backed product under the same parser brand**. The
+source-backed `NormalSourcePlan`, callable catalog, semantic package and
+static publication issuers already provide one authority chain for ordinary
+and static callable rows. The source-backed catalog can project both static
+and instance methods, and the package issuer can co-seal resolver forest,
+source-site and result/publication relations without re-inferring body
+structure from MIR.
+
+The B alternative (a source-backed sub-cohort with compatibility rows beside
+it) is declined. Compatibility is currently an AST/reason/lineage transport
+with no semantic package, target or result issuer. Allowing a source-backed
+body to call a compatibility row would require a new cross-boundary package
+and would create a second semantic authority. The observed
+`ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` edge crosses
+that boundary, so B cannot be made safe by a finite name or callsite list.
+
+This is a design selection, not an implementation authorization. The current
+static-parent issuer remains too narrow (`StaticBox`, one parent, one direct
+method), and the ordinary source seal does not cover `MixedProgram`. The
+selected direction must first be decomposed into these bounded design rows:
+
+1. **A0 — mixed source-admission contract.** Define the same-brand merged
+   invocation boundary and the exact ordinary/static parent, callable method,
+   body, constructor and import-lineage relations that must be co-sealed.
+   Fix the source-backed entry condition and explicit reject/non-claims.
+2. **A1 — static-parent source co-seal.** Decide how the finite static-parent
+   set and every direct method relation extend
+   `ParserStaticBoxParentSourceAuthorityIssuerV1`. Foreign/stale sites,
+   unsupported members and coverage mismatches remain explicit rejects.
+3. **A2 — import/body coverage (follow-up).** Co-seal each imported source
+   path, callable identity, member ordinal, body/source-site inventory,
+   constructor and import lineage. Loop, conditional and early-return shapes
+   are body coverage; opaque or non-ordinary transfer stays rejected.
+4. **A3 — existing package admission (follow-up).** Connect the admitted
+   product to the existing normal source plan, callable catalog, semantic
+   package and static lookup/publication issuers. The first finite tuple is
+   `MirBuilder::handle_static_method_call_with_descent` at
+   `parser_program_box.hako:102` targeting
+   `ParserStringUtilsBox.starts_with/3`; target identity must be co-sealed,
+   never inferred from name/arity.
+5. **A4 — cutover and deletion (follow-up).** After every direct-call
+   observation in the merged cohort is cataloged and published, delete only
+   that cohort's compatibility classification/raw static-child edge. Do not
+   remove the generic retirement terminal before its other callers migrate.
+
+The safe next slice is therefore **A0/A1 design only**. No source widening,
+caller switch, production fallback or old-edge deletion is authorized until
+A2 body/import coverage and A3 package/publication admission are closed.
+
 ## Reused finite caller inventory
 
 The source owner is
@@ -196,8 +248,9 @@ No repeated repository-wide census is needed.
 | --- | --- | --- |
 | 1 — complete, D0 | Pin failing ingress and source disposition | The one phase14 run proves fixture emission succeeds and the second `program_json_v0_entry.hako` normal VM invocation fails at `ParserStringUtilsBox.starts_with/3`; the merged import cohort and typed compatibility/AST-only branch are recorded above. |
 | 2 — complete design audit, NoSafeSlice | Decide source admission for that whole cohort | The merged `MixedProgram` cannot enter the current package issuer: static parent/source-seal, parameter, root/source-plan, callable identity, target/header/result/publication relations are not co-issued. The finite `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` tuple and every unresolved partition are recorded above. |
-| 2b — next, D0 | Choose the mixed-cohort authority boundary | Decide whether to generalize the parser source-seal/static-parent issuer for the whole merged invocation or define a complete source-backed sub-cohort with explicit compatibility rows. Name every issuer/consumer, import relation, body/loop/conditional/early-return coverage, transfer/opaque disposition and the old edge that would be deleted. No implementation or caller switch until this Decision is accepted. |
-| 3 — conditional I0 | Switch accepted source cohort to existing package | Connect materializer admission to `PreparedNormalDefaultProgramRootV1::from_callable_source`, existing package issuer/collector and Cataloged static handoff. In the same slice retire that cohort's old compatibility classification/raw static-child dispatch. Scope the exact caller and branches after tasks 1–2; no blanket root switch. |
+| 2b — complete, D0 | Choose the mixed-cohort authority boundary | A is selected: the whole same-brand merged invocation becomes one source-backed product. B is declined because compatibility has no semantic package/publication issuer and would create a second authority. The next rows are A0/A1 design; no implementation or caller switch. |
+| 2c — next, D0 | A0/A1 source co-seal design | Fix the mixed source-admission contract and finite static-parent co-seal relations, including issuer/consumer, import/body/constructor coverage, explicit reject partitions and the exact source-backed entry condition. Complete only when all required relations are named and the bounded old edge is identified. |
+| 3 — conditional I0 | Switch accepted source cohort to existing package | Connect materializer admission to `PreparedNormalDefaultProgramRootV1::from_callable_source`, existing package issuer/collector and Cataloged static handoff. In the same slice retire that cohort's old compatibility classification/raw static-child dispatch. Scope the exact caller and branches after A0/A1 and A2/A3; no blanket root switch. |
 | 4 — I0 acceptance | Prove publication, rejection and retirement | Real selected source reaches static publication; missing/foreign site, brand mismatch, missing/ambiguous target and unsupported source/result reject before argument effects. Existing owner guards prove selected old-edge absence and residual handling. |
 | 5 — return to StringBox I0 | Close original owner acceptance | Run existing phase14/16/17 and its malformed/wrong-class/extra-argument/embedded/empty cases only after upstream reach is established. Record exact owner-to-terminal results; an earlier stop leaves this acceptance open. |
 
