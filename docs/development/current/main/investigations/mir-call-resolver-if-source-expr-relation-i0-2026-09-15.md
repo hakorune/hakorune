@@ -1,10 +1,10 @@
 ---
-Status: selected__fast__2026-09-15
+Status: closed__bounded_expression_if_relation__2026-09-15
 Task: MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-I0
 Date: 2026-09-15
 Priority: issue the resolver-owned expression-If relation selected by D8
 Parent: mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md
-NextCard: MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-ISSUER-D7.md
+NextCard: mir-call-resolver-if-source-result-product-issuer-d7-reentry-2026-09-15.md
 Implementation permission: true for the resolver source relation and its focused guards only
 ---
 
@@ -84,3 +84,27 @@ is introduced by this slice.
 
 No result-class inference, target route projection, physical lowering,
 fallback, production switch, or legacy deletion is part of this card.
+
+## Implementation checkpoint
+
+The resolver now issues one sealed conditional row for the accepted shape and
+records the condition, both empty-prelude branch wrappers, both tail sites, and
+the exact `Value`, `Rhs`, or `Initializer` consumer. The statement-If resolver
+and region owner are unchanged. The callable ledger exposes the sealed
+conditional rows and existing direct-call observations without copying them;
+the source-site inventory includes every conditional child site.
+
+Focused evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib \
+  mir::resolved_semantics::callable_source_ledger_tests:: -- --nocapture
+18 passed; 0 failed; 7926 filtered out; 536 existing warnings
+```
+
+The focused tests cover i64 and String tails, all three accepted consumer
+roles, nested method/direct-call observations, statement-If separation, and
+malformed branch/consumer rejection. `rustfmt` on the touched Rust files,
+`git diff --check`, and the current-state pointer guard are the remaining
+closeout checks. This card does not claim typed result publication or a
+production caller switch; the D7 re-entry card owns that next boundary.

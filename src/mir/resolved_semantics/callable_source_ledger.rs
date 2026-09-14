@@ -199,6 +199,23 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.expression_source().initializers()
     }
 
+    pub(crate) fn conditional_expression_sources(
+        &self,
+    ) -> impl Iterator<Item = &super::ResolvedConditionalExpressionSourceV1> {
+        self.function.expression_source().conditionals()
+    }
+
+    pub(crate) fn direct_call_observations(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &SourceExprSiteV1,
+            &super::direct_call::ResolvedDirectCallObservationV1,
+        ),
+    > {
+        self.function.direct_call_observations()
+    }
+
     pub(crate) fn literal_source(
         &self,
         site: &SourceExprSiteV1,

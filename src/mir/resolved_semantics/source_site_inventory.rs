@@ -148,6 +148,14 @@ fn collect_index_validation_requirements(
     {
         draft.record_expression(site.clone());
     }
+    for row in data.expression_source.conditionals() {
+        draft.record_expression(row.site().clone());
+        draft.record_expression(row.condition().clone());
+        draft.record_expression(row.then_block().clone());
+        draft.record_expression(row.then_tail().clone());
+        draft.record_expression(row.else_block().clone());
+        draft.record_expression(row.else_tail().clone());
+    }
     for (site, target) in &data.assignment_targets {
         draft.record_expression(site.clone());
         if let ResolvedAssignmentTargetV1::FieldWrite { receiver }

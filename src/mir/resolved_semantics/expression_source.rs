@@ -10,7 +10,8 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
 
 use super::shadow::ShadowBindingOrdinalV0;
 use super::{
-    BindingRefV1, SourceBindingSiteV1, SourceExprSiteV1, SourcePathSegmentV1, SourcePathV1,
+    BindingRefV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
+    SourcePathV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -99,6 +100,63 @@ pub(crate) struct ResolvedBinaryExpressionSourceV1 {
     rhs: SourceExprSiteV1,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ResolvedExpressionIfConsumerV1 {
+    parent: SourceNodeSiteV1,
+    role: SourcePathSegmentV1,
+}
+
+impl ResolvedExpressionIfConsumerV1 {
+    pub(crate) const fn parent(&self) -> &SourceNodeSiteV1 {
+        &self.parent
+    }
+
+    pub(crate) const fn role(&self) -> &SourcePathSegmentV1 {
+        &self.role
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ResolvedConditionalExpressionSourceV1 {
+    site: SourceExprSiteV1,
+    condition: SourceExprSiteV1,
+    then_block: SourceExprSiteV1,
+    then_tail: SourceExprSiteV1,
+    else_block: SourceExprSiteV1,
+    else_tail: SourceExprSiteV1,
+    consumer: ResolvedExpressionIfConsumerV1,
+}
+
+impl ResolvedConditionalExpressionSourceV1 {
+    pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) const fn condition(&self) -> &SourceExprSiteV1 {
+        &self.condition
+    }
+
+    pub(crate) const fn then_block(&self) -> &SourceExprSiteV1 {
+        &self.then_block
+    }
+
+    pub(crate) const fn then_tail(&self) -> &SourceExprSiteV1 {
+        &self.then_tail
+    }
+
+    pub(crate) const fn else_block(&self) -> &SourceExprSiteV1 {
+        &self.else_block
+    }
+
+    pub(crate) const fn else_tail(&self) -> &SourceExprSiteV1 {
+        &self.else_tail
+    }
+
+    pub(crate) const fn consumer(&self) -> &ResolvedExpressionIfConsumerV1 {
+        &self.consumer
+    }
+}
+
 impl ResolvedBinaryExpressionSourceV1 {
     #[cfg(test)]
     pub(crate) fn from_parts_for_test(
@@ -163,6 +221,7 @@ pub(crate) struct ResolvedExpressionSourceInventoryV1 {
     binaries: BTreeMap<SourceExprSiteV1, ResolvedBinaryExpressionSourceV1>,
     unaries: BTreeMap<SourceExprSiteV1, ResolvedUnaryExpressionSourceV1>,
     literals: BTreeMap<SourceExprSiteV1, ResolvedLiteralSourceV1>,
+    conditionals: BTreeMap<SourceExprSiteV1, ResolvedConditionalExpressionSourceV1>,
     initializers: BTreeMap<SourceBindingSiteV1, ResolvedInitializerRelationV1>,
 }
 
@@ -183,6 +242,7 @@ impl ResolvedExpressionSourceInventoryV1 {
                 .map(|row| (row.site.clone(), row))
                 .collect(),
             literals: literals.into_iter().collect(),
+            conditionals: BTreeMap::new(),
             initializers: BTreeMap::new(),
         }
     }
@@ -209,7 +269,23 @@ impl ResolvedExpressionSourceInventoryV1 {
         self.unaries.get(site)
     }
 
-    pub(crate) fn initializer(&self, declaration: &SourceBindingSiteV1) -> Option<&ResolvedInitializerRelationV1> {
+    pub(crate) fn conditionals(
+        &self,
+    ) -> impl Iterator<Item = &ResolvedConditionalExpressionSourceV1> {
+        self.conditionals.values()
+    }
+
+    pub(crate) fn conditional(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&ResolvedConditionalExpressionSourceV1> {
+        self.conditionals.get(site)
+    }
+
+    pub(crate) fn initializer(
+        &self,
+        declaration: &SourceBindingSiteV1,
+    ) -> Option<&ResolvedInitializerRelationV1> {
         self.initializers.get(declaration)
     }
 
@@ -223,6 +299,7 @@ pub(in crate::mir::resolved_semantics) struct ShadowExpressionSourceDraftV1 {
     binaries: BTreeMap<SourceExprSiteV1, ResolvedBinaryExpressionSourceV1>,
     unaries: Vec<ResolvedUnaryExpressionSourceV1>,
     literals: BTreeMap<SourceExprSiteV1, ResolvedLiteralSourceV1>,
+    conditionals: Vec<ResolvedConditionalExpressionSourceV1>,
     initializers: Vec<ShadowInitializerRelationV1>,
 }
 
@@ -290,6 +367,30 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
                 initializer_site,
             });
     }
+
+    pub(super) fn record_conditional_expression_source(
+        &mut self,
+        site: SourceExprSiteV1,
+        condition: SourceExprSiteV1,
+        then_block: SourceExprSiteV1,
+        then_tail: SourceExprSiteV1,
+        else_block: SourceExprSiteV1,
+        else_tail: SourceExprSiteV1,
+    ) -> Result<(), &'static str> {
+        let consumer = conditional_consumer(&site).ok_or("unsupported expression-if consumer")?;
+        self.expression_source
+            .conditionals
+            .push(ResolvedConditionalExpressionSourceV1 {
+                site,
+                condition,
+                then_block,
+                then_tail,
+                else_block,
+                else_tail,
+                consumer,
+            });
+        Ok(())
+    }
 }
 
 pub(super) fn seal_shadow_expression_source_v1(
@@ -316,12 +417,68 @@ pub(super) fn seal_shadow_expression_source_v1(
             return Err("duplicate local initializer source relation");
         }
     }
+    let mut conditionals = BTreeMap::new();
+    for row in draft.conditionals {
+        if !valid_conditional_row(&row) {
+            return Err("conditional expression source path drift");
+        }
+        let site = row.site.clone();
+        if conditionals.insert(site, row).is_some() {
+            return Err("duplicate conditional expression source relation");
+        }
+    }
     Ok(ResolvedExpressionSourceInventoryV1 {
         binaries: draft.binaries,
         unaries,
         literals: draft.literals,
+        conditionals,
         initializers,
     })
+}
+
+fn conditional_consumer(site: &SourceExprSiteV1) -> Option<ResolvedExpressionIfConsumerV1> {
+    let (role, parent) = site.node().segments().split_last()?;
+    if !matches!(
+        role,
+        SourcePathSegmentV1::Value | SourcePathSegmentV1::Rhs | SourcePathSegmentV1::Initializer(_)
+    ) {
+        return None;
+    }
+    Some(ResolvedExpressionIfConsumerV1 {
+        parent: SourceNodeSiteV1::from_segments(parent.to_vec()),
+        role: role.clone(),
+    })
+}
+
+fn valid_conditional_row(row: &ResolvedConditionalExpressionSourceV1) -> bool {
+    let source = SourcePathV1::from_node(row.site.node());
+    row.condition == source.child(SourcePathSegmentV1::IfCondition).expr()
+        && row.then_block
+            == source
+                .child(SourcePathSegmentV1::IfThenBody)
+                .child(SourcePathSegmentV1::IfThen(0))
+                .expr()
+        && row.then_tail
+            == source
+                .child(SourcePathSegmentV1::IfThenBody)
+                .child(SourcePathSegmentV1::IfThen(0))
+                .child(SourcePathSegmentV1::BlockExprTail)
+                .expr()
+        && row.else_block
+            == source
+                .child(SourcePathSegmentV1::IfElseBody)
+                .child(SourcePathSegmentV1::IfElse(0))
+                .expr()
+        && row.else_tail
+            == source
+                .child(SourcePathSegmentV1::IfElseBody)
+                .child(SourcePathSegmentV1::IfElse(0))
+                .child(SourcePathSegmentV1::BlockExprTail)
+                .expr()
+        && SourcePathV1::from_node(row.consumer.parent())
+            .child(row.consumer.role().clone())
+            .expr()
+            == row.site
 }
 
 fn map_unary_operator(operator: &UnaryOperator) -> ResolvedUnaryOperatorV1 {

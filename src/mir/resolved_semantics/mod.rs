@@ -159,6 +159,7 @@ pub(crate) use enum_variant_demand::{EnumVariantAdmissionV1, EnumVariantDemandV1
 pub(crate) use explicit_extern_call::ResolvedExplicitExternCallV1;
 pub(crate) use expression_source::{
     ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1,
+    ResolvedConditionalExpressionSourceV1, ResolvedExpressionIfConsumerV1,
     ResolvedExpressionSourceInventoryV1, ResolvedInitializerRelationV1, ResolvedLiteralSourceV1,
     ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,
 };

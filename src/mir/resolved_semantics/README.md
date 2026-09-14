@@ -247,6 +247,18 @@ swapped receiver/operands reject before a source-bound call relation, Facts,
 Recipe, Builder/MIR, physicalization, fallback, or production effect. The
 unannotated historical fixture remains a `MissingTypeEvidence` negative.
 
+## Expression-If source relation I0
+
+The shadow resolver now admits only the parser's value-form conditional:
+`ASTNode::If` with an `else_body`, one empty-prelude `BlockExpr` per branch,
+and one tail expression in each wrapper. It issues one AST-free conditional
+row in `ResolvedExpressionSourceInventoryV1` with the condition, both branch
+wrappers and tails, and the exact `Value`, `Rhs`, or `Initializer` consumer.
+The row is source topology only; it does not infer an `i64` or `String` result,
+choose a call route, or issue a Recipe. Statement `If` continues through its
+existing region owner and never enters this inventory. D7 owns the later typed
+result and `Static | Dynamic | Absent` route projection from these rows.
+
 ## Instance declaration/signature I0
 
 The bounded resolver declaration slice is landed in

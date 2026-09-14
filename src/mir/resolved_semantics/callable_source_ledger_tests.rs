@@ -36,9 +36,49 @@ fn literal(value: i64) -> ASTNode {
     }
 }
 
+fn string_literal(value: &str) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::String(value.into()),
+        span: Span::unknown(),
+    }
+}
+
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.into(),
+        span: Span::unknown(),
+    }
+}
+
+fn block(value: ASTNode) -> ASTNode {
+    ASTNode::BlockExpr {
+        prelude_stmts: Vec::new(),
+        tail_expr: Box::new(value),
+        span: Span::unknown(),
+    }
+}
+
+fn block_with_prelude(prelude: ASTNode, value: ASTNode) -> ASTNode {
+    ASTNode::BlockExpr {
+        prelude_stmts: vec![prelude],
+        tail_expr: Box::new(value),
+        span: Span::unknown(),
+    }
+}
+
+fn conditional(condition: ASTNode, then_value: ASTNode, else_value: ASTNode) -> ASTNode {
+    ASTNode::If {
+        condition: Box::new(condition),
+        then_body: vec![block(then_value)],
+        else_body: Some(vec![block(else_value)]),
+        span: Span::unknown(),
+    }
+}
+
+fn function_call(name: &str, arguments: Vec<ASTNode>) -> ASTNode {
+    ASTNode::FunctionCall {
+        name: name.into(),
+        arguments,
         span: Span::unknown(),
     }
 }
@@ -232,6 +272,226 @@ fn ledger_seals_method_call_receiver_arguments_and_result_without_ast_borrows() 
         .source_site_inventory()
         .contains_expression(argument.site())));
     assert_eq!(view.family_count(CallableSourceRowFamilyV1::MethodCall), 1);
+}
+
+#[test]
+fn ledger_seals_expression_if_paths_consumers_and_nested_call_observations() {
+    let tree = function(vec![
+        local("text", string_literal("x")),
+        ASTNode::Return {
+            value: Some(Box::new(conditional(
+                literal(1),
+                method_call(variable("text"), "length", Vec::new()),
+                function_call("helper", Vec::new()),
+            ))),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let syntax = FunctionSyntaxViewV1::from_ast(&tree).unwrap();
+    let outcome = session
+        .resolve_selected_callable_forests_with_body_shapes(&[syntax])
+        .unwrap();
+    let super::ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete { forests, .. } =
+        outcome
+    else {
+        panic!("selected callable source must complete")
+    };
+    let [forest] = forests.as_ref() else {
+        panic!("one forest")
+    };
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    let rows = view.conditional_expression_sources().collect::<Vec<_>>();
+    let [row] = rows.as_slice() else {
+        panic!("expected one expression-if source row")
+    };
+
+    assert_eq!(row.consumer().role(), &SourcePathSegmentV1::Value);
+    assert_eq!(
+        row.condition().node().segments().last(),
+        Some(&SourcePathSegmentV1::IfCondition)
+    );
+    assert_eq!(
+        row.then_block().node().segments().last(),
+        Some(&SourcePathSegmentV1::IfThen(0))
+    );
+    assert_eq!(
+        row.then_tail().node().segments().last(),
+        Some(&SourcePathSegmentV1::BlockExprTail)
+    );
+    assert_eq!(
+        row.else_block().node().segments().last(),
+        Some(&SourcePathSegmentV1::IfElse(0))
+    );
+    assert_eq!(
+        row.else_tail().node().segments().last(),
+        Some(&SourcePathSegmentV1::BlockExprTail)
+    );
+    assert_eq!(view.method_calls().count(), 1);
+    let observations = view.direct_call_observations().collect::<Vec<_>>();
+    assert_eq!(observations.len(), 1);
+    assert_eq!(observations[0].1.name(), "helper");
+    assert!(view
+        .source_site_inventory()
+        .contains_expression(row.then_tail()));
+    assert!(view
+        .source_site_inventory()
+        .contains_expression(row.else_tail()));
+}
+
+#[test]
+fn ledger_seals_expression_if_in_initializer_and_rhs_consumers() {
+    let tree = function(vec![
+        local(
+            "text",
+            conditional(literal(1), string_literal("a"), string_literal("b")),
+        ),
+        ASTNode::Return {
+            value: Some(Box::new(ASTNode::BinaryOp {
+                operator: crate::ast::BinaryOperator::Add,
+                left: Box::new(literal(1)),
+                right: Box::new(conditional(literal(1), literal(2), literal(3))),
+                span: Span::unknown(),
+            })),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    let rows = view.conditional_expression_sources().collect::<Vec<_>>();
+    assert_eq!(rows.len(), 2);
+    assert!(rows
+        .iter()
+        .any(|row| matches!(row.consumer().role(), SourcePathSegmentV1::Initializer(0))));
+    assert!(rows
+        .iter()
+        .any(|row| row.consumer().role() == &SourcePathSegmentV1::Rhs));
+}
+
+#[test]
+fn expression_if_relation_is_type_agnostic_for_string_consumers() {
+    let tree = function(vec![
+        local("number", conditional(literal(1), literal(2), literal(3))),
+        local("text", string_literal("seed")),
+        ASTNode::Assignment {
+            target: Box::new(variable("text")),
+            value: Box::new(conditional(
+                literal(1),
+                string_literal("a"),
+                string_literal("b"),
+            )),
+            span: Span::unknown(),
+        },
+        ASTNode::Return {
+            value: Some(Box::new(ASTNode::BinaryOp {
+                operator: crate::ast::BinaryOperator::Add,
+                left: Box::new(string_literal("prefix")),
+                right: Box::new(conditional(
+                    literal(1),
+                    string_literal("a"),
+                    string_literal("b"),
+                )),
+                span: Span::unknown(),
+            })),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    let rows = view.conditional_expression_sources().collect::<Vec<_>>();
+
+    assert_eq!(rows.len(), 3);
+    assert!(rows
+        .iter()
+        .any(|row| matches!(row.consumer().role(), SourcePathSegmentV1::Initializer(0))));
+    assert!(rows
+        .iter()
+        .any(|row| row.consumer().role() == &SourcePathSegmentV1::Value));
+    assert!(rows
+        .iter()
+        .any(|row| row.consumer().role() == &SourcePathSegmentV1::Rhs));
+}
+
+#[test]
+fn statement_if_does_not_enter_expression_if_source_inventory() {
+    let tree = function(vec![ASTNode::If {
+        condition: Box::new(literal(1)),
+        then_body: vec![ASTNode::Return {
+            value: Some(Box::new(literal(1))),
+            span: Span::unknown(),
+        }],
+        else_body: Some(vec![ASTNode::Return {
+            value: Some(Box::new(literal(0))),
+            span: Span::unknown(),
+        }]),
+        span: Span::unknown(),
+    }]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    assert_eq!(view.conditional_expression_sources().count(), 0);
+}
+
+#[test]
+fn malformed_expression_if_stops_before_source_product_seal() {
+    let malformed = function(vec![ASTNode::Return {
+        value: Some(Box::new(ASTNode::If {
+            condition: Box::new(literal(1)),
+            then_body: vec![block(literal(1))],
+            else_body: None,
+            span: Span::unknown(),
+        })),
+        span: Span::unknown(),
+    }]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    assert!(session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&malformed).unwrap())
+        .is_err());
+}
+
+#[test]
+fn expression_if_rejects_branch_prelude_and_non_primary_consumer() {
+    let branch_prelude = function(vec![ASTNode::Return {
+        value: Some(Box::new(ASTNode::If {
+            condition: Box::new(literal(1)),
+            then_body: vec![block_with_prelude(local("x", literal(1)), literal(1))],
+            else_body: Some(vec![block(literal(0))]),
+            span: Span::unknown(),
+        })),
+        span: Span::unknown(),
+    }]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    assert!(session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&branch_prelude).unwrap())
+        .is_err());
+
+    let unsupported_consumer = function(vec![
+        local("text", string_literal("x")),
+        ASTNode::Return {
+            value: Some(Box::new(method_call(
+                variable("text"),
+                "use",
+                vec![conditional(literal(1), literal(2), literal(3))],
+            ))),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    assert!(session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&unsupported_consumer).unwrap())
+        .is_err());
 }
 
 #[test]

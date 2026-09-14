@@ -48,6 +48,12 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 tail_expr,
                 ..
             } => self.resolve_block_expr(expr, prelude_stmts, tail_expr, path),
+            ASTNode::If {
+                condition,
+                then_body,
+                else_body,
+                ..
+            } => self.resolve_expression_if(condition, then_body, else_body.as_deref(), path),
             ASTNode::UnaryOp { operand, .. } => self.resolve_expr(
                 operand,
                 &Self::expr_child_path(expr, path, ExprChildRoleV1::UnaryOperand),
@@ -579,6 +585,79 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         Ok(())
     }
 
+    fn resolve_expression_if(
+        &mut self,
+        condition: &'ast ASTNode,
+        then_body: &'ast [ASTNode],
+        else_body: Option<&'ast [ASTNode]>,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let Some(else_body) = else_body else {
+            return Err(ShadowResolveErrorV0::UnsupportedExpression {
+                kind: "ExpressionIfRequiresElse",
+                site: path.expr(),
+            });
+        };
+        let then_block =
+            expression_if_block(then_body).ok_or(ShadowResolveErrorV0::UnsupportedExpression {
+                kind: "ExpressionIfThenShape",
+                site: path.expr(),
+            })?;
+        let else_block =
+            expression_if_block(else_body).ok_or(ShadowResolveErrorV0::UnsupportedExpression {
+                kind: "ExpressionIfElseShape",
+                site: path.expr(),
+            })?;
+
+        let condition_path =
+            path.child(crate::mir::resolved_semantics::SourcePathSegmentV1::IfCondition);
+        let then_block_path = path
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::IfThenBody)
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::IfThen(
+                0,
+            ));
+        let else_block_path = path
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::IfElseBody)
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::IfElse(
+                0,
+            ));
+        let then_tail_path = then_block_path
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::BlockExprTail);
+        let else_tail_path = else_block_path
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::BlockExprTail);
+
+        self.record_conditional_expression_source(
+            path.expr(),
+            condition_path.expr(),
+            then_block_path.expr(),
+            then_tail_path.expr(),
+            else_block_path.expr(),
+            else_tail_path.expr(),
+        )
+        .map_err(|kind| ShadowResolveErrorV0::UnsupportedExpression {
+            kind,
+            site: path.expr(),
+        })?;
+        self.record_relation(
+            path.node(),
+            crate::mir::resolved_semantics::SourcePathSegmentV1::IfCondition,
+            condition_path.expr(),
+        );
+        self.record_relation(
+            path.node(),
+            crate::mir::resolved_semantics::SourcePathSegmentV1::IfThen(0),
+            then_block_path.expr(),
+        );
+        self.record_relation(
+            path.node(),
+            crate::mir::resolved_semantics::SourcePathSegmentV1::IfElse(0),
+            else_block_path.expr(),
+        );
+        self.resolve_expr(condition, &condition_path)?;
+        self.resolve_expr(then_block, &then_block_path)?;
+        self.resolve_expr(else_block, &else_block_path)
+    }
+
     fn resolve_arguments(
         &mut self,
         parent: &'ast ASTNode,
@@ -614,4 +693,11 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         }
         Ok(argument_sites.into_boxed_slice())
     }
+}
+
+fn expression_if_block(branch: &[ASTNode]) -> Option<&ASTNode> {
+    let [ASTNode::BlockExpr { prelude_stmts, .. }] = branch else {
+        return None;
+    };
+    prelude_stmts.is_empty().then_some(&branch[0])
 }
