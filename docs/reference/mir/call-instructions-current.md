@@ -48,6 +48,17 @@ return null before any MIR recipe is emitted. The existing direct `call` and
 New-box `boxcall` emitters remain the recipes; registry, fallback, and
 body-only callers remain compatibility owners.
 
+## Raw Loop root capability selection (I0, 2026-09-14)
+
+The Program(JSON v0) compatibility root enters the existing non-callable raw
+child path and carries no callable-loop scope. The source-backed selected root
+keeps the invocation-aware path with its session-issued scope and package-issued
+callable ledger. An armed scope without a ledger remains a named
+`callable-ledger-missing` fail-fast before loop effects; compatibility lowering
+does not synthesize an empty ledger. This selection changes only the root port
+capability choice. Loop recipe selection and semantic owner migration remain
+separate contracts.
+
 ## Canonical 形
 
 ```rust

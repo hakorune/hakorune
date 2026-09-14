@@ -677,3 +677,6 @@ mod normal_default_root_catalog_lifecycle_tests;
 #[cfg(test)]
 #[path = "normal_default_root_catalog_root_source_handoff_tests.rs"]
 mod root_source_handoff_tests;
+#[cfg(test)]
+#[path = "normal_default_root_catalog_loop_scope_tests.rs"]
+mod loop_scope_tests;

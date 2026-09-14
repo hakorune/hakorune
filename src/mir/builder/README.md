@@ -417,6 +417,17 @@ this row. The focused evidence and reusable structural guard are
 `raw_compat_child_terminal_tests` and
 `tools/checks/smoke_phase2160_hako_mainline_raw_compat_child_terminal_guard.sh`.
 
+### Raw Loop compatibility scope selection I0 (2026-09-14)
+
+The normal Program(JSON v0) compatibility root selects the existing
+non-callable `RawInvocationChildPortV1` constructor. It therefore does not
+borrow the callable-loop root scope that belongs to the source-backed selected
+route. Installed source-backed roots retain the scope, direct-call loan, and
+callable ledger issued by the invocation session. The raw Loop owner keeps its
+named `callable-ledger-missing` fail-fast when an armed scope lacks that ledger;
+the compatibility branch does not fabricate one. Focused route evidence lives
+in `normal_default_root_catalog_loop_scope_tests` and the raw-port test module.
+
 ## Reading Order
 
 1. `src/mir/README.md`

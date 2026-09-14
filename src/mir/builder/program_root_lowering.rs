@@ -226,12 +226,22 @@ impl MirBuilder {
         };
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
-            let mut port = RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope_and_direct_call_loan(
-                &mut module_port,
-                runtime_inputs.cleanup_exit_policy(),
-                callable_loop_root_scope,
-                direct_call_loan.as_mut(),
-            );
+            let mut port = if matches!(
+                &callable_mode,
+                NormalCallableSemanticPackageMode::Installed(_)
+            ) {
+                RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope_and_direct_call_loan(
+                    &mut module_port,
+                    runtime_inputs.cleanup_exit_policy(),
+                    callable_loop_root_scope,
+                    direct_call_loan.as_mut(),
+                )
+            } else {
+                RawInvocationChildPortV1::new_with_cleanup_exit_policy(
+                    &mut module_port,
+                    runtime_inputs.cleanup_exit_policy(),
+                )
+            };
             match script_mode {
                 NormalScriptRootLoweringMode::Complete(source) => port
                     .with_script_semantic_source_v1(source, |port| {

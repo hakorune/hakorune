@@ -85,3 +85,12 @@ does not issue a ledger). The error is therefore a known baseline debt from
 
 No Hako StringBox membership, source-artifact transport, shared-schema
 retirement, backend parity, or whole-R7 completion is claimed by this D0.
+
+## Recovery I0 evidence (2026-09-14)
+
+The selected I0 implemented the bounded constructor branch and recorded its
+route-level evidence in the child card. Compatibility no longer inherits an
+unissued callable scope; source-backed selection still carries scope and
+ledger, while an explicitly missing ledger remains a named pre-effect stop.
+The downstream source-backed recipe boundary and Hako StringBox ownership are
+outside this recovery decision.

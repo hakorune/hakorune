@@ -101,3 +101,27 @@ The recovery dependency is now design-scoped as
 boundary is limited to the compatibility root's scope/ledger choice; it does
 not reopen Generic G0 or change this Hako owner. After that D0's I0 lands, the
 phase14/16/17 and malformed-shape probes return here for closeout.
+
+## Recovery result and next baseline (2026-09-14)
+
+The compatibility-root recovery I0 is closed in
+`mir-call-raw-loop-compatibility-scope-selection-i0-2026-09-14.md`. Its
+constructor branch and three route-level exact tests passed. The rebuilt
+`target/quick/hakorune` then crossed the former
+`callable-ledger-missing` terminal on all three owner-to-terminal smokes.
+
+The phase14, phase16, and phase17 smokes still stop at the same downstream
+baseline before the StringBox owner:
+
+```text
+[freeze:contract][static-call/legacy-fallback-retired]
+owner=ParserStringUtilsBox method=starts_with arity=3
+```
+
+This is classified as a known baseline, not a current-change failure. No
+fallback or retry is added to make the StringBox rows appear green. The next
+design boundary must identify the existing static-call owner and its exact
+caller-local retirement or retained compatibility scope before these smokes
+can serve as StringBox owner acceptance. Until that decision is selected, the
+Hako membership implementation remains implemented but its dynamic positive
+and negative rows are not claimed as closed.
