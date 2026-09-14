@@ -34,7 +34,7 @@ pub fn collect_using_and_strip(
             std::collections::HashMap::new(),
         ));
     }
-    let plan = plan_using_strip(runner, code, filename)?;
+    let plan = plan_using_strip(runner, code, filename, false)?;
     let (cleaned, paths, imports, _edges) = apply_using_strip_plan(plan);
     Ok((cleaned, paths, imports))
 }
@@ -52,7 +52,7 @@ pub(crate) fn collect_using_and_strip_with_edges(
     ),
     String,
 > {
-    Ok(apply_using_strip_plan(plan_using_strip(runner, code, filename)?))
+    Ok(apply_using_strip_plan(plan_using_strip(runner, code, filename, true)?))
 }
 
 struct UsingStripPlan {
@@ -90,6 +90,7 @@ fn plan_using_strip(
     runner: &NyashRunner,
     code: &str,
     filename: &str,
+    preserve_line_numbers: bool,
 ) -> Result<UsingStripPlan, String> {
     let using_ctx = runner.init_using_context();
     let prod = crate::config::env::using_is_prod();
@@ -270,6 +271,10 @@ fn plan_using_strip(
                     alias_name.as_deref(),
                     &imports,
                 );
+                if preserve_line_numbers {
+                    kept_len += 1;
+                    kept_lines.push(String::new());
+                }
                 continue;
             }
             // Resolve namespaces/packages
@@ -293,6 +298,10 @@ fn plan_using_strip(
                     verbose,
                 ) {
                     if resolved.starts_with("dylib:") {
+                        if preserve_line_numbers {
+                            kept_len += 1;
+                            kept_lines.push(String::new());
+                        }
                         continue;
                     }
                     let canon = std::fs::canonicalize(&resolved)
@@ -341,6 +350,10 @@ fn plan_using_strip(
                         alias_name.as_deref(),
                         &imports,
                     );
+                    if preserve_line_numbers {
+                        kept_len += 1;
+                        kept_lines.push(String::new());
+                    }
                     continue;
                 }
 
@@ -632,6 +645,10 @@ fn plan_using_strip(
                     }
                     Err(e) => return Err(format!("{}:{}: using: {}", filename, line_no, e)),
                 }
+            }
+            if preserve_line_numbers {
+                kept_len += 1;
+                kept_lines.push(String::new());
             }
             continue;
         }

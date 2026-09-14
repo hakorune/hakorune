@@ -49,7 +49,34 @@ fn normal_preparation_preserves_local_with_and_without_prelude() {
                     assert_eq!(prepared.lineage.segments().len(), 3);
                     assert_eq!(prepared.lineage.edges().len(), 2);
                     assert_eq!(prepared.lineage.segments()[0].dfs_ordinal, 0);
-                    assert_eq!(prepared.lineage.segments()[2].global_start_line > 0, true);
+                    let root = filename.to_string_lossy().to_string();
+                    let prelude = std::fs::canonicalize(&prelude)
+                        .unwrap()
+                        .to_string_lossy()
+                        .to_string();
+                    let nested = std::fs::canonicalize(&nested)
+                        .unwrap()
+                        .to_string_lossy()
+                        .to_string();
+                    let segments = prepared.lineage.segments();
+                    let nested_segment = segments
+                        .iter()
+                        .find(|segment| segment.canonical_path.as_ref() == nested)
+                        .expect("nested segment");
+                    let prelude_segment = segments
+                        .iter()
+                        .find(|segment| segment.canonical_path.as_ref() == prelude)
+                        .expect("prelude segment");
+                    let root_segment = segments
+                        .iter()
+                        .find(|segment| segment.canonical_path.as_ref() == root)
+                        .expect("root segment");
+                    assert_eq!(nested_segment.parent.as_deref(), Some(prelude.as_str()));
+                    assert_eq!(prelude_segment.parent.as_deref(), Some(root.as_str()));
+                    assert_eq!(prelude_segment.local_start_line, 1);
+                    assert_eq!(prelude_segment.local_line_count, 7);
+                    assert_eq!(root_segment.local_start_line, 1);
+                    assert_eq!(root_segment.local_line_count, 4);
                 } else {
                     assert_eq!(prepared.code, source);
                     assert_eq!(prepared.lineage.segments().len(), 1);

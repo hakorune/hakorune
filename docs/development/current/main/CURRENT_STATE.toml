@@ -1,11 +1,11 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-I0-A2-BODY-CALL-CONSTRUCTOR-GUARDS"
-current_execution_cohort = "a2_body_call_constructor_guard_d1"
-current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-I0-A2-BODY-CALL-CONSTRUCTOR-GUARDS__closeout_receipt"
+current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-I0-A0-2-IMPORT-LINEAGE-PARENT-RANGE-CORRECTION"
+current_execution_cohort = "a0_2_import_lineage_parent_range_correction"
+current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-I0-A0-2-IMPORT-LINEAGE-PARENT-RANGE-CORRECTION__closeout_receipt"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "none__a2_d1_design_closed_2026-09-14"
+current_design_stop = "none__a0_2_import_lineage_parent_range_correction_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-static-compatibility-a2-body-call-constructor-d1-2026-09-14.md"
-latest_card = "mir-call-static-compatibility-i0-a2-body-call-constructor-guards-2026-09-14"
-latest_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-i0-a2-body-call-constructor-guards-2026-09-14.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-static-compatibility-i0-a0-2-import-lineage-parent-range-correction-2026-09-14.md"
+latest_card = "mir-call-static-compatibility-i0-a0-2-import-lineage-parent-range-correction-2026-09-14"
+latest_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-i0-a0-2-import-lineage-parent-range-correction-2026-09-14.md"
 latest_card_summary = """
 Windows is deferred by the user. The phase14 fixture emit succeeds, while the
 second program_json_v0_entry normal VM invocation fails while compiling the
@@ -44,12 +44,16 @@ inventory; the selected fast slice is focused guard coverage through existing pa
 resolver, constructor and package owners. A2 body/direct-call/constructor guard
 I0 is closed with the existing focused owner tests recorded in its receipt;
 no new semantic product or CI lane was introduced. StringBox unreachable
-receipt/type-tag/clone findings remain a separate non-claim.
+receipt/type-tag/clone findings remain a separate non-claim. The A0-2 correction
+now derives nested import parents from direct DFS and preserves original local
+source line ranges in the lineage-aware strip path; focused lineage evidence is
+recorded in the correction card. A3 package admission remains the next
+design-only slice and is not selected by this correction.
 """
-next_design_card = "none__a2_body_call_constructor_guard_closeout"
-next_design_card_path = "none__a2_body_call_constructor_guard_closeout"
-next_execution_card = "MIR-CALL-STATIC-COMPATIBILITY-I0-A2-BODY-CALL-CONSTRUCTOR-GUARDS"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-i0-a2-body-call-constructor-guards-2026-09-14.md"
+next_design_card = "none__a3_package_admission_requires_design_worker"
+next_design_card_path = "none__a3_package_admission_requires_design_worker"
+next_execution_card = "none__a3_package_admission_requires_design_worker"
+next_execution_card_path = "none__a3_package_admission_requires_design_worker"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

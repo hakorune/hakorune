@@ -4,7 +4,7 @@ use super::prelude::{resolve_normal_prelude_paths_profiled, resolve_prelude_path
 use super::import_lineage::{
     ImportLineageEdgeV1, MergedSourceLineageV1, MergedSourceSegmentV1,
 };
-use super::using::{collect_using_and_strip, collect_using_and_strip_with_edges};
+use super::using::collect_using_and_strip_with_edges;
 
 struct TextMergePlan {
     merged: String,
@@ -103,7 +103,7 @@ fn plan_text_merge(
     let trace = crate::config::env::resolve_trace();
 
     // First pass: collect and resolve prelude paths
-    let (cleaned_main, _prelude_paths_direct, main_imports, main_edges) =
+    let (cleaned_main, prelude_paths_direct, main_imports, main_edges) =
         collect_using_and_strip_with_edges(runner, source, filename)?;
     let discover = if selected_normal {
         resolve_normal_prelude_paths_profiled
@@ -111,7 +111,6 @@ fn plan_text_merge(
         resolve_prelude_paths_profiled
     };
     let (_cleaned_ignore, prelude_paths_profiled) = discover(runner, source, filename)?;
-    debug_assert_eq!(cleaned_main, _cleaned_ignore);
     // Expand nested preludes for text-merge too (DFS) so that any `using`
     // inside prelude files (e.g., runner_min -> lower_* boxes) are also
     // included even when NYASH_USING_AST is OFF.
@@ -122,6 +121,18 @@ fn plan_text_merge(
     let mut parent_paths: std::collections::HashMap<String, Option<String>> =
         std::collections::HashMap::new();
     let mut lineage_edges = main_edges;
+    for p in prelude_paths_direct.iter() {
+        dfs_text_with_imports(
+            runner,
+            p,
+            Some(&root_path),
+            &mut expanded,
+            &mut seen,
+            &mut imports,
+            &mut parent_paths,
+            &mut lineage_edges,
+        )?;
+    }
     for p in prelude_paths_profiled.iter() {
         // The resolver returns a transitive closure, while this DFS expands
         // that closure itself.  Skip a path already emitted by this same
@@ -201,8 +212,8 @@ fn plan_text_merge(
             .map_err(|e| format!("using: failed to read '{}': {}", path, e))?;
 
         // Strip using lines from prelude and normalize
-        let (cleaned_raw, _nested, _nested_imports) =
-            collect_using_and_strip(runner, &content, path)?;
+        let (cleaned_raw, _nested, _nested_imports, _nested_edges) =
+            collect_using_and_strip_with_edges(runner, &content, path)?;
         let mut cleaned = normalize_text_for_inline(&cleaned_raw);
         // Legacy normalization only; selected normal source retains Local syntax.
         if !selected_normal
