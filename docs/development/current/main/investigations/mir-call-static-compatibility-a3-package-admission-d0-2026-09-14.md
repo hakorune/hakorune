@@ -4,7 +4,7 @@ Task: MIR-CALL-STATIC-COMPATIBILITY-A3-PACKAGE-ADMISSION-D0
 Date: 2026-09-14
 Priority: admit the selected same-brand mixed source through the existing package/publication chain
 Parent: mir-call-static-compatibility-catalog-target-d0-2026-09-14.md
-NextCard: mir-call-static-compatibility-i0-a0-3-mixed-source-admission-witness-2026-09-14.md
+NextCard: mir-call-static-compatibility-i0-a3-package-admission-boundary-2026-09-14.md
 Implementation permission: false for this design card; the bounded source-admission I0 is selected in NextCard
 ---
 
