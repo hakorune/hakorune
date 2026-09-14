@@ -1,11 +1,11 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0"
-current_execution_cohort = "r7_stringbox_source_issuer_d0"
-current_blocker_token = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0__source_product_crosswalk_and_canonical_admission_unsettled"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-R7-STRINGBOX-SOURCE-ARTIFACT-I0"
+current_execution_cohort = "r7_stringbox_source_artifact_i0"
+current_blocker_token = "MIR-CALL-R7-STRINGBOX-SOURCE-ARTIFACT-I0__artifact_handoff_implementation"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0__source_product_crosswalk_and_canonical_admission_unsettled"
+current_design_stop = "none__stringbox_source_issuer_d0_closed"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,28 +14,26 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-compatibility-retire-r7-d0-2026-09-11"
-latest_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-r7-stringbox-source-artifact-i0-2026-09-14.md"
+latest_card = "mir-call-r7-stringbox-source-artifact-i0-2026-09-14"
+latest_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-source-artifact-i0-2026-09-14.md"
 latest_card_summary = """
-Retained compatibility prevents immediate R7 deletion, not internal design.
-Select a source-issuer child slice for the StringBox Program-JSON cohort:
-the single Rust Stage1 AST parse/lower transaction can issue Program-v0 and a
-source-only product, but the one-to-one output crosswalk and enriched
-`Stage1ProgramJsonModuleHandoff` API are not yet defined. The sole successor
-consumer candidate remains that handoff into canonical admission; registry/
-fallback and env.mirbuilder remain compatibility. The bounded candidate is
-direct/new StringBox `length|size`; `indexOf` and broad first-string matches
-remain compatibility. Hako registry/fallback callers receive body-only JSON
-and cannot pass the product; no caller-zero is manufactured. The planned API is
-`SourceProgramJsonAuthority::for_source` -> source artifact and
-`Stage1ProgramJsonModuleHandoff::from_source_artifact(...)`; existing `parse`
-stays compatibility. No implementation or blanket compatibility Stop is selected.
+The D0 source-membership, issuer, crosswalk, handoff, and admission boundary
+are accepted. Fast-path I0 now adds one source-enriched artifact in the Rust
+Stage1 parse/lower transaction, carrying Program-v0 plus
+`Stage1StringBoxSourceProductV1` and `Stage1ProgramJsonCrosswalkV1` into
+`Stage1ProgramJsonModuleHandoff::from_source_artifact(...)`. The existing
+body-only `parse(&str)` and Hako registry/fallback remain compatibility. The
+bridge runs once; admission consumes exactly one lowering-issued Call anchor
+without physical rewrite and rejects zero/multiple/unconsumed/mismatched
+anchors before finalization. `indexOf`, broad first-string matches, caller
+switch, selected old-edge deletion, shared-schema retirement, and backend or
+Windows claims remain out of scope.
 """
-next_design_card = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-next_execution_card = "none__stringbox_source_issuer_d0_required"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+next_design_card = "MIR-CALL-R7-STRINGBOX-CALLER-SWITCH-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-source-artifact-i0-2026-09-14.md"
+next_execution_card = "MIR-CALL-R7-STRINGBOX-SOURCE-ARTIFACT-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-source-artifact-i0-2026-09-14.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
