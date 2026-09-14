@@ -1,11 +1,11 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0"
-current_execution_cohort = "normal_pipeline_red_recovery"
-current_blocker_token = "MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0__parent_baseline_replay"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-NORMAL-INGRESS-ORDINARY-INVOKE-LIFECYCLE-I0"
+current_execution_cohort = "normal_pipeline_ordinary_invoke_lifecycle"
+current_blocker_token = "MIR-CALL-NORMAL-INGRESS-ORDINARY-INVOKE-LIFECYCLE-I0__selected_callback_observer"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__normal_pipeline_red_parent_baseline_replay_2026-09-14"
+current_design_stop = "closed__normal_pipeline_lifecycle_route_owner_decision_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-normal-pipeline-red-recovery-d0-2026-09-14.md"
-latest_card = "mir-call-normal-pipeline-red-recovery-d0-2026-09-14"
-latest_card_path = "docs/development/current/main/investigations/mir-call-normal-pipeline-red-recovery-d0-2026-09-14.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-normal-ingress-ordinary-invoke-lifecycle-i0-2026-09-14.md"
+latest_card = "mir-call-normal-ingress-ordinary-invoke-lifecycle-i0-2026-09-14"
+latest_card_path = "docs/development/current/main/investigations/mir-call-normal-ingress-ordinary-invoke-lifecycle-i0-2026-09-14.md"
 latest_card_summary = """
 Windows is deferred by the user. The phase14 fixture emit succeeds. The normal
 VM keep invocation is compatibility-only and cannot claim publication; the
@@ -54,12 +54,12 @@ parents, slots, parameters, callable/body coverage and the same parser brand.
 The existing package/publication chain is retained as the sole downstream
 authority; no package implementation or compatibility cutover is authorized
 yet. A0-3 source admission design is now closed with a parser-captured declaration-line-to-segment typed relation; AST declaration spans are unknown
-and are not an authority. The bounded A0-3 implementation is landed with focused parser/static/source-admission receipts. A3 package admission is closed with a source-backed MIR handoff guard; VM keep remains compatibility-only and resolver If deferral remains a separate expressivity row. The next design stop classifies four normal-pipeline reds by parent replay before any fix.
+and are not an authority. The bounded A0-3 implementation is landed with focused parser/static/source-admission receipts. A3 package admission is closed with a source-backed MIR handoff guard; VM keep remains compatibility-only and resolver If deferral remains a separate expressivity row. Parent replay classified four normal-pipeline reds: two parent baseline failures and two current-change route regressions. The selected fast slice observes the existing lifecycle callback for the latter pair.
 """
-next_design_card = "MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-normal-pipeline-red-recovery-d0-2026-09-14.md"
-next_execution_card = "none__normal_pipeline_red_recovery_until_parent_replay"
-next_execution_card_path = "none__normal_pipeline_red_recovery_until_parent_replay"
+next_design_card = "MIR-CALL-NORMAL-INGRESS-ORDINARY-INVOKE-LIFECYCLE-I0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-normal-ingress-ordinary-invoke-lifecycle-i0-2026-09-14.md"
+next_execution_card = "MIR-CALL-NORMAL-INGRESS-ORDINARY-INVOKE-LIFECYCLE-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-normal-ingress-ordinary-invoke-lifecycle-i0-2026-09-14.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

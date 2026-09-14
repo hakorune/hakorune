@@ -1,10 +1,10 @@
 ---
-Status: open__design_stop__2026-09-14
+Status: closed__design__2026-09-14
 Task: MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0
 Date: 2026-09-14
 Priority: classify and recover the selected normal-pipeline reds without weakening a route or hiding a terminal
 Parent: mir-call-static-compatibility-i0-a3-package-admission-boundary-2026-09-14.md
-NextCard: TBD after parent-baseline comparison
+NextCard: mir-call-normal-pipeline-lifecycle-route-recovery-d0-2026-09-14.md
 Implementation permission: false until each red has a reproduced baseline and one existing owner
 ---
 
@@ -34,6 +34,21 @@ The documented baseline at `docs/development/current/main/workstreams/`
 records two pipeline reds at `b61aef93ec`; it does not authorize treating the
 two route failures above as the same baseline. Parent replay is required to
 close that classification gap.
+
+## Parent/current comparison receipt
+
+Parent replay at `b61aef93ec` used one quick-profile Cargo process against the
+normal-pipeline test module. It ran 23 tests: 21 passed and the two documented
+`published_consumer_*` tests failed. Both
+`normal_ingress_preserves_app_main_free_static_definition_after_finish` and
+`normal_ingress_preserves_top_level_free_function_after_finish` passed there.
+
+The same four exact test paths at current `2894a77b82` reproduced four reds:
+the two known baseline terminals above, plus
+`UnsupportedBeforeObject` for both `normal_ingress_preserves_*` tests. The
+latter pair is therefore `ParentPassCurrentFail`, a current-change blocker;
+the former pair is `ParentFailCurrentFail`, immutable known baseline debt.
+The next card owns only the latter pair.
 
 ## Ordered bounded tasks
 
