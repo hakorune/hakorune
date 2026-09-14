@@ -399,9 +399,9 @@ lineage, in addition to existing duplicate path, alias rebinding and alias
 binding conflict. `NormalParserSourceLineageV1` remains the merged-root
 product; `LineSpan` and the alias map stay non-authoritative.
 
-This is design-only. The next row is **A0-2-D**, which must fix this schema,
-its issuing owner, parser-brand boundary, reject terminals and consumer handoff
-before a transport implementation or focused guard is selected.
+This is design-only. The A0-2-D design condition is now fixed above. The next
+row is **A0-3**, which must define the source-backed root admission boundary
+before any transport implementation or focused guard is selected.
 
 ## Reused finite caller inventory
 
@@ -431,7 +431,8 @@ No repeated repository-wide census is needed.
 | 2b — complete, D0 | Choose the mixed-cohort authority boundary | A is selected: the whole same-brand merged invocation becomes one source-backed product. B is declined because compatibility has no semantic package/publication issuer and would create a second authority. The next rows are A0/A1 design; no implementation or caller switch. |
 | 2c — complete design split, D0 | Separate A0/A1 source co-seal rows | A0 owns the same-brand source-window/import contract; A1 consumes that window and owns finite static-parent/member/method co-seal. The ordered A0-1…A1-3 outputs and reject partitions are recorded above; implementation remains unauthorized. |
 | 2d — complete design, D0 | A0-1 mixed source-window predicate | Ordinary/static declarations and direct methods are the only admitted rows; excluded top-level families and reject terminals are fixed above. |
-| 2e — next, D0 | A0-2-D typed import-lineage schema | Define the merge-owner lineage product, parser-brand co-seal boundary, exact coverage/reject rules and parser handoff. Do not modify transport or switch callers in this row. |
+| 2e — complete design, D0 | A0-2-D typed import-lineage schema | The merge-owner lineage product, parser-brand co-seal boundary, exact coverage/reject rules and parser handoff are fixed above. Transport implementation remains unauthorized. |
+| 2f — next, D0 | A0-3 source-backed root admission | Define how the allowed same-brand window enters `Initial`/`NormalSourcePlan` and how every compatibility/source sibling is consumed on reject. Do not switch production callers in this row. |
 | 3 — conditional I0 | Switch accepted source cohort to existing package | Connect materializer admission to `PreparedNormalDefaultProgramRootV1::from_callable_source`, existing package issuer/collector and Cataloged static handoff. In the same slice retire that cohort's old compatibility classification/raw static-child dispatch. Scope the exact caller and branches after A0/A1 and A2/A3; no blanket root switch. |
 | 4 — I0 acceptance | Prove publication, rejection and retirement | Real selected source reaches static publication; missing/foreign site, brand mismatch, missing/ambiguous target and unsupported source/result reject before argument effects. Existing owner guards prove selected old-edge absence and residual handling. |
 | 5 — return to StringBox I0 | Close original owner acceptance | Run existing phase14/16/17 and its malformed/wrong-class/extra-argument/embedded/empty cases only after upstream reach is established. Record exact owner-to-terminal results; an earlier stop leaves this acceptance open. |
