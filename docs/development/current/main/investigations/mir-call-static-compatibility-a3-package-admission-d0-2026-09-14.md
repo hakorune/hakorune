@@ -1,11 +1,11 @@
 ---
-Status: selected__design_stop__NoSafeSlice__2026-09-14
+Status: closed__design__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-A3-PACKAGE-ADMISSION-D0
 Date: 2026-09-14
 Priority: admit the selected same-brand mixed source through the existing package/publication chain
 Parent: mir-call-static-compatibility-catalog-target-d0-2026-09-14.md
-NextCard: none__a0-3-mixed-admission-witness-must-close-first
-Implementation permission: false until the admission witness and source coverage boundary are closed
+NextCard: mir-call-static-compatibility-i0-a0-3-mixed-source-admission-witness-2026-09-14.md
+Implementation permission: false for this design card; the bounded source-admission I0 is selected in NextCard
 ---
 
 # A3 package admission design stop
@@ -69,6 +69,25 @@ box name, source line, merged-text order or AST reinspection. The relation must
 be issued at the parser/source handoff (or the imported cohort must remain
 rejected); until that issuer and its exact coverage are named, the witness is
 not implementable safely.
+
+## Design resolution
+
+The missing relation is now bounded without introducing a second semantic
+authority. The parser source handoff will consume the already-issued
+`MergedSourceLineageV1` beside the parser invocation product and issue one
+source-provenance relation from each retained top-level declaration span to
+exactly one merged segment. The relation records parser brand/declaration path,
+global start line, canonical segment and local source line. The interval lookup
+uses the merge owner's sealed global ranges; it does not infer identity from a
+name, alias, AST re-scan or merged order. A missing, ambiguous, out-of-range or
+foreign-brand match is a named source-admission reject.
+
+This is an aggregate of existing parser/source and merge facts, not a second
+callable, target, result or package issuer. The first implementation slice is
+therefore limited to retaining source-sealed ordinary and static rows in one
+same-brand Mixed postpass, exposing the existing static parent seal to the
+normal source-plan surface, and issuing this relation. Package admission,
+publication and caller cutover remain later A3 tasks.
 
 ## Ordered bounded design tasks
 
