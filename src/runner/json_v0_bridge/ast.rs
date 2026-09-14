@@ -269,6 +269,8 @@ pub(super) enum ExprV0 {
         recv: Box<ExprV0>,
         method: String,
         args: Vec<ExprV0>,
+        #[serde(default)]
+        source_anchor: Option<u32>,
     },
     Field {
         recv: Box<ExprV0>,

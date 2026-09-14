@@ -23,7 +23,7 @@ pub(super) fn lower_call_expr<S: VarScope>(
         let recv = ExprV0::Var {
             name: recv_alias.to_string(),
         };
-        return lower_method_expr(env, f, cur_bb, &recv, method, args, vars);
+        return lower_method_expr(env, f, cur_bb, &recv, method, args, None, vars);
     }
 
     if name == "array.of" {
@@ -187,6 +187,7 @@ pub(super) fn lower_method_expr<S: VarScope>(
     recv: &ExprV0,
     method: &str,
     args: &[ExprV0],
+    source_anchor: Option<u32>,
     vars: &mut S,
 ) -> Result<(ValueId, BasicBlockId), String> {
     let recv_is_console_new = matches!(recv, ExprV0::New { class, .. } if class == "ConsoleBox");
@@ -230,6 +231,7 @@ pub(super) fn lower_method_expr<S: VarScope>(
         recv: inner_recv,
         method: inner_method,
         args: inner_args,
+        ..
     } = recv
     {
         if matches!(&**inner_recv, ExprV0::Var { name } if name == "env")
@@ -255,6 +257,7 @@ pub(super) fn lower_method_expr<S: VarScope>(
         recv: inner_recv,
         method: inner_method,
         args: inner_args,
+        ..
     } = recv
     {
         if matches!(&**inner_recv, ExprV0::Var { name } if name == "env")
@@ -287,7 +290,9 @@ pub(super) fn lower_method_expr<S: VarScope>(
     let (recv_v, cur) = super::lower_expr_with_scope(env, f, cur_bb, recv, vars)?;
     let (arg_ids, cur2) = super::lower_args_with_scope(env, f, cur, args, vars)?;
     let dst = f.next_value_id();
+    let function_name = f.signature.name.clone();
     if let Some(bb) = f.get_block_mut(cur2) {
+        let instruction_index = bb.instructions.len();
         bb.add_instruction(crate::mir::ssot::method_call::runtime_method_call(
             Some(dst),
             recv_v,
@@ -297,6 +302,9 @@ pub(super) fn lower_method_expr<S: VarScope>(
             EffectMask::READ,
             crate::mir::definitions::call_unified::TypeCertainty::Union,
         ));
+        if let Some(anchor) = source_anchor {
+            env.record_source_anchor(anchor, function_name, cur2, instruction_index, Some(dst));
+        }
     }
     Ok((dst, cur2))
 }

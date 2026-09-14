@@ -51,8 +51,17 @@ Current owner split:
   - strict source -> Program(JSON) authority
   - yields the output-projection owner instead of mixing emit projection inline
 - `SourceProgramJsonOutputHandoff`
-  - owns the strict source route's `program_json` payload
-  - delegates Program(JSON) -> MIR(JSON) to `Stage1ProgramJsonModuleHandoff`
+  - owns the strict source route's `program_json` payload and its co-sealed source product/crosswalk
+  - delegates Program(JSON) -> MIR(JSON) to `Stage1ProgramJsonModuleHandoff::from_source_artifact`
+- `Stage1StringBoxSourceProductV1` / `Stage1ProgramJsonCrosswalkV1`
+  - are issued in the Rust Stage1 AST parse/lower transaction for the bounded direct/New
+    `StringBox.length|size/0` cohort
+  - carry source relation data and the lowering-issued `source_anchor`; they do not infer
+    provenance from JSON/MIR indices
+- `Stage1ProgramJsonModuleHandoff::from_source_artifact`
+  - runs the JSON v0 bridge once, validates each typed anchor against the existing `Call`,
+    consumes it exactly once, and rejects cardinality/receiver/selector/arity mismatches
+  - performs no MIR rewrite; body-only `parse(&str)` remains the compatibility seam
 - `Stage1UserBoxDecls`
   - explicit payload parse
   - compat fallback from defs/body

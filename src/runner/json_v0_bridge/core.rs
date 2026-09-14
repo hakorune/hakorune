@@ -1,9 +1,36 @@
 use super::ast::{ProgramV0, StmtV0};
 use super::lowering::lower_program;
+use super::source_anchor::Stage1ProgramJsonCallAnchorReceiptV1;
 use std::collections::BTreeMap;
 
 pub fn parse_json_v0_to_module(json: &str) -> Result<crate::mir::MirModule, String> {
     parse_json_v0_to_module_with_imports(json, BTreeMap::new())
+}
+
+/// Source-artifact bridge entry that returns ephemeral receipts for the
+/// lowering-issued anchors carried by selected Method expressions.
+pub(crate) fn parse_json_v0_to_module_with_source_anchors(
+    json: &str,
+) -> Result<
+    (
+        crate::mir::MirModule,
+        Vec<Stage1ProgramJsonCallAnchorReceiptV1>,
+    ),
+    String,
+> {
+    let prog: ProgramV0 =
+        serde_json::from_str(json).map_err(|e| format!("invalid JSON v0: {}", e))?;
+    if prog.version != 0 || prog.kind != "Program" {
+        return Err("unsupported IR: expected {version:0, kind:\"Program\"}".into());
+    }
+    let imports = prog.imports.clone();
+    let (mut module, receipts) = super::lowering::lower_program_with_source_anchors(prog, imports)?;
+    let _ = crate::mir::passes::callsite_canonicalize::canonicalize_for_site(
+        &mut module,
+        crate::mir::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::ProgramJsonV0Bridge,
+    );
+    crate::mir::semantic_refresh::refresh_module_json_v0_post_canonicalize_metadata(&mut module);
+    Ok((module, receipts))
 }
 
 pub fn parse_json_v0_to_module_with_imports(

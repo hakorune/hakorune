@@ -158,8 +158,22 @@ pub(super) fn lower_expr_with_scope<S: VarScope>(
         ExprV0::ArrayLiteral { elements, .. } => {
             call_ops::lower_array_values_expr(env, f, cur_bb, elements, vars)
         }
-        ExprV0::Method { recv, method, args } => {
-            call_ops::lower_method_expr(env, f, cur_bb, recv, method, args, vars)
+        ExprV0::Method {
+            recv,
+            method,
+            args,
+            source_anchor,
+        } => {
+            call_ops::lower_method_expr(
+                env,
+                f,
+                cur_bb,
+                recv,
+                method,
+                args,
+                *source_anchor,
+                vars,
+            )
         }
         ExprV0::Field { recv, field } => {
             access_ops::lower_field_expr(env, f, cur_bb, recv, field, vars)

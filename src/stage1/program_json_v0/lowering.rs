@@ -22,6 +22,10 @@ use self::expr_support::{
 };
 use self::statements::statements_to_json_v0;
 use self::typed_array::{validate_typed_array_method_contract, validate_typed_array_method_value};
+use super::source_artifact::{
+    Stage1ProgramJsonCrosswalkV1, Stage1StringBoxSourceCollector, Stage1StringBoxSourceProductV1,
+};
+use std::cell::{Cell, RefCell};
 
 #[cfg(test)]
 pub(super) fn program_json_v0_from_body(body: &[ASTNode]) -> Result<serde_json::Value, String> {
@@ -34,6 +38,8 @@ pub(super) struct ProgramJsonV0LoweringContext {
     known_brands: VerifiedBrandProgramDeclarationCatalogV1,
     known_records: BTreeMap<String, Vec<FieldDecl>>,
     source_enum_names: BTreeSet<String>,
+    source_collector: RefCell<Stage1StringBoxSourceCollector>,
+    collect_source_relations: Cell<bool>,
 }
 
 impl ProgramJsonV0LoweringContext {
@@ -44,6 +50,8 @@ impl ProgramJsonV0LoweringContext {
             known_brands: BrandProgramDeclarationCatalogDraftV1::default().seal(),
             known_records: BTreeMap::new(),
             source_enum_names: BTreeSet::new(),
+            source_collector: RefCell::new(Stage1StringBoxSourceCollector::default()),
+            collect_source_relations: Cell::new(false),
         }
     }
 
@@ -58,7 +66,36 @@ impl ProgramJsonV0LoweringContext {
             known_brands,
             known_records,
             source_enum_names,
+            source_collector: RefCell::new(Stage1StringBoxSourceCollector::default()),
+            collect_source_relations: Cell::new(true),
         }
+    }
+
+    pub(super) fn disable_source_relation_collection(&self) {
+        self.collect_source_relations.set(false);
+    }
+
+    pub(super) fn observe_stringbox_method_call(
+        &self,
+        object: &ASTNode,
+        method: &str,
+        arguments: &[ASTNode],
+    ) -> Result<Option<u32>, String> {
+        if self.collect_source_relations.get() {
+            return self
+                .source_collector
+                .borrow_mut()
+                .observe_method_call(object, method, arguments);
+        }
+        Ok(None)
+    }
+
+    pub(super) fn finish_source_relations(
+        &self,
+    ) -> Result<(Stage1StringBoxSourceProductV1, Stage1ProgramJsonCrosswalkV1), String> {
+        self.source_collector
+            .replace(Stage1StringBoxSourceCollector::default())
+            .finish()
     }
 
     fn find_enum_variant(&self, enum_name: &str, variant_name: &str) -> Option<&EnumVariantDecl> {
@@ -328,6 +365,7 @@ fn method_call_expr_to_json_v0(
     context: &ProgramJsonV0LoweringContext,
     local_types: &mut ProgramJsonV0LocalTypes,
 ) -> Result<serde_json::Value, String> {
+    let source_anchor = context.observe_stringbox_method_call(object, method, arguments)?;
     if let Some(static_receiver) = static_path_from_expr(object) {
         if context
             .find_enum_variant(&static_receiver, method)
@@ -366,12 +404,16 @@ fn method_call_expr_to_json_v0(
             )?;
         }
     }
-    Ok(serde_json::json!({
+    let mut lowered = serde_json::json!({
         "type": "Method",
         "recv": expression_to_json_v0(object, context, local_types)?,
         "method": method,
         "args": expressions_to_json_v0(arguments, context, local_types)?,
-    }))
+    });
+    if let Some(anchor) = source_anchor {
+        lowered["source_anchor"] = serde_json::json!(anchor);
+    }
+    Ok(lowered)
 }
 
 fn field_access_expr_to_json_v0(

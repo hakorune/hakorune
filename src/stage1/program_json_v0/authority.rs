@@ -16,6 +16,7 @@ use super::record_payload::{
     collect_enum_record_payload_box_decls, enum_variant_payload_type_name,
 };
 use super::routing;
+use super::source_artifact::Stage1ProgramJsonSourceArtifactV1;
 
 pub(super) fn source_to_program_json_v0_relaxed(source_text: &str) -> Result<String, String> {
     source_to_program_json_v0_impl(source_text, true)
@@ -40,6 +41,27 @@ fn source_to_program_json_v0_impl(
     source_text: &str,
     allow_dev_local_alias_sugar: bool,
 ) -> Result<String, String> {
+    Ok(
+        source_to_program_json_v0_artifact_impl(source_text, allow_dev_local_alias_sugar)?
+            .program_json,
+    )
+}
+
+pub(super) fn source_to_program_json_v0_strict_artifact(
+    source_text: &str,
+) -> Result<Stage1ProgramJsonSourceArtifactV1, String> {
+    if let Some(detail) =
+        routing::strict_authority_program_json_v0_source_rejection(source_text, "source route")
+    {
+        return Err(detail);
+    }
+    source_to_program_json_v0_artifact_impl(source_text, false)
+}
+
+fn source_to_program_json_v0_artifact_impl(
+    source_text: &str,
+    allow_dev_local_alias_sugar: bool,
+) -> Result<Stage1ProgramJsonSourceArtifactV1, String> {
     let imports = collect_using_imports(source_text);
     let normalized_source = if allow_dev_local_alias_sugar {
         preexpand_dev_local_aliases(source_text)
@@ -49,13 +71,14 @@ fn source_to_program_json_v0_impl(
     let ast = NyashParser::parse_from_string(&normalized_source).map_err(|primary_error| {
         format!("parse error (Rust parser, v0 subset): {}", primary_error)
     })?;
-    ast_to_program_json_v0_with_imports(&ast, imports)
+    ast_to_program_json_v0_with_imports(&ast, imports, allow_dev_local_alias_sugar)
 }
 
 fn ast_to_program_json_v0_with_imports(
     ast: &ASTNode,
     imports: BTreeMap<String, String>,
-) -> Result<String, String> {
+    allow_dev_local_alias_sugar: bool,
+) -> Result<Stage1ProgramJsonSourceArtifactV1, String> {
     let main_box = find_static_main_box(ast)
         .ok_or_else(|| "expected `static box Main { main() { ... } }`".to_string())?;
     if super::trace_enabled() {
@@ -78,7 +101,14 @@ fn ast_to_program_json_v0_with_imports(
         collect_record_decl_index(ast),
         collect_source_enum_decl_names(ast),
     );
+    if allow_dev_local_alias_sugar {
+        // The relaxed compatibility issuer does not publish source-artifact
+        // anchors; keep its Program(JSON v0) shape body-only.
+        lowering_context.disable_source_relation_collection();
+    }
     let mut program = program_json_v0_from_body_with_context(main_box.body, &lowering_context)?;
+    lowering_context.disable_source_relation_collection();
+    let (source_product, source_crosswalk) = lowering_context.finish_source_relations()?;
     let defs = defs_json_v0_from_methods(&main_box.helper_methods, &lowering_context)?;
     if super::trace_enabled() {
         eprintln!("[stage1/program_json_v0] serialized_defs={}", defs.len());
@@ -163,7 +193,13 @@ fn ast_to_program_json_v0_with_imports(
                 .map_err(|error| format!("imports serialize error: {}", error))?,
         );
     }
-    serde_json::to_string(&program).map_err(|error| format!("serialize error: {}", error))
+    let program_json =
+        serde_json::to_string(&program).map_err(|error| format!("serialize error: {}", error))?;
+    Ok(Stage1ProgramJsonSourceArtifactV1 {
+        program_json,
+        product: source_product,
+        crosswalk: source_crosswalk,
+    })
 }
 
 fn reject_sync_box_decls(ast: &ASTNode) -> Result<(), String> {

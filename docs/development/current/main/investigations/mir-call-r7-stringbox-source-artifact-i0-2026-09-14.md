@@ -163,3 +163,23 @@ README/reference updates, and pointer synchronization are observable. Closure
 does not claim a production caller switch. Any need to widen membership, add a
 second issuer, infer provenance after lowering, or change a compatibility caller
 reopens `MIR-CALL-R7-STRINGBOX-CALLER-SWITCH-D0` instead of expanding this row.
+
+## Implementation evidence (2026-09-14)
+
+- `src/stage1/program_json_v0/source_artifact.rs` now issues the source product
+  and crosswalk during the Rust AST parse/lower transaction. Strict source
+  lowering carries a private `source_anchor` on selected Method expressions;
+  relaxed compatibility lowering keeps the body-only shape.
+- `src/runner/json_v0_bridge` returns an ephemeral
+  `(function, block, instruction, dst)` receipt while lowering that anchor. The
+  receipt is not serialized and is shared across bridge environment clones.
+- `src/host_providers/mir_builder/handoff.rs` consumes the artifact through one
+  bridge pass and validates exact cardinality, source/crosswalk identity,
+  receiver origin, `RuntimeDataBox` Call shape, selector, and arity before
+  finalization. No MIR rewrite or post-hoc index scan is used.
+- Focused evidence: `source_stringbox_literal_uses_source_anchor_admission`,
+  `source_stringbox_new_uses_source_anchor_admission`, and
+  `source_stringbox_anchor_missing_from_program_is_rejected` pass in the
+  `host_providers::mir_builder` test binary. `cargo check --profile quick -j1`
+  also passes. Full I0 close remains pending until the guard/reference receipt
+  and pointer synchronization are recorded.

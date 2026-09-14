@@ -7,7 +7,10 @@ use crate::mir::{
     BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, ValueId,
 };
 // Phase 25.1: BTreeMap → BTreeMap（決定性確保）
+use super::source_anchor::Stage1ProgramJsonCallAnchorReceiptV1;
+use std::cell::RefCell;
 use std::collections::BTreeMap;
+use std::rc::Rc;
 
 // Split out merge/new_block helpers for readability (no behavior change)
 mod merge;
@@ -69,6 +72,9 @@ pub(super) struct BridgeEnv {
     pub(super) record_decls: BTreeMap<String, RecordDeclV0>,
     /// Immutable source-bound target authority for generic Program calls.
     program_call_targets: program_call_targets::ProgramCallTargetCatalog,
+    /// Source-artifact-only ephemeral anchor receipts. Clones share one ledger;
+    /// the body-only bridge simply leaves it empty.
+    pub(super) source_anchor_receipts: Rc<RefCell<Vec<Stage1ProgramJsonCallAnchorReceiptV1>>>,
 }
 
 impl BridgeEnv {
@@ -96,7 +102,27 @@ impl BridgeEnv {
             user_box_decls: BTreeMap::new(),
             record_decls: BTreeMap::new(),
             program_call_targets,
+            source_anchor_receipts: Rc::new(RefCell::new(Vec::new())),
         }
+    }
+
+    pub(super) fn record_source_anchor(
+        &self,
+        anchor: u32,
+        function_name: String,
+        block: BasicBlockId,
+        instruction_index: usize,
+        dst: Option<ValueId>,
+    ) {
+        self.source_anchor_receipts
+            .borrow_mut()
+            .push(Stage1ProgramJsonCallAnchorReceiptV1 {
+                anchor,
+                function_name,
+                block,
+                instruction_index,
+                dst,
+            });
     }
 }
 
@@ -177,6 +203,13 @@ pub(super) fn lower_program(
     prog: ProgramV0,
     imports: std::collections::BTreeMap<String, String>,
 ) -> Result<MirModule, String> {
+    lower_program_with_source_anchors(prog, imports).map(|(module, _)| module)
+}
+
+pub(super) fn lower_program_with_source_anchors(
+    prog: ProgramV0,
+    imports: std::collections::BTreeMap<String, String>,
+) -> Result<(MirModule, Vec<Stage1ProgramJsonCallAnchorReceiptV1>), String> {
     if prog.body.is_empty() {
         return Err("empty body".into());
     }
@@ -294,7 +327,8 @@ pub(super) fn lower_program(
     }
     program::lower_defs_into_module(&mut module, prog.defs, &env)?;
 
-    Ok(module)
+    let receipts = env.source_anchor_receipts.borrow().clone();
+    Ok((module, receipts))
 }
 
 fn static_data_plan_from_json_v0(row: &StaticDataPlanV0) -> crate::mir::function::StaticDataPlan {

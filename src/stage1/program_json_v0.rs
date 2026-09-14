@@ -28,8 +28,16 @@ mod packed_array_eligibility_checker;
 mod record_payload;
 #[path = "program_json_v0/routing.rs"]
 mod routing;
+#[path = "program_json_v0/source_artifact.rs"]
+mod source_artifact;
 #[path = "program_json_v0/type_ref.rs"]
 mod type_ref;
+
+pub(crate) use source_artifact::{
+    Stage1ProgramJsonCrosswalkEntryV1, Stage1ProgramJsonCrosswalkV1,
+    Stage1ProgramJsonSourceArtifactV1, Stage1StringBoxArgumentKindV1, Stage1StringBoxReceiverV1,
+    Stage1StringBoxSourceProductV1, Stage1StringBoxSourceRelationV1,
+};
 
 #[cfg(test)]
 use routing::strict_authority_program_json_v0_source_rejection;
@@ -64,6 +72,12 @@ pub fn emit_program_json_v0_for_strict_authority_source(
     source_text: &str,
 ) -> Result<String, String> {
     authority::emit_program_json_v0_for_strict_authority_source(source_text)
+}
+
+pub(crate) fn emit_program_json_v0_source_artifact_for_strict_authority_source(
+    source_text: &str,
+) -> Result<Stage1ProgramJsonSourceArtifactV1, String> {
+    authority::source_to_program_json_v0_strict_artifact(source_text)
 }
 
 /// Crate-local helper for the future-retire Rust phase-1 compatibility bridge emit-program route.

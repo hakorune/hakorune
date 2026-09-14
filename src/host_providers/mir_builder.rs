@@ -115,7 +115,9 @@ pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<Strin
         .map_err(failfast_error)
 }
 
-pub(crate) fn refresh_bridge_semantic_metadata(module: &mut crate::mir::MirModule) -> Result<(), String> {
+pub(crate) fn refresh_bridge_semantic_metadata(
+    module: &mut crate::mir::MirModule,
+) -> Result<(), String> {
     crate::mir::semantic_refresh::refresh_module_semantic_metadata(module)
 }
 
@@ -374,6 +376,76 @@ mod tests {
         let mir_json = result.unwrap();
         assert!(mir_json.contains("functions"));
         assert!(mir_json.contains("user_box_decls"));
+    }
+
+    #[test]
+    fn source_stringbox_literal_uses_source_anchor_admission() {
+        ensure_test_ring0();
+        let source = r#"
+static box Main {
+  main() {
+    return "猫".length()
+  }
+}
+"#;
+        let (program_json, mir_json) = source_to_program_and_mir_json(source)
+            .expect("direct StringBox source relation should be admitted");
+        let program: serde_json::Value =
+            serde_json::from_str(&program_json).expect("program json must parse");
+        assert_eq!(program["body"][0]["expr"]["source_anchor"], 0);
+        assert!(mir_json.contains("RuntimeDataBox"));
+    }
+
+    #[test]
+    fn source_stringbox_new_uses_source_anchor_admission() {
+        ensure_test_ring0();
+        let source = r#"
+static box Main {
+  main() {
+    return (new StringBox("猫")).size()
+  }
+}
+"#;
+        let (program_json, _mir_json) = source_to_program_and_mir_json(source)
+            .expect("direct StringBox construction relation should be admitted");
+        let program: serde_json::Value =
+            serde_json::from_str(&program_json).expect("program json must parse");
+        assert_eq!(program["body"][0]["expr"]["source_anchor"], 0);
+    }
+
+    #[test]
+    fn source_stringbox_anchor_missing_from_program_is_rejected() {
+        ensure_test_ring0();
+        let source = r#"
+static box Main {
+  main() {
+    return "猫".length()
+  }
+}
+"#;
+        let artifact = crate::stage1::program_json_v0::
+            emit_program_json_v0_source_artifact_for_strict_authority_source(source)
+            .expect("source artifact");
+        let mut program: serde_json::Value =
+            serde_json::from_str(&artifact.program_json).expect("program json must parse");
+        program["body"][0]["expr"]
+            .as_object_mut()
+            .expect("method expression")
+            .remove("source_anchor");
+        let tampered_json = serde_json::to_string(&program).expect("tampered json");
+        let result = handoff::Stage1ProgramJsonModuleHandoff::from_source_artifact(
+            tampered_json,
+            artifact.product,
+            artifact.crosswalk,
+        );
+        let error = match result {
+            Ok(_) => panic!("source relation without a bridge receipt must fail fast"),
+            Err(error) => error,
+        };
+        assert!(
+            error.contains("source artifact cardinality mismatch"),
+            "{error}"
+        );
     }
 
     #[test]

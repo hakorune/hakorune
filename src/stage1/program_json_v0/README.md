@@ -18,6 +18,11 @@ Public route-family SSOT: `docs/development/current/main/design/json-v0-route-ma
 - `src/stage1/program_json_v0/authority.rs`
   - current strict source authority owner
   - strict/relaxed source parse orchestration
+- `src/stage1/program_json_v0/source_artifact.rs`
+  - source-owned typed product/crosswalk for the bounded direct/New
+    `StringBox.length|size/0` cohort
+  - issues anchors during the same AST lowering transaction; it does not scan
+    serialized Program(JSON) or MIR to recover provenance
 - `src/stage1/program_json_v0/extract.rs`
   - source-text observation only
   - `using` import collection
@@ -49,6 +54,11 @@ Public route-family SSOT: `docs/development/current/main/design/json-v0-route-ma
 - source-shape enum/info stay crate-local; cross-crate authority callers use `emit_program_json_v0_for_strict_authority_source(...)` instead of reading source-shape objects directly
 - cross-crate callers use owner-1 helpers for fail-fast only; route trace stays inside `program_json_v0`
 - source-shape / build-route policy lives in `routing.rs`, not in callers
+- strict source artifact consumers receive Program(JSON v0), the source product,
+  and crosswalk as one handoff; body-only compatibility consumers keep the
+  existing `parse(&str)` seam
+- source-artifact anchors are ephemeral bridge receipts and are admitted once
+  against an existing canonical `Call`; admission does not rewrite MIR
 - current source-shape contract is `launcher.hako => strict-safe`; only actual dev-local alias sugar stays compat-only on the authority path
 - current-mode env interpretation lives in `crate::config::env::stage1`, not in callers
 - `.hako` compat quarantine (`stage1-env-mir-program`) is out of scope here
