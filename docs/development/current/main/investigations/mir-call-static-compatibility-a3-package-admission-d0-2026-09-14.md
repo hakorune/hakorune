@@ -61,6 +61,15 @@ even when its prepared source relation exists. Finally,
 and static rows. A3 must close these three boundaries together; changing only
 the final `MixedProgram` guard would create an unsealed path.
 
+There is one further unresolved join: `MergedSourceLineageV1` carries
+canonical files, edges and original line ranges, while parser callable rows
+carry parser-brand declaration/member paths. No current owner issues a typed
+relation between those two identities. A0-3 therefore may not match them by
+box name, source line, merged-text order or AST reinspection. The relation must
+be issued at the parser/source handoff (or the imported cohort must remain
+rejected); until that issuer and its exact coverage are named, the witness is
+not implementable safely.
+
 ## Ordered bounded design tasks
 
 | Order | Task | Completion condition |
