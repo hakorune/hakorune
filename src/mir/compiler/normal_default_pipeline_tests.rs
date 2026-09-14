@@ -406,28 +406,42 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
             panic!("App source must remain source-backed")
         };
         let mut compiler = MirCompiler::with_options(false);
-        let result = compiler
-            .compile_normal(NormalCompileRequestV1::for_mir_mode_callable_source(
-                source,
-                Some("app-main-free-static.hako"),
-                HashMap::new(),
-            ))
-            .expect("App compile");
-        assert_eq!(result.module.canonical_callable_definition_count(), 1);
         let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
             "Main", "helper", 1,
         );
-        assert_eq!(
-            result.module.canonical_callable_definition_symbol(&key),
-            Some("Main.helper/1")
-        );
-        let view = crate::mir::function::PublishedMirBackendView::try_new(&result.module)
-            .expect("published App Main FreeStatic view");
-        assert_eq!(
-            view.route(),
-            crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped
-        );
-        assert_eq!(view.static_method_calls().len(), 1);
+        let outcome = compiler
+            .compile_normal_with_published(
+                NormalCompileRequestV1::for_mir_mode_callable_source(
+                    source,
+                    Some("app-main-free-static.hako"),
+                    HashMap::new(),
+                ),
+                |view, verification| {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped);
+                    assert!(matches!(
+                        view.retained_root_result(),
+                        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. })
+                    ));
+                    assert_eq!(view.module().canonical_callable_definition_count(), 1);
+                    assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some("Main.helper/1"));
+                    let contract = view.issue_lifecycle_compiled_entry_contract()?;
+                    assert_eq!(contract.ordinary_calls().len(), 1);
+                    assert!(contract.program().functions().iter().any(|function| matches!(
+                        function.role(),
+                        crate::mir::compiler::normal_default_pipeline::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key: actual, .. }
+                            if actual == &key
+                    )));
+                    let generic = crate::mir::function::PublishedMirBackendView::try_new(view.module()).unwrap();
+                    assert_eq!(generic.route(), crate::mir::function::PublishedStaticMethodRouteV1::UnsupportedBeforeObject);
+                    Ok::<(), String>(())
+                },
+            )
+            .expect("selected App Main FreeStatic publication");
+        assert!(matches!(
+            outcome,
+            NormalPublishedCompileOutcome::Consumed(())
+        ));
     });
 }
 
@@ -448,25 +462,39 @@ fn normal_ingress_preserves_top_level_free_function_after_finish() {
             panic!("App source must remain source-backed")
         };
         let mut compiler = MirCompiler::with_options(false);
-        let result = compiler
-            .compile_normal(NormalCompileRequestV1::for_mir_mode_callable_source(
-                source,
-                Some("app-main-free-function.hako"),
-                HashMap::new(),
-            ))
-            .expect("App compile");
         let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::free_function("helper", 1);
-        assert_eq!(
-            result.module.canonical_callable_definition_symbol(&key),
-            Some("helper/1")
-        );
-        let view = crate::mir::function::PublishedMirBackendView::try_new(&result.module)
-            .expect("published App Main FreeFunction view");
-        assert_eq!(
-            view.route(),
-            crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped
-        );
-        assert_eq!(view.free_function_calls().len(), 1);
+        let outcome = compiler
+            .compile_normal_with_published(
+                NormalCompileRequestV1::for_mir_mode_callable_source(
+                    source,
+                    Some("app-main-free-function.hako"),
+                    HashMap::new(),
+                ),
+                |view, verification| {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped);
+                    assert!(matches!(
+                        view.retained_root_result(),
+                        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. })
+                    ));
+                    assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some("helper/1"));
+                    let contract = view.issue_lifecycle_compiled_entry_contract()?;
+                    assert_eq!(contract.ordinary_calls().len(), 1);
+                    assert!(contract.program().functions().iter().any(|function| matches!(
+                        function.role(),
+                        crate::mir::compiler::normal_default_pipeline::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key: actual, .. }
+                            if actual == &key
+                    )));
+                    let generic = crate::mir::function::PublishedMirBackendView::try_new(view.module()).unwrap();
+                    assert_eq!(generic.route(), crate::mir::function::PublishedStaticMethodRouteV1::UnsupportedBeforeObject);
+                    Ok::<(), String>(())
+                },
+            )
+            .expect("selected App Main FreeFunction publication");
+        assert!(matches!(
+            outcome,
+            NormalPublishedCompileOutcome::Consumed(())
+        ));
     });
 }
 

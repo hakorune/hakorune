@@ -1,10 +1,11 @@
 ---
-Status: selected__fast__2026-09-14
+Status: closed__fast__2026-09-14
 Task: MIR-CALL-NORMAL-INGRESS-ORDINARY-INVOKE-LIFECYCLE-I0
 Date: 2026-09-14
 Priority: recover the two ParentPassCurrentFail normal-ingress reds at the existing lifecycle owner
 Parent: mir-call-normal-pipeline-lifecycle-route-recovery-d0-2026-09-14.md
-Implementation permission: true, limited to the selected normal finalization/lifecycle observer and its focused guards
+Implementation permission: true, limited to the selected normal finalization/lifecycle observer and its focused guards; landed in the test owner
+NextCard: mir-call-resolver-if-expression-expressivity-d0-2026-09-14.md
 ---
 
 # Ordinary invoke lifecycle observer recovery
@@ -68,3 +69,25 @@ their expected route. The negative generic-view assertion and the two known
 parent baseline reds remain visible. A failure before the selected callback
 is a named lifecycle terminal and keeps the row open; it is not reclassified
 as compatibility success.
+
+## Receipt
+
+The two tests now consume `compile_normal_with_published` and assert the
+selected callback's `CanonicalTyped` route, `CallReturn` handoff, one ordinary
+call, and the matching `OrdinaryI64` physical target. They also assert that a
+fresh generic view of the same module remains `UnsupportedBeforeObject`.
+
+Focused command, with one quick Cargo process and four build jobs:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+  mir::compiler::normal_default_pipeline::tests::normal_ingress_preserves -- --nocapture
+2 passed, 0 failed; 536 existing warnings.
+```
+
+The normal-pipeline inventory recheck ran 29 tests: 26 passed, 2 failed, and
+1 was ignored. The only failures were the unchanged parent baseline
+`published_consumer_runs_once_and_propagates_failure_without_retry` and
+`published_consumer_does_not_consume_explicit_compatibility`; they remain
+known baseline debt and were not weakened. The next design stop is the finite
+resolver-If expression inventory.
