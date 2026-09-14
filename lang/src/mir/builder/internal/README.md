@@ -64,12 +64,16 @@ small return shape blocks generated `stage1_cli_env.hako` EXE probes.
     `return "x".length()` and `return "x".size()`.
 
 - `lower_return_method_string_length_box.hako`
-  - Owner role: `Return(Method(recv=Str|String literal, method=length|size,
-    args=[]))`.
-  - Must emit: canonical call MIR with `callee.type=Method`,
-    `box_name=StringBox`, and `method=length|size`.
-  - Must reject: non-empty args, non-string literal receivers, and methods other
-    than `length` / `size`.
+  - Owner role: bounded `Return(Method)` structural membership for direct
+    `Str|String` `length|size` and exact `New(StringBox)` `length|size` plus the
+    phase17 one-string `indexOf` compatibility shape.
+  - Must emit: the existing canonical direct call or New-box `boxcall` recipe
+    with `box_name=StringBox`; empty literals are valid.
+  - Must reject before emission: non-empty length/size args, zero/multiple or
+    nonliteral indexOf args, wrong receiver/class, extra constructor metadata,
+    nonempty field initializers, type arguments, malformed objects, and any match found
+    outside the owning JSON object/array. First-string and unbounded class
+    scans are not an authority.
 
 - `func_lowering/call_methodize_box.hako`
   - Owner role: legacy call methodization only.

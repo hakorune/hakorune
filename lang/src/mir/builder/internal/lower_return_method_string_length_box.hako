@@ -4,54 +4,58 @@
 //   Return(Method(New(StringBox, <String>), "length|size|indexOf", args))
 //     -> v0 newbox + boxcall + ret
 
-using selfhost.shared.json.utils.json_frag as JsonFragBox
 using selfhost.shared.json.core.json_cursor as JsonCursorBox
 
 static box LowerReturnMethodStringLengthBox {
   try_lower(program_json) {
     if program_json == null { return null }
     local s = me._coerce_text_compat(program_json)
-    // Find Return with expr.type == Method
-    local k_ret = JsonFragBox.index_of_from(s, "\"type\":\"Return\"", 0); if k_ret < 0 { return null }
-    local k_m = me._find_return_method_start(s, k_ret); if k_m < 0 { return null }
-    local m_obj = JsonFragBox.index_of_from(s, "{", k_m); if m_obj < 0 { return null }
+    // Walk the owning Program.body array to find one Return.expr Method node.
+    local m_obj = me._find_return_method(s); if m_obj < 0 { return null }
     local m_end = JsonCursorBox.seek_obj_end(s, m_obj); if m_end < 0 { return null }
-    // method name
-    local k_name = JsonFragBox.index_of_from(s, "\"method\":\"", k_m); if k_name < 0 { return null }
-    local mname = JsonFragBox.read_string_after(s, k_name + 9); if mname == null { return null }
+    if me._object_shape_ok(s, m_obj, m_end, "method") != 1 { return null }
+    local mname = me._object_string(s, m_obj, m_end, "method"); if mname == null { return null }
     if !(mname == "length" || mname == "size" || mname == "indexOf") { return null }
-    // receiver: current parser emits direct Str/String; older routes may emit New(StringBox,...).
-    local k_recv = JsonFragBox.index_of_from(s, "\"recv\":{", k_m); if k_recv < 0 { return null }
-    local k_recv_str = -1
-    if k_recv + 20 <= s.length() && s.substring(k_recv, k_recv + 20) == "\"recv\":{\"type\":\"Str\"" { k_recv_str = k_recv }
-    if k_recv_str < 0 && k_recv + 23 <= s.length() && s.substring(k_recv, k_recv + 23) == "\"recv\":{\"type\":\"String\"" { k_recv_str = k_recv }
-    if k_recv_str >= 0 {
-      if me._method_args_empty(s, m_obj, m_end) != 1 { return null }
-      local k_val_direct = JsonFragBox.index_of_from(s, "\"value\":", k_recv_str); if k_val_direct < 0 { return null }
-      local raw = me._read_string_literal_json_text_after(s, k_val_direct + 8); if raw == "" { return null }
+    local args_obj = me._object_value_start(s, m_obj, m_end, "args"); if args_obj < 0 { return null }
+    args_obj = me._skip_ws_bounded(s, args_obj, m_end); if s.substring(args_obj, args_obj + 1) != "[" { return null }
+    local args_end = JsonCursorBox.seek_array_end(s, args_obj); if args_end < 0 || args_end > m_end { return null }
+
+    // Receiver is an owned object; no key lookup may escape this Method.
+    local recv_obj = me._object_value_start(s, m_obj, m_end, "recv"); if recv_obj < 0 { return null }
+    recv_obj = me._skip_ws_bounded(s, recv_obj, m_end); if s.substring(recv_obj, recv_obj + 1) != "{" { return null }
+    local recv_end = JsonCursorBox.seek_obj_end(s, recv_obj); if recv_end < 0 || recv_end > m_end { return null }
+    local recv_type = me._object_string(s, recv_obj, recv_end, "type"); if recv_type == null { return null }
+    if recv_type == "Str" || recv_type == "String" {
+      if me._object_shape_ok(s, recv_obj, recv_end, "direct") != 1 { return null }
+      if mname == "indexOf" || me._array_empty(s, args_obj, args_end) != 1 { return null }
+      local raw = me._object_string_literal(s, recv_obj, recv_end, "value"); if raw == null { return null }
       if mname == "length" { return me._emit_length_mir(raw) }
       if mname == "size" { return me._emit_size_mir(raw) }
       return null
     }
 
-    local recv_obj = JsonFragBox.index_of_from(s, "{", k_recv); if recv_obj < 0 { return null }
-    local recv_end = JsonCursorBox.seek_obj_end(s, recv_obj); if recv_end < 0 { return null }
-    local k_new = JsonFragBox.index_of_from(s, "\"type\":\"New\"", recv_obj)
-    if k_new < 0 || k_new > recv_end { return null }
-    local k_class = JsonFragBox.index_of_from(s, "\"class\":\"StringBox\"", recv_obj)
-    if k_class < 0 || k_class > recv_end { return null }
+    if recv_type != "New" || me._object_shape_ok(s, recv_obj, recv_end, "new") != 1 { return null }
+    local class_name = me._object_string(s, recv_obj, recv_end, "class"); if class_name != "StringBox" { return null }
+    local ctor_args = me._object_value_start(s, recv_obj, recv_end, "args"); if ctor_args < 0 { return null }
+    ctor_args = me._skip_ws_bounded(s, ctor_args, recv_end); if s.substring(ctor_args, ctor_args + 1) != "[" { return null }
+    local ctor_end = JsonCursorBox.seek_array_end(s, ctor_args); if ctor_end < 0 || ctor_end > recv_end { return null }
+    local recv_raw = me._array_single_direct_string(s, ctor_args, ctor_end); if recv_raw == null { return null }
 
-    local recv_raw = me._read_first_string_literal_between(s, recv_obj, recv_end)
-    if recv_raw == "" { return null }
+    local fields = me._object_value_start(s, recv_obj, recv_end, "field_initializers")
+    if fields >= 0 {
+      fields = me._skip_ws_bounded(s, fields, recv_end)
+      if s.substring(fields, fields + 1) != "[" { return null }
+      local fields_end = JsonCursorBox.seek_array_end(s, fields)
+      if fields_end < 0 || fields_end > recv_end || me._array_empty(s, fields, fields_end) != 1 { return null }
+    }
 
     if mname == "length" || mname == "size" {
-      if me._method_args_empty(s, m_obj, m_end) != 1 { return null }
+      if me._array_empty(s, args_obj, args_end) != 1 { return null }
       return me._emit_new_stringbox_boxcall0(recv_raw, mname)
     }
 
     if mname == "indexOf" {
-      local arg_raw = me._read_method_first_string_arg(s, m_obj, m_end)
-      if arg_raw == "" { return null }
+      local arg_raw = me._array_single_direct_string(s, args_obj, args_end); if arg_raw == null { return null }
       return me._emit_new_stringbox_boxcall1_string(recv_raw, mname, arg_raw)
     }
     return null
@@ -61,94 +65,203 @@ static box LowerReturnMethodStringLengthBox {
     return "" + value
   }
 
-  _find_return_method_start(s, k_ret) {
-    local k_forward = JsonFragBox.index_of_from(s, "\"expr\":{\"type\":\"Method\"", k_ret)
-    if k_forward >= 0 && k_forward < k_ret + 1024 { return k_forward }
-
-    local scan = 0
-    local last_expr = -1
-    loop(scan < k_ret) {
-      local next_expr = JsonFragBox.index_of_from(s, "\"expr\":{", scan)
-      if next_expr < 0 || next_expr >= k_ret { break }
-      last_expr = next_expr
-      scan = next_expr + 1
-    }
-    if last_expr >= 0 && k_ret - last_expr < 1024 {
-      local boundary_back = JsonFragBox.index_of_from(s, "},{", last_expr)
-      if boundary_back < 0 || boundary_back > k_ret {
-        local k_method = JsonFragBox.index_of_from(s, "\"type\":\"Method\"", last_expr)
-        if k_method >= 0 && k_method < k_ret { return last_expr }
+  _find_return_method(s) {
+    local root = me._root_object(s); if root < 0 { return -1 }
+    local root_end = JsonCursorBox.seek_obj_end(s, root); if root_end < 0 { return -1 }
+    local body = me._object_value_start(s, root, root_end, "body"); if body < 0 { return -1 }
+    body = me._skip_ws_bounded(s, body, root_end); if s.substring(body, body + 1) != "[" { return -1 }
+    local body_end = JsonCursorBox.seek_array_end(s, body); if body_end < 0 || body_end > root_end { return -1 }
+    local i = me._skip_ws_bounded(s, body + 1, body_end)
+    loop(i < body_end) {
+      if s.substring(i, i + 1) == "]" { return -1 }
+      if s.substring(i, i + 1) != "{" { return -1 }
+      local stmt_end = JsonCursorBox.seek_obj_end(s, i); if stmt_end < 0 || stmt_end > body_end { return -1 }
+      if me._object_string(s, i, stmt_end, "type") == "Return" {
+        local expr = me._object_value_start(s, i, stmt_end, "expr")
+        if expr >= 0 {
+          expr = me._skip_ws_bounded(s, expr, stmt_end)
+          if s.substring(expr, expr + 1) == "{" {
+            local expr_end = JsonCursorBox.seek_obj_end(s, expr)
+            if expr_end >= 0 && expr_end <= stmt_end && me._object_string(s, expr, expr_end, "type") == "Method" {
+              return expr
+            }
+          }
+        }
       }
+      i = me._skip_ws_bounded(s, stmt_end + 1, body_end)
+      if i < body_end && s.substring(i, i + 1) == "," {
+        i = me._skip_ws_bounded(s, i + 1, body_end)
+        continue
+      }
+      if i < body_end && s.substring(i, i + 1) == "]" { break }
+      return -1
     }
     return -1
   }
 
-  _method_args_empty(s, start, end) {
-    local k_args = JsonFragBox.index_of_from(s, "\"args\":[", start)
-    if k_args < 0 || k_args > end { return 0 }
-    if k_args + 9 <= s.length() && k_args + 9 <= end + 1 && s.substring(k_args, k_args + 9) == "\"args\":[]" { return 1 }
+  _root_object(s) {
+    local p = me._skip_ws_bounded(s, 0, s.length() - 1)
+    if p < 0 || p >= s.length() || s.substring(p, p + 1) != "{" { return -1 }
+    return p
+  }
+
+  _object_shape_ok(s, obj_start, obj_end, shape) {
+    local i = me._skip_ws_bounded(s, obj_start + 1, obj_end)
+    local seen_type = 0
+    local seen_value = 0
+    local seen_recv = 0
+    local seen_method = 0
+    local seen_args = 0
+    local seen_class = 0
+    local seen_fields = 0
+    local seen_anchor = 0
+    local closed = 0
+    loop(i <= obj_end) {
+      if s.substring(i, i + 1) == "}" { closed = 1; break }
+      if s.substring(i, i + 1) != "\"" { return 0 }
+      local key_end = JsonCursorBox.scan_string_end(s, i); if key_end < 0 || key_end > obj_end { return 0 }
+      local key = s.substring(i + 1, key_end)
+      local colon = me._skip_ws_bounded(s, key_end + 1, obj_end)
+      if colon > obj_end || s.substring(colon, colon + 1) != ":" { return 0 }
+      local value = me._skip_json_value(s, colon + 1, obj_end); if value < 0 { return 0 }
+
+      if shape == "direct" {
+        if key == "type" { seen_type = seen_type + 1 }
+        else if key == "value" { seen_value = seen_value + 1 }
+        else { return 0 }
+      } else if shape == "new" {
+        if key == "type" { seen_type = seen_type + 1 }
+        else if key == "class" { seen_class = seen_class + 1 }
+        else if key == "args" { seen_args = seen_args + 1 }
+        else if key == "field_initializers" { seen_fields = seen_fields + 1 }
+        else { return 0 }
+      } else if shape == "method" {
+        if key == "type" { seen_type = seen_type + 1 }
+        else if key == "recv" { seen_recv = seen_recv + 1 }
+        else if key == "method" { seen_method = seen_method + 1 }
+        else if key == "args" { seen_args = seen_args + 1 }
+        else if key == "source_anchor" { seen_anchor = seen_anchor + 1 }
+        else { return 0 }
+      } else if shape == "return" {
+        if key == "type" { seen_type = seen_type + 1 }
+        else if key == "expr" { seen_value = seen_value + 1 }
+        else { return 0 }
+      } else { return 0 }
+
+      i = me._skip_ws_bounded(s, value, obj_end)
+      if i <= obj_end && s.substring(i, i + 1) == "," {
+        i = me._skip_ws_bounded(s, i + 1, obj_end)
+        continue
+      }
+      if i <= obj_end && s.substring(i, i + 1) == "}" { closed = 1; break }
+      return 0
+    }
+    if closed != 1 { return 0 }
+    if shape == "direct" {
+      if seen_type == 1 && seen_value == 1 { return 1 }
+      return 0
+    }
+    if shape == "new" {
+      if seen_type == 1 && seen_class == 1 && seen_args == 1 && seen_fields <= 1 { return 1 }
+      return 0
+    }
+    if shape == "method" {
+      if seen_type == 1 && seen_recv == 1 && seen_method == 1 && seen_args == 1 && seen_anchor <= 1 { return 1 }
+      return 0
+    }
+    if seen_type == 1 && seen_value == 1 { return 1 }
     return 0
   }
 
-  _method_args_end(s, start, end) {
-    local k_args = JsonFragBox.index_of_from(s, "\"args\":[", start)
-    if k_args < 0 || k_args > end { return -1 }
-    local k_arr = JsonFragBox.index_of_from(s, "[", k_args)
-    if k_arr < 0 || k_arr > end { return -1 }
-    local arr_end = JsonCursorBox.seek_array_end(s, k_arr)
-    if arr_end < 0 || arr_end > end { return -1 }
-    return arr_end
-  }
-
-  _read_method_first_string_arg(s, start, end) {
-    local k_args = JsonFragBox.index_of_from(s, "\"args\":[", start)
-    if k_args < 0 || k_args > end { return "" }
-    local arr_end = me._method_args_end(s, start, end)
-    if arr_end < 0 { return "" }
-    return me._read_first_string_literal_between(s, k_args, arr_end)
-  }
-
-  _read_first_string_literal_between(s, start, end) {
-    local k_str = JsonFragBox.index_of_from(s, "\"type\":\"Str\"", start)
-    local k_string = JsonFragBox.index_of_from(s, "\"type\":\"String\"", start)
-    local k_type = -1
-    if k_str >= 0 && k_str <= end { k_type = k_str }
-    if k_string >= 0 && k_string <= end {
-      if k_type < 0 || k_string < k_type { k_type = k_string }
+  _object_value_start(s, obj_start, obj_end, wanted) {
+    local i = me._skip_ws_bounded(s, obj_start + 1, obj_end)
+    loop(i <= obj_end) {
+      if s.substring(i, i + 1) == "}" { return -1 }
+      if s.substring(i, i + 1) != "\"" { return -1 }
+      local key_end = JsonCursorBox.scan_string_end(s, i); if key_end < 0 || key_end > obj_end { return -1 }
+      local key = s.substring(i + 1, key_end)
+      local colon = me._skip_ws_bounded(s, key_end + 1, obj_end)
+      if colon > obj_end || s.substring(colon, colon + 1) != ":" { return -1 }
+      local value = me._skip_json_value(s, colon + 1, obj_end); if value < 0 { return -1 }
+      if key == wanted { return me._skip_ws_bounded(s, colon + 1, obj_end) }
+      i = me._skip_ws_bounded(s, value, obj_end)
+      if i <= obj_end && s.substring(i, i + 1) == "," { i = me._skip_ws_bounded(s, i + 1, obj_end); continue }
+      if i <= obj_end && s.substring(i, i + 1) == "}" { return -1 }
+      return -1
     }
-    if k_type < 0 { return "" }
-    local k_val = JsonFragBox.index_of_from(s, "\"value\":", k_type)
-    if k_val < 0 || k_val > end { return "" }
-    return me._read_string_literal_json_text_after(s, k_val + 8)
+    return -1
   }
 
-  _read_string_literal_json_text_after(s, pos) {
-    local start = me._skip_ws(s, pos)
-    if start >= s.length() || s.substring(start, start + 1) != "\"" { return "" }
-    local i = start + 1
-    loop(i < s.length()) {
-      local ch = s.substring(i, i + 1)
-      if ch == "\\" {
-        i = i + 2
-        continue
-      }
-      if ch == "\"" { return s.substring(start, i + 1) }
+  _object_string(s, obj_start, obj_end, key) {
+    local p = me._object_value_start(s, obj_start, obj_end, key); if p < 0 { return null }
+    p = me._skip_ws_bounded(s, p, obj_end)
+    if p > obj_end || s.substring(p, p + 1) != "\"" { return null }
+    local end_quote = JsonCursorBox.scan_string_end(s, p)
+    if end_quote < 0 || end_quote > obj_end { return null }
+    return s.substring(p + 1, end_quote)
+  }
+
+  _object_string_literal(s, obj_start, obj_end, key) {
+    local p = me._object_value_start(s, obj_start, obj_end, key); if p < 0 { return null }
+    return me._read_string_literal_json_text_after(s, p, obj_end)
+  }
+
+  _array_single_direct_string(s, arr_start, arr_end) {
+    local p = me._skip_ws_bounded(s, arr_start + 1, arr_end)
+    if p >= arr_end || s.substring(p, p + 1) != "{" { return null }
+    local elem_end = JsonCursorBox.seek_obj_end(s, p); if elem_end < 0 || elem_end > arr_end { return null }
+    local next = me._skip_ws_bounded(s, elem_end + 1, arr_end)
+    if next > arr_end || s.substring(next, next + 1) != "]" { return null }
+    if me._object_shape_ok(s, p, elem_end, "direct") != 1 { return null }
+    return me._object_string_literal(s, p, elem_end, "value")
+  }
+
+  _array_empty(s, arr_start, arr_end) {
+    local p = me._skip_ws_bounded(s, arr_start + 1, arr_end)
+    if p <= arr_end && s.substring(p, p + 1) == "]" { return 1 }
+    return 0
+  }
+
+  _skip_json_value(s, pos, limit) {
+    local p = me._skip_ws_bounded(s, pos, limit); if p > limit { return -1 }
+    local ch = s.substring(p, p + 1)
+    if ch == "{" {
+      local e = JsonCursorBox.seek_obj_end(s, p); if e < 0 || e > limit { return -1 }
+      return e + 1
+    }
+    if ch == "[" {
+      local e = JsonCursorBox.seek_array_end(s, p); if e < 0 || e > limit { return -1 }
+      return e + 1
+    }
+    if ch == "\"" {
+      local e = JsonCursorBox.scan_string_end(s, p); if e < 0 || e > limit { return -1 }
+      return e + 1
+    }
+    local i = p
+    loop(i <= limit) {
+      local c = s.substring(i, i + 1)
+      if c == "," || c == "}" || c == "]" { return i }
       i = i + 1
     }
-    return ""
+    return limit + 1
   }
 
-  _skip_ws(s, pos) {
+  _skip_ws_bounded(s, pos, limit) {
     local i = pos
-    loop(i < s.length()) {
+    loop(i <= limit) {
       local ch = s.substring(i, i + 1)
-      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" {
-        i = i + 1
-        continue
-      }
+      if ch == " " || ch == "\n" || ch == "\r" || ch == "\t" { i = i + 1; continue }
       break
     }
     return i
+  }
+
+  _read_string_literal_json_text_after(s, pos, limit) {
+    local start = me._skip_ws_bounded(s, pos, limit)
+    if start > limit || s.substring(start, start + 1) != "\"" { return null }
+    local end_quote = JsonCursorBox.scan_string_end(s, start)
+    if end_quote < 0 || end_quote > limit { return null }
+    return s.substring(start, end_quote + 1)
   }
 
   _emit_length_mir(raw) {

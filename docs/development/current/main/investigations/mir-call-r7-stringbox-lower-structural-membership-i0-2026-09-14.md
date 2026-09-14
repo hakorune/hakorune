@@ -63,3 +63,34 @@ README/reference and CURRENT_STATE are synchronized in closeout
 
 No Rust source-artifact transport, caller migration, shared-schema retirement,
 backend parity, or whole-R7 completion is claimed by this I0.
+
+## Implementation checkpoint (2026-09-14)
+
+The bounded reader implementation is present in the selected Hako owner. The
+old first-string helpers and unbounded class/receiver scans are deleted. The
+three existing MIR emitters, registry/fallback callers, and body-only
+compatibility entry remain unchanged. The source is 293 lines, below the
+800-line hard stop.
+
+Evidence collected without a second Cargo process:
+
+- `CARGO_BUILD_JOBS=1 cargo build --profile quick -j1` passed in 6m03s; the
+  crate emitted existing warnings only.
+- `bash tools/checks/hako_mirbuilder_stringbox_structural_membership_guard.sh`
+  passed (`lines=293`).
+- `target/quick/hakorune --dump-ast
+  lang/src/mir/builder/internal/lower_return_method_string_length_box.hako`
+  returned 0; stderr contained only the environment's missing optional-plugin
+  diagnostics.
+- The phase14, phase16, and phase17 owner-to-terminal probes were attempted
+  with the rebuilt binary. Each stopped before the selected Hako entry at the
+  existing `[freeze:contract][raw-loop-child-entry/callable-ledger-missing]`
+  planner failure. This is classified as known baseline debt, not a
+  current-change failure, and therefore does not prove the dynamic positive
+  or negative membership rows.
+
+Closeout remains open until the selected owner can be reached by a focused
+runtime probe. The next action is to recover or isolate that pre-owner
+planner baseline, then rerun phase14/16/17 plus malformed, wrong-class,
+extra-argument, embedded, and empty-literal cases. No source-artifact route,
+fallback, retry, or backend gate is opened while this evidence is pending.

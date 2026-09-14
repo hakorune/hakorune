@@ -23,6 +23,10 @@ Pointers
 Responsibility
 - Convert Stage‑B Program(JSON v0) into MIR(JSON v0) for VM/LLVM lines.
 - Keep the boundary/contract stable and Fail‑Fast; no silent fallback to stub MIR.
+- `internal/lower_return_method_string_length_box.hako` recognizes only bounded
+  `Return -> Method` object membership: direct string `length|size`, exact
+  `New(StringBox)` `length|size`, and the phase17 one-string `indexOf` shape.
+  First-string and unbounded class scans are retired from this owner.
 
 Interface (stable)
   - `emit_from_program_json_v0(program_json: String, opts: Map|Null) -> String|Null`

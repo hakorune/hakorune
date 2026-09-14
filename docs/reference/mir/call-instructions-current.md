@@ -33,6 +33,21 @@ callee, scan JSON/MIR indices, or rewrite the physical instruction. The
 body-only `parse(&str)` handoff and Hako compatibility callers remain outside
 this bounded lane until a later caller-switch decision.
 
+## Hako Program(JSON v0) StringBox compatibility lowerer
+
+The Hako compatibility owner
+`lang/src/mir/builder/internal/lower_return_method_string_length_box.hako`
+uses object/array boundaries to recognize its finite rows. It accepts direct
+`Str|String` literal `length|size` with zero arguments, `New(StringBox)` with
+one direct string constructor argument and zero-argument `length|size`, and the
+phase17 `indexOf` form with one direct string argument. Empty literals remain
+valid. Wrong classes, extra constructor metadata or nonempty field
+initializers,
+nonliteral/embedded strings, wrong argument counts, and malformed shapes
+return null before any MIR recipe is emitted. The existing direct `call` and
+New-box `boxcall` emitters remain the recipes; registry, fallback, and
+body-only callers remain compatibility owners.
+
 ## Canonical 形
 
 ```rust
