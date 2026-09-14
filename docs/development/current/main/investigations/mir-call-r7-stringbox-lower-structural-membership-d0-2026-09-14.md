@@ -1,11 +1,11 @@
 ---
-Status: selected__design_stop__2026-09-14
+Status: accepted__hako_structural_membership__2026-09-14
 Task: MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0
 Date: 2026-09-14
 Priority: replace unbounded StringBox recognition with one Hako-owned structural contract
 Parent: mir-call-r7-stringbox-caller-switch-d0-2026-09-14.md
 NextCard: MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-I0
-Implementation permission: false until the finite membership, recipes, and exact cleanup set are accepted
+Implementation permission: true for the Hako lowerer structural-membership I0 only
 ---
 
 # StringBox lower structural membership D0
@@ -124,3 +124,11 @@ empty delete set. This card does not switch `MirBuilderBox` callers, remove
 the shared `LegacyCallV0` schema, delete registry/fallback compatibility, add a
 new fallback or retry, migrate `indexOf` generally, or claim whole-MirBuilder
 completion.
+
+## D0 decision
+
+The membership table, bounded-reader contract, recipe mapping, exact cleanup
+set, and retained caller inventory are accepted. The successor I0 may edit
+`lang/src/mir/builder/internal/lower_return_method_string_length_box.hako`, its
+focused Hako evidence, and the owning README/reference. It may not switch the
+Hako caller, transport the Rust artifact, or remove registry/fallback owners.

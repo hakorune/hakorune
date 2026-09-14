@@ -1,11 +1,11 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0"
-current_execution_cohort = "r7_stringbox_lower_structural_membership_d0"
-current_blocker_token = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0__membership_recipe_and_cleanup_unsettled"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-I0"
+current_execution_cohort = "r7_stringbox_lower_structural_membership_i0"
+current_blocker_token = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-I0__hako_bounded_reader_implementation"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0__membership_recipe_and_cleanup_unsettled"
+current_design_stop = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0__accepted_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,24 +14,22 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-r7-stringbox-lower-structural-membership-d0-2026-09-14.md"
-latest_card = "mir-call-r7-stringbox-lower-structural-membership-d0-2026-09-14"
-latest_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-lower-structural-membership-d0-2026-09-14.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md"
+latest_card = "mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14"
+latest_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md"
 latest_card_summary = """
-The source-artifact parser/contract I0 landed at 6adbfa8abb. The caller-switch
-D0 is retained/closed: the live Hako source-compat seam is body-only
-Program(JSON), the Rust source helper is already artifact-aware, and no safe
-artifact transport or caller-local deletion tuple exists without changing the
-Hako primary authority. The next design stop bounds
-LowerReturnMethodStringLengthBox to exact JSON object/array membership while
-preserving the direct/New length|size and phase17 indexOf recipes. Registry,
+The source-artifact parser/contract I0 landed at 6adbfa8abb and the caller-switch
+D0 is retained/closed. The Hako structural-membership D0 is accepted; this I0
+now replaces first-string and unbounded class recognition in
+LowerReturnMethodStringLengthBox with bounded object/array readers while
+preserving direct/New length|size and phase17 indexOf recipes. Registry,
 fallback, body-only parse, source-entry cutover, shared-schema retirement,
 backend parity, and whole-R7 caller-zero remain out of scope.
 """
 next_design_card = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-lower-structural-membership-d0-2026-09-14.md"
-next_execution_card = "none__lower_structural_membership_d0_not_accepted"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-lower-structural-membership-d0-2026-09-14.md"
+next_execution_card = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
