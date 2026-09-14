@@ -7,6 +7,9 @@ use crate::parser::NyashParser;
 #[path = "normal_default_pipeline_loop_tests.rs"]
 mod callable_loop_tests;
 
+#[path = "normal_default_pipeline_a3_tests.rs"]
+mod a3_package_admission_tests;
+
 fn program() -> ASTNode {
     ASTNode::Program {
         statements: Vec::new(),

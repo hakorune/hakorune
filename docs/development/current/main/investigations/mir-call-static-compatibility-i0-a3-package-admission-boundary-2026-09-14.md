@@ -1,10 +1,10 @@
 ---
-Status: selected__fast__2026-09-14
+Status: closed__fast__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-I0-A3-PACKAGE-ADMISSION-BOUNDARY
 Date: 2026-09-14
 Priority: route phase14 acceptance through the source-backed MIR path and keep VM compatibility-only
 Parent: mir-call-static-compatibility-a3-package-admission-d0-2026-09-14.md
-NextCard: MIR-CALL-RESOLVER-IF-EXPRESSION-EXPRESSIVITY-D0
+NextCard: MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0
 Implementation permission: bounded package-admission evidence only; no VM promotion, If lowering, or caller cutover
 ---
 
@@ -66,6 +66,22 @@ finite deferred callable inventory is:
 This table is an inventory for the next expressivity D0. It is not an
 authorization to add a fallback, infer a type from names, or widen the A3
 source-admission witness.
+
+## Implementation receipt
+
+The existing source-backed package handoff is now guarded by
+`src/mir/compiler/normal_default_pipeline_a3_tests.rs`:
+
+* `mir::compiler::normal_default_pipeline::tests::a3_package_admission_tests::mixed_source_reaches_semantic_package_without_compatibility_retry` — PASS with `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib ... -- --exact`
+* the guard keeps a same-brand ordinary+static source as `SourceBacked`, runs
+  the normal semantic package path, and observes the canonical `helper/1`
+  definition; it does not claim a published backend route.
+* the parser/source-admission and mixed source-plan guards remain PASS.
+
+The compile emitted the existing 536-warning baseline. Four unrelated
+normal-pipeline red tests remain explicitly classified in the next card:
+two documented parent-baseline candidates and two route/view candidates that
+still require parent replay. No compatibility expectation was loosened.
 
 ## Ordered bounded tasks
 
