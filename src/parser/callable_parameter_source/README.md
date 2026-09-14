@@ -115,21 +115,26 @@ retained source instead of consuming and independently resolving the catalog.
 
 ## Static parent source I0
 
-`static_box_source.rs` is a separate parser-owned source authority for one
-top-level static `Box` with exactly one direct static method. The parser opens
-one `OpenParserStaticBoxSourceTransactionV1`, records every member through the
-same parser-branded member cursor, and moves one opaque prepared parent into the
-postpass source session. Fields, init/static-init members, multiple methods,
-build-gate paths, mixed programs, and multiple static parents remain explicit
-`Outside`/typed terminal states; they are never omitted or defaulted.
+`static_box_source.rs` is a separate parser-owned source authority for a finite
+same-brand set of top-level static `Box` parents and their direct static
+methods. The parser opens one `OpenParserStaticBoxSourceTransactionV1` per
+parent, records every member through the same parser-branded member cursor, and
+moves the prepared parent rows into one postpass source session. Fields,
+init/static-init members, build-gate paths, mixed programs, and empty parents
+remain explicit `Outside`/typed terminal states; they are never omitted or
+defaulted. Multiple direct methods and multiple same-brand parents share one
+set seal, while each parent, member site, and callable identity remains an
+independent relation inside that seal.
 
 `ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once` is the sole issuer.
-It runs once in `finish_total_s0`, co-sealing the prepared parent with the
-existing same-invocation direct static callable row. The direct declaration's
-opaque `CallableDeclarationAnchorV1` remains owned by the callable-source
-session; the static member row stores only its comparison-only
-`CallableDeclarationIdentityV1`. Brand, exact Box path, and member site remain
-coverage/integrity evidence rather than a replacement pairing key. The
+It runs once in `finish_total_s0`, co-sealing the prepared parent set with the
+existing same-invocation direct static callable rows. It rejects foreign or
+duplicate parent paths, unsupported members, duplicate callable identities or
+coordinates, missing callable rows, and mismatched parent/member coverage. The
+direct declarations' opaque `CallableDeclarationAnchorV1` values remain owned
+by the callable-source session; static member rows store only comparison-only
+`CallableDeclarationIdentityV1` values. Brand, exact Box path, and member site
+remain coverage/integrity evidence rather than replacement pairing keys. The
 resulting `Ready | Outside | SourceAuthorityUnavailable | Incomplete |
 IntegrityInvalid` disposition is stored as a sibling field on
 `CompletedParserPostpassV1`; it is not an ordinary `ParserBoxSourceSealV1`,

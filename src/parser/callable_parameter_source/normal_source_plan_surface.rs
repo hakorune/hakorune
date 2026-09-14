@@ -14,9 +14,11 @@ use super::catalog::ParserCallableParameterSourceDispositionV1;
 use super::model::ParserCallableDeclarationKindV1;
 use super::normal_source_plan_seed::ParserNormalSourcePlanSeedDispositionV1;
 use super::parser_invocation_witness::ParserInvocationWitnessV1;
-use super::static_box_source::PreparedParserStaticBoxParentSourceV1;
+use super::static_box_source::{
+    ParserStaticBoxParentSourceDispositionV1, PreparedParserStaticBoxParentSourceV1,
+};
 use crate::parser::build_cfg::program_item_slots::ProjectedProgramItemSlotV1;
-use crate::parser::postpass_envelope::CompletedParserPostpassV1;
+use crate::parser::postpass_envelope::{CompletedParserPostpassV1, ParserPostpassProgramCohortV1};
 use crate::parser::source_authority::{SourceBoxDeclarationSiteV1, SourceBoxMethodSiteV1};
 use crate::parser::source_path::SourceProgramCallablePathV1;
 
@@ -223,6 +225,8 @@ pub(crate) enum ParserNormalSourcePlanSurfaceIntegrityIssueV1 {
     DuplicateCallableSource,
     DuplicateCallableSyntax,
     CallableSyntaxRelationMismatch,
+    StaticParentSourceSealMissing,
+    StaticParentSourceRelationMismatch,
     DuplicateOrdinaryParentSource,
     OrdinaryParentSourceRelationMismatch,
     OrphanStaticParentSource,
@@ -261,6 +265,14 @@ impl ParserNormalSourcePlanSurfaceIssuerV1 {
                 ParserNormalSourcePlanSurfaceUnavailableV1::PostpassNotSourceBacked,
             );
         }
+        if matches!(
+            completed.program_cohort_for_admission(),
+            ParserPostpassProgramCohortV1::MixedProgram
+        ) {
+            return ParserNormalSourcePlanSurfaceDispositionV1::SourceAuthorityUnavailable(
+                ParserNormalSourcePlanSurfaceUnavailableV1::PostpassNotSourceBacked,
+            );
+        }
         let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source else {
             return ParserNormalSourcePlanSurfaceDispositionV1::SourceAuthorityUnavailable(
                 ParserNormalSourcePlanSurfaceUnavailableV1::ParameterSourceUnavailable,
@@ -282,6 +294,22 @@ impl ParserNormalSourcePlanSurfaceIssuerV1 {
             };
         };
         let (slot_set, static_parent_sources) = seed.into_parts();
+        let static_parent_seal = match completed.static_box_parent_source() {
+            ParserStaticBoxParentSourceDispositionV1::Ready(seal) => Some(seal),
+            ParserStaticBoxParentSourceDispositionV1::Outside(_)
+            | ParserStaticBoxParentSourceDispositionV1::SourceAuthorityUnavailable(_)
+            | ParserStaticBoxParentSourceDispositionV1::Incomplete(_)
+            | ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid { .. } => None,
+        };
+        if matches!(
+            completed.program_cohort_for_admission(),
+            ParserPostpassProgramCohortV1::StaticBox
+        ) && static_parent_seal.is_none()
+        {
+            return ParserNormalSourcePlanSurfaceDispositionV1::IntegrityInvalid(
+                ParserNormalSourcePlanSurfaceIntegrityIssueV1::StaticParentSourceSealMissing,
+            );
+        }
         let invocation = ParserInvocationWitnessV1::from_brand(slot_set.brand());
         if !catalog.same_parser_brand(slot_set.brand()) {
             return ParserNormalSourcePlanSurfaceDispositionV1::IntegrityInvalid(
@@ -384,6 +412,13 @@ impl ParserNormalSourcePlanSurfaceIssuerV1 {
                         );
                     };
                     let source = static_parent_sources.swap_remove(index);
+                    if let Some(seal) = static_parent_seal {
+                        if !seal.matches_prepared_parent(&source) {
+                            return ParserNormalSourcePlanSurfaceDispositionV1::IntegrityInvalid(
+                                ParserNormalSourcePlanSurfaceIntegrityIssueV1::StaticParentSourceRelationMismatch,
+                            );
+                        }
+                    }
                     for (method_site, method_identity) in source.direct_method_relations() {
                         let mut matches = catalog
                             .declarations()

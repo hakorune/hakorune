@@ -118,6 +118,24 @@ fn static_main_surface_keeps_the_nested_parent_relation() {
 }
 
 #[test]
+fn static_parent_set_surface_keeps_one_final_slot_per_parent() {
+    with_surface(
+        "static box First { one() { return 1 } }\nstatic box Second { two() { return 2 } }",
+        |surface| {
+            let Some(ParserNormalSourcePlanSurfaceV1::CompleteRows(rows)) = surface else {
+                panic!("same-brand static parents must remain explicit surface rows")
+            };
+            let rows = rows.rows();
+            assert_eq!(rows.len(), 2);
+            assert!(rows
+                .iter()
+                .all(|row| matches!(row, ParserNormalSourcePlanTopLevelRowV1::StaticBox { .. })));
+            assert_ne!(rows[0].slot(), rows[1].slot());
+        },
+    );
+}
+
+#[test]
 fn compatibility_postpass_cannot_emit_a_source_plan_bound() {
     let parsed = NyashParser::parse_from_string_with_callable_parameter_source(
         "interface box Api { run() }\n",
@@ -131,4 +149,12 @@ fn compatibility_postpass_cannot_emit_a_source_plan_bound() {
                 SourceAuthorityUnavailable(_)
         ));
     });
+}
+
+#[test]
+fn mixed_program_source_plan_stays_unavailable_until_a0_admission() {
+    with_surface(
+        "box Plain { run() { return 1 } }\nstatic box Api { call() { return 2 } }",
+        |surface| assert!(surface.is_none()),
+    );
 }

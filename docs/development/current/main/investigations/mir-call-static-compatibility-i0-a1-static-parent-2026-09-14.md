@@ -64,3 +64,25 @@ integrity/incomplete cases. The card closes only with focused tests, diff
 check, pointer guard, module README/reference update if the parser contract
 changes, and a receipt in this card. A0 source admission and downstream body or
 publication proof remain explicit non-claims.
+
+## Implementation checkpoint — 2026-09-14
+
+Implemented the bounded set relation in the existing parser owner. The issuer
+now co-seals a finite same-brand parent set, rejects duplicate parent paths and
+callable identities/coordinates, and preserves exact parent syntax/member
+coverage. The normal source-plan surface consumes the issuer-owned `Ready` set,
+cross-checks each prepared parent against its final slot row, and fails closed
+for a missing seal, relation mismatch, or `MixedProgram` without the A0
+admission witness. No source admission, body/call/constructor handoff,
+publication, fallback, or legacy-edge deletion was changed.
+
+Focused receipts:
+
+- `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib static_box_source_tests -- --nocapture` — 8 passed, 0 failed. This covers one parent, multiple methods, multiple same-brand parents, empty/unsupported/mixed outside states, ordinary-path separation, and callable identity sharing.
+- `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_source_plan_surface_tests -- --nocapture` — 9 passed, 0 failed. This covers the source-plan surface, two-parent/two-slot static relation, ordinary preservation, compatibility rejection, and mixed-program admission stop.
+- `git diff --check` and `bash tools/checks/current_state_pointer_guard.sh` — passed.
+- Owner sizes after the change: `static_box_source.rs` 524 lines and `normal_source_plan_surface.rs` 683 lines; both remain below the 760-line design split threshold.
+
+Known baseline: the quick lib test build emits the repository's existing warning
+set (535 warnings); no new warning classification or cargo-fmt-wide cleanup is
+part of this slice.

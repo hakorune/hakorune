@@ -65,8 +65,8 @@ fn unsupported_static_parent_member_is_explicit_outside() {
 }
 
 #[test]
-fn multiple_static_methods_are_outside_the_first_cohort() {
-    let parsed = parse("static box Api { first() { return 1 } second() { return 2 } }");
+fn empty_static_parent_is_explicitly_outside_the_direct_method_cohort() {
+    let parsed = parse("static box Api {}");
     ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
         assert!(matches!(
             loan.static_box_parent_source(),
@@ -74,6 +74,31 @@ fn multiple_static_methods_are_outside_the_first_cohort() {
                 ParserStaticBoxParentOutsideReasonV1::DirectMethodCohort
             )
         ));
+    });
+}
+
+#[test]
+fn multiple_static_methods_share_one_parent_seal() {
+    let parsed = parse("static box Api { first() { return 1 } second() { return 2 } }");
+    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+        let ParserStaticBoxParentSourceDispositionV1::Ready(seal) = loan.static_box_parent_source()
+        else {
+            panic!("multiple direct methods should share one static parent seal");
+        };
+        assert_eq!(seal.direct_method_relations().count(), 2);
+    });
+}
+
+#[test]
+fn multiple_static_parents_share_one_parser_owned_set() {
+    let parsed =
+        parse("static box First { one() { return 1 } }\nstatic box Second { two() { return 2 } }");
+    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+        let ParserStaticBoxParentSourceDispositionV1::Ready(seal) = loan.static_box_parent_source()
+        else {
+            panic!("same-brand static parents should share one set seal");
+        };
+        assert_eq!(seal.direct_method_relations().count(), 2);
     });
 }
 

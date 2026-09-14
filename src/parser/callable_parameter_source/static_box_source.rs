@@ -214,32 +214,86 @@ impl PreparedParserStaticBoxParentSourceV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::parser) struct ParserStaticBoxSourceSealV1 {
-    _box_site: SourceBoxDeclarationSiteV1,
+struct ParserStaticBoxMethodSourceSealV1 {
+    site: SourceBoxMethodSiteV1,
+    identity: CallableDeclarationIdentityV1,
+}
+
+#[derive(Debug)]
+struct ParserStaticBoxParentSourceSealV1 {
+    box_site: SourceBoxDeclarationSiteV1,
     syntax: ParserStaticBoxDeclarationSyntaxV1,
     member_count: u32,
     member_kinds: Box<[ParserStaticBoxMemberKindV1]>,
-    _method_site: SourceBoxMethodSiteV1,
-    method_identity: CallableDeclarationIdentityV1,
+    methods: Box<[ParserStaticBoxMethodSourceSealV1]>,
+}
+
+impl ParserStaticBoxParentSourceSealV1 {
+    fn matches_prepared(&self, prepared: &PreparedParserStaticBoxParentSourceV1) -> bool {
+        self.box_site == prepared.box_site
+            && self.syntax == *prepared.declaration_syntax()
+            && self.member_count == prepared.member_count
+            && self.member_kinds.len() == prepared.rows.len()
+            && self.member_kinds.iter().copied().eq(prepared
+                .rows
+                .iter()
+                .map(PreparedParserStaticBoxMemberSourceRowV1::kind))
+            && self.methods.len() == prepared.direct_method_relations().count()
+            && self.methods.iter().all(|method| {
+                prepared.direct_method_relations().any(|(site, identity)| {
+                    site == &method.site && identity.same_as(&method.identity)
+                })
+            })
+    }
+
+    fn direct_method_relations(
+        &self,
+    ) -> impl Iterator<Item = (&SourceBoxMethodSiteV1, &CallableDeclarationIdentityV1)> + '_ {
+        self.methods
+            .iter()
+            .map(|method| (&method.site, &method.identity))
+    }
+}
+
+#[derive(Debug)]
+pub(in crate::parser) struct ParserStaticBoxSourceSealV1 {
+    parents: Box<[ParserStaticBoxParentSourceSealV1]>,
 }
 
 impl ParserStaticBoxSourceSealV1 {
+    pub(in crate::parser) fn matches_prepared_parent(
+        &self,
+        prepared: &PreparedParserStaticBoxParentSourceV1,
+    ) -> bool {
+        self.parents
+            .iter()
+            .any(|parent| parent.matches_prepared(prepared))
+    }
+
     pub(in crate::parser) fn declaration_syntax(&self) -> &ParserStaticBoxDeclarationSyntaxV1 {
-        &self.syntax
+        &self.parents[0].syntax
     }
 
     pub(in crate::parser) fn member_count(&self) -> u32 {
-        self.member_count
+        self.parents[0].member_count
     }
 
     pub(in crate::parser) fn member_kinds(
         &self,
     ) -> impl Iterator<Item = ParserStaticBoxMemberKindV1> + '_ {
-        self.member_kinds.iter().copied()
+        self.parents[0].member_kinds.iter().copied()
     }
 
     pub(in crate::parser) fn method_identity(&self) -> &CallableDeclarationIdentityV1 {
-        &self.method_identity
+        &self.parents[0].methods[0].identity
+    }
+
+    pub(in crate::parser) fn direct_method_relations(
+        &self,
+    ) -> impl Iterator<Item = (&SourceBoxMethodSiteV1, &CallableDeclarationIdentityV1)> + '_ {
+        self.parents
+            .iter()
+            .flat_map(ParserStaticBoxParentSourceSealV1::direct_method_relations)
     }
 }
 
@@ -280,6 +334,7 @@ pub(in crate::parser) enum ParserStaticBoxParentSourceIntegrityIssueV1 {
     MemberCoverageMismatch,
     MethodRelationMismatch,
     DuplicateStaticMethodSource,
+    DuplicateStaticParentSource,
 }
 
 impl ParserStaticBoxParentSourceDispositionV1 {
@@ -303,123 +358,155 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
                 ParserStaticBoxParentOutsideReasonV1::ProgramCohort,
             );
         }
-        let Some(prepared) = (match prepared.len() {
-            0 => {
-                return ParserStaticBoxParentSourceDispositionV1::SourceAuthorityUnavailable(
-                    ParserStaticBoxParentSourceUnavailableV1::NoPreparedParent,
-                )
-            }
-            1 => prepared.first(),
-            _ => {
+        let Some(first) = prepared.first() else {
+            return ParserStaticBoxParentSourceDispositionV1::SourceAuthorityUnavailable(
+                ParserStaticBoxParentSourceUnavailableV1::NoPreparedParent,
+            );
+        };
+        let parser_brand = first.brand.clone();
+        let mut parent_paths = Vec::with_capacity(prepared.len());
+        let mut parent_seals: Vec<ParserStaticBoxParentSourceSealV1> =
+            Vec::with_capacity(prepared.len());
+        for parent in prepared {
+            if parent.box_site.path().segments().len() != 1 {
                 return ParserStaticBoxParentSourceDispositionV1::Outside(
-                    ParserStaticBoxParentOutsideReasonV1::MultipleParentRows,
-                )
+                    ParserStaticBoxParentOutsideReasonV1::BuildGatePath,
+                );
             }
-        }) else {
-            unreachable!("static parent row length one was checked")
-        };
-
-        if prepared.box_site.path().segments().len() != 1 {
-            return ParserStaticBoxParentSourceDispositionV1::Outside(
-                ParserStaticBoxParentOutsideReasonV1::BuildGatePath,
-            );
-        }
-        if !prepared.brand.same_as(prepared.box_site.path().brand()) {
-            return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
-                _error: ParserStaticBoxParentSourceIntegrityIssueV1::ForeignParserBrand,
-            };
-        }
-        if usize::try_from(prepared.member_count).ok() != Some(prepared.rows.len()) {
-            return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
-                _error: ParserStaticBoxParentSourceIntegrityIssueV1::MemberCoverageMismatch,
-            };
-        }
-        if prepared
-            .rows
-            .iter()
-            .any(|row| row.kind() != ParserStaticBoxMemberKindV1::DirectMethod)
-        {
-            return ParserStaticBoxParentSourceDispositionV1::Outside(
-                ParserStaticBoxParentOutsideReasonV1::UnsupportedMemberKind,
-            );
-        }
-        let direct_methods = prepared
-            .rows
-            .iter()
-            .filter_map(|row| match row {
-                PreparedParserStaticBoxMemberSourceRowV1::DirectMethod {
-                    site,
-                    callable_identity,
-                } => Some((site, callable_identity)),
-                PreparedParserStaticBoxMemberSourceRowV1::Unsupported { .. } => None,
-            })
-            .collect::<Vec<_>>();
-        if direct_methods.len() != 1 {
-            return ParserStaticBoxParentSourceDispositionV1::Outside(
-                ParserStaticBoxParentOutsideReasonV1::DirectMethodCohort,
-            );
-        }
-        let (method_site, method_identity) = {
-            let (site, identity) = direct_methods[0];
-            (site.clone(), identity.clone())
-        };
-        let coordinate_matches = callable_rows
-            .iter()
-            .filter_map(PreparedCallableSourceV1::direct)
-            .filter(|row| row.kind() == DirectCallableDeclarationKindV1::StaticBoxMethod)
-            .filter(|row| {
-                callable_row_matches(row, prepared.box_site.path(), method_site.member_site())
-            })
-            .collect::<Vec<_>>();
-        if coordinate_matches.len() > 1 {
-            return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
-                _error: ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticMethodSource,
-            };
-        }
-        let identity_matches = callable_rows
-            .iter()
-            .filter_map(PreparedCallableSourceV1::direct)
-            .filter(|row| row.kind() == DirectCallableDeclarationKindV1::StaticBoxMethod)
-            .filter(|row| row.anchor().identity().same_as(&method_identity))
-            .collect::<Vec<_>>();
-        match identity_matches.len() {
-            0 if coordinate_matches.is_empty() => {
-                ParserStaticBoxParentSourceDispositionV1::Incomplete(
-                    ParserStaticBoxParentSourceIncompleteV1::StaticMethodSourceMissing,
-                )
+            if !parent.brand.same_as(&parser_brand)
+                || !parent.brand.same_as(parent.box_site.path().brand())
+            {
+                return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                    _error: ParserStaticBoxParentSourceIntegrityIssueV1::ForeignParserBrand,
+                };
             }
-            0 => ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
-                _error: ParserStaticBoxParentSourceIntegrityIssueV1::MethodRelationMismatch,
-            },
-            1 => {
-                if !callable_row_matches(
-                    identity_matches[0],
-                    prepared.box_site.path(),
-                    method_site.member_site(),
-                ) {
+            if parent_paths
+                .iter()
+                .any(|path: &SourceBoxDeclarationPathV1| path == parent.box_site.path())
+            {
+                return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                    _error:
+                        ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticParentSource,
+                };
+            }
+            parent_paths.push(parent.box_site.path().clone());
+            if usize::try_from(parent.member_count).ok() != Some(parent.rows.len()) {
+                return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                    _error: ParserStaticBoxParentSourceIntegrityIssueV1::MemberCoverageMismatch,
+                };
+            }
+            if parent
+                .rows
+                .iter()
+                .any(|row| row.kind() != ParserStaticBoxMemberKindV1::DirectMethod)
+            {
+                return ParserStaticBoxParentSourceDispositionV1::Outside(
+                    ParserStaticBoxParentOutsideReasonV1::UnsupportedMemberKind,
+                );
+            }
+            let direct_methods = parent
+                .rows
+                .iter()
+                .filter_map(|row| match row {
+                    PreparedParserStaticBoxMemberSourceRowV1::DirectMethod {
+                        site,
+                        callable_identity,
+                    } => Some((site, callable_identity)),
+                    PreparedParserStaticBoxMemberSourceRowV1::Unsupported { .. } => None,
+                })
+                .collect::<Vec<_>>();
+            if direct_methods.is_empty() {
+                return ParserStaticBoxParentSourceDispositionV1::Outside(
+                    ParserStaticBoxParentOutsideReasonV1::DirectMethodCohort,
+                );
+            }
+            let mut method_seals = Vec::with_capacity(direct_methods.len());
+            for (method_site, method_identity) in direct_methods {
+                if parent_seals
+                    .iter()
+                    .flat_map(|parent_seal| parent_seal.methods.iter())
+                    .any(|row| row.identity.same_as(method_identity))
+                    || method_seals
+                        .iter()
+                        .any(|row: &ParserStaticBoxMethodSourceSealV1| {
+                            row.identity.same_as(method_identity)
+                        })
+                {
                     return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
-                        _error: ParserStaticBoxParentSourceIntegrityIssueV1::MethodRelationMismatch,
+                        _error:
+                            ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticMethodSource,
                     };
                 }
-                let member_kinds = prepared
-                    .rows
+                let coordinate_matches = callable_rows
                     .iter()
-                    .map(PreparedParserStaticBoxMemberSourceRowV1::kind)
-                    .collect::<Vec<_>>()
-                    .into_boxed_slice();
-                ParserStaticBoxParentSourceDispositionV1::Ready(ParserStaticBoxSourceSealV1 {
-                    _box_site: prepared.box_site.clone(),
-                    syntax: prepared.syntax.clone(),
-                    member_count: prepared.member_count,
-                    member_kinds,
-                    _method_site: method_site,
-                    method_identity: method_identity.clone(),
-                })
+                    .filter_map(PreparedCallableSourceV1::direct)
+                    .filter(|row| row.kind() == DirectCallableDeclarationKindV1::StaticBoxMethod)
+                    .filter(|row| {
+                        callable_row_matches(row, parent.box_site.path(), method_site.member_site())
+                    })
+                    .count();
+                if coordinate_matches > 1 {
+                    return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                        _error:
+                            ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticMethodSource,
+                    };
+                }
+                let identity_matches = callable_rows
+                    .iter()
+                    .filter_map(PreparedCallableSourceV1::direct)
+                    .filter(|row| row.kind() == DirectCallableDeclarationKindV1::StaticBoxMethod)
+                    .filter(|row| row.anchor().identity().same_as(method_identity))
+                    .collect::<Vec<_>>();
+                match identity_matches.len() {
+                    0 if coordinate_matches == 0 => {
+                        return ParserStaticBoxParentSourceDispositionV1::Incomplete(
+                            ParserStaticBoxParentSourceIncompleteV1::StaticMethodSourceMissing,
+                        )
+                    }
+                    0 => {
+                        return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                            _error:
+                                ParserStaticBoxParentSourceIntegrityIssueV1::MethodRelationMismatch,
+                        }
+                    }
+                    1 if callable_row_matches(
+                        identity_matches[0],
+                        parent.box_site.path(),
+                        method_site.member_site(),
+                    ) => {}
+                    1 => {
+                        return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                            _error:
+                                ParserStaticBoxParentSourceIntegrityIssueV1::MethodRelationMismatch,
+                        }
+                    }
+                    _ => return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                        _error:
+                            ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticMethodSource,
+                    },
+                }
+                method_seals.push(ParserStaticBoxMethodSourceSealV1 {
+                    site: method_site.clone(),
+                    identity: method_identity.clone(),
+                });
             }
-            _ => ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
-                _error: ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticMethodSource,
-            },
+            let member_kinds = parent
+                .rows
+                .iter()
+                .map(PreparedParserStaticBoxMemberSourceRowV1::kind)
+                .collect::<Vec<_>>()
+                .into_boxed_slice();
+            parent_seals.push(ParserStaticBoxParentSourceSealV1 {
+                box_site: parent.box_site.clone(),
+                syntax: parent.syntax.clone(),
+                member_count: parent.member_count,
+                member_kinds,
+                methods: method_seals.into_boxed_slice(),
+            });
         }
+        ParserStaticBoxParentSourceDispositionV1::Ready(ParserStaticBoxSourceSealV1 {
+            parents: parent_seals.into_boxed_slice(),
+        })
     }
 }
 
