@@ -1,6 +1,6 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-I0-A1-STATIC-PARENT"
 current_execution_cohort = "static_parent_set_relation"
 current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-I0-A1-STATIC-PARENT__set_relation_transport"
@@ -29,8 +29,12 @@ admission disposition. A0-2 typed import-lineage transport landed at
 set and its single issuer/surface-consumer join; the selected fast slice is
 now the parser-only A1 set relation I0. A0 source admission,
 body/call/constructor handoff, publication, fallback and old-edge deletion
-remain outside this row. Native Windows lifecycle evidence is retained as a
-later acceptance item.
+remain outside this row. A1-I0 landed at 976b6792c3 with the parser-owned
+finite static-parent set seal, final-slot cross-check, focused 8+9 test
+receipts, and owner README update. Native Windows lifecycle evidence is
+retained as a later acceptance item. StringBox unreachable-receipt/type-tag/
+clone findings remain a separate follow-up family and are not mixed into this
+row.
 """
 next_design_card = "none__a1_body_call_constructor_handoff_d0"
 next_design_card_path = "none__a1_body_call_constructor_handoff_d0"
