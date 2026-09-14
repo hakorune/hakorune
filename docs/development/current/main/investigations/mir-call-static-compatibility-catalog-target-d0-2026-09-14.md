@@ -3,7 +3,7 @@ Status: selected__source_admission_design__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0
 Date: 2026-09-14
 Parent: mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md
-NextCard: none__await_source_admission_decision
+NextCard: none__resolve_mixed_cohort_source_authority
 Implementation permission: false; user reopened design and taskization only
 ---
 
@@ -51,6 +51,126 @@ The phase14 smoke has two compiler invocations: fixture generation through
 alone does not identify which invocation failed. Do not conflate the payload's
 Program JSON with the Hako compiler program being compiled to process it.
 
+## Task 1 result — failing ingress and source disposition
+
+The phase14 probe was run once with the existing `target/quick/hakorune`
+binary, without Cargo. The first invocation completed and wrote the payload:
+
+```text
+target/quick/hakorune --emit-program-json-v0 <program.json> <phase14 fixture>
+Program JSON written: /tmp/..._program.json
+```
+
+The failing invocation is the second one, which compiles and runs the Hako
+MirBuilder entry:
+
+```text
+HAKO_PROGRAM_JSON_FILE=<program.json> target/quick/hakorune --backend vm \
+  lang/src/mir/builder/compat/program_json_v0_entry.hako
+[freeze:contract][static-call/legacy-fallback-retired]
+owner=ParserStringUtilsBox method=starts_with arity=3
+```
+
+The payload fixture is therefore not the source that enters the failing
+compiler route. The failing source is
+`lang/src/mir/builder/compat/program_json_v0_entry.hako`; its
+`using lang.mir.builder.MirBuilderBox` is expanded by
+`prepare_normal_source_with_imports` into a recursively merged source cohort.
+That cohort includes the parser sources, including
+`lang/src/compiler/parser/program/parser_program_box.hako:102`, whose
+`ParserStringUtilsBox.starts_with("" + declaration_row, 0, "[freeze:contract]")`
+call is the named failing static site. The helper definition is in
+`lang/src/compiler/parser/scan/parser_string_utils_box.hako:32-43`; its
+`index_of` self-call at `:70` is a separate inventoried site. The import map
+is the selected normal text-merge product; no bundle or external source
+artifact is supplied by the Program(JSON v0) file.
+
+The observed import chain is:
+
+```text
+program_json_v0_entry.hako
+ -> lang.mir.builder.MirBuilderBox
+ -> lang.compiler.build.build_box (BuildBox)
+ -> lang.compiler.parser.parser_box (ParserBox)
+ -> lang.compiler.parser.program.parser_program_box (ParserProgramBox)
+ -> ParserStringUtilsBox.starts_with/3
+```
+
+The first invocation uses the explicit Stage-1 bridge
+`--emit-program-json-v0` and its strict Program(JSON v0) source route. The
+second invocation uses the normal VM front door, which materializes the
+merged source through
+`materialize_normal_callable_program_with_identity_v1(..., filename)`.
+The parser postpass classifies a static/mixed merged program as the
+`StaticBox`/`MixedProgram` compatibility cohort. The transform reason is
+therefore the typed
+`NormalCallableTransformCompatibilityV1::Parser(MixedProgram)` branch. It
+becomes a `NormalCallableCompatibilityOriginV1` carrying AST, reason and
+parser lineage, then `for_mir_mode_compatibility` creates the compatibility
+root. Static declaration rows remain `AstOnlyCompatibility`; no semantic
+package, catalog, target or result publication owner is issued. This is a
+typed compatibility transport around AST-only semantic rows, not a
+source-backed callable product.
+
+This single chain closes Task 1's invocation/source question. Task 2 now has
+the concrete design boundary: decide whether this entire merged static parser
+cohort can be admitted through the existing source-backed package issuer,
+including its imports and all static method body relations, or name each
+unsupported partition before any I0 switch.
+
+## Task 2 result — whole-cohort admission decision
+
+The whole merged `MixedProgram` is a `NoSafeSlice` for the existing package
+issuer. A compatibility origin cannot be relabelled as
+`PreparedNormalDefaultProgramRootV1::from_callable_source`: the required
+source authority is not issued on that branch.
+
+The existing chain requires one parser invocation to provide all of these
+relations before the package is issued:
+
+- ordinary source seals matching final box path, ordinal, declaration kind,
+  method inventory, generated delegate and constructor coverage;
+- a complete parser-branded parameter catalog;
+- a ready normal-source-plan seed and root-execution/source-authority product;
+- every callable body tied to a parser-issued callable identity;
+- canonical static target/header, expression-site, result-contract and
+  publication-owner relations for each direct static call.
+
+The current static-parent issuer is narrower still: it accepts only a pure
+`StaticBox` cohort with one parent, direct-method-only members, and exactly one
+direct method (`src/parser/callable_parameter_source/static_box_source.rs:
+295-410`). The phase14 merged source has ordinary `ParserBox` plus multiple
+static parser and builder boxes, so it is `MixedProgram` and cannot use that
+seal. `ParserNormalSourcePlanSurfaceIssuerV1` already knows how to consume
+multiple static/ordinary rows, but only after the completed postpass is
+source-backed with a complete seed; the current compatibility branch never
+provides that precondition.
+
+The unresolved partitions are explicit: static/mixed top-level source seals;
+static method body identities; loop/conditional/early-return body projections;
+merged using/import rows; opaque or transferred subtrees; and non-ordinary
+parameter-transfer rows. Body shape alone does not prove any of these
+relations. The existing `ParserStaticBoxParentSourceAuthorityIssuerV1` and
+normal source-plan surface must be extended or a complete source-backed
+sub-cohort must be defined before a caller switch is safe.
+
+The smallest finite observation tuple is retained for the next design task:
+
+```text
+caller:     src/mir/builder/method_call_handlers.rs:456
+site:       lang/src/compiler/parser/program/parser_program_box.hako:102
+target:     ParserStringUtilsBox.starts_with/3
+old edge:   method_call_handlers.rs:493-498
+            UnissuedStaticCallRetirementV1::GenericCompatibility
+```
+
+This tuple is not an I0 authorization. The next D0 must choose one authority
+boundary for the whole merged invocation: either a generalized parser
+source-seal/static-parent issuer that admits all required mixed rows, or an
+explicit source-backed sub-cohort with finite include/exclude relations and a
+retained compatibility partition. A name allowlist, AST rewrite, MIR
+inference, or generic fallback re-entry cannot fill the gap.
+
 ## Reused finite caller inventory
 
 The source owner is
@@ -74,8 +194,9 @@ No repeated repository-wide census is needed.
 
 | Order | Task | Concrete output / completion condition |
 | --- | --- | --- |
-| 1 — next, D0 | Pin failing ingress and source disposition | Trace the existing phase14 smoke, `tools/lib/program_json_v0_compat.sh`, fixture helper and normal materializer. Identify the exact compiler invocation, input source, parser cohort, transform reason, bundle/import lineage and typed-origin versus AST-only branch. Record one entry-to-static-terminal chain; if static evidence is insufficient, name a focused diagnostic probe for separate execution selection. |
-| 2 — D0 | Decide source admission for that whole cohort | Name declaration/caller/site, import, post-transform, argument/type/result issuers and consumers. Cover method bodies, loops, conditionals, early returns and transferred/opaque subtrees. Use source types/contracts for `length`/`substring` demands; do not infer from integer returns or MIR. Resolve each unsupported partition explicitly. |
+| 1 — complete, D0 | Pin failing ingress and source disposition | The one phase14 run proves fixture emission succeeds and the second `program_json_v0_entry.hako` normal VM invocation fails at `ParserStringUtilsBox.starts_with/3`; the merged import cohort and typed compatibility/AST-only branch are recorded above. |
+| 2 — complete design audit, NoSafeSlice | Decide source admission for that whole cohort | The merged `MixedProgram` cannot enter the current package issuer: static parent/source-seal, parameter, root/source-plan, callable identity, target/header/result/publication relations are not co-issued. The finite `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` tuple and every unresolved partition are recorded above. |
+| 2b — next, D0 | Choose the mixed-cohort authority boundary | Decide whether to generalize the parser source-seal/static-parent issuer for the whole merged invocation or define a complete source-backed sub-cohort with explicit compatibility rows. Name every issuer/consumer, import relation, body/loop/conditional/early-return coverage, transfer/opaque disposition and the old edge that would be deleted. No implementation or caller switch until this Decision is accepted. |
 | 3 — conditional I0 | Switch accepted source cohort to existing package | Connect materializer admission to `PreparedNormalDefaultProgramRootV1::from_callable_source`, existing package issuer/collector and Cataloged static handoff. In the same slice retire that cohort's old compatibility classification/raw static-child dispatch. Scope the exact caller and branches after tasks 1–2; no blanket root switch. |
 | 4 — I0 acceptance | Prove publication, rejection and retirement | Real selected source reaches static publication; missing/foreign site, brand mismatch, missing/ambiguous target and unsupported source/result reject before argument effects. Existing owner guards prove selected old-edge absence and residual handling. |
 | 5 — return to StringBox I0 | Close original owner acceptance | Run existing phase14/16/17 and its malformed/wrong-class/extra-argument/embedded/empty cases only after upstream reach is established. Record exact owner-to-terminal results; an earlier stop leaves this acceptance open. |

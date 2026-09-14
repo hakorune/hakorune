@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
 current_execution_cohort = "static_source_handoff_design"
-current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__source_site_issuance_and_handoff"
+current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__mixed_cohort_source_authority_boundary"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__premise_reset_2026-09-14"
+current_design_stop = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__task2b_mixed_cohort_source_authority_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -21,11 +21,15 @@ latest_card_summary = """
 Windows is deferred by the user. Worker-audited static source admission is
 selected: compatibility never issues the semantic package/static publication
 owner, so a port-only handoff cannot repair it. First pin the failing compiler
-invocation and its actual source/transform disposition; then decide the whole
-source cohort's admission through the existing package issuer. Conditional
-I0 switches that cohort and deletes its old raw dispatch before returning to
+invocation and its actual source/transform disposition (phase14 fixture emit
+succeeds; the second program_json_v0_entry normal VM invocation fails while
+compiling the merged static parser cohort). Next decide the whole source
+cohort's admission through the existing package issuer. Conditional I0
+switches that cohort and deletes its old raw dispatch before returning to
 StringBox acceptance. This is internal design work, not an external wait;
-implementation remains unselected until its exact mapping is accepted.
+the whole merged MixedProgram remains NoSafeSlice for the current issuer; the
+next D0 chooses a generalized mixed source seal or a complete source-backed
+sub-cohort before any implementation or caller switch is selected.
 """
 next_design_card = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
