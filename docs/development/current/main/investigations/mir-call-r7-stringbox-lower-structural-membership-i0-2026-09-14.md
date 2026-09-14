@@ -94,3 +94,10 @@ runtime probe. The next action is to recover or isolate that pre-owner
 planner baseline, then rerun phase14/16/17 plus malformed, wrong-class,
 extra-argument, embedded, and empty-literal cases. No source-artifact route,
 fallback, retry, or backend gate is opened while this evidence is pending.
+
+The recovery dependency is now design-scoped as
+`MIR-CALL-RAW-LOOP-COMPATIBILITY-SCOPE-SELECTION-D0` in
+`mir-call-raw-loop-compatibility-scope-selection-d0-2026-09-14.md`. Its
+boundary is limited to the compatibility root's scope/ledger choice; it does
+not reopen Generic G0 or change this Hako owner. After that D0's I0 lands, the
+phase14/16/17 and malformed-shape probes return here for closeout.

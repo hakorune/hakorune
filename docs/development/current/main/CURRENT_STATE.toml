@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-I0"
 current_execution_cohort = "r7_stringbox_lower_structural_membership_i0"
-current_blocker_token = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-I0__hako_bounded_reader_implementation"
+current_blocker_token = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-I0__pre_owner_compatibility_scope_baseline"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0__accepted_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -24,10 +24,13 @@ now replaces first-string and unbounded class recognition in
 LowerReturnMethodStringLengthBox with bounded object/array readers while
 preserving direct/New length|size and phase17 indexOf recipes. Registry,
 fallback, body-only parse, source-entry cutover, shared-schema retirement,
-backend parity, and whole-R7 caller-zero remain out of scope.
+backend parity, and whole-R7 caller-zero remain out of scope. Dynamic owner
+acceptance is waiting on the separately scoped compatibility-root
+scope/ledger recovery D0; this is known baseline debt, not a new StringBox
+semantic route.
 """
-next_design_card = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-lower-structural-membership-d0-2026-09-14.md"
+next_design_card = "MIR-CALL-RAW-LOOP-COMPATIBILITY-SCOPE-SELECTION-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-raw-loop-compatibility-scope-selection-d0-2026-09-14.md"
 next_execution_card = "MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
