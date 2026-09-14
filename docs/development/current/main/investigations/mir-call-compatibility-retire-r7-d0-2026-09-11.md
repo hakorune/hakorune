@@ -15,7 +15,7 @@ Decision: select MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0 under the source-contrac
 Source authority + canonical issuer: Rust AST/Program-v0 lowering is the structured source entrance, but no existing issuer binds StringBox membership to a contract. CoreMethodContractBox remains contract authority; this slice must co-seal the missing relation.
 Non-authority: textual first-string/name matching, parity shape summaries, legacy MIR, and schema-spelling replacement.
 Fail-fast boundary: producer disposition before MIR publication; declared-schema/direct-loader errors remain terminal without retry.
-Smallest next slice: settle exact membership, result/effect/ABI and one consumer handoff for the existing StringBox cohort.
+Smallest next slice: define the source-only product (owner/path, receiver, constructor argument, selector/arity) and one co-sealed consumer handoff for the existing StringBox cohort.
 Non-claims: no implemented issuer/consumer, I0 permission, shared v0 reader deletion, whole-selfhost activation, or backend parity.
 
 ## Development queue (worker-audited 2026-09-13)
@@ -894,8 +894,8 @@ Windows capability and shared schema removal. This selects design, not I0.
 | Order | Design task | Required output / exit |
 | --- | --- | --- |
 | 1 | Exact Program membership | Freeze all five existing partitions, direct-child receiver/arguments, exact arity, empty string, malformed JSON, extra arguments and embedded/opaque subtrees. Distinguish preserved compatibility from the exact migratable subset; do not silently reject current inputs. |
-| 2 | Co-sealed source-to-contract issuer | Treat `stage1/program_json_v0::method_call_expr_to_json_v0` and `ASTNode::New` lowering as structured entrances only; no existing issuer currently binds StringBox membership. Design one source walk that co-seals MethodCall parent/receiver/all arguments with `New(StringBox)` class/constructor-argument relations, then binds them to the existing CoreMethodContractBox String rows. `VerifiedResolvedMethodCallSourceV1` is a route-neutral carrier candidate for MethodCall facts, not a complete New/StringBox issuer. |
-| 3 | Selected source-enriched Rust handoff | Make `Stage1ProgramJsonModuleHandoff` the sole successor owner: co-sealed source product -> `json_v0_bridge` structural lowering -> new canonical admission terminal. Keep Hako registry/fallback and `env.mirbuilder.emit` as explicit compatibility capsules; they lack the source relation. Direct MIR rejects schema 2.0 and v0 `call`/`mir_call`, so op/schema spelling is not migration. |
+| 2 | Co-sealed source-to-contract issuer | Treat `stage1/program_json_v0::method_call_expr_to_json_v0` and `ASTNode::New` lowering as structured entrances only; no existing issuer currently binds StringBox membership. Design one source walk that emits a source-only product with owner/path, MethodCall parent/receiver/all arguments, `New(StringBox)` class/constructor-argument relations, selector/arity, and a borrowed CoreMethodContractBox row. `VerifiedResolvedMethodCallSourceV1` is a route-neutral carrier candidate for MethodCall facts, not a complete New/StringBox issuer. |
+| 3 | Selected source-enriched Rust handoff | Make `Stage1ProgramJsonModuleHandoff` the sole successor owner and design an explicit co-sealed `(Program-v0, source product)` input; plain body JSON remains compatibility-only. The handoff then uses `json_v0_bridge` structural lowering and a new canonical admission terminal. Keep Hako registry/fallback and `env.mirbuilder.emit` as compatibility capsules; direct MIR rejects schema 2.0 and v0 `call`/`mir_call`, so op/schema spelling is not migration. |
 | 4 | Conditional caller-switch I0 | Freeze one Change/Contract/Done/Stop brief: switch both callers, remove their selected boxcall emitter edges in the same series, and name retained residuals. A length/size-only slice must retain indexOf explicitly. |
 
 Source anchors: `lower_return_method_string_length_box.hako::try_lower` and its
