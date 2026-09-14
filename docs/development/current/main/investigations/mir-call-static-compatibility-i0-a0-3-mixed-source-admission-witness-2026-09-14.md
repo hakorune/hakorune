@@ -13,11 +13,11 @@ Implementation permission: true for this parser/source admission slice only
 ## Six-line brief
 
 ```text
-Decision: admit only the same-brand ordinary+static source window into the parser source-plan owner, with one typed relation from declaration spans to sealed merged segments.
+Decision: admit only the same-brand ordinary+static source window into the parser source-plan owner, with one typed relation from parser-captured declaration lines to sealed merged segments.
 Source authority + canonical issuer: parser postpass/source-seal rows and the merge-issued MergedSourceLineageV1; a parser source-admission sibling co-seals existing facts before the normal source-plan consumer.
 Non-authority: MixedProgram/Initial labels, compatibility origin, aliases/names/arity, merged-text order, AST/name reconstruction, MIR and Builder call handlers.
 Fail-fast boundary: unsupported top-level families, missing/foreign parser brand, missing/foreign lineage, duplicate/ambiguous segment mapping, stale slots, and incomplete ordinary/static/member/callable coverage reject before semantic package issuance.
-Smallest next slice: retain source-sealed ordinary and direct-method static rows for one Mixed postpass, bind both through the existing source-plan surface, and issue the span-to-segment relation with focused positive/negative guards.
+Smallest next slice: retain source-sealed ordinary and direct-method static rows for one Mixed postpass, bind both through the existing source-plan surface, and issue the parser-line-to-segment relation with focused positive/negative guards.
 Non-claims: no normal semantic package, resolver target/result/publication, production caller switch, compatibility edge deletion, StringBox repair, Windows proof or R7 completion.
 ```
 
@@ -30,10 +30,12 @@ Non-claims: no normal semantic package, resolver target/result/publication, prod
 2. Make `ParserNormalSourcePlanSurfaceIssuerV1` consume the complete mixed row
    set with exact final-slot, callable, parameter and parent coverage. The
    compatibility closure remains the terminal for every unsupported cohort.
-3. Add the parser/source-admission sibling that maps each retained declaration
-   span's global line through `MergedSourceLineageV1` to one canonical segment
-   and local line. Require one parser invocation brand and reject missing,
-   foreign, ambiguous or out-of-range mappings before returning the witness.
+3. Add the parser/source-admission sibling that captures each retained
+   top-level declaration line in the parser source transaction, then maps that
+   line through `MergedSourceLineageV1` to one canonical segment and local line.
+   AST declaration spans are `Span::unknown()` and are not a source authority.
+   Require one parser invocation brand and reject missing, foreign, ambiguous or
+   out-of-range mappings before returning the witness.
 4. Carry the witness through `VerifiedFinalCallableProgramSourceV1` without
    cloning or reissuing callable meaning. Do not call the semantic package or
    change the static-call fallback in this row.

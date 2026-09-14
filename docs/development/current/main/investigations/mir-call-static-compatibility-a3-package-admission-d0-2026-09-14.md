@@ -65,22 +65,25 @@ There is one further unresolved join: `MergedSourceLineageV1` carries
 canonical files, edges and original line ranges, while parser callable rows
 carry parser-brand declaration/member paths. No current owner issues a typed
 relation between those two identities. A0-3 therefore may not match them by
-box name, source line, merged-text order or AST reinspection. The relation must
-be issued at the parser/source handoff (or the imported cohort must remain
-rejected); until that issuer and its exact coverage are named, the witness is
-not implementable safely.
+box name, merged-text order or AST reinspection. The declaration ASTs currently
+use `Span::unknown()`; the parser's declaration transaction must capture the
+current source line before the AST is built and carry that parser-owned fact to
+the handoff. The relation must be issued there (or the imported cohort must
+remain rejected); until that issuer and its exact coverage are named, the
+witness is not implementable safely.
 
 ## Design resolution
 
 The missing relation is now bounded without introducing a second semantic
 authority. The parser source handoff will consume the already-issued
 `MergedSourceLineageV1` beside the parser invocation product and issue one
-source-provenance relation from each retained top-level declaration span to
-exactly one merged segment. The relation records parser brand/declaration path,
-global start line, canonical segment and local source line. The interval lookup
-uses the merge owner's sealed global ranges; it does not infer identity from a
-name, alias, AST re-scan or merged order. A missing, ambiguous, out-of-range or
-foreign-brand match is a named source-admission reject.
+source-provenance relation from each retained top-level declaration's
+parser-captured source line to exactly one merged segment. The relation records
+parser brand/declaration path, global line, canonical segment and local source
+line. The interval lookup uses the merge owner's sealed global ranges; it does
+not infer identity from a name, alias, AST span, AST re-scan or merged order. A
+missing, ambiguous, out-of-range or foreign-brand match is a named
+source-admission reject.
 
 This is an aggregate of existing parser/source and merge facts, not a second
 callable, target, result or package issuer. The first implementation slice is
