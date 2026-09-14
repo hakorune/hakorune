@@ -69,7 +69,7 @@ backend parity, or whole-R7 completion is claimed by this I0.
 The bounded reader implementation is present in the selected Hako owner. The
 old first-string helpers and unbounded class/receiver scans are deleted. The
 three existing MIR emitters, registry/fallback callers, and body-only
-compatibility entry remain unchanged. The source is 293 lines, below the
+compatibility entry remain unchanged. The source is 295 lines, below the
 800-line hard stop.
 
 Evidence collected without a second Cargo process:
@@ -77,7 +77,7 @@ Evidence collected without a second Cargo process:
 - `CARGO_BUILD_JOBS=1 cargo build --profile quick -j1` passed in 6m03s; the
   crate emitted existing warnings only.
 - `bash tools/checks/hako_mirbuilder_stringbox_structural_membership_guard.sh`
-  passed (`lines=293`).
+  passed (`lines=295`).
 - `target/quick/hakorune --dump-ast
   lang/src/mir/builder/internal/lower_return_method_string_length_box.hako`
   returned 0; stderr contained only the environment's missing optional-plugin
