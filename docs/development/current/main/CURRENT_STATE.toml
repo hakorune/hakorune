@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
 current_execution_cohort = "static_source_handoff_design"
-current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__a0_3_d_admission_witness"
+current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__a0_3_d1_admission_disposition"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__a0_3_d_admission_witness_2026-09-14"
+current_design_stop = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__a0_3_d1_admission_disposition_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -27,16 +27,17 @@ publication issuers. A source-backed sub-cohort beside compatibility rows is
 declined because compatibility has no semantic package/publication issuer and
 would create a second authority. A0-1 fixes the ordinary/static-only source
 window with named reject families, and A0-2-D fixes the typed import-lineage
-schema, merge owner, parser-brand co-seal and reject handoff. The existing
-Initial route is only partial, so A0-3-D now defines an admission witness that
-co-seals the MixedProgram window before NormalSourcePlan Ready. A0 and A1
-remain separate ordered rows. No implementation, caller switch, fallback or
-old-edge deletion is authorized.
+schema, merge owner, parser-brand co-seal and reject handoff. A0-3-D now
+fixes one opaque admission witness issued by CompletedParserPostpass and
+move-consumed by the normal source-plan surface; the next design slice is
+A0-3-D1, which fixes Ordinary/Mixed/CompatibilityOutside ownership and
+terminal mapping. A0 and A1 remain separate ordered rows. No implementation,
+caller switch, fallback or old-edge deletion is authorized.
 """
 next_design_card = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
-next_execution_card = "none__a0_3_d_admission_witness"
-next_execution_card_path = "none__a0_3_d_admission_witness"
+next_execution_card = "none__a0_3_d1_admission_disposition"
+next_execution_card_path = "none__a0_3_d1_admission_disposition"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

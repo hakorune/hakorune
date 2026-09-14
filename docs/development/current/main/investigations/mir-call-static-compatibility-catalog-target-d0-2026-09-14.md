@@ -505,8 +505,29 @@ constructor coverage, `CompositeSourceCompatibilityLoss` or
 parameter catalog, source authority, root disposition and lineage are
 consumed at their existing named terminal; no AST-only fallback is emitted.
 
-This row is not yet implementation-ready: the exact witness type and its
-issuer/consumer placement still need to be named against A0-2 and A1 products.
+The exact placement is now bounded: the witness is issued once while
+`from_initial_compatibility` builds the `CompletedParserPostpassV1` owner and
+is move-consumed by `ParserNormalSourcePlanSurfaceIssuerV1::issue_once`
+(`src/parser/postpass_envelope.rs:264-294`,
+`src/parser/callable_parameter_source/normal_source_plan_surface.rs:254-301`).
+`ParsedProgramWithCallableParameterSourceV1::new` transports the resulting
+surface/root state only; it must not infer admission from AST or cohort later.
+
+The witness carries only the parser brand, retained `MixedProgram` label,
+typed import-lineage co-seal, static-parent co-seal and projected/callable
+coverage witness plus an affine seal. It does not duplicate slot sets,
+ordinary seals, callable rows or static rows owned by the existing seed,
+postpass coverage, initial callable source and A1 products. The
+`from_compatibility` path issues no witness and stays `CompatibilityOutside`;
+the compatibility closure continues to reject Ready/incomplete/integrity
+states instead of downgrading them.
+
+The next bounded design row is **A0-3-D1**: fix
+`ParserNormalSourceAdmissionDispositionV1::{Ordinary, Mixed(...),
+CompatibilityOutside}` ownership and the terminal mapping across
+`from_source_product`, `from_initial_compatibility`, `from_compatibility` and
+the surface issuer. This remains design-only; no code, fixture, production
+switch or old-edge deletion is authorized.
 
 ## Reused finite caller inventory
 
@@ -537,7 +558,8 @@ No repeated repository-wide census is needed.
 | 2c — complete design split, D0 | Separate A0/A1 source co-seal rows | A0 owns the same-brand source-window/import contract; A1 consumes that window and owns finite static-parent/member/method co-seal. The ordered A0-1…A1-3 outputs and reject partitions are recorded above; implementation remains unauthorized. |
 | 2d — complete design, D0 | A0-1 mixed source-window predicate | Ordinary/static declarations and direct methods are the only admitted rows; excluded top-level families and reject terminals are fixed above. |
 | 2e — complete design, D0 | A0-2-D typed import-lineage schema | The merge-owner lineage product, parser-brand co-seal boundary, exact coverage/reject rules and parser handoff are fixed above. Transport implementation remains unauthorized. |
-| 2f — next, D0 | A0-3-D source-backed admission witness | Define the witness issuer/consumer boundary and reject mapping that lets only the allowed same-brand MixedProgram window enter `Initial`/`NormalSourcePlan`. Do not flip the broad semantic predicate or switch production callers. |
+| 2f — complete design, D0 | A0-3-D source-backed admission witness | The witness is issued once in the completed postpass and move-consumed by the normal source-plan surface; it carries no duplicated semantic rows and preserves the compatibility closure. |
+| 2g — next, D0 | A0-3-D1 admission disposition ownership | Fix `Ordinary`/`Mixed`/`CompatibilityOutside` ownership and terminal mapping across the three postpass constructors and surface issuer. Do not flip the broad semantic predicate or switch production callers. |
 | 3 — conditional I0 | Switch accepted source cohort to existing package | Connect materializer admission to `PreparedNormalDefaultProgramRootV1::from_callable_source`, existing package issuer/collector and Cataloged static handoff. In the same slice retire that cohort's old compatibility classification/raw static-child dispatch. Scope the exact caller and branches after A0/A1 and A2/A3; no blanket root switch. |
 | 4 — I0 acceptance | Prove publication, rejection and retirement | Real selected source reaches static publication; missing/foreign site, brand mismatch, missing/ambiguous target and unsupported source/result reject before argument effects. Existing owner guards prove selected old-edge absence and residual handling. |
 | 5 — return to StringBox I0 | Close original owner acceptance | Run existing phase14/16/17 and its malformed/wrong-class/extra-argument/embedded/empty cases only after upstream reach is established. Record exact owner-to-terminal results; an earlier stop leaves this acceptance open. |
