@@ -48,6 +48,19 @@ The catalog-only alternative is declined. It would admit a static declaration
 without a source-backed body/import/target/result package and would create a
 second semantic authority beside the normal source plan.
 
+## Static evidence for the stop
+
+`finish_total_with_policy` currently sends a mixed cohort through
+`from_initial_compatibility`. That path retains ordinary source seals but
+`source_backed_compatibility_rows` deliberately emits static declarations as
+`AstOnlyCompatibility` rows. The static-parent issuer also accepts only the
+`StaticBox` cohort, so a mixed static parent is currently outside its authority
+even when its prepared source relation exists. Finally,
+`ParserNormalSourcePlanSurfaceIssuerV1` returns
+`PostpassNotSourceBacked` for `MixedProgram` before it can bind the ordinary
+and static rows. A3 must close these three boundaries together; changing only
+the final `MixedProgram` guard would create an unsealed path.
+
 ## Ordered bounded design tasks
 
 | Order | Task | Completion condition |
