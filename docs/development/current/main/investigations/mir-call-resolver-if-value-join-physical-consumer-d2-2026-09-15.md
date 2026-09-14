@@ -1,10 +1,10 @@
 ---
-Status: open__design_stop__2026-09-15
+Status: closed__design__2026-09-15
 Task: MIR-CALL-RESOLVER-IF-VALUE-JOIN-PHYSICAL-CONSUMER-D2
 Date: 2026-09-15
 Priority: define the dedicated physical consumer for source-backed expression If value joins
 Parent: mir-call-resolver-if-value-join-schema-d1-2026-09-15.md
-NextCard: TBD after product/consumer co-seal
+NextCard: mir-call-resolver-if-string-result-authority-d3-2026-09-15.md
 Implementation permission: false until the product, issuer, consumer, and JoinSig are co-sealed
 ---
 
@@ -59,3 +59,26 @@ This card does not authorize changes to `ShadowResolverV0`, statement If
 lowering, `IfRecipeV1`, VM, StringBox, compatibility fallback, publication,
 or production caller routing. Local PlanNormalizer tests are substrate
 evidence only and cannot close source-backed admission.
+
+## D2 authority decision
+
+The read-only audit closes D2 as `NoSafeSlice` for the required `I64 | String`
+scope. I64 can reuse the existing source traversal shape, but the String half
+has no canonical result authority:
+
+* `TrivialRepresentationV1` has no String class, and the existing trivial
+  analyzer explicitly stops on String literals.
+* `ExactStringOnSuccess` proves only a String receiver. It does not prove a
+  method or static-call result.
+* `callable_result_representation` treats `CoreMethodResultKindV1::StringValue`
+  as a non-I64/nominal-Box disposition, not as a source-backed String value
+  product.
+* the existing `StringBox.substring` contract is Loop-specific, while the
+  expression rows also require String literals, String-preserving `+`, binding
+  reads, and permitted static/core call results.
+* `helpers_pure_value` name tables and MIR type inference are not authorities.
+
+The physical consumer remains a later `resolved_lowering` owner with a
+dedicated result output port. Existing statement `IfRecipe`/PHI binding and a
+synthetic `BindingRef` must not be widened to hide the missing String product.
+The next bounded row is the String-result authority census and decision.
