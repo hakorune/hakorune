@@ -1,9 +1,10 @@
 # Cargo configuration for Nyash project
 
 [build]
-# Keep normal development builds modest on memory-constrained hosts.
-# Override with CARGO_BUILD_JOBS=1 for a large first build or under pressure.
-jobs = 2
+# The normal development host has 32 GiB RAM; allow dependency/test crates to
+# build in parallel while keeping one top-level Cargo process. Override with
+# CARGO_BUILD_JOBS=1 or =2 for a large first build or under pressure.
+jobs = 4
 
 [target.x86_64-unknown-linux-gnu]
 # Use clang as the linker driver and lld for faster linking.
