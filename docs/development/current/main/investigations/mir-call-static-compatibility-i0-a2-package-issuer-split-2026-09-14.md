@@ -38,8 +38,14 @@ Non-claims: no MixedProgram admission, body-shape expansion, constructor/generat
    error variants, or target/header checks.
 2. `issuer.rs` and the new sibling remain below 760 lines; no compression is
    used to hide the boundary.
-3. Existing focused package tests for issuance order, direct-call lifecycle,
-   selected handoff, and physical header remain green. Add no new CI lane.
+3. Focused package tests are run without a new CI lane. The two issuance-order
+   tests that exercise the unchanged direct-call helper pass. The existing
+   `ordinary_batch_preflight_checks_candidates_before_that_owners_completion`
+   fixture remains a baseline red: it panics in the test helper's root-execution
+   setup with `SourceAuthorityUnavailable(PostpassNotSourceBacked)` before the
+   extracted helper is reached. The split diff contains no semantic change, so
+   this red is recorded for a separate recovery row rather than attributed to
+   the BoxShape move.
 4. `git diff --check` and `bash tools/checks/current_state_pointer_guard.sh`
    pass, and the card records the exact test commands and warning classification.
 
@@ -50,3 +56,13 @@ does not admit MixedProgram, widen body shapes, alter constructor/generated
 coverage, change direct-call meaning, switch production callers, remove the
 generic compatibility terminal, restore fallback, fix StringBox readers, or
 close Windows/R7 evidence.
+
+## Implementation receipt — 2026-09-14
+
+`validate_cataloged_source_co_seal_v1` moved to the private
+`direct_call_co_seal.rs` sibling. `issuer.rs` is 632 lines and the sibling is
+154 lines; the package issuer remains the sole caller and issuer. Exact tests
+`dynamic_owner_error_precedes_ordinary_completion_error` and
+`dynamic_lends_its_original_completion_without_owned_result_row` pass. The
+ordinary preflight red above is retained as a classified baseline and is not a
+claim of this refactor.
