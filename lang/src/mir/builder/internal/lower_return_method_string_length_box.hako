@@ -68,6 +68,8 @@ static box LowerReturnMethodStringLengthBox {
   _find_return_method(s) {
     local root = me._root_object(s); if root < 0 { return -1 }
     local root_end = JsonCursorBox.seek_obj_end(s, root); if root_end < 0 { return -1 }
+    local tail = me._skip_ws_bounded(s, root_end + 1, s.length() - 1)
+    if tail < s.length() { return -1 }
     local body = me._object_value_start(s, root, root_end, "body"); if body < 0 { return -1 }
     body = me._skip_ws_bounded(s, body, root_end); if s.substring(body, body + 1) != "[" { return -1 }
     local body_end = JsonCursorBox.seek_array_end(s, body); if body_end < 0 || body_end > root_end { return -1 }
