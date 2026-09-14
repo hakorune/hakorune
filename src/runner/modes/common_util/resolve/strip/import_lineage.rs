@@ -101,6 +101,9 @@ impl MergedSourceLineageV1 {
                 .global_start_line
                 .saturating_add(segment.global_line_count);
         }
+        // A diamond import legitimately reaches one segment through two
+        // different origins. Segment identity is checked above; edge
+        // uniqueness only rejects the same origin repeating the same target.
         let mut edge_targets = std::collections::HashSet::new();
         for edge in &edges {
             if edge.origin.is_empty() || !paths.contains(edge.origin.as_ref()) {
@@ -109,7 +112,7 @@ impl MergedSourceLineageV1 {
             if edge.resolved.is_empty() || !paths.contains(edge.resolved.as_ref()) {
                 return Err(MergedSourceLineageErrorV1::EdgeTargetMissing);
             }
-            if !edge_targets.insert(edge.resolved.as_ref()) {
+            if !edge_targets.insert((edge.origin.as_ref(), edge.resolved.as_ref())) {
                 return Err(MergedSourceLineageErrorV1::DuplicateCanonicalPath);
             }
         }
@@ -155,7 +158,10 @@ mod tests {
     fn lineage_accepts_exact_root_and_nested_coverage() {
         let lineage = MergedSourceLineageV1::issue(
             "root.hako",
-            vec![segment("nested.hako", 0, 1, 2), segment("root.hako", 1, 3, 2)],
+            vec![
+                segment("nested.hako", 0, 1, 2),
+                segment("root.hako", 1, 3, 2),
+            ],
             vec![ImportLineageEdgeV1 {
                 origin: "root.hako".into(),
                 source_line: 1,
@@ -178,14 +184,103 @@ mod tests {
             Vec::new(),
         )
         .unwrap_err();
-        assert_eq!(duplicate, MergedSourceLineageErrorV1::DuplicateCanonicalPath);
+        assert_eq!(
+            duplicate,
+            MergedSourceLineageErrorV1::DuplicateCanonicalPath
+        );
 
         let gap = MergedSourceLineageV1::issue(
             "root.hako",
-            vec![segment("nested.hako", 0, 1, 1), segment("root.hako", 1, 3, 1)],
+            vec![
+                segment("nested.hako", 0, 1, 1),
+                segment("root.hako", 1, 3, 1),
+            ],
             Vec::new(),
         )
         .unwrap_err();
         assert_eq!(gap, MergedSourceLineageErrorV1::SegmentGapOrOverlap);
+    }
+
+    #[test]
+    fn lineage_accepts_diamond_edges_to_one_shared_segment() {
+        let lineage = MergedSourceLineageV1::issue(
+            "root.hako",
+            vec![
+                segment("root.hako", 0, 1, 1),
+                segment("a.hako", 1, 2, 1),
+                segment("b.hako", 2, 3, 1),
+                segment("c.hako", 3, 4, 1),
+            ],
+            vec![
+                ImportLineageEdgeV1 {
+                    origin: "root.hako".into(),
+                    source_line: 1,
+                    requested: "a.hako".into(),
+                    resolved: "a.hako".into(),
+                    alias: None,
+                    binding: None,
+                },
+                ImportLineageEdgeV1 {
+                    origin: "root.hako".into(),
+                    source_line: 2,
+                    requested: "b.hako".into(),
+                    resolved: "b.hako".into(),
+                    alias: None,
+                    binding: None,
+                },
+                ImportLineageEdgeV1 {
+                    origin: "a.hako".into(),
+                    source_line: 1,
+                    requested: "c.hako".into(),
+                    resolved: "c.hako".into(),
+                    alias: None,
+                    binding: None,
+                },
+                ImportLineageEdgeV1 {
+                    origin: "b.hako".into(),
+                    source_line: 1,
+                    requested: "c.hako".into(),
+                    resolved: "c.hako".into(),
+                    alias: None,
+                    binding: None,
+                },
+            ],
+        )
+        .expect("diamond imports may share one resolved segment");
+        assert_eq!(lineage.edges().len(), 4);
+    }
+
+    #[test]
+    fn lineage_rejects_duplicate_edge_from_same_origin() {
+        let duplicate = MergedSourceLineageV1::issue(
+            "root.hako",
+            vec![
+                segment("root.hako", 0, 1, 1),
+                segment("child.hako", 1, 2, 1),
+            ],
+            vec![
+                ImportLineageEdgeV1 {
+                    origin: "root.hako".into(),
+                    source_line: 1,
+                    requested: "child.hako".into(),
+                    resolved: "child.hako".into(),
+                    alias: None,
+                    binding: None,
+                },
+                ImportLineageEdgeV1 {
+                    origin: "root.hako".into(),
+                    source_line: 2,
+                    requested: "child.hako".into(),
+                    resolved: "child.hako".into(),
+                    alias: None,
+                    binding: None,
+                },
+            ],
+        )
+        .expect_err("same-origin duplicate edges remain invalid");
+        assert_eq!(
+            duplicate,
+            MergedSourceLineageErrorV1::DuplicateCanonicalPath
+        );
     }
 }

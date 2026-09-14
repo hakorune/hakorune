@@ -16,7 +16,7 @@ Implementation permission: true for this transport responsibility only
 Decision: issue merged-source segment/import lineage once from the existing merge owner and co-seal it to one parser invocation.
 Source authority + canonical issuer: TextMergePlan/PreparedSourceWithImports emits typed lineage; the normal materializer attaches it to the parser-branded source product.
 Non-authority: runtime alias HashMap, LineSpan thread-local diagnostics, AST/MIR/name/path reconstruction, compatibility labels and test-only receipts.
-Fail-fast boundary: duplicate canonical path, alias rebinding/conflict, unresolved target, range gap/overlap, foreign brand or missing lineage reaches a named merge/materializer/parser terminal before semantic admission.
+Fail-fast boundary: duplicate canonical segment path, alias rebinding/conflict, unresolved target, and range gap/overlap stop at the merge owner before semantic admission. Parser-brand and missing/foreign-lineage validation are not claimed by this transport slice.
 Smallest next slice: root plus nested import segment identity, edge, alias, DFS ordinal and global/local ranges through source_hint to one parser invocation.
 Non-claims: no A1 static-parent co-seal, MixedProgram source-admission switch, fallback restoration, old static-terminal deletion, Windows proof or R7 completion.
 ```
@@ -97,3 +97,20 @@ drift outside this slice; it is recorded as baseline tooling debt rather than a
 current-change failure. This checkpoint does not claim A1 static-parent
 co-seal, source-admission switching, fallback restoration, legacy-edge
 deletion, Windows lifecycle proof, or R7 completion.
+
+## Post-closeout correction — 2026-09-14
+
+The first implementation rejected a legal diamond import when two distinct
+origins resolved to the same canonical segment. `MergedSourceLineageV1::issue`
+now keys edge uniqueness by `(origin, resolved)`; the independent segment-path
+set still rejects a segment being merged twice. The in-repository shape is
+`full_test.hako` importing both `node.hako` and `parser.hako`, with
+`parser.hako` importing `node.hako` again. Focused positive and same-origin
+duplicate-edge tests cover both sides of the boundary.
+
+This correction does not add the missing/foreign-lineage validation mentioned
+in the original design brief. `merged_source_lineage` currently has no
+production consumer beyond attachment to the parser source product, and its
+accessor is test-only. That validation is a separate design slice; this card
+records it as a non-claim rather than implying that transport alone proves the
+terminal checks.
