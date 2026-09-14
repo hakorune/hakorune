@@ -1,10 +1,10 @@
 ---
-Status: open__design_stop__2026-09-14
+Status: closed__design__2026-09-14
 Task: MIR-CALL-RESOLVER-IF-EXPRESSION-CONTRACT-D0
 Date: 2026-09-14
 Priority: define the missing source-to-Recipe contract for expression If results
 Parent: mir-call-resolver-if-expression-expressivity-d0-2026-09-14.md
-NextCard: TBD after source/result contract decision
+NextCard: mir-call-resolver-if-i64-return-contract-d0-2026-09-14.md
 Implementation permission: false until condition, branch values, result class, and one Recipe/JoinSig issuer are co-sealed
 ---
 
@@ -75,3 +75,8 @@ relations, f64/String results, foreign source identity, MIR-derived inference,
 zero/default completion, and fallback downgrade. No implementation permission
 is granted until that contract is accepted; the other four rows remain outside
 this slice.
+
+This closes the broad contract census as a design decision. The named
+follow-up card narrows the first issuer decision to one source-backed i64
+`Return.Value` expression; it does not claim resolver acceptance or open an
+implementation lane for the remaining result classes.
