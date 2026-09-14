@@ -350,8 +350,8 @@ compatibility re-entry is impossible.
 | A1-2 | Body/call/constructor handoff | Callable bodies, ordinary constructor/generated rows and every direct-call source-site are available to downstream package issuers. |
 | A1-3 | Selected caller/site proof | `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` has a canonical catalog/publication route, with target identity co-sealed rather than inferred from name/arity. |
 
-The next selectable slice is **A0-1 design**. A1 must consume A0's accepted
-window; neither row grants implementation permission yet.
+The A0-1 predicate is now fixed as design evidence. A1 must consume A0's
+accepted window; neither row grants implementation permission yet.
 
 ## Task A0-2 result — typed import lineage is still a design stop
 
@@ -399,9 +399,8 @@ lineage, in addition to existing duplicate path, alias rebinding and alias
 binding conflict. `NormalParserSourceLineageV1` remains the merged-root
 product; `LineSpan` and the alias map stay non-authoritative.
 
-This is design-only. The A0-2-D design condition is now fixed above. The next
-row is **A0-3**, which must define the source-backed root admission boundary
-before any transport implementation or focused guard is selected.
+This is design-only. The A0-2-D design condition is fixed above. The source
+backed root admission remains the next A0 design boundary.
 
 ## Task A0-3 result — source-backed root needs an admission witness
 
@@ -522,12 +521,49 @@ postpass coverage, initial callable source and A1 products. The
 the compatibility closure continues to reject Ready/incomplete/integrity
 states instead of downgrading them.
 
-The next bounded design row is **A0-3-D1**: fix
-`ParserNormalSourceAdmissionDispositionV1::{Ordinary, Mixed(...),
-CompatibilityOutside}` ownership and the terminal mapping across
-`from_source_product`, `from_initial_compatibility`, `from_compatibility` and
-the surface issuer. This remains design-only; no code, fixture, production
-switch or old-edge deletion is authorized.
+The disposition design is recorded below as A0-3-D1. This remains design-only;
+no code, fixture, production switch or old-edge deletion is authorized.
+
+### A0-3-D1 disposition ownership result
+
+The logical admission disposition has exactly three arms and is stored once in
+`CompletedParserPostpassV1`:
+
+```text
+ParserNormalSourceAdmissionDispositionV1
+  Ordinary
+  Mixed(ParserMixedSourceAdmissionV1)
+  CompatibilityOutside
+```
+
+`from_source_product` issues `Ordinary` with the existing `Initial`, ordinary
+coverage and ready seed. `from_initial_compatibility` issues `Mixed(witness)`
+only after source-seal, final ordinal, seed, A0-2 lineage and A1 static
+co-seal checks pass, retaining the `MixedProgram` label. `from_compatibility`
+issues `CompatibilityOutside` with the AST-only program and compatibility seed.
+The new disposition duplicates no slots, static rows, ordinary seals, callable
+identities, constructor source or lineage; those stay in the existing seed,
+postpass coverage, initial callable source, A1 product and A0-2 product.
+
+The affine transition is:
+
+```text
+CompletedParserPostpass --consume admission + seed-->
+ParsedProgramWithCallableParameterSourceV1::new
+  --pass witness-->
+ParserNormalSourcePlanSurfaceIssuerV1::issue_once(move witness)
+  -> ParserBackedNormalSourcePlanBoundV1
+  -> root execution -> normal callable source
+```
+
+Only `Ordinary` and `Mixed` enter the source-backed root transform;
+`CompatibilityOutside` alone enters the existing compatibility closure. A true
+broad candidate followed by witness failure is a named source-admission reject,
+never a silent return to compatibility. Existing coverage, seed, surface,
+root, consumer and final-transform terminals consume the witness and sibling
+products together. This closes the A0 design; the next decision selects the
+first physical producer slice, A0-2 typed lineage transport or A1 static
+co-seal.
 
 ## Reused finite caller inventory
 
@@ -559,7 +595,9 @@ No repeated repository-wide census is needed.
 | 2d — complete design, D0 | A0-1 mixed source-window predicate | Ordinary/static declarations and direct methods are the only admitted rows; excluded top-level families and reject terminals are fixed above. |
 | 2e — complete design, D0 | A0-2-D typed import-lineage schema | The merge-owner lineage product, parser-brand co-seal boundary, exact coverage/reject rules and parser handoff are fixed above. Transport implementation remains unauthorized. |
 | 2f — complete design, D0 | A0-3-D source-backed admission witness | The witness is issued once in the completed postpass and move-consumed by the normal source-plan surface; it carries no duplicated semantic rows and preserves the compatibility closure. |
-| 2g — next, D0 | A0-3-D1 admission disposition ownership | Fix `Ordinary`/`Mixed`/`CompatibilityOutside` ownership and terminal mapping across the three postpass constructors and surface issuer. Do not flip the broad semantic predicate or switch production callers. |
+| 2g — complete design, D0 | A0-3-D1 admission disposition ownership | `CompletedParserPostpassV1` owns `Ordinary`/`Mixed(witness)`/`CompatibilityOutside`; constructors, surface consumer and affine reject mapping are fixed above. |
+| 2h — complete design, D0 | Choose first physical producer slice | A0-2 typed import-lineage transport precedes A1 because A1 needs one parser-branded merged invocation, import identity, segment coverage and alias-edge authority. The first I0 is selected below; no production switch yet. |
+| 2i — selected next I0 | Implement A0-2 typed import-lineage transport | Use `mir-call-static-compatibility-i0-a0-2-2026-09-14.md`; keep A1 co-seal, source admission, fallback and old-terminal deletion outside this row. |
 | 3 — conditional I0 | Switch accepted source cohort to existing package | Connect materializer admission to `PreparedNormalDefaultProgramRootV1::from_callable_source`, existing package issuer/collector and Cataloged static handoff. In the same slice retire that cohort's old compatibility classification/raw static-child dispatch. Scope the exact caller and branches after A0/A1 and A2/A3; no blanket root switch. |
 | 4 — I0 acceptance | Prove publication, rejection and retirement | Real selected source reaches static publication; missing/foreign site, brand mismatch, missing/ambiguous target and unsupported source/result reject before argument effects. Existing owner guards prove selected old-edge absence and residual handling. |
 | 5 — return to StringBox I0 | Close original owner acceptance | Run existing phase14/16/17 and its malformed/wrong-class/extra-argument/embedded/empty cases only after upstream reach is established. Record exact owner-to-terminal results; an earlier stop leaves this acceptance open. |
