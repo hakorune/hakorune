@@ -403,6 +403,69 @@ This is design-only. The A0-2-D design condition is now fixed above. The next
 row is **A0-3**, which must define the source-backed root admission boundary
 before any transport implementation or focused guard is selected.
 
+## Task A0-3 result — source-backed root needs an admission witness
+
+The existing postpass has a partial route: when its broad
+`semantic_candidate` is true, `source_seal/finalize.rs:179-243` selects
+`from_initial_compatibility`, and `postpass_envelope.rs:264-294` stores an
+`Initial` program while retaining the `MixedProgram` cohort label. This is not
+itself a complete A0 admission contract. `CompletedParserPostpassV1::is_source_backed()`
+only checks the `Initial` enum arm (`postpass_envelope.rs:175-178`), while
+`compatibility_program_can_enter_initial_callable_lane_v1` accepts unrelated
+top-level families beyond its explicit build-gate/interface/record/delegate
+checks (`initial_callable_program_source/issue.rs:144-172`). The normal source
+plan can also leave unsupported top-level rows as `Unsupported` while still
+returning `Ready` (`normal_source_plan_surface.rs:319-476`).
+
+Therefore A0-3 cannot be closed by flipping the existing predicate or by
+calling `from_initial_compatibility` for every `MixedProgram`. The source-backed
+root needs a parser-issued **admission witness** that co-seals:
+
+```text
+MixedProgram cohort (label retained)
+same ParserInvocationBrandV1
+ordinary source seals
+A1 static parent/method rows
+projected program slots
+complete parameter catalog
+A0-2 typed import lineage
+ordinary/static direct callable coverage
+```
+
+The witness must reject interface/record/build-gate/enum/brand/type-alias/
+global/static-constant/nested/using/import rows, foreign brands, slot or
+parent coverage mismatch, missing callable/source rows and unsupported
+transfer. `NormalSourcePlanSurfaceIssuerV1` consumes this witness and returns
+`Ready` only for the allowed window. `from_compatibility` and
+`CompatibilityOutside` remain the AST-only route; they must not be used as a
+source-backed shortcut.
+
+The existing handoff remains one execution path:
+
+```text
+CompletedParserPostpass
+ -> ParserNormalSourcePlanSurfaceIssuerV1
+ -> ParserNormalRootExecutionIssuerV1
+ -> ParsedProgramWithCallableParameterSourceV1::new
+ -> ParserNormalRootSourcePlanConsumerV1
+ -> into_normal_callable_program_with_root_execution
+ -> PreparedNormalCallableProgramSourceV1
+```
+
+The named terminals stay affine. Surface failures use
+`SourceAuthorityUnavailable`/`Incomplete`/`IntegrityInvalid`; root failures
+include missing or duplicate Main coverage; consumer failures distinguish
+compatibility/source-authority/incomplete/integrity; the final transform keeps
+foreign parser, callable/syntax/constructor coverage,
+`CompositeSourceCompatibilityLoss` and `MainAppEntryCompatibilityLoss`.
+Every reject consumes the product, source authority, catalog and root siblings
+at its existing named terminal. No AST-only fallback is emitted after a
+failed source-backed admission.
+
+The next bounded row is **A0-3-D**: fix the witness issuer/consumer boundary
+and the complete reject mapping. A1 static co-seal, A0-2 lineage transport,
+production switch and old compatibility-edge deletion remain downstream.
+
 ## Reused finite caller inventory
 
 The source owner is
@@ -432,7 +495,7 @@ No repeated repository-wide census is needed.
 | 2c — complete design split, D0 | Separate A0/A1 source co-seal rows | A0 owns the same-brand source-window/import contract; A1 consumes that window and owns finite static-parent/member/method co-seal. The ordered A0-1…A1-3 outputs and reject partitions are recorded above; implementation remains unauthorized. |
 | 2d — complete design, D0 | A0-1 mixed source-window predicate | Ordinary/static declarations and direct methods are the only admitted rows; excluded top-level families and reject terminals are fixed above. |
 | 2e — complete design, D0 | A0-2-D typed import-lineage schema | The merge-owner lineage product, parser-brand co-seal boundary, exact coverage/reject rules and parser handoff are fixed above. Transport implementation remains unauthorized. |
-| 2f — next, D0 | A0-3 source-backed root admission | Define how the allowed same-brand window enters `Initial`/`NormalSourcePlan` and how every compatibility/source sibling is consumed on reject. Do not switch production callers in this row. |
+| 2f — next, D0 | A0-3-D source-backed admission witness | Define the witness issuer/consumer boundary and reject mapping that lets only the allowed same-brand MixedProgram window enter `Initial`/`NormalSourcePlan`. Do not flip the broad semantic predicate or switch production callers. |
 | 3 — conditional I0 | Switch accepted source cohort to existing package | Connect materializer admission to `PreparedNormalDefaultProgramRootV1::from_callable_source`, existing package issuer/collector and Cataloged static handoff. In the same slice retire that cohort's old compatibility classification/raw static-child dispatch. Scope the exact caller and branches after A0/A1 and A2/A3; no blanket root switch. |
 | 4 — I0 acceptance | Prove publication, rejection and retirement | Real selected source reaches static publication; missing/foreign site, brand mismatch, missing/ambiguous target and unsupported source/result reject before argument effects. Existing owner guards prove selected old-edge absence and residual handling. |
 | 5 — return to StringBox I0 | Close original owner acceptance | Run existing phase14/16/17 and its malformed/wrong-class/extra-argument/embedded/empty cases only after upstream reach is established. Record exact owner-to-terminal results; an earlier stop leaves this acceptance open. |
