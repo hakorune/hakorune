@@ -1,10 +1,10 @@
-Status: selected__design_stop__2026-09-14
+Status: retained__no_safe_caller_switch__2026-09-14
 Task: MIR-CALL-R7-STRINGBOX-CALLER-SWITCH-D0
 Date: 2026-09-14
 Priority: identify the live source caller that still drops the co-sealed artifact and freeze one caller-local successor
 Parent: mir-call-r7-stringbox-source-artifact-i0-2026-09-14.md
-NextCard: MIR-CALL-R7-STRINGBOX-CALLER-SWITCH-I0
-Implementation permission: false until this D0 accepts one real caller, its transport, and its exact deletion tuple
+NextCard: MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0
+Implementation permission: false; this D0 retains the caller edge and selects a Hako-owned successor design stop
 ---
 
 # StringBox caller switch D0
@@ -109,5 +109,30 @@ helper green is therefore not caller-cutover evidence.
 The read-only worker audit on 2026-09-14 confirmed the existing source helper
 route, the Hako body-only edge, and the need for a caller-local deletion tuple.
 No code, fixture, Cargo run, fallback, or production switch is authorized by
-this card. Until D0 acceptance is recorded, `work_mode` remains `design_stop`
-and `next_execution_card` remains none.
+this card.
+
+## D0 resolution — Retain / closed
+
+The live Hako source-compat seam is confirmed, but its contract is a Hako
+Program(JSON v0) compatibility path: `BuildBox.emit_program_json_v0` produces
+body-only text and the Hako `MirBuilderBox` consumes it through the existing
+registry/fallback owners. The Rust source helper is already artifact-aware, so
+reusing it would not be a caller switch. The current SSOT keeps Hako as the
+primary Program(JSON v0) to MIR authority; transporting the Rust artifact
+through this seam would require a new serializer/reissuer or a second source
+authority, while replacing the helper wholesale would broaden the production
+route beyond this bounded row.
+
+The exact caller-local delete set is therefore empty. Retain the Hako
+`BuildBox -> emit_from_program_json_v0` edge, the explicit body-only
+`parse(&str)` and Program(JSON) entry, the registry/fallback callers, and the
+existing StringBox emitters until their own Hako structural membership and
+caller inventories close. `indexOf`, backend parity, shared-schema retirement,
+and whole-R7 caller-zero remain outside this decision.
+
+The successor is
+`MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-D0`: constrain the Hako
+lowerer to exact JSON object/array membership while preserving the existing
+phase14/17 recipes. This closes the caller-switch design question without
+authorizing code or CI work and keeps the next implementation boundary
+CI-independent.
