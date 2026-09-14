@@ -1,5 +1,5 @@
 ---
-Status: ParkedSealed__BackendCapabilityMissing__2026-09-14
+Status: deferred__user_selected_later__2026-09-14
 Task: MIR-CALL-WINDOWS-LIFECYCLE-CAPABILITY-D0
 Date: 2026-09-14
 Priority: define the native Windows lifecycle capability boundary before any implementation
@@ -59,13 +59,12 @@ POSIX archive and file path.
 
 ## Host capability observation (2026-09-14)
 
-The current Linux host provides `/usr/bin/llvm-ar`, `llvm-readobj`, `llvm-nm`,
-and `llvm-config-18`, but it has no `cargo-xwin`, `clang-cl`, or `cl`; the host
-Rust target is `x86_64-unknown-linux-gnu`. These tools can inspect or build the
-Linux lane, but they cannot produce or execute the required
-`x86_64-pc-windows-msvc` runtime artifact. This is an external capability
-boundary for the future I0, not a reason to weaken the Windows terminal or to
-claim a cross-compiled lifecycle result.
+The earlier local PATH probe found `llvm-ar`, `llvm-readobj`, `llvm-nm`, and
+`llvm-config-18`, but no `cargo-xwin`, `clang-cl`, or `cl`. This establishes
+only the tools observed on that host. It does not prove that implementation
+or design is impossible, that a remote Windows runner is unavailable, or that
+a Windows runtime must be supplied externally. Native Windows execution
+remains unproven; generic provider/CAPI receipts do not substitute for it.
 
 ## Finite capability state table
 
@@ -130,15 +129,15 @@ cleanup terminals are selected and observed.
 
 ## D0 disposition
 
-This is a capability design stop, not a current Rust implementation failure.
-The target/loader/ABI/temporary-owner matrix is now finite and taskized, but
-the current host cannot supply the native MSVC runtime/toolchain needed for its
-positive and negative evidence. The scheduler found no other eligible
-executable Call/R7 row: StringBox closeout is still downstream of the parked
-static retirement terminal, and the static catalog row cannot be reopened
-without its documented source/site issuer trigger. Therefore this family is
-`ParkedSealed` at `BackendCapabilityMissing`; retain the named Windows
-terminal, keep `next_execution_card = none__await_design_decision`, and reopen
-only when a native Windows toolchain/runtime artifact arrives or a new
-owner-specific bounded row is accepted. Do not re-enable fallback, retry,
-synthetic authority, or a broad census to manufacture progress.
+The user explicitly deferred Windows work on 2026-09-14 and selected
+worker-assisted MirBuilder source/site taskization. This card is a deferred
+backend capability design, not a prerequisite for Call/R7 design or StringBox
+acceptance on the selected host. Reopen when Windows lifecycle work is
+explicitly selected, then resolve the target/loader/ABI/file-owner design
+before implementation and collect native evidence afterward.
+
+The previous repository-wide frontier pause was an incorrect inference from
+local tool absence and an empty executable queue. Missing internal design can
+be resolved under `design_stop`; it does not require an existing implemented
+successor. The active static handoff card owns that work. Windows lifecycle
+support, cleanup and close/reopen remain unproven and are not marked complete.
