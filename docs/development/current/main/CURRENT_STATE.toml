@@ -27,8 +27,10 @@ consumer candidate remains that handoff into canonical admission; registry/
 fallback and env.mirbuilder remain compatibility. The bounded candidate is
 direct/new StringBox `length|size`; `indexOf` and broad first-string matches
 remain compatibility. Hako registry/fallback callers receive body-only JSON
-and cannot pass the product; no caller-zero is manufactured. No implementation
-or blanket compatibility Stop is selected.
+and cannot pass the product; no caller-zero is manufactured. The planned API is
+`SourceProgramJsonAuthority::for_source` -> source artifact and
+`Stage1ProgramJsonModuleHandoff::from_source_artifact(...)`; existing `parse`
+stays compatibility. No implementation or blanket compatibility Stop is selected.
 """
 next_design_card = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
