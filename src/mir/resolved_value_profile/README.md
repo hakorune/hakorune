@@ -130,3 +130,20 @@ It does not rescan AST, select routes, return `Option` as retry, touch Builder,
 or create a physical CFG/PHI owner. Production physicalization is deliberately
 outside this D0 profile and is gated by the nested execution task's D1/D2
 rows.
+
+## D7 source-result product
+
+`source_result` owns the first source-bound result-class product for an exact
+catalog callable. The product retains the declaration-catalog brand alongside
+the callable key. `SourceResultClassV1` is semantic (`I64` or `String`) and
+does not project to `MirType`. The issuer walks direct source values, locals,
+string concatenation, and expression-If branches whose two branches are
+empty-prelude `BlockExpr` tails. It also records the exact `String/null`
+inequality fact used by a later conditional-value consumer.
+
+The issuer fails before Builder effects on foreign callable keys, unsupported
+or mixed results, missing returns, branch-shape drift, and unknown expressions.
+Static-call result rows, core-method placement/effect rows, recursive body
+closure, JoinSig, physical PHI construction, and production route selection
+remain owned by later slices. No result class is inferred from MIR or from a
+callable name.

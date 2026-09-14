@@ -1,11 +1,11 @@
 ---
-Status: open__design_stop__2026-09-15
+Status: closed__design__2026-09-15
 Task: MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-D6
 Date: 2026-09-15
 Priority: define one source result product for expression-If admission
 Parent: mir-call-resolver-if-source-call-result-authority-d5-2026-09-15.md
-NextCard: TBD after source result and nullable Bool co-seal
-Implementation permission: false until the source relation, result product, and physical String port are co-sealed
+NextCard: mir-call-resolver-if-source-result-product-issuer-d7-2026-09-15.md
+Implementation permission: false; the next D7 card owns the source-result issuer implementation
 ---
 
 # Expression If source result product design stop
@@ -20,6 +20,20 @@ Fail-fast boundary: missing/foreign expression site, non-empty branch prelude, m
 Smallest next slice: source-resolve the five finite rows, issue StringHelpers.int_to_str and non-Loop StringBox result relations where proven, issue one source Bool fact for sval != null, and retain named rejection for any row without proof.
 Non-claims: physical MIR lowering, JoinSig emission, publication, VM, fallback, caller cutover, or legacy-edge retirement.
 ```
+
+`Census boundary: selected source-backed MIR package -> the five deferred
+callable terminals listed below; includes expression-If conditions, empty
+prelude branch tails, and their direct consumers; excludes statement-If,
+Loop-owned lowering, VM keep, compatibility fallback, and unrelated callers.`
+
+## Finite state table
+
+| Outcome | Issuer | Pre-effect terminal | Fallback policy |
+| --- | --- | --- | --- |
+| `Admit(I64)` / `Admit(String)` | D6 source-result transaction | owner-branded product is sealed and handed to D4 | D4 consumes the sealed class; no MIR inference |
+| `Unavailable(source relation)` | source resolver/result producer | named deferred terminal before Builder effects | no retry, default, or compatibility fallback |
+| `Reject(foreign/drift/duplicate)` | source-product verifier | typed rejection before product issue | no re-resolution from names or paths |
+| `Reject(unknown/mixed/unsupported)` | branch/result join verifier | typed rejection before JoinSig/physicalization | keep the caller outside the expression-If product |
 
 ## Product boundary
 
@@ -54,6 +68,47 @@ target identity is already sealed. `StringBox.length`/`substring` may reuse the
 generated manifest target issuer, but only through a new sibling non-Loop
 contract; the existing Loop contract remains unchanged.
 
+## Canonical product and physical handoff
+
+The source-result transaction owns this closed vocabulary:
+
+```text
+SourceResultClassV1       = I64 | String
+SourceBoolFactV1          = Bool { lhs, operator, rhs }
+SourceValueOperationV1    = Literal | Binding | StringConcat | StaticCall | CoreStringCall
+VerifiedSourceResultProductV1 {
+  owner: FunctionOwnerIdV1,
+  callable_source: exact source callable relation,
+  operations: ordered owner-branded rows,
+  result: SourceResultClassV1,
+  consumer: exact SourceExprSiteV1 relation,
+}
+```
+
+The product borrows exact target/header/manifest rows from the source-call and
+core-method issuers. It never stores a name-only target, MIR identity, or
+runtime type. `SourceBoolFactV1` is a sibling typed row, not a String result
+class; `sval != null` must carry the owner-branded String binding, exact Null
+site, and operator before the fact is issued.
+
+Unannotated source callables are solved by a finite body-result worklist. Every
+reachable explicit return must close to one class; direct dependencies consume
+the same product relation, and a recursive SCC is admitted only when its
+explicit returns and call edges close to the same class. Unknown, mixed, or
+unproven recursive returns remain named rejection. This permits the
+`StringHelpers.int_to_str` recursion while preventing a default String class.
+Core `StringBox` calls use the existing Loop contract only at a proven Loop
+site; calls outside Loop use the sibling non-Loop contract and never drop the
+placement guard.
+
+The physical handoff reuses the existing PHI owners. D4's result port supplies
+an explicit class projection (`I64 -> MirType::Integer`, `String ->
+MirType::String`) to a route-specific expression-If CFG bridge. That bridge
+must carry owner, If site, merge/predecessor rows, and then/else values, then
+call `phi_completion` and `phi_type_publication`; it must not synthesize a
+BindingRef or infer the class from incoming MIR values. Statement-If rows and
+their existing Binding SSA bridge remain untouched.
+
 ## Ordered design tasks
 
 | Order | Task | Completion condition |
@@ -67,3 +122,11 @@ contract; the existing Loop contract remains unchanged.
 
 No code, fixture, fallback, production switch, or new semantic receipt is
 authorized while D6 remains in `design_stop`.
+
+## D6 exit
+
+D6 closes as a design decision. The canonical issuer, finite class/fact
+vocabulary, recursive/Loop rejection boundary, and physical PHI handoff are
+fixed. D7 may implement only the source-result product and its focused
+positive/negative guards; expression-If resolver admission and production
+caller cutover remain later cards.

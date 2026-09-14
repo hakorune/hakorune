@@ -1,11 +1,11 @@
 date = "2026-09-15"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-D6"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-ISSUER-D7"
 current_execution_cohort = "resolver_if_value_join_contract"
-current_blocker_token = "MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-D6__source_result_bool_product"
+current_blocker_token = "MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-ISSUER-D7__source_result_product"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__resolver_if_source_result_product_2026-09-15"
+current_design_stop = "closed__resolver_if_source_result_product_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-d6-2026-09-15.md"
-latest_card = "mir-call-resolver-if-source-result-product-d6-2026-09-15"
-latest_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-d6-2026-09-15.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-issuer-d7-2026-09-15.md"
+latest_card = "mir-call-resolver-if-source-result-product-issuer-d7-2026-09-15"
+latest_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-issuer-d7-2026-09-15.md"
 latest_card_summary = """
 Windows is deferred by the user. VM keep remains compatibility-only; the
 source-backed MIR route reaches the resolver If deferred terminal. A0-3
@@ -31,14 +31,19 @@ and recorded the five-row census. D4 bounded the operation vocabulary and
 logical output port but stayed NoSafeSlice: source call-result/Bool facts and a
 String physical consumer are missing. D5 closed NoSafeSlice after confirming
 that the existing i64/nominal and Loop-only products cannot issue those facts.
-D6 now defines the source-result product before expression-If admission.
-Mixed admission, publication, fallback, VM, and caller cutover remain
-unclaimed.
+D6 closed the source-result design with a branded class/fact vocabulary,
+recursive/Loop boundaries, and an existing-PHI physical handoff. D7 now
+implements that source-result owner in a first direct-value transaction:
+locals, String concatenation, empty-prelude expression-If tails, and the exact
+String/null Bool fact are covered by focused tests. The D7 card stays open for
+branded static-call rows, the non-Loop core sibling, and same-class recursive
+closure. Expression-If admission, mixed publication, fallback, VM, and caller
+cutover remain unclaimed.
 """
-next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-D6"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-d6-2026-09-15.md"
-next_execution_card = "none__resolver_if_source_result_product_until_co_seal"
-next_execution_card_path = "none__resolver_if_source_result_product_until_co_seal"
+next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
+next_design_card_path = "none__after_source_result_product_issuer_d7_close"
+next_execution_card = "MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-ISSUER-D7"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-issuer-d7-2026-09-15.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
