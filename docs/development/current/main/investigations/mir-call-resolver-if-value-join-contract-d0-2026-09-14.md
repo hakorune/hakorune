@@ -60,14 +60,16 @@ statement-If owners. `ShadowResolverV0::resolve_expr` rejects expression If
 before recording it, and `callable_result_representation::expression_proof`
 has no If-expression result path. Thus the missing capability spans source
 facts, typed result class, consumer relation, and downstream lowering; it is
-not a stale test expectation.
+not a stale test expectation. The loop-family `LoopValueClassV2::Dynamic` and
+the I64-only callable-result observer are separate authorities and cannot
+stand in for a String result class or a common expression join.
 
 ## Ordered bounded tasks
 
 | Order | Task | Completion condition |
 | --- | --- | --- |
 | 1 | Exact source census | Capture callable/body identity, If site, empty-prelude branch wrappers, tail expressions, result class, and consumer position for every finite row. |
-| 2 | Parametric result class | Define the source-backed class relation for i64 and String; reject mixed branches and do not use MIR type or defaults. |
+| 2 | Parametric result class | Define the source-backed class relation for i64 and String; reject mixed branches and do not use MIR type, loop-family `Dynamic`, or defaults. |
 | 3 | Consumer relation | Represent `Return.Value`, initializer, and RHS without reconstructing paths or using a synthetic binding. |
 | 4 | Recipe/JoinSig shape | Decide whether one result-carrying join can be issued by the existing owner; assignment-only/continuation-only reuse is insufficient. |
 | 5 | Downstream handoff | Confirm the resolver, value-profile producer, and lowering consumer all consume the same join; expression-proof Unknown is a terminal until then. |
