@@ -24,8 +24,12 @@ issuer, and all 16 bounded StringBox callers terminate at the existing static
 retirement boundary. The next capability design stop inventories the separate
 native Windows lifecycle gap: target-built COFF/descriptor admission, LLVM DLL
 loading, ABI/session ownership, and V4 temporary-file cleanup. Provider/CAPI
-Windows evidence does not claim lifecycle support; no implementation or
-fallback is authorized until the capability matrix is accepted.
+Windows evidence does not claim lifecycle support. The Windows matrix is now
+ParkedSealed/BackendCapabilityMissing because this host lacks the MSVC
+toolchain/runtime artifact, and the scheduler found no other eligible
+executable Call/R7 row. `next_execution_card` remains none until that external
+capability arrives or a new owner-specific design is accepted; no fallback,
+retry, or broad census is authorized.
 """
 next_design_card = "MIR-CALL-WINDOWS-LIFECYCLE-CAPABILITY-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-windows-lifecycle-capability-d0-2026-09-14.md"

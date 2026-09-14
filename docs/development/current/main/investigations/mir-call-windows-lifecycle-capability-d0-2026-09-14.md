@@ -1,11 +1,11 @@
 ---
-Status: accepted__design_stop__2026-09-14
+Status: ParkedSealed__BackendCapabilityMissing__2026-09-14
 Task: MIR-CALL-WINDOWS-LIFECYCLE-CAPABILITY-D0
 Date: 2026-09-14
 Priority: define the native Windows lifecycle capability boundary before any implementation
 Parent: mir-call-compatibility-retire-r7-d0-2026-09-11.md
 NextCard: MIR-CALL-WINDOWS-LIFECYCLE-OWNERSHIP-I0
-Implementation permission: false until the target, loader, ABI, and temporary-file ownership matrix is accepted
+Implementation permission: false; reopen only when the target, loader, ABI, and temporary-file ownership matrix and a native Windows toolchain are available
 ---
 
 # Windows lifecycle capability D0
@@ -131,9 +131,14 @@ cleanup terminals are selected and observed.
 ## D0 disposition
 
 This is a capability design stop, not a current Rust implementation failure.
-The next bounded card is
-`MIR-CALL-WINDOWS-LIFECYCLE-OWNERSHIP-I0`; it may be selected only after the
-target/loader/ABI/temporary-owner matrix above is accepted and the required
-Windows toolchain inputs are available. Until then, retain
-`BackendCapabilityMissing` and continue with another inventoried family rather
-than weakening the lifecycle boundary.
+The target/loader/ABI/temporary-owner matrix is now finite and taskized, but
+the current host cannot supply the native MSVC runtime/toolchain needed for its
+positive and negative evidence. The scheduler found no other eligible
+executable Call/R7 row: StringBox closeout is still downstream of the parked
+static retirement terminal, and the static catalog row cannot be reopened
+without its documented source/site issuer trigger. Therefore this family is
+`ParkedSealed` at `BackendCapabilityMissing`; retain the named Windows
+terminal, keep `next_execution_card = none__await_design_decision`, and reopen
+only when a native Windows toolchain/runtime artifact arrives or a new
+owner-specific bounded row is accepted. Do not re-enable fallback, retry,
+synthetic authority, or a broad census to manufacture progress.
