@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
 current_execution_cohort = "static_source_handoff_design"
-current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__a0_a1_mixed_source_co_seal_design"
+current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__a0_1_mixed_source_window_predicate"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__a0_a1_mixed_source_co_seal_2026-09-14"
+current_design_stop = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__a0_1_mixed_source_window_predicate_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -25,16 +25,16 @@ the entire same-brand MixedProgram as one source-backed product through the
 existing normal source plan, callable catalog, semantic package and static
 publication issuers. A source-backed sub-cohort beside compatibility rows is
 declined because compatibility has no semantic package/publication issuer and
-would create a second authority. The current static-parent/source-seal issuer
-is still too narrow, so the next bounded design slice is A0/A1: define the
-mixed source-admission contract and finite static-parent co-seal relations.
-No implementation, caller switch, fallback or old-edge deletion is authorized
-until import/body coverage and package/publication admission are designed.
+would create a second authority. A0 and A1 are separate ordered design rows:
+A0 fixes the ordinary/static-only source window and import authority, then A1
+co-seals the finite static-parent/member/method relations inside that window.
+The next design slice is A0-1 mixed source-window predicate. No
+implementation, caller switch, fallback or old-edge deletion is authorized.
 """
 next_design_card = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
-next_execution_card = "none__mixed_source_co_seal_design"
-next_execution_card_path = "none__mixed_source_co_seal_design"
+next_execution_card = "none__a0_1_mixed_source_window_predicate"
+next_execution_card_path = "none__a0_1_mixed_source_window_predicate"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
