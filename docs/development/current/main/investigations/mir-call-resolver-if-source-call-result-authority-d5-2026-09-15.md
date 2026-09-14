@@ -1,10 +1,10 @@
 ---
-Status: open__design_stop__2026-09-15
+Status: closed__NoSafeSlice__2026-09-15
 Task: MIR-CALL-RESOLVER-IF-SOURCE-CALL-RESULT-AUTHORITY-D5
 Date: 2026-09-15
 Priority: define source-backed String call results and nullable/String Bool facts
 Parent: mir-call-resolver-if-string-result-profile-d4-2026-09-15.md
-NextCard: TBD after source authority and physical representation audit
+NextCard: mir-call-resolver-if-source-result-product-d6-2026-09-15.md
 Implementation permission: false until call-result/Bool authority and the expression profile handoff are co-sealed
 ---
 
@@ -52,6 +52,37 @@ it may not extend the Loop-only contract by silently dropping its placement
 guard. The result row is an input to the D4 sibling profile, not a second
 expression matcher or a physical MIR receipt.
 
+## Static authority audit
+
+The existing products do not satisfy this boundary:
+
+* `ExactTrivialScalarAbiV1` and the normal-callable package result cohort carry
+  only exact `i64` ABI information. They cannot represent a source String
+  result.
+* `VerifiedCallableResultRepresentationV1` has only `ExactI64` and
+  `ExactNominalBox`. The callable-result proof treats a core method with a
+  `StringValue` result as `KnownNonI64`, so it intentionally emits no String
+  result row. `CoreStringMethod` therefore remains an i64-only observation.
+* The generated `StringBox` target issuer already proves the
+  `StringSubstring/2` String result relation, but the existing resolver core
+  method contract additionally requires Loop membership and placement. A
+  sibling non-Loop contract is required; dropping that guard would mix two
+  authorities.
+* `StringHelpers.int_to_str` has a sealed same-module target identity, but its
+  declaration is unannotated and the source-body result proof has no canonical
+  String product. The target row alone is not a return-result proof.
+* `null` is present in the trivial value vocabulary, while a source-branded
+  nullable String binding and a comparison Bool fact are absent. The
+  `sval != null` row cannot be admitted by combining a Null literal with an
+  inferred String type.
+* `ShadowResolverV0::resolve_expr` has no expression-`If` arm. The current
+  fallback records `UnsupportedExpression`, so the exact outer If, condition,
+  empty-prelude branch wrappers, and tail sites are not yet a source product.
+
+These are independent missing authorities, not implementation failures in the
+existing i64 or Loop lanes. No code, fixture, fallback, production switch, or
+new semantic receipt is authorized from this card.
+
 ## Ordered design and exit
 
 | Order | Task | Completion condition |
@@ -61,7 +92,15 @@ expression matcher or a physical MIR receipt.
 | 3 | Non-Loop core call | `length`/`substring` placement and result relation are either admitted or explicitly rejected without Loop widening. |
 | 4 | Nullable Bool | `String/null` comparison has one source Bool fact and exact operand coverage. |
 | 5 | Handoff | D4 profile consumes these rows with one owner/brand and no MIR inference. |
-| 6 | Exit | Open a fast implementation card only if all required rows and the physical String representation are co-sealed; otherwise name the remaining owner. |
+| 6 | Exit | Retain `NoSafeSlice` and name the missing source-result product owner; open a fast implementation card only after the source rows and physical String representation are co-sealed. |
 
 No code, fixture, fallback, production switch, or new semantic receipt is
-authorized while D5 remains in `design_stop`.
+authorized from this design-stop card.
+
+## D5 exit
+
+D5 closes as `NoSafeSlice`. The source target/manifest products are reusable,
+but no existing owner issues the needed String result class, non-Loop core
+method contract, nullable String Bool fact, or expression-If source relation.
+The next bounded design card must co-seal those source facts before the D4
+profile can admit any of the five rows.
