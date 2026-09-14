@@ -64,6 +64,23 @@ not a stale test expectation. The loop-family `LoopValueClassV2::Dynamic` and
 the I64-only callable-result observer are separate authorities and cannot
 stand in for a String result class or a common expression join.
 
+## String authority audit
+
+The repository does contain String-shaped products, but none is the missing
+source ternary result authority. `CoreMethodResultKindV1::StringValue` is a
+projection of the `.hako` Core-method manifest and is consumed only for an
+exact Core method target; it does not describe a source `ASTNode::If` site or
+its `Return.Value`/initializer/RHS consumer. `ExactStringOnSuccess` is a
+receiver proof, not a result class. The generic string and loop-family
+`StringOrVoid`/`Dynamic` products are route-specific and do not carry the
+same source owner, branch relation, and JoinSig. Reusing any of these would
+cross an authority boundary and hide the missing canonical issuer.
+
+Therefore the result-class gap is confirmed as a design gap: no existing
+String product can be substituted for the parametric expression-If join, and
+the card remains `NoSafeSlice` until one source-backed issuer co-seals the
+site, branch result class, consumer position, and downstream JoinSig.
+
 ## Ordered bounded tasks
 
 | Order | Task | Completion condition |
