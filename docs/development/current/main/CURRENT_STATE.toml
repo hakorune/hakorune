@@ -24,8 +24,9 @@ the single Rust Stage1 AST parse/lower transaction can issue Program-v0 and a
 source-only product, but the one-to-one output crosswalk and enriched
 `Stage1ProgramJsonModuleHandoff` API are not yet defined. The sole successor
 consumer candidate remains that handoff into canonical admission; registry/
-fallback and env.mirbuilder remain compatibility. No implementation or
-blanket compatibility Stop is selected.
+fallback and env.mirbuilder remain compatibility. The bounded candidate is
+direct/new StringBox `length|size`; `indexOf` and broad first-string matches
+remain compatibility. No implementation or blanket compatibility Stop is selected.
 """
 next_design_card = "MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
