@@ -1,7 +1,7 @@
 ---
-Status: StringBox source-contract D0 selected; compatibility retained during design
+Status: StringBox source-issuer D0 selected under source-contract design; compatibility retained
 Date: 2026-09-14
-Decision: MIR-CALL-R7-STRINGBOX-SOURCE-CONTRACT-D0
+Decision: MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
 ProductionCaller: selected native ingress plus retained explicit compatibility
 ReplacementCell: owner-local migration; aggregate legacy retirement remains open
@@ -11,8 +11,8 @@ ReplacementCell: owner-local migration; aggregate legacy retirement remains open
 
 ## Six-line brief
 
-Decision: select MIR-CALL-R7-STRINGBOX-SOURCE-CONTRACT-D0; preserve supported compatibility while designing its caller-local successor.
-Source authority + canonical issuer: structured Program-v0 Return/Method/New occurrences and existing CoreMethodContractBox; binding those occurrences to the contract still needs a named issuer.
+Decision: select MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0 under the source-contract design; preserve supported compatibility while designing the caller-local successor.
+Source authority + canonical issuer: Rust AST/Program-v0 lowering is the structured source entrance, but no existing issuer binds StringBox membership to a contract. CoreMethodContractBox remains contract authority; this slice must co-seal the missing relation.
 Non-authority: textual first-string/name matching, parity shape summaries, legacy MIR, and schema-spelling replacement.
 Fail-fast boundary: producer disposition before MIR publication; declared-schema/direct-loader errors remain terminal without retry.
 Smallest next slice: settle exact membership, result/effect/ABI and one consumer handoff for the existing StringBox cohort.
@@ -39,7 +39,8 @@ artifact umbrella intake, Stage-A, Program conversion, parser deletion and backe
 | 4 resolved | `MIR-CALL-R7-JSON-V0-CALLER-DISPOSITION-D0` | Retain the phase14/17 StringBox compatibility cohort; shared v0 parser reuse is not treated as boxcall-arm dependence. |
 | 4 resolved | `MIR-CALL-R7-COMPAT-ENTRYPOINT-D0` | Retain Global and dynamic Value compatibility; its old-edge delete-set is empty. |
 | 4 resolved | `MIR-CALL-R7-RELEASE-SELFHOST-BOXCALL-D0` | Retain explicit release selfhost/Stage1 boxcall compatibility; its exact delete-set is empty. |
-| 4 selected design | `MIR-CALL-R7-STRINGBOX-SOURCE-CONTRACT-D0` | Close source membership and consumer handoff below; compatibility remains supported and I0 stays conditional. |
+| 4 parent design | `MIR-CALL-R7-STRINGBOX-SOURCE-CONTRACT-D0` | Refined below into a source-issuer slice; compatibility remains supported and I0 stays conditional. |
+| 4 selected design | `MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0` | Close exact source membership and the single source-to-contract issuer before consumer handoff. |
 | 4 successive owner units | Remaining existing writer/reader/reissuer inventory | For each owner select Stop/Promote/Delete with finite callers, terminal, replacement and old-edge deletion. No broad recount or supported-caller deletion to manufacture zero. |
 | 5 dependent | R7 schema retirement | Production writer/reader/reissuer/re-entry zero, then delete LegacyCallV0 and its exclusive repair/assets; retained compatibility must have an explicit completed disposition. |
 | 6 dependent | Call/M8 physical thinning | Delete caller-zero Builder windows, wrappers and exclusive tests/guards, retaining equivalent evidence. |
@@ -878,7 +879,7 @@ set, so docs-only commits do not necessarily skip Windows. Closed workflow
 repair and independent A-4/G0 audit detail remain in Git at `9eee6e153d`.
 No foreground polling or redispatch is required before the selected design.
 
-## MIR-CALL-R7-STRINGBOX-SOURCE-CONTRACT-D0 — selected (2026-09-14)
+## MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0 — selected (2026-09-14)
 
 Worker premise reset: an empty Retain delete-set blocks immediate deletion,
 not internal successor design. The family scheduler permits this design in the
@@ -893,7 +894,7 @@ Windows capability and shared schema removal. This selects design, not I0.
 | Order | Design task | Required output / exit |
 | --- | --- | --- |
 | 1 | Exact Program membership | Freeze all five existing partitions, direct-child receiver/arguments, exact arity, empty string, malformed JSON, extra arguments and embedded/opaque subtrees. Distinguish preserved compatibility from the exact migratable subset; do not silently reject current inputs. |
-| 2 | One source-to-contract issuer | Bind the structured `ASTNode::MethodCall` -> Program-v0 occurrence emitted by `stage1/program_json_v0::method_call_expr_to_json_v0` to existing CoreMethodContractBox String rows. Name the sole binding owner and constructor/Home/cleanup, alias, result/failure/effect/ABI contracts; the current Hako text classifier, parity scans and MIR shape cannot supply missing facts. |
+| 2 | Co-sealed source-to-contract issuer | Treat `stage1/program_json_v0::method_call_expr_to_json_v0` and `ASTNode::New` lowering as structured entrances only; no existing issuer currently binds StringBox membership. Design one source walk that co-seals MethodCall parent/receiver/all arguments with `New(StringBox)` class/constructor-argument relations, then binds them to the existing CoreMethodContractBox String rows. `VerifiedResolvedMethodCallSourceV1` is a route-neutral carrier candidate for MethodCall facts, not a complete New/StringBox issuer. |
 | 3 | One consumer handoff | Compare the existing Program bridge with a canonical admission change; choose one complete caller-to-terminal mapping. `json_v0_bridge` can issue canonical `MirInstruction::Call` only after its separate Program-v0 Rust ingress, while the Hako `MirBuilderBox` contract still returns MIR(JSON v0); direct MIR rejects schema 2.0 and v0 call/mir_call, so changing op/schema spelling is not migration. Isolate any unresolved general-ingress dependency explicitly. |
 | 4 | Conditional caller-switch I0 | Freeze one Change/Contract/Done/Stop brief: switch both callers, remove their selected boxcall emitter edges in the same series, and name retained residuals. A length/size-only slice must retain indexOf explicitly. |
 
@@ -905,6 +906,7 @@ Source anchors: `lower_return_method_string_length_box.hako::try_lower` and its
 `src/runner/json_artifact/mir_loader.rs::parse_direct_mir_json_text`.
 `src/runner/json_v0_bridge/lowering/expr/call_ops.rs` is a separate Rust
 Program-v0 ingress comparison, not the Hako output consumer.
+`src/stage1/program_json_v0/{authority.rs,lowering.rs}` supplies Program-v0 structure; `src/mir/resolved_semantics/{body_shape.rs,selected_new_arguments.rs}` provide partial relations but no issuer.
 `program_json_expr_method_shape_scan.hako` and the New shape scan are parity
 summaries, explicitly not Recipe/route issuers.
 
