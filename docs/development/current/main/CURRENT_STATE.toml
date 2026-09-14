@@ -25,7 +25,10 @@ the entire same-brand MixedProgram as one source-backed product through the
 existing normal source plan, callable catalog, semantic package and static
 publication issuers. A0 design is now closed as ordered A0/A1 rows with one
 admission disposition. A0-2 typed import-lineage transport landed at
-004b59ee7a. A1 design closed the finite same-brand static-parent/member/method
+004b59ee7a; correction 88110eaac9 now permits legal diamond edges by
+(origin,resolved) while retaining segment uniqueness. Missing/foreign-lineage
+validation remains a separate non-claim because the product has no production
+consumer beyond parser attachment. A1 design closed the finite same-brand static-parent/member/method
 set and its single issuer/surface-consumer join; A1-I0 landed at 976b6792c3
 with the parser-owned finite static-parent set seal, final-slot cross-check,
 focused 8+9 test receipts, and owner README update. The next design stop is
