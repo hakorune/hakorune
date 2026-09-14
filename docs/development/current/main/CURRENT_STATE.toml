@@ -1,11 +1,11 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-R7-STRINGBOX-SOURCE-ARTIFACT-I0"
-current_execution_cohort = "r7_stringbox_source_artifact_i0"
-current_blocker_token = "MIR-CALL-R7-STRINGBOX-SOURCE-ARTIFACT-I0__artifact_handoff_implementation"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-R7-STRINGBOX-CALLER-SWITCH-D0"
+current_execution_cohort = "r7_stringbox_caller_switch_d0"
+current_blocker_token = "MIR-CALL-R7-STRINGBOX-CALLER-SWITCH-D0__live_source_caller_and_artifact_transport_unsettled"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "none__stringbox_source_issuer_d0_closed"
+current_design_stop = "MIR-CALL-R7-STRINGBOX-CALLER-SWITCH-D0__caller_contract_and_exact_delete_set"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,26 +14,23 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-r7-stringbox-source-artifact-i0-2026-09-14.md"
-latest_card = "mir-call-r7-stringbox-source-artifact-i0-2026-09-14"
-latest_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-source-artifact-i0-2026-09-14.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-r7-stringbox-caller-switch-d0-2026-09-14.md"
+latest_card = "mir-call-r7-stringbox-caller-switch-d0-2026-09-14"
+latest_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-caller-switch-d0-2026-09-14.md"
 latest_card_summary = """
-The D0 source-membership, issuer, crosswalk, handoff, and admission boundary
-are accepted. Fast-path I0 now adds one source-enriched artifact in the Rust
-Stage1 parse/lower transaction, carrying Program-v0 plus
-`Stage1StringBoxSourceProductV1` and `Stage1ProgramJsonCrosswalkV1` into
-`Stage1ProgramJsonModuleHandoff::from_source_artifact(...)`. The existing
-body-only `parse(&str)` and Hako registry/fallback remain compatibility. The
-bridge runs once; admission consumes exactly one lowering-issued Call anchor
-without physical rewrite and rejects zero/multiple/unconsumed/mismatched
-anchors before finalization. `indexOf`, broad first-string matches, caller
-switch, selected old-edge deletion, shared-schema retirement, and backend or
-Windows claims remain out of scope.
+The source-artifact parser/contract I0 landed at 6adbfa8abb. The next design
+stop must identify the live source caller that still loses the co-sealed
+artifact, choose a transport boundary, and freeze a caller-local old-edge
+delete tuple. The Rust source helper already uses the enriched handoff; the
+Hako `BuildBox -> emit_from_program_json_v0` seam and explicit body-only
+Program(JSON) callers remain compatibility until a live route is proven.
+`indexOf`, unsupported shapes, shared-schema retirement, backend parity, and
+whole-R7 caller-zero remain out of scope.
 """
 next_design_card = "MIR-CALL-R7-STRINGBOX-CALLER-SWITCH-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-source-artifact-i0-2026-09-14.md"
-next_execution_card = "MIR-CALL-R7-STRINGBOX-SOURCE-ARTIFACT-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-source-artifact-i0-2026-09-14.md"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-caller-switch-d0-2026-09-14.md"
+next_execution_card = "none__caller_switch_d0_not_accepted"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-stringbox-caller-switch-d0-2026-09-14.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

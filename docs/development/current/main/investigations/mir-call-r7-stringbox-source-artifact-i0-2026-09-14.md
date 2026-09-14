@@ -1,4 +1,4 @@
-Status: selected__bounded_parser_contract_implementation_pending__2026-09-14
+Status: landed__bounded_parser_contract_i0__2026-09-14
 Task: MIR-CALL-R7-STRINGBOX-SOURCE-ARTIFACT-I0
 Date: 2026-09-14
 Priority: issue the bounded StringBox source artifact and connect one typed handoff
@@ -181,5 +181,6 @@ reopens `MIR-CALL-R7-STRINGBOX-CALLER-SWITCH-D0` instead of expanding this row.
   `source_stringbox_new_uses_source_anchor_admission`, and
   `source_stringbox_anchor_missing_from_program_is_rejected` pass in the
   `host_providers::mir_builder` test binary. `cargo check --profile quick -j1`
-  also passes. Full I0 close remains pending until the guard/reference receipt
-  and pointer synchronization are recorded.
+  also passes. The pointer guard is recorded with the closeout update. This
+  bounded parser/contract I0 is landed; it does not claim a production caller
+  switch, selected old-edge deletion, or shared-schema retirement.
