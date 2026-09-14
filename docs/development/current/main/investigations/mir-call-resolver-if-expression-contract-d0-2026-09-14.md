@@ -53,3 +53,25 @@ Remain at `NoSafeSlice` if the contract needs AST rewrite, by-name matching,
 later MIR re-inference, a default branch value, a second resolver, fallback,
 or a compatibility downgrade. This card does not authorize changes to the
 five Hako helpers, statement-If lowering, StringBox, publication, VM, or C.
+
+## Worker audit decision
+
+The read-only owner audit found that the existing owners can be extended, but
+the current statement-If contracts cannot be reused unchanged for expression
+results. `resolved_value_profile/analyzer.rs` and
+`resolved_value_profile/recipe_mapper.rs` are the only candidate extension
+owners; `resolved_region_flow` and `resolved_control_flow/if_control` carry
+statement effects, fallthrough, and coverage but no typed expression result.
+The current `IfRecipeV1`/`IfJoinSigV1` is limited to the existing I64/Bool
+assignment shape and continuation read, and has no String/f64 result ABI or
+`Return.Value`/initializer/RHS consumer relation.
+
+The smallest follow-up design slice is therefore the finite
+`PatternUtilBox.find_local_bool_before` row only: exact If site, Bool condition,
+single tail expression in each branch, i64 result, `Return.Value` consumer, and
+one result-carrying JoinSig must be co-sealed. Reject branch preludes, nested
+If, missing or mismatched values, non-Bool conditions, missing consumer
+relations, f64/String results, foreign source identity, MIR-derived inference,
+zero/default completion, and fallback downgrade. No implementation permission
+is granted until that contract is accepted; the other four rows remain outside
+this slice.
