@@ -1,9 +1,9 @@
 ---
-Status: selected__design_stop__2026-09-14
+Status: design_closed__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-A1-STATIC-PARENT-D0
 Date: 2026-09-14
 Parent: mir-call-static-compatibility-i0-a0-2-2026-09-14.md
-NextCard: none__a1_static_parent_co_seal_i0
+NextCard: MIR-CALL-STATIC-COMPATIBILITY-I0-A1-STATIC-PARENT
 Implementation permission: false; design and taskization only
 ---
 
@@ -132,3 +132,37 @@ semantic authority is needed. The finite implementation design is:
 
 This audit leaves implementation permission false. A1 design must close the
 finite inventory and exact reject mapping before any code or fixture is added.
+
+## A1-D1 inventory closure — 2026-09-14
+
+The source census fixes the finite relation boundary:
+
+| Owner | Current edge | A1 treatment |
+| --- | --- | --- |
+| `source_seal/finalize.rs:196-201` | one call to `ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once` with prepared static rows and callable rows | retain as the sole static-parent issuer; generalize its set contract |
+| `callable_parameter_source/normal_source_plan_seed.rs:17-68` | transports projected slots plus prepared static-parent rows and rejects foreign/duplicate parent paths | retain as transport; it is not a second semantic issuer |
+| `normal_source_plan_surface.rs:284-484` | consumes every prepared static row by final slot and checks callable identity/site, then rejects orphans | require exact agreement with the issuer's ready set before returning `Ready` |
+| `postpass_envelope/normal_callable_program.rs:135-375` | stores the static-parent disposition and consumes it at named terminals; the normal surface currently does not inspect it | close this split by making the surface consume the issuer-owned set relation |
+| `normal_source_plan_consumer.rs:321-339` and `normal_root_execution/issuer.rs:43-69` | borrow the already-issued surface rows and method relations | retain as downstream consumers; no path/name reconstruction |
+
+This census exposes one design edge that cannot be hidden: the current
+postpass disposition and the seed's prepared rows are two projections from the
+same parser transaction, but only the seed rows reach the normal surface. A1
+therefore selects the following single-authority join: the existing static
+parent issuer remains the canonical set issuer, and the surface issuer must
+consume its `Ready` set relation while validating the seed rows against it
+before emitting `ParserBackedNormalSourcePlanBoundV1`. A seed row that is not
+covered by the ready set, or a ready row not consumed by the seed/slot path, is
+an affine integrity reject. The seed remains a transport carrier; it does not
+issue a competing semantic receipt.
+
+The finite callers are now one producer, one source-plan consumer, the existing
+root/source-plan downstream consumers, and the explicit test/discard terminals.
+No production target/result/publication owner is changed by A1. The current
+source files are 437 lines (`static_box_source.rs`) and 648 lines
+(`normal_source_plan_surface.rs`), below the 760-line design boundary; a
+relation helper must be split before either file reaches 760.
+
+This closes A1-D1 through A1-D5 as design work. The implementation slice is
+created separately so its production edge, reject tests, and deletion set stay
+reviewable.

@@ -1,11 +1,11 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-A1-STATIC-PARENT-D0"
-current_execution_cohort = "static_parent_source_co_seal_design"
-current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-A1-STATIC-PARENT-D0__finite_static_parent_co_seal_design"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-I0-A1-STATIC-PARENT"
+current_execution_cohort = "static_parent_set_relation"
+current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-I0-A1-STATIC-PARENT__set_relation_transport"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIR-CALL-STATIC-COMPATIBILITY-A1-STATIC-PARENT-D0__finite_static_parent_co_seal_design"
+current_design_stop = "none__a1_design_closed_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-static-compatibility-a1-static-parent-co-seal-d0-2026-09-14.md"
-latest_card = "mir-call-static-compatibility-a1-static-parent-co-seal-d0-2026-09-14"
-latest_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-a1-static-parent-co-seal-d0-2026-09-14.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-static-compatibility-i0-a1-static-parent-2026-09-14.md"
+latest_card = "mir-call-static-compatibility-i0-a1-static-parent-2026-09-14"
+latest_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-i0-a1-static-parent-2026-09-14.md"
 latest_card_summary = """
 Windows is deferred by the user. The phase14 fixture emit succeeds, while the
 second program_json_v0_entry normal VM invocation fails while compiling the
@@ -25,18 +25,17 @@ the entire same-brand MixedProgram as one source-backed product through the
 existing normal source plan, callable catalog, semantic package and static
 publication issuers. A0 design is now closed as ordered A0/A1 rows with one
 admission disposition. A0-2 typed import-lineage transport landed at
-004b59ee7a: merge DFS -> PreparedSourceWithImports -> one parser-brand
-co-seal, with focused tests and classified formatter red recorded. The next
-design stop is A1 finite same-brand static-parent/member/method co-seal through
-the existing parser issuer and normal source-plan consumer. A0 source
-admission, body/call/constructor handoff, publication, fallback and old-edge
-deletion remain outside this row. Native Windows lifecycle evidence is
-retained as a later acceptance item.
+004b59ee7a. A1 design closed the finite same-brand static-parent/member/method
+set and its single issuer/surface-consumer join; the selected fast slice is
+now the parser-only A1 set relation I0. A0 source admission,
+body/call/constructor handoff, publication, fallback and old-edge deletion
+remain outside this row. Native Windows lifecycle evidence is retained as a
+later acceptance item.
 """
-next_design_card = "MIR-CALL-STATIC-COMPATIBILITY-A1-STATIC-PARENT-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-a1-static-parent-co-seal-d0-2026-09-14.md"
-next_execution_card = "none__a1_static_parent_co_seal_i0"
-next_execution_card_path = "none__a1_static_parent_co_seal_i0"
+next_design_card = "none__a1_body_call_constructor_handoff_d0"
+next_design_card_path = "none__a1_body_call_constructor_handoff_d0"
+next_execution_card = "MIR-CALL-STATIC-COMPATIBILITY-I0-A1-STATIC-PARENT"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-i0-a1-static-parent-2026-09-14.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
