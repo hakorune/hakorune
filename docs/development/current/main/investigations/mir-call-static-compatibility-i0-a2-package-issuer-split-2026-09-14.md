@@ -1,5 +1,5 @@
 ---
-Status: selected__fast__2026-09-14
+Status: closed__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-I0-A2-PACKAGE-ISSUER-SPLIT
 Date: 2026-09-14
 Parent: mir-call-static-compatibility-a2-body-call-constructor-d0-2026-09-14.md
