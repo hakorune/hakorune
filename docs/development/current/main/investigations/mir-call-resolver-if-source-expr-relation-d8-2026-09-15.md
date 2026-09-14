@@ -1,11 +1,11 @@
 ---
-Status: open__design_stop__2026-09-15
+Status: closed__design_accepted__2026-09-15
 Task: MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8
 Date: 2026-09-15
 Priority: issue the exact resolver relation required by the D7 source-result worklist
 Parent: mir-call-resolver-if-source-result-product-issuer-d7-2026-09-15.md
-NextCard: MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-ISSUER-D7.md
-Implementation permission: false; design only until the owner and co-seal boundary are accepted
+NextCard: MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-I0-2026-09-15.md
+Implementation permission: false; accepted design is implemented only by the bounded I0 card
 ---
 
 # Expression-If source relation design stop
@@ -71,10 +71,30 @@ to method-call rows before implementation permission is granted.
 
 Likewise, `VerifiedSourceCallTargetCatalogV1::route_target()` currently
 distinguishes static and dynamic targets while `None` also means no row. D8
-must establish a typed `Static | Dynamic | Absent` disposition at the
-resolver/catalog boundary; treating `None` as success or silently as dynamic
-is forbidden. The existing `issue_catalog_callable_owner_link_v1` remains the
-co-seal authority for the resolver owner and declaration-catalog brand.
+does not make the resolver source owner issue that dispatch classification.
+The resolver relation publishes every exact method/direct-call observation;
+the D7 source-result consumer then maps each observation through the branded
+target catalog into a typed `Static | Dynamic | Absent` disposition. Treating
+`None` as success or silently as dynamic is forbidden. The existing
+`issue_catalog_callable_owner_link_v1` remains the co-seal authority for the
+resolver owner and declaration-catalog brand.
+
+## Accepted design decision
+
+The source relation owner is the existing
+`ResolvedExpressionSourceInventoryV1`, extended with one AST-free conditional
+row and an exact consumer relation. The shadow resolver is its sole issuer;
+`BodyShapeRelationV1` remains the topology owner for nested receiver,
+argument, and BlockExpr-tail paths. The ledger exposes the already sealed
+direct-call observations without copying or re-resolving them. This reuses
+existing Facts and paths and does not create a second AST authority.
+
+The implementation slice is limited to `FullFunctionV1` and
+`SelectedCallableV1`. Script profiles and statement-If keep their current
+boundaries. D7 may consume the relation only after checking the same owner and
+catalog brand and after classifying every nested call as `Static`, `Dynamic`,
+or `Absent`; D8 itself does not issue a result class, target capability, or
+Recipe key.
 
 ## Required co-sealed fields
 
@@ -99,8 +119,9 @@ class, target capability, Recipe key, or physical identity.
 | 2 | Nested call inventory | exact call rows are emitted for calls below branch tails; static/dynamic/absent route is explicit |
 | 3 | Owner/catalog co-seal | relation cannot combine equal-looking callable keys with a foreign resolver owner or catalog brand |
 | 4 | Negative boundary | prelude, missing tail, duplicate site, foreign brand, dynamic, and absent target fail before D7 product issue |
-| 5 | Observation authority | direct-call observation query and explicit `Static \| Dynamic \| Absent` route disposition are defined, or the relation scope is explicitly limited to existing method-call rows |
-| 6 | Exit | accepted relation and one bounded D7 re-entry task; no result-class or physical implementation in D8 |
+| 5 | Observation authority | direct-call observation query is exposed from the existing sealed product; route disposition remains a typed D7 consumer projection |
+| 6 | Exit | accepted relation and one bounded D8-I0 implementation card; no result-class or physical implementation in D8 |
 
-No code, fixture, fallback, production switch, or new semantic receipt is
-authorized while this card is in `design_stop`.
+No code, fixture, fallback, production switch, or D7 result-class publication
+belongs in this design card. The bounded implementation is authorized only by
+the next D8-I0 card.
