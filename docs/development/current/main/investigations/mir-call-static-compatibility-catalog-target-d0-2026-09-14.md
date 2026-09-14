@@ -466,6 +466,48 @@ The next bounded row is **A0-3-D**: fix the witness issuer/consumer boundary
 and the complete reject mapping. A1 static co-seal, A0-2 lineage transport,
 production switch and old compatibility-edge deletion remain downstream.
 
+### A0-3-D design boundary
+
+The witness belongs between the parser finalizer and the existing normal
+source-plan issuer. It must be issued from the same `CompletedParserPostpass`
+transaction that owns the AST, projected slots, callable rows, ordinary
+seals, A1 static seals, parameter catalog and A0-2 lineage; it must be consumed
+by `ParserNormalSourcePlanSurfaceIssuerV1::issue_once` before that issuer can
+return `Ready`. The downstream handoff stays:
+
+```text
+CompletedParserPostpass
+ -> ParserNormalSourcePlanSurfaceIssuerV1
+ -> ParserNormalRootExecutionIssuerV1
+ -> ParsedProgramWithCallableParameterSourceV1::new
+ -> ParserNormalRootSourcePlanConsumerV1
+ -> into_normal_callable_program_with_root_execution
+ -> PreparedNormalCallableProgramSourceV1
+```
+
+The witness is an admission relation, not a second semantic package or a new
+`Verified*` meaning. Its issuer must prove same-brand identity and exact
+coverage for the allowed ordinary/static/direct-call window. It must retain
+the `MixedProgram` cohort label, so `Initial` does not silently relabel the
+program as ordinary. The existing `semantic_candidate` predicate may be used
+as an input observation, but it cannot be the admission authority because it
+currently accepts unrelated top-level rows and `is_source_backed()` only
+checks the enum arm.
+
+Failure mapping remains affine: surface
+`SourceAuthorityUnavailable`/`Incomplete`/`IntegrityInvalid`; root
+`MainMethodMissing`/`MainMemberCoverage`/`DuplicateMain`/
+`DuplicateMainMethod`; consumer
+`CompatibilitySourceUnavailable`/`SourceAuthorityUnavailable`/`Incomplete`/
+`IntegrityInvalid`; and final transform foreign-parser, callable/syntax/
+constructor coverage, `CompositeSourceCompatibilityLoss` or
+`MainAppEntryCompatibilityLoss`. On every failure the parser product,
+parameter catalog, source authority, root disposition and lineage are
+consumed at their existing named terminal; no AST-only fallback is emitted.
+
+This row is not yet implementation-ready: the exact witness type and its
+issuer/consumer placement still need to be named against A0-2 and A1 products.
+
 ## Reused finite caller inventory
 
 The source owner is
