@@ -1,11 +1,11 @@
 date = "2026-09-15"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-SCHEMA-D1"
+current_execution_row = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-PHYSICAL-CONSUMER-D2"
 current_execution_cohort = "resolver_if_value_join_contract"
-current_blocker_token = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-SCHEMA-D1__schema_physical_coseal"
+current_blocker_token = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-PHYSICAL-CONSUMER-D2__product_consumer_coseal"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__resolver_if_value_join_schema_physical_coseal_2026-09-15"
+current_design_stop = "open__resolver_if_value_join_physical_consumer_coseal_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,52 +14,25 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-schema-d1-2026-09-15.md"
-latest_card = "mir-call-resolver-if-value-join-schema-d1-2026-09-15"
-latest_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-schema-d1-2026-09-15.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-physical-consumer-d2-2026-09-15.md"
+latest_card = "mir-call-resolver-if-value-join-physical-consumer-d2-2026-09-15"
+latest_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-physical-consumer-d2-2026-09-15.md"
 latest_card_summary = """
-Windows is deferred by the user. The phase14 fixture emit succeeds. The normal
-VM keep invocation is compatibility-only and cannot claim publication; the
-source-backed MIR invocation reaches the resolver deferred terminal. Worker comparison selected one authority: admit
-the entire same-brand MixedProgram as one source-backed product through the
-existing normal source plan, callable catalog, semantic package and static
-publication issuers. A0 design is now closed as ordered A0/A1 rows with one
-admission disposition. A0-2 typed import-lineage transport landed at
-004b59ee7a; correction 88110eaac9 now permits legal diamond edges by
-(origin,resolved) while retaining segment uniqueness. Missing/foreign-lineage
-validation remains a separate non-claim because the product has no production
-consumer beyond parser attachment. A1 design closed the finite same-brand static-parent/member/method
-set and its single issuer/surface-consumer join; A1-I0 landed at 976b6792c3
-with the parser-owned finite static-parent set seal, final-slot cross-check,
-focused 8+9 test receipts, and owner README update. The next design stop is
-A2 design is closed with one authority chain: final source -> resolver batch
--> semantic package. The selected fast slice is the BoxShape-only split of the
-765-line package issuer before semantic edits. A2-I0 landed at 42a9de550d:
-the helper is now isolated in a private sibling, with the two valid focused
-issuance-order tests passing and one pre-existing SourceAuthorityUnavailable
-red classified in the active card. MixedProgram admission,
-publication/caller cutover, fallback, StringBox findings, Windows proof and R7
-remain outside the completed split. A2-D1 freezes the finite owner/terminal
-inventory; the selected fast slice is focused guard coverage through existing parser,
-resolver, constructor and package owners. A2 body/direct-call/constructor guard
-I0 is closed with the existing focused owner tests recorded in its receipt;
-no new semantic product or CI lane was introduced. StringBox unreachable
-receipt/type-tag/clone findings remain a separate non-claim. The A0-2 correction
-now derives nested import parents from direct DFS and preserves original local
-source line ranges in the lineage-aware strip path; focused lineage evidence is
-recorded in the correction card. A3 is now selected
-as a design stop: MixedProgram remains rejected before semantic package
-issuance until an A0-3 parser-owned admission witness co-seals lineage,
-parents, slots, parameters, callable/body coverage and the same parser brand.
-The existing package/publication chain is retained as the sole downstream
- authority; no package implementation or compatibility cutover is authorized
- yet. A0-3 source admission design is now closed with a parser-captured declaration-line-to-segment typed relation; AST declaration spans are unknown
- and are not an authority. The bounded A0-3 implementation is landed with focused parser/static/source-admission receipts. A3 package admission is closed with a source-backed MIR handoff guard; VM keep remains compatibility-only and resolver If deferral remains a separate expressivity row. Parent replay classified four normal-pipeline reds: two parent baseline failures and two current-change route regressions. The selected lifecycle observer I0 is closed with both route guards passing; the two parent failures remain known baseline debt. Resolver If expression rows are source-backed but remain NoSafeSlice because statement-If Recipe/JoinSig does not carry expression results. D0 closed the finite `ASTNode::If`/empty-prelude `BlockExpr` census, parametric i64/String boundary, consumer roles, and owner decision; D1 now designs a separate expression-If profile/schema and physical handoff, with no String authority or statement-If V1 substitution.
+Windows is deferred by the user. VM keep remains compatibility-only; the
+source-backed MIR route reaches the resolver If deferred terminal. A0-3
+admission and A3 handoff are landed; parent baseline reds remain classified.
+Resolver If expression rows remain NoSafeSlice. D0 fixed the finite
+`ASTNode::If`/empty-prelude `BlockExpr` census and parametric I64/String
+boundary. D1 found no existing expression-result consumer: resolved lowering,
+raw dispatch, and statement If physicalization are separate; PlanNormalizer
+Select only infers MIR type. D2 now defines the dedicated source-issued product,
+result-carrying JoinSig, and one resolved-lowering consumer. Mixed admission,
+publication, fallback, VM, and caller cutover remain unclaimed.
 """
-next_design_card = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-SCHEMA-D1"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-schema-d1-2026-09-15.md"
-next_execution_card = "none__resolver_if_value_join_schema_until_physical_consumer_decision"
-next_execution_card_path = "none__resolver_if_value_join_schema_until_physical_consumer_decision"
+next_design_card = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-PHYSICAL-CONSUMER-D2"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-physical-consumer-d2-2026-09-15.md"
+next_execution_card = "none__resolver_if_value_join_physical_consumer_until_product_consumer_decision"
+next_execution_card_path = "none__resolver_if_value_join_physical_consumer_until_product_consumer_decision"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

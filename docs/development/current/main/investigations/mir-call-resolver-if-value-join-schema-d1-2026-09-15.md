@@ -1,10 +1,10 @@
 ---
-Status: open__design_stop__2026-09-15
+Status: closed__design__2026-09-15
 Task: MIR-CALL-RESOLVER-IF-VALUE-JOIN-SCHEMA-D1
 Date: 2026-09-15
 Priority: specify one source-backed expression-If profile/schema and physical handoff
 Parent: mir-call-resolver-if-value-join-contract-d0-2026-09-14.md
-NextCard: TBD after schema and physical consumer decision
+NextCard: mir-call-resolver-if-value-join-physical-consumer-d2-2026-09-15.md
 Implementation permission: false until the schema, issuer, consumer and physical handoff are co-sealed
 ---
 
@@ -55,6 +55,46 @@ relations, but it cannot issue the result class. Core method String rows and
 loop-family String products remain non-authority. If no physical consumer can
 consume the product without MIR inference or a second issuer, D1 remains
 `NoSafeSlice` and records the missing owner instead of widening admission.
+
+The existing physical candidate is
+`src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs:668-732`.
+It already lowers an explicit-else, single-item value If to
+`CoreEffectPlan::Select`, including empty-prelude `BlockExpr` wrappers. It is
+not yet the required consumer: lines 719-725 derive the result type from the
+then-side MIR value, and `helpers_pure_value.rs:4-23` admits selected method
+shapes by spelling. D1 must make this owner consume the issued result class and
+source operation facts, or explicitly name a different canonical consumer;
+leaving MIR inference in place cannot close the schema.
+
+## D1 physical-consumer decision
+
+The read-only physical audit closes this row as `NoSafeSlice`; no existing
+canonical consumer can consume the proposed product without a second issuer or
+MIR-derived meaning:
+
+* `raw_expression_dispatch` routes `ASTNode::If` through statement lowering and
+  has no result port for `ReturnValue`, `LocalInitializer`, or `Rhs`.
+* `resolved_lowering::lowerer::lower_expr` accepts literals, variables,
+  binary expressions, block expressions, and calls, but no expression `If`.
+* `normal_source_plan` selects profiles and does not lower MIR; the existing
+  `IfRecipe` physicalizer takes a `LocatedStmtV1` and owns statement binding
+  merge/continuation only.
+* `resolved_value_profile` has no expression-If arm and its trivial
+  representation/product has no String class. `IfRecipeV1` therefore remains
+  an `I64|Bool` statement contract.
+
+The result class is consequently parametric over the finite source vocabulary
+(`I64` or `String`), and each ternary branch remains an empty-prelude
+`BlockExpr` with a required tail fact. The existing PlanNormalizer `Select`
+path is evidence of a possible substrate, not an authority: it derives type
+from the then-side MIR value and admits selected calls by spelling. D1 therefore
+does not widen `IfRecipeV1`, enable resolver admission, or add a fallback.
+
+The next design row must define `VerifiedExpressionIfResultProductV1` and a
+dedicated `resolved_lowering` physical consumer that takes the source-issued
+condition, branch tails, equal `I64|String` class, and one exact consumer
+relation as a single handoff. Until that owner and handoff are co-sealed, the
+five deferred callable rows remain correctly deferred.
 
 ## Ordered design tasks
 
