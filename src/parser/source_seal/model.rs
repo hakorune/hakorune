@@ -77,6 +77,7 @@ pub(in crate::parser) enum SourceSealFinalizationErrorV1 {
 pub(in crate::parser) struct PreparedBoxSourceSealV1 {
     pub(in crate::parser) brand: ParserInvocationBrandV1,
     pub(in crate::parser) box_site: SourceBoxDeclarationSiteV1,
+    pub(in crate::parser) declaration_line: usize,
     pub(in crate::parser) declaration_syntax: ParserBoxDeclarationSyntaxV1,
     pub(in crate::parser) inventory: BoxMethodInventoryV1,
     pub(in crate::parser) method_relations: Box<[MethodSourceRelationV1]>,
@@ -187,6 +188,10 @@ impl ParserBoxSourceSealV1 {
 
     pub(in crate::parser) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
         &self.prepared.box_site
+    }
+
+    pub(in crate::parser) fn declaration_line(&self) -> usize {
+        self.prepared.declaration_line
     }
 
     pub(in crate::parser) fn declaration_syntax(&self) -> &ParserBoxDeclarationSyntaxV1 {

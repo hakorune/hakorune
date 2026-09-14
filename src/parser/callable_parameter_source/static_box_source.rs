@@ -74,6 +74,7 @@ impl PreparedParserStaticBoxMemberSourceRowV1 {
 pub(in crate::parser) struct OpenParserStaticBoxSourceTransactionV1 {
     brand: ParserInvocationBrandV1,
     box_site: SourceBoxDeclarationSiteV1,
+    declaration_line: usize,
     syntax: ParserStaticBoxDeclarationSyntaxV1,
     cursor: ParserBoxMemberSourceCursorV1,
     rows: Vec<PreparedParserStaticBoxMemberSourceRowV1>,
@@ -84,10 +85,12 @@ impl OpenParserStaticBoxSourceTransactionV1 {
         brand: ParserInvocationBrandV1,
         path: SourceBoxDeclarationPathV1,
         name: String,
+        declaration_line: usize,
     ) -> Self {
         let cursor = ParserBoxMemberSourceCursorV1::open_with_path(brand.clone(), path);
         Self {
             box_site: cursor.box_site().clone(),
+            declaration_line,
             brand,
             syntax: ParserStaticBoxDeclarationSyntaxV1::static_box(name),
             cursor,
@@ -154,6 +157,7 @@ impl OpenParserStaticBoxSourceTransactionV1 {
         Ok(PreparedParserStaticBoxParentSourceV1 {
             brand: self.brand,
             box_site: self.box_site,
+            declaration_line: self.declaration_line,
             syntax: self.syntax,
             member_count,
             rows: self.rows.into_boxed_slice(),
@@ -174,6 +178,7 @@ pub(in crate::parser) enum ParserStaticBoxSourceIssueV1 {
 pub(in crate::parser) struct PreparedParserStaticBoxParentSourceV1 {
     brand: ParserInvocationBrandV1,
     box_site: SourceBoxDeclarationSiteV1,
+    declaration_line: usize,
     syntax: ParserStaticBoxDeclarationSyntaxV1,
     member_count: u32,
     rows: Box<[PreparedParserStaticBoxMemberSourceRowV1]>,
@@ -222,6 +227,7 @@ struct ParserStaticBoxMethodSourceSealV1 {
 #[derive(Debug)]
 struct ParserStaticBoxParentSourceSealV1 {
     box_site: SourceBoxDeclarationSiteV1,
+    declaration_line: usize,
     syntax: ParserStaticBoxDeclarationSyntaxV1,
     member_count: u32,
     member_kinds: Box<[ParserStaticBoxMemberKindV1]>,
@@ -261,6 +267,24 @@ pub(in crate::parser) struct ParserStaticBoxSourceSealV1 {
 }
 
 impl ParserStaticBoxSourceSealV1 {
+    pub(in crate::parser) fn declaration_coordinates(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &ParserInvocationBrandV1,
+            &SourceBoxDeclarationPathV1,
+            usize,
+        ),
+    > {
+        self.parents.iter().map(|parent| {
+            (
+                parent.box_site.path().brand(),
+                parent.box_site.path(),
+                parent.declaration_line,
+            )
+        })
+    }
+
     pub(in crate::parser) fn matches_prepared_parent(
         &self,
         prepared: &PreparedParserStaticBoxParentSourceV1,
@@ -353,7 +377,11 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
         prepared: &[PreparedParserStaticBoxParentSourceV1],
         callable_rows: &[PreparedCallableSourceV1],
     ) -> ParserStaticBoxParentSourceDispositionV1 {
-        if !matches!(cohort, ParserPostpassProgramCohortV1::StaticBox) {
+        if !matches!(
+            cohort,
+            ParserPostpassProgramCohortV1::StaticBox
+                | ParserPostpassProgramCohortV1::MixedProgram
+        ) {
             return ParserStaticBoxParentSourceDispositionV1::Outside(
                 ParserStaticBoxParentOutsideReasonV1::ProgramCohort,
             );
@@ -498,6 +526,7 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
                 .into_boxed_slice();
             parent_seals.push(ParserStaticBoxParentSourceSealV1 {
                 box_site: parent.box_site.clone(),
+                declaration_line: parent.declaration_line,
                 syntax: parent.syntax.clone(),
                 member_count: parent.member_count,
                 member_kinds,

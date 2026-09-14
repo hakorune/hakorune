@@ -97,6 +97,7 @@ impl PreparedBoxSourceSealV1 {
             prepared: PreparedBoxSourceSealV1 {
                 brand: self.brand,
                 box_site: self.box_site,
+                declaration_line: self.declaration_line,
                 declaration_syntax: self.declaration_syntax,
                 inventory: self.inventory,
                 method_relations: self.method_relations,

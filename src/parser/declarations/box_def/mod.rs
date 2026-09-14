@@ -34,8 +34,9 @@ pub fn parse_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseError>
         });
     }
     crate::parser::from_transport_boundary::reject_legacy_from_before_ast(p)?;
+    let declaration_line = p.current_token().line;
     p.advance(); // consume BOX or FLOW
-    parse_box_declaration_after_box_keyword(p, false)
+    parse_box_declaration_after_box_keyword(p, false, declaration_line)
 }
 
 /// Parse canonical `sync box Name { ... }`.
@@ -57,14 +58,16 @@ pub fn parse_sync_box_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseE
             line: p.current_token().line,
         });
     }
+    let declaration_line = p.current_token().line;
     p.advance(); // consume contextual `sync`
     p.consume(TokenType::BOX)?;
-    parse_box_declaration_after_box_keyword(p, true)
+    parse_box_declaration_after_box_keyword(p, true, declaration_line)
 }
 
 fn parse_box_declaration_after_box_keyword(
     p: &mut NyashParser,
     is_sync: bool,
+    declaration_line: usize,
 ) -> Result<ASTNode, ParseError> {
     let attrs = p.take_pending_runes_for_box()?;
     let (name, type_parameters, extends, implements) = header::parse_header(p)?;
@@ -81,6 +84,7 @@ fn parse_box_declaration_after_box_keyword(
         p.source_invocation_brand(),
         source_path,
         ParserBoxDeclarationSyntaxV1::ordinary(name.clone(), is_sync),
+        declaration_line,
     );
     let mut state = BoxMemberState::with_source_transaction(source_tx);
     parse_box_member_body(p, &mut state, true)?;

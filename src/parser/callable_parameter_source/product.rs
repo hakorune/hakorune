@@ -22,6 +22,10 @@ use super::syntax_loan::{
 };
 use crate::parser::postpass_envelope::CompletedParserPostpassV1;
 use crate::parser::{NyashParser, ParseError, ParsedNormalCallableProgramV1, ParserBuildConfig};
+use crate::parser::normal_callable_program_source::{
+    ParserSourceAdmissionErrorV1, ParserSourceAdmissionWitnessV1,
+};
+use crate::runner::modes::common_util::resolve::MergedSourceLineageV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ParserCallableSourceRetentionErrorV1 {
@@ -120,6 +124,19 @@ impl NyashParser {
 }
 
 impl ParsedProgramWithCallableParameterSourceV1 {
+    pub(crate) fn issue_source_admission_witness(
+        &self,
+        lineage: &MergedSourceLineageV1,
+    ) -> Result<Option<ParserSourceAdmissionWitnessV1>, ParserSourceAdmissionErrorV1> {
+        if !self.completed.is_source_backed() {
+            return Ok(None);
+        }
+        ParserSourceAdmissionWitnessV1::issue(
+            lineage,
+            self.completed.source_declaration_coordinates(),
+        )
+    }
+
     pub(crate) fn prepare_raw_vm_source_route(
         self,
     ) -> Result<PreparedParserNormalRawVmSourceRouteV1, RejectedParserNormalRawVmSourceExtractionV1>

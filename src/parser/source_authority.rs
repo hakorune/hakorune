@@ -416,6 +416,7 @@ impl GeneratedPropertySink for BoxMethodInventoryV1 {
 pub(super) struct OpenBoxMethodSourceTransactionV1 {
     cursor: ParserBoxMemberSourceCursorV1,
     declaration_syntax: ParserBoxDeclarationSyntaxV1,
+    declaration_line: usize,
     written_gate_path: Vec<SourceProgramMemberGateStepV1>,
     member_gate_selection_receipts: Vec<MemberGateSelectionReceiptV1>,
     inventory: BoxMethodInventoryV1,
@@ -431,6 +432,7 @@ impl OpenBoxMethodSourceTransactionV1 {
         Self {
             cursor: ParserBoxMemberSourceCursorV1::open(brand, statement_ordinal),
             declaration_syntax: ParserBoxDeclarationSyntaxV1::ordinary("TestBox".to_owned(), false),
+            declaration_line: 0,
             written_gate_path: Vec::new(),
             member_gate_selection_receipts: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
@@ -445,10 +447,12 @@ impl OpenBoxMethodSourceTransactionV1 {
         brand: ParserInvocationBrandV1,
         path: SourceBoxDeclarationPathV1,
         declaration_syntax: ParserBoxDeclarationSyntaxV1,
+        declaration_line: usize,
     ) -> Self {
         Self {
             cursor: ParserBoxMemberSourceCursorV1::open_with_path(brand, path),
             declaration_syntax,
+            declaration_line,
             written_gate_path: Vec::new(),
             member_gate_selection_receipts: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
@@ -479,6 +483,7 @@ impl OpenBoxMethodSourceTransactionV1 {
         Self {
             cursor: self.cursor.branch(),
             declaration_syntax: self.declaration_syntax.clone(),
+            declaration_line: self.declaration_line,
             written_gate_path: self.written_gate_path.clone(),
             member_gate_selection_receipts: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
@@ -668,6 +673,7 @@ impl OpenBoxMethodSourceTransactionV1 {
         Ok(PreparedBoxSourceSealV1 {
             brand,
             box_site,
+            declaration_line: self.declaration_line,
             declaration_syntax: self.declaration_syntax,
             inventory: self.inventory,
             method_relations: self.method_relations.into_boxed_slice(),

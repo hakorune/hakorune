@@ -116,14 +116,14 @@ fn ordinary_source_path_does_not_reuse_static_parent_seal() {
 }
 
 #[test]
-fn mixed_program_is_outside_without_static_parent_repair() {
+fn mixed_program_reuses_the_parser_owned_static_parent_seal() {
     let parsed = parse("box Plain { run() { return 1 } }\nstatic box Api { run() { return 2 } }");
     ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
-        assert!(matches!(
-            loan.static_box_parent_source(),
-            ParserStaticBoxParentSourceDispositionV1::Outside(
-                ParserStaticBoxParentOutsideReasonV1::ProgramCohort
-            )
-        ));
+        let ParserStaticBoxParentSourceDispositionV1::Ready(seal) = loan.static_box_parent_source()
+        else {
+            panic!("same-brand mixed program should retain the static parent seal")
+        };
+        assert_eq!(seal.declaration_syntax().name(), "Api");
+        assert_eq!(seal.direct_method_relations().count(), 1);
     });
 }

@@ -65,6 +65,13 @@ impl NyashRunner {
             }
             Err(
                 crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationErrorV1::SourceAdmission(rejected),
+            ) => {
+                eprintln!("❌ MIR source admission error: {:?}", rejected);
+                process::exit(1);
+            }
+            Err(
+                crate::runner::modes::common_util::normal_callable::
                     NormalCallableMaterializationErrorV1::CompatibilityOrigin(rejected),
             ) => {
                 eprintln!("❌ MIR compatibility origin error: {}", rejected);

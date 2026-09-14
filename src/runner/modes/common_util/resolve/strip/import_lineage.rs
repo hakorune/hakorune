@@ -135,6 +135,16 @@ impl MergedSourceLineageV1 {
     pub(crate) fn edges(&self) -> &[ImportLineageEdgeV1] {
         &self.edges
     }
+
+    pub(crate) fn locate_global_line(
+        &self,
+        line: usize,
+    ) -> Option<(&MergedSourceSegmentV1, usize)> {
+        self.segments.iter().find_map(|segment| {
+            let offset = line.checked_sub(segment.global_start_line)?;
+            (offset < segment.global_line_count).then_some((segment, offset))
+        })
+    }
 }
 
 #[cfg(test)]

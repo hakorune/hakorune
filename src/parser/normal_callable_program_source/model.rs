@@ -29,6 +29,7 @@ use super::semantic_syntax_loan::{
     FinalCallableSemanticSyntaxLoanV1,
 };
 use super::transform::FinalCallableProgramSourceRejectV1;
+use super::source_admission::ParserSourceAdmissionWitnessV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NormalCallableParserCompatibilityV1 {
@@ -56,6 +57,7 @@ pub(crate) struct NormalParserSourceLineageV1 {
     parse_count: u8,
     merged_source_lineage: Option<MergedSourceLineageV1>,
     parser_invocation: Option<super::super::callable_parameter_source::ParserInvocationWitnessV1>,
+    source_admission_witness: Option<ParserSourceAdmissionWitnessV1>,
     _seal: NormalParserSourceLineageSealV1,
 }
 
@@ -94,6 +96,7 @@ impl NormalParserSourceLineageV1 {
             parse_count,
             merged_source_lineage: None,
             parser_invocation: None,
+            source_admission_witness: None,
             _seal: NormalParserSourceLineageSealV1,
         })
     }
@@ -113,6 +116,15 @@ impl NormalParserSourceLineageV1 {
     ) -> Self {
         debug_assert!(self.parser_invocation.is_none());
         self.parser_invocation = Some(invocation);
+        self
+    }
+
+    pub(crate) fn with_source_admission_witness(
+        mut self,
+        witness: ParserSourceAdmissionWitnessV1,
+    ) -> Self {
+        debug_assert!(self.source_admission_witness.is_none());
+        self.source_admission_witness = Some(witness);
         self
     }
 
@@ -144,6 +156,10 @@ impl NormalParserSourceLineageV1 {
         &self,
     ) -> Option<&super::super::callable_parameter_source::ParserInvocationWitnessV1> {
         self.parser_invocation.as_ref()
+    }
+
+    pub(crate) fn source_admission_witness(&self) -> Option<&ParserSourceAdmissionWitnessV1> {
+        self.source_admission_witness.as_ref()
     }
 }
 

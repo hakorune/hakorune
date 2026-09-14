@@ -152,9 +152,23 @@ fn compatibility_postpass_cannot_emit_a_source_plan_bound() {
 }
 
 #[test]
-fn mixed_program_source_plan_stays_unavailable_until_a0_admission() {
+fn mixed_program_source_plan_is_admitted_with_both_parent_rows() {
     with_surface(
         "box Plain { run() { return 1 } }\nstatic box Api { call() { return 2 } }",
-        |surface| assert!(surface.is_none()),
+        |surface| {
+            let Some(ParserNormalSourcePlanSurfaceV1::CompleteRows(rows)) = surface else {
+                panic!("same-brand mixed program must produce one complete source plan")
+            };
+            let rows = rows.rows();
+            assert_eq!(rows.len(), 2);
+            assert!(matches!(
+                &rows[0],
+                ParserNormalSourcePlanTopLevelRowV1::OrdinaryBox { .. }
+            ));
+            assert!(matches!(
+                &rows[1],
+                ParserNormalSourcePlanTopLevelRowV1::StaticBox { .. }
+            ));
+        },
     );
 }

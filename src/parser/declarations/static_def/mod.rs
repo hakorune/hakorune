@@ -58,6 +58,7 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         p.source_invocation_brand(),
         source_path,
         name.clone(),
+        box_span.line,
     );
 
     let mut fields = Vec::new();

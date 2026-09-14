@@ -56,6 +56,7 @@ pub(crate) mod log;
 mod normal_callable_program_source;
 pub(crate) use normal_callable_program_source::{
     ParserOrdinaryBoxSourceCoverageV1, ParserOrdinaryBoxSourceRowV1,
+    ParserSourceAdmissionErrorV1,
 };
 mod public_api;
 pub(crate) use public_api::*;

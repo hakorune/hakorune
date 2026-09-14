@@ -57,3 +57,25 @@ Keep changed Rust files below 760 lines by moving the relation model and its
 issuer into siblings before a boundary file grows; never compress lines to
 avoid the limit. Use one quick-profile Cargo process with at most four jobs and
 focused nonzero tests only.
+
+## Implementation receipt
+
+The bounded source-admission slice is implemented in the parser/source owners.
+Ordinary and static declarations now retain the parser-captured declaration
+line, the merged-lineage owner resolves that global line to one sealed segment
+and local line, and the same-brand Mixed source plan consumes both parent rows.
+Foreign brands, duplicate declaration paths, and out-of-range global lines
+fail before the witness is issued. The witness is attached to the existing
+normal parser source lineage; no semantic package, publication, fallback, or
+compatibility edge was changed.
+
+Focused receipts (quick profile, `CARGO_BUILD_JOBS=4`):
+
+* `parser::normal_callable_program_source::source_admission::tests::source_line_is_joined_to_one_sealed_segment_and_local_line` — PASS
+* `parser::normal_callable_program_source::source_admission::tests::foreign_brand_and_out_of_range_line_are_rejected` — PASS
+* `parser::callable_parameter_source::normal_source_plan_surface_tests::mixed_program_source_plan_is_admitted_with_both_parent_rows` — PASS
+* `parser::callable_parameter_source::static_box_source_tests::mixed_program_reuses_the_parser_owned_static_parent_seal` — PASS
+* `runner::modes::common_util::normal_callable::tests::merged_lineage_is_co_sealed_to_the_parser_invocation` — PASS; source-admission witness present
+
+The full-lib build emitted the repository's existing warning/red baseline; no
+new baseline gate or backend/Windows claim is made by this receipt.

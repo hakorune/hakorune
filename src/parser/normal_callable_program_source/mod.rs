@@ -4,6 +4,7 @@ mod model;
 mod normal_root_execution_preservation;
 mod ordinary_new_source;
 mod semantic_syntax_loan;
+pub(in crate::parser) mod source_admission;
 mod transform;
 
 pub(in crate::parser) use model::NormalCallableParameterSourceRejectV1;
@@ -21,6 +22,9 @@ pub(crate) use ordinary_new_source::{ParserOrdinaryBoxSourceCoverageV1, ParserOr
 pub(crate) use semantic_syntax_loan::{
     CallableMethodSourceObservationV1, FinalCallableDeclarationModeV1,
     FinalCallableSemanticSyntaxLoanErrorV1, FinalCallableSemanticSyntaxRowRefV1,
+};
+pub(crate) use source_admission::{
+    ParserSourceAdmissionErrorV1, ParserSourceAdmissionWitnessV1,
 };
 pub(crate) use transform::FinalCallableProgramSourceRejectV1;
 

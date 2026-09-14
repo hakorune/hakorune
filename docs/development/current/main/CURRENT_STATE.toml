@@ -53,9 +53,8 @@ issuance until an A0-3 parser-owned admission witness co-seals lineage,
 parents, slots, parameters, callable/body coverage and the same parser brand.
 The existing package/publication chain is retained as the sole downstream
 authority; no package implementation or compatibility cutover is authorized
-yet. A0-3 source admission design is now closed with a parser-captured
-declaration-line-to-segment typed relation; AST declaration spans are unknown
-and are not an authority. The bounded I0 is selected in the latest card.
+yet. A0-3 source admission design is now closed with a parser-captured declaration-line-to-segment typed relation; AST declaration spans are unknown
+and are not an authority. The bounded I0 implementation is landed with focused parser/static/source-admission receipts; package/publication cutover remains outside this slice.
 """
 next_design_card = "none__a3_package_admission_after_a0_3_source_admission"
 next_design_card_path = "none__a3_package_admission_after_a0_3_source_admission"

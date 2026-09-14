@@ -265,14 +265,6 @@ impl ParserNormalSourcePlanSurfaceIssuerV1 {
                 ParserNormalSourcePlanSurfaceUnavailableV1::PostpassNotSourceBacked,
             );
         }
-        if matches!(
-            completed.program_cohort_for_admission(),
-            ParserPostpassProgramCohortV1::MixedProgram
-        ) {
-            return ParserNormalSourcePlanSurfaceDispositionV1::SourceAuthorityUnavailable(
-                ParserNormalSourcePlanSurfaceUnavailableV1::PostpassNotSourceBacked,
-            );
-        }
         let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source else {
             return ParserNormalSourcePlanSurfaceDispositionV1::SourceAuthorityUnavailable(
                 ParserNormalSourcePlanSurfaceUnavailableV1::ParameterSourceUnavailable,
@@ -304,6 +296,7 @@ impl ParserNormalSourcePlanSurfaceIssuerV1 {
         if matches!(
             completed.program_cohort_for_admission(),
             ParserPostpassProgramCohortV1::StaticBox
+                | ParserPostpassProgramCohortV1::MixedProgram
         ) && static_parent_seal.is_none()
         {
             return ParserNormalSourcePlanSurfaceDispositionV1::IntegrityInvalid(

@@ -120,6 +120,13 @@ impl NyashRunner {
             ))),
             Err(
                 crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationErrorV1::SourceAdmission(rejected),
+            ) => report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                "Normal callable source admission error: {:?}",
+                rejected
+            ))),
+            Err(
+                crate::runner::modes::common_util::normal_callable::
                     NormalCallableMaterializationErrorV1::CompatibilityOrigin(rejected),
             ) => report::emit_error_and_exit(LlvmRunError::fatal(format!(
                 "Normal callable compatibility origin error: {}",
