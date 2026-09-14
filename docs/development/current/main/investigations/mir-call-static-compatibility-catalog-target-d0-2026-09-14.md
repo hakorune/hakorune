@@ -353,6 +353,56 @@ compatibility re-entry is impossible.
 The next selectable slice is **A0-1 design**. A1 must consume A0's accepted
 window; neither row grants implementation permission yet.
 
+## Task A0-2 result — typed import lineage is still a design stop
+
+The read-only import audit confirms that A0-2 cannot be closed by the current
+merge outputs. `PreparedSourceWithImports` returns only merged `code` and a
+`HashMap<String, String>` alias-to-box binding
+(`src/runner/modes/common_util/source_hint.rs:4-7,67-112`). The text merger
+does create DFS order and `LineSpan { file, start_line, line_count }`
+(`src/runner/modes/common_util/resolve/strip/merge.rs:123-227`), but the
+thread-local context is a diagnostic observer, not parser authority
+(`src/runner/modes/common_util/resolve/context.rs:4-57`). Duplicate canonical
+paths, alias rebinding and alias-to-box conflicts are rejected by the strip
+owner (`src/runner/modes/common_util/resolve/strip/using.rs:197-233,582-613`,
+`merge.rs:263-281`), yet their result is still a string error/map rather than
+a branded source product. The current normal parser lineage represents the
+merged root as one identity and loses per-import provenance.
+
+### A0-2-D typed lineage contract
+
+The next design row must define one finite lineage product emitted by the merge
+owner together with the merged text. Each segment carries:
+
+```text
+source identity (root/imported canonical path and, when available, bytes digest)
+import edge (origin source, using line, requested target, resolved path)
+alias (explicit/default alias and concrete static-box binding)
+merged range and origin-local range
+DFS merge ordinal and parent import relation
+parser-brand co-seal witness
+exactly-once segment coverage (no gap, overlap or orphan)
+```
+
+The handoff remains one-way: `prepare_normal_source_with_imports` returns
+merged code, the existing runtime alias map and typed lineage; the normal MIR
+entry passes all three into the parser/materializer; the parser co-seals
+lineage with `ParserInvocationBrandV1`, projected slots, ordinary seals and
+A1 static seals; only a successful co-seal may issue the existing
+`ParserBackedNormalSourcePlanBoundV1` and downstream source-backed catalog /
+package. `using_import_boxes` remains runtime alias lowering and is not a
+replacement authority. Builder/MIR code must not reconstruct import lineage.
+
+Reject terminals must include unresolved target, segment gap/overlap, source
+read or digest mismatch, foreign brand, unregistered segment and missing
+lineage, in addition to existing duplicate path, alias rebinding and alias
+binding conflict. `NormalParserSourceLineageV1` remains the merged-root
+product; `LineSpan` and the alias map stay non-authoritative.
+
+This is design-only. The next row is **A0-2-D**, which must fix this schema,
+its issuing owner, parser-brand boundary, reject terminals and consumer handoff
+before a transport implementation or focused guard is selected.
+
 ## Reused finite caller inventory
 
 The source owner is
@@ -380,7 +430,8 @@ No repeated repository-wide census is needed.
 | 2 — complete design audit, NoSafeSlice | Decide source admission for that whole cohort | The merged `MixedProgram` cannot enter the current package issuer: static parent/source-seal, parameter, root/source-plan, callable identity, target/header/result/publication relations are not co-issued. The finite `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` tuple and every unresolved partition are recorded above. |
 | 2b — complete, D0 | Choose the mixed-cohort authority boundary | A is selected: the whole same-brand merged invocation becomes one source-backed product. B is declined because compatibility has no semantic package/publication issuer and would create a second authority. The next rows are A0/A1 design; no implementation or caller switch. |
 | 2c — complete design split, D0 | Separate A0/A1 source co-seal rows | A0 owns the same-brand source-window/import contract; A1 consumes that window and owns finite static-parent/member/method co-seal. The ordered A0-1…A1-3 outputs and reject partitions are recorded above; implementation remains unauthorized. |
-| 2d — next, D0 | A0-1 mixed source-window predicate | Fix the ordinary/static-only admission predicate, excluded top-level families and named reject terminals. Do not generalize the static issuer or switch callers in this row. |
+| 2d — complete design, D0 | A0-1 mixed source-window predicate | Ordinary/static declarations and direct methods are the only admitted rows; excluded top-level families and reject terminals are fixed above. |
+| 2e — next, D0 | A0-2-D typed import-lineage schema | Define the merge-owner lineage product, parser-brand co-seal boundary, exact coverage/reject rules and parser handoff. Do not modify transport or switch callers in this row. |
 | 3 — conditional I0 | Switch accepted source cohort to existing package | Connect materializer admission to `PreparedNormalDefaultProgramRootV1::from_callable_source`, existing package issuer/collector and Cataloged static handoff. In the same slice retire that cohort's old compatibility classification/raw static-child dispatch. Scope the exact caller and branches after A0/A1 and A2/A3; no blanket root switch. |
 | 4 — I0 acceptance | Prove publication, rejection and retirement | Real selected source reaches static publication; missing/foreign site, brand mismatch, missing/ambiguous target and unsupported source/result reject before argument effects. Existing owner guards prove selected old-edge absence and residual handling. |
 | 5 — return to StringBox I0 | Close original owner acceptance | Run existing phase14/16/17 and its malformed/wrong-class/extra-argument/embedded/empty cases only after upstream reach is established. Record exact owner-to-terminal results; an earlier stop leaves this acceptance open. |
