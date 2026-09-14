@@ -1,10 +1,10 @@
 ---
-Status: open__design_stop__2026-09-14
+Status: closed__design__2026-09-15
 Task: MIR-CALL-RESOLVER-IF-VALUE-JOIN-CONTRACT-D0
 Date: 2026-09-14
 Priority: define one typed parametric value-join Recipe/JoinSig for expression If
 Parent: mir-call-resolver-if-expression-contract-d0-2026-09-14.md
-NextCard: TBD after the value-join issuer decision
+NextCard: mir-call-resolver-if-value-join-schema-d1-2026-09-15.md
 Implementation permission: false until the source/result/consumer relation is co-sealed
 ---
 
@@ -145,3 +145,13 @@ must be rewritten, a second resolver or fallback is needed, or one canonical
 issuer cannot carry the parametric result and consumer relation. This card does
 not widen resolver acceptance, change statement-If semantics, or authorize
 production edits until the whole finite shape is co-sealed.
+
+## Closure and next slice
+
+This D0 closes the census and issuer decision: the finite source shape,
+parametric `I64 | String` boundary, consumer roles, existing-owner limits,
+String-authority non-claims, and negative boundary are recorded. The next
+bounded design slice is D1, which must specify the expression-If profile/schema,
+String branch operation vocabulary, result-carrying JoinSig, and the single
+physical lowering handoff before any resolver-positive implementation is
+authorized.

@@ -1,11 +1,11 @@
-date = "2026-09-14"
+date = "2026-09-15"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-CONTRACT-D0"
+current_execution_row = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-SCHEMA-D1"
 current_execution_cohort = "resolver_if_value_join_contract"
-current_blocker_token = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-CONTRACT-D0__parametric_result_coseal"
+current_blocker_token = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-SCHEMA-D1__schema_physical_coseal"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__resolver_if_value_join_parametric_result_coseal_2026-09-14"
+current_design_stop = "open__resolver_if_value_join_schema_physical_coseal_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-contract-d0-2026-09-14.md"
-latest_card = "mir-call-resolver-if-value-join-contract-d0-2026-09-14"
-latest_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-contract-d0-2026-09-14.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-schema-d1-2026-09-15.md"
+latest_card = "mir-call-resolver-if-value-join-schema-d1-2026-09-15"
+latest_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-schema-d1-2026-09-15.md"
 latest_card_summary = """
 Windows is deferred by the user. The phase14 fixture emit succeeds. The normal
 VM keep invocation is compatibility-only and cannot claim publication; the
@@ -54,12 +54,12 @@ parents, slots, parameters, callable/body coverage and the same parser brand.
 The existing package/publication chain is retained as the sole downstream
  authority; no package implementation or compatibility cutover is authorized
  yet. A0-3 source admission design is now closed with a parser-captured declaration-line-to-segment typed relation; AST declaration spans are unknown
- and are not an authority. The bounded A0-3 implementation is landed with focused parser/static/source-admission receipts. A3 package admission is closed with a source-backed MIR handoff guard; VM keep remains compatibility-only and resolver If deferral remains a separate expressivity row. Parent replay classified four normal-pipeline reds: two parent baseline failures and two current-change route regressions. The selected lifecycle observer I0 is closed with both route guards passing; the two parent failures remain known baseline debt. Resolver If expression rows are source-backed but remain NoSafeSlice because statement-If Recipe/JoinSig does not carry expression results. The i64-only probe was corrected: the selected design now fixes the full finite `ASTNode::If` + empty-prelude `BlockExpr` shape and a parametric i64/String value join with explicit Value/Initializer/Rhs consumer relations; no existing String result authority may be substituted.
+ and are not an authority. The bounded A0-3 implementation is landed with focused parser/static/source-admission receipts. A3 package admission is closed with a source-backed MIR handoff guard; VM keep remains compatibility-only and resolver If deferral remains a separate expressivity row. Parent replay classified four normal-pipeline reds: two parent baseline failures and two current-change route regressions. The selected lifecycle observer I0 is closed with both route guards passing; the two parent failures remain known baseline debt. Resolver If expression rows are source-backed but remain NoSafeSlice because statement-If Recipe/JoinSig does not carry expression results. D0 closed the finite `ASTNode::If`/empty-prelude `BlockExpr` census, parametric i64/String boundary, consumer roles, and owner decision; D1 now designs a separate expression-If profile/schema and physical handoff, with no String authority or statement-If V1 substitution.
 """
-next_design_card = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-CONTRACT-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-contract-d0-2026-09-14.md"
-next_execution_card = "none__resolver_if_value_join_contract_until_issuer_decision"
-next_execution_card_path = "none__resolver_if_value_join_contract_until_issuer_decision"
+next_design_card = "MIR-CALL-RESOLVER-IF-VALUE-JOIN-SCHEMA-D1"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-value-join-schema-d1-2026-09-15.md"
+next_execution_card = "none__resolver_if_value_join_schema_until_physical_consumer_decision"
+next_execution_card_path = "none__resolver_if_value_join_schema_until_physical_consumer_decision"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
