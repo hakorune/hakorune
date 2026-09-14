@@ -895,7 +895,7 @@ Windows capability and shared schema removal. This selects design, not I0.
 | --- | --- | --- |
 | 1 | Exact Program membership | Freeze all five existing partitions, direct-child receiver/arguments, exact arity, empty string, malformed JSON, extra arguments and embedded/opaque subtrees. Distinguish preserved compatibility from the exact migratable subset; do not silently reject current inputs. |
 | 2 | Co-sealed source-to-contract issuer | Treat `stage1/program_json_v0::method_call_expr_to_json_v0` and `ASTNode::New` lowering as structured entrances only; no existing issuer currently binds StringBox membership. Design one source walk that co-seals MethodCall parent/receiver/all arguments with `New(StringBox)` class/constructor-argument relations, then binds them to the existing CoreMethodContractBox String rows. `VerifiedResolvedMethodCallSourceV1` is a route-neutral carrier candidate for MethodCall facts, not a complete New/StringBox issuer. |
-| 3 | One consumer handoff | The Hako registry/fallback callers receive body JSON only; `env.mirbuilder.emit` and `json_v0_bridge` are a delegate/Rust route without the missing source relation. Choose one complete caller-to-terminal mapping and canonical admission change; direct MIR rejects schema 2.0 and v0 `call`/`mir_call`, so op/schema spelling is not migration. Isolate the required source-enriched ingress explicitly. |
+| 3 | Selected source-enriched Rust handoff | Make `Stage1ProgramJsonModuleHandoff` the sole successor owner: co-sealed source product -> `json_v0_bridge` structural lowering -> new canonical admission terminal. Keep Hako registry/fallback and `env.mirbuilder.emit` as explicit compatibility capsules; they lack the source relation. Direct MIR rejects schema 2.0 and v0 `call`/`mir_call`, so op/schema spelling is not migration. |
 | 4 | Conditional caller-switch I0 | Freeze one Change/Contract/Done/Stop brief: switch both callers, remove their selected boxcall emitter edges in the same series, and name retained residuals. A length/size-only slice must retain indexOf explicitly. |
 
 Source anchors: `lower_return_method_string_length_box.hako::try_lower` and its
@@ -904,7 +904,7 @@ Source anchors: `lower_return_method_string_length_box.hako::try_lower` and its
 `lang/src/runtime/meta/core_method_contract_box.hako:295`;
 `src/runner/mir_json_v0/module.rs` boxcall/call arms and
 `src/runner/json_artifact/mir_loader.rs::parse_direct_mir_json_text`.
-`src/runner/json_v0_bridge/lowering/expr/call_ops.rs` is a separate Rust
+`src/host_providers/mir_builder/handoff.rs::Stage1ProgramJsonModuleHandoff` is the selected consumer owner; `src/runner/json_v0_bridge/lowering/expr/call_ops.rs` is a separate Rust
 Program-v0 ingress comparison, not the Hako output consumer.
 `src/stage1/program_json_v0/{authority.rs,lowering.rs}` supplies Program-v0 structure; `src/mir/resolved_semantics/{body_shape.rs,selected_new_arguments.rs}` provide partial relations but no issuer.
 `program_json_expr_method_shape_scan.hako` and the New shape scan are parity
