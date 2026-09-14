@@ -165,7 +165,7 @@ pub(crate) fn issue_source_result_product_v1(
         }
     }
     Ok(VerifiedSourceResultProductV1 {
-        catalog_identity: declarations as *const _ as usize,
+        catalog_identity: declarations.brand().identity(),
         owner: owner.clone(),
         result: inferred,
         operations: state.operations.into_boxed_slice(),
@@ -528,5 +528,26 @@ mod tests {
             issue_source_result_product_v1(&declarations, &foreign),
             Err(SourceResultProductErrorV1::ForeignCallable)
         ));
+    }
+
+    #[test]
+    fn source_result_product_keeps_catalog_identity_across_catalog_move() {
+        let root =
+            NyashParser::parse_from_string("static box Helpers { value() { return 1 } }").unwrap();
+        let declarations =
+            VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root).unwrap();
+        let identity = declarations.brand().identity();
+        let key = declarations
+            .declarations()
+            .find_map(|(key, _)| {
+                (key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod
+                    && key.owner() == "Helpers"
+                    && key.name() == "value")
+                    .then_some(key.clone())
+            })
+            .unwrap();
+        let declarations = declarations;
+        let product = issue_source_result_product_v1(&declarations, &key).unwrap();
+        assert_eq!(product.catalog_identity(), identity);
     }
 }
