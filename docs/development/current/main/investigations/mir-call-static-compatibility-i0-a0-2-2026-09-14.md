@@ -4,7 +4,7 @@ Task: MIR-CALL-STATIC-COMPATIBILITY-I0-A0-2
 Date: 2026-09-14
 Priority: typed merged-source lineage transport and parser-brand co-seal
 Parent: mir-call-static-compatibility-catalog-target-d0-2026-09-14.md
-NextCard: none__a1_static_parent_co_seal_d0
+NextCard: MIR-CALL-STATIC-COMPATIBILITY-A1-STATIC-PARENT-D0
 Implementation permission: true for this transport responsibility only
 ---
 
