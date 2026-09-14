@@ -1,9 +1,9 @@
 ---
-Status: design_open__2026-09-14
+Status: design_closed__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-A2-BODY-CALL-CONSTRUCTOR-D0
 Date: 2026-09-14
 Parent: mir-call-static-compatibility-i0-a1-static-parent-2026-09-14.md
-NextCard: none__a2_package_issuer_split_t0
+NextCard: MIR-CALL-STATIC-COMPATIBILITY-I0-A2-PACKAGE-ISSUER-SPLIT
 Implementation permission: false; design and taskization only
 ---
 
@@ -143,3 +143,12 @@ It also found `normal_callable_semantic_package/issuer.rs` at 765 lines, so a
 BoxShape-only split is the first executable task. The audit did not authorize
 MixedProgram admission, publication, fallback, cutover, StringBox changes, or
 legacy-edge deletion.
+
+## D0 closure — 2026-09-14
+
+The Decision is accepted: no static-specific body/call/constructor semantic
+receipt is added. The next bounded slice is the BoxShape-only issuer split,
+which makes the existing package orchestration/direct-call validation owners
+fit the source budget without changing behavior. After that receipt, a
+separate A2-I0 may add the exact body/site/constructor guards through the
+existing batch and package issuers.
