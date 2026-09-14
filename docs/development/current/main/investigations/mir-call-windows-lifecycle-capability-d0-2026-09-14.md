@@ -57,6 +57,16 @@ runtime artifact, LLVM session symbols, V4 publication, or lifecycle
 close/reopen. The Linux lifecycle execution test is likewise limited to the
 POSIX archive and file path.
 
+## Host capability observation (2026-09-14)
+
+The current Linux host provides `/usr/bin/llvm-ar`, `llvm-readobj`, `llvm-nm`,
+and `llvm-config-18`, but it has no `cargo-xwin`, `clang-cl`, or `cl`; the host
+Rust target is `x86_64-unknown-linux-gnu`. These tools can inspect or build the
+Linux lane, but they cannot produce or execute the required
+`x86_64-pc-windows-msvc` runtime artifact. This is an external capability
+boundary for the future I0, not a reason to weaken the Windows terminal or to
+claim a cross-compiled lifecycle result.
+
 ## Finite capability state table
 
 | State | Canonical owner | Terminal or result |
@@ -127,4 +137,3 @@ target/loader/ABI/temporary-owner matrix above is accepted and the required
 Windows toolchain inputs are available. Until then, retain
 `BackendCapabilityMissing` and continue with another inventoried family rather
 than weakening the lifecycle boundary.
-
