@@ -1,9 +1,9 @@
 date = "2026-09-14"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-I0-A2-BODY-CALL-CONSTRUCTOR-GUARDS"
 current_execution_cohort = "a2_body_call_constructor_guard_d1"
-current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-I0-A2-BODY-CALL-CONSTRUCTOR-GUARDS__owner_guard_coverage"
+current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-I0-A2-BODY-CALL-CONSTRUCTOR-GUARDS__closeout_receipt"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "none__a2_d1_design_closed_2026-09-14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -41,7 +41,10 @@ red classified in the active card. MixedProgram admission,
 publication/caller cutover, fallback, StringBox findings, Windows proof and R7
 remain outside the completed split. A2-D1 freezes the finite owner/terminal
 inventory; the selected fast slice is focused guard coverage through existing parser,
-resolver, constructor and package owners.
+resolver, constructor and package owners. A2 body/direct-call/constructor guard
+I0 is closed with the existing focused owner tests recorded in its receipt;
+no new semantic product or CI lane was introduced. StringBox unreachable
+receipt/type-tag/clone findings remain a separate non-claim.
 """
 next_design_card = "none__a2_body_call_constructor_guard_closeout"
 next_design_card_path = "none__a2_body_call_constructor_guard_closeout"

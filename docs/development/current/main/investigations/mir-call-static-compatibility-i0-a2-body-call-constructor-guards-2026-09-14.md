@@ -1,5 +1,5 @@
 ---
-Status: selected__fast__2026-09-14
+Status: closed__2026-09-14
 Task: MIR-CALL-STATIC-COMPATIBILITY-I0-A2-BODY-CALL-CONSTRUCTOR-GUARDS
 Date: 2026-09-14
 Parent: mir-call-static-compatibility-a2-body-call-constructor-d1-2026-09-14.md
@@ -38,3 +38,21 @@ Non-claims: no MixedProgram admission, nested-owner policy change, caller switch
 This row does not admit MixedProgram, change nested-owner target policy, alter
 import-lineage transport, publish/cut over a backend, remove compatibility
 edges, fix StringBox readers, prove Windows lifecycle, or close R7.
+
+## Receipt — existing focused owner guards
+
+The finite guard inventory was already covered by the existing owner tests, so
+this row adds no semantic product or duplicate classifier. The focused direct
+test binary passed these positive and negative witnesses:
+
+- parser source/body and constructor preservation: `exact_static_callable_set_survives_one_transform`, `parser_program_source_authority_lends_one_paired_body_cursor`, `ordinary_constructor_source_catalog_survives_normal_source_transform`, and `foreign_transform_output_is_rejected_by_parser_session`;
+- body-owner and source-index/header co-seal: `mixed_direct_methods_resolve_once_in_exact_source_order`, `freestatic_target_batch_lends_one_owner_matched_index_and_header`, `missing_row_rejects_before_any_lowering_input_is_lent`, and `lowering_input_borrows_the_same_forest_owner_and_parameter_binding`;
+- direct-call terminals: `cataloged_typed_static_direct_call_uses_source_index_target`, `cataloged_nested_lambda_direct_call_observation_rejects_before_install`, `app_main_direct_call_wrong_arity_rejects_before_install`, `app_main_non_freestatic_direct_call_rejects_before_install`, and `app_main_nested_direct_call_observation_rejects_before_install`;
+- constructor Birth/no-Birth and parent/completion guards: `instance_constructor_semantics_keep_parser_identity_and_nested_brand_relations`, `construction_plan_rejects_foreign_parent_and_birth_arity_not_as_no_birth`, `constructor_lookup_rejects_foreign_or_mismatched_parent_not_as_no_birth`, and `constructor_loan_rejects_lost_shape_and_completion`;
+- generated method provenance: `delegate_generator_rejects_foreign_source_relation`, `property_generator_rejects_missing_duplicate_and_foreign_receipts`, and `delegate_anchor_coverage_rejects_missing_and_duplicate_relations`.
+
+The production caller remains the existing normal root catalog lifecycle. No
+new CI lane was introduced. The one `ordinary_batch_preflight_checks_candidates_before_that_owners_completion`
+red remains the pre-existing `SourceAuthorityUnavailable(PostpassNotSourceBacked)`
+fixture failure recorded on the parent A2 split card; it is outside this guard
+receipt and is not attributed to this closeout.
