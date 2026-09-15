@@ -83,6 +83,23 @@ pub(crate) enum BodyExpressionShapeV1 {
     },
 }
 
+impl BodyExpressionShapeV1 {
+    /// The exact source expression site this shape row claims.
+    pub(crate) fn site(&self) -> &SourceExprSiteV1 {
+        match self {
+            Self::MapLiteral { site, .. }
+            | Self::ArrayLiteral { site, .. }
+            | Self::Variable { site, .. }
+            | Self::QualifiedReceiver { site }
+            | Self::Me { site, .. }
+            | Self::FieldAccess { site, .. }
+            | Self::MethodCall { site, .. }
+            | Self::BlockExpr { site }
+            | Self::Other { site, .. } => site,
+        }
+    }
+}
+
 /// Resolver-owned meaning of one `me` expression.
 ///
 /// Static-box current-owner syntax has no lexical receiver binding. Keeping
@@ -367,6 +384,16 @@ impl VerifiedResolvedBodyShapeInventoryV1 {
         &self.expressions
     }
 
+    /// Borrows the sealed body-shape row for one exact expression site.
+    pub(crate) fn expression_shape(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&BodyExpressionShapeV1> {
+        self.expressions
+            .iter()
+            .find(|expression| expression.site() == site)
+    }
+
     pub(crate) fn effects(&self) -> &[BodyEffectShapeV1] {
         &self.effects
     }
@@ -564,17 +591,7 @@ pub(crate) fn issue_resolved_method_call_sources_with_relations_for_test(
 }
 
 fn expression_shape_site(expression: &BodyExpressionShapeV1) -> SourceExprSiteV1 {
-    match expression {
-        BodyExpressionShapeV1::MapLiteral { site, .. }
-        | BodyExpressionShapeV1::ArrayLiteral { site, .. }
-        | BodyExpressionShapeV1::Variable { site, .. }
-        | BodyExpressionShapeV1::QualifiedReceiver { site }
-        | BodyExpressionShapeV1::Me { site, .. }
-        | BodyExpressionShapeV1::FieldAccess { site, .. }
-        | BodyExpressionShapeV1::MethodCall { site, .. }
-        | BodyExpressionShapeV1::BlockExpr { site }
-        | BodyExpressionShapeV1::Other { site, .. } => site.clone(),
-    }
+    expression.site().clone()
 }
 
 fn seal_shadow_body_shape_relations(

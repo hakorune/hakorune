@@ -342,10 +342,24 @@ impl VerifiedResolvedFunctionV1 {
         self.core.data.explicit_extern_calls.iter()
     }
 
+    pub(crate) fn method_call(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedResolvedMethodCallSourceV1> {
+        self.core.data.method_calls.get(site)
+    }
+
     pub(crate) fn method_calls(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedResolvedMethodCallSourceV1)> {
         self.core.data.method_calls.iter()
+    }
+
+    pub(crate) fn direct_call_observation(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&ResolvedDirectCallObservationV1> {
+        self.core.data.direct_call_observations.get(site)
     }
 
     pub(crate) const fn expression_source(&self) -> &ResolvedExpressionSourceInventoryV1 {

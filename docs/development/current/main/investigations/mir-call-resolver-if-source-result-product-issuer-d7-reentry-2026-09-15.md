@@ -1,5 +1,5 @@
 ---
-Status: selected__fast__2026-09-15
+Status: landed__bounded_issuer__2026-09-15
 Task: MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-ISSUER-D7-REENTRY
 Date: 2026-09-15
 Priority: consume the sealed resolver expression-If relation in the bounded source-result issuer
@@ -49,3 +49,38 @@ roles, nested method/direct-call observation consumption, and rejection of
 foreign/missing rows or unproven target routes. Run one quick-profile lib test
 process with at most four build jobs, classify repository warning debt as
 baseline, and update the owner README and pointer in the same closeout slice.
+
+## Receipt
+
+`issue_source_result_product_v1` now consumes `ResolvedFunctionLoweringInputV1`
+(the co-sealed owner/forest/body-shape bundle) plus a
+`VerifiedSourceCallTargetCatalogV1` branded by the same declaration catalog.
+The declaration body supplies only the `Local` / `Assignment` / `Return`
+statement scaffold; expression classification is fully row-driven through
+`CallableSemanticSourceLedgerView` point lookups. Transparent `BlockExpr`
+wrappers (the resolver publishes `then_tail`/`else_tail` at the inner
+expression site) are stepped through by the co-sealed `BodyExpressionShapeV1`
+rows via `VerifiedResolvedBodyShapeInventoryV1::expression_shape`, which is
+required and owner-checked — a `MissingBodyShape` typed rejection names inputs
+that lack the co-sealed inventory. Every observed call publishes one explicit
+`SourceCallDispositionV1::{Static, Dynamic, Absent}`; `Dynamic`/`Absent`
+results stay unproven wherever a `SourceResultClassV1` is required.
+
+Focused evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib source_result_tests
+16 passed; 0 failed; 536 existing warnings (baseline)
+```
+
+Coverage map: i64 join + String join, `Value`/`Rhs`/`Initializer` consumers,
+nested branded `Static` (`Helpers.int_to_str`), `Dynamic` (untyped-parameter
+`frac2.length()`), `Absent` (lexical unproven call and ObserveOnly direct
+call), missing conditional row, foreign owner, foreign call-target catalog,
+unproven call tail, non-string nullable guard, mixed branch classes,
+statement-If scaffold rejection, and catalog-identity preservation.
+
+Non-claims stand: no production caller switch, no core-method/recursive
+closure, no physical PHI/JoinSig. The merged-route lane currently stops later
+at `ParameterContract/UnsupportedDeclaredType` (`ArrayBox`/`MapBox` declared
+parameters), which is a separate bounded slice.

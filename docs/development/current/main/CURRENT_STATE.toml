@@ -1,9 +1,9 @@
 date = "2026-09-15"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-ISSUER-D7-REENTRY"
-current_execution_cohort = "resolver_if_value_join_contract"
-current_blocker_token = "MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-ISSUER-D7-REENTRY__consume_resolver_expression_if_relation"
+current_execution_row = "MIR-CALL-PARAMETER-CONTRACT-DECLARED-BOX-I0"
+current_execution_cohort = "parameter_declared_type_contract"
+current_blocker_token = "MIR-CALL-PARAMETER-CONTRACT-DECLARED-BOX-I0__admit_declared_box_parameters"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -14,28 +14,29 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-issuer-d7-reentry-2026-09-15.md"
-latest_card = "mir-call-resolver-if-source-result-product-issuer-d7-reentry-2026-09-15"
-latest_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-issuer-d7-reentry-2026-09-15.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-parameter-contract-declared-box-i0-2026-09-15.md"
+latest_card = "mir-call-parameter-contract-declared-box-i0-2026-09-15"
+latest_card_path = "docs/development/current/main/investigations/mir-call-parameter-contract-declared-box-i0-2026-09-15.md"
 latest_card_summary = """
-The static-box `method` member prefix I0 landed: the member modifier no longer
-commits a phantom Field row, so the merged source cohort now crosses
-`StaticParentSourceSealMissing` and the sealed resolver expression-If relation
-lets the resolver batch complete on the real route. The merged route's next
-named terminal is `callable-semantic-package/issue`
-`ParameterContract/UnsupportedDeclaredType` (declared `ArrayBox`/`MapBox`
-parameters such as `BoxHelpers.array_len(arr: ArrayBox)`; the contract admits
-only `i64` and `StringBox`) — a separate bounded slice recorded in the
-method-prefix card. D7 re-entry resumes on the queued boundary: consume the
-sealed resolver expression-If rows through `CallableSemanticSourceLedgerView`
-in `resolved_value_profile/source_result.rs` for parametric i64/String branch
-joins and `Static | Dynamic | Absent` call dispositions. Raw AST rescan,
-mixed publication, fallback, VM, and caller cutover remain unclaimed.
+The resolver expression-If source-result issuer re-entry landed:
+`issue_source_result_product_v1` consumes the co-sealed
+`ResolvedFunctionLoweringInputV1` (owner/forest/body-shape) plus the branded
+`VerifiedSourceCallTargetCatalogV1`; expression classification is fully
+row-driven through `CallableSemanticSourceLedgerView` with `BlockExpr`
+wrappers proven by `BodyExpressionShapeV1` rows. Sixteen focused tests cover
+parametric i64/String joins, all three consumers, nested
+Static/Dynamic/Absent call dispositions, and the foreign/missing/unproven
+rejections; catalog identity is preserved. The merged route's named terminal
+is `ParameterContract/UnsupportedDeclaredType` for declared `ArrayBox`/`MapBox`
+parameters — selected as this card: census the merged cohort's declared
+parameter types and admit exactly that subset without widening the exact-ABI
+classifiers. Production caller switch, core-method/recursive closure, and
+PHI/JoinSig remain unclaimed.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"
-next_execution_card = "MIR-CALL-RESOLVER-IF-SOURCE-RESULT-PRODUCT-ISSUER-D7-REENTRY"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-issuer-d7-reentry-2026-09-15.md"
+next_execution_card = "MIR-CALL-PARAMETER-CONTRACT-DECLARED-BOX-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-parameter-contract-declared-box-i0-2026-09-15.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

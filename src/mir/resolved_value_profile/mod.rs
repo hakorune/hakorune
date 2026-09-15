@@ -31,6 +31,8 @@ mod recipe_call_tests;
 #[cfg(test)]
 mod return_tests;
 #[cfg(test)]
+mod source_result_tests;
+#[cfg(test)]
 mod tests;
 
 #[derive(Debug)]
@@ -56,8 +58,9 @@ pub(crate) use recipe_facts::VerifiedTrivialIfRecipeFactsV1;
 pub(crate) use recipe_mapper::{map_trivial_if_recipe_v1, IfRecipeMapRejectV1};
 #[allow(unused_imports)]
 pub(crate) use source_result::{
-    issue_source_result_product_v1, SourceBoolFactV1, SourceResultClassV1,
-    SourceResultProductErrorV1, SourceValueOperationV1, VerifiedSourceResultProductV1,
+    issue_source_result_product_v1, SourceBoolFactV1, SourceCallDispositionV1,
+    SourceResultClassV1, SourceResultProductErrorV1, SourceValueOperationV1,
+    VerifiedSourceResultProductV1,
 };
 
 #[cfg(test)]

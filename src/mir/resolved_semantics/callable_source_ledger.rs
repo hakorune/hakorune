@@ -5,7 +5,8 @@
 //! or lower a Recipe.  Each source family keeps its typed key and has one
 //! explicit query instead of being flattened into a route-local map.
 
-use super::direct_call::ResolvedDirectCallTargetV1;
+use super::direct_call::{ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1};
+use super::ids::BindingRefV1;
 use super::ordered_capture::OrderedCaptureDemandV1;
 use super::owner_forest::VerifiedSemanticOwnerForestV1;
 use super::records::{
@@ -228,6 +229,67 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         site: &SourceExprSiteV1,
     ) -> Option<&super::ResolvedUnaryExpressionSourceV1> {
         self.function.expression_source().unary(site)
+    }
+
+    /// Borrows the resolver-sealed binary row for one exact expression site.
+    pub(crate) fn binary_source(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&super::ResolvedBinaryExpressionSourceV1> {
+        self.function.expression_source().binary(site)
+    }
+
+    /// Borrows the resolver-sealed expression-If row for one exact site.
+    pub(crate) fn conditional_source(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&super::ResolvedConditionalExpressionSourceV1> {
+        self.function.expression_source().conditional(site)
+    }
+
+    /// Borrows the initializer relation bound to one exact declaration site.
+    pub(crate) fn initializer(
+        &self,
+        site: &SourceBindingSiteV1,
+    ) -> Option<&super::ResolvedInitializerRelationV1> {
+        self.function.expression_source().initializer(site)
+    }
+
+    /// Borrows the binding record for one resolved binding identity.
+    pub(crate) fn binding(&self, id: BindingRefV1) -> Option<&ResolvedBindingRecordV1> {
+        self.function.binding(id)
+    }
+
+    /// Borrows the resolved assignment target for one exact target site.
+    pub(crate) fn assignment_target(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&ResolvedAssignmentTargetV1> {
+        self.function.assignment_target(site)
+    }
+
+    /// Borrows the resolver-sealed method-call row for one exact call site.
+    pub(crate) fn method_call(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&super::body_shape::VerifiedResolvedMethodCallSourceV1> {
+        self.function.method_call(site)
+    }
+
+    /// Borrows the resolver-sealed direct-call target for one exact call site.
+    pub(crate) fn direct_call_target(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<super::ResolvedDirectCallTargetV1> {
+        self.function.direct_call_target(site)
+    }
+
+    /// Borrows the resolver-sealed direct-call observation for one exact site.
+    pub(crate) fn direct_call_observation(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&super::ResolvedDirectCallObservationV1> {
+        self.function.direct_call_observation(site)
     }
 
     /// Borrows the complete resolver-sealed Loop site inventory.

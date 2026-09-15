@@ -133,20 +133,35 @@ rows.
 
 ## D7 source-result product
 
-`source_result` owns the first source-catalog result-class scaffold for an
+`source_result` owns the first source-catalog result-class product for an
 exact catalog callable. The product retains the stable declaration-catalog
 brand alongside the callable key. `SourceResultClassV1` is semantic (`I64` or
-`String`) and does not project to `MirType`. The issuer walks direct source
-values, locals, string concatenation, and expression-If branches whose two
-branches are empty-prelude `BlockExpr` tails. It also records the exact
-`String/null` inequality fact used by a later conditional-value consumer.
+`String`) and does not project to `MirType`.
 
-The issuer fails before Builder effects on foreign callable keys, unsupported
-or mixed results, missing returns, branch-shape drift, and unknown expressions.
-This scaffold is not yet co-sealed with a resolver `FunctionOwnerIdV1` or
-resolver-owned expression-If relation. Static-call result rows, core-method
-placement/effect rows, recursive body closure, JoinSig, physical PHI
-construction, and production route selection remain owned by later slices.
-The resolver relation is a prerequisite; the issuer must not rescan raw AST to
-recover missing nested call rows. No result class is inferred from MIR or from
-a callable name.
+The issuer consumes `ResolvedFunctionLoweringInputV1` — the co-sealed
+owner/forest/body-shape bundle — plus a `VerifiedSourceCallTargetCatalogV1`
+branded by the same declaration catalog. The declaration body supplies only
+the statement scaffold (`Local` / `Assignment` / `Return`); every expression
+classification goes through `CallableSemanticSourceLedgerView` rows:
+conditional, operator, literal, lexical-reference, method-call, and
+direct-call rows are never re-derived from raw AST. Expression-If consumers
+(`Value`, `Rhs`, `Initializer`) come from the sealed
+`ResolvedConditionalExpressionSourceV1` relation, and transparent `BlockExpr`
+wrappers are stepped through by the co-sealed `BodyExpressionShapeV1` rows,
+not by syntax. It also records the exact `String/null` inequality fact used
+by a later conditional-value consumer.
+
+Every observed call publishes one explicit `SourceCallDispositionV1`:
+`Static` only where the branded route catalog proves the same-module
+callable, `Dynamic` only where a source-bound dynamic member route exists,
+and `Absent` for every other observed call — including resolver-proven
+direct calls that carry no same-module catalog key. `Dynamic`/`Absent`
+results stay unproven wherever a `SourceResultClassV1` is required.
+
+The issuer fails before Builder effects on foreign callable keys, foreign or
+unbranded route catalogs, missing ledger/body-shape inventories, consumer-site
+drift, missing branch rows, unsupported or mixed result classes, unproven call
+tails, and unknown expressions. Core-method placement/effect rows, recursive
+body closure, JoinSig, physical PHI construction, and production route
+selection remain owned by later slices. No result class is inferred from MIR
+or from a callable name.
