@@ -145,6 +145,12 @@ impl<'source> PrefixLocalFlow<'source> {
         matches!(self.locals.get(&root), Some(StoredLocal::Handle(r)) if *r == root)
     }
 
+    /// `root` is a live map-installed local — the entry borrows it by
+    /// reference; the local stays the owner and still issues its own End.
+    pub(super) fn is_map_local(&self, root: BindingRefV1) -> bool {
+        matches!(self.locals.get(&root), Some(StoredLocal::Map))
+    }
+
     pub(super) fn direct_available_home(
         &self,
         site: &SourceExprSiteV1,

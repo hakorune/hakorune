@@ -1211,7 +1211,9 @@ parent entry records `NestedMap` ownership — no value source, no binding, so
 physical emission stays fail-closed. A `[...]` entry value records
 `NestedArray` ownership with each sealed `Element(ordinal)` child classified
 through the same leaf chain; element transfers and nested container elements
-stay uncovered. These records and terminal order have one
-owner in Completion. The unconnected consumer is stopped at package install;
-fresh children, non-scalar locals and other candidate families
+stay uncovered. A live map-installed local (`local m = %{...}` or an alias)
+is borrowed by reference as `MapLocal` — the local stays the owner and still
+issues its own End; nothing is consumed. These records and terminal order
+have one owner in Completion. The unconnected consumer is stopped at package
+install; fresh children, uninitialized locals and other candidate families
 are not admitted by this direct-Home relation.

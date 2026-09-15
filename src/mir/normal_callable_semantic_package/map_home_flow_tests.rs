@@ -550,8 +550,8 @@ fn return_boundary_map_rejects_uncovered_entry_value_classes() {
         ("return %{\"a\" => [[]]}", 1usize),
         // alias of a live Home is a transfer question, not a borrow
         ("local p = new Page() local a = p return %{\"x\" => a}", 1),
-        // alias of a map-installed local is likewise not self-rooted
-        ("local m = %{} local a = m return %{\"x\" => a}", 2),
+        // an uninitialized local has no live object to reference
+        ("local u return %{\"x\" => u}", 1),
     ] {
         let package = issue(&source(body)).unwrap();
         let flow = package
@@ -817,8 +817,6 @@ fn array_entry_rejects_home_and_container_elements() {
     for body in [
         // a live Home element is a transfer question, never a leaf borrow
         "local p = new Page() return %{\"a\" => [p]}",
-        // a map-installed local is likewise not a leaf
-        "local m = %{} return %{\"a\" => [m]}",
         // nested container elements stay uncovered
         "return %{\"a\" => [[]]}",
         "return %{\"a\" => [%{}]}",
@@ -835,5 +833,72 @@ fn array_entry_rejects_home_and_container_elements() {
             observation.complete().is_none(),
             "{body} must stay Unavailable"
         );
+    }
+}
+
+#[test]
+fn map_local_entry_is_a_non_consuming_borrow() {
+    // `m` stays the owner of its constructed map; the parent entry borrows
+    // it by reference — no transfer, no consume, and `m` still gets its
+    // own End through the parent's outer.
+    let package = issue(&source(
+        "local m = %{\"x\" => 1} local n = %{\"inner\" => m, \"k\" => \"s\"} return 30",
+    ))
+    .unwrap();
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    assert_eq!(flow.maps().len(), 2);
+    assert!(flow.maps().iter().all(|row| row.complete().is_some()));
+    let parent = flow.maps()[1].complete().unwrap();
+    let [inner, k] = parent.entries() else {
+        panic!("two entries");
+    };
+    let Some(MapValueSource::MapLocal(m_binding)) = inner.value_source() else {
+        panic!("map local is a borrowed reference, not a transfer");
+    };
+    assert_eq!(inner.binding(), Some(*m_binding));
+    assert_eq!(inner.transfer_home(), None);
+    assert_eq!(k.value_source(), Some(&MapValueSource::String));
+    // `m` is not consumed: it stays in the parent's outer set after all
+    // installs — the borrow marks no transfer.
+    assert_eq!(
+        parent
+            .outer_after_installs(parent.entries().len())
+            .unwrap()
+            .collect::<Vec<_>>(),
+        vec![*m_binding]
+    );
+}
+
+#[test]
+fn map_local_alias_and_array_element_borrow_the_same_root() {
+    let package = issue(&source(
+        "local m = %{} local a = m return %{\"x\" => a, \"list\" => [m, a]}",
+    ))
+    .unwrap();
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    let observation = flow.maps().last().expect("one map row");
+    let map = observation.complete().expect("map-local borrows complete");
+    let [x, list] = map.entries() else {
+        panic!("two entries");
+    };
+    let Some(MapValueSource::MapLocal(x_root)) = x.value_source() else {
+        panic!("alias of a map local borrows the root");
+    };
+    let elements = list.array_elements().expect("array elements");
+    for element in elements {
+        let MapValueSource::MapLocal(root) = element.value_source() else {
+            panic!("map-local element borrows the root");
+        };
+        assert_eq!(root, x_root);
     }
 }

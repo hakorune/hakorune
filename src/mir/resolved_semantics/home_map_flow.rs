@@ -195,6 +195,10 @@ pub(crate) enum MapValueSource {
     /// at install). Never a live Home/Map local — those stay on the
     /// transfer path only.
     BorrowedHandle(BindingRefV1),
+    /// A live map-installed local borrowed by reference (`local m = %{...}`
+    /// or an alias of it). The local stays the owner — the parent stores a
+    /// reference, and the local still issues its own End through `outer`.
+    MapLocal(BindingRefV1),
 }
 
 impl MapValueSource {
@@ -203,7 +207,7 @@ impl MapValueSource {
             Self::Integer(_) => Some(SourceScalarKind::Integer),
             Self::Bool(_) => Some(SourceScalarKind::Bool),
             Self::Local { kind, .. } => *kind,
-            Self::String | Self::BorrowedHandle(_) => None,
+            Self::String | Self::BorrowedHandle(_) | Self::MapLocal(_) => None,
         }
     }
 }
@@ -230,7 +234,8 @@ impl MapHomeEntry {
         match &self.ownership {
             MapEntryOwnership::TransferHome { binding, .. } => Some(*binding),
             MapEntryOwnership::Value(MapValueSource::Local { binding, .. })
-            | MapEntryOwnership::Value(MapValueSource::BorrowedHandle(binding)) => Some(*binding),
+            | MapEntryOwnership::Value(MapValueSource::BorrowedHandle(binding))
+            | MapEntryOwnership::Value(MapValueSource::MapLocal(binding)) => Some(*binding),
             MapEntryOwnership::Value(_)
             | MapEntryOwnership::NestedMap
             | MapEntryOwnership::NestedArray { .. } => None,
@@ -463,6 +468,9 @@ fn map_value_leaf(
         }
         Some(OrdinaryObservation::Handle(root)) if locals.is_self_rooted_handle(root) => {
             Some(MapValueSource::BorrowedHandle(root))
+        }
+        Some(OrdinaryObservation::Handle(root)) if locals.is_map_local(root) => {
+            Some(MapValueSource::MapLocal(root))
         }
         _ => match input.function().expression_source().literal(site) {
             Some(ResolvedLiteralSourceV1::String) => Some(MapValueSource::String),
