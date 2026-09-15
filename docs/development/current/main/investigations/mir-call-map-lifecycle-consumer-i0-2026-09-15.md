@@ -124,7 +124,12 @@ to a production caller (review-verified, taskified below):
    blocks with preprocessing until the bounded family needs them.
 4. `: void` functions mixing `return null` (Value) and `return void`
    (Void) fail set-uniformity — the language contract allows both;
-   handling must be unified at the declared-result boundary.
+   handling must be unified at the declared-result boundary. — resolved by
+   C4: the declared `: void` contract now normalizes `return null` to
+   `(Void, ExplicitNull)` at classification, so mixed Unit spellings seal
+   one `ExplicitUnitSet`; unannotated `return null` remains an explicit
+   value return (the `T|Null` idiom), where a Value/Unit mix still
+   rejects `ReturnClassificationInvariant`.
 
 Suggested next completion unit: compile two small non-AppMain functions
 through the same consumer and verify normal+Fault cleanup on actual
@@ -251,7 +256,7 @@ exit code; name the admitted entry classes.
 | C1  | source-result issuer owner binding — landed: `verify_source_input_identity` binds the resolved input's declaration node to the catalog row field-by-field (name/params/param_decls/return type/body/uses/attrs); `ForeignResolvedInput` rejects before ledger consumption. Residual honestly bounded: content-identical foreign declarations are indistinguishable (parser nodes carry `Span::unknown()`), but identical content produces identical product rows — only the owner label could differ | — |
 | C2  | source-admission witness — landed: `issue()` now always returns an attested witness (zero rows allowed), materialization fails merged+source-backed without one (`MissingCoverageWitness`), and `NormalRootExecutionConsumerV1::consume_once` enforces `merged lineage ⇒ witness` as `SourceAuthorityUnavailable` before package effects | — |
 | C3  | BlockExpr prelude accounting — landed: `classify` rejects `NonEmptyBlockExprPrelude` when the sealed statement inventory shows `BlockExprPrelude` children of the wrapper site; empty-prelude wrappers stay transparent (folding prelude statement effects is a separate semantic slice) | — |
-| C4  | `:void` mixed `return null`/`return void` — needs decision record  | —            |
+| C4  | `:void` mixed `return null`/`return void` — landed: `classify_return_value` now takes the declared contract and normalizes `return null` to `(Void, ExplicitNull)` under an explicit `: void` annotation (mixed `return null`/`return void` seals one `ExplicitUnitSet`); unannotated `return null` stays an explicit Value return. Supersede note added to the 7/25 exit card; `types.md` records the declared-boundary rule | — |
 | C5a | contract definition: per-owner obligations + call-edge conformance + selected-consumer capability boundary in `PreparedInstall` | — |
 | C7  | merged `new MapBox()` census — 39 sites into local/returned/stored/arg | —        |
 | F3  | `TerminalRelationV1` for non-i64 value returns (Facts extension)   | —            |

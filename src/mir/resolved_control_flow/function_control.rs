@@ -522,7 +522,7 @@ pub(crate) fn verify_function_completion_v1(
                 }
 
                 let (value, unit_origin, exact_non_unit_literal) =
-                    classify_return_value(value.as_deref());
+                    classify_return_value(&declared_result, value.as_deref());
                 verify_declared_return_value(&declared_result, value, exact_non_unit_literal)?;
 
                 let disposition =
@@ -574,6 +574,7 @@ pub(crate) fn verify_function_completion_v1(
 }
 
 fn classify_return_value(
+    declared_result: &DeclaredFunctionResultContractV1,
     value: Option<&ASTNode>,
 ) -> (TerminalReturnValueV1, Option<FunctionUnitOriginV1>, bool) {
     match value {
@@ -593,7 +594,18 @@ fn classify_return_value(
         Some(ASTNode::Literal {
             value: LiteralValue::Null,
             ..
-        }) => (TerminalReturnValueV1::Value, None, false),
+        }) => match declared_result {
+            // The declared `: void` boundary unifies every admitted Unit
+            // spelling: `return null` keeps the exact Void wire value and
+            // records ExplicitNull provenance instead of splitting the
+            // return set on the null/void surface alias.
+            DeclaredFunctionResultContractV1::Void => (
+                TerminalReturnValueV1::Void,
+                Some(FunctionUnitOriginV1::ExplicitNull),
+                false,
+            ),
+            _ => (TerminalReturnValueV1::Value, None, false),
+        },
         Some(ASTNode::Literal { .. }) => (TerminalReturnValueV1::Value, None, true),
         Some(_) => (TerminalReturnValueV1::Value, None, false),
     }

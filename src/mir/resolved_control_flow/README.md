@@ -89,7 +89,11 @@ The multiple-exit form seals exact source membership, common function target,
 declared-result compatibility, and uniform value/unit disposition. `return
 null` is a value return — `null` carries a value and is never a Unit origin —
 so the pervasive `T|Null` miss/hit idiom seals one uniform `ExplicitValueSet`;
-only bare `return`/`return void` classify as Unit. Canonical
+only bare `return`/`return void` classify as Unit. The declared-result
+boundary is the one exception: under an explicit `: void` annotation,
+`return null` normalizes into the Unit set with `ExplicitNull` provenance,
+matching the language contract that admits every Unit spelling in a
+`: void` function. Canonical
 Lower may use that semantic receipt to open a fresh unpublished session, but
 DraftSeal completion for multiple physical return paths remains deliberately
 closed and fails fast. Implicit completion remains a separate variant and is

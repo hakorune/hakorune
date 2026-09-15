@@ -254,6 +254,17 @@ form; both are Unit at this boundary, but their provenance remains distinct.
 It must not treat every `Some(expr)` as a value-return merely because the AST
 has a payload.
 
+> **Superseded (2026-09-15, MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0 C4).** The
+> blanket `return null -> ExplicitUnit(ExplicitNull)` row above is superseded
+> by `function-exit-and-entry-result.md`: an unannotated `return null` is an
+> explicit **value** return carrying the Void value (the `T|Null` nullable
+> idiom), not a Unit origin. `ExplicitNull` provenance survives only at the
+> declared-result boundary: under an explicit `: void` annotation the
+> declared contract unifies `return null` into the Unit set with
+> `ExplicitNull` origin, alongside bare `return`, `return void`, and
+> fallthrough. `return void` remains `ExplicitUnit(ExplicitVoid)` in every
+> contract.
+
 ### Declared result relation
 
 S0 may reject only relations that are definite from the sealed source shape:

@@ -320,9 +320,14 @@ SSOT policy:
 - `void` is the “no value” literal (and is also the value produced by expressions/statements that do not yield a value).
 - At runtime, both are represented as the same “no value” concept (`Void`). Treat `null` as a syntax-level alias of `void` unless a backend explicitly documents a difference (differences are bugs).
 - At a function or Script result boundary, explicit `void` contributes Unit
-  with explicit-void provenance. The boundary rules and provenance vocabulary
-  are owned by `function-exit-and-entry-result.md`; this section continues to
-  own the current `null`/`void` type relation.
+  with explicit-void provenance. `return null` classifies at the
+  declared-result boundary: unannotated or non-Void-annotated functions keep
+  it as an explicit value return carrying the Void value, while an explicit
+  `: void` declaration unifies it into the Unit set with explicit-null
+  provenance — so a `: void` function may freely mix `return null`,
+  `return void`, bare `return`, and fallthrough. The boundary rules and
+  provenance vocabulary are owned by `function-exit-and-entry-result.md`;
+  this section continues to own the current `null`/`void` type relation.
 
 Practical consequence:
 - `x == null` and `x == void` are equivalent checks.

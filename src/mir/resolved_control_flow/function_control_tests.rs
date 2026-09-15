@@ -347,6 +347,43 @@ fn declared_void_accepts_unit_completion() {
 }
 
 #[test]
+fn declared_void_normalizes_return_null_to_unit_with_null_provenance() {
+    let completion =
+        verify_with_return_type(vec![return_stmt(Some(null_literal()))], Some("void")).unwrap();
+    assert!(!completion.returns_value());
+    assert!(matches!(
+        completion.function_exit_contract().disposition(),
+        SealedFunctionExitDispositionV1::ExplicitUnit {
+            origin: FunctionUnitOriginV1::ExplicitNull,
+            ..
+        }
+    ));
+}
+
+#[test]
+fn declared_void_mixed_null_and_void_returns_seal_one_unit_set() {
+    let early = if_stmt(literal(1), vec![return_stmt(Some(null_literal()))], None);
+    let completion =
+        verify_with_return_type(vec![early, return_stmt(Some(void_literal()))], Some("void"))
+            .unwrap();
+    assert!(!completion.returns_value());
+    assert_eq!(completion.explicit_sites().len(), 2);
+    assert!(matches!(
+        completion.function_exit_contract().disposition(),
+        SealedFunctionExitDispositionV1::ExplicitUnitSet { .. }
+    ));
+}
+
+#[test]
+fn unannotated_mixed_null_and_void_returns_keep_invariant_rejection() {
+    let early = if_stmt(literal(1), vec![return_stmt(Some(null_literal()))], None);
+    assert!(matches!(
+        verify(vec![early, return_stmt(Some(void_literal()))]).unwrap_err(),
+        FunctionCompletionVerificationErrorV1::ReturnClassificationInvariant
+    ));
+}
+
+#[test]
 fn declared_void_defers_nonliteral_return_relation() {
     let completion = verify_with_return_type(
         vec![local("x", literal(1)), return_stmt(Some(variable("x")))],

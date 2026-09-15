@@ -69,7 +69,8 @@ pub(super) fn verify_generalized_return_completion(
                 exit_site.clone(),
             ));
         }
-        let (value_kind, _, exact_non_unit_literal) = classify_return_value(value.as_deref());
+        let (value_kind, _, exact_non_unit_literal) =
+            classify_return_value(&declared_result, value.as_deref());
         verify_declared_return_value(&declared_result, value_kind, exact_non_unit_literal)?;
         if common_value
             .replace(value_kind)
