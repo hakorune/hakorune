@@ -323,7 +323,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     let literal = match source {
                         MapValueSource::Integer(n) => Some(crate::mir::ConstValue::Integer(*n)),
                         MapValueSource::Bool(b) => Some(crate::mir::ConstValue::Bool(*b)),
-                        MapValueSource::Local { .. } => None,
+                        _ => None,
                     };
                     if let Some(literal) = literal {
                         if !bindings.iter().any(|(_, i)| {

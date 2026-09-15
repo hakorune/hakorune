@@ -87,6 +87,9 @@ pub(in crate::mir::builder) fn emit(
                         }
                         value
                     }
+                    MapValueSource::String | MapValueSource::BorrowedHandle(_) => {
+                        return Err(freeze("map-value-consumer-missing"));
+                    }
                 };
                 (value, Some(kind))
             }

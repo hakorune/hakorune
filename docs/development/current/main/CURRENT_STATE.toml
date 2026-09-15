@@ -1,9 +1,9 @@
 date = "2026-09-15"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-MAP-ENTRY-VALUE-SOURCE-I0"
+current_execution_row = "MIR-CALL-MAP-NESTED-ENTRY-SLOT-I0"
 current_execution_cohort = "map_lifecycle_consumer"
-current_blocker_token = "MIR-CALL-MAP-ENTRY-VALUE-SOURCE-I0__map_entry_value_classes_uncovered"
+current_blocker_token = "MIR-CALL-MAP-NESTED-ENTRY-SLOT-I0__nested_map_entry_destination_missing"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -14,27 +14,30 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-map-entry-value-source-i0-2026-09-15.md"
-latest_card = "mir-call-map-entry-value-source-i0-2026-09-15"
-latest_card_path = "docs/development/current/main/investigations/mir-call-map-entry-value-source-i0-2026-09-15.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-map-nested-entry-slot-i0-2026-09-15.md"
+latest_card = "mir-call-map-nested-entry-slot-i0-2026-09-15"
+latest_card_path = "docs/development/current/main/investigations/mir-call-map-nested-entry-slot-i0-2026-09-15.md"
 latest_card_summary = """
-Return-position map-literal flow observation landed: MapDestinationV1
-gains ReturnBoundary (exact `[Body(i), Value]` path + ExplicitReturn +
-Return-to-owner verified via map_return_outward), the terminal-Return arm
-issues Complete/Unavailable rows, and scalar terminal coverage stays
-fail-closed. Merged route evidence: all 12 `return %{...}` sites are now
-observed but reject `MapCandidateNotCovered(EntryValue(n))` — merged
-entry values are string literals, nested `%{...}`, array literals, and
-non-scalar locals, none covered by Integer/Bool/TrivialLocal/TransferHome
-admission. Next bounded card: entry-value source-class coverage
-(decision pending worker audit); per-owner gate (C5) still after that.
-Physical Map return ABI, per-owner install contract, production switch,
-and legacy retirement remain unclaimed.
+Entry-value source-class coverage landed at Facts level:
+MapValueSource gains String (site-only) and BorrowedHandle
+(self-rooted parameter handles only); scalar_kind() stays None so
+install/emission remains fail-closed. Focused 73/73 quick-profile
+green. Merged route still stops at MapLifecycleConsumerMissing but the
+first failing entry advanced EntryValue(0) -> EntryValue(2); the 4
+residual uncovered sites are exactly the excluded classes (nested
+`%{...}`, array literal, non-scalar local). The active card now covers
+the nested-map EntrySlot destination — a nested `%{...}` is both its
+own MapLiteral row and a parent EntryValue child, so it needs a new
+MapDestinationV1::EntrySlot plus recursive observation; decision
+pending worker audit. Array-literal and non-scalar-local classes
+follow as sibling cards, then the C5 per-owner arm. Physical nested
+construction, Map return ABI, production switch and legacy retirement
+remain unclaimed.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"
-next_execution_card = "MIR-CALL-MAP-ENTRY-VALUE-SOURCE-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-map-entry-value-source-i0-2026-09-15.md"
+next_execution_card = "MIR-CALL-MAP-NESTED-ENTRY-SLOT-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-map-nested-entry-slot-i0-2026-09-15.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

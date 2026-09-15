@@ -51,7 +51,12 @@ For the selected Map-bearing callable walk, entry initialization consumes the
 existing declared parameter ordinal/binding/contract kind, verifies full
 unique source coverage and owner, and keeps Trivial distinct from borrowed Handle.
 Receiver/capture and unissued Home formals remain unavailable. Map flow records
-Value versus TransferHome; only the latter consumes an acquisition. A Value's
+Value versus TransferHome; only the latter consumes an acquisition. Besides
+Integer/Bool literals and Trivial locals, a Value entry may record a String
+literal site (the sealed payload stays source-owned) or a self-rooted
+parameter handle as `BorrowedHandle`; neither supplies a scalar kind, so
+physical emission stays fail-closed. Nested Maps, array literals and
+Home/Map-backed handles remain unavailable value classes. A Value's
 exact site/binding does not supply an assumed i64 physical representation.
 Entry initialization itself does not issue Map transfer, Shared acquisition or
 Dynamic carrier adoption.

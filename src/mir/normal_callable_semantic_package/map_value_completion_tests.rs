@@ -115,7 +115,7 @@ fn ordinary_i64_formal_alias_preserves_source_kind_without_a_home() {
 #[test]
 fn borrowed_formals_are_allowed_unused_but_do_not_issue_map_ownership() {
     for annotation in ["", ": StringBox"] {
-        for (entry, complete) in [("30", true), ("value", false)] {
+        for (entry, complete) in [("30", true), ("value", true)] {
             let package = issue(&format!(
                 "static box Work {{ stash(value{annotation}): i64 {{
                 local m = %{{\"v\" => {entry}}} return 30

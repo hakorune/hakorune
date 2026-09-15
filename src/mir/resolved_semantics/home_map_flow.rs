@@ -157,6 +157,13 @@ pub(crate) enum MapValueSource {
         binding: BindingRefV1,
         kind: Option<SourceScalarKind>,
     },
+    /// A sealed string-literal site. The payload stays source-owned; the
+    /// entry's `site` carries the exact location for later readers.
+    String,
+    /// A self-rooted parameter handle (OpaqueHandle/DeclaredHandle/ExactText
+    /// at install). Never a live Home/Map local — those stay on the
+    /// transfer path only.
+    BorrowedHandle(BindingRefV1),
 }
 
 impl MapValueSource {
@@ -165,6 +172,7 @@ impl MapValueSource {
             Self::Integer(_) => Some(SourceScalarKind::Integer),
             Self::Bool(_) => Some(SourceScalarKind::Bool),
             Self::Local { kind, .. } => *kind,
+            Self::String | Self::BorrowedHandle(_) => None,
         }
     }
 }
@@ -188,7 +196,8 @@ impl MapHomeEntry {
     pub(crate) fn binding(&self) -> Option<BindingRefV1> {
         match &self.ownership {
             MapEntryOwnership::TransferHome { binding, .. } => Some(*binding),
-            MapEntryOwnership::Value(MapValueSource::Local { binding, .. }) => Some(*binding),
+            MapEntryOwnership::Value(MapValueSource::Local { binding, .. })
+            | MapEntryOwnership::Value(MapValueSource::BorrowedHandle(binding)) => Some(*binding),
             MapEntryOwnership::Value(_) => None,
         }
     }
@@ -281,11 +290,17 @@ pub(super) fn observe_map<E>(
                 Some(OrdinaryObservation::TrivialLocal(binding, kind)) => {
                     MapValueSource::Local { binding, kind }
                 }
-                _ => {
-                    return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
-                        child.clone(),
-                    )))
+                Some(OrdinaryObservation::Handle(root)) if locals.is_self_rooted_handle(root) => {
+                    MapValueSource::BorrowedHandle(root)
                 }
+                _ => match input.function().expression_source().literal(child) {
+                    Some(ResolvedLiteralSourceV1::String) => MapValueSource::String,
+                    _ => {
+                        return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
+                            child.clone(),
+                        )))
+                    }
+                },
             };
             MapEntryOwnership::Value(value)
         };

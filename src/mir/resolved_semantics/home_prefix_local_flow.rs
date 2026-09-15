@@ -139,6 +139,12 @@ impl<'source> PrefixLocalFlow<'source> {
         }
     }
 
+    /// `root` is a self-rooted handle exactly when it stores itself —
+    /// i.e. a parameter-installed handle, never a live Home/Map local.
+    pub(super) fn is_self_rooted_handle(&self, root: BindingRefV1) -> bool {
+        matches!(self.locals.get(&root), Some(StoredLocal::Handle(r)) if *r == root)
+    }
+
     pub(super) fn direct_available_home(
         &self,
         site: &SourceExprSiteV1,

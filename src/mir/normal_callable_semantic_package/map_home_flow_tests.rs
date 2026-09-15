@@ -1,7 +1,9 @@
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use crate::mir::builder::CompilationContext;
-use crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1;
-use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1};
+use crate::mir::resolved_semantics::home_new_prefix::{MapDestinationV1, MapValueSource};
+use crate::mir::resolved_semantics::{
+    OwnedExprSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+};
 
 fn source(body: &str) -> String {
     format!("box Page {{}} static box Main {{ main() {{ {body} }} }}")
@@ -496,4 +498,104 @@ fn return_boundary_outward_rejects_foreign_and_non_return_membership() {
             })
             .unwrap();
     });
+}
+
+#[test]
+fn return_boundary_map_admits_string_literal_and_borrowed_param_handle() {
+    let package = issue(
+        "static box Work { make(args) { return %{\"op\" => \"const\", \"args\" => args} } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("return-boundary Map with string and param-handle entries");
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.parameter_count() == 1)
+        .expect("Work::make declaration");
+    let site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
+    ]));
+    let owned = OwnedExprSiteV1::new(declaration.owner(), site);
+    let map = package
+        .ordinary_new_claim_ledger
+        .map_flow(&owned)
+        .expect("return-boundary Map row completes");
+    assert!(matches!(
+        map.destination(),
+        MapDestinationV1::ReturnBoundary(_)
+    ));
+    let [op, args] = map.entries() else {
+        panic!("two entries");
+    };
+    assert_eq!(op.key(), "op");
+    assert_eq!(op.value_source(), Some(&MapValueSource::String));
+    assert_eq!(args.key(), "args");
+    let Some(MapValueSource::BorrowedHandle(root)) = args.value_source() else {
+        panic!("param handle stays a borrowed root, never a home");
+    };
+    assert_eq!(args.transfer_home(), None);
+    assert_eq!(args.binding(), Some(*root));
+    // Neither new class claims a scalar kind; downstream stays fail-closed.
+    assert!(map.entries().iter().all(|entry| entry
+        .value_source()
+        .unwrap()
+        .scalar_kind()
+        .is_none()));
+}
+
+#[test]
+fn return_boundary_map_rejects_uncovered_entry_value_classes() {
+    for (body, expected_maps) in [
+        // nested map literal is its own site, not a value leaf
+        ("return %{\"a\" => %{}}", 1usize),
+        // array literal has no construction coverage
+        ("return %{\"a\" => []}", 1),
+        // alias of a live Home is a transfer question, not a borrow
+        ("local p = new Page() local a = p return %{\"x\" => a}", 1),
+        // alias of a map-installed local is likewise not self-rooted
+        ("local m = %{} local a = m return %{\"x\" => a}", 2),
+    ] {
+        let package = issue(&source(body)).unwrap();
+        let flow = package
+            .ordinary_new_claim_ledger
+            .root_completion_for_test()
+            .cleanup()
+            .root_flow()
+            .unwrap();
+        assert_eq!(flow.maps().len(), expected_maps, "{body}");
+        let observation = flow.maps().last().unwrap();
+        assert!(
+            observation.complete().is_none(),
+            "{body} must stay Unavailable"
+        );
+    }
+}
+
+#[test]
+fn return_boundary_map_reuses_one_borrowed_param_across_entries() {
+    let package = issue(
+        "static box Work { make(args) { return %{\"a\" => args, \"b\" => args} } }
+         static box Main { main() { return 30 } }",
+    )
+    .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.parameter_count() == 1)
+        .unwrap();
+    let site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
+    ]));
+    let owned = OwnedExprSiteV1::new(declaration.owner(), site);
+    let map = package
+        .ordinary_new_claim_ledger
+        .map_flow(&owned)
+        .expect("repeated borrow completes");
+    let [a, b] = map.entries() else {
+        panic!("two entries");
+    };
+    assert_eq!(a.binding(), b.binding());
+    assert!(a.transfer_home().is_none() && b.transfer_home().is_none());
 }
