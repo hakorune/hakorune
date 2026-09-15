@@ -196,6 +196,58 @@ fn parser_scan_loop_box_preserves_exact_i64_parameter_contracts() {
 }
 
 #[test]
+fn declared_box_names_project_as_handle_not_opaque_or_exact() {
+    let batch = batch(
+        "static box BoxHelpers {\n\
+         \x20   array_len(arr: ArrayBox) { return 0 }\n\
+         \x20   map_get(obj: MapBox, key) { return key }\n\
+         }",
+        12,
+    );
+    let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
+    let declarations = catalog.declarations().collect::<Vec<_>>();
+    assert_eq!(
+        declarations[0]
+            .parameters()
+            .iter()
+            .map(|row| row.kind())
+            .collect::<Vec<_>>(),
+        [CallableParameterContractKindV1::DeclaredHandle]
+    );
+    assert_eq!(
+        declarations[1]
+            .parameters()
+            .iter()
+            .map(|row| row.kind())
+            .collect::<Vec<_>>(),
+        [
+            CallableParameterContractKindV1::DeclaredHandle,
+            CallableParameterContractKindV1::OpaqueHandle,
+        ]
+    );
+    for declaration in &declarations {
+        assert!(declaration
+            .parameters()
+            .iter()
+            .all(|row| row.home_demand() == crate::mir::resolved_semantics::HomeDemandV1::Handle));
+    }
+}
+
+#[test]
+fn unadmitted_declared_box_name_still_rejects() {
+    let batch = batch("static box Api { run(ctx: ContextBox) { return ctx } }", 13);
+    assert!(matches!(
+        issue_callable_parameter_contract_v1(&batch),
+        Err(
+            super::CallableParameterContractIssueV1::UnsupportedDeclaredType {
+                declaration: 0,
+                parameter: 0,
+            }
+        )
+    ));
+}
+
+#[test]
 fn unsupported_explicit_type_rejects_without_opaque_fallback() {
     let batch = batch("static box Api { run(value: f64) { return value } }", 9);
     assert!(matches!(

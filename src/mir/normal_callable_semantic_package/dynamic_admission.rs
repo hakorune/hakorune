@@ -126,7 +126,8 @@ pub(super) fn issue_dynamic_parameter_contract_v2(
         .iter()
         .map(|row| {
             let class = match row.kind {
-                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle => {
+                crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle
+                | crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredHandle => {
                     crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterClassV2::Dynamic
                 }
                 crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi) => {

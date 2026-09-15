@@ -294,6 +294,7 @@ pub(super) fn issue_callable_physical_signature_v1(
                             PhysicalCallableLaneRoleV1::ExactTextGeneration
                         }
                         CallableParameterContractKindV1::OpaqueHandle
+                        | CallableParameterContractKindV1::DeclaredHandle
                         | CallableParameterContractKindV1::ExactTrivial(_) => {
                             PhysicalCallableLaneRoleV1::OrdinaryScalar
                         }

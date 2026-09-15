@@ -8,6 +8,7 @@ use crate::mir::resolved_semantics::{
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CallableParameterContractKindV1 {
     OpaqueHandle,
+    DeclaredHandle,
     ExactTrivial(ExactTrivialParameterAbiV1),
     ExactText(ExactTextFormalAbiV1),
 }
@@ -15,7 +16,7 @@ pub(crate) enum CallableParameterContractKindV1 {
 impl CallableParameterContractKindV1 {
     pub(crate) const fn home_demand(self) -> HomeDemandV1 {
         match self {
-            Self::OpaqueHandle => HomeDemandV1::Handle,
+            Self::OpaqueHandle | Self::DeclaredHandle => HomeDemandV1::Handle,
             Self::ExactTrivial(_) => HomeDemandV1::Trivial,
             Self::ExactText(_) => HomeDemandV1::Handle,
         }

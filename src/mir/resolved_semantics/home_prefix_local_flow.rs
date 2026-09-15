@@ -96,6 +96,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 }
                 CallableParameterContractKindV1::ExactTrivial(_) => return false,
                 CallableParameterContractKindV1::OpaqueHandle
+                | CallableParameterContractKindV1::DeclaredHandle
                 | CallableParameterContractKindV1::ExactText(_) => StoredLocal::Handle(binding),
             };
             self.locals.insert(binding, value);

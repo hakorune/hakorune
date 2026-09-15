@@ -46,6 +46,10 @@ pub(crate) enum CallableParameterContractIssueV1 {
     },
 }
 
+fn is_admitted_declared_box_name(source_type: &str) -> bool {
+    matches!(source_type, "ArrayBox" | "MapBox")
+}
+
 pub(crate) fn issue_callable_parameter_contract_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
 ) -> Result<VerifiedCallableParameterContractCatalogV1<'_>, CallableParameterContractIssueV1> {
@@ -80,17 +84,19 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                         Some(source_type) => {
                             if let Some(abi) = ExactTextFormalAbiV1::classify(source_type) {
                                 CallableParameterContractKindV1::ExactText(abi)
-                            } else {
-                                let Some(abi) = ExactTrivialParameterAbiV1::classify(source_type)
-                                else {
-                                    return Err(
-                                        CallableParameterContractIssueV1::UnsupportedDeclaredType {
-                                            declaration,
-                                            parameter,
-                                        },
-                                    );
-                                };
+                            } else if let Some(abi) =
+                                ExactTrivialParameterAbiV1::classify(source_type)
+                            {
                                 CallableParameterContractKindV1::ExactTrivial(abi)
+                            } else if is_admitted_declared_box_name(source_type) {
+                                CallableParameterContractKindV1::DeclaredHandle
+                            } else {
+                                return Err(
+                                    CallableParameterContractIssueV1::UnsupportedDeclaredType {
+                                        declaration,
+                                        parameter,
+                                    },
+                                );
                             }
                         }
                     };
