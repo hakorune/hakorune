@@ -63,3 +63,99 @@ contract is AppMain-scoped today. The merged route needs either (a) an
 explicit non-AppMain map-lifecycle admission row, or (b) the consumer
 contract extended to the merged batch's actual root identity — never a
 silent bypass of `app_main_identity`.
+
+## External design consultation (2026-09-15, ChatGPT Pro review of 7618c185)
+
+**Recommendation: (b) generalized per-function-owner lifecycle contract.**
+The missing piece is not owner identity — every function already carries
+`FunctionOwnerIdV1` + completion + root_flow. What is missing is the
+contract that the physical route undertakes that function's lifecycle.
+The batch must NOT become the runtime Map owner: 899 compiled functions
+are not 899 simultaneously-live ownership scopes.
+
+Responsibility split:
+
+| unit            | responsibility                                        |
+| --------------- | ----------------------------------------------------- |
+| each callable   | own Homes, normal/Fault cleanup, arg/result transfer  |
+| batch/package   | complete callable-to-consumer correspondence          |
+| execution entry | Fault frame start/end, final report, process exit     |
+
+Removing the AppMain condition alone does not finish the work —
+downstream keeps the same assumption:
+
+- install checks the AppMain direct-call loan structure and fixed
+  i64 call counts (install_map_preflight.rs)
+- backend admission requires a retained root and collects its direct
+  calls (lifecycle_admission.rs)
+- the C consumer requires `functions[0]` as process root
+  (hako_llvmc_ffi_published_lifecycle_physical_v2.inc)
+
+Ordinary callables already have the borrowed-Fault-frame + result-output
++ status ABI; emit functions from the sealed callable set and bind a
+process adapter only for products that need an execution entry.
+
+Minimum sealed facts (not five new wrappers): identity, complete target
+scope, exit+cleanup order, boundary transfer, physical consumer.
+`prepare_install` atomicity (return package on failure, stop before
+catalog mutation) must be preserved.
+
+Pitfalls named: static-owner vs runtime-scope confusion, mid-transfer
+Fault, cleanup order derived from batch order, GC-root confusion.
+
+Pre-production concerns to fix before the source-result issuer connects
+to a production caller (review-verified, taskified below):
+
+1. source-admission witness is attached after SourcePlan, not consumed
+   as an admission condition — missing/foreign lineage does not reject
+   pre-package (normal_callable.rs, A3 tests pass without witness).
+2. source-result issuer correspondence verification relies on arg
+   name/count; a different declaration's resolved input with the same
+   arg shape could seal a wrong-source result — needs direct
+   declaration↔resolved-owner identity binding. Test-only today.
+3. the same issuer treats every BlockExpr as a transparent tail
+   wrapper; a nested block with preprocessing (rebinding then tail
+   read) could seal a stale value class — smallest fix is rejecting
+   blocks with preprocessing until the bounded family needs them.
+4. `: void` functions mixing `return null` (Value) and `return void`
+   (Void) fail set-uniformity — the language contract allows both;
+   handling must be unified at the declared-result boundary.
+
+Suggested next completion unit: compile two small non-AppMain functions
+through the same consumer and verify normal+Fault cleanup on actual
+calls; classify the 40 `new MapBox()` sites into local-only / returned /
+stored / arg-transferred in parallel. "Advanced to the next terminal"
+does not count as consumer completion.
+
+## Decision (accepted 2026-09-15)
+
+**Option (b): generalize to a per-`FunctionOwnerIdV1` lifecycle-undertaking
+contract.** The missing piece is the contract that the physical route
+undertakes each function's lifecycle — every owner already carries
+completion + root_flow + terminal relation + claims. The batch must never
+become the runtime Map owner. Option (a) survives only as the
+implementation scope (first non-AppMain application of the shared
+contract); pseudo-AppMain (c) is rejected.
+
+Caveat from worker verification: `/tmp/merged_entry.hako` DOES contain
+`static box Main { main() }` (L19038), so `app_main_identity` is likely
+`Some` and the actual failing arm is probably the loan/target/owner
+mismatch (install_map_preflight.rs:31-62) or the no-loan
+owners-vs-root arm — pin the exact arm first when card 5 starts.
+
+## Ordered bounded card queue
+
+| #  | Card                                                              | Depends |
+| -- | ----------------------------------------------------------------- | ------- |
+| C1 | source-result issuer owner binding (`input.owner() == owner`)      | —       |
+| C2 | source-admission witness: consume as admission condition or drop   | —       |
+| C3 | BlockExpr prelude accounting (reject non-empty prelude or fold)    | —       |
+| C4 | `:void` mixed `return null`/`return void` — needs decision record  | —       |
+| C5 | per-function lifecycle-undertaking contract (this card's core)     | pin arm |
+| C6 | downstream contract split (admit_lifecycle, physical doc, C v2)    | C5      |
+| C7 | merged `new MapBox()` census — 39 sites into local/returned/stored/arg | —   |
+| C8 | two-function non-AppMain consumer acceptance (normal+Fault cleanup)| C5, C6  |
+
+C1–C4 are pre-production fixes on test-only issuers — cheap and
+independent. C5 is this card's core; C6/C8 follow it; C7 informs scope.
+Full worker verification evidence lives in the card audit trail.
