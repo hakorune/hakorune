@@ -250,7 +250,7 @@ exit code; name the admitted entry classes.
 | --- | ----------------------------------------------------------------- | ------------ |
 | C1  | source-result issuer owner binding — landed: `verify_source_input_identity` binds the resolved input's declaration node to the catalog row field-by-field (name/params/param_decls/return type/body/uses/attrs); `ForeignResolvedInput` rejects before ledger consumption. Residual honestly bounded: content-identical foreign declarations are indistinguishable (parser nodes carry `Span::unknown()`), but identical content produces identical product rows — only the owner label could differ | — |
 | C2  | source-admission witness — landed: `issue()` now always returns an attested witness (zero rows allowed), materialization fails merged+source-backed without one (`MissingCoverageWitness`), and `NormalRootExecutionConsumerV1::consume_once` enforces `merged lineage ⇒ witness` as `SourceAuthorityUnavailable` before package effects | — |
-| C3  | BlockExpr prelude accounting (reject non-empty prelude or fold)    | —            |
+| C3  | BlockExpr prelude accounting — landed: `classify` rejects `NonEmptyBlockExprPrelude` when the sealed statement inventory shows `BlockExprPrelude` children of the wrapper site; empty-prelude wrappers stay transparent (folding prelude statement effects is a separate semantic slice) | — |
 | C4  | `:void` mixed `return null`/`return void` — needs decision record  | —            |
 | C5a | contract definition: per-owner obligations + call-edge conformance + selected-consumer capability boundary in `PreparedInstall` | — |
 | C7  | merged `new MapBox()` census — 39 sites into local/returned/stored/arg | —        |

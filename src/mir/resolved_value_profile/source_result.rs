@@ -153,6 +153,7 @@ pub(crate) enum SourceResultProductErrorV1 {
     },
     UnsupportedStatement,
     NullableOperandNotString(SourceExprSiteV1),
+    NonEmptyBlockExprPrelude(SourceExprSiteV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -514,6 +515,22 @@ fn classify(
     } else if let Some(BodyExpressionShapeV1::BlockExpr { .. }) =
         state.body_shape.expression_shape(site)
     {
+        // A BlockExpr wrapper is transparent only when its prelude is empty:
+        // `{ stmt; tail }` statement effects sit outside the result product's
+        // model, so a non-empty prelude rejects instead of being dropped.
+        let site_segments = site.node().segments();
+        let has_prelude_item = state.body_shape.statements().iter().any(|statement| {
+            matches!(
+                statement.site().node().segments().split_last(),
+                Some((SourcePathSegmentV1::BlockExprPrelude(_), prefix))
+                    if prefix == site_segments
+            )
+        });
+        if has_prelude_item {
+            return Err(SourceResultProductErrorV1::NonEmptyBlockExprPrelude(
+                site.clone(),
+            ));
+        }
         // Transparent BlockExpr wrapper (e.g. an expression-If branch tail):
         // the sealed shape row proves the wrapper, so the only child to
         // consume is the resolver-published `BlockExprTail` expression site.

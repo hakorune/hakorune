@@ -152,8 +152,12 @@ direct-call rows are never re-derived from raw AST. Expression-If consumers
 (`Value`, `Rhs`, `Initializer`) come from the sealed
 `ResolvedConditionalExpressionSourceV1` relation, and transparent `BlockExpr`
 wrappers are stepped through by the co-sealed `BodyExpressionShapeV1` rows,
-not by syntax. It also records the exact `String/null` inequality fact used
-by a later conditional-value consumer.
+not by syntax. A `BlockExpr` is transparent only when its prelude is empty:
+the sealed statement inventory proves absence by checking for
+`BlockExprPrelude` children of the wrapper site, and a non-empty prelude
+rejects with `NonEmptyBlockExprPrelude` rather than silently dropping
+statement effects. It also records the exact `String/null` inequality fact
+used by a later conditional-value consumer.
 
 Every observed call publishes one explicit `SourceCallDispositionV1`:
 `Static` only where the branded route catalog proves the same-module
@@ -165,8 +169,8 @@ results stay unproven wherever a `SourceResultClassV1` is required.
 The issuer fails before Builder effects on foreign callable keys, foreign or
 unbranded route catalogs, resolved inputs whose declaration node differs from
 the catalog row, missing ledger/body-shape inventories, consumer-site
-drift, missing branch rows, unsupported or mixed result classes, unproven call
-tails, and unknown expressions. Core-method placement/effect rows, recursive
+drift, missing branch rows, non-empty `BlockExpr` preludes, unsupported or
+mixed result classes, unproven call tails, and unknown expressions. Core-method placement/effect rows, recursive
 body closure, JoinSig, physical PHI construction, and production route
 selection remain owned by later slices. No result class is inferred from MIR
 or from a callable name.

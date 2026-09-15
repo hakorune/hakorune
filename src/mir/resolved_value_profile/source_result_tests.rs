@@ -469,3 +469,16 @@ fn source_result_product_keeps_catalog_identity_across_catalog_move() {
     let product = issue_source_result_product_v1(&declarations, &key, input, &targets).unwrap();
     assert_eq!(product.catalog_identity(), identity);
 }
+
+#[test]
+fn source_result_product_rejects_non_empty_block_expr_prelude() {
+    let result = issue(
+        r#"static box Helpers { value() { return { local tmp = 1; tmp } } }"#,
+        "Helpers",
+        "value",
+    );
+    assert!(matches!(
+        result,
+        Err(SourceResultProductErrorV1::NonEmptyBlockExprPrelude(_))
+    ));
+}
