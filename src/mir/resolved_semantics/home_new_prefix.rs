@@ -7,7 +7,7 @@
 use super::{
     BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomeDemandV1, OwnedExprSiteV1,
     ResolvedLexicalRefV1, ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceStmtSiteV1,
+    SourcePathSegmentV1, SourceStmtSiteV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -216,54 +216,92 @@ pub(crate) fn scan_new_home_flow<E>(
                         maps.extend(nested);
                         false
                     }
-                    Ok(value) => match input.function().expression_source().literal(value.site()) {
-                        Some(ResolvedLiteralSourceV1::Integer(number)) => {
-                            terminal_relation = Some(TerminalRelationV1::IntegerLiteral(
-                                TerminalIntegerLiteralReturnV1::issue(
-                                    input.owner(),
-                                    statement.site().clone(),
-                                    value.site().clone(),
-                                    *number,
-                                ),
-                            ));
-                            true
+                    Ok(value) => {
+                        // `return foo(%{...})` — argument-position map literals
+                        // need flow rows regardless of how the return value
+                        // itself classifies. Siblings share one `used` set so a
+                        // Home cannot transfer into two argument maps.
+                        if let Some(shape) = input.body_shape() {
+                            let mut arguments: Vec<(u32, SourceExprSiteV1)> = shape
+                                .relations()
+                                .iter()
+                                .filter_map(|row| match row.role() {
+                                    SourcePathSegmentV1::Argument(ordinal)
+                                        if row.parent() == value.site().node() =>
+                                    {
+                                        Some((*ordinal, row.child().clone()))
+                                    }
+                                    _ => None,
+                                })
+                                .collect();
+                            arguments.sort_by_key(|(ordinal, _)| *ordinal);
+                            let mut used = std::collections::BTreeSet::new();
+                            let mut nested = Vec::new();
+                            for (ordinal, child) in arguments {
+                                let Some(keys) = map_literal_keys(input, &child) else {
+                                    continue;
+                                };
+                                let owned = OwnedExprSiteV1::new(input.owner(), child);
+                                match map_flow::observe_map(
+                                    input,
+                                    &owned,
+                                    MapDestinationV1::CallArgument {
+                                        call: OwnedExprSiteV1::new(
+                                            input.owner(),
+                                            value.site().clone(),
+                                        ),
+                                        ordinal,
+                                    },
+                                    keys,
+                                    &mut locals,
+                                    &homes,
+                                    &mut used,
+                                    &mut nested,
+                                    map_compatible,
+                                )? {
+                                    Ok((map, remaining)) => {
+                                        homes = remaining;
+                                        maps.push(map_flow::MapHomeObservation::Complete(map));
+                                    }
+                                    Err(issue) => {
+                                        unavailable.get_or_insert(issue);
+                                        maps.push(map_flow::MapHomeObservation::Unavailable {
+                                            site: owned,
+                                        });
+                                    }
+                                }
+                            }
+                            maps.extend(nested);
                         }
-                        _ if terminal_call(&OwnedExprSiteV1::new(
-                            input.owner(),
-                            value.site().clone(),
-                        ))? =>
-                        {
-                            let arguments = input
-                                .function()
-                                .direct_call_observations()
-                                .find(|(site, _)| *site == value.site())
-                                .and_then(|(_, row)| {
-                                    row.argument_sites()
-                                        .iter()
-                                        .map(|site| {
-                                            match input.function().expression_source().literal(site)
-                                            {
-                                                Some(ResolvedLiteralSourceV1::Integer(value)) => {
-                                                    Some(*value)
-                                                }
-                                                _ => None,
-                                            }
-                                        })
-                                        .collect::<Option<Vec<_>>>()
-                                });
-                            let arguments = arguments.or_else(|| {
-                                input
+                        match input.function().expression_source().literal(value.site()) {
+                            Some(ResolvedLiteralSourceV1::Integer(number)) => {
+                                terminal_relation = Some(TerminalRelationV1::IntegerLiteral(
+                                    TerminalIntegerLiteralReturnV1::issue(
+                                        input.owner(),
+                                        statement.site().clone(),
+                                        value.site().clone(),
+                                        *number,
+                                    ),
+                                ));
+                                true
+                            }
+                            _ if terminal_call(&OwnedExprSiteV1::new(
+                                input.owner(),
+                                value.site().clone(),
+                            ))? =>
+                            {
+                                let arguments = input
                                     .function()
-                                    .method_calls()
+                                    .direct_call_observations()
                                     .find(|(site, _)| *site == value.site())
                                     .and_then(|(_, row)| {
-                                        row.arguments()
+                                        row.argument_sites()
                                             .iter()
-                                            .map(|argument| {
+                                            .map(|site| {
                                                 match input
                                                     .function()
                                                     .expression_source()
-                                                    .literal(argument.site())
+                                                    .literal(site)
                                                 {
                                                     Some(ResolvedLiteralSourceV1::Integer(
                                                         value,
@@ -272,48 +310,75 @@ pub(crate) fn scan_new_home_flow<E>(
                                                 }
                                             })
                                             .collect::<Option<Vec<_>>>()
-                                    })
-                            });
-                            if let Some(arguments) = arguments {
-                                terminal_relation =
-                                    Some(TerminalRelationV1::Call(TerminalI64CallReturnV1::issue(
-                                        input.owner(),
-                                        statement.site().clone(),
-                                        value.site().clone(),
-                                        arguments.into_boxed_slice(),
-                                    )));
-                                true
-                            } else {
-                                false
+                                    });
+                                let arguments = arguments.or_else(|| {
+                                    input
+                                        .function()
+                                        .method_calls()
+                                        .find(|(site, _)| *site == value.site())
+                                        .and_then(|(_, row)| {
+                                            row.arguments()
+                                                .iter()
+                                                .map(|argument| {
+                                                    match input
+                                                        .function()
+                                                        .expression_source()
+                                                        .literal(argument.site())
+                                                    {
+                                                        Some(ResolvedLiteralSourceV1::Integer(
+                                                            value,
+                                                        )) => Some(*value),
+                                                        _ => None,
+                                                    }
+                                                })
+                                                .collect::<Option<Vec<_>>>()
+                                        })
+                                });
+                                if let Some(arguments) = arguments {
+                                    terminal_relation = Some(TerminalRelationV1::Call(
+                                        TerminalI64CallReturnV1::issue(
+                                            input.owner(),
+                                            statement.site().clone(),
+                                            value.site().clone(),
+                                            arguments.into_boxed_slice(),
+                                        ),
+                                    ));
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                            _ => {
+                                match return_scalar(input, value.site(), &locals, field_is_integer)?
+                                {
+                                    Some(ReturnScalar::I64Add { site, field_reads }) => {
+                                        terminal_relation = Some(TerminalRelationV1::I64Add(
+                                            TerminalI64AddReturnV1::issue(
+                                                input.owner(),
+                                                statement.site().clone(),
+                                                site,
+                                                field_reads,
+                                            ),
+                                        ));
+                                        true
+                                    }
+                                    Some(ReturnScalar::IntegerField(field_read_site)) => {
+                                        terminal_relation = Some(TerminalRelationV1::I64Field(
+                                            TerminalI64FieldReturnV1::issue(
+                                                input.owner(),
+                                                statement.site().clone(),
+                                                value.site().clone(),
+                                                field_read_site,
+                                            ),
+                                        ));
+                                        true
+                                    }
+                                    Some(_) => true,
+                                    None => false,
+                                }
                             }
                         }
-                        _ => match return_scalar(input, value.site(), &locals, field_is_integer)? {
-                            Some(ReturnScalar::I64Add { site, field_reads }) => {
-                                terminal_relation = Some(TerminalRelationV1::I64Add(
-                                    TerminalI64AddReturnV1::issue(
-                                        input.owner(),
-                                        statement.site().clone(),
-                                        site,
-                                        field_reads,
-                                    ),
-                                ));
-                                true
-                            }
-                            Some(ReturnScalar::IntegerField(field_read_site)) => {
-                                terminal_relation = Some(TerminalRelationV1::I64Field(
-                                    TerminalI64FieldReturnV1::issue(
-                                        input.owner(),
-                                        statement.site().clone(),
-                                        value.site().clone(),
-                                        field_read_site,
-                                    ),
-                                ));
-                                true
-                            }
-                            Some(_) => true,
-                            None => false,
-                        },
-                    },
+                    }
                     Err(_) => false,
                 },
                 _ => false,

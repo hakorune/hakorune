@@ -1213,7 +1213,12 @@ physical emission stays fail-closed. A `[...]` entry value records
 through the same leaf chain; element transfers and nested container elements
 stay uncovered. A live map-installed local (`local m = %{...}` or an alias)
 is borrowed by reference as `MapLocal` — the local stays the owner and still
-issues its own End; nothing is consumed. These records and terminal order
+issues its own End; nothing is consumed. A `%{...}` literal at a call's
+`Argument(ordinal)` position — observed only inside a terminal return value
+— is its own flow row with a `CallArgument` destination; the outward verifier
+requires the parent's sealed method-call or direct-call row to link the same
+ordinal to the map site. The row records destination evidence only; argument
+transfer semantics stay unclaimed. These records and terminal order
 have one owner in Completion. The unconnected consumer is stopped at package
 install; fresh children, uninitialized locals and other candidate families
 are not admitted by this direct-Home relation.

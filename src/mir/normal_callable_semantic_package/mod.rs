@@ -104,6 +104,8 @@ pub(crate) use physical_signature::{
 pub(crate) use s6c_effects::VerifiedS6CPhysicalFunctionEffectsV1;
 
 #[cfg(test)]
+mod map_call_argument_flow_tests;
+#[cfg(test)]
 mod map_home_flow_tests;
 #[cfg(test)]
 mod map_value_completion_tests;

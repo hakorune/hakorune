@@ -127,6 +127,78 @@ pub(crate) fn map_entry_outward(
     Ok((scope, target))
 }
 
+/// Exact outward membership for a `%{...}` literal bound to a call's
+/// `Argument(ordinal)` slot: the site is itself a `MapLiteral` row whose
+/// node path is `call.node + Argument(ordinal)`, whose sealed relation
+/// matches exactly, and whose parent call carries a sealed call row
+/// (method-call or direct-call observation) linking the same ordinal to
+/// this site. The row records destination evidence only; argument
+/// transfer semantics stay the consumer's concern.
+pub(crate) fn map_argument_outward(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &OwnedExprSiteV1,
+    call: &OwnedExprSiteV1,
+    ordinal: u32,
+) -> Result<(ScopeId, RegionId), &'static str> {
+    let function = input.function();
+    if site.owner() != input.owner()
+        || call.owner() != input.owner()
+        || !input
+            .forest()
+            .owner(input.owner())
+            .is_some_and(|owner| std::ptr::eq(owner, function))
+    {
+        return Err("foreign-map-owner");
+    }
+    let shape = input.body_shape().ok_or("map-shape-missing")?;
+    if shape.owner() != input.owner()
+        || !shape.expressions().iter().any(|row| {
+            matches!(row,
+            BodyExpressionShapeV1::MapLiteral { site: exact, .. } if exact == site.site())
+        })
+    {
+        return Err("map-membership-missing");
+    }
+    let mut expected = call.site().node().segments().to_vec();
+    expected.push(SourcePathSegmentV1::Argument(ordinal));
+    if site.site().node().segments() != expected.as_slice() {
+        return Err("map-argument-site-mismatch");
+    }
+    let mut relations = shape.relations().iter().filter(|row| {
+        row.parent() == call.site().node()
+            && row.role() == &SourcePathSegmentV1::Argument(ordinal)
+            && row.child() == site.site()
+    });
+    if relations.next().is_none() || relations.next().is_some() {
+        return Err("map-argument-relation-mismatch");
+    }
+    let linked = function.method_call(call.site()).is_some_and(|row| {
+        row.arguments()
+            .iter()
+            .any(|argument| argument.ordinal() == ordinal && argument.site() == site.site())
+    }) || function
+        .direct_call_observation(call.site())
+        .is_some_and(|row| row.argument_sites().get(ordinal as usize) == Some(site.site()));
+    if !linked {
+        return Err("map-argument-call-missing");
+    }
+    let scope = function
+        .exact_scope_containing(site.site().node())
+        .ok_or("map-scope-missing")?;
+    let roots = function.lowering_roots();
+    let target = roots.function_pair().region();
+    if scope != roots.body_pair().scope()
+        || target != function.function_region()
+        || function
+            .region(roots.body_pair().region())
+            .and_then(|row| row.parent())
+            != Some(target)
+    {
+        return Err("map-outward-target-mismatch");
+    }
+    Ok((scope, target))
+}
+
 /// Exact outward membership for a `%{...}` literal returned through the
 /// function boundary: the site must be `[Body(i), Value]` where statement `i`
 /// is an explicit `Return` whose sealed exit transfer targets this function.

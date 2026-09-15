@@ -60,6 +60,14 @@ pub(crate) enum MapDestinationV1 {
         parent_map: OwnedExprSiteV1,
         ordinal: u32,
     },
+    /// A `%{...}` literal bound to a call's `Argument(ordinal)` slot. The
+    /// slot is identified by the parent call's exact site and ordinal; the
+    /// row's own `site` is the Argument child site. Destination evidence
+    /// only — argument transfer semantics stay unclaimed.
+    CallArgument {
+        call: OwnedExprSiteV1,
+        ordinal: u32,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -83,7 +91,9 @@ impl MapHomeFlow {
     pub(crate) fn local_binding(&self) -> Option<BindingRefV1> {
         match self.destination {
             MapDestinationV1::LocalBinding(binding) => Some(binding),
-            MapDestinationV1::ReturnBoundary(_) | MapDestinationV1::EntrySlot { .. } => None,
+            MapDestinationV1::ReturnBoundary(_)
+            | MapDestinationV1::EntrySlot { .. }
+            | MapDestinationV1::CallArgument { .. } => None,
         }
     }
     pub(crate) fn source_scope(&self) -> ScopeId {
@@ -292,6 +302,9 @@ pub(super) fn observe_map<E>(
             ordinal,
         } => {
             crate::mir::resolved_control_flow::map_entry_outward(input, site, parent_map, *ordinal)
+        }
+        MapDestinationV1::CallArgument { call, ordinal } => {
+            crate::mir::resolved_control_flow::map_argument_outward(input, site, call, *ordinal)
         }
     };
     let Ok((source_scope, target_function)) = outward else {
