@@ -4,7 +4,9 @@ Task: MIR-CALL-RESOLVER-IF-EXPRESSION-CONTRACT-D0
 Date: 2026-09-14
 Priority: define the missing source-to-Recipe contract for expression If results
 Parent: mir-call-resolver-if-expression-expressivity-d0-2026-09-14.md
-NextCard: mir-call-resolver-if-i64-return-contract-d0-2026-09-14.md
+NextCard: mir-call-resolver-if-value-join-contract-d0-2026-09-14.md
+  (supersedes mir-call-resolver-if-i64-return-contract-d0-2026-09-14.md,
+  generalized parametric in 1310f61c56)
 Implementation permission: false until condition, branch values, result class, and one Recipe/JoinSig issuer are co-sealed
 ---
 

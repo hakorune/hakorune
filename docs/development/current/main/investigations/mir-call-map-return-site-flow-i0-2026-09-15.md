@@ -75,6 +75,12 @@ added; the map/resolved-control-flow focused suite passes 70/70
 including all pre-existing initializer-position tests. Baseline reds
 unrelated to this change were already manifest-listed.
 
+**Merged input identity** (reproducibility): `/tmp/merged_entry.hako`
+sha256 `23b6cf894b0619a41ade0f7ff77480d2228530727a0c883540f06d37b78ba1ed`,
+19042 lines, 723247 bytes; the ordered input list is recoverable from the
+89 embedded `// <file>.hako` section headers. Generation recipe is still
+/tmp-local — tracked as punchlist P1-3.
+
 **Route evidence (merged `/tmp/merged_entry.hako`, quick-profile
 binary)**: the entry still stops at
 `[callable-semantic-package/install] MapLifecycleConsumerMissing`, but

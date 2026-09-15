@@ -36,6 +36,7 @@ next_design_card_path = "docs/development/current/main/investigations/mir-call-r
 next_execution_card = "MIR-CALL-MAP-ENTRY-VALUE-SOURCE-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-map-entry-value-source-i0-2026-09-15.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
 accepted_free_function_execution_card = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0 (landed at 042cd56aa2; existing FreeFunction key preserved through Atomic Publish and typed kind=3 selected-C ingress; mixed source-to-exe result 3; known whole-lib red remains separate)"
