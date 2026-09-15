@@ -140,7 +140,11 @@ brand alongside the callable key. `SourceResultClassV1` is semantic (`I64` or
 
 The issuer consumes `ResolvedFunctionLoweringInputV1` — the co-sealed
 owner/forest/body-shape bundle — plus a `VerifiedSourceCallTargetCatalogV1`
-branded by the same declaration catalog. The declaration body supplies only
+branded by the same declaration catalog. The input must have been resolved
+from the exact declaration node the catalog row sealed: name, parameters,
+return type, uses, attributes, and body are compared field-by-field before
+the ledger is consumed (a same-parameter-shape foreign declaration cannot
+compose). The declaration body supplies only
 the statement scaffold (`Local` / `Assignment` / `Return`); every expression
 classification goes through `CallableSemanticSourceLedgerView` rows:
 conditional, operator, literal, lexical-reference, method-call, and
@@ -159,7 +163,8 @@ direct calls that carry no same-module catalog key. `Dynamic`/`Absent`
 results stay unproven wherever a `SourceResultClassV1` is required.
 
 The issuer fails before Builder effects on foreign callable keys, foreign or
-unbranded route catalogs, missing ledger/body-shape inventories, consumer-site
+unbranded route catalogs, resolved inputs whose declaration node differs from
+the catalog row, missing ledger/body-shape inventories, consumer-site
 drift, missing branch rows, unsupported or mixed result classes, unproven call
 tails, and unknown expressions. Core-method placement/effect rows, recursive
 body closure, JoinSig, physical PHI construction, and production route

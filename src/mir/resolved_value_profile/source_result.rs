@@ -131,6 +131,7 @@ pub(crate) enum SourceResultProductErrorV1 {
     ForeignCallable,
     ForeignCallTargetCatalog,
     ForeignLedger,
+    ForeignResolvedInput,
     UnsupportedDeclaredResult,
     MissingReturn,
     UnprovenResultClass(SourceExprSiteV1),
@@ -200,9 +201,10 @@ impl VerifiedSourceResultProductV1 {
 /// resolver-issued source ledger and the branded route catalog.
 ///
 /// `input` and `call_targets` must agree with `declarations`/`owner`: the
-/// ledger is rebuilt from the co-sealed lowering input, the catalog must be
-/// branded by this exact declaration catalog, and every parameter binding in
-/// the ledger must name the same declaration parameter.
+/// co-sealed input must have been resolved from the exact declaration node
+/// this catalog row sealed, the ledger is rebuilt from the same input, the
+/// catalog must be branded by this exact declaration catalog, and every
+/// parameter binding in the ledger must name the same declaration parameter.
 pub(crate) fn issue_source_result_product_v1(
     declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
     owner: &CanonicalSameModuleCallableKeyV1,
@@ -215,6 +217,7 @@ pub(crate) fn issue_source_result_product_v1(
     if !call_targets.is_branded_by(declarations) {
         return Err(SourceResultProductErrorV1::ForeignCallTargetCatalog);
     }
+    verify_source_input_identity(declaration, input)?;
     let ledger = input
         .forest()
         .callable_source_ledger(input.owner())
@@ -266,6 +269,41 @@ pub(crate) fn issue_source_result_product_v1(
         call_dispositions: state.call_dispositions.into_boxed_slice(),
         _seal: SourceResultProductSealV1,
     })
+}
+
+/// Ties the resolved input to the catalog declaration: the co-sealed lowering
+/// input must carry the exact declaration node this catalog row sealed —
+/// name, parameters, return type, uses, attributes, and the body including
+/// source spans all match. Parameter names/count alone cannot distinguish a
+/// same-shaped foreign declaration.
+fn verify_source_input_identity(
+    declaration: &VerifiedSameModuleCallableDeclarationV1,
+    input: ResolvedFunctionLoweringInputV1<'_>,
+) -> Result<(), SourceResultProductErrorV1> {
+    let ASTNode::FunctionDeclaration {
+        name,
+        params,
+        param_decls,
+        return_type_name,
+        body,
+        uses,
+        attrs,
+        ..
+    } = input.source().root()
+    else {
+        return Err(SourceResultProductErrorV1::ForeignResolvedInput);
+    };
+    let matches = name.as_str() == declaration.key().name()
+        && params.as_slice() == declaration.params()
+        && param_decls.as_slice() == declaration.param_decls()
+        && return_type_name.as_deref() == declaration.return_type_name()
+        && body.as_slice() == declaration.body()
+        && uses.as_slice() == declaration.uses()
+        && attrs == declaration.attrs();
+    if !matches {
+        return Err(SourceResultProductErrorV1::ForeignResolvedInput);
+    }
+    Ok(())
 }
 
 /// Ties the borrowed ledger to the catalog declaration: same declared-function

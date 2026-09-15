@@ -248,7 +248,7 @@ exit code; name the admitted entry classes.
 
 | #   | Card                                                              | Depends      |
 | --- | ----------------------------------------------------------------- | ------------ |
-| C1  | source-result issuer owner binding (`input.owner() == owner`)      | —            |
+| C1  | source-result issuer owner binding — landed: `verify_source_input_identity` binds the resolved input's declaration node to the catalog row field-by-field (name/params/param_decls/return type/body/uses/attrs); `ForeignResolvedInput` rejects before ledger consumption. Residual honestly bounded: content-identical foreign declarations are indistinguishable (parser nodes carry `Span::unknown()`), but identical content produces identical product rows — only the owner label could differ | — |
 | C2  | source-admission witness: consume as admission condition or drop   | —            |
 | C3  | BlockExpr prelude accounting (reject non-empty prelude or fold)    | —            |
 | C4  | `:void` mixed `return null`/`return void` — needs decision record  | —            |

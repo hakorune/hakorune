@@ -249,6 +249,43 @@ fn source_result_product_rejects_foreign_owner_before_ledger_consumption() {
 }
 
 #[test]
+fn source_result_product_rejects_same_shape_resolved_input_from_foreign_declaration() {
+    // Two declarations with the same parameter shape in different boxes:
+    // the input resolved from Alpha.value must not seal under Beta.value's
+    // key. (Body-identical foreign declarations remain indistinguishable —
+    // parser nodes carry Span::unknown() — but identical content produces
+    // identical product rows, so only the owner label could differ.)
+    let root = NyashParser::parse_from_string(
+        "static box Alpha { value(x) { return \"v\" } }\n\
+         static box Beta { value(x) { return 0 } }",
+    )
+    .unwrap();
+    let declarations = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root).unwrap();
+    let beta_key = catalog_key(&declarations, "Beta", "value");
+    let alpha_declaration = method_declaration(&root, "Alpha", "value");
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(alpha_declaration)
+        .expect("fixture resolves");
+    let input = unit.root_function_input().expect("root input");
+    let imports = VerifiedStaticImportAliasViewV1::seal(&declarations, []).expect("imports seal");
+    let targets = VerifiedWholeSourceStaticCallTargetInventoryV1::verify(&declarations, &imports)
+        .expect("route inventory")
+        .into_targets();
+    assert!(matches!(
+        issue_source_result_product_v1(&declarations, &beta_key, input, &targets),
+        Err(SourceResultProductErrorV1::ForeignResolvedInput)
+    ));
+    let alpha_key = catalog_key(&declarations, "Alpha", "value");
+    let alpha_declaration = method_declaration(&root, "Alpha", "value");
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(alpha_declaration)
+        .expect("fixture resolves");
+    let input = unit.root_function_input().expect("root input");
+    assert!(
+        issue_source_result_product_v1(&declarations, &alpha_key, input, &targets).is_ok(),
+        "the exact declaration's own input must still seal"
+    );
+}
+
+#[test]
 fn source_result_product_rejects_foreign_call_target_catalog() {
     let source = r#"static box Helpers { value() { return 1 } }"#;
     let root = NyashParser::parse_from_string(source).unwrap();
@@ -280,8 +317,9 @@ fn source_result_product_rejects_foreign_call_target_catalog() {
 
 #[test]
 fn source_result_product_rejects_missing_conditional_row() {
-    // The ledger was resolved for a different body: the conditional row at the
-    // return value site is absent even though the declaration carries a ternary.
+    // The input was resolved from a different body than the catalog row:
+    // the declaration/input identity boundary rejects it before the ledger
+    // is consumed.
     let declared_root = NyashParser::parse_from_string(
         r#"static box Api { broken(flag) { return flag ? { 1 } : { 0 } } }"#,
     )
@@ -301,8 +339,7 @@ fn source_result_product_rejects_missing_conditional_row() {
         .into_targets();
     assert!(matches!(
         issue_source_result_product_v1(&declarations, &key, input, &targets),
-        Err(SourceResultProductErrorV1::MissingConditionalSource(_))
-            | Err(SourceResultProductErrorV1::UnknownExpression(_))
+        Err(SourceResultProductErrorV1::ForeignResolvedInput)
     ));
 }
 
