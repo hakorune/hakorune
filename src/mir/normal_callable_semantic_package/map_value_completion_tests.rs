@@ -29,7 +29,10 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
     let row = package.result_contracts.rows().next().unwrap();
     let contract = row.borrow();
     let completion = contract.completion();
-    let header = package.physical_header.row(row.batch_slot(), &package.result_contracts).unwrap();
+    let header = package
+        .physical_header
+        .row(row.batch_slot(), &package.result_contracts)
+        .unwrap();
     assert!(std::ptr::eq(header.completion(), completion));
     assert!(header.completion().cleanup().crossed_scopes().is_empty());
     let flow = completion.cleanup().root_flow().unwrap();
@@ -44,16 +47,20 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
     assert!(
         matches!(
             map.entries()[0].value_source(),
-            Some(MapValueSource::Local { kind: Some(SourceScalarKind::Integer), .. })
+            Some(MapValueSource::Local {
+                kind: Some(SourceScalarKind::Integer),
+                ..
+            })
         ),
         "exact declaration I64 survives the source Home walk"
     );
     assert_eq!(map.allocation_fault().count(), 0);
     assert_eq!(map.outer_after_installs(2).unwrap().count(), 0);
-    assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
-    let Some(TerminalRelationV1::IntegerLiteral(terminal)) =
-        contract.terminal_relation()
-    else {
+    assert_eq!(
+        flow.terminal_homes().unwrap(),
+        [map.local_binding().unwrap()]
+    );
+    let Some(TerminalRelationV1::IntegerLiteral(terminal)) = contract.terminal_relation() else {
         panic!("ordinary source terminal retained with Completion");
     };
     assert_eq!(terminal.value(), 30);
@@ -91,11 +98,17 @@ fn ordinary_i64_formal_alias_preserves_source_kind_without_a_home() {
     for entry in map.entries() {
         assert!(matches!(
             entry.value_source(),
-            Some(MapValueSource::Local { kind: Some(SourceScalarKind::Integer), .. })
+            Some(MapValueSource::Local {
+                kind: Some(SourceScalarKind::Integer),
+                ..
+            })
         ));
         assert!(entry.transfer_home().is_none());
     }
-    assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
+    assert_eq!(
+        flow.terminal_homes().unwrap(),
+        [map.local_binding().unwrap()]
+    );
     assert_install_stop(package);
 }
 
@@ -111,16 +124,20 @@ fn borrowed_formals_are_allowed_unused_but_do_not_issue_map_ownership() {
             .unwrap();
             let row = package.result_contracts.rows().next().unwrap();
             let contract = row.borrow();
-            let flow = contract
-                .completion()
-                .cleanup()
-                .root_flow()
-                .unwrap();
+            let flow = contract.completion().cleanup().root_flow().unwrap();
             assert_eq!(flow.maps()[0].complete().is_some(), complete);
-            let header = package.physical_header.row(row.batch_slot(), &package.result_contracts).unwrap();
+            let header = package
+                .physical_header
+                .row(row.batch_slot(), &package.result_contracts)
+                .unwrap();
             assert!(std::ptr::eq(header.completion(), contract.completion()));
             if !complete {
-                assert!(header.completion().cleanup().terminal_homes().unwrap().is_err());
+                assert!(header
+                    .completion()
+                    .cleanup()
+                    .terminal_homes()
+                    .unwrap()
+                    .is_err());
                 assert!(contract.terminal_relation().is_none());
             }
             assert_install_stop(package);
@@ -160,13 +177,14 @@ fn root_known_value_enters_progress_without_becoming_a_home() {
             })
             .unwrap();
         ledger.begin_map_emission(map.site(), &relation).unwrap();
-        assert!(ledger.begin_map_emission(map.site(), &relation).unwrap_err()
+        assert!(ledger
+            .begin_map_emission(map.site(), &relation)
+            .unwrap_err()
             .contains("map-duplicate-emission"));
         let error = ledger
             .map_candidate_object(&map.entries()[0], crate::mir::ValueId::new(0))
             .unwrap_err();
         assert!(error.contains("map-value-consumer-missing"));
-
     }
 }
 
@@ -183,14 +201,15 @@ fn app_main_call_admits_one_ordinary_map_callee_value_owner() {
     let rows: Vec<_> = package.result_contracts.rows().collect();
     assert_eq!(rows.len(), 1, "AppMain does not acquire an ordinary seed");
     let contract = rows[0].borrow();
-    let Some(TerminalRelationV1::IntegerLiteral(terminal)) =
-        contract.terminal_relation()
-    else {
+    let Some(TerminalRelationV1::IntegerLiteral(terminal)) = contract.terminal_relation() else {
         panic!("callee exact terminal retained");
     };
     assert_eq!(terminal.value(), 30);
     assert_eq!(terminal.owner(), contract.owner());
-    assert_eq!(Some(terminal.return_site()), contract.completion().explicit_site());
+    assert_eq!(
+        Some(terminal.return_site()),
+        contract.completion().explicit_site()
+    );
     let mut context = CompilationContext::new();
     package
         .prepare_install(&mut context)
@@ -236,13 +255,7 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
     let row = package
         .result_contracts
         .rows()
-        .find(|row| {
-            row.borrow()
-                .completion()
-                .cleanup()
-                .root_flow()
-                .is_some()
-        })
+        .find(|row| row.borrow().completion().cleanup().root_flow().is_some())
         .unwrap();
     let contract = row.borrow();
     let terminal = contract.completion().explicit_site();
@@ -323,8 +336,13 @@ fn mixed_value_replacement_keeps_home_transfer_positions() {
         [last.binding().unwrap()]
     );
     assert_eq!(map.outer_after_installs(3).unwrap().count(), 0);
-    assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
-    assert!(package.prepare_install(&mut CompilationContext::new()).is_ok());
+    assert_eq!(
+        flow.terminal_homes().unwrap(),
+        [map.local_binding().unwrap()]
+    );
+    assert!(package
+        .prepare_install(&mut CompilationContext::new())
+        .is_ok());
 }
 
 #[test]
@@ -367,7 +385,9 @@ fn map_scalar_literals_and_aliases_retain_exact_source_evidence() {
             .entries()
             .iter()
             .all(|entry| entry.transfer_home().is_none()));
-        assert!(package.prepare_install(&mut CompilationContext::new()).is_ok());
+        assert!(package
+            .prepare_install(&mut CompilationContext::new())
+            .is_ok());
     }
 }
 

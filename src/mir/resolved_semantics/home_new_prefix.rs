@@ -5,8 +5,9 @@
 //! dependency; unknown prefix meaning never becomes an empty Home list.
 
 use super::{
-    BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomeDemandV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
-    ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+    BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomeDemandV1, OwnedExprSiteV1,
+    ResolvedLexicalRefV1, ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceStmtSiteV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -62,312 +63,39 @@ impl CallerNewHomePrefixV1 {
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
-use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 pub(crate) use local_flow::SourceScalarKind;
+use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_local_call_flow.rs"]
 mod local_call_flow;
 pub(crate) use local_call_flow::LocalI64CallObservationV1;
 #[path = "home_map_flow.rs"]
 mod map_flow;
-pub(crate) use map_flow::{RootHomeFlow, MapHomeFlow, MapHomeEntry, MapValueSource};
+#[path = "home_terminal_relation.rs"]
+mod terminal_relation;
+pub(crate) use map_flow::{
+    MapDestinationV1, MapHomeEntry, MapHomeFlow, MapValueSource, RootHomeFlow,
+};
+use terminal_relation::{map_literal_keys, return_scalar, ReturnScalar};
+pub(crate) use terminal_relation::{
+    TerminalI64AddReturnV1, TerminalI64CallReturnV1, TerminalI64FieldReturnV1,
+    TerminalIntegerLiteralReturnV1, TerminalRelationV1, TerminalUnitReturnV1,
+};
 
 pub(crate) fn issue_new_home_prefixes_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
 ) -> BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>> {
-    scan_new_home_flow(input, selected, std::iter::empty(), None, &mut |_, _, _, _, _| {
-        Ok::<_, std::convert::Infallible>(false)
-    }, &mut |_, _| Ok(false), &mut |_| Ok(false))
+    scan_new_home_flow(
+        input,
+        selected,
+        std::iter::empty(),
+        None,
+        &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
+        &mut |_, _| Ok(false),
+        &mut |_| Ok(false),
+    )
     .unwrap_or_else(|never| match never {})
     .0
-}
-
-/// Source-only terminal shape for the selected ordinary-`New` root.
-///
-/// This records the decision made by the Completion ownership walk.  It has no
-/// physical value, ABI, recipe, JSON, or backend authority.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalI64AddReturnV1 {
-    owner: FunctionOwnerIdV1,
-    return_site: SourceStmtSiteV1,
-    add_site: OwnedExprSiteV1,
-    field_reads: [OwnedExprSiteV1; 2],
-}
-
-impl TerminalI64AddReturnV1 {
-    fn issue(
-        owner: FunctionOwnerIdV1,
-        return_site: SourceStmtSiteV1,
-        add_site: OwnedExprSiteV1,
-        field_reads: [OwnedExprSiteV1; 2],
-    ) -> Self {
-        Self {
-            owner,
-            return_site,
-            add_site,
-            field_reads,
-        }
-    }
-
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
-        &self.return_site
-    }
-
-    pub(crate) fn add_site(&self) -> &OwnedExprSiteV1 {
-        &self.add_site
-    }
-
-    pub(crate) fn field_reads(&self) -> &[OwnedExprSiteV1; 2] {
-        &self.field_reads
-    }
-}
-
-/// Exact source relation for a Completion-backed untyped integer literal return.
-/// It records source identity and value only; it owns no physical representation.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalIntegerLiteralReturnV1 {
-    owner: FunctionOwnerIdV1,
-    return_site: SourceStmtSiteV1,
-    value_site: SourceExprSiteV1,
-    value: i64,
-}
-
-/// Exact source relation for a Completion-backed direct selected i64 field
-/// return. The referenced field-read row retains receiver/Home/field identity.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalI64FieldReturnV1 {
-    owner: FunctionOwnerIdV1,
-    return_site: SourceStmtSiteV1,
-    value_site: SourceExprSiteV1,
-    field_read_site: OwnedExprSiteV1,
-}
-
-impl TerminalI64FieldReturnV1 {
-    fn issue(
-        owner: FunctionOwnerIdV1,
-        return_site: SourceStmtSiteV1,
-        value_site: SourceExprSiteV1,
-        field_read_site: OwnedExprSiteV1,
-    ) -> Self {
-        Self {
-            owner,
-            return_site,
-            value_site,
-            field_read_site,
-        }
-    }
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
-        &self.return_site
-    }
-    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
-        &self.value_site
-    }
-    pub(crate) fn field_read_site(&self) -> &OwnedExprSiteV1 {
-        &self.field_read_site
-    }
-}
-impl TerminalIntegerLiteralReturnV1 {
-    fn issue(
-        owner: FunctionOwnerIdV1,
-        return_site: SourceStmtSiteV1,
-        value_site: SourceExprSiteV1,
-        value: i64,
-    ) -> Self {
-        Self {
-            owner,
-            return_site,
-            value_site,
-            value,
-        }
-    }
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
-        &self.return_site
-    }
-    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
-        &self.value_site
-    }
-    pub(crate) const fn value(&self) -> i64 {
-        self.value
-    }
-}
-
-/// Exact source relation for a Completion-backed explicit bare return.
-/// This contains no physical value or ABI category.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalUnitReturnV1 {
-    owner: FunctionOwnerIdV1,
-    return_site: SourceStmtSiteV1,
-}
-
-impl TerminalUnitReturnV1 {
-    fn issue(owner: FunctionOwnerIdV1, return_site: SourceStmtSiteV1) -> Self {
-        Self { owner, return_site }
-    }
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
-        &self.return_site
-    }
-}
-
-#[derive(PartialEq, Eq)]
-enum ReturnScalar {
-    Integer,
-    OtherTrivial,
-    IntegerField(OwnedExprSiteV1),
-    I64Add {
-        site: OwnedExprSiteV1,
-        field_reads: [OwnedExprSiteV1; 2],
-    },
-}
-
-impl ReturnScalar {
-    fn proves_integer(&self) -> bool {
-        match self {
-            Self::Integer | Self::IntegerField(_) | Self::I64Add { .. } => true,
-            Self::OtherTrivial => false,
-        }
-    }
-}
-
-// This classifier is terminal-only: argument and prefix-local eligibility
-// still belongs to the local-flow observation. Field authority is borrowed from the exact
-// selected New's source definition, never from runtime layout or MIR types.
-fn return_scalar<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    site: &SourceExprSiteV1,
-    locals: &PrefixLocalFlow<'_>,
-    field_is_integer: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
-) -> Result<Option<ReturnScalar>, E> {
-    if matches!(
-        input.function().expression_source().literal(site),
-        Some(ResolvedLiteralSourceV1::Integer(_))
-    ) {
-        return Ok(Some(ReturnScalar::Integer));
-    }
-    if locals.observe(site).is_some_and(|value| value.is_trivial()) {
-        return Ok(Some(ReturnScalar::OtherTrivial));
-    }
-    let Ok(expr) = input
-        .source()
-        .expr_at(&OwnedExprSiteV1::new(input.owner(), site.clone()))
-    else {
-        return Ok(None);
-    };
-    match expr.node() {
-        ASTNode::FieldAccess { field, .. } => {
-            let Ok(receiver) = input
-                .source()
-                .child_expr_from_expr(&expr, ExprChildRoleV1::Receiver)
-            else {
-                return Ok(None);
-            };
-            let Some(OrdinaryObservation::Handle(home)) = locals.observe(receiver.site()) else {
-                return Ok(None);
-            };
-            let Some(ResolvedLexicalRefV1::Local(binding)) =
-                input.function().variable_ref(receiver.site())
-            else {
-                return Ok(None);
-            };
-            let field_site = OwnedExprSiteV1::new(input.owner(), site.clone());
-            Ok(
-                field_is_integer(&field_site, receiver.site(), binding, home, field)?
-                    .then_some(ReturnScalar::IntegerField(field_site)),
-            )
-        }
-        ASTNode::BinaryOp {
-            operator: crate::ast::BinaryOperator::Add,
-            ..
-        } => {
-            let Ok(left) = input
-                .source()
-                .child_expr_from_expr(&expr, ExprChildRoleV1::BinaryLeft)
-            else {
-                return Ok(None);
-            };
-            let Ok(right) = input
-                .source()
-                .child_expr_from_expr(&expr, ExprChildRoleV1::BinaryRight)
-            else {
-                return Ok(None);
-            };
-            let left = return_scalar(input, left.site(), locals, field_is_integer)?;
-            let right = return_scalar(input, right.site(), locals, field_is_integer)?;
-            let add_site = OwnedExprSiteV1::new(input.owner(), site.clone());
-            match (left, right) {
-                (
-                    Some(ReturnScalar::IntegerField(left)),
-                    Some(ReturnScalar::IntegerField(right)),
-                ) => Ok(Some(ReturnScalar::I64Add {
-                    site: add_site,
-                    field_reads: [left, right],
-                })),
-                (Some(left), Some(right)) if left.proves_integer() && right.proves_integer() => {
-                    Ok(Some(ReturnScalar::Integer))
-                }
-                _ => Ok(None),
-            }
-        }
-        _ => Ok(None),
-    }
-}
-
-/// A terminal Call publishes its pending value only on Normal. On Fault the
-/// original Completion supplies caller cleanup and outward propagation.
-/// Target and argument sites stay in the package's existing affine Call row.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct TerminalI64CallReturnV1 {
-    owner: FunctionOwnerIdV1,
-    return_site: SourceStmtSiteV1,
-    call_site: SourceExprSiteV1,
-    arguments: Box<[i64]>,
-}
-impl TerminalI64CallReturnV1 {
-    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
-    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 { &self.return_site }
-    pub(crate) fn call_site(&self) -> &SourceExprSiteV1 { &self.call_site }
-    pub(crate) fn arguments(&self) -> &[i64] { &self.arguments }
-}
-
-/// One source-issued terminal relation. Absence stays outside this enum;
-/// no ABI, physical progress or new source classification is issued here.
-#[derive(Debug, Clone)]
-pub(crate) enum TerminalRelationV1 {
-    Call(TerminalI64CallReturnV1),
-    I64Add(TerminalI64AddReturnV1),
-    Unit(TerminalUnitReturnV1),
-    IntegerLiteral(TerminalIntegerLiteralReturnV1),
-    I64Field(TerminalI64FieldReturnV1),
-}
-
-impl TerminalRelationV1 {
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        match self {
-            Self::Call(row) => row.owner,
-            Self::I64Add(row) => row.owner,
-            Self::Unit(row) => row.owner,
-            Self::IntegerLiteral(row) => row.owner,
-            Self::I64Field(row) => row.owner,
-        }
-    }
 }
 
 /// One source walk supplies both New-failure prefixes and terminal ownership.
@@ -408,15 +136,13 @@ pub(crate) fn scan_new_home_flow<E>(
     let mut terminal_relation = None;
     let mut argument_observations = BTreeMap::new();
     let function = input.function();
-    let mut unavailable = (function.declaration_sites().any(|site| {
-        matches!(
-            site,
-            SourceBindingSiteV1::Receiver
-        )
-    }) || !input
-        .forest()
-        .ordered_capture_demands(input.owner())
-        .is_empty())
+    let mut unavailable = (function
+        .declaration_sites()
+        .any(|site| matches!(site, SourceBindingSiteV1::Receiver))
+        || !input
+            .forest()
+            .ordered_capture_demands(input.owner())
+            .is_empty())
     .then_some(HomePrefixUnavailableV1::EntryDemandMissing);
     let Ok(body) = input.source().root_body() else {
         return Ok((
@@ -424,7 +150,11 @@ pub(crate) fn scan_new_home_flow<E>(
                 .keys()
                 .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
                 .collect(),
-            RootHomeFlow { terminal: Err(HomePrefixUnavailableV1::SourceMismatch), maps, local_calls },
+            RootHomeFlow {
+                terminal: Err(HomePrefixUnavailableV1::SourceMismatch),
+                maps,
+                local_calls,
+            },
             terminal_relation,
             argument_observations,
         ));
@@ -453,6 +183,39 @@ pub(crate) fn scan_new_home_flow<E>(
                     .source()
                     .child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue)
                 {
+                    Ok(value) if map_literal_keys(input, value.site()).is_some() => {
+                        // `return %{...}` transfers construction to the caller;
+                        // the value's terminal coverage stays unproven until a
+                        // return-boundary ABI relation exists.
+                        let keys = map_literal_keys(input, value.site()).unwrap();
+                        let owned = OwnedExprSiteV1::new(input.owner(), value.site().clone());
+                        match map_flow::observe_map(
+                            input,
+                            &owned,
+                            MapDestinationV1::ReturnBoundary(statement.site().clone()),
+                            keys,
+                            &locals,
+                            &homes,
+                            map_compatible,
+                        )? {
+                            Ok((map, remaining)) => {
+                                for entry in map.entries() {
+                                    if let Some((_, binding)) = entry.transfer_home() {
+                                        locals.consume_home(binding);
+                                    }
+                                }
+                                homes = remaining;
+                                maps.push(map_flow::MapHomeObservation::Complete(map));
+                            }
+                            Err(issue) => {
+                                unavailable.get_or_insert(issue);
+                                maps.push(map_flow::MapHomeObservation::Unavailable {
+                                    site: owned,
+                                });
+                            }
+                        }
+                        false
+                    }
                     Ok(value) => match input.function().expression_source().literal(value.site()) {
                         Some(ResolvedLiteralSourceV1::Integer(number)) => {
                             terminal_relation = Some(TerminalRelationV1::IntegerLiteral(
@@ -465,32 +228,64 @@ pub(crate) fn scan_new_home_flow<E>(
                             ));
                             true
                         }
-                        _ if terminal_call(&OwnedExprSiteV1::new(input.owner(), value.site().clone()))? => {
-                            let arguments = input.function().direct_call_observations()
+                        _ if terminal_call(&OwnedExprSiteV1::new(
+                            input.owner(),
+                            value.site().clone(),
+                        ))? =>
+                        {
+                            let arguments = input
+                                .function()
+                                .direct_call_observations()
                                 .find(|(site, _)| *site == value.site())
-                                .and_then(|(_, row)| row.argument_sites().iter().map(|site| {
-                                    match input.function().expression_source().literal(site) {
-                                        Some(ResolvedLiteralSourceV1::Integer(value)) => Some(*value),
-                                        _ => None,
-                                    }
-                                }).collect::<Option<Vec<_>>>());
+                                .and_then(|(_, row)| {
+                                    row.argument_sites()
+                                        .iter()
+                                        .map(|site| {
+                                            match input.function().expression_source().literal(site)
+                                            {
+                                                Some(ResolvedLiteralSourceV1::Integer(value)) => {
+                                                    Some(*value)
+                                                }
+                                                _ => None,
+                                            }
+                                        })
+                                        .collect::<Option<Vec<_>>>()
+                                });
                             let arguments = arguments.or_else(|| {
-                                input.function().method_calls()
+                                input
+                                    .function()
+                                    .method_calls()
                                     .find(|(site, _)| *site == value.site())
-                                    .and_then(|(_, row)| row.arguments().iter().map(|argument| {
-                                        match input.function().expression_source().literal(argument.site()) {
-                                            Some(ResolvedLiteralSourceV1::Integer(value)) => Some(*value),
-                                            _ => None,
-                                        }
-                                    }).collect::<Option<Vec<_>>>())
+                                    .and_then(|(_, row)| {
+                                        row.arguments()
+                                            .iter()
+                                            .map(|argument| {
+                                                match input
+                                                    .function()
+                                                    .expression_source()
+                                                    .literal(argument.site())
+                                                {
+                                                    Some(ResolvedLiteralSourceV1::Integer(
+                                                        value,
+                                                    )) => Some(*value),
+                                                    _ => None,
+                                                }
+                                            })
+                                            .collect::<Option<Vec<_>>>()
+                                    })
                             });
                             if let Some(arguments) = arguments {
-                                terminal_relation = Some(TerminalRelationV1::Call(TerminalI64CallReturnV1 {
-                                    owner: input.owner(), return_site: statement.site().clone(),
-                                    call_site: value.site().clone(), arguments: arguments.into_boxed_slice(),
-                                }));
+                                terminal_relation =
+                                    Some(TerminalRelationV1::Call(TerminalI64CallReturnV1::issue(
+                                        input.owner(),
+                                        statement.site().clone(),
+                                        value.site().clone(),
+                                        arguments.into_boxed_slice(),
+                                    )));
                                 true
-                            } else { false }
+                            } else {
+                                false
+                            }
                         }
                         _ => match return_scalar(input, value.site(), &locals, field_is_integer)? {
                             Some(ReturnScalar::I64Add { site, field_reads }) => {
@@ -581,7 +376,12 @@ pub(crate) fn scan_new_home_flow<E>(
             };
             let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
             if let Some(local_call) = local_call_flow::issue_local_i64_call(
-                input, statement.site(), &owned, binding, &homes, terminal_call,
+                input,
+                statement.site(),
+                &owned,
+                binding,
+                &homes,
+                terminal_call,
             )? {
                 local_calls.push(local_call);
                 locals.install_i64_call_result(binding);
@@ -678,16 +478,16 @@ pub(crate) fn scan_new_home_flow<E>(
                 // This is the Normal successor only, after exact local commit.
                 homes.push(binding);
                 locals.install_selected_normal_home(binding, owned);
-            } else if let Some(keys) = input.body_shape().and_then(|shape| {
-                shape.expressions().iter().find_map(|row| match row {
-                    super::BodyExpressionShapeV1::MapLiteral { site: map_site, keys }
-                        if map_site == site => Some(keys.as_ref()),
-                    _ => None,
-                })
-            }) {
+            } else if let Some(keys) = map_literal_keys(input, site) {
                 if unavailable.is_none() {
                     match map_flow::observe_map(
-                        input, &owned, binding, keys, &locals, &homes, map_compatible,
+                        input,
+                        &owned,
+                        MapDestinationV1::LocalBinding(binding),
+                        keys,
+                        &locals,
+                        &homes,
+                        map_compatible,
                     )? {
                         Ok((map, remaining)) => {
                             for entry in map.entries() {
@@ -726,7 +526,11 @@ pub(crate) fn scan_new_home_flow<E>(
     }
     Ok((
         results,
-        RootHomeFlow { terminal: terminal_homes, maps, local_calls },
+        RootHomeFlow {
+            terminal: terminal_homes,
+            maps,
+            local_calls,
+        },
         terminal_relation,
         argument_observations,
     ))

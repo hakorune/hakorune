@@ -11,11 +11,17 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         // admission from ledger presence or skip unissued non-AppMain Maps.
         for declaration in self.batch.declarations() {
             for expression in declaration.body_shape().expressions() {
-                if let crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { site, .. } = expression {
+                if let crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral {
+                    site,
+                    ..
+                } = expression
+                {
                     let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-                        declaration.owner(), site.clone(),
+                        declaration.owner(),
+                        site.clone(),
                     );
-                    self.ordinary_new_claim_ledger.map_flow(&owned)
+                    self.ordinary_new_claim_ledger
+                        .map_flow(&owned)
                         .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
                 }
             }
@@ -96,7 +102,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                                     .ordinary_new_claim_ledger
                                     .map_flow(&owned)
                                     .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
-                                if map.destination() != current.binding() {
+                                if map.local_binding() != Some(current.binding()) {
                                     return Err(Issue::MapLifecycleConsumerMissing);
                                 }
                                 crate::mir::builder::validate_map_local_annotation(

@@ -142,7 +142,7 @@ impl OrdinaryNewClaimLedgerV1 {
         relation: &ResolvedInitializerRelationV1,
     ) -> Result<(), String> {
         let flow = self.map_flow(site)?;
-        if relation.binding() != flow.destination()
+        if flow.local_binding() != Some(relation.binding())
             || relation.initializer_site() != Some(site.site())
             || !matches!(
                 relation.declaration_site(),
@@ -262,7 +262,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(LocalCommitV1::Map(row)) = rows.get(site) else {
             return Err(freeze("map-progress-missing"));
         };
-        if row.binding != flow.destination() || row.local().is_none() {
+        if flow.local_binding() != Some(row.binding) || row.local().is_none() {
             return Err(freeze("map-local-incomplete"));
         }
         let MapProgress::Emitted {

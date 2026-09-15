@@ -1,7 +1,7 @@
 Task: MIR-CALL-MAP-RETURN-SITE-FLOW-I0
 Parent: mir-call-map-lifecycle-consumer-i0-2026-09-15.md
-NextCard: per-owner lifecycle undertaking (C5 arm of parent)
-Implementation permission: pending six-line brief acceptance
+NextCard: map entry-value source-class coverage (MIR-CALL-MAP-ENTRY-VALUE-SOURCE-I0)
+Implementation permission: landed
 ---
 
 # Return-position map-literal flow observation I0
@@ -55,3 +55,41 @@ or Unavailable; existing initializer-position map tests stay green.
 Route evidence: the merged entry advances past the first-loop
 `map-source-unavailable` arm to the next named arm (expected:
 per-owner/loan gate or terminal-relation coverage).
+
+## Receipt (landed)
+
+**Implementation**: `MapDestinationV1::{LocalBinding, ReturnBoundary}` in
+`home_map_flow.rs`; `map_return_outward` in `resolved_control_flow/
+map_control.rs` verifies exact `[Body(i), Value]` map path, `[Body(i)]`
+return statement path, `ExplicitReturn` exit origin, and
+`Return { target_function }` transfer to the current owner; the
+terminal-Return arm in `home_new_prefix.rs` observes the map and records
+`Complete`/`Unavailable`, deliberately leaving scalar terminal coverage
+unissued (fail-closed `ReturnValueNotCovered`). Terminal-relation types
+were extracted to `home_terminal_relation.rs` to keep both sources under
+the 800-line boundary (539 + 340).
+
+**Focused evidence**: `return_boundary_map_carries_exact_exit_membership`
+and `return_boundary_outward_rejects_foreign_and_non_return_membership`
+added; the map/resolved-control-flow focused suite passes 70/70
+including all pre-existing initializer-position tests. Baseline reds
+unrelated to this change were already manifest-listed.
+
+**Route evidence (merged `/tmp/merged_entry.hako`, quick-profile
+binary)**: the entry still stops at
+`[callable-semantic-package/install] MapLifecycleConsumerMissing`, but
+the boundary moved *inside* the same arm — all 12 `return %{...}` sites
+are now observed and produce `Unavailable` rows (previously no row
+existed). The first failing site (slot 673, `[Body(0), Value]`) rejects
+with `MapCandidateNotCovered(EntryValue(0))`: merged map entry values are
+string literals, nested `%{...}`, array literals (`[]`), and
+non-scalar locals — none covered by the existing
+`OrdinaryObservation::{Integer,Bool,TrivialLocal}`/`TransferHome`
+admission. Entry-value source-class coverage is a different
+responsibility and becomes the next bounded card.
+
+**Non-claims held**: no `BindingRef` minted for returns, no physical
+consumer, no Map return ABI, no per-owner install-contract change (parent
+C5 still open). `map_flow()` folds missing and incomplete rows into the
+same `map-source-unavailable` freeze, so the outer terminal label is
+unchanged — the movement is observable only at row level.

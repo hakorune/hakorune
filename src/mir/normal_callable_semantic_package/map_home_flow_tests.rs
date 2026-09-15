@@ -1,5 +1,7 @@
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use crate::mir::builder::CompilationContext;
+use crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1;
+use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1};
 
 fn source(body: &str) -> String {
     format!("box Page {{}} static box Main {{ main() {{ {body} }} }}")
@@ -41,16 +43,20 @@ fn declared_root_unissued_map_sites_stop_before_install() {
             "static box Helpers {{ consume(value) {{ return 30 }} run(value) {{ {body} }} }}
              static box Main {{ main() {{ return 30 }} }}"
         );
-        let package = issue(&program)
-            .unwrap_or_else(|error| panic!("declared-root Map source inventory: {body}: {error:?}"));
+        let package = issue(&program).unwrap_or_else(|error| {
+            panic!("declared-root Map source inventory: {body}: {error:?}")
+        });
         let mut context = CompilationContext::new();
         let issue = match package.prepare_install(&mut context) {
             Err((_, issue)) => issue,
             Ok(_) => panic!("unissued Map installed: {body}"),
         };
-        assert!(matches!(issue,
+        assert!(
+            matches!(issue,
             super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
-        ), "{issue:?}: {body}");
+        ),
+            "{issue:?}: {body}"
+        );
         assert!(context.callable_declaration_catalog_vacant());
     }
 }
@@ -80,7 +86,11 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
     };
     assert_eq!(
         map.allocation_fault().collect::<Vec<_>>(),
-        [c.binding().unwrap(), b.binding().unwrap(), a.binding().unwrap()]
+        [
+            c.binding().unwrap(),
+            b.binding().unwrap(),
+            a.binding().unwrap()
+        ]
     );
     assert_eq!(outer(0), map.allocation_fault().collect::<Vec<_>>());
     assert_eq!(outer(1), [c.binding().unwrap(), b.binding().unwrap()]);
@@ -95,7 +105,10 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
     assert_eq!(c.displaced(), Some(a.site()));
     assert!(a.displaced().is_none() && b.displaced().is_none());
     assert_eq!((a.key(), b.key(), c.key()), ("a", "b", "a"));
-    assert_eq!(flow.terminal_homes().unwrap(), [map.destination()]);
+    assert_eq!(
+        flow.terminal_homes().unwrap(),
+        [map.local_binding().unwrap()]
+    );
     let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
     for entry in map.entries() {
         assert!(claims.contains_key(entry.transfer_home().unwrap().0));
@@ -137,7 +150,7 @@ fn map_completion_retains_transfer_replacement_and_fault_successors() {
             assert!(crate::mir::resolved_control_flow::map_source_outward(
                 input,
                 foreign_map.site(),
-                foreign_map.destination()
+                foreign_map.local_binding().unwrap()
             )
             .is_err());
         })
@@ -163,9 +176,14 @@ fn map_annotation_refusal_returns_same_source_product_and_keeps_catalog_vacant()
         let mut context = CompilationContext::new();
         let returned = match package.prepare_install(&mut context) {
             Err((package, issue)) => {
-                assert!(matches!(issue, super::install::NormalCallableSemanticPackageInstallIssueV1::MapLocalAnnotation(_)));
+                assert!(matches!(
+                    issue,
+                    super::install::NormalCallableSemanticPackageInstallIssueV1::MapLocalAnnotation(
+                        _
+                    )
+                ));
                 package
-            },
+            }
             Ok(_) => panic!("Map annotation must reject before install"),
         };
         assert!(context.callable_declaration_catalog_vacant());
@@ -281,15 +299,19 @@ fn map_delta_preserves_untransferred_homes_and_later_new_fault_order() {
     };
     let terminal = flow.terminal_homes().unwrap();
     assert_eq!(terminal.len(), 4);
-    assert_eq!(terminal[1], current.destination());
-    assert_eq!(terminal[3], prior.destination());
+    assert_eq!(terminal[1], current.local_binding().unwrap());
+    assert_eq!(terminal[3], prior.local_binding().unwrap());
     assert_eq!(
         current.outer_after_installs(0).unwrap().collect::<Vec<_>>(),
-        [entry.binding().unwrap(), terminal[2], prior.destination()]
+        [
+            entry.binding().unwrap(),
+            terminal[2],
+            prior.local_binding().unwrap()
+        ]
     );
     assert_eq!(
         current.outer_after_installs(1).unwrap().collect::<Vec<_>>(),
-        [terminal[2], prior.destination()]
+        [terminal[2], prior.local_binding().unwrap()]
     );
     let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
     let later = claims
@@ -305,12 +327,20 @@ fn map_delta_preserves_untransferred_homes_and_later_new_fault_order() {
 
 #[test]
 fn map_install_accepts_complete_unannotated_root_and_aliases() {
-    for body in ["local m = %{} return 30", "local m = %{} local alias = m local again = alias return 30",
-        "local a = new Page() local m = %{\"a\" => a} return 30"] {
+    for body in [
+        "local m = %{} return 30",
+        "local m = %{} local alias = m local again = alias return 30",
+        "local a = new Page() local m = %{\"a\" => a} return 30",
+    ] {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
-        package.prepare_install(&mut context).expect("ready source Map cohort");
-        assert!(context.callable_declaration_catalog_vacant(), "preflight does not commit");
+        package
+            .prepare_install(&mut context)
+            .expect("ready source Map cohort");
+        assert!(
+            context.callable_declaration_catalog_vacant(),
+            "preflight does not commit"
+        );
     }
 }
 
@@ -341,8 +371,11 @@ fn map_annotation_preflight_preserves_malformed_diagnostic() {
         Err((_, error)) => error,
         Ok(_) => panic!("malformed annotation accepted"),
     };
-    let super::install::NormalCallableSemanticPackageInstallIssueV1::MapLocalAnnotation(message) = error
-    else { panic!("Local annotation owner must report malformed annotation"); };
+    let super::install::NormalCallableSemanticPackageInstallIssueV1::MapLocalAnnotation(message) =
+        error
+    else {
+        panic!("Local annotation owner must report malformed annotation");
+    };
     assert!(message.contains("bogus"), "{message}");
     assert!(context.callable_declaration_catalog_vacant());
 }
@@ -354,20 +387,113 @@ fn map_preflight_keeps_non_map_numeric_locals_and_foreign_same_name_separate() {
             local value: i64 = 30 local alias: i64 = value local m = %{} return 30
         } }";
     let package = issue(program).unwrap();
-    let map_binding = package.ordinary_new_claim_ledger.root_completion_for_test()
-        .cleanup().root_flow().unwrap().maps()[0].complete().unwrap().destination();
+    let map_binding = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap()
+        .maps()[0]
+        .complete()
+        .unwrap()
+        .local_binding()
+        .unwrap();
     let mut numeric_bindings = Vec::new();
     for declaration in package.batch().declarations() {
-        package.batch().with_lowering_input(declaration.batch_slot(), |input| {
-            numeric_bindings.extend(input.function().expression_source().initializers()
-                .filter(|row| row.declared_type_name() == Some("i64"))
-                .map(|row| row.binding()));
-        }).unwrap();
+        package
+            .batch()
+            .with_lowering_input(declaration.batch_slot(), |input| {
+                numeric_bindings.extend(
+                    input
+                        .function()
+                        .expression_source()
+                        .initializers()
+                        .filter(|row| row.declared_type_name() == Some("i64"))
+                        .map(|row| row.binding()),
+                );
+            })
+            .unwrap();
     }
     assert_eq!(numeric_bindings.len(), 3);
-    assert!(numeric_bindings.iter().all(|binding| *binding != map_binding));
-    assert!(numeric_bindings.iter().any(|binding| binding.owner() != map_binding.owner()));
+    assert!(numeric_bindings
+        .iter()
+        .all(|binding| *binding != map_binding));
+    assert!(numeric_bindings
+        .iter()
+        .any(|binding| binding.owner() != map_binding.owner()));
     let mut context = CompilationContext::new();
-    package.prepare_install(&mut context).expect("numeric locals are not Map aliases");
+    package
+        .prepare_install(&mut context)
+        .expect("numeric locals are not Map aliases");
     assert!(context.callable_declaration_catalog_vacant());
+}
+
+#[test]
+fn return_boundary_map_carries_exact_exit_membership() {
+    let package = issue(&source("local a = new Page() return %{\"a\" => a}"))
+        .expect("return-boundary Map source");
+    let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    let [observation] = flow.maps() else {
+        panic!("one source Map");
+    };
+    let map = observation.complete().unwrap();
+    assert_eq!(map.local_binding(), None);
+    let expected_return = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(1),
+    ]));
+    assert_eq!(
+        map.destination(),
+        &MapDestinationV1::ReturnBoundary(expected_return)
+    );
+    let [entry] = map.entries() else {
+        panic!("one entry");
+    };
+    assert!(entry.transfer_home().is_some());
+    // The returned Map's value coverage is not a proven scalar terminal.
+    assert!(flow.terminal_homes().is_err());
+}
+
+#[test]
+fn return_boundary_outward_rejects_foreign_and_non_return_membership() {
+    let package = issue(&source("local m = %{\"a\" => 1} return 30")).unwrap();
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    let local_map = flow.maps()[0].complete().unwrap();
+    let return_map_package = issue(&source("return %{\"a\" => 1}")).unwrap();
+    let return_flow = return_map_package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    let return_map = return_flow.maps()[0].complete().unwrap();
+    let MapDestinationV1::ReturnBoundary(return_site) = return_map.destination() else {
+        panic!("return-boundary destination");
+    };
+    package.batch().declarations().for_each(|declaration| {
+        package
+            .batch()
+            .with_lowering_input(declaration.batch_slot(), |input| {
+                // A local-initializer Map site is not a return value.
+                assert!(crate::mir::resolved_control_flow::map_return_outward(
+                    input,
+                    local_map.site(),
+                    return_site
+                )
+                .is_err());
+                // A foreign return-boundary site is not this function's exit.
+                assert!(crate::mir::resolved_control_flow::map_return_outward(
+                    input,
+                    return_map.site(),
+                    return_site
+                )
+                .is_err());
+            })
+            .unwrap();
+    });
 }

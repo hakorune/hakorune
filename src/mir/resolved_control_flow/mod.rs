@@ -18,14 +18,13 @@ mod if_control_tests;
 mod source_coverage_tests;
 
 pub(crate) use function_control::{
-    issue_new_fault_continuation_v1, NewFaultContinuationV1,
-    verify_function_completion_v1, DeclaredFunctionResultContractV1,
-    verify_function_completion_with_new_homes_v1,
+    issue_new_fault_continuation_v1, verify_function_completion_v1,
     verify_function_completion_with_new_homes_and_argument_observations_v1,
+    verify_function_completion_with_new_homes_v1, DeclaredFunctionResultContractV1,
     FunctionCompletionVerificationErrorV1, FunctionExitCoverageV1, FunctionUnitOriginV1,
-    ReturnExitRelationV1, SealedFunctionExitContractV1, SealedFunctionExitDispositionV1,
-    VerifiedFunctionCompletionV1,
+    NewFaultContinuationV1, ReturnExitRelationV1, SealedFunctionExitContractV1,
+    SealedFunctionExitDispositionV1, VerifiedFunctionCompletionV1,
 };
 
 mod map_control;
-pub(crate) use map_control::map_source_outward;
+pub(crate) use map_control::{map_return_outward, map_source_outward};

@@ -44,10 +44,20 @@ impl MapHomeObservation {
     }
 }
 
+/// Where the constructed Map flows. A `local x = %{...}` initializer binds a
+/// Local destination; a `return %{...}` transfers construction to the caller
+/// through the function-return boundary — recorded exactly, never minted as a
+/// binding.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum MapDestinationV1 {
+    LocalBinding(BindingRefV1),
+    ReturnBoundary(SourceStmtSiteV1),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct MapHomeFlow {
     site: OwnedExprSiteV1,
-    destination: BindingRefV1,
+    destination: MapDestinationV1,
     source_scope: ScopeId,
     target_function: RegionId,
     outer: Box<[MapOuterHome]>,
@@ -57,8 +67,16 @@ impl MapHomeFlow {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
     }
-    pub(crate) fn destination(&self) -> BindingRefV1 {
-        self.destination
+    pub(crate) fn destination(&self) -> &MapDestinationV1 {
+        &self.destination
+    }
+    /// The bound local when the destination is a `local x = %{...}`
+    /// initializer; `None` for return-boundary maps.
+    pub(crate) fn local_binding(&self) -> Option<BindingRefV1> {
+        match self.destination {
+            MapDestinationV1::LocalBinding(binding) => Some(binding),
+            MapDestinationV1::ReturnBoundary(_) => None,
+        }
     }
     pub(crate) fn source_scope(&self) -> ScopeId {
         self.source_scope
@@ -190,7 +208,7 @@ impl MapHomeEntry {
 pub(super) fn observe_map<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
-    destination: BindingRefV1,
+    destination: MapDestinationV1,
     keys: &[Box<str>],
     locals: &PrefixLocalFlow<'_>,
     homes: &[BindingRefV1],
@@ -199,9 +217,15 @@ pub(super) fn observe_map<E>(
     let Some(shape) = input.body_shape() else {
         return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
     };
-    let Ok((source_scope, target_function)) =
-        crate::mir::resolved_control_flow::map_source_outward(input, site, destination)
-    else {
+    let outward = match &destination {
+        MapDestinationV1::LocalBinding(binding) => {
+            crate::mir::resolved_control_flow::map_source_outward(input, site, *binding)
+        }
+        MapDestinationV1::ReturnBoundary(return_site) => {
+            crate::mir::resolved_control_flow::map_return_outward(input, site, return_site)
+        }
+    };
+    let Ok((source_scope, target_function)) = outward else {
         return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
     };
     let mut remaining = homes.to_vec();
