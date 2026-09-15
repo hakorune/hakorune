@@ -68,6 +68,15 @@ pub(crate) enum MapDestinationV1 {
         call: OwnedExprSiteV1,
         ordinal: u32,
     },
+    /// A `%{...}` literal contained at an arbitrary sealed child position:
+    /// `parent.node + role` is the map's exact site. Used for containment
+    /// families without a more specific destination (array elements, call
+    /// arguments under non-call-row parents, deeper nests). Destination
+    /// evidence only.
+    ContainedIn {
+        parent: OwnedExprSiteV1,
+        role: SourcePathSegmentV1,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -93,7 +102,8 @@ impl MapHomeFlow {
             MapDestinationV1::LocalBinding(binding) => Some(binding),
             MapDestinationV1::ReturnBoundary(_)
             | MapDestinationV1::EntrySlot { .. }
-            | MapDestinationV1::CallArgument { .. } => None,
+            | MapDestinationV1::CallArgument { .. }
+            | MapDestinationV1::ContainedIn { .. } => None,
         }
     }
     pub(crate) fn source_scope(&self) -> ScopeId {
@@ -305,6 +315,9 @@ pub(super) fn observe_map<E>(
         }
         MapDestinationV1::CallArgument { call, ordinal } => {
             crate::mir::resolved_control_flow::map_argument_outward(input, site, call, *ordinal)
+        }
+        MapDestinationV1::ContainedIn { parent, role } => {
+            crate::mir::resolved_control_flow::map_contained_outward(input, site, parent, role)
         }
     };
     let Ok((source_scope, target_function)) = outward else {

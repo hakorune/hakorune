@@ -1218,7 +1218,17 @@ issues its own End; nothing is consumed. A `%{...}` literal at a call's
 — is its own flow row with a `CallArgument` destination; the outward verifier
 requires the parent's sealed method-call or direct-call row to link the same
 ordinal to the map site. The row records destination evidence only; argument
-transfer semantics stay unclaimed. These records and terminal order
+transfer semantics stay unclaimed. Any other sealed `%{...}` descendant of a
+walked statement — inside array elements, call arguments under non-call-row
+parents, or deeper container subtrees — is issued by the interleaved sweep in
+`home_map_descendant_flow` with a generic `ContainedIn { parent, role }`
+destination; `map_contained_outward` verifies the exact `parent + role` path
+tail, the unique sealed relation row, and the scope/target triple. Sites
+matching EntrySlot or CallArgument keep their stronger evidence; nested-body
+(`LoopBody`/`IfThen`/`IfElse`) maps record `Unavailable`, and a tail pass
+issues `Unavailable` for any sealed literal the walk never reached — one row
+per sealed literal keeps preflight loop1 fail-closed. These records and
+terminal order
 have one owner in Completion. The unconnected consumer is stopped at package
 install; fresh children, uninitialized locals and other candidate families
 are not admitted by this direct-Home relation.

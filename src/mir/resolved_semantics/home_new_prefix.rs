@@ -68,12 +68,14 @@ use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_local_call_flow.rs"]
 mod local_call_flow;
 pub(crate) use local_call_flow::LocalI64CallObservationV1;
+#[path = "home_map_descendant_flow.rs"]
+mod map_descendant_flow;
 #[path = "home_map_flow.rs"]
 mod map_flow;
 #[path = "home_terminal_relation.rs"]
 mod terminal_relation;
 pub(crate) use map_flow::{
-    MapDestinationV1, MapHomeEntry, MapHomeFlow, MapValueSource, RootHomeFlow,
+    MapDestinationV1, MapHomeEntry, MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeFlow,
 };
 use terminal_relation::{map_literal_keys, return_scalar, ReturnScalar};
 pub(crate) use terminal_relation::{
@@ -383,6 +385,17 @@ pub(crate) fn scan_new_home_flow<E>(
                 },
                 _ => false,
             };
+            // Contained map literals inside the return value consume Homes
+            // during expression evaluation — observe them before the
+            // terminal transfer reads the remaining state.
+            map_descendant_flow::observe_descendant_maps(
+                input,
+                statement.site(),
+                &mut locals,
+                &mut homes,
+                &mut maps,
+                map_compatible,
+            )?;
             terminal_homes = match &unavailable {
                 Some(issue) => Err(issue.clone()),
                 None if !scalar_return => Err(HomePrefixUnavailableV1::ReturnValueNotCovered(
@@ -407,6 +420,16 @@ pub(crate) fn scan_new_home_flow<E>(
             unavailable.get_or_insert_with(|| {
                 HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
             });
+            // Expression statements still evaluate — contained map literals
+            // under the subtree consume Homes and need one flow row each.
+            map_descendant_flow::observe_descendant_maps(
+                input,
+                statement.site(),
+                &mut locals,
+                &mut homes,
+                &mut maps,
+                map_compatible,
+            )?;
             continue;
         };
         // Natural syntax permits one initialized local. Do not give synthetic
@@ -581,7 +604,21 @@ pub(crate) fn scan_new_home_flow<E>(
                 });
             }
         }
+        // Contained map literals deeper inside initializer subtrees (array
+        // elements, call arguments, nested containers) still evaluate at
+        // this program point — observe them with the running state.
+        map_descendant_flow::observe_descendant_maps(
+            input,
+            statement.site(),
+            &mut locals,
+            &mut homes,
+            &mut maps,
+            map_compatible,
+        )?;
     }
+    // Statements after the terminal are never walked; their sealed map
+    // literals still owe loop1 one row each — issue Unavailable rows.
+    map_descendant_flow::issue_unobserved_descendants(input, &mut maps);
     for site in selected.keys() {
         results.entry(site.clone()).or_insert_with(|| {
             Err(unavailable

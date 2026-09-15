@@ -199,6 +199,66 @@ pub(crate) fn map_argument_outward(
     Ok((scope, target))
 }
 
+/// Exact outward membership for a `%{...}` literal at an arbitrary sealed
+/// child position `parent.node + role`: the site is itself a `MapLiteral`
+/// row, the parent is a sealed expression row, the sealed relation row is
+/// unique, and the scope/target triple matches. Positions with a more
+/// specific destination (EntrySlot/CallArgument) verify through their own
+/// verifier instead.
+pub(crate) fn map_contained_outward(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &OwnedExprSiteV1,
+    parent: &OwnedExprSiteV1,
+    role: &SourcePathSegmentV1,
+) -> Result<(ScopeId, RegionId), &'static str> {
+    let function = input.function();
+    if site.owner() != input.owner()
+        || parent.owner() != input.owner()
+        || !input
+            .forest()
+            .owner(input.owner())
+            .is_some_and(|owner| std::ptr::eq(owner, function))
+    {
+        return Err("foreign-map-owner");
+    }
+    let shape = input.body_shape().ok_or("map-shape-missing")?;
+    if shape.owner() != input.owner()
+        || !shape.expressions().iter().any(|row| {
+            matches!(row,
+            BodyExpressionShapeV1::MapLiteral { site: exact, .. } if exact == site.site())
+        })
+        || shape.expression_shape(parent.site()).is_none()
+    {
+        return Err("map-membership-missing");
+    }
+    let mut expected = parent.site().node().segments().to_vec();
+    expected.push(role.clone());
+    if site.site().node().segments() != expected.as_slice() {
+        return Err("map-contained-site-mismatch");
+    }
+    let mut relations = shape.relations().iter().filter(|row| {
+        row.parent() == parent.site().node() && row.role() == role && row.child() == site.site()
+    });
+    if relations.next().is_none() || relations.next().is_some() {
+        return Err("map-contained-relation-mismatch");
+    }
+    let scope = function
+        .exact_scope_containing(site.site().node())
+        .ok_or("map-scope-missing")?;
+    let roots = function.lowering_roots();
+    let target = roots.function_pair().region();
+    if scope != roots.body_pair().scope()
+        || target != function.function_region()
+        || function
+            .region(roots.body_pair().region())
+            .and_then(|row| row.parent())
+            != Some(target)
+    {
+        return Err("map-outward-target-mismatch");
+    }
+    Ok((scope, target))
+}
+
 /// Exact outward membership for a `%{...}` literal returned through the
 /// function boundary: the site must be `[Body(i), Value]` where statement `i`
 /// is an explicit `Return` whose sealed exit transfer targets this function.

@@ -28,5 +28,6 @@ pub(crate) use function_control::{
 
 mod map_control;
 pub(crate) use map_control::{
-    map_argument_outward, map_entry_outward, map_return_outward, map_source_outward,
+    map_argument_outward, map_contained_outward, map_entry_outward, map_return_outward,
+    map_source_outward,
 };

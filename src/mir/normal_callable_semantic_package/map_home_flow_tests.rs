@@ -814,12 +814,12 @@ fn array_entry_empty_literal_and_local_position_complete() {
 
 #[test]
 fn array_entry_rejects_home_and_container_elements() {
-    for body in [
+    for (body, statement) in [
         // a live Home element is a transfer question, never a leaf borrow
-        "local p = new Page() return %{\"a\" => [p]}",
+        ("local p = new Page() return %{\"a\" => [p]}", 1u32),
         // nested container elements stay uncovered
-        "return %{\"a\" => [[]]}",
-        "return %{\"a\" => [%{}]}",
+        ("return %{\"a\" => [[]]}", 0u32),
+        ("return %{\"a\" => [%{}]}", 0u32),
     ] {
         let package = issue(&source(body)).unwrap();
         let flow = package
@@ -828,7 +828,18 @@ fn array_entry_rejects_home_and_container_elements() {
             .cleanup()
             .root_flow()
             .unwrap();
-        let observation = flow.maps().last().unwrap();
+        // The return-boundary outer map stays Unavailable — its array entry
+        // still holds a non-leaf element. (A contained descendant map inside
+        // that element now gets its own row; pin the outer row by site.)
+        let return_map_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(statement),
+            SourcePathSegmentV1::Value,
+        ]));
+        let observation = flow
+            .maps()
+            .iter()
+            .find(|observation| observation.site().site() == &return_map_site)
+            .expect("outer return map row");
         assert!(
             observation.complete().is_none(),
             "{body} must stay Unavailable"
