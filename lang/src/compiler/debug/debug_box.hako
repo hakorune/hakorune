@@ -3,7 +3,7 @@ box DebugBox {
   enabled
   birth() {
     me.enabled = 0
-    return 0
+    return void
   }
   set_enabled(v) {
     me.enabled = v

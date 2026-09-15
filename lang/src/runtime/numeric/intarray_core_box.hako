@@ -7,7 +7,7 @@ box IntArrayCore {
     local h = externcall "nyash.intarray.new_h"(len)
     me.handle = h
     me.len = len
-    return 0
+    return void
   }
 
   length() {

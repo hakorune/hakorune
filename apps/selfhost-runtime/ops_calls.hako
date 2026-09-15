@@ -8,7 +8,7 @@
 box OpsCalls {
   pref
 
-  birth() { me.pref = "plugin" return 0 }
+  birth() { me.pref = "plugin" return void }
   set_pref(p) {
     if p == "ny" { me.pref = "ny" } else { me.pref = "plugin" }
     return 0

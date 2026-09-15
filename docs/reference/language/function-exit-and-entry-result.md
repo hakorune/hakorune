@@ -110,6 +110,12 @@ return authority. In particular, a value used while lowering `print`, a fresh
 local binding, or an assignment publication does not become a return value
 because it was produced last.
 
+A constructor (`birth`) completes as Unit only — `Unit Birth has no result`
+per `constructor-birth-new-lifecycle-ssot.md`. An explicit `return <value>`
+inside `birth` is malformed source, not a discarded-value contract: spell the
+early/terminal exit as `return void` (or bare `return` once that grammar row
+is live), never `return <expr>`.
+
 At the callable boundary:
 
 ```text

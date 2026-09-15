@@ -3,7 +3,7 @@
 // Simple string-backed dynamic array of i64 (for smoke/testing)
 box MiniArray {
   field data: String
-  birth() { me.data = "" return 0 }
+  birth() { me.data = "" return void }
   push(v) {
     using selfhost.vm.hakorune-vm.str_cast as StrCast
     v = StrCast.to_str(v)
@@ -55,7 +55,7 @@ box MiniArray {
 // Simple string-backed map (key->value as 'k=v\n')
 box MiniMap2 {
   field store: String
-  birth() { me.store = "" return 0 }
+  birth() { me.store = "" return void }
   set(key, value) {
     key = "" + key
     value = "" + value

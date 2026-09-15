@@ -24,7 +24,7 @@ box ExecutionPipelineBox {
     if name == null { name = "vm" }
     me.backend_name = name
     me.backend = new BackendBox(name)
-    return 0
+    return void
   }
 
   // Run with source text; stage3_flag=1 enables syntax-3 acceptance in parser

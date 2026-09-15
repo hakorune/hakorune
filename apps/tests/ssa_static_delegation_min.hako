@@ -19,7 +19,7 @@ box DelegateBox {
   }
 
   birth() {
-    return 0
+    return void
   }
 }
 

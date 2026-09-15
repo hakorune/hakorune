@@ -9,7 +9,7 @@ using selfhost.shared.common.box_helpers as BoxHelpers
 box MirBuilderBox {
   // Placeholder for optimizer toggle
   optimize_flag
-  birth() { me.optimize_flag = 0 return 0 }
+  birth() { me.optimize_flag = 0 return void }
   set_optimize(v) { if v == null { v = 0 } me.optimize_flag = v return 0 }
 
   // Accept phase-1 AST JSON and emit minimal MIR(JSON v0)

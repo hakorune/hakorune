@@ -35,7 +35,7 @@ box ParserBox {
     me.contract_error = null
     me.stage3 = 0
     me.grammar_profile_mode = 0
-    return 0
+    return void
   }
 
   grammar_profile_mode_set(mode) {

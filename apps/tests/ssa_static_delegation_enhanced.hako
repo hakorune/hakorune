@@ -46,7 +46,7 @@ box DelegateBox {
   birth() {
     me.gpos = 0
     me.data = ""
-    return 0
+    return void
   }
 
   // Method with loop + delegation (like ParserBox.trim)

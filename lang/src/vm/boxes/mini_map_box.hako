@@ -6,7 +6,7 @@ box MiniMap {
   store: StringBox
   birth() {
     me.store = ""
-    return 0
+    return void
   }
   set(key, value) {
     key = StrCast.to_str(key)

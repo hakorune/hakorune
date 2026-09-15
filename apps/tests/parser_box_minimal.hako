@@ -48,7 +48,7 @@ box ParserBox {
   birth() {
     me.gpos = 0
     me.usings_json = "[]"
-    return 0
+    return void
   }
 
   gpos_set(i) { me.gpos = i return 0 }

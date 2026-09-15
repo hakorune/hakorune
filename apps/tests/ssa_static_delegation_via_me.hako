@@ -41,7 +41,7 @@ box DelegateBox {
 
   birth() {
     me.gpos = 0
-    return 0
+    return void
   }
 
   // Phase 74-SSA: These delegation methods should cause SSA undef when called via me.method()

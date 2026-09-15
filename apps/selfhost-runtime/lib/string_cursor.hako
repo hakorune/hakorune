@@ -5,7 +5,7 @@ box StringCursor {
 
   birth(input) {
     me.reset(input)
-    return 0
+    return void
   }
 
   // Alias helpers (compat/readability)
