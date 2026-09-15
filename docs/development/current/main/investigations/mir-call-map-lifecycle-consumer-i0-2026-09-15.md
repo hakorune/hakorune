@@ -159,3 +159,52 @@ owners-vs-root arm — pin the exact arm first when card 5 starts.
 C1–C4 are pre-production fixes on test-only issuers — cheap and
 independent. C5 is this card's core; C6/C8 follow it; C7 informs scope.
 Full worker verification evidence lives in the card audit trail.
+
+## Arm pinning (2026-09-15, verified against 7618c185)
+
+`app_main_identity` IS `Some` on the merged route (`static box Main` at
+merged L19038 produces the app relation). The actual failing arm is the
+**first loop** of `preflight_map_install`: every `MapLiteral` body-shape
+site needs `map_flow(&owned)` -> a `Complete` row in that owner's
+`root_flow().maps()`. But `observe_map` is reached only through the
+Local-initializer walk (`home_new_prefix.rs:678-709`); a `%{...}` in
+`return`-position is never observed, so `map_flow` fails
+`map-source-unavailable` -> `MapLifecycleConsumerMissing`.
+
+Root cause chain (each layer independently bounded):
+
+1. **Facts**: `flow.maps()` rows are issued only for `local x = %{...}`
+   initializer sites — `return %{...}` / arg-position map literals have
+   no row at all (`map_source_outward` pins `[Body, Initializer]`).
+2. **Facts**: `TerminalRelationV1` has only Call/I64Add/Unit/
+   IntegerLiteral/I64Field — `return <local-or-map>` gets
+   `ReturnValueNotCovered`, no relation.
+3. **Contract**: `map_install_owners` requires map owners be inside the
+   AppMain direct-call loan targets (<=5); merged map owners are deep
+   ordinary functions.
+4. **Physical**: Map return/argument ABI does not exist (checked Map is
+   alloca-local; v4 emit supports create/limited entry write/end only).
+
+## Census (merged entry)
+
+`%{...}` MapLiteral: 31 live sites, dominant form `return %{...}`
+(MirJsonEmitBox `make_*`/`to_json` family). `new MapBox()`: 39 sites —
+27 returned, 10 nested-stored into a returned map, ~6 arg/array
+transferred, 1-2 truly local (`seen` dedup). Boundary: merged entry
+program -> `%{` literals and `new MapBox()` in function bodies; excludes
+string literals/comments.
+
+## Decomposed slice order
+
+- **F1** `MIR-CALL-MAP-RETURN-SITE-FLOW-I0`: observe return-position
+  MapLiteral as a map-flow row with a ReturnBoundary destination (Facts).
+- **C5** (this card's contract core): per-owner lifecycle undertaking —
+  generalize `map_install_owners`/preflight from AppMain-loan membership
+  to per-`FunctionOwnerIdV1` verification.
+- **F3**: `TerminalRelationV1` extension for non-i64 value returns.
+- **F4**: Map return/argument physical ABI (family-scale).
+- **C8**: two-function non-AppMain consumer acceptance.
+
+The merged route cannot pass `MapLifecycleConsumerMissing` until F1+F3+F4
+land — the map-owning cohort pervasively returns maps. This card's
+deliverable is the verified decomposition; C5 remains the contract work.
