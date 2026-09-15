@@ -70,7 +70,11 @@ Builder effects:
 
 - one or more exact explicit `Return` sites, including the function-root
   terminal `Return`; or
-- implicit Void fallthrough.
+- implicit Void fallthrough; or
+- a completing root terminal: an `if`/`else` whose both branch bodies
+  complete, or a `loop(true)` with no `Break` row targeting its loop region
+  — carrying the nested exact `Return` sites; or
+- an all-Void explicit `return` set plus a reachable implicit root-body end.
 
 The explicit form carries its exact statement site, exact function-region
 target, zero unreachable suffix, and an explicit ordered cleanup contract.

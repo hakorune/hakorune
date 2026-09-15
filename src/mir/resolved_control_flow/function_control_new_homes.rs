@@ -77,9 +77,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
         crate::mir::resolved_semantics::BindingRefV1,
     ) -> Result<bool, E>,
-    terminal_call: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-    ) -> Result<bool, E>,
+    terminal_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<
     Result<
         (
@@ -118,6 +116,9 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     match &mut completion {
         VerifiedFunctionCompletionV1::ExplicitReturn(row) => row.cleanup.attach_root_flow(homes),
         VerifiedFunctionCompletionV1::ExplicitReturns(row) => row.cleanup.attach_root_flow(homes),
+        VerifiedFunctionCompletionV1::ExplicitUnitSetWithImplicitEnd(row) => {
+            row.cleanup.attach_root_flow(homes)
+        }
         VerifiedFunctionCompletionV1::ImplicitVoid(row) => row.cleanup.attach_root_flow(homes),
     }
     Ok(Ok((

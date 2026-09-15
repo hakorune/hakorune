@@ -134,6 +134,12 @@ pub(crate) enum SealedFunctionExitDispositionV1 {
     ExplicitUnitSet {
         sites: Box<[SourceStmtSiteV1]>,
     },
+    ExplicitUnitSetWithImplicitEnd {
+        sites: Box<[SourceStmtSiteV1]>,
+        body: SourceBodySiteV1,
+        body_end: u32,
+        origin: FunctionUnitOriginV1,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -141,6 +147,9 @@ pub(crate) enum FunctionExitCoverageV1 {
     ExactZeroExitRootBody,
     ExactOneTerminalRootReturn,
     ExactExplicitReturnSet { count: u32 },
+    ExactIfTerminalReturnSet { count: u32 },
+    ExactLoopTerminalReturnSet { count: u32 },
+    ExactExplicitUnitSetWithImplicitEnd { count: u32 },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -252,9 +261,21 @@ pub(crate) struct VerifiedExplicitReturnSetV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedExplicitUnitSetWithImplicitEndV1 {
+    owner: FunctionOwnerIdV1,
+    sites: Box<[SourceStmtSiteV1]>,
+    target_function: RegionId,
+    body: SourceBodySiteV1,
+    body_end: u32,
+    cleanup: ResolvedCleanupObligationsV1,
+    exit_contract: SealedFunctionExitContractV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) enum VerifiedFunctionCompletionV1 {
     ExplicitReturn(VerifiedTerminalReturnV1),
     ExplicitReturns(VerifiedExplicitReturnSetV1),
+    ExplicitUnitSetWithImplicitEnd(VerifiedExplicitUnitSetWithImplicitEndV1),
     ImplicitVoid(VerifiedImplicitVoidCompletionV1),
 }
 
@@ -263,6 +284,7 @@ impl VerifiedFunctionCompletionV1 {
         match self {
             Self::ExplicitReturn(contract) => contract.owner,
             Self::ExplicitReturns(contract) => contract.owner,
+            Self::ExplicitUnitSetWithImplicitEnd(contract) => contract.owner,
             Self::ImplicitVoid(contract) => contract.owner,
         }
     }
@@ -271,6 +293,7 @@ impl VerifiedFunctionCompletionV1 {
         match self {
             Self::ExplicitReturn(contract) => contract.target_function,
             Self::ExplicitReturns(contract) => contract.target_function,
+            Self::ExplicitUnitSetWithImplicitEnd(contract) => contract.target_function,
             Self::ImplicitVoid(contract) => contract.target_function,
         }
     }
@@ -279,6 +302,7 @@ impl VerifiedFunctionCompletionV1 {
         match self {
             Self::ExplicitReturn(contract) => &contract.cleanup,
             Self::ExplicitReturns(contract) => &contract.cleanup,
+            Self::ExplicitUnitSetWithImplicitEnd(contract) => &contract.cleanup,
             Self::ImplicitVoid(contract) => &contract.cleanup,
         }
     }
@@ -287,6 +311,7 @@ impl VerifiedFunctionCompletionV1 {
         match self {
             Self::ExplicitReturn(contract) => &contract.exit_contract,
             Self::ExplicitReturns(contract) => &contract.exit_contract,
+            Self::ExplicitUnitSetWithImplicitEnd(contract) => &contract.exit_contract,
             Self::ImplicitVoid(contract) => &contract.exit_contract,
         }
     }
@@ -295,6 +320,7 @@ impl VerifiedFunctionCompletionV1 {
         match self {
             Self::ExplicitReturn(contract) => Some(&contract.site),
             Self::ExplicitReturns(_) => None,
+            Self::ExplicitUnitSetWithImplicitEnd(_) => None,
             Self::ImplicitVoid(_) => None,
         }
     }
@@ -320,6 +346,7 @@ impl VerifiedFunctionCompletionV1 {
         match self {
             Self::ExplicitReturn(contract) => contract.unreachable_suffix_count,
             Self::ExplicitReturns(_) => 0,
+            Self::ExplicitUnitSetWithImplicitEnd(_) => 0,
             Self::ImplicitVoid(_) => 0,
         }
     }
@@ -328,6 +355,9 @@ impl VerifiedFunctionCompletionV1 {
         match self {
             Self::ExplicitReturn(_) => None,
             Self::ExplicitReturns(_) => None,
+            Self::ExplicitUnitSetWithImplicitEnd(contract) => {
+                Some((&contract.body, contract.body_end))
+            }
             Self::ImplicitVoid(contract) => Some((&contract.body, contract.body_end)),
         }
     }
@@ -336,6 +366,7 @@ impl VerifiedFunctionCompletionV1 {
         match self {
             Self::ExplicitReturn(contract) => std::slice::from_ref(&contract.site),
             Self::ExplicitReturns(contract) => &contract.sites,
+            Self::ExplicitUnitSetWithImplicitEnd(contract) => &contract.sites,
             Self::ImplicitVoid(_) => &[],
         }
     }
@@ -385,6 +416,8 @@ pub(super) fn is_loop_control_exit(exit: &ResolvedExitRecordV1) -> bool {
 
 #[path = "function_control_new_homes.rs"]
 mod new_homes;
+#[path = "function_control_terminal.rs"]
+mod terminal;
 pub(crate) use new_homes::{
     verify_function_completion_with_new_homes_and_argument_observations_v1,
     verify_function_completion_with_new_homes_v1,
@@ -444,19 +477,6 @@ pub(crate) fn verify_function_completion_v1(
             },
         ));
     }
-    if exits.len() > 1 {
-        return verify_explicit_return_set(input, &body, declared_result, target_function, &exits);
-    }
-    if exits.len() != 1 {
-        return Err(FunctionCompletionVerificationErrorV1::UnsupportedExitCardinality(exits.len()));
-    }
-
-    let (exit_site, exit) = exits[0];
-    let ResolvedExitSiteV1::Statement(actual_site) = exit_site else {
-        return Err(FunctionCompletionVerificationErrorV1::UnsupportedExitSite(
-            exit_site.clone(),
-        ));
-    };
     let last_index = body.statements().len().checked_sub(1).ok_or_else(|| {
         FunctionCompletionVerificationErrorV1::UnsupportedExitCardinality(exits.len())
     })?;
@@ -466,182 +486,91 @@ pub(crate) fn verify_function_completion_v1(
         .map_err(|error| {
             FunctionCompletionVerificationErrorV1::SourceNavigation(error.to_string())
         })?;
-    if terminal.site() != actual_site {
-        return Err(FunctionCompletionVerificationErrorV1::NonTerminalReturn {
-            actual: actual_site.clone(),
-            expected: terminal.site().clone(),
-        });
-    }
-    let ASTNode::Return { value, .. } = terminal.node() else {
-        return Err(
-            FunctionCompletionVerificationErrorV1::TerminalSiteIsNotReturn(terminal.site().clone()),
-        );
-    };
-    if exit.source_region() != roots.body_pair().region() {
-        return Err(FunctionCompletionVerificationErrorV1::WrongSourceRegion(
-            exit_site.clone(),
-        ));
-    }
-    if exit.origin() != ResolvedExitOriginV1::ExplicitReturn {
-        return Err(FunctionCompletionVerificationErrorV1::WrongExitOrigin(
-            exit_site.clone(),
-        ));
-    }
-    let ResolvedControlTransferV1::Return {
-        target_function: actual_target,
-    } = exit.transfer()
-    else {
-        return Err(FunctionCompletionVerificationErrorV1::WrongTransferKind(
-            exit_site.clone(),
-        ));
-    };
-    if actual_target != target_function {
-        return Err(FunctionCompletionVerificationErrorV1::WrongFunctionTarget(
-            exit_site.clone(),
-        ));
-    }
 
-    let (value, unit_origin, exact_non_unit_literal) = classify_return_value(value.as_deref());
-    verify_declared_return_value(&declared_result, value, exact_non_unit_literal)?;
+    if let &[(exit_site, exit)] = exits.as_slice() {
+        if let ResolvedExitSiteV1::Statement(actual_site) = exit_site {
+            if actual_site == terminal.site() {
+                let ASTNode::Return { value, .. } = terminal.node() else {
+                    return Err(
+                        FunctionCompletionVerificationErrorV1::TerminalSiteIsNotReturn(
+                            terminal.site().clone(),
+                        ),
+                    );
+                };
+                if exit.source_region() != roots.body_pair().region() {
+                    return Err(FunctionCompletionVerificationErrorV1::WrongSourceRegion(
+                        exit_site.clone(),
+                    ));
+                }
+                if exit.origin() != ResolvedExitOriginV1::ExplicitReturn {
+                    return Err(FunctionCompletionVerificationErrorV1::WrongExitOrigin(
+                        exit_site.clone(),
+                    ));
+                }
+                let ResolvedControlTransferV1::Return {
+                    target_function: actual_target,
+                } = exit.transfer()
+                else {
+                    return Err(FunctionCompletionVerificationErrorV1::WrongTransferKind(
+                        exit_site.clone(),
+                    ));
+                };
+                if actual_target != target_function {
+                    return Err(FunctionCompletionVerificationErrorV1::WrongFunctionTarget(
+                        exit_site.clone(),
+                    ));
+                }
 
-    let disposition = match (value, unit_origin) {
-        (TerminalReturnValueV1::Value, None) => SealedFunctionExitDispositionV1::ExplicitValue {
-            site: actual_site.clone(),
-        },
-        (TerminalReturnValueV1::Void, Some(origin)) => {
-            SealedFunctionExitDispositionV1::ExplicitUnit {
-                site: actual_site.clone(),
-                origin,
+                let (value, unit_origin, exact_non_unit_literal) =
+                    classify_return_value(value.as_deref());
+                verify_declared_return_value(&declared_result, value, exact_non_unit_literal)?;
+
+                let disposition =
+                    match (value, unit_origin) {
+                        (TerminalReturnValueV1::Value, None) => {
+                            SealedFunctionExitDispositionV1::ExplicitValue {
+                                site: actual_site.clone(),
+                            }
+                        }
+                        (TerminalReturnValueV1::Void, Some(origin)) => {
+                            SealedFunctionExitDispositionV1::ExplicitUnit {
+                                site: actual_site.clone(),
+                                origin,
+                            }
+                        }
+                        _ => return Err(
+                            FunctionCompletionVerificationErrorV1::ReturnClassificationInvariant,
+                        ),
+                    };
+
+                return Ok(VerifiedFunctionCompletionV1::ExplicitReturn(
+                    VerifiedTerminalReturnV1 {
+                        owner: input.owner(),
+                        site: actual_site.clone(),
+                        target_function,
+                        value,
+                        cleanup: ResolvedCleanupObligationsV1::explicit_empty(),
+                        unreachable_suffix_count: 0,
+                        exit_contract: SealedFunctionExitContractV1::new(
+                            input.owner(),
+                            declared_result,
+                            disposition,
+                            FunctionExitCoverageV1::ExactOneTerminalRootReturn,
+                        ),
+                    },
+                ));
             }
         }
-        _ => return Err(FunctionCompletionVerificationErrorV1::ReturnClassificationInvariant),
-    };
-
-    Ok(VerifiedFunctionCompletionV1::ExplicitReturn(
-        VerifiedTerminalReturnV1 {
-            owner: input.owner(),
-            site: actual_site.clone(),
-            target_function,
-            value,
-            cleanup: ResolvedCleanupObligationsV1::explicit_empty(),
-            unreachable_suffix_count: 0,
-            exit_contract: SealedFunctionExitContractV1::new(
-                input.owner(),
-                declared_result,
-                disposition,
-                FunctionExitCoverageV1::ExactOneTerminalRootReturn,
-            ),
-        },
-    ))
-}
-
-fn verify_explicit_return_set(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    body: &crate::mir::compiler::located::LocatedBodyV1<'_>,
-    declared_result: DeclaredFunctionResultContractV1,
-    target_function: RegionId,
-    exits: &[(&ResolvedExitSiteV1, &ResolvedExitRecordV1)],
-) -> Result<VerifiedFunctionCompletionV1, FunctionCompletionVerificationErrorV1> {
-    let last_index = body.statements().len().checked_sub(1).ok_or_else(|| {
-        FunctionCompletionVerificationErrorV1::UnsupportedExitCardinality(exits.len())
-    })?;
-    let terminal = input
-        .source()
-        .body_stmt(body, last_index)
-        .map_err(|error| {
-            FunctionCompletionVerificationErrorV1::SourceNavigation(error.to_string())
-        })?;
-    if !matches!(terminal.node(), ASTNode::Return { .. }) {
-        return Err(
-            FunctionCompletionVerificationErrorV1::TerminalSiteIsNotReturn(terminal.site().clone()),
-        );
     }
 
-    let mut sites = Vec::with_capacity(exits.len());
-    let mut common_value = None;
-    for (exit_site, exit) in exits.iter().copied() {
-        let ResolvedExitSiteV1::Statement(site) = exit_site else {
-            return Err(FunctionCompletionVerificationErrorV1::UnsupportedExitSite(
-                exit_site.clone(),
-            ));
-        };
-        let statement = input.source().exact_stmt(site).map_err(|error| {
-            FunctionCompletionVerificationErrorV1::SourceNavigation(error.to_string())
-        })?;
-        let ASTNode::Return { value, .. } = statement.node() else {
-            return Err(
-                FunctionCompletionVerificationErrorV1::TerminalSiteIsNotReturn(site.clone()),
-            );
-        };
-        if exit.source_region().owner() != input.owner() {
-            return Err(FunctionCompletionVerificationErrorV1::WrongSourceRegion(
-                exit_site.clone(),
-            ));
-        }
-        if exit.origin() != ResolvedExitOriginV1::ExplicitReturn {
-            return Err(FunctionCompletionVerificationErrorV1::WrongExitOrigin(
-                exit_site.clone(),
-            ));
-        }
-        let ResolvedControlTransferV1::Return {
-            target_function: actual_target,
-        } = exit.transfer()
-        else {
-            return Err(FunctionCompletionVerificationErrorV1::WrongTransferKind(
-                exit_site.clone(),
-            ));
-        };
-        if actual_target != target_function {
-            return Err(FunctionCompletionVerificationErrorV1::WrongFunctionTarget(
-                exit_site.clone(),
-            ));
-        }
-        let (value_kind, _, exact_non_unit_literal) = classify_return_value(value.as_deref());
-        verify_declared_return_value(&declared_result, value_kind, exact_non_unit_literal)?;
-        if common_value
-            .replace(value_kind)
-            .is_some_and(|prior| prior != value_kind)
-        {
-            return Err(FunctionCompletionVerificationErrorV1::ReturnClassificationInvariant);
-        }
-        sites.push(site.clone());
-    }
-    if !sites.contains(terminal.site()) {
-        return Err(FunctionCompletionVerificationErrorV1::NonTerminalReturn {
-            actual: sites
-                .first()
-                .cloned()
-                .unwrap_or_else(|| terminal.site().clone()),
-            expected: terminal.site().clone(),
-        });
-    }
-    let value =
-        common_value.ok_or(FunctionCompletionVerificationErrorV1::ReturnClassificationInvariant)?;
-    let count = u32::try_from(sites.len())
-        .map_err(|_| FunctionCompletionVerificationErrorV1::BodyLengthOverflow)?;
-    let disposition = match value {
-        TerminalReturnValueV1::Value => SealedFunctionExitDispositionV1::ExplicitValueSet {
-            sites: sites.clone().into_boxed_slice(),
-        },
-        TerminalReturnValueV1::Void => SealedFunctionExitDispositionV1::ExplicitUnitSet {
-            sites: sites.clone().into_boxed_slice(),
-        },
-    };
-    Ok(VerifiedFunctionCompletionV1::ExplicitReturns(
-        VerifiedExplicitReturnSetV1 {
-            owner: input.owner(),
-            sites: sites.into_boxed_slice(),
-            target_function,
-            value,
-            cleanup: ResolvedCleanupObligationsV1::explicit_empty(),
-            exit_contract: SealedFunctionExitContractV1::new(
-                input.owner(),
-                declared_result,
-                disposition,
-                FunctionExitCoverageV1::ExactExplicitReturnSet { count },
-            ),
-        },
-    ))
+    terminal::verify_generalized_return_completion(
+        input,
+        &body,
+        declared_result,
+        target_function,
+        &terminal,
+        &exits,
+    )
 }
 
 fn classify_return_value(

@@ -101,6 +101,40 @@ fn loop_with_control(control: ASTNode) -> ASTNode {
     }
 }
 
+fn if_stmt(
+    condition: ASTNode,
+    then_body: Vec<ASTNode>,
+    else_body: Option<Vec<ASTNode>>,
+) -> ASTNode {
+    ASTNode::If {
+        condition: Box::new(condition),
+        then_body,
+        else_body,
+        span: Span::unknown(),
+    }
+}
+
+fn loop_stmt(condition: ASTNode, body: Vec<ASTNode>) -> ASTNode {
+    ASTNode::Loop {
+        condition: Box::new(condition),
+        body,
+        span: Span::unknown(),
+    }
+}
+
+fn bool_literal(value: bool) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::Bool(value),
+        span: Span::unknown(),
+    }
+}
+
+fn break_stmt() -> ASTNode {
+    ASTNode::Break {
+        span: Span::unknown(),
+    }
+}
+
 fn verify(
     body: Vec<ASTNode>,
 ) -> Result<VerifiedFunctionCompletionV1, FunctionCompletionVerificationErrorV1> {
@@ -410,6 +444,178 @@ fn nested_loop_control_is_excluded_but_root_return_remains_candidate() {
     assert!(matches!(
         completion.function_exit_contract().coverage(),
         FunctionExitCoverageV1::ExactOneTerminalRootReturn
+    ));
+}
+
+#[test]
+fn if_terminal_with_both_branches_returning_seals_if_terminal_set() {
+    let terminal = if_stmt(
+        literal(1),
+        vec![return_stmt(Some(literal(1)))],
+        Some(vec![return_stmt(Some(literal(2)))]),
+    );
+    let completion = verify(vec![terminal]).unwrap();
+    assert!(completion.returns_value());
+    assert!(completion.explicit_site().is_none());
+    assert_eq!(completion.explicit_sites().len(), 2);
+    assert!(matches!(
+        completion.function_exit_contract().coverage(),
+        FunctionExitCoverageV1::ExactIfTerminalReturnSet { count: 2 }
+    ));
+    assert!(matches!(
+        completion.function_exit_contract().disposition(),
+        SealedFunctionExitDispositionV1::ExplicitValueSet { .. }
+    ));
+}
+
+#[test]
+fn if_terminal_nested_if_chain_still_completes() {
+    let inner = if_stmt(
+        literal(2),
+        vec![return_stmt(Some(literal(3)))],
+        Some(vec![return_stmt(Some(literal(4)))]),
+    );
+    let terminal = if_stmt(
+        literal(1),
+        vec![return_stmt(Some(literal(1)))],
+        Some(vec![inner]),
+    );
+    let completion = verify(vec![terminal]).unwrap();
+    assert!(completion.returns_value());
+    assert!(matches!(
+        completion.function_exit_contract().coverage(),
+        FunctionExitCoverageV1::ExactIfTerminalReturnSet { count: 3 }
+    ));
+}
+
+#[test]
+fn if_terminal_without_else_or_fallthrough_branch_cannot_seal() {
+    let no_else = if_stmt(literal(1), vec![return_stmt(Some(literal(1)))], None);
+    assert!(matches!(
+        verify(vec![no_else]).unwrap_err(),
+        FunctionCompletionVerificationErrorV1::NonTerminalReturn { .. }
+    ));
+
+    let fallthrough_else = if_stmt(
+        literal(1),
+        vec![return_stmt(Some(literal(1)))],
+        Some(vec![local("x", literal(2))]),
+    );
+    assert!(matches!(
+        verify(vec![fallthrough_else]).unwrap_err(),
+        FunctionCompletionVerificationErrorV1::NonTerminalReturn { .. }
+    ));
+}
+
+#[test]
+fn loop_true_terminal_return_seals_loop_terminal_set() {
+    let terminal = loop_stmt(
+        bool_literal(true),
+        vec![
+            local("next", literal(1)),
+            if_stmt(
+                literal(1),
+                vec![
+                    compound_assignment("next", literal(1)),
+                    ASTNode::Continue {
+                        span: Span::unknown(),
+                    },
+                ],
+                None,
+            ),
+            return_stmt(Some(variable("next"))),
+        ],
+    );
+    let completion = verify(vec![terminal]).unwrap();
+    assert!(completion.returns_value());
+    assert!(completion.explicit_site().is_none());
+    assert_eq!(completion.explicit_sites().len(), 1);
+    assert!(matches!(
+        completion.function_exit_contract().coverage(),
+        FunctionExitCoverageV1::ExactLoopTerminalReturnSet { count: 1 }
+    ));
+}
+
+#[test]
+fn loop_terminal_with_targeted_break_cannot_seal_value_completion() {
+    let terminal = loop_stmt(
+        bool_literal(true),
+        vec![
+            if_stmt(literal(1), vec![break_stmt()], None),
+            return_stmt(Some(literal(1))),
+        ],
+    );
+    assert!(matches!(
+        verify(vec![terminal]).unwrap_err(),
+        FunctionCompletionVerificationErrorV1::NonTerminalReturn { .. }
+    ));
+}
+
+#[test]
+fn loop_terminal_with_nonconstant_condition_cannot_seal_value_completion() {
+    let terminal = loop_stmt(literal(1), vec![return_stmt(Some(literal(1)))]);
+    assert!(matches!(
+        verify(vec![terminal]).unwrap_err(),
+        FunctionCompletionVerificationErrorV1::NonTerminalReturn { .. }
+    ));
+}
+
+#[test]
+fn nested_loop_break_does_not_escape_the_outer_terminal() {
+    let inner = loop_stmt(literal(2), vec![break_stmt()]);
+    let terminal = loop_stmt(
+        bool_literal(true),
+        vec![inner, return_stmt(Some(literal(1)))],
+    );
+    let completion = verify(vec![terminal]).unwrap();
+    assert!(matches!(
+        completion.function_exit_contract().coverage(),
+        FunctionExitCoverageV1::ExactLoopTerminalReturnSet { count: 1 }
+    ));
+}
+
+#[test]
+fn void_early_exits_with_fallthrough_terminal_seal_unit_set_with_implicit_end() {
+    let early = if_stmt(literal(1), vec![return_stmt(None)], None);
+    let completion = verify(vec![early, local("x", literal(1))]).unwrap();
+    assert!(!completion.returns_value());
+    assert!(!completion.is_implicit_void());
+    assert_eq!(completion.explicit_sites().len(), 1);
+    let (body, end) = completion.implicit_body_end().unwrap();
+    assert_eq!(body.owner(), completion.owner());
+    assert_eq!(end, 2);
+    assert!(matches!(
+        completion.function_exit_contract().coverage(),
+        FunctionExitCoverageV1::ExactExplicitUnitSetWithImplicitEnd { count: 1 }
+    ));
+    assert!(matches!(
+        completion.function_exit_contract().disposition(),
+        SealedFunctionExitDispositionV1::ExplicitUnitSetWithImplicitEnd {
+            origin: FunctionUnitOriginV1::ImplicitFallthrough,
+            body_end: 2,
+            ..
+        }
+    ));
+}
+
+#[test]
+fn multiple_void_early_exits_share_one_implicit_end() {
+    let early_a = if_stmt(literal(1), vec![return_stmt(None)], None);
+    let early_b = if_stmt(literal(2), vec![return_stmt(None)], None);
+    let completion = verify(vec![early_a, early_b, literal(3)]).unwrap();
+    assert_eq!(completion.explicit_sites().len(), 2);
+    assert!(matches!(
+        completion.function_exit_contract().coverage(),
+        FunctionExitCoverageV1::ExactExplicitUnitSetWithImplicitEnd { count: 2 }
+    ));
+}
+
+#[test]
+fn value_early_exit_with_fallthrough_terminal_cannot_seal() {
+    let early = if_stmt(literal(1), vec![return_stmt(Some(literal(1)))], None);
+    assert!(matches!(
+        verify(vec![early, local("x", literal(2))]).unwrap_err(),
+        FunctionCompletionVerificationErrorV1::NonTerminalReturn { .. }
     ));
 }
 
