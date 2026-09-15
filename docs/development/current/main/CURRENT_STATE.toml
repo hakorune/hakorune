@@ -45,6 +45,7 @@ accepted_free_function_execution_card = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0 (
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_wasm_hako_backend_task = "WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0 (ParkedSealed__WasmCanonicalReaderAndHakoIngressMissing; post-R6 migration, not an R7 prerequisite; the Rust LegacyCallV0 reader must stop or quarantine before R7; implementation_permission=false; Rust fate=StopNow__FreezeBeforeR7__HakoDefaultAtW2__RetireAtW3)"
+parked_macos_platform_capability_task = "MIR-PLATFORM-MACOS-CAPABILITY-D0 (ParkedSealed__MacosFocusedSuiteCensusMissing; owner decision user_selected_include__2026-09-15; implementation_permission=false; design-stop census on a macos-latest runner, Windows capability-D0 type; parked behind the active Map lane; see docs/development/current/main/investigations/mir-platform-macos-capability-d0-2026-09-15.md)"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
