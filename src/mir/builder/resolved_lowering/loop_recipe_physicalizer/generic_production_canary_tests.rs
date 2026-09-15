@@ -405,13 +405,19 @@ fn run_canary_with_options(
         return Err("G0 root/child predicate values are not distinct".into());
     }
     if computed_condition_left {
-        let outer_left = physical_layout.program().operation_rows().iter().find_map(
-            |row| match row.operation() {
-                LoopOperationV1::CompareI64 { result, left, .. }
-                    if result == condition_keys[0] => Some(left),
-                _ => None,
-            },
-        );
+        let outer_left =
+            physical_layout
+                .program()
+                .operation_rows()
+                .iter()
+                .find_map(|row| match row.operation() {
+                    LoopOperationV1::CompareI64 { result, left, .. }
+                        if result == condition_keys[0] =>
+                    {
+                        Some(left)
+                    }
+                    _ => None,
+                });
         if outer_left != Some(crate::mir::loop_recipe_contract::LoopValueKeyV1::new(3)) {
             outer.discard_unpublished();
             return Err("G0 computed-left mutation did not reach dispatch".into());

@@ -83,10 +83,7 @@ pub extern "C" fn nyash_box_from_i8_string_const(ptr: *const i8) -> i64 {
 /// bytes within one valid allocation, without concurrent mutation, for this
 /// synchronous call. No input pointer is retained.
 #[export_name = "nyash.box.from_i8_string_const_len_v1"]
-pub unsafe extern "C" fn nyash_box_from_i8_string_const_len_v1(
-    bytes: *const u8,
-    len: u64,
-) -> i64 {
+pub unsafe extern "C" fn nyash_box_from_i8_string_const_len_v1(bytes: *const u8, len: u64) -> i64 {
     if bytes.is_null() || len > isize::MAX as u64 {
         return 0;
     }

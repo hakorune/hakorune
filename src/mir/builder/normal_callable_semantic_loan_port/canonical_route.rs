@@ -23,8 +23,8 @@ use crate::mir::compiler::capability::{
 use crate::mir::compiler::direct_accum_capability::probe_direct_accum_function_v1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::generic_g0_capability::probe_generic_g0_function_v1;
-use crate::mir::loop_route_policy::GenericG0PolicyModeV1;
 use crate::mir::compiler::CanonicalLoweringErrorV1;
+use crate::mir::loop_route_policy::GenericG0PolicyModeV1;
 
 /// A preflight result for the existing canonical callable consumers.
 ///

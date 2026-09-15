@@ -28,11 +28,11 @@ pub struct CanonicalFieldRefV1 {
 impl CanonicalFieldRefV1 {
     /// Encode a source-selected field. Definition/range validation belongs to
     /// the source issuer and atomic publication, not this structural carrier.
-    pub fn from_declaration_ordinal(
-        object: CanonicalObjectIdV1,
-        ordinal: usize,
-    ) -> Option<Self> {
-        Some(Self { object, declaration_ordinal: u32::try_from(ordinal).ok()? })
+    pub fn from_declaration_ordinal(object: CanonicalObjectIdV1, ordinal: usize) -> Option<Self> {
+        Some(Self {
+            object,
+            declaration_ordinal: u32::try_from(ordinal).ok()?,
+        })
     }
 
     pub const fn object(self) -> CanonicalObjectIdV1 {

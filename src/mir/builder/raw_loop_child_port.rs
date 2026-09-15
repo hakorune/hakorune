@@ -95,8 +95,8 @@ mod tests {
     use super::RawLoopChildEntryPortV1;
     use crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1;
     use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
-    use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
     use crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
+    use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
     use crate::mir::builder::raw_invocation_source_transport::{
         RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
     };
@@ -115,16 +115,18 @@ mod tests {
             .expect("test function")
             .blocks
             .len();
-        let mut collector = ModuleDraftCollectorV1::with_brand(ModuleInvocationBrandV1::legacy_test());
+        let mut collector =
+            ModuleDraftCollectorV1::with_brand(ModuleInvocationBrandV1::legacy_test());
         let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
         let mut scope = UnpublishedCallableLoopRootScopeV1::for_test();
-        let mut port = RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope(
-            &mut module_port,
-            crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1::default(),
-            &mut scope,
-        );
-        let program = NyashParser::parse_from_string("loop(false) {} return 0")
-            .expect("loop fixture");
+        let mut port =
+            RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope(
+                &mut module_port,
+                crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1::default(),
+                &mut scope,
+            );
+        let program =
+            NyashParser::parse_from_string("loop(false) {} return 0").expect("loop fixture");
         let crate::ast::ASTNode::Program { statements, .. } = program else {
             unreachable!()
         };
@@ -135,9 +137,8 @@ mod tests {
         let (_, root) = RawInvocationSourceContextV1::from_transport(
             RawInvocationSourceTransportV1::root((), RawInvocationRootLineageV1::ScriptRoot),
         );
-        let (loop_node, context) = RawInvocationSourceContextV1::from_transport(
-            root.body_statement(loop_node, 0),
-        );
+        let (loop_node, context) =
+            RawInvocationSourceContextV1::from_transport(root.body_statement(loop_node, 0));
         port.active_source = Some(context);
         let error = port
             .lower_loop(&mut builder, loop_node)

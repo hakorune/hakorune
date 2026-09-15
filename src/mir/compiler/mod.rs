@@ -39,11 +39,11 @@ mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
 #[cfg(test)]
+mod generic_g0_capability_tests;
+#[cfg(test)]
 mod generic_g0_numeric_projection_tests;
 #[cfg(test)]
 mod generic_g0_observation_tests;
-#[cfg(test)]
-mod generic_g0_capability_tests;
 #[cfg(test)]
 mod generic_g0_projection_tests;
 #[cfg(test)]
@@ -113,23 +113,24 @@ mod source_bound_package_p0;
 #[cfg(test)]
 mod source_view_tests;
 use crate::mir::builder::BuilderInvocationConfigV1;
-use capability::{
-    CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1,
-};
+use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1};
 pub(in crate::mir) use lowering_input::LegacyModuleLoweringInputV1;
 pub use lowering_input::{
     CanonicalLoweringErrorV1, ResolvedModuleLoweringInputV1, VerifiedResolvedSourceUnitV1,
 };
 use module_session::CanonicalModuleLoweringSessionV1;
 pub(in crate::mir) use normal_default_pipeline::published_backend_view;
-pub(crate) use normal_default_pipeline::{emit_lifecycle_physical_abi_json, PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1};
+pub(crate) use normal_default_pipeline::{
+    emit_lifecycle_physical_abi_json, PublishedLifecyclePhysicalAbiInputV1,
+    PublishedLifecycleRuntimeRequirementsV1,
+};
 pub use normal_default_pipeline::{
     NormalCompileRequestV1, NormalProgramCompileRequestErrorV1,
     RejectedNormalProgramCompileRequestV1,
 };
 pub(crate) use normal_default_pipeline::{
-    NormalPublishedCompileOutcome,
-    RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
+    NormalPublishedCompileOutcome, RejectedPostMacroWholeFileProgramV1,
+    VerifiedPostMacroWholeFileProgramV1,
 };
 use raw_source_binding::{
     RawCallableMainSelectionV1, RawIngressRequestV1, RejectedRawSourceBindingV1,
@@ -244,9 +245,7 @@ fn map_canonical_build_error(error: CanonicalResolvedBuildErrorV1) -> CanonicalL
         }
         CanonicalResolvedBuildErrorV1::GenericG0Lowerer(detail) => {
             CanonicalLoweringErrorV1::GenericG0(
-                super::compiler::lowering_input::CanonicalGenericG0BoundaryErrorV1::Lowerer(
-                    detail,
-                ),
+                super::compiler::lowering_input::CanonicalGenericG0BoundaryErrorV1::Lowerer(detail),
             )
         }
     }
@@ -578,23 +577,17 @@ impl MirCompiler {
         let (module_session, module, finish_schedule) = match plan {
             CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::DirectAccum(plan)) => {
                 return resolved_direct_accum_cutover::compile_direct_accum_source_bound(
-                    self,
-                    plan,
-                    config,
+                    self, plan, config,
                 );
             }
             CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::NestedPredicate(plan)) => {
                 return resolved_nested_predicate_cutover::compile_nested_predicate_source_bound(
-                    self,
-                    plan,
-                    config,
+                    self, plan, config,
                 );
             }
             CanonicalFirstFamilyPlanV1::Loop(CanonicalLoopFamilyPlanV1::GenericG0(plan)) => {
                 return resolved_generic_g0_cutover::compile_generic_g0_source_bound(
-                    self,
-                    plan,
-                    config,
+                    self, plan, config,
                 );
             }
             CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {

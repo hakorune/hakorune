@@ -1,8 +1,6 @@
 use crate::runner::modes::common_util::resolve::MergedSourceLineageV1;
 
-use super::super::source_authority::{
-    ParserInvocationBrandV1, SourceBoxDeclarationPathV1,
-};
+use super::super::source_authority::{ParserInvocationBrandV1, SourceBoxDeclarationPathV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::parser) struct ParserSourceDeclarationCoordinateV1 {
@@ -64,7 +62,10 @@ impl ParserSourceAdmissionWitnessV1 {
             if !coordinate.brand.same_as(&first_brand) {
                 return Err(ParserSourceAdmissionErrorV1::ForeignParserBrand);
             }
-            if paths.iter().any(|path: &SourceBoxDeclarationPathV1| path == &coordinate.path) {
+            if paths
+                .iter()
+                .any(|path: &SourceBoxDeclarationPathV1| path == &coordinate.path)
+            {
                 return Err(ParserSourceAdmissionErrorV1::DuplicateDeclarationPath);
             }
             paths.push(coordinate.path.clone());
@@ -72,7 +73,11 @@ impl ParserSourceAdmissionWitnessV1 {
                 return Err(ParserSourceAdmissionErrorV1::DeclarationLineOutOfRange);
             };
             let local_line = segment.local_start_line.saturating_add(offset);
-            if local_line >= segment.local_start_line.saturating_add(segment.local_line_count) {
+            if local_line
+                >= segment
+                    .local_start_line
+                    .saturating_add(segment.local_line_count)
+            {
                 return Err(ParserSourceAdmissionErrorV1::SegmentLocalLineOutOfRange);
             }
             rows.push(ParserSourceAdmissionRowV1 {
@@ -95,9 +100,7 @@ impl ParserSourceAdmissionWitnessV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::runner::modes::common_util::resolve::strip::{
-        MergedSourceSegmentV1,
-    };
+    use crate::runner::modes::common_util::resolve::strip::MergedSourceSegmentV1;
 
     fn lineage() -> MergedSourceLineageV1 {
         MergedSourceLineageV1::issue(
@@ -180,6 +183,9 @@ mod tests {
             }],
         )
         .unwrap_err();
-        assert_eq!(error, ParserSourceAdmissionErrorV1::DeclarationLineOutOfRange);
+        assert_eq!(
+            error,
+            ParserSourceAdmissionErrorV1::DeclarationLineOutOfRange
+        );
     }
 }

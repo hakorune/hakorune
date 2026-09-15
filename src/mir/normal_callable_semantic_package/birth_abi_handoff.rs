@@ -4,8 +4,8 @@
 //! no `ValueId` or function-parameter authority: the final view validates the
 //! already-published physical layout before a transport projects values.
 
-use super::super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticRowV1;
 use super::super::instance_constructor_semantic::BirthFormalContractV1;
+use super::super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticRowV1;
 use crate::mir::instance_constructor_abi::InstanceConstructorAbiV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ReceiverPolicyV1, SemanticOwnerRootProfileV1,

@@ -8,13 +8,13 @@ use std::collections::BTreeSet;
 
 use crate::ast::ASTNode;
 
+use super::source_authority::SourceBoxDeclarationSiteV1;
 use super::source_authority::{
     ConstructorSourceKindV1, ConstructorSourceRelationV1, ConstructorSourceSignatureV1,
     ParserInvocationBrandV1,
 };
 use super::source_seal::ParserBoxSourceSealV1;
 use super::{ParserOrdinaryBoxSourceCoverageV1, ParserOrdinaryBoxSourceRowV1};
-use super::source_authority::SourceBoxDeclarationSiteV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ConstructorSourceIdV1 {
@@ -221,10 +221,15 @@ impl ParserConstructorSourceCatalogV1 {
             let declaration = constructors
                 .get(row.relation.key())
                 .ok_or(FinalConstructorSemanticSyntaxLoanErrorV1::ConstructorMissing)?;
-            let box_source = coverage.row_for(name).ok().flatten().filter(|parent| {
-                parent.has_site(&row.box_site)
-                    && parent.final_box_ordinal() == row.final_box_ordinal as usize
-            }).ok_or(FinalConstructorSemanticSyntaxLoanErrorV1::ParentSourceMismatch)?;
+            let box_source = coverage
+                .row_for(name)
+                .ok()
+                .flatten()
+                .filter(|parent| {
+                    parent.has_site(&row.box_site)
+                        && parent.final_box_ordinal() == row.final_box_ordinal as usize
+                })
+                .ok_or(FinalConstructorSemanticSyntaxLoanErrorV1::ParentSourceMismatch)?;
             rows.push(FinalConstructorSemanticSyntaxRowRefV1 {
                 box_source,
                 source_id: &row.source_id,

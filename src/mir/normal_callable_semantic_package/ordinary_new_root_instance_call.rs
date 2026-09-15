@@ -11,15 +11,13 @@ use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::normal_callable_semantic_package::physical_signature::{
     PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1,
 };
-use crate::mir::normal_callable_semantic_package::result_contract::
-    VerifiedCallableResultContractCohortV1;
+use crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1;
+use crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedAssignmentTargetV1,
     ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
 };
-use crate::mir::normal_callable_semantic_package::selected_mapping::
-    VerifiedSelectedCallableBatchMapV1;
 use hakorune_mir_defs::{
     CanonicalObjectIdV1, CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
 };
@@ -248,7 +246,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some((completion, terminal)) = self.call_source_completion_for_owner(owner) else {
             return Ok(None);
         };
-        if completion.explicit_site().is_none_or(|site| site.node() != return_site)
+        if completion
+            .explicit_site()
+            .is_none_or(|site| site.node() != return_site)
             || terminal.return_site().node() != return_site
         {
             return Err(freeze("root-instance-call-return-site"));

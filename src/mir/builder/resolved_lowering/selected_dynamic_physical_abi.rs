@@ -73,7 +73,6 @@ impl DynamicV2PhysicalScheduleRowV1 {
     pub(in crate::mir) const fn target(self) -> DynamicV2PhysicalBlockTargetV1 {
         self.target
     }
-
 }
 
 /// Exact Builder-free handoff evidence for the first physical leaf.

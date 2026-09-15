@@ -65,11 +65,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .is_some_and(|relation| relation.owner() == owner)
         {
-            if self
-                .terminal_i64_field_value
-                .replace(Some(value))
-                .is_some()
-            {
+            if self.terminal_i64_field_value.replace(Some(value)).is_some() {
                 return Err(fault("duplicate-emission"));
             }
         } else if self
@@ -87,10 +83,12 @@ impl OrdinaryNewClaimLedgerV1 {
         (self.terminal_i64_field_return().is_none()
             || self.terminal_i64_field_value.borrow().is_some())
             && self
-            .terminal_relation_index
-            .iter()
-            .filter(|(_, relation)| matches!(relation.as_ref(), TerminalRelationV1::I64Field(_)))
-            .all(|(owner, _)| self.terminal_i64_field_values.borrow().contains_key(owner))
+                .terminal_relation_index
+                .iter()
+                .filter(|(_, relation)| {
+                    matches!(relation.as_ref(), TerminalRelationV1::I64Field(_))
+                })
+                .all(|(owner, _)| self.terminal_i64_field_values.borrow().contains_key(owner))
     }
 
     pub(super) fn validate_terminal_i64_field_return(

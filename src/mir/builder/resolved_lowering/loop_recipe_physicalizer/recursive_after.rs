@@ -393,5 +393,4 @@ mod tests {
         .expect_err("missing transfer target must reject");
         assert_eq!(error, RecursiveAfterRejectV1::TargetMissing);
     }
-
 }

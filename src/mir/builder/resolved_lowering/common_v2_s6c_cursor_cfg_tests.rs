@@ -166,7 +166,8 @@ fn lifecycle_entry_boundary_places_seed_on_execution_successor() {
     })
     .expect("one E0/E1 lifecycle boundary")
     .expect("lifecycle entry boundary");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -231,7 +232,8 @@ fn cursor_cfg_consumes_typed_condition_and_same_cohort_source() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -294,7 +296,8 @@ fn cursor_cfg_late_failure_discards_typed_handoff() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -356,7 +359,8 @@ fn draftseal_ingress_consumes_same_outer_transaction() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -412,7 +416,8 @@ fn draftseal_ingress_discards_outer_on_tail_callback_failure() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -505,7 +510,8 @@ fn build_pinned_text_real_candidate(ordinal: u32) -> PinnedTextRealObservationCa
         candidate = Some(function);
     })
     .expect("one S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
     PinnedTextRealObservationCandidate::new(
         candidate.expect("one unpublished pinned-Text candidate"),

@@ -37,16 +37,16 @@ use crate::mir::normal_callable_semantic_package::{
     ResolvedCallablePhysicalSignatureLoanV1, SelectedCallableLoweringInputRefV1,
 };
 
+#[path = "normal_callable_semantic_loan_port/canonical_route.rs"]
+mod canonical_route;
 #[path = "normal_callable_semantic_loan_port/cataloged_instance_scope.rs"]
 mod cataloged_instance_scope;
+#[path = "normal_callable_semantic_loan_port/generic_g0.rs"]
+mod generic_g0;
 #[path = "normal_callable_semantic_loan_port/main_root.rs"]
 mod main_root;
 #[path = "normal_callable_semantic_loan_port/ordinary_new.rs"]
 mod ordinary_new;
-#[path = "normal_callable_semantic_loan_port/canonical_route.rs"]
-mod canonical_route;
-#[path = "normal_callable_semantic_loan_port/generic_g0.rs"]
-mod generic_g0;
 pub(super) use canonical_route::{
     classify_canonical_callable_route, try_prepare_callable_single_loop_program_v1,
     CanonicalCallableRouteV1,
@@ -359,7 +359,6 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, 
         self.inner.lower_nested_box_method(builder, input)
     }
 }
-
 
 impl RawFunctionHeaderLookupPortV1
     for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>

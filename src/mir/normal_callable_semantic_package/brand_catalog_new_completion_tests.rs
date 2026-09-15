@@ -1,6 +1,6 @@
 //! Source-issued New/Home progress and finishing coverage, including multiple Homes.
-use crate::mir::instruction::InvokeCallResultKind;
 use super::issue_with_brand_catalog;
+use crate::mir::instruction::InvokeCallResultKind;
 
 #[test]
 fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
@@ -73,10 +73,13 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         let (prior, reclaim) = ledger.begin_new_emission(site).unwrap();
         let reclaim = reclaim.expect("Birth construction retains reclaim origin");
         assert_eq!(
-            prior.iter().map(|operation| match operation {
-                crate::mir::instruction::InvokeOperation::HomeRelease { value, .. } => *value,
-                _ => panic!("ordinary Home end operation changed"),
-            }).collect::<Vec<_>>(),
+            prior
+                .iter()
+                .map(|operation| match operation {
+                    crate::mir::instruction::InvokeOperation::HomeRelease { value, .. } => *value,
+                    _ => panic!("ordinary Home end operation changed"),
+                })
+                .collect::<Vec<_>>(),
             (0..index)
                 .rev()
                 .map(|i| ValueId(i as u32 * 2 + 1))
@@ -142,7 +145,10 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         };
         let birth_id = crate::mir::BasicBlockId(200 + index as u32);
         let birth = crate::mir::MirInstruction::Invoke {
-            operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
+            operation: crate::mir::instruction::InvokeOperation::Call {
+                call,
+                result: InvokeCallResultKind::Unit,
+            },
             fault_frame: ValueId(100),
             normal_landing: block_id,
             fault_landing: reclaim_block,
@@ -253,7 +259,9 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     physical.add_block(exit_block);
     // Match the production emitter: N clean nodes plus N-1 pending-Fault nodes.
     let fault_id = crate::mir::BasicBlockId(51);
-    let fault_return = crate::mir::MirInstruction::ReturnFault { fault_frame: ValueId(100) };
+    let fault_return = crate::mir::MirInstruction::ReturnFault {
+        fault_frame: ValueId(100),
+    };
     let mut fault_block = crate::mir::BasicBlock::new(fault_id);
     fault_block.set_terminator(fault_return.clone());
     physical.add_block(fault_block);
@@ -261,8 +269,16 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     let mut bindings = vec![(exit_id, exit), (fault_id, fault_return)];
     for (index, origin) in origins.into_iter().enumerate() {
         let block_id = crate::mir::BasicBlockId::new(60 + index as u32);
-        let normal = if index == 2 { exit_id } else { crate::mir::BasicBlockId(61 + index as u32) };
-        let fault = if index == 2 { fault_id } else { crate::mir::BasicBlockId(71 + index as u32) };
+        let normal = if index == 2 {
+            exit_id
+        } else {
+            crate::mir::BasicBlockId(61 + index as u32)
+        };
+        let fault = if index == 2 {
+            fault_id
+        } else {
+            crate::mir::BasicBlockId(71 + index as u32)
+        };
         let instruction = crate::mir::MirInstruction::Invoke {
             operation: origin.operation().clone(),
             fault_frame: ValueId(100),
@@ -290,14 +306,22 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     }
     let entry_id = crate::mir::BasicBlockId(90);
     let entry_jump = crate::mir::MirInstruction::Jump {
-        target: crate::mir::BasicBlockId(60), edge_args: None,
+        target: crate::mir::BasicBlockId(60),
+        edge_args: None,
     };
     let mut entry = crate::mir::BasicBlock::new(entry_id);
-    entry.instructions = std::mem::take(&mut physical.blocks.get_mut(&exit_id).unwrap().instructions);
+    entry.instructions =
+        std::mem::take(&mut physical.blocks.get_mut(&exit_id).unwrap().instructions);
     entry.set_terminator(entry_jump.clone());
     physical.add_block(entry);
-    physical.blocks.get_mut(&crate::mir::BasicBlockId(2)).unwrap().set_terminator(
-        crate::mir::MirInstruction::Jump { target: entry_id, edge_args: None });
+    physical
+        .blocks
+        .get_mut(&crate::mir::BasicBlockId(2))
+        .unwrap()
+        .set_terminator(crate::mir::MirInstruction::Jump {
+            target: entry_id,
+            edge_args: None,
+        });
     bindings.push((entry_id, entry_jump));
     ledger
         .record_root_home_exit(sites[0].owner(), origin_bindings, bindings)
@@ -374,19 +398,26 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         .unwrap_err()
         .contains("root-cleanup-graph/residual-node"));
     for (extra_terminal, expected_error) in [
-        (crate::mir::MirInstruction::ReturnFault {
-            fault_frame: ValueId(100),
-        }, "artifact-unowned-lifecycle-site"),
-        (physical.blocks[&crate::mir::BasicBlockId(60)]
-            .terminator
-            .clone()
-            .unwrap(), "root-cleanup-graph/internal-incoming"),
+        (
+            crate::mir::MirInstruction::ReturnFault {
+                fault_frame: ValueId(100),
+            },
+            "artifact-unowned-lifecycle-site",
+        ),
+        (
+            physical.blocks[&crate::mir::BasicBlockId(60)]
+                .terminator
+                .clone()
+                .unwrap(),
+            "root-cleanup-graph/internal-incoming",
+        ),
     ] {
         let mut extra_lifecycle = physical.clone();
         let mut extra_block = crate::mir::BasicBlock::new(crate::mir::BasicBlockId::new(99));
         extra_block.set_terminator(extra_terminal);
         extra_lifecycle.add_block(extra_block);
-        let error = ledger.validate_artifact_after_compiler_finishing(&extra_lifecycle)
+        let error = ledger
+            .validate_artifact_after_compiler_finishing(&extra_lifecycle)
             .unwrap_err();
         assert!(error.contains(expected_error), "{error}");
     }

@@ -1,6 +1,6 @@
+use crate::runner::modes::common_util::resolve;
 use crate::runner::NyashRunner;
 use std::collections::HashMap;
-use crate::runner::modes::common_util::resolve;
 
 pub(crate) struct PreparedSourceWithImports {
     pub(crate) code: String,

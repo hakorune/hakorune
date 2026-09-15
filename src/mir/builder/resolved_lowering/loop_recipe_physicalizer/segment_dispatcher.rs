@@ -154,11 +154,7 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
                 available.insert(result);
                 if let Some(source) = read_rows.get(&row.item()) {
                     PreparedLoopOperationDispatchV1::Read(
-                        PreparedLoopReadBindingEmissionV1::from_row(
-                            owner,
-                            source,
-                            role,
-                        ),
+                        PreparedLoopReadBindingEmissionV1::from_row(owner, source, role),
                     )
                 } else if let Some(source) = carrier_rows.get(&row.item()) {
                     PreparedLoopOperationDispatchV1::CarrierSeed(

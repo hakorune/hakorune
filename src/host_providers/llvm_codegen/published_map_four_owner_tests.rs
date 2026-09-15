@@ -56,9 +56,8 @@ fn issued_four_distinct_map_call_owners_direct_exe_and_linked_object_exit_30() {
                 let direct = dir.join("direct");
                 emit_published_view_exe(view, direct.to_str().unwrap(), runtime.to_str(), None)
                     .map_err(|error| format!("direct: {error}"))?;
-                let session = LifecycleRuntimeSessionV1::select(
-                    runtime.join("libnyash_lifecycle_kernel.a"),
-                )?;
+                let session =
+                    LifecycleRuntimeSessionV1::select(runtime.join("libnyash_lifecycle_kernel.a"))?;
                 let object = dir.join("four-map-owners.o");
                 compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
                     .map_err(|error| format!("object: {error}"))?;
@@ -85,7 +84,11 @@ fn issued_four_distinct_map_call_owners_direct_exe_and_linked_object_exit_30() {
     });
 }
 
-fn assert_four_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -> Result<(), String> {
+fn assert_four_owner_fault_cleanup(
+    object: &Path,
+    archive: &Path,
+    dir: &Path,
+) -> Result<(), String> {
     let exe = dir.join("fault-probe-four-owners");
     let mut command = Command::new("cc");
     command
@@ -152,7 +155,10 @@ fn assert_four_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) ->
             "FRAME OUTER {outer} REPORTS {reports} MAP {maps} KEY {keys} OUTCOME {outcomes}\n"
         );
         assert!(stdout.contains(&frame), "{mode}: {stdout}");
-        assert!(stdout.contains(&format!("VALUES {values}\n")), "{mode}: {stdout}");
+        assert!(
+            stdout.contains(&format!("VALUES {values}\n")),
+            "{mode}: {stdout}"
+        );
         assert!(
             stdout.ends_with(&format!(
                 "{expected} {maps} {maps} {keys} {keys} {outcomes} {outcomes}\n"
@@ -160,9 +166,8 @@ fn assert_four_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) ->
             "{mode}: {stdout}"
         );
         if reports != 0 {
-            let report = format!(
-                "REPORT {reason} OUTER {outer} MAP {maps} KEY {keys} OUTCOME {outcomes}\n"
-            );
+            let report =
+                format!("REPORT {reason} OUTER {outer} MAP {maps} KEY {keys} OUTCOME {outcomes}\n");
             assert!(stdout.contains(&report), "{mode}: {stdout}");
             assert!(stdout.find(&report).unwrap() < stdout.find(&frame).unwrap());
         }
@@ -224,9 +229,8 @@ fn issued_five_distinct_map_call_owners_direct_exe_and_linked_object_exit_30() {
                 let direct = dir.join("direct");
                 emit_published_view_exe(view, direct.to_str().unwrap(), runtime.to_str(), None)
                     .map_err(|error| format!("direct: {error}"))?;
-                let session = LifecycleRuntimeSessionV1::select(
-                    runtime.join("libnyash_lifecycle_kernel.a"),
-                )?;
+                let session =
+                    LifecycleRuntimeSessionV1::select(runtime.join("libnyash_lifecycle_kernel.a"))?;
                 let object = dir.join("five-map-owners.o");
                 compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
                     .map_err(|error| format!("object: {error}"))?;
@@ -253,7 +257,11 @@ fn issued_five_distinct_map_call_owners_direct_exe_and_linked_object_exit_30() {
     });
 }
 
-fn assert_five_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -> Result<(), String> {
+fn assert_five_owner_fault_cleanup(
+    object: &Path,
+    archive: &Path,
+    dir: &Path,
+) -> Result<(), String> {
     let exe = dir.join("fault-probe-five-owners");
     let mut command = Command::new("cc");
     command
@@ -303,9 +311,27 @@ fn assert_five_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) ->
         ("value-install-fault-3", 70, 3, 3, 3, 0, 101, "10 20 1"),
         ("value-install-fault-4", 70, 4, 4, 4, 0, 101, "10 20 1 2"),
         ("value-install-fault-5", 70, 5, 5, 5, 0, 101, "10 20 1 2 3"),
-        ("value-install-fault-6", 70, 6, 6, 6, 0, 101, "10 20 1 2 3 30"),
+        (
+            "value-install-fault-6",
+            70,
+            6,
+            6,
+            6,
+            0,
+            101,
+            "10 20 1 2 3 30",
+        ),
         ("value-outcome-fault-2", 70, 2, 2, 2, 0, 100, "10 20"),
-        ("value-outcome-fault-6", 70, 6, 6, 6, 0, 100, "10 20 1 2 3 30"),
+        (
+            "value-outcome-fault-6",
+            70,
+            6,
+            6,
+            6,
+            0,
+            100,
+            "10 20 1 2 3 30",
+        ),
     ];
     for (mode, expected, maps, keys, outcomes, outer, reason, values) in cases {
         let result = Command::new(&exe)
@@ -321,7 +347,10 @@ fn assert_five_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) ->
             "FRAME OUTER {outer} REPORTS {reports} MAP {maps} KEY {keys} OUTCOME {outcomes}\n"
         );
         assert!(stdout.contains(&frame), "{mode}: {stdout}");
-        assert!(stdout.contains(&format!("VALUES {values}\n")), "{mode}: {stdout}");
+        assert!(
+            stdout.contains(&format!("VALUES {values}\n")),
+            "{mode}: {stdout}"
+        );
         assert!(
             stdout.ends_with(&format!(
                 "{expected} {maps} {maps} {keys} {keys} {outcomes} {outcomes}\n"
@@ -329,9 +358,8 @@ fn assert_five_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) ->
             "{mode}: {stdout}"
         );
         if reports != 0 {
-            let report = format!(
-                "REPORT {reason} OUTER {outer} MAP {maps} KEY {keys} OUTCOME {outcomes}\n"
-            );
+            let report =
+                format!("REPORT {reason} OUTER {outer} MAP {maps} KEY {keys} OUTCOME {outcomes}\n");
             assert!(stdout.contains(&report), "{mode}: {stdout}");
             assert!(stdout.find(&report).unwrap() < stdout.find(&frame).unwrap());
         }

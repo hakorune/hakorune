@@ -26,12 +26,19 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn call_source_completion(&self) -> Option<(
+    pub(in crate::mir::normal_callable_semantic_package) fn call_source_completion(
+        &self,
+    ) -> Option<(
         &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
         &crate::mir::resolved_semantics::home_new_prefix::TerminalI64CallReturnV1,
     )> {
-        match (self.root_completion.as_ref(), self.terminal_relation.as_ref()) {
-            (Some(Ok(completion)), Some(TerminalRelationV1::Call(call))) => Some((completion, call)),
+        match (
+            self.root_completion.as_ref(),
+            self.terminal_relation.as_ref(),
+        ) {
+            (Some(Ok(completion)), Some(TerminalRelationV1::Call(call))) => {
+                Some((completion, call))
+            }
             _ => None,
         }
     }
@@ -43,17 +50,17 @@ impl OrdinaryNewClaimLedgerV1 {
         &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
         &crate::mir::resolved_semantics::home_new_prefix::TerminalI64CallReturnV1,
     )> {
-        self.call_source_completion().filter(|(completion, terminal)| {
-            completion.owner() == owner && terminal.owner() == owner
-        })
+        self.call_source_completion()
+            .filter(|(completion, terminal)| {
+                completion.owner() == owner && terminal.owner() == owner
+            })
     }
 
     pub(crate) fn local_i64_call_for_owner(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    ) -> Option<&crate::mir::resolved_semantics::home_new_prefix::LocalI64CallObservationV1>
-    {
+    ) -> Option<&crate::mir::resolved_semantics::home_new_prefix::LocalI64CallObservationV1> {
         self.root_completion
             .as_ref()
             .and_then(|row| row.as_ref().ok())
@@ -88,7 +95,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .completion_index
             .values()
             .filter_map(|row| row.as_ref().ok())
-            .chain(self.root_completion.iter().filter_map(|row| row.as_ref().ok()))
+            .chain(
+                self.root_completion
+                    .iter()
+                    .filter_map(|row| row.as_ref().ok()),
+            )
         {
             if completion
                 .cleanup()
@@ -107,7 +118,8 @@ impl OrdinaryNewClaimLedgerV1 {
             let completion = self.completion_for_owner(owner).ok_or(())?;
             let flow = completion.cleanup().root_flow().ok_or(())?;
             let terminal = self.terminal_relation_for_owner(owner).ok_or(())?;
-            let root_call = root_owner == Some(owner) && self.call_source_completion_for_owner(owner).is_some();
+            let root_call =
+                root_owner == Some(owner) && self.call_source_completion_for_owner(owner).is_some();
             if flow.maps().iter().any(|m| {
                 m.complete().is_none_or(|map| {
                     map.entries().iter().any(|entry| {
@@ -161,7 +173,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 .filter(|(_, relation)| {
                     matches!(relation.as_ref(), TerminalRelationV1::IntegerLiteral(_))
                 })
-                .all(|(owner, _)| self.terminal_integer_literal_values.borrow().contains_key(owner))
+                .all(|(owner, _)| {
+                    self.terminal_integer_literal_values
+                        .borrow()
+                        .contains_key(owner)
+                })
             && self.terminal_i64_field_return_complete()
             && self.root_instance_call_is_empty()
     }
@@ -248,7 +264,9 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 self.terminal_integer_literal_value.borrow().is_some()
             } else {
-                self.terminal_integer_literal_values.borrow().contains_key(&owner)
+                self.terminal_integer_literal_values
+                    .borrow()
+                    .contains_key(&owner)
             }
         {
             return Err("[freeze:contract][ordinary-new/literal-source-drift]".into());
@@ -261,7 +279,10 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         value: crate::mir::ValueId,
     ) -> Result<(), String> {
-        if self.terminal_integer_literal_return_for_owner(owner).is_none() {
+        if self
+            .terminal_integer_literal_return_for_owner(owner)
+            .is_none()
+        {
             return Err("[freeze:contract][ordinary-new/literal-duplicate]".into());
         }
         if self

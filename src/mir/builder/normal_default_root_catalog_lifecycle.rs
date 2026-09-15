@@ -5,6 +5,7 @@
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
+use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
 use super::normal_default_program_root::{
     NormalDefaultProgramRootConsumptionV1, PreparedNormalDefaultProgramRootV1,
     RejectedNormalDefaultRootOwnerV1,
@@ -34,7 +35,6 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use std::rc::Rc;
-use super::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleStageV1 {
@@ -106,7 +106,9 @@ pub(in crate::mir) struct CompletedNormalDefaultRootCatalogLifecycleV1 {
     module: MirModule,
     root_validation: final_validation::RootValidation,
     construction: RetainedConstructionDrafts,
-    callables: Option<crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1>,
+    callables: Option<
+        crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
+    >,
 }
 
 #[path = "normal_default_root_final_validation.rs"]
@@ -672,11 +674,11 @@ impl ModuleBuilderInvocationSessionV1 {
 }
 
 #[cfg(test)]
+#[path = "normal_default_root_catalog_loop_scope_tests.rs"]
+mod loop_scope_tests;
+#[cfg(test)]
 #[path = "normal_default_root_catalog_lifecycle_tests.rs"]
 mod normal_default_root_catalog_lifecycle_tests;
 #[cfg(test)]
 #[path = "normal_default_root_catalog_root_source_handoff_tests.rs"]
 mod root_source_handoff_tests;
-#[cfg(test)]
-#[path = "normal_default_root_catalog_loop_scope_tests.rs"]
-mod loop_scope_tests;

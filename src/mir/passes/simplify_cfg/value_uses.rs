@@ -1,7 +1,11 @@
 //! Value-operand substitution only; CFG/PHI predecessor decisions stay in flow.
 use crate::mir::{BasicBlock, MirFunction, MirInstruction, ValueId};
 
-pub(super) fn rewrite_value_uses_in_function(function: &mut MirFunction, from: ValueId, to: ValueId) {
+pub(super) fn rewrite_value_uses_in_function(
+    function: &mut MirFunction,
+    from: ValueId,
+    to: ValueId,
+) {
     for block in function.blocks.values_mut() {
         rewrite_value_uses_in_block(block, from, to);
     }
@@ -82,7 +86,11 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
             rewrite_value_use(value, from, to);
             rewrite_value_use(ptr, from, to);
         }
-        MirInstruction::MapLiteralEntryWrite { receiver, key, value } => {
+        MirInstruction::MapLiteralEntryWrite {
+            receiver,
+            key,
+            value,
+        } => {
             rewrite_value_use(receiver, from, to);
             rewrite_value_use(key, from, to);
             rewrite_value_use(value, from, to);

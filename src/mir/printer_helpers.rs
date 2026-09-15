@@ -493,10 +493,18 @@ pub fn format_instruction(
             format!("{} phi {}", format_dst(dst, types), inputs_str)
         }
 
-        MirInstruction::MapLiteralEntryWrite { receiver, key, value } => {
+        MirInstruction::MapLiteralEntryWrite {
+            receiver,
+            key,
+            value,
+        } => {
             format!("map_literal_entry_write {}[{}] = {}", receiver, key, value)
         }
-        MirInstruction::NewBox { dst, target: crate::mir::ConstructionTarget::IntrinsicMap, args } => {
+        MirInstruction::NewBox {
+            dst,
+            target: crate::mir::ConstructionTarget::IntrinsicMap,
+            args,
+        } => {
             format!("{} new intrinsic_map({:?})", format_dst(dst, types), args)
         }
         MirInstruction::NewBox {
@@ -537,7 +545,9 @@ pub fn format_instruction(
             s
         }
         MirInstruction::CopyOwned { dst, src } => format!("{} = copy_owned {}", dst, src),
-        MirInstruction::ArrayResidenceRelease { value } => format!("array_residence_release {}", value),
+        MirInstruction::ArrayResidenceRelease { value } => {
+            format!("array_residence_release {}", value)
+        }
         MirInstruction::DestroyOwned { value } => format!("destroy_owned {}", value),
 
         MirInstruction::TypeOp { dst, op, value, ty } => {

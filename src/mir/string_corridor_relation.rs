@@ -248,10 +248,12 @@ fn is_raw_substring_view_call(inst: &MirInstruction) -> bool {
                 method,
                 receiver: Some(receiver),
                 ..
-            } => matches!(method.as_str(), "substring" | "slice")
-                && matches!(call.args.len(), 2 | 3)
-                && (call.args.len() == 2
-                    || call.args.first().is_some_and(|arg| arg == receiver)),
+            } => {
+                matches!(method.as_str(), "substring" | "slice")
+                    && matches!(call.args.len(), 2 | 3)
+                    && (call.args.len() == 2
+                        || call.args.first().is_some_and(|arg| arg == receiver))
+            }
             super::Callee::Extern(name) => {
                 call.args.len() == 3 && name == "nyash.string.substring_hii"
             }

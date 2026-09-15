@@ -252,17 +252,30 @@ mod tests {
             dst, target: crate::mir::ConstructionTarget::IntrinsicMap, args,
         }) if *dst == map_id && args.is_empty()));
         assert_eq!(effects.len(), 7);
-        for (chunk, (expected_key, expected_value)) in effects[1..].chunks_exact(3)
-            .zip([("x", 1), ("y", 2)]) {
-            let [CoreEffectPlan::Const { dst: key_id, value: crate::mir::ConstValue::String(key) },
-                 CoreEffectPlan::Const { dst: value_id, value: crate::mir::ConstValue::Integer(value) },
-                 CoreEffectPlan::MapLiteralEntryWrite { receiver, key: written_key, value: written_value }] = chunk
-            else { panic!("ordered key/value/write: {chunk:?}") };
+        for (chunk, (expected_key, expected_value)) in
+            effects[1..].chunks_exact(3).zip([("x", 1), ("y", 2)])
+        {
+            let [CoreEffectPlan::Const {
+                dst: key_id,
+                value: crate::mir::ConstValue::String(key),
+            }, CoreEffectPlan::Const {
+                dst: value_id,
+                value: crate::mir::ConstValue::Integer(value),
+            }, CoreEffectPlan::MapLiteralEntryWrite {
+                receiver,
+                key: written_key,
+                value: written_value,
+            }] = chunk
+            else {
+                panic!("ordered key/value/write: {chunk:?}")
+            };
             assert_eq!(key, expected_key);
             assert_eq!(*value, expected_value);
-            assert_eq!((*receiver, *written_key, *written_value), (map_id, *key_id, *value_id));
+            assert_eq!(
+                (*receiver, *written_key, *written_value),
+                (map_id, *key_id, *value_id)
+            );
         }
-
     }
 
     #[test]

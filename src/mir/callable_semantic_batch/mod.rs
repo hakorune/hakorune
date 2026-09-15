@@ -27,8 +27,8 @@ pub(crate) use issuer::{
 pub(crate) use model::{
     ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchLoanErrorV1,
     VerifiedResolvedCallableParameterSourceRefV1, VerifiedResolvedCallableSemanticBatchV1,
-    VerifiedResolvedCallableSemanticDeclarationRefV1,
-    VerifiedResolvedCallableSemanticRowRefV1, VerifiedResolvedCallableSourceIdentityV1,
+    VerifiedResolvedCallableSemanticDeclarationRefV1, VerifiedResolvedCallableSemanticRowRefV1,
+    VerifiedResolvedCallableSourceIdentityV1,
 };
 #[allow(unused_imports)]
 pub(crate) use s6c_typed_input::{

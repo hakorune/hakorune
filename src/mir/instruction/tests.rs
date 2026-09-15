@@ -471,7 +471,9 @@ fn map_literal_write_remaps_all_uses_without_creating_a_result() {
 
     let original = [ValueId::new(11), ValueId::new(12), ValueId::new(13)];
     let write = MirInstruction::MapLiteralEntryWrite {
-        receiver: original[0], key: original[1], value: original[2],
+        receiver: original[0],
+        key: original[1],
+        value: original[2],
     };
     let mut remapper = JoinIrIdRemapper::new();
     assert_eq!(remapper.collect_values_in_instruction(&write), original);
@@ -482,7 +484,10 @@ fn map_literal_write_remaps_all_uses_without_creating_a_result() {
         remapper.set_value(value, ValueId::new(101 + index as u32));
     }
     let remapped = remapper.remap_instruction(&write);
-    assert_eq!(remapped.used_values(), vec![ValueId::new(101), ValueId::new(102), ValueId::new(103)]);
+    assert_eq!(
+        remapped.used_values(),
+        vec![ValueId::new(101), ValueId::new(102), ValueId::new(103)]
+    );
     assert_eq!(remapped.dst_value(), None);
     assert_eq!(remapped.effects(), write.effects());
     // Step1 permits transport, but does not claim an executable consumer.

@@ -165,5 +165,4 @@ fn test_loop_true_break_once_passes_updated_env_to_k_exit() {
         k_exit_call_count, 1,
         "loop_only module must have exactly 1 tail-call to k_exit"
     );
-
 }

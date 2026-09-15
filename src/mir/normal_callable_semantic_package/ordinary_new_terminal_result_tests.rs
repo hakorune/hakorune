@@ -62,7 +62,10 @@ fn root_instance_call_rejects_emitted_receiver_mutation() {
     let claim_rows = ledger.pending_claims_for_test();
     let claims = claim_rows.values().collect::<Vec<_>>();
     assert_eq!(claims.len(), 2);
-    let sites = claims.iter().map(|claim| claim.site().clone()).collect::<Vec<_>>();
+    let sites = claims
+        .iter()
+        .map(|claim| claim.site().clone())
+        .collect::<Vec<_>>();
     let declarations = sites
         .iter()
         .map(|site| {
@@ -108,10 +111,8 @@ fn root_instance_call_rejects_emitted_receiver_mutation() {
         ledger
             .complete_new_expression(site, "Page", initializer)
             .expect("complete expression");
-        let crate::mir::resolved_semantics::SourceBindingSiteV1::Local {
-            statement,
-            ordinal,
-        } = &declarations[index].1
+        let crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement, ordinal } =
+            &declarations[index].1
         else {
             panic!("local declaration");
         };

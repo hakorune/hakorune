@@ -18,8 +18,14 @@ fn rejects_native_backend_selector_for_runner_route() {
 fn ignores_empty_or_non_native_backend_values() {
     assert_eq!(ny_llvmc_driver_arg_from_backend(None).unwrap(), None);
     assert_eq!(ny_llvmc_driver_arg_from_backend(Some("")).unwrap(), None);
-    assert_eq!(ny_llvmc_driver_arg_from_backend(Some("crate")).unwrap(), None);
-    assert_eq!(ny_llvmc_driver_arg_from_backend(Some("llvmlite")).unwrap(), None);
+    assert_eq!(
+        ny_llvmc_driver_arg_from_backend(Some("crate")).unwrap(),
+        None
+    );
+    assert_eq!(
+        ny_llvmc_driver_arg_from_backend(Some("llvmlite")).unwrap(),
+        None
+    );
 }
 
 #[test]
@@ -46,7 +52,8 @@ fn selected_dynamic_census_rejects_scrubbed_clone() {
     function
         .metadata
         .install_dynamic_v2_aot_metadata_for_test(
-            crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1::for_test(),
+            crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1::for_test(
+            ),
         )
         .expect("admission install");
 
@@ -102,8 +109,10 @@ fn selected_dynamic_boundary_rejects_compat_route_inheritance() {
         (None, None, Some("llvmlite"), None),
         (None, None, None, Some("1")),
     ] {
-        assert!(validate_selected_dynamic_boundary_route_values(recipe, replay, provider, legacy)
-            .is_err());
+        assert!(
+            validate_selected_dynamic_boundary_route_values(recipe, replay, provider, legacy)
+                .is_err()
+        );
     }
 }
 
@@ -115,7 +124,10 @@ fn appends_non_empty_extra_libs_as_single_arg() {
         .get_args()
         .map(|arg| arg.to_string_lossy().into_owned())
         .collect();
-    assert_eq!(args, vec!["--libs".to_string(), "-ldl -lpthread".to_string()]);
+    assert_eq!(
+        args,
+        vec!["--libs".to_string(), "-ldl -lpthread".to_string()]
+    );
 }
 
 #[test]

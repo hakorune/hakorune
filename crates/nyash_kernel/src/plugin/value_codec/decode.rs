@@ -92,7 +92,10 @@ pub(crate) fn map_value_from_live_object(
     handle: i64,
 ) -> Box<dyn NyashBox> {
     if obj.as_any().downcast_ref::<StringBox>().is_some()
-        || obj.as_any().downcast_ref::<crate::exports::string_view::StringViewBox>().is_some()
+        || obj
+            .as_any()
+            .downcast_ref::<crate::exports::string_view::StringViewBox>()
+            .is_some()
     {
         return maybe_borrow_string_handle(obj.clone(), handle);
     }

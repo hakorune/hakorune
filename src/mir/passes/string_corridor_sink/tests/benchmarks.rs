@@ -245,8 +245,7 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                             bbid.0
                         ));
                     }
-                    MirInstruction::Call(call)
-                        if matches!(&call.callee, Callee::Extern(callee) if callee == SUBSTRING_LEN_EXTERN) =>
+                    MirInstruction::Call(call) if matches!(&call.callee, Callee::Extern(callee) if callee == SUBSTRING_LEN_EXTERN) =>
                     {
                         leftover_substring_len.push(format!(
                             "fn={name} bb={} substring_len inst={inst:?}",

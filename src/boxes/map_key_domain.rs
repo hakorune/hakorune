@@ -36,10 +36,13 @@ impl MapKeyDomain {
 }
 
 fn parse_canonical_i64_text(text: &str) -> Option<i64> {
-    if text == "0" { return Some(0); }
+    if text == "0" {
+        return Some(0);
+    }
     let digits = text.strip_prefix('-').unwrap_or(text).as_bytes();
-    if !matches!(digits.first(), Some(b'1'..=b'9'))
-        || !digits.iter().all(u8::is_ascii_digit) { return None; }
+    if !matches!(digits.first(), Some(b'1'..=b'9')) || !digits.iter().all(u8::is_ascii_digit) {
+        return None;
+    }
     text.parse::<i64>().ok()
 }
 

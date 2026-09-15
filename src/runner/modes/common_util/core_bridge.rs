@@ -65,9 +65,7 @@ pub(crate) fn ensure_methodize_disabled() -> Result<(), String> {
 }
 
 pub(crate) fn ensure_singleton_injection_disabled() -> Result<(), String> {
-    if env_flag("HAKO_BRIDGE_INJECT_SINGLETON")
-        || env_flag("NYASH_BRIDGE_INJECT_SINGLETON")
-    {
+    if env_flag("HAKO_BRIDGE_INJECT_SINGLETON") || env_flag("NYASH_BRIDGE_INJECT_SINGLETON") {
         return Err(
             "[freeze:contract][mir-json-bridge/singleton-injection-retired] singleton compatibility reissuer is retired"
                 .to_owned(),
@@ -113,9 +111,7 @@ mod tests {
         let error = with_env("HAKO_BRIDGE_INJECT_SINGLETON", "1", || {
             canonicalize_module_json(input).expect_err("retired singleton must stop")
         });
-        assert!(error.contains(
-            "[freeze:contract][mir-json-bridge/singleton-injection-retired]"
-        ));
+        assert!(error.contains("[freeze:contract][mir-json-bridge/singleton-injection-retired]"));
     }
 
     #[test]
@@ -124,9 +120,7 @@ mod tests {
         let error = with_env("NYASH_BRIDGE_INJECT_SINGLETON", "1", || {
             canonicalize_module_json(input).expect_err("retired singleton alias must stop")
         });
-        assert!(error.contains(
-            "[freeze:contract][mir-json-bridge/singleton-injection-retired]"
-        ));
+        assert!(error.contains("[freeze:contract][mir-json-bridge/singleton-injection-retired]"));
     }
 }
 

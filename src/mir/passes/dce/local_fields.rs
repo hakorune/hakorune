@@ -8,7 +8,8 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 
 // Exact fields never become string keys for legacy overwrite analysis.
 fn clear_exact_read_barrier(
-    instruction: &crate::mir::MirInstruction, reads: &LocalReadInfo,
+    instruction: &crate::mir::MirInstruction,
+    reads: &LocalReadInfo,
     pending: &mut HashSet<(ValueId, String)>,
 ) {
     if let crate::mir::MirInstruction::ObjectFieldGet { base, .. } = instruction {
@@ -153,7 +154,8 @@ pub(crate) fn analyze_local_reads(
                 }
             }
             if let crate::mir::MirInstruction::FieldGet { base, .. }
-                | crate::mir::MirInstruction::ObjectFieldGet { base, .. } = instruction {
+            | crate::mir::MirInstruction::ObjectFieldGet { base, .. } = instruction
+            {
                 if let Some(root) = info.resolve_local_root(*base) {
                     info.field_read_roots.insert(root);
                 }
@@ -358,7 +360,9 @@ fn collect_loop_header_entry_overwrites(
 
     for instruction in &header.instructions {
         if let crate::mir::MirInstruction::ObjectFieldGet { base, .. } = instruction {
-            if let Some(root) = local_reads.resolve_local_root(*base) { blocked_roots.insert(root); }
+            if let Some(root) = local_reads.resolve_local_root(*base) {
+                blocked_roots.insert(root);
+            }
         }
         match instruction {
             crate::mir::MirInstruction::FieldGet { base, field, .. } => {

@@ -27,11 +27,7 @@ impl RootValidation {
         }
     }
 
-    fn validate(
-        &mut self,
-        module: &MirModule,
-        artifact: bool,
-    ) -> Result<BTreeSet<String>, String> {
+    fn validate(&mut self, module: &MirModule, artifact: bool) -> Result<BTreeSet<String>, String> {
         let Some(key) = self.key() else {
             return Ok(BTreeSet::new());
         };

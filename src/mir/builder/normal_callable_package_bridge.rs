@@ -75,7 +75,9 @@ pub(in crate::mir) struct BuilderPrivateCallableLoweringScopeV1 {
 }
 
 impl BuilderPrivateCallableLoweringScopeV1 {
-    pub(in crate::mir::builder) fn finish(self) -> Result<
+    pub(in crate::mir::builder) fn finish(
+        self,
+    ) -> Result<
         crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
         NormalCallableSemanticPackageInstallIssueV1,
     > {

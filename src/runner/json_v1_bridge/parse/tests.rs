@@ -290,9 +290,13 @@ fn parse_v1_legacy_call_writers_stop_before_block_mutation() {
 fn map_literal_v1_import_never_repairs_intrinsic_target_to_named_type() {
     for kind in ["intrinsic_map", "intrinsic_array", "unknown"] {
         let payload = single_v1_instruction_payload(&format!(
-            r#"{{"op":"newbox","dst":1,"type":"MapBox","target":{{"kind":"{}"}},"args":[]}}"#, kind,
+            r#"{{"op":"newbox","dst":1,"type":"MapBox","target":{{"kind":"{}"}},"args":[]}}"#,
+            kind,
         ));
         let error = try_parse_v1_to_module(&payload).unwrap_err();
-        assert!(error.contains("intrinsic-construction-unsupported"), "{error}");
+        assert!(
+            error.contains("intrinsic-construction-unsupported"),
+            "{error}"
+        );
     }
 }

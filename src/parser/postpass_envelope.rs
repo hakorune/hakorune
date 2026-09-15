@@ -13,8 +13,8 @@ use crate::ast::ASTNode;
 use super::callable_parameter_source::static_box_source::ParserStaticBoxParentSourceDispositionV1;
 use super::callable_parameter_source::ParserNormalSourcePlanSeedDispositionV1;
 use super::callable_source_anchor::PreparedCallableSourceV1;
-use super::normal_callable_program_source::ParserOrdinaryBoxSourceCoverageV1;
 use super::normal_callable_program_source::source_admission::ParserSourceDeclarationCoordinateV1;
+use super::normal_callable_program_source::ParserOrdinaryBoxSourceCoverageV1;
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{BuildGateExplainReport, ParseError, ParserMetadata};
 use source_rows::{compatibility_rows, source_backed_compatibility_rows};
@@ -386,13 +386,16 @@ impl CompletedParserPostpassV1 {
         if let ParserStaticBoxParentSourceDispositionV1::Ready(seal) =
             &self.static_box_parent_source
         {
-            coordinates.extend(seal.declaration_coordinates().map(
-                |(brand, path, global_line)| ParserSourceDeclarationCoordinateV1 {
-                    brand: brand.clone(),
-                    path: path.clone(),
-                    global_line,
-                },
-            ));
+            coordinates.extend(
+                seal.declaration_coordinates()
+                    .map(
+                        |(brand, path, global_line)| ParserSourceDeclarationCoordinateV1 {
+                            brand: brand.clone(),
+                            path: path.clone(),
+                            global_line,
+                        },
+                    ),
+            );
         }
         coordinates
     }

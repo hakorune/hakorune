@@ -110,13 +110,13 @@ use crate::boxes::map_key_domain::MapKeyDomain;
 pub(crate) struct MapStorageUnavailable;
 use crate::boxes::ArrayBox;
 use std::any::Any;
-#[path = "map_box_table.rs"]
-mod table;
 #[path = "map_box_checked.rs"]
 pub mod checked;
-use table::MapTable;
+#[path = "map_box_table.rs"]
+mod table;
 use std::fmt::{Debug, Display};
-use std::sync::{Arc, RwLock}; // Arc追加
+use std::sync::{Arc, RwLock};
+use table::MapTable; // Arc追加
 
 /// キーバリューストアを表すBox
 pub struct MapBox {
@@ -375,7 +375,9 @@ impl MapBox {
         &self,
     ) -> Result<Vec<Arc<dyn NyashBox>>, MapStorageUnavailable> {
         self.with_native_entries(|entries| {
-            entries.map(|(_, value)| Arc::from(value.clone_box())).collect()
+            entries
+                .map(|(_, value)| Arc::from(value.clone_box()))
+                .collect()
         })
     }
 

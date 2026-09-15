@@ -71,11 +71,7 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             boundary.validate_complete(function, &mut projection, &bindings)?;
             if artifact {
-                self.validate_artifact_lifecycle_coverage(
-                    owner,
-                    function,
-                    projection.recorded(),
-                )?;
+                self.validate_artifact_lifecycle_coverage(owner, function, projection.recorded())?;
             }
             *state = ChildPhysicalValidation::FinishingChecked;
         }
@@ -134,7 +130,10 @@ impl OrdinaryNewClaimLedgerV1 {
         boundary.validate_complete(function, &mut projection, &bindings)?;
         // The finishing projection may rewrite block identities. Rebind the
         // already-issued Call payload before the handoff moves it affinely.
-        if matches!(self.terminal_relation.as_ref(), Some(TerminalRelationV1::Call(_))) {
+        if matches!(
+            self.terminal_relation.as_ref(),
+            Some(TerminalRelationV1::Call(_))
+        ) {
             self.rebind_root_call_entry(owner, &projection)?;
         }
         if artifact
@@ -310,8 +309,9 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             result.extend_from_slice(bindings);
         }
-        if let Some(RootHomeExitProgress::Emitted { bindings, entry, .. }) =
-            self.root_exits.borrow().get(&owner)
+        if let Some(RootHomeExitProgress::Emitted {
+            bindings, entry, ..
+        }) = self.root_exits.borrow().get(&owner)
         {
             result.extend_from_slice(bindings);
             entry.append_bindings(&mut result);

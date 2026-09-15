@@ -1,12 +1,19 @@
 //! Exact effect snapshots for the located/raw Parts parity proof.
 use super::*;
 
-pub(super) fn normalize_effect(effect: &CoreEffectPlan) -> Result<NormalizedEffectV1, &'static str> {
+pub(super) fn normalize_effect(
+    effect: &CoreEffectPlan,
+) -> Result<NormalizedEffectV1, &'static str> {
     Ok(match effect {
-        CoreEffectPlan::MapLiteralEntryWrite { receiver, key, value } =>
-            NormalizedEffectV1::MapLiteralEntryWrite {
-                receiver: *receiver, key: *key, value: *value,
-            },
+        CoreEffectPlan::MapLiteralEntryWrite {
+            receiver,
+            key,
+            value,
+        } => NormalizedEffectV1::MapLiteralEntryWrite {
+            receiver: *receiver,
+            key: *key,
+            value: *value,
+        },
         CoreEffectPlan::MethodCall {
             dst,
             object,
@@ -160,4 +167,3 @@ pub(super) fn normalize_effect(effect: &CoreEffectPlan) -> Result<NormalizedEffe
         },
     })
 }
-

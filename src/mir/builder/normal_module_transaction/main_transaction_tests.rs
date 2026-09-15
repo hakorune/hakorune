@@ -120,12 +120,16 @@ fn transaction_commits_exact_source_main_and_physical_thunk() {
             assert_eq!(block.instructions.len(), 1);
             let (dst, callee, args) = match &block.instructions[0] {
                 MirInstruction::Call(call) => (call.dst, Some(call.callee.clone()), &call.args),
-                MirInstruction::LegacyCallV0 { dst, callee, args, .. } => (*dst, callee.clone(), args),
+                MirInstruction::LegacyCallV0 {
+                    dst, callee, args, ..
+                } => (*dst, callee.clone(), args),
                 _ => panic!("physical entry must contain one exact call"),
             };
             assert_eq!(
                 callee,
-                Some(Callee::Global(crate::mir::test_global_target("main/0".to_owned())))
+                Some(Callee::Global(crate::mir::test_global_target(
+                    "main/0".to_owned()
+                )))
             );
             assert!(args.is_empty());
             let MirInstruction::Return { value } =

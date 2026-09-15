@@ -1,5 +1,5 @@
-use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::builder::NormalRootExecutionConsumerV1;
+use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
@@ -74,16 +74,25 @@ fn ordinary_new_claims_match_exact_local_initializers_without_effect_discovery()
 fn ordinary_new_retains_unavailable_descriptors_through_candidate_co_seal() {
     let package = issue_with_brand_catalog(
         "box Page { value } static box Main { main() { local page = new Page() return 0 } }",
-    ).expect("unavailable construction is retained, not a failed lookup");
+    )
+    .expect("unavailable construction is retained, not a failed lookup");
     let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
     assert_eq!(rows.len(), 1);
     let claim = rows.values().next().unwrap();
     assert!(claim.construction().is_err());
-    assert_eq!(claim.destruction(), crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
-        crate::mir::function::ObjectDestructionUnavailableV1::FieldType,
-    ));
-    assert_eq!(package.instance_constructors.destruction_for(claim.box_source()).unwrap(),
-        (claim.object(), claim.destruction()));
+    assert_eq!(
+        claim.destruction(),
+        crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
+            crate::mir::function::ObjectDestructionUnavailableV1::FieldType,
+        )
+    );
+    assert_eq!(
+        package
+            .instance_constructors
+            .destruction_for(claim.box_source())
+            .unwrap(),
+        (claim.object(), claim.destruction())
+    );
 }
 
 #[test]
@@ -95,10 +104,16 @@ fn ordinary_new_descriptor_errors_follow_candidate_source_order() {
         );
         match issue_with_brand_catalog(&source) {
             Err(super::NormalCallableSemanticPackageIssueV1::OrdinaryNew {
-                _error: super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BirthConstructorMissing {
-                    class, arity, ..
-                },
-            }) => { assert_eq!(class.as_ref(), first); assert_eq!(arity, 1); }
+                _error:
+                    super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BirthConstructorMissing {
+                        class,
+                        arity,
+                        ..
+                    },
+            }) => {
+                assert_eq!(class.as_ref(), first);
+                assert_eq!(arity, 1);
+            }
             other => panic!("expected first candidate's missing Birth: {other:?}"),
         }
     }

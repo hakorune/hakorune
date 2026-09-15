@@ -56,19 +56,16 @@ fn local_map_call_then_terminal_map_call_reaches_physical_lowering() {
     let mut builder = MirBuilder::new();
     let function = package
         .batch()
-        .with_lowering_input_and_source_identity(
-            declaration.batch_slot(),
-            |input, identity| {
-                builder.lower_map_dependency_for_test(
-                    input,
-                    SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
-                    main.parser_identity(),
-                    identity.method_source_observation().cloned(),
-                    std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
-                    Some(&mut loan),
-                )
-            },
-        )
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                Some(&mut loan),
+            )
+        })
         .unwrap()
         .expect("physical Main lowering");
     loan.finish_empty().expect("both Call rows consumed");
@@ -91,7 +88,10 @@ fn local_map_call_then_terminal_map_call_reaches_physical_lowering() {
             )
         })
         .count();
-    assert_eq!(calls, 2, "local and terminal direct calls are both physical");
+    assert_eq!(
+        calls, 2,
+        "local and terminal direct calls are both physical"
+    );
 }
 
 #[test]
@@ -333,28 +333,25 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
     let mut builder = MirBuilder::new();
     let mut function = package
         .batch()
-        .with_lowering_input_and_source_identity(
-            declaration.batch_slot(),
-            |input, identity| {
-                builder.lower_map_dependency_for_test(
-                    input,
-                    SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
-                    main.parser_identity(),
-                    identity.method_source_observation().cloned(),
-                    std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
-                    Some(&mut loan),
-                )
-            },
-        )
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                Some(&mut loan),
+            )
+        })
         .unwrap()
         .unwrap();
     loan.finish_empty().unwrap();
     let ledger = &package.ordinary_new_claim_ledger;
     let observation = ledger.validate_finalized_new_root(&function).unwrap();
-    function.install_root_ordinary_new_observation(observation).unwrap();
-    ledger
-        .validate_after_compiler_finishing(&function)
+    function
+        .install_root_ordinary_new_observation(observation)
         .unwrap();
+    ledger.validate_after_compiler_finishing(&function).unwrap();
     let handoff = ledger
         .seal_finalized_root_birth_handoff(
             "Main.main/0".into(),
@@ -362,14 +359,21 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
             None,
         )
         .unwrap();
-    let root = handoff.root_source().expect("retained Call source relation");
+    let root = handoff
+        .root_source()
+        .expect("retained Call source relation");
     assert!(matches!(
         handoff.root_result(),
-        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. })
+        Some(
+            crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. }
+        )
     ));
     assert!(root.call_entry().is_some(), "Call payload is retained");
     assert!(root.call_entry().unwrap().call_invoke().is_some());
-    assert!(!root.call_cleanup().is_empty(), "Call bindings stay retained");
+    assert!(
+        !root.call_cleanup().is_empty(),
+        "Call bindings stay retained"
+    );
     let duplicate = ledger
         .seal_finalized_root_birth_handoff(
             "Main.main/0".into(),
@@ -377,7 +381,10 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
             None,
         )
         .expect_err("a finalized Call payload cannot be taken twice");
-    assert!(duplicate.contains("root-call-already-finalized"), "{duplicate}");
+    assert!(
+        duplicate.contains("root-call-already-finalized"),
+        "{duplicate}"
+    );
 }
 
 fn follow_jumps(

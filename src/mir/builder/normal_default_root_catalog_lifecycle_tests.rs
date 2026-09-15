@@ -8,7 +8,10 @@ use crate::mir::builder::{
 use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
-pub(super) fn callable_source(source: &str, config: ParserBuildConfig) -> PreparedNormalDefaultProgramRootV1 {
+pub(super) fn callable_source(
+    source: &str,
+    config: ParserBuildConfig,
+) -> PreparedNormalDefaultProgramRootV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(source, config)
         .expect("normal callable source");
     let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
@@ -193,18 +196,34 @@ fn artifact_validation_rejects_terminal_add_operand_drift() {
     );
     let completed = session()
         .complete_normal_default_program_root_catalog_lifecycle(
-            source, CallableMainMaterializationPolicyV1::Omitted,
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
             NormalRuntimeInputSnapshotV1::empty(),
         )
         .expect("source-backed Pair must lower");
     let (_, mut module, validate) = completed.into_artifact_parts();
     let root = module.functions.get_mut("main").expect("main root");
-    let add = root.blocks.values_mut().flat_map(|block| block.instructions.iter_mut()).find(|instruction|
-        matches!(instruction, crate::mir::MirInstruction::BinOp { op: crate::mir::BinaryOp::Add, .. }))
+    let add = root
+        .blocks
+        .values_mut()
+        .flat_map(|block| block.instructions.iter_mut())
+        .find(|instruction| {
+            matches!(
+                instruction,
+                crate::mir::MirInstruction::BinOp {
+                    op: crate::mir::BinaryOp::Add,
+                    ..
+                }
+            )
+        })
         .expect("terminal Add");
-    let crate::mir::MirInstruction::BinOp { lhs, .. } = add else { unreachable!() };
+    let crate::mir::MirInstruction::BinOp { lhs, .. } = add else {
+        unreachable!()
+    };
     *lhs = crate::mir::ValueId(90001);
-    assert!(validate(&module).unwrap_err().contains("ordinary-terminal-result/add-binding-drift"));
+    assert!(validate(&module)
+        .unwrap_err()
+        .contains("ordinary-terminal-result/add-binding-drift"));
 }
 
 #[test]
@@ -736,21 +755,36 @@ fn actual_string_helpers_general_result_row_reaches_its_first_loop_carrier() {
 
 #[test]
 fn map_lifecycle_stop_precedes_catalog_install_and_body_allocation() {
-    for body in ["local m: i64 = %{} return 30", "local a = new Page() local m: i64 = %{\"a\" => a} return 30"] {
+    for body in [
+        "local m: i64 = %{} return 30",
+        "local a = new Page() local m: i64 = %{\"a\" => a} return 30",
+    ] {
         let source = callable_source(
             &format!("box Page {{}} static box Main {{ main() {{ {body} }} }}"),
             ParserBuildConfig::default(),
         );
-        let rejected = session().complete_normal_default_program_root_catalog_lifecycle(
-            source, CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        ).expect_err("Map annotation rejects before body effects");
-        assert_eq!(rejected.stage(), NormalDefaultRootCatalogLifecycleStageV1::CatalogInstall);
+        let rejected = session()
+            .complete_normal_default_program_root_catalog_lifecycle(
+                source,
+                CallableMainMaterializationPolicyV1::Omitted,
+                NormalRuntimeInputSnapshotV1::empty(),
+            )
+            .expect_err("Map annotation rejects before body effects");
+        assert_eq!(
+            rejected.stage(),
+            NormalDefaultRootCatalogLifecycleStageV1::CatalogInstall
+        );
         assert!(rejected.error().to_string().contains("MapLocalAnnotation"));
-        assert!(rejected.session.builder().comp_ctx.callable_declaration_catalog_vacant());
+        assert!(rejected
+            .session
+            .builder()
+            .comp_ctx
+            .callable_declaration_catalog_vacant());
         if let Some(module) = &rejected.session.builder().current_module {
-            assert!(module.functions.values().all(|function| function.blocks.values().all(|block|
-                block.all_instructions().next().is_none())));
+            assert!(module.functions.values().all(|function| function
+                .blocks
+                .values()
+                .all(|block| block.all_instructions().next().is_none())));
         }
         assert!(rejected._source.is_none(), "no compatibility retry source");
         rejected.discard();

@@ -27,12 +27,16 @@ impl ParserOrdinaryBoxSourceCoverageV1 {
         Self {
             rows: rows
                 .into_iter()
-                .map(|(final_box_ordinal, name, site, has_stored_field_initializer)| ParserOrdinaryBoxSourceRowV1 {
-                    site,
-                    final_box_ordinal,
-                    name,
-                    has_stored_field_initializer,
-                })
+                .map(
+                    |(final_box_ordinal, name, site, has_stored_field_initializer)| {
+                        ParserOrdinaryBoxSourceRowV1 {
+                            site,
+                            final_box_ordinal,
+                            name,
+                            has_stored_field_initializer,
+                        }
+                    },
+                )
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
         }
@@ -68,18 +72,23 @@ impl ParserOrdinaryBoxSourceCoverageV1 {
         if !self.rows.iter().any(|own| own == row) {
             return None;
         }
-        let ASTNode::Program { statements, .. } = ast else { return None };
+        let ASTNode::Program { statements, .. } = ast else {
+            return None;
+        };
         let declaration = statements.get(row.final_box_ordinal)?;
         match declaration {
-            ASTNode::BoxDeclaration { name, .. } if name.as_str() == row.name() =>
-                Some(declaration),
+            ASTNode::BoxDeclaration { name, .. } if name.as_str() == row.name() => {
+                Some(declaration)
+            }
             _ => None,
         }
     }
 
     pub(super) fn preserves_declarations(&self, initial: &ASTNode, final_ast: &ASTNode) -> bool {
         self.rows.iter().all(|row| {
-            let Some(before) = self.declaration(row, initial) else { return false };
+            let Some(before) = self.declaration(row, initial) else {
+                return false;
+            };
             self.declaration(row, final_ast) == Some(before)
         })
     }
@@ -117,8 +126,10 @@ mod tests {
 
     fn coverage() -> ParserOrdinaryBoxSourceCoverageV1 {
         let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-            "box Page {} box Other {}", crate::parser::ParserBuildConfig::default(),
-        ).unwrap();
+            "box Page {} box Other {}",
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .unwrap();
         let super::super::ParsedNormalCallableProgramV1::SourceBacked(initial) = parsed else {
             panic!("source-backed boxes");
         };
@@ -145,17 +156,24 @@ mod tests {
             ("box Page { value: i64 = 1\nbirth() {} }", true),
             ("box Page { value: i64\nbirth() { me.value = 1 } }", false),
         ] {
-            let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-                source, crate::parser::ParserBuildConfig {
-                    mode: crate::parser::BuildMode::Test,
-                    ..crate::parser::ParserBuildConfig::default()
-                },
-            ).unwrap();
+            let parsed =
+                crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                    source,
+                    crate::parser::ParserBuildConfig {
+                        mode: crate::parser::BuildMode::Test,
+                        ..crate::parser::ParserBuildConfig::default()
+                    },
+                )
+                .unwrap();
             let super::super::ParsedNormalCallableProgramV1::SourceBacked(initial) = parsed else {
                 panic!("source-backed Box");
             };
             let final_source = initial.begin_transform().finish_exact().unwrap();
-            let row = final_source.ordinary_box_coverage().row_for("Page").unwrap().unwrap();
+            let row = final_source
+                .ordinary_box_coverage()
+                .row_for("Page")
+                .unwrap()
+                .unwrap();
             assert_eq!(row.has_stored_field_initializer(), expected, "{source}");
             final_source.discard_at_named_root_execution_terminal();
         }

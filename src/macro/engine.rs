@@ -161,9 +161,15 @@ impl MacroEngine {
                 }
                 // Derive set: default Equals+ToString when macro is enabled
                 let (derive_all, derive_set) = match &self.default_policy {
-                    Some(policy) => { let (all, set) = policy.settings(); (all, set.to_owned()) }
-                    None => (crate::config::env::macro_derive_all(), crate::config::env::macro_derive()
-                        .unwrap_or_else(|| "Equals,ToString".to_string())),
+                    Some(policy) => {
+                        let (all, set) = policy.settings();
+                        (all, set.to_owned())
+                    }
+                    None => (
+                        crate::config::env::macro_derive_all(),
+                        crate::config::env::macro_derive()
+                            .unwrap_or_else(|| "Equals,ToString".to_string()),
+                    ),
                 };
                 if crate::config::env::macro_trace() {
                     crate::macro_log!(

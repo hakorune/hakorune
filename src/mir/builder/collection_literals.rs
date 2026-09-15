@@ -169,7 +169,9 @@ impl super::MirBuilder {
             let key_id = crate::mir::builder::emission::constant::emit_string(self, key)?;
             let value_id = drive_legacy_expression_v1(self, port, expr)?;
             self.emit_instruction(MirInstruction::MapLiteralEntryWrite {
-                receiver: map_id, key: key_id, value: value_id,
+                receiver: map_id,
+                key: key_id,
+                value: value_id,
             })?;
         }
         Ok(map_id)
@@ -271,7 +273,9 @@ mod tests {
             .blocks
             .values()
             .flat_map(|block| block.instructions.iter())
-            .filter(|instruction| matches!(instruction, MirInstruction::MapLiteralEntryWrite { .. }))
+            .filter(|instruction| {
+                matches!(instruction, MirInstruction::MapLiteralEntryWrite { .. })
+            })
             .count()
     }
 

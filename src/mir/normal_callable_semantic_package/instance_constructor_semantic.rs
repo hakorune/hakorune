@@ -5,11 +5,11 @@ use hakorune_mir_defs::CanonicalObjectIdV1;
 use std::collections::BTreeMap;
 mod formal_contract;
 mod object_definition;
+use super::instance_construction::{issue_construction_plan, ConstructionEligibilityV1};
 pub(crate) use formal_contract::{
     BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalPhysicalDispositionV1,
     BirthFormalUseCoverageV1,
 };
-use super::instance_construction::{issue_construction_plan, ConstructionEligibilityV1};
 
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;

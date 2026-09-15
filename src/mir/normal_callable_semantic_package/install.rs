@@ -424,13 +424,15 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
-    pub(in crate::mir) fn finish_lowering(self)
-        -> Result<VerifiedCallableResultContractCohortV1, NormalCallableSemanticPackageInstallIssueV1>
+    pub(in crate::mir) fn finish_lowering(
+        self,
+    ) -> Result<VerifiedCallableResultContractCohortV1, NormalCallableSemanticPackageInstallIssueV1>
     {
         if !self.lowering_completed.get() {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringNotCompleted);
         }
-        self.result_contracts.retain_completed_context(self.selected, self.parameter_contracts)
+        self.result_contracts
+            .retain_completed_context(self.selected, self.parameter_contracts)
     }
 
     pub(in crate::mir) fn with_declared_instance_call_locators<R>(

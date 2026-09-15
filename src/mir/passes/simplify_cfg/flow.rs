@@ -401,7 +401,6 @@ fn rewrite_phi_predecessor(
     }
 }
 
-
 fn recompute_effects(block: &mut BasicBlock) {
     let mut effects = EffectMask::PURE;
     for instruction in &block.instructions {

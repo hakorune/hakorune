@@ -46,6 +46,7 @@ impl Opts {
 
 mod capi_transport;
 mod defaults;
+mod lifecycle_invocation;
 #[allow(dead_code)] // Phase 291x-126: hako-ll compare bridge kept behind explicit recipe routing.
 mod ll_emit_compare_driver;
 #[allow(dead_code)] // Phase 291x-126: hako-ll compare bridge kept behind explicit recipe routing.
@@ -55,10 +56,9 @@ pub mod mir_json_text_object;
 mod normalize;
 mod provider_keep;
 mod published_mir_object;
-mod runtime_abi_descriptor;
-mod lifecycle_invocation;
 #[allow(dead_code)] // Phase 291x-126: hako-ll recipe route is staged, not default-owned.
 mod route;
+mod runtime_abi_descriptor;
 #[allow(dead_code)] // Phase 291x-126: includes staged hako-ll bridge temp-file helpers.
 mod transport_io;
 #[allow(dead_code)] // Phase 291x-126: includes staged hako-ll bridge path helpers.
@@ -66,8 +66,8 @@ mod transport_paths;
 pub use defaults::boundary_default_object_opts;
 
 pub(crate) use published_mir_object::{
-    emit_published_static_method_exe, try_compile_published_static_method_object,
-    emit_published_view_exe, try_compile_published_view_object,
+    emit_published_static_method_exe, emit_published_view_exe,
+    try_compile_published_static_method_object, try_compile_published_view_object,
 };
 /// Compile textual LLVM IR to an object file through the thin Rust tool boundary.
 pub fn ll_text_to_object(ll_text: &str, opts: Opts) -> Result<PathBuf, String> {

@@ -104,7 +104,8 @@ fn normal_preparation_preserves_local_with_and_without_prelude() {
                             },
                         );
                     assert!(result
-                        .err().unwrap()
+                        .err()
+                        .unwrap()
                         .to_string()
                         .contains("caller-prefix-capability"));
                 }

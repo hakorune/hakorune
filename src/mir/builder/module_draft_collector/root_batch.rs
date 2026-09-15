@@ -494,7 +494,11 @@ pub(super) fn plan_admission_v1(
             Ok(PreparedCollectorReplacementV1::Canonical)
         }
         DraftPublicationPolicyV1::LegacyReplaceWholePair => {
-            if collector.drafts.get(key).is_some_and(|entry| entry.construction.is_some()) {
+            if collector
+                .drafts
+                .get(key)
+                .is_some_and(|entry| entry.construction.is_some())
+            {
                 return Err(ModuleDraftAdmissionErrorV1::ConstructionPayloadBoundary);
             }
             let pairing_matches = match (&symbol_key, &key_symbol) {

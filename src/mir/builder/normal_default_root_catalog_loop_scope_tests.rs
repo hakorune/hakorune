@@ -58,7 +58,10 @@ fn source_backed_loop_keeps_invocation_scope_and_ledger_route() {
         "static box Scan { run(i, limit) { local x = i loop(x < limit) { x = x + 1 } return x } } static box Main { main() { return 0 } }",
     );
     crate::test_support::with_env_vars(
-        &[("HAKO_JOINIR_STRICT", Some("1")), ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1"))],
+        &[
+            ("HAKO_JOINIR_STRICT", Some("1")),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+        ],
         || {
             crate::runtime::ring0::ensure_global_ring0_initialized();
             let rejected = session()

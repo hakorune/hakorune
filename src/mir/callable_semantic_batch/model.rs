@@ -45,8 +45,7 @@ pub(crate) struct VerifiedResolvedCallableSemanticBatchV1 {
     /// roots. The optional slot preserves the existing App Main direct-call
     /// loan without copying the index into a second field. Nested owners never
     /// receive this product.
-    pub(super) callable_index:
-        Option<crate::mir::resolved_semantics::VerifiedCallableIndexV1>,
+    pub(super) callable_index: Option<crate::mir::resolved_semantics::VerifiedCallableIndexV1>,
     pub(super) main_callable_slot: Option<u32>,
     /// Resolver-owned source relation for exact root `me.method(...)` calls.
     /// This is facts-only; target, receiver ValueId, effects, and ABI remain
@@ -152,8 +151,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         u32,
         &crate::mir::resolved_semantics::VerifiedCallableIndexV1,
     )> {
-        self.main_callable_slot
-            .zip(self.callable_index.as_ref())
+        self.main_callable_slot.zip(self.callable_index.as_ref())
     }
 
     /// Borrow the resolver-issued source-unit index shared by eligible
@@ -228,13 +226,10 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                     .get(index)
                     .filter(|row| row.batch_slot() == batch_slot)
                     .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::SourceCoverage)?;
-                let callable_index = self
-                    .callable_index
-                    .as_ref()
-                    .filter(|index| {
-                        self.main_callable_slot == Some(batch_slot)
-                            || index.header_for_owner(semantic.owner).is_some()
-                    });
+                let callable_index = self.callable_index.as_ref().filter(|index| {
+                    self.main_callable_slot == Some(batch_slot)
+                        || index.header_for_owner(semantic.owner).is_some()
+                });
                 let input = match callable_index {
                     Some(index) => {
                         ResolvedFunctionLoweringInputV1::from_exact_parts_with_callable_index(

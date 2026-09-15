@@ -1,7 +1,9 @@
 use super::*;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
-use crate::mir::resolved_semantics::{CallableFunctionSyntaxViewV1,
-    FunctionSemanticResolverSessionV1, ResolveSelectedCallableForestsOutcomeV1};
+use crate::mir::resolved_semantics::{
+    CallableFunctionSyntaxViewV1, FunctionSemanticResolverSessionV1,
+    ResolveSelectedCallableForestsOutcomeV1,
+};
 use crate::parser::NyashParser;
 
 fn fixture() -> CallableSemanticLoweringState {
@@ -46,26 +48,40 @@ fn local_initializer_lookup_uses_exact_declaration_and_preserves_binding() {
     assert_eq!(state.initializers.len(), 2);
     for (site, bindings) in &state.locals {
         for (ordinal, binding) in bindings.iter().enumerate() {
-            assert_eq!(state.local_initializer(site, ordinal).unwrap().binding(), *binding);
+            assert_eq!(
+                state.local_initializer(site, ordinal).unwrap().binding(),
+                *binding
+            );
         }
     }
     let site = state.locals.keys().next().unwrap();
-    assert!(state.local_initializer(site, usize::MAX).unwrap_err().contains("placement-local-missing"));
+    assert!(state
+        .local_initializer(site, usize::MAX)
+        .unwrap_err()
+        .contains("placement-local-missing"));
 }
 
 #[test]
 fn local_initializer_lookup_rejects_missing_locator_and_foreign_binding() {
     let mut state = fixture();
     let keys: Vec<_> = state.initializers.keys().cloned().collect();
-    let SourceBindingSiteV1::Local { statement, ordinal } = &keys[0] else { panic!("local") };
+    let SourceBindingSiteV1::Local { statement, ordinal } = &keys[0] else {
+        panic!("local")
+    };
     let first = state.initializers.remove(&keys[0]).unwrap();
-    assert!(state.local_initializer(statement.node(), *ordinal as usize)
-        .unwrap_err().contains("placement-initializer-missing"));
+    assert!(state
+        .local_initializer(statement.node(), *ordinal as usize)
+        .unwrap_err()
+        .contains("placement-initializer-missing"));
     // Even a row with a valid foreign declaration must not satisfy this slot.
     let other = state.initializers.get(&keys[1]).unwrap().clone();
     state.initializers.insert(keys[0].clone(), other);
-    assert!(state.local_initializer(statement.node(), *ordinal as usize)
-        .unwrap_err().contains("placement-initializer-binding-drift"));
+    assert!(state
+        .local_initializer(statement.node(), *ordinal as usize)
+        .unwrap_err()
+        .contains("placement-initializer-binding-drift"));
     state.initializers.insert(keys[0].clone(), first);
-    assert!(state.local_initializer(statement.node(), *ordinal as usize).is_ok());
+    assert!(state
+        .local_initializer(statement.node(), *ordinal as usize)
+        .is_ok());
 }

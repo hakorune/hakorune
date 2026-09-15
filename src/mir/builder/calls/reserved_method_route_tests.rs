@@ -173,7 +173,8 @@ fn selected_repl_route_preserves_extern_call() {
             matches!(&call.callee, Callee::Extern(name) if name == "__repl.get")
         }
         MirInstruction::LegacyCallV0 {
-            callee: Some(Callee::Extern(name)), ..
+            callee: Some(Callee::Extern(name)),
+            ..
         } => name == "__repl.get",
         _ => false,
     }));

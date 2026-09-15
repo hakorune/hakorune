@@ -22,7 +22,11 @@ fn static_method_call() -> ASTNode {
 #[test]
 fn raw_root_source_loss_retains_the_root_lineage_witness() {
     let root = RawInvocationRootLineageV1::Main(crate::mir::builder::RawSourceLocatorV1::for_test(
-        0, "Main", "main", "Main.main/0", 0,
+        0,
+        "Main",
+        "main",
+        "Main.main/0",
+        0,
     ));
     let (_, context) = RawInvocationSourceContextV1::from_transport(
         RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root.clone()),

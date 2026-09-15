@@ -1,8 +1,8 @@
 use super::*;
 use crate::mir::MirModule;
 use crate::mir::{
-    BasicBlockId, BinaryOp, ConstValue, EffectMask, FunctionSignature,
-    MirFunction, MirInstruction, MirType, ValueId,
+    BasicBlockId, BinaryOp, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
+    MirType, ValueId,
 };
 
 fn make_module_with_single_const_return(value: i64) -> MirModule {

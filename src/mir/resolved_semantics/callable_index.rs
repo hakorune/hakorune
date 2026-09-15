@@ -267,7 +267,8 @@ impl VerifiedCallableIndexV1 {
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Option<&VerifiedCallableHeaderV1> {
-        self.header_for_callable(ResolvedCallableRefV1::new(owner)).ok()
+        self.header_for_callable(ResolvedCallableRefV1::new(owner))
+            .ok()
     }
 
     pub(crate) fn header_for_symbol(

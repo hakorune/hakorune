@@ -371,11 +371,16 @@ mod tests {
             }
         );
         let mut birth = Callee::BirthConstructor {
-            key: crate::callable_key::CanonicalSameModuleCallableKeyV1::birth_constructor("Probe", 1),
+            key: crate::callable_key::CanonicalSameModuleCallableKeyV1::birth_constructor(
+                "Probe", 1,
+            ),
             receiver: ValueId::new(0),
         };
         assert!(birth.has_receiver());
-        assert!(!birth.is_constructor(), "Birth is a hook, not NewBox allocation");
+        assert!(
+            !birth.is_constructor(),
+            "Birth is a hook, not NewBox allocation"
+        );
         let mut operands = Vec::new();
         birth.for_each_value_operand(|value| operands.push(value));
         assert_eq!(operands, [ValueId::new(0)]);

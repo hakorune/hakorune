@@ -69,7 +69,9 @@ impl MirInstruction {
             | MirInstruction::RecordFieldContractCheck { .. }
             | MirInstruction::RecordValuePublish { .. } => EffectMask::CONTROL,
 
-            MirInstruction::MapLiteralEntryWrite { .. } => EffectMask::MUT.add(crate::mir::Effect::Io),
+            MirInstruction::MapLiteralEntryWrite { .. } => {
+                EffectMask::MUT.add(crate::mir::Effect::Io)
+            }
 
             // Memory operations
             MirInstruction::Load { .. }
@@ -312,7 +314,11 @@ impl MirInstruction {
                 values
             }
 
-            MirInstruction::MapLiteralEntryWrite { receiver, key, value } => vec![*receiver, *key, *value],
+            MirInstruction::MapLiteralEntryWrite {
+                receiver,
+                key,
+                value,
+            } => vec![*receiver, *key, *value],
 
             MirInstruction::ArrayStateContractClaim { array, .. } => vec![*array],
 
@@ -346,8 +352,9 @@ impl MirInstruction {
                 ..
             } => vec![*lhs, *rhs],
 
-            MirInstruction::FieldGet { base, .. }
-            | MirInstruction::ObjectFieldGet { base, .. } => vec![*base],
+            MirInstruction::FieldGet { base, .. } | MirInstruction::ObjectFieldGet { base, .. } => {
+                vec![*base]
+            }
             MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
             MirInstruction::WeakFieldWrite { base, value, .. } => vec![*base, *value],
             MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),
@@ -358,7 +365,8 @@ impl MirInstruction {
 
             // Phase 287: Lifecycle management uses all values
             MirInstruction::KeepAlive { values } => values.clone(),
-            MirInstruction::DestroyOwned { value } | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
+            MirInstruction::DestroyOwned { value }
+            | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
             MirInstruction::ReleaseStrong { values } => values.clone(),
 
             // Phase 256 P1.5: Select instruction uses cond, then_val, else_val

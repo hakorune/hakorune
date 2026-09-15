@@ -406,7 +406,10 @@ fn argument_failure_enters_no_terminal_and_builder_reuses() {
         .blocks
         .values()
         .flat_map(|block| &block.instructions)
-        .any(|instruction| matches!(instruction, MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. })));
+        .any(|instruction| matches!(
+            instruction,
+            MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }
+        )));
 
     port.fail_argument = None;
     port.events.clear();
@@ -649,9 +652,10 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
         .flat_map(|block| &block.instructions)
         .cloned()
         .collect::<Vec<_>>();
-    assert!(!failed_instructions
-        .iter()
-        .any(|instruction| matches!(instruction, MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. })));
+    assert!(!failed_instructions.iter().any(|instruction| matches!(
+        instruction,
+        MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }
+    )));
     assert!(builder
         .function_state
         .type_ctx
@@ -676,7 +680,10 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
             .blocks
             .values()
             .flat_map(|block| &block.instructions)
-            .filter(|instruction| matches!(instruction, MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }))
+            .filter(|instruction| matches!(
+                instruction,
+                MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }
+            ))
             .count(),
         1
     );
@@ -725,11 +732,20 @@ fn property_completion_uses_selected_catalog_child_but_raw_terminal() {
             MirInstruction::Call(call)
                 if call.dst == Some(result)
                     && matches!(&call.callee, Callee::Method { method, receiver: Some(_), .. }
-                        if method == "propertyGetter") => Some((result, call.args.len())),
+                        if method == "propertyGetter") =>
+            {
+                Some((result, call.args.len()))
+            }
             MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
-                callee: Some(Callee::Method { method, receiver: Some(_), .. }),
-                args, ..
+                callee:
+                    Some(Callee::Method {
+                        method,
+                        receiver: Some(_),
+                        ..
+                    }),
+                args,
+                ..
             } if method == "propertyGetter" => Some((*dst, args.len())),
             _ => None,
         })

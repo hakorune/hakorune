@@ -120,7 +120,9 @@ fn invoke_projection_retains_issued_target_and_has_no_embedded_result() {
     let emission = VerifiedCanonicalDirectCallEmissionV1::from_header_with_published_key(
         &header(),
         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
-            "Main", "countdown", 1,
+            "Main",
+            "countdown",
+            1,
         ),
     );
     let target = emission.target() as *const _;
@@ -131,7 +133,10 @@ fn invoke_projection_retains_issued_target_and_has_no_embedded_result() {
     assert!(projected.effects.contains(Effect::Barrier));
     assert_eq!(
         emission.materialize_call(None, Vec::new()),
-        Err(DirectCallEmissionErrorV1::ArgumentCardinality { expected: 1, actual: 0 }),
+        Err(DirectCallEmissionErrorV1::ArgumentCardinality {
+            expected: 1,
+            actual: 0
+        }),
     );
     let MirInstruction::Call(scalar) = emission.materialize(ValueId::new(9), args).unwrap() else {
         unreachable!()

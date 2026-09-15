@@ -101,13 +101,7 @@ pub(crate) fn issue_generic_g0_recipe_demand_v1(
     verify_evidence(&evidence, &window_lease, mode, coverage)?;
 
     let (handoff, policy_context) = observation.into_parts();
-    issue_generic_g0_recipe_demand_from_parts(
-        window_lease,
-        mode,
-        coverage,
-        handoff,
-        policy_context,
-    )
+    issue_generic_g0_recipe_demand_from_parts(window_lease, mode, coverage, handoff, policy_context)
 }
 
 /// Production G0 ingress for the source-backed issuer.  Unlike the legacy
@@ -121,13 +115,7 @@ pub(crate) fn issue_generic_g0_recipe_demand_from_observation_v1(
     let (handoff, policy_context) = observation.into_parts();
     let mode = map_policy_mode(policy_context.mode());
     let coverage = map_policy_coverage(policy_context.coverage());
-    issue_generic_g0_recipe_demand_from_parts(
-        window_lease,
-        mode,
-        coverage,
-        handoff,
-        policy_context,
-    )
+    issue_generic_g0_recipe_demand_from_parts(window_lease, mode, coverage, handoff, policy_context)
 }
 
 fn issue_generic_g0_recipe_demand_from_parts(

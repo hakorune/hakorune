@@ -295,8 +295,7 @@ impl ParserNormalSourcePlanSurfaceIssuerV1 {
         };
         if matches!(
             completed.program_cohort_for_admission(),
-            ParserPostpassProgramCohortV1::StaticBox
-                | ParserPostpassProgramCohortV1::MixedProgram
+            ParserPostpassProgramCohortV1::StaticBox | ParserPostpassProgramCohortV1::MixedProgram
         ) && static_parent_seal.is_none()
         {
             return ParserNormalSourcePlanSurfaceDispositionV1::IntegrityInvalid(

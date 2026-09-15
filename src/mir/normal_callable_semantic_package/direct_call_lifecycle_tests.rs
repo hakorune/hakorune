@@ -153,7 +153,15 @@ fn three_distinct_map_call_owners_share_source_ordered_local_bindings() {
         .call_source_completion()
         .expect("terminal Call relation")
         .0;
-    assert_eq!(completion.cleanup().root_flow().unwrap().local_calls().len(), 2);
+    assert_eq!(
+        completion
+            .cleanup()
+            .root_flow()
+            .unwrap()
+            .local_calls()
+            .len(),
+        2
+    );
     let mut context = crate::mir::builder::CompilationContext::new();
     assert!(package.prepare_install(&mut context).is_ok());
 }
@@ -215,7 +223,15 @@ fn four_distinct_map_call_owners_share_three_source_ordered_local_bindings() {
         .call_source_completion()
         .expect("terminal Call relation")
         .0;
-    assert_eq!(completion.cleanup().root_flow().unwrap().local_calls().len(), 3);
+    assert_eq!(
+        completion
+            .cleanup()
+            .root_flow()
+            .unwrap()
+            .local_calls()
+            .len(),
+        3
+    );
     let mut context = crate::mir::builder::CompilationContext::new();
     assert!(package.prepare_install(&mut context).is_ok());
 }
@@ -252,7 +268,15 @@ fn five_distinct_map_call_owners_share_four_source_ordered_local_bindings() {
         .call_source_completion()
         .expect("terminal Call relation")
         .0;
-    assert_eq!(completion.cleanup().root_flow().unwrap().local_calls().len(), 4);
+    assert_eq!(
+        completion
+            .cleanup()
+            .root_flow()
+            .unwrap()
+            .local_calls()
+            .len(),
+        4
+    );
     let mut context = crate::mir::builder::CompilationContext::new();
     assert!(package.prepare_install(&mut context).is_ok());
 }

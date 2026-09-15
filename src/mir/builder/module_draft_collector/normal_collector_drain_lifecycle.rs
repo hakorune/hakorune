@@ -8,14 +8,14 @@
 use std::collections::BTreeSet;
 
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::builder::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
+#[cfg(test)]
+use crate::mir::builder::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
 use crate::mir::callable_result_representation::StaticCallResultPublicationOwnerFinishErrorV1;
 use crate::mir::function::{
     CanonicalCallableDefinitionPublicationErrorV1, FunctionPublicationErrorV1,
 };
 use crate::mir::MirModule;
-use crate::mir::builder::normal_callable_semantic_lowering_state::construction::RetainedConstructionDrafts;
-#[cfg(test)]
-use crate::mir::builder::normal_callable_semantic_lowering_state::construction::RetainedConstructionValidation;
 #[cfg(test)]
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
@@ -133,7 +133,10 @@ impl ModuleDraftCollectorV1 {
     pub(in crate::mir::builder) fn with_required_object_definitions(
         brand: ModuleInvocationBrandV1,
     ) -> Self {
-        Self { object_definitions_required: true, ..Self::with_brand(brand) }
+        Self {
+            object_definitions_required: true,
+            ..Self::with_brand(brand)
+        }
     }
 
     pub(in crate::mir::builder) fn install_object_definitions_from_package(
@@ -225,8 +228,9 @@ impl SealedNormalCollectorDrainReceiptV1 {
             return Err(NormalCollectorDrainLifecycleErrorV1::ObjectDefinitionsMissing);
         }
         if collector.object_definitions.is_some() {
-            target.preflight_object_definition_install()
-                .map_err(|_| NormalCollectorDrainLifecycleErrorV1::ObjectDefinitionDestinationOccupied)?;
+            target.preflight_object_definition_install().map_err(|_| {
+                NormalCollectorDrainLifecycleErrorV1::ObjectDefinitionDestinationOccupied
+            })?;
         }
         let mut symbols = BTreeSet::new();
         let mut canonical_keys = BTreeSet::new();
@@ -237,7 +241,9 @@ impl SealedNormalCollectorDrainReceiptV1 {
                 && (!matches!(key, FunctionDraftKeyV1::CatalogedConstructor(_))
                     || admission.policy != DraftPublicationPolicyV1::CanonicalRejectDuplicate)
             {
-                return Err(NormalCollectorDrainLifecycleErrorV1::FinalAdmissionDrift { key: key.clone() });
+                return Err(NormalCollectorDrainLifecycleErrorV1::FinalAdmissionDrift {
+                    key: key.clone(),
+                });
             }
             if admission.key != *key
                 || admission.symbol.as_ref() != entry.draft.signature.name

@@ -423,10 +423,14 @@ impl ModuleDraftCollectorV1 {
     /// No header or identity side table is returned: the physical drafts and
     /// their collector indexes are consumed together by the one drain owner.
     pub(in crate::mir::builder) fn has_retained_construction(&self) -> bool {
-        self.drafts.values().any(|entry| entry.construction.is_some())
+        self.drafts
+            .values()
+            .any(|entry| entry.construction.is_some())
     }
 
-    pub(in crate::mir::builder) fn into_draft_functions(self) -> Result<Vec<MirFunction>, &'static str> {
+    pub(in crate::mir::builder) fn into_draft_functions(
+        self,
+    ) -> Result<Vec<MirFunction>, &'static str> {
         if self.has_retained_construction() {
             return Err("[freeze:contract][construction/unsupported-collector-drain]");
         }

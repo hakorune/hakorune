@@ -494,7 +494,8 @@ fn rewrite_substring_receiver(
                 method,
                 ..
             } if matches!(call.args.len(), 2 | 3)
-                && matches!(method.as_str(), "substring" | "slice") => {
+                && matches!(method.as_str(), "substring" | "slice") =>
+            {
                 let mut rewritten_callee = callee.clone();
                 if let Callee::Method { receiver, .. } = &mut rewritten_callee {
                     *receiver = Some(new_receiver);
@@ -533,8 +534,7 @@ fn rewrite_substring_receiver(
             args,
             effects,
             ..
-        } if matches!(args.len(), 2 | 3)
-            && matches!(method.as_str(), "substring" | "slice") => {
+        } if matches!(args.len(), 2 | 3) && matches!(method.as_str(), "substring" | "slice") => {
             let mut rewritten_callee = callee.clone();
             if let Callee::Method { receiver, .. } = &mut rewritten_callee {
                 *receiver = Some(new_receiver);

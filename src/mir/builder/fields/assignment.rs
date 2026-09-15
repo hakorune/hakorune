@@ -1,16 +1,16 @@
 //! Field-assignment admission and physical emission; read lowering stays in the parent.
 
+use super::store_post_success::PreparedOrdinaryFieldStoreAccessSiteV1;
 use crate::ast::ASTNode;
-use crate::mir::builder::MirBuilder;
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
 };
 use crate::mir::builder::weak_field_write_route::{
     prepare_field_write_route_v1, PreparedFieldWriteRouteV1,
 };
+use crate::mir::builder::MirBuilder;
 use crate::mir::instruction::FastMemRegionId;
 use crate::mir::ValueId;
-use super::store_post_success::PreparedOrdinaryFieldStoreAccessSiteV1;
 
 /// Ordinary Field-assignment source and record-target admission prepared once.
 pub(in crate::mir::builder) struct PreparedRawFieldAssignmentV1 {

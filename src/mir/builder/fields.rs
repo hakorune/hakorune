@@ -52,11 +52,21 @@ enum PreparedRawFieldReadRouteV1 {
 
 impl PreparedRawFieldReadV1 {
     pub(in crate::mir::builder) fn exact_object(
-        object: ASTNode, base: ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1,
+        object: ASTNode,
+        base: ValueId,
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
         site: crate::mir::resolved_semantics::OwnedExprSiteV1,
         ledger: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
     ) -> Self {
-        Self { route: PreparedRawFieldReadRouteV1::ExactObject { object, base, field, site, ledger } }
+        Self {
+            route: PreparedRawFieldReadRouteV1::ExactObject {
+                object,
+                base,
+                field,
+                site,
+                ledger,
+            },
+        }
     }
     pub(in crate::mir::builder) fn prepare(
         builder: &super::MirBuilder,
@@ -115,8 +125,11 @@ impl PreparedRawFieldReadV1 {
     }
 
     pub(in crate::mir::builder) fn requires_receiver_source_v1(&self) -> bool {
-        matches!(self.route, PreparedRawFieldReadRouteV1::Dynamic { .. }
-            | PreparedRawFieldReadRouteV1::ExactObject { .. })
+        matches!(
+            self.route,
+            PreparedRawFieldReadRouteV1::Dynamic { .. }
+                | PreparedRawFieldReadRouteV1::ExactObject { .. }
+        )
     }
 }
 
@@ -130,16 +143,33 @@ impl super::MirBuilder {
         Port: RawAstChildLoweringPortV1,
     {
         match prepared.route {
-            PreparedRawFieldReadRouteV1::ExactObject { object, base, field, site, ledger } => {
+            PreparedRawFieldReadRouteV1::ExactObject {
+                object,
+                base,
+                field,
+                site,
+                ledger,
+            } => {
                 let actual = drive_legacy_expression_v1(self, port, object)?;
                 if actual != base {
-                    return Err("[freeze:contract][ordinary-field-read/receiver-value-mismatch]".into());
+                    return Err(
+                        "[freeze:contract][ordinary-field-read/receiver-value-mismatch]".into(),
+                    );
                 }
-                let block = self.function_state.current_block
+                let block = self
+                    .function_state
+                    .current_block
                     .ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
                 let dst = self.next_value_id();
-                self.emit_instruction(crate::mir::MirInstruction::ObjectFieldGet { dst, base, field })?;
-                self.function_state.type_ctx.value_types.insert(dst, crate::mir::MirType::Integer);
+                self.emit_instruction(crate::mir::MirInstruction::ObjectFieldGet {
+                    dst,
+                    base,
+                    field,
+                })?;
+                self.function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, crate::mir::MirType::Integer);
                 ledger.record_terminal_field_read(&site, block, dst, base, field)?;
                 Ok(dst)
             }

@@ -43,8 +43,8 @@ impl LlvmHarnessInvocationPolicyV1 {
         Self {
             harness_selector_enabled,
             primary_request_failfast: crate::config::env::llvm_harness_primary_requested(),
-            child_nyrt_precheck_bypass:
-                crate::config::env::llvm_harness_child_nyrt_precheck_bypass(),
+            child_nyrt_precheck_bypass: crate::config::env::llvm_harness_child_nyrt_precheck_bypass(
+            ),
         }
     }
 }
@@ -153,7 +153,9 @@ impl NyashRunner {
                         return Err("selected Dynamic object emission is not a live Boundary artifact route; request --emit-exe".to_owned());
                     }
                     if crate::host_providers::llvm_codegen::try_compile_published_view_object(
-                        view, out_path, self.config.emit_exe_nyrt.as_deref(),
+                        view,
+                        out_path,
+                        self.config.emit_exe_nyrt.as_deref(),
                     )? {
                         Ok(())
                     } else {

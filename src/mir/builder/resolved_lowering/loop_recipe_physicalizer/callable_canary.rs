@@ -383,10 +383,10 @@ fn materialize_parameters(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::compiler::callable_loop_physical_canary::into_canary_parts;
     use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
     use crate::mir::builder::resolved_lowering::MirBuilder;
     use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
+    use crate::mir::compiler::callable_loop_physical_canary::into_canary_parts;
     use crate::mir::compiler::callable_single_loop_recipe_coseal::issue_callable_single_loop_recipe_v1;
     use crate::mir::compiler::callable_single_loop_source_map::issue_callable_single_loop_source_map_v1;
     use crate::mir::compiler::callable_single_loop_source_shapes::SourceReceiverShapeV1;

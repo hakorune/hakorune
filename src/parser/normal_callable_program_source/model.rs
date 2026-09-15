@@ -1,7 +1,7 @@
 use crate::ast::ASTNode;
 use crate::mir::CanonicalSourceBytesDigestV1;
-use hakorune_frontend_parser::parser::GrammarProfile;
 use crate::runner::modes::common_util::resolve::MergedSourceLineageV1;
+use hakorune_frontend_parser::parser::GrammarProfile;
 
 use super::super::callable_contract_syntax::CallableContractSourceDispositionV1;
 use super::super::callable_parameter_source::{
@@ -28,8 +28,8 @@ use super::semantic_syntax_loan::{
     build_final_callable_semantic_syntax_loan_v1, FinalCallableSemanticSyntaxLoanErrorV1,
     FinalCallableSemanticSyntaxLoanV1,
 };
-use super::transform::FinalCallableProgramSourceRejectV1;
 use super::source_admission::ParserSourceAdmissionWitnessV1;
+use super::transform::FinalCallableProgramSourceRejectV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NormalCallableParserCompatibilityV1 {
@@ -101,10 +101,7 @@ impl NormalParserSourceLineageV1 {
         })
     }
 
-    pub(crate) fn with_merged_source_lineage(
-        mut self,
-        lineage: MergedSourceLineageV1,
-    ) -> Self {
+    pub(crate) fn with_merged_source_lineage(mut self, lineage: MergedSourceLineageV1) -> Self {
         debug_assert!(self.merged_source_lineage.is_none());
         self.merged_source_lineage = Some(lineage);
         self
@@ -499,7 +496,9 @@ impl VerifiedFinalCallableProgramSourceV1 {
         R,
         super::super::constructor_source_catalog::FinalConstructorSemanticSyntaxLoanErrorV1,
     > {
-        let loan = self.constructor_source.syntax_loan(&self.ast, &self.ordinary_box_coverage)?;
+        let loan = self
+            .constructor_source
+            .syntax_loan(&self.ast, &self.ordinary_box_coverage)?;
         Ok(callback(loan))
     }
 
@@ -510,7 +509,9 @@ impl VerifiedFinalCallableProgramSourceV1 {
         row: &super::ParserOrdinaryBoxSourceRowV1,
         callback: impl for<'source> FnOnce(&'source ASTNode) -> R,
     ) -> Result<R, super::FinalCallableProgramSourceRejectV1> {
-        let declaration = self.ordinary_box_coverage.declaration(row, &self.ast)
+        let declaration = self
+            .ordinary_box_coverage
+            .declaration(row, &self.ast)
             .ok_or(super::FinalCallableProgramSourceRejectV1::OrdinaryBoxSourceChanged)?;
         Ok(callback(declaration))
     }

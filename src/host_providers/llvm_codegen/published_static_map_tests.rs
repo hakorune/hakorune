@@ -5,8 +5,12 @@ use crate::mir::{MirCompiler, NormalCompileRequestV1};
 #[test]
 #[ignore = "requires C FFI, LLVM18 and quick kernel archive"]
 fn static_map_source_v2_direct_and_linked_objects() {
-    std::thread::Builder::new().stack_size(32 * 1024 * 1024)
-        .spawn(run_static_map_sources).unwrap().join().unwrap();
+    std::thread::Builder::new()
+        .stack_size(32 * 1024 * 1024)
+        .spawn(run_static_map_sources)
+        .unwrap()
+        .join()
+        .unwrap();
 }
 
 fn run_static_map_sources() {

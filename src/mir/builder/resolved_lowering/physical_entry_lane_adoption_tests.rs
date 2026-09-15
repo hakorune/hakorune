@@ -78,12 +78,9 @@ fn emits_one_direct_length_call_and_i64_receipt_in_unpublished_session() {
                 let calls: Vec<_> = instructions
                     .iter()
                     .filter_map(|instruction| match instruction {
-                        MirInstruction::Call(call) => Some((
-                            call.dst,
-                            &call.callee,
-                            &call.args,
-                            call.effects,
-                        )),
+                        MirInstruction::Call(call) => {
+                            Some((call.dst, &call.callee, &call.args, call.effects))
+                        }
                         MirInstruction::LegacyCallV0 {
                             dst,
                             callee: Some(callee),
@@ -123,7 +120,8 @@ fn emits_one_direct_length_call_and_i64_receipt_in_unpublished_session() {
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -163,7 +161,10 @@ fn direct_length_call_late_failure_discards_call_and_receipt() {
                 assert!(draft
                     .current_function_instructions()
                     .iter()
-                    .any(|instruction| matches!(instruction, MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. })));
+                    .any(|instruction| matches!(
+                        instruction,
+                        MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }
+                    )));
                 Err::<(), _>("late direct-call rejection".to_owned())
             },
         );
@@ -172,7 +173,8 @@ fn direct_length_call_late_failure_discards_call_and_receipt() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -221,7 +223,8 @@ fn adopts_exact_text_slot_once_and_retains_generation_sidecar() {
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -265,7 +268,8 @@ fn foreign_expected_invocation_brand_rejects_before_session_open() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -323,7 +327,8 @@ fn length_result_canary_is_same_cohort_and_one_shot() {
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -375,7 +380,8 @@ fn condition_block_target_is_same_session_and_callback_scoped() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -443,7 +449,8 @@ fn length_receiver_operand_is_same_session_and_one_shot() {
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -492,7 +499,8 @@ fn length_receiver_operand_late_failure_discards_unpublished_session() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -538,7 +546,8 @@ fn condition_block_target_late_failure_discards_unpublished_session() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -581,7 +590,8 @@ fn late_callback_failure_discards_builder_and_physical_session() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -627,7 +637,8 @@ fn allocates_only_source_segment_blocks() {
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -680,7 +691,8 @@ fn segment_allocation_late_failure_discards_unpublished_blocks() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -741,6 +753,7 @@ fn after_allocation_is_one_shot_and_unpublished() {
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }

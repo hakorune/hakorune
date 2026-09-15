@@ -445,8 +445,9 @@ fn installed_home_precedes_checked_and_failed_validation_preserves_progress() {
     }
     let mut bad = fixture.function.clone();
     for block in bad.blocks.values_mut() {
-        block.instructions.retain(|instruction|
-            !matches!(instruction, crate::mir::MirInstruction::Copy { .. }));
+        block
+            .instructions
+            .retain(|instruction| !matches!(instruction, crate::mir::MirInstruction::Copy { .. }));
     }
     assert!(ledger
         .complete_new_emissions(fixture.owner, &bad)

@@ -103,10 +103,20 @@ fn issued_map_source_direct_exe_and_linked_object_exit_30() {
                         }
                         // Duplicate-key source under both NoBirth and empty Birth.
                         if case == 6 || case == 12 {
-                            assert_source_fault_cleanup(&object, session.runtime_archive(), &dir, false)?;
+                            assert_source_fault_cleanup(
+                                &object,
+                                session.runtime_archive(),
+                                &dir,
+                                false,
+                            )?;
                         }
                         if case == first_value_case + 2 {
-                            assert_source_fault_cleanup(&object, session.runtime_archive(), &dir, true)?;
+                            assert_source_fault_cleanup(
+                                &object,
+                                session.runtime_archive(),
+                                &dir,
+                                true,
+                            )?;
                         }
                         Ok(())
                     },
@@ -168,16 +178,11 @@ fn issued_ordinary_child_map_value_direct_exe_and_linked_object_exit_30() {
                     None,
                 )
                 .map_err(|error| format!("direct: {error}"))?);
-                let session = LifecycleRuntimeSessionV1::select(
-                    runtime.join("libnyash_lifecycle_kernel.a"),
-                )?;
+                let session =
+                    LifecycleRuntimeSessionV1::select(runtime.join("libnyash_lifecycle_kernel.a"))?;
                 let object = dir.join("ordinary-child-map.o");
-                compile_published_view_object(
-                    view,
-                    object.to_str().unwrap(),
-                    Some(&session),
-                )
-                .map_err(|error| format!("object: {error}"))?;
+                compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
+                    .map_err(|error| format!("object: {error}"))?;
                 let linked = dir.join("linked");
                 super::super::link_object_capi_v2(
                     &object,
@@ -252,16 +257,10 @@ fn issued_ordinary_child_new_birth_map_direct_exe_and_linked_object_exit_30() {
                 assert!(json.contains("home_release"));
                 let runtime = Path::new("target/lifecycle-kernel/release");
                 let direct = dir.join("direct");
-                emit_published_view_exe(
-                    view,
-                    direct.to_str().unwrap(),
-                    runtime.to_str(),
-                    None,
-                )
-                .map_err(|error| format!("direct: {error}"))?;
-                let session = LifecycleRuntimeSessionV1::select(
-                    runtime.join("libnyash_lifecycle_kernel.a"),
-                )?;
+                emit_published_view_exe(view, direct.to_str().unwrap(), runtime.to_str(), None)
+                    .map_err(|error| format!("direct: {error}"))?;
+                let session =
+                    LifecycleRuntimeSessionV1::select(runtime.join("libnyash_lifecycle_kernel.a"))?;
                 let object = dir.join("ordinary-child-new-birth-map.o");
                 compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
                     .map_err(|error| format!("object: {error}"))?;
@@ -338,16 +337,11 @@ fn issued_root_and_ordinary_child_map_values_direct_exe_and_linked_object_exit_3
                     None,
                 )
                 .map_err(|error| format!("direct: {error}"))?);
-                let session = LifecycleRuntimeSessionV1::select(
-                    runtime.join("libnyash_lifecycle_kernel.a"),
-                )?;
+                let session =
+                    LifecycleRuntimeSessionV1::select(runtime.join("libnyash_lifecycle_kernel.a"))?;
                 let object = dir.join("root-and-ordinary-map.o");
-                compile_published_view_object(
-                    view,
-                    object.to_str().unwrap(),
-                    Some(&session),
-                )
-                .map_err(|error| format!("object: {error}"))?;
+                compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
+                    .map_err(|error| format!("object: {error}"))?;
                 let linked = dir.join("linked");
                 super::super::link_object_capi_v2(
                     &object,
@@ -417,9 +411,8 @@ fn issued_local_and_terminal_map_calls_direct_exe_and_linked_object_exit_30() {
                 let direct = dir.join("direct");
                 emit_published_view_exe(view, direct.to_str().unwrap(), runtime.to_str(), None)
                     .map_err(|error| format!("direct: {error}"))?;
-                let session = LifecycleRuntimeSessionV1::select(
-                    runtime.join("libnyash_lifecycle_kernel.a"),
-                )?;
+                let session =
+                    LifecycleRuntimeSessionV1::select(runtime.join("libnyash_lifecycle_kernel.a"))?;
                 let object = dir.join("local-and-terminal-map.o");
                 compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
                     .map_err(|error| format!("object: {error}"))?;
@@ -494,9 +487,8 @@ fn issued_distinct_map_call_owners_direct_exe_and_linked_object_exit_30() {
                 let direct = dir.join("direct");
                 emit_published_view_exe(view, direct.to_str().unwrap(), runtime.to_str(), None)
                     .map_err(|error| format!("direct: {error}"))?;
-                let session = LifecycleRuntimeSessionV1::select(
-                    runtime.join("libnyash_lifecycle_kernel.a"),
-                )?;
+                let session =
+                    LifecycleRuntimeSessionV1::select(runtime.join("libnyash_lifecycle_kernel.a"))?;
                 let object = dir.join("distinct-map-owners.o");
                 compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
                     .map_err(|error| format!("object: {error}"))?;
@@ -573,9 +565,8 @@ fn issued_three_distinct_map_call_owners_direct_exe_and_linked_object_exit_30() 
                 let direct = dir.join("direct");
                 emit_published_view_exe(view, direct.to_str().unwrap(), runtime.to_str(), None)
                     .map_err(|error| format!("direct: {error}"))?;
-                let session = LifecycleRuntimeSessionV1::select(
-                    runtime.join("libnyash_lifecycle_kernel.a"),
-                )?;
+                let session =
+                    LifecycleRuntimeSessionV1::select(runtime.join("libnyash_lifecycle_kernel.a"))?;
                 let object = dir.join("three-map-owners.o");
                 compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
                     .map_err(|error| format!("object: {error}"))?;
@@ -594,11 +585,7 @@ fn issued_three_distinct_map_call_owners_direct_exe_and_linked_object_exit_30() 
                         .map_err(|e| e.to_string())?;
                     assert_eq!(output.status.code(), Some(30), "{exe:?}: {output:?}");
                 }
-                assert_three_owner_fault_cleanup(
-                    &object,
-                    session.runtime_archive(),
-                    &dir,
-                )?;
+                assert_three_owner_fault_cleanup(&object, session.runtime_archive(), &dir)?;
                 Ok(())
             },
         );
@@ -607,7 +594,12 @@ fn issued_three_distinct_map_call_owners_direct_exe_and_linked_object_exit_30() 
     });
 }
 
-fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path, value_mixed: bool) -> Result<(), String> {
+fn assert_source_fault_cleanup(
+    object: &Path,
+    archive: &Path,
+    dir: &Path,
+    value_mixed: bool,
+) -> Result<(), String> {
     let exe = dir.join("fault-probe");
     let mut command = Command::new("cc");
     command
@@ -617,7 +609,8 @@ fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path, value_
         .arg(object)
         .arg(archive);
     if value_mixed {
-        command.arg("-DHAKO_MAP_VALUE_PROBE")
+        command
+            .arg("-DHAKO_MAP_VALUE_PROBE")
             .arg("-Wl,--wrap=nyash.map.checked_install_value_v1");
     }
     for name in [
@@ -653,12 +646,29 @@ fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path, value_
         String::from_utf8_lossy(&linked.stderr)
     );
     let mut modes = vec![
-        ("normal", if value_mixed { 4 } else { 2 }, if value_mixed { 4 } else { 2 }, 0),
-        ("new-fault", 0, 0, 2), ("prepare-fault", 1, 0, 2),
-        ("install-fault", 1, 1, 2), ("outcome-fault", 1, 1, 1),
-        ("end-fault", if value_mixed { 4 } else { 2 }, if value_mixed { 4 } else { 2 }, 0),
+        (
+            "normal",
+            if value_mixed { 4 } else { 2 },
+            if value_mixed { 4 } else { 2 },
+            0,
+        ),
+        ("new-fault", 0, 0, 2),
+        ("prepare-fault", 1, 0, 2),
+        ("install-fault", 1, 1, 2),
+        ("outcome-fault", 1, 1, 1),
+        (
+            "end-fault",
+            if value_mixed { 4 } else { 2 },
+            if value_mixed { 4 } else { 2 },
+            0,
+        ),
     ];
-    if value_mixed { modes.extend([("value-install-fault", 2, 2, 1), ("value-outcome-fault", 2, 2, 1)]); }
+    if value_mixed {
+        modes.extend([
+            ("value-install-fault", 2, 2, 1),
+            ("value-outcome-fault", 2, 2, 1),
+        ]);
+    }
     for (mode, keys, outcomes, outer) in modes {
         let result = Command::new(&exe)
             .arg(mode)
@@ -685,8 +695,13 @@ fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path, value_
             "{mode}: {stdout}"
         );
         if reports != 0 {
-            let reason = if mode == "install-fault" || mode == "value-install-fault" { 101 } else { 100 };
-            let report = format!("REPORT {reason} OUTER {outer} MAP 1 KEY {keys} OUTCOME {outcomes}\n");
+            let reason = if mode == "install-fault" || mode == "value-install-fault" {
+                101
+            } else {
+                100
+            };
+            let report =
+                format!("REPORT {reason} OUTER {outer} MAP 1 KEY {keys} OUTCOME {outcomes}\n");
             assert!(stdout.contains(&report), "{mode}: {stdout}");
             assert!(stdout.find(&report).unwrap() < stdout.find(&frame).unwrap());
         }
@@ -694,7 +709,11 @@ fn assert_source_fault_cleanup(object: &Path, archive: &Path, dir: &Path, value_
     Ok(())
 }
 
-fn assert_three_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -> Result<(), String> {
+fn assert_three_owner_fault_cleanup(
+    object: &Path,
+    archive: &Path,
+    dir: &Path,
+) -> Result<(), String> {
     let exe = dir.join("fault-probe-three-owners");
     let mut command = Command::new("cc");
     command
@@ -759,7 +778,10 @@ fn assert_three_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -
             "FRAME OUTER {outer} REPORTS {reports} MAP {maps} KEY {keys} OUTCOME {outcomes}\n"
         );
         assert!(stdout.contains(&frame), "{mode}: {stdout}");
-        assert!(stdout.contains(&format!("VALUES {values}\n")), "{mode}: {stdout}");
+        assert!(
+            stdout.contains(&format!("VALUES {values}\n")),
+            "{mode}: {stdout}"
+        );
         assert!(
             stdout.ends_with(&format!(
                 "{expected} {maps} {maps} {keys} {keys} {outcomes} {outcomes}\n"
@@ -767,9 +789,8 @@ fn assert_three_owner_fault_cleanup(object: &Path, archive: &Path, dir: &Path) -
             "{mode}: {stdout}"
         );
         if reports != 0 {
-            let report = format!(
-                "REPORT {reason} OUTER {outer} MAP {maps} KEY {keys} OUTCOME {outcomes}\n"
-            );
+            let report =
+                format!("REPORT {reason} OUTER {outer} MAP {maps} KEY {keys} OUTCOME {outcomes}\n");
             assert!(stdout.contains(&report), "{mode}: {stdout}");
             assert!(stdout.find(&report).unwrap() < stdout.find(&frame).unwrap());
         }

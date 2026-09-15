@@ -39,14 +39,20 @@ pub(in crate::mir::builder) type RetainedConstructionDrafts = Vec<(
 )>;
 
 impl RetainedConstructionValidation {
-
     pub(in crate::mir::builder) fn validate_artifact_after_compiler_finishing(
-        self, function: &MirFunction,
+        self,
+        function: &MirFunction,
     ) -> Result<(), String> {
         match &self.construction {
-            ConstructionState::Selected { completed: true, .. } => {}
-            ConstructionState::RetainedUnavailable(reason) => return Err(format!(
-                "{} reason={reason:?}", fault("artifact-source-unavailable"))),
+            ConstructionState::Selected {
+                completed: true, ..
+            } => {}
+            ConstructionState::RetainedUnavailable(reason) => {
+                return Err(format!(
+                    "{} reason={reason:?}",
+                    fault("artifact-source-unavailable")
+                ))
+            }
             _ => return Err(fault("artifact-construction-not-complete")),
         }
         self.validate_after_compiler_finishing(function)
@@ -58,9 +64,9 @@ impl RetainedConstructionValidation {
     ) -> Result<(), String> {
         self.fault_frame.validate(function)?;
         self.construction.finish()?;
-        self.construction.validate_bindings(function).map_err(|error| {
-            format!("{error} owner={:?}", self.owner)
-        })
+        self.construction
+            .validate_bindings(function)
+            .map_err(|error| format!("{error} owner={:?}", self.owner))
     }
 }
 
@@ -179,7 +185,9 @@ impl CallableSemanticLoweringState {
         }
         let binding = self.receiver.ok_or_else(|| fault("receiver-missing"))?;
         let (field, receiver_site, receiver_binding, rhs) = match &self.construction {
-            ConstructionState::Selected { stores, completed, .. } => {
+            ConstructionState::Selected {
+                stores, completed, ..
+            } => {
                 if *completed {
                     return Err(fault("take-after-completion"));
                 }
@@ -265,7 +273,10 @@ impl CallableSemanticLoweringState {
         let store = stores
             .get_mut(&taken.site)
             .ok_or_else(|| fault("emission-site"))?;
-        if *completed || store.field != taken.field || !matches!(store.progress, StoreProgress::Taken) {
+        if *completed
+            || store.field != taken.field
+            || !matches!(store.progress, StoreProgress::Taken)
+        {
             return Err(fault("emission-state"));
         }
         let (fault_frame, fault_landing) = match *frame {
@@ -347,11 +358,12 @@ impl CallableSemanticLoweringState {
         if matches!(self.construction, ConstructionState::NotConstruction) {
             return Ok(None);
         }
-        let fault_frame = self.fault_frame.take().ok_or_else(|| fault("frame-missing"))?;
-        let construction = std::mem::replace(
-            &mut self.construction,
-            ConstructionState::Transferred,
-        );
+        let fault_frame = self
+            .fault_frame
+            .take()
+            .ok_or_else(|| fault("frame-missing"))?;
+        let construction =
+            std::mem::replace(&mut self.construction, ConstructionState::Transferred);
         Ok(Some(RetainedConstructionValidation {
             owner: self.owner,
             construction,
@@ -369,12 +381,7 @@ impl ConstructionState {
             .blocks
             .values()
             .flat_map(|block| block.all_instructions())
-            .filter(|instruction| {
-                matches!(
-                    instruction,
-                    MirInstruction::Invoke { .. }
-                )
-            })
+            .filter(|instruction| matches!(instruction, MirInstruction::Invoke { .. }))
             .count();
         if actual_count != stores.len() {
             return Err(fault("emission-count"));
@@ -392,8 +399,9 @@ impl ConstructionState {
                     MirInstruction::InvokeNormalResult { .. } => {
                         return Err(fault("unexpected-normal-result"));
                     }
-                    MirInstruction::Call(call) if matches!(call.callee,
-                        crate::mir::Callee::BirthConstructor { .. }) => {
+                    MirInstruction::Call(call)
+                        if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }) =>
+                    {
                         return Err(fault("unowned-birth-call"));
                     }
                     _ => {}

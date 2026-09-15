@@ -66,8 +66,12 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         | MirInstruction::FaultFrameEnter { .. }
         | MirInstruction::ReturnFault { .. } => inst.used_values(),
         MirInstruction::Const { .. } | MirInstruction::Safepoint => Vec::new(),
-        MirInstruction::MapLiteralEntryWrite { receiver, key, value } => vec![*receiver, *key, *value],
-            MirInstruction::ArrayElementWrite {
+        MirInstruction::MapLiteralEntryWrite {
+            receiver,
+            key,
+            value,
+        } => vec![*receiver, *key, *value],
+        MirInstruction::ArrayElementWrite {
             receiver,
             index,
             value,
@@ -102,8 +106,9 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         MirInstruction::PinnedTextResidenceFinish { .. }
         | MirInstruction::PinnedTextResidenceEnter { .. }
         | MirInstruction::PinnedTextResidenceTrap { .. } => Vec::new(),
-        MirInstruction::FieldGet { base, .. }
-        | MirInstruction::ObjectFieldGet { base, .. } => vec![*base],
+        MirInstruction::FieldGet { base, .. } | MirInstruction::ObjectFieldGet { base, .. } => {
+            vec![*base]
+        }
         MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
         MirInstruction::WeakFieldWrite { base, value, .. } => vec![*base, *value],
         MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),
@@ -149,7 +154,8 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
             used
         }
         MirInstruction::KeepAlive { values } => values.clone(),
-        MirInstruction::DestroyOwned { value } | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
+        MirInstruction::DestroyOwned { value }
+        | MirInstruction::ArrayResidenceRelease { value } => vec![*value],
         MirInstruction::ReleaseStrong { values } => values.clone(),
         MirInstruction::Throw { exception, .. } => vec![*exception],
         MirInstruction::Catch {

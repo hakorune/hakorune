@@ -259,9 +259,8 @@ mod tests {
         let (_, context) = RawInvocationSourceContextV1::from_transport(
             RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root),
         );
-        let (_, child) = RawInvocationSourceContextV1::from_transport(
-            context.body_statement(method, 4),
-        );
+        let (_, child) =
+            RawInvocationSourceContextV1::from_transport(context.body_statement(method, 4));
         assert!(matches!(
             child,
             RawInvocationSourceContextV1::Located { .. }

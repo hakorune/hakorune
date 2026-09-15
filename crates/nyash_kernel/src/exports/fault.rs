@@ -22,7 +22,9 @@ const RUNTIME_ABI_DESCRIPTOR_SIZE: usize = 236;
 const RUNTIME_ABI_TARGET_CAPACITY: usize = 128;
 
 const fn put_u32_le(
-    mut bytes: [u8; RUNTIME_ABI_DESCRIPTOR_SIZE], offset: usize, value: u32,
+    mut bytes: [u8; RUNTIME_ABI_DESCRIPTOR_SIZE],
+    offset: usize,
+    value: u32,
 ) -> [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] {
     let encoded = value.to_le_bytes();
     bytes[offset] = encoded[0];
@@ -36,8 +38,14 @@ const fn runtime_abi_descriptor() -> [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] {
     let target = runtime_abi_target::TARGET_TRIPLE.as_bytes();
     assert!(target.len() < RUNTIME_ABI_TARGET_CAPACITY);
     let mut bytes = [0; RUNTIME_ABI_DESCRIPTOR_SIZE];
-    bytes[0] = b'N'; bytes[1] = b'Y'; bytes[2] = b'R'; bytes[3] = b'T';
-    bytes[4] = b'A'; bytes[5] = b'B'; bytes[6] = b'I'; bytes[7] = b'2';
+    bytes[0] = b'N';
+    bytes[1] = b'Y';
+    bytes[2] = b'R';
+    bytes[3] = b'T';
+    bytes[4] = b'A';
+    bytes[5] = b'B';
+    bytes[6] = b'I';
+    bytes[7] = b'2';
     bytes = put_u32_le(bytes, 8, RUNTIME_ABI_DESCRIPTOR_SIZE as u32);
     bytes = put_u32_le(bytes, 12, 2);
     bytes = put_u32_le(bytes, 16, target.len() as u32);
@@ -53,20 +61,48 @@ const fn runtime_abi_descriptor() -> [u8; RUNTIME_ABI_DESCRIPTOR_SIZE] {
     bytes = put_u32_le(bytes, 56, std::mem::size_of::<FaultFrame>() as u32);
     bytes = put_u32_le(bytes, 60, std::mem::align_of::<FaultFrame>() as u32);
     bytes = put_u32_le(bytes, 64, std::mem::offset_of!(FaultFrame, primary) as u32);
-    bytes = put_u32_le(bytes, 68, std::mem::offset_of!(FaultFrame, suppressed) as u32);
+    bytes = put_u32_le(
+        bytes,
+        68,
+        std::mem::offset_of!(FaultFrame, suppressed) as u32,
+    );
     let mut index = 0;
     while index < target.len() {
         bytes[72 + index] = target[index];
         index += 1;
     }
-    bytes = put_u32_le(bytes, 200, std::mem::size_of::<checked_map::MapStorage>() as u32);
-    bytes = put_u32_le(bytes, 204, std::mem::align_of::<checked_map::MapStorage>() as u32);
+    bytes = put_u32_le(
+        bytes,
+        200,
+        std::mem::size_of::<checked_map::MapStorage>() as u32,
+    );
+    bytes = put_u32_le(
+        bytes,
+        204,
+        std::mem::align_of::<checked_map::MapStorage>() as u32,
+    );
     bytes = put_u32_le(bytes, 208, 1);
-    bytes = put_u32_le(bytes, 212, std::mem::size_of::<checked_map::KeyStorage>() as u32);
-    bytes = put_u32_le(bytes, 216, std::mem::align_of::<checked_map::KeyStorage>() as u32);
+    bytes = put_u32_le(
+        bytes,
+        212,
+        std::mem::size_of::<checked_map::KeyStorage>() as u32,
+    );
+    bytes = put_u32_le(
+        bytes,
+        216,
+        std::mem::align_of::<checked_map::KeyStorage>() as u32,
+    );
     bytes = put_u32_le(bytes, 220, 1);
-    bytes = put_u32_le(bytes, 224, std::mem::size_of::<checked_map::OutcomeStorage>() as u32);
-    bytes = put_u32_le(bytes, 228, std::mem::align_of::<checked_map::OutcomeStorage>() as u32);
+    bytes = put_u32_le(
+        bytes,
+        224,
+        std::mem::size_of::<checked_map::OutcomeStorage>() as u32,
+    );
+    bytes = put_u32_le(
+        bytes,
+        228,
+        std::mem::align_of::<checked_map::OutcomeStorage>() as u32,
+    );
     bytes = put_u32_le(bytes, 232, 1);
     bytes
 }
@@ -99,7 +135,14 @@ pub(crate) struct Diagnostic {
 
 impl Diagnostic {
     pub(crate) fn new(reason: u32, site: u64, details: [i64; 2]) -> Self {
-        Self { reason, reserved: 0, site, details, message: ptr::null_mut(), message_len: 0 }
+        Self {
+            reason,
+            reserved: 0,
+            site,
+            details,
+            message: ptr::null_mut(),
+            message_len: 0,
+        }
     }
 
     // The caller prepares this residence before Fault capture. No C pointer,
@@ -107,14 +150,20 @@ impl Diagnostic {
     pub(crate) fn with_message(self, bytes: Box<[u8]>) -> Self {
         let message_len = bytes.len();
         Self {
-            reason: self.reason, reserved: self.reserved, site: self.site, details: self.details,
-            message: Box::into_raw(bytes) as *mut u8, message_len,
+            reason: self.reason,
+            reserved: self.reserved,
+            site: self.site,
+            details: self.details,
+            message: Box::into_raw(bytes) as *mut u8,
+            message_len,
         }
         // The consumed old Diagnostic drops here, including a replaced message.
     }
 
     pub(crate) fn message(&self) -> Option<&[u8]> {
-        if self.message.is_null() { return None; }
+        if self.message.is_null() {
+            return None;
+        }
         // SAFETY: only with_message installs this allocation; Drop owns release.
         Some(unsafe { std::slice::from_raw_parts(self.message, self.message_len) })
     }
@@ -127,7 +176,9 @@ impl Drop for Diagnostic {
             self.message = ptr::null_mut();
             self.message_len = 0;
             // SAFETY: this is the original Box slice, transferred exactly once.
-            unsafe { drop(Box::from_raw(bytes)); }
+            unsafe {
+                drop(Box::from_raw(bytes));
+            }
         }
     }
 }
@@ -145,14 +196,19 @@ pub(crate) struct FaultFrame {
 impl FaultFrame {
     pub(crate) fn new() -> Self {
         Self {
-            abi_version: ABI_VERSION, primary_present: 0, suppressed_len: 0, omitted: 0,
+            abi_version: ABI_VERSION,
+            primary_present: 0,
+            suppressed_len: 0,
+            omitted: 0,
             primary: Diagnostic::new(0, 0, [0; 2]),
             suppressed: std::array::from_fn(|_| Diagnostic::new(0, 0, [0; 2])),
         }
     }
 
     fn valid(&self) -> bool {
-        self.abi_version == ABI_VERSION && self.primary_present <= 1 && self.omitted <= 1
+        self.abi_version == ABI_VERSION
+            && self.primary_present <= 1
+            && self.omitted <= 1
             && self.suppressed_len as usize <= SUPPRESSED_CAPACITY
             && (self.primary_present == 1 || (self.suppressed_len == 0 && self.omitted == 0))
             && (self.omitted == 0 || self.suppressed_len as usize == SUPPRESSED_CAPACITY)
@@ -180,15 +236,20 @@ impl FaultFrame {
     /// Reporting borrows until frame disposal. Propagation calls neither this
     /// method nor record; a successful operation returns Normal independently.
     pub(crate) fn diagnostics(&self) -> Result<(Option<&Diagnostic>, &[Diagnostic], bool), Status> {
-        if !self.valid() { return Err(Status::InvalidContract); }
+        if !self.valid() {
+            return Err(Status::InvalidContract);
+        }
         Ok((
             (self.primary_present != 0).then_some(&self.primary),
-            &self.suppressed[..self.suppressed_len as usize], self.omitted != 0,
+            &self.suppressed[..self.suppressed_len as usize],
+            self.omitted != 0,
         ))
     }
 
     fn dispose(&mut self) -> Status {
-        if !self.valid() { return Status::InvalidContract; }
+        if !self.valid() {
+            return Status::InvalidContract;
+        }
         self.abi_version = 0;
         self.primary = Diagnostic::new(0, 0, [0; 2]);
         for diagnostic in &mut self.suppressed {
@@ -203,20 +264,28 @@ impl FaultFrame {
     /// Only the final entry chooses the output sink, after all cleanup. This
     /// borrows payloads; neither propagation nor recording invokes reporting.
     pub(crate) fn report(&self, output: &mut impl std::io::Write) -> std::io::Result<()> {
-        let (primary, suppressed, omitted) = self.diagnostics()
+        let (primary, suppressed, omitted) = self
+            .diagnostics()
             .map_err(|_| std::io::Error::from(std::io::ErrorKind::InvalidInput))?;
-        for (role, diagnostic) in primary.into_iter().map(|d| ("primary", d))
+        for (role, diagnostic) in primary
+            .into_iter()
+            .map(|d| ("primary", d))
             .chain(suppressed.iter().map(|d| ("suppressed", d)))
         {
-            write!(output, "[fault:{role}] reason={} site={} details={},{}",
-                diagnostic.reason, diagnostic.site, diagnostic.details[0], diagnostic.details[1])?;
+            write!(
+                output,
+                "[fault:{role}] reason={} site={} details={},{}",
+                diagnostic.reason, diagnostic.site, diagnostic.details[0], diagnostic.details[1]
+            )?;
             if let Some(message) = diagnostic.message() {
                 output.write_all(b" message=")?;
                 output.write_all(message)?;
             }
             output.write_all(b"\n")?;
         }
-        if omitted { output.write_all(b"[fault] additional diagnostics omitted\n")?; }
+        if omitted {
+            output.write_all(b"[fault] additional diagnostics omitted\n")?;
+        }
         Ok(())
     }
 }
@@ -225,9 +294,13 @@ impl FaultFrame {
 /// aligned storage of size FaultFrame. It must not contain a live frame.
 #[export_name = "nyash.fault.frame_init_v1"]
 pub unsafe extern "C" fn frame_init(storage: *mut std::ffi::c_void) -> u32 {
-    if storage.is_null() { return Status::InvalidContract as u32; }
+    if storage.is_null() {
+        return Status::InvalidContract as u32;
+    }
     // SAFETY: alignment, writable size and freshness are the caller contract.
-    unsafe { storage.cast::<FaultFrame>().write(FaultFrame::new()); }
+    unsafe {
+        storage.cast::<FaultFrame>().write(FaultFrame::new());
+    }
     Status::Normal as u32
 }
 
@@ -235,9 +308,15 @@ pub unsafe extern "C" fn frame_init(storage: *mut std::ffi::c_void) -> u32 {
 /// Null/header rejection does not validate arbitrary foreign pointers.
 #[export_name = "nyash.fault.record_static_v1"]
 pub unsafe extern "C" fn record_static(
-    storage: *mut std::ffi::c_void, reason: u32, site: u64, detail0: i64, detail1: i64,
+    storage: *mut std::ffi::c_void,
+    reason: u32,
+    site: u64,
+    detail0: i64,
+    detail1: i64,
 ) -> u32 {
-    if storage.is_null() { return Status::InvalidContract as u32; }
+    if storage.is_null() {
+        return Status::InvalidContract as u32;
+    }
     // SAFETY: initialized frame and exclusive synchronous access are required.
     let frame = unsafe { &mut *storage.cast::<FaultFrame>() };
     match frame.record(Diagnostic::new(reason, site, [detail0, detail1])) {
@@ -250,7 +329,9 @@ pub unsafe extern "C" fn record_static(
 /// Diagnostic destructor; the invalidated empty frame cannot be reused.
 #[export_name = "nyash.fault.frame_dispose_v1"]
 pub unsafe extern "C" fn frame_dispose(storage: *mut std::ffi::c_void) -> u32 {
-    if storage.is_null() { return Status::InvalidContract as u32; }
+    if storage.is_null() {
+        return Status::InvalidContract as u32;
+    }
     // SAFETY: same initialized/exclusive storage contract as record_static.
     unsafe { (&mut *storage.cast::<FaultFrame>()).dispose() as u32 }
 }
@@ -260,10 +341,14 @@ pub unsafe extern "C" fn frame_dispose(storage: *mut std::ffi::c_void) -> u32 {
 /// not Normal/Fault. Even a failed report leaves disposal to the final owner.
 #[export_name = "nyash.fault.report_final_v1"]
 pub unsafe extern "C" fn report_final(storage: *const std::ffi::c_void) -> i32 {
-    if storage.is_null() { return -1; }
+    if storage.is_null() {
+        return -1;
+    }
     // SAFETY: caller provides a live aligned shared borrow until report returns.
     let frame = unsafe { &*storage.cast::<FaultFrame>() };
-    if !frame.valid() { return -1; }
+    if !frame.valid() {
+        return -1;
+    }
     match frame.report(&mut std::io::stderr().lock()) {
         Ok(()) => 0,
         Err(_) => -2,

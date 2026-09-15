@@ -383,9 +383,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error })?;
-    validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected).map_err(|error| {
-        NormalCallableSemanticPackageIssueV1::Batch { _error: error }
-    })?;
+    validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
     app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
     let mut app_main_direct_call_loan = match app_main_identity.as_ref() {
@@ -537,11 +536,18 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         }
     };
     let (mut ordinary_new_claim_ledger, mut completion_seeds) = issue_ordinary_source_cohort_v1(
-        &batch, &selected, app_main_identity.as_ref(), app_main_direct_call_loan.as_ref(), &parameter_contracts,
-        &mut dynamic, &instance_constructors,
-    ).map_err(|error| match error {
-        OrdinaryNewCoSealIssueV1::CompletionSeed(error) =>
-            NormalCallableSemanticPackageIssueV1::PhysicalHeader { _error: error },
+        &batch,
+        &selected,
+        app_main_identity.as_ref(),
+        app_main_direct_call_loan.as_ref(),
+        &parameter_contracts,
+        &mut dynamic,
+        &instance_constructors,
+    )
+    .map_err(|error| match error {
+        OrdinaryNewCoSealIssueV1::CompletionSeed(error) => {
+            NormalCallableSemanticPackageIssueV1::PhysicalHeader { _error: error }
+        }
         error => NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error },
     })?;
     let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
@@ -567,10 +573,17 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         NormalCallableSemanticPackageIssueV1::ResultContract { _error: error }
     })?;
     if let Some(loan) = &mut app_main_direct_call_loan {
-        loan.co_seal_lifecycle(&batch, &parameter_contracts, &result_contracts, &ordinary_new_claim_ledger)
-            .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainDirectCall {
+        loan.co_seal_lifecycle(
+            &batch,
+            &parameter_contracts,
+            &result_contracts,
+            &ordinary_new_claim_ledger,
+        )
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::AppMainDirectCall {
                 _error: AppMainDirectCallDispositionIssueV1::Loan(error),
-            })?;
+            },
+        )?;
     }
     let physical_header = issue_callable_physical_header_from_result_contract_v1(&result_contracts);
     let physical_signature = issue_callable_physical_signature_v1(
@@ -597,9 +610,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
                 )
             })
             .map_err(|error| NormalCallableSemanticPackageIssueV1::BatchLoan { _error: error })?
-            .map_err(|error| NormalCallableSemanticPackageIssueV1::RootInstanceCall {
-                _error: error,
-            })?;
+            .map_err(
+                |error| NormalCallableSemanticPackageIssueV1::RootInstanceCall { _error: error },
+            )?;
     }
     let declared_instance_call_locators = issue_declared_instance_call_package_locator_v1(
         &batch,

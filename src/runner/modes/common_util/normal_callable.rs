@@ -12,15 +12,14 @@ use crate::mir::normal_source_plan::{
 };
 use crate::mir::CanonicalSourceBytesDigestV1;
 use crate::parser::{
-    NormalParserSourceLineageErrorV1, NormalParserSourceLineageV1, ParseError,
-    ParserSourceAdmissionErrorV1,
-    ParserBuildConfig, VerifiedFinalCallableProgramSourceV1,
+    NormalParserSourceLineageErrorV1, NormalParserSourceLineageV1, ParseError, ParserBuildConfig,
+    ParserSourceAdmissionErrorV1, VerifiedFinalCallableProgramSourceV1,
 };
-use crate::runner::modes::common_util::resolve::MergedSourceLineageV1;
 use crate::r#macro::{
     transform_normal_callable_program_with_policy_v1, NormalCallableTransformOutcomeV1,
     NormalCallableTransformRejectV1, NormalMacroPolicyV1,
 };
+use crate::runner::modes::common_util::resolve::MergedSourceLineageV1;
 
 #[derive(Debug)]
 pub(crate) enum NormalCallableMaterializationErrorV1 {
@@ -120,12 +119,11 @@ fn materialize_normal_callable_program_with_identity_and_optional_lineage_v1(
         .map_err(NormalCallableMaterializationErrorV1::Transform)?;
     Ok(match transformed {
         NormalCallableTransformOutcomeV1::SourceBacked(source) => {
-            let invocation = source
-                .parser_invocation_witness()
-                .cloned()
-                .ok_or(NormalCallableMaterializationErrorV1::SourceLineage(
+            let invocation = source.parser_invocation_witness().cloned().ok_or(
+                NormalCallableMaterializationErrorV1::SourceLineage(
                     NormalParserSourceLineageErrorV1::ParserInvocationMissing,
-                ))?;
+                ),
+            )?;
             let source_lineage = source_lineage.co_seal_parser_invocation(invocation);
             let source_lineage = match source_admission_witness {
                 Some(witness) => source_lineage.with_source_admission_witness(witness),
@@ -187,7 +185,14 @@ mod tests {
             panic!("lineage-aware source must stay source-backed")
         };
         let source_lineage = source.source_lineage().expect("source lineage");
-        assert_eq!(source_lineage.merged_source_lineage().unwrap().segments().len(), 1);
+        assert_eq!(
+            source_lineage
+                .merged_source_lineage()
+                .unwrap()
+                .segments()
+                .len(),
+            1
+        );
         assert!(source_lineage.parser_invocation_witness().is_some());
         assert!(source_lineage.source_admission_witness().is_some());
         source.discard_at_named_root_execution_terminal();

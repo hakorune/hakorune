@@ -297,30 +297,58 @@ fn capture_rejects_reachable_release_cycle_even_without_optimization() {
 #[test]
 fn multiple_homes_preserve_clean_and_fault_suffixes_after_contraction() {
     let (mut function, mut bindings) = original();
-    let position = bindings.iter().position(|(id, _)| *id == BasicBlockId(13)).unwrap();
+    let position = bindings
+        .iter()
+        .position(|(id, _)| *id == BasicBlockId(13))
+        .unwrap();
     let template = bindings[position].1.clone();
-    let MirInstruction::Invoke { normal_landing, fault_landing, .. } = &mut bindings[position].1 else { unreachable!() };
+    let MirInstruction::Invoke {
+        normal_landing,
+        fault_landing,
+        ..
+    } = &mut bindings[position].1
+    else {
+        unreachable!()
+    };
     *normal_landing = BasicBlockId(16);
     *fault_landing = BasicBlockId(17);
     // Both paths consume the remaining Home; a pending Fault never becomes clean.
     for (id, normal, fault) in [(16, 14, 15), (17, 15, 15)] {
         let mut instruction = template.clone();
-        let MirInstruction::Invoke { operation: InvokeOperation::HomeRelease { value, .. }, normal_landing, fault_landing, .. } = &mut instruction else { unreachable!() };
+        let MirInstruction::Invoke {
+            operation: InvokeOperation::HomeRelease { value, .. },
+            normal_landing,
+            fault_landing,
+            ..
+        } = &mut instruction
+        else {
+            unreachable!()
+        };
         *value = ValueId(9);
         *normal_landing = BasicBlockId(normal);
         *fault_landing = BasicBlockId(fault);
         bindings.insert(0, (BasicBlockId(id), instruction));
     }
     for (id, terminal) in &bindings {
-        if !function.blocks.contains_key(id) { function.add_block(BasicBlock::new(*id)); }
-        function.blocks.get_mut(id).unwrap().set_terminator(terminal.clone());
+        if !function.blocks.contains_key(id) {
+            function.add_block(BasicBlock::new(*id));
+        }
+        function
+            .blocks
+            .get_mut(id)
+            .unwrap()
+            .set_terminator(terminal.clone());
     }
     assert!(RootCleanupBoundary::capture(&function, &bindings, 1).is_err());
     let boundary = RootCleanupBoundary::capture(&function, &bindings, 2).unwrap();
     let finished = contracted(&function);
     assert!(boundary.project(&finished, &bindings).is_ok());
     let mut drift = finished.clone();
-    let Some(MirInstruction::Invoke { normal_landing, .. }) = &mut drift.blocks.get_mut(&BasicBlockId(17)).unwrap().terminator else { unreachable!() };
+    let Some(MirInstruction::Invoke { normal_landing, .. }) =
+        &mut drift.blocks.get_mut(&BasicBlockId(17)).unwrap().terminator
+    else {
+        unreachable!()
+    };
     *normal_landing = BasicBlockId(14);
     assert!(boundary.project(&drift, &bindings).is_err());
 }

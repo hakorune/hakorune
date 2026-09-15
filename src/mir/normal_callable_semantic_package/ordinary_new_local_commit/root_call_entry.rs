@@ -159,12 +159,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let mapped_local_bindings = local_bindings
             .iter()
             .map(|(site, bindings)| {
-                Ok::<_, String>(
-                    (
-                        site.clone(),
-                        bindings.iter().map(map).collect::<Result<Vec<_>, _>>()?,
-                    ),
-                )
+                Ok::<_, String>((
+                    site.clone(),
+                    bindings.iter().map(map).collect::<Result<Vec<_>, _>>()?,
+                ))
             })
             .collect::<Result<Vec<_>, _>>()?;
         let mapped_arguments = arguments.iter().map(map).collect::<Result<Vec<_>, _>>()?;
@@ -271,9 +269,7 @@ impl OrdinaryNewClaimLedgerV1 {
             RootCallDispositionV1::Direct(row) => row.argument_sites().len(),
             RootCallDispositionV1::Instance(row) => row.argument_sites().len(),
         };
-        if arguments.len() != terminal.arguments().len()
-            || row_argument_count != arguments.len()
-        {
+        if arguments.len() != terminal.arguments().len() || row_argument_count != arguments.len() {
             return Err(freeze("call-argument-count"));
         }
         let mut values = Vec::with_capacity(arguments.len());
@@ -390,9 +386,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         row: &crate::mir::normal_callable_semantic_package::RootInstanceCallDispositionRowV1,
     ) -> Result<ValueId, String> {
-        if row.receiver_initializer().owner() != owner
-            || row.receiver_binding().owner() != owner
-        {
+        if row.receiver_initializer().owner() != owner || row.receiver_binding().owner() != owner {
             return Err(freeze("instance-call-receiver-owner"));
         }
         let commits = self.local_commits.borrow();
@@ -430,8 +424,7 @@ impl OrdinaryNewClaimLedgerV1 {
 impl RootHomeExitEntry {
     pub(crate) fn call_row(
         &self,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::RootCallDispositionV1>
-    {
+    ) -> Option<&crate::mir::normal_callable_semantic_package::RootCallDispositionV1> {
         match self {
             Self::Call { row, .. } => Some(row),
             Self::Plain => None,
@@ -472,7 +465,8 @@ mod tests {
     use super::*;
     use crate::mir::normal_callable_semantic_package::brand_catalog_tests;
 
-    fn package() -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {
+    fn package(
+    ) -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {
         brand_catalog_tests::issue_with_brand_catalog(
             r#"static box Main {
                 main() {

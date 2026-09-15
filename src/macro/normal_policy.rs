@@ -18,7 +18,9 @@ impl NormalMacroPolicyV1 {
                 .unwrap_or_else(|| "Equals,ToString".into()),
         }
     }
-    pub(crate) fn settings(&self) -> (bool, &str) { (self.derive_all, &self.derive_set) }
+    pub(crate) fn settings(&self) -> (bool, &str) {
+        (self.derive_all, &self.derive_set)
+    }
     pub(crate) fn enabled(&self) -> bool {
         self.enabled
     }

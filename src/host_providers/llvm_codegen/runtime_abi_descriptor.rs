@@ -433,9 +433,21 @@ fn decode_descriptor(bytes: &[u8]) -> Result<RuntimeAbiDescriptorV2, String> {
         return Err("runtime ABI descriptor has inconsistent layout values".to_owned());
     }
     for (size, align, revision) in [
-        (descriptor.map_size, descriptor.map_align, descriptor.map_revision),
-        (descriptor.key_size, descriptor.key_align, descriptor.key_revision),
-        (descriptor.outcome_size, descriptor.outcome_align, descriptor.outcome_revision),
+        (
+            descriptor.map_size,
+            descriptor.map_align,
+            descriptor.map_revision,
+        ),
+        (
+            descriptor.key_size,
+            descriptor.key_align,
+            descriptor.key_revision,
+        ),
+        (
+            descriptor.outcome_size,
+            descriptor.outcome_align,
+            descriptor.outcome_revision,
+        ),
     ] {
         if size == 0 || !align.is_power_of_two() || size % align != 0 || revision != 1 {
             return Err("runtime ABI descriptor has inconsistent opaque layout".into());

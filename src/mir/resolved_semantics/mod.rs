@@ -39,8 +39,8 @@ mod function_root;
 mod function_view;
 pub(crate) mod generic_g0;
 mod home_abi;
-mod home_relation;
 pub(crate) mod home_new_prefix;
+mod home_relation;
 mod ids;
 mod if_region;
 mod instance_method_body_owner;
@@ -236,8 +236,8 @@ pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
 pub(crate) use owner_resolver::{
     ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1,
     ResolveSelectedCallableForestsOutcomeV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
-    ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
+    ResolveSourceBoundSelectedCallableForestsWithFreeStaticOutcomeV1,
     SourceBoundSelectedCallableResolverRejectV1,
 };
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;

@@ -1,9 +1,7 @@
 use crate::runner::NyashRunner;
 
+use super::import_lineage::{ImportLineageEdgeV1, MergedSourceLineageV1, MergedSourceSegmentV1};
 use super::prelude::{resolve_normal_prelude_paths_profiled, resolve_prelude_paths_profiled};
-use super::import_lineage::{
-    ImportLineageEdgeV1, MergedSourceLineageV1, MergedSourceSegmentV1,
-};
 use super::using::collect_using_and_strip_with_edges;
 
 struct TextMergePlan {

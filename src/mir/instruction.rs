@@ -19,7 +19,10 @@ mod construction_target;
 pub use construction_target::ConstructionTarget;
 
 mod invoke;
-pub use invoke::{InvokeCallResultKind, FaultFrameMode, InvokeOperation, InvokeNormalResultKind, MapInvokeOperation, MapValueKind};
+pub use invoke::{
+    FaultFrameMode, InvokeCallResultKind, InvokeNormalResultKind, InvokeOperation,
+    MapInvokeOperation, MapValueKind,
+};
 
 // (unused imports removed)
 
@@ -329,7 +332,11 @@ pub enum MirInstruction {
 
     /// Ordered literal Map insertion; key is a String value and result is discarded.
     /// Value representation is projected by the selected physical owner.
-    MapLiteralEntryWrite { receiver: ValueId, key: ValueId, value: ValueId },
+    MapLiteralEntryWrite {
+        receiver: ValueId,
+        key: ValueId,
+        value: ValueId,
+    },
 
     /// Canonical Array mutation boundary. Typed element contracts are separate.
     ArrayElementWrite {

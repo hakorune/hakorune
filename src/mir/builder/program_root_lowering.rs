@@ -158,7 +158,7 @@ impl MirBuilder {
             Option<super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState>,
         ),
         String,
-    > {
+    >{
         self.lower_program_root_after_catalog_install_v1(
             work,
             source_ast,
@@ -196,12 +196,14 @@ impl MirBuilder {
             Option<super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState>,
         ),
         String,
-    > {
+    >{
         let mut collector = match &callable_mode {
-            NormalCallableSemanticPackageMode::Installed(_) =>
-                ModuleDraftCollectorV1::with_required_object_definitions(brand),
-            NormalCallableSemanticPackageMode::Compatibility(_) =>
-                ModuleDraftCollectorV1::with_brand(brand),
+            NormalCallableSemanticPackageMode::Installed(_) => {
+                ModuleDraftCollectorV1::with_required_object_definitions(brand)
+            }
+            NormalCallableSemanticPackageMode::Compatibility(_) => {
+                ModuleDraftCollectorV1::with_brand(brand)
+            }
         };
         callable_loop_root_scope.validate_collector(&collector)?;
         if let Some(owner) = static_result_publication_owner {
@@ -216,7 +218,11 @@ impl MirBuilder {
         );
         let mut callable_mode = callable_mode;
         if let NormalCallableSemanticPackageMode::Installed(package_port) = &mut callable_mode {
-            collector.install_object_definitions_from_package(package_port, &self.comp_ctx, brand)?;
+            collector.install_object_definitions_from_package(
+                package_port,
+                &self.comp_ctx,
+                brand,
+            )?;
         }
         let mut direct_call_loan = match &mut callable_mode {
             NormalCallableSemanticPackageMode::Installed(package_port) => {
@@ -276,23 +282,24 @@ impl MirBuilder {
                     )
                     .map(|value| (value, None))
                 }
-                NormalScriptRootLoweringMode::Unavailable => port.with_source_transport_v1(
-                    RawInvocationSourceTransportV1::script_root(()),
-                    |port, ()| {
-                        self.lower_prepared_program_root_with_callable_mode_v1(
-                            work,
-                            snapshot,
-                            expansion,
-                            materialization,
-                            runtime_inputs,
-                            declaration_facts,
-                            callable_mode,
-                            port,
-                            target_binding,
-                        )
-                    },
-                )
-                .map(|value| (value, None)),
+                NormalScriptRootLoweringMode::Unavailable => port
+                    .with_source_transport_v1(
+                        RawInvocationSourceTransportV1::script_root(()),
+                        |port, ()| {
+                            self.lower_prepared_program_root_with_callable_mode_v1(
+                                work,
+                                snapshot,
+                                expansion,
+                                materialization,
+                                runtime_inputs,
+                                declaration_facts,
+                                callable_mode,
+                                port,
+                                target_binding,
+                            )
+                        },
+                    )
+                    .map(|value| (value, None)),
             }
         };
         let direct_call_loan_result = direct_call_loan.take().map(|loan| {

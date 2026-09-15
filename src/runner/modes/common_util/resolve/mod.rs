@@ -40,14 +40,11 @@ pub use selfhost_pipeline::{CompilationResult, PipelineConfig, SelfhostPipelineB
 
 // 🔧 Legacy functions (preserved for compatibility)
 pub use strip::{
-    collect_using_and_strip, merge_prelude_asts_with_main, merge_prelude_text,
-    merge_normal_prelude_text_with_imports, merge_prelude_text_with_imports, parse_preludes_to_asts, preexpand_at_local,
-    resolve_normal_prelude_paths_profiled, resolve_prelude_paths_profiled,
+    collect_using_and_strip, merge_normal_prelude_text_with_imports, merge_prelude_asts_with_main,
+    merge_prelude_text, merge_prelude_text_with_imports, parse_preludes_to_asts,
+    preexpand_at_local, resolve_normal_prelude_paths_profiled, resolve_prelude_paths_profiled,
 };
-pub(crate) use strip::{
-    merge_prelude_text_with_imports_and_lineage,
-    MergedSourceLineageV1,
-};
+pub(crate) use strip::{merge_prelude_text_with_imports_and_lineage, MergedSourceLineageV1};
 
 // Expose context helpers for enhanced diagnostics
 pub use context::{

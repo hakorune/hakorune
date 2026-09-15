@@ -18,10 +18,7 @@ fn birth_formal_contracts_keep_declarations_separate_from_i64_store_requirements
         panic!("two source-issued formal contracts");
     };
     assert_eq!(left.ordinal(), 0);
-    assert_eq!(
-        left.declaration(),
-        BirthFormalDeclarationClassV1::ExactI64
-    );
+    assert_eq!(left.declaration(), BirthFormalDeclarationClassV1::ExactI64);
     assert!(matches!(
         left.uses(),
         BirthFormalUseCoverageV1::I64FieldStores { sites } if sites.len() == 1
@@ -98,11 +95,7 @@ fn birth_handoff_rejects_retained_formal_contract_drift() {
     row.formal_contracts.swap(0, 1);
     let target = row.published_birth_key().unwrap().clone();
     assert_eq!(
-        BirthAbiHandoffV1::issue(
-            row,
-            target,
-            InstanceConstructorAbiV1::issue(2).unwrap(),
-        ),
+        BirthAbiHandoffV1::issue(row, target, InstanceConstructorAbiV1::issue(2).unwrap(),),
         Err("formal-contract")
     );
 }

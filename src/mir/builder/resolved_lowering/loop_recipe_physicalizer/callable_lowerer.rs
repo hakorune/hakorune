@@ -12,19 +12,18 @@ use super::recursive_after::prepare_recursive_after_v1;
 use super::segment_allocator::allocate_for_layout;
 use super::segment_dispatcher::prepare_loop_segment_operation_dispatch_v1;
 use super::tail_completion::{
-    consume_callable_tail_completion_v1, validate_callable_header_read_relation_v1,
-    profile_counts_from_dispatch,
+    consume_callable_tail_completion_v1, profile_counts_from_dispatch,
+    validate_callable_header_read_relation_v1,
 };
 use super::topology::ReadyLoopEntryV1;
 use super::{LoopOperationDispatchServicesV1, LoopPhysicalServicesV1};
 use crate::ast::ASTNode;
-use crate::mir::builder::normal_callable_prepared_operation::
-    PreparedCallableLoopOperationProgramV1;
+use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
+use crate::mir::builder::normal_callable_prepared_operation::PreparedCallableLoopOperationProgramV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalSsaFunctionSessionV2,
 };
 use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
-use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::callable_single_loop_source_shapes::{
     SourceCallKindV1, SourceReceiverShapeV1,
@@ -56,12 +55,9 @@ pub(in crate::mir::builder) fn lower_callable_single_loop_function_draft_v1(
         SourceCallKindV1::Method(receiver) => receiver,
         SourceCallKindV1::FreeStatic => SourceReceiverShapeV1::FreeStatic,
     };
-    let prelude = VerifiedCallablePreludeCapabilityV1::issue(
-        &branded,
-        &prelude_source,
-        expected_receiver,
-    )
-    .map_err(|error| format!("[freeze:contract][callable-loop/prelude] {error:?}"))?;
+    let prelude =
+        VerifiedCallablePreludeCapabilityV1::issue(&branded, &prelude_source, expected_receiver)
+            .map_err(|error| format!("[freeze:contract][callable-loop/prelude] {error:?}"))?;
     let completion = verify_function_completion_v1(branded.input())
         .map_err(|error| format!("[freeze:contract][callable-loop/completion] {error:?}"))?;
     let terminal = VerifiedCallableTerminalCompatibilityV1::issue(
@@ -148,16 +144,14 @@ fn lower_inside_session<'builder>(
             &mut function.metadata.canonical_direct_static_call_capabilities,
             true,
         )
-        .map_err(|error| format!("[freeze:contract][callable-loop/direct-call-capability] {error}"))?;
+        .map_err(|error| {
+            format!("[freeze:contract][callable-loop/direct-call-capability] {error}")
+        })?;
         let if_control = VerifiedResolvedFunctionIfControlV1::empty_for_loop_profile(input.input())
             .map_err(|error| format!("[freeze:contract][callable-loop/if-control] {error:?}"))?;
-        let mut session = CanonicalSsaFunctionSessionV2::new(
-            input.input(),
-            if_control,
-            completion,
-            0,
-        )
-        .map_err(|error| format!("[freeze:contract][callable-loop/session] {error:?}"))?;
+        let mut session =
+            CanonicalSsaFunctionSessionV2::new(input.input(), if_control, completion, 0)
+                .map_err(|error| format!("[freeze:contract][callable-loop/session] {error:?}"))?;
         let preheader = builder
             .function_state
             .current_block
@@ -170,7 +164,9 @@ fn lower_inside_session<'builder>(
             &prelude,
             physical_name.as_str(),
         )
-        .map_err(|error| format!("[freeze:contract][callable-loop/prelude-materialization] {error:?}"))?;
+        .map_err(|error| {
+            format!("[freeze:contract][callable-loop/prelude-materialization] {error:?}")
+        })?;
         let entry_rows = prelude_receipt
             .entry()
             .rows
@@ -179,10 +175,7 @@ fn lower_inside_session<'builder>(
             .collect::<Vec<_>>();
         let make_entry = || ReadyLoopEntryV1::from_rows(owner, preheader, entry_rows.clone());
         let segment_receipt = {
-            let mut services = LoopPhysicalServicesV1::new(
-                builder,
-                &mut session.cfg,
-            );
+            let mut services = LoopPhysicalServicesV1::new(builder, &mut session.cfg);
             allocate_for_layout(&physical_layout, &make_entry(), &mut services)
                 .map_err(|error| format!("[freeze:contract][callable-loop/segments] {error:?}"))?
         };
@@ -205,7 +198,9 @@ fn lower_inside_session<'builder>(
             make_entry(),
             segment_receipt,
         )
-        .map_err(|error| format!("[freeze:contract][callable-loop/dispatch-preflight] {error:?}"))?;
+        .map_err(|error| {
+            format!("[freeze:contract][callable-loop/dispatch-preflight] {error:?}")
+        })?;
         let values = LoopOperationValueLedgerV1::default();
         let completed = {
             let mut services = LoopOperationDispatchServicesV1::new(
@@ -219,8 +214,9 @@ fn lower_inside_session<'builder>(
         let header_current = validate_callable_header_read_relation_v1(&completed)
             .map_err(|error| format!("[freeze:contract][callable-loop/header-read] {error:?}"))?;
         let profile_counts = profile_counts_from_dispatch(&completed.dispatch);
-        let prepared_after = prepare_recursive_after_v1(completed, builder)
-            .map_err(|error| format!("[freeze:contract][callable-loop/after-preflight] {error:?}"))?;
+        let prepared_after = prepare_recursive_after_v1(completed, builder).map_err(|error| {
+            format!("[freeze:contract][callable-loop/after-preflight] {error:?}")
+        })?;
         let ready_after = prepared_after
             .emit_and_seal(
                 builder,
@@ -264,8 +260,10 @@ fn declared_result_abi(
     else {
         return Err("[freeze:contract][callable-loop/declared-result-unsupported]".to_owned());
     };
-    let completion_abi = crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1::classify(name)
-        .ok_or_else(|| "[freeze:contract][callable-loop/declared-result-unsupported]".to_owned())?;
+    let completion_abi = crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1::classify(
+        name,
+    )
+    .ok_or_else(|| "[freeze:contract][callable-loop/declared-result-unsupported]".to_owned())?;
     let header_abi = crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1::classify(
         input.header().signature().result().source_type_name(),
     )

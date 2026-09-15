@@ -7,9 +7,9 @@
 //! physicalization remains closed.
 
 mod callable_canary;
+mod callable_lowerer;
 #[cfg(test)]
 mod callable_production_canary_tests;
-mod callable_lowerer;
 mod carrier_emitter;
 mod compare_i64_operands;
 mod compare_i64_writer;
@@ -33,10 +33,10 @@ mod segment_topology;
 mod tail_completion;
 mod topology;
 
-pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 pub(in crate::mir::builder) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
-pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_v1;
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_pending_v1;
+pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_v1;
+pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 pub(super) use segment_allocator::allocate_for_layout;
 pub(super) use segment_dispatcher::emit_loop_segment_operation_dispatch_v1;
 pub(super) use segment_dispatcher::preflight_loop_segment_operation_dispatch_v1;

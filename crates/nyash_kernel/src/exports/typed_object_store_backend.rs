@@ -37,8 +37,13 @@ thread_local! {
 
 pub(super) fn selected_backend() -> TypedObjectStoreBackend {
     cached_env_choice(&BACKEND, TYPED_OBJECT_STORE_ENV, |value| {
-        parse_backend(value).unwrap_or_else(|()| panic_unsupported_env_value(
-            "typed-object-store/backend", TYPED_OBJECT_STORE_ENV, value.unwrap_or("")))
+        parse_backend(value).unwrap_or_else(|()| {
+            panic_unsupported_env_value(
+                "typed-object-store/backend",
+                TYPED_OBJECT_STORE_ENV,
+                value.unwrap_or(""),
+            )
+        })
     })
 }
 
@@ -261,9 +266,13 @@ pub(super) enum CheckedStorageError {
     ObjectOrFieldMismatch,
 }
 
-pub(super) fn check_indexed_profile(expected: TypedObjectStoreBackend) -> Result<(), CheckedStorageError> {
-    if !matches!(expected, TypedObjectStoreBackend::SafeMutex | TypedObjectStoreBackend::SingleThreadExact)
-        || try_cached_env_choice(&BACKEND, TYPED_OBJECT_STORE_ENV, parse_backend) != Ok(expected)
+pub(super) fn check_indexed_profile(
+    expected: TypedObjectStoreBackend,
+) -> Result<(), CheckedStorageError> {
+    if !matches!(
+        expected,
+        TypedObjectStoreBackend::SafeMutex | TypedObjectStoreBackend::SingleThreadExact
+    ) || try_cached_env_choice(&BACKEND, TYPED_OBJECT_STORE_ENV, parse_backend) != Ok(expected)
     {
         return Err(CheckedStorageError::ProfileMismatch);
     }
@@ -273,24 +282,32 @@ pub(super) fn check_indexed_profile(expected: TypedObjectStoreBackend) -> Result
 /// The caller projects the admitted definition; never consult the legacy layout
 /// registry or fill missing fields. Uninstalled payload drops on every failure.
 pub(super) fn new_checked_indexed(
-    expected: TypedObjectStoreBackend, type_id: i64, layout: &[TypedSlotStorage],
+    expected: TypedObjectStoreBackend,
+    type_id: i64,
+    layout: &[TypedSlotStorage],
 ) -> Result<i64, CheckedStorageError> {
     check_indexed_profile(expected)?;
     let count = i64::try_from(layout.len()).map_err(|_| CheckedStorageError::InvalidLayout)?;
     if super::typed_object::normalize_field_count(count).is_none()
-        || layout.iter().any(|slot| *slot != TypedSlotStorage::I64) {
+        || layout.iter().any(|slot| *slot != TypedSlotStorage::I64)
+    {
         return Err(CheckedStorageError::InvalidLayout);
     }
     allocate_i64_indexed(type_id, layout.len())
 }
 
 pub(super) fn new_checked_wire_indexed(
-    expected: TypedObjectStoreBackend, type_id: i64, layout: &[u32],
+    expected: TypedObjectStoreBackend,
+    type_id: i64,
+    layout: &[u32],
 ) -> Result<i64, CheckedStorageError> {
     check_indexed_profile(expected)?;
     let count = i64::try_from(layout.len()).map_err(|_| CheckedStorageError::InvalidLayout)?;
     if super::typed_object::normalize_field_count(count).is_none()
-        || layout.iter().any(|tag| *tag != TypedSlotStorage::I64.tag() as u32) {
+        || layout
+            .iter()
+            .any(|tag| *tag != TypedSlotStorage::I64.tag() as u32)
+    {
         return Err(CheckedStorageError::InvalidLayout);
     }
     allocate_i64_indexed(type_id, layout.len())
@@ -298,7 +315,8 @@ pub(super) fn new_checked_wire_indexed(
 
 fn allocate_i64_indexed(type_id: i64, count: usize) -> Result<i64, CheckedStorageError> {
     let mut fields = Vec::new();
-    fields.try_reserve_exact(count)
+    fields
+        .try_reserve_exact(count)
         .map_err(|_| CheckedStorageError::AllocationOrStorageUnavailable)?;
     fields.extend((0..count).map(|_| TypedSlot::new(TypedSlotStorage::I64)));
     new_typed_object(TypedSlotObject { type_id, fields })
@@ -308,54 +326,80 @@ fn allocate_i64_indexed(type_id: i64, count: usize) -> Result<i64, CheckedStorag
 /// Expected definition type and slot are checked under the same storage guard.
 /// A failed check leaves the object untouched; there is no numeric-handle repair.
 pub(super) fn get_checked_indexed(
-    expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize,
+    expected: TypedObjectStoreBackend,
+    handle: i64,
+    type_id: i64,
+    slot: usize,
 ) -> Result<i64, CheckedStorageError> {
     check_indexed_profile(expected)?;
     with_objects(|objects| {
         let object = objects.get(handle_to_index(handle)?)?.as_ref()?;
-        if object.type_id != type_id { return None; }
+        if object.type_id != type_id {
+            return None;
+        }
         let field = object.fields.get(slot)?;
-        if field.storage != TypedSlotStorage::I64 { return None; }
+        if field.storage != TypedSlotStorage::I64 {
+            return None;
+        }
         field.as_exact_signed_i64()
-    }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
+    })
+    .flatten()
+    .ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
 
 /// Validate residence identity without cloning or taking the indexed payload.
 /// The caller must separately supply the source transfer/end authorization.
 pub(super) fn validate_checked_indexed_identity(
-    expected: TypedObjectStoreBackend, handle: i64, type_id: i64,
+    expected: TypedObjectStoreBackend,
+    handle: i64,
+    type_id: i64,
 ) -> Result<(), CheckedStorageError> {
     check_indexed_profile(expected)?;
     with_objects(|objects| {
         let object = objects.get(handle_to_index(handle)?)?.as_ref()?;
         (object.type_id == type_id).then_some(())
-    }).ok_or(CheckedStorageError::AllocationOrStorageUnavailable)?
-        .ok_or(CheckedStorageError::ObjectOrFieldMismatch)
+    })
+    .ok_or(CheckedStorageError::AllocationOrStorageUnavailable)?
+    .ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
 
 /// Store under the same identity/profile checks as the exact read.
 pub(super) fn set_checked_indexed(
-    expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize, value: i64,
+    expected: TypedObjectStoreBackend,
+    handle: i64,
+    type_id: i64,
+    slot: usize,
+    value: i64,
 ) -> Result<(), CheckedStorageError> {
     check_indexed_profile(expected)?;
     let changed = with_objects_mut(|objects| {
         let object = objects.get_mut(handle_to_index(handle)?)?.as_mut()?;
-        if object.type_id != type_id { return None; }
+        if object.type_id != type_id {
+            return None;
+        }
         let field = object.fields.get_mut(slot)?;
-        if field.storage != TypedSlotStorage::I64 { return None; }
+        if field.storage != TypedSlotStorage::I64 {
+            return None;
+        }
         field.set_exact_signed_i64(value).then_some(())
-    }).flatten();
+    })
+    .flatten();
     changed.ok_or(CheckedStorageError::ObjectOrFieldMismatch)
 }
 
 /// Source-level Reclaim/HomeRelease permission belongs to the published caller;
 /// this checks only the admitted physical profile and exact storage identity.
 pub(super) fn reclaim_checked_indexed(
-    expected: TypedObjectStoreBackend, handle: i64, type_id: i64,
+    expected: TypedObjectStoreBackend,
+    handle: i64,
+    type_id: i64,
 ) -> Result<(), CheckedStorageError> {
     check_indexed_profile(expected)?;
-    if reclaim_typed_object_storage(handle, type_id) { Ok(()) }
-    else { Err(CheckedStorageError::ObjectOrFieldMismatch) }
+    if reclaim_typed_object_storage(handle, type_id) {
+        Ok(())
+    } else {
+        Err(CheckedStorageError::ObjectOrFieldMismatch)
+    }
 }
 
 fn insert_indexed(objects: &mut IndexedObjects, object: TypedSlotObject) -> Option<i64> {
@@ -527,12 +571,18 @@ mod indexed_storage_tests {
     fn unknown_checked_profile_rejects_without_initializing_storage() {
         const UNKNOWN: &str = "fault-test-unknown-profile";
         if std::env::var(TYPED_OBJECT_STORE_ENV).as_deref() == Ok(UNKNOWN) {
-            assert_eq!(new_checked_indexed(TypedObjectStoreBackend::SafeMutex, 901, &[]),
-                Err(CheckedStorageError::ProfileMismatch));
-            assert_eq!(set_checked_indexed(TypedObjectStoreBackend::SafeMutex, -1, 901, 0, 1),
-                Err(CheckedStorageError::ProfileMismatch));
-            assert_eq!(reclaim_checked_indexed(TypedObjectStoreBackend::SafeMutex, -1, 901),
-                Err(CheckedStorageError::ProfileMismatch));
+            assert_eq!(
+                new_checked_indexed(TypedObjectStoreBackend::SafeMutex, 901, &[]),
+                Err(CheckedStorageError::ProfileMismatch)
+            );
+            assert_eq!(
+                set_checked_indexed(TypedObjectStoreBackend::SafeMutex, -1, 901, 0, 1),
+                Err(CheckedStorageError::ProfileMismatch)
+            );
+            assert_eq!(
+                reclaim_checked_indexed(TypedObjectStoreBackend::SafeMutex, -1, 901),
+                Err(CheckedStorageError::ProfileMismatch)
+            );
             assert!(BACKEND.get().is_none());
             assert!(SAFE_MUTEX_OBJECTS.get().is_none());
             return;
@@ -540,32 +590,71 @@ mod indexed_storage_tests {
         let result = std::process::Command::new(std::env::current_exe().unwrap())
             .args(["exports::typed_object_store_backend::indexed_storage_tests::unknown_checked_profile_rejects_without_initializing_storage", "--exact", "--test-threads=1"])
             .env(TYPED_OBJECT_STORE_ENV, UNKNOWN).output().unwrap();
-        assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+        assert!(
+            result.status.success(),
+            "{}",
+            String::from_utf8_lossy(&result.stderr)
+        );
         assert!(String::from_utf8_lossy(&result.stdout).contains("1 passed"));
     }
 
     #[test]
     fn checked_operations_preserve_identity_and_reject_before_mutation() {
         let profile = selected_backend();
-        if !matches!(profile, TypedObjectStoreBackend::SafeMutex | TypedObjectStoreBackend::SingleThreadExact) {
-            assert_eq!(new_checked_indexed(profile, 901, &[]), Err(CheckedStorageError::ProfileMismatch));
-            assert_eq!(set_checked_indexed(profile, -1, 901, 0, 1), Err(CheckedStorageError::ProfileMismatch));
-            assert_eq!(reclaim_checked_indexed(profile, -1, 901), Err(CheckedStorageError::ProfileMismatch));
+        if !matches!(
+            profile,
+            TypedObjectStoreBackend::SafeMutex | TypedObjectStoreBackend::SingleThreadExact
+        ) {
+            assert_eq!(
+                new_checked_indexed(profile, 901, &[]),
+                Err(CheckedStorageError::ProfileMismatch)
+            );
+            assert_eq!(
+                set_checked_indexed(profile, -1, 901, 0, 1),
+                Err(CheckedStorageError::ProfileMismatch)
+            );
+            assert_eq!(
+                reclaim_checked_indexed(profile, -1, 901),
+                Err(CheckedStorageError::ProfileMismatch)
+            );
             return;
         }
         let other = if profile == TypedObjectStoreBackend::SafeMutex {
             TypedObjectStoreBackend::SingleThreadExact
-        } else { TypedObjectStoreBackend::SafeMutex };
-        assert_eq!(new_checked_indexed(other, 901, &[]), Err(CheckedStorageError::ProfileMismatch));
-        assert_eq!(new_checked_indexed(profile, 901, &[TypedSlotStorage::Handle]), Err(CheckedStorageError::InvalidLayout));
+        } else {
+            TypedObjectStoreBackend::SafeMutex
+        };
+        assert_eq!(
+            new_checked_indexed(other, 901, &[]),
+            Err(CheckedStorageError::ProfileMismatch)
+        );
+        assert_eq!(
+            new_checked_indexed(profile, 901, &[TypedSlotStorage::Handle]),
+            Err(CheckedStorageError::InvalidLayout)
+        );
         let handle = new_checked_indexed(profile, 901, &[TypedSlotStorage::I64]).unwrap();
         set_checked_indexed(profile, handle, 901, 0, 42).unwrap();
-        assert_eq!(set_checked_indexed(profile, handle, 902, 0, 99), Err(CheckedStorageError::ObjectOrFieldMismatch));
-        assert_eq!(set_checked_indexed(profile, handle, 901, 1, 99), Err(CheckedStorageError::ObjectOrFieldMismatch));
-        assert_eq!(with_field(handle, 0, |field| field.as_exact_signed_i64()), Some(Some(42)));
-        assert_eq!(reclaim_checked_indexed(profile, handle, 902), Err(CheckedStorageError::ObjectOrFieldMismatch));
+        assert_eq!(
+            set_checked_indexed(profile, handle, 902, 0, 99),
+            Err(CheckedStorageError::ObjectOrFieldMismatch)
+        );
+        assert_eq!(
+            set_checked_indexed(profile, handle, 901, 1, 99),
+            Err(CheckedStorageError::ObjectOrFieldMismatch)
+        );
+        assert_eq!(
+            with_field(handle, 0, |field| field.as_exact_signed_i64()),
+            Some(Some(42))
+        );
+        assert_eq!(
+            reclaim_checked_indexed(profile, handle, 902),
+            Err(CheckedStorageError::ObjectOrFieldMismatch)
+        );
         reclaim_checked_indexed(profile, handle, 901).unwrap();
-        assert_eq!(reclaim_checked_indexed(profile, handle, 901), Err(CheckedStorageError::ObjectOrFieldMismatch));
+        assert_eq!(
+            reclaim_checked_indexed(profile, handle, 901),
+            Err(CheckedStorageError::ObjectOrFieldMismatch)
+        );
     }
 
     fn object(type_id: i64) -> TypedSlotObject {

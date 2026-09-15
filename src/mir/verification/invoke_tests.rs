@@ -350,14 +350,17 @@ fn cleanup_is_unit_and_requires_definition_owned_home_disposition() {
 fn invoke_birth_is_unit_and_rewrites_receiver_arguments_and_frame_uses() {
     use crate::mir::{BasicBlockId, Callee, MirVerifier};
     let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Object", 1);
-    let mut operation = InvokeOperation::Call { call: crate::mir::definitions::MirCall::new(
-        None,
-        Callee::BirthConstructor {
-            key: key.clone(),
-            receiver: ValueId::new(1),
-        },
-        vec![ValueId::new(1)],
-    ), result: InvokeCallResultKind::Unit };
+    let mut operation = InvokeOperation::Call {
+        call: crate::mir::definitions::MirCall::new(
+            None,
+            Callee::BirthConstructor {
+                key: key.clone(),
+                receiver: ValueId::new(1),
+            },
+            vec![ValueId::new(1)],
+        ),
+        result: InvokeCallResultKind::Unit,
+    };
     assert_eq!(
         operation.used_values(),
         vec![ValueId::new(1), ValueId::new(1)]
@@ -367,7 +370,11 @@ fn invoke_birth_is_unit_and_rewrites_receiver_arguments_and_frame_uses() {
         operation.used_values(),
         vec![ValueId::new(5), ValueId::new(5)]
     );
-    let InvokeOperation::Call { call, result: InvokeCallResultKind::Unit } = &operation else {
+    let InvokeOperation::Call {
+        call,
+        result: InvokeCallResultKind::Unit,
+    } = &operation
+    else {
         unreachable!()
     };
     assert!(matches!(&call.callee, Callee::BirthConstructor { key: after, .. } if after == &key));
@@ -387,7 +394,11 @@ fn invoke_birth_is_unit_and_rewrites_receiver_arguments_and_frame_uses() {
     MirVerifier::new().verify_function(&function).unwrap();
     let origin = function.blocks.get_mut(&BasicBlockId::new(1)).unwrap();
     let MirInstruction::Invoke {
-        operation: InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
+        operation:
+            InvokeOperation::Call {
+                call,
+                result: InvokeCallResultKind::Unit,
+            },
         ..
     } = origin.terminator.as_mut().unwrap()
     else {

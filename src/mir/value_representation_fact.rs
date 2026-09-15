@@ -445,17 +445,33 @@ mod tests {
 
         // The write through an alias invalidates the stored-content fact;
         // it must not be reused by a later compatibility get.
-        let entry = module.get_function_mut("main").unwrap()
-            .get_block_mut(BasicBlockId::new(0)).unwrap();
-        entry.instructions.insert(5, MirInstruction::Copy {
-            dst: ValueId::new(6), src: ValueId::new(1),
-        });
-        entry.instructions.insert(6, MirInstruction::MapLiteralEntryWrite {
-            receiver: ValueId::new(6), key: ValueId::new(2), value: ValueId::new(3),
-        });
+        let entry = module
+            .get_function_mut("main")
+            .unwrap()
+            .get_block_mut(BasicBlockId::new(0))
+            .unwrap();
+        entry.instructions.insert(
+            5,
+            MirInstruction::Copy {
+                dst: ValueId::new(6),
+                src: ValueId::new(1),
+            },
+        );
+        entry.instructions.insert(
+            6,
+            MirInstruction::MapLiteralEntryWrite {
+                receiver: ValueId::new(6),
+                key: ValueId::new(2),
+                value: ValueId::new(3),
+            },
+        );
         refresh_module_value_representation_facts(&mut module);
-        assert!(!module.get_function("main").unwrap().metadata
-            .value_representations.contains_key(&ValueId::new(5)));
+        assert!(!module
+            .get_function("main")
+            .unwrap()
+            .metadata
+            .value_representations
+            .contains_key(&ValueId::new(5)));
     }
 
     #[test]

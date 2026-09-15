@@ -36,7 +36,10 @@ fn callable_single_loop_selection_uses_the_source_bound_route() {
         Some(crate::mir::loop_route_policy::GenericG0PolicyModeV1::Release),
     )
     .expect("canonical preflight");
-    assert!(matches!(route, CanonicalCallableRouteV1::CallableSingleLoop(_)));
+    assert!(matches!(
+        route,
+        CanonicalCallableRouteV1::CallableSingleLoop(_)
+    ));
 }
 
 #[test]

@@ -1,5 +1,5 @@
-use crate::mir::instruction::InvokeCallResultKind;
 use super::*;
+use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog;
 use crate::mir::BasicBlock;
 
@@ -71,7 +71,10 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     };
     let birth_id = BasicBlockId(2);
     let birth = MirInstruction::Invoke {
-        operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
+        operation: crate::mir::instruction::InvokeOperation::Call {
+            call,
+            result: InvokeCallResultKind::Unit,
+        },
         fault_frame: ValueId(100),
         normal_landing: entry,
         fault_landing: reclaim_block,
@@ -110,10 +113,10 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     ledger
         .complete_new_emissions(site.owner(), &function)
         .unwrap();
-    ledger
-        .root_exits
-        .borrow_mut()
-        .insert(site.owner(), local_commit::RootHomeExitProgress::Unavailable);
+    ledger.root_exits.borrow_mut().insert(
+        site.owner(),
+        local_commit::RootHomeExitProgress::Unavailable,
+    );
     let read_site = ledger.field_reads.borrow().keys().next().unwrap().clone();
     let return_site = ledger
         .terminal_i64_field_return()

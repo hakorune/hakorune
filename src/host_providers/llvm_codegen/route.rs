@@ -157,7 +157,9 @@ pub(super) fn try_compile_via_explicit_provider_keep(
     opts: &Opts,
 ) -> Result<Option<PathBuf>, String> {
     match opts.route_request {
-        CodegenRouteRequestV1::ExplicitHarnessCompat => mir_json_to_object_llvmlite(mir_json, opts).map(Some),
+        CodegenRouteRequestV1::ExplicitHarnessCompat => {
+            mir_json_to_object_llvmlite(mir_json, opts).map(Some)
+        }
         CodegenRouteRequestV1::BoundaryPureFirst => Ok(None),
     }
 }

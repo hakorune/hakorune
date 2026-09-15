@@ -269,13 +269,7 @@ pub(in crate::parser) struct ParserStaticBoxSourceSealV1 {
 impl ParserStaticBoxSourceSealV1 {
     pub(in crate::parser) fn declaration_coordinates(
         &self,
-    ) -> impl Iterator<
-        Item = (
-            &ParserInvocationBrandV1,
-            &SourceBoxDeclarationPathV1,
-            usize,
-        ),
-    > {
+    ) -> impl Iterator<Item = (&ParserInvocationBrandV1, &SourceBoxDeclarationPathV1, usize)> {
         self.parents.iter().map(|parent| {
             (
                 parent.box_site.path().brand(),
@@ -379,8 +373,7 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
     ) -> ParserStaticBoxParentSourceDispositionV1 {
         if !matches!(
             cohort,
-            ParserPostpassProgramCohortV1::StaticBox
-                | ParserPostpassProgramCohortV1::MixedProgram
+            ParserPostpassProgramCohortV1::StaticBox | ParserPostpassProgramCohortV1::MixedProgram
         ) {
             return ParserStaticBoxParentSourceDispositionV1::Outside(
                 ParserStaticBoxParentOutsideReasonV1::ProgramCohort,

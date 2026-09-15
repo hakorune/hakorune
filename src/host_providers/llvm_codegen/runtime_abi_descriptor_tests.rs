@@ -399,7 +399,7 @@ fn rejects_each_bad_opaque_layout_and_old_revision() {
     for base in [200, 212, 224] {
         for (offset, value) in [(base, 0u32), (base + 4, 3), (base + 8, 0)] {
             let mut bytes = descriptor_bytes();
-            bytes[offset..offset+4].copy_from_slice(&value.to_le_bytes());
+            bytes[offset..offset + 4].copy_from_slice(&value.to_le_bytes());
             assert!(decode_descriptor(&bytes).unwrap_err().contains("opaque"));
         }
     }

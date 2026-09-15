@@ -486,17 +486,26 @@ impl CompletedLocalStatementV1 {
 }
 
 pub(in crate::mir::builder) fn drive_local_statement_with_receipt_v1<Port>(
-    builder: &mut MirBuilder, port: &mut Port, input: Port::LocalInput,
-) -> Result<CompletedLocalStatementV1, String> where Port: LocalStatementDescentPortV1 {
-    drive_local_statement_with_placement_v1(builder, port, input,
-        |_, _| Ok(super::variable_stmt::LocalValuePlacement::Copy))
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    input: Port::LocalInput,
+) -> Result<CompletedLocalStatementV1, String>
+where
+    Port: LocalStatementDescentPortV1,
+{
+    drive_local_statement_with_placement_v1(builder, port, input, |_, _| {
+        Ok(super::variable_stmt::LocalValuePlacement::Copy)
+    })
 }
 
 pub(in crate::mir::builder) fn drive_local_statement_with_placement_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     mut input: Port::LocalInput,
-    mut placement: impl FnMut(usize, ValueId) -> Result<super::variable_stmt::LocalValuePlacement, String>,
+    mut placement: impl FnMut(
+        usize,
+        ValueId,
+    ) -> Result<super::variable_stmt::LocalValuePlacement, String>,
 ) -> Result<CompletedLocalStatementV1, String>
 where
     Port: LocalStatementDescentPortV1,
@@ -549,7 +558,10 @@ where
         preclaimed_arrays.push(preclaimed);
     }
 
-    let placements = evaluated_values.iter().enumerate().map(|(i, value)| placement(i, *value))
+    let placements = evaluated_values
+        .iter()
+        .enumerate()
+        .map(|(i, value)| placement(i, *value))
         .collect::<Result<Vec<_>, _>>()?;
     let initializer_values = evaluated_values.clone();
     let mut values = Vec::with_capacity(variables.len());

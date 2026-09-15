@@ -112,7 +112,8 @@ fn continuation_target_placement_is_callback_scoped_and_one_shot() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -161,6 +162,7 @@ fn continuation_target_late_failure_discards_unpublished_block() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
-    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
+    port.take_object_definitions(&context)
+        .expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }

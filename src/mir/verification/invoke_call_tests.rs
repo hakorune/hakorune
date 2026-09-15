@@ -75,8 +75,7 @@ fn same_module_free_function_i64_call_uses_source_arity_contract() {
         unreachable!()
     };
     call.callee = Callee::Global(
-        hakorune_mir_defs::CanonicalGlobalTargetV1::new_free_function("helper".into(), 1)
-            .unwrap(),
+        hakorune_mir_defs::CanonicalGlobalTargetV1::new_free_function("helper".into(), 1).unwrap(),
     );
     MirVerifier::new().verify_function(&function).unwrap();
 }

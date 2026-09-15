@@ -67,8 +67,14 @@ fn rematerializes_runtime_data_substring_for_phi_pred() {
         }
         Some(MirInstruction::LegacyCallV0 {
             dst: Some(dst),
-            callee: Some(Callee::Method { method, receiver: Some(receiver), .. }),
-            args, ..
+            callee:
+                Some(Callee::Method {
+                    method,
+                    receiver: Some(receiver),
+                    ..
+                }),
+            args,
+            ..
         }) => *dst == materialized && method == "substring" && args.first() == Some(receiver),
         _ => false,
     });

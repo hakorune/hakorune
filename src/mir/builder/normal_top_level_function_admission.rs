@@ -203,8 +203,8 @@ impl RawInvocationChildPortV1<'_, '_> {
             return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
         }
         let function_name = admission.physical_symbol().to_owned();
-        let resolved = super::module_lowering_invocation::ResolvedChildDraftAdmissionV1::
-            cataloged_box_method(
+        let resolved =
+            super::module_lowering_invocation::ResolvedChildDraftAdmissionV1::cataloged_box_method(
                 plan.source_input().owner(),
                 admission.canonical_key().clone(),
                 function_name.clone(),

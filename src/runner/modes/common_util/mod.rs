@@ -4,9 +4,9 @@
  * Minimal extraction to reduce duplication and prepare for full split.
  */
 
-pub mod core_bridge;
 #[cfg(feature = "llvmlite-compat")]
 pub(crate) mod array_write_backend;
+pub mod core_bridge;
 pub mod diag;
 pub mod emit_direct;
 pub mod entry_selection;

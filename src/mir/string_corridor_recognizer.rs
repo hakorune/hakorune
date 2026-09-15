@@ -148,9 +148,7 @@ pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId,
             let view = method_call_operand_view(*receiver, call.args, 0)?;
             Some((dst, view.operand_receiver, call.effects))
         }
-        Callee::Extern(name)
-            if call.args.len() == 1 && is_runtime_len_handle_export(name) =>
-        {
+        Callee::Extern(name) if call.args.len() == 1 && is_runtime_len_handle_export(name) => {
             Some((dst, call.args[0], call.effects))
         }
         Callee::Global(name)
@@ -168,9 +166,7 @@ pub(crate) fn match_substring_len_call(
     let call = call_shape(inst)?;
     let dst = call.dst?;
     match call.callee {
-        Callee::Extern(name)
-            if call.args.len() == 3 && is_runtime_substring_len_export(name) =>
-        {
+        Callee::Extern(name) if call.args.len() == 3 && is_runtime_substring_len_export(name) => {
             Some((dst, call.args[0], call.args[1], call.args[2]))
         }
         _ => None,
@@ -194,9 +190,7 @@ pub(crate) fn match_substring_call(
             };
             Some((dst, view.operand_receiver, *start, *end, call.effects))
         }
-        Callee::Extern(name)
-            if call.args.len() == 3 && is_runtime_substring_export(name) =>
-        {
+        Callee::Extern(name) if call.args.len() == 3 && is_runtime_substring_export(name) => {
             Some((dst, call.args[0], call.args[1], call.args[2], call.effects))
         }
         _ => None,
@@ -277,9 +271,7 @@ pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, 
             };
             Some((view.operand_receiver, *start, *end))
         }
-        Callee::Extern(name)
-            if call.args.len() == 3 && is_runtime_substring_export(name) =>
-        {
+        Callee::Extern(name) if call.args.len() == 3 && is_runtime_substring_export(name) => {
             Some((call.args[0], call.args[1], call.args[2]))
         }
         _ => None,
@@ -312,9 +304,7 @@ pub(crate) fn match_concat_triplet_from_extern(
     let block = function.blocks.get(&bbid)?;
     let call = call_shape(block.instructions.get(idx)?)?;
     match call.callee {
-        Callee::Extern(name)
-            if call.args.len() == 3 && is_runtime_concat3_export(name) =>
-        {
+        Callee::Extern(name) if call.args.len() == 3 && is_runtime_concat3_export(name) => {
             Some(ConcatTripletShape {
                 left: resolve_value_origin(function, def_map, call.args[0]),
                 middle: resolve_value_origin(function, def_map, call.args[1]),

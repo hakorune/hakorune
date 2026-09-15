@@ -18,14 +18,14 @@ use super::normal_callable_dynamic_origin::{
 };
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
 
-#[path = "normal_callable_semantic_receiver_crosswalk.rs"]
-mod normal_callable_semantic_receiver_crosswalk;
-#[path = "normal_callable_semantic_observation.rs"]
-mod observation;
 #[path = "normal_callable_construction_state.rs"]
 pub(super) mod construction;
 #[path = "normal_callable_fault_state.rs"]
 mod fault;
+#[path = "normal_callable_semantic_receiver_crosswalk.rs"]
+mod normal_callable_semantic_receiver_crosswalk;
+#[path = "normal_callable_semantic_observation.rs"]
+mod observation;
 
 /// Physical values materialized while lowering one callable body.
 ///
@@ -43,8 +43,10 @@ pub(super) struct CallableSemanticLoweringState {
     receiver: Option<BindingRefV1>,
     parameters: Box<[BindingRefV1]>,
     locals: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
-    initializers: BTreeMap<crate::mir::resolved_semantics::SourceBindingSiteV1,
-        crate::mir::resolved_semantics::ResolvedInitializerRelationV1>,
+    initializers: BTreeMap<
+        crate::mir::resolved_semantics::SourceBindingSiteV1,
+        crate::mir::resolved_semantics::ResolvedInitializerRelationV1,
+    >,
     variables: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     assignments: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     explicit_extern_calls: BTreeMap<SourceNodeSiteV1, Box<str>>,
@@ -235,7 +237,9 @@ impl CallableSemanticLoweringState {
             values: BTreeMap::new(),
             dynamic_origins,
             construction: construction::ConstructionState::NotConstruction,
-            fault_frame: Some(crate::mir::builder::function_fault_frame::FunctionFaultFrameV1::borrowed()),
+            fault_frame: Some(
+                crate::mir::builder::function_fault_frame::FunctionFaultFrameV1::borrowed(),
+            ),
             entry_installed: false,
             materialized_locals: BTreeSet::new(),
             consumed_variables: BTreeSet::new(),

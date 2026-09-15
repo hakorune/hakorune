@@ -52,7 +52,9 @@ pub(crate) fn collect_using_and_strip_with_edges(
     ),
     String,
 > {
-    Ok(apply_using_strip_plan(plan_using_strip(runner, code, filename, true)?))
+    Ok(apply_using_strip_plan(plan_using_strip(
+        runner, code, filename, true,
+    )?))
 }
 
 struct UsingStripPlan {

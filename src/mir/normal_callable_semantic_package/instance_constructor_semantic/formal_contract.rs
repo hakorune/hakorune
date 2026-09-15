@@ -6,10 +6,10 @@
 use crate::ast::{ASTNode, ParamDecl};
 use crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
+use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingOriginV1, BindingRefV1, SourceBindingSiteV1,
 };
-use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 use super::super::instance_construction::{ConstructionEligibilityV1, ConstructionStoreRhsV1};
 use super::VerifiedInstanceConstructorSemanticRowV1;
@@ -82,13 +82,17 @@ pub(super) fn issue_birth_formal_contracts(
     row: &VerifiedInstanceConstructorSemanticRowV1,
 ) -> Result<Box<[BirthFormalContractV1]>, BirthFormalContractIssueV1> {
     let ASTNode::FunctionDeclaration {
-        params, param_decls, ..
+        params,
+        param_decls,
+        ..
     } = declaration
     else {
         return Err(BirthFormalContractIssueV1::Declaration);
     };
     let source_parameters = ParamDecl::with_name_fallback(param_decls, params);
-    if source_parameters.len() != usize::try_from(row.source_arity()).map_err(|_| BirthFormalContractIssueV1::Arity)? {
+    if source_parameters.len()
+        != usize::try_from(row.source_arity()).map_err(|_| BirthFormalContractIssueV1::Arity)?
+    {
         return Err(BirthFormalContractIssueV1::Arity);
     }
     let [owner] = row.forest().roots() else {
@@ -184,9 +188,9 @@ fn disposition(
         BirthFormalDeclarationClassV1::ExplicitUnsupported => {
             BirthFormalPhysicalDispositionV1::UnavailableUnsupportedDeclaration
         }
-        BirthFormalDeclarationClassV1::ExactText
-        | BirthFormalDeclarationClassV1::Unannotated
-            if !matches!(uses, BirthFormalUseCoverageV1::NoUse) => {
+        BirthFormalDeclarationClassV1::ExactText | BirthFormalDeclarationClassV1::Unannotated
+            if !matches!(uses, BirthFormalUseCoverageV1::NoUse) =>
+        {
             BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation
         }
         BirthFormalDeclarationClassV1::ExactI64 | BirthFormalDeclarationClassV1::Unannotated => {

@@ -84,7 +84,11 @@ enum NormalizedExitV1 {
 
 #[derive(Debug, Clone, PartialEq)]
 enum NormalizedEffectV1 {
-    MapLiteralEntryWrite { receiver: ValueId, key: ValueId, value: ValueId },
+    MapLiteralEntryWrite {
+        receiver: ValueId,
+        key: ValueId,
+        value: ValueId,
+    },
     MethodCall {
         dst: Option<ValueId>,
         object: ValueId,

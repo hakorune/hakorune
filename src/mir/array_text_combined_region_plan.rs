@@ -7,8 +7,8 @@
  * MIR JSON.
  */
 
-use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::string_corridor_recognizer::call_shape;
+use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
     array_text_edit_plan::ArrayTextEditRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
@@ -634,13 +634,10 @@ fn block_has_same_array_method_call(
     block: &BasicBlock,
     array_value: ValueId,
 ) -> bool {
-    block
-        .instructions
-        .iter()
-        .any(|inst| {
-            same_array_method_call(function, def_map, inst, array_value).is_some()
-                || same_array_write_receiver(function, def_map, inst, array_value)
-        })
+    block.instructions.iter().any(|inst| {
+        same_array_method_call(function, def_map, inst, array_value).is_some()
+            || same_array_write_receiver(function, def_map, inst, array_value)
+    })
 }
 
 fn same_array_write_receiver(
@@ -673,7 +670,7 @@ fn same_array_method_call<'a>(
     };
     (matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox")
         && root(function, def_map, *receiver) == root(function, def_map, array_value))
-        .then_some((method.as_str(), call.args))
+    .then_some((method.as_str(), call.args))
 }
 
 fn match_outer_accumulator(

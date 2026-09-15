@@ -8,7 +8,11 @@
 use super::instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 use crate::mir::function::ObjectDestructionDispositionV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
-use std::{cell::RefCell, collections::{BTreeMap, BTreeSet}, rc::Rc};
+use std::{
+    cell::RefCell,
+    collections::{BTreeMap, BTreeSet},
+    rc::Rc,
+};
 
 pub(crate) use self::birth_abi_handoff::{BirthAbiHandoffV1, BirthResultAbiV1};
 use super::instance_constructor_semantic::{
@@ -25,8 +29,8 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     SelectedNewArgumentUnavailableV1, TerminalI64AddReturnV1, TerminalI64FieldReturnV1,
     TerminalIntegerLiteralReturnV1, TerminalRelationV1, TerminalUnitReturnV1,
 };
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
     SourceNodeSiteV1, SourcePathSegmentV1,
@@ -41,18 +45,18 @@ mod ordinary_new_arguments;
 pub(crate) use ordinary_new_arguments::{
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
 };
-#[path = "ordinary_new_field_reads.rs"]
-mod field_reads;
-#[path = "ordinary_new_coseal_helpers.rs"]
-mod coseal_helpers;
 #[path = "ordinary_new_completion_index.rs"]
 mod completion_index;
 #[path = "ordinary_new_completion_lookup.rs"]
 mod completion_lookup;
+#[path = "ordinary_new_coseal_helpers.rs"]
+mod coseal_helpers;
+#[path = "ordinary_new_field_reads.rs"]
+mod field_reads;
 // The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
 use coseal_helpers::{
-    convert_selected_new_arguments, is_direct_local_initializer,
-    no_birth_constructor_disposition, retain_child_terminal_relation,
+    convert_selected_new_arguments, is_direct_local_initializer, no_birth_constructor_disposition,
+    retain_child_terminal_relation,
 };
 #[path = "ordinary_new_terminal_result.rs"]
 mod terminal_result;
@@ -66,12 +70,12 @@ mod birth_abi_handoff;
 mod candidate;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
+#[path = "ordinary_new_root_instance_call.rs"]
+mod root_instance_call;
 #[path = "ordinary_new_terminal_access.rs"]
 mod terminal_access;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
-#[path = "ordinary_new_root_instance_call.rs"]
-mod root_instance_call;
 use candidate::OrdinaryNewCandidate;
 
 pub(crate) use local_commit::{
@@ -163,7 +167,8 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     ordinary_box_names: Box<[Box<str>]>,
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::LocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
-    child_physical_validation: RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::ChildPhysicalValidation>>,
+    child_physical_validation:
+        RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::ChildPhysicalValidation>>,
     root_exits: RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::RootHomeExitProgress>>,
     // Physical bindings for the bounded source-local Call prefix. These are
     // consumed by the existing root Call entry; they do not issue a target or
@@ -177,12 +182,8 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
             )>,
         >,
     >,
-    root_instance_calls: RefCell<
-        BTreeMap<
-            OwnedExprSiteV1,
-            root_instance_call::RootInstanceCallDispositionSlotV1,
-        >,
-    >,
+    root_instance_calls:
+        RefCell<BTreeMap<OwnedExprSiteV1, root_instance_call::RootInstanceCallDispositionSlotV1>>,
     root_instance_call_expected: RefCell<BTreeSet<FunctionOwnerIdV1>>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
@@ -352,7 +353,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.root_owner() != Some(owner) {
             return Ok(false);
         }
-        let Some(TerminalRelationV1::Unit(relation)) = self.terminal_relation_for_owner(owner) else {
+        let Some(TerminalRelationV1::Unit(relation)) = self.terminal_relation_for_owner(owner)
+        else {
             return Ok(false);
         };
         let Some(completion) = self.completion_for_owner(owner) else {

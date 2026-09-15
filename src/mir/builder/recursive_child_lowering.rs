@@ -35,11 +35,11 @@ use super::raw_invocation_source_transport::{
 };
 use crate::parser::CallableMethodSourceObservationV1;
 
+#[path = "recursive_child_lowering/instance_capture.rs"]
+mod instance_capture;
 mod legacy_port;
 #[path = "recursive_child_lowering/pending_helpers.rs"]
 mod pending_helpers;
-#[path = "recursive_child_lowering/instance_capture.rs"]
-mod instance_capture;
 #[path = "raw_ordinary_new_claim.rs"]
 mod raw_ordinary_new_claim;
 #[path = "normal_script_direct_static_claim_transport.rs"]
@@ -608,7 +608,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             ),
         )
     }
-
 }
 
 impl AppMainDirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {

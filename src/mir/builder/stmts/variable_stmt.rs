@@ -74,7 +74,10 @@ pub(in crate::mir::builder) fn preflight_exact_numeric_local_initializers(
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum LocalValuePlacement { Copy, ReuseInitializer }
+pub(in crate::mir::builder) enum LocalValuePlacement {
+    Copy,
+    ReuseInitializer,
+}
 
 /// Build local variable declaration from already-evaluated initializer values.
 ///
@@ -137,10 +140,17 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
     }
     for (index, placement) in placements.iter().enumerate() {
         if *placement == LocalValuePlacement::ReuseInitializer {
-            let annotation = declared_type_names.get(index).and_then(|name| name.as_deref());
+            let annotation = declared_type_names
+                .get(index)
+                .and_then(|name| name.as_deref());
             if crate::mir::type_contracts::local_slot::is_exact_numeric_local_type(annotation)
-                || annotation.map(crate::typed_array_contract_spec::parse_annotation).transpose()?.flatten().is_some()
-                || initial_values.get(index).is_none() {
+                || annotation
+                    .map(crate::typed_array_contract_spec::parse_annotation)
+                    .transpose()?
+                    .flatten()
+                    .is_some()
+                || initial_values.get(index).is_none()
+            {
                 return Err("[freeze:contract][local-placement/opaque-contract]".into());
             }
         }
@@ -155,7 +165,11 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
         };
 
         let reuse = placements.get(index) == Some(&LocalValuePlacement::ReuseInitializer);
-        let var_id = if reuse { init_val } else { builder.next_value_id() };
+        let var_id = if reuse {
+            init_val
+        } else {
+            builder.next_value_id()
+        };
 
         if crate::config::env::builder_loopform_debug() {
             crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(

@@ -38,7 +38,6 @@ impl RecipeFirstRouteSelectionV1 {
             .map(|route| route.as_str())
             .collect()
     }
-
 }
 
 #[derive(Debug, PartialEq, Eq)]

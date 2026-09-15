@@ -24,14 +24,19 @@ impl CallableSemanticLoweringState {
         completed: &crate::mir::builder::stmts::CompletedLocalStatementV1,
         claims: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
     ) -> Result<(), String> {
-        let bindings = self.locals.get(site)
+        let bindings = self
+            .locals
+            .get(site)
             .ok_or_else(|| super::freeze("missing-local-site"))?;
-        if bindings.len() != completed.bindings().len() || !self.materialized_locals.contains(site) {
+        if bindings.len() != completed.bindings().len() || !self.materialized_locals.contains(site)
+        {
             return Err(super::freeze("ordinary-new-before-local-completion"));
         }
-        let rows = bindings.iter().zip(completed.bindings()).map(|(&binding, row)| {
-            (binding, row.ordinal(), row.initializer(), row.local())
-        }).collect::<Vec<_>>();
+        let rows = bindings
+            .iter()
+            .zip(completed.bindings())
+            .map(|(&binding, row)| (binding, row.ordinal(), row.initializer(), row.local()))
+            .collect::<Vec<_>>();
         claims.complete_local_installation(self.owner, site, &rows)
     }
     pub(in crate::mir::builder) fn observe_preloop_alias(

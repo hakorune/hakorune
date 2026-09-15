@@ -7,9 +7,9 @@
 
 mod completion_seed;
 mod declared_instance_locator;
-mod direct_call_loan;
 #[cfg(test)]
 mod direct_call_lifecycle_tests;
+mod direct_call_loan;
 mod dynamic_admission;
 mod install;
 mod instance_construction;
@@ -20,8 +20,8 @@ pub(crate) use instance_construction::{
     ConstructionEligibilityV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
 };
 pub(crate) use instance_constructor_semantic::{
-    BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalUseCoverageV1,
-    BirthFormalPhysicalDispositionV1,
+    BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalPhysicalDispositionV1,
+    BirthFormalUseCoverageV1,
 };
 mod issuer;
 mod model;

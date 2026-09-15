@@ -7,9 +7,9 @@
 use crate::mir::canonical_direct_call_contract::{
     VerifiedDirectCallEffectV1, VerifiedTrivialDirectCallTargetV1,
 };
+use crate::mir::definitions::MirCall;
 use crate::mir::resolved_semantics::VerifiedCallableHeaderV1;
 use crate::mir::resolved_value_profile::VerifiedTrivialDirectCallV1;
-use crate::mir::definitions::MirCall;
 use crate::mir::{Callee, Effect, EffectMask, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
@@ -84,7 +84,8 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
         dst: ValueId,
         args: Vec<ValueId>,
     ) -> Result<MirInstruction, DirectCallEmissionErrorV1> {
-        self.materialize_call(Some(dst), args).map(MirInstruction::Call)
+        self.materialize_call(Some(dst), args)
+            .map(MirInstruction::Call)
     }
 
     /// Borrow the issued target so its owner can retain it for finishing checks.

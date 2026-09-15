@@ -111,7 +111,11 @@ pub(in crate::mir::builder) enum NormalizedConstV1 {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(in crate::mir::builder) enum NormalizedEffectV1 {
-    MapLiteralEntryWrite { receiver: ValueId, key: ValueId, value: ValueId },
+    MapLiteralEntryWrite {
+        receiver: ValueId,
+        key: ValueId,
+        value: ValueId,
+    },
     MethodCall {
         dst: Option<ValueId>,
         object: ValueId,
@@ -331,10 +335,15 @@ fn normalize_branchn(branch: &CoreBranchNPlan) -> Result<NormalizedBranchNV1, &'
 
 fn normalize_effect(effect: &CoreEffectPlan) -> Result<NormalizedEffectV1, &'static str> {
     Ok(match effect {
-        CoreEffectPlan::MapLiteralEntryWrite { receiver, key, value } =>
-            NormalizedEffectV1::MapLiteralEntryWrite {
-                receiver: *receiver, key: *key, value: *value,
-            },
+        CoreEffectPlan::MapLiteralEntryWrite {
+            receiver,
+            key,
+            value,
+        } => NormalizedEffectV1::MapLiteralEntryWrite {
+            receiver: *receiver,
+            key: *key,
+            value: *value,
+        },
         CoreEffectPlan::MethodCall {
             dst,
             object,

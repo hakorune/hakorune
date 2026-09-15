@@ -120,7 +120,8 @@ fn rewrites_left_assoc_chain_to_concat3() {
                     && matches!(
                         &call.callee,
                         Callee::Extern(name) if name == "nyash.string.concat3_hhh"
-                    ) => {
+                    ) =>
+            {
                 saw_concat3 = true;
                 assert_eq!(call.args, vec![ValueId(1), ValueId(2), ValueId(3)]);
             }
@@ -157,7 +158,8 @@ fn rewrites_right_assoc_chain_to_concat3() {
                     && matches!(
                         &call.callee,
                         Callee::Extern(name) if name == "nyash.string.concat3_hhh"
-                    ) => {
+                    ) =>
+            {
                 saw_concat3 = true;
                 assert_eq!(call.args, vec![ValueId(1), ValueId(2), ValueId(3)]);
             }

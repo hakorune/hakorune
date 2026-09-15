@@ -7,9 +7,7 @@ use std::path::{Path, PathBuf};
 
 #[cfg(test)]
 use crate::mir::emit_lifecycle_physical_abi_json;
-use crate::mir::function::{
-    PublishedMirBackendView, PublishedStaticMethodRouteV1,
-};
+use crate::mir::function::{PublishedMirBackendView, PublishedStaticMethodRouteV1};
 use crate::mir::MirModule;
 
 use super::{

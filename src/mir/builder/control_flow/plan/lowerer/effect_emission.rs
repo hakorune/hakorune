@@ -208,9 +208,15 @@ impl super::PlanLowerer {
                     *effects,
                 )?;
             }
-            CoreEffectPlan::MapLiteralEntryWrite { receiver, key, value } => {
+            CoreEffectPlan::MapLiteralEntryWrite {
+                receiver,
+                key,
+                value,
+            } => {
                 builder.emit_instruction(MirInstruction::MapLiteralEntryWrite {
-                    receiver: *receiver, key: *key, value: *value,
+                    receiver: *receiver,
+                    key: *key,
+                    value: *value,
                 })?;
             }
             CoreEffectPlan::NewBox { dst, target, args } => {

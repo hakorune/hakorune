@@ -142,8 +142,10 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             .map(Some);
         }
         if ledger.root_instance_call_expected(owner) {
-            return Err("[freeze:contract][ordinary-new/local-commit/artifact-source-unavailable]"
-                .to_owned());
+            return Err(
+                "[freeze:contract][ordinary-new/local-commit/artifact-source-unavailable]"
+                    .to_owned(),
+            );
         }
         if ledger.terminal_call_arguments_for_owner(owner).is_none() {
             return Ok(None);

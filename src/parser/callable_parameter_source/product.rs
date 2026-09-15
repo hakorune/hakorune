@@ -20,11 +20,11 @@ use super::syntax_loan::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableSyntaxLoanErrorV1,
 };
-use crate::parser::postpass_envelope::CompletedParserPostpassV1;
-use crate::parser::{NyashParser, ParseError, ParsedNormalCallableProgramV1, ParserBuildConfig};
 use crate::parser::normal_callable_program_source::{
     ParserSourceAdmissionErrorV1, ParserSourceAdmissionWitnessV1,
 };
+use crate::parser::postpass_envelope::CompletedParserPostpassV1;
+use crate::parser::{NyashParser, ParseError, ParsedNormalCallableProgramV1, ParserBuildConfig};
 use crate::runner::modes::common_util::resolve::MergedSourceLineageV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -37,7 +37,9 @@ fn validate(text: &str) -> Result<(), String> {
         let mut count = 0;
         for line in text.lines() {
             let fields: Vec<_> = line.split_whitespace().collect();
-            if fields.first().copied() != Some(*symbol) { continue; }
+            if fields.first().copied() != Some(*symbol) {
+                continue;
+            }
             if fields.len() < 3 || !matches!(fields[1], "T" | "W") {
                 return Err(format!("checked Map symbol is not a function: {symbol}"));
             }

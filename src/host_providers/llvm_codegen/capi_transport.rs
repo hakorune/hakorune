@@ -42,7 +42,9 @@ impl OwnedPhysicalCompileContract {
     ) -> Result<Self, String> {
         let compile_recipe = compile_recipe
             .filter(|value| *value == "pure-first")
-            .ok_or_else(|| "[freeze:contract][compile-options/recipe] expected pure-first".to_string())?;
+            .ok_or_else(|| {
+                "[freeze:contract][compile-options/recipe] expected pure-first".to_string()
+            })?;
         let compat_replay = compat_replay
             .filter(|value| *value == "none")
             .ok_or_else(|| "[freeze:contract][compile-options/replay] expected none".to_string())?;
@@ -107,21 +109,23 @@ fn option_env(name: &str) -> Result<Option<String>, String> {
             if error == std::env::VarError::NotPresent {
                 Ok(None)
             } else {
-                Err(format!("[freeze:contract][compile-options/{name}] invalid UTF-8"))
+                Err(format!(
+                    "[freeze:contract][compile-options/{name}] invalid UTF-8"
+                ))
             }
         })
 }
 
 fn option_env_preserve_empty(name: &str) -> Result<Option<String>, String> {
-    std::env::var(name)
-        .map(Some)
-        .or_else(|error| {
-            if error == std::env::VarError::NotPresent {
-                Ok(None)
-            } else {
-                Err(format!("[freeze:contract][compile-options/{name}] invalid UTF-8"))
-            }
-        })
+    std::env::var(name).map(Some).or_else(|error| {
+        if error == std::env::VarError::NotPresent {
+            Ok(None)
+        } else {
+            Err(format!(
+                "[freeze:contract][compile-options/{name}] invalid UTF-8"
+            ))
+        }
+    })
 }
 
 fn explicit_opt_level(opts: &Opts) -> Result<String, String> {
@@ -131,9 +135,9 @@ fn explicit_opt_level(opts: &Opts) -> Result<String, String> {
     let hako = std::env::var("HAKO_LLVM_OPT_LEVEL").ok();
     let nyash = std::env::var("NYASH_LLVM_OPT_LEVEL").ok();
     match (hako, nyash) {
-        (Some(left), Some(right)) if left != right => Err(
-            "[freeze:contract][compile-options/opt-level-alias-conflict]".to_string(),
-        ),
+        (Some(left), Some(right)) if left != right => {
+            Err("[freeze:contract][compile-options/opt-level-alias-conflict]".to_string())
+        }
         (Some(level), _) | (_, Some(level)) => Ok(level),
         (None, None) => Ok("0".to_string()),
     }
@@ -148,11 +152,15 @@ fn validate_opt_level(level: &str) -> Result<(), String> {
 }
 
 fn validate_tool_path(path: Option<&str>, label: &str) -> Result<(), String> {
-    let Some(path) = path else { return Ok(()); };
+    let Some(path) = path else {
+        return Ok(());
+    };
     if which::which(path).is_ok() {
         Ok(())
     } else {
-        Err(format!("[freeze:contract][compile-options/{label}-tool] not found"))
+        Err(format!(
+            "[freeze:contract][compile-options/{label}-tool] not found"
+        ))
     }
 }
 
@@ -217,11 +225,7 @@ fn compile_via_capi_with_options(
         fn free(ptr: *mut c_void);
     }
 
-    let owned = OwnedPhysicalCompileContract::from_request(
-        compile_recipe,
-        compat_replay,
-        opts,
-    )?;
+    let owned = OwnedPhysicalCompileContract::from_request(compile_recipe, compat_replay, opts)?;
     let contract = owned.row();
     unsafe {
         let lib = load_ffi_library()?;
@@ -256,11 +260,7 @@ fn compile_via_capi_with_options(
 }
 
 #[cfg(feature = "plugins")]
-pub(super) fn compile_via_capi(
-    json_in: &Path,
-    obj_out: &Path,
-    opts: &Opts,
-) -> Result<(), String> {
+pub(super) fn compile_via_capi(json_in: &Path, obj_out: &Path, opts: &Opts) -> Result<(), String> {
     compile_via_capi_with_options(
         json_in,
         obj_out,
@@ -342,10 +342,7 @@ pub(super) fn compile_published_lifecycle_physical_v4(
     result
 }
 
-pub(super) fn compile_via_capi_keep(
-    mir_json: &str,
-    opts: &Opts,
-) -> Result<PathBuf, String> {
+pub(super) fn compile_via_capi_keep(mir_json: &str, opts: &Opts) -> Result<PathBuf, String> {
     normalize::validate_backend_mir_shape(mir_json)?;
     let input = transport_io::prepare_backend_input_json_file(mir_json)?;
     let out_path = transport_paths::resolve_backend_object_output(opts);
@@ -604,11 +601,7 @@ exit 0
         )
     }
 
-    fn run_with_capi_env_and_record<R>(
-        ffi: &Path,
-        record: &Path,
-        f: impl FnOnce() -> R,
-    ) -> R {
+    fn run_with_capi_env_and_record<R>(ffi: &Path, record: &Path, f: impl FnOnce() -> R) -> R {
         let ffi = ffi.to_string_lossy().into_owned();
         let record = record.to_string_lossy().into_owned();
         crate::test_support::with_env_vars(
@@ -649,7 +642,11 @@ exit 0
                 .expect("invoke CAPI library build");
             assert!(build.success(), "CAPI library build failed");
         });
-        assert!(ffi.is_file(), "missing built CAPI library: {}", ffi.display());
+        assert!(
+            ffi.is_file(),
+            "missing built CAPI library: {}",
+            ffi.display()
+        );
         let mir_json = fs::read_to_string(
             manifest.join("apps/tests/mir_shape_guard/ret_const_min_v1.mir.json"),
         )

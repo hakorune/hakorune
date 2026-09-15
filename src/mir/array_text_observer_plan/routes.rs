@@ -469,7 +469,9 @@ fn is_same_slot_set_consumer(
             && root(function, def_map, set.index_value) == index_root
             && root(function, def_map, set.input_value) == value_root;
     }
-    let Some(call) = call_shape(inst) else { return false };
+    let Some(call) = call_shape(inst) else {
+        return false;
+    };
     let crate::mir::definitions::Callee::Method {
         box_name,
         method,
