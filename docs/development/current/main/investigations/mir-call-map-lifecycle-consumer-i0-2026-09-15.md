@@ -258,7 +258,7 @@ exit code; name the admitted entry classes.
 | C3  | BlockExpr prelude accounting — landed: `classify` rejects `NonEmptyBlockExprPrelude` when the sealed statement inventory shows `BlockExprPrelude` children of the wrapper site; empty-prelude wrappers stay transparent (folding prelude statement effects is a separate semantic slice) | — |
 | C4  | `:void` mixed `return null`/`return void` — landed: `classify_return_value` now takes the declared contract and normalizes `return null` to `(Void, ExplicitNull)` under an explicit `: void` annotation (mixed `return null`/`return void` seals one `ExplicitUnitSet`); unannotated `return null` stays an explicit Value return. Supersede note added to the 7/25 exit card; `types.md` records the declared-boundary rule | — |
 | C5a | contract definition: per-owner obligations + call-edge conformance + selected-consumer capability boundary in `PreparedInstall` | — |
-| C7  | merged `new MapBox()` census — 39 sites into local/returned/stored/arg | —        |
+| C7  | merged `new MapBox()` census — landed: exact 39-site classification recorded in Census section (27 returned / 11 nested-stored into a returned container / 1 truly local / 0 arg-transferred at creation site); 38/39 maps egress through a return boundary | — |
 | F3  | `TerminalRelationV1` for non-i64 value returns (Facts extension)   | —            |
 | F4  | Map return/argument physical ABI + entry-class operation contracts | C5a, F3      |
 | C5b | admission connect: preflight matches full sealed membership + implemented consumer capability | C5a, F3, F4 |
@@ -307,11 +307,35 @@ Root cause chain (each layer independently bounded):
 ## Census (merged entry)
 
 `%{...}` MapLiteral: 31 live sites, dominant form `return %{...}`
-(MirJsonEmitBox `make_*`/`to_json` family). `new MapBox()`: 39 sites —
-27 returned, 10 nested-stored into a returned map, ~6 arg/array
-transferred, 1-2 truly local (`seen` dedup). Boundary: merged entry
-program -> `%{` literals and `new MapBox()` in function bodies; excludes
-string literals/comments.
+(MirJsonEmitBox `make_*`/`to_json` family). `new MapBox()`: exact 39-site
+classification (2026-09-15, verified line-by-line):
+
+- **27 returned** — the map is the function's own return value:
+  MirSchemaBox `m` ×20 (`i`, `inst_const*`, `inst_static_data_load`,
+  `inst_ret`, `inst_compare`, `inst_binop`, `inst_copy`, `inst_branch`,
+  `inst_jump`, `phi_incoming`, `inst_phi`, `inst_mir_call_*`, `block`,
+  `fn_main`, `module`); plus FuncScannerHelpersBox `_read_qualified_ident`
+  /`_extract_ident` `result`, BoxTypeInspectorBox `_describe` `info`,
+  BoxHelpers `map_put_or_new` `obj`, LowerLoopMultiCarrierBox
+  `_extract_limit_info` `info`, DefsScannerBox `extract_name` `result`,
+  MirRootHydratorBox `_parse_object` `obj`.
+- **11 nested-stored** — stored into a container that escapes through
+  the return path: MirSchemaBox inner `v`/`callee`/`payload` ×10 (set into
+  the returned `m`), FuncScannerBox `def` pushed into the returned
+  `methods` array.
+- **1 truly local** — JsonFragNormalizerBox `_normalize_instructions_array`
+  `seen` signature-dedup map (never returned, stored, or passed on).
+- **0 arg-transferred at creation site** — every site is
+  `local x = new MapBox()` or a parameter rebind; arg-position maps in the
+  merged route arrive via `%{...}` literals or parameters, not `new
+  MapBox()` inline.
+
+Boundary: merged entry program -> `%{` literals and `new MapBox()` in
+function bodies; excludes string literals/comments. Lifecycle impact:
+38/39 created maps escape through a return boundary (directly or via a
+stored container) — the C5a per-owner contract must cover
+return-position map egress, and F4's return ABI is the dominant physical
+requirement.
 
 ## Decomposed slice order
 
