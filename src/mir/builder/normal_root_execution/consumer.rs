@@ -91,6 +91,21 @@ impl NormalRootExecutionConsumerV1 {
                 return Err(RejectedNormalRootExecutionConsumptionV1 { source, error });
             }
         };
+        // Admission condition: a source carrying merged-source lineage must
+        // also carry its issued source-admission witness. Materialization
+        // issues the witness (possibly with zero rows) for every merged
+        // source-backed product; a missing witness here means the source
+        // bypassed that boundary and must reject before package effects.
+        if let Some(lineage) = source.source_lineage() {
+            if lineage.merged_source_lineage().is_some()
+                && lineage.source_admission_witness().is_none()
+            {
+                return Err(RejectedNormalRootExecutionConsumptionV1 {
+                    source,
+                    error: NormalRootExecutionConsumerRejectV1::SourceAuthorityUnavailable,
+                });
+            }
+        }
         let root_execution = match PreparedAdmittedNormalRootExpansionV1::issue(
             &source,
             NormalRootExecutionProjectionPermitV1::issue_for_consumer(),

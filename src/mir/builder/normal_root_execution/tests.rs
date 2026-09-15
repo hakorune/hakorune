@@ -3,9 +3,9 @@ use super::{
     NormalRootExecutionConsumerV1,
 };
 use crate::mir::normal_source_plan::NormalSourcePlanErrorV1;
-use crate::parser::{NyashParser, ParserBuildConfig};
+use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
-fn consume(source: &str) -> AdmittedNormalRootExecutionModeV1 {
+fn source_backed(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         ParserBuildConfig::default(),
@@ -18,7 +18,11 @@ fn consume(source: &str) -> AdmittedNormalRootExecutionModeV1 {
     let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
         panic!("fixture must remain source-backed")
     };
-    NormalRootExecutionConsumerV1::consume_once(source)
+    source
+}
+
+fn consume(source: &str) -> AdmittedNormalRootExecutionModeV1 {
+    NormalRootExecutionConsumerV1::consume_once(source_backed(source))
         .expect("preserved root")
         .consume_at_named_test_terminal()
 }
@@ -70,5 +74,49 @@ fn non_static_main_rejects_with_source_policy_before_projection() {
         NormalRootExecutionConsumerRejectV1::SourcePolicy(
             NormalSourcePlanErrorV1::MainMustBeStatic,
         )
+    );
+}
+
+#[test]
+fn merged_lineage_without_admission_witness_rejects_pre_package() {
+    use crate::mir::CanonicalSourceBytesDigestV1;
+    use crate::parser::NormalParserSourceLineageV1;
+    use crate::runner::modes::common_util::resolve::{
+        strip::MergedSourceSegmentV1, MergedSourceLineageV1,
+    };
+    use hakorune_frontend_parser::parser::GrammarProfile;
+
+    let source = source_backed("static box Main { main() { 1 } }");
+    let merged = MergedSourceLineageV1::issue(
+        "main.hako",
+        vec![MergedSourceSegmentV1 {
+            source: "main.hako".into(),
+            canonical_path: "main.hako".into(),
+            parent: None,
+            dfs_ordinal: 0,
+            global_start_line: 1,
+            global_line_count: 1,
+            local_start_line: 1,
+            local_line_count: 1,
+        }],
+        Vec::new(),
+    )
+    .expect("merged lineage");
+    let lineage = NormalParserSourceLineageV1::issue(
+        "main.hako",
+        CanonicalSourceBytesDigestV1::from_utf8_bytes(b"static box Main { main() { 1 } }"),
+        GrammarProfile::Canonical,
+        "static box Main { main() { 1 } }".len(),
+        1,
+        1,
+    )
+    .expect("parser lineage")
+    .with_merged_source_lineage(merged);
+    let source = source.with_source_lineage(lineage);
+    assert_eq!(
+        NormalRootExecutionConsumerV1::consume_once(source)
+            .expect_err("merged lineage without its admission witness must reject")
+            .into_error_after_discard(),
+        NormalRootExecutionConsumerRejectV1::SourceAuthorityUnavailable
     );
 }

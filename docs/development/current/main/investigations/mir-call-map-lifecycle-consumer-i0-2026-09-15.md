@@ -249,7 +249,7 @@ exit code; name the admitted entry classes.
 | #   | Card                                                              | Depends      |
 | --- | ----------------------------------------------------------------- | ------------ |
 | C1  | source-result issuer owner binding — landed: `verify_source_input_identity` binds the resolved input's declaration node to the catalog row field-by-field (name/params/param_decls/return type/body/uses/attrs); `ForeignResolvedInput` rejects before ledger consumption. Residual honestly bounded: content-identical foreign declarations are indistinguishable (parser nodes carry `Span::unknown()`), but identical content produces identical product rows — only the owner label could differ | — |
-| C2  | source-admission witness: consume as admission condition or drop   | —            |
+| C2  | source-admission witness — landed: `issue()` now always returns an attested witness (zero rows allowed), materialization fails merged+source-backed without one (`MissingCoverageWitness`), and `NormalRootExecutionConsumerV1::consume_once` enforces `merged lineage ⇒ witness` as `SourceAuthorityUnavailable` before package effects | — |
 | C3  | BlockExpr prelude accounting (reject non-empty prelude or fold)    | —            |
 | C4  | `:void` mixed `return null`/`return void` — needs decision record  | —            |
 | C5a | contract definition: per-owner obligations + call-edge conformance + selected-consumer capability boundary in `PreparedInstall` | — |
@@ -265,6 +265,14 @@ independent. C5a is this card's core deliverable; C5b/C6/C8 follow it;
 C7 informs scope. Per consultation #2: C5 contract definition does not
 depend on F3/F4 — admitting a Map-returning owner does. Full worker
 verification evidence lives in the card audit trail.
+
+C2 verification note (2026-09-15): the broader module run surfaced 7
+unrelated reds — `published_consumer_*` ×2 (documented baseline at
+`b61aef93ec`), `normal_callable_semantic_source` parity/ledger ×3
+(`freeze:contract`/`runtime-box-fate-retired`), and
+`production_skip_while_*` ×2 (`DynamicCarrierMismatch` / unwrap None).
+Parent replay at `1ab879453d` reproduced all 7 identically → classified
+known baseline debt (`ParentFailCurrentFail`), not current-change.
 
 ## Arm pinning (2026-09-15, verified against 7618c185)
 

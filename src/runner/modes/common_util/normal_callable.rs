@@ -127,6 +127,11 @@ fn materialize_normal_callable_program_with_identity_and_optional_lineage_v1(
             let source_lineage = source_lineage.co_seal_parser_invocation(invocation);
             let source_lineage = match source_admission_witness {
                 Some(witness) => source_lineage.with_source_admission_witness(witness),
+                None if source_lineage.merged_source_lineage().is_some() => {
+                    return Err(NormalCallableMaterializationErrorV1::SourceAdmission(
+                        ParserSourceAdmissionErrorV1::MissingCoverageWitness,
+                    ));
+                }
                 None => source_lineage,
             };
             NormalCallableMaterializationOutcomeV1::SourceBacked(

@@ -135,6 +135,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             lineage,
             self.completed.source_declaration_coordinates(),
         )
+        .map(Some)
     }
 
     pub(crate) fn prepare_raw_vm_source_route(

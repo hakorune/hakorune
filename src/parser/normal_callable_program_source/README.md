@@ -70,8 +70,20 @@ witness before publishing the source-backed product. Downstream Builder/MIR
 code does not reconstruct import identity from AST, names, paths, or
 `LineSpan` diagnostics. Duplicate canonical coverage and range gaps/overlaps
 are rejected by the merge owner. This is the A0-2 transport slice only; static
-parent co-seal, source admission, fallback retirement, and old-edge deletion
-remain separate rows.
+parent co-seal, fallback retirement, and old-edge deletion remain separate
+rows.
+
+Source admission is a consumed condition, not an attached hint. For every
+merged source-backed product the materializer issues one
+`ParserSourceAdmissionWitnessV1` joining each declaration coordinate
+(brand/path/global line) to its sealed segment and local line; an empty
+coordinate set still yields an attested zero-row witness. Foreign brands,
+duplicate declaration paths, and out-of-range lines reject at issue, and a
+merged source-backed product that somehow lacks the witness fails with
+`MissingCoverageWitness` at materialization. `NormalRootExecutionConsumerV1`
+then refuses any source whose lineage carries merged segments without the
+witness (`SourceAuthorityUnavailable`) before package effects, so the
+condition cannot be bypassed by a producer outside the materializer.
 
 Non-authority:
 

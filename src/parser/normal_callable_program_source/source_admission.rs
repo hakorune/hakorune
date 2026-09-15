@@ -45,22 +45,27 @@ pub(crate) enum ParserSourceAdmissionErrorV1 {
     DuplicateDeclarationPath,
     DeclarationLineOutOfRange,
     SegmentLocalLineOutOfRange,
+    MissingCoverageWitness,
 }
 
 impl ParserSourceAdmissionWitnessV1 {
+    /// Issue the declaration-to-segment join for one merged-source invocation.
+    ///
+    /// The returned witness attests that the join ran over every declaration
+    /// coordinate; an empty coordinate set still returns a witness with zero
+    /// rows so a merged source-backed product always carries coverage proof.
     pub(in crate::parser) fn issue(
         lineage: &MergedSourceLineageV1,
         coordinates: Vec<ParserSourceDeclarationCoordinateV1>,
-    ) -> Result<Option<Self>, ParserSourceAdmissionErrorV1> {
-        let Some(first) = coordinates.first() else {
-            return Ok(None);
-        };
-        let first_brand = first.brand.clone();
+    ) -> Result<Self, ParserSourceAdmissionErrorV1> {
+        let first_brand = coordinates.first().map(|first| first.brand.clone());
         let mut paths = Vec::with_capacity(coordinates.len());
         let mut rows = Vec::with_capacity(coordinates.len());
         for coordinate in coordinates {
-            if !coordinate.brand.same_as(&first_brand) {
-                return Err(ParserSourceAdmissionErrorV1::ForeignParserBrand);
+            if let Some(first_brand) = &first_brand {
+                if !coordinate.brand.same_as(first_brand) {
+                    return Err(ParserSourceAdmissionErrorV1::ForeignParserBrand);
+                }
             }
             if paths
                 .iter()
@@ -86,10 +91,10 @@ impl ParserSourceAdmissionWitnessV1 {
                 local_line,
             });
         }
-        Ok(Some(Self {
+        Ok(Self {
             rows: rows.into_boxed_slice(),
             _seal: ParserSourceAdmissionWitnessSealV1,
-        }))
+        })
     }
 
     pub(in crate::parser) fn rows(&self) -> &[ParserSourceAdmissionRowV1] {
@@ -144,10 +149,16 @@ mod tests {
                 global_line: 3,
             }],
         )
-        .expect("join")
-        .expect("one row");
+        .expect("join");
         assert_eq!(witness.rows()[0].canonical_segment(), "root.hako");
         assert_eq!(witness.rows()[0].local_line(), 1);
+    }
+
+    #[test]
+    fn empty_coordinates_still_issue_an_attested_empty_witness() {
+        let witness = ParserSourceAdmissionWitnessV1::issue(&lineage(), Vec::new())
+            .expect("empty join attests vacuous coverage");
+        assert!(witness.rows().is_empty());
     }
 
     #[test]
