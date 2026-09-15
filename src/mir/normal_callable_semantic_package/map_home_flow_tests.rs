@@ -201,12 +201,11 @@ fn map_annotation_refusal_returns_same_source_product_and_keeps_catalog_vacant()
 }
 
 #[test]
-fn map_candidate_alias_reuse_fresh_and_nested_are_not_transfer_evidence() {
+fn map_candidate_alias_reuse_and_fresh_are_not_transfer_evidence() {
     for expression in [
         "%{\"a\" => alias}",
         "%{\"a\" => a, \"b\" => a}",
         "%{\"a\" => new Page()}",
-        "%{\"a\" => %{}}",
     ] {
         let package = issue(&source(&format!(
             "local a = new Page() local alias = a local m = {expression} return 30",
@@ -547,10 +546,8 @@ fn return_boundary_map_admits_string_literal_and_borrowed_param_handle() {
 #[test]
 fn return_boundary_map_rejects_uncovered_entry_value_classes() {
     for (body, expected_maps) in [
-        // nested map literal is its own site, not a value leaf
-        ("return %{\"a\" => %{}}", 1usize),
         // array literal has no construction coverage
-        ("return %{\"a\" => []}", 1),
+        ("return %{\"a\" => []}", 1usize),
         // alias of a live Home is a transfer question, not a borrow
         ("local p = new Page() local a = p return %{\"x\" => a}", 1),
         // alias of a map-installed local is likewise not self-rooted
@@ -598,4 +595,150 @@ fn return_boundary_map_reuses_one_borrowed_param_across_entries() {
     };
     assert_eq!(a.binding(), b.binding());
     assert!(a.transfer_home().is_none() && b.transfer_home().is_none());
+}
+
+#[test]
+fn nested_map_entry_issues_entry_slot_child_row() {
+    let package = issue(
+        "static box Work { make(args) { return %{\"a\" => %{\"x\" => args}, \"b\" => \"s\"} } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("nested map entry completes");
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.parameter_count() == 1)
+        .expect("Work::make declaration");
+    let parent_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
+    ]));
+    let child_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
+        SourcePathSegmentV1::EntryValue(0),
+    ]));
+    let parent_owned = OwnedExprSiteV1::new(declaration.owner(), parent_site);
+    let child_owned = OwnedExprSiteV1::new(declaration.owner(), child_site.clone());
+    let parent = package
+        .ordinary_new_claim_ledger
+        .map_flow(&parent_owned)
+        .expect("parent row completes");
+    let [a, b] = parent.entries() else {
+        panic!("two entries");
+    };
+    assert_eq!(a.key(), "a");
+    assert_eq!(a.site(), &child_site);
+    // NestedMap carries no value source, binding, or home claim — every
+    // downstream scalar/transfer gate stays fail-closed.
+    assert!(a.value_source().is_none() && a.transfer_home().is_none() && a.binding().is_none());
+    assert_eq!(b.value_source(), Some(&MapValueSource::String));
+    let child = package
+        .ordinary_new_claim_ledger
+        .map_flow(&child_owned)
+        .expect("nested child row completes");
+    assert_eq!(
+        child.destination(),
+        &MapDestinationV1::EntrySlot {
+            parent_map: parent_owned,
+            ordinal: 0
+        }
+    );
+    assert_eq!(child.local_binding(), None);
+    let [x] = child.entries() else {
+        panic!("one child entry");
+    };
+    assert!(matches!(
+        x.value_source(),
+        Some(MapValueSource::BorrowedHandle(_))
+    ));
+}
+
+#[test]
+fn nested_map_entry_in_local_position_and_deeper_recursion() {
+    let package = issue(&source(
+        "local m = %{\"a\" => %{\"b\" => %{\"c\" => 1}}} return 30",
+    ))
+    .unwrap();
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    // Parent + two nested descendants, all Complete.
+    assert_eq!(flow.maps().len(), 3);
+    assert!(flow.maps().iter().all(|row| row.complete().is_some()));
+}
+
+#[test]
+fn nested_map_child_failure_marks_both_rows_unavailable() {
+    // The child's entry value `[]` is an uncovered class: child row is
+    // Unavailable with its exact site and the parent row is Unavailable too.
+    let package = issue(&source("return %{\"a\" => %{\"x\" => []}}")).unwrap();
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    assert_eq!(flow.maps().len(), 2);
+    assert!(flow.maps().iter().all(|row| row.complete().is_none()));
+    let child_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
+        SourcePathSegmentV1::EntryValue(0),
+    ]));
+    assert!(flow
+        .maps()
+        .iter()
+        .any(|row| row.site().site() == &child_site));
+}
+
+#[test]
+fn nested_map_transfer_marks_parent_outer_at_parent_entry_index() {
+    // `p` is transferred inside the nested child; the parent's outer must
+    // still record the consumption at the parent's entry index so
+    // `outer_after_installs` stays exact.
+    let package = issue(&source(
+        "local p = new Page() return %{\"a\" => %{\"h\" => p}, \"b\" => 1}",
+    ))
+    .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .next()
+        .expect("root declaration");
+    let parent_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(1),
+        SourcePathSegmentV1::Value,
+    ]));
+    let parent_owned = OwnedExprSiteV1::new(declaration.owner(), parent_site);
+    let parent = package
+        .ordinary_new_claim_ledger
+        .map_flow(&parent_owned)
+        .expect("parent row completes");
+    let p_binding = parent.allocation_fault().next().expect("one outer home");
+    // Consumed at parent entry 0: live before entry 0, gone after.
+    assert_eq!(
+        parent.outer_after_installs(0).unwrap().collect::<Vec<_>>(),
+        vec![p_binding]
+    );
+    assert_eq!(parent.outer_after_installs(1).unwrap().count(), 0);
+    let child_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(1),
+        SourcePathSegmentV1::Value,
+        SourcePathSegmentV1::EntryValue(0),
+    ]));
+    let child = package
+        .ordinary_new_claim_ledger
+        .map_flow(&OwnedExprSiteV1::new(declaration.owner(), child_site))
+        .expect("child row completes");
+    let [h] = child.entries() else {
+        panic!("one child entry");
+    };
+    assert_eq!(
+        h.transfer_home().map(|(_, binding)| binding),
+        Some(p_binding)
+    );
 }

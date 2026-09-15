@@ -189,21 +189,20 @@ pub(crate) fn scan_new_home_flow<E>(
                         // return-boundary ABI relation exists.
                         let keys = map_literal_keys(input, value.site()).unwrap();
                         let owned = OwnedExprSiteV1::new(input.owner(), value.site().clone());
+                        let mut used = std::collections::BTreeSet::new();
+                        let mut nested = Vec::new();
                         match map_flow::observe_map(
                             input,
                             &owned,
                             MapDestinationV1::ReturnBoundary(statement.site().clone()),
                             keys,
-                            &locals,
+                            &mut locals,
                             &homes,
+                            &mut used,
+                            &mut nested,
                             map_compatible,
                         )? {
                             Ok((map, remaining)) => {
-                                for entry in map.entries() {
-                                    if let Some((_, binding)) = entry.transfer_home() {
-                                        locals.consume_home(binding);
-                                    }
-                                }
                                 homes = remaining;
                                 maps.push(map_flow::MapHomeObservation::Complete(map));
                             }
@@ -214,6 +213,7 @@ pub(crate) fn scan_new_home_flow<E>(
                                 });
                             }
                         }
+                        maps.extend(nested);
                         false
                     }
                     Ok(value) => match input.function().expression_source().literal(value.site()) {
@@ -480,21 +480,20 @@ pub(crate) fn scan_new_home_flow<E>(
                 locals.install_selected_normal_home(binding, owned);
             } else if let Some(keys) = map_literal_keys(input, site) {
                 if unavailable.is_none() {
+                    let mut used = std::collections::BTreeSet::new();
+                    let mut nested = Vec::new();
                     match map_flow::observe_map(
                         input,
                         &owned,
                         MapDestinationV1::LocalBinding(binding),
                         keys,
-                        &locals,
+                        &mut locals,
                         &homes,
+                        &mut used,
+                        &mut nested,
                         map_compatible,
                     )? {
                         Ok((map, remaining)) => {
-                            for entry in map.entries() {
-                                if let Some((_, binding)) = entry.transfer_home() {
-                                    locals.consume_home(binding);
-                                }
-                            }
                             homes = remaining;
                             homes.push(binding);
                             locals.install_map(binding);
@@ -505,6 +504,7 @@ pub(crate) fn scan_new_home_flow<E>(
                             maps.push(map_flow::MapHomeObservation::Unavailable { site: owned });
                         }
                     }
+                    maps.extend(nested);
                 } else {
                     maps.push(map_flow::MapHomeObservation::Unavailable { site: owned });
                 }

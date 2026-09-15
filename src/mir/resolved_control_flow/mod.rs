@@ -27,4 +27,4 @@ pub(crate) use function_control::{
 };
 
 mod map_control;
-pub(crate) use map_control::{map_return_outward, map_source_outward};
+pub(crate) use map_control::{map_entry_outward, map_return_outward, map_source_outward};

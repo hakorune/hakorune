@@ -1,6 +1,7 @@
 //! Map responsibility successors from the existing caller ownership walk.
 //! No physical ID, package descriptor, or runtime storage policy is issued here.
 use super::local_call_flow::LocalI64CallObservationV1;
+use super::terminal_relation::map_literal_keys;
 use super::*;
 use crate::mir::resolved_semantics::{RegionId, ScopeId, SourcePathSegmentV1};
 
@@ -52,6 +53,13 @@ impl MapHomeObservation {
 pub(crate) enum MapDestinationV1 {
     LocalBinding(BindingRefV1),
     ReturnBoundary(SourceStmtSiteV1),
+    /// A `%{...}` literal bound to a parent map's `EntryValue(ordinal)` slot.
+    /// The slot is identified by the parent's exact map site and ordinal; the
+    /// row's own `site` is the EntryValue child site.
+    EntrySlot {
+        parent_map: OwnedExprSiteV1,
+        ordinal: u32,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -75,7 +83,7 @@ impl MapHomeFlow {
     pub(crate) fn local_binding(&self) -> Option<BindingRefV1> {
         match self.destination {
             MapDestinationV1::LocalBinding(binding) => Some(binding),
-            MapDestinationV1::ReturnBoundary(_) => None,
+            MapDestinationV1::ReturnBoundary(_) | MapDestinationV1::EntrySlot { .. } => None,
         }
     }
     pub(crate) fn source_scope(&self) -> ScopeId {
@@ -147,6 +155,9 @@ enum MapEntryOwnership {
         acquisition: OwnedExprSiteV1,
         binding: BindingRefV1,
     },
+    /// The entry value is itself a `%{...}` literal; the child's own flow row
+    /// carries the construction facts. `site` on the entry is the child site.
+    NestedMap,
 }
 /// Exact source payload or binding observation; unknown formal kind stays unknown.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -190,7 +201,7 @@ impl MapHomeEntry {
                 acquisition,
                 binding,
             } => Some((acquisition, *binding)),
-            MapEntryOwnership::Value(_) => None,
+            MapEntryOwnership::Value(_) | MapEntryOwnership::NestedMap => None,
         }
     }
     pub(crate) fn binding(&self) -> Option<BindingRefV1> {
@@ -198,13 +209,13 @@ impl MapHomeEntry {
             MapEntryOwnership::TransferHome { binding, .. } => Some(*binding),
             MapEntryOwnership::Value(MapValueSource::Local { binding, .. })
             | MapEntryOwnership::Value(MapValueSource::BorrowedHandle(binding)) => Some(*binding),
-            MapEntryOwnership::Value(_) => None,
+            MapEntryOwnership::Value(_) | MapEntryOwnership::NestedMap => None,
         }
     }
     pub(crate) fn value_source(&self) -> Option<&MapValueSource> {
         match &self.ownership {
             MapEntryOwnership::Value(value) => Some(value),
-            MapEntryOwnership::TransferHome { .. } => None,
+            MapEntryOwnership::TransferHome { .. } | MapEntryOwnership::NestedMap => None,
         }
     }
     pub(crate) fn displaced(&self) -> Option<&SourceExprSiteV1> {
@@ -213,14 +224,19 @@ impl MapHomeEntry {
 }
 
 /// Build all successors before changing the caller's Normal-path local state.
-/// Rejection cannot publish a partly transferred Map.
+/// Rejection cannot publish a partly transferred Map. `used` and `nested_out`
+/// are shared across the recursive nested-`%{...}` tree; a transfer consumes
+/// the local at its point, and a home consumed inside a child subtree is
+/// marked in the parent's `outer` at the parent's entry index.
 pub(super) fn observe_map<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
     destination: MapDestinationV1,
     keys: &[Box<str>],
-    locals: &PrefixLocalFlow<'_>,
+    locals: &mut PrefixLocalFlow<'_>,
     homes: &[BindingRefV1],
+    used: &mut std::collections::BTreeSet<BindingRefV1>,
+    nested_out: &mut Vec<MapHomeObservation>,
     compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
 ) -> Result<Result<(MapHomeFlow, Vec<BindingRefV1>), HomePrefixUnavailableV1>, E> {
     let Some(shape) = input.body_shape() else {
@@ -233,12 +249,17 @@ pub(super) fn observe_map<E>(
         MapDestinationV1::ReturnBoundary(return_site) => {
             crate::mir::resolved_control_flow::map_return_outward(input, site, return_site)
         }
+        MapDestinationV1::EntrySlot {
+            parent_map,
+            ordinal,
+        } => {
+            crate::mir::resolved_control_flow::map_entry_outward(input, site, parent_map, *ordinal)
+        }
     };
     let Ok((source_scope, target_function)) = outward else {
         return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
     };
     let mut remaining = homes.to_vec();
-    let mut used = std::collections::BTreeSet::new();
     let mut entries: Vec<MapHomeEntry> = Vec::new();
     let mut outer: Vec<_> = homes
         .iter()
@@ -265,8 +286,11 @@ pub(super) fn observe_map<E>(
             return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
         }
         let child = relation.child();
-        let ownership = if let Some((binding, acquisition)) = locals.direct_available_home(child) {
-            if !used.insert(binding) || !compatible(acquisition, binding)? {
+        let ownership = if let Some((binding, acquisition)) = locals
+            .direct_available_home(child)
+            .map(|(binding, acquisition)| (binding, acquisition.clone()))
+        {
+            if !used.insert(binding) || !compatible(&acquisition, binding)? {
                 return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
                     child.clone(),
                 )));
@@ -279,9 +303,51 @@ pub(super) fn observe_map<E>(
                 return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
             };
             home.transferred_at = Some(entries.len());
+            locals.consume_home(binding);
             MapEntryOwnership::TransferHome {
-                acquisition: acquisition.clone(),
+                acquisition,
                 binding,
+            }
+        } else if let Some(child_keys) = map_literal_keys(input, child) {
+            // A nested `%{...}` is its own MapLiteral row, not a value leaf:
+            // recurse so the child issues an EntrySlot-destination row, then
+            // record the slot as the parent's entry ownership.
+            let child_owned = OwnedExprSiteV1::new(input.owner(), child.clone());
+            match observe_map(
+                input,
+                &child_owned,
+                MapDestinationV1::EntrySlot {
+                    parent_map: site.clone(),
+                    ordinal,
+                },
+                child_keys,
+                locals,
+                &remaining,
+                used,
+                nested_out,
+                compatible,
+            )? {
+                Ok((child_flow, child_remaining)) => {
+                    for binding in child_flow
+                        .outer
+                        .iter()
+                        .filter(|home| home.transferred_at.is_some())
+                        .map(|home| home.binding)
+                    {
+                        let Some(home) = outer.iter_mut().find(|home| home.binding == binding)
+                        else {
+                            return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
+                        };
+                        home.transferred_at = Some(entries.len());
+                    }
+                    remaining = child_remaining;
+                    nested_out.push(MapHomeObservation::Complete(child_flow));
+                    MapEntryOwnership::NestedMap
+                }
+                Err(issue) => {
+                    nested_out.push(MapHomeObservation::Unavailable { site: child_owned });
+                    return Ok(Err(issue));
+                }
             }
         } else {
             let value = match locals.observe(child) {

@@ -1203,6 +1203,12 @@ old-end Fault uses the committed state without retry. Retained flow storage is
 linear in initial Homes plus entries; expanded cleanup code size is a separate
 concern. Runtime MapEnd consumes the live Map; live-prefix projection is test-only.
 Partial Maps remain unavailable exact-site observations, never partial transfers.
-These records and terminal order have one owner in Completion. The unconnected
-consumer is stopped at package install; fresh children, nested Maps and other
-candidate families are not admitted by this direct-Home relation.
+A nested `%{...}` entry value is its own flow row with an `EntrySlot`
+destination; `observe_map` recurses inside the parent's entry loop, sharing the
+transfer accounting (`used`/`remaining`/`locals`) so a home consumed inside a
+child subtree is marked in the parent's outer at the parent's entry index. The
+parent entry records `NestedMap` ownership — no value source, no binding, so
+physical emission stays fail-closed. These records and terminal order have one
+owner in Completion. The unconnected consumer is stopped at package install;
+fresh children, array literals, non-scalar locals and other candidate families
+are not admitted by this direct-Home relation.
