@@ -214,15 +214,28 @@ fn explicit_void_literal_has_explicit_void_provenance() {
 }
 
 #[test]
-fn explicit_null_literal_has_unit_provenance_without_void_reclassification() {
+fn explicit_null_literal_is_a_value_return_not_unit() {
     let completion = verify(vec![return_stmt(Some(null_literal()))]).unwrap();
-    assert!(!completion.returns_value());
+    assert!(completion.returns_value());
     assert!(matches!(
         completion.function_exit_contract().disposition(),
-        SealedFunctionExitDispositionV1::ExplicitUnit {
-            origin: FunctionUnitOriginV1::ExplicitNull,
-            ..
-        }
+        SealedFunctionExitDispositionV1::ExplicitValue { .. }
+    ));
+}
+
+#[test]
+fn explicit_null_and_value_returns_share_one_value_classification() {
+    let early = ASTNode::If {
+        condition: Box::new(literal(1)),
+        then_body: vec![return_stmt(Some(null_literal()))],
+        else_body: None,
+        span: Span::unknown(),
+    };
+    let completion = verify(vec![early, return_stmt(Some(literal(1)))]).unwrap();
+    assert!(completion.returns_value());
+    assert!(matches!(
+        completion.function_exit_contract().disposition(),
+        SealedFunctionExitDispositionV1::ExplicitValueSet { .. }
     ));
 }
 

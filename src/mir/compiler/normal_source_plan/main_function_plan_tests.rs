@@ -224,7 +224,6 @@ fn main_f1_preserves_explicit_unit_origins() {
     for (value, origin) in [
         (None, FunctionUnitOriginV1::BareReturn),
         (Some(LiteralValue::Void), FunctionUnitOriginV1::ExplicitVoid),
-        (Some(LiteralValue::Null), FunctionUnitOriginV1::ExplicitNull),
     ] {
         with_plan(None, vec![return_(value)], |plan| {
             assert!(matches!(
@@ -240,6 +239,20 @@ fn main_f1_preserves_explicit_unit_origins() {
             );
         });
     }
+}
+
+#[test]
+fn main_f1_classifies_null_literal_as_explicit_value_return() {
+    with_plan(None, vec![return_(Some(LiteralValue::Null))], |plan| {
+        assert!(matches!(
+            contract(plan).disposition(),
+            SealedFunctionExitDispositionV1::ExplicitValue { .. }
+        ));
+        assert_eq!(
+            contract(plan).coverage(),
+            FunctionExitCoverageV1::ExactOneTerminalRootReturn
+        );
+    });
 }
 
 #[test]

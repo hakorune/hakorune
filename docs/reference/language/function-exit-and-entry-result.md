@@ -242,11 +242,16 @@ omitted annotation != declared Void contract
 omitted annotation != source-level static type-inference contract
 ```
 
-An unannotated function may use an explicit value return. An annotated
-non-Void function must not reach a normal Unit fallthrough, bare return,
-`return void`/`return null`, or a mismatching value. An explicit `: void`
-function admits Unit fallthrough, bare return, and `return void`/`return null`,
-but rejects a definite non-Unit return value.
+An unannotated function may use an explicit value return. `return null` is an
+explicit value return carrying the null value — it is not a Unit origin —
+so a function may mix `return <expr>` and `return null` in one return set
+(the `T|Null` nullable-result idiom). An annotated non-Void function must not
+reach a normal Unit fallthrough, bare return, or `return void`, and the
+null-vs-annotation relation is deferred to the declared-type authority; the
+completion layer only proves value presence. An explicit `: void` function
+admits Unit fallthrough, bare return, `return void`, and `return null`
+(null keeps the exact Void wire representation), but rejects a definite
+non-Unit return value.
 
 Physical signature planning may use a fresh verifier-backed proof derived from
 the sealed declaration and explicit return sites. `MirType`, `value_types`,

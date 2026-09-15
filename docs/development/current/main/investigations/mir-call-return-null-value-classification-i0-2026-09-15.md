@@ -1,5 +1,5 @@
 ---
-Status: selected__fast__2026-09-15
+Status: landed__null_is_value__2026-09-15
 Task: MIR-CALL-RETURN-NULL-VALUE-CLASSIFICATION-I0
 Date: 2026-09-15
 Priority: resolve the return-null vs return-value classification split in function completion
@@ -54,3 +54,63 @@ as baseline, and update the owner README and pointer in the same closeout
 slice. Route evidence: the merged entry must advance past
 `Dynamic/Completion/ReturnClassificationInvariant` to the next named
 terminal.
+
+## Receipt — landed 2026-09-15
+
+**Census** (`merged entry program -> return statements per function; includes
+every `return`, `return null`, `return void`, `return <expr>` inside each of
+the 899 resolved function bodies after stripping comments/string literals;
+excludes field initializers and non-function blocks`): 725 value-only, **165
+mixed `null`+`value`**, 2 null-only, 1 bare-only, 6 no returns. The `T|Null`
+miss/hit idiom is pervasive; `return null` is a value return in this
+language. Birth bodies: 3 in cohort, none contain `return null`. Only one
+corpus file has `main` + `return null`
+(`apps/tests/test_string_concat_phi.hako`, a mixed-return main that was
+already rejected under the old classification).
+
+**Decision taken** (worker-audited, `subagent` read-only pass over all
+`FunctionUnitOriginV1`/`TerminalReturnValueV1`/ExplicitUnit consumers):
+`classify_return_value` maps `LiteralValue::Null` to
+`(TerminalReturnValueV1::Value, None, exact_non_unit_literal=false)`. `null`
+is a value; `Void` is reserved for bare `return` and `return void`. The
+`exact_non_unit_literal=false` flag keeps the `: void` + `return null`
+admission (types.md null≡void wire alias) intact. `FunctionUnitOriginV1::
+ExplicitNull` stays live: the Main thunk seals an `ExplicitValue` completion
+whose terminal representation is `NullSentinel` back to the published
+`Unit{ExplicitNull}` result — the wire value is the void representation.
+
+**Implementation files**: `src/mir/resolved_control_flow/function_control.rs`
+(Null arm -> Value), `src/mir/resolved_value_profile/analyzer.rs`
+(NormalMain0 admits `NullSentinel` as an `ExplicitValue` terminal instead of
+`ExplicitNoValue`; non-Main0 keeps `NullRepresentationUnavailable`),
+`src/mir/compiler/normal_source_plan/main_thunk_plan.rs` (`NullSentinel` ->
+`Unit{ExplicitNull}` arm; `ExplicitVoidValue` still rejects),
+`src/mir/resolved_control_flow/function_control_tests.rs` (+2 tests:
+null-is-value, mixed null/value set -> `ExplicitValueSet`),
+`src/mir/compiler/normal_source_plan/main_function_plan_tests.rs` (Null row
+moved out of the unit-origins loop into a new ExplicitValue assertion),
+`src/mir/resolved_control_flow/README.md` + 
+`docs/reference/language/function-exit-and-entry-result.md` (normative
+`return null` text updated to the value-return meaning).
+
+**Focused evidence**: `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+function_control` -> 18 passed / 0 failed; `resolved_value_profile` 63/0,
+`if_control` 18/0, `normal_callable_semantic_package` 185/0,
+`callable_parameter_contract` 10/0, `source_result_tests` 16/0. Baseline
+debt verified by rerun at parent commit `d043965a9d`: `resolved_lowering`
+has the same 10 pre-existing failures and `normal_source_plan` the same 2 —
+both unchanged by this slice (direct-call index + `ReturnValueTypeMissing`
+fixtures, not return classification).
+
+**Route evidence**: `./target/quick/hakorune --backend mir
+/tmp/merged_entry.hako` advances past
+`Dynamic/Completion/ReturnClassificationInvariant` (slot 108) and stops at
+the next named terminal `Dynamic { _batch_slot: 158, _issue: Completion {
+_error: NonTerminalReturn { actual: [Body(0), LoopBody(2)], expected:
+[Body(0)] } } }` — a function whose only explicit return is inside a Loop
+body with no root terminal return. This is the next bounded slice, not part
+of this card.
+
+**Non-claims kept**: no Dynamic admission widening beyond classification,
+no PHI/JoinSig physicalization, no production caller switch, no legacy
+retirement.

@@ -82,7 +82,10 @@ empty cleanup. `cleanup.rs` owns no physical ValueIds or runtime cleanup state.
 This source product alone does not prove Return consumer or runtime connection.
 
 The multiple-exit form seals exact source membership, common function target,
-declared-result compatibility, and uniform value/unit disposition. Canonical
+declared-result compatibility, and uniform value/unit disposition. `return
+null` is a value return — `null` carries a value and is never a Unit origin —
+so the pervasive `T|Null` miss/hit idiom seals one uniform `ExplicitValueSet`;
+only bare `return`/`return void` classify as Unit. Canonical
 Lower may use that semantic receipt to open a fresh unpublished session, but
 DraftSeal completion for multiple physical return paths remains deliberately
 closed and fails fast. Implicit completion remains a separate variant and is

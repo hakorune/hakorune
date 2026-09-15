@@ -506,12 +506,10 @@ impl<'a> AnalyzerV1<'a> {
                     let representation = self.analyze_expr(&value, environment, writes)?;
                     let main_unit_value = self.root_profile_policy
                         == RootProfilePolicyV1::NormalMain0
-                        && matches!(
-                            representation,
-                            TrivialRepresentationV1::ExplicitVoidValue
-                                | TrivialRepresentationV1::NullSentinel
-                        );
-                    if representation == TrivialRepresentationV1::NullSentinel && !main_unit_value {
+                        && representation == TrivialRepresentationV1::ExplicitVoidValue;
+                    if representation == TrivialRepresentationV1::NullSentinel
+                        && self.root_profile_policy != RootProfilePolicyV1::NormalMain0
+                    {
                         return stop_expression(
                             &value,
                             TrivialProfileStopReasonV1::NullRepresentationUnavailable,

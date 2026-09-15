@@ -273,8 +273,10 @@ fn seal_result(
             TrivialRepresentationV1::InlineI64 => Ok(VerifiedNormalMainThunkResultV1::Integer),
             TrivialRepresentationV1::InlineBool => Ok(VerifiedNormalMainThunkResultV1::Bool),
             TrivialRepresentationV1::InlineF64 => Ok(VerifiedNormalMainThunkResultV1::Float),
-            representation @ (TrivialRepresentationV1::ExplicitVoidValue
-            | TrivialRepresentationV1::NullSentinel) => {
+            TrivialRepresentationV1::NullSentinel => Ok(VerifiedNormalMainThunkResultV1::Unit {
+                origin: FunctionUnitOriginV1::ExplicitNull,
+            }),
+            representation @ TrivialRepresentationV1::ExplicitVoidValue => {
                 Err(NormalMainThunkPlanErrorV1::UnsupportedResultCarrier {
                     representation: *representation,
                 })

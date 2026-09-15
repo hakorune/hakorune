@@ -1,9 +1,9 @@
 date = "2026-09-15"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-RETURN-NULL-VALUE-CLASSIFICATION-I0"
+current_execution_row = "MIR-CALL-LOOP-TERMINAL-RETURN-I0"
 current_execution_cohort = "terminal_return_classification"
-current_blocker_token = "MIR-CALL-RETURN-NULL-VALUE-CLASSIFICATION-I0__resolve_null_vs_value_meaning"
+current_blocker_token = "MIR-CALL-LOOP-TERMINAL-RETURN-I0__loop_as_terminal_form"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -14,28 +14,28 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-return-null-value-classification-i0-2026-09-15.md"
-latest_card = "mir-call-return-null-value-classification-i0-2026-09-15"
-latest_card_path = "docs/development/current/main/investigations/mir-call-return-null-value-classification-i0-2026-09-15.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-loop-terminal-return-i0-2026-09-15.md"
+latest_card = "mir-call-loop-terminal-return-i0-2026-09-15"
+latest_card_path = "docs/development/current/main/investigations/mir-call-loop-terminal-return-i0-2026-09-15.md"
 latest_card_summary = """
-The declared-box parameter contract I0 landed: merged-cohort census proved
-declared parameter spellings are exactly `{i64, ArrayBox, MapBox}`; the new
-`CallableParameterContractKindV1::DeclaredHandle` admits `ArrayBox`/`MapBox`
-as a handle fact minting no exact ABI, while `f64`/`ContextBox` keep the
-named `UnsupportedDeclaredType` rejection. All consumers project
-`DeclaredHandle` identically to `OpaqueHandle` (Handle demand, Dynamic
-parameter class, OrdinaryScalar lane, StoredLocal::Handle). The merged route
-now advances past `ParameterContract` and stops at
-`Dynamic/Completion/ReturnClassificationInvariant` (batch slot 108): mixed
-`return <value>`/`return null` sets split the Void/Value classification —
-selected as this card to fix the single meaning of source `null` in terminal
-position. Production caller switch, PHI/JoinSig, and legacy retirement
-remain unclaimed.
+The return-null classification I0 landed: worker audit plus a 899-function
+census (165 mixed `return null`/`return <expr>` — the pervasive `T|Null`
+idiom) proved source `null` is a value, not a Unit origin.
+`classify_return_value` now maps `LiteralValue::Null` to `Value`;
+`FunctionUnitOriginV1::ExplicitNull` stays live through the Main thunk arm
+that seals a NullSentinel value terminal back to `Unit{ExplicitNull}`.
+Focused suites green (function_control 18, resolved_value_profile 63,
+if_control 18, semantic package 185, contract 10, source_result 16); the 12
+resolved_lowering/normal_source_plan reds reproduce at the parent commit —
+baseline debt. The merged route advances to `Dynamic/Completion/
+NonTerminalReturn` (slot 158): `loop(true) { ...; return next }` bodies whose
+only returns live inside the loop — selected as this card. Production caller
+switch, PHI/JoinSig, and legacy retirement remain unclaimed.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"
-next_execution_card = "MIR-CALL-RETURN-NULL-VALUE-CLASSIFICATION-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-return-null-value-classification-i0-2026-09-15.md"
+next_execution_card = "MIR-CALL-LOOP-TERMINAL-RETURN-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-loop-terminal-return-i0-2026-09-15.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

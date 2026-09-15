@@ -386,8 +386,8 @@ pub(super) fn is_loop_control_exit(exit: &ResolvedExitRecordV1) -> bool {
 #[path = "function_control_new_homes.rs"]
 mod new_homes;
 pub(crate) use new_homes::{
-    verify_function_completion_with_new_homes_v1,
     verify_function_completion_with_new_homes_and_argument_observations_v1,
+    verify_function_completion_with_new_homes_v1,
 };
 
 pub(crate) fn verify_function_completion_v1(
@@ -664,11 +664,7 @@ fn classify_return_value(
         Some(ASTNode::Literal {
             value: LiteralValue::Null,
             ..
-        }) => (
-            TerminalReturnValueV1::Void,
-            Some(FunctionUnitOriginV1::ExplicitNull),
-            false,
-        ),
+        }) => (TerminalReturnValueV1::Value, None, false),
         Some(ASTNode::Literal { .. }) => (TerminalReturnValueV1::Value, None, true),
         Some(_) => (TerminalReturnValueV1::Value, None, false),
     }
