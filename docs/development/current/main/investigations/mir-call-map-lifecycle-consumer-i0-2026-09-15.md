@@ -259,7 +259,7 @@ exit code; name the admitted entry classes.
 | C4  | `:void` mixed `return null`/`return void` — landed: `classify_return_value` now takes the declared contract and normalizes `return null` to `(Void, ExplicitNull)` under an explicit `: void` annotation (mixed `return null`/`return void` seals one `ExplicitUnitSet`); unannotated `return null` stays an explicit Value return. Supersede note added to the 7/25 exit card; `types.md` records the declared-boundary rule | — |
 | C5a | contract definition — landed: `map_lifecycle_undertaking.rs` defines `MapLifecycleOperationV1` (11 operations derived from sealed `MapHomeFlow` rows), `MapEntryBorrowV1` borrow evidence, `MapCallEdgeContractV1` edge vocabulary, `MapLifecycleConsumerCapabilityV1`, `describe_map_lifecycle_obligations` (sealed-membership enumeration, named describe issues), and `verify_map_lifecycle_undertaking` (obligation ⊆ capability seal). Not yet connected — C5b wires it into `preflight_map_install` + `PreparedInstall` | — |
 | C7  | merged `new MapBox()` census — landed: exact 39-site classification recorded in Census section (27 returned / 11 nested-stored into a returned container / 1 truly local / 0 arg-transferred at creation site); 38/39 maps egress through a return boundary | — |
-| F3  | `TerminalRelationV1` for non-i64 value returns (Facts extension)   | —            |
+| F3  | `TerminalRelationV1` for non-i64 value returns (Facts extension) — landed: `Value(TerminalValueReturnV1)` records the exact returned source (`MapLiteral` site / `MapLocal` / `Home{binding,acquisition}` / `Handle` root / `String`/`Null`/`Float` literal); `return void` spells the Unit terminal; returned map-local/Home bindings leave terminal cleanup. No physical ABI — a root `Value` terminal stops at `root-result-missing`, and `map_install_owners` rejects the owner at the non-i64-terminal arm (same `MapLifecycleConsumerMissing` terminal, different arm than the old `terminal_homes` error). Gate boundary: the walk runs for AppMain roots and `has_map`/`child_new_ready` children; other child owners keep no relation — fail-closed | — |
 | F4  | Map return/argument physical ABI + entry-class operation contracts | C5a, F3      |
 | C5b | admission connect: preflight matches full sealed membership + implemented consumer capability | C5a, F3, F4 |
 | C6  | downstream contract split (admit_lifecycle retained-root removal, physical doc, C v2) | C5b |
@@ -295,9 +295,14 @@ Root cause chain (each layer independently bounded):
 1. **Facts**: `flow.maps()` rows are issued only for `local x = %{...}`
    initializer sites — `return %{...}` / arg-position map literals have
    no row at all (`map_source_outward` pins `[Body, Initializer]`).
-2. **Facts**: `TerminalRelationV1` has only Call/I64Add/Unit/
-   IntegerLiteral/I64Field — `return <local-or-map>` gets
-   `ReturnValueNotCovered`, no relation.
+2. **Facts** — landed (F3): `TerminalRelationV1::Value` now covers
+   `return <local-or-map>` and non-i64 literals; `return void` issues the
+   Unit relation. Owners whose `return <value>` stayed uncovered still get
+   `ReturnValueNotCovered` with no relation (consumed/uninitialized
+   bindings, arbitrary expressions, TypedInteger literals). Issuance is
+   still gated on the New-home prefix walk running for the owner —
+   children without `has_map`/`child_new_ready` get no scan; extending
+   that admission gate is C5b.
 3. **Contract**: `map_install_owners` requires map owners be inside the
    AppMain direct-call loan targets (<=5); merged map owners are deep
    ordinary functions.

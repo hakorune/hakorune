@@ -12,7 +12,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|completion| completion.owner())
     }
 
-    pub(super) fn terminal_relation_for_owner(
+    pub(in crate::mir::normal_callable_semantic_package) fn terminal_relation_for_owner(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     ) -> Option<&TerminalRelationV1> {

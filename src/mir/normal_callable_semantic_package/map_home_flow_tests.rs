@@ -451,8 +451,22 @@ fn return_boundary_map_carries_exact_exit_membership() {
         panic!("one entry");
     };
     assert!(entry.transfer_home().is_some());
-    // The returned Map's value coverage is not a proven scalar terminal.
-    assert!(flow.terminal_homes().is_err());
+    // The returned Map's value coverage is proven by the Value relation;
+    // `a` was consumed into the map and nothing stays for terminal cleanup.
+    assert!(flow.terminal_homes().unwrap().is_empty());
+    let Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Value(relation)) =
+        package
+            .ordinary_new_claim_ledger
+            .terminal_relation_for_owner(completion.owner())
+    else {
+        panic!("return-boundary Map terminal relation");
+    };
+    assert!(matches!(
+        relation.returned(),
+        crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::MapLiteral(
+            site
+        ) if site.site() == map.site().site()
+    ));
 }
 
 #[test]

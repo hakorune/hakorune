@@ -151,6 +151,14 @@ impl<'source> PrefixLocalFlow<'source> {
         matches!(self.locals.get(&root), Some(StoredLocal::Map))
     }
 
+    /// The sealed `new` acquisition site of a live Home local root.
+    pub(super) fn home_acquisition(&self, root: BindingRefV1) -> Option<&super::OwnedExprSiteV1> {
+        match self.locals.get(&root)? {
+            StoredLocal::Home { acquisition } => Some(acquisition),
+            _ => None,
+        }
+    }
+
     pub(super) fn direct_available_home(
         &self,
         site: &SourceExprSiteV1,

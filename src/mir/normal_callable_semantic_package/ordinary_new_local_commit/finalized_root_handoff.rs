@@ -57,6 +57,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("artifact-root-field-unavailable"));
                     }
                 }
+                TerminalRelationV1::Value(relation) => {
+                    if relation.owner() != owner {
+                        return Err(freeze("artifact-root-value-owner-drift"));
+                    }
+                }
             }
         }
         let call_payload = if matches!(

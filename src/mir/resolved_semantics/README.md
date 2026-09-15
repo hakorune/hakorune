@@ -40,6 +40,17 @@ Target/argument sites remain in the affine package row. Unary expressions,
 locals and nested argument calls are not Integer literal evidence in this row.
 No physical continuation or ABI tag is issued by these source facts.
 
+The terminal relation additionally records non-i64 `return <value>` evidence
+through `TerminalValueReturnV1`: the exact returned source is a `MapLiteral`
+site, a map-local/Home binding root (with the Home's sealed `new` acquisition
+site), a self-rooted parameter/alias handle, or a String/Null/Float literal.
+A returned map-local/Home binding leaves terminal cleanup — it exits with the
+caller; the lifecycle contract owns the physical transfer decision. `return
+void` spells the same Unit relation as a bare return. Consumed or
+uninitialized bindings, arbitrary expressions and typed-integer literals stay
+`ReturnValueNotCovered` with no relation. The relation carries no physical
+value, ABI, Recipe key or backend authority.
+
 ## Ordinary-New caller-prefix facts
 
 `home_prefix_local_flow` owns the prefix's private local-state table and one

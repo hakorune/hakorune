@@ -143,6 +143,7 @@ impl FinalizedRootSourceHandoffV1 {
             TerminalRelationV1::Unit(row) => row.owner(),
             TerminalRelationV1::IntegerLiteral(row) => row.owner(),
             TerminalRelationV1::I64Field(row) => row.owner(),
+            TerminalRelationV1::Value(row) => row.owner(),
         }
     }
 
@@ -164,6 +165,9 @@ impl FinalizedRootSourceHandoffV1 {
             TerminalRelationV1::I64Field(row) => {
                 FinalizedRootResultAbiV1::I64FieldReturn { owner: row.owner() }
             }
+            // A non-i64 value return derives no physical result ABI at this
+            // boundary; the lifecycle capability lane supplies it.
+            TerminalRelationV1::Value(_) => return None,
         })
     }
 

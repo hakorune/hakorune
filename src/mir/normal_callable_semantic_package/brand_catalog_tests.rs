@@ -245,8 +245,6 @@ fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
     for (suffix, available) in [
         ("return 0", true),
         ("local answer = 7 return answer", true),
-        ("return first", false),
-        ("local alias = first return alias", false),
         ("first = second return 0", false),
         ("return first.left + second.right", true),
         ("local alias = first return alias.right + 7", true),
@@ -292,6 +290,30 @@ fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
                 );
             }
         }
+    }
+    // A returned Home local leaves with the caller: the Value relation records
+    // the exact binding, and terminal cleanup keeps only the sibling home.
+    for suffix in ["return first", "local alias = first return alias"] {
+        let source = format!(
+            "box Page {{ left: i64 right: i64
+            birth() {{ me.left = 4 me.right = 9 }} }} static box Main {{ main() {{
+            local first = new Page() local second = new Page() {suffix}
+        }} }}"
+        );
+        let package = issue_with_brand_catalog(&source).unwrap();
+        let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
+        let claims: Vec<_> = claim_rows.values().collect();
+        let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+        let homes = completion
+            .cleanup()
+            .terminal_homes()
+            .expect("terminal analysis is explicit")
+            .unwrap();
+        assert_eq!(
+            homes,
+            [claims[1].home_prefix().unwrap().destination()].as_slice(),
+            "{suffix}"
+        );
     }
     for declaration in [
         "slot: i64 birth() {}",

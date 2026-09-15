@@ -78,10 +78,11 @@ pub(crate) use map_flow::{
     ArrayElementSource, MapDestinationV1, MapHomeEntry, MapHomeFlow, MapHomeObservation,
     MapValueSource, RootHomeFlow,
 };
-use terminal_relation::{map_literal_keys, return_scalar, ReturnScalar};
+use terminal_relation::{map_literal_keys, return_scalar, terminal_returned_source, ReturnScalar};
 pub(crate) use terminal_relation::{
     TerminalI64AddReturnV1, TerminalI64CallReturnV1, TerminalI64FieldReturnV1,
-    TerminalIntegerLiteralReturnV1, TerminalRelationV1, TerminalUnitReturnV1,
+    TerminalIntegerLiteralReturnV1, TerminalRelationV1, TerminalReturnedSourceV1,
+    TerminalUnitReturnV1, TerminalValueReturnV1,
 };
 
 pub(crate) fn issue_new_home_prefixes_v1(
@@ -188,8 +189,9 @@ pub(crate) fn scan_new_home_flow<E>(
                 {
                     Ok(value) if map_literal_keys(input, value.site()).is_some() => {
                         // `return %{...}` transfers construction to the caller;
-                        // the value's terminal coverage stays unproven until a
-                        // return-boundary ABI relation exists.
+                        // the Value relation records the exact returned site.
+                        // The ownership transfer itself belongs to the
+                        // lifecycle contract, not to this row.
                         let keys = map_literal_keys(input, value.site()).unwrap();
                         let owned = OwnedExprSiteV1::new(input.owner(), value.site().clone());
                         let mut used = std::collections::BTreeSet::new();
@@ -207,6 +209,13 @@ pub(crate) fn scan_new_home_flow<E>(
                         )? {
                             Ok((map, remaining)) => {
                                 homes = remaining;
+                                terminal_relation =
+                                    Some(TerminalRelationV1::Value(TerminalValueReturnV1::issue(
+                                        input.owner(),
+                                        statement.site().clone(),
+                                        value.site().clone(),
+                                        TerminalReturnedSourceV1::MapLiteral(owned.clone()),
+                                    )));
                                 maps.push(map_flow::MapHomeObservation::Complete(map));
                             }
                             Err(issue) => {
@@ -217,7 +226,7 @@ pub(crate) fn scan_new_home_flow<E>(
                             }
                         }
                         maps.extend(nested);
-                        false
+                        true
                     }
                     Ok(value) => {
                         // `return foo(%{...})` — argument-position map literals
@@ -277,6 +286,16 @@ pub(crate) fn scan_new_home_flow<E>(
                             maps.extend(nested);
                         }
                         match input.function().expression_source().literal(value.site()) {
+                            // `return void` spells the explicit-unit terminal;
+                            // completion classifies it like a bare return.
+                            Some(ResolvedLiteralSourceV1::Void) => {
+                                terminal_relation =
+                                    Some(TerminalRelationV1::Unit(TerminalUnitReturnV1::issue(
+                                        input.owner(),
+                                        statement.site().clone(),
+                                    )));
+                                true
+                            }
                             Some(ResolvedLiteralSourceV1::Integer(number)) => {
                                 terminal_relation = Some(TerminalRelationV1::IntegerLiteral(
                                     TerminalIntegerLiteralReturnV1::issue(
@@ -377,7 +396,40 @@ pub(crate) fn scan_new_home_flow<E>(
                                         true
                                     }
                                     Some(_) => true,
-                                    None => false,
+                                    None => {
+                                        match terminal_returned_source(input, value.site(), &locals)
+                                        {
+                                            Some(returned) => {
+                                                // A returned local/Home leaves
+                                                // with the caller: it is no
+                                                // longer this function's
+                                                // terminal cleanup.
+                                                let binding = match &returned {
+                                                    TerminalReturnedSourceV1::MapLocal(binding)
+                                                    | TerminalReturnedSourceV1::Home {
+                                                        binding,
+                                                        ..
+                                                    } => Some(*binding),
+                                                    _ => None,
+                                                };
+                                                if let Some(binding) = binding {
+                                                    homes.retain(|home| *home != binding);
+                                                    locals.consume_home(binding);
+                                                }
+                                                terminal_relation =
+                                                    Some(TerminalRelationV1::Value(
+                                                        TerminalValueReturnV1::issue(
+                                                            input.owner(),
+                                                            statement.site().clone(),
+                                                            value.site().clone(),
+                                                            returned,
+                                                        ),
+                                                    ));
+                                                true
+                                            }
+                                            None => false,
+                                        }
+                                    }
                                 }
                             }
                         }

@@ -114,6 +114,8 @@ mod map_contained_descendant_flow_tests;
 mod map_home_flow_tests;
 #[cfg(test)]
 mod map_value_completion_tests;
+#[cfg(test)]
+mod terminal_value_return_tests;
 
 #[cfg(test)]
 mod map_physical_dependency_tests;
