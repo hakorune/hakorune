@@ -546,8 +546,8 @@ fn return_boundary_map_admits_string_literal_and_borrowed_param_handle() {
 #[test]
 fn return_boundary_map_rejects_uncovered_entry_value_classes() {
     for (body, expected_maps) in [
-        // array literal has no construction coverage
-        ("return %{\"a\" => []}", 1usize),
+        // a container element inside an array stays uncovered
+        ("return %{\"a\" => [[]]}", 1usize),
         // alias of a live Home is a transfer question, not a borrow
         ("local p = new Page() local a = p return %{\"x\" => a}", 1),
         // alias of a map-installed local is likewise not self-rooted
@@ -673,9 +673,10 @@ fn nested_map_entry_in_local_position_and_deeper_recursion() {
 
 #[test]
 fn nested_map_child_failure_marks_both_rows_unavailable() {
-    // The child's entry value `[]` is an uncovered class: child row is
-    // Unavailable with its exact site and the parent row is Unavailable too.
-    let package = issue(&source("return %{\"a\" => %{\"x\" => []}}")).unwrap();
+    // The child's entry value `[[]]` is an uncovered class (container
+    // element): child row is Unavailable with its exact site and the
+    // parent row is Unavailable too.
+    let package = issue(&source("return %{\"a\" => %{\"x\" => [[]]}}")).unwrap();
     let flow = package
         .ordinary_new_claim_ledger
         .root_completion_for_test()
@@ -741,4 +742,98 @@ fn nested_map_transfer_marks_parent_outer_at_parent_entry_index() {
         h.transfer_home().map(|(_, binding)| binding),
         Some(p_binding)
     );
+}
+
+#[test]
+fn array_entry_records_exact_leaf_elements() {
+    let package = issue(
+        "static box Work { make(args) { return %{\"a\" => [1, \"s\", args]} } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("array entry completes");
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.parameter_count() == 1)
+        .expect("Work::make declaration");
+    let site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
+    ]));
+    let owned = OwnedExprSiteV1::new(declaration.owner(), site);
+    let map = package
+        .ordinary_new_claim_ledger
+        .map_flow(&owned)
+        .expect("array entry row completes");
+    let [a] = map.entries() else {
+        panic!("one entry");
+    };
+    // NestedArray carries no value source, binding, or home claim — every
+    // downstream scalar/transfer gate stays fail-closed.
+    assert!(a.value_source().is_none() && a.transfer_home().is_none() && a.binding().is_none());
+    let [first, second, third] = a.array_elements().expect("array elements") else {
+        panic!("three leaf elements");
+    };
+    assert_eq!(first.value_source(), &MapValueSource::Integer(1));
+    assert_eq!(second.value_source(), &MapValueSource::String);
+    assert!(matches!(
+        third.value_source(),
+        MapValueSource::BorrowedHandle(_)
+    ));
+    // Each element site is the exact `Element(ordinal)` child path.
+    assert_eq!(
+        first.site(),
+        &SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::Value,
+            SourcePathSegmentV1::EntryValue(0),
+            SourcePathSegmentV1::Element(0),
+        ]))
+    );
+}
+
+#[test]
+fn array_entry_empty_literal_and_local_position_complete() {
+    let package = issue(&source("local m = %{\"a\" => [], \"b\" => 2} return 30")).unwrap();
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    let [observation] = flow.maps() else {
+        panic!("one map row");
+    };
+    let map = observation.complete().expect("empty array completes");
+    let [a, b] = map.entries() else {
+        panic!("two entries");
+    };
+    assert_eq!(a.array_elements().map(<[_]>::len), Some(0));
+    assert_eq!(b.value_source(), Some(&MapValueSource::Integer(2)));
+}
+
+#[test]
+fn array_entry_rejects_home_and_container_elements() {
+    for body in [
+        // a live Home element is a transfer question, never a leaf borrow
+        "local p = new Page() return %{\"a\" => [p]}",
+        // a map-installed local is likewise not a leaf
+        "local m = %{} return %{\"a\" => [m]}",
+        // nested container elements stay uncovered
+        "return %{\"a\" => [[]]}",
+        "return %{\"a\" => [%{}]}",
+    ] {
+        let package = issue(&source(body)).unwrap();
+        let flow = package
+            .ordinary_new_claim_ledger
+            .root_completion_for_test()
+            .cleanup()
+            .root_flow()
+            .unwrap();
+        let observation = flow.maps().last().unwrap();
+        assert!(
+            observation.complete().is_none(),
+            "{body} must stay Unavailable"
+        );
+    }
 }

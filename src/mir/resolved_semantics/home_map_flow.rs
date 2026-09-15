@@ -1,7 +1,7 @@
 //! Map responsibility successors from the existing caller ownership walk.
 //! No physical ID, package descriptor, or runtime storage policy is issued here.
 use super::local_call_flow::LocalI64CallObservationV1;
-use super::terminal_relation::map_literal_keys;
+use super::terminal_relation::{array_literal_element_count, map_literal_keys};
 use super::*;
 use crate::mir::resolved_semantics::{RegionId, ScopeId, SourcePathSegmentV1};
 
@@ -158,6 +158,26 @@ enum MapEntryOwnership {
     /// The entry value is itself a `%{...}` literal; the child's own flow row
     /// carries the construction facts. `site` on the entry is the child site.
     NestedMap,
+    /// The entry value is a `[...]` literal; each `Element(ordinal)` child is
+    /// classified as a leaf source. Element Home transfers and nested
+    /// containers stay uncovered at this boundary.
+    NestedArray {
+        elements: Box<[ArrayElementSource]>,
+    },
+}
+/// A sealed array-element child with its leaf source classification.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ArrayElementSource {
+    site: SourceExprSiteV1,
+    value: MapValueSource,
+}
+impl ArrayElementSource {
+    pub(crate) fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+    pub(crate) fn value_source(&self) -> &MapValueSource {
+        &self.value
+    }
 }
 /// Exact source payload or binding observation; unknown formal kind stays unknown.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -201,7 +221,9 @@ impl MapHomeEntry {
                 acquisition,
                 binding,
             } => Some((acquisition, *binding)),
-            MapEntryOwnership::Value(_) | MapEntryOwnership::NestedMap => None,
+            MapEntryOwnership::Value(_)
+            | MapEntryOwnership::NestedMap
+            | MapEntryOwnership::NestedArray { .. } => None,
         }
     }
     pub(crate) fn binding(&self) -> Option<BindingRefV1> {
@@ -209,13 +231,24 @@ impl MapHomeEntry {
             MapEntryOwnership::TransferHome { binding, .. } => Some(*binding),
             MapEntryOwnership::Value(MapValueSource::Local { binding, .. })
             | MapEntryOwnership::Value(MapValueSource::BorrowedHandle(binding)) => Some(*binding),
-            MapEntryOwnership::Value(_) | MapEntryOwnership::NestedMap => None,
+            MapEntryOwnership::Value(_)
+            | MapEntryOwnership::NestedMap
+            | MapEntryOwnership::NestedArray { .. } => None,
         }
     }
     pub(crate) fn value_source(&self) -> Option<&MapValueSource> {
         match &self.ownership {
             MapEntryOwnership::Value(value) => Some(value),
-            MapEntryOwnership::TransferHome { .. } | MapEntryOwnership::NestedMap => None,
+            MapEntryOwnership::TransferHome { .. }
+            | MapEntryOwnership::NestedMap
+            | MapEntryOwnership::NestedArray { .. } => None,
+        }
+    }
+    /// Sealed leaf sources for a `[...]` entry value; `None` otherwise.
+    pub(crate) fn array_elements(&self) -> Option<&[ArrayElementSource]> {
+        match &self.ownership {
+            MapEntryOwnership::NestedArray { elements } => Some(elements),
+            _ => None,
         }
     }
     pub(crate) fn displaced(&self) -> Option<&SourceExprSiteV1> {
@@ -349,24 +382,41 @@ pub(super) fn observe_map<E>(
                     return Ok(Err(issue));
                 }
             }
+        } else if let Some(element_count) = array_literal_element_count(input, child) {
+            // A `[...]` entry value carries leaf elements only: each
+            // `Element(ordinal)` child must classify through the same leaf
+            // chain. Elements issue no transfer and consume no Home.
+            let mut elements = Vec::with_capacity(element_count as usize);
+            for element_ordinal in 0..element_count {
+                let mut relations = shape.relations().iter().filter(|row| {
+                    row.parent() == child.node()
+                        && row.role() == &SourcePathSegmentV1::Element(element_ordinal)
+                });
+                let Some(relation) = relations.next() else {
+                    return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
+                };
+                if relations.next().is_some() {
+                    return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
+                }
+                let element = relation.child();
+                let Some(value) = map_value_leaf(input, locals, element) else {
+                    return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
+                        element.clone(),
+                    )));
+                };
+                elements.push(ArrayElementSource {
+                    site: element.clone(),
+                    value,
+                });
+            }
+            MapEntryOwnership::NestedArray {
+                elements: elements.into_boxed_slice(),
+            }
         } else {
-            let value = match locals.observe(child) {
-                Some(OrdinaryObservation::Integer(value)) => MapValueSource::Integer(value),
-                Some(OrdinaryObservation::Bool(value)) => MapValueSource::Bool(value),
-                Some(OrdinaryObservation::TrivialLocal(binding, kind)) => {
-                    MapValueSource::Local { binding, kind }
-                }
-                Some(OrdinaryObservation::Handle(root)) if locals.is_self_rooted_handle(root) => {
-                    MapValueSource::BorrowedHandle(root)
-                }
-                _ => match input.function().expression_source().literal(child) {
-                    Some(ResolvedLiteralSourceV1::String) => MapValueSource::String,
-                    _ => {
-                        return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
-                            child.clone(),
-                        )))
-                    }
-                },
+            let Some(value) = map_value_leaf(input, locals, child) else {
+                return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
+                    child.clone(),
+                )));
             };
             MapEntryOwnership::Value(value)
         };
@@ -396,4 +446,27 @@ pub(super) fn observe_map<E>(
         },
         remaining,
     )))
+}
+
+/// Leaf entry/element source classification shared by map entry values and
+/// array elements. `None` keeps the caller's fail-closed boundary.
+fn map_value_leaf(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    locals: &PrefixLocalFlow<'_>,
+    site: &SourceExprSiteV1,
+) -> Option<MapValueSource> {
+    match locals.observe(site) {
+        Some(OrdinaryObservation::Integer(value)) => Some(MapValueSource::Integer(value)),
+        Some(OrdinaryObservation::Bool(value)) => Some(MapValueSource::Bool(value)),
+        Some(OrdinaryObservation::TrivialLocal(binding, kind)) => {
+            Some(MapValueSource::Local { binding, kind })
+        }
+        Some(OrdinaryObservation::Handle(root)) if locals.is_self_rooted_handle(root) => {
+            Some(MapValueSource::BorrowedHandle(root))
+        }
+        _ => match input.function().expression_source().literal(site) {
+            Some(ResolvedLiteralSourceV1::String) => Some(MapValueSource::String),
+            _ => None,
+        },
+    }
 }

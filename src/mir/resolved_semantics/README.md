@@ -1208,7 +1208,10 @@ destination; `observe_map` recurses inside the parent's entry loop, sharing the
 transfer accounting (`used`/`remaining`/`locals`) so a home consumed inside a
 child subtree is marked in the parent's outer at the parent's entry index. The
 parent entry records `NestedMap` ownership — no value source, no binding, so
-physical emission stays fail-closed. These records and terminal order have one
+physical emission stays fail-closed. A `[...]` entry value records
+`NestedArray` ownership with each sealed `Element(ordinal)` child classified
+through the same leaf chain; element transfers and nested container elements
+stay uncovered. These records and terminal order have one
 owner in Completion. The unconnected consumer is stopped at package install;
-fresh children, array literals, non-scalar locals and other candidate families
+fresh children, non-scalar locals and other candidate families
 are not admitted by this direct-Home relation.

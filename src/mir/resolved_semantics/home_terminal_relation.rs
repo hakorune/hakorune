@@ -169,6 +169,18 @@ pub(super) fn map_literal_keys<'a>(
         })
 }
 
+/// Sealed ArrayLiteral element count at an exact expression site. Element
+/// children are the sealed `Element(ordinal)` relations on the same shape.
+pub(super) fn array_literal_element_count(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+) -> Option<u32> {
+    match input.body_shape()?.expression_shape(site)? {
+        BodyExpressionShapeV1::ArrayLiteral { element_count, .. } => Some(*element_count),
+        _ => None,
+    }
+}
+
 #[derive(PartialEq, Eq)]
 pub(super) enum ReturnScalar {
     Integer,
