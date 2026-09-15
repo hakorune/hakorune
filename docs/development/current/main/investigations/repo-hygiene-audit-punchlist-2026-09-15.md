@@ -24,7 +24,7 @@ bounded follow-up; none is part of the active MirBuilder semantic lane.
 | 5 | `mir-call-resolver-if-expression-contract-d0-2026-09-14.md` `NextCard:` dangles to `mir-call-resolver-if-i64-return-contract-d0-2026-09-14.md`, deleted in `1310f61c56` without supersede note | git log confirms replacement by `mir-call-resolver-if-value-join-contract-d0-2026-09-14.md`; 11 other dangling `NextCard:` refs exist repo-wide (mostly never-created cards) | Repoint to the value-join card with a supersede note; optionally sweep the other dangling refs |
 | 6 | `exec.rs:141` uses fixed temp name `tmp/nyash_cli_emit_harness.json` (shared-dir collision/staleness) | `src/runner/modes/common_util/exec.rs:144` — the sibling `ny_llvmc` path already uses `nyash_cli_emit_{pid}.json` | Align to the pid-namespaced pattern |
 | 7 | "StringBox findings" referenced as out-of-scope across `mir-call-static-compatibility-*` cards but no tracking card owns them | a3-package-admission-d0:116 and siblings exclude them; no findings card exists | Create the tracking card or record an explicit discard decision |
-| 8 | Windows child-process "0" injection | not located cheaply; likely in the llvmlite/AOT spawn chain (`exec.rs` Command::new sites) | Locate the concrete site, then decide fix vs record |
+| 8 | Windows child-process "0" injection | `lang/c-abi/shims/hako_aot_child_process.inc:21-26` — `hako_aot_capture_direct_harness_env` injects literal `"0"` when `HAKO_LLVM_OPT_LEVEL`/`NYASH_LLVM_OPT_LEVEL` are unset (`hako ? hako : "0"`); unset-vs-"0" is observable to the child (located by auditor on days 2-3, re-verified in-tree) | Decide fix (propagate unset) vs record |
 
 ## P3 — frozen docs set
 
