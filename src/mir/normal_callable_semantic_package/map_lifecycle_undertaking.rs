@@ -265,6 +265,20 @@ fn describe_flow(flow: &MapHomeFlow) -> MapSiteObligationV1 {
                     binding: *binding,
                 });
             }
+            // A `Local` entry stores a scalar copy only when the source
+            // kind is sealed; a kind-less local is a non-consuming store
+            // of a live binding — the same sharing obligation as
+            // `MapLocal`/`BorrowedHandle`, not an `EntryStore` alone.
+            MapValueSource::Local {
+                binding,
+                kind: None,
+            } => {
+                operations.insert(Op::OwnershipShare);
+                borrows.push(MapEntryBorrowV1 {
+                    site: site.clone(),
+                    binding: *binding,
+                });
+            }
             _ => {}
         };
         if let Some(source) = entry.value_source() {

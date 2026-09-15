@@ -89,6 +89,10 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     app_main_direct_call_loan: Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
+    /// Sealed pre-install proof that every owner's described Map
+    /// obligations are covered by the selected consumer's declared
+    /// capability. `None` when no member carries Map obligations.
+    map_lifecycle_undertaking: Option<super::MapLifecycleUndertakingV1>,
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
     instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
@@ -284,6 +288,7 @@ pub(in crate::mir) enum SelectedCallableSemanticRefV1<'loan> {
 pub(crate) struct PreparedNormalCallableSemanticPackageInstallV1<'context> {
     context: &'context mut CompilationContext,
     package: VerifiedNormalCallableSemanticPackageV1,
+    map_lifecycle_undertaking: Option<super::MapLifecycleUndertakingV1>,
 }
 
 /// Exactly-once lowering surface for one installed package.
@@ -359,9 +364,10 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         PreparedNormalCallableSemanticPackageInstallV1<'context>,
         (Self, NormalCallableSemanticPackageInstallIssueV1),
     > {
-        if let Err(issue) = self.preflight_map_install() {
-            return Err((self, issue));
-        }
+        let map_lifecycle_undertaking = match self.preflight_map_install() {
+            Ok(undertaking) => undertaking,
+            Err(issue) => return Err((self, issue)),
+        };
         if !context.callable_declaration_catalog_vacant() {
             return Err((
                 self,
@@ -371,6 +377,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         Ok(PreparedNormalCallableSemanticPackageInstallV1 {
             context,
             package: self,
+            map_lifecycle_undertaking,
         })
     }
 }
@@ -407,6 +414,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             catalog_brand,
             batch,
             app_main_direct_call_loan,
+            map_lifecycle_undertaking: self.map_lifecycle_undertaking,
             ordinary_new_claim_ledger,
             instance_constructors,
             selected,
@@ -424,6 +432,14 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
+    /// The undertaking sealed at pre-install: every owner's described Map
+    /// obligations covered by the selected consumer's declared capability.
+    pub(in crate::mir) fn map_lifecycle_undertaking(
+        &self,
+    ) -> Option<&super::MapLifecycleUndertakingV1> {
+        self.map_lifecycle_undertaking.as_ref()
+    }
+
     pub(in crate::mir) fn finish_lowering(
         self,
     ) -> Result<VerifiedCallableResultContractCohortV1, NormalCallableSemanticPackageInstallIssueV1>

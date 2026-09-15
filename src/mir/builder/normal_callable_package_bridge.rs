@@ -9,7 +9,8 @@ use std::cell::Cell;
 
 use crate::mir::normal_callable_semantic_package::{
     AppMainDirectCallDispositionLoanV1, BuilderInstallTokenV1, DeclaredInstanceCallLocatorViewV1,
-    InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,
+    InstalledNormalCallableSemanticPackageV1, MapLifecycleConsumerCapabilityV1,
+    MapLifecycleOperationV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1,
 };
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
@@ -28,6 +29,26 @@ pub(in crate::mir) struct BuilderInstallConsumerV1 {
 impl BuilderInstallConsumerV1 {
     pub(in crate::mir::builder) const fn new() -> Self {
         Self { _private: () }
+    }
+
+    /// The Map lifecycle operations the selected lowering lanes execute
+    /// today: literal create, scalar/transferred entry stores (including
+    /// overwrite release of a displaced entry), local-binding and
+    /// return-boundary handoff, and the Normal/Fault cleanup chains.
+    /// Borrow, slot, argument, and containment handoffs stay
+    /// unimplemented — obligations demanding them keep failing admission
+    /// at `verify_map_lifecycle_undertaking`. This declaration is the
+    /// consumer's own claim; it is not inferred from registry presence.
+    pub(in crate::mir) fn map_lifecycle_capability() -> MapLifecycleConsumerCapabilityV1 {
+        MapLifecycleConsumerCapabilityV1::covering([
+            MapLifecycleOperationV1::ValueCreate,
+            MapLifecycleOperationV1::EntryStore,
+            MapLifecycleOperationV1::EntryDisplace,
+            MapLifecycleOperationV1::OwnershipTransfer,
+            MapLifecycleOperationV1::ReturnHandoff,
+            MapLifecycleOperationV1::NormalCleanup,
+            MapLifecycleOperationV1::FaultCleanup,
+        ])
     }
 
     pub(in crate::mir) fn seal(

@@ -1,72 +1,59 @@
 //! Precommit use of existing root and Local products; no semantic issuance.
+use super::super::map_lifecycle_undertaking::{
+    verify_map_lifecycle_undertaking, MapLifecycleUndertakingV1,
+};
 use super::*;
+use crate::mir::builder::BuilderInstallConsumerV1;
 use crate::mir::resolved_semantics::{BindingOriginV1, ResolvedLexicalRefV1, SourceBindingSiteV1};
 
 impl VerifiedNormalCallableSemanticPackageV1 {
+    /// Describe every sealed member's Map obligations and verify the
+    /// selected lowering consumer's declared capability covers all of
+    /// them, returning the sealed undertaking for the install product.
+    /// The undertaking — never AppMain reachability — is the deep-callee
+    /// coverage criterion: obligations enumerate from sealed batch
+    /// membership, and every declared MapLiteral site must carry a
+    /// Complete flow row in its own owner's completion.
     pub(super) fn preflight_map_install(
         &self,
-    ) -> Result<(), NormalCallableSemanticPackageInstallIssueV1> {
+    ) -> Result<Option<MapLifecycleUndertakingV1>, NormalCallableSemanticPackageInstallIssueV1>
+    {
         use NormalCallableSemanticPackageInstallIssueV1 as Issue;
-        // Membership is already sealed per declared root. Never infer owning
-        // admission from ledger presence or skip unissued non-AppMain Maps.
-        for declaration in self.batch.declarations() {
-            for expression in declaration.body_shape().expressions() {
-                if let crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral {
-                    site,
-                    ..
-                } = expression
-                {
-                    let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-                        declaration.owner(),
-                        site.clone(),
-                    );
-                    self.ordinary_new_claim_ledger
-                        .map_flow(&owned)
-                        .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
-                }
-            }
+        let obligations = self
+            .describe_map_lifecycle_obligations()
+            .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
+        if obligations.is_empty() {
+            return Ok(None);
         }
-        let owners = self
-            .ordinary_new_claim_ledger
-            .map_install_owners()
-            .map_err(|()| Issue::MapLifecycleConsumerMissing)?;
-        if owners.is_empty() {
-            return Ok(());
-        }
-        let root_owner = self.ordinary_new_claim_ledger.root_owner();
+        let undertaking = verify_map_lifecycle_undertaking(
+            &obligations,
+            BuilderInstallConsumerV1::map_lifecycle_capability(),
+        )
+        .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
+        // AppMain execution-product evidence stays scoped to the loan
+        // that carries it: the affine rows must be unspent at install,
+        // every map-carrying loan target must have described obligations,
+        // and the loan never targets its own owner. Per-owner lane
+        // admissibility still applies inside this lane; what is gone is
+        // the fixed call-count/reachability shape bound, which the
+        // undertaking replaces as coverage proof.
         if let Some(loan) = self.app_main_direct_call_loan.as_ref() {
-            let targets = loan
-                .map_target_owners(&self.batch)
-                .ok_or(Issue::MapLifecycleConsumerMissing)?;
-            let expected_local_calls = match targets.len() {
-                3 => Some(2),
-                4 => Some(3),
-                5 => Some(4),
-                _ => None,
-            };
-            if expected_local_calls.is_some_and(|expected| {
-                self.ordinary_new_claim_ledger
-                    .root_owner()
-                    .and_then(|owner| {
-                        self.ordinary_new_claim_ledger
-                            .local_i64_call_count_for_owner(owner)
-                    })
-                    != Some(expected)
-            }) {
+            if loan.has_taken_slot() {
                 return Err(Issue::MapLifecycleConsumerMissing);
             }
+            self.ordinary_new_claim_ledger
+                .map_install_owners()
+                .map_err(|()| Issue::MapLifecycleConsumerMissing)?;
+            let targets = loan.map_target_owners(&self.batch).unwrap_or_default();
             if targets.iter().any(|target| *target == loan.owner())
-                || targets.iter().any(|target| !owners.contains(target))
-                || owners.iter().any(|owner| {
-                    Some(*owner) != root_owner && !targets.iter().any(|target| target == owner)
-                })
+                || targets
+                    .iter()
+                    .any(|target| !obligations.iter().any(|row| row.owner() == *target))
             {
                 return Err(Issue::MapLifecycleConsumerMissing);
             }
-        } else if owners.iter().any(|owner| Some(*owner) != root_owner) {
-            return Err(Issue::MapLifecycleConsumerMissing);
         }
-        for owner in owners.iter().copied() {
+        for owner in obligations.iter().map(|row| row.owner()) {
             let mut declarations = self.batch.declarations().filter(|d| d.owner() == owner);
             let declaration = declarations
                 .next()
@@ -136,6 +123,6 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                 })
                 .map_err(|_| Issue::BatchLoan)??;
         }
-        Ok(())
+        Ok(Some(undertaking))
     }
 }

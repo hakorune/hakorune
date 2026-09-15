@@ -331,13 +331,20 @@ AppMain uses InstallValue for known scalar kinds and InstallIndexed for Home
 transfer. Ordinary callable install remains stopped until its Call/cleanup ABI
 and physical consumer are connected.
 Completion owns one root flow, including successful or unavailable Map sites and
-their cleanup successors. `prepare_install` checks Complete Map flows, exact
-I64 terminal and same-root ordinary claim readiness before catalog mutation.
-Every declared-root Map site in the batch body-shape must match an issued Map
-flow, including same-owner nested/argument/control sites and Dynamic-selected
-declarations. Missing owner/flow cannot bypass preflight. Script roots and
+their cleanup successors. `prepare_install` describes every sealed member's Map
+obligations from batch membership and verifies them against the selected
+consumer's declared capability before catalog mutation — the sealed
+undertaking, never AppMain reachability, is the coverage criterion.
+Every declared `MapLiteral` site in the batch body-shape must carry a
+Complete flow row in its own owner's completion, including same-owner
+nested/argument/control sites and Dynamic-selected declarations. Missing
+owner/completion/flow cannot bypass preflight. Script roots and
 separately transferred lambda bodies are outside this inventory; no all-Map
-coverage claim is made. The existing Local annotation policy is shared with physical placement; source
+coverage claim is made. When an AppMain direct-call loan exists its affine
+slots must be unspent and every map-carrying loan target must have
+described obligations; per-owner lane admissibility (`map_install_owners`)
+remains as scoped AppMain product evidence only. The existing Local
+annotation policy is shared with physical placement; source
 initializer/alias relations select its precommit use without ValueIds or names.
 Unavailable coverage returns `MapLifecycleConsumerMissing`; annotation refusal
 returns `MapLocalAnnotation` with the original diagnostic. The unchanged package
@@ -361,12 +368,21 @@ exact borrowed-binding evidence (map-local and handle entries, including
 inside `[...]` values) for the returned-map borrow-liveness check.
 `verify_map_lifecycle_undertaking` seals the one relation the aggregate
 proves — every described obligation is covered by the declared
-`MapLifecycleConsumerCapabilityV1`; `BuilderInstallConsumerV1` remains a
-one-shot provenance token, not capability evidence. `MapCallEdgeContractV1`
-defines the call-edge conformance vocabulary (argument handoff vs return
-receive); callee resolution and admission connection are the separate C5b
-slice, and carrying the issued undertaking inside `PreparedInstall` is that
-slice's attachment point. `new MapBox()` construction sites share this
+`MapLifecycleConsumerCapabilityV1`. C5b connected this at admission:
+`preflight_map_install` describes then verifies, and the sealed
+undertaking rides `PreparedNormalCallableSemanticPackageInstallV1` into
+`InstalledNormalCallableSemanticPackageV1` (`map_lifecycle_undertaking()`).
+The capability is the builder consumer's own declaration —
+`BuilderInstallConsumerV1::map_lifecycle_capability()` names exactly the
+implemented lanes (create, scalar/transferred entry store, displace,
+return handoff, Normal/Fault cleanup); ownership share and
+slot/argument/contained handoffs stay undeclared and fail closed at
+verify. The one-shot install token itself remains provenance, not
+capability evidence. `MapCallEdgeContractV1` defines the call-edge
+conformance vocabulary (argument handoff vs return receive); edge
+resolution stays deferred because both kinds are unreachable — argument
+handoffs fail at per-owner verify and map-result callees remain gated at
+the i64 call-admission seam. `new MapBox()` construction sites share this
 operation vocabulary through OrdinaryNew claim evidence, not `MapHomeFlow`
 rows — that describe arm is a separate bounded row.
 

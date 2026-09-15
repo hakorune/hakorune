@@ -18,6 +18,13 @@ fn assert_install_stop(package: super::VerifiedNormalCallableSemanticPackageV1) 
     assert!(context.callable_declaration_catalog_vacant());
 }
 
+/// Covered scalar-entry obligations admit install; the physical
+/// execution boundary stays downstream at lowering.
+fn assert_install_admits(package: super::VerifiedNormalCallableSemanticPackageV1) {
+    let mut context = CompilationContext::new();
+    assert!(package.prepare_install(&mut context).is_ok());
+}
+
 #[test]
 fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
     let package = issue(
@@ -78,7 +85,7 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
         std::ptr::eq(indexed, completion),
         "the owner index borrows the result row's Completion"
     );
-    assert_install_stop(package);
+    assert_install_admits(package);
 }
 
 #[test]
@@ -109,7 +116,7 @@ fn ordinary_i64_formal_alias_preserves_source_kind_without_a_home() {
         flow.terminal_homes().unwrap(),
         [map.local_binding().unwrap()]
     );
-    assert_install_stop(package);
+    assert_install_admits(package);
 }
 
 #[test]
@@ -140,7 +147,14 @@ fn borrowed_formals_are_allowed_unused_but_do_not_issue_map_ownership() {
                     .is_err());
                 assert!(contract.terminal_relation().is_none());
             }
-            assert_install_stop(package);
+            // A sealed scalar literal entry is covered; a kind-less
+            // formal entry is an OwnershipShare obligation the declared
+            // capability does not cover.
+            if entry == "30" {
+                assert_install_admits(package);
+            } else {
+                assert_install_stop(package);
+            }
         }
     }
 }

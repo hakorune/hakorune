@@ -91,6 +91,9 @@ pub(in crate::mir) use issuer::{
     issue_normal_callable_semantic_package_with_brand_catalog_v1,
     NormalCallableSemanticPackageIssueV1,
 };
+pub(in crate::mir) use map_lifecycle_undertaking::{
+    MapLifecycleConsumerCapabilityV1, MapLifecycleOperationV1, MapLifecycleUndertakingV1,
+};
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
 pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;
 pub(crate) use ordinary_new_coseal::{

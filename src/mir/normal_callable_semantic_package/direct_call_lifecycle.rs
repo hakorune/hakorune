@@ -143,11 +143,16 @@ impl AppMainDirectCallDispositionLoanV1 {
             | AppMainDirectCallDispositionSlotV1::Taken => None,
         }) {
             owners.insert(row.emission.target().callable().owner());
-            if owners.len() > 5 {
-                return None;
-            }
         }
         (!owners.is_empty()).then(|| owners.into_iter().collect())
+    }
+
+    /// The affine loan is spent product evidence: any consumed slot at
+    /// install means the package crossed a boundary it must not have.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_taken_slot(&self) -> bool {
+        self.rows
+            .values()
+            .any(|slot| matches!(slot, AppMainDirectCallDispositionSlotV1::Taken))
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn is_map_i64_call(

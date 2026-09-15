@@ -1,7 +1,7 @@
 Task: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0
 Parent: mir-call-map-local-entry-source-i0-2026-09-15.md
-NextCard: C5b admission connect (preflight full sealed membership +
-consumer capability) — F3/F4 landed
+NextCard: C6 downstream lifecycle contract split + retained-root
+removal — C5b landed
 Route note (2026-09-15): the call-arg and contained-descendant +
 array-element cards landed — merged loop1 now passes entirely and the
 first failure is `map_install_owners` (`Err(())`), this card's
@@ -54,6 +54,12 @@ Arm analysis (`map_install_owners`, ordinary_new_terminal_access.rs):
   `new MapBox()` initializers produce map rows in completion root_flow
   (no `{k:v}` MapLiteral syntax exists in merged — every `{` is inside
   JSON string literals; MapLiteral preflight loop is vacuous).
+  **Correction (superseded by Arm pinning below):** `new MapBox()`
+  produces no `flow.maps()` row — the map rows come from 31 `%{...}`
+  MapLiteral sites (the `%{` sigil, distinct from JSON `{`), and
+  `app_main_identity` is `Some` on the merged route. `new MapBox()`
+  sites travel OrdinaryNew claims; their describe arm is a separate
+  bounded row.
 - `map_install_owners` then requires `app_main_identity.is_some()` —
   the merged route is a library compile without an AppMain anchor, so
   the check fails closed at `Err(())` -> `MapLifecycleConsumerMissing`.
@@ -261,7 +267,7 @@ exit code; name the admitted entry classes.
 | C7  | merged `new MapBox()` census — landed: exact 39-site classification recorded in Census section (27 returned / 11 nested-stored into a returned container / 1 truly local / 0 arg-transferred at creation site); 38/39 maps egress through a return boundary | — |
 | F3  | `TerminalRelationV1` for non-i64 value returns (Facts extension) — landed: `Value(TerminalValueReturnV1)` records the exact returned source (`MapLiteral` site / `MapLocal` / `Home{binding,acquisition}` / `Handle` root / `String`/`Null`/`Float` literal); `return void` spells the Unit terminal; returned map-local/Home bindings leave terminal cleanup. No physical ABI — a root `Value` terminal stops at `root-result-missing`, and `map_install_owners` rejects the owner at the non-i64-terminal arm (same `MapLifecycleConsumerMissing` terminal, different arm than the old `terminal_homes` error). Gate boundary: the walk runs for AppMain roots and `has_map`/`child_new_ready` children; other child owners keep no relation — fail-closed | — |
 | F4  | Map return/argument physical ABI + entry-class operation contracts — landed F4a..F4d: `nyash.map.storage_move_v1` export; `InvokeCallResultKind::Map` + verifier lease-transfer (`Return{map}` consumes the live lease, `map-return-not-live` rejects a spent one); `ordinary_map` role + `"result":"map"` wire + C validator/flow/emit (caller `%map<b>` out storage, callee `storage_move` into `%out_map`); builder dispatch on the sealed flow destination (`ReturnBoundary` → `emit_return`, other destinations stay `map-destination-unsupported`); disposition rows carry the callee's terminal-relation result class; `map_install_owners` admits `Value` terminals bounded to exact map-source returns. Focused: 5/5 `map_physical_dependency` + 3/3 verifier `invoke::map_tests` additions + 228 package + 102 verification + 14 physical_program + kernel `storage_move`. Residual: call-result `Map` rows cannot yet be produced — both admitted call lanes gate callees on `result()==Some(I64)`/`:i64` index; the kind↔role mechanism is the seam C5b plugs into. Map arguments remain unadmitted (named reject) | C5a, F3      |
-| C5b | admission connect: preflight matches full sealed membership + implemented consumer capability | C5a, F3, F4 |
+| C5b | admission connect — landed: `preflight_map_install` describes every sealed member's obligations (`describe_map_lifecycle_obligations` — full batch-membership `MapLiteral` enumeration, named describe issues) and verifies them against `BuilderInstallConsumerV1::map_lifecycle_capability()` — the consumer's own declared set: create / scalar+transferred entry store / displace / return handoff / Normal+Fault cleanup; OwnershipShare and slot/argument/contained handoffs stay undeclared and fail closed at verify. The sealed undertaking rides `PreparedInstall` into `InstalledNormalCallableSemanticPackageV1` (`map_lifecycle_undertaking()`), pinned by a 2-owner undertaking assertion through commit. Retired bounds: `owners ⊆ targets ∪ root`, `expected_local_calls`, the `>5` distinct-target cutoff — the undertaking replaces them as coverage proof. Retained as scoped AppMain product evidence only: unspent affine slots (`has_taken_slot`), map-target ⊆ described owners, no self-target, `map_install_owners` per-owner lane admissibility inside the AppMain lane, and the per-owner initializer/alias annotation chain. Describe correction: `Local{kind:None}` entries describe OwnershipShare + borrow evidence (a kind-less local is a live-binding store, not a scalar copy) — matching the physical lane's `map-value-consumer-missing`. Deferred honestly: `MapCallEdgeContractV1` matching (both kinds unreachable — ArgumentHandoff uncovered at per-owner verify, map-result callees still `result()==Some(I64)`-gated); `new MapBox()` claim-family describe arm; the `result()==Some(I64)`/`:i64` callee-result seam itself. Test flips (intended): non-AppMain covered owners install, repeated covered targets install, `return %{...}`/implicit/unit exits install; still rejected: unavailable/stale rows, malformed annotations, share/slot/argument/contained obligations | C5a, F3, F4 |
 | C6  | downstream contract split (admit_lifecycle retained-root removal, physical doc, C v2) | C5b |
 | C8  | two-function non-AppMain consumer acceptance (normal+Fault cleanup, refined above) | C5b, C6 |
 
@@ -296,6 +302,25 @@ flake (parallel env leakage), not current-change. The C shim TU passes
 `cc -fsyntax-only -Wall` (the `storage_move` return emit initially
 shipped a 12-of-14 `%u` arg mismatch, fixed; remaining warnings are
 untouched baseline sites).
+
+C5b verification note (2026-09-16): the package suite is 230/230 green
+after the admission flips (9 pins updated from the old AppMain-shape
+expectations to undertaking semantics — see the C5b row for the flip
+classification). The full `--lib` run surfaced the same baseline set
+before the `source_backed_loop_*` stack-overflow SIGABRT truncated it:
+`normal_callable_semantic_source` parity/ledger ×3 and
+`actual_string_helpers_general_result_row_reaches_its_first_loop_carrier`
+— the latter newly surfaced in this run and reproduced identically at
+parent `1397cb2b5c` → `ParentFailCurrentFail` baseline debt, not
+current-change. `compatibility_loop` was green in this run, consistent
+with its order-dependent classification. Production-caller review:
+all `prepare_install` callers keep their existing signature — the
+capability is the builder consumer's static declaration
+(`BuilderInstallConsumerV1::map_lifecycle_capability()`), not a
+per-call parameter; the one-shot token remains provenance only. No
+legacy AppMain-only admission path remains as a fallback — the
+undertaking is the single coverage criterion and `map_install_owners`
+runs only inside the loan branch as scoped evidence.
 
 ## F4 Decision (2026-09-15, worker-audited physical layers)
 

@@ -10,7 +10,7 @@ fn source(body: &str) -> String {
 }
 
 #[test]
-fn non_app_main_map_keeps_install_stop_with_an_app_main_map() {
+fn non_app_main_map_owner_installs_with_covered_obligations() {
     let package = issue(
         "static box Helper { use(value: i64): i64 {
             local h = %{\"a\" => value} return 30
@@ -21,15 +21,14 @@ fn non_app_main_map_keeps_install_stop_with_an_app_main_map() {
     )
     .expect("mixed AppMain and ordinary Map source");
     let mut context = CompilationContext::new();
-    let issue = match package.prepare_install(&mut context) {
-        Err((_, issue)) => issue,
-        Ok(_) => panic!("ordinary Map must not pass through AppMain Map admission"),
-    };
-    assert!(matches!(
-        issue,
-        super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
-    ));
-    assert!(context.callable_declaration_catalog_vacant());
+    let installed = package
+        .prepare_install(&mut context)
+        .map(|prepared| prepared.commit())
+        .expect("covered per-owner obligations admit install");
+    let undertaking = installed
+        .map_lifecycle_undertaking()
+        .expect("Map owners seal one undertaking");
+    assert_eq!(undertaking.owners().len(), 2);
 }
 
 #[test]
@@ -37,7 +36,6 @@ fn declared_root_unissued_map_sites_stop_before_install() {
     for body in [
         "local m = %{\"v\" => value} return 30",
         "local m = %{\"nested\" => %{}} return 30",
-        "return %{}",
         "Helpers.consume(%{}) return 30",
         "if value { local m = %{} } return 30",
     ] {
@@ -61,6 +59,15 @@ fn declared_root_unissued_map_sites_stop_before_install() {
         );
         assert!(context.callable_declaration_catalog_vacant());
     }
+    // A sealed `return %{...}` carries ReturnHandoff obligations only —
+    // covered by the declared capability, so install admits it.
+    let package = issue(
+        "static box Helpers { consume(value) { return 30 } run(value) { return %{} } }
+         static box Main { main() { return 30 } }",
+    )
+    .unwrap();
+    let mut context = CompilationContext::new();
+    assert!(package.prepare_install(&mut context).is_ok());
 }
 
 #[test]
@@ -255,26 +262,33 @@ fn map_transfer_invalidates_old_local_and_alias_field_observation() {
 }
 
 #[test]
-fn unavailable_prefix_and_implicit_exit_cannot_skip_map_install_stop() {
-    for body in [
-        "local m = %{}",
-        "local a = new Page() local m = %{}",
-        "local a = new Page() a = a local m = %{} return 30",
-    ] {
+fn unavailable_prefix_cannot_skip_map_install_stop() {
+    let body = "local a = new Page() a = a local m = %{} return 30";
+    let package = issue(&source(body)).unwrap();
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    assert!(
+        !flow.maps().is_empty(),
+        "Map cannot disappear from an incomplete flow: {body}"
+    );
+    let mut context = CompilationContext::new();
+    assert!(package.prepare_install(&mut context).is_err());
+    assert!(context.callable_declaration_catalog_vacant());
+}
+
+#[test]
+fn implicit_exit_map_owner_installs_with_covered_obligations() {
+    // Implicit/Unit exits are not a Map lifecycle obligation: the
+    // described create+cleanup set is covered, so install admits the
+    // owner and the exit convention stays the lowering lane's call.
+    for body in ["local m = %{}", "local a = new Page() local m = %{}"] {
         let package = issue(&source(body)).unwrap();
-        let flow = package
-            .ordinary_new_claim_ledger
-            .root_completion_for_test()
-            .cleanup()
-            .root_flow()
-            .unwrap();
-        assert!(
-            !flow.maps().is_empty(),
-            "Map cannot disappear from an incomplete flow: {body}"
-        );
         let mut context = CompilationContext::new();
-        assert!(package.prepare_install(&mut context).is_err());
-        assert!(context.callable_declaration_catalog_vacant());
+        assert!(package.prepare_install(&mut context).is_ok(), "{body}");
     }
 }
 
@@ -346,22 +360,30 @@ fn map_install_accepts_complete_unannotated_root_and_aliases() {
 }
 
 #[test]
-fn map_install_rejects_annotated_aliases_and_unready_root_new() {
+fn map_install_rejects_annotated_aliases() {
     for body in [
         "local m: Array<i64> = %{} return 30",
         "local m = %{} local alias: i64 = m return 30",
         "local m = %{} local alias = m local again: Array<i64> = alias return 30",
-        "local m = %{} return",
     ] {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
         assert!(package.prepare_install(&mut context).is_err(), "{body}");
         assert!(context.callable_declaration_catalog_vacant());
     }
+}
+
+#[test]
+fn unit_exit_and_unready_new_owners_install_with_covered_obligations() {
+    // Unit exits and sibling `new` claims are not Map lifecycle
+    // obligations: covered obligations admit install and each lane keeps
+    // its own named rejection downstream.
+    let package = issue(&source("local m = %{} return")).unwrap();
+    let mut context = CompilationContext::new();
+    assert!(package.prepare_install(&mut context).is_ok());
     let package = issue("box Bad { value } static box Main { main() { local m = %{} local bad = new Bad() return 30 } }").unwrap();
     let mut context = CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_err());
-    assert!(context.callable_declaration_catalog_vacant());
+    assert!(package.prepare_install(&mut context).is_ok());
 }
 
 #[test]

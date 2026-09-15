@@ -167,7 +167,9 @@ fn three_distinct_map_call_owners_share_source_ordered_local_bindings() {
 }
 
 #[test]
-fn repeated_map_target_fourth_call_stays_outside_three_owner_slice() {
+fn repeated_map_target_fourth_call_installs_under_the_undertaking() {
+    // A repeated call to an already-covered callee is one more edge, not
+    // a new obligation — the fixed call-count shape bound is gone.
     let package = issue(
         r#"static box Main {
             main() {
@@ -184,13 +186,7 @@ fn repeated_map_target_fourth_call_stays_outside_three_owner_slice() {
     )
     .expect("source facts remain issuable for the bounded rejection");
     let mut context = crate::mir::builder::CompilationContext::new();
-    assert!(matches!(
-        package.prepare_install(&mut context),
-        Err((
-            _,
-            super::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
-        ))
-    ));
+    assert!(package.prepare_install(&mut context).is_ok());
 }
 
 #[test]
@@ -282,7 +278,7 @@ fn five_distinct_map_call_owners_share_four_source_ordered_local_bindings() {
 }
 
 #[test]
-fn sixth_repeated_or_distinct_map_call_stays_outside_five_owner_slice() {
+fn sixth_repeated_or_distinct_map_call_installs_under_the_undertaking() {
     for source in [
         r#"static box Main {
             main() {
@@ -320,13 +316,7 @@ fn sixth_repeated_or_distinct_map_call_stays_outside_five_owner_slice() {
     ] {
         let package = issue(source).expect("source facts remain issuable for bounded rejection");
         let mut context = crate::mir::builder::CompilationContext::new();
-        assert!(matches!(
-            package.prepare_install(&mut context),
-            Err((
-                _,
-                super::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
-            ))
-        ));
+        assert!(package.prepare_install(&mut context).is_ok());
     }
 }
 
