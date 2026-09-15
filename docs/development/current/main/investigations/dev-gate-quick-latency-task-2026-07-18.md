@@ -246,3 +246,48 @@ Stop the current row if any of the following becomes necessary:
 > evidence. A permanent `ultra-quick` profile is rejected because it would
 > duplicate daily-gate authority. Parallel execution remains parked in PAR0
 > because it changes first-failure scheduling and shared Cargo resource laws.
+
+## Refresh 2026-09-15: external review findings (verified in-tree)
+
+Verified against `6ed2b3e1` + working tree during `MIR-CALL-MAP-RETURN-SITE-FLOW-I0`.
+This refresh does not unpark the lane; it updates the row evidence.
+
+### New finding: `run_step()` swallows failures (correctness, highest priority)
+
+`tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_quick_suite_vm.sh`
+`run_step()` reads `$?` after a no-`else` `if "$@"` — which is always `0`
+(POSIX: false condition without else yields exit status 0). Under
+`set -euo pipefail` a failing step returns `0`, the suite continues, and the
+final `echo "[PASS] ..."` prints unconditionally: **false PASS**.
+
+Fix shape: capture `rc` inside an `else` branch and `return "$rc"`. One-file
+fix; candidate for an independent immediate commit ahead of the lane rows.
+
+### Verified row evidence
+
+| Claim | Evidence |
+| --- | --- |
+| quick too heavy per edit | `dev_gate_quick_steps.sh` (78 lines, ~67 steps) includes `cargo lib known-red baseline` = full lib test with `CARGO_INCREMENTAL=0` + `--test-threads=1` |
+| profile/target mismatch | `resolved_control_flow_contract.sh` uses `cargo test -q` (dev profile) while daily work uses `--profile quick` — double artifact tuple |
+| FFI rebuild each call | `build_hako_llvmc_ffi.sh` recompiles `hako_llvmc_ffi.c`+`hako_aot.c`+`hako_json_v1.c`+`yyjson.c` unconditionally per call |
+| linker headroom | mold not installed; repo config uses `clang`+`-fuse-ld=lld`; lld 2-4x faster claimed for large test-binary links |
+| feature-set churn | alternating `cargo check` (no features) vs `cargo test --features llvmlite-compat` invalidates the whole crate cache |
+| monolith root lib | `cargo test --lib` still links the full root test binary regardless of name filter; file splitting does not shrink Cargo units |
+
+### Ordered rows (proposal)
+
+```text
+DEV-GATE-Q0-BUG0   run_step() rc capture fix          (correctness, independent)
+DEV-GATE-Q0-OPS0   same-feature-set + check/test discipline doc   (zero-cost)
+DEV-GATE-Q0-M0     measure: --timings, per-step wall, artifact tuples
+DEV-GATE-Q0-C0     guard profile/target alignment (dev -> quick; CLI-only = --bin hakorune)
+DEV-GATE-Q0-LINK0  mold via user-global ~/.cargo/config.toml (NOT repo config)
+DEV-GATE-Q0-SEL0   manifest-backed changed-path selector (existing)
+DEV-GATE-Q0-FFI0   C FFI cache with input-hash change detection
+DEV-GATE-Q0-G0     parity + evidence lock
+park: DEV-GATE-Q0-PAR0, DEV-GATE-Q0-CRATE0 (root-lib split -> R8/cleanup formal item)
+```
+
+Non-claims: no quick-gate weakening, no semantic-row mixing, no parked-lane
+reopen. `quick` remains the sole complete daily/PR gate; partital checks must
+never be reported as whole-suite PASS.

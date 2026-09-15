@@ -88,11 +88,12 @@ run_step() {
   if "$@" >"$log" 2>&1; then
     summarize_step_log "$label" "$log"
     return 0
+  else
+    local rc=$?
+    echo "[FAIL] $label (rc=$rc log=$log)" >&2
+    tail -n "${HAKO_MIRBUILDER_QUICK_SUITE_FAILURE_TAIL:-160}" "$log" >&2 || true
+    return "$rc"
   fi
-  local rc=$?
-  echo "[FAIL] $label (rc=$rc log=$log)" >&2
-  tail -n "${HAKO_MIRBUILDER_QUICK_SUITE_FAILURE_TAIL:-160}" "$log" >&2 || true
-  return "$rc"
 }
 
 run_step "internal-only emit: cleanup_only_min" \
