@@ -14,6 +14,68 @@ fn parse(source: &str) -> super::ParsedProgramWithCallableParameterSourceV1 {
 }
 
 #[test]
+fn method_prefixed_member_is_one_direct_method_without_phantom_field() {
+    let parsed = parse("static box Api { method run(value) { return value } }");
+    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+        let ParserStaticBoxParentSourceDispositionV1::Ready(seal) = loan.static_box_parent_source()
+        else {
+            panic!("method-prefixed member should issue a ready static parent seal");
+        };
+        assert_eq!(seal.member_count(), 1);
+        assert_eq!(
+            seal.member_kinds().collect::<Vec<_>>(),
+            [ParserStaticBoxMemberKindV1::DirectMethod]
+        );
+        assert_eq!(seal.direct_method_relations().count(), 1);
+        assert!(loan.normal_root_execution().ready().is_some());
+    });
+}
+
+#[test]
+fn method_prefixed_members_mix_with_plain_methods_under_one_seal() {
+    let parsed = parse(
+        "static box Api { method first() { return 1 } second() { return 2 } method third() { return 3 } }",
+    );
+    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+        let ParserStaticBoxParentSourceDispositionV1::Ready(seal) = loan.static_box_parent_source()
+        else {
+            panic!("mixed method-prefixed members should share one ready seal");
+        };
+        assert_eq!(seal.member_count(), 3);
+        assert_eq!(seal.direct_method_relations().count(), 3);
+    });
+}
+
+#[test]
+fn method_as_method_name_still_parses_as_direct_method() {
+    let parsed = parse("static box Api { method() { return 1 } }");
+    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+        let ParserStaticBoxParentSourceDispositionV1::Ready(seal) = loan.static_box_parent_source()
+        else {
+            panic!("a method literally named `method` should stay a direct method");
+        };
+        assert_eq!(seal.member_count(), 1);
+        assert_eq!(
+            seal.member_kinds().collect::<Vec<_>>(),
+            [ParserStaticBoxMemberKindV1::DirectMethod]
+        );
+    });
+}
+
+#[test]
+fn lone_method_member_keeps_field_classification() {
+    let parsed = parse("static box Api { method }");
+    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+        assert!(matches!(
+            loan.static_box_parent_source(),
+            ParserStaticBoxParentSourceDispositionV1::Outside(
+                ParserStaticBoxParentOutsideReasonV1::UnsupportedMemberKind
+            )
+        ));
+    });
+}
+
+#[test]
 fn bounded_static_box_parent_issues_one_parser_owned_ready_seal() {
     let parsed = parse("static box Api { run(value) { return value } }");
     ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {

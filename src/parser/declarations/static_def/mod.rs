@@ -190,8 +190,13 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
             }
             TokenType::IDENTIFIER(field_or_method) => {
                 let declaration_span = p.current_span();
-                let field_or_method = field_or_method.clone();
+                let mut field_or_method = field_or_method.clone();
                 p.advance();
+                if field_or_method == "method" {
+                    if let Some(name) = members::take_method_modifier_name(p) {
+                        field_or_method = name;
+                    }
+                }
                 match members::try_parse_method_or_field(p, field_or_method, declaration_span)? {
                     members::ParsedStaticMemberV1::Field(field) => {
                         fields.push(field);

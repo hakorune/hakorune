@@ -126,6 +126,11 @@ defaulted. Multiple direct methods and multiple same-brand parents share one
 set seal, while each parent, member site, and callable identity remains an
 independent relation inside that seal.
 
+The `method` member modifier is consumed by the static member loop before this
+boundary: `method name(...)` produces exactly one `DirectMethod` row under
+`name`, and a `method` identifier without a following `name (` head keeps its
+field classification instead of minting a phantom member.
+
 `ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once` is the sole issuer.
 It runs once in `finish_total_s0`, co-sealing the prepared parent set with the
 existing same-invocation direct static callable rows. It rejects foreign or

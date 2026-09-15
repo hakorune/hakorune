@@ -44,6 +44,33 @@ pub(crate) fn parse_static_initializer_if_any(
     }
 }
 
+/// `method` is a member modifier, not a token kind. Called after the member
+/// loop consumed an identifier `method`; adopts the following `name (` head as
+/// the real method name. Returns None when that head is absent so a lone
+/// `method` keeps its existing field classification.
+pub(crate) fn take_method_modifier_name(p: &mut NyashParser) -> Option<String> {
+    let mut name_index = 0usize;
+    while matches!(p.peek_nth_token(name_index), TokenType::NEWLINE) {
+        name_index += 1;
+    }
+    let TokenType::IDENTIFIER(real_name) = p.peek_nth_token(name_index) else {
+        return None;
+    };
+    let mut paren_index = name_index + 1;
+    while matches!(p.peek_nth_token(paren_index), TokenType::NEWLINE) {
+        paren_index += 1;
+    }
+    if !matches!(p.peek_nth_token(paren_index), TokenType::LPAREN) {
+        return None;
+    }
+    let real_name = real_name.clone();
+    while p.match_token(&TokenType::NEWLINE) {
+        p.advance();
+    }
+    p.advance();
+    Some(real_name)
+}
+
 /// Parse either a method or a field in static box after consuming an identifier `name`.
 /// The caller owns publication into the ordered inventory.
 pub(crate) fn try_parse_method_or_field(

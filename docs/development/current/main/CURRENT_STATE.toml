@@ -18,30 +18,18 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-resolver-if-source-result-product-issuer-d7-reentry-2026-09-15"
 latest_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-result-product-issuer-d7-reentry-2026-09-15.md"
 latest_card_summary = """
-Windows is deferred by the user. VM keep remains compatibility-only; the
-source-backed MIR route reaches the resolver If deferred terminal. A0-3
-admission and A3 handoff are landed; parent baseline reds remain classified.
-Resolver If expression rows were a design stop. D0 fixed the finite
-`ASTNode::If`/empty-prelude `BlockExpr` census and parametric I64/String
-boundary. D1 found no expression-result consumer. D2 found no canonical
-String-result authority: trivial profiles lack String, receiver-only proofs do
-not prove call results, and Loop-only contracts do not cover general source
-calls. D3 selected a sibling source-result profile under `resolved_value_profile`
-and recorded the five-row census. D4 bounded the operation vocabulary and
-logical output port but stayed NoSafeSlice: source call-result/Bool facts and a
-String physical consumer are missing. D5 closed NoSafeSlice after confirming
-that the existing i64/nominal and Loop-only products cannot issue those facts.
-D6 closed the source-result design with a branded class/fact vocabulary,
-recursive/Loop boundaries, and an existing-PHI physical handoff. D7
-implemented a bounded direct-value source-result scaffold: locals, String
-concatenation, empty-prelude expression-If tails, and the exact String/null
-Bool fact are covered by focused tests, with stable catalog brand identity.
-D8 accepted the resolver-owned expression-If relation design: the existing
-sealed source inventory will publish exact condition, empty-prelude branch
-wrappers/tails, consumer role, and nested call observations; D7 will own the
-typed `Static | Dynamic | Absent` route projection. I0 has now closed that
-resolver relation with 18 focused tests covering i64/String tails and all
-accepted consumer roles. D7 re-entry consumes the sealed rows; raw AST rescan,
+The static-box `method` member prefix I0 landed: the member modifier no longer
+commits a phantom Field row, so the merged source cohort now crosses
+`StaticParentSourceSealMissing` and the sealed resolver expression-If relation
+lets the resolver batch complete on the real route. The merged route's next
+named terminal is `callable-semantic-package/issue`
+`ParameterContract/UnsupportedDeclaredType` (declared `ArrayBox`/`MapBox`
+parameters such as `BoxHelpers.array_len(arr: ArrayBox)`; the contract admits
+only `i64` and `StringBox`) — a separate bounded slice recorded in the
+method-prefix card. D7 re-entry resumes on the queued boundary: consume the
+sealed resolver expression-If rows through `CallableSemanticSourceLedgerView`
+in `resolved_value_profile/source_result.rs` for parametric i64/String branch
+joins and `Static | Dynamic | Absent` call dispositions. Raw AST rescan,
 mixed publication, fallback, VM, and caller cutover remain unclaimed.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
