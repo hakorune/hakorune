@@ -37,3 +37,29 @@ result`). The merged route advanced past
 
 Pending: the merged entry advances past the install-stage
 MapLifecycleConsumerMissing to the next named terminal.
+
+## Entry investigation (2026-09-15)
+
+Issuer: `install_map_preflight.rs` — `preflight_map_install` runs at
+package install, before catalog mutation.
+
+Arm analysis (`map_install_owners`, ordinary_new_terminal_access.rs):
+
+- `requires_map_lifecycle_consumer` is true in the merged route: 40
+  `new MapBox()` initializers produce map rows in completion root_flow
+  (no `{k:v}` MapLiteral syntax exists in merged — every `{` is inside
+  JSON string literals; MapLiteral preflight loop is vacuous).
+- `map_install_owners` then requires `app_main_identity.is_some()` —
+  the merged route is a library compile without an AppMain anchor, so
+  the check fails closed at `Err(())` -> `MapLifecycleConsumerMissing`.
+  (Owners-vs-root and per-owner initializer-chain arms sit behind this.)
+
+Census boundary: merged entry program -> `new MapBox()` initializers;
+includes every resolved body; result 40 sites across ~10 functions
+(result/m/def/info/m/v locals in parser/emit boxes).
+
+Open design question for the Decision: the Map lifecycle consumer
+contract is AppMain-scoped today. The merged route needs either (a) an
+explicit non-AppMain map-lifecycle admission row, or (b) the consumer
+contract extended to the merged batch's actual root identity — never a
+silent bypass of `app_main_identity`.
