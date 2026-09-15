@@ -1,6 +1,8 @@
 Task: MIR-CALL-MAP-LOCAL-ENTRY-SOURCE-I0
 Parent: mir-call-map-array-entry-source-i0-2026-09-15.md
-NextCard: per-owner lifecycle undertaking (C5)
+NextCard: MIR-CALL-MAP-CALL-ARG-FLOW-I0
+(mir-call-map-call-arg-flow-i0-2026-09-15.md), then
+MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0 (C5 per-owner contract)
 Implementation permission: landed
 ---
 

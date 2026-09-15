@@ -1,6 +1,9 @@
 Task: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0
-Parent: mir-call-birth-value-return-i0-2026-09-15.md
-NextCard: next named merged-route terminal after package install
+Parent: mir-call-map-local-entry-source-i0-2026-09-15.md
+NextCard: MIR-CALL-MAP-CALL-ARG-FLOW-I0
+(mir-call-map-call-arg-flow-i0-2026-09-15.md) — pinned loop1 failure
+below shows preflight never reaches the owner arms on the merged
+route while call-argument-position `%{...}` literals lack flow rows
 Implementation permission: pending six-line brief acceptance
 ---
 
@@ -208,3 +211,25 @@ string literals/comments.
 The merged route cannot pass `MapLifecycleConsumerMissing` until F1+F3+F4
 land — the map-owning cohort pervasively returns maps. This card's
 deliverable is the verified decomposition; C5 remains the contract work.
+
+## Arm re-pinning (2026-09-15, after F1 + entry-source family landed)
+
+With return-boundary observation (F1), entry-value sources
+(String/BorrowedHandle), nested-map EntrySlot, array NestedArray, and
+map-local MapLocal all landed, the first preflight loop1 failure moved
+to a **call-argument position**:
+
+```text
+[tmp/preflight-loop1] site=[Body(1), Value, Argument(0)]
+    err=[freeze:contract] map-source-unavailable
+-> [callable-semantic-package/install] MapLifecycleConsumerMissing
+```
+
+`MirJsonEmitBox.to_json(%{"functions" => [main]})`-shaped literals have
+sealed `MapLiteral` rows but `scan_new_home_flow` never walks
+`Argument(ordinal)` children of call expressions — so no flow row is
+issued. Entry-class coverage is now complete (zero
+`MapCandidateNotCovered` on the merged route); the remaining Facts gap
+is **walk coverage for argument-position maps**, ordered as
+`MIR-CALL-MAP-CALL-ARG-FLOW-I0` before the C5 contract arm can be
+reached on merged.
