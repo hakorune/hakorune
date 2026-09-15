@@ -42,6 +42,11 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver_object: Option<CanonicalObjectIdV1>,
     },
+    /// Caller-owned opaque Map storage result; never an i64 handle.
+    OrdinaryMap {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>,
+    },
 }
 
 impl PublishedLifecyclePhysicalFunctionRoleV1 {
@@ -57,6 +62,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             } => "root_unit",
             Self::BirthUnit { .. } => "birth_unit",
             Self::OrdinaryI64 { .. } => "ordinary_i64",
+            Self::OrdinaryMap { .. } => "ordinary_map",
         }
     }
 
@@ -65,7 +71,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
     ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
         match self {
             Self::BirthUnit { abi } => Some(abi.target()),
-            Self::Root { .. } | Self::OrdinaryI64 { .. } => None,
+            Self::Root { .. } | Self::OrdinaryI64 { .. } | Self::OrdinaryMap { .. } => None,
         }
     }
 
@@ -73,7 +79,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         &self,
     ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
         match self {
-            Self::OrdinaryI64 { key, .. } => Some(key),
+            Self::OrdinaryI64 { key, .. } | Self::OrdinaryMap { key, .. } => Some(key),
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
     }
@@ -81,6 +87,9 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
     pub(crate) const fn receiver_object(&self) -> Option<CanonicalObjectIdV1> {
         match self {
             Self::OrdinaryI64 {
+                receiver_object, ..
+            }
+            | Self::OrdinaryMap {
                 receiver_object, ..
             } => *receiver_object,
             Self::Root { .. } | Self::BirthUnit { .. } => None,
@@ -90,7 +99,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
     pub(crate) fn has_receiver(&self) -> bool {
         match self {
             Self::BirthUnit { .. } => true,
-            Self::OrdinaryI64 { key, .. } => {
+            Self::OrdinaryI64 { key, .. } | Self::OrdinaryMap { key, .. } => {
                 key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
             }
             Self::Root { .. } => false,
@@ -274,12 +283,21 @@ impl<'module> PublishedMirBackendView<'module> {
             handoff.script_array().is_some(),
             &ordinary_calls,
         )?);
-        let mut ordinary_keys = BTreeSet::new();
-        for call in &ordinary_calls {
-            let key = ordinary_callable_key(&call.callee)?;
-            if !ordinary_keys.insert(key.clone()) {
-                continue;
+        let mut ordinary_keys = std::collections::BTreeMap::new();
+        for site in &ordinary_calls {
+            let key = ordinary_callable_key(&site.call.callee)?;
+            match ordinary_keys.entry(key.clone()) {
+                std::collections::btree_map::Entry::Vacant(entry) => {
+                    entry.insert(site.result);
+                }
+                // One physical result contract per callee key; a key cannot be
+                // both an i64 callee and a Map callee.
+                std::collections::btree_map::Entry::Occupied(entry)
+                    if *entry.get() == site.result => {}
+                _ => return Err(fault("ordinary-result-contract-drift")),
             }
+        }
+        for (key, result) in ordinary_keys {
             let symbol = self
                 .module()
                 .canonical_callable_definition_symbol(&key)
@@ -289,23 +307,52 @@ impl<'module> PublishedMirBackendView<'module> {
                 .functions
                 .get(symbol)
                 .ok_or_else(|| fault("ordinary-function-missing"))?;
-            let receiver = ordinary_call_receiver(&call.callee)?;
-            let expected_arity = call.args.len() + usize::from(receiver.is_some());
+            let site = ordinary_calls
+                .iter()
+                .find(|site| {
+                    ordinary_callable_key(&site.call.callee)
+                        .map(|candidate| candidate == key)
+                        .unwrap_or(false)
+                })
+                .expect("a site for the just-collected key must remain present");
+            let receiver = ordinary_call_receiver(&site.call.callee)?;
+            let expected_arity = site.call.args.len() + usize::from(receiver.is_some());
             if function.signature.name != key.mir_symbol_projection()
                 || function.signature.params.len() != expected_arity
-                || function.signature.return_type != crate::mir::MirType::Integer
+                || !matches!(
+                    (result, &function.signature.return_type),
+                    (InvokeCallResultKind::I64, crate::mir::MirType::Integer)
+                        | (
+                            InvokeCallResultKind::Map,
+                            crate::mir::MirType::Box(_) | crate::mir::MirType::Unknown,
+                        )
+                )
                 || !names.insert(symbol)
             {
                 return Err(fault("ordinary-membership-drift"));
             }
             let receiver_object = object_identity::ordinary_receiver_object(self.module(), &key)?;
+            let role = match result {
+                InvokeCallResultKind::I64 => {
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 {
+                        key,
+                        receiver_object,
+                    }
+                }
+                InvokeCallResultKind::Map => {
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap {
+                        key,
+                        receiver_object,
+                    }
+                }
+                InvokeCallResultKind::Unit => {
+                    return Err(fault("ordinary-result-contract-drift"));
+                }
+            };
             functions.push(issue_function_with_module(
                 Some(self.module()),
                 function,
-                PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 {
-                    key,
-                    receiver_object,
-                },
+                role,
                 false,
                 &[],
             )?);
@@ -345,7 +392,15 @@ impl<'module> PublishedMirBackendView<'module> {
     }
 }
 
-fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<MirCall>, String> {
+/// One admitted ordinary call site with its physical result kind. The MirCall
+/// itself carries no result kind; the invoke operation selects the callee ABI.
+#[derive(Debug, Clone)]
+pub(super) struct OrdinaryCallSite {
+    pub(super) call: MirCall,
+    pub(super) result: InvokeCallResultKind,
+}
+
+fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<OrdinaryCallSite>, String> {
     let mut calls = Vec::new();
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
     block_ids.sort();
@@ -359,7 +414,7 @@ fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<MirCall>, String
                 operation:
                     InvokeOperation::Call {
                         call,
-                        result: InvokeCallResultKind::I64,
+                        result: result @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Map),
                     },
                 ..
             } = instruction
@@ -370,7 +425,10 @@ fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<MirCall>, String
             if call.dst.is_some() {
                 return Err(fault("ordinary-destination"));
             }
-            calls.push(call.clone());
+            calls.push(OrdinaryCallSite {
+                call: call.clone(),
+                result: *result,
+            });
         }
     }
     Ok(calls)
@@ -380,7 +438,7 @@ pub(super) fn issue_function<'module>(
     function: &'module MirFunction,
     role: PublishedLifecyclePhysicalFunctionRoleV1,
     script: bool,
-    ordinary_calls: &[MirCall],
+    ordinary_calls: &[OrdinaryCallSite],
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
     issue_function_with_module(None, function, role, script, ordinary_calls)
 }
@@ -390,7 +448,7 @@ fn issue_function_with_module<'module>(
     function: &'module MirFunction,
     role: PublishedLifecyclePhysicalFunctionRoleV1,
     script: bool,
-    ordinary_calls: &[MirCall],
+    ordinary_calls: &[OrdinaryCallSite],
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
     let mut ids: Vec<_> = function.blocks.keys().copied().collect();
     ids.sort();
@@ -476,20 +534,24 @@ fn issue_function_with_module<'module>(
                 operation:
                     InvokeOperation::Call {
                         call,
-                        result: InvokeCallResultKind::I64,
+                        result:
+                            result @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Map),
                     },
                 ..
             } = row.instruction()
             else {
                 return None;
             };
-            Some(call)
+            Some((call, *result))
         })
         .collect::<Vec<_>>();
     let mut consumed = vec![false; ordinary_rows.len()];
     for expected in ordinary_calls {
         let Some(index) = ordinary_rows.iter().enumerate().find_map(|(index, actual)| {
-            (!consumed[index] && *actual == expected).then_some(index)
+            (!consumed[index]
+                && *actual.0 == expected.call
+                && actual.1 == expected.result)
+                .then_some(index)
         }) else {
             return Err(fault("ordinary-call-membership"));
         };
@@ -510,7 +572,7 @@ fn issue_function_with_module<'module>(
 fn validate_instruction(
     instruction: &MirInstruction,
     script: bool,
-    ordinary_calls: &[MirCall],
+    ordinary_calls: &[OrdinaryCallSite],
 ) -> Result<(), String> {
     validate_instruction_with_context(None, instruction, script, ordinary_calls)
 }
@@ -519,7 +581,7 @@ fn validate_instruction_with_context(
     field_ref: Option<CanonicalFieldRefV1>,
     instruction: &MirInstruction,
     script: bool,
-    ordinary_calls: &[MirCall],
+    ordinary_calls: &[OrdinaryCallSite],
 ) -> Result<(), String> {
     if script {
         return if matches!(
@@ -553,10 +615,12 @@ fn validate_instruction_with_context(
         MirInstruction::Invoke {
             operation: InvokeOperation::Call {
                 call,
-                result: InvokeCallResultKind::I64,
+                result: result @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Map),
             },
             ..
-        } if ordinary_calls.iter().any(|expected| expected == call)
+        } if ordinary_calls
+            .iter()
+            .any(|expected| expected.call == *call && expected.result == *result)
     );
     let field_get = matches!(instruction, MirInstruction::FieldGet { .. }) && field_ref.is_some();
     let supported = ordinary

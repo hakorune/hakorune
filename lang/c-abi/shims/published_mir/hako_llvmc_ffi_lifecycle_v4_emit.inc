@@ -23,7 +23,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   yyjson_val* blocks = hako_physical_blocks(fn);
   yyjson_val* params = yyjson_obj_get(fn, "params");
   int birth = lv4_is(fn, "role", "birth_unit");
-  int ordinary = lv4_is(fn, "role", "ordinary_i64");
+  int ordinary_map = lv4_is(fn, "role", "ordinary_map");
+  int ordinary = lv4_is(fn, "role", "ordinary_i64") || ordinary_map;
   if (birth) {
     fprintf(f, "define internal i32 @hako_lifecycle_birth_%zu(ptr %%frame", fi);
     fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
@@ -33,7 +34,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     }
     fprintf(f, ") {\nstart:\n");
   } else if (ordinary) {
-    fprintf(f, "define internal i32 @hako_lifecycle_ordinary_%zu(ptr %%frame, ptr %%out_i64", fi);
+    fprintf(f, "define internal i32 @hako_lifecycle_ordinary_%zu(ptr %%frame, ptr %%%s", fi,
+        ordinary_map ? "out_map" : "out_i64");
     if (yyjson_is_uint(yyjson_obj_get(fn, "receiver")))
       fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
     for (size_t i = 0; i < yyjson_arr_size(params); i++) {
@@ -166,6 +168,20 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  br label %%fault\n");
     } else if (lv4_is(term, "op", "return")) {
       if (birth) fprintf(f, "  ret i32 0\n");
+      else if (ordinary_map) {
+        /* Move the live lease into caller-owned storage, then dispose the
+           moved-from slot. The caller owns the resulting live map. */
+        uint32_t value = lv4_u(term, "value");
+        fprintf(f,
+            "  %%mv%u = call i32 @\"nyash.map.storage_move_v1\"(ptr %%out_map, ptr %%v%u)\n"
+            "  %%mv_ok%u = icmp eq i32 %%mv%u, 0\n"
+            "  br i1 %%mv_ok%u, label %%mv_step%u, label %%invalid\nmv_step%u:\n"
+            "  %%md%u = call i32 @\"nyash.map.storage_dispose_v1\"(ptr %%v%u)\n"
+            "  %%md_ok%u = icmp eq i32 %%md%u, 0\n"
+            "  br i1 %%md_ok%u, label %%mv_done%u, label %%invalid\nmv_done%u:\n"
+            "  ret i32 0\n",
+            b, value, b, b, b, b, b, b, value, b, b, b, b, b);
+      }
       else if (ordinary) {
         fprintf(f, "  store i64 %%v%u, ptr %%out_i64, align 8\n  ret i32 0\n", lv4_u(term, "value"));
       }
@@ -213,8 +229,12 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(op, "kind", "ordinary_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
-        fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%%s",
-            b, lv4_u(call, "target"), ordinary ? "out_i64" : "ordinary_out");
+        if (lv4_is(op, "result", "map"))
+          fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%map%u",
+              b, lv4_u(call, "target"), b);
+        else
+          fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%%s",
+              b, lv4_u(call, "target"), ordinary ? "out_i64" : "ordinary_out");
         if (yyjson_is_uint(yyjson_obj_get(call, "receiver")))
           fprintf(f, ", i64 %%v%u", lv4_u(call, "receiver"));
         for (size_t i = 0; i < yyjson_arr_size(args); i++)

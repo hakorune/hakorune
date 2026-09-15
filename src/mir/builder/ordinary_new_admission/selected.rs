@@ -349,6 +349,7 @@ fn emit_root_home_exit_payload(
                 clean,
                 fault,
                 call.call,
+                call.result,
                 &mut bindings,
             )?;
             let frame_binding = fault_frame_binding(builder, state, frame)?;

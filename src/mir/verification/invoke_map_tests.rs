@@ -179,6 +179,81 @@ fn map_rejects_escape_role_drift_missing_end_and_nonexclusive_temporaries() {
     }
 }
 
+fn map_call_function() -> MirFunction {
+    let mut function = super::tests::allocation_invoke_function();
+    let target = hakorune_mir_defs::CanonicalGlobalTargetV1::new_static_box_method(
+        "Worker".into(),
+        "produce".into(),
+        0,
+    )
+    .unwrap();
+    let MirInstruction::Invoke { operation, .. } = function
+        .blocks
+        .get_mut(&BasicBlockId::new(1))
+        .unwrap()
+        .terminator
+        .as_mut()
+        .unwrap()
+    else {
+        unreachable!()
+    };
+    *operation = InvokeOperation::Call {
+        call: crate::mir::definitions::MirCall::new(None, Callee::Global(target), vec![]),
+        result: crate::mir::instruction::InvokeCallResultKind::Map,
+    };
+    function
+        .blocks
+        .get_mut(&BasicBlockId::new(2))
+        .unwrap()
+        .set_terminator(MirInstruction::Return {
+            value: Some(ValueId(2)),
+        });
+    function
+}
+
+#[test]
+fn call_map_result_lease_transfers_across_the_return_boundary() {
+    use crate::mir::MirVerifier;
+    let function = map_call_function();
+    MirVerifier::new().verify_function(&function).unwrap();
+}
+
+#[test]
+fn call_map_result_lease_must_be_consumed_or_returned() {
+    use crate::mir::MirVerifier;
+    // Returning a different value abandons the call's live Map lease.
+    let mut function = map_call_function();
+    function
+        .blocks
+        .get_mut(&BasicBlockId::new(2))
+        .unwrap()
+        .set_terminator(MirInstruction::Return {
+            value: Some(ValueId(1)),
+        });
+    assert!(MirVerifier::new().verify_function(&function).is_err());
+}
+
+#[test]
+fn map_return_transfers_a_live_lease_and_rejects_a_spent_one() {
+    let mut function = graph(true);
+    function
+        .blocks
+        .get_mut(&BasicBlockId(4))
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: BasicBlockId(5),
+            edge_args: None,
+        });
+    function
+        .blocks
+        .get_mut(&BasicBlockId(5))
+        .unwrap()
+        .set_terminator(MirInstruction::Return {
+            value: Some(ValueId(2)),
+        });
+    check_function(&function).unwrap();
+}
+
 #[test]
 fn map_operation_rewrite_keeps_key_bytes_object_identity_and_effects() {
     let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap();

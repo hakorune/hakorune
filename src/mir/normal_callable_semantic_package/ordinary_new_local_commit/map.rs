@@ -9,8 +9,9 @@ use std::rc::Rc;
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct MapLocalProgress {
-    pub(super) binding: BindingRefV1,
-    pub(super) declaration: SourceBindingSiteV1,
+    pub(super) owner: FunctionOwnerIdV1,
+    pub(super) binding: Option<BindingRefV1>,
+    pub(super) declaration: Option<SourceBindingSiteV1>,
     progress: MapProgress,
 }
 #[derive(Debug)]
@@ -61,7 +62,12 @@ impl MapLocalProgress {
     }
     pub(super) fn mark_checked(&mut self) {
         match &mut self.progress {
-            MapProgress::Emitted { phase, .. } if *phase != MapPhase::ExpressionCompleted => {
+            // A return-bound Map never installs into a local: emission
+            // completes it directly. Local-bound rows still require the
+            // install step before they can check.
+            MapProgress::Emitted { phase, .. }
+                if *phase != MapPhase::ExpressionCompleted || self.binding.is_none() =>
+            {
                 *phase = MapPhase::Checked
             }
             _ => unreachable!("Map emission batch validation"),
@@ -179,8 +185,63 @@ impl OrdinaryNewClaimLedgerV1 {
         rows.insert(
             site.clone(),
             LocalCommitV1::Map(MapLocalProgress {
-                binding: relation.binding(),
-                declaration: relation.declaration_site().clone(),
+                owner: site.owner(),
+                binding: Some(relation.binding()),
+                declaration: Some(relation.declaration_site().clone()),
+                progress: MapProgress::Emitting,
+            }),
+        );
+        Ok(())
+    }
+
+    /// Begin emission for a `return %{...}` literal. The sealed flow row's
+    /// `ReturnBoundary` statement must be this owner's explicit terminal
+    /// exit; there is no binding or declaration to install into.
+    pub(crate) fn begin_map_return_emission(&self, site: &OwnedExprSiteV1) -> Result<(), String> {
+        let flow = self.map_flow(site)?;
+        let completion = self
+            .completion_for_owner(site.owner())
+            .ok_or_else(|| freeze("map-completion"))?;
+        let returns_here = match flow.destination() {
+            crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1::ReturnBoundary(
+                statement,
+            ) => completion.explicit_site() == Some(statement),
+            _ => false,
+        };
+        if !returns_here {
+            return Err(freeze("map-return-source-drift"));
+        }
+        let mut rows = self.local_commits.borrow_mut();
+        if rows.contains_key(site) {
+            return Err(freeze("map-duplicate-emission"));
+        }
+        for binding in flow.allocation_fault() {
+            if !installed_home(&rows, binding).is_ok_and(LocalCommitV1::end_available) {
+                return Err(freeze("map-prior-home-unavailable"));
+            }
+        }
+        for entry in flow.entries() {
+            let Some((acquisition, binding)) = entry.transfer_home() else {
+                if entry.value_source().and_then(|v| v.scalar_kind()).is_none() {
+                    return Err(freeze("map-value-consumer-missing"));
+                }
+                continue;
+            };
+            let row = rows
+                .get(acquisition)
+                .and_then(LocalCommitV1::ordinary)
+                .filter(|row| row.installs(binding))
+                .ok_or_else(|| freeze("map-candidate-not-installed"))?;
+            if row.destruction != super::super::ObjectDestructionDispositionV1::PlainI64NoHook {
+                return Err(freeze("map-candidate-end-unavailable"));
+            }
+        }
+        rows.insert(
+            site.clone(),
+            LocalCommitV1::Map(MapLocalProgress {
+                owner: site.owner(),
+                binding: None,
+                declaration: None,
                 progress: MapProgress::Emitting,
             }),
         );
@@ -245,11 +306,11 @@ impl OrdinaryNewClaimLedgerV1 {
         value: ValueId,
     ) -> bool {
         matches!(self.local_commits.borrow().get(site), Some(LocalCommitV1::Map(row))
-            if row.binding == binding && row.initializer() == Some(value))
+            if row.binding == Some(binding) && row.initializer() == Some(value))
     }
     pub(crate) fn is_installed_map_binding(&self, binding: BindingRefV1, value: ValueId) -> bool {
         self.local_commits.borrow().values().any(|row|
-            matches!(row, LocalCommitV1::Map(map) if map.binding == binding && map.local() == Some(value)))
+            matches!(row, LocalCommitV1::Map(map) if map.binding == Some(binding) && map.local() == Some(value)))
     }
     pub(super) fn validate_map_emission(
         &self,
@@ -262,7 +323,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(LocalCommitV1::Map(row)) = rows.get(site) else {
             return Err(freeze("map-progress-missing"));
         };
-        if flow.local_binding() != Some(row.binding) || row.local().is_none() {
+        if flow.local_binding() != row.binding
+            || (row.binding.is_some() && row.local().is_none())
+            || (row.binding.is_none() && row.initializer().is_none() && row.local().is_none())
+        {
             return Err(freeze("map-local-incomplete"));
         }
         let MapProgress::Emitted {

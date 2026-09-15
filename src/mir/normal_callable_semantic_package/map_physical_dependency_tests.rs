@@ -209,6 +209,190 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
 }
 
 #[test]
+fn return_boundary_map_literal_transfers_its_lease_to_return() {
+    // `return %{...}` lowers through the sealed ReturnBoundary flow row: the
+    // Map::New normal result is consumed by `Return` — the single
+    // lease-transfer point — with no binding and no normal-path `Map::End`.
+    for body in [
+        "return %{\"a\" => 1}",
+        "local value = 7 return %{\"a\" => value}",
+    ] {
+        let source = format!("static box Main {{ main() {{ {body} }} }}");
+        let package = issue(&source).unwrap();
+        let main = package
+            .declaration_catalog()
+            .source_backed_app_main()
+            .unwrap();
+        let declaration = package
+            .batch()
+            .declarations()
+            .find(|row| row.identity().same_as(main.parser_identity()))
+            .unwrap();
+        let mut builder = MirBuilder::new();
+        let function = package
+            .batch()
+            .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+                builder.lower_map_dependency_for_test(
+                    input,
+                    SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                    main.parser_identity(),
+                    identity.method_source_observation().cloned(),
+                    std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                    None,
+                )
+            })
+            .unwrap()
+            .unwrap_or_else(|e| panic!("{body}: {e}"));
+        let mut maps = Vec::new();
+        for block in function.blocks.values() {
+            for instruction in block.all_instructions() {
+                if let MirInstruction::InvokeNormalResult { invoke_block, dst } = instruction {
+                    if function.blocks[invoke_block].all_instructions().any(|i| {
+                        matches!(
+                            i,
+                            MirInstruction::Invoke {
+                                operation: InvokeOperation::Map(MapInvokeOperation::New),
+                                ..
+                            }
+                        )
+                    }) {
+                        maps.push(*dst);
+                    }
+                }
+            }
+        }
+        let [map] = maps.as_slice() else {
+            panic!("{body}: exactly one Map::New result expected");
+        };
+        assert!(
+            matches!(
+                builder.value_type(*map),
+                Some(crate::mir::MirType::Box(name)) if name == "MapBox"
+            ),
+            "{body}: the returned value carries the MapBox type"
+        );
+        let returned = function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .any(|i| matches!(i, MirInstruction::Return { value: Some(v) } if v == map));
+        assert!(returned, "{body}: Return consumes the map lease");
+        assert!(
+            package.ordinary_new_claim_ledger.map_demands_consumed(),
+            "{body}"
+        );
+        crate::mir::verification::MirVerifier::new_strict()
+            .verify_function(&function)
+            .unwrap_or_else(|e| panic!("{body}: {e:?}"));
+    }
+}
+
+#[test]
+fn return_installed_map_local_transfers_its_lease_to_return() {
+    // `return m` reuses the installed local's value: the returned binding
+    // left terminal cleanup (F3), so no normal-path `Map::End` precedes the
+    // transfer and `Return{map}` consumes the live lease.
+    let source = "static box Main { main() { local m = %{\"a\" => 1} return m } }";
+    let package = issue(source).unwrap();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .unwrap();
+    let mut builder = MirBuilder::new();
+    let function = package
+        .batch()
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                None,
+            )
+        })
+        .unwrap()
+        .expect("map-local return lowering");
+    let map = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .find_map(|i| match i {
+            MirInstruction::InvokeNormalResult { invoke_block, dst }
+                if function.blocks[invoke_block].all_instructions().any(|i| {
+                    matches!(
+                        i,
+                        MirInstruction::Invoke {
+                            operation: InvokeOperation::Map(MapInvokeOperation::New),
+                            ..
+                        }
+                    )
+                }) =>
+            {
+                Some(*dst)
+            }
+            _ => None,
+        })
+        .expect("Map::New result");
+    let returns_map = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .any(|i| matches!(i, MirInstruction::Return { value: Some(v) } if *v == map));
+    assert!(returns_map, "Return consumes the installed map lease");
+    // A `Map::End` may only exist inside the fault cleanup chain — the
+    // normal path hands the live lease to `Return` directly.
+    crate::mir::verification::MirVerifier::new_strict()
+        .verify_function(&function)
+        .expect("lease transfer verifies");
+    assert!(package.ordinary_new_claim_ledger.map_demands_consumed());
+}
+
+#[test]
+fn map_literal_in_call_argument_position_stays_rejected() {
+    // No map-argument lane is admitted in this slice: a `%{...}` call
+    // argument reaches the builder boundary and is refused by its own named
+    // destination class, never silently placed.
+    let source = "static box Main {
+        main() { local a = new ArrayBox() a.push(%{\"a\" => 1}) return 30 }
+    }";
+    let package = issue(source).unwrap();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .unwrap();
+    let mut builder = MirBuilder::new();
+    let error = package
+        .batch()
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                None,
+            )
+        })
+        .unwrap()
+        .expect_err("call-argument map is not an admitted destination");
+    assert!(
+        error.contains("map-destination-unsupported") || error.contains("map-source-unavailable"),
+        "{error}"
+    );
+}
+
+#[test]
 fn map_physical_preflight_rejects_foreign_site_and_pending_install() {
     let source = "static box Main { main() { local m = %{} local other = 1 return 30 } }";
     let package = issue(source).unwrap();

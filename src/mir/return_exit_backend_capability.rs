@@ -48,11 +48,14 @@ pub(crate) fn enforce_lifecycle_return_exit_backend_supported(
     input: &crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalAbiInputV1<'_>,
 ) -> Result<(), String> {
     for physical in input.program().functions() {
-        let symbol = match physical.role() {
-            crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => physical.name(),
-            crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. } => module
+        let (symbol, map_result) = match physical.role() {
+            crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => (physical.name(), false),
+            crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. } => (module
                 .canonical_callable_definition_symbol(key)
-                .ok_or_else(|| format!("{} reason=ordinary-definition-missing", LIFECYCLE_RETURN_EXIT_CAPABILITY_MISSING_TAG))?,
+                .ok_or_else(|| format!("{} reason=ordinary-definition-missing", LIFECYCLE_RETURN_EXIT_CAPABILITY_MISSING_TAG))?, false),
+            crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { key, .. } => (module
+                .canonical_callable_definition_symbol(key)
+                .ok_or_else(|| format!("{} reason=ordinary-definition-missing", LIFECYCLE_RETURN_EXIT_CAPABILITY_MISSING_TAG))?, true),
             crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { .. } => continue,
         };
         let function = module.functions.get(symbol).ok_or_else(|| {
@@ -62,15 +65,25 @@ pub(crate) fn enforce_lifecycle_return_exit_backend_supported(
             )
         })?;
         validate_return_exit_contract(function)?;
-        if let Some(contract) = function.metadata.return_exit_contract.as_ref() {
-            if contract.declared_type_name != "i64"
-                || function.signature.return_type != MirType::Integer
-            {
-                return Err(format!(
-                    "{} reason=non-i64-contract function={symbol}",
-                    LIFECYCLE_RETURN_EXIT_CAPABILITY_MISSING_TAG
-                ));
-            }
+        // A numeric return contract belongs to the i64 ABI only; a selected
+        // Map function must carry no numeric contract at all.
+        let contract_drift = if map_result {
+            function.metadata.return_exit_contract.is_some()
+        } else {
+            function
+                .metadata
+                .return_exit_contract
+                .as_ref()
+                .is_some_and(|contract| {
+                    contract.declared_type_name != "i64"
+                        || function.signature.return_type != MirType::Integer
+                })
+        };
+        if contract_drift {
+            return Err(format!(
+                "{} reason=non-i64-contract function={symbol}",
+                LIFECYCLE_RETURN_EXIT_CAPABILITY_MISSING_TAG
+            ));
         }
     }
     Ok(())

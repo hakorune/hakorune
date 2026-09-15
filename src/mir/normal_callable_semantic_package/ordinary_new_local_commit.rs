@@ -327,10 +327,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         use RootOrdinaryNewUnavailable::*;
         let rows = self.local_commits.borrow();
-        let mut selected = rows
-            .values()
-            .filter(|row| row.binding().owner() == owner)
-            .peekable();
+        let mut selected = rows.values().filter(|row| row.owner() == owner).peekable();
         if selected.peek().is_none() {
             return NoSelectedLocalNew;
         }
@@ -516,7 +513,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_commits
             .borrow_mut()
             .values_mut()
-            .filter(|row| row.binding().owner() == owner)
+            .filter(|row| row.owner() == owner)
         {
             match row {
                 LocalCommitV1::Ordinary(row) => row.emission.mark_checked(),
@@ -609,12 +606,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .iter()
             .filter(|(_, row)| row.at_statement(owner, statement))
         {
-            let SourceBindingSiteV1::Local { ordinal, .. } = row.declaration() else {
+            let Some(SourceBindingSiteV1::Local { ordinal, .. }) = row.declaration() else {
                 unreachable!("at_statement requires Local");
             };
             let (_, _, initializer, local) = completed
                 .iter()
-                .find(|(binding, index, _, _)| *binding == row.binding() && index == ordinal)
+                .find(|(binding, index, _, _)| Some(*binding) == row.binding() && index == ordinal)
                 .ok_or_else(|| freeze("local-binding-or-ordinal-mismatch"))?;
             if row.local().is_some() {
                 return Err(freeze("duplicate-local-installation"));

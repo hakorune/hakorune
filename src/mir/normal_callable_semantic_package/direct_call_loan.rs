@@ -8,6 +8,7 @@
 use std::collections::BTreeMap;
 
 use crate::mir::canonical_direct_call::VerifiedCanonicalDirectCallEmissionV1;
+use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, OwnedExprSiteV1, SourceExprSiteV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -26,6 +27,7 @@ pub(crate) struct AppMainDirectCallDispositionRowV1 {
     argument_sites: Box<[SourceExprSiteV1]>,
     emission: VerifiedCanonicalDirectCallEmissionV1,
     execution: AppMainCallExecutionV1,
+    result: InvokeCallResultKind,
 }
 
 #[derive(Debug)]
@@ -35,7 +37,7 @@ enum AppMainCallExecutionV1 {
 }
 
 #[path = "direct_call_lifecycle.rs"]
-mod lifecycle;
+pub(in crate::mir::normal_callable_semantic_package) mod lifecycle;
 
 impl AppMainDirectCallDispositionRowV1 {
     pub(crate) fn physical_emission(&self) -> &VerifiedCanonicalDirectCallEmissionV1 {
@@ -60,7 +62,15 @@ impl AppMainDirectCallDispositionRowV1 {
             argument_sites,
             emission,
             execution: AppMainCallExecutionV1::Scalar,
+            result: InvokeCallResultKind::I64,
         }
+    }
+
+    /// The callee's source-issued result class, sealed at lifecycle co-seal
+    /// from the callee's own terminal relation. `I64` remains the default
+    /// for every scalar-admitted row; a Map-source callee yields `Map`.
+    pub(crate) const fn result(&self) -> InvokeCallResultKind {
+        self.result
     }
 
     pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {

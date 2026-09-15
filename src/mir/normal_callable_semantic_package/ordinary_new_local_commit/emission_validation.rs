@@ -22,7 +22,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_commits
             .borrow()
             .iter()
-            .filter(|(_, row)| row.binding().owner() == owner)
+            .filter(|(_, row)| row.owner() == owner)
         {
             let Some(row) = row.ordinary() else {
                 self.validate_map_emission(site, function, projection)?;

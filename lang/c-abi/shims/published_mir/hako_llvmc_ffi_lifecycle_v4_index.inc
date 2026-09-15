@@ -69,7 +69,8 @@ static hako_lv4_block* lv4_index_block(hako_lv4_function_index* fn, uint32_t id)
 }
 static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")) return LV4_HANDLE;
-  if (lv4_is(op, "kind", "ordinary_call")) return LV4_I64;
+  if (lv4_is(op, "kind", "ordinary_call"))
+    return lv4_is(op, "result", "map") ? LV4_MAP : LV4_I64;
   if (lv4_is(op, "kind", "map_new")) return LV4_MAP;
   if (lv4_is(op, "kind", "map_prepare_key")) return LV4_KEY;
   if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value")) return LV4_OUTCOME;
@@ -200,7 +201,8 @@ static int lv4_index_open(hako_lv4_input* in) {
     hako_lv4_function_index* fn = &in->index[fi];
     yyjson_val* body = yyjson_arr_get(in->functions, fi);
     int birth = lv4_is(body, "role", "birth_unit");
-    int ordinary = lv4_is(body, "role", "ordinary_i64");
+    int ordinary = lv4_is(body, "role", "ordinary_i64") ||
+        lv4_is(body, "role", "ordinary_map");
     int ordinary_receiver = ordinary && yyjson_is_uint(yyjson_obj_get(body, "receiver"));
     yyjson_val* blocks = hako_physical_blocks(body);
     yyjson_val* params = yyjson_obj_get(body, "params");

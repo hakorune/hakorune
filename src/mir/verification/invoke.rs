@@ -135,7 +135,7 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
                         Callee::Global(
                             target @ Global::SameModule(SameModule::StaticBoxMethod { .. }),
                         ),
-                        ResultKind::I64,
+                        ResultKind::I64 | ResultKind::Map,
                     ) => target
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
@@ -143,11 +143,11 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
                         Callee::Global(
                             target @ Global::SameModule(SameModule::FreeFunction { .. }),
                         ),
-                        ResultKind::I64,
+                        ResultKind::I64 | ResultKind::Map,
                     ) => target
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
-                    (Callee::SameModuleInstance { key, .. }, ResultKind::I64) => {
+                    (Callee::SameModuleInstance { key, .. }, ResultKind::I64 | ResultKind::Map) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
                             && key.arity() as usize == call.args.len()
                     }

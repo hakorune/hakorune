@@ -32,8 +32,12 @@ fn non_unit_call_stays_before_physical_export() {
             normal_landing: crate::mir::BasicBlockId::new(2),
             fault_landing: crate::mir::BasicBlockId::new(3),
         };
+        let expected_site = OrdinaryCallSite {
+            call: expected_call.clone(),
+            result: InvokeCallResultKind::I64,
+        };
         if ordinary {
-            assert!(validate_instruction(&instruction, false, std::slice::from_ref(&expected_call)).is_ok());
+            assert!(validate_instruction(&instruction, false, std::slice::from_ref(&expected_site)).is_ok());
             assert!(validate_instruction(&instruction, false, &[])
                 .unwrap_err()
                 .contains("instruction-unsupported"));

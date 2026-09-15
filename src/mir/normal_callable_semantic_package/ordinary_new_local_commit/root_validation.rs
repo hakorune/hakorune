@@ -226,7 +226,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_commits
             .borrow()
             .values()
-            .filter(|row| row.binding().owner() == owner)
+            .filter(|row| row.owner() == owner)
             .any(|row| !row.is_complete())
         {
             return Err(freeze("artifact-emission-unchecked"));
@@ -268,7 +268,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_commits
             .borrow()
             .values()
-            .filter(|row| row.binding().owner() == owner)
+            .filter(|row| row.owner() == owner)
         {
             let LocalCommitV1::Ordinary(row) = row else {
                 continue;
@@ -297,7 +297,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_commits
             .borrow()
             .values()
-            .filter(|r| r.binding().owner() == owner)
+            .filter(|r| r.owner() == owner)
         {
             let bindings = match row {
                 LocalCommitV1::Map(map) => map.checked_bindings()?,

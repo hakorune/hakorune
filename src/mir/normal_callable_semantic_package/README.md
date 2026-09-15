@@ -163,9 +163,13 @@ and exact Integer literal values; target and argument sites remain in the affine
 Call row. Declaration I64 contracts authorize the source result and arguments.
 The original caller Completion owns cleanup and outward propagation.
 
-For a Map target, the same row becomes Lifecycle only when its callee I64 result,
+For a Map target, the same row becomes Lifecycle only when its callee result,
 literal return, formal bindings and complete Map obligations match. Incomplete
-Map correspondence rejects before installation; it cannot remain Scalar.
+Map correspondence rejects before installation; it cannot remain Scalar. Each
+co-sealed row also carries the callee's source-issued result class: a
+`Value(MapLiteral|MapLocal)` terminal relation seals `InvokeCallResultKind::Map`,
+every other admitted relation stays `I64`. Declared annotations never decide the
+class. Root instance-call rows carry the same class from the same classifier.
 For a non-Map target, existing exact local and terminal Call relations select
 the same Lifecycle consumer after owner/site/destination, all-i64 argument
 cardinality, explicit return, successful cleanup and empty prior Homes are checked. That consumer

@@ -19,16 +19,22 @@ impl LocalCommitV1 {
             Self::Map(_) => None,
         }
     }
-    pub(super) fn binding(&self) -> BindingRefV1 {
+    pub(super) fn binding(&self) -> Option<BindingRefV1> {
         match self {
-            Self::Ordinary(row) => row.binding,
+            Self::Ordinary(row) => Some(row.binding),
             Self::Map(row) => row.binding,
         }
     }
-    pub(super) fn declaration(&self) -> &SourceBindingSiteV1 {
+    pub(super) fn owner(&self) -> FunctionOwnerIdV1 {
         match self {
-            Self::Ordinary(row) => &row.declaration,
-            Self::Map(row) => &row.declaration,
+            Self::Ordinary(row) => row.binding.owner(),
+            Self::Map(row) => row.owner,
+        }
+    }
+    pub(super) fn declaration(&self) -> Option<&SourceBindingSiteV1> {
+        match self {
+            Self::Ordinary(row) => Some(&row.declaration),
+            Self::Map(row) => row.declaration.as_ref(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn is_complete(&self) -> bool {
@@ -43,7 +49,7 @@ impl LocalCommitV1 {
     ) -> bool {
         match self {
             Self::Ordinary(row) => row.installs(binding),
-            Self::Map(row) => row.binding == binding && row.local().is_some(),
+            Self::Map(row) => row.binding == Some(binding) && row.local().is_some(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn installs_ordinary(
@@ -94,9 +100,9 @@ impl LocalCommitV1 {
         }
     }
     pub(super) fn at_statement(&self, owner: FunctionOwnerIdV1, site: &SourceNodeSiteV1) -> bool {
-        self.binding().owner() == owner
+        self.owner() == owner
             && matches!(self.declaration(),
-            SourceBindingSiteV1::Local { statement, .. } if statement.node() == site)
+            Some(SourceBindingSiteV1::Local { statement, .. }) if statement.node() == site)
     }
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn construction(

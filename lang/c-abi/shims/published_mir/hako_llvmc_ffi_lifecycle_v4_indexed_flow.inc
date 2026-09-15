@@ -92,13 +92,26 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   uint16_t state[256], normal[256];
   memcpy(state, work->states + bi * count, count * sizeof(*state));
   int birth = lv4_is(fn->function, "role", "birth_unit");
-  int ordinary = lv4_is(fn->function, "role", "ordinary_i64");
+  int ordinary = lv4_is(fn->function, "role", "ordinary_i64") ||
+      lv4_is(fn->function, "role", "ordinary_map");
+  int ordinary_map = lv4_is(fn->function, "role", "ordinary_map");
   if (!lv4_indexed_rows(in, fn, block, state, faulted, birth)) return 0;
   if (lv4_is(term, "op", "return") || lv4_is(term, "op", "return_fault")) {
+    if (ordinary_map && lv4_is(term, "op", "return")) {
+      hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
+      /* A live LV4_MAP lease transfers into caller-owned storage. A spent
+         lease or any other value is not a valid ordinary_map result. */
+      if (faulted || !result || result->kind != LV4_MAP || result->origin < 0 ||
+          state[result->origin] != LV4_LIVE) return 0;
+      state[result->origin] = 0;
+      for (size_t i = 0; i < count; i++)
+        if (state[i] == result->origin + LV4_TRANSFER_BASE) state[i] = 0;
+    }
     for (size_t i = 0; i < count; i++) if (state[i]) return 0;
     if (lv4_is(term, "op", "return_fault")) return faulted;
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
-    return !faulted && result && result->kind == (birth ? LV4_UNIT : LV4_I64);
+    return !faulted && result &&
+        result->kind == (birth ? LV4_UNIT : ordinary_map ? LV4_MAP : LV4_I64);
   }
   memcpy(normal, state, count * sizeof(*state));
   int failed = faulted;
@@ -112,8 +125,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       yyjson_val* callee = (target < in->index_count) ? in->index[target].function : NULL;
       yyjson_val* receiver = yyjson_obj_get(call, "receiver");
       int callee_has_receiver = callee && yyjson_is_uint(yyjson_obj_get(callee, "receiver"));
+      int want_map = lv4_is(op, "result", "map");
       if (fi || faulted || state[bi] || !target || target >= in->index_count ||
-          !lv4_is(callee, "role", "ordinary_i64") ||
+          !lv4_is(callee, "role", want_map ? "ordinary_map" : "ordinary_i64") ||
           (callee_has_receiver != (receiver && !yyjson_is_null(receiver))) ||
           yyjson_arr_size(args) != yyjson_arr_size(yyjson_obj_get(in->index[target].function, "params"))) return 0;
       if (callee_has_receiver) {
@@ -210,7 +224,8 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
    * prepared object identity in their physical function row. */
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* caller = &in->index[fi];
-    int ordinary = lv4_is(caller->function, "role", "ordinary_i64");
+    int ordinary = lv4_is(caller->function, "role", "ordinary_i64") ||
+        lv4_is(caller->function, "role", "ordinary_map");
     yyjson_val* blocks = hako_physical_blocks(caller->function);
     for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
       yyjson_val* op = yyjson_obj_get(lv4_term(yyjson_arr_get(blocks, bi)), "operation");

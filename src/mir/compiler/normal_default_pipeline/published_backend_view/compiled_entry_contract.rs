@@ -84,6 +84,7 @@ pub(crate) struct CompiledEntryBirthCallV1 {
 pub(crate) struct CompiledEntryOrdinaryCallV1 {
     function_index: u32,
     call: crate::mir::definitions::MirCall,
+    result: InvokeCallResultKind,
 }
 
 impl CompiledEntryOrdinaryCallV1 {
@@ -92,6 +93,9 @@ impl CompiledEntryOrdinaryCallV1 {
     }
     pub(crate) fn call(&self) -> &crate::mir::definitions::MirCall {
         &self.call
+    }
+    pub(crate) const fn result(&self) -> InvokeCallResultKind {
+        self.result
     }
 }
 
@@ -248,14 +252,16 @@ impl<'module> PublishedMirBackendView<'module> {
                         operation:
                             InvokeOperation::Call {
                                 call,
-                                result: InvokeCallResultKind::I64,
+                                result:
+                                    result @ (InvokeCallResultKind::I64
+                                    | InvokeCallResultKind::Map),
                             },
                         ..
                     } = row.instruction()
                     else {
                         return None;
                     };
-                    Some(call.clone())
+                    Some((call.clone(), *result))
                 })
                 .collect::<Vec<_>>();
             let mut contract_births = Vec::with_capacity(tail.len());
@@ -312,12 +318,12 @@ impl<'module> PublishedMirBackendView<'module> {
                         });
                         birth_functions.push((physical_index, function));
                     }
-                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. } => {
-                        let PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. } =
-                            function.role()
-                        else {
-                            unreachable!()
-                        };
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. } => {
+                        let key = function
+                            .role()
+                            .ordinary_target()
+                            .expect("ordinary role carries a target key");
                         if ordinary_function_indices
                             .insert(key.clone(), physical_index)
                             .is_some()
@@ -332,7 +338,7 @@ impl<'module> PublishedMirBackendView<'module> {
             }
             let mut referenced_ordinary_keys = BTreeSet::new();
             let mut ordinary_calls = Vec::with_capacity(root_ordinary_calls.len());
-            for call in root_ordinary_calls {
+            for (call, result) in root_ordinary_calls {
                 let key = super::physical_program::ordinary_callable_key(&call.callee)?;
                 let function_index = *ordinary_function_indices
                     .get(&key)
@@ -345,9 +351,14 @@ impl<'module> PublishedMirBackendView<'module> {
                 let expected_arity = call.args.len() + usize::from(receiver.is_some());
                 if function.params().len() != expected_arity
                     || !matches!(
-                        function.role(),
-                        PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key: target, .. }
-                            if target == &key
+                        (result, function.role()),
+                        (
+                            InvokeCallResultKind::I64,
+                            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                        ) | (
+                            InvokeCallResultKind::Map,
+                            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
+                        ) if function.role().ordinary_target() == Some(&key)
                     )
                 {
                     return Err(fault("compiled-entry-ordinary-arity"));
@@ -356,6 +367,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 ordinary_calls.push(CompiledEntryOrdinaryCallV1 {
                     function_index,
                     call,
+                    result,
                 });
             }
             if referenced_ordinary_keys.len() != ordinary_function_indices.len() {

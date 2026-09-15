@@ -11,10 +11,32 @@ pub(in crate::mir::builder) fn emit(
     site: &OwnedExprSiteV1,
     relation: &ResolvedInitializerRelationV1,
 ) -> Result<ValueId, String> {
+    ledger.begin_map_emission(site, relation)?;
+    emit_flow(builder, state, ledger, site)
+}
+
+/// Emit a `return %{...}` literal. The sealed ReturnBoundary flow row is
+/// the sole membership evidence; there is no initializer relation and no
+/// local to install into — the emitted lease is consumed by `Return`.
+pub(in crate::mir::builder) fn emit_return(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    site: &OwnedExprSiteV1,
+) -> Result<ValueId, String> {
+    ledger.begin_map_return_emission(site)?;
+    emit_flow(builder, state, ledger, site)
+}
+
+fn emit_flow(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    site: &OwnedExprSiteV1,
+) -> Result<ValueId, String> {
     if state.owner() != site.owner() {
         return Err(freeze("map-owner"));
     }
-    ledger.begin_map_emission(site, relation)?;
     let flow = ledger.map_flow(site)?;
     let frame = state.borrow_fault_frame(builder)?;
     let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
@@ -34,6 +56,11 @@ pub(in crate::mir::builder) fn emit(
     )?;
     let result = invoke(builder, frame, Map::New, allocation_fault, &mut bindings)?
         .expect("Map New produces an opaque result");
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(result, MirType::Box("MapBox".to_string()));
     for (index, entry) in flow.entries().iter().enumerate() {
         let precommit = map_fault(
             builder,

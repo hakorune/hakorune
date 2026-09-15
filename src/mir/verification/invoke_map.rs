@@ -16,6 +16,12 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                 MirInstruction::Invoke {
                     operation: InvokeOperation::Map(_),
                     ..
+                } | MirInstruction::Invoke {
+                    operation: InvokeOperation::Call {
+                        result: crate::mir::instruction::InvokeCallResultKind::Map,
+                        ..
+                    },
+                    ..
                 }
             )
         })
@@ -83,7 +89,11 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::End { map }), .. } if value == *map)
                     || matches!(instruction,
-                    MirInstruction::Invoke { operation: InvokeOperation::Map(Map::EndOutcome { outcome }), .. } if value == *outcome);
+                    MirInstruction::Invoke { operation: InvokeOperation::Map(Map::EndOutcome { outcome }), .. } if value == *outcome)
+                    // A Map lease may cross the return boundary exactly once:
+                    // the caller's out storage becomes the placement owner.
+                    || (matches!(instruction, MirInstruction::Return { value: Some(returned) } if value == *returned)
+                        && results[&value].0 == Kind::Map);
                 if !allowed {
                     return Err("map-opaque-escape");
                 }
@@ -176,6 +186,16 @@ fn visit(
                 _ => {}
             }
         }
+        // A returned Map lease transfers to the caller's out storage here;
+        // it is consumed by the boundary, not by an End in this function.
+        if let MirInstruction::Return {
+            value: Some(returned),
+        } = term
+        {
+            if results.get(returned).is_some_and(|r| r.0 == Kind::Map) && !live.remove(returned) {
+                return Err("map-return-not-live");
+            }
+        }
         let targets = block.successors_from_terminator();
         if targets.is_empty() && !live.is_empty() {
             return Err("map-missing-end");
@@ -184,7 +204,8 @@ fn visit(
         for target in targets.into_iter().rev() {
             let mut next = live.clone();
             if matches!(term, MirInstruction::Invoke {
-                operation: InvokeOperation::Map(Map::New), normal_landing, .. } if *normal_landing == target)
+                operation, normal_landing, ..
+            } if *normal_landing == target && operation.normal_result_kind() == Some(Kind::Map))
             {
                 let mut values = results
                     .iter()

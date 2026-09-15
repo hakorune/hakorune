@@ -8,7 +8,10 @@ use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
-use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
+use crate::mir::instruction::InvokeCallResultKind;
+use crate::mir::resolved_semantics::home_new_prefix::{
+    TerminalRelationV1, TerminalReturnedSourceV1,
+};
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, SourceBindingSiteV1};
 
 fn map_owned(
@@ -24,6 +27,25 @@ fn map_owned(
                 .iter()
                 .any(|expression| matches!(expression, BodyExpressionShapeV1::MapLiteral { .. }))
     })
+}
+
+/// The callee's own terminal relation is the sole result-class evidence:
+/// a Map-source `return` yields a `Map` call result, every other admitted
+/// relation stays `I64`. Declared annotations never decide this.
+pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
+    terminal_relation: Option<&TerminalRelationV1>,
+) -> InvokeCallResultKind {
+    match terminal_relation {
+        Some(TerminalRelationV1::Value(row))
+            if matches!(
+                row.returned(),
+                TerminalReturnedSourceV1::MapLiteral(_) | TerminalReturnedSourceV1::MapLocal(_)
+            ) =>
+        {
+            InvokeCallResultKind::Map
+        }
+        _ => InvokeCallResultKind::I64,
+    }
 }
 
 fn exact_formals(
@@ -259,6 +281,7 @@ impl AppMainDirectCallDispositionLoanV1 {
             {
                 return Err(reject);
             }
+            row.result = call_result_kind(callee.terminal_relation());
             row.execution = AppMainCallExecutionV1::Lifecycle;
         }
         Ok(())

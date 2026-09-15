@@ -36,6 +36,8 @@ pub enum FaultFrameMode {
 pub enum InvokeCallResultKind {
     Unit,
     I64,
+    /// The callee transfers a live checked-Map lease into caller-owned storage.
+    Map,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -91,6 +93,10 @@ impl InvokeOperation {
                 result: InvokeCallResultKind::I64,
                 ..
             } => Some(InvokeNormalResultKind::I64),
+            Self::Call {
+                result: InvokeCallResultKind::Map,
+                ..
+            } => Some(InvokeNormalResultKind::Map),
             Self::Call {
                 result: InvokeCallResultKind::Unit,
                 ..

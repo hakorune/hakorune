@@ -10,7 +10,7 @@ use nyash_rust::boxes::{
     map_box::checked::{CheckedMap, CheckedMapError, CheckedMapPayload, MapEndError, MapEndReport},
     map_key_domain::MapKeyDomain,
 };
-use std::{ffi::c_void, mem::size_of, sync::Mutex};
+use std::{ffi::c_void, mem::size_of, mem::MaybeUninit, sync::Mutex};
 #[path = "fault_checked_map_storage.rs"]
 mod storage;
 use storage::*;
@@ -306,6 +306,32 @@ pub unsafe extern "C" fn outcome_end(frame: *mut c_void, site: u64, ptr: *mut c_
         Ok(()) => Status::Normal as u32,
         Err(error) => unsafe { failed(frame, site, end_reason(error)) },
     }
+}
+/// Relocates a live lease into fresh storage for a boundary transfer. The
+/// moved-from placement is left as an unissued map the caller must dispose.
+#[export_name = "nyash.map.storage_move_v1"]
+pub unsafe extern "C" fn map_move(dst: *mut c_void, src: *mut c_void) -> u32 {
+    if !separate(&[
+        (dst as usize, size_of::<MapStorage>()),
+        (src as usize, size_of::<MapStorage>()),
+    ]) {
+        return Status::InvalidContract as u32;
+    }
+    let map = match unsafe { admit::<CheckedMap>(src, MAP_TAG) } {
+        Ok(v) => v,
+        Err(s) => return s as u32,
+    };
+    if map.require_live().is_err() {
+        return Status::InvalidContract as u32;
+    }
+    // dst null/alignment failures precede the move; init cannot fail below.
+    if dst.is_null() || (dst as usize) % std::mem::align_of::<Placement<CheckedMap>>() != 0 {
+        return Status::InvalidContract as u32;
+    }
+    let place = src.cast::<Placement<CheckedMap>>();
+    let moved = unsafe { (*place).value.assume_init_read() };
+    unsafe { (*place).value = MaybeUninit::new(CheckedMap::unissued()) };
+    unsafe { init(dst, MAP_TAG, moved) }
 }
 #[export_name = "nyash.map.checked_end_v1"]
 pub unsafe extern "C" fn map_end(frame: *mut c_void, site: u64, ptr: *mut c_void) -> u32 {

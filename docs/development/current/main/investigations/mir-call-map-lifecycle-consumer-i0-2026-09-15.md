@@ -1,7 +1,7 @@
 Task: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0
 Parent: mir-call-map-local-entry-source-i0-2026-09-15.md
-NextCard: F3 terminal relation for non-i64 returns / F4 physical Map
-return-argument ABI (ordered after this contract lands)
+NextCard: C5b admission connect (preflight full sealed membership +
+consumer capability) — F3/F4 landed
 Route note (2026-09-15): the call-arg and contained-descendant +
 array-element cards landed — merged loop1 now passes entirely and the
 first failure is `map_install_owners` (`Err(())`), this card's
@@ -260,7 +260,7 @@ exit code; name the admitted entry classes.
 | C5a | contract definition — landed: `map_lifecycle_undertaking.rs` defines `MapLifecycleOperationV1` (11 operations derived from sealed `MapHomeFlow` rows), `MapEntryBorrowV1` borrow evidence, `MapCallEdgeContractV1` edge vocabulary, `MapLifecycleConsumerCapabilityV1`, `describe_map_lifecycle_obligations` (sealed-membership enumeration, named describe issues), and `verify_map_lifecycle_undertaking` (obligation ⊆ capability seal). Not yet connected — C5b wires it into `preflight_map_install` + `PreparedInstall` | — |
 | C7  | merged `new MapBox()` census — landed: exact 39-site classification recorded in Census section (27 returned / 11 nested-stored into a returned container / 1 truly local / 0 arg-transferred at creation site); 38/39 maps egress through a return boundary | — |
 | F3  | `TerminalRelationV1` for non-i64 value returns (Facts extension) — landed: `Value(TerminalValueReturnV1)` records the exact returned source (`MapLiteral` site / `MapLocal` / `Home{binding,acquisition}` / `Handle` root / `String`/`Null`/`Float` literal); `return void` spells the Unit terminal; returned map-local/Home bindings leave terminal cleanup. No physical ABI — a root `Value` terminal stops at `root-result-missing`, and `map_install_owners` rejects the owner at the non-i64-terminal arm (same `MapLifecycleConsumerMissing` terminal, different arm than the old `terminal_homes` error). Gate boundary: the walk runs for AppMain roots and `has_map`/`child_new_ready` children; other child owners keep no relation — fail-closed | — |
-| F4  | Map return/argument physical ABI + entry-class operation contracts | C5a, F3      |
+| F4  | Map return/argument physical ABI + entry-class operation contracts — landed F4a..F4d: `nyash.map.storage_move_v1` export; `InvokeCallResultKind::Map` + verifier lease-transfer (`Return{map}` consumes the live lease, `map-return-not-live` rejects a spent one); `ordinary_map` role + `"result":"map"` wire + C validator/flow/emit (caller `%map<b>` out storage, callee `storage_move` into `%out_map`); builder dispatch on the sealed flow destination (`ReturnBoundary` → `emit_return`, other destinations stay `map-destination-unsupported`); disposition rows carry the callee's terminal-relation result class; `map_install_owners` admits `Value` terminals bounded to exact map-source returns. Focused: 5/5 `map_physical_dependency` + 3/3 verifier `invoke::map_tests` additions + 228 package + 102 verification + 14 physical_program + kernel `storage_move`. Residual: call-result `Map` rows cannot yet be produced — both admitted call lanes gate callees on `result()==Some(I64)`/`:i64` index; the kind↔role mechanism is the seam C5b plugs into. Map arguments remain unadmitted (named reject) | C5a, F3      |
 | C5b | admission connect: preflight matches full sealed membership + implemented consumer capability | C5a, F3, F4 |
 | C6  | downstream contract split (admit_lifecycle retained-root removal, physical doc, C v2) | C5b |
 | C8  | two-function non-AppMain consumer acceptance (normal+Fault cleanup, refined above) | C5b, C6 |
@@ -278,6 +278,107 @@ unrelated reds — `published_consumer_*` ×2 (documented baseline at
 `production_skip_while_*` ×2 (`DynamicCarrierMismatch` / unwrap None).
 Parent replay at `1ab879453d` reproduced all 7 identically → classified
 known baseline debt (`ParentFailCurrentFail`), not current-change.
+
+F4 verification note (2026-09-16): the full `--lib` run surfaced 5
+failing rows plus a SIGABRT — `normal_callable_semantic_source`
+parity/ledger ×3 (`mixed_nonplain_batch_*`,
+`callable_parameter_and_local_*`,
+`callable_entry_local_variable_*`), `direct_call` ×2
+(`source_backed_app_main_direct_call_consumes_affine_loan`,
+`main_f1_rejects_direct_call_and_nested_owner_before_lowering`), and
+`source_backed_loop_keeps_invocation_scope_and_ledger_route` stack
+overflow. Parent replay at `bd19308759` reproduced all 6 identically →
+known baseline debt, not current-change.
+`compatibility_loop_uses_legacy_child_terminal_without_callable_scope`
+was marked FAILED in the aborted full run but passes both standalone and
+in the `loop_scope` module run on this diff → order-dependent suite
+flake (parallel env leakage), not current-change. The C shim TU passes
+`cc -fsyntax-only -Wall` (the `storage_move` return emit initially
+shipped a 12-of-14 `%u` arg mismatch, fixed; remaining warnings are
+untouched baseline sites).
+
+## F4 Decision (2026-09-15, worker-audited physical layers)
+
+**Map return ABI = caller-owned opaque out storage + `i32` status** — the
+`%out_i64` convention generalized to checked-Map storage, no new runtime
+publication:
+
+- callee role `ordinary_map`:
+  `define internal i32 @hako_lifecycle_ordinary_map_N(ptr %frame, ptr %out_map, [i64 receiver], [i64 args])`
+- callee `return <map>`: the MIR `Return{value}` is the single lease-transfer
+  point (verifier consumes the LV4_MAP lease instead of `map-missing-end`);
+  C emit runs `nyash.map.storage_move_v1(dst=%out_map, src=%v)` +
+  `storage_dispose` on the moved-from storage. Uniform for `return %{...}`
+  and `return m` — no special "construct into out" path.
+- caller `ordinary_call` with `"result":"map"`: `lv4_map_alloca` reserves
+  `%map<block>` in the call's origin block; `invoke_normal_result` projects
+  it as a live LV4_MAP lease the caller must consume (End / install /
+  return) — the existing projection line already works.
+- runtime: `nyash.map.storage_move_v1(dst, src)` admits src (`MAP_TAG`),
+  requires `Phase::Live`, bitwise-moves `CheckedMap` into fresh dst storage
+  (`Mutex`/`MapTable`/`Vec` are not self-referential), leaves src as
+  `unissued` (disposable). No i64 handle — `fault_checked_map.rs` forbids
+  host publication.
+- Fault semantics: unchanged — callee's mid-construction fault path already
+  ends/disposes its live maps; caller never reads `%out_map` on status!=0
+  (projection only exists on the normal landing).
+
+Bounded order:
+
+- F4a runtime: `storage_move_v1` export + focused test.
+- F4b MIR: `InvokeCallResultKind::Map`; verifier lease-transfer rule for
+  `Return{map}` (escape exception + `map-missing-end` consumption).
+- F4c wire+emit: `ordinary_map` role, `"result":"map"`, physical signature
+  result kind, JSON encode, C validator/flow/emit.
+- F4d builder+package: `return %{...}` (ReturnBoundary emission) and
+  `return m` value return probe, `Call{result:Map}`, signature result for
+  map-returning callees, `map_install_owners` Value arm bounded to
+  map-source terminals.
+
+F4d integration decision (2026-09-15, traced through the admitted lanes):
+
+- `return %{...}`: `lower_callable_map_v1` dispatches on the sealed flow
+  destination, not on the initializer index. `ReturnBoundary` → a
+  dedicated `map::emit_return` that begins emission against the flow
+  row's destination statement (== the completion's `explicit_site`) with
+  no binding/declaration; `LocalBinding` keeps the initializer path;
+  other destinations stay fail-closed. `MapLocalProgress` binding and
+  declaration become `Option` — return-bound rows have neither.
+- `return m` (installed `%{...}` local): the existing generic
+  value-return path already emits `Return{map}`; F3 already removes the
+  returned binding from `terminal_homes`, so no `Map::End` precedes the
+  transfer. Pinned by test, no new code path.
+- `map_install_owners`: `TerminalRelationV1::Value` is admitted bounded
+  to map-source returns — `MapLiteral` requires a `Complete` flow row
+  whose `ReturnBoundary` statement is the relation's own return site;
+  `MapLocal` requires a `Complete` flow row whose `local_binding` is the
+  returned binding. Home/Handle/String/Null/Float `Value` returns stay
+  rejected (each is its own named slice).
+- `Call{result:Map}`: disposition rows carry `InvokeCallResultKind`
+  decided at seal/issue time from the callee's source evidence —
+  `Value(MapLiteral|MapLocal)` terminal relation ⇒ `Map`, otherwise
+  `I64`. Emission sites use the row kind (no hardcoded `I64`); the
+  result value types as `MirType::Box("MapBox")`. Both admitted lanes
+  still gate callees on `result()==Some(I64)`/the trivial `:i64` index,
+  so no row can carry `Map` today — the mechanism is the seam C5b's
+  admission connect plugs into, and the physical layer already
+  cross-checks kind↔role consistency (F4c).
+- Signature result: `Map::New` results register
+  `MirType::Box("MapBox")` in `value_types`, so
+  `infer_return_type_from_phi` yields `Box` → `OrdinaryMap` role —
+  `Unknown`-typed returns remain accepted as a backstop.
+- `mark_checked` admits `ExpressionCompleted → Checked` only for
+  return-bound rows (no install step exists); local-bound rows still
+  require `install()` first. `validate_map_emission` matches
+  `flow.local_binding()` to the optional binding and requires an
+  installed `local()` only when the flow binds a local.
+
+Non-claims: no map argument lane yet (census: 0 arg sites — defined by the
+C5a edge vocabulary, admitted in C5b when an obligation demands it); no
+String/BorrowedHandle/MapLocal/NestedArray entry payload kinds (each is a
+named entry-class slice); no `root_map` role (opaque storage cannot cross
+the process boundary); `Handle`/`Home`/`String`/`Null`/`Float` returns keep
+their own lanes.
 
 ## Arm pinning (2026-09-15, verified against 7618c185)
 

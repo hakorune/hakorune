@@ -52,7 +52,7 @@ fn ordinary_calls_follow_sorted_block_order() {
     let keys = super::collect_ordinary_calls(&function)
         .unwrap()
         .into_iter()
-        .map(|call| super::ordinary_callable_key(&call.callee).unwrap())
+        .map(|site| super::ordinary_callable_key(&site.call.callee).unwrap())
         .collect::<Vec<_>>();
     assert_eq!(
         keys,

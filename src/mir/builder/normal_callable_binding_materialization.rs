@@ -102,6 +102,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         &mut self,
         builder: &mut MirBuilder,
     ) -> Result<ValueId, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1;
         let state = self
             .callable_ledger
             .clone()
@@ -112,14 +113,30 @@ impl RawInvocationChildPortV1<'_, '_> {
             .ok_or_else(|| freeze("map-no-claims"))?;
         let site = self.current_callable_site_v1("map-site")?;
         let mut state = state.borrow_mut();
-        let relation = state.map_initializer(&site)?;
         let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
             state.owner(),
-            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone()),
         );
-        crate::mir::builder::ordinary_new_admission::selected::map::emit(
-            builder, &mut state, &claims, &owned, &relation,
-        )
+        // The sealed flow destination selects the consumer: a local
+        // initializer keeps the install path, `return %{...}` transfers the
+        // lease through the function boundary. Other destinations (call
+        // arguments, nested slots, containment) stay unadmitted here.
+        match claims.map_flow(&owned)?.destination() {
+            MapDestinationV1::LocalBinding(_) => {
+                let relation = state.map_initializer(&site)?;
+                crate::mir::builder::ordinary_new_admission::selected::map::emit(
+                    builder, &mut state, &claims, &owned, &relation,
+                )
+            }
+            MapDestinationV1::ReturnBoundary(_) => {
+                crate::mir::builder::ordinary_new_admission::selected::map::emit_return(
+                    builder, &mut state, &claims, &owned,
+                )
+            }
+            MapDestinationV1::EntrySlot { .. }
+            | MapDestinationV1::CallArgument { .. }
+            | MapDestinationV1::ContainedIn { .. } => Err(freeze("map-destination-unsupported")),
+        }
     }
 
     pub(super) fn read_callable_variable_v1(&self) -> Result<ValueId, String> {

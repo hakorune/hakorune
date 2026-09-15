@@ -32,6 +32,7 @@ pub(crate) struct RootInstanceCallDispositionRowV1 {
     target: CanonicalSameModuleCallableKeyV1,
     target_batch_slot: u32,
     argument_sites: Box<[SourceExprSiteV1]>,
+    result: crate::mir::instruction::InvokeCallResultKind,
 }
 
 impl RootInstanceCallDispositionRowV1 {
@@ -65,6 +66,13 @@ impl RootInstanceCallDispositionRowV1 {
 
     pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
         &self.argument_sites
+    }
+
+    /// The callee's source-issued result class, sealed at issue time from
+    /// the callee's own terminal relation. `I64` remains the default for
+    /// every scalar-admitted row; a Map-source callee yields `Map`.
+    pub(crate) const fn result(&self) -> crate::mir::instruction::InvokeCallResultKind {
+        self.result
     }
 }
 
@@ -192,6 +200,9 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("root-instance-call-arguments-unsupported"));
         }
         let receiver_object = claim.object();
+        let call_result = super::super::direct_call_loan::lifecycle::call_result_kind(
+            result.borrow().terminal_relation(),
+        );
         drop(claims);
         let mut rows = self.root_instance_calls.borrow_mut();
         let call_site = OwnedExprSiteV1::new(owner, site.clone());
@@ -211,6 +222,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         .iter()
                         .map(|argument| argument.site().clone())
                         .collect(),
+                    result: call_result,
                 }),
             )
             .is_some()

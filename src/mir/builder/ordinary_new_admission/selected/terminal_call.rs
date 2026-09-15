@@ -11,6 +11,14 @@ pub(super) struct Emission {
     pub(super) row: RootCallDispositionV1,
     pub(super) arguments: Vec<(BasicBlockId, MirInstruction)>,
     pub(super) call: MirCall,
+    pub(super) result: InvokeCallResultKind,
+}
+
+fn result_type(result: InvokeCallResultKind) -> MirType {
+    match result {
+        InvokeCallResultKind::Map => MirType::Box("MapBox".to_string()),
+        _ => MirType::Integer,
+    }
 }
 
 pub(in crate::mir::builder) fn emit(
@@ -21,6 +29,7 @@ pub(in crate::mir::builder) fn emit(
     row: AppMainDirectCallDispositionRowV1,
 ) -> Result<ValueId, String> {
     let emission = row.physical_emission();
+    let result = row.result();
     let block = builder
         .function_state
         .current_block
@@ -49,7 +58,7 @@ pub(in crate::mir::builder) fn emit(
         .function_state
         .type_ctx
         .value_types
-        .insert(value, MirType::Integer);
+        .insert(value, result_type(result));
     emit_root_home_exit_payload(
         builder,
         state,
@@ -61,6 +70,7 @@ pub(in crate::mir::builder) fn emit(
             row: RootCallDispositionV1::Direct(row),
             arguments,
             call,
+            result,
         }),
     )
 }
@@ -81,12 +91,13 @@ pub(in crate::mir::builder) fn emit_instance(
         },
         Vec::new(),
     );
+    let result = row.result();
     let value = builder.next_value_id();
     builder
         .function_state
         .type_ctx
         .value_types
-        .insert(value, MirType::Integer);
+        .insert(value, result_type(result));
     emit_root_home_exit_payload(
         builder,
         state,
@@ -98,6 +109,7 @@ pub(in crate::mir::builder) fn emit_instance(
             row: RootCallDispositionV1::Instance(row),
             arguments: Vec::new(),
             call,
+            result,
         }),
     )
 }
@@ -109,6 +121,7 @@ pub(super) fn emit_ingress(
     clean: BasicBlockId,
     fault: BasicBlockId,
     call: MirCall,
+    result: InvokeCallResultKind,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<
     (
@@ -148,10 +161,7 @@ pub(super) fn emit_ingress(
         .ok_or_else(|| freeze("no-normal-landing"))?
         .add_instruction(projection.clone());
     let invoke = MirInstruction::Invoke {
-        operation: InvokeOperation::Call {
-            call,
-            result: InvokeCallResultKind::I64,
-        },
+        operation: InvokeOperation::Call { call, result },
         fault_frame: frame,
         normal_landing,
         fault_landing,
@@ -178,6 +188,7 @@ pub(in crate::mir::builder) fn emit_local(
     if !relation.prior_homes().is_empty() {
         return Err(freeze("local-call-prior-homes-unsupported"));
     }
+    let result_kind = row.result();
     let call = row
         .lifecycle_emission()
         .map_err(|_| freeze("local-call-source-mismatch"))?
@@ -201,7 +212,7 @@ pub(in crate::mir::builder) fn emit_local(
     let invoke = MirInstruction::Invoke {
         operation: InvokeOperation::Call {
             call,
-            result: InvokeCallResultKind::I64,
+            result: result_kind,
         },
         fault_frame: frame,
         normal_landing,
@@ -218,7 +229,7 @@ pub(in crate::mir::builder) fn emit_local(
         .function_state
         .type_ctx
         .value_types
-        .insert(result, MirType::Integer);
+        .insert(result, result_type(result_kind));
     bindings.push((origin, invoke));
     bindings.push((normal_landing, projection));
     ledger.record_root_local_call_bindings(

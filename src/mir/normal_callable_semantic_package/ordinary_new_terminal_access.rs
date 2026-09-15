@@ -1,5 +1,6 @@
 //! Access and one-shot consumption for source-issued terminal relations.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::{MapDestinationV1, TerminalReturnedSourceV1};
 use crate::mir::resolved_semantics::SourceNodeSiteV1;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -129,12 +130,39 @@ impl OrdinaryNewClaimLedgerV1 {
                 })
             }) || !matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
                 || (!root_call
-                    && !matches!(
-                        terminal,
+                    && !match terminal {
                         TerminalRelationV1::IntegerLiteral(_)
-                            | TerminalRelationV1::I64Add(_)
-                            | TerminalRelationV1::I64Field(_)
-                    ))
+                        | TerminalRelationV1::I64Add(_)
+                        | TerminalRelationV1::I64Field(_) => true,
+                        // A `return <map>` owner is admissible only when the
+                        // returned source is itself an exact sealed Map row:
+                        // the literal's ReturnBoundary statement is the
+                        // relation's own return site, or the local's binding
+                        // carries a LocalBinding flow row.
+                        TerminalRelationV1::Value(row) => match row.returned() {
+                            TerminalReturnedSourceV1::MapLiteral(site) => {
+                                flow.maps().iter().any(|m| {
+                                    m.site() == site
+                                        && m.complete().is_some_and(|map| {
+                                            matches!(
+                                                map.destination(),
+                                                MapDestinationV1::ReturnBoundary(statement)
+                                                    if statement.node()
+                                                        == row.return_site().node()
+                                            )
+                                        })
+                                })
+                            }
+                            TerminalReturnedSourceV1::MapLocal(binding) => {
+                                flow.maps().iter().any(|m| {
+                                    m.complete()
+                                        .is_some_and(|map| map.local_binding() == Some(*binding))
+                                })
+                            }
+                            _ => false,
+                        },
+                        _ => false,
+                    })
                 || self
                     .claims
                     .borrow()

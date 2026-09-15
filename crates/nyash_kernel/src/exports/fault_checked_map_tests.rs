@@ -149,6 +149,43 @@ fn utf8_numeric_domains_and_child_fault_cancellation() {
     }
 }
 #[test]
+fn storage_move_transfers_live_lease_and_leaves_source_disposable() {
+    let (mut f, mut m, mut k, mut o, mut d, mut d2) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<MapStorage>::new(),
+    );
+    unsafe {
+        let (f, m, k, o, d, d2) = (f.ptr(), m.ptr(), k.ptr(), o.ptr(), d.ptr(), d2.ptr());
+        assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        let h = child();
+        assert_eq!(install(f, 1, 2, m, k, h, 919, o), 0);
+        assert_eq!(outcome_end(f, 3, o), 0);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        assert_eq!(map_move(std::ptr::null_mut(), m), 2);
+        assert_eq!(map_move(m, m), 2);
+        assert_eq!(map_move(d, m), 0);
+        // The moved-from placement is unissued: not live, not movable again.
+        assert_eq!(map_move(d2, m), 2);
+        assert!(live(h));
+        // The moved lease still owns its transferred entry; End releases it.
+        assert_eq!(map_end(f, 4, d), 0);
+        assert!(!live(h));
+        assert_eq!(map_dispose(d), 0);
+        assert_eq!(map_dispose(m), 0);
+        assert_eq!(map_dispose(d2), 2);
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
+#[test]
 fn end_report_preserves_prior_primary_and_marks_omitted_without_fake_facts() {
     let mut frame = FaultFrame::new();
     assert!(frame.record(Diagnostic::new(77, 1, [0; 2])).is_ok());

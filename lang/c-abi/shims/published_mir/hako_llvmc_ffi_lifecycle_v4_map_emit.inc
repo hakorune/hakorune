@@ -71,7 +71,10 @@ static void lv4_map_alloca(FILE* f, yyjson_val* op, uint32_t b,
     const hako_llvmc_lifecycle_target_session_v2* abi) {
   const char* name = NULL;
   uint32_t size = 0, align = 0;
-  if (lv4_is(op, "kind", "map_new")) { name = "map"; size = abi->map_size; align = abi->map_align; }
+  if (lv4_is(op, "kind", "map_new") ||
+      (lv4_is(op, "kind", "ordinary_call") && lv4_is(op, "result", "map"))) {
+    name = "map"; size = abi->map_size; align = abi->map_align;
+  }
   else if (lv4_is(op, "kind", "map_prepare_key")) { name = "key"; size = abi->key_size; align = abi->key_align; }
   else if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value")) { name = "outcome"; size = abi->outcome_size; align = abi->outcome_align; }
   if (name) fprintf(f, "  %%%s%u = alloca [%u x i8], align %u\n", name, b, size, align);
@@ -90,6 +93,7 @@ static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.map.outcome_end_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.checked_end_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.storage_dispose_v1\"(ptr)\n"
+      "declare i32 @\"nyash.map.storage_move_v1\"(ptr, ptr)\n"
       "declare i32 @\"nyash.map.key_dispose_v1\"(ptr)\n"
       "declare i32 @\"nyash.map.outcome_dispose_v1\"(ptr)\n");
   for (size_t fi = 0; fi < in->index_count; fi++) {
