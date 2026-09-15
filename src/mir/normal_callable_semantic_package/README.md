@@ -343,6 +343,29 @@ This also covers direct prepare/commit callers. The normal root pipeline reports
 allocation. No compatibility retry is authorized. Source OBJ/EXE acceptance
 remains a separate cutover requirement; preflight alone does not prove execution.
 
+`map_lifecycle_undertaking.rs` defines the per-owner Map lifecycle contract
+vocabulary (C5a definition slice). `MapLifecycleOperationV1` names the
+operations a selected lowering consumer must execute — value create, entry
+store/displace, ownership transfer/share, slot/return/argument/contained
+handoff, Normal/Fault cleanup — derived, never reclassified, from sealed
+`MapHomeFlow` destination and entry rows. `describe_map_lifecycle_obligations`
+enumerates the obligation set from sealed batch membership (every declared
+`MapLiteral` site per owner), not from the owners whose completion happened
+to succeed; a missing completion or an `Unavailable` flow row is a named
+`MapObligationDescribeIssueV1`, not a dropped row. `MapEntryBorrowV1` keeps
+exact borrowed-binding evidence (map-local and handle entries, including
+inside `[...]` values) for the returned-map borrow-liveness check.
+`verify_map_lifecycle_undertaking` seals the one relation the aggregate
+proves — every described obligation is covered by the declared
+`MapLifecycleConsumerCapabilityV1`; `BuilderInstallConsumerV1` remains a
+one-shot provenance token, not capability evidence. `MapCallEdgeContractV1`
+defines the call-edge conformance vocabulary (argument handoff vs return
+receive); callee resolution and admission connection are the separate C5b
+slice, and carrying the issued undertaking inside `PreparedInstall` is that
+slice's attachment point. `new MapBox()` construction sites share this
+operation vocabulary through OrdinaryNew claim evidence, not `MapHomeFlow`
+rows — that describe arm is a separate bounded row.
+
 The AST-free take-once definition payload uses existing field declarations.
 After installed-context validation, the port moves it to the normal collector
 before bodies. Duplicate transfer rejects. Package completion and source-backed

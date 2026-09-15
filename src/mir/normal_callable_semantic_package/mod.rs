@@ -24,6 +24,9 @@ pub(crate) use instance_constructor_semantic::{
     BirthFormalUseCoverageV1,
 };
 mod issuer;
+mod map_lifecycle_undertaking;
+#[cfg(test)]
+mod map_lifecycle_undertaking_tests;
 mod model;
 mod ordinary_new_coseal;
 mod physical_header;
