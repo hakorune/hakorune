@@ -546,8 +546,9 @@ fn return_boundary_map_admits_string_literal_and_borrowed_param_handle() {
 #[test]
 fn return_boundary_map_rejects_uncovered_entry_value_classes() {
     for (body, expected_maps) in [
-        // a container element inside an array stays uncovered
-        ("return %{\"a\" => [[]]}", 1usize),
+        // a live Home element inside an array is a transfer question,
+        // never a leaf
+        ("local p = new Page() return %{\"a\" => [p]}", 1usize),
         // alias of a live Home is a transfer question, not a borrow
         ("local p = new Page() local a = p return %{\"x\" => a}", 1),
         // an uninitialized local has no live object to reference
@@ -673,10 +674,13 @@ fn nested_map_entry_in_local_position_and_deeper_recursion() {
 
 #[test]
 fn nested_map_child_failure_marks_both_rows_unavailable() {
-    // The child's entry value `[[]]` is an uncovered class (container
-    // element): child row is Unavailable with its exact site and the
-    // parent row is Unavailable too.
-    let package = issue(&source("return %{\"a\" => %{\"x\" => [[]]}}")).unwrap();
+    // The child's entry value `[p]` is an uncovered class (a live Home
+    // element is a transfer question): child row is Unavailable with its
+    // exact site and the parent row is Unavailable too.
+    let package = issue(&source(
+        "local p = new Page() return %{\"a\" => %{\"x\" => [p]}}",
+    ))
+    .unwrap();
     let flow = package
         .ordinary_new_claim_ledger
         .root_completion_for_test()
@@ -686,7 +690,7 @@ fn nested_map_child_failure_marks_both_rows_unavailable() {
     assert_eq!(flow.maps().len(), 2);
     assert!(flow.maps().iter().all(|row| row.complete().is_none()));
     let child_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
-        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Body(1),
         SourcePathSegmentV1::Value,
         SourcePathSegmentV1::EntryValue(0),
     ]));
@@ -774,11 +778,11 @@ fn array_entry_records_exact_leaf_elements() {
     let [first, second, third] = a.array_elements().expect("array elements") else {
         panic!("three leaf elements");
     };
-    assert_eq!(first.value_source(), &MapValueSource::Integer(1));
-    assert_eq!(second.value_source(), &MapValueSource::String);
+    assert_eq!(first.value_source(), Some(&MapValueSource::Integer(1)));
+    assert_eq!(second.value_source(), Some(&MapValueSource::String));
     assert!(matches!(
         third.value_source(),
-        MapValueSource::BorrowedHandle(_)
+        Some(MapValueSource::BorrowedHandle(_))
     ));
     // Each element site is the exact `Element(ordinal)` child path.
     assert_eq!(
@@ -817,8 +821,8 @@ fn array_entry_rejects_home_and_container_elements() {
     for (body, statement) in [
         // a live Home element is a transfer question, never a leaf borrow
         ("local p = new Page() return %{\"a\" => [p]}", 1u32),
-        // nested container elements stay uncovered
-        ("return %{\"a\" => [[]]}", 0u32),
+        // a `%{...}` element stays uncovered — the element map still gets
+        // its own ContainedIn row from the sweep
         ("return %{\"a\" => [%{}]}", 0u32),
     ] {
         let package = issue(&source(body)).unwrap();
@@ -907,9 +911,9 @@ fn map_local_alias_and_array_element_borrow_the_same_root() {
     };
     let elements = list.array_elements().expect("array elements");
     for element in elements {
-        let MapValueSource::MapLocal(root) = element.value_source() else {
+        let Some(MapValueSource::MapLocal(root)) = element.value_source() else {
             panic!("map-local element borrows the root");
         };
-        assert_eq!(root, x_root);
+        assert_eq!(*root, *x_root);
     }
 }

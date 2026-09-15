@@ -1,7 +1,9 @@
 Task: MIR-CALL-MAP-ARRAY-ELEMENT-CONTAINER-SOURCE-I0
 Parent: mir-call-map-contained-descendant-flow-i0-2026-09-15.md
-NextCard: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0 (C5 per-owner contract)
-Implementation permission: pending six-line brief + worker audit
+NextCard: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0 (C5 per-owner
+lifecycle-undertaking contract — the merged route now stops inside
+`map_install_owners`, this card's territory)
+Status: landed — recursive array-element classification
 ---
 
 # Map array-element container source I0
@@ -9,75 +11,72 @@ Implementation permission: pending six-line brief + worker audit
 ## Entry contract
 
 The contained-descendant card landed `ContainedIn` + the interleaved
-sweep; every sealed MapLiteral under a walked statement now gets one
-flow row. Merged-route loop1 evidence (2026-09-15) shows the row is
-issued but Unavailable at:
+sweep; every sealed MapLiteral under a walked statement gets one flow
+row. The merged residual was `MapCandidateNotCovered` at
+`EntryValue(2) -> Element(0)` of
+`%{"op"=>"phi", "dst"=>6, "incoming"=>[[4,1],[5,2]]}` — an array entry
+whose elements are themselves array literals, which the leaf-only
+element contract rejected.
 
-```text
-[tmp/sweep] site=[Body(0), Initializer(0), Element(3), Argument(1),
-Element(0)] dest=ContainedIn{parent=[...Argument(1)], role=Element(0)}
-issue=MapCandidateNotCovered([...Element(0), EntryValue(2), Element(0)])
-```
+## Decision (worker audit integrated)
 
-`emit_if_merge_local_return_var` (merged L14775+):
-
-```hako
-local blocks = [
-  ...,
-  me._block(3, [
-    %{"op"=> "phi", "dst"=> 6, "incoming"=> [[4, 1], [5, 2]]},
-    ...
-  ])
-]
-```
-
-`"incoming" => [[4, 1], [5, 2]]` — an array entry whose elements are
-themselves array literals. The array-entry card (I0) deliberately
-restricted elements to leaf sources; `[4, 1]` is a non-leaf container
-element → `MapCandidateNotCovered` → the whole ContainedIn map stays
-Unavailable.
-
-`Census boundary: merged entry program -> array-literal element sites
-under map EntryValue positions whose element class is not a leaf
-(Integer/Bool/String/TrivialLocal/BorrowedHandle/MapLocal); includes
-nested `[...]` and `%{...}` elements; excludes elements already
-covered as leaves.`
-
-## Open design questions (worker audit — pending)
-
-1. Nested-array element: does `[4, 1]` inside `"incoming"` become a
-   recursive `NestedArray` entry (element list per element), or a
-   first-class destination row of its own? Arrays are not MapLiteral
-   rows — they have no separate flow row, so recursion inside
-   `MapEntryOwnership::NestedArray` is the likely shape.
-2. Map-as-array-element: `%{}` inside `[...]` — the map is a sealed
-   MapLiteral and already gets a ContainedIn row from the sweep; does
-   the parent entry need a `NestedMap`-style element kind linking it,
-   or does the leaf contract stay map-blind and rely on the row?
-3. Transfer elements: `[p]` where `p` is a live Home — is a Home
-   element a transfer (consumed) or rejected? The existing pin
-   `array_entry_rejects_home_and_container_elements` expects `[p]` to
-   keep the outer map Unavailable — decide whether that pin survives
-   or is rescoped.
-4. Depth bound: is recursion unbounded or capped at one level? The
-   merged residual needs exactly one extra level.
+1. **Recursive element kind**: `ArrayElementSource` now carries
+   `ArrayElementKindV1::{Leaf(MapValueSource), NestedArray(Box<
+   [ArrayElementSource]>)}`. Arrays are not MapLiteral rows and need
+   no flow row — recursion inside `NestedArray` is the right shape.
+   `observe_array_elements` extracts the `Element(ordinal)` relation
+   walk and recurses for nested `[...]`.
+2. **Map elements deferred**: merged census = zero `[%{}` sites. A
+   future admission must observe eagerly inside the classifier (not
+   rely on the sweep) so child-subtree transfers mirror into the
+   parent's `outer` — recorded as a design constraint, not
+   implemented.
+3. **Home elements stay rejected**: `[p]` with a live Home is a
+   transfer question with no consumer — every physical gate already
+   fails closed on `NestedArray` entries; the pin survives.
+4. **Depth**: recursion is unbounded (same code path); merged needed
+   exactly one level.
+5. **Fail-closed for free**: element kinds live under
+   `ArrayElementSource`; entry-level `value_source()`/`transfer_home()`
+   still return `None` for `NestedArray` — zero new production match
+   arms.
 
 ## Six-line brief
 
 ```text
-Decision: pending worker audit — likely recursive NestedArray element
-classification inside map entry arrays.
-Source authority + canonical issuer: `observe_map` entry loop +
-`map_value_leaf`-family element classifier.
-Non-authority: no physical array ABI, no emission claim.
-Fail-fast boundary: unclassifiable elements stay MapCandidateNotCovered.
-Smallest next slice: pending audit — one level of nested-container
-elements (the merged residual shape).
-Non-claims: physicalization, C5 per-owner arm, production switch.
+Decision: recursive element classification inside NestedArray —
+ArrayElementKindV1{Leaf, NestedArray}; %{...} elements and live-Home
+elements stay MapCandidateNotCovered.
+Source authority + canonical issuer: observe_map entry loop +
+observe_array_elements in home_map_flow.rs.
+Non-authority: no physical array ABI, no element flow rows, no
+emission.
+Fail-fast boundary: unclassifiable elements stay MapCandidateNotCovered;
+NestedArray entries still fail every physical gate via
+value_source()/transfer_home()==None.
+Smallest next slice: C5 per-owner lifecycle undertaking — the merged
+route now stops inside map_install_owners.
+Non-claims: physicalization, element transfers, map-element linking,
+C5 per-owner arm, production switch.
 ```
 
-## Acceptance
+## Acceptance evidence
 
-Pending: merged loop1's first failure advances past the
-`EntryValue(2) -> Element(0)` nested-array element — or the pin
-documents a deliberate bound with the next honest terminal recorded.
+- Focused: `contained_map_with_nested_array_entry_completes` — the
+  exact merged shape `Element -> Argument -> Element` with
+  `"incoming" => [[4,1],[5,2]]` completes; `nested_elements()` exposes
+  the recursive classification; leaf values verified.
+- Pin updates (new contract): `array_entry_rejects_home_and_container_
+  elements` dropped the `[[]]` arm (now admitted) and keeps `[p]`/
+  `[%{}]`; `return_boundary_map_rejects_uncovered_entry_value_classes`
+  uses `[p]`; `nested_map_child_failure_marks_both_rows_unavailable`
+  triggers on `[p]`.
+- Package scope: 208/208 quick-profile green.
+- Merged route advanced past loop1 entirely: **zero**
+  `[tmp/preflight-loop1]` failures — every sealed MapLiteral row
+  completes. First failure is now `map_install_owners` (`Err(())`) —
+  the per-owner install contract that admits only scalar entry
+  installs plus AppMain identity. Outer label
+  `MapLifecycleConsumerMissing` unchanged.
+- Non-claims: no physical array ABI, no map-element linking, no
+  element transfers, no C5 arm, no production switch.

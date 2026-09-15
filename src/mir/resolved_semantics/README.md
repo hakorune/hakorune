@@ -1210,8 +1210,9 @@ child subtree is marked in the parent's outer at the parent's entry index. The
 parent entry records `NestedMap` ownership — no value source, no binding, so
 physical emission stays fail-closed. A `[...]` entry value records
 `NestedArray` ownership with each sealed `Element(ordinal)` child classified
-through the same leaf chain; element transfers and nested container elements
-stay uncovered. A live map-installed local (`local m = %{...}` or an alias)
+through the element chain: leaf sources or a nested `[...]` literal whose own
+elements recurse (`ArrayElementKindV1`); `%{...}` elements, element transfers
+and other classes stay uncovered at this boundary. A live map-installed local (`local m = %{...}` or an alias)
 is borrowed by reference as `MapLocal` — the local stays the owner and still
 issues its own End; nothing is consumed. A `%{...}` literal at a call's
 `Argument(ordinal)` position — observed only inside a terminal return value

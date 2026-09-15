@@ -1,9 +1,11 @@
 Task: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0
 Parent: mir-call-map-local-entry-source-i0-2026-09-15.md
-NextCard: MIR-CALL-MAP-CALL-ARG-FLOW-I0
-(mir-call-map-call-arg-flow-i0-2026-09-15.md) — pinned loop1 failure
-below shows preflight never reaches the owner arms on the merged
-route while call-argument-position `%{...}` literals lack flow rows
+NextCard: F3 terminal relation for non-i64 returns / F4 physical Map
+return-argument ABI (ordered after this contract lands)
+Route note (2026-09-15): the call-arg and contained-descendant +
+array-element cards landed — merged loop1 now passes entirely and the
+first failure is `map_install_owners` (`Err(())`), this card's
+territory.
 Implementation permission: pending six-line brief acceptance
 ---
 

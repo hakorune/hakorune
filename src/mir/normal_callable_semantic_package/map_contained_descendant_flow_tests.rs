@@ -196,6 +196,56 @@ fn contained_outward_rejects_foreign_and_wrong_membership() {
 }
 
 #[test]
+fn contained_map_with_nested_array_entry_completes() {
+    // The merged residual shape: `"incoming" => [[4, 1], [5, 2]]` — a map
+    // entry whose array elements are themselves `[...]` literals of leaves.
+    // The element classifier recurses one level; the map completes.
+    let package = issue(
+        "static box Helpers { tag(a, b) { return 30 } run(flag) {
+            local blocks = [Helpers.tag(0, [%{\"op\" => \"phi\", \"incoming\" => [[4, 1], [5, 2]]}])]
+            return 30 } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("contained Map with nested-array entry");
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.parameter_count() == 1)
+        .expect("Helpers::run declaration");
+    let map_site = expr(&[
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Initializer(0),
+        SourcePathSegmentV1::Element(0),
+        SourcePathSegmentV1::Argument(1),
+        SourcePathSegmentV1::Element(0),
+    ]);
+    let map = package
+        .ordinary_new_claim_ledger
+        .map_flow(&OwnedExprSiteV1::new(declaration.owner(), map_site))
+        .expect("contained Map row completes");
+    let [op, incoming] = map.entries() else {
+        panic!("two entries");
+    };
+    assert_eq!(op.key(), "op");
+    let elements = incoming.array_elements().expect("array elements");
+    assert_eq!(elements.len(), 2);
+    for (element, expected) in elements.iter().zip([[4, 1], [5, 2]]) {
+        assert!(element.value_source().is_none());
+        let nested = element.nested_elements().expect("nested array element");
+        for (leaf, value) in nested.iter().zip(expected) {
+            assert_eq!(
+                leaf.value_source(),
+                Some(
+                    &crate::mir::resolved_semantics::home_new_prefix::MapValueSource::Integer(
+                        value
+                    )
+                )
+            );
+        }
+    }
+}
+
+#[test]
 fn nested_body_map_literal_stays_unavailable_until_scoped_design() {
     // A `%{...}` inside a `loop` body is sealed under the loop statement's
     // subtree but lives in a nested scope — the current scope/target triple
@@ -206,7 +256,6 @@ fn nested_body_map_literal_stays_unavailable_until_scoped_design() {
         "static box Main { main() { local n = 0 loop(n < 1) { local m = %{\"a\" => 1} n = n + 1 } return 30 } }",
     )
     .expect("nested-body source still issues rows");
-    let declaration = package.batch().declarations().next().unwrap();
     let map_site = expr(&[
         SourcePathSegmentV1::Body(1),
         SourcePathSegmentV1::LoopBody(0),
