@@ -148,22 +148,123 @@ Caveat from worker verification: `/tmp/merged_entry.hako` DOES contain
 mismatch (install_map_preflight.rs:31-62) or the no-loan
 owners-vs-root arm — pin the exact arm first when card 5 starts.
 
+## External design consultation #2 (2026-09-15, ChatGPT Pro review of
+94309d2a — post-Facts-completion)
+
+Recommendation verified against code: **existing-receipt co-seal +
+capability matching against an implemented lowering consumer.** C5's
+contract definition can land before F3/F4; admitting a Map-returning
+owner still requires them.
+
+**Q1 — co-seal, not a new independent receipt.** `PreparedNormalCallable
+SemanticPackageInstallV1` (install.rs:355-404) already owns the package
+and commits once after prepare succeeds — extend it to carry the
+`selected_lowering_consumer` that was verified. If a
+`MapLifecycleUndertakingV1` row exists it must be private
+references/indexes over existing products — never a re-copied
+owner/entry list (aggregate issues no new meaning). The sealed relation
+the aggregate proves: *every owner's obligation for this source/package
+is fully described AND the selected lowering consumer can undertake all
+of it.*
+
+**Q2 — requirement definition and satisfaction split; class names are
+not a registry.** C5 may describe unmet requirements, but owner install
+success requires the needed lowering capability to be already
+implemented. Converge entry classes onto operation contracts — value
+create/read, entry store, ownership transfer/share/borrow, return
+handoff, Normal/Fault cleanup — since `MapLocal` and `NestedMap` share
+the physical Map handle but differ in borrow/create/transfer
+responsibility (same representation ≠ same operation contract).
+Pre-install must NOT demand generated MIR/OBJ — the package is
+pre-Builder; backend admission is out of scope (package README).
+`BuilderInstallConsumerV1._private` (bridge.rs:19-40) is a one-shot
+token, not Map-capability evidence — the capability check must connect
+at the existing boundary. Stages: `prepare_install` (meaning fixed +
+implemented consumer covers it) / Lower + completion seals (operations
+actually generated and consumed) / physical+backend admission /
+C8 runtime proof.
+
+**Q3 — F3 is an independent Facts extension; the transfer guarantee
+built on it belongs to the lifecycle contract.** F3 supplies which
+return site returns which source value/binding; Recipe/Verify decides
+post-return responsibility; the undertaking asks whether the consumer
+can execute that verified relation. F3 precedes admitting Map-return
+owners, not C5's contract definition. `return m` is not automatically
+an exclusive move — a shared Map may transfer "one release
+responsibility"; the language's existing ownership rule decides, F4
+does not redefine it. F3 and cleanup must reference the same return
+site, same value, same ownership state — a bare terminal variant is
+insufficient.
+
+**Q4 — per-owner receipts plus call-edge conformance.** "Owners with
+map rows" under-covers: `use()` that receives a Map without creating
+one still has obligations. Target set = sealed callables involved in
+Map create/receive/hold/transfer/release. Batch verifies three things:
+(1) every owner/site has its contract + consumer match, (2) every call
+edge's callee convention matches the caller's handoff/receiver/Fault
+state, (3) import/export carry explicit boundary contracts. Many owners
+may share one consumer implementation. AppMain loan evidence stays for
+the paths that need it but is removed as the deep-callee coverage
+criterion; the process adapter binds only to explicitly selected
+execution products (source containing `Main` ≠ emitting a process
+entry this compile).
+
+**Q5 — split C5 contract definition from C5 admission connection.** No
+reverse dependency: C5 define → F3 → F4 → C5 admit-connect → C6
+downstream connect (lifecycle_admission retained-root restriction is a
+C8 prerequisite — admit_lifecycle still requires retained root +
+root direct-call collection, lifecycle_admission.rs:28-66) → C8.
+
+**New pitfalls (priority order):**
+
+1. **Returned map containing borrowed maps** — `local child = %{..};
+   return %{"child" => child}` (MapLocal non-consuming borrow): parent
+   return-transfer alone leaves a dangling borrow if callee cleanup
+   ends `child`. Liveness of borrowed targets inside returned values
+   must be verified; borrow-only evidence → reject. (Not a runtime
+   dangling observation — physical side still stops earlier.)
+2. Expected set must come from sealed membership, not successful
+   receipts — current owner enumeration uses
+   `filter_map(...as_ref().ok())` (ordinary_new_terminal_access.rs:
+   93-110), which drops failed completions silently.
+3. Recursion/mutual recursion — do not require callee body completion
+   first; fix the boundary contract, then verify body+edge match.
+4. Callers discarding return values still owe release responsibility.
+5. Same Map stored into multiple entries — prevent double-move; if
+   shared, pin per-reference responsibilities.
+6. Duplicate-key overwrite — old-value release plus new-value
+   store-failure responsibility.
+7. Post-seal internal mutation — the same package + consumer verified
+   at prepare must reach commit; prevent substitution/pre-consumption.
+
+**C8 acceptance refined**: `make_map()` + `use_map()` (receive-only).
+Verify Normal (returned map usable after callee cleanup, freed in
+caller), callee Fault (no result, initialized resources reclaimed),
+caller Fault (received map freed in caller), missing evidence → reject
+before catalog mutation. Observe release/reclaim/live handles, not only
+exit code; name the admitted entry classes.
+
 ## Ordered bounded card queue
 
-| #  | Card                                                              | Depends |
-| -- | ----------------------------------------------------------------- | ------- |
-| C1 | source-result issuer owner binding (`input.owner() == owner`)      | —       |
-| C2 | source-admission witness: consume as admission condition or drop   | —       |
-| C3 | BlockExpr prelude accounting (reject non-empty prelude or fold)    | —       |
-| C4 | `:void` mixed `return null`/`return void` — needs decision record  | —       |
-| C5 | per-function lifecycle-undertaking contract (this card's core)     | pin arm |
-| C6 | downstream contract split (admit_lifecycle, physical doc, C v2)    | C5      |
-| C7 | merged `new MapBox()` census — 39 sites into local/returned/stored/arg | —   |
-| C8 | two-function non-AppMain consumer acceptance (normal+Fault cleanup)| C5, C6  |
+| #   | Card                                                              | Depends      |
+| --- | ----------------------------------------------------------------- | ------------ |
+| C1  | source-result issuer owner binding (`input.owner() == owner`)      | —            |
+| C2  | source-admission witness: consume as admission condition or drop   | —            |
+| C3  | BlockExpr prelude accounting (reject non-empty prelude or fold)    | —            |
+| C4  | `:void` mixed `return null`/`return void` — needs decision record  | —            |
+| C5a | contract definition: per-owner obligations + call-edge conformance + selected-consumer capability boundary in `PreparedInstall` | — |
+| C7  | merged `new MapBox()` census — 39 sites into local/returned/stored/arg | —        |
+| F3  | `TerminalRelationV1` for non-i64 value returns (Facts extension)   | —            |
+| F4  | Map return/argument physical ABI + entry-class operation contracts | C5a, F3      |
+| C5b | admission connect: preflight matches full sealed membership + implemented consumer capability | C5a, F3, F4 |
+| C6  | downstream contract split (admit_lifecycle retained-root removal, physical doc, C v2) | C5b |
+| C8  | two-function non-AppMain consumer acceptance (normal+Fault cleanup, refined above) | C5b, C6 |
 
 C1–C4 are pre-production fixes on test-only issuers — cheap and
-independent. C5 is this card's core; C6/C8 follow it; C7 informs scope.
-Full worker verification evidence lives in the card audit trail.
+independent. C5a is this card's core deliverable; C5b/C6/C8 follow it;
+C7 informs scope. Per consultation #2: C5 contract definition does not
+depend on F3/F4 — admitting a Map-returning owner does. Full worker
+verification evidence lives in the card audit trail.
 
 ## Arm pinning (2026-09-15, verified against 7618c185)
 
