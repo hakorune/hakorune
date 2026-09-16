@@ -4,7 +4,7 @@
 //! It does not descend children or mutate the Builder while selecting a route.
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1,
+    drive_legacy_expression_v1, DirectCallDispositionPortV1, RawAstChildLoweringPortV1,
     RawFunctionHeaderLookupPortV1,
 };
 use super::super::{EffectMask, MirBuilder, MirInstruction, MirType, ValueId};
@@ -100,7 +100,7 @@ impl RawCompatibilityOrdinaryCallTerminalV1 {
 #[derive(Clone, Copy)]
 enum PreparedRawNonBrandRouteOriginV1 {
     InstalledNonBrand,
-    InstalledAppMain,
+    InstalledDirectCallScope,
     ScriptRootParkedCompatibility,
     RawScriptRootParkedCompatibility,
     RawRootMainParkedCompatibility,
@@ -116,10 +116,10 @@ pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
         callee: Callee,
         arguments: Vec<ASTNode>,
     },
-    /// The exact App Main target is carried by the raw port's affine loan.
-    /// Keeping only syntax here prevents this preflight enum from becoming a
-    /// second target authority.
-    AppMainTargeted {
+    /// The exact direct-call target is carried by the raw port's affine
+    /// loan.  Keeping only syntax here prevents this preflight enum from
+    /// becoming a second target authority.
+    DirectCallTargeted {
         arguments: Vec<ASTNode>,
     },
     Retired(RawOrdinaryFunctionRetirementV1),
@@ -223,12 +223,12 @@ impl PreparedRawFunctionPreflightV1 {
                     PreparedRawNonBrandRouteOriginV1::InstalledNonBrand,
                 )
             }
-            super::RawBrandCallAuthorityV1::InstalledAppMain => prepare_non_brand_route(
+            super::RawBrandCallAuthorityV1::InstalledDirectCallScope => prepare_non_brand_route(
                 builder,
                 &name,
                 arguments,
                 None,
-                PreparedRawNonBrandRouteOriginV1::InstalledAppMain,
+                PreparedRawNonBrandRouteOriginV1::InstalledDirectCallScope,
             ),
             super::RawBrandCallAuthorityV1::ScriptRootParkedCompatibility => {
                 prepare_compatibility_route(
@@ -381,8 +381,11 @@ fn prepare_ordinary_function_completion_v1(
         PreparedRawNonBrandRouteOriginV1::RawLegacyParkedCompatibility
     ) {
         Err(RawCompatibilityOrdinaryCallTerminalV1::RawLegacyRetired)
-    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledAppMain) {
-        Ok(PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted { arguments })
+    } else if matches!(
+        origin,
+        PreparedRawNonBrandRouteOriginV1::InstalledDirectCallScope
+    ) {
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::DirectCallTargeted { arguments })
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
         && is_installed_non_unified_gc_builtin_v1(name)
     {
@@ -605,7 +608,7 @@ pub(in crate::mir::builder) fn lower_prepared_raw_function_preflight_with_port_v
 where
     Port: RawAstChildLoweringPortV1
         + RawFunctionHeaderLookupPortV1
-        + AppMainDirectCallDispositionPortV1,
+        + DirectCallDispositionPortV1,
 {
     replay_function_call_trace(builder, &prepared.name);
     match prepared.route {

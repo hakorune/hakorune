@@ -277,7 +277,7 @@ fn app_main_direct_call_observation_issues_one_affine_loan() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(102).unwrap();
     let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
         .expect("exact App Main direct-call package");
-    assert!(package.has_app_main_direct_call_loan());
+    assert!(package.has_direct_call_loan());
 }
 
 #[test]
@@ -289,7 +289,7 @@ fn app_main_direct_call_accepts_top_level_free_function() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(107).unwrap();
     let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
         .expect("mixed App Main plus top-level FreeFunction package");
-    assert!(package.has_app_main_direct_call_loan());
+    assert!(package.has_direct_call_loan());
     assert!(package
         .declaration_catalog()
         .declaration(
@@ -328,9 +328,9 @@ fn app_main_non_freestatic_direct_call_rejects_before_install() {
     // and no sealed Map result.
     assert!(matches!(
         issue_normal_callable_semantic_package_v1(&mut resolver, source),
-        Err(NormalCallableSemanticPackageIssueV1::AppMainDirectCall {
-            _error: super::issuer::AppMainDirectCallDispositionIssueV1::Loan(
-                super::direct_call_loan::AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch
+        Err(NormalCallableSemanticPackageIssueV1::DirectCall {
+            _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                super::direct_call_loan::DirectCallLoanErrorV1::LifecycleSourceMismatch
             ),
         })
     ));

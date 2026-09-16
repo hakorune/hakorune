@@ -211,7 +211,7 @@ fn app_main_call_admits_one_ordinary_map_callee_value_owner() {
     }",
     )
     .unwrap();
-    assert!(package.has_app_main_direct_call_loan());
+    assert!(package.has_direct_call_loan());
     let rows: Vec<_> = package.result_contracts.rows().collect();
     assert_eq!(rows.len(), 1, "AppMain does not acquire an ordinary seed");
     let contract = rows[0].borrow();
@@ -240,7 +240,7 @@ fn app_main_and_one_ordinary_map_owner_share_install_admission() {
     }",
     )
     .unwrap();
-    assert!(package.has_app_main_direct_call_loan());
+    assert!(package.has_direct_call_loan());
     assert!(package
         .ordinary_new_claim_ledger
         .root_completion_for_test()

@@ -36,8 +36,8 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) root_execution: NormalRootExecutionPackageStateV1,
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
-    pub(super) app_main_direct_call_loan:
-        Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
+    pub(super) direct_call_loan:
+        Option<super::direct_call_loan::DirectCallDispositionLoanV1>,
     pub(super) ordinary_new_claim_ledger:
         std::rc::Rc<super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1>,
     pub(super) instance_constructors:
@@ -134,8 +134,8 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     }
 
     #[cfg(test)]
-    pub(crate) fn has_app_main_direct_call_loan(&self) -> bool {
-        self.app_main_direct_call_loan.is_some()
+    pub(crate) fn has_direct_call_loan(&self) -> bool {
+        self.direct_call_loan.is_some()
     }
 
     pub(crate) fn selected_callable_sources(

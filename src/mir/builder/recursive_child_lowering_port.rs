@@ -5,7 +5,7 @@
 //! hooks, so new capabilities do not grow the legacy owner.
 
 use crate::ast::ASTNode;
-use crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1;
+use crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
@@ -205,23 +205,23 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     }
 }
 
-/// Narrow capability for the one source-backed App Main direct-call consumer.
+/// Narrow capability for source-backed direct-call loan consumers.
 ///
 /// The default is deliberately unavailable so compatibility/test ports cannot
 /// accidentally publish a target.  The invocation port overrides it with the
-/// package-owned affine loan; structured scopes and the semantic adapter only
+/// package-owned affine loans; structured scopes and the semantic adapter only
 /// forward the already-borrowed capability.
-pub(in crate::mir::builder) trait AppMainDirectCallDispositionPortV1 {
-    fn take_app_main_direct_call_disposition_v1(
+pub(in crate::mir::builder) trait DirectCallDispositionPortV1 {
+    fn take_direct_call_disposition_v1(
         &mut self,
-    ) -> Result<AppMainDirectCallDispositionRowV1, String> {
-        Err("[freeze:contract][app-main-direct-call/loan-unavailable]".to_owned())
+    ) -> Result<DirectCallDispositionRowV1, String> {
+        Err("[freeze:contract][direct-call/loan-unavailable]".to_owned())
     }
 
-    fn emit_app_main_local_lifecycle_call_v1(
+    fn emit_local_lifecycle_call_v1(
         &mut self,
         _builder: &mut MirBuilder,
-        _row: AppMainDirectCallDispositionRowV1,
+        _row: DirectCallDispositionRowV1,
         _arguments: Vec<ValueId>,
     ) -> Result<Option<ValueId>, String> {
         Ok(None)

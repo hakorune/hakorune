@@ -1,4 +1,4 @@
-//! Package-owned, move-only direct-call disposition for the selected App Main.
+//! Package-owned, move-only direct-call disposition for one exact owner.
 //!
 //! The loan carries only products already issued by the resolver session.  It
 //! never resolves a source name and it never reconstructs a target from a raw
@@ -12,7 +12,7 @@ use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, OwnedExprSiteV1, SourceExprSiteV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum AppMainDirectCallLoanErrorV1 {
+pub(crate) enum DirectCallLoanErrorV1 {
     OwnerMismatch,
     SiteMissing,
     SiteAlreadyTaken,
@@ -23,15 +23,15 @@ pub(crate) enum AppMainDirectCallLoanErrorV1 {
 }
 
 #[derive(Debug)]
-pub(crate) struct AppMainDirectCallDispositionRowV1 {
+pub(crate) struct DirectCallDispositionRowV1 {
     argument_sites: Box<[SourceExprSiteV1]>,
     emission: VerifiedCanonicalDirectCallEmissionV1,
-    execution: AppMainCallExecutionV1,
+    execution: DirectCallExecutionV1,
     result: InvokeCallResultKind,
 }
 
 #[derive(Debug)]
-enum AppMainCallExecutionV1 {
+enum DirectCallExecutionV1 {
     Scalar,
     Lifecycle,
 }
@@ -39,18 +39,18 @@ enum AppMainCallExecutionV1 {
 #[path = "direct_call_lifecycle.rs"]
 pub(in crate::mir::normal_callable_semantic_package) mod lifecycle;
 
-impl AppMainDirectCallDispositionRowV1 {
+impl DirectCallDispositionRowV1 {
     pub(crate) fn physical_emission(&self) -> &VerifiedCanonicalDirectCallEmissionV1 {
         &self.emission
     }
 
     pub(crate) fn lifecycle_emission(
         &self,
-    ) -> Result<&VerifiedCanonicalDirectCallEmissionV1, AppMainDirectCallLoanErrorV1> {
+    ) -> Result<&VerifiedCanonicalDirectCallEmissionV1, DirectCallLoanErrorV1> {
         match self.execution {
-            AppMainCallExecutionV1::Lifecycle => Ok(&self.emission),
-            AppMainCallExecutionV1::Scalar => {
-                Err(AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch)
+            DirectCallExecutionV1::Lifecycle => Ok(&self.emission),
+            DirectCallExecutionV1::Scalar => {
+                Err(DirectCallLoanErrorV1::LifecycleSourceMismatch)
             }
         }
     }
@@ -61,7 +61,7 @@ impl AppMainDirectCallDispositionRowV1 {
         Self {
             argument_sites,
             emission,
-            execution: AppMainCallExecutionV1::Scalar,
+            execution: DirectCallExecutionV1::Scalar,
             result: InvokeCallResultKind::I64,
         }
     }
@@ -79,38 +79,38 @@ impl AppMainDirectCallDispositionRowV1 {
 
     pub(crate) fn into_scalar_emission(
         self,
-    ) -> Result<VerifiedCanonicalDirectCallEmissionV1, AppMainDirectCallLoanErrorV1> {
+    ) -> Result<VerifiedCanonicalDirectCallEmissionV1, DirectCallLoanErrorV1> {
         match self.execution {
-            AppMainCallExecutionV1::Scalar => Ok(self.emission),
-            AppMainCallExecutionV1::Lifecycle => {
-                Err(AppMainDirectCallLoanErrorV1::LifecycleConsumerMissing)
+            DirectCallExecutionV1::Scalar => Ok(self.emission),
+            DirectCallExecutionV1::Lifecycle => {
+                Err(DirectCallLoanErrorV1::LifecycleConsumerMissing)
             }
         }
     }
 }
 
 #[derive(Debug)]
-enum AppMainDirectCallDispositionSlotV1 {
-    Ready(AppMainDirectCallDispositionRowV1),
+enum DirectCallDispositionSlotV1 {
+    Ready(DirectCallDispositionRowV1),
     Taken,
 }
 
-/// A private affine inventory for one exact App Main owner.
+/// A private affine inventory for one exact callable owner.
 #[must_use]
 #[derive(Debug)]
-pub(crate) struct AppMainDirectCallDispositionLoanV1 {
+pub(crate) struct DirectCallDispositionLoanV1 {
     owner: FunctionOwnerIdV1,
-    rows: BTreeMap<OwnedExprSiteV1, AppMainDirectCallDispositionSlotV1>,
+    rows: BTreeMap<OwnedExprSiteV1, DirectCallDispositionSlotV1>,
 }
 
-impl AppMainDirectCallDispositionLoanV1 {
+impl DirectCallDispositionLoanV1 {
     /// Take only the exact Call attached to this ledger's original Completion.
     pub(crate) fn take_terminal_lifecycle(
         &mut self,
         ledger: &super::OrdinaryNewClaimLedgerV1,
         owner: FunctionOwnerIdV1,
         return_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-    ) -> Result<Option<AppMainDirectCallDispositionRowV1>, AppMainDirectCallLoanErrorV1> {
+    ) -> Result<Option<DirectCallDispositionRowV1>, DirectCallLoanErrorV1> {
         let Some(row) = self.take_terminal(ledger, owner, return_site)? else {
             return Ok(None);
         };
@@ -123,7 +123,7 @@ impl AppMainDirectCallDispositionLoanV1 {
         ledger: &super::OrdinaryNewClaimLedgerV1,
         owner: FunctionOwnerIdV1,
         return_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-    ) -> Result<Option<AppMainDirectCallDispositionRowV1>, AppMainDirectCallLoanErrorV1> {
+    ) -> Result<Option<DirectCallDispositionRowV1>, DirectCallLoanErrorV1> {
         let Some((completion, terminal)) = ledger.call_source_completion() else {
             return Ok(None);
         };
@@ -133,29 +133,29 @@ impl AppMainDirectCallDispositionLoanV1 {
             || terminal.return_site().node() != return_site
             || completion.explicit_site() != Some(terminal.return_site())
         {
-            return Err(AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch);
+            return Err(DirectCallLoanErrorV1::LifecycleSourceMismatch);
         }
         self.take_once(owner, terminal.call_site().clone())
             .map(Some)
     }
     pub(crate) fn from_rows(
         owner: FunctionOwnerIdV1,
-        rows: impl IntoIterator<Item = (SourceExprSiteV1, AppMainDirectCallDispositionRowV1)>,
-    ) -> Result<Self, AppMainDirectCallLoanErrorV1> {
+        rows: impl IntoIterator<Item = (SourceExprSiteV1, DirectCallDispositionRowV1)>,
+    ) -> Result<Self, DirectCallLoanErrorV1> {
         let mut slots = BTreeMap::new();
         for (site, row) in rows {
             if slots
                 .insert(
                     OwnedExprSiteV1::new(owner, site),
-                    AppMainDirectCallDispositionSlotV1::Ready(row),
+                    DirectCallDispositionSlotV1::Ready(row),
                 )
                 .is_some()
             {
-                return Err(AppMainDirectCallLoanErrorV1::DuplicateSite);
+                return Err(DirectCallLoanErrorV1::DuplicateSite);
             }
         }
         if slots.is_empty() {
-            return Err(AppMainDirectCallLoanErrorV1::ResidualRows);
+            return Err(DirectCallLoanErrorV1::ResidualRows);
         }
         Ok(Self { owner, rows: slots })
     }
@@ -168,30 +168,30 @@ impl AppMainDirectCallDispositionLoanV1 {
         &mut self,
         owner: FunctionOwnerIdV1,
         site: SourceExprSiteV1,
-    ) -> Result<AppMainDirectCallDispositionRowV1, AppMainDirectCallLoanErrorV1> {
+    ) -> Result<DirectCallDispositionRowV1, DirectCallLoanErrorV1> {
         if owner != self.owner {
-            return Err(AppMainDirectCallLoanErrorV1::OwnerMismatch);
+            return Err(DirectCallLoanErrorV1::OwnerMismatch);
         }
         let key = OwnedExprSiteV1::new(owner, site);
         let slot = self
             .rows
             .get_mut(&key)
-            .ok_or(AppMainDirectCallLoanErrorV1::SiteMissing)?;
-        match std::mem::replace(slot, AppMainDirectCallDispositionSlotV1::Taken) {
-            AppMainDirectCallDispositionSlotV1::Ready(row) => Ok(row),
-            AppMainDirectCallDispositionSlotV1::Taken => {
-                Err(AppMainDirectCallLoanErrorV1::SiteAlreadyTaken)
+            .ok_or(DirectCallLoanErrorV1::SiteMissing)?;
+        match std::mem::replace(slot, DirectCallDispositionSlotV1::Taken) {
+            DirectCallDispositionSlotV1::Ready(row) => Ok(row),
+            DirectCallDispositionSlotV1::Taken => {
+                Err(DirectCallLoanErrorV1::SiteAlreadyTaken)
             }
         }
     }
 
-    pub(crate) fn finish_empty(self) -> Result<(), AppMainDirectCallLoanErrorV1> {
+    pub(crate) fn finish_empty(self) -> Result<(), DirectCallLoanErrorV1> {
         if self
             .rows
             .values()
-            .any(|slot| matches!(slot, AppMainDirectCallDispositionSlotV1::Ready(_)))
+            .any(|slot| matches!(slot, DirectCallDispositionSlotV1::Ready(_)))
         {
-            return Err(AppMainDirectCallLoanErrorV1::ResidualRows);
+            return Err(DirectCallLoanErrorV1::ResidualRows);
         }
         Ok(())
     }
@@ -252,18 +252,18 @@ mod tests {
     #[test]
     fn take_once_rejects_second_take_and_finishes_empty() {
         let (owner, site, emission) = fixture();
-        let mut loan = AppMainDirectCallDispositionLoanV1::from_rows(
+        let mut loan = DirectCallDispositionLoanV1::from_rows(
             owner,
             [(
                 site.clone(),
-                AppMainDirectCallDispositionRowV1::new(Box::new([]), emission),
+                DirectCallDispositionRowV1::new(Box::new([]), emission),
             )],
         )
         .expect("one-row loan");
         assert!(loan.take_once(owner, site.clone()).is_ok());
         assert_eq!(
             loan.take_once(owner, site).err(),
-            Some(AppMainDirectCallLoanErrorV1::SiteAlreadyTaken)
+            Some(DirectCallLoanErrorV1::SiteAlreadyTaken)
         );
         loan.finish_empty().expect("no residual rows");
     }
@@ -272,17 +272,17 @@ mod tests {
     fn take_once_rejects_foreign_owner_without_consuming_row() {
         let (owner, site, emission) = fixture();
         let foreign = foreign_owner();
-        let mut loan = AppMainDirectCallDispositionLoanV1::from_rows(
+        let mut loan = DirectCallDispositionLoanV1::from_rows(
             owner,
             [(
                 site.clone(),
-                AppMainDirectCallDispositionRowV1::new(Box::new([]), emission),
+                DirectCallDispositionRowV1::new(Box::new([]), emission),
             )],
         )
         .expect("one-row loan");
         assert_eq!(
             loan.take_once(foreign, site.clone()).err(),
-            Some(AppMainDirectCallLoanErrorV1::OwnerMismatch)
+            Some(DirectCallLoanErrorV1::OwnerMismatch)
         );
         assert!(loan.take_once(owner, site).is_ok());
     }
@@ -290,17 +290,17 @@ mod tests {
     #[test]
     fn finish_empty_rejects_residual_rows() {
         let (owner, site, emission) = fixture();
-        let loan = AppMainDirectCallDispositionLoanV1::from_rows(
+        let loan = DirectCallDispositionLoanV1::from_rows(
             owner,
             [(
                 site,
-                AppMainDirectCallDispositionRowV1::new(Box::new([]), emission),
+                DirectCallDispositionRowV1::new(Box::new([]), emission),
             )],
         )
         .expect("one-row loan");
         assert_eq!(
             loan.finish_empty(),
-            Err(AppMainDirectCallLoanErrorV1::ResidualRows)
+            Err(DirectCallLoanErrorV1::ResidualRows)
         );
     }
 
@@ -309,21 +309,21 @@ mod tests {
         let (owner, site, emission) = fixture();
         let second = VerifiedCanonicalDirectCallEmissionV1::clone(&emission);
         assert_eq!(
-            AppMainDirectCallDispositionLoanV1::from_rows(
+            DirectCallDispositionLoanV1::from_rows(
                 owner,
                 [
                     (
                         site.clone(),
-                        AppMainDirectCallDispositionRowV1::new(Box::new([]), emission),
+                        DirectCallDispositionRowV1::new(Box::new([]), emission),
                     ),
                     (
                         site,
-                        AppMainDirectCallDispositionRowV1::new(Box::new([]), second),
+                        DirectCallDispositionRowV1::new(Box::new([]), second),
                     ),
                 ],
             )
             .err(),
-            Some(AppMainDirectCallLoanErrorV1::DuplicateSite)
+            Some(DirectCallLoanErrorV1::DuplicateSite)
         );
     }
 }

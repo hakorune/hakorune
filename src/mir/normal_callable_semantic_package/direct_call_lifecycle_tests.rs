@@ -1,6 +1,6 @@
 //! Natural-source correspondence and the selected scalar-edge Stop.
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
-use super::direct_call_loan::AppMainDirectCallLoanErrorV1;
+use super::direct_call_loan::DirectCallLoanErrorV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::MirBuilder;
 
@@ -38,7 +38,7 @@ fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {
         let owner = call.owner();
         let site = call.call_site().clone();
         let row = package
-            .app_main_direct_call_loan
+            .direct_call_loan
             .as_mut()
             .unwrap()
             .take_once(owner, site)
@@ -46,7 +46,7 @@ fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {
         assert_eq!(row.argument_sites().len(), 2);
         assert_eq!(
             row.into_scalar_emission().err(),
-            Some(AppMainDirectCallLoanErrorV1::LifecycleConsumerMissing)
+            Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
         );
         let mut context = crate::mir::builder::CompilationContext::new();
         assert!(matches!(
@@ -84,7 +84,7 @@ fn local_map_call_and_terminal_map_call_share_the_root_source_owner() {
     let local_site = local.site().site().clone();
     let terminal_site = terminal.call_site().clone();
     let mut loan = package
-        .app_main_direct_call_loan
+        .direct_call_loan
         .take()
         .expect("AppMain direct-call loan");
     assert!(loan
@@ -115,7 +115,7 @@ fn distinct_map_call_owners_share_the_existing_install_preflight() {
     )
     .expect("two distinct ordinary Map owners");
     let targets = package
-        .app_main_direct_call_loan
+        .direct_call_loan
         .as_ref()
         .expect("AppMain direct-call loan")
         .map_target_owners(&package.batch)
@@ -142,7 +142,7 @@ fn three_distinct_map_call_owners_share_source_ordered_local_bindings() {
     )
     .expect("three distinct ordinary Map owners");
     let targets = package
-        .app_main_direct_call_loan
+        .direct_call_loan
         .as_ref()
         .expect("AppMain direct-call loan")
         .map_target_owners(&package.batch)
@@ -208,7 +208,7 @@ fn four_distinct_map_call_owners_share_three_source_ordered_local_bindings() {
     )
     .expect("four distinct ordinary Map owners");
     let targets = package
-        .app_main_direct_call_loan
+        .direct_call_loan
         .as_ref()
         .expect("AppMain direct-call loan")
         .map_target_owners(&package.batch)
@@ -253,7 +253,7 @@ fn five_distinct_map_call_owners_share_four_source_ordered_local_bindings() {
     )
     .expect("five distinct ordinary Map owners");
     let targets = package
-        .app_main_direct_call_loan
+        .direct_call_loan
         .as_ref()
         .expect("AppMain direct-call loan")
         .map_target_owners(&package.batch)
@@ -335,7 +335,7 @@ fn root_map_before_first_call_keeps_prior_homes_rejection() {
     )
     .expect("source relation remains available for physical rejection");
     let mut loan = package
-        .app_main_direct_call_loan
+        .direct_call_loan
         .take()
         .expect("AppMain direct-call loan");
     let main = package
@@ -403,9 +403,9 @@ fn map_target_without_exact_terminal_arguments_or_cleanup_cannot_remain_scalar()
             matches!(
                 result,
                 Err(
-                    super::NormalCallableSemanticPackageIssueV1::AppMainDirectCall {
-                        _error: super::issuer::AppMainDirectCallDispositionIssueV1::Loan(
-                            AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch
+                    super::NormalCallableSemanticPackageIssueV1::DirectCall {
+                        _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                            DirectCallLoanErrorV1::LifecycleSourceMismatch
                         ),
                     }
                 )
@@ -442,7 +442,7 @@ fn non_map_terminal_call_retains_source_completion_and_scalar_row() {
         })
         .unwrap();
     let row = package
-        .app_main_direct_call_loan
+        .direct_call_loan
         .as_mut()
         .unwrap()
         .take_once(owner, site)
@@ -463,14 +463,14 @@ fn non_map_local_call_selects_lifecycle_without_reclassifying_terminal() {
     let locals = completion.cleanup().root_flow().unwrap().local_calls();
     assert_eq!(locals.len(), 1);
     assert_eq!(locals[0].arguments(), &[10]);
-    let loan = package.app_main_direct_call_loan.as_mut().unwrap();
+    let loan = package.direct_call_loan.as_mut().unwrap();
     let local = loan
         .take_once(owner, locals[0].site().site().clone())
         .unwrap();
     assert!(local.lifecycle_emission().is_ok());
     assert_eq!(
         local.into_scalar_emission().err(),
-        Some(AppMainDirectCallLoanErrorV1::LifecycleConsumerMissing)
+        Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
     );
     let terminal = loan.take_once(owner, terminal.call_site().clone()).unwrap();
     assert!(terminal.into_scalar_emission().is_ok());
@@ -487,9 +487,9 @@ fn non_map_local_call_with_prior_home_rejects_instead_of_scalar_fallback() {
         matches!(
             result,
             Err(
-                super::NormalCallableSemanticPackageIssueV1::AppMainDirectCall {
-                    _error: super::issuer::AppMainDirectCallDispositionIssueV1::Loan(
-                        AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch
+                super::NormalCallableSemanticPackageIssueV1::DirectCall {
+                    _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                        DirectCallLoanErrorV1::LifecycleSourceMismatch
                     ),
                 }
             )
@@ -511,7 +511,7 @@ fn non_map_local_call_with_plain_return_preserves_scalar() {
     let locals = completion.cleanup().root_flow().unwrap().local_calls();
     assert_eq!(locals.len(), 1, "the source observation remains present");
     let row = package
-        .app_main_direct_call_loan
+        .direct_call_loan
         .as_mut()
         .unwrap()
         .take_once(completion.owner(), locals[0].site().site().clone())
@@ -538,7 +538,7 @@ fn map_result_local_call_installs_map_class_and_map_row() {
         crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
     );
     let row = package
-        .app_main_direct_call_loan
+        .direct_call_loan
         .as_mut()
         .unwrap()
         .take_once(owner, locals[0].site().site().clone())
@@ -550,7 +550,7 @@ fn map_result_local_call_installs_map_class_and_map_row() {
     assert!(row.lifecycle_emission().is_ok());
     assert_eq!(
         row.into_scalar_emission().err(),
-        Some(AppMainDirectCallLoanErrorV1::LifecycleConsumerMissing)
+        Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
     );
 }
 
@@ -566,9 +566,9 @@ fn map_result_lane_rejects_unannotated_scalar_callee() {
         matches!(
             result,
             Err(
-                super::NormalCallableSemanticPackageIssueV1::AppMainDirectCall {
-                    _error: super::issuer::AppMainDirectCallDispositionIssueV1::Loan(
-                        AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch
+                super::NormalCallableSemanticPackageIssueV1::DirectCall {
+                    _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                        DirectCallLoanErrorV1::LifecycleSourceMismatch
                     ),
                 }
             )

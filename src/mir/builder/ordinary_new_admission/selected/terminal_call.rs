@@ -3,7 +3,7 @@
 use super::*;
 use crate::mir::definitions::MirCall;
 use crate::mir::normal_callable_semantic_package::{
-    AppMainDirectCallDispositionRowV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
+    DirectCallDispositionRowV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
@@ -26,7 +26,7 @@ pub(in crate::mir::builder) fn emit(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
-    row: AppMainDirectCallDispositionRowV1,
+    row: DirectCallDispositionRowV1,
 ) -> Result<ValueId, String> {
     let emission = row.physical_emission();
     let result = row.result();
@@ -179,7 +179,7 @@ pub(in crate::mir::builder) fn emit_local(
     ledger: &OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
     site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    row: AppMainDirectCallDispositionRowV1,
+    row: DirectCallDispositionRowV1,
     arguments: Vec<ValueId>,
 ) -> Result<ValueId, String> {
     let relation = ledger

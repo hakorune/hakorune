@@ -14,7 +14,7 @@ use super::super::me_call_header_observation::{
 };
 use super::super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 use super::{
-    AppMainDirectCallDispositionPortV1, RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1,
+    DirectCallDispositionPortV1, RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1,
     RawNestedMainFateV1, RecursiveChildLoweringPortV1,
 };
 
@@ -71,7 +71,7 @@ impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
     }
 }
 
-impl AppMainDirectCallDispositionPortV1 for RawLegacyChildLoweringPortV1 {}
+impl DirectCallDispositionPortV1 for RawLegacyChildLoweringPortV1 {}
 
 impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
     fn nested_main_fate_v1(&mut self) -> RawNestedMainFateV1 {

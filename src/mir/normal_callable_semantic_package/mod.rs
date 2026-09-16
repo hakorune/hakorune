@@ -76,7 +76,7 @@ pub(in crate::mir) use declared_instance_locator::{
     DeclaredInstanceCallLocatorScopeV1, DeclaredInstanceCallLocatorViewV1,
 };
 pub(crate) use direct_call_loan::{
-    AppMainDirectCallDispositionLoanV1, AppMainDirectCallDispositionRowV1,
+    DirectCallDispositionLoanV1, DirectCallDispositionRowV1,
 };
 pub(in crate::mir) use install::SelectedCallableSemanticRefV1;
 pub(crate) use install::{

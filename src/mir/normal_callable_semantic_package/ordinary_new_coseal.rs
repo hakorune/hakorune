@@ -85,7 +85,7 @@ pub(crate) use root_instance_call::RootInstanceCallDispositionRowV1;
 
 #[derive(Debug)]
 pub(crate) enum RootCallDispositionV1 {
-    Direct(super::direct_call_loan::AppMainDirectCallDispositionRowV1),
+    Direct(super::direct_call_loan::DirectCallDispositionRowV1),
     Instance(RootInstanceCallDispositionRowV1),
 }
 
@@ -467,7 +467,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
-    app_main_calls: Option<&super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
+    direct_call_loan: Option<&super::direct_call_loan::DirectCallDispositionLoanV1>,
     parameter_contracts: &[super::model::OwnedCallableParameterContractDeclarationV1],
     dynamic: &mut super::model::NormalCallableDynamicProjectionV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
@@ -585,7 +585,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                     seeds.push_completion(declaration, selected, completion, None)
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 }
-                let (home_prefixes, argument_observations) = if (is_app_main && (!new_sites.is_empty() || has_map || app_main_calls.is_some())) || (seed_eligible && (has_map || child_new_ready)) {
+                let (home_prefixes, argument_observations) = if (is_app_main && (!new_sites.is_empty() || has_map || direct_call_loan.is_some())) || (seed_eligible && (has_map || child_new_ready)) {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -610,7 +610,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                             }
                             Ok(candidate.construction.is_ok() && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
                         }, &mut |site| {
-                            let direct = app_main_calls
+                            let direct = direct_call_loan
                                 .is_some_and(|loan| loan.is_i64_call(input, site));
                             let instance = is_app_main
                                 && input.function().method_calls().any(|(call_site, call)| {
@@ -625,7 +625,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                                 });
                             Ok(is_app_main && (direct || instance))
                         }, &mut |site| {
-                            Ok(is_app_main && app_main_calls.is_some_and(|loan| {
+                            Ok(is_app_main && direct_call_loan.is_some_and(|loan| {
                                 loan.is_map_result_call(batch, parameter_contracts, input, site)
                             }))
                         })? {

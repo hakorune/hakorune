@@ -2,13 +2,13 @@
 //!
 //! The bridge owns the installed package and exposes only the scoped
 //! source/lowering views needed by the selected normal root.  The selected
-//! App Main direct-call inventory is moved out exactly once and remains
-//! coupled to that lowering scope until the raw consumer finishes it.
+//! direct-call inventory is moved out exactly once and remains coupled to
+//! that lowering scope until the raw consumer finishes it.
 
 use std::cell::Cell;
 
 use crate::mir::normal_callable_semantic_package::{
-    AppMainDirectCallDispositionLoanV1, BuilderInstallTokenV1, DeclaredInstanceCallLocatorViewV1,
+    BuilderInstallTokenV1, DeclaredInstanceCallLocatorViewV1, DirectCallDispositionLoanV1,
     InstalledNormalCallableSemanticPackageV1, MapLifecycleConsumerCapabilityV1,
     MapLifecycleOperationV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1,
@@ -97,7 +97,7 @@ impl BuilderPrivateInstalledCallablePackageBundleV1 {
 #[must_use]
 pub(in crate::mir) struct BuilderPrivateCallableLoweringScopeV1 {
     installed: InstalledNormalCallableSemanticPackageV1,
-    direct_call_loan: Option<AppMainDirectCallDispositionLoanV1>,
+    direct_call_loan: Option<DirectCallDispositionLoanV1>,
     lowering_started: Cell<bool>,
 }
 
@@ -135,7 +135,7 @@ impl BuilderPrivateCallableLoweringScopeV1 {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringAlreadyStarted);
         }
         if self.direct_call_loan.is_none() {
-            self.direct_call_loan = self.installed.take_app_main_direct_call_loan();
+            self.direct_call_loan = self.installed.take_direct_call_loan();
         }
         self.installed
             .open_lowering_port(context, self.direct_call_loan.take())
@@ -152,7 +152,7 @@ impl BuilderPrivateCallableLoweringScopeV1 {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringAlreadyStarted);
         }
         if self.direct_call_loan.is_none() {
-            self.direct_call_loan = self.installed.take_app_main_direct_call_loan();
+            self.direct_call_loan = self.installed.take_direct_call_loan();
         }
         let package_port = self
             .installed

@@ -1,4 +1,4 @@
-//! Co-seal existing source products in the affine AppMain Call inventory.
+//! Co-seal existing source products in the affine direct-call inventory.
 //! No target lookup by name, second Completion, or physical continuation is issued.
 use super::super::model::OwnedCallableParameterContractDeclarationV1;
 use super::super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1;
@@ -16,7 +16,7 @@ use crate::mir::resolved_semantics::{BodyExpressionShapeV1, SourceBindingSiteV1}
 
 fn map_owned(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    row: &AppMainDirectCallDispositionRowV1,
+    row: &DirectCallDispositionRowV1,
 ) -> bool {
     map_owned_owner(batch, row.emission.target().callable().owner())
 }
@@ -94,7 +94,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
 fn exact_formals(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     parameters: &[OwnedCallableParameterContractDeclarationV1],
-    row: &AppMainDirectCallDispositionRowV1,
+    row: &DirectCallDispositionRowV1,
 ) -> bool {
     let target = row.emission.target();
     if !target.published_key().is_some_and(|key| {
@@ -138,7 +138,7 @@ fn exact_formals(
         .unwrap_or(false)
 }
 
-impl AppMainDirectCallDispositionLoanV1 {
+impl DirectCallDispositionLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn is_i64_call(
         &self,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -147,7 +147,7 @@ impl AppMainDirectCallDispositionLoanV1 {
         if site.owner() != self.owner || input.owner() != self.owner {
             return false;
         }
-        let Some(AppMainDirectCallDispositionSlotV1::Ready(row)) = self.rows.get(site) else {
+        let Some(DirectCallDispositionSlotV1::Ready(row)) = self.rows.get(site) else {
             return false;
         };
         row.emission.target().signature().result() == Some(ExactTrivialScalarAbiV1::I64)
@@ -169,8 +169,8 @@ impl AppMainDirectCallDispositionLoanV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
     ) -> bool {
         self.rows.values().any(|slot| match slot {
-            AppMainDirectCallDispositionSlotV1::Ready(row) => map_owned(batch, row),
-            AppMainDirectCallDispositionSlotV1::Taken => false,
+            DirectCallDispositionSlotV1::Ready(row) => map_owned(batch, row),
+            DirectCallDispositionSlotV1::Taken => false,
         })
     }
 
@@ -180,9 +180,9 @@ impl AppMainDirectCallDispositionLoanV1 {
     ) -> Option<Box<[FunctionOwnerIdV1]>> {
         let mut owners = std::collections::BTreeSet::new();
         for row in self.rows.values().filter_map(|slot| match slot {
-            AppMainDirectCallDispositionSlotV1::Ready(row) if map_owned(batch, row) => Some(row),
-            AppMainDirectCallDispositionSlotV1::Ready(_)
-            | AppMainDirectCallDispositionSlotV1::Taken => None,
+            DirectCallDispositionSlotV1::Ready(row) if map_owned(batch, row) => Some(row),
+            DirectCallDispositionSlotV1::Ready(_)
+            | DirectCallDispositionSlotV1::Taken => None,
         }) {
             owners.insert(row.emission.target().callable().owner());
         }
@@ -194,7 +194,7 @@ impl AppMainDirectCallDispositionLoanV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn has_taken_slot(&self) -> bool {
         self.rows
             .values()
-            .any(|slot| matches!(slot, AppMainDirectCallDispositionSlotV1::Taken))
+            .any(|slot| matches!(slot, DirectCallDispositionSlotV1::Taken))
     }
 
     /// A local call into an unannotated Map-owned callee: the header's
@@ -211,7 +211,7 @@ impl AppMainDirectCallDispositionLoanV1 {
             return false;
         }
         match self.rows.get(site) {
-            Some(AppMainDirectCallDispositionSlotV1::Ready(row)) => {
+            Some(DirectCallDispositionSlotV1::Ready(row)) => {
                 row.emission.target().signature().result().is_none()
                     && map_owned(batch, row)
                     && exact_formals(batch, parameters, row)
@@ -236,10 +236,10 @@ impl AppMainDirectCallDispositionLoanV1 {
         parameters: &[OwnedCallableParameterContractDeclarationV1],
         results: &VerifiedCallableResultContractCohortV1,
         root: &OrdinaryNewClaimLedgerV1,
-    ) -> Result<(), AppMainDirectCallLoanErrorV1> {
-        let reject = AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch;
+    ) -> Result<(), DirectCallLoanErrorV1> {
+        let reject = DirectCallLoanErrorV1::LifecycleSourceMismatch;
         for (site, slot) in &mut self.rows {
-            let AppMainDirectCallDispositionSlotV1::Ready(row) = slot else {
+            let DirectCallDispositionSlotV1::Ready(row) = slot else {
                 return Err(reject);
             };
             // Unavailable Map coverage is still Map-owned, never Scalar evidence.
@@ -282,7 +282,7 @@ impl AppMainDirectCallDispositionLoanV1 {
                 }
                 // The original caller relation owns local placement, not Map
                 // membership. Its existing Invoke consumer records the binding.
-                row.execution = AppMainCallExecutionV1::Lifecycle;
+                row.execution = DirectCallExecutionV1::Lifecycle;
                 continue;
             }
             if !exact_formals(batch, parameters, row) {
@@ -389,7 +389,7 @@ impl AppMainDirectCallDispositionLoanV1 {
                 _ => return Err(reject),
             }
             row.result = call_result_kind(callee.terminal_relation());
-            row.execution = AppMainCallExecutionV1::Lifecycle;
+            row.execution = DirectCallExecutionV1::Lifecycle;
         }
         Ok(())
     }

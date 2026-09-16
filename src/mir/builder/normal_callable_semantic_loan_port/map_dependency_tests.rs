@@ -18,7 +18,7 @@ impl MirBuilder {
         observation: Option<CallableMethodSourceObservationV1>,
         ledger: Rc<OrdinaryNewClaimLedgerV1>,
         loan: Option<
-            &mut crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionLoanV1,
+            &mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoanV1,
         >,
     ) -> Result<crate::mir::MirFunction, String> {
         let body = input

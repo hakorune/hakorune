@@ -226,7 +226,7 @@ impl MirBuilder {
         }
         let mut direct_call_loan = match &mut callable_mode {
             NormalCallableSemanticPackageMode::Installed(package_port) => {
-                package_port.take_app_main_direct_call_loan()
+                package_port.take_direct_call_loan()
             }
             NormalCallableSemanticPackageMode::Compatibility(_) => None,
         };
@@ -304,7 +304,7 @@ impl MirBuilder {
         };
         let direct_call_loan_result = direct_call_loan.take().map(|loan| {
             loan.finish_empty()
-                .map_err(|error| format!("[freeze:contract][app-main-direct-call/{error:?}]"))
+                .map_err(|error| format!("[freeze:contract][direct-call/{error:?}]"))
         });
         let result = match (result, direct_call_loan_result) {
             (Err(error), _) => Err(error),

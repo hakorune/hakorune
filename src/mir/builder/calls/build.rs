@@ -31,7 +31,7 @@ use crate::mir::builder::exprs_enum_match::{
     prepare_raw_enum_variant_header_v1, PreparedRawEnumVariantHeaderV1,
 };
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1,
+    drive_legacy_expression_v1, DirectCallDispositionPortV1, RawAstChildLoweringPortV1,
     RawFunctionHeaderLookupPortV1,
 };
 use crate::mir::policies::source_method_typeop_route::{
@@ -107,7 +107,7 @@ impl MirBuilder {
     where
         Port: RawAstChildLoweringPortV1
             + RawFunctionHeaderLookupPortV1
-            + AppMainDirectCallDispositionPortV1,
+            + DirectCallDispositionPortV1,
     {
         match completion {
             PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { argument } => {
@@ -117,15 +117,15 @@ impl MirBuilder {
             PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments } => {
                 lower_prepared_targeted_call_v1(self, port, callee, arguments)
             }
-            PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted { arguments } => {
-                self.lower_prepared_app_main_direct_call_v1(port, arguments)
+            PreparedRawOrdinaryFunctionCompletionV1::DirectCallTargeted { arguments } => {
+                self.lower_prepared_direct_call_v1(port, arguments)
             }
             PreparedRawOrdinaryFunctionCompletionV1::Retired(retirement) => Err(retirement.error()),
             PreparedRawOrdinaryFunctionCompletionV1::Rejected { error } => Err(error),
         }
     }
 
-    fn lower_prepared_app_main_direct_call_v1<Port>(
+    fn lower_prepared_direct_call_v1<Port>(
         &mut self,
         port: &mut Port,
         arguments: Vec<ASTNode>,
@@ -133,11 +133,11 @@ impl MirBuilder {
     where
         Port: RawAstChildLoweringPortV1
             + RawFunctionHeaderLookupPortV1
-            + AppMainDirectCallDispositionPortV1,
+            + DirectCallDispositionPortV1,
     {
         // Take the owned row first.  Its borrow ends before recursive
         // argument descent, so nested calls can use the same affine loan.
-        let row = port.take_app_main_direct_call_disposition_v1()?;
+        let row = port.take_direct_call_disposition_v1()?;
         let expected_sites = row.argument_sites().to_vec();
         let is_lifecycle = row.lifecycle_emission().is_ok();
         let arg_values = drive_call_arguments_with_expected_sites_v1(
@@ -148,17 +148,17 @@ impl MirBuilder {
         )?;
         if is_lifecycle {
             return port
-                .emit_app_main_local_lifecycle_call_v1(self, row, arg_values)?
+                .emit_local_lifecycle_call_v1(self, row, arg_values)?
                 .ok_or_else(|| {
-                    "[freeze:contract][app-main-direct-call/lifecycle-consumer-missing]".to_owned()
+                    "[freeze:contract][direct-call/lifecycle-consumer-missing]".to_owned()
                 });
         }
         let emission = row.into_scalar_emission().map_err(|error| {
-            format!("[freeze:contract][app-main-direct-call/lifecycle-consumer-missing] {error:?}")
+            format!("[freeze:contract][direct-call/lifecycle-consumer-missing] {error:?}")
         })?;
         let dst = self.next_value_id();
         let instruction = emission.materialize(dst, arg_values).map_err(|error| {
-            format!("[freeze:contract][app-main-direct-call/materialization] {error:?}")
+            format!("[freeze:contract][direct-call/materialization] {error:?}")
         })?;
         self.emit_instruction(instruction)?;
         Ok(dst)

@@ -36,10 +36,11 @@ pub(in crate::mir::builder) enum RawBrandCallAuthorityV1 {
     /// The direct legacy facade is an explicit compatibility owner.  It has
     /// no source ledger and never becomes a target resolver.
     RawLegacyParkedCompatibility,
-    /// The raw call is inside the exact installed App Main owner scope.  The
-    /// target itself remains in the package loan; this variant carries no
-    /// name/arity or physical symbol and therefore cannot become a resolver.
-    InstalledAppMain,
+    /// The raw call is inside an exact installed direct-call loan owner
+    /// scope.  The target itself remains in the package loan; this variant
+    /// carries no name/arity or physical symbol and therefore cannot become
+    /// a resolver.
+    InstalledDirectCallScope,
     InstalledNonBrand {
         caller: Option<CanonicalSameModuleCallableKeyV1>,
     },
@@ -128,8 +129,8 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
             .take_brand_constructor(&site)
             .map_err(|error| format!("[freeze:contract][callable-brand/{error:?}]"))?;
         let Some(row) = row else {
-            if self.is_app_main_direct_call_scope_v1() {
-                return Ok(RawBrandCallAuthorityV1::InstalledAppMain);
+            if self.is_direct_call_scope_v1() {
+                return Ok(RawBrandCallAuthorityV1::InstalledDirectCallScope);
             }
             return Ok(RawBrandCallAuthorityV1::InstalledNonBrand { caller });
         };

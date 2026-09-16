@@ -5,14 +5,14 @@ use crate::mir::builder::normal_callable_binding_materialization_port::{
     CallableBindingMaterializationPortV1, CallableEntryShapeV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawSourceTransportPortV1;
-use crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1;
+use crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1};
 use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::super::raw_invocation_source_transport::RawInvocationRootLineageV1;
 use super::super::recursive_child_lowering::{
-    AppMainDirectCallDispositionPortV1, RecursiveChildLoweringPortV1,
+    DirectCallDispositionPortV1, RecursiveChildLoweringPortV1,
 };
 use super::NormalCallableSemanticPackagePortAdapterV1;
 
@@ -117,23 +117,23 @@ fn verify_raw_callable_owner_v1(
     Ok(())
 }
 
-impl AppMainDirectCallDispositionPortV1
+impl DirectCallDispositionPortV1
     for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>
 {
-    fn take_app_main_direct_call_disposition_v1(
+    fn take_direct_call_disposition_v1(
         &mut self,
-    ) -> Result<AppMainDirectCallDispositionRowV1, String> {
-        self.inner.take_app_main_direct_call_disposition_v1()
+    ) -> Result<DirectCallDispositionRowV1, String> {
+        self.inner.take_direct_call_disposition_v1()
     }
 
-    fn emit_app_main_local_lifecycle_call_v1(
+    fn emit_local_lifecycle_call_v1(
         &mut self,
         builder: &mut crate::mir::MirBuilder,
-        row: AppMainDirectCallDispositionRowV1,
+        row: DirectCallDispositionRowV1,
         arguments: Vec<crate::mir::ValueId>,
     ) -> Result<Option<crate::mir::ValueId>, String> {
         self.inner
-            .emit_app_main_local_lifecycle_call_v1(builder, row, arguments)
+            .emit_local_lifecycle_call_v1(builder, row, arguments)
     }
 
     fn validate_current_call_argument_site_v1(

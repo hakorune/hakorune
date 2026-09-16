@@ -1,8 +1,8 @@
 //! Pending-draft and direct-call helper methods for the raw invocation port.
 //!
 //! This module is a BoxShape-only extraction.  The methods below forward
-//! already-issued pending records or consume the existing App Main loan; they
-//! do not select routes, issue targets, or add fallback policy.
+//! already-issued pending records or consume the existing direct-call loan;
+//! they do not select routes, issue targets, or add fallback policy.
 
 use super::*;
 use crate::mir::builder::calls::LegacyFunctionPayloadPendingSessionV1;
@@ -58,7 +58,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             .commit_legacy_symbol_pending_branded(pending, admission.into_collector_parts())
     }
 
-    pub(in crate::mir::builder) fn is_app_main_direct_call_scope_v1(&self) -> bool {
+    pub(in crate::mir::builder) fn is_direct_call_scope_v1(&self) -> bool {
         let Some(loan) = self.direct_call_loan.as_deref() else {
             return false;
         };
@@ -75,26 +75,26 @@ impl RawInvocationChildPortV1<'_, '_> {
         owner == loan.owner()
     }
 
-    pub(in crate::mir::builder) fn take_app_main_direct_call_disposition_inner_v1(
+    pub(in crate::mir::builder) fn take_direct_call_disposition_inner_v1(
         &mut self,
     ) -> Result<
-        crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
         String,
     > {
         let owner = self
             .callable_owner_v1()
-            .ok_or_else(|| "[freeze:contract][app-main-direct-call/owner-missing]".to_owned())?;
+            .ok_or_else(|| "[freeze:contract][direct-call/owner-missing]".to_owned())?;
         let site = self
             .current_source_site_v1()
-            .ok_or_else(|| "[freeze:contract][app-main-direct-call/site-missing]".to_owned())?;
+            .ok_or_else(|| "[freeze:contract][direct-call/site-missing]".to_owned())?;
         let loan = self
             .direct_call_loan
             .as_deref_mut()
-            .ok_or_else(|| "[freeze:contract][app-main-direct-call/loan-unavailable]".to_owned())?;
+            .ok_or_else(|| "[freeze:contract][direct-call/loan-unavailable]".to_owned())?;
         loan.take_once(
             owner,
             crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
         )
-        .map_err(|error| format!("[freeze:contract][app-main-direct-call/{error:?}]"))
+        .map_err(|error| format!("[freeze:contract][direct-call/{error:?}]"))
     }
 }

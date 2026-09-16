@@ -43,7 +43,7 @@ fn local_map_call_then_terminal_map_call_reaches_physical_lowering() {
         }"#,
     )
     .expect("bounded local plus terminal Map package");
-    let mut loan = package.app_main_direct_call_loan.take().unwrap();
+    let mut loan = package.direct_call_loan.take().unwrap();
     let main = package
         .declaration_catalog()
         .source_backed_app_main()
@@ -109,7 +109,7 @@ fn source_terminal_call_preserves_both_cleanup_paths_through_finishing() {
             }}"
             ))
             .unwrap();
-            let mut loan = package.app_main_direct_call_loan.take().unwrap();
+            let mut loan = package.direct_call_loan.take().unwrap();
             let main = package
                 .declaration_catalog()
                 .source_backed_app_main()
@@ -320,7 +320,7 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
         "static box Main { main() { return helper(30, 5) } helper(value: i64, other: i64): i64 { local m = %{\"v\" => value} return 30 } }",
     )
     .unwrap();
-    let mut loan = package.app_main_direct_call_loan.take().unwrap();
+    let mut loan = package.direct_call_loan.take().unwrap();
     let main = package
         .declaration_catalog()
         .source_backed_app_main()
@@ -399,7 +399,7 @@ fn map_result_local_call_installs_lease_and_releases_at_exit() {
         }"#,
     )
     .expect("map-result local call package");
-    let mut loan = package.app_main_direct_call_loan.take().unwrap();
+    let mut loan = package.direct_call_loan.take().unwrap();
     let main = package
         .declaration_catalog()
         .source_backed_app_main()
@@ -585,7 +585,7 @@ fn map_result_call_commit_row_rejects_foreign_and_duplicate_sites() {
         .begin_map_call_emission(&call_site)
         .unwrap_err()
         .contains("map-duplicate-emission"));
-    let _ = package.app_main_direct_call_loan.take();
+    let _ = package.direct_call_loan.take();
 }
 
 fn follow_jumps(

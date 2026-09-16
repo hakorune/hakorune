@@ -53,7 +53,7 @@ pub(in crate::mir::builder) use raw_ordinary_new_claim::RawOrdinaryNewClaimPortV
 
 pub(in crate::mir::builder) use super::raw_loop_child_port::RawLoopChildEntryPortV1;
 pub(in crate::mir::builder) use super::recursive_child_lowering_port::{
-    AppMainDirectCallDispositionPortV1, DeclaredInstanceReceiverIngressV1,
+    DirectCallDispositionPortV1, DeclaredInstanceReceiverIngressV1,
     RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 
@@ -240,7 +240,7 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     /// package for this invocation only.  Children receive a short reborrow;
     /// no clone or second inventory is created.
     pub(in crate::mir::builder) direct_call_loan: Option<
-        &'port mut crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionLoanV1,
+        &'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoanV1,
     >,
     /// Short-lived package locator capability for the selected DeclaredInstance
     /// root. Compatibility frames remain explicitly unarmed.
@@ -288,7 +288,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
         callable_loop_root_scope: &'port mut super::UnpublishedCallableLoopRootScopeV1,
-        direct_call_loan: Option<&'port mut crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionLoanV1>,
+        direct_call_loan: Option<&'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoanV1>,
     ) -> Self {
         Self::new_with_optional_callable_loop_root_scope_and_direct_call_loan(
             module_port,
@@ -315,7 +315,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
         callable_loop_root_scope: Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
-        direct_call_loan: Option<&'port mut crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionLoanV1>,
+        direct_call_loan: Option<&'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoanV1>,
     ) -> Self {
         Self {
             module_port,
@@ -610,26 +610,26 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     }
 }
 
-impl AppMainDirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
-    fn take_app_main_direct_call_disposition_v1(
+impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn take_direct_call_disposition_v1(
         &mut self,
     ) -> Result<
-        crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
         String,
     > {
-        if !self.is_app_main_direct_call_scope_v1() {
-            return Err("[freeze:contract][app-main-direct-call/scope-mismatch]".to_owned());
+        if !self.is_direct_call_scope_v1() {
+            return Err("[freeze:contract][direct-call/scope-mismatch]".to_owned());
         }
-        self.take_app_main_direct_call_disposition_inner_v1()
+        self.take_direct_call_disposition_inner_v1()
     }
 
-    fn emit_app_main_local_lifecycle_call_v1(
+    fn emit_local_lifecycle_call_v1(
         &mut self,
         builder: &mut MirBuilder,
-        row: crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        row: crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
         arguments: Vec<ValueId>,
     ) -> Result<Option<ValueId>, String> {
-        if !self.is_app_main_direct_call_scope_v1() {
+        if !self.is_direct_call_scope_v1() {
             return Ok(None);
         }
         let owner = self
@@ -671,11 +671,11 @@ impl AppMainDirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             .current_source_site_v1()
             .map(crate::mir::resolved_semantics::SourceExprSiteV1::from_node)
             .ok_or_else(|| {
-                "[freeze:contract][app-main-direct-call/argument-site-missing]".to_owned()
+                "[freeze:contract][direct-call/argument-site-missing]".to_owned()
             })?;
         if &actual != expected {
             return Err(
-                "[freeze:contract][app-main-direct-call/argument-site-mismatch]".to_owned(),
+                "[freeze:contract][direct-call/argument-site-mismatch]".to_owned(),
             );
         }
         Ok(())

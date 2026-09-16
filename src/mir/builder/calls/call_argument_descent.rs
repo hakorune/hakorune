@@ -11,7 +11,7 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1,
+    drive_legacy_expression_v1, DirectCallDispositionPortV1, RawAstChildLoweringPortV1,
     RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
@@ -63,10 +63,10 @@ where
     Ok(values)
 }
 
-/// App Main's exact direct-call consumer uses the same ordered argument
-/// descent, with one additional check that the raw argument scope matches the
-/// source sites sealed by the producer.  No second AST walk or target lookup
-/// is introduced here.
+/// The exact direct-call consumer uses the same ordered argument descent,
+/// with one additional check that the raw argument scope matches the source
+/// sites sealed by the producer.  No second AST walk or target lookup is
+/// introduced here.
 pub(in crate::mir::builder) fn drive_call_arguments_with_expected_sites_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
@@ -74,12 +74,12 @@ pub(in crate::mir::builder) fn drive_call_arguments_with_expected_sites_v1<Port>
     expected_sites: &[SourceExprSiteV1],
 ) -> Result<Vec<ValueId>, String>
 where
-    Port: CallArgumentDescentPortV1 + AppMainDirectCallDispositionPortV1,
+    Port: CallArgumentDescentPortV1 + DirectCallDispositionPortV1,
 {
     validate_argument_inputs(port, input)?;
     if port.argument_count(input) != expected_sites.len() {
         return Err(format!(
-            "[freeze:contract][app-main-direct-call/argument-site-cardinality] expected={} actual={}",
+            "[freeze:contract][direct-call/argument-site-cardinality] expected={} actual={}",
             expected_sites.len(),
             port.argument_count(input)
         ));

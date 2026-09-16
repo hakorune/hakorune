@@ -19,7 +19,7 @@ use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
-    AppMainDirectCallDispositionPortV1, RawFunctionHeaderLookupPortV1, RawOrdinaryNewClaimPortV1,
+    DirectCallDispositionPortV1, RawFunctionHeaderLookupPortV1, RawOrdinaryNewClaimPortV1,
     RecursiveChildLoweringPortV1,
 };
 use super::recursive_child_lowering_port::{
@@ -272,27 +272,27 @@ where
     }
 }
 
-impl<Port> AppMainDirectCallDispositionPortV1 for RawStructuredChildScopePortV1<'_, Port>
+impl<Port> DirectCallDispositionPortV1 for RawStructuredChildScopePortV1<'_, Port>
 where
-    Port: AppMainDirectCallDispositionPortV1,
+    Port: DirectCallDispositionPortV1,
 {
-    fn take_app_main_direct_call_disposition_v1(
+    fn take_direct_call_disposition_v1(
         &mut self,
     ) -> Result<
-        crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
         String,
     > {
-        self.child.take_app_main_direct_call_disposition_v1()
+        self.child.take_direct_call_disposition_v1()
     }
 
-    fn emit_app_main_local_lifecycle_call_v1(
+    fn emit_local_lifecycle_call_v1(
         &mut self,
         builder: &mut MirBuilder,
-        row: crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        row: crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
         arguments: Vec<ValueId>,
     ) -> Result<Option<ValueId>, String> {
         self.child
-            .emit_app_main_local_lifecycle_call_v1(builder, row, arguments)
+            .emit_local_lifecycle_call_v1(builder, row, arguments)
     }
 
     fn validate_current_call_argument_site_v1(

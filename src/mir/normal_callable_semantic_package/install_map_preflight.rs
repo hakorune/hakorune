@@ -37,7 +37,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         // admissibility still applies inside this lane; what is gone is
         // the fixed call-count/reachability shape bound, which the
         // undertaking replaces as coverage proof.
-        if let Some(loan) = self.app_main_direct_call_loan.as_ref() {
+        if let Some(loan) = self.direct_call_loan.as_ref() {
             if loan.has_taken_slot() {
                 return Err(Issue::MapLifecycleConsumerMissing);
             }
