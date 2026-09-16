@@ -82,12 +82,16 @@ pub(crate) struct CompiledEntryBirthCallV1 {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct CompiledEntryOrdinaryCallV1 {
+    caller_function_index: u32,
     function_index: u32,
     call: crate::mir::definitions::MirCall,
     result: InvokeCallResultKind,
 }
 
 impl CompiledEntryOrdinaryCallV1 {
+    pub(crate) const fn caller_function_index(&self) -> u32 {
+        self.caller_function_index
+    }
     pub(crate) const fn function_index(&self) -> u32 {
         self.function_index
     }
@@ -237,17 +241,28 @@ impl<'module> PublishedMirBackendView<'module> {
             let PublishedLifecyclePhysicalFunctionRoleV1::Root { result } = root.role() else {
                 return Err(fault("compiled-entry-root-role"));
             };
-            let root_ordinary_calls = root
-                .blocks()
-                .iter()
-                .flat_map(|block| {
+            // Ordinary calls are per-caller rows: every caller-capable
+            // function (root and ordinary alike) carries its own edges, and
+            // the caller's program index is part of the row identity.
+            let mut program_ordinary_calls = Vec::new();
+            for (index, function) in program.functions().iter().enumerate() {
+                if !matches!(
+                    function.role(),
+                    PublishedLifecyclePhysicalFunctionRoleV1::Root { .. }
+                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
+                ) {
+                    continue;
+                }
+                let caller_function_index =
+                    u32::try_from(index).map_err(|_| fault("compiled-entry-index"))?;
+                for row in function.blocks().iter().flat_map(|block| {
                     block
                         .instructions()
                         .iter()
                         .copied()
                         .chain(std::iter::once(block.terminator()))
-                })
-                .filter_map(|row| {
+                }) {
                     let MirInstruction::Invoke {
                         operation:
                             InvokeOperation::Call {
@@ -259,11 +274,11 @@ impl<'module> PublishedMirBackendView<'module> {
                         ..
                     } = row.instruction()
                     else {
-                        return None;
+                        continue;
                     };
-                    Some((call.clone(), *result))
-                })
-                .collect::<Vec<_>>();
+                    program_ordinary_calls.push((caller_function_index, call.clone(), *result));
+                }
+            }
             let mut contract_births = Vec::with_capacity(tail.len());
             let mut birth_functions = Vec::with_capacity(tail.len());
             let mut ordinary_function_indices = BTreeMap::new();
@@ -337,8 +352,8 @@ impl<'module> PublishedMirBackendView<'module> {
                 }
             }
             let mut referenced_ordinary_keys = BTreeSet::new();
-            let mut ordinary_calls = Vec::with_capacity(root_ordinary_calls.len());
-            for (call, result) in root_ordinary_calls {
+            let mut ordinary_calls = Vec::with_capacity(program_ordinary_calls.len());
+            for (caller_function_index, call, result) in program_ordinary_calls {
                 let key = super::physical_program::ordinary_callable_key(&call.callee)?;
                 let function_index = *ordinary_function_indices
                     .get(&key)
@@ -365,6 +380,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 }
                 referenced_ordinary_keys.insert(key);
                 ordinary_calls.push(CompiledEntryOrdinaryCallV1 {
+                    caller_function_index,
                     function_index,
                     call,
                     result,

@@ -94,7 +94,12 @@ apply only while an entry is bound. It then borrows the published functions
 for namespace and direct Birth-call validation. Return-only retained Birth
 functions remain checked before calls. Lifecycle/Return row arrays and their
 coordinate wrapper are retired; the view keeps only lifecycle presence from
-its existing scan. Presence is an observation, never admission permission. Finalization owns the selected storage profile; the view
+its existing scan. Presence is an observation, never admission permission.
+Physical program issuance walks the sealed call edges transitively from the
+retained root: every emitted root/ordinary function carries its own call-row
+multiset through `issue_function_with_module`, callee keys keep one physical
+result contract, and compiled-entry ordinary-call rows name their caller
+function index. Finalization owns the selected storage profile; the view
 borrows it through callback completion and observes selection without rewriting
 its structural route. Generic module-only lifecycle views remain unsupported.
 Static/free/print/array row vectors remain view-local. Callable Unit retains its

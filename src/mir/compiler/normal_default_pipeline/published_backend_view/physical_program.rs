@@ -240,11 +240,48 @@ impl<'module> PublishedMirBackendView<'module> {
             .retained_handoff
             .ok_or_else(|| fault("root-handoff-missing"))?;
         let root = self.retained_root().ok_or_else(|| fault("root-missing"))?;
-        let ordinary_calls = if handoff.script_array().is_some() {
-            Vec::new()
-        } else {
-            collect_ordinary_calls(root)?
-        };
+        // Ordinary membership is transitive: every emitted function carries
+        // its own sealed call rows, and callees discovered mid-walk join the
+        // walk. The retained root selects the entry, not the edge set.
+        let mut call_sets: std::collections::BTreeMap<&str, Vec<OrdinaryCallSite>> =
+            std::collections::BTreeMap::new();
+        let mut ordinary_sites: std::collections::BTreeMap<
+            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+            OrdinaryCallSite,
+        > = std::collections::BTreeMap::new();
+        if handoff.script_array().is_none() {
+            let mut visited = BTreeSet::from([root.signature.name.as_str()]);
+            let mut pending = std::collections::VecDeque::from([root]);
+            while let Some(function) = pending.pop_front() {
+                let sites = collect_ordinary_calls(function)?;
+                for site in &sites {
+                    let key = ordinary_callable_key(&site.call.callee)?;
+                    match ordinary_sites.entry(key.clone()) {
+                        std::collections::btree_map::Entry::Vacant(entry) => {
+                            entry.insert(site.clone());
+                        }
+                        // One physical result contract per callee key; a key
+                        // cannot be both an i64 callee and a Map callee.
+                        std::collections::btree_map::Entry::Occupied(entry)
+                            if entry.get().result == site.result => {}
+                        _ => return Err(fault("ordinary-result-contract-drift")),
+                    }
+                    let symbol = self
+                        .module()
+                        .canonical_callable_definition_symbol(&key)
+                        .ok_or_else(|| fault("ordinary-definition-missing"))?;
+                    if visited.insert(symbol) {
+                        pending.push_back(
+                            self.module()
+                                .functions
+                                .get(symbol)
+                                .ok_or_else(|| fault("ordinary-function-missing"))?,
+                        );
+                    }
+                }
+                call_sets.insert(function.signature.name.as_str(), sites);
+            }
+        }
         let (root_result, births) = if let Some(script) = handoff.script_array() {
             script.validate_root_binding(root)?;
             let result = match script.root_result()? {
@@ -272,7 +309,7 @@ impl<'module> PublishedMirBackendView<'module> {
             )
         };
         let mut names = BTreeSet::new();
-        let mut functions = Vec::with_capacity(births.len() + ordinary_calls.len() + 1);
+        let mut functions = Vec::with_capacity(births.len() + ordinary_sites.len() + 1);
         names.insert(root.signature.name.as_str());
         functions.push(issue_function_with_module(
             Some(self.module()),
@@ -281,46 +318,27 @@ impl<'module> PublishedMirBackendView<'module> {
                 result: root_result,
             },
             handoff.script_array().is_some(),
-            &ordinary_calls,
+            call_sets
+                .get(root.signature.name.as_str())
+                .map(Vec::as_slice)
+                .unwrap_or(&[]),
         )?);
-        let mut ordinary_keys = std::collections::BTreeMap::new();
-        for site in &ordinary_calls {
-            let key = ordinary_callable_key(&site.call.callee)?;
-            match ordinary_keys.entry(key.clone()) {
-                std::collections::btree_map::Entry::Vacant(entry) => {
-                    entry.insert(site.result);
-                }
-                // One physical result contract per callee key; a key cannot be
-                // both an i64 callee and a Map callee.
-                std::collections::btree_map::Entry::Occupied(entry)
-                    if *entry.get() == site.result => {}
-                _ => return Err(fault("ordinary-result-contract-drift")),
-            }
-        }
-        for (key, result) in ordinary_keys {
+        for (key, site) in &ordinary_sites {
             let symbol = self
                 .module()
-                .canonical_callable_definition_symbol(&key)
+                .canonical_callable_definition_symbol(key)
                 .ok_or_else(|| fault("ordinary-definition-missing"))?;
             let function = self
                 .module()
                 .functions
                 .get(symbol)
                 .ok_or_else(|| fault("ordinary-function-missing"))?;
-            let site = ordinary_calls
-                .iter()
-                .find(|site| {
-                    ordinary_callable_key(&site.call.callee)
-                        .map(|candidate| candidate == key)
-                        .unwrap_or(false)
-                })
-                .expect("a site for the just-collected key must remain present");
             let receiver = ordinary_call_receiver(&site.call.callee)?;
             let expected_arity = site.call.args.len() + usize::from(receiver.is_some());
             if function.signature.name != key.mir_symbol_projection()
                 || function.signature.params.len() != expected_arity
                 || !matches!(
-                    (result, &function.signature.return_type),
+                    (site.result, &function.signature.return_type),
                     (InvokeCallResultKind::I64, crate::mir::MirType::Integer)
                         | (
                             InvokeCallResultKind::Map,
@@ -331,17 +349,17 @@ impl<'module> PublishedMirBackendView<'module> {
             {
                 return Err(fault("ordinary-membership-drift"));
             }
-            let receiver_object = object_identity::ordinary_receiver_object(self.module(), &key)?;
-            let role = match result {
+            let receiver_object = object_identity::ordinary_receiver_object(self.module(), key)?;
+            let role = match site.result {
                 InvokeCallResultKind::I64 => {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 {
-                        key,
+                        key: key.clone(),
                         receiver_object,
                     }
                 }
                 InvokeCallResultKind::Map => {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap {
-                        key,
+                        key: key.clone(),
                         receiver_object,
                     }
                 }
@@ -354,7 +372,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 function,
                 role,
                 false,
-                &[],
+                call_sets.get(symbol).map(Vec::as_slice).unwrap_or(&[]),
             )?);
         }
         for birth in births {
@@ -776,6 +794,166 @@ mod tests {
                         ))
                         .count(),
                         2,
+                    );
+                    Err("[freeze:contract][published-lifecycle/consumer-pending]".into())
+                },
+            );
+            match result {
+                Err(error) if error.contains("consumer-pending") => {}
+                Err(error) => panic!("unexpected selected consumer error: {error}"),
+                Ok(_) => panic!("selected consumer must propagate pending terminal"),
+            }
+        });
+    }
+
+    #[test]
+    fn nested_ordinary_call_chain_emits_per_function_call_rows() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            let mut compiler = MirCompiler::with_options(false);
+            let result = compiler.compile_normal_with_published(
+                request(
+                    "static function inner(): i64 { return 7 }
+                     static function helper(value: i64): i64 { return value }
+                     static box Main { main() { return helper(10) } }",
+                ),
+                |view, _| -> Result<(), String> {
+                    // The producer lane cannot yet seal a call edge inside an
+                    // ordinary callee; inject the nested edge on a module clone
+                    // so the physical projection is pinned at its own layer.
+                    let handoff = view.retained_handoff.expect("one borrowed handoff");
+                    let mut nested = view.module().clone();
+                    let symbol_of = |fragment: &str| {
+                        nested
+                            .canonical_callable_definitions
+                            .keys()
+                            .map(|key| key.mir_symbol_projection())
+                            .find(|symbol| symbol.contains(fragment))
+                            .unwrap_or_else(|| panic!("{fragment} catalog symbol"))
+                    };
+                    let helper_symbol = symbol_of("helper");
+                    let inner_symbol = symbol_of("inner");
+                    let helper = nested.functions.get_mut(&helper_symbol).unwrap();
+                    let invoke_block = *helper.blocks.keys().next().unwrap();
+                    let normal = BasicBlockId::new(90);
+                    let fault_block = BasicBlockId::new(91);
+                    let nested_result = ValueId::new(900);
+                    let nested_call = MirCall::new(
+                        None,
+                        Callee::Global(
+                            hakorune_mir_defs::CanonicalGlobalTargetV1::new_free_function(
+                                "inner".into(),
+                                0,
+                            )
+                            .unwrap(),
+                        ),
+                        vec![],
+                    );
+                    helper
+                        .blocks
+                        .get_mut(&invoke_block)
+                        .unwrap()
+                        .set_terminator(MirInstruction::Invoke {
+                            operation: InvokeOperation::Call {
+                                call: nested_call.clone(),
+                                result: InvokeCallResultKind::I64,
+                            },
+                            fault_frame: ValueId::INVALID,
+                            normal_landing: normal,
+                            fault_landing: fault_block,
+                        });
+                    let mut normal_block = crate::mir::BasicBlock::new(normal);
+                    normal_block.add_instruction(MirInstruction::InvokeNormalResult {
+                        invoke_block,
+                        dst: nested_result,
+                    });
+                    normal_block.set_terminator(MirInstruction::Return {
+                        value: Some(nested_result),
+                    });
+                    helper.blocks.insert(normal, normal_block);
+                    let mut fault_block = crate::mir::BasicBlock::new(fault_block);
+                    fault_block.set_terminator(MirInstruction::ReturnFault {
+                        fault_frame: ValueId::INVALID,
+                    });
+                    helper.blocks.insert(fault_block.id, fault_block);
+
+                    let admitted = super::super::super::lifecycle_admission::admit_lifecycle(
+                        PublishedMirBackendView::try_new(&nested)
+                            .map_err(|error| error.to_string())?
+                            .bind_finalized_root_handoff(Some(handoff))?,
+                        &super::super::PublishedObjectStorageProfileV1::SafeMutex,
+                    )?;
+                    let program = admitted.issue_lifecycle_physical_program()?;
+                    let contract = admitted.issue_lifecycle_compiled_entry_contract()?;
+                    assert_eq!(program.functions().len(), 3, "{:?}", program.functions());
+                    let index_of = |fragment: &str| {
+                        program
+                            .functions()
+                            .iter()
+                            .position(|function| function.name().contains(fragment))
+                            .unwrap_or_else(|| panic!("{fragment} emitted function"))
+                    };
+                    let helper_index = index_of("helper");
+                    let inner_index = index_of("inner");
+                    assert!(matches!(
+                        program.functions()[0].role(),
+                        PublishedLifecyclePhysicalFunctionRoleV1::Root {
+                            result: CompiledEntryRootResultV1::I64,
+                            ..
+                        }
+                    ));
+                    for (index, symbol) in [(helper_index, "helper"), (inner_index, "inner")] {
+                        assert!(
+                            matches!(
+                                program.functions()[index].role(),
+                                PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 {
+                                    key,
+                                    ..
+                                } if key.mir_symbol_projection().contains(symbol)
+                            ),
+                            "{symbol} must keep its ordinary i64 role"
+                        );
+                    }
+                    assert_eq!(program.functions()[helper_index].name(), helper_symbol);
+                    assert_eq!(program.functions()[inner_index].name(), inner_symbol);
+                    // The callee's own edge stays inside its emitted body.
+                    let nested_rows: Vec<_> = program.functions()[helper_index]
+                        .blocks()
+                        .iter()
+                        .flat_map(|block| {
+                            block
+                                .instructions()
+                                .iter()
+                                .copied()
+                                .chain(std::iter::once(block.terminator()))
+                        })
+                        .filter_map(|row| match row.instruction() {
+                            MirInstruction::Invoke {
+                                operation: InvokeOperation::Call { call, result },
+                                ..
+                            } => Some((call, *result)),
+                            _ => None,
+                        })
+                        .collect();
+                    assert_eq!(
+                        nested_rows,
+                        [(&nested_call, InvokeCallResultKind::I64)],
+                        "helper must carry exactly its own sealed call row"
+                    );
+                    // Each contract row names its exact caller.
+                    let mut callers: Vec<_> = contract
+                        .ordinary_calls()
+                        .iter()
+                        .map(|call| (call.caller_function_index(), call.function_index()))
+                        .collect();
+                    callers.sort();
+                    assert_eq!(
+                        callers,
+                        [
+                            (0, helper_index as u32),
+                            (helper_index as u32, inner_index as u32)
+                        ],
+                        "{callers:?}"
                     );
                     Err("[freeze:contract][published-lifecycle/consumer-pending]".into())
                 },
