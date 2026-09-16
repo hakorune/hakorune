@@ -217,10 +217,11 @@ impl OrdinaryNewClaimLedgerV1 {
         fn carries_map(
             flow: &crate::mir::resolved_semantics::home_new_prefix::RootHomeFlow,
         ) -> bool {
-            !flow.maps().is_empty() || flow.local_calls().iter().any(|call| {
-                call.result()
+            !flow.maps().is_empty()
+                || flow.local_calls().iter().any(|call| {
+                    call.result()
                     == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
-            })
+                })
         }
         let indexed = self.completion_index.values().any(|row| {
             row.as_ref()
