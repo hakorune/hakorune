@@ -258,6 +258,12 @@ fn map_transfer_invalidates_old_local_and_alias_field_observation() {
         assert!(package
             .ordinary_new_claim_ledger
             .requires_map_lifecycle_consumer());
+        // The completed Map row survives the failed exit analysis; the
+        // undertaking co-seals exit evidence, so install must reject
+        // before any catalog mutation — never admit on the row alone.
+        let mut context = CompilationContext::new();
+        assert!(package.prepare_install(&mut context).is_err(), "{receiver}");
+        assert!(context.callable_declaration_catalog_vacant());
     }
 }
 
@@ -281,14 +287,16 @@ fn unavailable_prefix_cannot_skip_map_install_stop() {
 }
 
 #[test]
-fn implicit_exit_map_owner_installs_with_covered_obligations() {
-    // Implicit/Unit exits are not a Map lifecycle obligation: the
-    // described create+cleanup set is covered, so install admits the
-    // owner and the exit convention stays the lowering lane's call.
+fn implicit_exit_map_owner_rejects_without_terminal_evidence() {
+    // An implicit exit issues no terminal Homes set and no terminal
+    // relation — the undertaking cannot co-seal cleanup evidence that
+    // was never issued, so the owner stops at preflight. Unit exits
+    // (`return`) carry sealed evidence and stay admitted.
     for body in ["local m = %{}", "local a = new Page() local m = %{}"] {
         let package = issue(&source(body)).unwrap();
         let mut context = CompilationContext::new();
-        assert!(package.prepare_install(&mut context).is_ok(), "{body}");
+        assert!(package.prepare_install(&mut context).is_err(), "{body}");
+        assert!(context.callable_declaration_catalog_vacant());
     }
 }
 

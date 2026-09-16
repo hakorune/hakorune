@@ -19,10 +19,11 @@
 //! claim-family describe arm is a separate bounded row.
 
 use crate::mir::resolved_semantics::home_new_prefix::{
-    MapDestinationV1, MapHomeFlow, MapHomeObservation, MapValueSource,
+    MapDestinationV1, MapHomeFlow, MapHomeObservation, MapValueSource, TerminalRelationV1,
+    TerminalReturnedSourceV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceExprSiteV1,
+    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use std::collections::BTreeSet;
 
@@ -193,6 +194,16 @@ pub(crate) enum MapObligationDescribeIssueV1 {
         owner: FunctionOwnerIdV1,
         site: OwnedExprSiteV1,
     },
+    /// The owner's cleanup never reached a usable terminal Homes set —
+    /// its completed Map rows cannot prove the exit they must survive.
+    OwnerTerminalHomesUnavailable { owner: FunctionOwnerIdV1 },
+    /// The owner has no sealed terminal relation at all — the exit the
+    /// Map obligations must be ordered against does not exist.
+    OwnerTerminalRelationMissing { owner: FunctionOwnerIdV1 },
+    /// The sealed terminal relation hands a Map to the caller, but no
+    /// described site satisfies it — sealed drift, never to be silently
+    /// dropped.
+    OwnerTerminalMapUnmatched { owner: FunctionOwnerIdV1 },
 }
 
 /// The sealed relation the undertaking proves: described obligations exist
@@ -229,10 +240,26 @@ pub(crate) enum MapLifecycleUndertakingIssueV1 {
     EmptyUndertaking,
 }
 
+/// A Map the sealed terminal relation hands to the caller. `Literal`
+/// rows already describe `ReturnHandoff` through their `ReturnBoundary`
+/// destination — the terminal join is a consistency check. `Local`
+/// rows carry the map to the boundary without a `ReturnBoundary`
+/// destination, so the handoff obligation is added here.
+enum ReturnedMapV1<'a> {
+    Literal {
+        site: &'a OwnedExprSiteV1,
+        return_site: &'a SourceStmtSiteV1,
+    },
+    Local(BindingRefV1),
+}
+
 /// Describe one Complete flow row as a site obligation.
-fn describe_flow(flow: &MapHomeFlow) -> MapSiteObligationV1 {
+fn describe_flow(flow: &MapHomeFlow, returned_local: bool) -> MapSiteObligationV1 {
     use MapLifecycleOperationV1 as Op;
     let mut operations = BTreeSet::from([Op::ValueCreate, Op::NormalCleanup, Op::FaultCleanup]);
+    if returned_local {
+        operations.insert(Op::ReturnHandoff);
+    }
     match flow.destination() {
         MapDestinationV1::LocalBinding(_) => {}
         MapDestinationV1::ReturnBoundary(_) => {
@@ -368,10 +395,34 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
                 .ordinary_new_claim_ledger
                 .completion_for_owner(owner)
                 .ok_or(MapObligationDescribeIssueV1::OwnerCompletionMissing { owner })?;
+            // Co-seal the owner's exit evidence regardless of any
+            // AppMain loan: completed Map rows alone cannot prove the
+            // cleanup the consumer must execute at the terminal.
+            if !matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
+                return Err(MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable { owner });
+            }
             let flow = completion
                 .cleanup()
                 .root_flow()
                 .ok_or(MapObligationDescribeIssueV1::OwnerRootFlowMissing { owner })?;
+            let terminal = self
+                .ordinary_new_claim_ledger
+                .terminal_relation_for_owner(owner)
+                .ok_or(MapObligationDescribeIssueV1::OwnerTerminalRelationMissing { owner })?;
+            let returned_map = match terminal {
+                TerminalRelationV1::Value(row) => match row.returned() {
+                    TerminalReturnedSourceV1::MapLiteral(site) => Some(ReturnedMapV1::Literal {
+                        site,
+                        return_site: row.return_site(),
+                    }),
+                    TerminalReturnedSourceV1::MapLocal(binding) => {
+                        Some(ReturnedMapV1::Local(*binding))
+                    }
+                    _ => None,
+                },
+                _ => None,
+            };
+            let mut returned_matched = returned_map.is_none();
             let mut rows = Vec::with_capacity(sites.len());
             for site in sites {
                 let owned = OwnedExprSiteV1::new(owner, site);
@@ -384,7 +435,35 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
                         owner,
                         site: owned.clone(),
                     })?;
-                rows.push(describe_flow(observation));
+                let mut returned_local = false;
+                match &returned_map {
+                    Some(ReturnedMapV1::Literal {
+                        site: returned_site,
+                        return_site,
+                    }) if observation.site() == *returned_site => {
+                        if !matches!(
+                            observation.destination(),
+                            MapDestinationV1::ReturnBoundary(statement)
+                                if statement.node() == return_site.node()
+                        ) {
+                            return Err(MapObligationDescribeIssueV1::OwnerTerminalMapUnmatched {
+                                owner,
+                            });
+                        }
+                        returned_matched = true;
+                    }
+                    Some(ReturnedMapV1::Local(binding))
+                        if observation.local_binding() == Some(*binding) =>
+                    {
+                        returned_local = true;
+                        returned_matched = true;
+                    }
+                    _ => {}
+                }
+                rows.push(describe_flow(observation, returned_local));
+            }
+            if !returned_matched {
+                return Err(MapObligationDescribeIssueV1::OwnerTerminalMapUnmatched { owner });
             }
             described.push(MapOwnerObligationsV1 {
                 owner,

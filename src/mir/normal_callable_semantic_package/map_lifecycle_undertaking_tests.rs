@@ -72,15 +72,56 @@ fn nested_map_child_describes_slot_handoff() {
 }
 
 #[test]
-fn call_argument_map_describes_argument_handoff() {
+fn call_argument_map_owner_stops_at_describe_without_exit_evidence() {
+    // A `%{...}` call argument makes the owning call unavailable to the
+    // i64-call prefix (literal-argument coverage only), so the owner has
+    // no sealed terminal evidence — describe must stop, never emit a
+    // partially known obligation set. The `ArgumentHandoff` operation
+    // stays in the contract vocabulary for the future call-argument
+    // lane; nothing reachable can declare it today.
+    for body in [
+        "local r = Helpers.consume(%{\"a\" => flag}, 7) return 30",
+        "return Helpers.consume(%{\"a\" => flag}, 7)",
+    ] {
+        let package = issue(&format!(
+            "static box Helpers {{ consume(a, b) {{ return 30 }} run(flag) {{ {body} }} }}
+             static box Main {{ main() {{ return 30 }} }}",
+        ))
+        .expect("call-argument map package");
+        assert!(matches!(
+            package.describe_map_lifecycle_obligations(),
+            Err(
+                super::map_lifecycle_undertaking::MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable { .. }
+            )
+        ), "{body}");
+    }
+}
+
+#[test]
+fn returned_map_local_describes_return_handoff_on_the_local_site() {
+    // `local m = %{}; return m` carries the map through a LocalBinding
+    // destination — the handoff obligation comes from the sealed
+    // terminal relation's `MapLocal` returned source, not from the
+    // destination class.
     let package = issue(
-        "static box Helpers { consume(a, b) { return 30 } run(flag) {
-            return Helpers.consume(%{\"a\" => flag}, 7) } }
+        "static box Work { make() { local m = %{\"a\" => 1} return m } }
          static box Main { main() { return 30 } }",
     )
-    .expect("call-argument map package");
-    let operations = operations_of(&package, 0, 0);
-    assert!(operations.contains(&Op::ArgumentHandoff));
+    .expect("map-local return package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let [owner] = obligations.as_ref() else {
+        panic!("one map-owning owner");
+    };
+    let [site] = owner.sites() else {
+        panic!("one map site");
+    };
+    assert!(matches!(
+        site.destination(),
+        crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1::LocalBinding(_)
+    ));
+    assert!(site.operations().any(|op| op == Op::ReturnHandoff));
 }
 
 #[test]

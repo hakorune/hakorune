@@ -363,7 +363,15 @@ handoff, Normal/Fault cleanup — derived, never reclassified, from sealed
 enumerates the obligation set from sealed batch membership (every declared
 `MapLiteral` site per owner), not from the owners whose completion happened
 to succeed; a missing completion or an `Unavailable` flow row is a named
-`MapObligationDescribeIssueV1`, not a dropped row. `MapEntryBorrowV1` keeps
+`MapObligationDescribeIssueV1`, not a dropped row. Describe also co-seals
+each owner's exit evidence independent of any AppMain loan
+(`OwnerTerminalHomesUnavailable`/`OwnerTerminalRelationMissing`): a
+completed Map row cannot prove the cleanup it must survive without the
+sealed terminal Homes set and terminal relation, and a sealed map return
+joins the obligation set — `MapLocal` returned sources add `ReturnHandoff`
+to the map's own `LocalBinding` site while a `MapLiteral` return must
+match its `ReturnBoundary` row (`OwnerTerminalMapUnmatched` on drift).
+`MapEntryBorrowV1` keeps
 exact borrowed-binding evidence (map-local and handle entries, including
 inside `[...]` values) for the returned-map borrow-liveness check.
 `verify_map_lifecycle_undertaking` seals the one relation the aggregate
