@@ -6,8 +6,8 @@
 //! value and which Homes were live before the call.
 
 use super::{
-    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLiteralSourceV1, SourceExprSiteV1,
-    SourceStmtSiteV1,
+    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLiteralSourceV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
@@ -25,6 +25,7 @@ pub(crate) struct LocalCallObservationV1 {
     owner: FunctionOwnerIdV1,
     statement: SourceStmtSiteV1,
     site: OwnedExprSiteV1,
+    declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
     prior_homes: Box<[BindingRefV1]>,
     arguments: Box<[i64]>,
@@ -36,6 +37,7 @@ impl LocalCallObservationV1 {
         owner: FunctionOwnerIdV1,
         statement: SourceStmtSiteV1,
         site: OwnedExprSiteV1,
+        declaration: SourceBindingSiteV1,
         destination: BindingRefV1,
         prior_homes: Box<[BindingRefV1]>,
         arguments: Box<[i64]>,
@@ -45,6 +47,7 @@ impl LocalCallObservationV1 {
             owner,
             statement,
             site,
+            declaration,
             destination,
             prior_homes,
             arguments,
@@ -62,6 +65,12 @@ impl LocalCallObservationV1 {
 
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
+    }
+
+    /// The receiving binding's own declaration site; the physical commit
+    /// row keys its local-statement install on this exact site.
+    pub(crate) const fn declaration(&self) -> &SourceBindingSiteV1 {
+        &self.declaration
     }
 
     pub(crate) const fn destination(&self) -> BindingRefV1 {
@@ -89,6 +98,7 @@ pub(crate) fn issue_local_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
+    declaration: SourceBindingSiteV1,
     destination: BindingRefV1,
     prior_homes: &[BindingRefV1],
     result: LocalCallResultClassV1,
@@ -124,6 +134,7 @@ pub(crate) fn issue_local_call<E>(
         input.owner(),
         statement.clone(),
         site.clone(),
+        declaration,
         destination,
         prior_homes.iter().copied().collect(),
         arguments.into_boxed_slice(),

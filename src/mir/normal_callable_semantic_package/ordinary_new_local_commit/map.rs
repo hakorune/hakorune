@@ -1,8 +1,9 @@
 //! Physical Map progress in the existing local ledger; Completion owns meaning.
 use super::*;
-use crate::mir::instruction::MapInvokeOperation as Map;
+use crate::mir::instruction::{InvokeCallResultKind, MapInvokeOperation as Map};
 use crate::mir::resolved_semantics::home_new_prefix::{
-    MapHomeEntry, MapHomeFlow, MapValueSource, SourceScalarKind,
+    LocalCallObservationV1, LocalCallResultClassV1, MapHomeEntry, MapHomeFlow, MapValueSource,
+    SourceScalarKind,
 };
 use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
 use std::rc::Rc;
@@ -97,22 +98,33 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn has_map_source(&self, site: &OwnedExprSiteV1) -> bool {
         self.completion_for_owner(site.owner())
             .and_then(|c| c.cleanup().root_flow())
-            .is_some_and(|flow| flow.maps().iter().any(|row| row.site() == site))
+            .is_some_and(|flow| {
+                flow.maps().iter().any(|row| row.site() == site)
+                    || flow.local_calls().iter().any(|call| {
+                        call.site() == site && call.result() == LocalCallResultClassV1::Map
+                    })
+            })
     }
-    /// A map-result local call is also a map source: its site is the call
-    /// expression and its destination is the receiving local binding.
-    pub(crate) fn map_call_source_binding(&self, site: &OwnedExprSiteV1) -> Option<BindingRefV1> {
+    /// The sealed map-result local call at this expression site. The call
+    /// site is a map source; its destination is the receiving local binding.
+    pub(crate) fn map_call_source(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<&LocalCallObservationV1> {
         self.completion_for_owner(site.owner())
             .and_then(|c| c.cleanup().root_flow())
             .and_then(|flow| {
                 flow.local_calls().iter().find(|call| {
                     call.site() == site
                         && call.owner() == site.owner()
-                        && call.result()
-                            == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
+                        && call.result() == LocalCallResultClassV1::Map
                 })
             })
-            .map(|call| call.destination())
+    }
+    /// A map-result local call is also a map source: its site is the call
+    /// expression and its destination is the receiving local binding.
+    pub(crate) fn map_call_source_binding(&self, site: &OwnedExprSiteV1) -> Option<BindingRefV1> {
+        self.map_call_source(site).map(|call| call.destination())
     }
     pub(crate) fn map_flow(&self, site: &OwnedExprSiteV1) -> Result<&MapHomeFlow, String> {
         let completion = self
@@ -151,10 +163,20 @@ impl OrdinaryNewClaimLedgerV1 {
                 completions.push(root.as_ref());
             }
         }
-        completions.iter().filter_map(|completion| completion.cleanup().root_flow())
-            .flat_map(|flow| flow.maps().iter()).all(|m| {
-                m.complete().is_some()
-                    && matches!(rows.get(m.site()), Some(LocalCommitV1::Map(row)) if row.is_complete())
+        completions
+            .iter()
+            .filter_map(|completion| completion.cleanup().root_flow())
+            .all(|flow| {
+                flow.maps().iter().all(|m| {
+                    m.complete().is_some()
+                        && matches!(rows.get(m.site()), Some(LocalCommitV1::Map(row)) if row.is_complete())
+                }) && flow
+                    .local_calls()
+                    .iter()
+                    .filter(|call| call.result() == LocalCallResultClassV1::Map)
+                    .all(|call| {
+                        matches!(rows.get(call.site()), Some(LocalCommitV1::Map(row)) if row.is_complete())
+                    })
             })
     }
     pub(crate) fn begin_map_emission(
@@ -209,6 +231,35 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    /// Begin emission for a map-result local Call. The sealed local-call
+    /// relation is the sole membership evidence: its destination binding and
+    /// declaration site key the receiving local's install, and the recorded
+    /// row hands `installed_home` the `Map::End` exit operation.
+    pub(crate) fn begin_map_call_emission(&self, site: &OwnedExprSiteV1) -> Result<(), String> {
+        let call = self
+            .map_call_source(site)
+            .ok_or_else(|| freeze("map-call-source-missing"))?;
+        if !matches!(call.declaration(), SourceBindingSiteV1::Local { .. }) {
+            return Err(freeze("map-call-declaration-drift"));
+        }
+        if !call.prior_homes().is_empty() {
+            return Err(freeze("map-call-prior-homes-unsupported"));
+        }
+        let mut rows = self.local_commits.borrow_mut();
+        if rows.contains_key(site) {
+            return Err(freeze("map-duplicate-emission"));
+        }
+        rows.insert(
+            site.clone(),
+            LocalCommitV1::Map(MapLocalProgress {
+                owner: site.owner(),
+                binding: Some(call.destination()),
+                declaration: Some(call.declaration().clone()),
+                progress: MapProgress::Emitting,
+            }),
+        );
+        Ok(())
+    }
     /// Begin emission for a `return %{...}` literal. The sealed flow row's
     /// `ReturnBoundary` statement must be this owner's explicit terminal
     /// exit; there is no binding or declaration to install into.
@@ -333,6 +384,9 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
+        if self.map_call_source(site).is_some() {
+            return self.validate_map_call_emission(site, function, projection);
+        }
         let flow = self.map_flow(site)?;
         let rows = self.local_commits.borrow();
         let Some(LocalCommitV1::Map(row)) = rows.get(site) else {
@@ -416,6 +470,79 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 _ => return Err(freeze("map-install-source-drift")),
             }
+        }
+        for (id, expected) in bindings {
+            if !super::physical_boundary::check_binding(function, projection, *id, expected)? {
+                return Err(freeze("map-emission-binding-drift"));
+            }
+        }
+        Ok(())
+    }
+    /// Physical proof of a map-result local Call: exactly one
+    /// `Invoke{Call{result:Map}}` whose argument count matches the sealed
+    /// relation, one `InvokeNormalResult` producing the recorded value, and
+    /// every recorded binding present at its exact physical site.
+    fn validate_map_call_emission(
+        &self,
+        site: &OwnedExprSiteV1,
+        function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        let call = self
+            .map_call_source(site)
+            .ok_or_else(|| freeze("map-call-source-missing"))?;
+        let rows = self.local_commits.borrow();
+        let Some(LocalCommitV1::Map(row)) = rows.get(site) else {
+            return Err(freeze("map-progress-missing"));
+        };
+        if row.binding != Some(call.destination()) || row.local().is_none() {
+            return Err(freeze("map-local-incomplete"));
+        }
+        let MapProgress::Emitted {
+            result, bindings, ..
+        } = &row.progress
+        else {
+            return Err(freeze("map-emission-incomplete"));
+        };
+        let invokes: Vec<_> = bindings
+            .iter()
+            .filter(|(_, instruction)| {
+                matches!(instruction, MirInstruction::Invoke {
+                    operation: InvokeOperation::Call {
+                        call: emitted,
+                        result: InvokeCallResultKind::Map,
+                    },
+                    ..
+                } if emitted.args.len() == call.arguments().len())
+            })
+            .collect();
+        if invokes.len() != 1 {
+            return Err(freeze("map-call-invoke-drift"));
+        }
+        if !bindings.iter().any(|(_, instruction)| {
+            matches!(instruction, MirInstruction::InvokeNormalResult { invoke_block, dst }
+                if *invoke_block == invokes[0].0 && *dst == *result)
+        }) {
+            return Err(freeze("map-call-projection-drift"));
+        }
+        // With a Plain terminal exit this row is the sole lifecycle owner of
+        // the shared frame definition; the recorded frame must be the
+        // root-owned definition the invoke's `fault_frame` names.
+        let MirInstruction::Invoke { fault_frame, .. } = &invokes[0].1 else {
+            unreachable!("filtered to Invoke")
+        };
+        if bindings
+            .iter()
+            .filter(|(_, instruction)| {
+                matches!(instruction, MirInstruction::FaultFrameEnter {
+                    dst,
+                    mode: crate::mir::instruction::FaultFrameMode::RootOwned,
+                } if dst == fault_frame)
+            })
+            .count()
+            != 1
+        {
+            return Err(freeze("map-call-frame-drift"));
         }
         for (id, expected) in bindings {
             if !super::physical_boundary::check_binding(function, projection, *id, expected)? {

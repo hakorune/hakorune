@@ -48,6 +48,10 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(flow
             .local_calls()
             .iter()
+            .filter(|call| {
+                call.result()
+                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+            })
             .map(|call| call.site().clone())
             .collect())
     }

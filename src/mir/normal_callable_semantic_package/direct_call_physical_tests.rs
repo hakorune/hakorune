@@ -1,7 +1,7 @@
 //! Source-to-selected-consumer dependency; ordinary package install stays stopped.
 use super::*;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
-use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
+use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation, MapInvokeOperation};
 use crate::mir::{MirBuilder, MirInstruction, MirModule, ValueId};
 
 #[test]
@@ -385,6 +385,207 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
         duplicate.contains("root-call-already-finalized"),
         "{duplicate}"
     );
+}
+
+#[test]
+fn map_result_local_call_installs_lease_and_releases_at_exit() {
+    // `local m = make_map()` receives the callee's map lease: the commit row
+    // installs the binding, the exit chain releases it with `Map::End`, and
+    // the plain `return 30` entry carries no call-frame evidence.
+    let mut package = issue(
+        r#"static box Main {
+            main() { local m = make_map() return 30 }
+            make_map() { return %{"a" => 1} }
+        }"#,
+    )
+    .expect("map-result local call package");
+    let mut loan = package.app_main_direct_call_loan.take().unwrap();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .unwrap();
+    let mut builder = MirBuilder::new();
+    let mut function = package
+        .batch()
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                Some(&mut loan),
+            )
+        })
+        .unwrap()
+        .expect("map-result local call lowering");
+    loan.finish_empty().expect("the map Call row is consumed");
+    // Exactly one Call{result:Map} invoke feeding one InvokeNormalResult.
+    let received: Vec<ValueId> = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            MirInstruction::InvokeNormalResult { invoke_block, dst }
+                if function.blocks[invoke_block].all_instructions().any(|i| {
+                    matches!(
+                        i,
+                        MirInstruction::Invoke {
+                            operation: InvokeOperation::Call {
+                                result: InvokeCallResultKind::Map,
+                                ..
+                            },
+                            ..
+                        }
+                    )
+                }) =>
+            {
+                Some(*dst)
+            }
+            _ => None,
+        })
+        .collect();
+    let [map] = received.as_slice() else {
+        panic!("exactly one map-result projection expected")
+    };
+    let map = *map;
+    assert!(
+        matches!(builder.value_type(map), Some(crate::mir::MirType::Box(name)) if name == "MapBox"),
+        "the received value carries the MapBox type"
+    );
+    // The caller's exit cleanup releases the received lease exactly once.
+    let ends = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::Invoke {
+                    operation: InvokeOperation::Map(MapInvokeOperation::End { map: released }),
+                    ..
+                } if *released == map
+            )
+        })
+        .count();
+    assert_eq!(ends, 1, "exactly one Map::End on the received lease");
+    // The receiving local reuses the call result; no Copy re-binds it.
+    assert!(!function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .any(|i| matches!(i, MirInstruction::Copy { src, .. } if *src == map)));
+    let ledger = &package.ordinary_new_claim_ledger;
+    // The commit row installed the call result as the receiving local.
+    let completion = ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    let call = flow
+        .local_calls()
+        .iter()
+        .find(|call| {
+            call.result()
+                == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
+        })
+        .expect("sealed map-result local call");
+    assert!(ledger.is_installed_map_binding(call.destination(), map));
+    crate::mir::verification::MirVerifier::new_strict()
+        .verify_function(&function)
+        .expect("map-receive CFG verifies");
+    let observation = ledger
+        .validate_finalized_new_root(&function)
+        .expect("finalized map-receive root");
+    function
+        .install_root_ordinary_new_observation(observation)
+        .unwrap();
+    // Result-kind drift: the Map call result reclassified as I64.
+    let mut drifted = function.clone();
+    let mut changed = false;
+    for block in drifted.blocks.values_mut() {
+        if let Some(MirInstruction::Invoke {
+            operation:
+                InvokeOperation::Call {
+                    result: result @ InvokeCallResultKind::Map,
+                    ..
+                },
+            ..
+        }) = &mut block.terminator
+        {
+            *result = InvokeCallResultKind::I64;
+            changed = true;
+            break;
+        }
+    }
+    assert!(changed);
+    assert!(
+        ledger.validate_after_compiler_finishing(&drifted).is_err(),
+        "result-kind drift must reject"
+    );
+    // Cleanup drift: the exit release targets a different value.
+    let mut drifted = function.clone();
+    let mut changed = false;
+    for block in drifted.blocks.values_mut() {
+        if let Some(MirInstruction::Invoke {
+            operation: InvokeOperation::Map(MapInvokeOperation::End { map: released }),
+            ..
+        }) = &mut block.terminator
+        {
+            *released = ValueId(999);
+            changed = true;
+            break;
+        }
+    }
+    assert!(changed);
+    assert!(
+        ledger.validate_after_compiler_finishing(&drifted).is_err(),
+        "cleanup-value drift must reject"
+    );
+    ledger
+        .validate_after_compiler_finishing(&function)
+        .expect("finished map-receive artifact");
+}
+
+#[test]
+fn map_result_call_commit_row_rejects_foreign_and_duplicate_sites() {
+    let mut package = issue(
+        r#"static box Main {
+            main() { local m = make_map() return 30 }
+            make_map() { return %{"a" => 1} }
+        }"#,
+    )
+    .expect("map-result local call package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let completion = ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    let call_site = flow.local_calls()[0].site().clone();
+    // An unbegun map call leaves its lifecycle demand unconsumed.
+    assert!(!ledger.map_demands_consumed());
+    // A literal Map site is not a call source.
+    let literal =
+        issue("static box Main { main() { local m = %{\"a\" => 1} return 30 } }").unwrap();
+    let literal_site = literal
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap()
+        .maps()[0]
+        .site()
+        .clone();
+    assert!(ledger
+        .begin_map_call_emission(&literal_site)
+        .unwrap_err()
+        .contains("map-call-source-missing"));
+    ledger.begin_map_call_emission(&call_site).unwrap();
+    assert!(ledger
+        .begin_map_call_emission(&call_site)
+        .unwrap_err()
+        .contains("map-duplicate-emission"));
+    let _ = package.app_main_direct_call_loan.take();
 }
 
 fn follow_jumps(

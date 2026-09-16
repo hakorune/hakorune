@@ -189,6 +189,10 @@ pub(in crate::mir::builder) fn emit_local(
         return Err(freeze("local-call-prior-homes-unsupported"));
     }
     let result_kind = row.result();
+    let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+    if result_kind == InvokeCallResultKind::Map {
+        ledger.begin_map_call_emission(&owned_site)?;
+    }
     let call = row
         .lifecycle_emission()
         .map_err(|_| freeze("local-call-source-mismatch"))?
@@ -202,7 +206,16 @@ pub(in crate::mir::builder) fn emit_local(
     let normal_landing = builder.next_block_id();
     let fault_landing = builder.next_block_id();
     let result = builder.next_value_id();
-    let mut bindings = Vec::new();
+    // A map-result call's row is the sole lifecycle owner of this site: with a
+    // Plain terminal exit there is no Call entry `frame` field to carry the
+    // shared frame definition, so the row records it like every other
+    // lifecycle-emitting row. The I64 path keeps its bindings in the terminal
+    // Call entry, which already records the frame once.
+    let mut bindings = if result_kind == InvokeCallResultKind::Map {
+        vec![fault_frame_binding(builder, state, frame)?]
+    } else {
+        Vec::new()
+    };
     append_block(
         builder,
         fault_landing,
@@ -232,10 +245,10 @@ pub(in crate::mir::builder) fn emit_local(
         .insert(result, result_type(result_kind));
     bindings.push((origin, invoke));
     bindings.push((normal_landing, projection));
-    ledger.record_root_local_call_bindings(
-        owner,
-        crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone()),
-        bindings,
-    )?;
+    if result_kind == InvokeCallResultKind::Map {
+        ledger.record_map_emission(&owned_site, result, bindings)?;
+    } else {
+        ledger.record_root_local_call_bindings(owner, owned_site, bindings)?;
+    }
     Ok(result)
 }

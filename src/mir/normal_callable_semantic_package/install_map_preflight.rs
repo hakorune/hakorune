@@ -84,12 +84,14 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                                 owner,
                                 site.clone(),
                             );
-                            if self.ordinary_new_claim_ledger.has_map_source(&owned) {
-                                let map = self
-                                    .ordinary_new_claim_ledger
-                                    .map_flow(&owned)
-                                    .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
-                                if map.local_binding() != Some(current.binding()) {
+                            if let Some(destination) = self
+                                .ordinary_new_claim_ledger
+                                .map_call_source_binding(&owned)
+                            {
+                                // A call site is a map source without a
+                                // literal flow row: the sealed local-call
+                                // relation's destination is the binding.
+                                if destination != current.binding() {
                                     return Err(Issue::MapLifecycleConsumerMissing);
                                 }
                                 crate::mir::builder::validate_map_local_annotation(
@@ -98,11 +100,12 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                                 .map_err(|error| Issue::MapLocalAnnotation(error.into()))?;
                                 break;
                             }
-                            if let Some(destination) = self
-                                .ordinary_new_claim_ledger
-                                .map_call_source_binding(&owned)
-                            {
-                                if destination != current.binding() {
+                            if self.ordinary_new_claim_ledger.has_map_source(&owned) {
+                                let map = self
+                                    .ordinary_new_claim_ledger
+                                    .map_flow(&owned)
+                                    .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
+                                if map.local_binding() != Some(current.binding()) {
                                     return Err(Issue::MapLifecycleConsumerMissing);
                                 }
                                 crate::mir::builder::validate_map_local_annotation(

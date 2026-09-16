@@ -80,18 +80,34 @@ fn unannotated_pair_issues_tagged_input_from_retained_contract() {
 fn serializer_preserves_signed_compare_predicates() {
     use crate::mir::CompareOp;
     for (op, predicate) in [
-        (CompareOp::Eq, "eq"), (CompareOp::Ne, "ne"),
-        (CompareOp::Lt, "slt"), (CompareOp::Le, "sle"),
-        (CompareOp::Gt, "sgt"), (CompareOp::Ge, "sge"),
+        (CompareOp::Eq, "eq"),
+        (CompareOp::Ne, "ne"),
+        (CompareOp::Lt, "slt"),
+        (CompareOp::Le, "sle"),
+        (CompareOp::Gt, "sgt"),
+        (CompareOp::Ge, "sge"),
     ] {
         let instruction = MirInstruction::Compare {
-            dst: ValueId::new(7), op, lhs: ValueId::new(2), rhs: ValueId::new(5),
+            dst: ValueId::new(7),
+            op,
+            lhs: ValueId::new(2),
+            rhs: ValueId::new(5),
         };
         let encoded = encode_instruction(
-            None, &instruction, &BTreeMap::new(), 0, None, None, &BTreeMap::new(),
-        ).expect("physical signed comparison");
-        assert_eq!(encoded, json!({"op": "compare", "dst": 7, "lhs": 2,
-            "rhs": 5, "predicate": predicate}));
+            None,
+            &instruction,
+            &BTreeMap::new(),
+            0,
+            None,
+            None,
+            &BTreeMap::new(),
+        )
+        .expect("physical signed comparison");
+        assert_eq!(
+            encoded,
+            json!({"op": "compare", "dst": 7, "lhs": 2,
+            "rhs": 5, "predicate": predicate})
+        );
     }
 }
 
@@ -186,12 +202,13 @@ fn ordinary_instance_function_publishes_canonical_receiver_object() {
                     let layout_field = input
                         .layouts()
                         .iter()
-                        .find(|layout| layout.object_id() == prepared_field.object().declaration_index())
+                        .find(|layout| {
+                            layout.object_id() == prepared_field.object().declaration_index()
+                        })
                         .and_then(|layout| {
-                            layout
-                                .fields()
-                                .iter()
-                                .find(|field| field.declaration_ordinal() == prepared_field.declaration_ordinal())
+                            layout.fields().iter().find(|field| {
+                                field.declaration_ordinal() == prepared_field.declaration_ordinal()
+                            })
                         })
                         .ok_or_else(|| "prepared FieldGet layout missing".to_owned())?;
                     let json = emit_lifecycle_physical_abi_json(&input)?;
@@ -375,6 +392,107 @@ fn native_float_wire_preserves_signed_zero_and_nan_payload_bits() {
                 },
             )
             .unwrap();
+    });
+}
+
+#[test]
+fn map_result_local_call_publishes_ordinary_map_callee_and_map_edge() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let source = r#"static box Main {
+            main() { local m = make_map() return 30 }
+            make_map() { return %{"a" => 1} }
+        }"#;
+        for optimize in [false, true] {
+            MirCompiler::with_options(optimize)
+                .compile_normal_with_published(request(source), |view, verification| {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    // The map-returning callee is emitted under the
+                    // `ordinary_map` role (module-wide edge walk, C6-1/C6-2).
+                    let map_function = input
+                        .program()
+                        .functions()
+                        .iter()
+                        .find(|function| {
+                            matches!(
+                                function.role(),
+                                PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
+                            )
+                        })
+                        .ok_or_else(|| "ordinary_map callee missing".to_owned())?;
+                    let text = emit_lifecycle_physical_abi_json(&input)?;
+                    let decoded: Value = serde_json::from_str(&text).unwrap();
+                    let rows = decoded["functions"].as_array().unwrap();
+                    let map_row = rows
+                        .iter()
+                        .find(|row| row["role"] == "ordinary_map")
+                        .ok_or_else(|| "ordinary_map JSON row missing".to_owned())?;
+                    assert_eq!(map_row["name"].as_str().unwrap(), map_function.name());
+                    let root_row = rows
+                        .iter()
+                        .find(|row| row["role"] == "root_i64")
+                        .ok_or_else(|| "root JSON row missing".to_owned())?;
+                    let calls: Vec<_> = root_row["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|block| {
+                            block["instructions"]
+                                .as_array()
+                                .into_iter()
+                                .flatten()
+                                .map(|row| &row["instruction"])
+                                .chain(std::iter::once(&block["terminator"]["instruction"]))
+                        })
+                        .filter(|instruction| instruction["operation"]["kind"] == "ordinary_call")
+                        .collect();
+                    assert_eq!(calls.len(), 1, "one ordinary_call edge");
+                    assert_eq!(
+                        calls[0]["operation"]["result"], "map",
+                        "map-result call edge"
+                    );
+                    // The wire target is the callee's ordinal in the
+                    // published functions array.
+                    let map_ordinal = rows
+                        .iter()
+                        .position(|row| row["name"] == map_row["name"])
+                        .ok_or_else(|| "ordinary_map ordinal missing".to_owned())?;
+                    assert_eq!(
+                        calls[0]["operation"]["call"]["target"].as_u64(),
+                        Some(map_ordinal as u64),
+                        "call edge targets the ordinary_map callee"
+                    );
+                    // The received lease is released by one map_end before the
+                    // plain return.
+                    let ends: Vec<_> = root_row["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|block| {
+                            block["instructions"]
+                                .as_array()
+                                .into_iter()
+                                .flatten()
+                                .map(|row| &row["instruction"])
+                                .chain(std::iter::once(&block["terminator"]["instruction"]))
+                        })
+                        .filter(|instruction| instruction["operation"]["kind"] == "map_end")
+                        .collect();
+                    assert_eq!(ends.len(), 1, "one map_end on the received map");
+                    std::fs::write(
+                        std::env::temp_dir().join(if optimize {
+                            "hako-issued-physical-v2-map-call-optimized.json"
+                        } else {
+                            "hako-issued-physical-v2-map-call.json"
+                        }),
+                        text,
+                    )
+                    .unwrap();
+                    Ok::<(), String>(())
+                })
+                .unwrap();
+        }
     });
 }
 
