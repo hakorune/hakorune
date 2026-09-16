@@ -67,7 +67,7 @@ pub(crate) use local_flow::SourceScalarKind;
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_local_call_flow.rs"]
 mod local_call_flow;
-pub(crate) use local_call_flow::LocalI64CallObservationV1;
+pub(crate) use local_call_flow::{LocalCallObservationV1, LocalCallResultClassV1};
 #[path = "home_map_descendant_flow.rs"]
 mod map_descendant_flow;
 #[path = "home_map_flow.rs"]
@@ -97,6 +97,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
+        &mut |_| Ok(false),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -124,6 +125,7 @@ pub(crate) fn scan_new_home_flow<E>(
     ) -> Result<bool, E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
@@ -516,16 +518,34 @@ pub(crate) fn scan_new_home_flow<E>(
                 continue;
             };
             let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-            if let Some(local_call) = local_call_flow::issue_local_i64_call(
+            if let Some(local_call) = local_call_flow::issue_local_call(
                 input,
                 statement.site(),
                 &owned,
                 binding,
                 &homes,
+                local_call_flow::LocalCallResultClassV1::I64,
                 terminal_call,
             )? {
                 local_calls.push(local_call);
                 locals.install_i64_call_result(binding);
+                continue;
+            }
+            if let Some(local_call) = local_call_flow::issue_local_call(
+                input,
+                statement.site(),
+                &owned,
+                binding,
+                &homes,
+                local_call_flow::LocalCallResultClassV1::Map,
+                local_map_call,
+            )? {
+                // A received map installs as a live map binding and joins
+                // the caller's terminal Homes accounting so the owner's
+                // exit can release it.
+                local_calls.push(local_call);
+                homes.push(binding);
+                locals.install_map(binding);
                 continue;
             }
             if let Some(destination) = selected.get(&owned) {

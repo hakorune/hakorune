@@ -127,9 +127,19 @@ pub(super) fn validate_cataloged_source_co_seal_v1(
                         let Some(callable_index) = callable_index else {
                             return None;
                         };
-                        if callable_index
-                            .header_for_callable(target.callable())
-                            .is_err()
+                        let Ok(header) = callable_index.header_for_callable(target.callable())
+                        else {
+                            return None;
+                        };
+                        // An unannotated target is callable only through
+                        // the map-result lane; the callee's sealed
+                        // terminal must prove a Map result, otherwise
+                        // the observation has no admissible route.
+                        if header.signature().result().is_none()
+                            && !super::super::direct_call_loan::lifecycle::map_result_callee(
+                                batch,
+                                target.callable(),
+                            )
                         {
                             return None;
                         }

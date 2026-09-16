@@ -3,7 +3,7 @@
 //! This is a child of the existing `RootHomeFlow`, not a second call
 //! inventory.  The target and its affine row remain owned by the direct-call
 //! resolver; this relation only records where the source places the returned
-//! i64 and which Homes were live before the call.
+//! value and which Homes were live before the call.
 
 use super::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLiteralSourceV1, SourceExprSiteV1,
@@ -11,17 +11,27 @@ use super::{
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
+/// Source-recorded result class of one local direct-call continuation.
+/// `Map` marks a call into an unannotated callee whose sealed terminal
+/// relation proves a Map return; `I64` marks the exact-i64 lane.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum LocalCallResultClassV1 {
+    I64,
+    Map,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct LocalI64CallObservationV1 {
+pub(crate) struct LocalCallObservationV1 {
     owner: FunctionOwnerIdV1,
     statement: SourceStmtSiteV1,
     site: OwnedExprSiteV1,
     destination: BindingRefV1,
     prior_homes: Box<[BindingRefV1]>,
     arguments: Box<[i64]>,
+    result: LocalCallResultClassV1,
 }
 
-impl LocalI64CallObservationV1 {
+impl LocalCallObservationV1 {
     pub(crate) fn issue(
         owner: FunctionOwnerIdV1,
         statement: SourceStmtSiteV1,
@@ -29,6 +39,7 @@ impl LocalI64CallObservationV1 {
         destination: BindingRefV1,
         prior_homes: Box<[BindingRefV1]>,
         arguments: Box<[i64]>,
+        result: LocalCallResultClassV1,
     ) -> Self {
         Self {
             owner,
@@ -37,6 +48,7 @@ impl LocalI64CallObservationV1 {
             destination,
             prior_homes,
             arguments,
+            result,
         }
     }
 
@@ -63,19 +75,25 @@ impl LocalI64CallObservationV1 {
     pub(crate) fn arguments(&self) -> &[i64] {
         &self.arguments
     }
+
+    pub(crate) const fn result(&self) -> LocalCallResultClassV1 {
+        self.result
+    }
 }
 
 /// Issue one exact literal-argument local Call from already-resolved source.
-/// The caller supplies the existing selected-call predicate; this helper never
-/// resolves a target or turns a missing observation into a default call.
-pub(crate) fn issue_local_i64_call<E>(
+/// The caller supplies the existing selected-call predicate and the result
+/// class that predicate proved; this helper never resolves a target or turns
+/// a missing observation into a default call.
+pub(crate) fn issue_local_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
     destination: BindingRefV1,
     prior_homes: &[BindingRefV1],
+    result: LocalCallResultClassV1,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-) -> Result<Option<LocalI64CallObservationV1>, E> {
+) -> Result<Option<LocalCallObservationV1>, E> {
     if !is_selected_call(site)? {
         return Ok(None);
     }
@@ -102,12 +120,13 @@ pub(crate) fn issue_local_i64_call<E>(
     else {
         return Ok(None);
     };
-    Ok(Some(LocalI64CallObservationV1::issue(
+    Ok(Some(LocalCallObservationV1::issue(
         input.owner(),
         statement.clone(),
         site.clone(),
         destination,
         prior_homes.iter().copied().collect(),
         arguments.into_boxed_slice(),
+        result,
     )))
 }

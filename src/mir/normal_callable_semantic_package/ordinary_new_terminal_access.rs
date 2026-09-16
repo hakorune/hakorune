@@ -57,11 +57,11 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
-    pub(crate) fn local_i64_call_for_owner(
+    pub(crate) fn local_call_for_owner(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    ) -> Option<&crate::mir::resolved_semantics::home_new_prefix::LocalI64CallObservationV1> {
+    ) -> Option<&crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1> {
         self.root_completion
             .as_ref()
             .and_then(|row| row.as_ref().ok())
@@ -93,11 +93,14 @@ impl OrdinaryNewClaimLedgerV1 {
                     .filter_map(|row| row.as_ref().ok()),
             )
         {
-            if completion
-                .cleanup()
-                .root_flow()
-                .is_some_and(|flow| !flow.maps().is_empty())
-            {
+            if completion.cleanup().root_flow().is_some_and(|flow| {
+                !flow.maps().is_empty()
+                    || flow.local_calls().iter().any(|call| {
+                        call.owner() == completion.owner()
+                            && call.result()
+                                == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
+                    })
+            }) {
                 owners.insert(completion.owner(), ());
             }
         }

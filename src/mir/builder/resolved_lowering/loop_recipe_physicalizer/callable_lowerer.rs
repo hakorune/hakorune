@@ -264,10 +264,13 @@ fn declared_result_abi(
         name,
     )
     .ok_or_else(|| "[freeze:contract][callable-loop/declared-result-unsupported]".to_owned())?;
-    let header_abi = crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1::classify(
-        input.header().signature().result().source_type_name(),
-    )
-    .ok_or_else(|| "[freeze:contract][callable-loop/header-result-unsupported]".to_owned())?;
+    let header_abi = input
+        .header()
+        .signature()
+        .result()
+        .map(|result| result.source_type_name())
+        .and_then(crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1::classify)
+        .ok_or_else(|| "[freeze:contract][callable-loop/header-result-unsupported]".to_owned())?;
     if completion_abi != header_abi {
         return Err("[freeze:contract][callable-loop/declared-result-mismatch]".to_owned());
     }

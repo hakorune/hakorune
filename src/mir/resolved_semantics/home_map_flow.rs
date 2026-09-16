@@ -1,6 +1,6 @@
 //! Map responsibility successors from the existing caller ownership walk.
 //! No physical ID, package descriptor, or runtime storage policy is issued here.
-use super::local_call_flow::LocalI64CallObservationV1;
+use super::local_call_flow::LocalCallObservationV1;
 use super::terminal_relation::{array_literal_element_count, map_literal_keys};
 use super::*;
 use crate::mir::resolved_semantics::{RegionId, ScopeId, SourcePathSegmentV1};
@@ -9,7 +9,7 @@ use crate::mir::resolved_semantics::{RegionId, ScopeId, SourcePathSegmentV1};
 pub(crate) struct RootHomeFlow {
     pub(super) terminal: Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
     pub(super) maps: Vec<MapHomeObservation>,
-    pub(super) local_calls: Vec<LocalI64CallObservationV1>,
+    pub(super) local_calls: Vec<LocalCallObservationV1>,
 }
 impl RootHomeFlow {
     pub(crate) fn terminal_homes(&self) -> Result<&[BindingRefV1], &HomePrefixUnavailableV1> {
@@ -18,7 +18,7 @@ impl RootHomeFlow {
     pub(crate) fn maps(&self) -> &[MapHomeObservation] {
         &self.maps
     }
-    pub(crate) fn local_calls(&self) -> &[LocalI64CallObservationV1] {
+    pub(crate) fn local_calls(&self) -> &[LocalCallObservationV1] {
         &self.local_calls
     }
 }

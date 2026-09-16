@@ -99,6 +99,21 @@ impl OrdinaryNewClaimLedgerV1 {
             .and_then(|c| c.cleanup().root_flow())
             .is_some_and(|flow| flow.maps().iter().any(|row| row.site() == site))
     }
+    /// A map-result local call is also a map source: its site is the call
+    /// expression and its destination is the receiving local binding.
+    pub(crate) fn map_call_source_binding(&self, site: &OwnedExprSiteV1) -> Option<BindingRefV1> {
+        self.completion_for_owner(site.owner())
+            .and_then(|c| c.cleanup().root_flow())
+            .and_then(|flow| {
+                flow.local_calls().iter().find(|call| {
+                    call.site() == site
+                        && call.owner() == site.owner()
+                        && call.result()
+                            == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
+                })
+            })
+            .map(|call| call.destination())
+    }
     pub(crate) fn map_flow(&self, site: &OwnedExprSiteV1) -> Result<&MapHomeFlow, String> {
         let completion = self
             .completion_for_owner(site.owner())

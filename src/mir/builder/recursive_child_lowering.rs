@@ -643,7 +643,7 @@ impl AppMainDirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             .ordinary_new_claim_ledger
             .as_ref()
             .ok_or_else(|| "[freeze:contract][local-call/ledger-missing]".to_owned())?;
-        if ledger.local_i64_call_for_owner(owner, &site).is_none() {
+        if ledger.local_call_for_owner(owner, &site).is_none() {
             return Ok(None);
         }
         let state = self

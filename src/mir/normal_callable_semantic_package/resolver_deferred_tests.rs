@@ -125,11 +125,16 @@ fn unissued_direct_call_observation_rejects_package_before_install() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(96).unwrap();
     let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
-            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
-        }) => (),
+            _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject),
+        }) => reject,
         other => panic!("expected unissued direct-call package terminal, got {other:?}"),
     };
-    assert_eq!(reject, ());
+    assert!(matches!(
+        reject.error(),
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::CallableLookup(
+            crate::mir::resolved_semantics::CallableLookupErrorV1::MissingExactSourceKey
+        ))
+    ));
 }
 
 #[test]
@@ -138,11 +143,16 @@ fn nested_lambda_direct_call_observation_rejects_package_before_install() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(97).unwrap();
     let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
-            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
-        }) => (),
+            _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject),
+        }) => reject,
         other => panic!("expected nested unissued direct-call package terminal, got {other:?}"),
     };
-    assert_eq!(reject, ());
+    assert!(matches!(
+        reject.error(),
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::DraftInvariant(
+            "direct calls require a callable index"
+        ))
+    ));
 }
 
 #[test]
@@ -152,11 +162,16 @@ fn root_and_nested_direct_call_observations_share_one_package_gate() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(98).unwrap();
     let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
-            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
-        }) => (),
+            _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject),
+        }) => reject,
         other => panic!("expected mixed-owner package terminal, got {other:?}"),
     };
-    assert_eq!(reject, ());
+    assert!(matches!(
+        reject.error(),
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::CallableLookup(
+            crate::mir::resolved_semantics::CallableLookupErrorV1::MissingExactSourceKey
+        ))
+    ));
 }
 
 #[test]
@@ -191,11 +206,16 @@ fn cataloged_nested_lambda_direct_call_observation_rejects_before_install() {
     let mut resolver = FunctionSemanticResolverSessionV1::new(100).unwrap();
     let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
-            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
-        }) => (),
+            _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject),
+        }) => reject,
         other => panic!("expected nested cataloged direct-call terminal, got {other:?}"),
     };
-    assert_eq!(reject, ());
+    assert!(matches!(
+        reject.error(),
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::DraftInvariant(
+            "direct calls require a callable index"
+        ))
+    ));
 }
 
 #[test]
@@ -303,17 +323,16 @@ fn app_main_non_freestatic_direct_call_rejects_before_install() {
     let source =
         final_source("static box Main { main() { return helper() } helper() { return 1 } }");
     let mut resolver = FunctionSemanticResolverSessionV1::new(106).unwrap();
-    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
-        Err(NormalCallableSemanticPackageIssueV1::Batch {
-            _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject),
-        }) => reject,
-        other => panic!("expected unsupported App Main direct-call terminal, got {other:?}"),
-    };
+    // An unannotated callee seals into the index now; the App Main loan
+    // rejects the scalar call lane when the target has no `:i64` header
+    // and no sealed Map result.
     assert!(matches!(
-        reject.error(),
-        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::AppMainDirectCall(
-            crate::mir::resolved_semantics::AppMainFreeStaticResolverIssueV1::TargetMissing
-        ))
+        issue_normal_callable_semantic_package_v1(&mut resolver, source),
+        Err(NormalCallableSemanticPackageIssueV1::AppMainDirectCall {
+            _error: super::issuer::AppMainDirectCallDispositionIssueV1::Loan(
+                super::direct_call_loan::AppMainDirectCallLoanErrorV1::LifecycleSourceMismatch
+            ),
+        })
     ));
 }
 

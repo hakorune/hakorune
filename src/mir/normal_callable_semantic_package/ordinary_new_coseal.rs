@@ -214,11 +214,19 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
 }
 impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn requires_map_lifecycle_consumer(&self) -> bool {
+        fn carries_map(
+            flow: &crate::mir::resolved_semantics::home_new_prefix::RootHomeFlow,
+        ) -> bool {
+            !flow.maps().is_empty() || flow.local_calls().iter().any(|call| {
+                call.result()
+                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Map
+            })
+        }
         let indexed = self.completion_index.values().any(|row| {
             row.as_ref()
                 .ok()
                 .and_then(|completion| completion.cleanup().root_flow())
-                .is_some_and(|flow| !flow.maps().is_empty())
+                .is_some_and(carries_map)
         });
         indexed
             || self
@@ -226,7 +234,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .as_ref()
                 .and_then(|row| row.as_ref().ok())
                 .and_then(|completion| completion.cleanup().root_flow())
-                .is_some_and(|flow| !flow.maps().is_empty())
+                .is_some_and(carries_map)
     }
     #[cfg(test)]
     pub(super) fn root_completion_for_test(
@@ -615,6 +623,10 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                                         )
                                 });
                             Ok(is_app_main && (direct || instance))
+                        }, &mut |site| {
+                            Ok(is_app_main && app_main_calls.is_some_and(|loan| {
+                                loan.is_map_result_call(batch, parameter_contracts, input, site)
+                            }))
                         })? {
                         Ok((completion, prefixes, mut terminal_relation, observations)) => {
                             if is_app_main {

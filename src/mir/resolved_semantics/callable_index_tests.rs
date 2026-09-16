@@ -64,7 +64,10 @@ fn seals_one_exact_static_i64_header_without_new_identity() {
     assert_eq!(header.symbol().as_mir_name(), "countdown/1");
     assert_eq!(header.signature().arity(), 1);
     assert_eq!(header.signature().params(), &[ExactTrivialScalarAbiV1::I64]);
-    assert_eq!(header.signature().result(), ExactTrivialScalarAbiV1::I64);
+    assert_eq!(
+        header.signature().result(),
+        Some(ExactTrivialScalarAbiV1::I64)
+    );
     assert_eq!(index.lookup(header.source_key()), Some(header));
     assert_eq!(index.header_for_callable(header.callable()), Ok(header));
     assert_eq!(index.header_for_symbol(header.symbol()), Ok(header));
@@ -101,6 +104,31 @@ fn rejects_non_exact_parameter_and_return_spellings() {
             Err(CallableIndexSealErrorV1::ReturnTypeOutsideProfile)
         );
     }
+}
+
+#[test]
+fn seals_unannotated_header_as_map_result_candidate() {
+    // The unannotated profile is syntax only: zero parameters are allowed
+    // and the result records `None`; the callee's sealed terminal relation
+    // proves the runtime result class downstream.
+    for (tree, arity) in [
+        (function("make_map", &[], None), 0),
+        (function("make_map", &[("n", Some("i64"))], None), 1),
+    ] {
+        let index =
+            VerifiedCallableIndexV1::seal_many([owned_header(owner(), &tree).unwrap()]).unwrap();
+        let header = index
+            .resolve_free_static_source_call("make_map", arity)
+            .unwrap();
+        assert_eq!(header.signature().result(), None);
+    }
+
+    // An annotated non-i64 spelling still rejects at the profile boundary.
+    let bad = function("f", &[("n", Some("i64"))], Some("int"));
+    assert_eq!(
+        seal(&bad),
+        Err(CallableIndexSealErrorV1::ReturnTypeOutsideProfile)
+    );
 }
 
 #[test]

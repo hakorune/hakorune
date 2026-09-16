@@ -196,11 +196,14 @@ impl VerifiedCallablePreludeCapabilityV1 {
                 LoopPhysicalPrepareRejectReasonV1::PreludeArityMismatch,
             ));
         }
-        let result_abi =
-            ExactTrivialReturnAbiV1::classify(header.signature().result().source_type_name())
-                .ok_or_else(|| {
-                    no_safe_slice(LoopPhysicalPrepareRejectReasonV1::PreludeResultAbiUnsupported)
-                })?;
+        let result_abi = header
+            .signature()
+            .result()
+            .map(|result| result.source_type_name())
+            .and_then(ExactTrivialReturnAbiV1::classify)
+            .ok_or_else(|| {
+                no_safe_slice(LoopPhysicalPrepareRejectReasonV1::PreludeResultAbiUnsupported)
+            })?;
         let arguments =
             VerifiedCallablePreludeArgumentListV1::issue(branded.input(), prelude, header)
                 .map_err(|reason| {
@@ -457,11 +460,15 @@ fn declared_result_abi(
     let completion_abi = ExactTrivialReturnAbiV1::classify(name).ok_or_else(|| {
         no_safe_slice(LoopPhysicalPrepareRejectReasonV1::DeclaredResultAbiUnsupported)
     })?;
-    let header_abi =
-        ExactTrivialReturnAbiV1::classify(branded.header().signature().result().source_type_name())
-            .ok_or_else(|| {
-                no_safe_slice(LoopPhysicalPrepareRejectReasonV1::DeclaredResultAbiMismatch)
-            })?;
+    let header_abi = branded
+        .header()
+        .signature()
+        .result()
+        .map(|result| result.source_type_name())
+        .and_then(ExactTrivialReturnAbiV1::classify)
+        .ok_or_else(|| {
+            no_safe_slice(LoopPhysicalPrepareRejectReasonV1::DeclaredResultAbiMismatch)
+        })?;
     if completion_abi != header_abi {
         return Err(no_safe_slice(
             LoopPhysicalPrepareRejectReasonV1::DeclaredResultAbiMismatch,

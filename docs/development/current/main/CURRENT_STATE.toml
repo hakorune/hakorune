@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
 current_execution_cohort = "map_lifecycle_consumer"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__map_install_owners_scalar_only_contract"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__map_result_call_root_home_not_installed"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,21 +18,23 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-map-lifecycle-consumer-i0-2026-09-15"
 latest_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 latest_card_summary = """
-Map lifecycle consumer spine through C6-2. F3 non-i64 terminal
+Map lifecycle consumer spine through F5-1. F3 non-i64 terminal
 relations, F4 Map return/arg physical ABI (storage_move +
 ordinary_map wire + lease-transfer verify), C5a/C5b undertaking
-contract + admission connect (describe→verify against the
-consumer's declared capability), C6-1 module-wide Call{I64|Map}
-membership, and C6-2 per-function call edges +
-caller_function_index are landed. C6-3 (C v2 nested-call lane,
-per-block i64 out-slot for fi>0 ordinary callers) is implemented
-in flight. Review of 0027c56b queued two C5b acceptance fixes —
-C5c-1 owner exit/cleanup co-seal (terminal evidence regardless
-of loan + terminal-relation ReturnHandoff) and C5c-2 EntryStore
-precision — then F5 map-result call lane, C6-4 rootless cohort
-(deferred), C1-id opaque source identity, and C8 two-function
-execution acceptance. Production switch and legacy retirement
-remain unclaimed.
+contract + admission connect, C5c-1 owner exit/cleanup co-seal,
+C5c-2 EntryStore precision, C6-1 module-wide Call{I64|Map}
+membership, C6-2 per-function call edges, and C6-3 C v2
+nested-call lane are landed. F5-1 map-result admission/Facts/
+Verify landed: unannotated headers seal as map-result candidates
+(`signature().result() -> Option<I64>`), the scan issues
+Map-class local observations + installs the received binding,
+co_seal splits terminal/local sites with the callee terminal
+relation as sole result-kind authority, and the cataloged walk
+requires `map_result_callee` proof. Next: F5-2 physical
+`MapLocalProgress` + `result:"map"` emission + C v2 evidence,
+then C6-4 rootless cohort (deferred), C1-id opaque source
+identity, C8 two-function execution acceptance. Production
+switch and legacy retirement remain unclaimed.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"

@@ -81,7 +81,11 @@ pub(in crate::mir::builder::resolved_lowering) fn emit_resolved_header(
     arguments: Vec<ValueId>,
 ) -> Result<(ValueId, TrivialRepresentationV1), String> {
     if result_abi != ExactTrivialReturnAbiV1::I64
-        || ExactTrivialReturnAbiV1::classify(target.signature().result().source_type_name())
+        || target
+            .signature()
+            .result()
+            .map(|result| result.source_type_name())
+            .and_then(ExactTrivialReturnAbiV1::classify)
             != Some(result_abi)
     {
         return Err(

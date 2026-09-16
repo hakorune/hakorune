@@ -14,7 +14,7 @@ pub(crate) struct NormalizedCallableCatalogRowV1 {
     name: Box<str>,
     arity: u32,
     params: Box<[ExactTrivialScalarAbiV1]>,
-    result: ExactTrivialScalarAbiV1,
+    result: Option<ExactTrivialScalarAbiV1>,
     symbol: Box<str>,
 }
 
@@ -35,7 +35,7 @@ impl NormalizedCallableCatalogRowV1 {
         &self.params
     }
 
-    pub(crate) const fn result(&self) -> ExactTrivialScalarAbiV1 {
+    pub(crate) const fn result(&self) -> Option<ExactTrivialScalarAbiV1> {
         self.result
     }
 

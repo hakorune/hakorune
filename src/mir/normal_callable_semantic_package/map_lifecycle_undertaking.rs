@@ -386,6 +386,7 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn describe_map_lifecycle_obligations(
         &self,
     ) -> Result<Box<[MapOwnerObligationsV1]>, MapObligationDescribeIssueV1> {
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1;
         use crate::mir::resolved_semantics::BodyExpressionShapeV1;
         let mut by_owner: std::collections::BTreeMap<FunctionOwnerIdV1, Vec<SourceExprSiteV1>> =
             std::collections::BTreeMap::new();
@@ -396,6 +397,21 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
                         .entry(declaration.owner())
                         .or_default()
                         .push(site.clone());
+                }
+            }
+            // A map-result local call makes its owner a map owner even
+            // without a `%{...}` literal: the received map must be
+            // released at the caller's exit.
+            if let Some(flow) = self
+                .ordinary_new_claim_ledger
+                .completion_for_owner(declaration.owner())
+                .and_then(|completion| completion.cleanup().root_flow())
+            {
+                if flow.local_calls().iter().any(|call| {
+                    call.owner() == declaration.owner()
+                        && call.result() == LocalCallResultClassV1::Map
+                }) {
+                    by_owner.entry(declaration.owner()).or_default();
                 }
             }
         }
@@ -471,6 +487,32 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
                     _ => {}
                 }
                 rows.push(describe_flow(observation, returned_local));
+            }
+            // A map-result local call receives a map the caller must
+            // release at its exit. `ReturnHandoff` stays literal-row only:
+            // returning a received map is not yet an admitted shape.
+            for call in flow
+                .local_calls()
+                .iter()
+                .filter(|call| call.result() == LocalCallResultClassV1::Map)
+            {
+                if call.owner() != owner {
+                    return Err(MapObligationDescribeIssueV1::ObligationUnavailable {
+                        owner,
+                        site: call.site().clone(),
+                    });
+                }
+                rows.push(MapSiteObligationV1 {
+                    site: call.site().clone(),
+                    destination: MapDestinationV1::LocalBinding(call.destination()),
+                    operations: [
+                        MapLifecycleOperationV1::NormalCleanup,
+                        MapLifecycleOperationV1::FaultCleanup,
+                    ]
+                    .into_iter()
+                    .collect(),
+                    borrows: Box::default(),
+                });
             }
             if !returned_matched {
                 return Err(MapObligationDescribeIssueV1::OwnerTerminalMapUnmatched { owner });

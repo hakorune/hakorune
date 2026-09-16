@@ -183,7 +183,7 @@ pub(in crate::mir::builder) fn emit_local(
     arguments: Vec<ValueId>,
 ) -> Result<ValueId, String> {
     let relation = ledger
-        .local_i64_call_for_owner(owner, site)
+        .local_call_for_owner(owner, site)
         .ok_or_else(|| freeze("local-call-source-missing"))?;
     if !relation.prior_homes().is_empty() {
         return Err(freeze("local-call-prior-homes-unsupported"));

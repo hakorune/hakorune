@@ -71,14 +71,18 @@ impl ResolvedCallableRefV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExactTrivialCallableSignatureV1 {
     params: Box<[ExactTrivialScalarAbiV1]>,
-    result: ExactTrivialScalarAbiV1,
+    /// Source-recorded result annotation only: `:i64` seals as `Some(I64)`
+    /// and an unannotated header seals as `None` — the map-result
+    /// candidate profile. This field never decides the runtime result
+    /// class; the callee's sealed terminal relation is that authority.
+    result: Option<ExactTrivialScalarAbiV1>,
 }
 
 impl ExactTrivialCallableSignatureV1 {
-    fn exact_i64(arity: usize) -> Self {
+    fn from_validated(arity: usize, result: Option<ExactTrivialScalarAbiV1>) -> Self {
         Self {
             params: vec![ExactTrivialScalarAbiV1::I64; arity].into_boxed_slice(),
-            result: ExactTrivialScalarAbiV1::I64,
+            result,
         }
     }
 
@@ -86,7 +90,7 @@ impl ExactTrivialCallableSignatureV1 {
         &self.params
     }
 
-    pub(crate) const fn result(&self) -> ExactTrivialScalarAbiV1 {
+    pub(crate) const fn result(&self) -> Option<ExactTrivialScalarAbiV1> {
         self.result
     }
 
@@ -114,8 +118,8 @@ impl VerifiedOwnerFreeCallableHeaderV1 {
     pub(super) fn seal(
         view: CallableHeaderSyntaxViewV1<'_>,
     ) -> Result<Self, CallableIndexSealErrorV1> {
-        validate_exact_i64_header(view, true)?;
-        Self::from_validated_view(view)
+        let result = validate_exact_i64_header(view, true)?;
+        Self::from_validated_view(view, result)
     }
 
     /// Seal a top-level source function for the App Main free-call index.
@@ -126,12 +130,13 @@ impl VerifiedOwnerFreeCallableHeaderV1 {
     pub(super) fn seal_top_level(
         view: CallableHeaderSyntaxViewV1<'_>,
     ) -> Result<Self, CallableIndexSealErrorV1> {
-        validate_exact_i64_header(view, false)?;
-        Self::from_validated_view(view)
+        let result = validate_exact_i64_header(view, false)?;
+        Self::from_validated_view(view, result)
     }
 
     fn from_validated_view(
         view: CallableHeaderSyntaxViewV1<'_>,
+        result: Option<ExactTrivialScalarAbiV1>,
     ) -> Result<Self, CallableIndexSealErrorV1> {
         let arity = u32::try_from(view.params().len())
             .map_err(|_| CallableIndexSealErrorV1::ArityOverflow)?;
@@ -141,7 +146,7 @@ impl VerifiedOwnerFreeCallableHeaderV1 {
                 source_key.name(),
                 source_key.arity() as usize,
             ),
-            signature: ExactTrivialCallableSignatureV1::exact_i64(view.params().len()),
+            signature: ExactTrivialCallableSignatureV1::from_validated(view.params().len(), result),
             source_key,
         })
     }
@@ -338,10 +343,15 @@ impl CallableIndexDraftV1 {
     }
 }
 
+/// Validate one exact-profile header and return the sealed result
+/// annotation. The zero-parameter rejection is kept only for the annotated
+/// `:i64` lane: an unannotated header is the map-result candidate profile,
+/// whose result class the callee's sealed terminal relation must prove
+/// before any call site may use it.
 fn validate_exact_i64_header(
     view: CallableHeaderSyntaxViewV1<'_>,
     require_static: bool,
-) -> Result<(), CallableIndexSealErrorV1> {
+) -> Result<Option<ExactTrivialScalarAbiV1>, CallableIndexSealErrorV1> {
     if require_static && !view.is_static() {
         return Err(CallableIndexSealErrorV1::StaticRequired);
     }
@@ -357,7 +367,7 @@ fn validate_exact_i64_header(
     if view.name().contains('/') {
         return Err(CallableIndexSealErrorV1::PhysicalSymbolSpellingInSource);
     }
-    if view.params().is_empty() {
+    if view.params().is_empty() && view.return_type_name().is_some() {
         return Err(CallableIndexSealErrorV1::ZeroParameters);
     }
     if view.params().len() != view.param_decls().len() {
@@ -376,15 +386,15 @@ fn validate_exact_i64_header(
             return Err(CallableIndexSealErrorV1::ParameterTypeOutsideProfile { index });
         }
     }
-    if view
-        .return_type_name()
-        .and_then(ExactTrivialScalarAbiV1::classify)
-        != Some(ExactTrivialScalarAbiV1::I64)
-    {
-        return Err(CallableIndexSealErrorV1::ReturnTypeOutsideProfile);
-    }
+    let result = match view.return_type_name() {
+        Some(name) => Some(
+            ExactTrivialScalarAbiV1::classify(name)
+                .ok_or(CallableIndexSealErrorV1::ReturnTypeOutsideProfile)?,
+        ),
+        None => None,
+    };
 
-    Ok(())
+    Ok(result)
 }
 
 #[cfg(test)]

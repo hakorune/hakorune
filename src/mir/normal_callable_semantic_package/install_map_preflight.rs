@@ -98,6 +98,19 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                                 .map_err(|error| Issue::MapLocalAnnotation(error.into()))?;
                                 break;
                             }
+                            if let Some(destination) = self
+                                .ordinary_new_claim_ledger
+                                .map_call_source_binding(&owned)
+                            {
+                                if destination != current.binding() {
+                                    return Err(Issue::MapLifecycleConsumerMissing);
+                                }
+                                crate::mir::builder::validate_map_local_annotation(
+                                    original.declared_type_name(),
+                                )
+                                .map_err(|error| Issue::MapLocalAnnotation(error.into()))?;
+                                break;
+                            }
                             let Some(ResolvedLexicalRefV1::Local(binding)) =
                                 function.variable_ref(site)
                             else {

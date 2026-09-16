@@ -1,8 +1,10 @@
 Task: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0
 Parent: mir-call-map-local-entry-source-i0-2026-09-15.md
-NextCard: F5 map-result call lane — the `result()==Some(I64)`
-callee gate and the receiving caller's Map projection
-consumption; C5c-1/C5c-2 acceptance fixes landed
+NextCard: F5-2 map-result call lane — call-site `MapLocalProgress`
+commit row + `result:"map"` emission + C v2 evidence (F5-1
+admission/Facts/Verify landed: `local m = make_map()` issues
+`Call{result:Map}` + described receive obligation; physical stops at
+`root-home-not-installed` until F5-2)
 Route note (2026-09-15): the call-arg and contained-descendant +
 array-element cards landed — merged loop1 now passes entirely and the
 first failure is `map_install_owners` (`Err(())`), this card's
@@ -275,7 +277,7 @@ exit code; name the admitted entry classes.
 | C6-3 | C v2 nested-call lane — landed: flow bound `fi \|\|` → `(fi && !ordinary)` admits ordinary callers at fi>0 while Birth callers keep rejecting; per-block `%call_out<b>` i64 slot for nested ordinary calls inside ordinary functions (the caller's own `%out_i64` stays reserved for its return handoff — the exact gap the review noted for scalar calls inside map-returning callees); `invoke_normal_result` loads `%call_out<invoke_block>` at fi>0, `%ordinary_out` at root. Map nested calls reuse the existing per-block `%map<b>` lane. Evidence: `published_lifecycle_v4_nested_call_test.c` — positive root→helper→inner chain compiles; negatives reject malformed invoke_block + target-role drift (`function-body`) and a structurally valid Birth caller (`unsupported-cohort`, the exact `fi && !ordinary` arm). Execution proof: the compiled object linked against `libnyash_lifecycle_kernel.a` + runtime probe returns exit 7 (`Result: 7`, `COUNTS 1 0 0 0 0 1`) — inner's const reaches the root through `%call_out0`→`%ordinary_out`. Regression: receiver-identity + parser preartifact C tests and the full `published_lifecycle_v4_execution_test.py` all green; `cc -fsyntax-only -Wall` shows only baseline v2.inc warnings | C6-2 |
 | C5c-1 | owner exit/cleanup co-seal — landed: `describe_map_lifecycle_obligations` now co-seals per-owner terminal evidence independent of any AppMain loan — `OwnerTerminalHomesUnavailable` (`terminal_homes()` must be `Ok`), `OwnerTerminalRelationMissing`, and `OwnerTerminalMapUnmatched` (a sealed `Value` terminal naming a map return must match a described site: `MapLiteral` requires its `ReturnBoundary` row at the same return-site node, `MapLocal` adds `ReturnHandoff` to the map's `LocalBinding` site — `local m = %{}; return m` no longer skips the handoff). Consequences (intended): implicit exits reject (`local m = %{}` — `ReturnValueNotCovered`/`TerminalNotCovered` means no sealed exit evidence exists to co-seal; `return`/`return 30` stay admitted); call-argument map owners always stop at describe (a `%{...}` argument poisons the i64-call prefix → `ArgumentHandoff` stays unreachable vocabulary). Pins: `map_transfer_invalidates_old_local_and_alias_field_observation` extended to `prepare_install` rejection + vacant catalog; `implicit_exit_map_owner_rejects_without_terminal_evidence`; `call_argument_map_owner_stops_at_describe_without_exit_evidence`; `returned_map_local_describes_return_handoff_on_the_local_site`. Focused: 231/231 `normal_callable_semantic_package`; `map_` batch shows 4 parent-reproduced baselines (`global_call_route_plan`×2, `mir_corebox_router`×2) + `map_write_timing_tests::boxcall_delegation` order-dependent flake (green standalone + 5-test batch on this diff) | C5b |
 | C5c-2 | EntryStore obligation precision — landed: `MapHomeEntry::store_class()` is the sealed row's own install predicate (`Scalar`=`InstallValue`, `Transferred`=`InstallIndexed`, `Borrowed`, `Opaque`), shared verbatim by describe and the selected emit lane — one classification, verified once. `EntryStore` now carries the class: capability declares `Scalar`+`Transferred` only, so `Opaque` stores (String/`[...]`/`%{...}` child values — the review's `%{"op" => "const"}` owner) describe the obligation but fail at verify, before catalog mutation (`map-value-consumer-missing` is never reached downstream). Borrowed entries (`MapLocal`/`BorrowedHandle`/kind-less `Local`) no longer describe a redundant `EntryStore` — `OwnershipShare` is their store obligation. `emit_flow` consumes `store_class()` instead of its own inline reclassification. Pins: `opaque_entry_classes_reject_at_preflight_before_catalog` (String/array/nested-map entries → `prepare_install` reject + vacant catalog). Focused: 232/232 `normal_callable_semantic_package`; `map_` batch shows 4 parent-reproduced baselines + `map_write_timing` order-dependent flake (serial/standalone green) | C5c-1 |
-| F5  | map-result call lane — the `result()==Some(I64)`/`:i64` callee gates deferred from C5b: admit sealed map-terminal callees, issue `Call{result:Map}` rows, and let the receiving caller consume the `InvokeCallResultKind::Map` projection (F4 verifier + `ordinary_map` wire already landed) | C5c, F4 |
+| F5  | map-result call lane — the `result()==Some(I64)`/`:i64` callee gates deferred from C5b: admit sealed map-terminal callees, issue `Call{result:Map}` rows, and let the receiving caller consume the `InvokeCallResultKind::Map` projection (F4 verifier + `ordinary_map` wire already landed). F5-1 landed: `signature().result() -> Option<I64>` (unannotated = map-result candidate, `:i64` path unchanged incl. `ZeroParameters`); `LocalCallObservationV1` + `LocalCallResultClassV1` issued at scan (map arm installs `StoredLocal::Map` + `homes.push`); co_seal splits by site (terminal needs caller `Call` relation; local needs the row — I64-class locals still require the caller's terminal-call undertaking, Map-class owns its binding) + result matrix `(None, Value(MapLiteral|MapLocal)) -> Map`; unannotated non-map targets reject (`LifecycleSourceMismatch`); cataloged walk requires `map_result_callee` proof for `result()==None` targets (`UnissuedDirectCallObservation`); receive-only owner gets `{NormalCleanup, FaultCleanup}` describe + `map_install_owners`/`requires_map_lifecycle_consumer` enumeration. Observable: `main() { local m = make_map(); return 0 }` issues `Call{result:Map}` + described obligation; `caller(seed:i64):i64 { local m = make_map(); return seed }` admits cataloged. Focused: 235/235 package (3 new pins + deferred-test boundary updates to earlier Resolver/loan rejects; 2 resolved_semantics failures are parent-reproduced baseline). Remaining: F5-2 physical `MapLocalProgress` + emission + C v2 — see F5 Decision | C5c, F4 |
 | C1-id | opaque source identity — pre-production homework on a test-only issuer: `verify_source_input_identity` is content comparison; content-identical foreign declarations stay indistinguishable. Bind to the batch-issued opaque source identity before any production connection | C1 |
 | C6-4 | rootless cohort — deferred: upstream `uncovered-lifecycle-function` coverage, `FinalizedRootHandoffV1` library variant, doc marker (merged-route shape, not needed by C8's rooted acceptance) | C6-1 |
 | C8  | two-function non-AppMain consumer acceptance (normal+Fault cleanup, refined above) | C5c, F5, C6 |
@@ -369,6 +371,75 @@ per-block `%call_out<b>` covers ordinary callers including
 
 Docs hygiene: `CURRENT_STATE.toml` `latest_card_summary` predates
 F4/C5b/C6-1/C6-2 — synced alongside this taskification.
+
+## F5 Decision (2026-09-16, worker-audited admission seams)
+
+**Callee result class = the callee's sealed terminal relation** — the
+result contract row's `terminal_relation` classified by
+`call_result_kind` is the sole result-kind authority. The index
+signature records only the syntax fact (`:i64` annotation → `Some(I64)`;
+unannotated → `None`) and never decides result class downstream.
+
+Audit outcome (read-only worker + primary trace): the F5 gap is not a
+missing physical primitive — `emit_local`,
+`InvokeCallResultKind::Map`, C v2 `ordinary_map` + `result:"map"` +
+`storage_move`, and the `Map::End` cleanup-graph edge all landed in
+F4/C6-3 — but a scalar-only admission chain:
+
+1. `ExactTrivialCallableSignatureV1.result` is always `I64`;
+   `validate_exact_i64_header` rejects unannotated returns
+   (`ReturnTypeOutsideProfile`) and zero-param headers
+   (`ZeroParameters`), so `make_map() { return %{...} }` is never an
+   index row — calls resolve to `TargetMissing`.
+2. `RootHomeFlow.local_calls` is issued only when the `is_i64_call`
+   predicate fires; a map call falls to `PrefixNotCovered`.
+3. `co_seal_lifecycle`'s map-owned arm requires the caller's own
+   terminal `Call` relation (`call_source_completion_for_owner`), the
+   callee `result()==Some(I64)`, and an `IntegerLiteral` callee
+   terminal — `local m = make_map(); return 0` and any map-result callee
+   both reject. `call_result_kind` is unreachable today (the
+   `IntegerLiteral` force makes it constant-`I64`).
+4. The received map's caller obligations are undescribed —
+   `describe_map_lifecycle_obligations` enumerates `MapLiteral` sites
+   only; a receive-only owner is not `map_owned` and has no
+   `flow.maps()` row.
+5. The receiving caller is the AppMain root — the disposition loan is
+   root-scoped and non-root call production is the C6-4 gap, so F5's
+   shape is `local m = make_map()` inside `main`.
+6. Physical: `local_commits` has no call-site `Map` row, so
+   `prepare_root_home_exit` cannot issue the received map's `Map::End`
+   (`root-home-not-installed`) — the only missing physical piece; the
+   `installed_home(binding)` exit lookup, `MapLocalProgress` row shape,
+   and `terminal_homes` accounting (`install_map` + `homes.push`)
+   already generalize.
+7. `return m` of a *received* map is unreachable in this lane (root is
+   i64-boundary; non-root call production is C6-4) — deferred, not
+   fabricated.
+
+```text
+Source authority + canonical issuer: callee sealed terminal relation
+  (completion + result contract row) -> `call_result_kind`; the index
+  header seal records syntax facts only.
+Non-authority: `signature().result()` never classifies result kind;
+  `map_owned` (body MapLiteral) is membership evidence, not result
+  class; declared annotations never decide the call result.
+Fail-fast boundary: (contract result, terminal) drift rejects; caller
+  shapes outside `local m = f()` receive-hold-release / `return f()`
+  i64 terminal reject; nested non-root call production stays
+  unadmitted; the physical lane stops at a named gate until F5-2.
+Smallest next slice: F5-1 below.
+Non-claims: map arguments; terminal `return f()` map pass-through;
+  received-map `return m` handoff; `MapLocal`-terminal callees without
+  an own `%{...}` literal; formal `MapCallEdgeContractV1` matching
+  rows; rootless cohort (C6-4).
+```
+
+Decomposed:
+
+| # | slice |
+|---|-------|
+| F5-1 | admission + Facts + Verify — signature `result -> Option<ExactTrivialScalarAbiV1>`; the unannotated static profile is admitted as a map-result candidate (zero-param allowed on the unannotated path only — the `:i64` path keeps `ZeroParameters`); `exact_formals` drops the signature-result arm (param evidence unchanged); `LocalI64CallObservationV1` gains a `LocalCallResultClassV1` marker issued at scan (predicate result, verified against the contract at co-seal); the local scan installs `StoredLocal::Map` + `homes.push` for map-class calls; `co_seal` splits the map-owned arm by site — a terminal site still needs the caller `Call` relation, a local site needs the local-call row — and the callee matrix `(Some(I64), IntegerLiteral) -> I64`, `(None, Value(MapLiteral\|MapLocal)) -> Map`, all drift rejects; `describe` + `map_install_owners`/`requires_map_lifecycle_consumer` count map-class local calls so a receive-only owner's `{NormalCleanup, FaultCleanup}` obligation is described and its exit evidence is co-sealed. Observable: `main() { local m = make_map(); return 0 }` installs with `Call{result:Map}` + a described receive obligation; the physical lane stops at `root-home-not-installed` (named) until F5-2 |
+| F5-2 | physical + C v2 — call-site `MapLocalProgress` commit row so the existing `installed_home -> end_operation = Map::End` exit chain releases the received map; local-call emit arm dispatch for Map rows (`emit_local` is already kind-aware); physical program emits the `ordinary_map` callee + `result:"map"` edge (module-wide since C6-1); C v2 consumes unchanged; execution evidence (storage-move counts + exit); negative matrix (result-kind drift, contract missing, identity/site drift, cleanup evidence missing) |
 
 ## F4 Decision (2026-09-15, worker-audited physical layers)
 

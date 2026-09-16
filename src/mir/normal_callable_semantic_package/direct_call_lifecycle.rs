@@ -10,7 +10,7 @@ use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    TerminalRelationV1, TerminalReturnedSourceV1,
+    LocalCallResultClassV1, TerminalRelationV1, TerminalReturnedSourceV1,
 };
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, SourceBindingSiteV1};
 
@@ -18,7 +18,13 @@ fn map_owned(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     row: &AppMainDirectCallDispositionRowV1,
 ) -> bool {
-    let owner = row.emission.target().callable().owner();
+    map_owned_owner(batch, row.emission.target().callable().owner())
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn map_owned_owner(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+) -> bool {
     batch.declarations().any(|declaration| {
         declaration.owner() == owner
             && declaration
@@ -27,6 +33,43 @@ fn map_owned(
                 .iter()
                 .any(|expression| matches!(expression, BodyExpressionShapeV1::MapLiteral { .. }))
     })
+}
+
+/// Whether the callable's sealed body proves a Map result: its own Map
+/// coverage exists and its terminal statement returns a Map literal.
+/// The header annotation alone never decides this. `return <map-local>`
+/// stays outside this source-level proof and fails closed.
+pub(in crate::mir::normal_callable_semantic_package) fn map_result_callee(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    callable: crate::mir::resolved_semantics::ResolvedCallableRefV1,
+) -> bool {
+    let mut declarations = batch
+        .declarations()
+        .filter(|declaration| declaration.owner() == callable.owner());
+    let Some(declaration) = declarations.next() else {
+        return false;
+    };
+    if declarations.next().is_some() {
+        return false;
+    }
+    let body = declaration.body_shape();
+    if !body
+        .expressions()
+        .iter()
+        .any(|expression| matches!(expression, BodyExpressionShapeV1::MapLiteral { .. }))
+    {
+        return false;
+    }
+    matches!(
+        body.statements().last(),
+        Some(crate::mir::resolved_semantics::BodyStatementShapeV1::Return {
+            value: Some(value_site),
+            ..
+        }) if matches!(
+            body.expression_shape(value_site),
+            Some(BodyExpressionShapeV1::MapLiteral { .. })
+        )
+    )
 }
 
 /// The callee's own terminal relation is the sole result-class evidence:
@@ -56,8 +99,7 @@ fn exact_formals(
     let target = row.emission.target();
     if !target.published_key().is_some_and(|key| {
         key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
-    }) || target.signature().result() != ExactTrivialScalarAbiV1::I64
-    {
+    }) {
         return false;
     }
     let mut matches = parameters
@@ -108,7 +150,7 @@ impl AppMainDirectCallDispositionLoanV1 {
         let Some(AppMainDirectCallDispositionSlotV1::Ready(row)) = self.rows.get(site) else {
             return false;
         };
-        row.emission.target().signature().result() == ExactTrivialScalarAbiV1::I64
+        row.emission.target().signature().result() == Some(ExactTrivialScalarAbiV1::I64)
             && input
                 .function()
                 .direct_call_target(site.site())
@@ -155,7 +197,10 @@ impl AppMainDirectCallDispositionLoanV1 {
             .any(|slot| matches!(slot, AppMainDirectCallDispositionSlotV1::Taken))
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn is_map_i64_call(
+    /// A local call into an unannotated Map-owned callee: the header's
+    /// `None` result is syntax only — the callee's sealed terminal relation
+    /// proves the Map result class at co-seal.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_map_result_call(
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         parameters: &[OwnedCallableParameterContractDeclarationV1],
@@ -167,7 +212,8 @@ impl AppMainDirectCallDispositionLoanV1 {
         }
         match self.rows.get(site) {
             Some(AppMainDirectCallDispositionSlotV1::Ready(row)) => {
-                map_owned(batch, row)
+                row.emission.target().signature().result().is_none()
+                    && map_owned(batch, row)
                     && exact_formals(batch, parameters, row)
                     && input
                         .function()
@@ -198,7 +244,14 @@ impl AppMainDirectCallDispositionLoanV1 {
             };
             // Unavailable Map coverage is still Map-owned, never Scalar evidence.
             if !map_owned(batch, row) {
-                let Some(local) = root.local_i64_call_for_owner(self.owner, site.site()) else {
+                // An unannotated target is callable only through the
+                // map-result lane; a scalar call into it has no admitted
+                // route.
+                if row.emission.target().signature().result() != Some(ExactTrivialScalarAbiV1::I64)
+                {
+                    return Err(reject);
+                }
+                let Some(local) = root.local_call_for_owner(self.owner, site.site()) else {
                     continue;
                 };
                 let Some((caller, terminal)) = root.call_source_completion_for_owner(self.owner)
@@ -212,8 +265,9 @@ impl AppMainDirectCallDispositionLoanV1 {
                     || local.site() != site
                     || local.destination().owner() != self.owner
                     || local.arguments().len() != row.argument_sites.len()
+                    || local.result() != LocalCallResultClassV1::I64
                     || signature.arity() != row.argument_sites.len()
-                    || signature.result() != ExactTrivialScalarAbiV1::I64
+                    || signature.result() != Some(ExactTrivialScalarAbiV1::I64)
                     || signature
                         .params()
                         .iter()
@@ -234,57 +288,105 @@ impl AppMainDirectCallDispositionLoanV1 {
             if !exact_formals(batch, parameters, row) {
                 return Err(reject);
             }
-            let (caller, terminal) = root
-                .call_source_completion_for_owner(self.owner)
-                .ok_or(reject)?;
-            if caller.explicit_site() != Some(terminal.return_site())
-                || !caller.returns_value()
-                || !matches!(caller.cleanup().terminal_homes(), Some(Ok(_)))
+            // The caller's own exit evidence is required regardless of
+            // which statement the call result flows through: a terminal
+            // `return <call>` site and a local `local m = <call>` site both
+            // consume the same caller terminal Homes accounting.
+            let caller = root.completion_for_owner(self.owner).ok_or(reject)?;
+            if !caller.returns_value() || !matches!(caller.cleanup().terminal_homes(), Some(Ok(_)))
             {
                 return Err(reject);
             }
-            let arguments = if site.site() == terminal.call_site() {
-                if terminal.arguments().len() != row.argument_sites.len() {
-                    return Err(reject);
+            // The source scan classifies a local call by the callee's
+            // sealed header annotation: `:i64` observations carry the I64
+            // class, unannotated map-result callees carry the Map class.
+            let expected_class = match row.emission.target().signature().result() {
+                Some(ExactTrivialScalarAbiV1::I64) => LocalCallResultClassV1::I64,
+                None => LocalCallResultClassV1::Map,
+            };
+            let completion = root.call_source_completion_for_owner(self.owner);
+            let arguments = match completion {
+                Some((call_completion, terminal)) if site.site() == terminal.call_site() => {
+                    if call_completion.explicit_site() != Some(terminal.return_site())
+                        || terminal.arguments().len() != row.argument_sites.len()
+                    {
+                        return Err(reject);
+                    }
+                    terminal.arguments()
                 }
-                terminal.arguments()
-            } else {
-                let local = root
-                    .local_i64_call_for_owner(self.owner, site.site())
-                    .ok_or(reject)?;
-                if local.owner() != self.owner
-                    || local.site().site() != site.site()
-                    || local.arguments().len() != row.argument_sites.len()
-                {
-                    return Err(reject);
+                _ => {
+                    let local = root
+                        .local_call_for_owner(self.owner, site.site())
+                        .ok_or(reject)?;
+                    if local.owner() != self.owner
+                        || local.site().site() != site.site()
+                        || local.arguments().len() != row.argument_sites.len()
+                        || local.result() != expected_class
+                    {
+                        return Err(reject);
+                    }
+                    // A scalar call into a map-owned callee stays admitted
+                    // only under the caller's terminal-call undertaking.
+                    // A Map receive owns its binding and cleanup directly.
+                    if local.result() == LocalCallResultClassV1::I64 && completion.is_none() {
+                        return Err(reject);
+                    }
+                    local.arguments()
                 }
-                local.arguments()
             };
             let owner = row.emission.target().callable().owner();
             let mut matches = results.rows().filter(|result| result.owner() == owner);
             let callee = matches.next().ok_or(reject)?.borrow();
             if matches.next().is_some()
                 || owner == self.owner
-                || callee.result() != Some(ExactTrivialScalarAbiV1::I64)
                 || !callee.completion().returns_value()
-            {
-                return Err(reject);
-            }
-            let Some(TerminalRelationV1::IntegerLiteral(value)) = callee.terminal_relation() else {
-                return Err(reject);
-            };
-            if value.owner() != owner
-                || callee.completion().explicit_site() != Some(value.return_site())
             {
                 return Err(reject);
             }
             let flow = callee.completion().cleanup().root_flow().ok_or(reject)?;
             if flow.terminal_homes().is_err()
-                || flow.maps().is_empty()
                 || flow.maps().iter().any(|map| map.complete().is_none())
                 || arguments.len() != row.argument_sites.len()
             {
                 return Err(reject);
+            }
+            // The sealed result contract is the sole result-class
+            // authority: the annotation and the callee's terminal relation
+            // must agree, and the terminal classifies the result kind.
+            match (callee.result(), callee.terminal_relation()) {
+                (
+                    Some(ExactTrivialScalarAbiV1::I64),
+                    Some(TerminalRelationV1::IntegerLiteral(value)),
+                ) => {
+                    if value.owner() != owner
+                        || callee.completion().explicit_site() != Some(value.return_site())
+                        || flow.maps().is_empty()
+                    {
+                        return Err(reject);
+                    }
+                }
+                (None, Some(TerminalRelationV1::Value(value))) => {
+                    let covered = match value.returned() {
+                        TerminalReturnedSourceV1::MapLiteral(literal) => flow
+                            .maps()
+                            .iter()
+                            .any(|map| map.site() == literal && map.complete().is_some()),
+                        TerminalReturnedSourceV1::MapLocal(binding) => {
+                            flow.maps().iter().any(|map| {
+                                map.complete()
+                                    .is_some_and(|row| row.local_binding() == Some(*binding))
+                            })
+                        }
+                        _ => false,
+                    };
+                    if value.owner() != owner
+                        || callee.completion().explicit_site() != Some(value.return_site())
+                        || !covered
+                    {
+                        return Err(reject);
+                    }
+                }
+                _ => return Err(reject),
             }
             row.result = call_result_kind(callee.terminal_relation());
             row.execution = AppMainCallExecutionV1::Lifecycle;
