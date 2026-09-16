@@ -143,6 +143,15 @@ uint32_t wrap_five_value(void* frame, uint32_t profile, uint64_t site, void* map
 }
 #endif
 
+#ifdef HAKO_MAP_CALL_PROBE
+/* The map-result Call lane's return handoff: the callee's storage_move into
+ * caller-owned out storage is counted separately from storage_dispose. */
+static unsigned moves;
+extern uint32_t real_move(void*, void*) __asm__("__real_nyash.map.storage_move_v1");
+uint32_t wrap_move(void*, void*) __asm__("__wrap_nyash.map.storage_move_v1");
+uint32_t wrap_move(void* dst, void* src) { moves++; return real_move(dst, src); }
+#endif
+
 extern uint32_t real_outcome_end(void*, uint64_t, void*) __asm__("__real_nyash.map.outcome_end_v1");
 uint32_t wrap_outcome_end(void*, uint64_t, void*) __asm__("__wrap_nyash.map.outcome_end_v1");
 uint32_t wrap_outcome_end(void* frame, uint64_t site, void* out) {
@@ -230,7 +239,11 @@ int main(int argc, char** argv) {
   struct rlimit limit = {0, 0}; setrlimit(RLIMIT_CORE, &limit);
   mode = argc == 2 ? argv[1] : "normal";
   int64_t result = ny_main();
-  printf("%lld %u %u %u %u %u %u\n", (long long)result,
+  printf("%lld %u %u %u %u %u %u", (long long)result,
       map_init, map_dispose, key_init, key_dispose, outcome_init, outcome_dispose);
+#ifdef HAKO_MAP_CALL_PROBE
+  printf(" %u", moves);
+#endif
+  printf("\n");
   return (int)result;
 }

@@ -12,6 +12,9 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / "lang/c-abi/tests"
 ARCHIVE = Path(sys.argv[1]).resolve()
+# Optional: a source-issued map-result Call artifact captured by the Rust
+# physical_program_json test (e.g. /tmp/hako-issued-physical-v2-map-call.json).
+ISSUED = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else None
 
 
 def run(args, **kwargs):
@@ -136,6 +139,94 @@ def value_program(kinds):
     data["functions"][0]["blocks"] = graph.blocks
     data["process_result_site"] = graph.site
     return data
+
+
+def call_program():
+    """`local m = make_map()` receive lane: the root's ordinary_call carries
+    result:"map" into an ordinary_map callee; the callee's return runs
+    storage_move into caller-owned out storage and the caller ends the
+    received lease before the scalar return. Mirrors the source-issued
+    `hako-issued-physical-v2-map-call.json` shape."""
+    main = dict(name="main", role="root_i64", entry=0, params=[],
+                receiver=None, receiver_object=None, blocks=[
+        dict(id=0, edges=[dict(target=1, args=None), dict(target=2, args=None)],
+             instructions=[dict(index=0, instruction=dict(
+                 op="fault_frame_enter", dst=1, mode="root_owned"))],
+             terminator=dict(index=1, instruction=dict(
+                 op="invoke", fault_frame=1, normal=1, fault=2,
+                 operation=dict(kind="ordinary_call", result="map",
+                                call=dict(target=1, args=[], dst=None))))),
+        dict(id=1, edges=[dict(target=3, args=None), dict(target=4, args=None)],
+             instructions=[
+                 dict(index=0, instruction=dict(
+                     op="invoke_normal_result", invoke_block=0, dst=2)),
+                 dict(index=1, instruction=dict(
+                     op="const_i64", dst=3, value=30))],
+             terminator=dict(index=2, instruction=dict(
+                 op="invoke", fault_frame=1, normal=3, fault=4,
+                 operation=dict(kind="map_end", map=2, site=0)))),
+        dict(id=2, edges=[], instructions=[],
+             terminator=dict(index=0, instruction=dict(
+                 op="return_fault", fault_frame=1))),
+        dict(id=3, edges=[], instructions=[],
+             terminator=dict(index=0, instruction=dict(
+                 op="return", value=3))),
+        dict(id=4, edges=[], instructions=[],
+             terminator=dict(index=0, instruction=dict(
+                 op="return_fault", fault_frame=1)))])
+    make_map = dict(name="Main.make_map/0", role="ordinary_map", entry=0,
+                    params=[], receiver=None, receiver_object=None, blocks=[
+        dict(id=0, edges=[dict(target=1, args=None), dict(target=2, args=None)],
+             instructions=[dict(index=0, instruction=dict(
+                 op="fault_frame_enter", dst=1, mode="borrowed"))],
+             terminator=dict(index=1, instruction=dict(
+                 op="invoke", fault_frame=1, normal=1, fault=2,
+                 operation=dict(kind="map_new", site=1)))),
+        dict(id=1, edges=[dict(target=3, args=None), dict(target=4, args=None)],
+             instructions=[
+                 dict(index=0, instruction=dict(
+                     op="invoke_normal_result", invoke_block=0, dst=2)),
+                 dict(index=1, instruction=dict(
+                     op="const_i64", dst=3, value=1))],
+             terminator=dict(index=2, instruction=dict(
+                 op="invoke", fault_frame=1, normal=3, fault=4,
+                 operation=dict(kind="map_prepare_key", site=2, utf8="a")))),
+        dict(id=2, edges=[], instructions=[],
+             terminator=dict(index=0, instruction=dict(
+                 op="return_fault", fault_frame=1))),
+        dict(id=3, edges=[dict(target=5, args=None), dict(target=4, args=None)],
+             instructions=[dict(index=0, instruction=dict(
+                 op="invoke_normal_result", invoke_block=1, dst=4))],
+             terminator=dict(index=1, instruction=dict(
+                 op="invoke", fault_frame=1, normal=5, fault=4,
+                 operation=dict(kind="map_install_value", map=2, key=4,
+                                value=3, value_kind=1, site=4)))),
+        dict(id=4, edges=[dict(target=6, args=None), dict(target=7, args=None)],
+             instructions=[],
+             terminator=dict(index=0, instruction=dict(
+                 op="invoke", fault_frame=1, normal=6, fault=7,
+                 operation=dict(kind="map_end", map=2, site=3)))),
+        dict(id=5, edges=[dict(target=8, args=None), dict(target=4, args=None)],
+             instructions=[dict(index=0, instruction=dict(
+                 op="invoke_normal_result", invoke_block=3, dst=5))],
+             terminator=dict(index=1, instruction=dict(
+                 op="invoke", fault_frame=1, normal=8, fault=4,
+                 operation=dict(kind="map_end_outcome", outcome=5, site=5)))),
+        dict(id=6, edges=[], instructions=[],
+             terminator=dict(index=0, instruction=dict(
+                 op="return_fault", fault_frame=1))),
+        dict(id=7, edges=[], instructions=[],
+             terminator=dict(index=0, instruction=dict(
+                 op="return_fault", fault_frame=1))),
+        dict(id=8, edges=[dict(target=9, args=None)], instructions=[],
+             terminator=dict(index=0, instruction=dict(
+                 op="jump", target=9, args=None))),
+        dict(id=9, edges=[], instructions=[],
+             terminator=dict(index=0, instruction=dict(
+                 op="return", value=2)))])
+    return dict(schema="hako.published-lifecycle-physical-program.v2",
+                storage_profile=1, fault_abi_version=1, process_result_site=6,
+                layouts=[], functions=[main, make_map])
 
 
 def mixed_program():
@@ -266,6 +357,44 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
         assert result.returncode == expected, (mode, result.stderr)
         assert result.stdout.strip() == f"{expected} 1 1 {keys} {keys} {outcomes} {outcomes}", result.stdout
     print("Value status paths preserve Key/Outcome disposal")
+
+    # Map-result Call lane: result:"map" edge into an ordinary_map callee.
+    # The unchanged consumer compiles caller-owned out storage; the callee's
+    # return runs storage_move and the caller releases the received lease.
+    compile_input(call_program())
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    assert run([exe], env=env).returncode == 30
+    print("ordinary_call result:map -> ordinary_map -> linked EXE30")
+    checked(["cc", "-DHAKO_MAP_CALL_PROBE", TESTS / "published_map_fault_probe.c", obj, ARCHIVE,
+             *["-Wl,--wrap=nyash.map." + name + "_v1" for name in wraps + ["storage_move"]],
+             "-ldl", "-lpthread", "-lm", "-o", exe])
+    result = run([exe], env=env)
+    assert result.returncode == 30, (result.returncode, result.stderr)
+    # result init dispose key_init key_dispose outcome_init outcome_dispose move:
+    # one storage_init (callee map_new), two disposes (callee moved-from plus
+    # the caller's Map::End), one key/outcome pair, one storage_move.
+    assert result.stdout.strip() == "30 1 2 1 1 1 1 1", result.stdout
+    print("map-result Call: storage_move=1, lease ends once -> exit 30")
+
+    # Result-kind drift in either direction is a parser-level named reject.
+    drifted = call_program()
+    drifted["functions"][1]["role"] = "ordinary_i64"
+    assert_named_reject(drifted, "published-lifecycle-physical-parser/function-body")
+    drifted = call_program()
+    drifted["functions"][0]["blocks"][0]["terminator"]["instruction"]["operation"]["result"] = "i64"
+    assert_named_reject(drifted, "published-lifecycle-physical-parser/function-body")
+
+    # When the source-issued artifact is supplied, the unchanged consumer
+    # compiles and executes it with the same storage evidence.
+    if ISSUED:
+        compile_input(json.loads(ISSUED.read_text()))
+        checked(["cc", "-DHAKO_MAP_CALL_PROBE", TESTS / "published_map_fault_probe.c", obj, ARCHIVE,
+                 *["-Wl,--wrap=nyash.map." + name + "_v1" for name in wraps + ["storage_move"]],
+                 "-ldl", "-lpthread", "-lm", "-o", exe])
+        result = run([exe], env=env)
+        assert result.returncode == 30, (result.returncode, result.stderr)
+        assert result.stdout.strip() == "30 1 2 1 1 1 1 1", result.stdout
+        print("source-issued map-call JSON -> unchanged consumer -> exit 30")
 
     base = program(["a", "b"])
 
