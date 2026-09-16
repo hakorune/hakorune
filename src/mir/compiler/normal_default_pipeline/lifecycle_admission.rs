@@ -25,33 +25,14 @@ pub(super) fn admit_lifecycle<'module>(
     {
         return Err(fault("candidate-unavailable"));
     }
-    let root = view
+    // The retained root is an optional process-entry input, not the membership
+    // authority. Ordinary membership comes from sealed call edges across the
+    // module; artifact issuance keeps its own entry contract.
+    let root_name = view
         .retained_root()
-        .ok_or_else(|| fault("retained-root-missing"))?;
-    let root_name = root.signature.name.as_str();
-    let retained_births = view
-        .retained_birth_abi()
-        .ok_or_else(|| fault("retained-birth-handoff-missing"))?;
-    let mut ordinary_names = BTreeSet::new();
-    for instruction in root
-        .blocks
-        .values()
-        .flat_map(|block| block.all_instructions())
-    {
-        let MirInstruction::Invoke {
-            operation:
-                crate::mir::instruction::InvokeOperation::Call {
-                    call,
-                    result: crate::mir::instruction::InvokeCallResultKind::I64,
-                },
-            ..
-        } = instruction
-        else {
-            continue;
-        };
-        let key = super::published_backend_view::ordinary_callable_key(&call.callee)?;
-        ordinary_names.insert(key.mir_symbol_projection());
-    }
+        .map(|root| root.signature.name.as_str());
+    let retained_births = view.retained_birth_abi().unwrap_or_default();
+    let ordinary_names = ordinary_call_names(view.module())?;
     let result_is_retained = matches!(
         view.retained_root_result(),
         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. }
@@ -60,7 +41,7 @@ pub(super) fn admit_lifecycle<'module>(
             | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
             | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { .. })
     );
-    if !result_is_retained {
+    if root_name.is_some() && !result_is_retained {
         return Err(fault("retained-root-result-missing"));
     }
     validate_functions(view.module(), root_name, retained_births, &ordinary_names)?;
@@ -68,16 +49,48 @@ pub(super) fn admit_lifecycle<'module>(
     Ok(view)
 }
 
+/// Ordinary membership is every sealed `Call` edge target in the module, not
+/// just the retained root's direct calls. A `Map` result edge carries the
+/// same membership authority as `I64`; artifact issuance keeps deciding which
+/// callers actually serialize rows.
+fn ordinary_call_names(module: &MirModule) -> Result<BTreeSet<String>, String> {
+    let mut names = BTreeSet::new();
+    for function in module.functions.values() {
+        for instruction in function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+        {
+            let MirInstruction::Invoke {
+                operation:
+                    crate::mir::instruction::InvokeOperation::Call {
+                        call,
+                        result:
+                            crate::mir::instruction::InvokeCallResultKind::I64
+                            | crate::mir::instruction::InvokeCallResultKind::Map,
+                    },
+                ..
+            } = instruction
+            else {
+                continue;
+            };
+            let key = super::published_backend_view::ordinary_callable_key(&call.callee)?;
+            names.insert(key.mir_symbol_projection());
+        }
+    }
+    Ok(names)
+}
+
 // Preserve namespace validation before call validation. Return-only retained
 // Birth functions participated in the former appended rows and remain checked.
 fn validate_functions(
     module: &MirModule,
-    root_name: &str,
+    root_name: Option<&str>,
     retained_births: &[BirthAbiHandoffV1],
     ordinary_names: &BTreeSet<String>,
 ) -> Result<(), String> {
     for (name, function) in &module.functions {
-        if name != root_name && has_lifecycle(function) {
+        if root_name != Some(name.as_str()) && has_lifecycle(function) {
             if ordinary_names.contains(name) {
                 continue;
             }
@@ -85,7 +98,7 @@ fn validate_functions(
         }
     }
     for (name, function) in &module.functions {
-        if name == root_name || has_lifecycle(function) {
+        if root_name == Some(name.as_str()) || has_lifecycle(function) {
             continue;
         }
         let retained = module

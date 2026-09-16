@@ -87,7 +87,10 @@ that handoff once and delegates source/result/Birth accessors; it does not own
 four separate semantic products or recollect a cloned target-key list. Binding
 still validates definitions, arity and source/result correspondence before
 finalization admission. The private `lifecycle_admission.rs` helper preserves
-candidate and root/result/source checks, then borrows the published functions
+candidate checks and treats the retained root as an optional process-entry
+input rather than membership authority: ordinary membership is every sealed
+`Call{I64|Map}` edge target across the module, and root-scoped result checks
+apply only while an entry is bound. It then borrows the published functions
 for namespace and direct Birth-call validation. Return-only retained Birth
 functions remain checked before calls. Lifecycle/Return row arrays and their
 coordinate wrapper are retired; the view keeps only lifecycle presence from
