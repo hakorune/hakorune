@@ -795,3 +795,29 @@ terminal `return <call>` in non-AppMain owners; receive after an earlier
 home (`prior_homes` rejects at preflight); received-map `return m`;
 map arguments; `Ordinary`-role/dynamic/S6C loan owners; rootless
 cohorts; runtime exit-code evidence.
+
+Merged-route probe (2026-09-16, `./target/quick/hakorune --backend mir
+/tmp/merged_entry.hako`, sha256 `23b6cf89...`, temporary instrumentation
+removed): the outer label stays `MapLifecycleConsumerMissing` but the
+boundary moved — with `map_install_owners` deleted the describe arm now
+reaches per-owner exit evidence and stops at
+`OwnerTerminalHomesUnavailable` for `MirSchemaBox._module_with_blocks`
+(batch slot 681):
+
+```hako
+method _module_with_blocks(blocks) {
+    local main = %{"name"=> "main", ... "blocks"=> blocks}
+    return MirJsonEmitBox.to_json(%{"functions"=> [main]})
+}
+```
+
+The owner's terminal is `return <qualified static method call>` —
+`terminal_call` covers only loan `is_i64_call` rows and AppMain zero-arg
+instance calls, and its argument collection requires all-integer args
+(the `%{...}` arg fails that filter). `ReturnValueNotCovered` leaves
+`terminal_homes` unavailable, so the C5c-1 co-seal rejects before
+catalog mutation — fail-closed as designed. This is the named residual:
+a terminal relation class for `return <call>` outside the admitted
+i64-direct-call family (non-claimed above). The next bounded slice names
+that classification decision; map-argument handoff
+(`ArgumentHandoff`/`Opaque` entries in `to_json`'s map) stays behind it.
