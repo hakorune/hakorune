@@ -17,8 +17,8 @@ impl MirBuilder {
         identity: &CallableDeclarationIdentityV1,
         observation: Option<CallableMethodSourceObservationV1>,
         ledger: Rc<OrdinaryNewClaimLedgerV1>,
-        loan: Option<
-            &mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoanV1,
+        loans: Option<
+            &mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoansV1,
         >,
     ) -> Result<crate::mir::MirFunction, String> {
         let body = input
@@ -35,7 +35,7 @@ impl MirBuilder {
             ModuleLoweringInvocationV1::with_collector(self, ModuleDraftCollectorV1::default());
         invocation.with_module_port(|builder, port| {
             let mut inner = RawInvocationChildPortV1::new(port);
-            inner.direct_call_loan = loan;
+            inner.direct_call_loans = loans;
             with_callable_source_scope(
                 &mut inner,
                 RawInvocationRootLineageV1::Cataloged(key),

@@ -527,17 +527,20 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         // With a Plain terminal exit this row is the sole lifecycle owner of
         // the shared frame definition; the recorded frame must be the
-        // root-owned definition the invoke's `fault_frame` names.
+        // entry-frame definition the invoke's `fault_frame` names. The
+        // recorded instruction pins the mode — `RootOwned` for the root,
+        // `Borrowed` for a cataloged child — and `check_binding` below
+        // re-verifies it against the finished function.
         let MirInstruction::Invoke { fault_frame, .. } = &invokes[0].1 else {
             unreachable!("filtered to Invoke")
         };
         if bindings
             .iter()
             .filter(|(_, instruction)| {
-                matches!(instruction, MirInstruction::FaultFrameEnter {
-                    dst,
-                    mode: crate::mir::instruction::FaultFrameMode::RootOwned,
-                } if dst == fault_frame)
+                matches!(
+                    instruction,
+                    MirInstruction::FaultFrameEnter { dst, .. } if dst == fault_frame
+                )
             })
             .count()
             != 1

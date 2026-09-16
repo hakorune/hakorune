@@ -224,9 +224,9 @@ impl MirBuilder {
                 brand,
             )?;
         }
-        let mut direct_call_loan = match &mut callable_mode {
+        let mut direct_call_loans = match &mut callable_mode {
             NormalCallableSemanticPackageMode::Installed(package_port) => {
-                package_port.take_direct_call_loan()
+                package_port.take_direct_call_loans()
             }
             NormalCallableSemanticPackageMode::Compatibility(_) => None,
         };
@@ -240,7 +240,7 @@ impl MirBuilder {
                     &mut module_port,
                     runtime_inputs.cleanup_exit_policy(),
                     callable_loop_root_scope,
-                    direct_call_loan.as_mut(),
+                    direct_call_loans.as_mut(),
                 )
             } else {
                 RawInvocationChildPortV1::new_with_cleanup_exit_policy(
@@ -302,11 +302,12 @@ impl MirBuilder {
                     .map(|value| (value, None)),
             }
         };
-        let direct_call_loan_result = direct_call_loan.take().map(|loan| {
-            loan.finish_empty()
+        let direct_call_loans_result = direct_call_loans.take().map(|loans| {
+            loans
+                .finish_empty()
                 .map_err(|error| format!("[freeze:contract][direct-call/{error:?}]"))
         });
-        let result = match (result, direct_call_loan_result) {
+        let result = match (result, direct_call_loans_result) {
             (Err(error), _) => Err(error),
             (Ok(_), Some(Err(error))) => Err(error),
             (Ok(value), None | Some(Ok(()))) => Ok(value),

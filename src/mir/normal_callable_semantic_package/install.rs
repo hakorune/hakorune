@@ -88,7 +88,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     lowering_completed: std::cell::Cell<bool>,
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
-    direct_call_loan: Option<super::direct_call_loan::DirectCallDispositionLoanV1>,
+    direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
     /// Sealed pre-install proof that every owner's described Map
     /// obligations are covered by the selected consumer's declared
     /// capability. `None` when no member carries Map obligations.
@@ -299,8 +299,8 @@ pub(crate) struct PreparedNormalCallableSemanticPackageInstallV1<'context> {
 #[must_use]
 pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
     pub(super) installed: &'package InstalledNormalCallableSemanticPackageV1,
-    pub(super) direct_call_loan:
-        Option<super::direct_call_loan::DirectCallDispositionLoanV1>,
+    pub(super) direct_call_loans:
+        Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
     consumed: BTreeSet<SelectedNormalCallableKeyV1>,
     declared_instance_consumed: BTreeSet<u32>,
     s6c_child_consumed: bool,
@@ -334,12 +334,12 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         })
     }
 
-    /// Move the package-owned App Main inventory into the root raw session.
-    /// There is no package-only fallback once this succeeds.
-    pub(in crate::mir) fn take_direct_call_loan(
+    /// Move the package-owned per-owner inventories into the root raw
+    /// session.  There is no package-only fallback once this succeeds.
+    pub(in crate::mir) fn take_direct_call_loans(
         &mut self,
-    ) -> Option<super::direct_call_loan::DirectCallDispositionLoanV1> {
-        self.direct_call_loan.take()
+    ) -> Option<super::direct_call_loan::DirectCallDispositionLoansV1> {
+        self.direct_call_loans.take()
     }
 }
 
@@ -388,7 +388,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             root_execution,
             catalog,
             batch,
-            direct_call_loan,
+            direct_call_loans,
             ordinary_new_claim_ledger,
             instance_constructors,
             selected,
@@ -413,7 +413,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             lowering_completed: std::cell::Cell::new(false),
             catalog_brand,
             batch,
-            direct_call_loan,
+            direct_call_loans,
             map_lifecycle_undertaking: self.map_lifecycle_undertaking,
             ordinary_new_claim_ledger,
             instance_constructors,
@@ -517,30 +517,30 @@ impl InstalledNormalCallableSemanticPackageV1 {
     pub(crate) fn open_lowering_port(
         &self,
         context: &CompilationContext,
-        direct_call_loan: Option<
-            super::direct_call_loan::DirectCallDispositionLoanV1,
+        direct_call_loans: Option<
+            super::direct_call_loan::DirectCallDispositionLoansV1,
         >,
     ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
     {
         if !self.installed_in(context) {
             return Err(NormalCallableSemanticPackageInstallIssueV1::ForeignCatalog);
         }
-        self.open_lowering_port_after_install(direct_call_loan)
+        self.open_lowering_port_after_install(direct_call_loans)
     }
 
     pub(crate) fn open_lowering_port_after_install(
         &self,
-        direct_call_loan: Option<
-            super::direct_call_loan::DirectCallDispositionLoanV1,
+        direct_call_loans: Option<
+            super::direct_call_loan::DirectCallDispositionLoansV1,
         >,
     ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
     {
-        if self.direct_call_loan.is_some() {
+        if self.direct_call_loans.is_some() {
             return Err(NormalCallableSemanticPackageInstallIssueV1::DirectCallLoanNotConsumed);
         }
         Ok(NormalCallableSemanticPackagePortV1 {
             installed: self,
-            direct_call_loan,
+            direct_call_loans,
             consumed: BTreeSet::new(),
             declared_instance_consumed: BTreeSet::new(),
             s6c_child_consumed: false,
@@ -557,10 +557,10 @@ impl InstalledNormalCallableSemanticPackageV1 {
         self.open_lowering_port(context, None)
     }
 
-    pub(in crate::mir) fn take_direct_call_loan(
+    pub(in crate::mir) fn take_direct_call_loans(
         &mut self,
-    ) -> Option<super::direct_call_loan::DirectCallDispositionLoanV1> {
-        self.direct_call_loan.take()
+    ) -> Option<super::direct_call_loan::DirectCallDispositionLoansV1> {
+        self.direct_call_loans.take()
     }
 
     fn take_dynamic_physical_header(

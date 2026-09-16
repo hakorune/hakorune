@@ -30,27 +30,24 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             BuilderInstallConsumerV1::map_lifecycle_capability(),
         )
         .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
-        // AppMain execution-product evidence stays scoped to the loan
-        // that carries it: the affine rows must be unspent at install,
-        // every map-carrying loan target must have described obligations,
-        // and the loan never targets its own owner. Per-owner lane
-        // admissibility still applies inside this lane; what is gone is
-        // the fixed call-count/reachability shape bound, which the
-        // undertaking replaces as coverage proof.
-        if let Some(loan) = self.direct_call_loan.as_ref() {
-            if loan.has_taken_slot() {
-                return Err(Issue::MapLifecycleConsumerMissing);
-            }
-            self.ordinary_new_claim_ledger
-                .map_install_owners()
-                .map_err(|()| Issue::MapLifecycleConsumerMissing)?;
-            let targets = loan.map_target_owners(&self.batch).unwrap_or_default();
-            if targets.iter().any(|target| *target == loan.owner())
-                || targets
-                    .iter()
-                    .any(|target| !obligations.iter().any(|row| row.owner() == *target))
-            {
-                return Err(Issue::MapLifecycleConsumerMissing);
+        // Direct-call evidence stays scoped to the loans that carry it:
+        // the affine rows must be unspent at install, every map-carrying
+        // loan target must have described obligations, and a loan never
+        // targets its own owner. Owner-common checks live in `describe`
+        // above; nothing here inspects owners outside an actual loan.
+        if let Some(loans) = self.direct_call_loans.as_ref() {
+            for loan in loans.iter() {
+                if loan.has_taken_slot() {
+                    return Err(Issue::MapLifecycleConsumerMissing);
+                }
+                let targets = loan.map_target_owners(&self.batch).unwrap_or_default();
+                if targets.iter().any(|target| *target == loan.owner())
+                    || targets
+                        .iter()
+                        .any(|target| !obligations.iter().any(|row| row.owner() == *target))
+                {
+                    return Err(Issue::MapLifecycleConsumerMissing);
+                }
             }
         }
         for owner in obligations.iter().map(|row| row.owner()) {

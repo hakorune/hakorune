@@ -236,11 +236,11 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     /// function session and cannot outlive the root callback.
     pub(in crate::mir::builder) callable_loop_root_scope:
         Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
-    /// Exact App Main direct-call dispositions borrowed from the installed
+    /// Exact per-owner direct-call dispositions borrowed from the installed
     /// package for this invocation only.  Children receive a short reborrow;
     /// no clone or second inventory is created.
-    pub(in crate::mir::builder) direct_call_loan: Option<
-        &'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoanV1,
+    pub(in crate::mir::builder) direct_call_loans: Option<
+        &'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoansV1,
     >,
     /// Short-lived package locator capability for the selected DeclaredInstance
     /// root. Compatibility frames remain explicitly unarmed.
@@ -288,13 +288,13 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
         callable_loop_root_scope: &'port mut super::UnpublishedCallableLoopRootScopeV1,
-        direct_call_loan: Option<&'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoanV1>,
+        direct_call_loans: Option<&'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoansV1>,
     ) -> Self {
         Self::new_with_optional_callable_loop_root_scope_and_direct_call_loan(
             module_port,
             cleanup_exit_policy,
             Some(callable_loop_root_scope),
-            direct_call_loan,
+            direct_call_loans,
         )
     }
 
@@ -315,7 +315,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
         callable_loop_root_scope: Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
-        direct_call_loan: Option<&'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoanV1>,
+        direct_call_loans: Option<&'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoansV1>,
     ) -> Self {
         Self {
             module_port,
@@ -326,7 +326,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
             script_deferred_observation: None,
             callable_loop_root_scope,
-            direct_call_loan,
+            direct_call_loans,
             declared_instance_locator: None,
             runtime_box_fate: RuntimeBoxFateScopeV1::Unarmed,
             cleanup_exit_policy,
@@ -348,7 +348,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
             script_deferred_observation: self.script_deferred_observation.clone(),
             callable_loop_root_scope: self.callable_loop_root_scope.as_deref_mut(),
-            direct_call_loan: self.direct_call_loan.as_deref_mut(),
+            direct_call_loans: self.direct_call_loans.as_deref_mut(),
             declared_instance_locator: self
                 .declared_instance_locator
                 .as_mut()

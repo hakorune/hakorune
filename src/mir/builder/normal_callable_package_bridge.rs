@@ -8,7 +8,7 @@
 use std::cell::Cell;
 
 use crate::mir::normal_callable_semantic_package::{
-    BuilderInstallTokenV1, DeclaredInstanceCallLocatorViewV1, DirectCallDispositionLoanV1,
+    BuilderInstallTokenV1, DeclaredInstanceCallLocatorViewV1, DirectCallDispositionLoansV1,
     InstalledNormalCallableSemanticPackageV1, MapLifecycleConsumerCapabilityV1,
     MapLifecycleOperationV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1,
@@ -83,7 +83,7 @@ impl BuilderPrivateInstalledCallablePackageBundleV1 {
     ) -> BuilderPrivateCallableLoweringScopeV1 {
         BuilderPrivateCallableLoweringScopeV1 {
             installed: self.installed,
-            direct_call_loan: None,
+            direct_call_loans: None,
             lowering_started: Cell::new(false),
         }
     }
@@ -97,7 +97,7 @@ impl BuilderPrivateInstalledCallablePackageBundleV1 {
 #[must_use]
 pub(in crate::mir) struct BuilderPrivateCallableLoweringScopeV1 {
     installed: InstalledNormalCallableSemanticPackageV1,
-    direct_call_loan: Option<DirectCallDispositionLoanV1>,
+    direct_call_loans: Option<DirectCallDispositionLoansV1>,
     lowering_started: Cell<bool>,
 }
 
@@ -134,11 +134,11 @@ impl BuilderPrivateCallableLoweringScopeV1 {
         if self.lowering_started.replace(true) {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringAlreadyStarted);
         }
-        if self.direct_call_loan.is_none() {
-            self.direct_call_loan = self.installed.take_direct_call_loan();
+        if self.direct_call_loans.is_none() {
+            self.direct_call_loans = self.installed.take_direct_call_loans();
         }
         self.installed
-            .open_lowering_port(context, self.direct_call_loan.take())
+            .open_lowering_port(context, self.direct_call_loans.take())
     }
 
     pub(in crate::mir::builder) fn with_lowering_once_and_program_source_loan<R>(
@@ -151,12 +151,12 @@ impl BuilderPrivateCallableLoweringScopeV1 {
         if self.lowering_started.replace(true) {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringAlreadyStarted);
         }
-        if self.direct_call_loan.is_none() {
-            self.direct_call_loan = self.installed.take_direct_call_loan();
+        if self.direct_call_loans.is_none() {
+            self.direct_call_loans = self.installed.take_direct_call_loans();
         }
         let package_port = self
             .installed
-            .open_lowering_port_after_install(self.direct_call_loan.take())?;
+            .open_lowering_port_after_install(self.direct_call_loans.take())?;
         self.installed
             .with_normal_program_source_loan(|source| callback(package_port, source))
             .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)

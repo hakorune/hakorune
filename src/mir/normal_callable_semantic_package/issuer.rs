@@ -26,7 +26,9 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
     DynamicInvocationCleanupProjectionRejectV1,
 };
-use crate::mir::resolved_semantics::{CallableLookupErrorV1, FunctionSemanticResolverSessionV1};
+use crate::mir::resolved_semantics::{
+    CallableLookupErrorV1, FunctionSemanticResolverSessionV1, SourceExprSiteV1,
+};
 #[cfg(test)]
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
@@ -42,7 +44,7 @@ use super::declared_instance_locator::{
     issue_declared_instance_call_package_locator_v1, DeclaredInstanceCallPackageLocatorIssueV1,
 };
 use super::direct_call_loan::{
-    DirectCallDispositionLoanV1, DirectCallDispositionRowV1,
+    DirectCallDispositionLoanV1, DirectCallDispositionLoansV1, DirectCallDispositionRowV1,
 };
 use super::dynamic_admission::{
     admit_dynamic_callable_v1, issue_dynamic_parameter_contract_v2,
@@ -96,36 +98,87 @@ pub(crate) enum DirectCallDispositionIssueV1 {
     Loan(super::direct_call_loan::DirectCallLoanErrorV1),
 }
 
-/// Move the exact App Main direct-call products into a private package loan.
+/// Move the exact direct-call products for each eligible owner into private
+/// package loans.
 ///
 /// The resolver has already co-issued the source observations and the
 /// callable index.  This helper only joins those existing products by their
 /// owner/site relation; it never resolves a name or emits a new target.
-fn issue_direct_call_loan_v1(
+/// Eligible owners are App Main itself and the selected static children of
+/// App Main's box, because only those owners lower through the raw
+/// direct-call consumer.
+fn issue_direct_call_loans_v1(
     catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     app_main_identity: &crate::parser::CallableDeclarationIdentityV1,
-) -> Result<Option<DirectCallDispositionLoanV1>, DirectCallDispositionIssueV1> {
+) -> Result<Option<DirectCallDispositionLoansV1>, DirectCallDispositionIssueV1> {
     let Some((main_slot, callable_index)) = batch.main_callable_index() else {
         return Ok(None);
     };
-    let mut declarations = batch
-        .declarations()
-        .filter(|declaration| declaration.identity().same_as(app_main_identity));
-    let Some(main) = declarations.next() else {
-        return Err(DirectCallDispositionIssueV1::SourceCoverage);
-    };
-    if declarations.next().is_some()
-        || main.batch_slot() != main_slot
-        || main.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
-    {
+    let mut loans = Vec::new();
+    let mut main_matched = false;
+    for declaration in batch.declarations() {
+        let is_app_main = declaration.identity().same_as(app_main_identity);
+        let batch_slot = declaration.batch_slot();
+        let eligible = is_app_main
+            || selected
+                .role_for_batch_slot(batch_slot)
+                .is_some_and(|role| role.is_main_static_child());
+        if !eligible {
+            continue;
+        }
+        if declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod {
+            return Err(DirectCallDispositionIssueV1::SourceCoverage);
+        }
+        if is_app_main {
+            if main_matched || batch_slot != main_slot {
+                return Err(DirectCallDispositionIssueV1::SourceCoverage);
+            }
+            main_matched = true;
+        }
+        let owner = declaration.owner();
+        let rows = collect_direct_call_rows_v1(
+            catalog,
+            batch,
+            selected,
+            callable_index,
+            owner,
+            batch_slot,
+        )?;
+        if rows.is_empty() {
+            continue;
+        }
+        loans.push(
+            DirectCallDispositionLoanV1::from_rows(owner, rows)
+                .map_err(DirectCallDispositionIssueV1::Loan)?,
+        );
+    }
+    if !main_matched {
         return Err(DirectCallDispositionIssueV1::SourceCoverage);
     }
-    let owner = main.owner();
+    if loans.is_empty() {
+        return Ok(None);
+    }
+    DirectCallDispositionLoansV1::issue(loans)
+        .map(Some)
+        .map_err(DirectCallDispositionIssueV1::Loan)
+}
+
+/// Assemble the loan rows for one owner from its own sealed observations.
+/// The owner's lowering forest must be single-rooted at that owner, and no
+/// nested owner may carry observations of its own.
+fn collect_direct_call_rows_v1(
+    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    callable_index: &crate::mir::resolved_semantics::VerifiedCallableIndexV1,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    batch_slot: u32,
+) -> Result<Vec<(SourceExprSiteV1, DirectCallDispositionRowV1)>, DirectCallDispositionIssueV1> {
     let mut rows = Vec::new();
     batch
-        .with_lowering_input(main_slot, |input| {
+        .with_lowering_input(batch_slot, |input| {
             let [root] = input.forest().roots() else {
                 return Err(DirectCallDispositionIssueV1::SourceCoverage);
             };
@@ -241,12 +294,7 @@ fn issue_direct_call_loan_v1(
             Ok(())
         })
         .map_err(DirectCallDispositionIssueV1::BatchLoan)??;
-    if rows.is_empty() {
-        return Ok(None);
-    }
-    DirectCallDispositionLoanV1::from_rows(owner, rows)
-        .map(Some)
-        .map_err(DirectCallDispositionIssueV1::Loan)
+    Ok(rows)
 }
 
 #[derive(Debug)]
@@ -387,8 +435,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
     app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
-    let mut direct_call_loan = match app_main_identity.as_ref() {
-        Some(identity) => issue_direct_call_loan_v1(&catalog, &batch, &selected, identity)
+    let mut direct_call_loans = match app_main_identity.as_ref() {
+        Some(identity) => issue_direct_call_loans_v1(&catalog, &batch, &selected, identity)
             .map_err(
                 |error| NormalCallableSemanticPackageIssueV1::DirectCall { _error: error },
             )?,
@@ -539,7 +587,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         &batch,
         &selected,
         app_main_identity.as_ref(),
-        direct_call_loan.as_ref(),
+        direct_call_loans.as_ref(),
         &parameter_contracts,
         &mut dynamic,
         &instance_constructors,
@@ -572,18 +620,20 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         .map_err(|error| {
         NormalCallableSemanticPackageIssueV1::ResultContract { _error: error }
     })?;
-    if let Some(loan) = &mut direct_call_loan {
-        loan.co_seal_lifecycle(
-            &batch,
-            &parameter_contracts,
-            &result_contracts,
-            &ordinary_new_claim_ledger,
-        )
-        .map_err(
-            |error| NormalCallableSemanticPackageIssueV1::DirectCall {
-                _error: DirectCallDispositionIssueV1::Loan(error),
-            },
-        )?;
+    if let Some(loans) = &mut direct_call_loans {
+        for loan in loans.iter_mut() {
+            loan.co_seal_lifecycle(
+                &batch,
+                &parameter_contracts,
+                &result_contracts,
+                &ordinary_new_claim_ledger,
+            )
+            .map_err(
+                |error| NormalCallableSemanticPackageIssueV1::DirectCall {
+                    _error: DirectCallDispositionIssueV1::Loan(error),
+                },
+            )?;
+        }
     }
     let physical_header = issue_callable_physical_header_from_result_contract_v1(&result_contracts);
     let physical_signature = issue_callable_physical_signature_v1(
@@ -628,7 +678,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),
         catalog,
         batch,
-        direct_call_loan,
+        direct_call_loans,
         ordinary_new_claim_ledger: Rc::new(ordinary_new_claim_ledger),
         instance_constructors,
         selected,

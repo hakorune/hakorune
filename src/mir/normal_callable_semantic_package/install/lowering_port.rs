@@ -384,7 +384,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
     }
 
     pub(crate) fn complete(self) -> Result<(), NormalCallableSemanticPackageInstallIssueV1> {
-        if self.direct_call_loan.is_some() {
+        if self.direct_call_loans.is_some() {
             return Err(NormalCallableSemanticPackageInstallIssueV1::DirectCallLoanNotConsumed);
         }
         if self.consumed.len() != self.installed.selected.keys().len()

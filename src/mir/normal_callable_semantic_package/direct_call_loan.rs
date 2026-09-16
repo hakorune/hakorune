@@ -18,6 +18,7 @@ pub(crate) enum DirectCallLoanErrorV1 {
     SiteAlreadyTaken,
     ResidualRows,
     DuplicateSite,
+    DuplicateOwner,
     LifecycleSourceMismatch,
     LifecycleConsumerMissing,
 }
@@ -124,7 +125,7 @@ impl DirectCallDispositionLoanV1 {
         owner: FunctionOwnerIdV1,
         return_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     ) -> Result<Option<DirectCallDispositionRowV1>, DirectCallLoanErrorV1> {
-        let Some((completion, terminal)) = ledger.call_source_completion() else {
+        let Some((completion, terminal)) = ledger.call_source_completion_for_owner(owner) else {
             return Ok(None);
         };
         if owner != self.owner
@@ -192,6 +193,75 @@ impl DirectCallDispositionLoanV1 {
             .any(|slot| matches!(slot, DirectCallDispositionSlotV1::Ready(_)))
         {
             return Err(DirectCallLoanErrorV1::ResidualRows);
+        }
+        Ok(())
+    }
+}
+
+/// The per-owner direct-call inventory carried by one installed package.
+///
+/// Every loan keeps its own exact owner; the collection only routes a raw
+/// consumer to the loan that owner already holds and never resolves targets.
+/// An owner whose call sites are lowered through a non-raw lane (for example
+/// a canonical callable program) never enters direct-call scope, so a fully
+/// untouched loan drains without residual; a partially consumed loan is
+/// always a violation.
+#[must_use]
+#[derive(Debug)]
+pub(crate) struct DirectCallDispositionLoansV1 {
+    loans: BTreeMap<FunctionOwnerIdV1, DirectCallDispositionLoanV1>,
+}
+
+impl DirectCallDispositionLoansV1 {
+    pub(crate) fn issue(
+        loans: impl IntoIterator<Item = DirectCallDispositionLoanV1>,
+    ) -> Result<Self, DirectCallLoanErrorV1> {
+        let mut issued = BTreeMap::new();
+        for loan in loans {
+            if issued.insert(loan.owner, loan).is_some() {
+                return Err(DirectCallLoanErrorV1::DuplicateOwner);
+            }
+        }
+        Ok(Self { loans: issued })
+    }
+
+    pub(crate) fn get(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Option<&DirectCallDispositionLoanV1> {
+        self.loans.get(&owner)
+    }
+
+    pub(crate) fn get_mut(
+        &mut self,
+        owner: FunctionOwnerIdV1,
+    ) -> Option<&mut DirectCallDispositionLoanV1> {
+        self.loans.get_mut(&owner)
+    }
+
+    pub(crate) fn iter(&self) -> impl Iterator<Item = &DirectCallDispositionLoanV1> {
+        self.loans.values()
+    }
+
+    pub(crate) fn iter_mut(
+        &mut self,
+    ) -> impl Iterator<Item = &mut DirectCallDispositionLoanV1> {
+        self.loans.values_mut()
+    }
+
+    pub(crate) fn finish_empty(self) -> Result<(), DirectCallLoanErrorV1> {
+        for loan in self.loans.into_values() {
+            let mut taken = false;
+            let mut ready = false;
+            for slot in loan.rows.values() {
+                match slot {
+                    DirectCallDispositionSlotV1::Ready(_) => ready = true,
+                    DirectCallDispositionSlotV1::Taken => taken = true,
+                }
+            }
+            if taken && ready {
+                return Err(DirectCallLoanErrorV1::ResidualRows);
+            }
         }
         Ok(())
     }

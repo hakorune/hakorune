@@ -150,7 +150,11 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         if ledger.terminal_call_arguments_for_owner(owner).is_none() {
             return Ok(None);
         }
-        let Some(loan) = self.direct_call_loan.as_deref_mut() else {
+        let Some(loan) = self
+            .direct_call_loans
+            .as_deref_mut()
+            .and_then(|loans| loans.get_mut(owner))
+        else {
             // A source terminal Call without the exact direct or instance
             // disposition remains unavailable; do not coerce it into the
             // direct-call loan or synthesize a target.

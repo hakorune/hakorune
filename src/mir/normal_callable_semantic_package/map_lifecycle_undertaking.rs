@@ -209,6 +209,13 @@ pub(crate) enum MapObligationDescribeIssueV1 {
     /// described site satisfies it — sealed drift, never to be silently
     /// dropped.
     OwnerTerminalMapUnmatched { owner: FunctionOwnerIdV1 },
+    /// The received-map call site still has live prior map homes: the
+    /// bounded consumer owns no prior-home cleanup path, so the gap must
+    /// surface here instead of at physical emission.
+    CallPriorHomesUnsupported {
+        owner: FunctionOwnerIdV1,
+        site: OwnedExprSiteV1,
+    },
 }
 
 /// The sealed relation the undertaking proves: described obligations exist
@@ -498,6 +505,12 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
             {
                 if call.owner() != owner {
                     return Err(MapObligationDescribeIssueV1::ObligationUnavailable {
+                        owner,
+                        site: call.site().clone(),
+                    });
+                }
+                if !call.prior_homes().is_empty() {
+                    return Err(MapObligationDescribeIssueV1::CallPriorHomesUnsupported {
                         owner,
                         site: call.site().clone(),
                     });

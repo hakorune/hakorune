@@ -43,7 +43,7 @@ fn local_map_call_then_terminal_map_call_reaches_physical_lowering() {
         }"#,
     )
     .expect("bounded local plus terminal Map package");
-    let mut loan = package.direct_call_loan.take().unwrap();
+    let mut loans = package.direct_call_loans.take().unwrap();
     let main = package
         .declaration_catalog()
         .source_backed_app_main()
@@ -63,12 +63,12 @@ fn local_map_call_then_terminal_map_call_reaches_physical_lowering() {
                 main.parser_identity(),
                 identity.method_source_observation().cloned(),
                 std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
-                Some(&mut loan),
+                Some(&mut loans),
             )
         })
         .unwrap()
         .expect("physical Main lowering");
-    loan.finish_empty().expect("both Call rows consumed");
+    loans.finish_empty().expect("both Call rows consumed");
     crate::mir::verification::MirVerifier::new_strict()
         .verify_function(&function)
         .expect("local and terminal Call CFG");
@@ -109,7 +109,7 @@ fn source_terminal_call_preserves_both_cleanup_paths_through_finishing() {
             }}"
             ))
             .unwrap();
-            let mut loan = package.direct_call_loan.take().unwrap();
+            let mut loans = package.direct_call_loans.take().unwrap();
             let main = package
                 .declaration_catalog()
                 .source_backed_app_main()
@@ -131,13 +131,13 @@ fn source_terminal_call_preserves_both_cleanup_paths_through_finishing() {
                             main.parser_identity(),
                             identity.method_source_observation().cloned(),
                             std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
-                            Some(&mut loan),
+                            Some(&mut loans),
                         )
                     },
                 )
                 .unwrap()
                 .unwrap_or_else(|e| panic!("{prefix}: {e}"));
-            loan.finish_empty().unwrap();
+            loans.finish_empty().unwrap();
             let ledger = &package.ordinary_new_claim_ledger;
             crate::mir::verification::MirVerifier::new_strict()
                 .verify_function(&function)
@@ -320,7 +320,7 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
         "static box Main { main() { return helper(30, 5) } helper(value: i64, other: i64): i64 { local m = %{\"v\" => value} return 30 } }",
     )
     .unwrap();
-    let mut loan = package.direct_call_loan.take().unwrap();
+    let mut loans = package.direct_call_loans.take().unwrap();
     let main = package
         .declaration_catalog()
         .source_backed_app_main()
@@ -340,12 +340,12 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
                 main.parser_identity(),
                 identity.method_source_observation().cloned(),
                 std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
-                Some(&mut loan),
+                Some(&mut loans),
             )
         })
         .unwrap()
         .unwrap();
-    loan.finish_empty().unwrap();
+    loans.finish_empty().unwrap();
     let ledger = &package.ordinary_new_claim_ledger;
     let observation = ledger.validate_finalized_new_root(&function).unwrap();
     function
@@ -399,7 +399,7 @@ fn map_result_local_call_installs_lease_and_releases_at_exit() {
         }"#,
     )
     .expect("map-result local call package");
-    let mut loan = package.direct_call_loan.take().unwrap();
+    let mut loans = package.direct_call_loans.take().unwrap();
     let main = package
         .declaration_catalog()
         .source_backed_app_main()
@@ -419,12 +419,12 @@ fn map_result_local_call_installs_lease_and_releases_at_exit() {
                 main.parser_identity(),
                 identity.method_source_observation().cloned(),
                 std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
-                Some(&mut loan),
+                Some(&mut loans),
             )
         })
         .unwrap()
         .expect("map-result local call lowering");
-    loan.finish_empty().expect("the map Call row is consumed");
+    loans.finish_empty().expect("the map Call row is consumed");
     // Exactly one Call{result:Map} invoke feeding one InvokeNormalResult.
     let received: Vec<ValueId> = function
         .blocks
@@ -585,7 +585,7 @@ fn map_result_call_commit_row_rejects_foreign_and_duplicate_sites() {
         .begin_map_call_emission(&call_site)
         .unwrap_err()
         .contains("map-duplicate-emission"));
-    let _ = package.direct_call_loan.take();
+    let _ = package.direct_call_loans.take();
 }
 
 fn follow_jumps(

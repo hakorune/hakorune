@@ -467,7 +467,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
-    direct_call_loan: Option<&super::direct_call_loan::DirectCallDispositionLoanV1>,
+    direct_call_loans: Option<&super::direct_call_loan::DirectCallDispositionLoansV1>,
     parameter_contracts: &[super::model::OwnedCallableParameterContractDeclarationV1],
     dynamic: &mut super::model::NormalCallableDynamicProjectionV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
@@ -536,6 +536,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
         let (candidates, mut home_prefixes, mut argument_observations) = batch
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
                 let function = input.function();
+                let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
                 let mut candidates = Vec::new();
                 for initializer in function.expression_source().initializers() {
                     let Some(initializer_site) = initializer.initializer_site() else {
@@ -576,7 +577,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
                 let child_new_ready = seed_eligible && !new_sites.is_empty()
                     && issue_new_home_prefixes_v1(input, &new_sites).values().all(Result::is_ok);
-                if seed_eligible && !has_map && !child_new_ready {
+                if seed_eligible && !has_map && !child_new_ready && (is_app_main || owner_loan.is_none()) {
                     let completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
                         .map_err(|issue| OrdinaryNewCoSealIssueV1::CompletionSeed(
                             super::physical_header::CallablePhysicalHeaderIssueV1::Completion {
@@ -585,7 +586,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                     seeds.push_completion(declaration, selected, completion, None)
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 }
-                let (home_prefixes, argument_observations) = if (is_app_main && (!new_sites.is_empty() || has_map || direct_call_loan.is_some())) || (seed_eligible && (has_map || child_new_ready)) {
+                let (home_prefixes, argument_observations) = if owner_loan.is_some() || (is_app_main && (!new_sites.is_empty() || has_map)) || (seed_eligible && (has_map || child_new_ready)) {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -610,7 +611,7 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                             }
                             Ok(candidate.construction.is_ok() && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
                         }, &mut |site| {
-                            let direct = direct_call_loan
+                            let direct = owner_loan
                                 .is_some_and(|loan| loan.is_i64_call(input, site));
                             let instance = is_app_main
                                 && input.function().method_calls().any(|(call_site, call)| {
@@ -623,9 +624,9 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                                             )
                                         )
                                 });
-                            Ok(is_app_main && (direct || instance))
+                            Ok(direct || instance)
                         }, &mut |site| {
-                            Ok(is_app_main && direct_call_loan.is_some_and(|loan| {
+                            Ok(owner_loan.is_some_and(|loan| {
                                 loan.is_map_result_call(batch, parameter_contracts, input, site)
                             }))
                         })? {

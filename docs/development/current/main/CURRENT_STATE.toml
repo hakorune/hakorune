@@ -1,9 +1,9 @@
-date = "2026-09-15"
+date = "2026-09-16"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
+current_execution_row = "MIR-CALL-MAP-CALL-ARG-FLOW-I0"
 current_execution_cohort = "map_lifecycle_consumer"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__two_function_consumer_acceptance_pending"
+current_blocker_token = "MIR-CALL-MAP-CALL-ARG-FLOW-I0__argument_position_walk_coverage_pending"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,31 +18,29 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-map-lifecycle-consumer-i0-2026-09-15"
 latest_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 latest_card_summary = """
-Map lifecycle consumer spine through F5-1. F3 non-i64 terminal
-relations, F4 Map return/arg physical ABI (storage_move +
-ordinary_map wire + lease-transfer verify), C5a/C5b undertaking
-contract + admission connect, C5c-1 owner exit/cleanup co-seal,
-C5c-2 EntryStore precision, C6-1 module-wide Call{I64|Map}
-membership, C6-2 per-function call edges, and C6-3 C v2
-nested-call lane are landed. F5-1 map-result admission/Facts/
-Verify landed: unannotated headers seal as map-result candidates
-(`signature().result() -> Option<I64>`), the scan issues
-Map-class local observations + installs the received binding,
-co_seal splits terminal/local sites with the callee terminal
-relation as sole result-kind authority, and the cataloged walk
-requires `map_result_callee` proof. F5-2 landed: physical
-`MapLocalProgress` commit row + `result:"map"` emission; C v2
-consumes unchanged with linked execution evidence
-(storage_move=1, received lease ends once, exit 30 on both the
-synthetic receive program and the source-issued artifact).
-Next: C8 two-function non-AppMain consumer acceptance;
+Map lifecycle consumer spine through C8. F3 non-i64 terminal
+relations, F4 Map return/arg physical ABI, C5a/C5b undertaking
+contract + admission connect, C5c-1/-2 owner exit co-seal +
+EntryStore precision, C6-1/-2/-3 membership/per-function edges/
+C v2 nested calls, F5-1/-2 map-result admission + physical
+emission, and C8 two-function non-AppMain consumer acceptance
+are landed. C8 generalizes the direct-call disposition loan to
+per-owner `DirectCallDispositionLoansV1` (app_main + selected
+is_main_static_child owners with sealed observations), deletes
+`map_install_owners` (describe owns the common checks +
+prior_homes preflight rejection), accepts Borrowed fault frames
+in child owners, and pins production-route Normal/callee-Fault/
+caller-Fault evidence on a source-issued artifact (3/3
+map_consumer_tests + 6/6 lifecycle tests + 243/243 package).
+Next: MIR-CALL-MAP-CALL-ARG-FLOW-I0 argument-position walk
+coverage (ordered before the merged-route contract arm);
 C6-4 rootless cohort stays deferred, C1-id opaque source
 identity remains pre-production homework. Production
 switch and legacy retirement remain unclaimed.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"
-next_execution_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
+next_execution_card = "MIR-CALL-MAP-CALL-ARG-FLOW-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

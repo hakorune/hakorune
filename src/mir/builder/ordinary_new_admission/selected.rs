@@ -295,7 +295,6 @@ fn emit_root_home_exit_payload(
     call: Option<terminal_call::Emission>,
 ) -> Result<ValueId, String> {
     let operations = ledger.begin_root_home_exit(owner)?;
-    let frame = state.borrow_fault_frame(builder)?;
     let mut bindings = Vec::new();
     let mut clean = builder.next_block_id();
     append_block(
@@ -309,8 +308,10 @@ fn emit_root_home_exit_payload(
     let count = operations.len();
     let mut origins = Vec::with_capacity(count);
     // Empty-Home Plain has no Fault edge. Do not issue a disconnected terminal
-    // that finishing would remove while its recorded binding stayed live.
+    // that finishing would remove while its recorded binding stayed live —
+    // and do not materialize a frame definition no Invoke would consume.
     if !operations.is_empty() || call.is_some() {
+        let frame = state.borrow_fault_frame(builder)?;
         let mut fault = builder.next_block_id();
         append_block(
             builder,

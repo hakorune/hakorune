@@ -59,7 +59,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     }
 
     pub(in crate::mir::builder) fn is_direct_call_scope_v1(&self) -> bool {
-        let Some(loan) = self.direct_call_loan.as_deref() else {
+        let Some(loans) = self.direct_call_loans.as_deref() else {
             return false;
         };
         let Some(owner) = self.callable_owner_v1() else {
@@ -72,7 +72,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         else {
             return false;
         };
-        owner == loan.owner()
+        loans.get(owner).is_some()
     }
 
     pub(in crate::mir::builder) fn take_direct_call_disposition_inner_v1(
@@ -88,8 +88,9 @@ impl RawInvocationChildPortV1<'_, '_> {
             .current_source_site_v1()
             .ok_or_else(|| "[freeze:contract][direct-call/site-missing]".to_owned())?;
         let loan = self
-            .direct_call_loan
+            .direct_call_loans
             .as_deref_mut()
+            .and_then(|loans| loans.get_mut(owner))
             .ok_or_else(|| "[freeze:contract][direct-call/loan-unavailable]".to_owned())?;
         loan.take_once(
             owner,

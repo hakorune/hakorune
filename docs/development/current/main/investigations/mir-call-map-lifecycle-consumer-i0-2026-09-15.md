@@ -259,6 +259,44 @@ caller Fault (received map freed in caller), missing evidence → reject
 before catalog mutation. Observe release/reclaim/live handles, not only
 exit code; name the admitted entry classes.
 
+**C8 design decision (main-lead trace, worker audit pending integration)**:
+
+```text
+Decision: generalize the existing per-owner affine direct-call
+disposition loan from "AppMain owner only" to "every selected owner
+with sealed direct-call observations". The map-result receive lane
+(LocalCallObservationV1{Map} -> MapLocalProgress ->
+Invoke{Call{result:Map}} -> StoredLocal::Map -> terminal Map::End) is
+already owner-generic below the loan: completion_index, map_call_source,
+begin/record/validate_map_call_emission, prepare/validate_root_home_exit,
+describe_map_lifecycle_obligations, and the Borrowed fault frame all key
+on FunctionOwnerIdV1. Only loan issuance, the co-seal scan predicates,
+local_call_for_owner, and the CatalogedTargeted dispatch are AppMain-bound.
+Source authority + canonical issuer: resolver direct_call_observations +
+direct_call_target + callable index header + selected published key,
+co-sealed per owner by the existing issue/co_seal_lifecycle path. The
+callee's sealed terminal relation remains the sole result-kind authority.
+Non-authority: the preflight-resolved `callee` in CatalogedTargeted (never
+emission authority for a sealed lifecycle site); the header annotation;
+tests.
+Fail-fast boundary: an issued row must be taken exactly once at lowering
+(finish_empty per owner); a map-result site without its sealed
+observation/completion/terminal relation rejects at seal or dispatch.
+Smallest next slice: (1) issue per-owner loans in issuer.rs +
+co_seal_lifecycle for every loan; (2) run the home-flow scan when the
+owner's loan holds an unannotated-target site, with the local_map_call /
+is_i64_call predicates resolved through that owner's loan;
+(3) local_call_for_owner searches completion_index;
+(4) retain_child_terminal_relation also retains when the owner's flow
+carries a Map local call; (5) the port holds owner-keyed loans and
+CatalogedTargeted takes the row at a sealed site, reusing emit_local /
+scalar materialize. Root caller keeps terminal `return use_map(7)` as a
+scalar row.
+Non-claims: no rootless cohort (C6-4 parked), no `return m` of a received
+map, no instance-method calls in non-AppMain owners, no scalar cataloged
+emission change for sites without a sealed row.
+```
+
 ## Ordered bounded card queue
 
 | #   | Card                                                              | Depends      |
@@ -281,7 +319,7 @@ exit code; name the admitted entry classes.
 | F5  | map-result call lane — the `result()==Some(I64)`/`:i64` callee gates deferred from C5b: admit sealed map-terminal callees, issue `Call{result:Map}` rows, and let the receiving caller consume the `InvokeCallResultKind::Map` projection (F4 verifier + `ordinary_map` wire already landed). F5-1 landed: `signature().result() -> Option<I64>` (unannotated = map-result candidate, `:i64` path unchanged incl. `ZeroParameters`); `LocalCallObservationV1` + `LocalCallResultClassV1` issued at scan (map arm installs `StoredLocal::Map` + `homes.push`); co_seal splits by site (terminal needs caller `Call` relation; local needs the row — I64-class locals still require the caller's terminal-call undertaking, Map-class owns its binding) + result matrix `(None, Value(MapLiteral|MapLocal)) -> Map`; unannotated non-map targets reject (`LifecycleSourceMismatch`); cataloged walk requires `map_result_callee` proof for `result()==None` targets (`UnissuedDirectCallObservation`); receive-only owner gets `{NormalCleanup, FaultCleanup}` describe + `map_install_owners`/`requires_map_lifecycle_consumer` enumeration. Observable: `main() { local m = make_map(); return 0 }` issues `Call{result:Map}` + described obligation; `caller(seed:i64):i64 { local m = make_map(); return seed }` admits cataloged. Focused: 235/235 package (3 new pins + deferred-test boundary updates to earlier Resolver/loan rejects; 2 resolved_semantics failures are parent-reproduced baseline). F5-2 landed — physical `MapLocalProgress` + `result:"map"` emission + C v2 execution evidence; see the F5-2 row | C5c, F4 |
 | C1-id | opaque source identity — pre-production homework on a test-only issuer: `verify_source_input_identity` is content comparison; content-identical foreign declarations stay indistinguishable. Bind to the batch-issued opaque source identity before any production connection | C1 |
 | C6-4 | rootless cohort — deferred: upstream `uncovered-lifecycle-function` coverage, `FinalizedRootHandoffV1` library variant, doc marker (merged-route shape, not needed by C8's rooted acceptance) | C6-1 |
-| C8  | two-function non-AppMain consumer acceptance (normal+Fault cleanup, refined above) | C5c, F5, C6 |
+| C8  | two-function non-AppMain consumer acceptance — landed: per-owner `DirectCallDispositionLoansV1` replace the single AppMain loan; `issue_direct_call_loans_v1` covers app_main + selected `is_main_static_child` owners carrying resolver observations; co-seal/`local_call_for_owner`/`call_source_completion_for_owner` are owner-generic; `map_install_owners` deleted — `describe_map_lifecycle_obligations` owns the common checks plus `prior_homes` rejection at preflight; frame-drift validation accepts `Borrowed` frames (mode re-validated by `check_binding`); unconditional `borrow_fault_frame` fixed (`artifact-unowned-lifecycle-site`). Production-route evidence in `map_consumer_tests` (source-issued artifact): Normal receive + one clean release; callee-Fault invoke landing → `ReturnFault` with no result; caller-Fault — construction-fault paths and the exit pending chain release the live received lease into `ReturnFault`; release drift rejects at artifact validation. Focused: 3/3 `map_consumer_tests` + 6/6 `direct_call_lifecycle_tests` + 243/243 package; five `normal_default_root_catalog_lifecycle_tests` reds reproduce identically at parent → baseline debt. Non-claims: qualified `Main.make_map()`, terminal `return <call>` in child owners, receive with `prior_homes`, `return m`, map arguments, non-loan-role owners, rootless cohort | C5c, F5, C6 |
 
 C1–C4 are pre-production fixes on test-only issuers — cheap and
 independent. C5a is this card's core deliverable; C5b/C6/C8 follow it;
@@ -624,3 +662,136 @@ issued. Entry-class coverage is now complete (zero
 is **walk coverage for argument-position maps**, ordered as
 `MIR-CALL-MAP-CALL-ARG-FLOW-I0` before the C5 contract arm can be
 reached on merged.
+
+## C8 Decision (2026-09-16, review-driven: per-owner loans + prior-Homes admission)
+
+Review of `0bc84965` accepted the F5-2 authority chain and named two
+remaining design issues plus the C8 acceptance gap. Traced at HEAD:
+
+```text
+Decision: generalize the AppMain direct-call loan to per-owner loans
+  keyed by FunctionOwnerIdV1, issued for every declaration that is
+  (app_main identity) OR (selected role `is_main_static_child`) and
+  carries resolver `direct_call_observations`. Same-box bare calls
+  (`static box Main { main / use_map / make_map }`) are the admitted
+  fixture — the sealed row remains the site's sole authority so the
+  FunctionCall arm's existing loan intercept consumes it before
+  `bare-static-method-retired` is ever consulted.
+Source authority + canonical issuer: resolver `direct_call_observations`
+  + `direct_call_target` (already owner-generic — verified by probe),
+  joined with callable_index header + selected published key by
+  `issue_direct_call_loans_v1`; result class via existing
+  `co_seal_lifecycle` + owner-generalized `local_call_for_owner`.
+Non-authority: name/arity lookup, physical layout, AST re-observation,
+  `is_app_main` flags on the row path (kept only for the instance-call
+  arm, which is genuinely AppMain-scoped).
+Fail-fast boundary: loans only for owners that lower through the raw
+  child port (`is_main_static_child` + app_main); `finish_empty` per
+  owner; `local-call prior_homes` rejects at install preflight
+  (describe arm) until Fault cleanup for prior resources exists;
+  common owner checks live in `describe_map_lifecycle_obligations`
+  (completion/homes/flow/terminal/map-return matching — the old
+  terminal-kind restriction and app_main requirement are removed);
+  loan-specific checks (`has_taken_slot`, map-target ⊆ obligations,
+  no self-target) iterate actual loan rows only.
+Smallest next slice: (1) BoxShape rename of the AppMain* direct-call
+  family to owner-generic names; (2) per-owner issuance + coseal gates
+  + port plumbing + preflight restructure; (3) C8 runner with mandatory
+  source-derived artifact and Normal/callee-Fault/caller-Fault probes.
+Non-claims: qualified `Main.make_map()` MethodCall lane (import
+  inventory plumbing — separate slice); terminal `return <call>` in
+  non-AppMain owners (`call_source_completion_for_owner` stays
+  root-scoped); prior-Homes Fault cleanup; map arguments; received-map
+  `return m`; `Ordinary`-role/dynamic/S6C loan owners.
+```
+
+Verified owner-genericity already present (no change needed):
+`describe_map_lifecycle_obligations` enumerates Map-class `local_calls`
+per owner; `MapLocalProgress`/`root_home_exit`/`validate_finalized_child_emissions`
+are keyed by `OwnedExprSiteV1`/owner; `emit_local` takes `(owner, site,
+row)`; `borrow_fault_frame` is per-function; `record_root_local_call_bindings`
+is owner-keyed. `retain_child_terminal_relation` must additionally retain
+for loan owners (`has_map || loan_for(owner)`), since a receive-only owner
+has no literal (`has_map=false`) but describe requires its terminal relation.
+The `prior_homes` Facts (`LocalCallObservationV1::prior_homes()`) are
+already sealed — the rejection moves to `describe_map_lifecycle_obligations`;
+the lowering guards (`local-call-prior-homes-unsupported`,
+`map-call-prior-homes-unsupported`) remain as unreachable defense.
+
+## C8 acceptance evidence (2026-09-16, production route)
+
+Landed: `DirectCallDispositionLoansV1` (owner-keyed collection,
+`finish_empty` per owner) replaces the single AppMain loan;
+`issue_direct_call_loans_v1` issues rows for app_main + selected
+`is_main_static_child` owners carrying resolver observations;
+`co_seal_lifecycle` runs per issued loan; `local_call_for_owner` /
+`call_source_completion_for_owner` search the completion index for any
+owner; `map_install_owners` is deleted — owner-common checks live in
+`describe_map_lifecycle_obligations` (now also rejecting non-empty
+`prior_homes` at install preflight), loan-specific checks iterate actual
+loan rows. Ports carry owner-keyed loans through the raw child scope.
+
+Two physical-route fixes the C8 runner exposed:
+
+- `map-call-frame-drift` (`ordinary_new_local_commit/map.rs`) pinned
+  `FaultFrameMode::RootOwned`; cataloged child owners legitimately enter
+  `Borrowed` frames. The site check now requires exactly one recorded
+  `FaultFrameEnter` with the recorded `dst` regardless of mode — mode is
+  re-validated by `check_binding` against the finished function.
+- `borrow_fault_frame` materialized a `FaultFrameEnter` on every plain
+  exit, leaving an unowned lifecycle site (`artifact-unowned-lifecycle-site`)
+  in owners with no homes/call. It now runs only inside the branch that
+  emits Invoke/fault paths.
+
+Production-route evidence (source-issued artifacts via
+`complete_normal_default_program_root_catalog_lifecycle` +
+`into_artifact_parts`, in
+`mir::builder::normal_default_root_catalog_lifecycle::map_consumer_tests`):
+
+- `source_backed_map_consumer_child_receives_and_releases_its_lease` —
+  fixture `main { local r = use_map(10) return 30 }`,
+  `use_map(seed): i64 { local m = make_map() return 42 }`,
+  `make_map() { return %{..} }`. Observed in MIR: exactly one
+  `Invoke{Call{result:Map}}` in `use_map` with `InvokeNormalResult`
+  binding the received lease; the invoke's fault landing ends in
+  `ReturnFault` (callee-Fault: no result installed, borrowed frame
+  returned); exactly one `Map::End` of the received lease on the clean
+  chain; `main`'s scalar call stays on the sealed row; artifact
+  validation passes.
+- `source_backed_map_consumer_fault_suffix_still_releases_pending_homes` —
+  fixture adds `local n = %{"b" => 2}` after the received lease (main is
+  terminal `return use_map(10)` because `use_map` becomes map-owned).
+  Caller-Fault is observed directly: the literal's fallible construction
+  fault paths (`Map::New/PrepareKey/InstallValue/EndOutcome`) drain the
+  still-live received lease into `ReturnFault`, and the exit pending
+  chain releases it again — every `End(received)` either reaches
+  `return 42` exactly once (clean chain) or drains to `ReturnFault`.
+  Release is LIFO (n then m); the pending chain carries the received
+  lease behind the outermost clean release.
+- `source_backed_map_consumer_release_drift_rejects_at_artifact_validation` —
+  mutating one `End`'s map handle rejects at artifact validation,
+  before catalog mutation effects.
+
+Focused gates: 6/6 `direct_call_lifecycle_tests` (non-AppMain positive +
+negatives: unsealed owner, scalar-only row on map site, prior_homes,
+self-target, non-loaned map owner bystander), 243/243
+`normal_callable_semantic_package`, 3/3 map_consumer_tests. The five
+remaining `normal_default_root_catalog_lifecycle_tests` failures
+(`actual_string_helpers_general_result_row_reaches_its_first_loop_carrier`,
+`parser_scan_package_passes_callable_source_handoff_without_fallback`,
+`source_backed_app_main_direct_call_consumes_affine_loan`,
+`source_backed_package_failure_is_terminal_before_builder_effects`,
+`source_bound_static_result_owner_reaches_the_raw_terminal`) reproduce
+identically at HEAD without this change — known baseline debt, not
+current-change failures.
+
+Admitted entry classes for this acceptance: same-box bare calls in a
+`static box Main` (`main` / `use_map` / `make_map`), scalar terminal or
+local call in `main`, one map-result receive per owner with zero
+`prior_homes`, integer-literal terminal.
+
+Non-claims (unchanged): qualified `Main.make_map()` MethodCall lane;
+terminal `return <call>` in non-AppMain owners; receive after an earlier
+home (`prior_homes` rejects at preflight); received-map `return m`;
+map arguments; `Ordinary`-role/dynamic/S6C loan owners; rootless
+cohorts; runtime exit-code evidence.
