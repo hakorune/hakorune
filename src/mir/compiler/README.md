@@ -99,7 +99,11 @@ Physical program issuance walks the sealed call edges transitively from the
 retained root: every emitted root/ordinary function carries its own call-row
 multiset through `issue_function_with_module`, callee keys keep one physical
 result contract, and compiled-entry ordinary-call rows name their caller
-function index. Finalization owns the selected storage profile; the view
+function index. The C V4 lane consumes those nested rows: ordinary callers
+at `fi>0` admit `ordinary_call`, and each nested i64 call writes through a
+caller-local `%call_out<block>` slot — never the caller's own `%out_i64`
+return handoff; Birth callers still reject. Finalization owns the selected
+storage profile; the view
 borrows it through callback completion and observes selection without rewriting
 its structural route. Generic module-only lifecycle views remain unsupported.
 Static/free/print/array row vectors remain view-local. Callable Unit retains its

@@ -126,7 +126,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       yyjson_val* receiver = yyjson_obj_get(call, "receiver");
       int callee_has_receiver = callee && yyjson_is_uint(yyjson_obj_get(callee, "receiver"));
       int want_map = lv4_is(op, "result", "map");
-      if (fi || faulted || state[bi] || !target || target >= in->index_count ||
+      if ((fi && !ordinary) || faulted || state[bi] || !target || target >= in->index_count ||
           !lv4_is(callee, "role", want_map ? "ordinary_map" : "ordinary_i64") ||
           (callee_has_receiver != (receiver && !yyjson_is_null(receiver))) ||
           yyjson_arr_size(args) != yyjson_arr_size(yyjson_obj_get(in->index[target].function, "params"))) return 0;

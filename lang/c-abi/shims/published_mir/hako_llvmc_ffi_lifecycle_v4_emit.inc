@@ -58,6 +58,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
     if (op && (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")))
       fprintf(f, "  %%new%u = alloca i64, align 8\n", lv4_u(block, "id"));
+    /* A nested i64 call writes through a caller-local slot; the callee's
+       own %%out_i64 remains reserved for this function's result. */
+    if (ordinary && lv4_is(op, "kind", "ordinary_call") &&
+        !lv4_is(op, "result", "map"))
+      fprintf(f, "  %%call_out%u = alloca i64, align 8\n", lv4_u(block, "id"));
     lv4_map_alloca(f, op, lv4_u(block, "id"), session);
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
@@ -144,7 +149,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         int kind = lv4_input_type(in, fn, dst);
         const char* storage = kind == LV4_MAP ? "map" : kind == LV4_KEY ? "key" : kind == LV4_OUTCOME ? "outcome" : NULL;
         if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
-        else if (kind == LV4_I64 && lv4_is(fn, "role", "root_i64"))
+        else if (kind == LV4_I64 && fi)
+          fprintf(f, "  %%v%u = load i64, ptr %%call_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+        else if (kind == LV4_I64)
           fprintf(f, "  %%v%u = load i64, ptr %%ordinary_out, align 8\n", dst);
         else fprintf(f, "  %%v%u = load i64, ptr %%new%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
       } else if (lv4_is(ins, "op", "object_field_get")) {
@@ -232,9 +239,12 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         if (lv4_is(op, "result", "map"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%map%u",
               b, lv4_u(call, "target"), b);
+        else if (ordinary)
+          fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%call_out%u",
+              b, lv4_u(call, "target"), b);
         else
-          fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%%s",
-              b, lv4_u(call, "target"), ordinary ? "out_i64" : "ordinary_out");
+          fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%ordinary_out",
+              b, lv4_u(call, "target"));
         if (yyjson_is_uint(yyjson_obj_get(call, "receiver")))
           fprintf(f, ", i64 %%v%u", lv4_u(call, "receiver"));
         for (size_t i = 0; i < yyjson_arr_size(args); i++)

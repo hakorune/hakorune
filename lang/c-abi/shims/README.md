@@ -180,6 +180,16 @@ link dlsym remain separate compatibility owners.
   operation gates plus the root-only receiver scan); multiple Birth callers,
   foreign receivers, duplicate/omitted cleanup and other child shapes still
   reject before emission.
+- Ordinary functions may issue their own `ordinary_call`: V4 flow admits
+  the operation at `fi>0` only for `ordinary_i64`/`ordinary_map` callers
+  (Birth callers still reject), and each nested i64 call writes through a
+  caller-local `%call_out<block>` alloca so the caller's own `%out_i64`
+  stays reserved for its return handoff; nested Map calls reuse the
+  existing per-block `%map<block>` lane. `invoke_normal_result` loads
+  `%call_out<invoke_block>` at `fi>0` and `%ordinary_out` at the root.
+  `published_lifecycle_v4_nested_call_test.c` proves a three-function
+  root→helper→inner chain plus parser/flow rejections (malformed
+  invoke_block, target-role drift, a structurally valid Birth caller).
 - After `bash tools/build_hako_llvmc_ffi.sh`, run the existing physical parser
   preartifact test and `published_lifecycle_v4_execution_test.py` with the three
   source-issued inputs documented in [the C ABI README](../README.md).
