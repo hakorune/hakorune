@@ -18,20 +18,21 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-map-lifecycle-consumer-i0-2026-09-15"
 latest_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 latest_card_summary = """
-Two cards landed. Contained-descendant flow: generic
-MapDestinationV1::ContainedIn{parent, role} + interleaved
-per-statement sweep (home_map_descendant_flow.rs) issue one row per
-sealed MapLiteral descendant; EntrySlot/CallArgument keep stronger
-evidence, nested-body maps record Unavailable. Array-element
-container source: recursive ArrayElementKindV1{Leaf, NestedArray}
-admits [[4,1],[5,2]]-shape entries; map/Home elements stay
-MapCandidateNotCovered. Package scope 208/208 quick-profile green.
-Merged route evidence: loop1 now passes entirely — every sealed
-MapLiteral row completes; the first failure moved to
-map_install_owners (per-owner scalar-only install contract, C5
-territory). Outer label MapLifecycleConsumerMissing unchanged.
-Physical emission, Map arg/return ABI, C5 contract, production
-switch and legacy retirement remain unclaimed.
+Map lifecycle consumer spine through C6-2. F3 non-i64 terminal
+relations, F4 Map return/arg physical ABI (storage_move +
+ordinary_map wire + lease-transfer verify), C5a/C5b undertaking
+contract + admission connect (describe→verify against the
+consumer's declared capability), C6-1 module-wide Call{I64|Map}
+membership, and C6-2 per-function call edges +
+caller_function_index are landed. C6-3 (C v2 nested-call lane,
+per-block i64 out-slot for fi>0 ordinary callers) is implemented
+in flight. Review of 0027c56b queued two C5b acceptance fixes —
+C5c-1 owner exit/cleanup co-seal (terminal evidence regardless
+of loan + terminal-relation ReturnHandoff) and C5c-2 EntryStore
+precision — then F5 map-result call lane, C6-4 rootless cohort
+(deferred), C1-id opaque source identity, and C8 two-function
+execution acceptance. Production switch and legacy retirement
+remain unclaimed.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"

@@ -1,7 +1,9 @@
 Task: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0
 Parent: mir-call-map-local-entry-source-i0-2026-09-15.md
-NextCard: C6-3 C v2 nested-call lane — C6-2 (physical doc
-per-function call edges + caller_function_index) landed
+NextCard: C5c-1 owner exit/cleanup co-seal — review of
+0027c56b (2026-09-16) found C5b admits owners whose terminal
+evidence failed; C6-3 (C v2 nested-call lane) is implemented
+in flight and lands first as the already-open slice
 Route note (2026-09-15): the call-arg and contained-descendant +
 array-element cards landed — merged loop1 now passes entirely and the
 first failure is `map_install_owners` (`Err(())`), this card's
@@ -271,7 +273,13 @@ exit code; name the admitted entry classes.
 | C6  | downstream contract split — decomposed: C6-1 `admit_lifecycle` (landed), C6-2 physical doc per-function call edges, C6-3 C v2 nested-call lane, C6-4 rootless cohort (deferred — merged-route shape, not needed by C8's rooted acceptance) | C5b |
 | C6-1 | admission contract split — landed: `admit_lifecycle` no longer requires the retained root as membership authority. Ordinary membership is every sealed `Call{I64\|Map}` edge target across the module (`ordinary_call_names` — was: root-only, I64-only); the retained root is an optional process-entry input (root-scoped result checks apply only while bound; `retained_birth_abi` defaults empty). `validate_functions` takes `Option<&str>` — `None` removes the entry exemption. Kept strict: `script-root-not-callable`, `candidate-unavailable`, `function-not-cataloged`/`function-not-birth`, `birth-call-drift`, return-only retained-Birth re-check. Non-claims: emission unchanged — `issue_lifecycle_physical_program` still requires the retained root (`root-missing`/`root-handoff-missing`) and emits only the root's direct callees (nested callers still `ordinary-call-membership` — C6-2); upstream `into_artifact_parts` `uncovered-lifecycle-function` still gates rootless ordinary lifecycle functions before admission (C6-4); C v2 `fi==0` ordinary-call restriction unchanged (C6-3). Focused: 4/4 `lifecycle_admission` (new pin collects a nested caller's `I64`/`Map` edge + `None`-root rejection); 85/87 `normal_default_pipeline` + 81/84 `published_backend_view` — all failures parent-reproduced baseline (local-commit completion, LLVM `no_lowering_variant` array routes) | C5b |
 | C6-2 | physical doc per-function call edges — landed: `issue_lifecycle_physical_program` walks sealed `Call{I64\|Map}` edges transitively from the retained root (BFS over cataloged definition symbols); `call_sets` keeps each function's own `OrdinaryCallSite` multiset and `issue_function_with_module` validates the callee's nested rows instead of rejecting them (`&[]` retired). `ordinary_sites` keeps one physical result contract per callee key across all callers (`ordinary-result-contract-drift` on I64/Map mix). `CompiledEntryOrdinaryCallV1` gains `caller_function_index`; the contract collects ordinary rows from every emitted Root/Ordinary function, preserving program index relationships (`compiled-entry-ordinary-unissued` still requires every emitted ordinary to be referenced). Birth calls and function order unchanged; no root-only fallback. Positive pin: `nested_ordinary_call_chain_emits_per_function_call_rows` injects a nested edge into a module clone (the producer lane cannot yet seal a call inside an ordinary callee — same upstream gap as C6-4), re-runs `try_new`+`bind_finalized_root_handoff`+`admit_lifecycle`, and asserts 3-function emission, per-caller rows `(0,helper)`/`(helper,inner)`, and the callee's own row inside its emitted body. Non-claims: C v2 `fi==0` ordinary-call restriction unchanged (C6-3); rootless cohort unchanged (C6-4); `admit_lifecycle` unchanged since C6-1. Focused: 15/15 `physical_program` + 3/3 `compiled_entry_contract` + 4/4 `lifecycle_admission`; 86/88 `normal_default_pipeline` + 82/85 `published_backend_view` — all failures parent-reproduced baseline | C6-1 |
-| C8  | two-function non-AppMain consumer acceptance (normal+Fault cleanup, refined above) | C5b, C6 |
+| C6-3 | C v2 nested-call lane — in flight: flow bound `fi \|\|` → `(fi && !ordinary)` admits ordinary callers at fi>0 while Birth callers keep rejecting; per-block `%call_out<b>` i64 slot for nested ordinary calls inside ordinary functions (the caller's own `%out_i64` stays reserved for its return handoff — the exact gap the review noted for scalar calls inside map-returning callees); `invoke_normal_result` loads `%call_out<invoke_block>` at fi>0, `%ordinary_out` at root. Map nested calls reuse the existing per-block `%map<b>` lane. Positive+negative C fixture: `published_lifecycle_v4_nested_call_test.c` | C6-2 |
+| C5c-1 | owner exit/cleanup co-seal — review finding on 0027c56b: the undertaking seals from per-site Complete rows alone; `terminal_homes()` failure or a missing terminal relation still admits (`local a = new Page(7) local m = %{"a" => a} return a.value` keeps a completed map row while owner exit analysis fails — the existing `map_transfer_invalidates_old_local_and_alias_field_observation` test pins only the flow state, not install rejection). The old `map_install_owners` exit check now runs only inside the AppMain direct-call loan lane. Fix: co-seal every described owner's terminal evidence (terminal_homes success + terminal relation) regardless of loan; describe `ReturnHandoff` from the sealed terminal relation (`MapLocal` returned source) so `local m = %{}; return m` cannot skip the handoff obligation. Negative pin: extend that existing test to assert `prepare_install` rejection + vacant catalog | C5b |
+| C5c-2 | EntryStore obligation precision — review finding: `EntryStore` is described unconditionally per entry, so String/NestedArray entries pass the scalar+transferred-only capability and stop only at lowering, after catalog mutation (`%{"op" => "const"}` owner with no store consumer). Fix: store obligations carry the consumer's actual value-representation/ownership precision — reuse the existing lane predicate inside the common preflight; no new generic registry | C5b |
+| F5  | map-result call lane — the `result()==Some(I64)`/`:i64` callee gates deferred from C5b: admit sealed map-terminal callees, issue `Call{result:Map}` rows, and let the receiving caller consume the `InvokeCallResultKind::Map` projection (F4 verifier + `ordinary_map` wire already landed) | C5c, F4 |
+| C1-id | opaque source identity — pre-production homework on a test-only issuer: `verify_source_input_identity` is content comparison; content-identical foreign declarations stay indistinguishable. Bind to the batch-issued opaque source identity before any production connection | C1 |
+| C6-4 | rootless cohort — deferred: upstream `uncovered-lifecycle-function` coverage, `FinalizedRootHandoffV1` library variant, doc marker (merged-route shape, not needed by C8's rooted acceptance) | C6-1 |
+| C8  | two-function non-AppMain consumer acceptance (normal+Fault cleanup, refined above) | C5c, F5, C6 |
 
 C1–C4 are pre-production fixes on test-only issuers — cheap and
 independent. C5a is this card's core deliverable; C5b/C6/C8 follow it;
@@ -323,6 +331,45 @@ per-call parameter; the one-shot token remains provenance only. No
 legacy AppMain-only admission path remains as a fallback — the
 undertaking is the single coverage criterion and `map_install_owners`
 runs only inside the loan branch as scoped evidence.
+
+## External design consultation #3 (2026-09-16, user review of 0027c56b)
+
+Direction accepted; two pre-catalog gaps and one deferred identity
+residual raised. Both gaps are acceptance-boundary holes — known rejects
+leak past `prepare_install` and stop only after catalog mutation.
+
+1. **Owner exit/cleanup not co-sealed.** `describe_map_lifecycle_obligations`
+   requires a Complete flow row per declared `MapLiteral` site but never
+   checks the owner's terminal evidence: `local a = new Page(7)
+   local m = %{"a" => a} return a.value` completes the map row while
+   `terminal_homes()` fails — the old `map_install_owners` exit check
+   now runs only inside the AppMain direct-call loan lane. Fix (C5c-1):
+   co-seal every described owner's exit/cleanup evidence regardless of
+   loan; `ReturnHandoff` must also derive from the sealed terminal
+   relation (`return m` of a map-local), not only `ReturnBoundary`
+   destinations.
+2. **`EntryStore` too coarse.** Every entry describes `EntryStore`,
+   which the declared capability covers — String/NestedArray entries
+   pass preflight and stop only at lowering (`%{"op" => "const"}` owner
+   with no store consumer). Fix (C5c-2): store obligations carry the
+   consumer's actual value-representation/ownership precision, reusing
+   the existing lane predicate inside common preflight — no new generic
+   registry.
+3. **C1 identity residual (pre-production).**
+   `verify_source_input_identity` is content comparison; content-identical
+   foreign declarations stay indistinguishable. The issuer is test-only
+   today — bind to the batch-issued opaque source identity before any
+   production connection (C1-id).
+
+Accepted order: C5c fixes → map-result call lane (F5) → C6 → C8
+normal/Fault execution. The review's C6 emitter note (an ordinary
+function's scalar call result has no out-slot — `%out_i64` is the
+callee's own return handoff) is exactly the C6-3 lane already in flight:
+per-block `%call_out<b>` covers ordinary callers including
+`ordinary_map`.
+
+Docs hygiene: `CURRENT_STATE.toml` `latest_card_summary` predates
+F4/C5b/C6-1/C6-2 — synced alongside this taskification.
 
 ## F4 Decision (2026-09-15, worker-audited physical layers)
 
