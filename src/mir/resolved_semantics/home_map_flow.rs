@@ -254,7 +254,42 @@ impl MapValueSource {
     }
 }
 
+/// The store class one entry's sealed ownership row requires. This is
+/// the row's own classification — describe and the lowering consumer
+/// read the same predicate; nothing reclassifies an entry downstream.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) enum MapEntryStoreClassV1 {
+    /// `InstallValue` lane: `Integer`/`Bool` literals and kind-sealed
+    /// scalar locals.
+    Scalar,
+    /// `InstallIndexed` lane: a consuming Home transfer.
+    Transferred,
+    /// A borrowed reference (`MapLocal`, `BorrowedHandle`, kind-less
+    /// `Local`) — the store obligation is `OwnershipShare`, never an
+    /// `EntryStore`.
+    Borrowed,
+    /// No install lane today: string literals, `[...]` entry values,
+    /// and `%{...}` child maps (indexed install requires a transfer
+    /// acquisition the child does not carry).
+    Opaque,
+}
+
 impl MapHomeEntry {
+    pub(crate) fn store_class(&self) -> MapEntryStoreClassV1 {
+        match &self.ownership {
+            MapEntryOwnership::TransferHome { .. } => MapEntryStoreClassV1::Transferred,
+            MapEntryOwnership::NestedMap | MapEntryOwnership::NestedArray { .. } => {
+                MapEntryStoreClassV1::Opaque
+            }
+            MapEntryOwnership::Value(value) => match value {
+                _ if value.scalar_kind().is_some() => MapEntryStoreClassV1::Scalar,
+                MapValueSource::BorrowedHandle(_)
+                | MapValueSource::MapLocal(_)
+                | MapValueSource::Local { kind: None, .. } => MapEntryStoreClassV1::Borrowed,
+                _ => MapEntryStoreClassV1::Opaque,
+            },
+        }
+    }
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
         &self.site
     }

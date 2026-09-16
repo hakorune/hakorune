@@ -19,8 +19,8 @@
 //! claim-family describe arm is a separate bounded row.
 
 use crate::mir::resolved_semantics::home_new_prefix::{
-    MapDestinationV1, MapHomeFlow, MapHomeObservation, MapValueSource, TerminalRelationV1,
-    TerminalReturnedSourceV1,
+    MapDestinationV1, MapEntryStoreClassV1, MapHomeFlow, MapHomeObservation, MapValueSource,
+    TerminalRelationV1, TerminalReturnedSourceV1,
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
@@ -34,8 +34,13 @@ use std::collections::BTreeSet;
 pub(crate) enum MapLifecycleOperationV1 {
     /// Construct the map at its literal site.
     ValueCreate,
-    /// Store one key→value entry.
-    EntryStore,
+    /// Store one key→value entry. The class is the sealed row's own
+    /// `store_class()` — scalar and transferred stores are the declared
+    /// consumer lanes; opaque classes (string, `[...]`, `%{...}` child
+    /// values) stay uncovered and fail at verify. Borrowed entries carry
+    /// `OwnershipShare` instead — a reference store is not an
+    /// `EntryStore`.
+    EntryStore(MapEntryStoreClassV1),
     /// Overwrite a previously stored key: release the displaced entry
     /// value, then complete the replacement store.
     EntryDisplace,
@@ -277,7 +282,12 @@ fn describe_flow(flow: &MapHomeFlow, returned_local: bool) -> MapSiteObligationV
     }
     let mut borrows = Vec::new();
     for entry in flow.entries() {
-        operations.insert(Op::EntryStore);
+        match entry.store_class() {
+            MapEntryStoreClassV1::Borrowed => {}
+            class => {
+                operations.insert(Op::EntryStore(class));
+            }
+        }
         if entry.transfer_home().is_some() {
             operations.insert(Op::OwnershipTransfer);
         }

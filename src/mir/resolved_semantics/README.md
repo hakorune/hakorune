@@ -1239,7 +1239,14 @@ tail, the unique sealed relation row, and the scope/target triple. Sites
 matching EntrySlot or CallArgument keep their stronger evidence; nested-body
 (`LoopBody`/`IfThen`/`IfElse`) maps record `Unavailable`, and a tail pass
 issues `Unavailable` for any sealed literal the walk never reached — one row
-per sealed literal keeps preflight loop1 fail-closed. These records and
+per sealed literal keeps preflight loop1 fail-closed. Each entry also
+classifies its own install requirement through `store_class()`: `Scalar`
+(`InstallValue` — Integer/Bool literals and kind-sealed locals),
+`Transferred` (`InstallIndexed` — a consuming Home transfer), `Borrowed`
+(reference entries whose obligation is a share, never a store), and
+`Opaque` (string, `[...]`, and `%{...}` child values with no install
+lane). The lifecycle undertaking and the selected emit lane read this
+one predicate; nothing reclassifies an entry downstream. These records and
 terminal order
 have one owner in Completion. The unconnected consumer is stopped at package
 install; fresh children, uninitialized locals and other candidate families

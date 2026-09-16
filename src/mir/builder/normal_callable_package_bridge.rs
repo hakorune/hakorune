@@ -35,14 +35,20 @@ impl BuilderInstallConsumerV1 {
     /// today: literal create, scalar/transferred entry stores (including
     /// overwrite release of a displaced entry), local-binding and
     /// return-boundary handoff, and the Normal/Fault cleanup chains.
-    /// Borrow, slot, argument, and containment handoffs stay
+    /// Opaque entry classes (string, `[...]`, `%{...}` child values),
+    /// borrows, and slot/argument/containment handoffs stay
     /// unimplemented — obligations demanding them keep failing admission
     /// at `verify_map_lifecycle_undertaking`. This declaration is the
     /// consumer's own claim; it is not inferred from registry presence.
     pub(in crate::mir) fn map_lifecycle_capability() -> MapLifecycleConsumerCapabilityV1 {
         MapLifecycleConsumerCapabilityV1::covering([
             MapLifecycleOperationV1::ValueCreate,
-            MapLifecycleOperationV1::EntryStore,
+            MapLifecycleOperationV1::EntryStore(
+                crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar,
+            ),
+            MapLifecycleOperationV1::EntryStore(
+                crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Transferred,
+            ),
             MapLifecycleOperationV1::EntryDisplace,
             MapLifecycleOperationV1::OwnershipTransfer,
             MapLifecycleOperationV1::ReturnHandoff,

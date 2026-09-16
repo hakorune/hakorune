@@ -368,6 +368,24 @@ fn map_install_accepts_complete_unannotated_root_and_aliases() {
 }
 
 #[test]
+fn opaque_entry_classes_reject_at_preflight_before_catalog() {
+    // String/`[...]`/`%{...}` child values have no consumer install lane;
+    // the undertaking describes `EntryStore(Opaque)` and verify fails
+    // before catalog mutation — the lowering lane's
+    // `map-value-consumer-missing` is never reached.
+    for entry in ["\"const\"", "[1, 2]", "%{\"x\" => 1}"] {
+        let package = issue(&format!(
+            "static box Work {{ make() {{ return %{{\"op\" => {entry} }} }} }}
+             static box Main {{ main() {{ return 30 }} }}",
+        ))
+        .unwrap();
+        let mut context = CompilationContext::new();
+        assert!(package.prepare_install(&mut context).is_err(), "{entry}");
+        assert!(context.callable_declaration_catalog_vacant());
+    }
+}
+
+#[test]
 fn map_install_rejects_annotated_aliases() {
     for body in [
         "local m: Array<i64> = %{} return 30",

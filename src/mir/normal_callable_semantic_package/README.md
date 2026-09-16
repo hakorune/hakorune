@@ -385,7 +385,13 @@ The capability is the builder consumer's own declaration —
 implemented lanes (create, scalar/transferred entry store, displace,
 return handoff, Normal/Fault cleanup); ownership share and
 slot/argument/contained handoffs stay undeclared and fail closed at
-verify. The one-shot install token itself remains provenance, not
+verify. `EntryStore` carries the sealed row's own `store_class()`
+precision — `Scalar` and `Transferred` are the declared lanes while
+`Opaque` classes (string, `[...]`, `%{...}` child values) describe the
+obligation but stay uncovered, so an owner storing them stops at
+preflight before catalog mutation; borrowed entries carry
+`OwnershipShare` instead of a store. The selected emit lane reads the
+same `store_class()` predicate — one classification, verified once. The one-shot install token itself remains provenance, not
 capability evidence. `MapCallEdgeContractV1` defines the call-edge
 conformance vocabulary (argument handoff vs return receive); edge
 resolution stays deferred because both kinds are unreachable — argument

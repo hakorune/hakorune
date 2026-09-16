@@ -1,7 +1,9 @@
 //! Source-issued Map flow consumption; no AST descent or key/ownership decisions.
 use super::*;
 use crate::mir::instruction::{MapInvokeOperation as Map, MapValueKind};
-use crate::mir::resolved_semantics::home_new_prefix::{MapValueSource, SourceScalarKind};
+use crate::mir::resolved_semantics::home_new_prefix::{
+    MapEntryStoreClassV1, MapValueSource, SourceScalarKind,
+};
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, ResolvedInitializerRelationV1};
 
 pub(in crate::mir::builder) fn emit(
@@ -73,9 +75,14 @@ fn emit_flow(
             &mut bindings,
         )?;
         // Only pure scalar materialization or an exact bound read is allowed here.
-        // Keep the prepared Key normal block exclusive to its install.
-        let (value, scalar_kind) = match entry.value_source() {
-            Some(source) => {
+        // Keep the prepared Key normal block exclusive to its install. The
+        // store class is the sealed row's own predicate — the undertaking
+        // verifies the same classification before catalog mutation.
+        let (value, scalar_kind) = match entry.store_class() {
+            MapEntryStoreClassV1::Scalar => {
+                let Some(source) = entry.value_source() else {
+                    return Err(freeze("map-value-consumer-missing"));
+                };
                 let kind = match source.scalar_kind() {
                     Some(SourceScalarKind::Integer) => MapValueKind::I64,
                     Some(SourceScalarKind::Bool) => MapValueKind::Bool,
@@ -114,15 +121,14 @@ fn emit_flow(
                         }
                         value
                     }
-                    MapValueSource::String
-                    | MapValueSource::BorrowedHandle(_)
-                    | MapValueSource::MapLocal(_) => {
-                        return Err(freeze("map-value-consumer-missing"));
-                    }
+                    _ => return Err(freeze("map-value-consumer-missing")),
                 };
                 (value, Some(kind))
             }
-            None => (state.read_variable(entry.site().node())?, None),
+            MapEntryStoreClassV1::Transferred => (state.read_variable(entry.site().node())?, None),
+            MapEntryStoreClassV1::Borrowed | MapEntryStoreClassV1::Opaque => {
+                return Err(freeze("map-value-consumer-missing"));
+            }
         };
         let key = invoke(
             builder,

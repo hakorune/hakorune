@@ -3,6 +3,7 @@ use super::map_lifecycle_undertaking::{
     verify_map_lifecycle_undertaking, MapLifecycleConsumerCapabilityV1,
     MapLifecycleOperationV1 as Op, MapLifecycleUndertakingIssueV1,
 };
+use crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1 as StoreClass;
 
 fn operations_of(
     package: &super::VerifiedNormalCallableSemanticPackageV1,
@@ -26,7 +27,7 @@ fn local_binding_map_describes_create_store_and_both_cleanups() {
         operations,
         std::collections::BTreeSet::from([
             Op::ValueCreate,
-            Op::EntryStore,
+            Op::EntryStore(StoreClass::Scalar),
             Op::NormalCleanup,
             Op::FaultCleanup,
         ])
@@ -195,7 +196,9 @@ fn undertaking_seals_when_capability_covers_every_obligation() {
         .expect("obligations describe");
     let capability = MapLifecycleConsumerCapabilityV1::covering([
         Op::ValueCreate,
-        Op::EntryStore,
+        Op::EntryStore(StoreClass::Scalar),
+        Op::EntryStore(StoreClass::Transferred),
+        Op::EntryStore(StoreClass::Opaque),
         Op::EntryDisplace,
         Op::OwnershipTransfer,
         Op::OwnershipShare,
@@ -222,7 +225,7 @@ fn undertaking_rejects_a_capability_gap_at_the_exact_site() {
         .expect("obligations describe");
     let capability = MapLifecycleConsumerCapabilityV1::covering([
         Op::ValueCreate,
-        Op::EntryStore,
+        Op::EntryStore(StoreClass::Scalar),
         Op::NormalCleanup,
         Op::FaultCleanup,
     ]);
