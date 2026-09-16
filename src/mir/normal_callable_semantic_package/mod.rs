@@ -10,6 +10,8 @@ mod declared_instance_locator;
 #[cfg(test)]
 mod direct_call_lifecycle_tests;
 mod direct_call_loan;
+#[cfg(test)]
+mod direct_call_owner_loan_tests;
 mod dynamic_admission;
 mod install;
 mod instance_construction;
@@ -75,9 +77,7 @@ mod tests;
 pub(in crate::mir) use declared_instance_locator::{
     DeclaredInstanceCallLocatorScopeV1, DeclaredInstanceCallLocatorViewV1,
 };
-pub(crate) use direct_call_loan::{
-    DirectCallDispositionLoanV1, DirectCallDispositionLoansV1, DirectCallDispositionRowV1,
-};
+pub(crate) use direct_call_loan::{DirectCallDispositionLoansV1, DirectCallDispositionRowV1};
 pub(in crate::mir) use install::SelectedCallableSemanticRefV1;
 pub(crate) use install::{
     InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,
