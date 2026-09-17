@@ -392,6 +392,7 @@ Implemented export spellings are `nyash.map.storage_init_v1`,
 `nyash.map.key_prepare_utf8_v1`, `nyash.map.key_dispose_v1`,
 `nyash.map.outcome_init_v1`, `nyash.map.checked_install_indexed_v1`,
 `nyash.map.checked_install_value_v1`, `nyash.map.checked_install_text_v1`,
+`nyash.map.checked_install_empty_array_v1`,
 `nyash.map.outcome_end_v1`, `nyash.map.outcome_dispose_v1`,
 `nyash.map.checked_end_v1` and `nyash.map.storage_dispose_v1`.
 
@@ -412,6 +413,13 @@ InvalidContract without consuming Key or publishing Outcome. Storage
 copies the bytes into an owned `Box<str>`: the caller's buffer is never
 retained and no interned handle is produced, so map end and detached
 ends stay no-ops for Text.
+
+The empty-array entry uses `(frame, profile:u32, site:u64, map, key,
+outcome)->u32` — no payload operand at all. It installs an owned-empty
+marker (`CheckedMapPayload::EmptyArray`): the map owns the empty-array
+meaning directly, no host handle is minted, and map end and detached
+ends are no-ops. It shares the same install preflight, key consumption,
+and outcome publication protocol as the other install exports.
 
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain

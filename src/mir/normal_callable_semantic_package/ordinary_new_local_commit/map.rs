@@ -205,14 +205,15 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for entry in flow.entries() {
             let Some((acquisition, binding)) = entry.transfer_home() else {
-                // Stored entries need a covered store class — scalar or
-                // sealed text payloads, or a self-rooted handle borrow,
-                // the only borrowed leaf the selected InstallValue lane
-                // carries. Map-local, kind-less local, and opaque child
-                // payloads keep failing here.
+                // Stored entries need a covered store class — scalar,
+                // sealed text, or empty-array payloads, or a self-rooted
+                // handle borrow, the only borrowed leaf the selected
+                // InstallValue lane carries. Map-local, kind-less local,
+                // and opaque child payloads keep failing here.
                 let covered = match entry.store_class() {
                     crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar
-                    | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text => {
+                    | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text
+                    | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray => {
                         true
                     }
                     crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Borrowed => {
@@ -310,6 +311,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     entry.store_class(),
                     crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar
                         | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text
+                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray
                 ) {
                     return Err(freeze("map-value-consumer-missing"));
                 }
@@ -447,7 +449,8 @@ impl OrdinaryNewClaimLedgerV1 {
                         InvokeOperation::Map(
                             op @ (Map::InstallIndexed { .. }
                             | Map::InstallValue { .. }
-                            | Map::InstallText { .. }),
+                            | Map::InstallText { .. }
+                            | Map::InstallEmptyArray { .. }),
                         ),
                     ..
                 } => Some(op),
@@ -510,6 +513,10 @@ impl OrdinaryNewClaimLedgerV1 {
                         _ => return Err(freeze("map-literal-value-drift")),
                     }
                 }
+                Map::InstallEmptyArray { map, .. }
+                    if *map == *result
+                        && entry.store_class()
+                            == crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray => {}
                 _ => return Err(freeze("map-install-source-drift")),
             }
         }

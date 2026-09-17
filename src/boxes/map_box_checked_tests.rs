@@ -299,6 +299,27 @@ fn text_payload_owns_bytes_through_rejection_detachment_and_end() {
 }
 
 #[test]
+fn empty_array_payload_is_an_owned_marker_with_trivial_end() {
+    // EmptyArray carries empty-array meaning with no bytes, handle, or
+    // Home obligation: rejection returns the marker, replacement detaches
+    // it unchanged, and end is a no-op.
+    let map = CheckedMap::unissued();
+    let failed = map
+        .install(MapKeyDomain::from_text("a"), CheckedMapPayload::EmptyArray)
+        .err()
+        .unwrap();
+    assert_eq!(failed.error, CheckedMapError::InvalidState);
+    assert!(matches!(failed.candidate, CheckedMapPayload::EmptyArray));
+    map.acquire().unwrap();
+    install(&map, "a", failed.candidate).end().unwrap();
+    let old = install(&map, "a", CheckedMapPayload::EmptyArray);
+    assert!(matches!(old.0, Some(CheckedMapPayload::EmptyArray)));
+    old.end().unwrap();
+    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    map.require_disposable().unwrap();
+}
+
+#[test]
 fn value_replacement_after_failed_residence_end_keeps_new_slot_and_other_homes() {
     let map = Arc::new(CheckedMap::unissued());
     let events = Arc::new(Mutex::new(Vec::new()));

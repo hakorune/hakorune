@@ -366,6 +366,9 @@ fn encode_invoke(
                     "kind": "map_install_text", "map": value(map), "key": value(key),
                     "utf8": utf8,
                 }),
+                Map::InstallEmptyArray { map, key } => json!({
+                    "kind": "map_install_empty_array", "map": value(map), "key": value(key),
+                }),
                 Map::EndOutcome { outcome } => {
                     json!({"kind": "map_end_outcome", "outcome": value(outcome)})
                 }

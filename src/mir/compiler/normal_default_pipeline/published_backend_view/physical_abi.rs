@@ -47,7 +47,8 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 MapInvokeOperation::PrepareKey { .. } => Self::MapPrepareKey,
                 MapInvokeOperation::InstallIndexed { .. }
                 | MapInvokeOperation::InstallValue { .. }
-                | MapInvokeOperation::InstallText { .. } => Self::MapInstall,
+                | MapInvokeOperation::InstallText { .. }
+                | MapInvokeOperation::InstallEmptyArray { .. } => Self::MapInstall,
                 MapInvokeOperation::EndOutcome { .. } => Self::MapEndOutcome,
                 MapInvokeOperation::End { .. } => Self::MapEnd,
             }),

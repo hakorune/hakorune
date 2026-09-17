@@ -235,6 +235,25 @@ pub unsafe extern "C" fn install_text(
     }
 }
 
+/// Owned empty-array entry payload. No caller operand and no allocation:
+/// the installed marker carries the `[]` meaning, and entry end is
+/// trivially complete.
+#[export_name = "nyash.map.checked_install_empty_array_v1"]
+pub unsafe extern "C" fn install_empty_array(
+    frame: *mut c_void,
+    profile: u32,
+    site: u64,
+    map_ptr: *mut c_void,
+    key_ptr: *mut c_void,
+    out_ptr: *mut c_void,
+) -> u32 {
+    unsafe {
+        install_candidate(frame, profile, site, map_ptr, key_ptr, out_ptr, || {
+            Ok(CheckedMapPayload::EmptyArray)
+        })
+    }
+}
+
 // Preflight precedes key consumption; candidate preparation follows it. Both
 // exports use this one commit/outcome protocol, preserving Indexed fault order.
 unsafe fn install_candidate(

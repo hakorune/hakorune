@@ -393,3 +393,47 @@ fn text_install_consumes_the_key_and_carries_no_value_operand() {
         assert!(check_function(&function).is_err(), "map={map} key={key}");
     }
 }
+
+#[test]
+fn empty_array_install_consumes_the_key_and_carries_no_operands() {
+    let mut function = graph(true);
+    function
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .set_terminator(invoke(
+            Map::InstallEmptyArray {
+                map: ValueId(2),
+                key: ValueId(3),
+            },
+            3,
+            6,
+        ));
+    check_function(&function).unwrap();
+    // The marker carries no payload operand: rewriting only moves the
+    // map and key ValueIds.
+    let mut op = Map::InstallEmptyArray {
+        map: ValueId(2),
+        key: ValueId(3),
+    };
+    op.rewrite_values(|v| v.0 += 10);
+    assert_eq!(op.used_values(), vec![ValueId(12), ValueId(13)]);
+    assert!(!op.effects().is_pure());
+    // A dead map or a non-MapKey operand still rejects.
+    for (map, key) in [(1u32, 3u32), (2, 1), (4, 3)] {
+        let mut function = graph(true);
+        function
+            .blocks
+            .get_mut(&BasicBlockId(2))
+            .unwrap()
+            .set_terminator(invoke(
+                Map::InstallEmptyArray {
+                    map: ValueId(map),
+                    key: ValueId(key),
+                },
+                3,
+                6,
+            ));
+        assert!(check_function(&function).is_err(), "map={map} key={key}");
+    }
+}

@@ -153,6 +153,12 @@ fn emit_flow(
                 };
                 PendingInstall::Text(text.to_string())
             }
+            MapEntryStoreClassV1::EmptyArray => {
+                // A `[]` literal carries no payload at all: the sealed
+                // empty element list is the whole meaning, so the
+                // install needs no value operand.
+                PendingInstall::EmptyArray
+            }
             MapEntryStoreClassV1::Opaque => {
                 return Err(freeze("map-value-consumer-missing"));
             }
@@ -185,6 +191,7 @@ fn emit_flow(
                 key,
                 utf8,
             },
+            PendingInstall::EmptyArray => Map::InstallEmptyArray { map: result, key },
         };
         let outcome = invoke(builder, frame, operation, precommit, &mut bindings)?
             .expect("install produces its detached outcome");
@@ -210,12 +217,13 @@ fn emit_flow(
     Ok(result)
 }
 
-/// One pending entry install: a materialized scalar/indexed value, or an
-/// inline sealed payload that needs no ValueId operand.
+/// One pending entry install: a materialized scalar/indexed value, an
+/// inline sealed payload, or a marker install that needs no operand.
 enum PendingInstall {
     Value(ValueId, MapValueKind),
     Indexed(ValueId),
     Text(String),
+    EmptyArray,
 }
 
 fn record_literal(

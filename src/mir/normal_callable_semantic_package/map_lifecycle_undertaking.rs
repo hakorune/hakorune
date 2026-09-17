@@ -35,8 +35,9 @@ pub(crate) enum MapLifecycleOperationV1 {
     /// Construct the map at its literal site.
     ValueCreate,
     /// Store one key→value entry. The class is the sealed row's own
-    /// `store_class()` — scalar, transferred, and text stores are the
-    /// declared consumer lanes; opaque classes (`[...]`, `%{...}` child
+    /// `store_class()` — scalar, transferred, text, and empty-array
+    /// stores are the declared consumer lanes; opaque classes (non-empty
+    /// `[...]`, `%{...}` child
     /// values) stay uncovered and fail at verify. Borrowed entries carry
     /// `OwnershipShare` instead — a reference store is not an
     /// `EntryStore`.

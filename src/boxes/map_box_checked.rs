@@ -18,18 +18,21 @@ pub trait CanonicalMapResidence: Send + Sync {
 }
 
 /// One slot payload. Trivial values carry no child-Home obligation. Owned
-/// text keeps its own bytes — never an interned or shared handle. Residences
-/// remain non-Clone and are ended exactly once.
+/// text keeps its own bytes — never an interned or shared handle. An empty
+/// array entry owns the empty-array meaning itself: no host handle or
+/// backing object is minted, so a read lane materializes a fresh ArrayBox
+/// on projection. Residences remain non-Clone and are ended exactly once.
 pub enum CheckedMapPayload {
     I64(i64),
     Bool(bool),
     Text(Box<str>),
+    EmptyArray,
     Residence(Box<dyn CanonicalMapResidence>),
 }
 impl CheckedMapPayload {
     fn end(self) -> Result<(), MapEndError> {
         match self {
-            Self::I64(_) | Self::Bool(_) | Self::Text(_) => Ok(()),
+            Self::I64(_) | Self::Bool(_) | Self::Text(_) | Self::EmptyArray => Ok(()),
             Self::Residence(value) => value.end(),
         }
     }

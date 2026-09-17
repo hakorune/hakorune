@@ -38,9 +38,11 @@ impl BuilderInstallConsumerV1 {
     /// `InstallValue` i64 lane — ordinary-role formals are physically
     /// i64 and the payload end is a no-op, so the map never owns the
     /// handle), text entry payloads (owned inline bytes via
-    /// `InstallText`), local-binding and return-boundary handoff, and
-    /// the Normal/Fault cleanup chains. Opaque entry classes (`[...]`,
-    /// `%{...}` child values), live map-local and kind-less
+    /// `InstallText`), empty-array payloads (`InstallEmptyArray` — the
+    /// map owns the empty-array meaning directly; no host handle is
+    /// minted), local-binding and return-boundary handoff, and the
+    /// Normal/Fault cleanup chains. Opaque entry classes (non-empty
+    /// `[...]`, `%{...}` child values), live map-local and kind-less
     /// local borrows, borrows on escaping maps (`BorrowedEntryEscape`),
     /// and slot/argument/containment handoffs stay unimplemented —
     /// obligations demanding them keep failing admission at
@@ -57,6 +59,9 @@ impl BuilderInstallConsumerV1 {
             ),
             MapLifecycleOperationV1::EntryStore(
                 crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text,
+            ),
+            MapLifecycleOperationV1::EntryStore(
+                crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray,
             ),
             MapLifecycleOperationV1::EntryDisplace,
             MapLifecycleOperationV1::OwnershipTransfer,

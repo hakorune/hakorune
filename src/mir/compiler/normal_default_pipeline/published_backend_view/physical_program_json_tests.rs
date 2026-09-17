@@ -532,3 +532,18 @@ fn map_install_text_publishes_inline_utf8_without_a_value_operand() {
         "utf8": "sealed payload", "site": 42})
     );
 }
+
+#[test]
+fn map_install_empty_array_publishes_no_payload_operand() {
+    use crate::mir::instruction::MapInvokeOperation as Map;
+    let op = InvokeOperation::Map(Map::InstallEmptyArray {
+        map: ValueId(1),
+        key: ValueId(2),
+    });
+    let encoded =
+        encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None).unwrap();
+    assert_eq!(
+        encoded,
+        json!({"kind": "map_install_empty_array", "map": 1, "key": 2, "site": 42})
+    );
+}

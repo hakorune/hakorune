@@ -301,9 +301,12 @@ pub(crate) enum MapEntryStoreClassV1 {
     /// `InstallText` lane: an owned UTF-8 payload sealed on the
     /// `MapValueSource::String` row.
     Text,
-    /// No install lane today: `[...]` entry values and `%{...}` child
-    /// maps (indexed install requires a transfer acquisition the child
-    /// does not carry).
+    /// `InstallEmptyArray` lane: a `[]` literal carries no elements and
+    /// no child obligation — the map owns the empty-array meaning itself.
+    EmptyArray,
+    /// No install lane today: non-empty `[...]` entry values and
+    /// `%{...}` child maps (indexed install requires a transfer
+    /// acquisition the child does not carry).
     Opaque,
 }
 
@@ -311,8 +314,13 @@ impl MapHomeEntry {
     pub(crate) fn store_class(&self) -> MapEntryStoreClassV1 {
         match &self.ownership {
             MapEntryOwnership::TransferHome { .. } => MapEntryStoreClassV1::Transferred,
-            MapEntryOwnership::NestedMap | MapEntryOwnership::NestedArray { .. } => {
-                MapEntryStoreClassV1::Opaque
+            MapEntryOwnership::NestedMap => MapEntryStoreClassV1::Opaque,
+            MapEntryOwnership::NestedArray { elements } => {
+                if elements.is_empty() {
+                    MapEntryStoreClassV1::EmptyArray
+                } else {
+                    MapEntryStoreClassV1::Opaque
+                }
             }
             MapEntryOwnership::Value(value) => match value {
                 _ if value.scalar_kind().is_some() => MapEntryStoreClassV1::Scalar,

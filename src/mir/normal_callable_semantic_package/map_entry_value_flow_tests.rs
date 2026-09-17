@@ -1,5 +1,7 @@
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
-use crate::mir::resolved_semantics::home_new_prefix::{MapDestinationV1, MapValueSource};
+use crate::mir::resolved_semantics::home_new_prefix::{
+    MapDestinationV1, MapEntryStoreClassV1, MapValueSource,
+};
 use crate::mir::resolved_semantics::{
     OwnedExprSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
 };
@@ -197,6 +199,8 @@ fn array_entry_records_exact_leaf_elements() {
         third.value_source(),
         Some(MapValueSource::BorrowedHandle(_))
     ));
+    // A non-empty array still has no physical mapping — `Opaque`.
+    assert_eq!(a.store_class(), MapEntryStoreClassV1::Opaque);
     // Each element site is the exact `Element(ordinal)` child path.
     assert_eq!(
         first.site(),
@@ -226,6 +230,9 @@ fn array_entry_empty_literal_and_local_position_complete() {
         panic!("two entries");
     };
     assert_eq!(a.array_elements().map(<[_]>::len), Some(0));
+    // An empty element list is its own store class — an owned-empty
+    // marker, never the generic Opaque bucket.
+    assert_eq!(a.store_class(), MapEntryStoreClassV1::EmptyArray);
     assert_eq!(b.value_source(), Some(&MapValueSource::Integer(2)));
 }
 

@@ -370,6 +370,55 @@ fn text_abi_owns_validated_bytes_and_rejects_invalid_utf8_before_key_consumption
     }
 }
 
+unsafe extern "C" {
+    #[link_name = "nyash.map.checked_install_empty_array_v1"]
+    fn empty_array_export(
+        frame: *mut c_void,
+        profile: u32,
+        site: u64,
+        map: *mut c_void,
+        key: *mut c_void,
+        outcome: *mut c_void,
+    ) -> u32;
+}
+
+#[test]
+fn empty_array_abi_installs_an_owned_marker_through_the_shared_protocol() {
+    let (mut f, mut m, mut k, mut o) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+    );
+    unsafe {
+        let (f, m, k, o) = (f.ptr(), m.ptr(), k.ptr(), o.ptr());
+        assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        // The marker shares the preflight/commit/outcome protocol.
+        assert_eq!(empty_array_export(f, 1, 4, m, k, o), 0);
+        assert_eq!(outcome_dispose(o), 2); // Ready outcome must be consumed
+        assert_eq!(outcome_end(f, 5, o), 0); // ReadyNoOld
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        // Replacement detaches the marker; ending it is a no-op.
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        let h = child();
+        assert_eq!(install(f, 1, 6, m, k, h, 919, o), 0);
+        assert_eq!(outcome_end(f, 7, o), 0);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        assert!(live(h));
+        assert_eq!(map_end(f, 8, m), 0);
+        assert!(!live(h));
+        assert_eq!(map_dispose(m), 0);
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
+
 #[test]
 fn value_abi_mixed_replacement_never_treats_integer_bits_as_a_handle() {
     let (mut f, mut m, mut k, mut o) = (

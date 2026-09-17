@@ -498,11 +498,11 @@ fn verify_still_rejects_opaque_entry_classes() {
 }
 
 #[test]
-fn merged_route_shape_stops_at_array_entries_not_text() {
+fn merged_route_shape_seals_text_and_empty_array_entries() {
     // The `local main` residual shape: a text entry and an empty-array
-    // entry in one literal. Text is covered by the declared lane; the
-    // `[]` store class stays `Opaque` and is the sole uncovered
-    // obligation.
+    // entry in one literal. Both are declared lanes — `[]` describes
+    // `EntryStore(EmptyArray)`, never `Opaque`, and the declared
+    // capability seals the site.
     let package = issue(
         "static box Work { make() {
             local m = %{\"name\" => \"main\", \"params\" => []} return 0 } }
@@ -520,12 +520,14 @@ fn merged_route_shape_stops_at_array_entries_not_text() {
     };
     let operations: std::collections::BTreeSet<_> = site.operations().collect();
     assert!(operations.contains(&Op::EntryStore(StoreClass::Text)));
-    assert!(operations.contains(&Op::EntryStore(StoreClass::Opaque)));
+    assert!(operations.contains(&Op::EntryStore(StoreClass::EmptyArray)));
+    assert!(!operations.contains(&Op::EntryStore(StoreClass::Opaque)));
     let capability = MapLifecycleConsumerCapabilityV1::covering([
         Op::ValueCreate,
         Op::EntryStore(StoreClass::Scalar),
         Op::EntryStore(StoreClass::Transferred),
         Op::EntryStore(StoreClass::Text),
+        Op::EntryStore(StoreClass::EmptyArray),
         Op::EntryDisplace,
         Op::OwnershipTransfer,
         Op::OwnershipShare(BorrowKind::Handle),
@@ -533,11 +535,35 @@ fn merged_route_shape_stops_at_array_entries_not_text() {
         Op::NormalCleanup,
         Op::FaultCleanup,
     ]);
+    let undertaking = verify_map_lifecycle_undertaking(&obligations, capability).unwrap();
+    assert_eq!(undertaking.owners().len(), 1);
+}
+
+#[test]
+fn entry_store_empty_array_still_requires_a_declared_operation() {
+    // The marker lane is fail-closed like every other store class: a
+    // capability missing `EntryStore(EmptyArray)` rejects at exactly that
+    // operation, never silently treating the entry as owned.
+    let package = issue(
+        "static box Work { make() { local m = %{\"params\" => []} return 0 } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("empty-array package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let capability = MapLifecycleConsumerCapabilityV1::covering([
+        Op::ValueCreate,
+        Op::EntryStore(StoreClass::Scalar),
+        Op::EntryDisplace,
+        Op::NormalCleanup,
+        Op::FaultCleanup,
+    ]);
     let error = verify_map_lifecycle_undertaking(&obligations, capability).unwrap_err();
     assert!(matches!(
         error,
         MapLifecycleUndertakingIssueV1::UncoveredOperation {
-            operation: Op::EntryStore(StoreClass::Opaque),
+            operation: Op::EntryStore(StoreClass::EmptyArray),
             ..
         }
     ));

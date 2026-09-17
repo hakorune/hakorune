@@ -42,6 +42,13 @@ pub enum MapInvokeOperation {
         key: ValueId,
         utf8: String,
     },
+    /// Store an owned empty array (`[]` literal): no value operand — the
+    /// sealed `NestedArray { elements: [] }` row carries no payload, so
+    /// the installed marker owns the empty-array meaning directly.
+    InstallEmptyArray {
+        map: ValueId,
+        key: ValueId,
+    },
     EndOutcome {
         outcome: ValueId,
     },
@@ -55,16 +62,20 @@ impl MapInvokeOperation {
         match self {
             Self::New => Some(InvokeNormalResultKind::Map),
             Self::PrepareKey { .. } => Some(InvokeNormalResultKind::MapKey),
-            Self::InstallIndexed { .. } | Self::InstallValue { .. } | Self::InstallText { .. } => {
-                Some(InvokeNormalResultKind::MapOutcome)
-            }
+            Self::InstallIndexed { .. }
+            | Self::InstallValue { .. }
+            | Self::InstallText { .. }
+            | Self::InstallEmptyArray { .. } => Some(InvokeNormalResultKind::MapOutcome),
             Self::EndOutcome { .. } | Self::End { .. } => None,
         }
     }
     pub fn effects(&self) -> EffectMask {
         match self {
             Self::New | Self::PrepareKey { .. } => EffectMask::CONTROL.add(Effect::Alloc),
-            Self::InstallIndexed { .. } | Self::InstallValue { .. } | Self::InstallText { .. } => {
+            Self::InstallIndexed { .. }
+            | Self::InstallValue { .. }
+            | Self::InstallText { .. }
+            | Self::InstallEmptyArray { .. } => {
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control)
             }
             Self::EndOutcome { .. } | Self::End { .. } => EffectMask::WRITE
@@ -82,7 +93,9 @@ impl MapInvokeOperation {
             | Self::InstallValue {
                 map, key, value, ..
             } => vec![*map, *key, *value],
-            Self::InstallText { map, key, .. } => vec![*map, *key],
+            Self::InstallText { map, key, .. } | Self::InstallEmptyArray { map, key } => {
+                vec![*map, *key]
+            }
             Self::EndOutcome { outcome } => vec![*outcome],
             Self::End { map } => vec![*map],
         }
@@ -100,7 +113,7 @@ impl MapInvokeOperation {
                 rewrite(key);
                 rewrite(value);
             }
-            Self::InstallText { map, key, .. } => {
+            Self::InstallText { map, key, .. } | Self::InstallEmptyArray { map, key } => {
                 rewrite(map);
                 rewrite(key);
             }
