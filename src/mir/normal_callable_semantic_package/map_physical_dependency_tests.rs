@@ -354,6 +354,79 @@ fn return_installed_map_local_transfers_its_lease_to_return() {
 }
 
 #[test]
+fn self_rooted_handle_borrow_emits_install_value_i64() {
+    // `local m = %{"v" => h}` inside a parameterized non-main owner: the
+    // sealed BorrowedHandle entry is an `OwnershipShare(Handle)` the
+    // declared lane stores through `InstallValue{I64}` — the formal's
+    // physical i64 value, with a no-op payload end (the map never owns
+    // the handle). The pin asserts the stored value is the exact
+    // parameter ValueId, not a re-materialized copy.
+    for annotation in ["", ": StringBox"] {
+        let source = format!(
+            "static box Work {{ stash(h{annotation}) {{
+                local m = %{{\"v\" => h}} return 0
+            }} }}
+             static box Main {{ main() {{ return 30 }} }}"
+        );
+        let package = issue(&source).unwrap();
+        let main = package
+            .declaration_catalog()
+            .source_backed_app_main()
+            .unwrap();
+        let declaration = package
+            .batch()
+            .declarations()
+            .find(|row| !row.identity().same_as(main.parser_identity()))
+            .unwrap();
+        let (key, _, _) = package
+            .catalog
+            .selected_identities()
+            .find(|(_, identity, _)| declaration.identity().same_as(identity))
+            .expect("selected identity for the Work.stash declaration");
+        let mut builder = MirBuilder::new();
+        let function = package
+            .batch()
+            .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+                builder.lower_map_dependency_for_test(
+                    input,
+                    key.clone(),
+                    declaration.identity(),
+                    identity.method_source_observation().cloned(),
+                    std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                    None,
+                )
+            })
+            .unwrap()
+            .unwrap_or_else(|e| panic!("annotation={annotation}: {e}"));
+        let install = function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .find_map(|i| match i {
+                MirInstruction::Invoke {
+                    operation:
+                        InvokeOperation::Map(MapInvokeOperation::InstallValue { value, kind, .. }),
+                    ..
+                } => Some((*value, *kind)),
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("annotation={annotation}: InstallValue expected"));
+        assert_eq!(
+            install.1,
+            crate::mir::instruction::MapValueKind::I64,
+            "annotation={annotation}: the borrowed handle stores as i64"
+        );
+        assert!(
+            function.params.contains(&install.0),
+            "annotation={annotation}: the stored value is the formal's own ValueId"
+        );
+        crate::mir::verification::MirVerifier::new_strict()
+            .verify_function(&function)
+            .unwrap_or_else(|e| panic!("annotation={annotation}: {e:?}"));
+    }
+}
+
+#[test]
 fn map_literal_in_call_argument_position_stays_rejected() {
     // No map-argument lane is admitted in this slice: a `%{...}` call
     // argument reaches the builder boundary and is refused by its own named

@@ -3,7 +3,9 @@ use super::map_lifecycle_undertaking::{
     verify_map_lifecycle_undertaking, MapLifecycleConsumerCapabilityV1,
     MapLifecycleOperationV1 as Op, MapLifecycleUndertakingIssueV1,
 };
-use crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1 as StoreClass;
+use crate::mir::resolved_semantics::home_new_prefix::{
+    MapEntryBorrowKindV1 as BorrowKind, MapEntryStoreClassV1 as StoreClass,
+};
 
 fn operations_of(
     package: &super::VerifiedNormalCallableSemanticPackageV1,
@@ -172,7 +174,9 @@ fn map_local_entry_describes_ownership_share_and_borrow_evidence() {
         .iter()
         .find(|site| site.operations().any(|op| op == Op::ReturnHandoff))
         .expect("the returned map site");
-    assert!(returned.operations().any(|op| op == Op::OwnershipShare));
+    assert!(returned
+        .operations()
+        .any(|op| op == Op::OwnershipShare(BorrowKind::MapLocal)));
     let [borrow] = returned.borrows() else {
         panic!("one borrow row");
     };
@@ -183,7 +187,9 @@ fn map_local_entry_describes_ownership_share_and_borrow_evidence() {
         .iter()
         .find(|site| site.operations().all(|op| op != Op::ReturnHandoff))
         .expect("the map local site");
-    assert!(!local.operations().any(|op| op == Op::OwnershipShare));
+    assert!(!local
+        .operations()
+        .any(|op| matches!(op, Op::OwnershipShare(_))));
 }
 
 #[test]
@@ -216,7 +222,9 @@ fn undertaking_seals_when_capability_covers_every_obligation() {
         Op::EntryStore(StoreClass::Opaque),
         Op::EntryDisplace,
         Op::OwnershipTransfer,
-        Op::OwnershipShare,
+        Op::OwnershipShare(BorrowKind::Handle),
+        Op::OwnershipShare(BorrowKind::MapLocal),
+        Op::OwnershipShare(BorrowKind::Local),
         Op::SlotHandoff,
         Op::ReturnHandoff,
         Op::ArgumentHandoff,
@@ -281,4 +289,129 @@ fn sealed_membership_enumerates_every_map_owning_owner() {
         .expect("obligations describe");
     assert_eq!(obligations.len(), 2);
     assert_ne!(obligations[0].owner(), obligations[1].owner());
+}
+
+#[test]
+fn self_rooted_handle_entry_describes_handle_ownership_share() {
+    // An untyped formal is an `OpaqueHandle` contract — a self-rooted
+    // parameter handle. Its map entry is a `Borrowed` store class whose
+    // sharing obligation carries the sealed leaf's `Handle` kind.
+    let package = issue(
+        "static box Work { stash(h) { local m = %{\"v\" => h} return 0 } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("handle-borrow package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let [owner] = obligations.as_ref() else {
+        panic!("one map-owning owner");
+    };
+    let [site] = owner.sites() else {
+        panic!("one map site");
+    };
+    assert!(site
+        .operations()
+        .any(|op| op == Op::OwnershipShare(BorrowKind::Handle)));
+    assert!(!site
+        .operations()
+        .any(|op| matches!(op, Op::EntryStore(StoreClass::Borrowed))));
+    let [borrow] = site.borrows() else {
+        panic!("one borrow row");
+    };
+    let _ = borrow.binding();
+}
+
+#[test]
+fn declared_capability_seals_an_in_owner_handle_borrow() {
+    // The same site the builder consumer now declares: a handle-borrowed
+    // entry on a non-escaping map seals.
+    let package = issue(
+        "static box Work { stash(h) { local m = %{\"v\" => h} return 0 } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("handle-borrow package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let capability = MapLifecycleConsumerCapabilityV1::covering([
+        Op::ValueCreate,
+        Op::EntryStore(StoreClass::Scalar),
+        Op::EntryStore(StoreClass::Transferred),
+        Op::EntryDisplace,
+        Op::OwnershipTransfer,
+        Op::OwnershipShare(BorrowKind::Handle),
+        Op::ReturnHandoff,
+        Op::NormalCleanup,
+        Op::FaultCleanup,
+    ]);
+    let undertaking = verify_map_lifecycle_undertaking(&obligations, capability).unwrap();
+    assert_eq!(undertaking.owners().len(), 1);
+}
+
+#[test]
+fn verify_rejects_a_borrowed_entry_that_escapes_through_a_handoff() {
+    // `local m = %{"v" => h}; return m` carries the handle borrow across
+    // the return boundary. Every named operation is covered, but the
+    // sealed vocabulary cannot prove the borrow target outlives the map
+    // once it leaves the owner — the escape fails before emission.
+    let package = issue(
+        "static box Work { stash(h) { local m = %{\"v\" => h} return m } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("escaping handle-borrow package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let capability = MapLifecycleConsumerCapabilityV1::covering([
+        Op::ValueCreate,
+        Op::EntryStore(StoreClass::Scalar),
+        Op::EntryStore(StoreClass::Transferred),
+        Op::EntryDisplace,
+        Op::OwnershipTransfer,
+        Op::OwnershipShare(BorrowKind::Handle),
+        Op::ReturnHandoff,
+        Op::NormalCleanup,
+        Op::FaultCleanup,
+    ]);
+    let error = verify_map_lifecycle_undertaking(&obligations, capability).unwrap_err();
+    assert!(matches!(
+        error,
+        MapLifecycleUndertakingIssueV1::BorrowedEntryEscape { .. }
+    ));
+}
+
+#[test]
+fn verify_rejects_map_local_and_kindless_local_borrow_kinds() {
+    // `local a = %{...}` borrowed into a sibling map is a `MapLocal`
+    // borrow — the declared `Handle` lane does not cover it, and a live
+    // map-storage reference has no physical lane today.
+    let package = issue(
+        "static box Work { make() {
+            local a = %{\"a\" => 1} local m = %{\"c\" => a} return 0 } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("map-local borrow package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let capability = MapLifecycleConsumerCapabilityV1::covering([
+        Op::ValueCreate,
+        Op::EntryStore(StoreClass::Scalar),
+        Op::EntryStore(StoreClass::Transferred),
+        Op::EntryDisplace,
+        Op::OwnershipTransfer,
+        Op::OwnershipShare(BorrowKind::Handle),
+        Op::ReturnHandoff,
+        Op::NormalCleanup,
+        Op::FaultCleanup,
+    ]);
+    let error = verify_map_lifecycle_undertaking(&obligations, capability).unwrap_err();
+    assert!(matches!(
+        error,
+        MapLifecycleUndertakingIssueV1::UncoveredOperation {
+            operation: Op::OwnershipShare(BorrowKind::MapLocal),
+            ..
+        }
+    ));
 }

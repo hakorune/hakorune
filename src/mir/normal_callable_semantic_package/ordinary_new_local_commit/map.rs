@@ -2,8 +2,8 @@
 use super::*;
 use crate::mir::instruction::{InvokeCallResultKind, MapInvokeOperation as Map};
 use crate::mir::resolved_semantics::home_new_prefix::{
-    LocalCallObservationV1, LocalCallResultClassV1, MapHomeEntry, MapHomeFlow, MapValueSource,
-    SourceScalarKind,
+    LocalCallObservationV1, LocalCallResultClassV1, MapEntryBorrowKindV1, MapHomeEntry,
+    MapHomeFlow, MapValueSource, SourceScalarKind,
 };
 use crate::mir::resolved_semantics::ResolvedInitializerRelationV1;
 use std::rc::Rc;
@@ -205,7 +205,16 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for entry in flow.entries() {
             let Some((acquisition, binding)) = entry.transfer_home() else {
-                if entry.value_source().and_then(|v| v.scalar_kind()).is_none() {
+                // Stored entries need a scalar kind or a self-rooted
+                // handle borrow — the only borrowed leaf the selected
+                // InstallValue lane carries. Map-local, kind-less local,
+                // and opaque child payloads keep failing here.
+                let covered = entry.value_source().is_some_and(|v| {
+                    v.scalar_kind().is_some()
+                        || v.borrowed_root()
+                            .is_some_and(|(kind, _)| kind == MapEntryBorrowKindV1::Handle)
+                });
+                if !covered {
                     return Err(freeze("map-value-consumer-missing"));
                 }
                 continue;
@@ -448,6 +457,16 @@ impl OrdinaryNewClaimLedgerV1 {
                     let expected = match source.scalar_kind() {
                         Some(SourceScalarKind::Integer) => MapValueKind::I64,
                         Some(SourceScalarKind::Bool) => MapValueKind::Bool,
+                        // A self-rooted handle borrow rides the same
+                        // InstallValue lane — the i64 wire kind is the
+                        // sealed borrow classification, not a re-read of
+                        // the leaf.
+                        None if source
+                            .borrowed_root()
+                            .is_some_and(|(borrow, _)| borrow == MapEntryBorrowKindV1::Handle) =>
+                        {
+                            MapValueKind::I64
+                        }
                         None => return Err(freeze("map-value-consumer-missing")),
                     };
                     if *kind != expected {

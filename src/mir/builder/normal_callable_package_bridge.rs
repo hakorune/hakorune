@@ -33,12 +33,17 @@ impl BuilderInstallConsumerV1 {
 
     /// The Map lifecycle operations the selected lowering lanes execute
     /// today: literal create, scalar/transferred entry stores (including
-    /// overwrite release of a displaced entry), local-binding and
-    /// return-boundary handoff, and the Normal/Fault cleanup chains.
-    /// Opaque entry classes (string, `[...]`, `%{...}` child values),
-    /// borrows, and slot/argument/containment handoffs stay
-    /// unimplemented — obligations demanding them keep failing admission
-    /// at `verify_map_lifecycle_undertaking`. This declaration is the
+    /// overwrite release of a displaced entry), self-rooted handle
+    /// borrows on in-owner maps (stored through the existing
+    /// `InstallValue` i64 lane — ordinary-role formals are physically
+    /// i64 and the payload end is a no-op, so the map never owns the
+    /// handle), local-binding and return-boundary handoff, and the
+    /// Normal/Fault cleanup chains. Opaque entry classes (string,
+    /// `[...]`, `%{...}` child values), live map-local and kind-less
+    /// local borrows, borrows on escaping maps (`BorrowedEntryEscape`),
+    /// and slot/argument/containment handoffs stay unimplemented —
+    /// obligations demanding them keep failing admission at
+    /// `verify_map_lifecycle_undertaking`. This declaration is the
     /// consumer's own claim; it is not inferred from registry presence.
     pub(in crate::mir) fn map_lifecycle_capability() -> MapLifecycleConsumerCapabilityV1 {
         MapLifecycleConsumerCapabilityV1::covering([
@@ -51,6 +56,9 @@ impl BuilderInstallConsumerV1 {
             ),
             MapLifecycleOperationV1::EntryDisplace,
             MapLifecycleOperationV1::OwnershipTransfer,
+            MapLifecycleOperationV1::OwnershipShare(
+                crate::mir::resolved_semantics::home_new_prefix::MapEntryBorrowKindV1::Handle,
+            ),
             MapLifecycleOperationV1::ReturnHandoff,
             MapLifecycleOperationV1::NormalCleanup,
             MapLifecycleOperationV1::FaultCleanup,

@@ -243,6 +243,20 @@ pub(crate) enum MapValueSource {
     MapLocal(BindingRefV1),
 }
 
+/// The leaf kind one borrowed map entry shares. `Handle` is a
+/// self-rooted parameter handle — physically an i64 value the selected
+/// consumer stores through the existing `InstallValue` lane whose
+/// payload end is a no-op (the map never owns it). `MapLocal` is a
+/// live map-storage reference and `Local` a kind-less binding — neither
+/// has a physical reference lane today, so their `OwnershipShare`
+/// obligations stay uncovered.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) enum MapEntryBorrowKindV1 {
+    Handle,
+    MapLocal,
+    Local,
+}
+
 impl MapValueSource {
     pub(crate) fn scalar_kind(&self) -> Option<SourceScalarKind> {
         match self {
@@ -250,6 +264,22 @@ impl MapValueSource {
             Self::Bool(_) => Some(SourceScalarKind::Bool),
             Self::Local { kind, .. } => *kind,
             Self::String | Self::BorrowedHandle(_) | Self::MapLocal(_) => None,
+        }
+    }
+    /// The borrow kind and root binding one leaf carries when the entry
+    /// stores a non-consuming reference; `None` for stored values and
+    /// opaque child payloads. The kind is the sealed row's own
+    /// classification — describe and the lowering consumer read the same
+    /// predicate; nothing reclassifies a borrow downstream.
+    pub(crate) fn borrowed_root(&self) -> Option<(MapEntryBorrowKindV1, BindingRefV1)> {
+        match self {
+            Self::BorrowedHandle(root) => Some((MapEntryBorrowKindV1::Handle, *root)),
+            Self::MapLocal(root) => Some((MapEntryBorrowKindV1::MapLocal, *root)),
+            Self::Local {
+                binding,
+                kind: None,
+            } => Some((MapEntryBorrowKindV1::Local, *binding)),
+            _ => None,
         }
     }
 }

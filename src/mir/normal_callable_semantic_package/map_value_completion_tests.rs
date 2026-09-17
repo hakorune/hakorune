@@ -120,7 +120,7 @@ fn ordinary_i64_formal_alias_preserves_source_kind_without_a_home() {
 }
 
 #[test]
-fn borrowed_formals_are_allowed_unused_but_do_not_issue_map_ownership() {
+fn borrowed_formals_describe_a_handle_share_the_declared_lane_admits() {
     for annotation in ["", ": StringBox"] {
         for (entry, complete) in [("30", true), ("value", true)] {
             let package = issue(&format!(
@@ -147,21 +147,12 @@ fn borrowed_formals_are_allowed_unused_but_do_not_issue_map_ownership() {
                     .is_err());
                 assert!(contract.terminal_relation().is_none());
             }
-            // A sealed scalar literal entry is covered; a kind-less
-            // formal entry is an OwnershipShare obligation the declared
-            // capability does not cover.
-            if entry == "30" {
-                assert_install_admits(package);
-            } else {
-                assert_install_stop(package, |error| {
-                    matches!(
-                        error,
-                        super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleUndertaking(
-                            super::map_lifecycle_undertaking::MapLifecycleUndertakingIssueV1::UncoveredOperation { .. }
-                        )
-                    )
-                });
-            }
+            // A sealed scalar literal entry is covered; a borrowed
+            // formal entry is an `OwnershipShare(Handle)` obligation —
+            // the declared consumer lane stores the self-rooted handle's
+            // i64 value through `InstallValue` while the in-owner map
+            // keeps the formal alive for it.
+            assert_install_admits(package);
         }
     }
 }

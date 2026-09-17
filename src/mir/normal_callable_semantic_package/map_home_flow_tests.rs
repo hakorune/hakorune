@@ -34,7 +34,6 @@ fn non_app_main_map_owner_installs_with_covered_obligations() {
 #[test]
 fn declared_root_unissued_map_sites_stop_before_install() {
     for body in [
-        "local m = %{\"v\" => value} return 30",
         "local m = %{\"nested\" => %{}} return 30",
         "Helpers.consume(%{}) return 30",
         "if value { local m = %{} } return 30",
@@ -63,15 +62,19 @@ fn declared_root_unissued_map_sites_stop_before_install() {
         );
         assert!(context.callable_declaration_catalog_vacant());
     }
-    // A sealed `return %{...}` carries ReturnHandoff obligations only —
-    // covered by the declared capability, so install admits it.
-    let package = issue(
-        "static box Helpers { consume(value) { return 30 } run(value) { return %{} } }
-         static box Main { main() { return 30 } }",
-    )
-    .unwrap();
-    let mut context = CompilationContext::new();
-    assert!(package.prepare_install(&mut context).is_ok());
+    // Covered shapes admit install: a sealed `return %{...}` carries only
+    // ReturnHandoff, and a self-rooted formal borrowed into an in-owner
+    // map is `OwnershipShare(Handle)` — the declared InstallValue i64
+    // lane stores the formal's value while the owner keeps it alive.
+    for body in ["return %{}", "local m = %{\"v\" => value} return 30"] {
+        let package = issue(&format!(
+            "static box Helpers {{ consume(value) {{ return 30 }} run(value) {{ {body} }} }}
+             static box Main {{ main() {{ return 30 }} }}",
+        ))
+        .unwrap();
+        let mut context = CompilationContext::new();
+        assert!(package.prepare_install(&mut context).is_ok(), "{body}");
+    }
 }
 
 #[test]

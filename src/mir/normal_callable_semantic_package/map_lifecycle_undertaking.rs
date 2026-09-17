@@ -19,8 +19,8 @@
 //! claim-family describe arm is a separate bounded row.
 
 use crate::mir::resolved_semantics::home_new_prefix::{
-    MapDestinationV1, MapEntryStoreClassV1, MapHomeFlow, MapHomeObservation, MapValueSource,
-    TerminalRelationV1, TerminalReturnedSourceV1,
+    MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeFlow, MapHomeObservation,
+    MapValueSource, TerminalRelationV1, TerminalReturnedSourceV1,
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
@@ -47,8 +47,12 @@ pub(crate) enum MapLifecycleOperationV1 {
     /// Consume a live Home/binding into an entry (consuming transfer).
     OwnershipTransfer,
     /// Store a non-consuming borrow of a live map local or self-rooted
-    /// parameter handle; the borrow target must outlive the map.
-    OwnershipShare,
+    /// parameter handle; the borrow target must outlive the map. The
+    /// kind is the sealed leaf's own `borrowed_root()` classification —
+    /// `Handle` borrows are the declared consumer lane while
+    /// `MapLocal`/`Local` leaves stay uncovered until a borrowed
+    /// storage-reference contract exists.
+    OwnershipShare(MapEntryBorrowKindV1),
     /// Hand the map into its parent map's exact entry slot.
     SlotHandoff,
     /// Hand the map through the function-return boundary to the caller.
@@ -248,6 +252,16 @@ pub(crate) enum MapLifecycleUndertakingIssueV1 {
         site: OwnedExprSiteV1,
         operation: MapLifecycleOperationV1,
     },
+    /// A site carrying borrowed entries together with a handoff
+    /// (Slot/Return/Argument/Contained) would move the borrow across a
+    /// boundary the sealed vocabulary cannot prove — the target's
+    /// liveness beyond the owner is unsealed — so the escape fails here
+    /// instead of silently riding the handoff.
+    BorrowedEntryEscape {
+        owner: FunctionOwnerIdV1,
+        site: OwnedExprSiteV1,
+        binding: BindingRefV1,
+    },
     /// The undertaking would be vacuous: no owner carries map obligations.
     EmptyUndertaking,
 }
@@ -301,29 +315,19 @@ fn describe_flow(flow: &MapHomeFlow, returned_local: bool) -> MapSiteObligationV
         if entry.displaced().is_some() {
             operations.insert(Op::EntryDisplace);
         }
-        let mut collect_borrow = |site: &SourceExprSiteV1, source: &MapValueSource| match source {
-            MapValueSource::MapLocal(binding) | MapValueSource::BorrowedHandle(binding) => {
-                operations.insert(Op::OwnershipShare);
+        // A `Local` entry stores a scalar copy only when the source kind
+        // is sealed; a kind-less local is a non-consuming borrow of a live
+        // binding — the same sharing obligation as `MapLocal`/
+        // `BorrowedHandle`, not an `EntryStore` alone. The leaf's own
+        // `borrowed_root()` classification carries the kind precision.
+        let mut collect_borrow = |site: &SourceExprSiteV1, source: &MapValueSource| {
+            if let Some((kind, binding)) = source.borrowed_root() {
+                operations.insert(Op::OwnershipShare(kind));
                 borrows.push(MapEntryBorrowV1 {
                     site: site.clone(),
-                    binding: *binding,
+                    binding,
                 });
             }
-            // A `Local` entry stores a scalar copy only when the source
-            // kind is sealed; a kind-less local is a non-consuming store
-            // of a live binding — the same sharing obligation as
-            // `MapLocal`/`BorrowedHandle`, not an `EntryStore` alone.
-            MapValueSource::Local {
-                binding,
-                kind: None,
-            } => {
-                operations.insert(Op::OwnershipShare);
-                borrows.push(MapEntryBorrowV1 {
-                    site: site.clone(),
-                    binding: *binding,
-                });
-            }
-            _ => {}
         };
         if let Some(source) = entry.value_source() {
             collect_borrow(entry.site(), source);
@@ -361,6 +365,7 @@ pub(crate) fn verify_map_lifecycle_undertaking(
     obligations: &[MapOwnerObligationsV1],
     capability: MapLifecycleConsumerCapabilityV1,
 ) -> Result<MapLifecycleUndertakingV1, MapLifecycleUndertakingIssueV1> {
+    use MapLifecycleOperationV1 as Op;
     let mut owners = Vec::with_capacity(obligations.len());
     for owner_obligations in obligations {
         owners.push(owner_obligations.owner());
@@ -371,6 +376,29 @@ pub(crate) fn verify_map_lifecycle_undertaking(
                         owner: owner_obligations.owner(),
                         site: site.site().clone(),
                         operation,
+                    });
+                }
+            }
+            // A borrowed entry must not ride a handoff: the sealed borrow
+            // rows prove the target outlives the map only while the map
+            // stays inside this owner. Slot/Return/Argument/Contained
+            // handoffs carry no borrow-liveness contract yet, so a site
+            // mixing them with borrows is refused even when every named
+            // operation is declared covered.
+            if let Some(borrow) = site.borrows().first() {
+                if site.operations().any(|operation| {
+                    matches!(
+                        operation,
+                        Op::SlotHandoff
+                            | Op::ReturnHandoff
+                            | Op::ArgumentHandoff
+                            | Op::ContainedHandoff
+                    )
+                }) {
+                    return Err(MapLifecycleUndertakingIssueV1::BorrowedEntryEscape {
+                        owner: owner_obligations.owner(),
+                        site: site.site().clone(),
+                        binding: borrow.binding(),
                     });
                 }
             }

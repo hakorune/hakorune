@@ -383,14 +383,24 @@ undertaking rides `PreparedNormalCallableSemanticPackageInstallV1` into
 The capability is the builder consumer's own declaration —
 `BuilderInstallConsumerV1::map_lifecycle_capability()` names exactly the
 implemented lanes (create, scalar/transferred entry store, displace,
-return handoff, Normal/Fault cleanup); ownership share and
-slot/argument/contained handoffs stay undeclared and fail closed at
+`OwnershipShare(Handle)`, return handoff, Normal/Fault cleanup);
+`OwnershipShare(MapLocal)`/`OwnershipShare(Local)`, opaque entry stores,
+and slot/argument/contained handoffs stay undeclared and fail closed at
 verify. `EntryStore` carries the sealed row's own `store_class()`
 precision — `Scalar` and `Transferred` are the declared lanes while
 `Opaque` classes (string, `[...]`, `%{...}` child values) describe the
 obligation but stay uncovered, so an owner storing them stops at
 preflight before catalog mutation; borrowed entries carry
-`OwnershipShare` instead of a store. The selected emit lane reads the
+`OwnershipShare` instead of a store. `OwnershipShare` is kind-specific
+(`MapEntryBorrowKindV1`): only `Handle` is admitted — a self-rooted
+parameter handle reaches the consumer as an i64 wire value (ordinary
+formals are all LV4_I64), so the borrowed entry lowers through the
+existing `InstallValue`/`I64` lane and `end()` stays a non-owning no-op;
+the exact root binding is still checked via `take_exact_lexical_value`.
+Verify also rejects a `BorrowedEntryEscape`: a site that stores borrowed
+entries while performing an outward handoff (Slot/Return/Argument/
+Contained) fails closed even when every named operation is covered —
+the borrow cannot ride a boundary with no liveness contract. The selected emit lane reads the
 same `store_class()` predicate — one classification, verified once. The one-shot install token itself remains provenance, not
 capability evidence. `MapCallEdgeContractV1` defines the call-edge
 conformance vocabulary (argument handoff vs return receive); edge

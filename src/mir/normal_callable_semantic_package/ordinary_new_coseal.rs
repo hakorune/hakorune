@@ -394,6 +394,20 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         self.register_new_root(owner)
     }
+
+    /// Whether this declaration identity is the co-sealed App Main. The
+    /// same-source dependency harness uses it to skip root registration
+    /// for non-main owners — `register_new_root` would reject them
+    /// against the root completion anyway.
+    #[cfg(test)]
+    pub(crate) fn is_app_main_identity(
+        &self,
+        identity: &crate::parser::CallableDeclarationIdentityV1,
+    ) -> bool {
+        self.app_main_identity
+            .as_ref()
+            .is_some_and(|expected| expected.same_as(identity))
+    }
 }
 
 #[derive(Debug)]

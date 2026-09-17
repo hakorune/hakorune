@@ -7,6 +7,8 @@ use crate::mir::builder::normal_callable_binding_materialization_port::{
 };
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationRootLineageV1;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
+use crate::mir::resolved_semantics::SourceBindingSiteV1;
+use crate::mir::MirType;
 use crate::parser::CallableDeclarationIdentityV1;
 
 impl MirBuilder {
@@ -30,7 +32,29 @@ impl MirBuilder {
         let SelectedNormalCallableKeyV1::Cataloged(key) = key else {
             return Err("dependency requires actual cataloged Main".into());
         };
-        self.enter_function_for_test("Main.main/0".into());
+        // Parameter arity comes from the sealed declaration sites — never
+        // from a name or position guess. Ordinary formals are physically
+        // i64 regardless of their semantic contract kind.
+        let parameter_count = input
+            .function()
+            .core()
+            .data()
+            .declarations
+            .keys()
+            .filter(|site| matches!(site, SourceBindingSiteV1::Parameter { .. }))
+            .count();
+        self.enter_function_for_test(key.mir_symbol_projection());
+        if parameter_count > 0 {
+            let function = self
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| "dependency function missing".to_string())?;
+            function.signature.params = vec![MirType::Integer; parameter_count];
+            function.params = (0..parameter_count)
+                .map(|_| function.next_value_id())
+                .collect();
+        }
         let mut invocation =
             ModuleLoweringInvocationV1::with_collector(self, ModuleDraftCollectorV1::default());
         invocation.with_module_port(|builder, port| {
@@ -51,10 +75,14 @@ impl MirBuilder {
                             .unwrap()
                             .borrow_mut()
                             .select_root_fault_frame()?;
-                        ledger.register_app_main_root(input.owner(), identity)?;
+                        // Only the App Main owner registers the new root —
+                        // a non-main member has no root completion to pair.
+                        if ledger.is_app_main_identity(identity) {
+                            ledger.register_app_main_root(input.owner(), identity)?;
+                        }
                         inner.adopt_callable_entry_values_v1(
                             builder,
-                            CallableEntryShapeV1::Static { parameter_count: 0 },
+                            CallableEntryShapeV1::Static { parameter_count },
                         )?;
                         inner.lower_body(builder, body)?;
                         inner.complete_construction_stores_v1(builder)

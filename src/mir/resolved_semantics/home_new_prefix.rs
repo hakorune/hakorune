@@ -75,8 +75,8 @@ mod map_flow;
 #[path = "home_terminal_relation.rs"]
 mod terminal_relation;
 pub(crate) use map_flow::{
-    ArrayElementSource, MapDestinationV1, MapEntryStoreClassV1, MapHomeEntry, MapHomeFlow,
-    MapHomeObservation, MapValueSource, RootHomeFlow,
+    ArrayElementSource, MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeEntry,
+    MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeFlow,
 };
 use terminal_relation::{map_literal_keys, return_scalar, terminal_returned_source, ReturnScalar};
 pub(crate) use terminal_relation::{
