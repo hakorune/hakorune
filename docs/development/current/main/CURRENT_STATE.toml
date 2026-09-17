@@ -41,7 +41,13 @@ class (C8 explicitly non-claimed `return <call>` in
 non-AppMain owners). C6-4 rootless cohort stays deferred,
 C1-id opaque source identity remains pre-production
 homework. Production switch and legacy retirement remain
-unclaimed.
+unclaimed. Review fix (2026-09-16): region-flow AnalyzerV1
+now authorizes the full sealed `explicit_sites()` set
+instead of the singleton `explicit_site()` (dac1e73e5b,
+13/13 resolved_region_flow incl. 3 multi-site pins);
+fmt drift cleared (5035bc4b77); residual resolved_/
+resolved_lowering reds verified parent-reproduced
+baseline at 12bc76ed4d.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"

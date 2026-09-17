@@ -821,3 +821,52 @@ a terminal relation class for `return <call>` outside the admitted
 i64-direct-call family (non-claimed above). The next bounded slice names
 that classification decision; map-argument handoff
 (`ArgumentHandoff`/`Opaque` entries in `to_json`'s map) stays behind it.
+
+## Review fix note (2026-09-16, review of `65fcfe05cc`)
+
+Two defects from the external review were fixed on this branch:
+
+1. **Verifier/consumer divergence** (`dac1e73e5b`):
+   `resolved_region_flow::AnalyzerV1` authorized returns through the
+   singleton `completion.explicit_site()`, which is `None` for
+   `ExplicitReturns` and `ExplicitUnitSetWithImplicitEnd`, so every
+   sealed multi-site completion was rejected downstream. The analyzer
+   now carries the whole `explicit_sites()` set — the same convention
+   `IfControlAnalyzerV1` already used — and authorizes a `Return` by
+   exact site membership (`return_not_in_sealed_completion_sites` for
+   any unsealed site). Single-site `ExplicitUnitSetWithImplicitEnd`
+   completions now lower end-to-end through the canonical route;
+   multi-site value sets still fail closed at draft seal
+   (`MultipleExplicitReturnClaimsUnsupported`) where the exact-two
+   `PreparedFunctionExitSetV1` lane is the designed consumer — its
+   generic-lane wiring is a named later slice
+   (`multi_site_exit.rs` documents the deferred fresh-session
+   consumer). Pins: `sealed_if_else_value_return_set_is_authorized`,
+   `sealed_unit_return_with_implicit_end_is_authorized`,
+   `unsealed_return_set_never_reaches_flow_analysis` in
+   `if_flow_tests.rs` (13/13 `resolved_region_flow`).
+2. **fmt drift** (`5035bc4b77`): 15 session-touched files reformatted;
+   `cargo fmt --check` clean.
+
+Baseline classification (verified at pre-session parent `12bc76ed4d`,
+not current-change): 5 `normal_default_root_catalog_lifecycle_tests`
+reds (already recorded at C8) plus 10 `resolved_lowering` reds —
+`DynamicCarrierMismatch` ×5 (dynamic_loop_*), `ObjectDefinitionsNotConsumed`
+×2 (s6c substring), `ReturnValueTypeMissing` ×2 (tests.rs),
+`AlreadyIssued` ×1 (physical_entry_lane_adoption). The five broad
+`resolved_` filter reds (loop phi materializer, owner-forest receiver,
+shadow vocabulary, brand constructor) are likewise unrelated modules.
+
+## Next-slice sharpening (2026-09-16)
+
+The `return <qualified call>` terminal class carries a second
+prerequisite beyond the relation itself: `issue_direct_call_loans_v1`'s
+`collect_direct_call_rows_v1` requires the callee owner to be a batch
+declaration (`PublishedTargetMissing`), i.e. `MirJsonEmitBox.to_json`
+must be an emitted package member before a caller's terminal can invoke
+it. `to_json`'s body (recursion, `.get`, `is_array`, expression-`if`
+branches, early returns, string concat) is itself outside the admitted
+family — so the classification Decision must also name the
+callee-admission ordering (terminal relation for the caller may land
+first only if the callee cohort is already cataloged, or the caller
+slice must wait behind the callee's own admission chain).
